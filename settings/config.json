@@ -1,0 +1,6 @@
+{
+    "version": "0.1.0",
+    "collect_interval_seconds": 60,
+    "hourly_write": true,
+    "online_by_default": false
+}
