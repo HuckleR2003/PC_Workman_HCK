@@ -14,7 +14,7 @@ It combines **live performance diagnostics**, **data logging**, **AI-assisted an
 The project is part of the *HCK_Labs* initiative – an educational R&D effort focused on combining AI, system engineering, and cybersecurity practices.  
 
 ## Screenshots
-Below are early UI prototypes from version 1.0.6:
+Below are early UI prototypes from version 1.3.3:
 
 | Main View | Processes Panel |
 |------------|----------------|
@@ -227,3 +227,4 @@ In environments without Tkinter (e.g., servers), the program automatically switc
 Non-commercial, attribution required.  
 
 © 2025 HCK_Labs / Marcin Firmuga.
+
