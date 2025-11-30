@@ -18,7 +18,7 @@ Below are early UI prototypes from version 1.0.6:
 
 | Main View | Processes Panel |
 |------------|----------------|
-| ![screen__v1](docs/screen__v1.png) | ![screen_v2](docs/screen_v2.png) |
+| ![mega](https://github.com/user-attachments/assets/c26b7616-b306-430f-a655-b41d4862c3ae) |
 
 ---
 
@@ -225,4 +225,5 @@ In environments without Tkinter (e.g., servers), the program automatically switc
 ## License
 **MIT Educational Open License**  
 Non-commercial, attribution required.  
+
 © 2025 HCK_Labs / Marcin Firmuga.
