@@ -1,12 +1,12 @@
 {
-  "total_runtime_seconds": 35625.870295763016,
+  "total_runtime_seconds": 36102.16536259651,
   "processes": {
     "python.exe": {
-      "total_cpu_time": 1117597.8000000005,
-      "total_ram_time": 1946372.9299999985,
+      "total_cpu_time": 1118631.4000000004,
+      "total_ram_time": 1948018.9799999986,
       "peak_cpu": 136.8,
       "peak_ram": 169.0,
-      "total_samples": 21149,
+      "total_samples": 21178,
       "classification": {
         "type": "unknown",
         "display_name": "python.exe",
@@ -18,11 +18,11 @@
       }
     },
     "opera.exe": {
-      "total_cpu_time": 595318.6000000003,
-      "total_ram_time": 26786429.860000137,
+      "total_cpu_time": 595433.6000000003,
+      "total_ram_time": 26803790.63000014,
       "peak_cpu": 205.0,
       "peak_ram": 1132.86,
-      "total_samples": 239119,
+      "total_samples": 239378,
       "classification": {
         "type": "browser",
         "display_name": "Opera",
@@ -34,11 +34,11 @@
       }
     },
     "system idle process": {
-      "total_cpu_time": 2434283.6999999993,
-      "total_ram_time": 132.87999999999863,
+      "total_cpu_time": 2436858.6999999993,
+      "total_ram_time": 132.98999999999864,
       "peak_cpu": 369.7,
       "peak_ram": 0.01,
-      "total_samples": 13288,
+      "total_samples": 13299,
       "classification": {
         "type": "unknown",
         "display_name": "system idle process",
@@ -50,11 +50,11 @@
       }
     },
     "code.exe": {
-      "total_cpu_time": 27336.39999999999,
-      "total_ram_time": 7431181.169999959,
+      "total_cpu_time": 27394.89999999999,
+      "total_ram_time": 7442773.729999959,
       "peak_cpu": 142.7,
       "peak_ram": 661.36,
-      "total_samples": 43524,
+      "total_samples": 43614,
       "classification": {
         "type": "program",
         "display_name": "VS Code",
@@ -66,11 +66,11 @@
       }
     },
     "dwm.exe": {
-      "total_cpu_time": 124474.49999999997,
-      "total_ram_time": 946540.0700000026,
+      "total_cpu_time": 124594.69999999998,
+      "total_ram_time": 947040.6600000026,
       "peak_cpu": 91.9,
       "peak_ram": 159.81,
-      "total_samples": 14315,
+      "total_samples": 14326,
       "classification": {
         "type": "system",
         "display_name": "Desktop Window Manager",
@@ -82,11 +82,11 @@
       }
     },
     "msmpeng.exe": {
-      "total_cpu_time": 47261.10000000001,
-      "total_ram_time": 3896124.010000003,
+      "total_cpu_time": 47263.60000000001,
+      "total_ram_time": 3898275.580000003,
       "peak_cpu": 223.1,
       "peak_ram": 388.07,
-      "total_samples": 14315,
+      "total_samples": 14326,
       "classification": {
         "type": "unknown",
         "display_name": "msmpeng.exe",
@@ -98,11 +98,11 @@
       }
     },
     "system": {
-      "total_cpu_time": 36586.799999999996,
-      "total_ram_time": 10952.539999999992,
+      "total_cpu_time": 36618.49999999999,
+      "total_ram_time": 10966.479999999992,
       "peak_cpu": 101.2,
-      "peak_ram": 1.52,
-      "total_samples": 7555,
+      "peak_ram": 2.02,
+      "total_samples": 7562,
       "classification": {
         "type": "system",
         "display_name": "System",
@@ -114,11 +114,11 @@
       }
     },
     "claude.exe": {
-      "total_cpu_time": 950652.9000000013,
-      "total_ram_time": 33573653.879999615,
+      "total_cpu_time": 950840.9000000013,
+      "total_ram_time": 33579028.239999615,
       "peak_cpu": 348.7,
       "peak_ram": 4693.5,
-      "total_samples": 124112,
+      "total_samples": 124126,
       "classification": {
         "type": "unknown",
         "display_name": "claude.exe",
@@ -130,11 +130,11 @@
       }
     },
     "chatgpt.exe": {
-      "total_cpu_time": 5143.899999999994,
-      "total_ram_time": 639921.270000006,
-      "peak_cpu": 12.2,
-      "peak_ram": 157.56,
-      "total_samples": 7260,
+      "total_cpu_time": 5295.9999999999945,
+      "total_ram_time": 641438.1200000059,
+      "peak_cpu": 73.0,
+      "peak_ram": 367.44,
+      "total_samples": 7270,
       "classification": {
         "type": "unknown",
         "display_name": "chatgpt.exe",
@@ -147,10 +147,10 @@
     },
     "audiodg.exe": {
       "total_cpu_time": 13024.5,
-      "total_ram_time": 96120.0099999999,
+      "total_ram_time": 96252.2599999999,
       "peak_cpu": 21.3,
       "peak_ram": 13.43,
-      "total_samples": 7573,
+      "total_samples": 7584,
       "classification": {
         "type": "system",
         "display_name": "Audio Device Graph",
@@ -162,11 +162,11 @@
       }
     },
     "explorer.exe": {
-      "total_cpu_time": 56182.599999999984,
-      "total_ram_time": 2796577.7300000004,
+      "total_cpu_time": 56212.79999999999,
+      "total_ram_time": 2798001.3100000005,
       "peak_cpu": 159.4,
       "peak_ram": 306.44,
-      "total_samples": 14315,
+      "total_samples": 14326,
       "classification": {
         "type": "system",
         "display_name": "Windows Explorer",
@@ -179,10 +179,10 @@
     },
     "msedge.exe": {
       "total_cpu_time": 151.2,
-      "total_ram_time": 1541519.1900000046,
+      "total_ram_time": 1543332.5000000047,
       "peak_cpu": 6.3,
       "peak_ram": 125.09,
-      "total_samples": 30454,
+      "total_samples": 30490,
       "classification": {
         "type": "browser",
         "display_name": "Microsoft Edge",
@@ -195,10 +195,10 @@
     },
     "searchapp.exe": {
       "total_cpu_time": 3922.3000000000006,
-      "total_ram_time": 1580065.2900000084,
+      "total_ram_time": 1581924.5800000085,
       "peak_cpu": 191.9,
       "peak_ram": 249.97,
-      "total_samples": 28630,
+      "total_samples": 28641,
       "classification": {
         "type": "unknown",
         "display_name": "searchapp.exe",
@@ -211,10 +211,10 @@
     },
     "powershell.exe": {
       "total_cpu_time": 1435.6000000000001,
-      "total_ram_time": 629434.2200000009,
+      "total_ram_time": 631316.6600000008,
       "peak_cpu": 59.9,
       "peak_ram": 85.91,
-      "total_samples": 8420,
+      "total_samples": 8447,
       "classification": {
         "type": "unknown",
         "display_name": "powershell.exe",
@@ -227,10 +227,10 @@
     },
     "startmenuexperiencehost.exe": {
       "total_cpu_time": 125.10000000000004,
-      "total_ram_time": 743585.6800000011,
+      "total_ram_time": 743999.7600000012,
       "peak_cpu": 18.8,
       "peak_ram": 68.4,
-      "total_samples": 14315,
+      "total_samples": 14326,
       "classification": {
         "type": "unknown",
         "display_name": "startmenuexperiencehost.exe",
@@ -243,10 +243,10 @@
     },
     "shellexperiencehost.exe": {
       "total_cpu_time": 447.20000000000005,
-      "total_ram_time": 488787.5700000006,
+      "total_ram_time": 489201.72000000055,
       "peak_cpu": 29.1,
       "peak_ram": 61.7,
-      "total_samples": 14309,
+      "total_samples": 14320,
       "classification": {
         "type": "unknown",
         "display_name": "shellexperiencehost.exe",
@@ -259,10 +259,10 @@
     },
     "mousocoreworker.exe": {
       "total_cpu_time": 45.5,
-      "total_ram_time": 502517.4899999991,
+      "total_ram_time": 502687.9899999991,
       "peak_cpu": 6.4,
       "peak_ram": 40.33,
-      "total_samples": 14165,
+      "total_samples": 14176,
       "classification": {
         "type": "unknown",
         "display_name": "mousocoreworker.exe",
@@ -274,11 +274,11 @@
       }
     },
     "svchost.exe": {
-      "total_cpu_time": 58445.200000000004,
-      "total_ram_time": 5251430.460000045,
+      "total_cpu_time": 58465.50000000001,
+      "total_ram_time": 5253840.750000045,
       "peak_cpu": 360.0,
       "peak_ram": 47.85,
-      "total_samples": 248348,
+      "total_samples": 248495,
       "classification": {
         "type": "system",
         "display_name": "Service Host",
@@ -291,10 +291,10 @@
     },
     "runtimebroker.exe": {
       "total_cpu_time": 3754.9000000000005,
-      "total_ram_time": 2144543.870000016,
+      "total_ram_time": 2145359.380000016,
       "peak_cpu": 116.1,
       "peak_ram": 63.8,
-      "total_samples": 72178,
+      "total_samples": 72214,
       "classification": {
         "type": "unknown",
         "display_name": "runtimebroker.exe",
@@ -307,10 +307,10 @@
     },
     "registry": {
       "total_cpu_time": 179.3,
-      "total_ram_time": 560887.6700000016,
+      "total_ram_time": 561554.8600000015,
       "peak_cpu": 5.9,
-      "peak_ram": 45.79,
-      "total_samples": 14315,
+      "peak_ram": 60.69,
+      "total_samples": 14326,
       "classification": {
         "type": "unknown",
         "display_name": "registry",
@@ -323,10 +323,10 @@
     },
     "taskhostw.exe": {
       "total_cpu_time": 1444.2999999999995,
-      "total_ram_time": 466489.29000000225,
+      "total_ram_time": 466773.8800000023,
       "peak_cpu": 69.3,
       "peak_ram": 32.14,
-      "total_samples": 16906,
+      "total_samples": 16926,
       "classification": {
         "type": "system",
         "display_name": "Task Host Window",
@@ -339,10 +339,10 @@
     },
     "sihost.exe": {
       "total_cpu_time": 1643.0,
-      "total_ram_time": 424284.85999999987,
+      "total_ram_time": 424505.03999999986,
       "peak_cpu": 65.5,
       "peak_ram": 31.85,
-      "total_samples": 14315,
+      "total_samples": 14326,
       "classification": {
         "type": "unknown",
         "display_name": "sihost.exe",
@@ -403,10 +403,10 @@
     },
     "smartscreen.exe": {
       "total_cpu_time": 3.2,
-      "total_ram_time": 81717.31999999995,
+      "total_ram_time": 81923.32999999994,
       "peak_cpu": 1.7,
       "peak_ram": 23.84,
-      "total_samples": 3547,
+      "total_samples": 3556,
       "classification": {
         "type": "unknown",
         "display_name": "smartscreen.exe",
@@ -434,11 +434,11 @@
       }
     },
     "csrss.exe": {
-      "total_cpu_time": 9766.300000000005,
-      "total_ram_time": 24746.990000000016,
+      "total_cpu_time": 9779.700000000006,
+      "total_ram_time": 24761.890000000014,
       "peak_cpu": 21.5,
       "peak_ram": 6.5,
-      "total_samples": 3891,
+      "total_samples": 3895,
       "classification": {
         "type": "system",
         "display_name": "Client/Server Runtime",
@@ -450,11 +450,11 @@
       }
     },
     "etdctrl.exe": {
-      "total_cpu_time": 22935.799999999996,
-      "total_ram_time": 251421.34000000177,
+      "total_cpu_time": 22945.6,
+      "total_ram_time": 251435.22000000178,
       "peak_cpu": 29.6,
       "peak_ram": 25.08,
-      "total_samples": 12279,
+      "total_samples": 12282,
       "classification": {
         "type": "unknown",
         "display_name": "etdctrl.exe",
@@ -483,10 +483,10 @@
     },
     "lsass.exe": {
       "total_cpu_time": 529.8999999999999,
-      "total_ram_time": 251874.66999999995,
+      "total_ram_time": 251969.98999999996,
       "peak_cpu": 5.4,
       "peak_ram": 23.06,
-      "total_samples": 12890,
+      "total_samples": 12899,
       "classification": {
         "type": "system",
         "display_name": "Local Security Authority",
@@ -530,11 +530,11 @@
       }
     },
     "fontdrvhost.exe": {
-      "total_cpu_time": 1827.8000000000002,
-      "total_ram_time": 80334.19000000054,
+      "total_cpu_time": 1837.6000000000001,
+      "total_ram_time": 80364.21000000054,
       "peak_cpu": 74.4,
       "peak_ram": 19.75,
-      "total_samples": 5636,
+      "total_samples": 5640,
       "classification": {
         "type": "unknown",
         "display_name": "fontdrvhost.exe",
@@ -579,10 +579,10 @@
     },
     "opera_crashreporter.exe": {
       "total_cpu_time": 36.699999999999996,
-      "total_ram_time": 296.84000000000003,
+      "total_ram_time": 323.16,
       "peak_cpu": 2.0,
       "peak_ram": 13.17,
-      "total_samples": 32,
+      "total_samples": 34,
       "classification": {
         "type": "unknown",
         "display_name": "opera_crashreporter.exe",
@@ -643,10 +643,10 @@
     },
     "conhost.exe": {
       "total_cpu_time": 39.70000000000002,
-      "total_ram_time": 14080.260000000031,
+      "total_ram_time": 14396.47000000003,
       "peak_cpu": 2.1,
       "peak_ram": 11.66,
-      "total_samples": 1230,
+      "total_samples": 1259,
       "classification": {
         "type": "system",
         "display_name": "Console Host",
@@ -659,10 +659,10 @@
     },
     "backgroundtaskhost.exe": {
       "total_cpu_time": 1521.9,
-      "total_ram_time": 44058.41000000011,
+      "total_ram_time": 44092.87000000011,
       "peak_cpu": 37.8,
       "peak_ram": 34.64,
-      "total_samples": 2149,
+      "total_samples": 2151,
       "classification": {
         "type": "unknown",
         "display_name": "backgroundtaskhost.exe",
@@ -675,10 +675,10 @@
     },
     "helppane.exe": {
       "total_cpu_time": 0.0,
-      "total_ram_time": 167046.9099999997,
+      "total_ram_time": 167299.7199999997,
       "peak_cpu": 0.0,
       "peak_ram": 28.14,
-      "total_samples": 6327,
+      "total_samples": 6336,
       "classification": {
         "type": "unknown",
         "display_name": "helppane.exe",
@@ -739,10 +739,10 @@
     },
     "dllhost.exe": {
       "total_cpu_time": 64.1,
-      "total_ram_time": 90097.5900000004,
+      "total_ram_time": 90214.86000000041,
       "peak_cpu": 7.8,
       "peak_ram": 14.39,
-      "total_samples": 6792,
+      "total_samples": 6801,
       "classification": {
         "type": "unknown",
         "display_name": "dllhost.exe",
@@ -787,10 +787,10 @@
     },
     "bash.exe": {
       "total_cpu_time": 98.00000000000001,
-      "total_ram_time": 2011.1999999999987,
+      "total_ram_time": 2031.5899999999988,
       "peak_cpu": 16.2,
       "peak_ram": 10.34,
-      "total_samples": 205,
+      "total_samples": 207,
       "classification": {
         "type": "unknown",
         "display_name": "bash.exe",
@@ -1248,7 +1248,23 @@
         "is_critical": false,
         "description": "file-png.exe"
       }
+    },
+    "winstore.app.exe": {
+      "total_cpu_time": 0.0,
+      "total_ram_time": 20.16,
+      "peak_cpu": 0.0,
+      "peak_ram": 10.08,
+      "total_samples": 2,
+      "classification": {
+        "type": "unknown",
+        "display_name": "winstore.app.exe",
+        "icon": "❓",
+        "category": "Unknown",
+        "is_rival": false,
+        "is_critical": false,
+        "description": "winstore.app.exe"
+      }
     }
   },
-  "last_updated": "2025-12-11T22:10:51.035269"
+  "last_updated": "2025-12-14T22:25:00.527542"
 }
