@@ -1,8 +1,8 @@
 # PC_Workman_HCK  
 **Part of [HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** – modular real-time system monitor and AI-assisted diagnostics framework.  
 
-Version: **1.3.3 (hck_GPT Integration & Performance Boost)**  
-Author: **Marcin Firmuga (HCK_Labs)**  
+Version: **1.5.0 (Modern Dashboard & Hardware Monitoring)**
+Author: **Marcin Firmuga (HCK_Labs)**
 Status: *Active Development – Educational AI Engineering Project*  
 
 ---
@@ -14,44 +14,74 @@ It combines **live performance diagnostics**, **data logging**, **AI-assisted an
 The project is part of the *HCK_Labs* initiative – an educational R&D effort focused on combining AI, system engineering, and cybersecurity practices.  
 
 ## Screenshots
-Below are early UI prototypes from version 1.3.3:
+Below are early UI prototypes from version 1.0.6:
 
 | Main View | Processes Panel |
 |------------|----------------|
-| ![mega](https://github.com/user-attachments/assets/c26b7616-b306-430f-a655-b41d4862c3ae) |
+| ![screen__v1](docs/screen__v1.png) | ![screen_v2](docs/screen_v2.png) |
 
 ---
 
-## What's New in 1.3.3 🚀
+## What's New in 1.5.0 🚀
 
-### 🤖 hck_GPT Assistant
-Integrated AI assistant with two operational modes:
+### 🎨 Complete Dashboard Redesign
+**Modern Minimalist Interface:**
+- Apple-inspired flat design with vibrant gradient accents
+- Ultra-compact TOP 5 process lists (User & System)
+- Side-by-side CPU/RAM indicators with color-coded bars
+- Gradient row backgrounds for visual hierarchy
+- No emoji clutter - clean, professional appearance
+- 40% smaller navigation buttons with horizontal layouts
 
-**Service Mode** (Active)
-- Interactive diagnostic wizards with context-aware questions
-- Intelligent service and process management
-- Safe rollback functionality for all system changes
-- Example: Bluetooth/Printer usage detection with automatic optimization
-- Clear warnings before applying changes
+**Key Improvements:**
+- Removed vertically stacked metrics → side-by-side display
+- Eliminated Text widgets → Frame-based architecture
+- Click-to-show process info (ProcessTooltip integration)
+- Consistent color coding: CPU (blue), RAM (yellow), GPU (green)
 
-**ML/AI Mode** (Coming Soon)
-- Real-time performance bottleneck detection
-- Context-aware hardware utilization analysis
-- Personalized optimization recommendations based on usage patterns
-- Playful interaction: "Hey, torturing that i5 with Battlefield again? 14 hours this week, CPU is begging for mercy 😄"
+### 💻 NEW: Your PC - Hardware Health Page
+**Real-Time Component Monitoring:**
+- Three-column layout: CPU | RAM | GPU
+- Live usage percentages with large, readable displays
+- Real hardware names via platform/psutil/GPUtil
+- Simulated temperature monitoring with dynamic bars
+- Intelligent load status classification:
+  - 🟢 Bez aktywności (0-30%)
+  - 🟡 Standardowa aktywność (30-60%)
+  - 🟠 Nadmierne obciążenie (60-85%)
+  - 🔴 Nadzwyczajne obciążenie (85%+)
 
-### ⚡ Easy Boost Options
-One-click performance optimization with full transparency:
-- Quick gaming/boost mode toggle
-- Selective service and background process management
-- Visible changes with instant rollback capability
-- No "trust me bro" magic – everything is documented and reversible
+**Component Health Indicators:**
+- ⚙️ System status (Normal / Inspection Required)
+- 📊 Load analysis with color-coded warnings
+- 🌡️ Temperature bars with heat-based coloring
+- Ultra-compact 50% smaller panels for maximum info density
 
-### 🎨 UX Improvements
-- Refined UI with modern styling and improved readability
-- Better font rendering and visual hierarchy
-- Enhanced color schemes and contrast
-- Smoother animations and transitions
+### ⚡ NEW: Optimization Options Page
+**Windows Services Management:**
+- Live active/total services counter
+- Quick access to Services Wizard (hck_GPT integration ready)
+- One-click "Quick Disable Unnecessary" optimization
+- Full rollback support for safety
+
+**Background Process Optimization:**
+- 🔇 Disable Telemetry
+- 🎮 Gaming Mode Toggle
+- ⚙️ Startup Programs Manager
+- 🧹 Temp Files Cleanup
+
+### 🎯 Design Philosophy
+**Inspired by Industry Leaders:**
+- Apple macOS Big Sur/Ventura (flat, minimal, elegant)
+- MSI Afterburner (compact, metric-focused)
+- Modern dashboards (HWiNFO, CAM, NZXT)
+
+**Core Principles:**
+- Maximum information density, minimum visual clutter
+- Color-coded everything for instant recognition
+- Click-driven interactions (no hover dependencies)
+- Readable at small sizes (6-10pt fonts)
+- Gradient accents for visual hierarchy
 
 ---
 
@@ -206,9 +236,11 @@ In environments without Tkinter (e.g., servers), the program automatically switc
 | v1.0.4     | Stable         | Early diagnostic demo with simulated data             |
 | v1.0.6     | Stable         | Real-time core + first working UI prototype           |
 | v1.0.7     | Released       | 4H mode, process patterns, basic `hck_GPT` framework  |
-| **v1.3.3** | **Current**    | **hck_GPT Service Mode, Easy Boost, UX overhaul**     |
-| v1.4.0     | Planned        | hck_GPT ML/AI Mode with usage pattern analysis        |
-| v1.5.0     | Planned        | Advanced bottleneck detection and recommendations     |
+| v1.3.3     | Released       | hck_GPT Service Mode, Easy Boost, UX overhaul         |
+| v1.4.0     | Released       | System Tray, Enhanced Process Tracking & Interactive UI |
+| **v1.5.0** | **Current**    | **Modern Dashboard, Hardware Monitoring, Apple UI**   |
+| v1.5.1     | Planned        | Real temperature sensors (OpenHardwareMonitor)        |
+| v1.6.0     | Planned        | hck_GPT ML/AI Mode with usage pattern analysis        |
 
 ---
 
@@ -225,6 +257,4 @@ In environments without Tkinter (e.g., servers), the program automatically switc
 ## License
 **MIT Educational Open License**  
 Non-commercial, attribution required.  
-
 © 2025 HCK_Labs / Marcin Firmuga.
-

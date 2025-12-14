@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pc_workman_hck',
-    version='1.0.6',
+    version='1.3.3',
     author='HCK_Labs',
     description='Educational system monitor and AI assistant for Windows',
     packages=find_packages(),
