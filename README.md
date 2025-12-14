@@ -15,10 +15,12 @@ The project is part of the *HCK_Labs* initiative – an educational R&D effort f
 
 ## Screenshots
 Below are early UI prototypes from version 1.0.6:
-
-| Main View | Processes Panel |
-|------------|----------------|
-| ![screen__v1](docs/screen__v1.png) | ![screen_v2](docs/screen_v2.png) |
+<img width="398" height="220" alt="screen_v1" src="https://github.com/user-attachments/assets/b46919a8-132e-4c5f-b18e-7a6b9f15072e" />
+<img width="398" height="220" alt="screen_v2" src="https://github.com/user-attachments/assets/f338f87c-6e55-42d9-b66a-60329739b601" />
+<img width="982" height="620" alt="3_cooling_dashboard" src="https://github.com/user-attachments/assets/6a54be8c-453b-4646-909b-4d6b38d3353b" />
+<img width="1930" height="646" alt="2_mainpc" src="https://github.com/user-attachments/assets/9a246b38-ee6d-4f8c-a736-7a34ca792853" />
+<img width="980" height="646" alt="1_main" src="https://github.com/user-attachments/assets/f38af64d-e3f9-4429-8251-e400965282d5" />
+<img width="751" height="551" alt="4_minimalview_mode" src="https://github.com/user-attachments/assets/09ab38b9-60c9-4fc1-9b1b-723444e7c4f5" />
 
 ---
 
@@ -257,4 +259,5 @@ In environments without Tkinter (e.g., servers), the program automatically switc
 ## License
 **MIT Educational Open License**  
 Non-commercial, attribution required.  
+
 © 2025 HCK_Labs / Marcin Firmuga.
