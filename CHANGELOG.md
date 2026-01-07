@@ -1,6 +1,221 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [v1.5.7] — 2025-12-17
+### Architectural Evolution — Dual-Mode System & UX Refinement Phase
+**Summary:**
+Revolutionary transition from single-window architecture to intelligent dual-mode system. Minimal mode becomes the primary interface, while expanded mode serves power users. Complete navigation redesign with animated RGB gradients, professional splash screen, and comprehensive project reorganization. Foundation laid for next-generation "My PC" UX redesign.
+
+### 🏗️ Dual-Mode Architecture Innovation
+**Minimal Mode (Primary Interface):**
+- Compact, always-accessible monitoring dashboard
+- Live CPU/RAM/GPU metrics with LED-style bars
+- TOP 5 process lists (user + system)
+- Interactive real-time chart (NOW/1H/4H modes)
+- System tray integration for background operation
+- Bottom-right corner positioning (lockable)
+- Designed for continuous monitoring without screen clutter
+
+**Expanded Mode (Power User Interface):**
+- Full-featured tabbed interface
+- Five main sections: Dashboard, Optimization, Your PC, Statistics, Day Stats
+- Navigation via modern gradient buttons with animations
+- Comprehensive system management tools
+- Hardware health monitoring
+- Service optimization wizards
+- Historical data analytics
+
+**Design Philosophy:**
+- Minimal mode for "always there" monitoring
+- Expanded mode for "when you need control"
+- Seamless switching between modes
+- No feature duplication - each mode serves distinct purpose
+
+### 🎨 Navigation System Redesign
+**Ultra-Modern Gradient Buttons:**
+- Canvas-based rendering with RGB color interpolation
+- Animated gradient cycling (60 FPS smooth animation)
+- Three-color gradient stops (dark → mid → light)
+- Icon section (40px) with transparent background
+- Gradient text section with shadow effects
+- Color-coded by function:
+  - Dashboard: Blue gradient (#1e3a8a → #3b82f6 → #60a5fa)
+  - Optimization: Green gradient (#047857 → #10b981 → #34d399)
+  - Your PC: Purple gradient (#6b21a8 → #8b5cf6 → #a78bfa)
+  - Statistics: Orange gradient (#c2410c → #f97316 → #fb923c)
+  - Day Stats: Pink gradient (#be185d → #ec4899 → #f472b6)
+- Continuous RGB offset animation (0.005 per frame)
+- Removed all unnecessary visual clutter (no diagonal separators, no shimmer)
+
+**Technical Implementation:**
+- `_create_nav_button()` - Canvas-based gradient renderer
+- `_animate_button_shimmer()` - RGB gradient cycling loop
+- Gradient color maps with RGB tuples for smooth interpolation
+- Frame-based animation system (33ms interval = 30 FPS)
+
+### 🌟 Startup Experience Enhancement
+**Professional Splash Screen:**
+- Animated intro with HCK_Labs logo
+- Fade-in animation (0.8s) using cubic easing
+- Hold at full opacity (0.9s)
+- Fade-out animation (0.8s) using cubic easing
+- Total duration: 2.5 seconds
+- Threading-based non-blocking display
+- Graceful fallback if splash fails
+- Logo location: `data/icons/HCKintro.png`
+
+**Technical Details:**
+- New file: `ui/splash_screen.py`
+- Alpha channel animation (0.0 → 1.0 → 0.0)
+- Ease-in/ease-out curves for smooth transitions
+- Integrated into `startup.py` with threading
+
+### 📁 Project Structure Reorganization
+**New UI Architecture:**
+```
+ui/
+├── windows/          (Main window modules)
+│   ├── main_window.py              (Minimal mode)
+│   └── main_window_expanded.py     (Expanded mode)
+├── components/       (Reusable UI components)
+│   ├── charts.py                   (Enhanced chart system)
+│   ├── expandable_list.py          (Process list with expand)
+│   ├── led_bars.py                 (LED-style usage bars)
+│   ├── process_tooltip.py          (Process info tooltips)
+│   └── yourpc_page.py              (Hardware monitoring page)
+├── pages/            (Full-page views)
+│   ├── page_all_stats.py           (Statistics page)
+│   └── page_day_stats.py           (Daily analytics page)
+└── (support modules)
+    ├── dialogs.py                  (Modal dialogs)
+    ├── hck_gpt_panel.py            (AI assistant panel)
+    ├── system_tray.py              (Tray icon system)
+    ├── theme.py                    (Color schemes)
+    └── splash_screen.py            (Startup animation)
+```
+
+**Import System Updates:**
+- All imports updated to new structure
+- `ui.windows.main_window` for minimal mode
+- `ui.windows.main_window_expanded` for expanded mode
+- `ui.components.*` for reusable elements
+- `ui.pages.*` for full-page views
+- Added `__init__.py` files for proper Python packages
+
+### 📐 UX Refinement Phase — "My PC" Redesign Preparation
+**Comprehensive Design Specification Created:**
+- Document: `docs/MY_PC_UX_REDESIGN_MASTERPIECE.md`
+- 500+ lines of detailed UX specifications
+- Principal UX architect level design thinking
+
+**Key Innovation — Minesweeper-Style Disk Health:**
+- 10×5 grid visualization of disk sectors
+- Color-coded health indicators:
+  - #d4f4dd (Very light green) → Excellent
+  - #86efac (Light green) → Good
+  - #fbbf24 (Yellow) → Attention
+  - #f87171 (Red) → Risk
+  - #1a1a1a (Black) → Critical/Unreadable
+- Instant visual understanding without technical jargon
+- Hover tooltips for sector details
+- Calm explanatory text (no panic language)
+
+**Design Language Defined:**
+- Signature "Hello! /" header system with gradients
+- Five main sections: Central, Efficiency, Health Check, Components, Startup & Services
+- Apple-level clarity + Engineering honesty + Power-user depth
+- Visual 2D PC hardware map
+- Guided decision flows (not just toggles)
+- "Nothing to do" states as feature (not emptiness)
+- Trust-building tone throughout
+
+**Competitive Positioning:**
+- Cleaner than MSI Afterburner
+- Calmer than HWMonitor
+- Smarter than Windows Task Manager
+- More innovative than all combined
+
+### 🔧 Technical Improvements
+**Updated Files:**
+- `ui/windows/main_window_expanded.py`
+  - Complete navigation button system rebuild
+  - Canvas-based gradient rendering
+  - RGB animation system
+  - Removed shimmer and diagonal separators
+- `ui/splash_screen.py` (NEW)
+  - Professional startup animation
+  - Cubic easing functions
+  - Fade-in/hold/fade-out sequence
+- `startup.py`
+  - Integrated splash screen with threading
+  - Updated imports for new structure
+  - Graceful error handling
+
+**Bug Fixes:**
+- Fixed `NameError: name 'btn_data' is not defined` (line 631)
+- Corrected import paths after reorganization
+- Verified all module connections with comprehensive testing
+
+**Code Quality:**
+- Thorough 2-pass testing protocol
+- Import verification scripts
+- Full program startup validation
+- Connection integrity checks
+
+### 🎯 Current Development Phase
+**Focus: UX Refinement for Main Tabs**
+- Researching best practices from industry leaders
+- Designing calm, intelligent interfaces
+- Preparing for "My PC" section implementation
+- Building foundation for next-generation system monitoring
+
+**Design Principles Being Applied:**
+- Maximum clarity, minimum cognitive load
+- Visual innovation without gimmicks
+- Trust-building through calm communication
+- Actionable insights, not just data dumps
+- "Show me what matters, when it matters"
+
+### 📊 Architecture Summary
+**Before v1.5.7:**
+- Single window with multiple pages
+- All features in one interface
+- Limited animation and polish
+
+**After v1.5.7:**
+- Dual-mode system (minimal + expanded)
+- Specialized interfaces for different use cases
+- Professional animations and transitions
+- Organized component architecture
+- Foundation for advanced UX features
+
+### 📚 Documentation Updates
+**New Documents:**
+- `docs/MY_PC_UX_REDESIGN_MASTERPIECE.md` - Comprehensive UX specification
+- Social media content templates (LinkedIn, Reddit, Twitter, Dev.to, Hacker News)
+
+### Known Improvements
+- Removed diagonal "/" separator from navigation buttons (created visual noise)
+- Removed shimmer animation (looked unprofessional)
+- Replaced with smooth RGB gradient cycling
+- Made icon backgrounds transparent
+- Enhanced text section with gradients and shadows
+- Verified all imports work after reorganization
+
+### Next Steps (v1.5.8)
+- Implement "My PC" UX redesign from specification
+- Build signature "Hello! /" header system
+- Create Minesweeper-style disk health visualization
+- Implement visual 2D PC hardware map
+- Add guided decision flows for system optimization
+- Integrate calm, trust-building language throughout
+
+**Maintainer:** Marcin Firmuga
+**Lab:** HCK_Labs / Educational AI-Engineering Project
+**Date:** 2025-12-17
+
+---
+
 ## [v1.5.0] — 2025-12-07
 ### Major UI/UX Overhaul — Sprint 3: Modern Dashboard & Hardware Monitoring
 **Summary:**

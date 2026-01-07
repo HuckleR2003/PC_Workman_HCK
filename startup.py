@@ -7,12 +7,16 @@ Enhanced with System Tray, Process Classification, and Data Management.
 
 import sys
 import io
+import os
 from typing import Optional, Any
 
 # Fix console encoding issues on Windows
 if sys.platform == 'win32':
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+    # Set environment variable for subprocesses
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    # Fix console encoding
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 import time
 import threading
@@ -30,15 +34,15 @@ main_window_expanded_module: Optional[Any] = None
 HAS_UI = False
 
 try:
-    import ui.main_window as main_window_module  # type: ignore
-    import ui.main_window_expanded as main_window_expanded_module  # type: ignore
+    import ui.windows.main_window as main_window_module  # type: ignore
+    import ui.windows.main_window_expanded as main_window_expanded_module  # type: ignore
     HAS_UI = True
 except ImportError:
     pass
 
 def run_demo():
     print("╔══════════════════════════════════════════════╗")
-    print("║   🧠 PC Workman – HCK_Labs  v1.5.0           ║")
+    print("║   🧠 PC Workman – HCK_Labs  v1.5.7           ║")
     print("║   Enhanced System Tray & Process Tracking    ║")
     print("╚══════════════════════════════════════════════╝\n")
 
@@ -151,6 +155,31 @@ def run_demo():
                         self.minimal_window.root.quit()
                     except:
                         pass
+
+        # === SHOW SPLASH SCREEN FIRST ===
+        try:
+            from ui.splash_screen import show_splash
+            import threading
+
+            # Flag to indicate splash is done
+            splash_done = threading.Event()
+
+            def on_splash_complete():
+                """Called when splash screen finishes"""
+                splash_done.set()
+
+            # Show splash in separate thread (non-blocking)
+            splash_thread = threading.Thread(target=lambda: show_splash(duration=2.5, on_complete=on_splash_complete))
+            splash_thread.daemon = True
+            splash_thread.start()
+
+            # Wait for splash to complete
+            splash_done.wait()
+
+            print("[UI] Splash screen completed, starting main window...")
+
+        except Exception as e:
+            print(f"[UI] Splash screen error (skipping): {e}")
 
         # Create mode manager
         mode_mgr = ModeManager()
