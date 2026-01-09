@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Landing Page -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- Hero Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#hero</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Features Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#features</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Killer Features Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#killer</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Quiz Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#quiz</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Comparison Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#comparison</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Personal Story Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#story</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Blog Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#blog</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <!-- FAQ Section -->
+  <url>
+    <loc>https://hck-labs.github.io/PC_Workman/#faq</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- External Links -->
+  <!-- GitHub Repo -->
+  <url>
+    <loc>https://github.com/HCK_Labs/PC_Workman</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

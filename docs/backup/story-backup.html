@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Follow Marcin's build-in-public journey creating PC_Workman - an AI-powered system monitor. From job loss to indie success on a 10-year-old laptop.">
+    <meta name="keywords" content="build in public, indie hacker, AI development, PC_Workman journey, solo developer">
+    <title>Marcin Firmuga - My Story | Building PC_Workman in Public</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* === VARIABLES === */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-gold: #FFD700;
+            --accent-cyan: #00D9FF;
+            --accent-green: #00FF99;
+            --accent-red: #FF0066;
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        /* === RESET === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* === HERO HEADER === */
+        .hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 217, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+            letter-spacing: -1px;
+        }
+        
+        /* === TYPING ANIMATION === */
+        .typing-container {
+            display: inline-block;
+            position: relative;
+        }
+        
+        .typing-text {
+            display: inline-block;
+        }
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: var(--accent-gold);
+            margin-left: 0.25rem;
+            animation: blink 1s step-end infinite;
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* === BACK BUTTON === */
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--accent-gold);
+            transform: translateX(-5px);
+        }
+        
+        .back-arrow {
+            font-size: 1.25rem;
+        }
+        
+        /* === CONTAINER === */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        /* === FEATURED POSTS SECTION === */
+        .featured-section {
+            padding: 4rem 0;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+        }
+        
+        /* === POSTS GRID === */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-cyan));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.1);
+        }
+        
+        .post-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .post-platform {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+        
+        .post-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        
+        .post-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .post-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+        
+        /* === INTRO SECTION === */
+        .intro-section {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .intro-section::before {
+            content: '💻';
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+        
+        .intro-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .intro-content p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .intro-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        /* === SOCIAL BUTTONS === */
+        .social-section {
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .social-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-button.linkedin { border-color: rgba(10, 102, 194, 0.3); }
+        .social-button.linkedin:hover { 
+            background: rgba(10, 102, 194, 0.1); 
+            border-color: #0a66c2;
+        }
+        
+        .social-button.github { border-color: rgba(255, 255, 255, 0.2); }
+        .social-button.github:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-color: #fff;
+        }
+        
+        .social-button.medium { border-color: rgba(0, 0, 0, 0.3); }
+        .social-button.medium:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-color: #fff;
+        }
+        
+        .social-button.twitter { border-color: rgba(29, 155, 240, 0.3); }
+        .social-button.twitter:hover { 
+            background: rgba(29, 155, 240, 0.1); 
+            border-color: #1d9bf0;
+        }
+        
+        .social-button.reddit { border-color: rgba(255, 69, 0, 0.3); }
+        .social-button.reddit:hover { 
+            background: rgba(255, 69, 0, 0.1); 
+            border-color: #ff4500;
+        }
+        
+        .social-button.devto { border-color: rgba(8, 30, 53, 0.3); }
+        .social-button.devto:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+            border-color: #fff;
+        }
+        
+        .social-button.hackernoon { border-color: rgba(0, 255, 0, 0.3); }
+        .social-button.hackernoon:hover { 
+            background: rgba(0, 255, 0, 0.05); 
+            border-color: #00ff00;
+        }
+        
+        .social-button.indiehackers { border-color: rgba(10, 102, 194, 0.3); }
+        .social-button.indiehackers:hover { 
+            background: rgba(10, 102, 194, 0.1); 
+            border-color: #0a66c2;
+        }
+        
+        .social-button.facebook { border-color: rgba(24, 119, 242, 0.3); }
+        .social-button.facebook:hover { 
+            background: rgba(24, 119, 242, 0.1); 
+            border-color: #1877f2;
+        }
+        
+        .social-icon {
+            font-size: 1.5rem;
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .hero {
+                min-height: 30vh;
+                padding: 3rem 1rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .posts-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .intro-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* === LOADING ANIMATION === */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Back Button -->
+    <a href="./index.html" class="back-button">
+        <span class="back-arrow">←</span>
+        <span>Back to Home</span>
+    </a>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="typing-container">
+                    <span class="typing-text" id="typingText">Marcin Firmuga - My Story</span>
+                    <span class="typing-cursor">|</span>
+                </span>
+            </h1>
+            <p class="hero-subtitle">Building PC_Workman in public on a 10-year-old laptop 🔥</p>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <div class="container">
+        
+        <!-- Featured Posts -->
+        <section class="featured-section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">Featured Posts</h2>
+                <p class="section-subtitle">Highlights from my build-in-public journey</p>
+            </div>
+            
+            <div class="posts-grid">
+                <!-- Post Card #1 -->
+                <article class="post-card">
+                    <span class="post-platform">Twitter/X</span>
+                    <h3 class="post-title">Debugging at 90°C: The Old Laptop Chronicles</h3>
+                    <p class="post-excerpt">Coding PC_Workman on hardware older than some juniors' careers. Here's why constraints breed creativity...</p>
+                    <time class="post-date">2024-12-15</time>
+                </article>
+                
+                <!-- Post Card #2 -->
+                <article class="post-card">
+                    <span class="post-platform">LinkedIn</span>
+                    <h3 class="post-title">From Job Loss to Indie Success: 6-Month Journey</h3>
+                    <p class="post-excerpt">Lost my job in December. Today PC_Workman has 1000+ GitHub stars. Here's what I learned about resilience...</p>
+                    <time class="post-date">2024-11-30</time>
+                </article>
+                
+                <!-- Post Card #3 -->
+                <article class="post-card">
+                    <span class="post-platform">Twitter/X</span>
+                    <h3 class="post-title">AI That Actually Explains: hck_GPT Deep Dive</h3>
+                    <p class="post-excerpt">Most tools show you numbers. PC_Workman tells you WHY. Here's how I built an AI that speaks human...</p>
+                    <time class="post-date">2024-11-20</time>
+                </article>
+                
+                <!-- Post Card #4 -->
+                <article class="post-card">
+                    <span class="post-platform">LinkedIn</span>
+                    <h3 class="post-title">2D Component Map: Visualizing the Invisible</h3>
+                    <p class="post-excerpt">Auto-detecting motherboards and mapping PC internals. Technical deep-dive into the feature competitors don't have...</p>
+                    <time class="post-date">2024-11-10</time>
+                </article>
+                
+                <!-- Post Card #5 -->
+                <article class="post-card">
+                    <span class="post-platform">Facebook</span>
+                    <h3 class="post-title">Building in Public: The Good, Bad, and Unexpected</h3>
+                    <p class="post-excerpt">6 months of sharing everything. What worked, what bombed, and why transparency beats marketing...</p>
+                    <time class="post-date">2024-10-25</time>
+                </article>
+                
+                <!-- Post Card #6 -->
+                <article class="post-card">
+                    <span class="post-platform">Twitter/X</span>
+                    <h3 class="post-title">Detecting Crypto Miners: The AI Approach</h3>
+                    <p class="post-excerpt">How PC_Workman spots suspicious processes that traditional tools miss. Pattern recognition + machine learning...</p>
+                    <time class="post-date">2024-10-15</time>
+                </article>
+                
+                <!-- Post Card #7 -->
+                <article class="post-card">
+                    <span class="post-platform">LinkedIn</span>
+                    <h3 class="post-title">Why I Chose Open Source (And You Should Too)</h3>
+                    <p class="post-excerpt">MIT license, transparent development, community-first. Here's why giving away code makes business sense...</p>
+                    <time class="post-date">2024-09-30</time>
+                </article>
+                
+                <!-- Post Card #8 -->
+                <article class="post-card">
+                    <span class="post-platform">Twitter/X</span>
+                    <h3 class="post-title">The First 100 Stars: A GitHub Milestone Story</h3>
+                    <p class="post-excerpt">What it took to get noticed on GitHub without marketing budget. Authenticity > Ads...</p>
+                    <time class="post-date">2024-09-15</time>
+                </article>
+            </div>
+        </section>
+        
+        <!-- Intro/About Section -->
+        <section class="intro-section fade-in">
+            <div class="intro-content">
+                <h2>Hey, I'm Marcin 👋</h2>
+                <p>
+                    I'm an <span class="highlight">AI & System Engineering student</span> turned indie developer, 
+                    building <span class="highlight">PC_Workman</span> - an AI-powered system monitor that actually 
+                    explains what's happening on your PC.
+                </p>
+                <p>
+                    After losing my job in December 2024, I doubled down on coding. Armed with a 
+                    <span class="highlight">10-year-old laptop that runs at 90°C</span> and a refusal to quit, 
+                    I've been building in public, sharing every win, loss, and bug along the way.
+                </p>
+                <p>
+                    <span class="highlight">Why build in public?</span> Because transparency beats marketing. 
+                    Because authentic stories resonate. Because seeing someone code on ancient hardware 
+                    and still ship features inspires others to start.
+                </p>
+                <p>
+                    This isn't just a project - it's a <span class="highlight">movement</span>. 
+                    Join me on this journey. See the messy middle. Celebrate the breakthroughs. 
+                    Learn from the failures. That's what building in public is all about.
+                </p>
+            </div>
+        </section>
+        
+        <!-- Social Links -->
+        <section class="social-section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">Follow My Journey</h2>
+                <p class="section-subtitle">Connect with me across platforms</p>
+            </div>
+            
+            <div class="social-grid">
+                <a href="https://linkedin.com/in/marcin-firmuga" target="_blank" class="social-button linkedin">
+                    <span class="social-icon">💼</span>
+                    <span>LinkedIn</span>
+                </a>
+                
+                <a href="https://github.com/HCK_Labs" target="_blank" class="social-button github">
+                    <span class="social-icon">⚙️</span>
+                    <span>GitHub</span>
+                </a>
+                
+                <a href="https://medium.com/@hck_lab" target="_blank" class="social-button medium">
+                    <span class="social-icon">📝</span>
+                    <span>Medium</span>
+                </a>
+                
+                <a href="https://x.com/hck_lab" target="_blank" class="social-button twitter">
+                    <span class="social-icon">𝕏</span>
+                    <span>X (Twitter)</span>
+                </a>
+                
+                <a href="https://reddit.com/user/hck_lab" target="_blank" class="social-button reddit">
+                    <span class="social-icon">🤖</span>
+                    <span>Reddit</span>
+                </a>
+                
+                <a href="https://dev.to/hck_lab" target="_blank" class="social-button devto">
+                    <span class="social-icon">👨‍💻</span>
+                    <span>Dev.to</span>
+                </a>
+                
+                <a href="https://hackernoon.com/@hck_lab" target="_blank" class="social-button hackernoon">
+                    <span class="social-icon">💚</span>
+                    <span>HackerNoon</span>
+                </a>
+                
+                <a href="https://indiehackers.com/hck_lab" target="_blank" class="social-button indiehackers">
+                    <span class="social-icon">🚀</span>
+                    <span>IndieHackers</span>
+                </a>
+                
+                <a href="https://facebook.com/hck.labs" target="_blank" class="social-button facebook">
+                    <span class="social-icon">📘</span>
+                    <span>Facebook</span>
+                </a>
+            </div>
+        </section>
+        
+    </div>
+    
+    <script>
+        // Typing animation
+        const typingText = document.getElementById('typingText');
+        const originalText = "Marcin Firmuga - My Story";
+        let charIndex = 0;
+        let isDeleting = false;
+        
+        function typeText() {
+            if (!isDeleting) {
+                if (charIndex < originalText.length) {
+                    typingText.textContent = originalText.substring(0, charIndex + 1);
+                    charIndex++;
+                    setTimeout(typeText, 100);
+                } else {
+                    setTimeout(() => {
+                        isDeleting = true;
+                        typeText();
+                    }, 3000);
+                }
+            } else {
+                if (charIndex > 0) {
+                    typingText.textContent = originalText.substring(0, charIndex - 1);
+                    charIndex--;
+                    setTimeout(typeText, 50);
+                } else {
+                    isDeleting = false;
+                    setTimeout(typeText, 500);
+                }
+            }
+        }
+        
+        // Start typing on load
+        window.addEventListener('load', () => {
+            typingText.textContent = '';
+            setTimeout(typeText, 500);
+        });
+        
+        // Fade-in animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman -->
+<!-- STABLE EN -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PC_Workman – intelligent AI assistant for PC monitoring and optimization. Explains lags, voltage spikes, detects miners. Alternative to HWMonitor/MSI Afterburner with 2D component map and hck_GPT.">
+    <meta name="keywords" content="intelligent AI assistant PC resource monitor, MSI Afterburner AI alternative, AI voltage spike explanation PC, AI PC optimizer with 2D component map, smart Windows system monitor with fan curve control, intelligent Windows services optimizer, AI gaming performance monitor, cryptocurrency miner detection, Windows PC optimization">
+    <meta name="author" content="HCK_Labs - Marcin Firmuga">
+    <meta property="og:title" content="PC_Workman - Intelligent AI Assistant for Your PC">
+    <meta property="og:description" content="End of mysterious lags. AI explains voltage spikes, detects miners, optimizes system. Alternative to MSI Afterburner with real intelligence.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/screenshot-main-dashboard.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta name="twitter:title" content="PC_Workman - Intelligent AI Assistant for Your PC">
+    <meta name="twitter:description" content="AI explains lags, voltage spikes, detects miners. Built in public on a 10-year-old laptop.">
+
+    <title>PC_Workman v1.5+ | Intelligent AI Assistant PC Resource Monitor - MSI Afterburner Alternative</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <!-- Schema.org JSON-LD - SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "PC_Workman",
+      "alternateName": "PC Workman AI System Monitor",
+      "version": "1.5.0",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Windows 10, Windows 11",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "description": "Intelligent AI assistant for PC resource monitoring and optimization. Explains gaming lags, detects voltage and temperature spikes with context, identifies suspicious processes like cryptocurrency miners. Alternative to MSI Afterburner and HWMonitor with real AI intelligence.",
+      "screenshot": "assets/images/screenshot-main-dashboard.png",
+      "featureList": [
+        "AI Gaming Analytics - detects CPU and GPU bottlenecks in real-time during gaming",
+        "Suspicious Process Detection - automatic detection of cryptocurrency miners and malware",
+        "Predictive Alerts - AI predicts hardware problems before they occur",
+        "2D Components Map - visual PC component map with auto-detect motherboard",
+        "hck_GPT - intelligent Windows services optimization assistant",
+        "Fan Curve Control - advanced fan control with custom profiles",
+        "Real-time Voltage Monitoring - CPU, GPU, RAM voltage monitoring",
+        "Temperature Spike Explanation - AI explains causes of temperature spikes"
+      ],
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HCK_Labs",
+        "sameAs": [
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcin-firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "HCK_Labs",
+        "url": "https://github.com/HCK_Labs",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://hck-labs.github.io/PC_Workman/logo.png"
+        }
+      },
+      "datePublished": "2024-06-15",
+      "dateModified": "2025-01-07",
+      "softwareVersion": "1.5.0+",
+      "downloadUrl": "https://github.com/HCK_Labs/PC_Workman",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      }
+    }
+    </script>
+
+    <!-- Schema.org JSON-LD - Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "HCK_Labs",
+      "alternateName": "HCK Labs",
+      "url": "https://github.com/HCK_Labs",
+      "logo": "https://hck-labs.github.io/PC_Workman/logo.png",
+      "description": "Indie development lab building AI-powered tools and applications. Building in public.",
+      "founder": {
+        "@type": "Person",
+        "name": "Marcin Firmuga"
+      },
+      "sameAs": [
+        "https://x.com/hck_lab",
+        "https://linkedin.com/in/marcin-firmuga",
+        "https://github.com/HCK_Labs"
+      ]
+    }
+    </script>
+
+    <!-- Schema.org JSON-LD - FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does hck_GPT optimize Windows services?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "hck_GPT asks 18 diagnostic questions about your PC usage (gaming, work, streaming, etc.). Based on your answers, AI suggests specific Windows services to disable (e.g., telemetry, unnecessary services). Before each change, it asks for your consent – full control. Everything can be reverted with one click (Revert All)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does PC_Workman work on old hardware?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! PC_Workman was built on a 2014 laptop (i7-4710HQ, 8GB RAM). It's optimized for low-resource usage. Monitoring runs in the background with minimal footprint, AI queries are cached locally. If it works on a 10-year-old laptop at 90°C, it will work on your hardware."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is PC_Workman different from MSI Afterburner?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MSI Afterburner is a great tool for GPU overclocking and OSD, but it only shows raw data. PC_Workman goes further: it explains the causes of temperature/voltage spikes (Chrome caused it – close tabs), detects suspicious processes, has an AI optimization assistant, 2D component map, predictive alerts. It's the difference between 'seeing numbers' and 'understanding what's happening'."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Performance Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://github.com">
+    <link rel="dns-prefetch" href="https://x.com">
+</head>
+<body>
+    <!-- Left Sticky Sidebar Navigation (X-style) -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo">
+            <span class="logo-icon">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="2" width="28" height="28" stroke="url(#grad1)" stroke-width="2" rx="4"/>
+                    <path d="M16 8 L24 16 L16 24 L8 16 Z" fill="url(#grad2)"/>
+                    <circle cx="16" cy="16" r="4" fill="var(--neon-cyan)"/>
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:var(--neon-cyan);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:var(--neon-green);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(0,217,255,0.3);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(0,255,153,0.3);stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </span>
+            <span class="logo-text">PC_Workman</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero" class="nav-link active" data-section="hero">
+                <span class="nav-icon nav-icon-home"></span>
+                <span class="nav-text">Home</span>
+            </a></li>
+            <li><a href="#features" class="nav-link" data-section="features">
+                <span class="nav-icon nav-icon-features"></span>
+                <span class="nav-text">Features</span>
+            </a></li>
+            <li><a href="#killer" class="nav-link" data-section="killer">
+                <span class="nav-icon nav-icon-killer"></span>
+                <span class="nav-text">Advantage</span>
+            </a></li>
+            <li><a href="#quiz" class="nav-link" data-section="quiz">
+                <span class="nav-icon nav-icon-quiz"></span>
+                <span class="nav-text">Quiz</span>
+            </a></li>
+            <li><a href="#comparison" class="nav-link" data-section="comparison">
+                <span class="nav-icon nav-icon-comparison"></span>
+                <span class="nav-text">vs Competition</span>
+            </a></li>
+            <li><a href="#story" class="nav-link" data-section="story">
+                <span class="nav-icon nav-icon-story"></span>
+                <span class="nav-text">My Journey</span>
+            </a></li>
+            <li><a href="#blog" class="nav-link" data-section="blog">
+                <span class="nav-icon nav-icon-blog"></span>
+                <span class="nav-text">Blog</span>
+            </a></li>
+            <li><a href="#faq" class="nav-link" data-section="faq">
+                <span class="nav-icon nav-icon-faq"></span>
+                <span class="nav-text">FAQ</span>
+            </a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="https://github.com/HCK_Labs" target="_blank" class="social-link social-github" aria-label="GitHub">
+                <span class="social-icon"></span>
+            </a>
+            <a href="https://x.com/hck_lab" target="_blank" class="social-link social-x" aria-label="X (Twitter)">
+                <span class="social-icon"></span>
+            </a>
+            <a href="https://linkedin.com/in/marcin-firmuga" target="_blank" class="social-link social-linkedin" aria-label="LinkedIn">
+                <span class="social-icon"></span>
+            </a>
+        </div>
+
+        <!-- Language Toggle -->
+        <div class="language-toggle">
+            <a href="index.html" class="lang-btn" data-lang="pl">PL</a>
+            <span class="lang-separator">/</span>
+            <a href="index_en.html" class="lang-btn active" data-lang="en">ENG</a>
+        </div>
+
+        <!-- 🔥 MY STORY BUTTON - NEW! -->
+        <div class="sidebar-story-cta">
+            <a href="blog/story.html" class="story-button">
+                <div class="story-button-main">
+                    <span>Build</span>
+                    <span class="story-button-separator"></span>
+                    <span>In</span>
+                    <span class="story-button-separator"></span>
+                    <span>Public</span>
+                    <span class="story-button-separator"></span>
+                    <span>Follow My Journey</span>
+                </div>
+                <div class="story-button-subtitle">My Story</div>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- HERO SECTION -->
+        <section id="hero" class="hero-section">
+            <div class="hero-background"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        PC_Workman: Intelligent AI Assistant,<br>
+                        <span class="highlight-neon typing-container">
+                            <span id="typingText">That Knows Why Your PC Goes Crazy</span>
+                            <span class="typing-cursor">|</span>
+                        </span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        End of mysterious lags and voltage spikes – AI explains everything in context.<br>
+                        Alternative to MSI Afterburner and HWMonitor <strong>with real intelligence</strong>.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="https://github.com/HuckleR2003" class="cta-button primary" target="_blank">
+                            <span class="cta-icon-shape"></span>
+                            Download Alpha for Free
+                        </a>
+                        <a href="#features" class="cta-button secondary">
+                            See Features
+                        </a>
+                    </div>
+                    <div class="hero-badges">
+                        <span class="badge badge-fire">
+                            <span class="badge-icon badge-icon-fire"></span>
+                            Build in Public
+                        </span>
+                        <span class="badge badge-ai">
+                            <span class="badge-icon badge-icon-ai"></span>
+                            AI-Powered
+                        </span>
+                        <span class="badge badge-star">
+                            <span class="badge-icon badge-icon-star"></span>
+                            Open Source
+                        </span>
+                    </div>
+                </div>
+                <div class="hero-image">
+					<div class="hero-main-visual">
+						<img src="assets/images/screenshot-main-dashboard.png" alt="PC_Workman Main Dashboard - intelligent resource monitor with AI analytics" loading="eager">
+						<div class="image-glow"></div>
+					</div>
+
+				<div class="hero-secondary-visual">
+					<div class="visual-label">
+						<span class="label-icon"></span>
+						<span class="label-text">hck_GPT in action</span>
+					</div>
+					<img src="assets/images/features_minimal.gif" alt="hck_GPT AI assistant asking questions and optimizing Windows services" loading="lazy">
+					<div class="visual-badge">
+						<span class="badge-icon-ai"></span>
+						<span>AI Optimization</span>
+					</div>
+				</div>
+			</div>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll</span>
+                <div class="scroll-line"></div>
+            </div>
+        </section>
+
+        <!-- FEATURES SECTION -->
+        <section id="features" class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Features That <span class="highlight-green">Crush It</span></h2>
+                    <p class="section-subtitle">Not just monitoring – real intelligence in action</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon gaming">
+                            <div class="icon-shape icon-gaming"></div>
+                        </div>
+                        <h3>Gaming Analytics</h3>
+                        <p>Detects bottlenecks in games in real-time – <strong>"CPU can't keep up in CS2? Close Chrome and Discord."</strong></p>
+                        <img src="assets/images/screenshot-minimal.png" alt="Gaming Analytics - AI detects gaming lags" class="feature-screenshot">
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon alert">
+                            <div class="icon-shape icon-alert"></div>
+                        </div>
+                        <h3>Suspicious Processes</h3>
+                        <p>Automatic detection of <strong>cryptocurrency miners</strong> and suspicious processes consuming resources in the background.</p>
+                        <img src="assets/images/screenshot-minimal.png" alt="Cryptocurrency miner detection and suspicious processes" class="feature-screenshot">
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon predictive">
+                            <div class="icon-shape icon-predictive"></div>
+                        </div>
+                        <h3>Predictive Alerts</h3>
+                        <p>AI <strong>predicts problems</strong> before they hit – overheating, disk failure, RAM overflow. Act proactively, not reactively.</p>
+                        <img src="assets/images/screenshot-cooling.png" alt="Predictive alerts - AI predicts problems before they occur" class="feature-screenshot">
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon cooling">
+                            <div class="icon-shape icon-cooling"></div>
+                        </div>
+                        <h3>Smart Fan Control</h3>
+                        <p>Advanced fan control with <strong>custom fan curves</strong>. Silent during browsing, turbo in gaming.</p>
+                        <img src="assets/images/screenshot-cooling.png" alt="Smart fan curve control - advanced fan control" class="feature-screenshot">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KILLER UNIQUE SECTION -->
+        <section id="killer" class="killer-section">
+            <div class="container">
+                <div class="section-header killer-header">
+                    <h2 class="section-title killer-title">
+                        Why PC_Workman <span class="highlight-red">Beats the Competition?</span>
+                    </h2>
+                    <p class="section-subtitle">This is not just another monitor. It's an AI assistant that <strong>understands your PC</strong>.</p>
+                </div>
+
+                <div class="killer-grid">
+                    <div class="killer-card">
+                        <div class="killer-number">01</div>
+                        <h3>Spike Explanation</h3>
+                        <p>Voltage/temperature spikes? <strong>AI defines the cause</strong> with context: <em>"Chrome caused a 15°C spike – close 47 tabs"</em> + suggests fix. MSI Afterburner only shows numbers.</p>
+                        <div class="killer-highlight">
+                            <span class="code-snippet">AI: "App X → Fix: Close it"</span>
+                        </div>
+                    </div>
+
+                    <div class="killer-card">
+                        <div class="killer-number">02</div>
+                        <h3>One Configuration for Months</h3>
+                        <p>Optimization tools work <strong>always in the background</strong> – zero daily tinkering. GeForce Experience requires constant updates and login. PC_Workman = set & forget.</p>
+                        <div class="killer-highlight">
+                            <span class="code-snippet">✓ Auto-starts with Windows</span>
+                        </div>
+                    </div>
+
+                    <div class="killer-card">
+                        <div class="killer-number">03</div>
+                        <h3>hck_GPT – Intelligent Assistant</h3>
+                        <p>Asks <strong>18 diagnostic questions</strong>, suggests Windows services to disable (optimization), disables with your consent. <strong>One-click revert everything!</strong> No other tool has an AI assistant.</p>
+                        <div class="killer-highlight">
+                            <span class="code-snippet">🤖 18 questions → Optimization → Revert</span>
+                        </div>
+                    </div>
+
+                    <div class="killer-card featured">
+                        <div class="killer-number">04</div>
+                        <h3>2D Components Map</h3>
+                        <p><strong>Auto-detect motherboard</strong> (first view shows model), visual component map (CPU/RAM/GPU/Disk/Battery) for PC and laptop. <strong>Quick access to health/info</strong> – click component, see details. HWInfo has no visualization!</p>
+						<div class="killer-screenshot-large">
+                            <img src="assets/images/features_minimal.gif" alt="2D Components Map - visual PC component map with auto-detect motherboard" loading="lazy">
+						</div>
+                        <div class="killer-screenshot-large">
+                            <img src="assets/images/screenshot-your-pc-features.png" alt="2D Components Map - visual PC component map with auto-detect motherboard" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE QUIZ SECTION -->
+        <section id="quiz" class="quiz-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Why Is <span class="highlight-green">Your PC Lagging?</span></h2>
+                    <p class="section-subtitle">Enter symptoms – AI simulates response (demo)</p>
+                </div>
+
+                <div class="quiz-container">
+                    <form id="quizForm" class="quiz-form">
+                        <div class="quiz-input-group">
+                            <label for="symptom">Describe the problem (e.g. "lags in Fallout 4", "computer overheats")</label>
+                            <input type="text" id="symptom" placeholder="Enter what's happening..." required>
+                        </div>
+                        <button type="submit" class="quiz-submit">
+                            <span class="quiz-icon"></span>
+                            Ask AI
+                        </button>
+                    </form>
+
+                    <div id="quizResult" class="quiz-result hidden">
+                        <div class="ai-thinking">
+                            <span class="thinking-dot"></span>
+                            <span class="thinking-dot"></span>
+                            <span class="thinking-dot"></span>
+                        </div>
+                        <div class="ai-response">
+                            <div class="ai-avatar"></div>
+                            <div class="ai-message">
+                                <h4>hck_GPT Analysis:</h4>
+                                <p id="aiAnswer"></p>
+                                <div class="ai-suggestions">
+                                    <strong>Suggested actions:</strong>
+                                    <ul id="aiSuggestions"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMPARISON TABLE SECTION -->
+        <section id="comparison" class="comparison-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">PC_Workman <span class="highlight-red">vs</span> Competition</h2>
+                    <p class="section-subtitle">Comparison with MSI Afterburner, HWMonitor, GPU Tweak, GeForce Experience, HWInfo</p>
+                </div>
+
+                <div class="comparison-table-wrapper">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th class="competitor">MSI Afterburner</th>
+                                <th class="competitor">HWMonitor</th>
+                                <th class="competitor">GPU Tweak</th>
+                                <th class="competitor">GeForce Exp.</th>
+                                <th class="competitor">HWInfo</th>
+                                <th class="winner">PC_Workman</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Spike cause explanation</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">with AI context</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>2D component map</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">with auto-detect</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>AI optimization assistant</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">hck_GPT</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Miner detection</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">automatic</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gaming bottleneck detection</strong></td>
+                                <td>Partial</td>
+                                <td>❌</td>
+                                <td>Partial</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">realtime AI</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Predictive alerts</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">before problem</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fan curve control</strong></td>
+                                <td>✅</td>
+                                <td>❌</td>
+                                <td>✅</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">+ AI profile</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>One-click optimization</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>Limited</td>
+                                <td>Limited</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">+ revert</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Requires login</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>✅ 😒</td>
+                                <td>❌</td>
+                                <td class="winner-cell">❌ <span class="winner-note">privacy</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Open Source</strong></td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">GitHub</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="comparison-cta">
+                    <p class="comparison-note"><span class="note-highlight"></span> The only alternative with <strong>real AI intelligence</strong></p>
+                    <a href="https://github.com/HuckleR2003/PC_Workman_HCK" class="cta-button primary" target="_blank">
+                        Check on GitHub
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PERSONAL STORY / BUILD IN PUBLIC -->
+        <section id="story" class="story-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">My Journey as <span class="highlight-neon">Solo Dev</span></h2>
+                    <p class="section-subtitle">Building in public on an old laptop – authentic indie developer story</p>
+                </div>
+
+                <div class="story-content">
+                    <div class="story-text">
+                        <h3>From Job Loss to Indie Project</h3>
+                        <p>
+                            On December 22nd, I lost my job in the Netherlands. I came back to Poland with one thing – <strong>determination</strong>
+                            to build something of my own. PC_Workman is being built on a 2014 laptop that regularly
+                            hits <strong>90°C+</strong>. I'm not waiting for perfect hardware – <strong>building now</strong>.
+                        </p>
+                        <p>
+                            This is not a glamorous startup story. This is <strong>6+ months of grinding</strong> at night,
+                            refactoring code, learning AI integration from scratch. But every line of code is real.
+                            Every feature solves <em>my</em> real problem.
+                        </p>
+                        <blockquote class="story-quote">
+                            "Constraint breeds creativity. My old laptop taught me to optimize every feature.
+                            That's the same experience PC_Workman gives to users."
+                        </blockquote>
+
+                        <div class="story-cta-box">
+                            <h4><span class="giveaway-icon"></span> Viral Giveaway!</h4>
+                            <p><strong>Beta Premium for the first 100</strong> – subscribe to newsletter and get early access!</p>
+                            <form class="newsletter-form">
+                                <input type="email" placeholder="your@email.com" required>
+                                <button type="submit">Join</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="story-posts">
+                        <h4>Latest Updates</h4>
+                        <div class="post-embed">
+                            <div class="post-header">
+                                <span class="post-author">@hck_lab</span>
+                                <span class="post-date">December 2024</span>
+                            </div>
+                            <p class="post-content">
+                                Reality check: Building PC_Workman on a 10-year-old laptop is not a content marketing gimmick.
+                                This is the reality of indie dev – grinding between freelance gigs, 90°C thermal throttling during compilation.
+                                But it's a constraint that forces me to write efficient code. 💪
+                            </p>
+                        </div>
+
+                        <div class="post-embed">
+                            <div class="post-header">
+                                <span class="post-author">@hck_lab</span>
+                                <span class="post-date">December 22, 2024</span>
+                            </div>
+                            <p class="post-content">
+                                Job loss is not the end. It's a reset. Coming back to Poland and going all-in on PC_Workman.
+                                6 months building in public, 800+ followers on LinkedIn, thousands of lines of code.
+                                This is just the beginning. 🔥
+                            </p>
+                        </div>
+
+                        <div class="post-embed">
+                            <div class="post-header">
+                                <span class="post-author">@hck_lab</span>
+                                <span class="post-date">November 2024</span>
+                            </div>
+                            <p class="post-content">
+                                PC_Workman v1.5 – biggest redesign. Dual-mode UI, 2D components map with auto-detect,
+                                hck_GPT integration. Features that MSI Afterburner will never do because it doesn't have AI.
+                                Building different. 🤖
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOG TEASER SECTION -->
+        <section id="blog" class="blog-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Latest <span class="highlight-green">Posts</span></h2>
+                    <p class="section-subtitle">Insights from development journey</p>
+                </div>
+
+                <div class="blog-grid">
+                    <article class="blog-card">
+                        <div class="blog-tag">Technical</div>
+                        <h3>Building AI-Powered System Monitor: Architecture Deep Dive</h3>
+                        <p>How I integrated GPT-4 API with monitoring loops in Windows WMI. Thread safety, rate limiting, context management.</p>
+                        <a href="https://medium.com/@firmuga.marcin.s" target="_blank" class="blog-link">Read on Medium →</a>
+                    </article>
+
+                    <article class="blog-card">
+                        <div class="blog-tag">Build in Public</div>
+                        <h3>6 Months of Building Solo: What I Learned</h3>
+                        <p>Indie developer reality check. From taxi driver to ML engineering – journey through code, community, and constraint-based creativity.</p>
+                        <a href="https://www.linkedin.com/in/marcinfirmuga/" target="_blank" class="blog-link">See on LinkedIn →</a>
+                    </article>
+
+                    <article class="blog-card">
+                        <div class="blog-tag">AI & Gaming</div>
+                        <h3>Why Gaming Needs Smarter Performance Tools</h3>
+                        <p>MSI Afterburner shows OSD. PC_Workman explains bottlenecks. Why gaming analytics is the future of monitoring.</p>
+                        <a href="https://x.com/hck_lab" target="_blank" class="blog-link">Thread on X →</a>
+                    </article>
+
+                    <article class="blog-card featured-post">
+                        <div class="blog-tag">Dev Story</div>
+                        <h3>Building on 90°C Hardware: Constraint as Feature</h3>
+                        <p>How a 10-year-old laptop with thermal throttling taught me to optimize. PC_Workman was born from my user pain.</p>
+                        <a href="https://github.com/HuckleR2003" target="_blank" class="blog-link">See repo on GitHub →</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section id="faq" class="faq-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title"><span class="highlight-red">FAQ</span></h2>
+                    <p class="section-subtitle">Frequently Asked Questions</p>
+                </div>
+
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How does hck_GPT optimize Windows services?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>hck_GPT asks 18 diagnostic questions about your PC usage (gaming, work, streaming, etc.).
+                            Based on your answers, AI suggests specific Windows services to disable (e.g., telemetry,
+                            unnecessary services). Before each change, it asks for your consent – <strong>full control</strong>.
+                            Everything can be reverted with one click ("Revert All").</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Does PC_Workman work on old hardware?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p><strong>Yes!</strong> PC_Workman was built on a 2014 laptop (i7-4710HQ, 8GB RAM).
+                            It's optimized for low-resource usage. Monitoring runs in the background with minimal footprint,
+                            AI queries are cached locally. If it works on my 10-year-old laptop at 90°C,
+                            it will work on your hardware.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Do I need to pay for OpenAI/GPT API?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Currently PC_Workman works in <strong>local inference</strong> mode for basic functions
+                            (miner detection, gaming analytics). hck_GPT (full AI assistant) requires an OpenAI API key,
+                            but I'm planning integration with local models (Ollama, LM Studio) in version 2.0.
+                            API cost is ~$0.50-2/month with normal usage.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How is PC_Workman different from MSI Afterburner?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>MSI Afterburner is a great tool for <strong>GPU overclocking and OSD</strong>,
+                            but it only shows raw data. PC_Workman goes further: <strong>explains the causes</strong>
+                            of temperature/voltage spikes ("Chrome caused it – close tabs"), detects suspicious processes,
+                            has an AI optimization assistant, 2D component map, predictive alerts. It's the difference between
+                            "seeing numbers" and "understanding what's happening".</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Does PC_Workman require administrator permissions?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>For basic monitoring (CPU/RAM/GPU usage) – <strong>no</strong>.
+                            For advanced features (fan control, disabling services, deep hardware access) –
+                            <strong>yes</strong>. PC_Workman only asks for permissions when needed.
+                            All code is open source on GitHub – you can verify what it does.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>When will the full version 2.0 be released?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Currently PC_Workman is in <strong>Alpha v1.5+</strong>. Full version 2.0
+                            (with local AI models, advanced gaming integrations, cloud sync) is planned for <strong>Q2 2025</strong>.
+                            Subscribe to the newsletter to get early access to beta – first 100 people get premium features for free!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER CTA -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-cta">
+                    <h2>Ready for <span class="highlight-green">Intelligent Monitoring?</span></h2>
+                    <p>Join the community building in public. Open source, AI-powered, built for gamers by a developer.</p>
+                    <a href="https://github.com/HuckleR2003/PC_Workman_HCK" class="cta-button primary large" target="_blank">
+                        <span class="cta-icon-shape"></span>
+                        Download Now - Free
+                    </a>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <ul>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#comparison">vs Competition</a></li>
+                            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank">GitHub</a></li>
+                            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" target="_blank">Changelog</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Community</h4>
+                        <ul>
+                            <li><a href="https://x.com/hck_lab" target="_blank">X (Twitter)</a></li>
+                            <li><a href="https://www.linkedin.com/in/marcinfirmuga/" target="_blank">LinkedIn</a></li>
+                            <li><a href="https://medium.com/@firmuga.marcin.s" target="_blank">Medium Blog</a></li>
+                            <li><a href="https://github.com/HuckleR2003" target="_blank">HCK_Labs</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#faq">FAQ</a></li>
+                            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/issues" target="_blank">Report Bug</a></li>
+                            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank">Discussions</a></li>
+                            <li><a href="mailto:marcin.firmuga.s@gmail.com">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Newsletter</h4>
+                        <p>Early access to beta 2.0</p>
+                        <form class="footer-newsletter">
+                            <input type="email" placeholder="your@email.com" required>
+                            <button type="submit"><span class="arrow-icon"></span></button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="footer-bottom">
+                    <p>© 2024-2025 HCK_Labs | Built with <span class="heart-icon"></span> on 10-year-old laptop | Open Source MIT License</p>
+                    <div class="footer-badges">
+                        <span class="footer-badge"><span class="footer-badge-icon fire-icon"></span> Build in Public</span>
+                        <span class="footer-badge"><span class="footer-badge-icon ai-icon"></span> AI-Powered</span>
+                        <span class="footer-badge"><span class="footer-badge-icon star-icon"></span> v1.5.0+</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

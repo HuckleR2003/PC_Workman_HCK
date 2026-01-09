@@ -1,0 +1,712 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman -->
+<!-- STABLE -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HCK_Labs - Marcin HCK Firmuga, indie developer building AI-powered tools. Author of PC_Workman system monitor.">
+    <meta name="keywords" content="HCK_Labs, Marcin Firmuga, indie developer, PC_Workman, build in public, AI developer">
+    <title>HCK_Labs - Marcin HCK Firmuga | Developer Profile</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === VARIABLES === */
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #1f1f1f;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-gold: #FFD700;
+            --accent-cyan: #00D9FF;
+            --accent-green: #00FF99;
+            --accent-red: #FF0066;
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* === RESET === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* === BACK BUTTON === */
+        .back-button {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--accent-gold);
+            transform: translateX(-5px);
+        }
+
+        .back-arrow {
+            font-size: 1.25rem;
+        }
+
+        /* === CONTAINER === */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* === PROFILE HEADER === */
+        .profile-header {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-logo {
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--bg-dark);
+            box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-style: italic;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-role {
+            display: inline-block;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+
+        .profile-bio {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            line-height: 1.7;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            font-family: var(--font-mono);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* === THREE COLUMNS LAYOUT === */
+        .three-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .column {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 500px;
+        }
+
+        .column-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .column-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .column-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* === COLUMN 1: TOP POSTS === */
+        .post-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .post-item:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateX(5px);
+        }
+
+        .post-rank {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 900;
+            font-size: 0.85rem;
+            color: var(--bg-dark);
+            margin-right: 0.75rem;
+        }
+
+        .post-title-small {
+            font-weight: 600;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-views {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        .views-icon {
+            color: var(--accent-cyan);
+        }
+
+        /* === COLUMN 2: CONTACT & SOCIAL === */
+        .contact-section {
+            margin-bottom: 2rem;
+        }
+
+        .contact-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+        }
+
+        .contact-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.25rem;
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .contact-button:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .contact-icon {
+            font-size: 1.25rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), transparent);
+            margin: 1.5rem 0;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .social-button {
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-button:hover {
+            background: rgba(255, 215, 0, 0.05);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* === COLUMN 3: GITHUB === */
+        .github-widget {
+            text-align: center;
+        }
+
+        .github-contributions {
+            width: 100%;
+            background: var(--bg-darker);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .github-placeholder {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .github-link {
+            display: inline-block;
+            padding: 0.875rem 2rem;
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .github-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .github-stat {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .github-stat-value {
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--accent-cyan);
+            font-family: var(--font-mono);
+        }
+
+        .github-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1200px) {
+            .three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .column {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .profile-name {
+                font-size: 2rem;
+            }
+
+            .profile-title {
+                font-size: 1.25rem;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* === FADE IN ANIMATION === */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Back Button -->
+    <a href="story.html" class="back-button">
+        <span class="back-arrow">←</span>
+        <span>Back to Story</span>
+    </a>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Profile Header -->
+        <section class="profile-header fade-in">
+            <div class="profile-logo">HCK</div>
+            <div class="profile-info">
+                <h1 class="profile-name">HCK_Labs</h1>
+                <div>
+                    <strong class="profile-title">Marcin HCK Firmuga</strong>
+                    <span class="profile-role">Author</span>
+                </div>
+                <p class="profile-bio">
+                    Indie developer building <strong>AI-powered tools</strong> while working warehouse shifts.
+                    Creator of <strong>PC_Workman</strong> system monitor. Building in public on a 10-year-old laptop.
+                    Netherlands → Poland. Solo developer, stubborn optimizer, coffee enthusiast.
+                </p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-value">680+</div>
+                        <div class="stat-label">Hours Coded</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Public Posts</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Rebuilds</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">94°C</div>
+                        <div class="stat-label">Laptop Peak</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Three Columns Layout -->
+        <div class="three-columns">
+
+            <!-- COLUMN 1: Most Read Posts -->
+            <div class="column fade-in">
+                <div class="column-header">
+                    <h2 class="column-title">Most Read Posts</h2>
+                    <p class="column-subtitle">My Story - Top 10</p>
+                </div>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">1</span>
+                    <div class="post-title-small">I Built in Public for 5 Months. Then I Got Fired.</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~42 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">2</span>
+                    <div class="post-title-small">365 Days. One Question: Did You Start?</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~38 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">3</span>
+                    <div class="post-title-small">Reality Check: 4.5 Months of Building</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~35 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">4</span>
+                    <div class="post-title-small">December 22nd. Lost My Job.</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~31 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">5</span>
+                    <div class="post-title-small">Building on 2014 Laptop at 90°C</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~28 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">6</span>
+                    <div class="post-title-small">What Should PC Optimization Software Have?</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~25 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">7</span>
+                    <div class="post-title-small">I Made Something Crazy - HCK_Labs AI Testing</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~22 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">8</span>
+                    <div class="post-title-small">A Few Hours. One Idea. Everything Changed.</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~20 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">9</span>
+                    <div class="post-title-small">Text Widgets Are Lying to You</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~18 views</span>
+                    </div>
+                </a>
+
+                <a href="story.html#linkedin" class="post-item">
+                    <span class="post-rank">10</span>
+                    <div class="post-title-small">Security: Are We Overcomplicating It?</div>
+                    <div class="post-views">
+                        <span class="views-icon">👁</span>
+                        <span>~15 views</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- COLUMN 2: Contact & Social -->
+            <div class="column fade-in">
+                <div class="column-header">
+                    <h2 class="column-title">Get in Touch</h2>
+                    <p class="column-subtitle">Let's build something together</p>
+                </div>
+
+                <div class="contact-section">
+                    <h3 class="contact-title">Primary Contact</h3>
+
+                    <a href="https://m.me/hck.labs" target="_blank" class="contact-button">
+                        <span class="contact-icon">💬</span>
+                        <span>Messenger</span>
+                    </a>
+
+                    <a href="https://discord.gg/hck_labs" target="_blank" class="contact-button">
+                        <span class="contact-icon">🎮</span>
+                        <span>Discord</span>
+                    </a>
+
+                    <a href="https://steamcommunity.com/id/hck_labs" target="_blank" class="contact-button">
+                        <span class="contact-icon">🎯</span>
+                        <span>Steam</span>
+                    </a>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="contact-section">
+                    <h3 class="contact-title">Social Media</h3>
+
+                    <div class="social-grid">
+                        <a href="https://linkedin.com/in/marcin-firmuga" target="_blank" class="social-button">LinkedIn</a>
+                        <a href="https://github.com/HuckleR2003" target="_blank" class="social-button">GitHub</a>
+                        <a href="https://medium.com/@hck_lab" target="_blank" class="social-button">Medium</a>
+                        <a href="https://x.com/hck_lab" target="_blank" class="social-button">X (Twitter)</a>
+                        <a href="https://reddit.com/user/hck_lab" target="_blank" class="social-button">Reddit</a>
+                        <a href="https://dev.to/hck_lab" target="_blank" class="social-button">Dev.to</a>
+                        <a href="https://hackernoon.com/@hck_lab" target="_blank" class="social-button">HackerNoon</a>
+                        <a href="https://indiehackers.com/hck_lab" target="_blank" class="social-button">IndieHackers</a>
+                        <a href="https://facebook.com/hck.labs" target="_blank" class="social-button">Facebook</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMN 3: GitHub -->
+            <div class="column fade-in">
+                <div class="column-header">
+                    <h2 class="column-title">GitHub Activity</h2>
+                    <p class="column-subtitle">Contributions & Stats</p>
+                </div>
+
+                <div class="github-widget">
+                    <div class="github-contributions">
+                        <p class="github-placeholder">
+                            GitHub contributions graph będzie tutaj.<br>
+                            Wklej swój screenshot lub użyj iframe z GitHub:
+                        </p>
+                        <code style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 1rem;">
+                            https://github.com/HuckleR2003
+                        </code>
+                    </div>
+
+                    <a href="https://github.com/HuckleR2003" target="_blank" class="github-link">
+                        View GitHub Profile →
+                    </a>
+
+                    <div class="github-stats">
+                        <div class="github-stat">
+                            <div class="github-stat-value">680+</div>
+                            <div class="github-stat-label">Commits</div>
+                        </div>
+                        <div class="github-stat">
+                            <div class="github-stat-value">12</div>
+                            <div class="github-stat-label">Repositories</div>
+                        </div>
+                        <div class="github-stat">
+                            <div class="github-stat-value">4</div>
+                            <div class="github-stat-label">Projects</div>
+                        </div>
+                        <div class="github-stat">
+                            <div class="github-stat-value">2025</div>
+                            <div class="github-stat-label">Active Year</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Fade-in animations on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>
