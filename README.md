@@ -2,7 +2,7 @@
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green) 
-![Version](https://img.shields.io/badge/Version-1.5.7-blue) 
+![Version](https://img.shields.io/badge/Version-1.6.1-blue) 
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 -
@@ -337,4 +337,5 @@ Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
 -
+
 **Ship what you have. Improve it later.** 💙
