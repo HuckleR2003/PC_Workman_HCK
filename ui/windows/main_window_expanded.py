@@ -31,6 +31,15 @@ from ui.components.led_bars import LEDSegmentBar
 # YOUR PC page helper
 from ui.components.yourpc_page import build_yourpc_page
 
+# Fan Dashboard (Advanced cooling control)
+from ui.components.fan_dashboard import create_fan_dashboard
+
+# Overlay Widget (Floating Monitor)
+try:
+    from ui.overlay_widget import create_overlay_widget
+except ImportError:
+    create_overlay_widget = None
+
 # System Tray
 try:
     from ui.system_tray import SystemTrayManager, ToastNotification
@@ -626,7 +635,7 @@ class ExpandedMainWindow:
         ]
 
         for text, color in nav_buttons_left:
-            self._create_nav_button(left_nav, text, color)
+            self._create_nav_button(left_nav, text, color, pady=0)
 
         # CENTER - SESSION AVERAGE BARS
         center = tk.Frame(middle, bg=THEME["bg_main"])
@@ -674,16 +683,15 @@ class ExpandedMainWindow:
         ]
 
         for text, color in nav_buttons_right:
-            self._create_nav_button(right_nav, text, color)
+            self._create_nav_button(right_nav, text, color, pady=0)
 
-        # Start shimmer animation for all buttons (after small delay to ensure canvas is ready)
-        self.root.after(500, self._animate_button_shimmer)
+        # NOTE: Shimmer animation REMOVED - static gradient instead
 
-    def _create_nav_button(self, parent, text, color):
+    def _create_nav_button(self, parent, text, color, pady=4):
         """Create EXCELLENT gradient button with diagonal cut and shimmer animation! 💎"""
         # Main button container
         btn_container = tk.Frame(parent, bg=THEME["bg_panel"])
-        btn_container.pack(fill="x", padx=8, pady=4)
+        btn_container.pack(fill="x", padx=8, pady=pady)
 
         # Click handler - map text to page ID
         page_map = {
@@ -728,17 +736,7 @@ class ExpandedMainWindow:
         )
         canvas.pack(fill="x")
 
-        # Store canvas reference for RGB gradient animation
-        if not hasattr(self, 'nav_button_canvases'):
-            self.nav_button_canvases = []
-
-        btn_data = {
-            'canvas': canvas,
-            'gradient_rgb': gradient_rgb,
-            'page_id': page_id,
-            'gradient_offset': 0  # For RGB animation
-        }
-        self.nav_button_canvases.append(btn_data)
+        # NOTE: Canvas storage removed - no animation needed
 
         # Draw button after canvas is ready
         def draw_button(event=None, anim_offset=0):
@@ -764,23 +762,21 @@ class ExpandedMainWindow:
             gradient_start = icon_width  # No gap, no diagonal separator!
             gradient_width = width - gradient_start
 
-            # Draw ANIMATED GRADIENT (vertical lines with color interpolation + RGB animation)
+            # Draw STATIC GRADIENT (vertical lines with color interpolation - NO animation)
             for i in range(int(gradient_width)):
                 # Calculate color interpolation (3-color gradient: dark -> mid -> light)
                 ratio = i / gradient_width if gradient_width > 0 else 0
 
-                # Add animation offset for RGB cycling
-                animated_ratio = (ratio + anim_offset) % 1.0
-
-                if animated_ratio < 0.5:
+                # STATIC ratio (no anim_offset)
+                if ratio < 0.5:
                     # First half: dark to mid
-                    local_ratio = animated_ratio * 2
+                    local_ratio = ratio * 2
                     r = int(gradient_rgb[0][0] + (gradient_rgb[1][0] - gradient_rgb[0][0]) * local_ratio)
                     g = int(gradient_rgb[0][1] + (gradient_rgb[1][1] - gradient_rgb[0][1]) * local_ratio)
                     b = int(gradient_rgb[0][2] + (gradient_rgb[1][2] - gradient_rgb[0][2]) * local_ratio)
                 else:
                     # Second half: mid to light
-                    local_ratio = (animated_ratio - 0.5) * 2
+                    local_ratio = (ratio - 0.5) * 2
                     r = int(gradient_rgb[1][0] + (gradient_rgb[2][0] - gradient_rgb[1][0]) * local_ratio)
                     g = int(gradient_rgb[1][1] + (gradient_rgb[2][1] - gradient_rgb[1][1]) * local_ratio)
                     b = int(gradient_rgb[1][2] + (gradient_rgb[2][2] - gradient_rgb[1][2]) * local_ratio)
@@ -1254,18 +1250,8 @@ class ExpandedMainWindow:
         self.turbo_active = False
         self._animate_turbo_glow()
 
-        # Subtitle
-        tk.Label(
-            turbo_content,
-            text="Zaawansowane opcje optymalizacji",
-            font=("Segoe UI", 7),
-            bg="#1e40af",
-            fg="#bfdbfe",
-            padx=8
-        ).pack(anchor="w", pady=(0, 3))
-
-        # Thin separator line (brighter)
-        tk.Frame(turbo_content, bg="#60a5fa", height=2).pack(fill="x", pady=(0, 4))
+        # Thin separator line (brighter) - moved up (no subtitle)
+        tk.Frame(turbo_content, bg="#60a5fa", height=2).pack(fill="x", pady=(4, 4))
 
         # Bottom action buttons
         turbo_actions = tk.Frame(turbo_content, bg="#1e40af")
@@ -1358,28 +1344,8 @@ class ExpandedMainWindow:
             pady=2
         ).pack(anchor="w")
 
-        # Subtitle 1
-        tk.Label(
-            optim_content,
-            text="Szereg Inteligentnych narzędzi dla Optymalizacji.",
-            font=("Segoe UI", 7),
-            bg="#047857",
-            fg="#a7f3d0",
-            padx=8
-        ).pack(anchor="w", pady=(0, 0))
-
-        # Subtitle 2
-        tk.Label(
-            optim_content,
-            text="Ustawienia dla automatycznego stosowania codzień!",
-            font=("Segoe UI", 7),
-            bg="#047857",
-            fg="#a7f3d0",
-            padx=8
-        ).pack(anchor="w", pady=(0, 3))
-
-        # Thin separator line (brighter)
-        tk.Frame(optim_content, bg="#34d399", height=2).pack(fill="x", pady=(0, 4))
+        # Thin separator line (brighter) - moved up (no subtitles)
+        tk.Frame(optim_content, bg="#34d399", height=2).pack(fill="x", pady=(4, 4))
 
         # Bottom action buttons
         optim_actions = tk.Frame(optim_content, bg="#047857")
@@ -1708,19 +1674,32 @@ class ExpandedMainWindow:
             widget.destroy()
         self.expanded_user_widgets = []
 
+        # Get total system CPU and RAM usage
+        total_cpu = psutil.cpu_percent() if psutil else 100
+        total_ram_pct = psutil.virtual_memory().percent if psutil else 100
+
         # Gradient backgrounds for TOP 1-5
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
         for i, proc in enumerate(procs[:5], start=1):
             # Get process info
             display_name = proc.get('name', 'unknown')
-            cpu = proc.get('cpu_percent', 0)
+            cpu_raw = proc.get('cpu_percent', 0)  # Per-core CPU usage
             ram_mb = proc.get('ram_MB', 0)
+
+            # Convert CPU to system-relative percentage
+            # psutil gives per-core % (0-100 per core), we need % of total CPU usage
+            cpu_cores = psutil.cpu_count() if psutil else 1
+            cpu_system_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+
+            # Calculate RAM as % of total RAM
+            total_ram_mb = (psutil.virtual_memory().total / (1024 * 1024)) if psutil else 8192
+            ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
             # Row with gradient background
             row_bg = row_gradients[i-1] if i <= len(row_gradients) else THEME["bg_panel"]
             row = tk.Frame(self.expanded_user_container, bg=row_bg, height=22)
-            row.pack(fill="x", pady=1)
+            row.pack(fill="x", pady=0)
             row.pack_propagate(False)
 
             # Process name
@@ -1745,7 +1724,7 @@ class ExpandedMainWindow:
             tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
                     bg=row_bg, fg="#6b7280", width=2).pack(side="left")
 
-            self._create_mini_bar(cpu_container, cpu, "#3b82f6", f"{cpu:.0f}", row_bg)
+            self._create_mini_bar(cpu_container, cpu_system_pct, "#3b82f6", f"{cpu_system_pct:.0f}%", row_bg)
 
             # RAM
             ram_container = tk.Frame(bars_frame, bg=row_bg)
@@ -1754,8 +1733,7 @@ class ExpandedMainWindow:
             tk.Label(ram_container, text="R", font=("Segoe UI", 6),
                     bg=row_bg, fg="#6b7280", width=2).pack(side="left")
 
-            ram_pct = min((ram_mb / 8192) * 100, 100)
-            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_mb:.0f}", row_bg)
+            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_pct:.0f}%", row_bg)
 
             self.expanded_user_widgets.append(row)
 
@@ -1769,19 +1747,31 @@ class ExpandedMainWindow:
             widget.destroy()
         self.expanded_sys_widgets = []
 
+        # Get total system CPU and RAM usage
+        total_cpu = psutil.cpu_percent() if psutil else 100
+        total_ram_pct = psutil.virtual_memory().percent if psutil else 100
+
         # Gradient backgrounds for TOP 1-5
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
         for i, proc in enumerate(procs[:5], start=1):
             # Get process info
             display_name = proc.get('name', 'unknown')
-            cpu = proc.get('cpu_percent', 0)
+            cpu_raw = proc.get('cpu_percent', 0)  # Per-core CPU usage
             ram_mb = proc.get('ram_MB', 0)
+
+            # Convert CPU to system-relative percentage
+            cpu_cores = psutil.cpu_count() if psutil else 1
+            cpu_system_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+
+            # Calculate RAM as % of total RAM
+            total_ram_mb = (psutil.virtual_memory().total / (1024 * 1024)) if psutil else 8192
+            ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
             # Row with gradient background
             row_bg = row_gradients[i-1] if i <= len(row_gradients) else THEME["bg_panel"]
             row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=22)
-            row.pack(fill="x", pady=1)
+            row.pack(fill="x", pady=0)
             row.pack_propagate(False)
 
             # Process name
@@ -1806,7 +1796,7 @@ class ExpandedMainWindow:
             tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
                     bg=row_bg, fg="#6b7280", width=2).pack(side="left")
 
-            self._create_mini_bar(cpu_container, cpu, "#3b82f6", f"{cpu:.0f}", row_bg)
+            self._create_mini_bar(cpu_container, cpu_system_pct, "#3b82f6", f"{cpu_system_pct:.0f}%", row_bg)
 
             # RAM
             ram_container = tk.Frame(bars_frame, bg=row_bg)
@@ -1815,8 +1805,7 @@ class ExpandedMainWindow:
             tk.Label(ram_container, text="R", font=("Segoe UI", 6),
                     bg=row_bg, fg="#6b7280", width=2).pack(side="left")
 
-            ram_pct = min((ram_mb / 8192) * 100, 100)
-            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_mb:.0f}", row_bg)
+            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_pct:.0f}%", row_bg)
 
             self.expanded_sys_widgets.append(row)
 
@@ -2698,12 +2687,33 @@ class ExpandedMainWindow:
         close_btn.bind("<Button-1>", lambda e: self._close_overlay())
 
         # Hover effect for close button
-        def on_enter(e):
+        def on_enter_close(e):
             close_btn.config(fg="#ef4444")
-        def on_leave(e):
+        def on_leave_close(e):
             close_btn.config(fg="#64748b")
-        close_btn.bind("<Enter>", on_enter)
-        close_btn.bind("<Leave>", on_leave)
+        close_btn.bind("<Enter>", on_enter_close)
+        close_btn.bind("<Leave>", on_leave_close)
+
+        # Dashboard Back! button (LEFT of X)
+        back_btn = tk.Label(
+            header,
+            text="⬅ Dashboard",
+            font=("Segoe UI", 9, "bold"),
+            bg="#1a1d24",
+            fg="#64748b",
+            cursor="hand2",
+            padx=10
+        )
+        back_btn.pack(side="right", pady=10, padx=(0, 5))  # 5px gap from X
+        back_btn.bind("<Button-1>", lambda e: self._close_overlay())
+
+        # Hover effect for back button
+        def on_enter_back(e):
+            back_btn.config(fg="#8b5cf6")
+        def on_leave_back(e):
+            back_btn.config(fg="#64748b")
+        back_btn.bind("<Enter>", on_enter_back)
+        back_btn.bind("<Leave>", on_leave_back)
 
         # Title
         title_map = {
@@ -2713,7 +2723,7 @@ class ExpandedMainWindow:
             "fan_curves": "🌀 Fan Curve Editor - Custom Cooling",
             "optimization": "⚡ System Optimization",
             "statistics": "📊 Detailed Statistics",
-            "fan_control": "🌀 Advanced Dashboard - Cooling Control",
+            "fan_control": "🌀 Cooling Control",
             "hck_labs": "🚀 HCK Labs",
             "guide": "📖 Program Guide"
         }
@@ -3329,90 +3339,35 @@ But better: AI-powered insights, calm design, universal hardware support"""
         ).pack(pady=20)
 
     def _build_fancontrol_page(self, parent):
-        """Build Advanced Dashboard page - Apple/MSI Afterburner inspired"""
+        """Build NEW AI-Enhanced Fan Dashboard - Next-Gen Cooling Control"""
         main = tk.Frame(parent, bg="#0f1117")
         main.pack(fill="both", expand=True)
 
-        # Dashboard Back! button (like in Your PC)
-        back_container = tk.Frame(main, bg="#0f1117", cursor="hand2")
-        back_container.pack(anchor="nw", padx=15, pady=8)
+        # No "Dashboard Back!" button - only X button in top-right corner
+        # This saves space and is cleaner!
 
-        arrow_lbl = tk.Label(
-            back_container,
-            text="⬅",
-            font=("Segoe UI", 14),
-            bg="#0f1117",
-            fg="#64748b",
-            cursor="hand2"
-        )
-        arrow_lbl.pack(side="left", padx=(0, 5))
+        # === FAN DASHBOARD ULTIMATE (Vertical sliders + SZTOS!) ===
+        dashboard_container = tk.Frame(main, bg="#0f1117")
+        dashboard_container.pack(fill="both", expand=True)
 
-        text_container = tk.Frame(back_container, bg="#0f1117", cursor="hand2")
-        text_container.pack(side="left")
+        # Create FAN DASHBOARD ULTIMATE
+        self.fan_dashboard = create_fan_dashboard(dashboard_container)
 
-        dashboard_lbl = tk.Label(
-            text_container,
-            text="Dashboard",
-            font=("Segoe UI", 9, "bold"),
-            bg="#0f1117",
-            fg="#64748b",
-            cursor="hand2"
-        )
-        dashboard_lbl.pack(anchor="w")
+        # Store reference for updates
+        if not hasattr(self, '_fan_dashboards'):
+            self._fan_dashboards = []
+        self._fan_dashboards.append(self.fan_dashboard)
 
-        back_lbl = tk.Label(
-            text_container,
-            text="Back!",
-            font=("Segoe UI", 7),
-            bg="#0f1117",
-            fg="#64748b",
-            cursor="hand2"
-        )
-        back_lbl.pack(anchor="w")
+        # Start real-time updates (every 2 seconds)
+        def update_fan_dashboard():
+            try:
+                if hasattr(self, 'fan_dashboard'):
+                    self.fan_dashboard.update_realtime()
+                parent.after(2000, update_fan_dashboard)  # 2s interval
+            except:
+                pass  # Stop if widget destroyed
 
-        def close_overlay(e):
-            self._close_overlay()
-
-        for widget in [back_container, arrow_lbl, text_container, dashboard_lbl, back_lbl]:
-            widget.bind("<Button-1>", close_overlay)
-
-        def on_enter(e):
-            arrow_lbl.config(fg="#8b5cf6")
-            dashboard_lbl.config(fg="#8b5cf6")
-            back_lbl.config(fg="#8b5cf6")
-
-        def on_leave(e):
-            arrow_lbl.config(fg="#64748b")
-            dashboard_lbl.config(fg="#64748b")
-            back_lbl.config(fg="#64748b")
-
-        for widget in [back_container, arrow_lbl, text_container]:
-            widget.bind("<Enter>", on_enter)
-            widget.bind("<Leave>", on_leave)
-
-        # Three columns: Left Fan | Center (Dashboard) | Right Fan
-        columns = tk.Frame(main, bg="#0f1117")
-        columns.pack(fill="both", expand=True, padx=20, pady=5)
-
-        # === LEFT FAN (CPU) - Compact ===
-        left_fan = tk.Frame(columns, bg="#1a1d24", width=140)
-        left_fan.pack(side="left", fill="y", padx=(0, 8))
-        left_fan.pack_propagate(False)
-
-        self._create_fan_display_compact(left_fan, "CPU Fan", 1410, 68, 45.2, True)
-
-        # === CENTER - ADVANCED DASHBOARD ===
-        center = tk.Frame(columns, bg="#0a0e27")
-        center.pack(side="left", fill="both", expand=True, padx=8)
-
-        self._build_advanced_dashboard(center)
-
-        # === RIGHT FAN (BOARD) - Compact ===
-        right_fan = tk.Frame(columns, bg="#1a1d24", width=140)
-        right_fan.pack(side="right", fill="y", padx=(8, 0))
-        right_fan.pack_propagate(False)
-
-        self._create_fan_display_compact(right_fan, "BOARD Fan", 980, 52, 38.7, True)
+        update_fan_dashboard()
 
     def _build_pc2d_graphic_in_yourpc(self, parent):
         """Build 2D PC case graphic with components - for Your PC Components tab"""
@@ -4435,6 +4390,8 @@ But better: AI-powered insights, calm design, universal hardware support"""
             menu.add_separator()
             menu.add_command(label="⚡ Optimization", command=lambda: self._show_overlay("optimization"))
             menu.add_command(label="📊 Statistics", command=lambda: self._show_overlay("statistics"))
+            menu.add_separator()
+            menu.add_command(label="📌 Floating Monitor", command=self._launch_overlay_widget)
             menu.tk_popup(e.x_root, e.y_root)
 
         nav_btn.bind("<Button-1>", show_nav_menu)
@@ -4725,6 +4682,25 @@ But better: AI-powered insights, calm design, universal hardware support"""
         text = re.sub(r'\*\*([^\*]+)\*\*', r'\1', text)
 
         return text
+
+    # ========== OVERLAY WIDGET ==========
+
+    def _launch_overlay_widget(self):
+        """Launch floating overlay widget"""
+        if create_overlay_widget is None:
+            from tkinter import messagebox
+            messagebox.showwarning("Overlay Widget", "Overlay widget module not available!")
+            return
+
+        # Launch in separate thread to avoid blocking main window
+        def launch_thread():
+            try:
+                create_overlay_widget()
+            except Exception as e:
+                print(f"[ERROR] Overlay widget failed: {e}")
+
+        widget_thread = threading.Thread(target=launch_thread, daemon=True)
+        widget_thread.start()
 
     # ========== MAIN LOOP ==========
 

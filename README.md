@@ -1,4 +1,4 @@
-# PC_Workman 🖥️
+# PC_Workman 1.6.1 🖥️
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green) 
@@ -94,33 +94,58 @@ PC_Workman/
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
 -
-## 📊 What's New (v1.5.7)
 
+## What's New (1.6.1) - CURRENT
+Fan Dashboard Evolution - Complete overhaul (3 iterations in one night!) - General fixes
+### Others
+-Redesigned from scratch with high market tools research - inspired UI.
+-Beautiful purple gradient fan curve graph with interactive drag-and-drop points
+-Compact 2x2 fan status cards with real-time RPM monitoring & connection status
+-Streamlined profile system (Default, Silent, AI, P1, P2)
+-Smart profile saving to data/profiles/ with JSON export/import
+-Removed clutter - deleted right panel, focused on what matters
+-40% smaller graph height for better space utilization
+### ✪ Main Window UX Polish
+-Fixed process CPU/RAM calculations (now shows system-relative %, not per-core)
+Removed padding between navigation tabs for cleaner look
+Killed animated gradients for better performance
+Stripped unnecessary descriptive texts
+### ! ✪ NEW: Floating System Monitor Widget ✪
+Always-on-top overlay in top-right corner (outside main window!)
+Real-time CPU/RAM/GPU usage with color-coded alerts
+Draggable, minimizable, frameless design
+Runs independently - keep it visible while working
+Launch from Navigation menu → "Floating Monitor"
+### ✪ Codebase Cleanup
+Removed deprecated fan dashboard versions (ai, pro, ultra)
+Consolidated to single fan_dashboard.py - 3 files deleted, ~100KB saved
+Purged all __pycache__ and .pyc files
+Fixed broken imports after cleanup
+
+## What's New (v1.5.7)
 ### Modern Dashboard Redesign
 - Apple-inspired flat design with gradient accents
 - Ultra-compact TOP 5 process lists
 - Side-by-side CPU/RAM indicators
 - Color-coded visual hierarchy
 - 40% more information density
-
 ### Hardware Health Monitoring
 - Three-column layout (CPU | RAM | GPU)
 - Real hardware names (actual Intel/AMD/NVIDIA)
 - Intelligent load classification (Normal → Critical)
 - Temperature bars with heat-based coloring
-
 ### Gaming Analytics
 - Per-game performance tracking
 - FPS correlation with system load
 - Bottleneck detection
 - Thermal signature per game
-
 ### Optimization Tools
 - Windows services management
 - Gaming mode toggle
 - Startup programs cleanup
 - Safe system optimizations with rollback
--
+
+
 ## 📁 Project Structure
 ```
 HCK_Labs/PC_Workman_HCK/
