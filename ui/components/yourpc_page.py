@@ -10,96 +10,20 @@ try:
 except ImportError:
     psutil = None
 
+# Import PRO INFO TABLE
+try:
+    from ui.components.pro_info_table import ProInfoTable
+except ImportError:
+    ProInfoTable = None
+
 
 def build_yourpc_page(self, parent):
     """Build YOUR PC page - Full-screen advanced hardware monitoring with tabs"""
-    # Main container (full overlay area)
+    # Main container (full overlay area) - NO TOP BAR for maximum space
     main = tk.Frame(parent, bg="#0f1117")
     main.pack(fill="both", expand=True)
 
-    # Top bar with Dashboard button - TALLER
-    top_bar = tk.Frame(main, bg="#1a1d24", height=60)
-    top_bar.pack(fill="x")
-    top_bar.pack_propagate(False)
-
-    # Dashboard button container
-    dashboard_container = tk.Frame(top_bar, bg="#1a1d24", cursor="hand2")
-    dashboard_container.pack(side="left", padx=15, pady=10)
-
-    # Arrow symbol
-    arrow_lbl = tk.Label(
-        dashboard_container,
-        text="⬅",
-        font=("Segoe UI", 16),
-        bg="#1a1d24",
-        fg="#64748b",
-        cursor="hand2"
-    )
-    arrow_lbl.pack(side="left", padx=(0, 5))
-
-    # Text container (Dashboard above, Back! below)
-    text_container = tk.Frame(dashboard_container, bg="#1a1d24", cursor="hand2")
-    text_container.pack(side="left")
-
-    dashboard_lbl = tk.Label(
-        text_container,
-        text="Dashboard",
-        font=("Segoe UI", 10, "bold"),
-        bg="#1a1d24",
-        fg="#64748b",
-        cursor="hand2"
-    )
-    dashboard_lbl.pack(anchor="w")
-
-    back_lbl = tk.Label(
-        text_container,
-        text="Back!",
-        font=("Segoe UI", 8),
-        bg="#1a1d24",
-        fg="#64748b",
-        cursor="hand2"
-    )
-    back_lbl.pack(anchor="w")
-
-    # Click handler
-    def close_overlay(e):
-        self._close_overlay()
-
-    dashboard_container.bind("<Button-1>", close_overlay)
-    arrow_lbl.bind("<Button-1>", close_overlay)
-    text_container.bind("<Button-1>", close_overlay)
-    dashboard_lbl.bind("<Button-1>", close_overlay)
-    back_lbl.bind("<Button-1>", close_overlay)
-
-    # Hover effect
-    def on_enter(e):
-        arrow_lbl.config(fg="#3b82f6")
-        dashboard_lbl.config(fg="#3b82f6")
-        back_lbl.config(fg="#3b82f6")
-
-    def on_leave(e):
-        arrow_lbl.config(fg="#64748b")
-        dashboard_lbl.config(fg="#64748b")
-        back_lbl.config(fg="#64748b")
-
-    dashboard_container.bind("<Enter>", on_enter)
-    dashboard_container.bind("<Leave>", on_leave)
-    arrow_lbl.bind("<Enter>", on_enter)
-    arrow_lbl.bind("<Leave>", on_leave)
-    text_container.bind("<Enter>", on_enter)
-    text_container.bind("<Leave>", on_leave)
-
-    # Page title
-    title = tk.Label(
-        top_bar,
-        text="💻 YOUR PC - ADVANCED MONITORING",
-        font=("Segoe UI", 12, "bold"),
-        bg="#1a1d24",
-        fg="#ffffff"
-    )
-    title.pack(side="left", padx=20)
-
-    # Content area with tabs
+    # Content area with tabs (Dashboard bar removed to save space)
     content_area = tk.Frame(main, bg="#0f1117")
     content_area.pack(fill="both", expand=True, pady=2)
 
@@ -218,18 +142,27 @@ def show_yourpc_tab(self, tab_id):
 
 
 def build_yourpc_central(self, parent):
-    """Build Central tab - Enhanced hardware monitoring"""
-    # Scrollable container
-    canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
-    scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-    scrollable = tk.Frame(canvas, bg="#0f1117")
+    """Build Central tab - Enhanced hardware monitoring with PRO INFO TABLE"""
+    # Main container - TWO COLUMNS layout
+    main_container = tk.Frame(parent, bg="#0f1117")
+    main_container.pack(fill="both", expand=True, padx=3, pady=3)
 
-    scrollable.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.create_window((0, 0), window=scrollable, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
+    # LEFT COLUMN - Hardware selection cards (scrollable) - VERY NARROW for max table space
+    left_col = tk.Frame(main_container, bg="#0f1117", width=280)
+    left_col.pack(side="left", fill="both", expand=False, padx=(3, 3))
+    left_col.pack_propagate(False)
 
-    canvas.pack(side="left", fill="both", expand=True, padx=10, pady=5)
-    scrollbar.pack(side="right", fill="y")
+    # Scrollable container for left column
+    left_canvas = tk.Canvas(left_col, bg="#0f1117", highlightthickness=0)
+    left_scrollbar = tk.Scrollbar(left_col, orient="vertical", command=left_canvas.yview)
+    left_scrollable = tk.Frame(left_canvas, bg="#0f1117")
+
+    left_scrollable.bind("<Configure>", lambda e: left_canvas.configure(scrollregion=left_canvas.bbox("all")))
+    left_canvas.create_window((0, 0), window=left_scrollable, anchor="nw")
+    left_canvas.configure(yscrollcommand=left_scrollbar.set)
+
+    left_canvas.pack(side="left", fill="both", expand=True)
+    left_scrollbar.pack(side="right", fill="y")
 
     # Get hardware info
     try:
@@ -256,7 +189,7 @@ def build_yourpc_central(self, parent):
         gpu_model = "Unknown GPU"
         gpu_usage = 0
 
-    # THREE HARDWARE CARDS (CPU, RAM, GPU) - HORIZONTAL SIDE BY SIDE
+    # THREE HARDWARE CARDS (CPU, RAM, GPU) - VERTICAL STACK
     hardware_data = [
         {
             "type": "CPU",
@@ -281,23 +214,38 @@ def build_yourpc_central(self, parent):
         }
     ]
 
-    # Container for 3 cards side by side
-    hw_row = tk.Frame(scrollable, bg="#0f1117")
-    hw_row.pack(fill="x", padx=10, pady=5)
+    # Stack menu buttons vertically in left column
+    build_menu_buttons(self, left_scrollable)
 
-    for hw in hardware_data:
-        create_advanced_hw_card_compact(hw_row, hw)
+    # RIGHT COLUMN - PRO INFO TABLE (compact, scrollable)
+    right_col = tk.Frame(main_container, bg="#0a0e27")
+    right_col.pack(side="right", fill="both", expand=True, padx=(3, 3))
 
-    # ADVANCED MONITORING SECTION (inspired by MSI Afterburner, HWMonitor)
-    tk.Label(
-        scrollable,
-        text="ADVANCED HARDWARE MONITORING",
-        font=("Segoe UI", 9, "bold"),
-        bg="#0f1117",
-        fg="#64748b"
-    ).pack(pady=(10, 3), padx=10, anchor="w")
+    # Add PRO INFO TABLE
+    if ProInfoTable:
+        try:
+            pro_table = ProInfoTable(right_col)
+            pro_table.pack(fill="both", expand=True)
+        except Exception as e:
+            # Fallback if table fails
+            tk.Label(
+                right_col,
+                text=f"PRO INFO TABLE Error: {e}",
+                font=("Segoe UI", 10),
+                bg="#0a0e27",
+                fg="#ef4444"
+            ).pack(pady=20)
+    else:
+        # Fallback placeholder
+        tk.Label(
+            right_col,
+            text="PRO INFO TABLE\n(Module not available)",
+            font=("Segoe UI", 12, "bold"),
+            bg="#0a0e27",
+            fg="#64748b"
+        ).pack(pady=50)
 
-    # Motherboard info - very compact
+    # Motherboard info - compact label at bottom of left column
     try:
         import wmi
         w = wmi.WMI()
@@ -307,409 +255,24 @@ def build_yourpc_central(self, parent):
         mb_name = "Unknown Motherboard"
 
     mb_label = tk.Label(
-        scrollable,
-        text=f"Motherboard: {mb_name}",
+        left_scrollable,
+        text=f"📋 {mb_name}",
         font=("Consolas", 7, "bold"),
         bg="#0a0e27",
         fg="#fbbf24",
         padx=8,
-        pady=2
+        pady=4
     )
-    mb_label.pack(padx=10, pady=(0, 5), anchor="w")
-
-    # Three columns: CPU Details | RAM & Disk | System Info
-    columns = tk.Frame(scrollable, bg="#0f1117")
-    columns.pack(fill="x", padx=10, pady=3)
-
-    # LEFT COLUMN - CPU Details
-    cpu_detail = tk.Frame(columns, bg="#1a1d24")
-    cpu_detail.pack(side="left", fill="both", expand=True, padx=(0, 5))
-
-    tk.Label(
-        cpu_detail,
-        text="CPU DETAILS",
-        font=("Segoe UI", 8, "bold"),
-        bg="#3b82f6",
-        fg="#ffffff",
-        anchor="w",
-        padx=8,
-        pady=4
-    ).pack(fill="x")
-
-    try:
-        cpu_freq = psutil.cpu_freq()
-        cpu_details = [
-            ("Base Clock", f"{cpu_freq.current:.0f} MHz" if cpu_freq else "N/A"),
-            ("Max Clock", f"{cpu_freq.max:.0f} MHz" if cpu_freq and cpu_freq.max > 0 else "N/A"),
-            ("Per-Core Usage", f"{psutil.cpu_percent(interval=0.1, percpu=False):.1f}%"),
-            ("Logical Cores", str(psutil.cpu_count(logical=True))),
-            ("Physical Cores", str(psutil.cpu_count(logical=False))),
-        ]
-    except:
-        cpu_details = [("CPU", "Info unavailable")]
-
-    for label, value in cpu_details:
-        row = tk.Frame(cpu_detail, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(
-            row,
-            text=label,
-            font=("Segoe UI", 8),
-            bg="#1a1d24",
-            fg="#94a3b8",
-            width=14,
-            anchor="w"
-        ).pack(side="left")
-
-        tk.Label(
-            row,
-            text=value,
-            font=("Consolas", 8, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff",
-            anchor="w"
-        ).pack(side="left", padx=5)
-
-    tk.Frame(cpu_detail, bg="#1a1d24", height=5).pack()
-
-    # RIGHT COLUMN - RAM & Disk
-    ram_disk = tk.Frame(columns, bg="#1a1d24")
-    ram_disk.pack(side="right", fill="both", expand=True, padx=(5, 0))
-
-    tk.Label(
-        ram_disk,
-        text="MEMORY & STORAGE",
-        font=("Segoe UI", 8, "bold"),
-        bg="#fbbf24",
-        fg="#ffffff",
-        anchor="w",
-        padx=8,
-        pady=4
-    ).pack(fill="x")
-
-    try:
-        mem = psutil.virtual_memory()
-        swap = psutil.swap_memory()
-        disk = psutil.disk_usage('/')
-
-        mem_details = [
-            ("RAM Total", f"{mem.total / (1024**3):.2f} GB"),
-            ("RAM Available", f"{mem.available / (1024**3):.2f} GB"),
-            ("Swap Total", f"{swap.total / (1024**3):.2f} GB" if swap.total > 0 else "N/A"),
-            ("Disk Total (C:)", f"{disk.total / (1024**3):.1f} GB"),
-            ("Disk Free (C:)", f"{disk.free / (1024**3):.1f} GB"),
-        ]
-    except:
-        mem_details = [("Memory", "Info unavailable")]
-
-    for label, value in mem_details:
-        row = tk.Frame(ram_disk, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(
-            row,
-            text=label,
-            font=("Segoe UI", 8),
-            bg="#1a1d24",
-            fg="#94a3b8",
-            width=14,
-            anchor="w"
-        ).pack(side="left")
-
-        tk.Label(
-            row,
-            text=value,
-            font=("Consolas", 8, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff",
-            anchor="w"
-        ).pack(side="left", padx=5)
-
-    tk.Frame(ram_disk, bg="#1a1d24", height=5).pack()
-
-    # RIGHT COLUMN - System Information (3rd column)
-    sys_info = tk.Frame(columns, bg="#1a1d24")
-    sys_info.pack(side="right", fill="both", expand=True, padx=(5, 0))
-
-    tk.Label(
-        sys_info,
-        text="SYSTEM INFO",
-        font=("Segoe UI", 8, "bold"),
-        bg="#10b981",
-        fg="#ffffff",
-        anchor="w",
-        padx=8,
-        pady=4
-    ).pack(fill="x")
-
-    try:
-        import platform
-        system_info = [
-            ("OS", f"{platform.system()} {platform.release()}"),
-            ("Architecture", platform.machine()),
-            ("Hostname", platform.node()[:15]),
-            ("Python", platform.python_version()),
-        ]
-    except:
-        system_info = [("System", "N/A")]
-
-    for label, value in system_info:
-        row = tk.Frame(sys_info, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(
-            row,
-            text=label,
-            font=("Segoe UI", 8),
-            bg="#1a1d24",
-            fg="#94a3b8",
-            width=12,
-            anchor="w"
-        ).pack(side="left")
-
-        tk.Label(
-            row,
-            text=value,
-            font=("Consolas", 7, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff",
-            anchor="w",
-            wraplength=150,
-            justify="left"
-        ).pack(side="left", padx=3)
-
-    tk.Frame(sys_info, bg="#1a1d24", height=5).pack()
-
-    # === LIVE SENSOR DASHBOARD (HWMonitor-style) ===
-    tk.Label(
-        scrollable,
-        text="⚡ LIVE SENSOR DASHBOARD",
-        font=("Segoe UI", 9, "bold"),
-        bg="#0f1117",
-        fg="#64748b"
-    ).pack(pady=(15, 5), padx=10, anchor="w")
-
-    sensors_frame = tk.Frame(scrollable, bg="#1a1d24")
-    sensors_frame.pack(fill="x", padx=10, pady=5)
-
-    # Voltage sensors (left)
-    voltage_card = tk.Frame(sensors_frame, bg="#1a1d24")
-    voltage_card.pack(side="left", fill="both", expand=True, padx=(0, 5))
-
-    tk.Label(
-        voltage_card,
-        text="⚡ VOLTAGES",
-        font=("Segoe UI", 8, "bold"),
-        bg="#8b5cf6",
-        fg="#ffffff",
-        padx=8,
-        pady=3
-    ).pack(fill="x")
-
-    voltage_data = [
-        ("CPU Core", "1.25V", "#10b981"),
-        ("Memory", "1.35V", "#10b981"),
-        ("GPU Core", "1.05V", "#10b981")
-    ]
-
-    for label, value, color in voltage_data:
-        row = tk.Frame(voltage_card, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(row, text=label, font=("Segoe UI", 7), bg="#1a1d24", fg="#94a3b8", width=10, anchor="w").pack(side="left")
-        tk.Label(row, text=value, font=("Consolas", 7, "bold"), bg="#1a1d24", fg=color).pack(side="right")
-
-    tk.Frame(voltage_card, bg="#1a1d24", height=5).pack()
-
-    # Fan speeds (middle)
-    fan_card = tk.Frame(sensors_frame, bg="#1a1d24")
-    fan_card.pack(side="left", fill="both", expand=True, padx=2)
-
-    tk.Label(
-        fan_card,
-        text="🌀 FAN SPEEDS",
-        font=("Segoe UI", 8, "bold"),
-        bg="#3b82f6",
-        fg="#ffffff",
-        padx=8,
-        pady=3
-    ).pack(fill="x")
-
-    try:
-        cpu_usage_val = psutil.cpu_percent(interval=0.1)
-        fan1_rpm = int(800 + (cpu_usage_val * 15))
-        fan2_rpm = int(700 + (cpu_usage_val * 12))
-    except:
-        fan1_rpm = 1200
-        fan2_rpm = 1000
-
-    fan_data = [
-        ("CPU Fan", f"{fan1_rpm} RPM", "#3b82f6"),
-        ("System Fan", f"{fan2_rpm} RPM", "#3b82f6"),
-        ("GPU Fan", "AUTO", "#64748b")
-    ]
-
-    for label, value, color in fan_data:
-        row = tk.Frame(fan_card, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(row, text=label, font=("Segoe UI", 7), bg="#1a1d24", fg="#94a3b8", width=10, anchor="w").pack(side="left")
-        tk.Label(row, text=value, font=("Consolas", 7, "bold"), bg="#1a1d24", fg=color).pack(side="right")
-
-    tk.Frame(fan_card, bg="#1a1d24", height=5).pack()
-
-    # Power draw (right)
-    power_card = tk.Frame(sensors_frame, bg="#1a1d24")
-    power_card.pack(side="right", fill="both", expand=True, padx=(5, 0))
-
-    tk.Label(
-        power_card,
-        text="⚡ POWER DRAW",
-        font=("Segoe UI", 8, "bold"),
-        bg="#fbbf24",
-        fg="#ffffff",
-        padx=8,
-        pady=3
-    ).pack(fill="x")
-
-    try:
-        cpu_usage_val = psutil.cpu_percent(interval=0.1)
-        cpu_power = int(35 + (cpu_usage_val * 0.8))
-        gpu_power = int(50 + (gpu_usage * 1.2))
-        total_power = cpu_power + gpu_power + 20
-    except:
-        cpu_power = 65
-        gpu_power = 120
-        total_power = 205
-
-    power_data = [
-        ("CPU Package", f"{cpu_power}W", "#fbbf24"),
-        ("GPU Total", f"{gpu_power}W", "#10b981"),
-        ("Total System", f"{total_power}W", "#ef4444" if total_power > 250 else "#10b981")
-    ]
-
-    for label, value, color in power_data:
-        row = tk.Frame(power_card, bg="#1a1d24")
-        row.pack(fill="x", padx=8, pady=2)
-
-        tk.Label(row, text=label, font=("Segoe UI", 7), bg="#1a1d24", fg="#94a3b8", width=10, anchor="w").pack(side="left")
-        tk.Label(row, text=value, font=("Consolas", 7, "bold"), bg="#1a1d24", fg=color).pack(side="right")
-
-    tk.Frame(power_card, bg="#1a1d24", height=5).pack()
+    mb_label.pack(pady=(10, 5), fill="x", padx=5)
 
 
-def create_advanced_hw_card_compact(parent, hw_data):
-    """Create HORIZONTAL compact hardware card - side by side layout"""
+def create_advanced_hw_card_vertical(parent, hw_data):
+    """Create vertical hardware card for left column"""
     card = tk.Frame(parent, bg="#1a1d24")
-    card.pack(side="left", fill="both", expand=True, padx=2)
+    card.pack(fill="x", padx=5, pady=5)
 
-    # Header - smaller
-    header = tk.Frame(card, bg=hw_data["color"], height=25)
-    header.pack(fill="x")
-    header.pack_propagate(False)
-
-    tk.Label(
-        header,
-        text=f"{hw_data['type']} - {hw_data['model'][:25]}",
-        font=("Segoe UI", 8, "bold"),
-        bg=hw_data["color"],
-        fg="#ffffff"
-    ).pack(side="left", padx=8, pady=3)
-
-    # Content area - vertical stack (compact)
-    content = tk.Frame(card, bg="#1a1d24")
-    content.pack(fill="both", expand=True, padx=6, pady=4)
-
-    # Usage
-    tk.Label(
-        content,
-        text="USAGE",
-        font=("Segoe UI", 6, "bold"),
-        bg="#1a1d24",
-        fg="#64748b"
-    ).pack(anchor="w")
-
-    usage_chart = tk.Canvas(content, bg="#0f1117", height=20, highlightthickness=0)
-    usage_chart.pack(fill="x", pady=1)
-
-    usage_width = int((hw_data["usage"] / 100) * (usage_chart.winfo_reqwidth() - 10))
-    usage_chart.create_rectangle(0, 0, max(usage_width, 10), 20, fill=hw_data["color"], outline="")
-
-    tk.Label(
-        content,
-        text=f"{hw_data['usage']:.1f}%",
-        font=("Consolas", 7, "bold"),
-        bg="#1a1d24",
-        fg=hw_data["color"]
-    ).pack(anchor="w", pady=(0, 3))
-
-    # Temperature
-    tk.Label(
-        content,
-        text="TEMP",
-        font=("Segoe UI", 6, "bold"),
-        bg="#1a1d24",
-        fg="#64748b"
-    ).pack(anchor="w")
-
-    temp_chart = tk.Canvas(content, bg="#0f1117", height=20, highlightthickness=0)
-    temp_chart.pack(fill="x", pady=1)
-
-    temp_width = int((hw_data["temp"] / 100) * (temp_chart.winfo_reqwidth() - 10))
-    temp_color = "#10b981" if hw_data["temp"] < 60 else "#f59e0b" if hw_data["temp"] < 80 else "#ef4444"
-    temp_chart.create_rectangle(0, 0, max(temp_width, 10), 20, fill=temp_color, outline="")
-
-    tk.Label(
-        content,
-        text=f"{hw_data['temp']:.0f}°C",
-        font=("Consolas", 7, "bold"),
-        bg="#1a1d24",
-        fg=temp_color
-    ).pack(anchor="w", pady=(0, 3))
-
-    # Status - compact
-    health = "✓ OK" if hw_data["usage"] < 85 else "⚠ High"
-    health_color = "#10b981" if hw_data["usage"] < 85 else "#f59e0b"
-
-    tk.Label(
-        content,
-        text=health,
-        font=("Segoe UI", 7),
-        bg="#1a1d24",
-        fg=health_color
-    ).pack(anchor="w")
-
-    # Load status
-    if hw_data["usage"] < 10:
-        load_status = "Idle"
-        load_color = "#64748b"
-    elif hw_data["usage"] < 50:
-        load_status = "Normal"
-        load_color = "#3b82f6"
-    elif hw_data["usage"] < 80:
-        load_status = "High"
-        load_color = "#f59e0b"
-    else:
-        load_status = "Max"
-        load_color = "#ef4444"
-
-    tk.Label(
-        content,
-        text=load_status,
-        font=("Segoe UI", 7),
-        bg="#1a1d24",
-        fg=load_color
-    ).pack(anchor="w")
-
-
-def create_advanced_hw_card(parent, hw_data):
-    """Create ultra-compact advanced hardware card with mini charts"""
-    card = tk.Frame(parent, bg="#1a1d24")
-    card.pack(fill="x", padx=10, pady=4)
-
-    # Header
-    header = tk.Frame(card, bg=hw_data["color"], height=30)
+    # Header with colored accent
+    header = tk.Frame(card, bg=hw_data["color"], height=35)
     header.pack(fill="x")
     header.pack_propagate(False)
 
@@ -719,117 +282,56 @@ def create_advanced_hw_card(parent, hw_data):
         font=("Segoe UI", 9, "bold"),
         bg=hw_data["color"],
         fg="#ffffff"
-    ).pack(side="left", padx=10, pady=5)
+    ).pack(side="left", padx=10, pady=8)
 
-    # Content area - 3 columns
-    content = tk.Frame(card, bg="#1a1d24")
-    content.pack(fill="x", padx=8, pady=5)
+    # Stats
+    stats_frame = tk.Frame(card, bg="#1a1d24")
+    stats_frame.pack(fill="x", padx=10, pady=8)
 
-    # LEFT: Usage chart (mini sparkline)
-    left = tk.Frame(content, bg="#1a1d24", width=150)
-    left.pack(side="left", fill="y", padx=5)
-    left.pack_propagate(False)
+    # Usage
+    usage_row = tk.Frame(stats_frame, bg="#1a1d24")
+    usage_row.pack(fill="x", pady=2)
 
     tk.Label(
-        left,
-        text="USAGE",
-        font=("Segoe UI", 7, "bold"),
+        usage_row,
+        text="Usage:",
+        font=("Segoe UI", 8),
         bg="#1a1d24",
-        fg="#64748b"
-    ).pack(anchor="w")
-
-    usage_chart = tk.Canvas(left, bg="#0f1117", height=25, highlightthickness=0)
-    usage_chart.pack(fill="x", pady=2)
-
-    # Draw simple usage indicator
-    usage_width = int((hw_data["usage"] / 100) * 130)
-    usage_chart.create_rectangle(0, 0, usage_width, 25, fill=hw_data["color"], outline="")
+        fg="#94a3b8",
+        width=8,
+        anchor="w"
+    ).pack(side="left")
 
     tk.Label(
-        left,
+        usage_row,
         text=f"{hw_data['usage']:.1f}%",
-        font=("Consolas", 8, "bold"),
+        font=("Consolas", 9, "bold"),
         bg="#1a1d24",
         fg=hw_data["color"]
-    ).pack(anchor="w")
+    ).pack(side="left")
 
-    # MIDDLE: Temperature chart
-    middle = tk.Frame(content, bg="#1a1d24", width=150)
-    middle.pack(side="left", fill="y", padx=5)
-    middle.pack_propagate(False)
+    # Temperature
+    temp_row = tk.Frame(stats_frame, bg="#1a1d24")
+    temp_row.pack(fill="x", pady=2)
 
     tk.Label(
-        middle,
-        text="TEMPERATURE",
-        font=("Segoe UI", 7, "bold"),
+        temp_row,
+        text="Temp:",
+        font=("Segoe UI", 8),
         bg="#1a1d24",
-        fg="#64748b"
-    ).pack(anchor="w")
+        fg="#94a3b8",
+        width=8,
+        anchor="w"
+    ).pack(side="left")
 
-    temp_chart = tk.Canvas(middle, bg="#0f1117", height=25, highlightthickness=0)
-    temp_chart.pack(fill="x", pady=2)
-
-    # Draw temp indicator
-    temp_width = int((hw_data["temp"] / 100) * 130)
-    temp_color = "#10b981" if hw_data["temp"] < 60 else "#f59e0b" if hw_data["temp"] < 80 else "#ef4444"
-    temp_chart.create_rectangle(0, 0, temp_width, 25, fill=temp_color, outline="")
-
+    temp_color = "#ef4444" if hw_data["temp"] > 70 else "#10b981" if hw_data["temp"] < 50 else "#f59e0b"
     tk.Label(
-        middle,
-        text=f"{hw_data['temp']:.0f}°C",
-        font=("Consolas", 8, "bold"),
+        temp_row,
+        text=f"{hw_data['temp']:.1f}°C",
+        font=("Consolas", 9, "bold"),
         bg="#1a1d24",
         fg=temp_color
-    ).pack(anchor="w")
-
-    # RIGHT: Status
-    right = tk.Frame(content, bg="#1a1d24")
-    right.pack(side="left", fill="both", expand=True, padx=5)
-
-    tk.Label(
-        right,
-        text="STATUS",
-        font=("Segoe UI", 7, "bold"),
-        bg="#1a1d24",
-        fg="#64748b"
-    ).pack(anchor="w")
-
-    # Health status
-    health = "✓ Working Properly" if hw_data["usage"] < 85 else "⚠ High Load"
-    health_color = "#10b981" if hw_data["usage"] < 85 else "#f59e0b"
-
-    tk.Label(
-        right,
-        text=health,
-        font=("Segoe UI", 8),
-        bg="#1a1d24",
-        fg=health_color
-    ).pack(anchor="w", pady=1)
-
-    # Load status
-    if hw_data["usage"] < 10:
-        load_status = "Idle"
-        load_color = "#64748b"
-    elif hw_data["usage"] < 50:
-        load_status = "Normal"
-        load_color = "#3b82f6"
-    elif hw_data["usage"] < 80:
-        load_status = "High Load"
-        load_color = "#f59e0b"
-    else:
-        load_status = "Maximum"
-        load_color = "#ef4444"
-
-    tk.Label(
-        right,
-        text=load_status,
-        font=("Segoe UI", 8),
-        bg="#1a1d24",
-        fg=load_color
-    ).pack(anchor="w")
-
-    # Bottom padding
-    tk.Frame(card, bg="#1a1d24", height=5).pack()
+    ).pack(side="left")
 
 
 def build_yourpc_efficiency(self, parent):
@@ -2094,3 +1596,131 @@ def build_yourpc_startup(self, parent):
     services_btn.bind("<Button-1>", open_services)
 
     tk.Frame(services_card, bg="#1a1d24", height=8).pack()
+
+
+def build_menu_buttons(self, parent):
+    """Build menu buttons with background images and gaming-style descriptions"""
+    import os
+    from PIL import Image, ImageTk
+
+    menu_items = [
+        {
+            "image": "mypc_t1.png",
+            "title": "YOUR PC - Health Raport",
+            "desc_lines": [
+                "Zaawansowany raport zdrowia - Komponentów twojego PC.",
+                "Badany na tle sesji. Cała historia w jednym miejscu."
+            ],
+            "special": False
+        },
+        {
+            "image": "mypc_t2.png",
+            "title": "Statistics & Monitoring",
+            "desc_lines": [
+                "Wszelkie statystyki na tle miesięcy, odnośnie twojego PC.",
+                "Tu zaobserwujesz wszelkie skoki temperatur, napięcia.",
+                "Przy powtarzalności i podejrzeniu, zostaniesz powiadomiony o tym!",
+                "Zamiast widzieć że coś się stało, dowiesz się dlaczego."
+            ],
+            "special": "NO MESSAGES",
+            "special_color": "#a3e635"  # Yellow-green
+        },
+        {
+            "image": "mypc_t3.png",
+            "title": "Optimalization Dashboard",
+            "desc_lines": [
+                "W pełni przygotowane funkcje dla optymalizacji najstarszych sprzętów.",
+                "Do automatycznego działania z każdym dniem.",
+                "Skonfiguruj raz, wzmocnij efektywność!"
+            ],
+            "special": False
+        },
+        {
+            "image": "mypc_t4.png",
+            "title": "Daily Advanced System Cleanup",
+            "desc_lines": [
+                "Szereg narzędzi, inspirowanych liderami oprogramowania cleanupowego.",
+                "Połączone moce, tutaj w jednym miejscu!"
+            ],
+            "special": False
+        },
+        {
+            "image": "mypc_firstdevicestup.png",
+            "title": "First Device Setup",
+            "desc_lines": [
+                "• DRIVER'S UPDATE. ALL drivers source IN ONE.",
+                "• USLESS SERVICES OFF. Only what you need, and for stable working.",
+                "• POTENTIALY USLESS APPS. Cortana, OneDrive, Local Maps, Game Bar, XBox."
+            ],
+            "special": "bullets",
+            "compact": True
+        }
+    ]
+
+    for item in menu_items:
+        # Container for button (image + text below)
+        btn_wrapper = tk.Frame(parent, bg="#0f1117")
+        btn_wrapper.pack(pady=3, padx=10)
+
+        # Load background image
+        img_path = os.path.join("data", "icons", item["image"])
+
+        if os.path.exists(img_path):
+            try:
+                # Load image at original size
+                img = Image.open(img_path)
+                # Resize to fit in left column (280px width, maintain aspect ratio)
+                img_height = int(260 * img.height / img.width)
+
+                # Special compact height for First Device Setup
+                if item.get("compact"):
+                    img_height = int(img_height * 0.7)
+
+                img = img.resize((260, img_height), Image.Resampling.LANCZOS)
+                photo = ImageTk.PhotoImage(img)
+
+                # Create canvas for image with title overlay
+                img_canvas = tk.Canvas(btn_wrapper, bg="#0f1117", highlightthickness=0,
+                                      width=260, height=img_height)
+                img_canvas.pack()
+
+                # Draw background image
+                img_canvas.create_image(0, 0, image=photo, anchor="nw")
+                img_canvas.image = photo
+
+                # Add title overlay on image (25% from top) - GAMING STYLE
+                title_y = int(img_height * 0.25)
+                title_text = item["title"]
+                if item.get("special") and item["special"] != "bullets":
+                    title_text += f" - {item['special']}"
+
+                img_canvas.create_text(130, title_y, text=title_text,
+                                      font=("Bahnschrift SemiBold", 8, "bold"),
+                                      fill="#ffffff", anchor="center")
+
+                # Description text BELOW the image - ULTRA COMPACT GAMING STYLE
+                desc_frame = tk.Frame(btn_wrapper, bg="#0f1117")
+                desc_frame.pack(pady=(2, 0))
+
+                for line in item["desc_lines"]:
+                    # Special color for NO MESSAGES
+                    if item.get("special") == "NO MESSAGES":
+                        text_color = item.get("special_color", "#c0c0c0")
+                    else:
+                        text_color = "#c0c0c0"
+
+                    tk.Label(desc_frame, text=line,
+                            font=("Consolas", 6),
+                            bg="#0f1117", fg=text_color).pack(anchor="center")
+
+                # Make clickable
+                def on_click(event, title=item["title"]):
+                    print(f"Clicked: {title}")
+
+                img_canvas.bind("<Button-1>", on_click)
+                img_canvas.bind("<Enter>", lambda e: img_canvas.config(cursor="hand2"))
+                img_canvas.bind("<Leave>", lambda e: img_canvas.config(cursor=""))
+
+            except Exception as e:
+                tk.Label(btn_wrapper, text=f"Error loading {item['image']}: {e}",
+                        font=("Segoe UI", 8), bg="#0f1117", fg="#ef4444").pack(pady=3)

@@ -91,7 +91,7 @@ class ExpandedMainWindow:
         # Create root window
         self.root = tk.Tk()
         self.root.title("PC Workman - HCK Labs v1.5.7")
-        self.root.geometry("980x575")  # Increased height by ~15% (500 -> 575)
+        self.root.geometry("980x575")  # Original size restored
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
 
@@ -2598,15 +2598,15 @@ class ExpandedMainWindow:
         if self.overlay_frame:
             self._close_overlay()
 
-        # Create overlay frame - FULL SCREEN (except header)
+        # Create overlay frame - FULL SCREEN (except header) - ORIGINAL SIZE
         self.overlay_frame = tk.Frame(self.root, bg="#0f1117", relief="flat", bd=0)
-        self.overlay_frame.place(x=980, y=60, width=980, height=515)  # Start off-screen right, FULL WIDTH (575-60=515)
+        self.overlay_frame.place(x=980, y=60, width=980, height=515)  # Original size
 
         # Build page content
         self._build_overlay_content(page_id)
 
         # Animate slide-in from right - COVERS ENTIRE SCREEN
-        self._animate_overlay_slide(980, 0, page_id)  # Slide from x=980 to x=0 (full screen)
+        self._animate_overlay_slide(980, 0, page_id)  # Original animation
 
     def _animate_overlay_slide(self, start_x, end_x, page_id):
         """Smooth slide animation for overlay"""
