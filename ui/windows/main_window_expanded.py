@@ -3143,6 +3143,55 @@ class ExpandedMainWindow:
             fg="#8b5cf6"
         ).pack(anchor="w", padx=15, pady=(0, 15))
 
+        # === QUICK ACTIONS (SERVICES + CHECK UPDATE) ===
+        actions_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
+        actions_frame.pack(fill="x", padx=20, pady=10)
+
+        tk.Label(
+            actions_frame,
+            text="Quick Actions",
+            font=("Segoe UI Semibold", 14, "bold"),
+            bg="#1a1d24",
+            fg="#ffffff"
+        ).pack(anchor="w", padx=15, pady=(15, 10))
+
+        buttons_row = tk.Frame(actions_frame, bg="#1a1d24")
+        buttons_row.pack(fill="x", padx=15, pady=10)
+
+        # SERVICES Button
+        services_btn = tk.Button(
+            buttons_row,
+            text="🔧 SERVICES",
+            font=("Segoe UI Semibold", 11, "bold"),
+            bg="#8b5cf6",
+            fg="#ffffff",
+            activebackground="#7c3aed",
+            activeforeground="#ffffff",
+            bd=0,
+            padx=20,
+            pady=10,
+            cursor="hand2",
+            command=lambda: self._show_services_dialog(scrollable_frame)
+        )
+        services_btn.pack(side="left", padx=(0, 15))
+
+        # CHECK UPDATE Button
+        update_btn = tk.Button(
+            buttons_row,
+            text="🔄 CHECK UPDATE!",
+            font=("Segoe UI Semibold", 11, "bold"),
+            bg="#10b981",
+            fg="#ffffff",
+            activebackground="#059669",
+            activeforeground="#ffffff",
+            bd=0,
+            padx=20,
+            pady=10,
+            cursor="hand2",
+            command=lambda: self._show_update_dialog(scrollable_frame)
+        )
+        update_btn.pack(side="left")
+
         # === ABOUT PROJECT ===
         about_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
         about_frame.pack(fill="x", padx=20, pady=10)
@@ -4701,6 +4750,256 @@ But better: AI-powered insights, calm design, universal hardware support"""
 
         widget_thread = threading.Thread(target=launch_thread, daemon=True)
         widget_thread.start()
+
+    # ========== SERVICES DIALOG ==========
+
+    def _show_services_dialog(self, parent):
+        """Show Services dialog - same as in hck_gpt_panel"""
+        # Create dialog window
+        dialog = tk.Toplevel(self.root)
+        dialog.title("🔧 Service Setup - hck_GPT")
+        dialog.geometry("600x500")
+        dialog.configure(bg="#0f1117")
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() // 2) - 300
+        y = self.root.winfo_y() + (self.root.winfo_height() // 2) - 250
+        dialog.geometry(f"+{x}+{y}")
+
+        # Header
+        header = tk.Frame(dialog, bg="#8b5cf6")
+        header.pack(fill="x")
+
+        tk.Label(
+            header,
+            text="🔧 Service Setup Wizard",
+            font=("Segoe UI", 14, "bold"),
+            bg="#8b5cf6",
+            fg="#ffffff"
+        ).pack(pady=15)
+
+        # Content frame with scrollbar
+        content = tk.Frame(dialog, bg="#0f1117")
+        content.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Import chat handler
+        try:
+            from hck_gpt.chat_handler import ChatHandler
+            chat_handler = ChatHandler()
+
+            # Text widget for chat
+            text_frame = tk.Frame(content, bg="#1a1d24")
+            text_frame.pack(fill="both", expand=True)
+
+            scrollbar = tk.Scrollbar(text_frame)
+            scrollbar.pack(side="right", fill="y")
+
+            text_widget = tk.Text(
+                text_frame,
+                bg="#1a1d24",
+                fg="#ffffff",
+                font=("Consolas", 10),
+                wrap="word",
+                yscrollcommand=scrollbar.set
+            )
+            text_widget.pack(fill="both", expand=True)
+            scrollbar.config(command=text_widget.yview)
+
+            # Start wizard
+            responses = chat_handler.wizard.start()
+            for response in responses:
+                text_widget.insert("end", response + "\n")
+            text_widget.config(state="disabled")
+
+            # Entry for user input
+            entry_frame = tk.Frame(content, bg="#0f1117")
+            entry_frame.pack(fill="x", pady=(10, 0))
+
+            entry = tk.Entry(
+                entry_frame,
+                bg="#1a1d24",
+                fg="#ffffff",
+                font=("Consolas", 11),
+                insertbackground="#8b5cf6"
+            )
+            entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
+
+            def send_message():
+                msg = entry.get().strip()
+                if msg:
+                    entry.delete(0, "end")
+                    text_widget.config(state="normal")
+                    text_widget.insert("end", f"\n> {msg}\n")
+                    responses = chat_handler.process_message(msg)
+                    for response in responses:
+                        text_widget.insert("end", response + "\n")
+                    text_widget.see("end")
+                    text_widget.config(state="disabled")
+
+            entry.bind("<Return>", lambda e: send_message())
+
+            send_btn = tk.Button(
+                entry_frame,
+                text="Send",
+                bg="#8b5cf6",
+                fg="#ffffff",
+                font=("Segoe UI", 10, "bold"),
+                bd=0,
+                padx=15,
+                command=send_message
+            )
+            send_btn.pack(side="right")
+
+        except ImportError:
+            tk.Label(
+                content,
+                text="Service Setup not available\n\nChat handler module not found.",
+                font=("Segoe UI", 12),
+                bg="#0f1117",
+                fg="#ef4444",
+                justify="center"
+            ).pack(expand=True)
+
+        # Close button
+        close_btn = tk.Button(
+            dialog,
+            text="Close",
+            bg="#374151",
+            fg="#ffffff",
+            font=("Segoe UI", 10),
+            bd=0,
+            padx=20,
+            pady=8,
+            command=dialog.destroy
+        )
+        close_btn.pack(pady=15)
+
+    def _show_update_dialog(self, parent):
+        """Show Check Update dialog"""
+        # Create dialog window
+        dialog = tk.Toplevel(self.root)
+        dialog.title("🔄 Check for Updates")
+        dialog.geometry("500x350")
+        dialog.configure(bg="#0f1117")
+        dialog.resizable(False, False)
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() // 2) - 250
+        y = self.root.winfo_y() + (self.root.winfo_height() // 2) - 175
+        dialog.geometry(f"+{x}+{y}")
+
+        # Header
+        header = tk.Frame(dialog, bg="#10b981")
+        header.pack(fill="x")
+
+        tk.Label(
+            header,
+            text="🔄 Check for Updates",
+            font=("Segoe UI", 14, "bold"),
+            bg="#10b981",
+            fg="#ffffff"
+        ).pack(pady=15)
+
+        # Content
+        content = tk.Frame(dialog, bg="#0f1117")
+        content.pack(fill="both", expand=True, padx=30, pady=20)
+
+        # Message
+        tk.Label(
+            content,
+            text="Hey!",
+            font=("Segoe UI", 16, "bold"),
+            bg="#0f1117",
+            fg="#ffffff"
+        ).pack(anchor="w", pady=(0, 15))
+
+        # Version info
+        version_frame = tk.Frame(content, bg="#0f1117")
+        version_frame.pack(anchor="w", pady=5)
+
+        tk.Label(
+            version_frame,
+            text="Your version: ",
+            font=("Segoe UI", 12),
+            bg="#0f1117",
+            fg="#cbd5e1"
+        ).pack(side="left")
+
+        tk.Label(
+            version_frame,
+            text="v1.6.3",
+            font=("Segoe UI", 12, "bold"),
+            bg="#0f1117",
+            fg="#10b981"
+        ).pack(side="left")
+
+        tk.Label(
+            version_frame,
+            text=" - 13.01.2026",
+            font=("Segoe UI", 12),
+            bg="#0f1117",
+            fg="#64748b"
+        ).pack(side="left")
+
+        # Message text
+        tk.Label(
+            content,
+            text="\nI would really like to tell you if there's a new update!\nBut I'm limited ;)",
+            font=("Segoe UI", 11),
+            bg="#0f1117",
+            fg="#94a3b8",
+            justify="left"
+        ).pack(anchor="w", pady=(15, 10))
+
+        tk.Label(
+            content,
+            text="Please check here if your version is up to date!",
+            font=("Segoe UI", 11),
+            bg="#0f1117",
+            fg="#cbd5e1"
+        ).pack(anchor="w", pady=(5, 15))
+
+        # GitHub button
+        def open_github():
+            import webbrowser
+            webbrowser.open("https://github.com/HCK-Labs/PC-Workman/releases")
+
+        github_btn = tk.Button(
+            content,
+            text="🔗 CHECK UPDATE ON GITHUB",
+            font=("Segoe UI Semibold", 11, "bold"),
+            bg="#3b82f6",
+            fg="#ffffff",
+            activebackground="#2563eb",
+            activeforeground="#ffffff",
+            bd=0,
+            padx=25,
+            pady=12,
+            cursor="hand2",
+            command=open_github
+        )
+        github_btn.pack(pady=15)
+
+        # Close button
+        close_btn = tk.Button(
+            dialog,
+            text="Close",
+            bg="#374151",
+            fg="#ffffff",
+            font=("Segoe UI", 10),
+            bd=0,
+            padx=20,
+            pady=8,
+            command=dialog.destroy
+        )
+        close_btn.pack(pady=15)
 
     # ========== MAIN LOOP ==========
 
