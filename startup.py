@@ -1,130 +1,203 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.4.0
-Initializes all core components, starts the scheduler, and launches the main UI if available.
-Enhanced with System Tray, Process Classification, and Data Management.
+Entry point for PC Workman HCK - from v1.0.1 to v1.6.2 - Now program have .exe!
+Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
+
+# ============================================
+# IMMEDIATE CONSOLE OUTPUT - Shows before any imports
+# ============================================
+print("=" * 70)
+print("  PC Workman v1.6.3 - This console will close if program runs correctly")
+print("  Attach this information when reporting errors/issues")
+print("=" * 70)
+print()
+print("=" * 37)
+print("  DIAGNOSTIC CONSOLE HELPER v1.6.3  ")
+print("=" * 37)
+print()
+print("[~] Initializing Python environment...")
 
 import sys
 import io
 import os
+import ctypes
 from typing import Optional, Any
+
+print("[+] Python environment ready")
+print("[~] Loading core systems...")
+
+# ============================================
+# DIAGNOSTIC CONSOLE HELPER v1.6.3
+# ============================================
+def get_console_window():
+    """Get handle to console window"""
+    if sys.platform == 'win32':
+        return ctypes.windll.kernel32.GetConsoleWindow()
+    return None
+
+def hide_console():
+    """Hide the console window"""
+    if sys.platform == 'win32':
+        hwnd = get_console_window()
+        if hwnd:
+            ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_HIDE = 0
+
+def show_console():
+    """Show the console window"""
+    if sys.platform == 'win32':
+        hwnd = get_console_window()
+        if hwnd:
+            ctypes.windll.user32.ShowWindow(hwnd, 5)  # SW_SHOW = 5
+
+def log(msg: str, level: str = "INFO"):
+    """Print log message with level prefix"""
+    prefix = {
+        "INFO": "[*]",
+        "OK": "[+]",
+        "WARN": "[!]",
+        "ERROR": "[-]",
+        "LOAD": "[~]"
+    }.get(level, "[*]")
+    print(f"{prefix} {msg}")
 
 # Fix console encoding issues on Windows
 if sys.platform == 'win32':
-    # Set environment variable for subprocesses
     os.environ['PYTHONIOENCODING'] = 'utf-8'
-    # Fix console encoding
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    if sys.stdout is not None and hasattr(sys.stdout, 'buffer'):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    if sys.stderr is not None and hasattr(sys.stderr, 'buffer'):
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
-import time
-import threading
-from import_core import COMPONENTS, list_components, count_components
+print("[+] Core systems loaded")
 
-# --- Import all major modules (Core / AI / Stats) ---
-import core.monitor, core.logger, core.analyzer, core.scheduler
-import core.process_classifier, core.process_data_manager  # NEW: Enhanced process tracking
-#import ai.hck_gpt, ai.ai_logic, ai.detector
-import hck_stats_engine.avg_calculator, hck_stats_engine.trend_analysis
-
-# --- Try importing the UI modules safely ---
-main_window_module: Optional[Any] = None
-main_window_expanded_module: Optional[Any] = None
-HAS_UI = False
-
-try:
-    import ui.windows.main_window as main_window_module  # type: ignore
-    import ui.windows.main_window_expanded as main_window_expanded_module  # type: ignore
-    HAS_UI = True
-except ImportError:
-    pass
-
+# ============================================
+# STARTUP SEQUENCE
+# ============================================
 def run_demo():
-    print("╔══════════════════════════════════════════════╗")
-    print("║   🧠 PC Workman – HCK_Labs  v1.5.7           ║")
-    print("║   Enhanced System Tray & Process Tracking    ║")
-    print("╚══════════════════════════════════════════════╝\n")
+    print()
+    log("Starting PC Workman HCK...", "LOAD")
+    print()
 
-    print("🔧 Registered Components:")
-    print(list_components(), "\n")
-    print(f"Total components active: {count_components()}\n")
+    # --- Step 1: Load core imports ---
+    log("Loading import_core...", "LOAD")
+    try:
+        from import_core import COMPONENTS, list_components, count_components
+        log("import_core loaded", "OK")
+    except Exception as e:
+        log(f"FAILED to load import_core: {e}", "ERROR")
+        import traceback
+        traceback.print_exc()
+        input("\nPress Enter to exit...")
+        return
 
-    # Get all core components
+    # --- Step 2: Load core modules (compact output) ---
+    log("Loading core modules...", "LOAD")
+    core_ok = True
+    for module_name in ['core.monitor', 'core.logger', 'core.analyzer', 'core.scheduler']:
+        try:
+            __import__(module_name)
+        except Exception as e:
+            log(f"  {module_name} FAILED: {e}", "ERROR")
+            core_ok = False
+    if core_ok:
+        log("Core modules loaded", "OK")
+
+    # Load additional core silently
+    try:
+        import core.process_classifier
+        import core.process_data_manager
+    except:
+        pass
+
+    # --- Step 3: Load stats engine ---
+    try:
+        import hck_stats_engine.avg_calculator
+        import hck_stats_engine.trend_analysis
+        log("Stats engine loaded", "OK")
+    except Exception as e:
+        log(f"Stats engine FAILED: {e}", "ERROR")
+
+    # --- Step 4: Load UI modules ---
+    log("Loading UI...", "LOAD")
+    main_window_module: Optional[Any] = None
+    main_window_expanded_module: Optional[Any] = None
+    HAS_UI = False
+
+    try:
+        import ui
+        import ui.windows.main_window as main_window_module
+        import ui.windows.main_window_expanded as main_window_expanded_module
+        HAS_UI = True
+        log("UI modules loaded", "OK")
+    except Exception as e:
+        log(f"UI modules FAILED: {e}", "ERROR")
+        import traceback
+        traceback.print_exc()
+
+    print()
+    log(f"Components: {count_components()} registered", "INFO")
+
+    # --- Step 5: Get components ---
     scheduler = COMPONENTS.get('core.scheduler')
     logger = COMPONENTS.get('core.logger')
     monitor = COMPONENTS.get('core.monitor')
     data_manager = COMPONENTS.get('core.process_data_manager')
 
-    # --- Start scheduler loop ---
+    # --- Step 6: Start scheduler ---
     if scheduler:
         try:
             scheduler.start_loop()
-            print("[Scheduler] Data collection started (1-second interval).")
+            log("Scheduler started", "OK")
         except Exception as e:
-            print(f"[Scheduler] Failed to start: {e}")
-            import traceback
-            traceback.print_exc()
+            log(f"Scheduler FAILED: {e}", "ERROR")
             scheduler = None
-    else:
-        print("[Scheduler] Scheduler component not available.")
 
-    # --- UI Handling - DUAL MODE SYSTEM ---
+    # --- Step 7: Launch UI ---
     if HAS_UI and main_window_module is not None and main_window_expanded_module is not None:
-        print("[UI] Launching DUAL MODE system...")
+        log("Launching UI...", "LOAD")
 
-        # Mode manager to handle switching
+        import threading
+
+        # Mode manager
         class ModeManager:
             def __init__(self):
-                self.expanded_window: Optional[Any] = None  # Will be ExpandedMainWindow or None
-                self.minimal_window: Optional[Any] = None  # Will be MainWindow or None
-                self.current_mode: Optional[str] = None  # str or None
+                self.expanded_window: Optional[Any] = None
+                self.minimal_window: Optional[Any] = None
+                self.current_mode: Optional[str] = None
                 self.quit_flag = False
 
             def switch_to_minimal(self):
-                """Switch from Expanded to Minimal Mode"""
-                print("[ModeManager] Switching to Minimal Mode...")
-
-                # Hide Expanded if visible
                 if self.expanded_window:
                     try:
                         self.expanded_window.root.withdraw()
                     except:
                         pass
-
-                # Create or show Minimal window
                 if self.minimal_window is None:
                     self.minimal_window = main_window_module.MainWindow(
                         switch_to_expanded_callback=self.switch_to_expanded
                     )
                     self.current_mode = "minimal"
-                    # Note: MainWindow already has its own mainloop
                 else:
                     try:
                         self.minimal_window.root.deiconify()
                         self.minimal_window.root.lift()
-                        # Restart update loop if needed
                         if not self.minimal_window._running:
                             self.minimal_window._running = True
-                            self.minimal_window._update_loop()  # Restart after() loop
-                            # Restart tray thread
-                            self.minimal_window._tray_thread = threading.Thread(target=self.minimal_window._tray_update_loop, daemon=True)
+                            self.minimal_window._update_loop()
+                            self.minimal_window._tray_thread = threading.Thread(
+                                target=self.minimal_window._tray_update_loop, daemon=True
+                            )
                             self.minimal_window._tray_thread.start()
-                    except Exception as e:
-                        print(f"[ModeManager] Error restoring minimal: {e}")
+                    except:
+                        pass
 
             def switch_to_expanded(self):
-                """Switch from Minimal to Expanded Mode"""
-                print("[ModeManager] Switching to Expanded Mode...")
-
-                # Hide Minimal if visible
                 if self.minimal_window:
                     try:
                         self.minimal_window.root.withdraw()
                     except:
                         pass
-
-                # Show Expanded window
                 if self.expanded_window:
                     try:
                         self.expanded_window.root.deiconify()
@@ -134,10 +207,7 @@ def run_demo():
                         pass
 
             def quit_application(self):
-                """Quit both windows"""
-                print("[ModeManager] Quitting application...")
                 self.quit_flag = True
-
                 if self.expanded_window:
                     try:
                         self.expanded_window._running = False
@@ -146,7 +216,6 @@ def run_demo():
                         self.expanded_window.root.quit()
                     except:
                         pass
-
                 if self.minimal_window:
                     try:
                         self.minimal_window._running = False
@@ -156,36 +225,28 @@ def run_demo():
                     except:
                         pass
 
-        # === SHOW SPLASH SCREEN FIRST ===
+        # Splash screen
         try:
             from ui.splash_screen import show_splash
-            import threading
 
-            # Flag to indicate splash is done
             splash_done = threading.Event()
-
             def on_splash_complete():
-                """Called when splash screen finishes"""
                 splash_done.set()
 
-            # Show splash in separate thread (non-blocking)
-            splash_thread = threading.Thread(target=lambda: show_splash(duration=2.5, on_complete=on_splash_complete))
+            splash_thread = threading.Thread(
+                target=lambda: show_splash(duration=2.5, on_complete=on_splash_complete)
+            )
             splash_thread.daemon = True
             splash_thread.start()
-
-            # Wait for splash to complete
             splash_done.wait()
-
-            print("[UI] Splash screen completed, starting main window...")
-
+            log("Splash screen done", "OK")
         except Exception as e:
-            print(f"[UI] Splash screen error (skipping): {e}")
+            log(f"Splash screen skipped: {e}", "WARN")
 
-        # Create mode manager
+        # Create mode manager and start UI
         mode_mgr = ModeManager()
 
         try:
-            # Start in Expanded Mode (980x500, centered, full-featured)
             mode_mgr.expanded_window = main_window_expanded_module.ExpandedMainWindow(
                 data_manager=data_manager,
                 monitor=monitor,
@@ -194,29 +255,45 @@ def run_demo():
             )
             mode_mgr.current_mode = "expanded"
 
-            print("[UI] Expanded Mode initialized, starting mainloop...")
+            log("UI ready - hiding console", "OK")
+            print()
+            print("-" * 40)
+            print("  All systems GO - Starting PC Workman")
+            print("-" * 40)
+
+            # === HIDE CONSOLE ON SUCCESS ===
+            hide_console()
+
+            # Run the UI mainloop
             mode_mgr.expanded_window.run()
 
         except Exception as e:
-            print(f"[UI] Failed to start properly: {e}")
+            log(f"UI FAILED: {e}", "ERROR")
             import traceback
             traceback.print_exc()
+            print()
+            print("=" * 50)
+            print("  UI FAILED - Check error above")
+            print("=" * 50)
+            input("\nPress Enter to exit...")
     else:
-        print("[UI] No UI module detected — running in headless mode.")
-        print("Collecting system data for 5 seconds...\n")
+        log("UI not available - headless mode", "WARN")
+        print()
+        import time
+        log("Collecting data for 5 seconds...", "INFO")
         time.sleep(5)
         if logger:
             samples = logger.get_last_n_samples(5)
             for s in samples:
-                print(f"CPU: {s['cpu_percent']}%  RAM: {s['ram_percent']}%  GPU: {s['gpu_percent']}%")
-        print("\n✅ Headless data collection finished.\n")
+                print(f"  CPU: {s['cpu_percent']}%  RAM: {s['ram_percent']}%  GPU: {s['gpu_percent']}%")
+        log("Headless finished", "OK")
+        input("\nPress Enter to exit...")
 
-    # --- Graceful stop ---
+    # Graceful stop
     if scheduler:
         try:
             scheduler.stop()
-            print("[Scheduler] Stopped gracefully.")
-        except Exception:
+        except:
             pass
 
 

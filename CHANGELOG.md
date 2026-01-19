@@ -1,6 +1,77 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.6.3+]- 2026-01-19
+### PC Workman first `.exe`!
+
+## [1.6.3] - 2026-01-12
+
+### Fan Dashboard Overhaul
+- Complete visual redesign with purple gradient temperature graph
+- Improved data density and readability
+- Enhanced visual hierarchy with gradient-based design language
+
+### Your PC Section - UI Compression
+- **PRO INFO TABLE optimization** (~25% size reduction)
+  - Removed redundant MOTHERBOARD voltage parameters (CPU, CPU SA, CPU AUX)
+  - Simplified TEMPERATURE monitoring (removed GPU, MOS, PCH, TZ00 sensors)
+  - Consolidated DISK SPACE and BODY FANS into vertical layout
+  - Reduced padding throughout (5px → 1px, 2px → 1px)
+  - Adjusted section headers (pady: 2px → 1px)
+  - Model badge optimization (padx: 10px → 8px, pady: 3px → 2px)
+
+### New Menu System
+- Replaced hardware cards with feature-focused navigation menu
+- Five interactive menu buttons with background graphics:
+  1. **YOUR PC - Health Report** - Component health monitoring with session history
+  2. **Statistics & Monitoring** - Monthly statistics with spike detection
+  3. **Optimization Dashboard** - Automated optimization for legacy hardware
+  4. **Daily Advanced System Cleanup** - Consolidated cleanup utilities
+  5. **First Device Setup** - Driver updates and service management
+- Ultra-compact text rendering (6pt Consolas, 9px line spacing)
+- Title overlays positioned at 25% image height
+- Description text placed below images for improved readability
+
+### Technical Improvements
+- Custom black scrollbar for PRO INFO TABLE (10px width)
+- Canvas-based gradient rendering
+- PIL image manipulation for button backgrounds
+- Optimized frame padding across all sections
+- Maintained 980x575 window size (reverted experimental enlargement)
+
+### Notes
+- Menu buttons are currently placeholders - functionality to be implemented in future releases
+- Focus on UI density and information hierarchy
+- No breaking changes to existing features
+
+
+## What's New [1.6.1] - `10.01.2026`
+Fan Dashboard Evolution - Complete overhaul (3 iterations in one night!) - General fixes
+### Others
+-Redesigned from scratch with high market tools research - inspired UI.
+-Beautiful purple gradient fan curve graph with interactive drag-and-drop points
+-Compact 2x2 fan status cards with real-time RPM monitoring & connection status
+-Streamlined profile system (Default, Silent, AI, P1, P2)
+-Smart profile saving to data/profiles/ with JSON export/import
+-Removed clutter - deleted right panel, focused on what matters
+-40% smaller graph height for better space utilization
+### ✪ Main Window UX Polish
+-Fixed process CPU/RAM calculations (now shows system-relative %, not per-core)
+Removed padding between navigation tabs for cleaner look
+Killed animated gradients for better performance
+Stripped unnecessary descriptive texts
+### ! ✪ NEW: Floating System Monitor Widget ✪
+Always-on-top overlay in top-right corner (outside main window!)
+Real-time CPU/RAM/GPU usage with color-coded alerts
+Draggable, minimizable, frameless design
+Runs independently - keep it visible while working
+Launch from Navigation menu → "Floating Monitor"
+### ✪ Codebase Cleanup
+Removed deprecated fan dashboard versions (ai, pro, ultra)
+Consolidated to single fan_dashboard.py - 3 files deleted, ~100KB saved
+Purged all __pycache__ and .pyc files
+Fixed broken imports after cleanup
+
 ## [v1.5.7] — 2025-12-17
 ### Architectural Evolution — Dual-Mode System & UX Refinement Phase
 **Summary:**

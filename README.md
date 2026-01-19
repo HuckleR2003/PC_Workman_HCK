@@ -2,7 +2,7 @@
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green) 
-![Version](https://img.shields.io/badge/Version-1.6.1-blue) 
+![Version](https://img.shields.io/badge/Version-1.5.7-blue) 
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 -
@@ -95,7 +95,47 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New (1.6.1) - CURRENT
+## What's New [1.6.2] - `2026-01-12` - CURRENT
+
+### Fan Dashboard Overhaul
+- Complete visual redesign with purple gradient temperature graph
+- Improved data density and readability
+- Enhanced visual hierarchy with gradient-based design language
+
+### Your PC Section - UI Compression
+- **PRO INFO TABLE optimization** (~25% size reduction)
+  - Removed redundant MOTHERBOARD voltage parameters (CPU, CPU SA, CPU AUX)
+  - Simplified TEMPERATURE monitoring (removed GPU, MOS, PCH, TZ00 sensors)
+  - Consolidated DISK SPACE and BODY FANS into vertical layout
+  - Reduced padding throughout (5px → 1px, 2px → 1px)
+  - Adjusted section headers (pady: 2px → 1px)
+  - Model badge optimization (padx: 10px → 8px, pady: 3px → 2px)
+
+### New Menu System
+- Replaced hardware cards with feature-focused navigation menu
+- Five interactive menu buttons with background graphics:
+  1. **YOUR PC - Health Report** - Component health monitoring with session history
+  2. **Statistics & Monitoring** - Monthly statistics with spike detection
+  3. **Optimization Dashboard** - Automated optimization for legacy hardware
+  4. **Daily Advanced System Cleanup** - Consolidated cleanup utilities
+  5. **First Device Setup** - Driver updates and service management
+- Ultra-compact text rendering (6pt Consolas, 9px line spacing)
+- Title overlays positioned at 25% image height
+- Description text placed below images for improved readability
+
+### Technical Improvements
+- Custom black scrollbar for PRO INFO TABLE (10px width)
+- Canvas-based gradient rendering
+- PIL image manipulation for button backgrounds
+- Optimized frame padding across all sections
+- Maintained 980x575 window size (reverted experimental enlargement)
+
+### Notes
+- Menu buttons are currently placeholders - functionality to be implemented in future releases
+- Focus on UI density and information hierarchy
+- No breaking changes to existing features
+
+## What's New [1.6.1] - `10.01.2026`
 Fan Dashboard Evolution - Complete overhaul (3 iterations in one night!) - General fixes
 ### Others
 -Redesigned from scratch with high market tools research - inspired UI.
@@ -122,7 +162,7 @@ Consolidated to single fan_dashboard.py - 3 files deleted, ~100KB saved
 Purged all __pycache__ and .pyc files
 Fixed broken imports after cleanup
 
-## What's New (v1.5.7)
+## What's New [v1.5.7] - `23.12.2025`
 ### Modern Dashboard Redesign
 - Apple-inspired flat design with gradient accents
 - Ultra-compact TOP 5 process lists
@@ -337,5 +377,4 @@ Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
 -
-
 **Ship what you have. Improve it later.** 💙
