@@ -4,6 +4,13 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <!-- Auto-redirect to English version as default -->
+    <script>
+        // Redirect to English version if no language preference is stored
+        if (!sessionStorage.getItem('langPreference')) {
+            window.location.replace('index_en.html');
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="PC_Workman – inteligentny asystent AI do monitoringu i optymalizacji PC. Wyjaśnia lagi, skoki napięcia, wykrywa minersy. Alternatywa dla HWMonitor/MSI Afterburner z 2D mapą komponentów i hck_GPT.">
@@ -17,8 +24,7 @@
     <meta name="twitter:site" content="@hck_lab">
     <meta name="twitter:title" content="PC_Workman - Inteligentny Asystent AI dla Twojego PC">
     <meta name="twitter:description" content="AI wyjaśnia lagi, skoki napięcia, wykrywa minersy. Built in public na 10-letnim laptopie.">
-	<meta name="google-site-verification" content="QyiqnCCSnaIYzlwQVLe5ySGNEtK9F7O7xE3tLJ8fkwA" />
-	
+    
     <title>PC_Workman v1.5+ | Inteligentny Asystent AI Monitor Zasobów PC - Alternatywa MSI Afterburner</title>
     
     <!-- Fonts -->
@@ -217,26 +223,28 @@
             </a>
         </div>
 
+        <!-- Security Report Link -->
+        <div class="sidebar-security-link">
+            <a href="SECURITY_report.html" class="security-report-btn">
+                <span class="security-icon"></span>
+                <span>SECURITY Report</span>
+            </a>
+        </div>
+
         <!-- Language Toggle -->
         <div class="language-toggle">
-            <a href="index.html" class="lang-btn active" data-lang="pl">PL</a>
+            <a href="index.html" class="lang-btn active" data-lang="pl" onclick="sessionStorage.setItem('langPreference', 'pl')">PL</a>
             <span class="lang-separator">/</span>
-            <a href="index_en.html" class="lang-btn" data-lang="en">ENG</a>
+            <a href="index_en.html" class="lang-btn" data-lang="en" onclick="sessionStorage.setItem('langPreference', 'en')">ENG</a>
         </div>
 
         <!-- 🔥 MY STORY BUTTON - NEW! -->
         <div class="sidebar-story-cta">
             <a href="blog/story.html" class="story-button">
                 <div class="story-button-main">
-                    <span>Build</span>
-                    <span class="story-button-separator"></span>
-                    <span>In</span>
-                    <span class="story-button-separator"></span>
-                    <span>Public</span>
-                    <span class="story-button-separator"></span>
-                    <span>Follow My Journey</span>
+                    <span>Build In Public</span>
                 </div>
-                <div class="story-button-subtitle">My Story</div>
+                <div class="story-button-subtitle">Follow My Journey</div>
             </a>
         </div>
     </nav>
@@ -611,11 +619,11 @@
                         </blockquote>
                         
                         <div class="story-cta-box">
-                            <h4><span class="giveaway-icon"></span> Viral Giveaway!</h4>
-                            <p><strong>Beta Premium dla pierwszych 100</strong> – subskrybuj newsletter i zdobądź early access!</p>
+                            <h4><span class="newsletter-icon"></span> Newsletter</h4>
+                            <p><strong>Bądź na bieżąco!</strong> Subskrybuj, aby otrzymać early access i nowości.</p>
                             <form class="newsletter-form">
                                 <input type="email" placeholder="twoj@email.pl" required>
-                                <button type="submit">Dołącz</button>
+                                <button type="submit">Subskrybuj</button>
                             </form>
                         </div>
                     </div>

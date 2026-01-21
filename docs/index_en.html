@@ -17,8 +17,7 @@
     <meta name="twitter:site" content="@hck_lab">
     <meta name="twitter:title" content="PC_Workman - Intelligent AI Assistant for Your PC">
     <meta name="twitter:description" content="AI explains lags, voltage spikes, detects miners. Built in public on a 10-year-old laptop.">
-	<meta name="google-site-verification" content="QyiqnCCSnaIYzlwQVLe5ySGNEtK9F7O7xE3tLJ8fkwA" />
-	
+
     <title>PC_Workman v1.5+ | Intelligent AI Assistant PC Resource Monitor - MSI Afterburner Alternative</title>
 
     <!-- Fonts -->
@@ -217,26 +216,28 @@
             </a>
         </div>
 
+        <!-- Security Report Link -->
+        <div class="sidebar-security-link">
+            <a href="SECURITY_report.html" class="security-report-btn">
+                <span class="security-icon"></span>
+                <span>SECURITY Report</span>
+            </a>
+        </div>
+
         <!-- Language Toggle -->
         <div class="language-toggle">
-            <a href="index.html" class="lang-btn" data-lang="pl">PL</a>
+            <a href="index.html" class="lang-btn" data-lang="pl" onclick="sessionStorage.setItem('langPreference', 'pl')">PL</a>
             <span class="lang-separator">/</span>
-            <a href="index_en.html" class="lang-btn active" data-lang="en">ENG</a>
+            <a href="index_en.html" class="lang-btn active" data-lang="en" onclick="sessionStorage.setItem('langPreference', 'en')">ENG</a>
         </div>
 
         <!-- 🔥 MY STORY BUTTON - NEW! -->
         <div class="sidebar-story-cta">
             <a href="blog/story.html" class="story-button">
                 <div class="story-button-main">
-                    <span>Build</span>
-                    <span class="story-button-separator"></span>
-                    <span>In</span>
-                    <span class="story-button-separator"></span>
-                    <span>Public</span>
-                    <span class="story-button-separator"></span>
-                    <span>Follow My Journey</span>
+                    <span>Build In Public</span>
                 </div>
-                <div class="story-button-subtitle">My Story</div>
+                <div class="story-button-subtitle">Follow My Journey</div>
             </a>
         </div>
     </nav>
@@ -611,11 +612,11 @@
                         </blockquote>
 
                         <div class="story-cta-box">
-                            <h4><span class="giveaway-icon"></span> Viral Giveaway!</h4>
-                            <p><strong>Beta Premium for the first 100</strong> – subscribe to newsletter and get early access!</p>
+                            <h4><span class="newsletter-icon"></span> Newsletter</h4>
+                            <p><strong>Stay updated!</strong> Subscribe to get early access and development news.</p>
                             <form class="newsletter-form">
                                 <input type="email" placeholder="your@email.com" required>
-                                <button type="submit">Join</button>
+                                <button type="submit">Subscribe</button>
                             </form>
                         </div>
                     </div>
