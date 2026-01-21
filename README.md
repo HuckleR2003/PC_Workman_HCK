@@ -5,8 +5,8 @@
 ![Version](https://img.shields.io/badge/Version-1.6.4-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
-![CodeQL](https://github.com/HuckleR2003/PC_Workman_HCK/.github/workflows/codeql.yml/badge.svg)
-![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F70%20clean-brightgreen)
+[![CodeQL](https://github.com/HuckleR2003/PC_Workman_HCK/actions/workflows/codeql.yml/badge.svg)](https://github.com/HuckleR2003/PC_Workman_HCK/security/code-scanning)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F70%20clean-brightgreen)](https://www.virustotal.com)
 ![Sigstore](https://img.shields.io/badge/Sigstore-signed-blue)
 ![Open Source](https://img.shields.io/badge/Open%20Source-brightgreen)
 -
@@ -376,6 +376,7 @@ Free for personal and commercial use. Attribution appreciated.
 -
 
 **Ship what you have. Improve it later.** 💙
+
 
 
 
