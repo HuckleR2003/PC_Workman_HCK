@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F70%20clean-brightgreen)
 ![Sigstore](https://img.shields.io/badge/Sigstore-signed-blue)
-![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9C%93-brightgreen)
+![Open Source](https://img.shields.io/badge/Open%20Source-brightgreen)
 -
 ## Overview
 PC_Workman is a real-time system monitoring tool built in Python. It combines live performance diagnostics, AI-assisted analysis, and a modular architecture designed for intelligent system optimization.
@@ -382,3 +382,4 @@ Free for personal and commercial use. Attribution appreciated.
 -
 
 **Ship what you have. Improve it later.** 💙
+
