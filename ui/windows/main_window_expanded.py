@@ -27,6 +27,8 @@ except ImportError:
 
 from ui.theme import THEME
 from ui.components.led_bars import LEDSegmentBar
+from ui.components.sidebar_nav import SidebarNav
+from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_stats_page
 
 # YOUR PC page helper
 from ui.components.yourpc_page import build_yourpc_page
@@ -84,6 +86,9 @@ class ExpandedMainWindow:
         self.active_overlay = None
         self.overlay_frame = None
 
+        # View switching system
+        self.current_view = "dashboard"
+
         # System Tray
         self.tray_manager = None
         self._init_system_tray()
@@ -91,7 +96,7 @@ class ExpandedMainWindow:
         # Create root window
         self.root = tk.Tk()
         self.root.title("PC Workman - HCK Labs v1.5.7")
-        self.root.geometry("980x575")  # Original size restored
+        self.root.geometry("1160x575")  # Expanded for sidebar (980 + 180)
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
 
@@ -156,8 +161,8 @@ class ExpandedMainWindow:
     def _center_window(self):
         """Center window on screen"""
         self.root.update_idletasks()
-        width = 980
-        height = 575  # Updated to match new height
+        width = 1160  # Expanded for sidebar (980 + 180)
+        height = 575
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         x = (screen_width // 2) - (width // 2)
@@ -166,7 +171,32 @@ class ExpandedMainWindow:
 
     def _build_ui(self):
         """Build complete UI"""
-        # HEADER
+        # MAIN CONTAINER (sidebar + content)
+        self.main_container = tk.Frame(self.root, bg=THEME["bg_main"])
+        self.main_container.pack(fill="both", expand=True)
+
+        # LEFT SIDEBAR (Snyk Evo style) - 180px wide
+        self.sidebar = SidebarNav(
+            self.main_container,
+            width=180,
+            on_navigate=self._handle_sidebar_navigation
+        )
+        self.sidebar.pack(side="left", fill="y")
+
+        # RIGHT CONTENT AREA
+        self.content_area = tk.Frame(self.main_container, bg=THEME["bg_main"])
+        self.content_area.pack(side="left", fill="both", expand=True)
+
+        # Track current view
+        self.current_view = "dashboard"
+        self.dashboard_widgets = []  # Store dashboard widgets for show/hide
+
+        # Build dashboard view (default)
+        self._build_dashboard_view()
+
+    def _build_dashboard_view(self):
+        """Build the main dashboard view"""
+        # HEADER (in content area)
         self._build_header()
 
         # SESSION AVERAGE BARS + NAVIGATION
@@ -178,13 +208,348 @@ class ExpandedMainWindow:
         # HCK_GPT BANNER (bottom)
         self._build_hckgpt_banner()
 
-        # SLIDE-OUT SIDEBAR (LEFT) - OVERLAY, doesn't push content! 🚀
-        self._build_slide_sidebar()
+    def _switch_to_page(self, page_id):
+        """Switch content area to a specific page (replaces dashboard)"""
+        print(f"[Switch] Switching to page: {page_id} (current: {self.current_view})")
+
+        if self.current_view == page_id and page_id != "dashboard":
+            return
+
+        # Close any open overlay first
+        self._close_overlay()
+
+        # Clear current content
+        for widget in self.content_area.winfo_children():
+            widget.destroy()
+
+        self.current_view = page_id
+
+        # Build the new page
+        if page_id == "dashboard":
+            self._build_dashboard_view()
+        elif page_id == "fans_hardware":
+            self._build_fans_hardware_view()
+        elif page_id == "fans_usage_stats":
+            self._build_fans_usage_stats_view()
+        elif page_id == "fan_control":
+            self._build_fan_dashboard_view()
+        elif page_id == "monitoring_alerts":
+            self._build_monitoring_alerts_view()
+        else:
+            # For other pages, use the overlay system
+            self._build_dashboard_view()
+            self._show_overlay(page_id)
+
+    def _build_page_header(self, title, subtitle=""):
+        """Build a header for sub-pages with back button"""
+        header = tk.Frame(self.content_area, bg="#0a0e14", height=60)
+        header.pack(fill="x")
+        header.pack_propagate(False)
+
+        # Back button
+        back_btn = tk.Label(
+            header,
+            text="← Dashboard",
+            font=("Segoe UI Semibold", 10),
+            bg="#0a0e14",
+            fg="#8b5cf6",
+            cursor="hand2",
+            padx=15
+        )
+        back_btn.pack(side="left", pady=15)
+
+        def go_back_to_dashboard(e):
+            self._switch_to_page("dashboard")
+            # Update sidebar active state
+            if hasattr(self, 'sidebar') and self.sidebar:
+                self.sidebar.set_active_page("dashboard")
+
+        back_btn.bind("<Button-1>", go_back_to_dashboard)
+
+        # Hover effect
+        def on_enter(e):
+            back_btn.config(fg="#a78bfa")
+        def on_leave(e):
+            back_btn.config(fg="#8b5cf6")
+        back_btn.bind("<Enter>", on_enter)
+        back_btn.bind("<Leave>", on_leave)
+
+        # Title
+        tk.Label(
+            header,
+            text=title,
+            font=("Segoe UI Semibold", 16, "bold"),
+            bg="#0a0e14",
+            fg="#ffffff"
+        ).pack(side="left", padx=(20, 10), pady=15)
+
+        if subtitle:
+            tk.Label(
+                header,
+                text=subtitle,
+                font=("Segoe UI", 10),
+                bg="#0a0e14",
+                fg="#6b7280"
+            ).pack(side="left", pady=15)
+
+        return header
+
+    def _build_fans_hardware_view(self):
+        """Build FANS - Hardware Info as main view"""
+        self._build_page_header("FANS - Hardware Info", "Real-time fan monitoring")
+
+        # Content
+        content = tk.Frame(self.content_area, bg="#0a0e14")
+        content.pack(fill="both", expand=True)
+
+        create_fans_hardware_page(content, self.monitor)
+
+    def _build_fans_usage_stats_view(self):
+        """Build Usage Statistics as main view"""
+        self._build_page_header("Usage Statistics", "Fan intensity over time")
+
+        # Content
+        content = tk.Frame(self.content_area, bg="#0a0e14")
+        content.pack(fill="both", expand=True)
+
+        create_fans_usage_stats_page(content, self.monitor)
+
+    def _build_fan_dashboard_view(self):
+        """Build Fan Dashboard as main view"""
+        self._build_page_header("Fan Dashboard", "Cooling control center")
+
+        # Content - use existing fan dashboard
+        content = tk.Frame(self.content_area, bg="#0f1117")
+        content.pack(fill="both", expand=True)
+
+        try:
+            create_fan_dashboard(content)
+        except Exception as e:
+            print(f"[Fan Dashboard] Error: {e}")
+            import traceback
+            traceback.print_exc()
+            tk.Label(
+                content,
+                text="Fan Dashboard loading...",
+                font=("Segoe UI", 12),
+                bg="#0f1117",
+                fg="#6b7280"
+            ).pack(pady=50)
+
+    def _build_monitoring_alerts_view(self):
+        """Build Monitoring & Alerts page (yellow theme)"""
+        self._build_page_header("Monitoring & Alerts", "Real-time monitoring and system alerts")
+
+        # Yellow-themed content
+        content = tk.Frame(self.content_area, bg="#0a0e14")
+        content.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # Header card with yellow accent
+        header_card = tk.Frame(content, bg="#1f2937")
+        header_card.pack(fill="x", pady=(0, 15))
+
+        header_inner = tk.Frame(header_card, bg="#1f2937")
+        header_inner.pack(fill="x", padx=20, pady=15)
+
+        tk.Label(
+            header_inner,
+            text="⚠",
+            font=("Segoe UI", 24),
+            bg="#1f2937",
+            fg="#f59e0b"  # Yellow accent
+        ).pack(side="left")
+
+        tk.Label(
+            header_inner,
+            text="System Monitoring Center",
+            font=("Segoe UI Semibold", 14),
+            bg="#1f2937",
+            fg="#ffffff"
+        ).pack(side="left", padx=(15, 0))
+
+        # Status indicator
+        status_frame = tk.Frame(header_inner, bg="#1f2937")
+        status_frame.pack(side="right")
+
+        tk.Label(
+            status_frame,
+            text="● Active",
+            font=("Segoe UI", 10),
+            bg="#1f2937",
+            fg="#10b981"  # Green for active
+        ).pack()
+
+        # Grid of monitoring cards
+        cards_frame = tk.Frame(content, bg="#0a0e14")
+        cards_frame.pack(fill="both", expand=True)
+
+        # Configure grid columns
+        cards_frame.columnconfigure(0, weight=1)
+        cards_frame.columnconfigure(1, weight=1)
+
+        # Card 1: Real-time Monitor
+        self._create_monitoring_card(
+            cards_frame, 0, 0,
+            "Real-time Monitor",
+            "📊",
+            "Live system metrics",
+            "#f59e0b"
+        )
+
+        # Card 2: Process Monitor
+        self._create_monitoring_card(
+            cards_frame, 0, 1,
+            "Process Monitor",
+            "📋",
+            "Active processes",
+            "#f59e0b"
+        )
+
+        # Card 3: Alerts & Notifications
+        self._create_monitoring_card(
+            cards_frame, 1, 0,
+            "Alerts",
+            "🔔",
+            "System notifications",
+            "#f59e0b"
+        )
+
+        # Card 4: Overlay Widget
+        self._create_monitoring_card(
+            cards_frame, 1, 1,
+            "Overlay Widget",
+            "🖥️",
+            "Floating monitor",
+            "#f59e0b"
+        )
+
+    def _create_monitoring_card(self, parent, row, col, title, icon, description, accent_color):
+        """Create a monitoring feature card"""
+        card = tk.Frame(parent, bg="#111827")
+        card.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+
+        inner = tk.Frame(card, bg="#111827")
+        inner.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Icon
+        tk.Label(
+            inner,
+            text=icon,
+            font=("Segoe UI", 28),
+            bg="#111827",
+            fg=accent_color
+        ).pack(anchor="w")
+
+        # Title
+        tk.Label(
+            inner,
+            text=title,
+            font=("Segoe UI Semibold", 12),
+            bg="#111827",
+            fg="#ffffff"
+        ).pack(anchor="w", pady=(10, 5))
+
+        # Description
+        tk.Label(
+            inner,
+            text=description,
+            font=("Segoe UI", 10),
+            bg="#111827",
+            fg="#6b7280"
+        ).pack(anchor="w")
+
+    def _handle_sidebar_navigation(self, page_id, subpage_id=None):
+        """Handle navigation from sidebar"""
+        import sys
+        print(f"[Sidebar Nav] Navigate to: {page_id}" + (f".{subpage_id}" if subpage_id else ""), flush=True)
+        sys.stdout.flush()
+
+        # Pages that replace the entire content area (not overlay)
+        direct_pages = {
+            "fan_control.fans_hardware": "fans_hardware",
+            "fan_control.usage_statistics": "fans_usage_stats",
+            "fan_control.fan_dashboard": "fan_control",
+            "fan_control": "fan_control",
+            # Monitoring & Alerts - direct page
+            "monitoring_alerts": "monitoring_alerts",
+            "monitoring_alerts.realtime": "monitoring_alerts",
+            "monitoring_alerts.processes": "monitoring_alerts",
+            "monitoring_alerts.alerts": "monitoring_alerts",
+        }
+
+        # Check if this is a direct page switch
+        if subpage_id:
+            full_id = f"{page_id}.{subpage_id}"
+            if full_id in direct_pages:
+                self._switch_to_page(direct_pages[full_id])
+                return
+        elif page_id in direct_pages:
+            self._switch_to_page(direct_pages[page_id])
+            return
+
+        # Map sidebar IDs to overlay pages
+        page_map = {
+            "dashboard": "DASHBOARD",  # Special: go to dashboard
+            # My PC section
+            "my_pc": "your_pc",
+            "my_pc.central": "your_pc",
+            "my_pc.efficiency": "your_pc",
+            "my_pc.sensors": "sensors",
+            "my_pc.health": "your_pc",
+            # Optimization section
+            "optimization": "optimization",
+            "optimization.services": "optimization",
+            "optimization.startup": "optimization",
+            "optimization.wizard": "optimization",
+            # Statistics section
+            "statistics": "statistics",
+            "statistics.stats_today": "statistics",
+            "statistics.stats_weekly": "statistics",
+            "statistics.stats_monthly": "statistics",
+            # Monitoring & Alerts section
+            "monitoring_alerts": "monitoring_alerts",
+            "monitoring_alerts.realtime": "monitoring_alerts",
+            "monitoring_alerts.processes": "monitoring_alerts",
+            "monitoring_alerts.alerts": "monitoring_alerts",
+            "monitoring_alerts.overlay": "overlay_launch",
+            # Other
+            "settings": "settings",
+            "pinned": None,
+        }
+
+        # Determine target page
+        if subpage_id:
+            full_id = f"{page_id}.{subpage_id}"
+            target = page_map.get(full_id, page_map.get(page_id))
+        else:
+            target = page_map.get(page_id)
+
+        # Handle special cases
+        if target == "overlay_launch":
+            # Launch overlay widget
+            if create_overlay_widget:
+                create_overlay_widget(self.root, self.monitor)
+            return
+
+        if target == "DASHBOARD" or target is None:
+            # Go back to dashboard - force rebuild
+            self._close_overlay()
+            self.current_view = None  # Force rebuild
+            self._switch_to_page("dashboard")
+            return
+
+        # For overlay pages, first make sure we're on dashboard, then show overlay
+        if self.current_view != "dashboard":
+            self.current_view = None  # Force rebuild
+            self._switch_to_page("dashboard")
+
+        # Show the overlay page
+        self._show_overlay(target)
 
     def _build_hckgpt_banner(self):
         """Build hck_GPT banner at bottom with sliding chat panel"""
         # Banner container
-        banner = tk.Frame(self.root, bg="#8b5cf6", height=35, cursor="hand2")
+        banner = tk.Frame(self.content_area, bg="#8b5cf6", height=35, cursor="hand2")
         banner.pack(fill="x", side="bottom")
         banner.pack_propagate(False)
 
@@ -213,7 +578,7 @@ class ExpandedMainWindow:
         ).pack(side="right")
 
         # Chat panel (hidden by default) - slides from bottom
-        self.chat_panel = tk.Frame(self.root, bg="#1a1d24", height=0)
+        self.chat_panel = tk.Frame(self.content_area, bg="#1a1d24", height=0)
         self.chat_panel.place(x=0, y=575, width=980, height=0)  # Start hidden below window
         self.chat_visible = False
 
@@ -447,7 +812,7 @@ class ExpandedMainWindow:
 
     def _build_header(self):
         """Build modern header with branding and mode switcher"""
-        header = tk.Frame(self.root, bg="#0a0e27", height=60)
+        header = tk.Frame(self.content_area, bg="#0a0e27", height=60)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
 
@@ -608,7 +973,7 @@ class ExpandedMainWindow:
 
     def _build_middle_section(self):
         """Build session average bars + category navigation"""
-        middle = tk.Frame(self.root, bg=THEME["bg_main"], height=180)
+        middle = tk.Frame(self.content_area, bg=THEME["bg_main"], height=180)
         middle.pack(fill="x", side="top", padx=20, pady=(10, 0))
         middle.pack_propagate(False)
 
@@ -1025,7 +1390,7 @@ class ExpandedMainWindow:
 
     def _build_content_area(self):
         """Build main content area with chart + live metrics + TOP 5 panels"""
-        content = tk.Frame(self.root, bg=THEME["bg_main"])
+        content = tk.Frame(self.content_area, bg=THEME["bg_main"])
         content.pack(fill="both", expand=True, padx=20, pady=10)
 
         # MAIN ROW: Left panel | Chart | Right panel
@@ -2327,263 +2692,8 @@ class ExpandedMainWindow:
             import traceback
             traceback.print_exc()
 
-    # ========== SLIDE-OUT SIDEBAR (LEFT) ==========
-
-    def _build_slide_sidebar(self):
-        """Build thin slide-out sidebar on left edge - CYBERPUNK STYLE! 🚀"""
-        # THIN TAB (always visible, 15px wide)
-        self.sidebar_tab = tk.Frame(self.root, bg="#1a1d24", width=15)
-        self.sidebar_tab.place(x=0, y=60, width=15, height=515)  # Start below header
-        self.sidebar_tab.pack_propagate(False)
-
-        # Vertical dots ("...") in middle
-        dots_frame = tk.Frame(self.sidebar_tab, bg="#1a1d24")
-        dots_frame.pack(expand=True)
-
-        for i in range(3):
-            tk.Label(
-                dots_frame,
-                text="•",
-                font=("Segoe UI", 8),
-                bg="#1a1d24",
-                fg="#64748b"
-            ).pack(pady=2)
-
-        # PL/EN at bottom (very small)
-        tk.Label(
-            self.sidebar_tab,
-            text="PL\nEN",
-            font=("Segoe UI", 6, "bold"),
-            bg="#1a1d24",
-            fg="#8b5cf6",
-            justify="center"
-        ).pack(side="bottom", pady=8)
-
-        # Make tab clickable to toggle sidebar
-        self.sidebar_tab.bind("<Button-1>", lambda e: self._toggle_sidebar())
-        self.sidebar_tab.config(cursor="hand2")
-
-        # FULL SIDEBAR (hidden initially, 200px wide)
-        self.sidebar_panel = None
-        self.sidebar_open = False
-
-    def _toggle_sidebar(self):
-        """Toggle slide-out sidebar - SMOOTH ANIMATION! 💫"""
-        if self.sidebar_open:
-            self._close_sidebar()
-        else:
-            self._open_sidebar()
-
-    def _open_sidebar(self):
-        """Open sidebar with slide animation"""
-        if self.sidebar_panel:
-            return  # Already open
-
-        # Create sidebar panel (OVERLAY on top of content)
-        self.sidebar_panel = tk.Frame(self.root, bg="#0f1117", width=200)
-        self.sidebar_panel.place(x=-200, y=60, width=200, height=515)  # Start off-screen
-
-        # Build sidebar content
-        self._build_sidebar_content()
-
-        # Animate slide-in (from x=-200 to x=15)
-        self._animate_sidebar_slide(-200, 15)
-        self.sidebar_open = True
-
-    def _close_sidebar(self):
-        """Close sidebar with slide animation"""
-        if not self.sidebar_panel:
-            return
-
-        # Animate slide-out (from x=15 to x=-200)
-        self._animate_sidebar_slide_out(15, -200)
-
-    def _animate_sidebar_slide(self, start_x, end_x):
-        """Smooth slide-in animation"""
-        start_time = time.time()
-        duration_ms = 200
-
-        def ease_out_cubic(t):
-            return 1 - pow(1 - t, 3)
-
-        def anim():
-            elapsed = (time.time() - start_time) * 1000
-            progress = min(elapsed / duration_ms, 1.0)
-            eased = ease_out_cubic(progress)
-            current_x = int(start_x + (end_x - start_x) * eased)
-
-            if self.sidebar_panel:
-                self.sidebar_panel.place_configure(x=current_x)
-
-            if progress >= 1.0:
-                return
-
-            self.root.after(16, anim)
-
-        anim()
-
-    def _animate_sidebar_slide_out(self, start_x, end_x):
-        """Smooth slide-out animation"""
-        start_time = time.time()
-        duration_ms = 200
-
-        def ease_in_cubic(t):
-            return pow(t, 3)
-
-        def anim():
-            elapsed = (time.time() - start_time) * 1000
-            progress = min(elapsed / duration_ms, 1.0)
-            eased = ease_in_cubic(progress)
-            current_x = int(start_x + (end_x - start_x) * eased)
-
-            if self.sidebar_panel:
-                self.sidebar_panel.place_configure(x=current_x)
-
-            if progress >= 1.0:
-                if self.sidebar_panel:
-                    self.sidebar_panel.destroy()
-                    self.sidebar_panel = None
-                self.sidebar_open = False
-                return
-
-            self.root.after(16, anim)
-
-        anim()
-
-    def _build_sidebar_content(self):
-        """Build content for slide-out sidebar - CYBERPUNK PROFESSIONAL! 🎮"""
-        if not self.sidebar_panel:
-            return
-
-        # === HEADER ===
-        header = tk.Frame(self.sidebar_panel, bg="#1a1d24", height=50)
-        header.pack(fill="x")
-        header.pack_propagate(False)
-
-        tk.Label(
-            header,
-            text="MENU",
-            font=("Segoe UI Semibold", 10, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(pady=15)
-
-        # === GRADIENT SEPARATOR ===
-        separator = tk.Canvas(self.sidebar_panel, bg="#0f1117", height=2, highlightthickness=0)
-        separator.pack(fill="x", padx=10, pady=5)
-
-        # Draw gradient (cyberpunk colors: purple to blue)
-        width = 180
-        for i in range(width):
-            ratio = i / width
-            # Purple #8b5cf6 to Blue #3b82f6
-            r = int(139 + (59 - 139) * ratio)
-            g = int(92 + (130 - 92) * ratio)
-            b = int(246 + (246 - 246) * ratio)
-            color = f"#{r:02x}{g:02x}{b:02x}"
-            separator.create_line(i, 0, i, 2, fill=color)
-
-        # === BUTTON 1: Check Program Update ===
-        self._create_sidebar_button(
-            self.sidebar_panel,
-            "🔄 Check Program Update!",
-            lambda: print("[Sidebar] Check update clicked")
-        )
-
-        # === BUTTON 2: Change Language ===
-        lang_frame = tk.Frame(self.sidebar_panel, bg="#0f1117")
-        lang_frame.pack(fill="x", padx=10, pady=5)
-
-        btn = tk.Frame(lang_frame, bg="#1e293b", cursor="hand2")
-        btn.pack(fill="x", pady=3)
-
-        # Button content
-        content = tk.Frame(btn, bg="#1e293b")
-        content.pack(fill="both", expand=True, padx=12, pady=10)
-
-        tk.Label(
-            content,
-            text="🌐 Change Language",
-            font=("Segoe UI Semibold", 9),
-            bg="#1e293b",
-            fg="#e2e8f0",
-            anchor="w"
-        ).pack(side="left", expand=True)
-
-        # Flags (PL 🇵🇱 / EN 🇺🇸)
-        flags = tk.Label(
-            content,
-            text="🇵🇱 🇺🇸",
-            font=("Segoe UI", 9),
-            bg="#1e293b",
-            fg="#e2e8f0"
-        )
-        flags.pack(side="right")
-
-        # Click handler
-        def on_click(e):
-            print("[Sidebar] Language change clicked")
-
-        btn.bind("<Button-1>", on_click)
-
-        # Hover effect
-        def on_enter(e):
-            btn.config(bg="#334155")
-            content.config(bg="#334155")
-            flags.config(bg="#334155")
-            for child in content.winfo_children():
-                if isinstance(child, tk.Label):
-                    child.config(bg="#334155", fg="#ffffff")
-
-        def on_leave(e):
-            btn.config(bg="#1e293b")
-            content.config(bg="#1e293b")
-            flags.config(bg="#1e293b")
-            for child in content.winfo_children():
-                if isinstance(child, tk.Label):
-                    child.config(bg="#1e293b", fg="#e2e8f0")
-
-        btn.bind("<Enter>", on_enter)
-        btn.bind("<Leave>", on_leave)
-
-    def _create_sidebar_button(self, parent, text, command):
-        """Create cyberpunk-style sidebar button"""
-        btn_frame = tk.Frame(parent, bg="#0f1117")
-        btn_frame.pack(fill="x", padx=10, pady=5)
-
-        btn = tk.Frame(btn_frame, bg="#1e293b", cursor="hand2")
-        btn.pack(fill="x", pady=3)
-
-        # Button label
-        lbl = tk.Label(
-            btn,
-            text=text,
-            font=("Segoe UI Semibold", 9),
-            bg="#1e293b",
-            fg="#e2e8f0",
-            anchor="w",
-            padx=12,
-            pady=10
-        )
-        lbl.pack(fill="x")
-
-        # Click handler
-        def on_click(e):
-            command()
-
-        btn.bind("<Button-1>", on_click)
-
-        # Hover effect - CYBERPUNK GLOW! ⚡
-        def on_enter(e):
-            btn.config(bg="#334155")
-            lbl.config(bg="#334155", fg="#ffffff")
-
-        def on_leave(e):
-            btn.config(bg="#1e293b")
-            lbl.config(bg="#1e293b", fg="#e2e8f0")
-
-        btn.bind("<Enter>", on_enter)
-        btn.bind("<Leave>", on_leave)
+    # ========== SIDEBAR NAVIGATION (NEW - Snyk Evo Style) ==========
+    # Sidebar is now built in _build_ui() using SidebarNav component
 
     # ========== OVERLAY PANEL SYSTEM ==========
 
@@ -2598,15 +2708,16 @@ class ExpandedMainWindow:
         if self.overlay_frame:
             self._close_overlay()
 
-        # Create overlay frame - FULL SCREEN (except header) - ORIGINAL SIZE
-        self.overlay_frame = tk.Frame(self.root, bg="#0f1117", relief="flat", bd=0)
-        self.overlay_frame.place(x=980, y=60, width=980, height=515)  # Original size
+        # Create overlay frame - FULL CONTENT AREA (except header)
+        # Content area is 980px wide (1160 - 180 sidebar)
+        self.overlay_frame = tk.Frame(self.content_area, bg="#0f1117", relief="flat", bd=0)
+        self.overlay_frame.place(x=980, y=60, width=980, height=515)
 
         # Build page content
         self._build_overlay_content(page_id)
 
-        # Animate slide-in from right - COVERS ENTIRE SCREEN
-        self._animate_overlay_slide(980, 0, page_id)  # Original animation
+        # Animate slide-in from right - COVERS CONTENT AREA
+        self._animate_overlay_slide(980, 0, page_id)
 
     def _animate_overlay_slide(self, start_x, end_x, page_id):
         """Smooth slide animation for overlay"""
@@ -2717,13 +2828,15 @@ class ExpandedMainWindow:
 
         # Title
         title_map = {
-            "your_pc": "💻 Your PC - Hardware & Health",
+            "your_pc": "💻 My PC - Hardware & Health",
             "sensors": "🌲 Hardware Sensors - HWMonitor Style",
             "live_graphs": "📊 Live Hardware Graphs - MSI Afterburner Style",
             "fan_curves": "🌀 Fan Curve Editor - Custom Cooling",
             "optimization": "⚡ System Optimization",
             "statistics": "📊 Detailed Statistics",
-            "fan_control": "🌀 Cooling Control",
+            "fan_control": "🌀 Fan Dashboard",
+            "fans_hardware": "❊ FANS - Hardware Info",
+            "fans_usage_stats": "📊 Usage Statistics",
             "hck_labs": "🚀 HCK Labs",
             "guide": "📖 Program Guide"
         }
@@ -2758,6 +2871,10 @@ class ExpandedMainWindow:
             self._build_statistics_page(content_frame)
         elif page_id == "fan_control":
             self._build_fancontrol_page(content_frame)
+        elif page_id == "fans_hardware":
+            create_fans_hardware_page(content_frame, self.monitor)
+        elif page_id == "fans_usage_stats":
+            create_fans_usage_stats_page(content_frame, self.monitor)
         elif page_id == "hck_labs":
             self._build_hcklabs_page(content_frame)
         elif page_id == "guide":
