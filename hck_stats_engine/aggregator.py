@@ -65,13 +65,15 @@ class StatsAggregator:
         self._process_aggregator = proc_agg
 
     def on_minute_tick(self, timestamp, cpu_avg, ram_avg, gpu_avg,
-                       cpu_vals=None, ram_vals=None, gpu_vals=None):
+                       cpu_vals=None, ram_vals=None, gpu_vals=None,
+                       cpu_temp=None, gpu_temp=None):
         """Called by scheduler every 60 seconds with aggregated minute data.
 
         Args:
             timestamp: Unix epoch for the minute
             cpu_avg, ram_avg, gpu_avg: Pre-computed averages
             cpu_vals, ram_vals, gpu_vals: Raw 60-second value lists for min/max
+            cpu_temp, gpu_temp: Optional temperature readings
         """
         if not db_manager.is_ready:
             return
@@ -79,7 +81,8 @@ class StatsAggregator:
         try:
             # Insert minute stats
             self._insert_minute_stats(timestamp, cpu_avg, ram_avg, gpu_avg,
-                                      cpu_vals, ram_vals, gpu_vals)
+                                      cpu_vals, ram_vals, gpu_vals,
+                                      cpu_temp, gpu_temp)
 
             # Check hour boundary
             current_hour = int(timestamp // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
@@ -104,7 +107,8 @@ class StatsAggregator:
             print(f"[StatsAggregator] on_minute_tick error: {e}")
 
     def _insert_minute_stats(self, timestamp, cpu_avg, ram_avg, gpu_avg,
-                             cpu_vals, ram_vals, gpu_vals):
+                             cpu_vals, ram_vals, gpu_vals,
+                             cpu_temp=None, gpu_temp=None):
         """Insert a minute stats row into SQLite"""
         conn = db_manager.get_connection()
         if not conn:
@@ -132,11 +136,13 @@ class StatsAggregator:
             conn.execute("""
                 INSERT OR REPLACE INTO minute_stats
                 (timestamp, cpu_avg, cpu_min, cpu_max, ram_avg, ram_min, ram_max,
-                 gpu_avg, gpu_min, gpu_max, sample_count)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 gpu_avg, gpu_min, gpu_max, cpu_temp, gpu_temp, sample_count)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (timestamp, round(cpu_avg, 2), round(cpu_min, 2), round(cpu_max, 2),
                   round(ram_avg, 2), round(ram_min, 2), round(ram_max, 2),
                   round(gpu_avg, 2), round(gpu_min, 2), round(gpu_max, 2),
+                  round(cpu_temp, 1) if cpu_temp else None,
+                  round(gpu_temp, 1) if gpu_temp else None,
                   sample_count))
             conn.commit()
         except Exception as e:

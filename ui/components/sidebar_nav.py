@@ -129,10 +129,9 @@ class SidebarNav:
                 "label": "MONITORING & ALERTS",
                 "icon": "⚠",
                 "subitems": [
-                    ("realtime", "Real-time"),
-                    ("processes", "Processes"),
-                    ("alerts", "Alerts"),
-                    ("overlay", "Overlay"),
+                    ("temperature", "Temperature"),
+                    ("voltage", "Voltage"),
+                    ("alerts", "Centrum & Alerts"),
                 ]
             },
             {

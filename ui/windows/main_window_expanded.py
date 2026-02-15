@@ -2,7 +2,7 @@
 """
 PC Workman - EXPANDED MODE (Main Window) v1.5.0
 980x500 resolution, centered, full-featured interface
-Beautiful modern design with NASA/Apple aesthetics
+Full-featured interface with modern dark theme
 """
 
 import tkinter as tk
@@ -66,7 +66,7 @@ class ExpandedMainWindow:
     - Session average bars (CPU/GPU/RAM)
     - Advanced chart
     - Category navigation
-    - Beautiful gradients and NASA/Apple aesthetics
+    - Dark theme with gradient accents
     """
 
     def __init__(self, data_manager=None, monitor=None, switch_to_minimal_callback=None, quit_callback=None):
@@ -337,126 +337,9 @@ class ExpandedMainWindow:
             ).pack(pady=50)
 
     def _build_monitoring_alerts_view(self):
-        """Build Monitoring & Alerts page (yellow theme)"""
-        self._build_page_header("Monitoring & Alerts", "Real-time monitoring and system alerts")
-
-        # Yellow-themed content
-        content = tk.Frame(self.content_area, bg="#0a0e14")
-        content.pack(fill="both", expand=True, padx=20, pady=10)
-
-        # Header card with yellow accent
-        header_card = tk.Frame(content, bg="#1f2937")
-        header_card.pack(fill="x", pady=(0, 15))
-
-        header_inner = tk.Frame(header_card, bg="#1f2937")
-        header_inner.pack(fill="x", padx=20, pady=15)
-
-        tk.Label(
-            header_inner,
-            text="⚠",
-            font=("Segoe UI", 24),
-            bg="#1f2937",
-            fg="#f59e0b"  # Yellow accent
-        ).pack(side="left")
-
-        tk.Label(
-            header_inner,
-            text="System Monitoring Center",
-            font=("Segoe UI Semibold", 14),
-            bg="#1f2937",
-            fg="#ffffff"
-        ).pack(side="left", padx=(15, 0))
-
-        # Status indicator
-        status_frame = tk.Frame(header_inner, bg="#1f2937")
-        status_frame.pack(side="right")
-
-        tk.Label(
-            status_frame,
-            text="● Active",
-            font=("Segoe UI", 10),
-            bg="#1f2937",
-            fg="#10b981"  # Green for active
-        ).pack()
-
-        # Grid of monitoring cards
-        cards_frame = tk.Frame(content, bg="#0a0e14")
-        cards_frame.pack(fill="both", expand=True)
-
-        # Configure grid columns
-        cards_frame.columnconfigure(0, weight=1)
-        cards_frame.columnconfigure(1, weight=1)
-
-        # Card 1: Real-time Monitor
-        self._create_monitoring_card(
-            cards_frame, 0, 0,
-            "Real-time Monitor",
-            "📊",
-            "Live system metrics",
-            "#f59e0b"
-        )
-
-        # Card 2: Process Monitor
-        self._create_monitoring_card(
-            cards_frame, 0, 1,
-            "Process Monitor",
-            "📋",
-            "Active processes",
-            "#f59e0b"
-        )
-
-        # Card 3: Alerts & Notifications
-        self._create_monitoring_card(
-            cards_frame, 1, 0,
-            "Alerts",
-            "🔔",
-            "System notifications",
-            "#f59e0b"
-        )
-
-        # Card 4: Overlay Widget
-        self._create_monitoring_card(
-            cards_frame, 1, 1,
-            "Overlay Widget",
-            "🖥️",
-            "Floating monitor",
-            "#f59e0b"
-        )
-
-    def _create_monitoring_card(self, parent, row, col, title, icon, description, accent_color):
-        """Create a monitoring feature card"""
-        card = tk.Frame(parent, bg="#111827")
-        card.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
-
-        inner = tk.Frame(card, bg="#111827")
-        inner.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Icon
-        tk.Label(
-            inner,
-            text=icon,
-            font=("Segoe UI", 28),
-            bg="#111827",
-            fg=accent_color
-        ).pack(anchor="w")
-
-        # Title
-        tk.Label(
-            inner,
-            text=title,
-            font=("Segoe UI Semibold", 12),
-            bg="#111827",
-            fg="#ffffff"
-        ).pack(anchor="w", pady=(10, 5))
-
-        # Description
-        tk.Label(
-            inner,
-            text=description,
-            font=("Segoe UI", 10),
-            bg="#111827",
-            fg="#6b7280"
-        ).pack(anchor="w")
+        """Build Monitoring & Alerts page with Time-Travel charts"""
+        from ui.pages.monitoring_alerts import build_monitoring_alerts_page
+        build_monitoring_alerts_page(self, self.content_area)
 
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
@@ -472,8 +355,8 @@ class ExpandedMainWindow:
             "fan_control": "fan_control",
             # Monitoring & Alerts - direct page
             "monitoring_alerts": "monitoring_alerts",
-            "monitoring_alerts.realtime": "monitoring_alerts",
-            "monitoring_alerts.processes": "monitoring_alerts",
+            "monitoring_alerts.temperature": "monitoring_alerts",
+            "monitoring_alerts.voltage": "monitoring_alerts",
             "monitoring_alerts.alerts": "monitoring_alerts",
         }
 
@@ -508,10 +391,9 @@ class ExpandedMainWindow:
             "statistics.stats_monthly": "statistics",
             # Monitoring & Alerts section
             "monitoring_alerts": "monitoring_alerts",
-            "monitoring_alerts.realtime": "monitoring_alerts",
-            "monitoring_alerts.processes": "monitoring_alerts",
+            "monitoring_alerts.temperature": "monitoring_alerts",
+            "monitoring_alerts.voltage": "monitoring_alerts",
             "monitoring_alerts.alerts": "monitoring_alerts",
-            "monitoring_alerts.overlay": "overlay_launch",
             # Other
             "settings": "settings",
             "pinned": None,
@@ -820,7 +702,7 @@ class ExpandedMainWindow:
         left_frame = tk.Frame(header, bg="#0a0e27")
         left_frame.pack(side="left", padx=20, fill="y")
 
-        # PC_WORKMAN title (TURBO MODERN NASA/Apple style!) 🚀
+        # Title
         title = tk.Label(
             left_frame,
             text="PC_WORKMAN",
@@ -830,7 +712,7 @@ class ExpandedMainWindow:
         )
         title.pack(side="left", pady=15)
 
-        # Subtitle - sleek and stylish!
+        # Subtitle
         subtitle = tk.Label(
             left_frame,
             text="Your PC Masterdude",
@@ -844,111 +726,7 @@ class ExpandedMainWindow:
         right_frame = tk.Frame(header, bg="#0a0e27")
         right_frame.pack(side="right", padx=20, fill="y")
 
-        # === MINI-MONITOR (Advanced SystemCare style!) ===
-        mini_monitor = tk.Frame(right_frame, bg="#1a1d24", relief="flat", bd=0, cursor="hand2")
-        mini_monitor.pack(side="right", padx=(0, 15), pady=10)
-
-        # Click to launch overlay monitor
-        mini_monitor.bind("<Button-1>", lambda e: self._launch_overlay_monitor())
-
-        # Current stats row
-        stats_row = tk.Frame(mini_monitor, bg="#1a1d24")
-        stats_row.pack(fill="x", padx=8, pady=(6, 2))
-
-        # CPU label
-        tk.Label(
-            stats_row,
-            text="CPU:",
-            font=("Segoe UI Semibold", 8),
-            bg="#1a1d24",
-            fg="#64748b"
-        ).pack(side="left", padx=(0, 2))
-
-        self.mini_cpu_label = tk.Label(
-            stats_row,
-            text="0%",
-            font=("Consolas", 9, "bold"),
-            bg="#1a1d24",
-            fg="#3b82f6"  # Blue
-        )
-        self.mini_cpu_label.pack(side="left", padx=(0, 8))
-
-        # RAM label
-        tk.Label(
-            stats_row,
-            text="RAM:",
-            font=("Segoe UI Semibold", 8),
-            bg="#1a1d24",
-            fg="#64748b"
-        ).pack(side="left", padx=(0, 2))
-
-        self.mini_ram_label = tk.Label(
-            stats_row,
-            text="0%",
-            font=("Consolas", 9, "bold"),
-            bg="#1a1d24",
-            fg="#10b981"  # Green
-        )
-        self.mini_ram_label.pack(side="left", padx=(0, 8))
-
-        # GPU label
-        tk.Label(
-            stats_row,
-            text="GPU:",
-            font=("Segoe UI Semibold", 8),
-            bg="#1a1d24",
-            fg="#64748b"
-        ).pack(side="left", padx=(0, 2))
-
-        self.mini_gpu_label = tk.Label(
-            stats_row,
-            text="0%",
-            font=("Consolas", 9, "bold"),
-            bg="#1a1d24",
-            fg="#f59e0b"  # Orange
-        )
-        self.mini_gpu_label.pack(side="left")
-
-        # Average stats row (smaller)
-        avg_row = tk.Frame(mini_monitor, bg="#1a1d24")
-        avg_row.pack(fill="x", padx=8, pady=(0, 6))
-
-        tk.Label(
-            avg_row,
-            text="AVG:",
-            font=("Segoe UI", 7),
-            bg="#1a1d24",
-            fg="#475569"
-        ).pack(side="left", padx=(0, 4))
-
-        self.mini_cpu_avg = tk.Label(
-            avg_row,
-            text="C:0%",
-            font=("Consolas", 7),
-            bg="#1a1d24",
-            fg="#64748b"
-        )
-        self.mini_cpu_avg.pack(side="left", padx=(0, 6))
-
-        self.mini_ram_avg = tk.Label(
-            avg_row,
-            text="R:0%",
-            font=("Consolas", 7),
-            bg="#1a1d24",
-            fg="#64748b"
-        )
-        self.mini_ram_avg.pack(side="left", padx=(0, 6))
-
-        self.mini_gpu_avg = tk.Label(
-            avg_row,
-            text="G:0%",
-            font=("Consolas", 7),
-            bg="#1a1d24",
-            fg="#64748b"
-        )
-        self.mini_gpu_avg.pack(side="left")
-
-        # Minimalist mode button - TURBO STYLISH! ⚡
+        # Minimal mode button
         mode_btn = tk.Label(
             right_frame,
             text="⚡ Minimal Mode",
@@ -1053,7 +831,7 @@ class ExpandedMainWindow:
         # NOTE: Shimmer animation REMOVED - static gradient instead
 
     def _create_nav_button(self, parent, text, color, pady=4):
-        """Create EXCELLENT gradient button with diagonal cut and shimmer animation! 💎"""
+        """Create gradient sidebar button"""
         # Main button container
         btn_container = tk.Frame(parent, bg=THEME["bg_panel"])
         btn_container.pack(fill="x", padx=8, pady=pady)
@@ -1150,7 +928,7 @@ class ExpandedMainWindow:
                 x = gradient_start + i
                 canvas.create_line(x, 0, x, height, fill=grad_color, tags="gradient")
 
-            # TEXT (white, bold, uppercase) - TURBO STYLISH FONT! 🔥
+            # Button text
             text_x = gradient_start + 15  # Closer to icon (was 20)
             text_y = height // 2
             canvas.create_text(
@@ -1162,7 +940,7 @@ class ExpandedMainWindow:
                 tags="text"
             )
 
-            # Add subtle shadow for depth (TURBO STYLE!)
+            # Shadow for depth
             canvas.create_text(
                 text_x + 1, text_y + 1,
                 text=clean_text.upper(),
@@ -1492,7 +1270,7 @@ class ExpandedMainWindow:
         )
         self.live_ram_label.pack(side="left", padx=8)
 
-        # === TIME FILTER BUTTONS (stylowe, czarne) ===
+        # Time filter buttons
         self.chart_filter = "SESSION"  # Default filter
 
         # Separator (visual space)
@@ -1583,7 +1361,7 @@ class ExpandedMainWindow:
         buttons_row = tk.Frame(buttons_container, bg=THEME["bg_main"])
         buttons_row.pack(fill="x", padx=5)
 
-        # === LEFT: TURBO BOOST MODE ===
+        # Left: Boost mode
         turbo_btn = tk.Frame(buttons_row, bg="#2563eb", cursor="hand2")  # Bright blue border
         turbo_btn.pack(side="left", fill="both", expand=True, padx=(0, 3))
 
@@ -1628,10 +1406,10 @@ class ExpandedMainWindow:
         turbo_actions = tk.Frame(turbo_content, bg="#1e40af")
         turbo_actions.pack(fill="x", padx=8, pady=(0, 6))
 
-        # Konfiguruj/Dowiedz się więcej button (brighter)
+        # Configure button
         config_btn = tk.Label(
             turbo_actions,
-            text="Konfiguruj",
+            text="Configure",
             font=("Segoe UI", 7, "bold"),
             bg="#3b82f6",
             fg="#ffffff",
@@ -1749,10 +1527,10 @@ class ExpandedMainWindow:
         stats_btn.bind("<Enter>", on_enter_stats)
         stats_btn.bind("<Leave>", on_leave_stats)
 
-        # Działające narzędzia with glowing numbers
+        # Active tools counter
         self.tools_label = tk.Label(
             optim_actions,
-            text="Działające narzędzia: ",
+            text="Active tools: ",
             font=("Segoe UI", 7),
             bg="#047857",
             fg="#a7f3d0"
@@ -2040,9 +1818,21 @@ class ExpandedMainWindow:
 
     def _render_expanded_user_processes(self, procs):
         """Render TOP 5 user processes with refresh animation"""
+        # Guard against destroyed container
+        if not hasattr(self, 'expanded_user_container'):
+            return
+        try:
+            if not self.expanded_user_container.winfo_exists():
+                return
+        except Exception:
+            return
+
         # Clear old widgets
         for widget in self.expanded_user_widgets:
-            widget.destroy()
+            try:
+                widget.destroy()
+            except Exception:
+                pass
         self.expanded_user_widgets = []
 
         # Get total system CPU and RAM usage
@@ -2113,9 +1903,21 @@ class ExpandedMainWindow:
 
     def _render_expanded_system_processes(self, procs):
         """Render TOP 5 system processes with refresh animation"""
+        # Guard against destroyed container
+        if not hasattr(self, 'expanded_sys_container'):
+            return
+        try:
+            if not self.expanded_sys_container.winfo_exists():
+                return
+        except Exception:
+            return
+
         # Clear old widgets
         for widget in self.expanded_sys_widgets:
-            widget.destroy()
+            try:
+                widget.destroy()
+            except Exception:
+                pass
         self.expanded_sys_widgets = []
 
         # Get total system CPU and RAM usage
@@ -2243,7 +2045,7 @@ class ExpandedMainWindow:
                 sensors_callback=show_sensors_page  # NEW: Sensors shortcut! 🌲
             )
             self.tray_manager.start()
-            print("[SystemTray] Initialized successfully with ENHANCED multi-metrics! 💎")
+            print("[SystemTray] Initialized")
         except Exception as e:
             print(f"[SystemTray] Failed to initialize: {e}")
             self.tray_manager = None
@@ -2252,7 +2054,7 @@ class ExpandedMainWindow:
         """Handle window close (X button) → Minimize to tray (NOT EXIT!)"""
         print("[ExpandedMode] Minimizing to tray (X clicked) - Program stays running!")
 
-        # Show BEAUTIFUL 2x taller notification 💎
+        # Show background notification
         if ToastNotification is not None:
             beautiful_message = (
                 "PC_Workman still working!\n"
@@ -2262,7 +2064,7 @@ class ExpandedMainWindow:
                 "Right-click tray icon → Exit to close"
             )
             ToastNotification.show(
-                "💎 PC_Workman Background Mode",
+                "PC_Workman Background Mode",
                 beautiful_message,
                 duration_ms=4000
             )
@@ -2336,13 +2138,11 @@ class ExpandedMainWindow:
                 # Update live metrics (every 0.3s)
                 self._update_live_metrics(sample)
 
-                # Update hardware cards (every 0.3s)
-                self._update_hardware_cards(sample)
+                # Update hardware cards (only on dashboard)
+                if self.current_view == "dashboard":
+                    self._update_hardware_cards(sample)
 
-                # Update MINI-MONITOR (every 0.3s) - Advanced SystemCare style! 💎
-                self._update_mini_monitor(sample, avg_cpu, avg_ram, avg_gpu)
-
-                # Update system tray icon (every 0.3s) - CPU/GPU/RAM with temps! 💎
+                # Update system tray icon
                 if self.tray_manager:
                     cpu = sample.get("cpu_percent", 0)
                     ram = sample.get("ram_percent", 0)
@@ -2357,7 +2157,8 @@ class ExpandedMainWindow:
                 self._update_counter += 1
                 if self._update_counter >= 3:
                     self._update_counter = 0
-                    self._update_top5_processes()
+                    if self.current_view == "dashboard":
+                        self._update_top5_processes()
 
         except Exception as e:
             print(f"[ExpandedMode] Update error: {e}")
@@ -2396,17 +2197,19 @@ class ExpandedMainWindow:
             return
 
         try:
-            # Update bar width
+            if not bar_data["fill"].winfo_exists():
+                return
             bar_data["fill"].place(relwidth=min(value / 100.0, 1.0))
-
-            # Update label
             bar_data["label"].config(text=f"{value:.1f}%")
-        except:
+        except Exception:
             pass
 
     def _update_live_metrics(self, sample):
         """Update live metrics line (AKTUALNE UŻYCIE)"""
         try:
+            if not hasattr(self, 'live_cpu_label') or not self.live_cpu_label.winfo_exists():
+                return
+
             cpu = sample.get("cpu_percent", 0)
             gpu = sample.get("gpu_percent", 0)
             ram = sample.get("ram_percent", 0)
@@ -2573,36 +2376,19 @@ class ExpandedMainWindow:
         except Exception as e:
             print(f"[HardwareCards] Error: {e}")
 
-    def _update_mini_monitor(self, sample, avg_cpu, avg_ram, avg_gpu):
-        """Update mini-monitor in header (Advanced SystemCare style!) 💎"""
-        if not hasattr(self, 'mini_cpu_label'):
-            return
-
-        try:
-            # Get current values
-            cpu = sample.get("cpu_percent", 0)
-            ram = sample.get("ram_percent", 0)
-            gpu = sample.get("gpu_percent", 0)
-
-            # Update current values
-            self.mini_cpu_label.config(text=f"{int(cpu)}%")
-            self.mini_ram_label.config(text=f"{int(ram)}%")
-            self.mini_gpu_label.config(text=f"{int(gpu)}%")
-
-            # Update average values
-            self.mini_cpu_avg.config(text=f"C:{int(avg_cpu)}%")
-            self.mini_ram_avg.config(text=f"R:{int(avg_ram)}%")
-            self.mini_gpu_avg.config(text=f"G:{int(avg_gpu)}%")
-
-        except Exception as e:
-            print(f"[MiniMonitor] Error: {e}")
-
     def _update_hardware_card(self, key, value):
         """Update individual hardware card"""
         if key not in self.hardware_cards:
             return
 
         card = self.hardware_cards[key]
+
+        # Guard against destroyed widgets
+        try:
+            if not card["chart_canvas"].winfo_exists():
+                return
+        except Exception:
+            return
 
         # Add value to chart data
         card["chart_data"].append(value)
@@ -2639,6 +2425,8 @@ class ExpandedMainWindow:
             return
 
         try:
+            if not canvas.winfo_exists():
+                return
             canvas.delete("all")
             width = canvas.winfo_width()
             height = canvas.winfo_height()
@@ -2711,27 +2499,14 @@ class ExpandedMainWindow:
     # ========== OVERLAY MINI-MONITOR (ALWAYS-ON-TOP) ==========
 
     def _launch_overlay_monitor(self):
-        """Launch always-on-top overlay monitor window"""
+        """Launch always-on-top overlay monitor as a Toplevel (separate desktop window)"""
         try:
-            from ui.overlay_mini_monitor import OverlayMiniMonitor
-            import threading
-
-            # Launch in separate thread (non-blocking)
-            def run_overlay():
-                overlay = OverlayMiniMonitor(monitor=self.monitor)
-                overlay.run()
-
-            overlay_thread = threading.Thread(target=run_overlay, daemon=True)
-            overlay_thread.start()
-
-            print("[OverlayMonitor] Launched always-on-top monitor!")
-
+            from ui.overlay_mini_monitor import launch_overlay_in_main_tk
+            self._overlay = launch_overlay_in_main_tk(self.root, monitor=self.monitor)
         except Exception as e:
             print(f"[OverlayMonitor] Launch error: {e}")
-            import traceback
-            traceback.print_exc()
 
-    # ========== SIDEBAR NAVIGATION (NEW - Snyk Evo Style) ==========
+    # ========== SIDEBAR NAVIGATION ==========
     # Sidebar is now built in _build_ui() using SidebarNav component
 
     # ========== OVERLAY PANEL SYSTEM ==========
@@ -3262,7 +3037,7 @@ class ExpandedMainWindow:
         ).pack(expand=True)
 
     def _build_hcklabs_page(self, parent):
-        """Build HCK Labs page - PROFESSIONAL VERSION! 🚀"""
+        """Build HCK Labs page"""
         # Scrollable container
         canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
         scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
@@ -4150,7 +3925,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
             parent_frame = opt.pop("parent")
             self._create_fan_option_card_compact(parent_frame, opt, horizontal=True)
 
-        # === SAVE CHANGES BUTTON (Apple style) ===
+        # Save changes button
         save_btn = tk.Label(
             scrollable,
             text="💾 Save Changes",
@@ -4177,7 +3952,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
         save_btn.bind("<Leave>", on_leave_save)
 
     def _create_fan_option_card_compact(self, parent, option, horizontal=False):
-        """Create COMPACT fan control option card - Apple style"""
+        """Create compact fan control option card"""
         card = tk.Frame(parent, bg="#1a1d24")
         if horizontal:
             card.pack(side="left", fill="both", expand=True, padx=5)
@@ -4484,7 +4259,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
             fg=status_color
         ).pack()
 
-        # Current speed - stylish yellow line
+        # Current speed
         speed_frame = tk.Frame(parent, bg="#fbbf24", height=2)
         speed_frame.pack(fill="x", padx=15, pady=(15, 5))
 
@@ -4496,7 +4271,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
             fg="#fbbf24"
         ).pack(pady=(0, 10))
 
-        # Temperature - stylish line
+        # Temperature
         temp_frame = tk.Frame(parent, bg="#3b82f6", height=2)
         temp_frame.pack(fill="x", padx=15, pady=(5, 5))
 
@@ -4517,7 +4292,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
         ).pack()
 
     def _build_guide_page(self, parent):
-        """Build Guide page - CYBERPUNK MEGA STYLED GUIDE! 💎🚀"""
+        """Build Guide page"""
         # Scrollable container
         canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
         scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
@@ -4534,7 +4309,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
         canvas.pack(side="left", fill="both", expand=True, padx=20, pady=10)
         scrollbar.pack(side="right", fill="y")
 
-        # === MEGA CYBERPUNK HEADER! 💎 ===
+        # Header section
         header_container = tk.Frame(scrollable_frame, bg="#0f1117")
         header_container.pack(fill="x", padx=15, pady=(10, 20))
 
@@ -4570,7 +4345,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
             fg="#64748b"
         ).pack(anchor="w", pady=(3, 0))
 
-        # Navigation Quick button (silver-gold style!)
+        # Navigation button
         nav_btn = tk.Label(
             header_content,
             text="⚡ Navigation Quick!",
@@ -4613,7 +4388,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
         accent_bottom = tk.Frame(header_bg, bg="#3b82f6", height=2)
         accent_bottom.pack(fill="x")
 
-        # === GUIDE CATEGORIES - MEGA STYLED! 💎 ===
+        # Guide categories
         categories = [
             {
                 "icon": "✨",
@@ -5161,6 +4936,8 @@ But better: AI-powered insights, calm design, universal hardware support"""
 
     def run(self):
         """Run the window"""
+        # Auto-launch overlay monitor after UI is visible
+        self.root.after(1500, self._launch_overlay_monitor)
         self.root.mainloop()
 
     def quit(self):

@@ -802,7 +802,7 @@ class MainWindow:
         opt_content = tk.Frame(self.opt_btn_frame, bg="#0ea56a")
         opt_content.pack(fill="both", expand=True)
 
-        # Icon and text side by side (Apple style - horizontal layout)
+        # Icon and text side by side
         opt_left = tk.Frame(opt_content, bg="#0ea56a")
         opt_left.pack(side="left", padx=12, fill="y", expand=True)
 
