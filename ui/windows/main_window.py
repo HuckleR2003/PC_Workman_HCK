@@ -1,6 +1,6 @@
 # ui/main_window.py
 """
-PC Workman Main Window v1.4.0 - Enhanced Guardian UI
+PC Workman Main Window v1.6.8 - Enhanced Guardian UI
 - System tray with battery-style icon (CPU/GPU monitoring)
 - Window positioning (bottom-right corner with lock/unlock)
 - Enhanced process classification and data tracking
@@ -57,7 +57,7 @@ class MainWindow:
         self.switch_to_expanded_callback = switch_to_expanded_callback
 
         self.root = tk.Tk()
-        self.root.title("PC Workman – HCK_Labs v1.4.0")
+        self.root.title("PC Workman – HCK_Labs v1.6.8")
         self.root.configure(bg=THEME["bg_main"])
 
         # Window settings

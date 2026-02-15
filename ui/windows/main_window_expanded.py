@@ -1,6 +1,6 @@
 # ui/main_window_expanded.py
 """
-PC Workman - EXPANDED MODE (Main Window) v1.5.0
+PC Workman - EXPANDED MODE (Main Window) v1.6.8
 980x500 resolution, centered, full-featured interface
 Full-featured interface with modern dark theme
 """
@@ -95,7 +95,7 @@ class ExpandedMainWindow:
 
         # Create root window
         self.root = tk.Tk()
-        self.root.title("PC Workman - HCK Labs v1.5.7")
+        self.root.title("PC Workman - HCK Labs v1.6.8")
         self.root.geometry("1160x575")  # Expanded for sidebar (980 + 180)
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
@@ -3247,8 +3247,8 @@ But better: AI-powered insights, calm design, universal hardware support"""
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
         version_info = [
-            ("Current Version", "v1.5.7 - Architectural Evolution"),
-            ("Release Date", "December 17, 2025"),
+            ("Current Version", "v1.6.8 - Stats Engine & Time-Travel"),
+            ("Release Date", "February 15, 2026"),
             ("Architecture", "Dual-Mode (Minimal + Expanded)"),
             ("Language", "Python 3.x + Tkinter"),
             ("License", "Educational Project - HCK_Labs")
@@ -4865,7 +4865,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
 
         tk.Label(
             version_frame,
-            text="v1.6.3",
+            text="v1.6.8",
             font=("Segoe UI", 12, "bold"),
             bg="#0f1117",
             fg="#10b981"

@@ -1,7 +1,70 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
-## [1.6.3+]- 2026-01-19
+## [1.6.8] - 2026-02-15
+
+### HCK Stats Engine v2 — SQLite Long-Term Storage
+Replaced empty CSV aggregation files with a proper SQLite pipeline.
+
+**New modules** (`hck_stats_engine/`):
+- `constants.py` — retention config (7d minute, 90d hourly, forever daily+)
+- `db_manager.py` — WAL-mode SQLite, thread-local connections, auto-schema
+- `aggregator.py` — minute/hourly/daily/weekly/monthly aggregation + CSV pruning
+- `process_aggregator.py` — per-process CPU/RAM accumulator (in-memory dict → hourly/daily flush to SQLite)
+- `query_api.py` — range queries with automatic granularity selection
+- `events.py` — spike/anomaly detection with rate-limiting, severity levels
+
+**Data pipeline:**
+- `accumulate_second()` — lightweight dict update every 1s
+- `on_minute_tick()` — INSERT into `minute_stats` every 60s
+- Hourly/daily boundary detection → aggregation + pruning
+- `flush_on_shutdown()` — graceful save on exit
+
+**Stability guarantees:**
+- Every call wrapped in try/except — scheduler never crashes
+- Writes only on scheduler thread, UI reads via separate connection
+- WAL mode — concurrent read/write without locks
+- Atomic transactions — crash mid-aggregation → rollback
+- Graceful degradation — SQLite failure → app runs on CSV as before
+- Zero new dependencies (sqlite3 in stdlib)
+
+**Integration:** `scheduler.py` (~15 lines), `startup.py` (~10 lines), `__init__.py` (imports)
+
+### MONITORING & ALERTS — Time-Travel Statistics Center
+- Temperature area chart: 1D / 3D / 1W / 1M scale, spike detection (mean + 1.5*std), yellow glow regions, hover tooltips
+- Voltage/Load multi-line chart: CPU (blue) / RAM (green) / GPU (orange), anomaly highlighting
+- Stats panels per metric: Today AVG, Lifetime AVG, Max Safe, Current, Today MAX, Spikes count
+- AI learning status badges (green/yellow) with "PC Workman learns your patterns" messaging
+- Events log section pulling from SQLite `events` table
+- Auto-refresh every 30s with `winfo_exists()` guard
+- New file: `ui/pages/monitoring_alerts.py` (~520 lines)
+
+### Overlay CPU/RAM/GPU — External Desktop Widget
+- Redefined as `Toplevel` with `-topmost`, `-toolwindow`, `overrideredirect`
+- Positioned top-right of desktop, draggable, hidden from taskbar
+- Auto-launch on startup: `root.after(1500, _launch_overlay_monitor)`
+- Removed old in-app mini-monitor from header (~100 lines deleted)
+
+### My PC Section
+- Hey-USER table: replaced with cropped ProInfoTable (MOTHERBOARD + CPU sections, same style as Full Hardware Table)
+- Quick action buttons wired to sidebar navigation (Stats & Alerts → Monitoring, Health Report → My PC, etc.)
+- New Stability Tests page: real diagnostics (file integrity checks, HCK Stats Engine status, error logs)
+- Thicker font on action buttons + 6-button layout
+
+### Sidebar Navigation Stability Fix
+- `_update_hardware_cards` and `_update_top5_processes` now guarded by `current_view == "dashboard"` — eliminates "bad window path name" errors when on other pages
+- `winfo_exists()` checks added to: `_update_hardware_card`, `_render_expanded_user_processes`, `_render_expanded_system_processes`, `_update_session_bar`, `_update_live_metrics`, `_draw_sparkline`
+- Routing IDs updated: `temperature`, `voltage`, `alerts` (replaced stale `realtime`, `processes`)
+- Sidebar subitem renamed: "Events Log" → "Centrum & Alerts"
+
+### Codebase Cleanup
+- Removed AI-style comments (CYBERPUNK, MEGA, Apple style, SystemCare, personal reminders)
+- Temperature data pipeline: scheduler reads `cpu_temp`/`gpu_temp` from snapshot → passes to aggregator → stored in `minute_stats`
+- Replaced temporary chart placeholders with real data-driven charts
+
+---
+
+## [1.6.3+] - 2026-01-19
 ### PC Workman first `.exe`!
 
 ## [1.6.3] - 2026-01-12

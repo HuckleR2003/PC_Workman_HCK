@@ -1,6 +1,6 @@
 """
 startup.py
-Entry point for PC Workman HCK - from v1.0.1 to v1.6.2 - Now program have .exe!
+Entry point for PC Workman HCK - from v1.0.1 to v1.6.8 - Now program have .exe!
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
@@ -8,12 +8,12 @@ Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 # IMMEDIATE CONSOLE OUTPUT - Shows before any imports
 # ============================================
 print("=" * 70)
-print("  PC Workman v1.6.3 - This console will close if program runs correctly")
+print("  PC Workman v1.6.8 - This console will close if program runs correctly")
 print("  Attach this information when reporting errors/issues")
 print("=" * 70)
 print()
 print("=" * 37)
-print("  DIAGNOSTIC CONSOLE HELPER v1.6.3  ")
+print("  DIAGNOSTIC CONSOLE HELPER v1.6.8  ")
 print("=" * 37)
 print()
 print("[~] Initializing Python environment...")
@@ -28,7 +28,7 @@ print("[+] Python environment ready")
 print("[~] Loading core systems...")
 
 # ============================================
-# DIAGNOSTIC CONSOLE HELPER v1.6.3
+# DIAGNOSTIC CONSOLE HELPER v1.6.8
 # ============================================
 def get_console_window():
     """Get handle to console window"""

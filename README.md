@@ -1,8 +1,8 @@
-# PC_Workman 1.6.1 🖥️
+# PC_Workman 1.6.8
 
 **Real-time PC monitoring + AI diagnostics.**
-![Status](https://img.shields.io/badge/Status-Active%20Development-green) 
-![Version](https://img.shields.io/badge/Version-1.5.7-blue) 
+![Status](https://img.shields.io/badge/Status-Active%20Development-green)
+![Version](https://img.shields.io/badge/Version-1.6.8-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 -
@@ -46,25 +46,25 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 ## Features
 
 ### Core Monitoring
-- ✅ Real-time CPU, GPU, RAM tracking
-- ✅ Network bandwidth per-application
-- ✅ Process identification and labeling
-- ✅ Temperature monitoring with trends
-- ✅ Historical data logging (daily, weekly, monthly)
+- Real-time CPU, GPU, RAM tracking
+- Network bandwidth per-application
+- Process identification and labeling
+- Temperature monitoring with trends
+- Historical data logging (daily, weekly, monthly)
 
 ### Intelligence
-- ✅ hck_GPT AI-powered analysis
-- ✅ Gaming analytics with FPS tracking
-- ✅ Bottleneck detection (CPU vs GPU limited)
-- ✅ Pattern detection and recommendations
-- ✅ Safe system optimization with rollback
+- hck_GPT AI-powered analysis
+- Gaming analytics with FPS tracking
+- Bottleneck detection (CPU vs GPU limited)
+- Pattern detection and recommendations
+- Safe system optimization with rollback
 
 ### Interface
-- ✅ Modern dashboard (Apple-inspired design)
-- ✅ Ultra-compact information density
-- ✅ Color-coded process lists
-- ✅ Interactive charts and metrics
-- ✅ Click-to-investigate functionality
+- Modern dashboard (Apple-inspired design)
+- Ultra-compact information density
+- Color-coded process lists
+- Interactive charts and metrics
+- Click-to-investigate functionality
 
 ### Coming Soon
 - Official .exe installer (v1.6.0)
@@ -95,7 +95,48 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.6.2] - `2026-01-12` - CURRENT
+## What's New [1.6.8] - `2026-02-15` - CURRENT
+
+### HCK Stats Engine v2 (SQLite Long-Term Storage)
+- SQLite-based pipeline: minute/hourly/daily/weekly/monthly aggregation
+- Process tracking: per-hour and per-day CPU/RAM breakdown per process
+- WAL mode for concurrent UI reads + scheduler writes
+- Automatic pruning (7d minutes, 90d hourly, forever daily+)
+- Graceful degradation: SQLite failure falls back to CSV
+- New modules: `db_manager`, `aggregator`, `process_aggregator`, `query_api`, `events`
+
+### MONITORING & ALERTS - Time-Travel Statistics Center
+- Temperature area chart with 1D/3D/1W/1M scale selection
+- Spike detection (mean + 1.5*std) with yellow glow highlighting
+- Hover tooltips with CPU/RAM/GPU values at each time point
+- Voltage/Load multi-line chart with anomaly detection
+- Stats panels: Today AVG, Lifetime AVG, Max Safe, Current, Spikes count
+- AI learning status badges per metric
+- Events log from SQLite database
+
+### Overlay CPU/RAM/GPU
+- Redefined as always-on-top Toplevel window (outside program, on desktop)
+- Auto-launches on startup via `root.after(1500, ...)`
+- Draggable, frameless, hidden from taskbar (`-toolwindow`)
+
+### My PC Improvements
+- Hey-USER table: replaced with cropped ProInfoTable (MOTHERBOARD + CPU sections)
+- Quick action buttons now navigate to actual pages (Stats & Alerts -> Monitoring, etc.)
+- Stability Tests page with real diagnostics (file integrity, engine status, logs)
+
+### Sidebar Navigation Stability
+- Dashboard-only updates: `_update_hardware_cards` and `_update_top5_processes` guarded by `current_view == "dashboard"`
+- `winfo_exists()` guards on all widget update methods
+- Fixed routing IDs for new subitems (temperature, voltage, alerts)
+
+### Codebase
+- Removed in-app mini-monitor overlay (kept external one)
+- Removed stale AI-style comments (CYBERPUNK, MEGA, Apple style, etc.)
+- Integrated temperature data pipeline: scheduler -> aggregator -> SQLite
+
+---
+
+## What's New [1.6.3] - `2026-01-12`
 
 ### Fan Dashboard Overhaul
 - Complete visual redesign with purple gradient temperature graph
@@ -316,8 +357,9 @@ Click any process to see more details.
 | v1.0.6 | Stable | First working UI |
 | v1.3.3 | Released | hck_GPT integration |
 | v1.4.0 | Released | System tray, enhanced UI |
-| **v1.5.7** | **Current** | **Modern dashboard, hardware monitoring** |
-| v1.6.0 | **Q1 2026** | Stable release, .exe installer |
+| v1.5.7 | Released | Modern dashboard, hardware monitoring |
+| v1.6.3 | Released | Fan dashboard, menu system, .exe |
+| **v1.6.8** | **Current** | **Stats Engine v2, Time-Travel, Monitoring** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
