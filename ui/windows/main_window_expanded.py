@@ -1502,17 +1502,18 @@ class ExpandedMainWindow:
         filter_btns = tk.Frame(metrics_frame, bg="#1a1d24")
         filter_btns.pack(side="right", padx=10)
 
-        # Create 4 filter buttons
-        filter_options = ["DEFAULT", "1H", "4H", "SESSION"]
+        # Create filter buttons - real-time + historical from SQLite
+        filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
         self.filter_buttons = {}
+        self._historical_chart_data = None  # SQLite data cache
 
         for idx, filter_name in enumerate(filter_options):
             btn = tk.Label(
                 filter_btns,
                 text=filter_name,
                 font=("Segoe UI", 6, "bold"),
-                bg="#000000" if filter_name != "SESSION" else "#2563eb",  # SESSION selected by default
-                fg="#6b7280" if filter_name != "SESSION" else "#ffffff",
+                bg="#000000" if filter_name != "LIVE" else "#2563eb",
+                fg="#6b7280" if filter_name != "LIVE" else "#ffffff",
                 cursor="hand2",
                 padx=6,
                 pady=2
@@ -1528,6 +1529,11 @@ class ExpandedMainWindow:
                     # Highlight selected
                     f_btn.config(bg="#2563eb", fg="#ffffff")
                     self.chart_filter = f_name
+                    # Load historical data for long-range modes
+                    if f_name in ('1D', '1W', '1M'):
+                        self._load_historical_chart_data(f_name)
+                    else:
+                        self._historical_chart_data = None
                 return on_click
 
             btn.bind("<Button-1>", make_filter_click(filter_name, btn))
@@ -2423,6 +2429,31 @@ class ExpandedMainWindow:
         except:
             pass
 
+    def _load_historical_chart_data(self, mode):
+        """Load historical chart data from SQLite stats engine"""
+        try:
+            from hck_stats_engine.query_api import query_api
+            import time as _time
+
+            now = _time.time()
+            range_map = {'1D': 86400, '1W': 7 * 86400, '1M': 30 * 86400}
+            duration = range_map.get(mode, 86400)
+            start_ts = now - duration
+
+            data = query_api.get_usage_for_range(start_ts, now, max_points=100)
+
+            if data:
+                self._historical_chart_data = {
+                    'cpu': [d['cpu_avg'] for d in data],
+                    'ram': [d['ram_avg'] for d in data],
+                    'gpu': [d['gpu_avg'] for d in data],
+                }
+            else:
+                self._historical_chart_data = None
+        except Exception as e:
+            print(f"[ExpandedMode] Historical data load error: {e}")
+            self._historical_chart_data = None
+
     def _update_realtime_chart(self):
         """Draw ultra modern 3-bar real-time chart (CPU, RAM, GPU)"""
         if not hasattr(self, 'realtime_canvas') or not self._running:
@@ -2450,10 +2481,18 @@ class ExpandedMainWindow:
             chart_width = width - margin_left - margin_right
             chart_height = height - margin_top - margin_bottom
 
-            # Get data
-            cpu_data = self.chart_data.get('cpu', [])
-            ram_data = self.chart_data.get('ram', [])
-            gpu_data = self.chart_data.get('gpu', [])
+            # Get data - use historical data if in historical mode
+            if (hasattr(self, '_historical_chart_data') and
+                    self._historical_chart_data and
+                    hasattr(self, 'chart_filter') and
+                    self.chart_filter in ('1D', '1W', '1M')):
+                cpu_data = self._historical_chart_data.get('cpu', [])
+                ram_data = self._historical_chart_data.get('ram', [])
+                gpu_data = self._historical_chart_data.get('gpu', [])
+            else:
+                cpu_data = self.chart_data.get('cpu', [])
+                ram_data = self.chart_data.get('ram', [])
+                gpu_data = self.chart_data.get('gpu', [])
 
             # Number of samples to display
             num_samples = max(len(cpu_data), len(ram_data), len(gpu_data))

@@ -1,14 +1,10 @@
-# PC_Workman 1.6.4 🖥️
+# PC_Workman 1.6.1 🖥️
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green) 
-![Version](https://img.shields.io/badge/Version-1.6.4-blue)
+![Version](https://img.shields.io/badge/Version-1.5.7-blue) 
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
-[![CodeQL](https://github.com/HuckleR2003/PC_Workman_HCK/actions/workflows/codeql.yml/badge.svg)](https://github.com/HuckleR2003/PC_Workman_HCK/security/code-scanning)
-[![VirusTotal](https://img.shields.io/badge/VirusTotal-0%2F70%20clean-brightgreen)](https://www.virustotal.com)
-![Sigstore](https://img.shields.io/badge/Sigstore-signed-blue)
-![Open Source](https://img.shields.io/badge/Open%20Source-brightgreen)
 -
 ## Overview
 PC_Workman is a real-time system monitoring tool built in Python. It combines live performance diagnostics, AI-assisted analysis, and a modular architecture designed for intelligent system optimization.
@@ -50,26 +46,33 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 ## Features
 
 ### Core Monitoring
--  Real-time CPU, GPU, RAM tracking
--  Network bandwidth per-application
--  Process identification and labeling
--  Temperature monitoring with trends
--  Historical data logging (daily, weekly, monthly)
+- ✅ Real-time CPU, GPU, RAM tracking
+- ✅ Network bandwidth per-application
+- ✅ Process identification and labeling
+- ✅ Temperature monitoring with trends
+- ✅ Historical data logging (daily, weekly, monthly)
 
 ### Intelligence
--  hck_GPT AI-powered analysis
--  Gaming analytics with FPS tracking
--  Bottleneck detection (CPU vs GPU limited)
--  Pattern detection and recommendations
--  Safe system optimization with rollback
+- ✅ hck_GPT AI-powered analysis
+- ✅ Gaming analytics with FPS tracking
+- ✅ Bottleneck detection (CPU vs GPU limited)
+- ✅ Pattern detection and recommendations
+- ✅ Safe system optimization with rollback
 
 ### Interface
--  Modern dashboard (Apple-inspired design)
--  Ultra-compact information density
--  Color-coded process lists
--  Interactive charts and metrics
--  Click-to-investigate functionality
+- ✅ Modern dashboard (Apple-inspired design)
+- ✅ Ultra-compact information density
+- ✅ Color-coded process lists
+- ✅ Interactive charts and metrics
+- ✅ Click-to-investigate functionality
 
+### Coming Soon
+- Official .exe installer (v1.6.0)
+- Voltage spike correlation (v1.6.0)
+- Real temperature sensors (v1.5.1)
+- ML pattern detection (v2.0)
+- Predictive maintenance alerts (v2.0)
+-
 ## Architecture
 Modular, scalable design:
 ```
@@ -374,9 +377,4 @@ Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
 -
-
 **Ship what you have. Improve it later.** 💙
-
-
-
-

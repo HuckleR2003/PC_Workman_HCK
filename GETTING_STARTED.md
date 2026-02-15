@@ -4,7 +4,7 @@ Welcome! This guide covers installation and basic usage.
 
 ---
 
-## 🎯 Choose Your Path
+## Choose Your Path
 
 ### Path 1: "I just want to use it"
 → Go to [Quick Install (Windows .exe)](#quick-install-windows-exe)
@@ -17,7 +17,7 @@ Welcome! This guide covers installation and basic usage.
 
 ---
 
-## 🚀 Quick Install (Windows .exe)
+## Quick Install (Windows .exe)
 
 **Easiest option. No Python required.**
 
@@ -33,7 +33,7 @@ Welcome! This guide covers installation and basic usage.
 1. Find downloaded file (usually in Downloads folder)
 2. Double-click `PC_Workman.exe`
 3. If Windows asks "Allow this app to make changes?" → Click **Yes**
-4. PC_Workman opens → **Done!** ✅
+4. PC_Workman opens → **Done!**
 
 ### Step 3: First Use
 
@@ -46,7 +46,7 @@ Welcome! This guide covers installation and basic usage.
 
 ---
 
-## 🔧 Developer Setup (From Source)
+## Developer Setup (From Source)
 
 Use this if you want to:
 - Modify the code
@@ -101,11 +101,11 @@ Wait 2-3 minutes for completion.
 python startup.py
 ```
 
-Window opens → **Running!** 🎉
+Window opens → **Running!**
 
 ---
 
-## 📖 Using PC_Workman
+## Using PC_Workman
 
 ### Main Dashboard (Default View)
 
@@ -125,17 +125,17 @@ Window opens → **Running!** 🎉
 
 ### Tabs Explained
 
-#### 📊 Dashboard
+#### Dashboard
 Real-time overview. Start here. Shows current metrics and top processes.
 
-#### 💻 Your PC
+#### Your PC
 Hardware health monitoring:
 - CPU details (model, cores, speed)
 - RAM information (total, available)
 - GPU status (if available)
 - System temperature and load
 
-#### 🎮 Fan Control
+#### Fan Control
 Manual fan curve configuration (advanced users):
 1. Click "Custom Curve"
 2. Drag points to set temperatures
@@ -144,13 +144,13 @@ Manual fan curve configuration (advanced users):
 
 **For beginners:** Keep default settings.
 
-#### ⚡ Network
+#### Network
 Internet usage breakdown:
 - See which apps use bandwidth
 - Monitor data usage
 - Identify resource-heavy applications
 
-#### 🎯 Gaming
+#### Gaming
 Game-specific analytics:
 1. Click "Track This Game"
 2. PC_Workman records performance while you play
@@ -195,7 +195,7 @@ Normal ranges:
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Enable Gaming Analytics
 ```
@@ -223,7 +223,7 @@ Edit `settings/config.json` for advanced configuration:
 
 ---
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### "PC_Workman won't start"
 
@@ -264,7 +264,7 @@ Try:
 
 ---
 
-## 📊 Common Tasks
+## Common Tasks
 
 ### Task: Check what's using CPU right now
 1. Look at "User Processes" list on dashboard
@@ -297,7 +297,7 @@ Try:
 
 ---
 
-## 📈 Data Storage
+## Data Storage
 
 ### Where Your Data Lives
 ```
@@ -329,23 +329,23 @@ You can:
 ## 🔐 Privacy Check
 
 PC_Workman collects:
-- ✅ CPU/GPU/RAM usage
-- ✅ Process names
-- ✅ Temperatures
-- ✅ Network usage
+- CPU/GPU/RAM usage
+- Process names
+- Temperatures
+- Network usage
 
 PC_Workman does NOT:
-- ❌ Send anything to cloud
-- ❌ Track user behavior
-- ❌ Collect personal data
-- ❌ Show ads or telemetry
-- ❌ Require account creation
+- Send anything to cloud
+- Track user behavior
+- Collect personal data
+- Show ads or telemetry
+- Require account creation
 
 **Everything stays on your computer.** Period.
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 1. **Explore tabs** - Get familiar with interface
 2. **Check processes** - See what's actually running
@@ -355,7 +355,7 @@ PC_Workman does NOT:
 
 ---
 
-## 📚 Need Help?
+## Need Help?
 
 - **Question?** [Open Discussion](https://github.com/HuckleR2003/PC_Workman_HCK/discussions)
 - **Found bug?** [Report Issue](https://github.com/HuckleR2003/PC_Workman_HCK/issues)
@@ -363,7 +363,7 @@ PC_Workman does NOT:
 
 ---
 
-## 📖 Learn More
+## Learn More
 
 - **[README.md](./README.md)** - Project overview
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history

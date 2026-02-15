@@ -40,8 +40,9 @@ class EnhancedMainChart:
         self.crosshair_vline = None
         self.crosshair_annotation = None
 
-        # Data view mode: 'SESSION', '1H', '4H'
+        # Data view mode: 'SESSION', '1H', '4H', '1D', '1W', '1M', '3M'
         self.data_view_mode = 'SESSION'
+        self._historical_data = None  # Cached SQLite data for long ranges
 
         self._init_style()
 
@@ -80,11 +81,51 @@ class EnhancedMainChart:
         self.ax.set_title("", color=THEME["text"], fontsize=10)
 
     def set_data_view_mode(self, mode):
-        """Set data view mode: 'SESSION', '1H', '4H'"""
+        """Set data view mode: 'SESSION', '1H', '4H', '1D', '1W', '1M', '3M'"""
         self.data_view_mode = mode
+        self._historical_data = None  # Clear cache on mode change
+
+        # For long-range modes, load data from SQLite
+        if mode in ('1D', '1W', '1M', '3M'):
+            self._load_historical_data(mode)
+
+    def _load_historical_data(self, mode):
+        """Load historical data from SQLite stats engine"""
+        try:
+            from hck_stats_engine.query_api import query_api
+
+            now = time.time()
+            range_map = {
+                '1D': 86400,
+                '1W': 7 * 86400,
+                '1M': 30 * 86400,
+                '3M': 90 * 86400,
+            }
+            duration = range_map.get(mode, 86400)
+            start_ts = now - duration
+
+            data = query_api.get_usage_for_range(start_ts, now, max_points=400)
+
+            if data:
+                # Convert to chart-compatible format
+                self._historical_data = [{
+                    'timestamp': d['timestamp'],
+                    'cpu_percent': d['cpu_avg'],
+                    'ram_percent': d['ram_avg'],
+                    'gpu_percent': d['gpu_avg'],
+                } for d in data]
+        except Exception as e:
+            print(f"[Chart] Historical data load error: {e}")
+            self._historical_data = None
 
     def _filter_samples_by_mode(self, samples):
         """Filter samples based on current data view mode"""
+        # For long-range modes, use SQLite historical data
+        if self.data_view_mode in ('1D', '1W', '1M', '3M'):
+            if self._historical_data:
+                return self._historical_data
+            return samples  # Fallback to in-memory
+
         if not samples or self.data_view_mode == 'SESSION':
             return samples
 

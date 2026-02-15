@@ -275,37 +275,53 @@ class DayStatsPage:
             except:
                 self.services_value.value_label.config(text="N/A")
 
-            # Get average usage (from logger if available)
-            from import_core import COMPONENTS
-            logger = COMPONENTS.get('core.logger')
+            # Get average usage - prefer SQLite stats engine, fallback to logger
+            avg_cpu = avg_ram = avg_gpu = 0.0
+            data_source = "session"
 
-            if logger:
-                recent = logger.get_last_n_samples(300)
-                if recent:
-                    avg_cpu = sum(s.get('cpu_percent', 0) for s in recent) / len(recent)
-                    avg_ram = sum(s.get('ram_percent', 0) for s in recent) / len(recent)
-                    avg_gpu = sum(s.get('gpu_percent', 0) for s in recent) / len(recent)
+            try:
+                from hck_stats_engine.query_api import query_api
+                today_start = time.time() - (time.time() % 86400)
+                data = query_api.get_usage_for_range(today_start, time.time(), max_points=200)
+                if data and len(data) > 5:
+                    avg_cpu = sum(d['cpu_avg'] for d in data) / len(data)
+                    avg_ram = sum(d['ram_avg'] for d in data) / len(data)
+                    avg_gpu = sum(d['gpu_avg'] for d in data) / len(data)
+                    data_source = "sqlite"
+            except Exception:
+                pass
 
-                    # Update CPU with gradient progress bar
-                    self.avg_cpu_value.value_label.config(text=f"{avg_cpu:.1f}%")
-                    cpu_color = self._get_gradient_color(avg_cpu)
-                    self.avg_cpu_value.value_label.config(fg=cpu_color)
-                    self.avg_cpu_value.progress_bar.config(bg=cpu_color)
-                    self.avg_cpu_value.progress_bar.place(relwidth=avg_cpu/100.0)
+            if data_source == "session":
+                from import_core import COMPONENTS
+                logger = COMPONENTS.get('core.logger')
+                if logger:
+                    recent = logger.get_last_n_samples(300)
+                    if recent:
+                        avg_cpu = sum(s.get('cpu_percent', 0) for s in recent) / len(recent)
+                        avg_ram = sum(s.get('ram_percent', 0) for s in recent) / len(recent)
+                        avg_gpu = sum(s.get('gpu_percent', 0) for s in recent) / len(recent)
 
-                    # Update RAM with gradient progress bar
-                    self.avg_ram_value.value_label.config(text=f"{avg_ram:.1f}%")
-                    ram_color = self._get_gradient_color(avg_ram)
-                    self.avg_ram_value.value_label.config(fg=ram_color)
-                    self.avg_ram_value.progress_bar.config(bg=ram_color)
-                    self.avg_ram_value.progress_bar.place(relwidth=avg_ram/100.0)
+            if avg_cpu > 0 or avg_ram > 0:
+                # Update CPU with gradient progress bar
+                self.avg_cpu_value.value_label.config(text=f"{avg_cpu:.1f}%")
+                cpu_color = self._get_gradient_color(avg_cpu)
+                self.avg_cpu_value.value_label.config(fg=cpu_color)
+                self.avg_cpu_value.progress_bar.config(bg=cpu_color)
+                self.avg_cpu_value.progress_bar.place(relwidth=avg_cpu/100.0)
 
-                    # Update GPU with gradient progress bar
-                    self.avg_gpu_value.value_label.config(text=f"{avg_gpu:.1f}%")
-                    gpu_color = self._get_gradient_color(avg_gpu)
-                    self.avg_gpu_value.value_label.config(fg=gpu_color)
-                    self.avg_gpu_value.progress_bar.config(bg=gpu_color)
-                    self.avg_gpu_value.progress_bar.place(relwidth=avg_gpu/100.0)
+                # Update RAM with gradient progress bar
+                self.avg_ram_value.value_label.config(text=f"{avg_ram:.1f}%")
+                ram_color = self._get_gradient_color(avg_ram)
+                self.avg_ram_value.value_label.config(fg=ram_color)
+                self.avg_ram_value.progress_bar.config(bg=ram_color)
+                self.avg_ram_value.progress_bar.place(relwidth=avg_ram/100.0)
+
+                # Update GPU with gradient progress bar
+                self.avg_gpu_value.value_label.config(text=f"{avg_gpu:.1f}%")
+                gpu_color = self._get_gradient_color(avg_gpu)
+                self.avg_gpu_value.value_label.config(fg=gpu_color)
+                self.avg_gpu_value.progress_bar.config(bg=gpu_color)
+                self.avg_gpu_value.progress_bar.place(relwidth=avg_gpu/100.0)
 
             # Update TOP processes
             self._update_top_processes()

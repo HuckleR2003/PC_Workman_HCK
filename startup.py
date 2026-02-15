@@ -114,9 +114,22 @@ def run_demo():
     try:
         import hck_stats_engine.avg_calculator
         import hck_stats_engine.trend_analysis
-        log("Stats engine loaded", "OK")
+        log("Stats engine (legacy) loaded", "OK")
     except Exception as e:
-        log(f"Stats engine FAILED: {e}", "ERROR")
+        log(f"Stats engine legacy FAILED: {e}", "ERROR")
+
+    # --- Step 3b: Load Stats Engine v2 (SQLite long-term storage) ---
+    stats_engine_v2_ready = False
+    try:
+        import hck_stats_engine
+        from hck_stats_engine import db_manager, aggregator, process_aggregator, query_api, event_detector
+        if db_manager.is_ready:
+            stats_engine_v2_ready = True
+            log("Stats Engine v2 (SQLite) loaded - DB ready", "OK")
+        else:
+            log("Stats Engine v2 loaded - DB NOT ready (will retry)", "WARN")
+    except Exception as e:
+        log(f"Stats Engine v2 FAILED: {e}", "ERROR")
 
     # --- Step 4: Load UI modules ---
     log("Loading UI...", "LOAD")
@@ -295,6 +308,25 @@ def run_demo():
             scheduler.stop()
         except:
             pass
+
+    # Flush Stats Engine v2 on shutdown
+    try:
+        from hck_stats_engine.aggregator import aggregator as _agg
+        _agg.flush_on_shutdown()
+    except Exception:
+        pass
+
+    try:
+        from hck_stats_engine.events import event_detector as _evt
+        _evt.log_custom_event('shutdown', 'info', 'PC Workman shutdown')
+    except Exception:
+        pass
+
+    try:
+        from hck_stats_engine.db_manager import db_manager as _db
+        _db.close()
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":

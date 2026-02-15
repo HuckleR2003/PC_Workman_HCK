@@ -348,14 +348,35 @@ class AllStatsPage:
             return
 
         try:
-            # Get statistics
+            # Try SQLite stats engine first for long-term data
+            sqlite_info = None
+            try:
+                from hck_stats_engine.query_api import query_api
+                sqlite_info = query_api.get_available_date_range()
+            except Exception:
+                pass
+
+            # Get statistics from data manager
             stats = self.data_manager.statistics
 
-            # Update runtime
+            # Update runtime - combine session + SQLite uptime
             total_runtime = stats.get('total_runtime_seconds', 0)
+            if sqlite_info and sqlite_info.get('total_days', 0) > 0:
+                try:
+                    summary = query_api.get_summary_stats(days=3650)  # ~10 years
+                    if summary.get('total_uptime_hours', 0) > 0:
+                        total_runtime = max(total_runtime, summary['total_uptime_hours'] * 3600)
+                except Exception:
+                    pass
+
             hours = int(total_runtime // 3600)
             minutes = int((total_runtime % 3600) // 60)
-            self.runtime_value.config(text=f"{hours}h {minutes}m")
+            if hours >= 24:
+                days = hours // 24
+                hours = hours % 24
+                self.runtime_value.config(text=f"{days}d {hours}h {minutes}m")
+            else:
+                self.runtime_value.config(text=f"{hours}h {minutes}m")
 
             # Update process count
             proc_count = len(stats.get('processes', {}))
