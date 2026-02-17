@@ -22,7 +22,7 @@ except ImportError:
     psutil = None
 
 try:
-    from ui.hck_gpt_panel import HCKGPTPanel
+    from hck_gpt.panel import HCKGPTPanel
 except ImportError:
     HCKGPTPanel = None
 
