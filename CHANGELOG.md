@@ -1,7 +1,41 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
-## [1.6.8] - 2026-02-15
+## [1.6.8] - 2026-02-17
+
+### hck_GPT Intelligence System
+Full local intelligence layer — no external AI, all rule-based logic on Stats Engine data.
+
+**New modules** (`hck_gpt/`):
+- `insights.py` — `InsightsEngine` singleton: habit tracking, anomaly awareness, personalized teasers
+- `report_window.py` — "Today Report" Toplevel window with canvas chart, colored sections, process breakdown
+
+**InsightsEngine capabilities:**
+- `get_greeting()` — time-of-day + yesterday's summary + recurring app teaser (cached 30min)
+- `get_current_insight()` — real-time spike alerts, gaming/browser detection (rate-limited 30s)
+- `get_habit_summary()` — top 5 apps, browser/game/dev highlights, weekly CPU trend comparison
+- `get_anomaly_report()` — 24h events grouped by severity with timestamps
+- `get_teaser()` — 7-day recurring pattern detection, personality-driven messages per category
+- `get_banner_status()` — compact one-liner for collapsed panel banner
+- `_detect_recurring_patterns()` — finds apps used on 50%+ of last 7 days (>5% CPU or >100MB RAM)
+
+**ChatHandler new commands:** `stats`, `habits`, `alerts`, `insights`, `teaser`, `help` (updated)
+- Polish language support: `co uzywam`, `statystyki`, `co nowego`, `alerty`, `co dzis`
+- Default response now shows current insight instead of "AI not connected"
+
+**Panel upgrades:**
+- Rainbow gradient "Today Report!" button (canvas-based, full-width)
+- Smooth pixel-level fade banner (5-anchor RGB interpolation replacing discrete color blocks)
+- Auto-greeting on panel open (once per 30min session)
+- Insight ticker: checks every 60s while panel is open, shows notable events
+- Banner status ticker: updates collapsed banner with live system status every 30s
+
+**Today Report window:**
+- Session uptime + lifetime uptime (from `daily_stats.uptime_minutes`)
+- Mini usage chart: CPU (red) / GPU (blue) / RAM (yellow) lines with averages panel
+- Top 5 system processes with CPU/RAM stats
+- Top 5 user apps with category badges (Gaming, Browser, Development, etc.)
+- Yellow alert banner: TEMP & VOLTAGES status
 
 ### HCK Stats Engine v2 — SQLite Long-Term Storage
 Replaced empty CSV aggregation files with a proper SQLite pipeline.

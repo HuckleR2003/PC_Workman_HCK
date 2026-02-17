@@ -52,11 +52,13 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Temperature monitoring with trends
 - Historical data logging (daily, weekly, monthly)
 
-### Intelligence
-- hck_GPT AI-powered analysis
+### Intelligence (hck_GPT)
+- Local insights engine — habit tracking, anomaly awareness, personalized teasers
+- "Today Report" with usage chart, top processes, and alert status
+- 7-day recurring pattern detection (games, browsers, dev tools)
+- Spike/anomaly reporting from Stats Engine events
 - Gaming analytics with FPS tracking
 - Bottleneck detection (CPU vs GPU limited)
-- Pattern detection and recommendations
 - Safe system optimization with rollback
 
 ### Interface
@@ -95,7 +97,15 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.6.8] - `2026-02-15` - CURRENT
+## What's New [1.6.8] - `2026-02-17` - CURRENT
+
+### hck_GPT Intelligence System
+- Local insights engine: habit tracking, anomaly awareness, personalized teasers
+- "Today Report!" button — rainbow gradient, opens detailed report window
+- Today Report: session/lifetime uptime, CPU/GPU/RAM chart, top processes, alert status
+- 7-day recurring pattern detection with personality-driven messages
+- New commands: `stats`, `alerts`, `insights`, `teaser` (+ Polish language)
+- Smooth fade gradient banner, auto-greeting, periodic insight ticker
 
 ### HCK Stats Engine v2 (SQLite Long-Term Storage)
 - SQLite-based pipeline: minute/hourly/daily/weekly/monthly aggregation

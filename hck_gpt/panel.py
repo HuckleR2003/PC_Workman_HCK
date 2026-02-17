@@ -145,6 +145,22 @@ class HCKGPTPanel:
         )
         clear_btn.pack(side="right")
 
+        # ========== TODAY REPORT BUTTON (rainbow gradient) ==========
+        report_bar = tk.Frame(self.chat, bg=THEME["bg_panel"])
+        report_bar.pack(fill="x", padx=8, pady=(0, 4))
+
+        self._report_btn_canvas = tk.Canvas(
+            report_bar, height=28, bg=THEME["bg_panel"],
+            highlightthickness=0, cursor="hand2"
+        )
+        self._report_btn_canvas.pack(fill="x")
+        self._report_btn_canvas.bind("<Configure>", self._draw_report_button)
+        self._report_btn_canvas.bind("<Button-1>", self._open_today_report)
+        self._report_btn_canvas.bind("<Enter>",
+            lambda e: self._report_btn_canvas.itemconfig("btn_text", fill="#ffffff"))
+        self._report_btn_canvas.bind("<Leave>",
+            lambda e: self._report_btn_canvas.itemconfig("btn_text", fill="#f0f0f0"))
+
         # LOG with custom scrollbar
         log_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
         log_container.pack(fill="both", expand=True, padx=8, pady=(4, 6))
@@ -240,31 +256,46 @@ class HCKGPTPanel:
         parent.bind("<Configure>", self._on_resize)
 
     # ================================================================
-    # SMOOTH GRADIENT BANNER
+    # SMOOTH GRADIENT BANNER (pixel-level fade)
     # ================================================================
     def _draw_gradient_banner(self):
         w = self.width
         h = self.collapsed_h
 
-        colors = [
-            "#7f3ef5",  # Purple
-            "#9540ED",
-            "#AB45E8",
-            "#C154DC",
-            "#D865C0",
-            "#EE76A4",
-            "#FF7B89",
-            "#FF7B59",
-            "#FF6A2F"   # Orange
+        # Anchor colors for smooth interpolation
+        anchors = [
+            (0.0,  (127, 62, 245)),   # Purple
+            (0.25, (193, 84, 220)),    # Pink-purple
+            (0.50, (238, 118, 164)),   # Rose
+            (0.75, (255, 123, 89)),    # Salmon
+            (1.0,  (255, 106, 47)),    # Orange
         ]
 
-        steps = len(colors)
-        step_w = w / steps
+        # Draw 2px-wide strips for smooth fade
+        strip_w = 3
+        for x in range(0, w, strip_w):
+            t = x / max(w - 1, 1)
 
-        for i, color in enumerate(colors):
-            x0 = int(i * step_w)
-            x1 = int(x0 + step_w) + 1
-            self.banner.create_rectangle(x0, 0, x1, h, fill=color, outline=color)
+            # Find surrounding anchors
+            c0 = anchors[0][1]
+            c1 = anchors[-1][1]
+            for j in range(len(anchors) - 1):
+                if anchors[j][0] <= t <= anchors[j + 1][0]:
+                    seg_t = (t - anchors[j][0]) / (anchors[j + 1][0] - anchors[j][0])
+                    c0 = anchors[j][1]
+                    c1 = anchors[j + 1][1]
+                    r = int(c0[0] + (c1[0] - c0[0]) * seg_t)
+                    g = int(c0[1] + (c1[1] - c0[1]) * seg_t)
+                    b = int(c0[2] + (c1[2] - c0[2]) * seg_t)
+                    color = f"#{r:02x}{g:02x}{b:02x}"
+                    break
+            else:
+                color = f"#{c1[0]:02x}{c1[1]:02x}{c1[2]:02x}"
+
+            self.banner.create_rectangle(
+                x, 0, x + strip_w + 1, h,
+                fill=color, outline=color
+            )
 
     # ================================================================
     # HOVER EFFECTS
@@ -453,6 +484,61 @@ class HCKGPTPanel:
             self._banner_ticker_id = self.frame.after(30000, self._update_banner_status)
         except Exception:
             pass
+
+    # ================================================================
+    # TODAY REPORT BUTTON (rainbow gradient)
+    # ================================================================
+    def _draw_report_button(self, event=None):
+        """Draw rainbow gradient button on canvas."""
+        c = self._report_btn_canvas
+        c.delete("all")
+        w = c.winfo_width()
+        h = 28
+
+        if w < 10:
+            return
+
+        # Rainbow gradient colors
+        colors = [
+            "#7f3ef5", "#9540ED", "#C154DC", "#EE76A4",
+            "#FF7B59", "#FF6A2F", "#fbbf24", "#22c55e",
+            "#00ffc8", "#4b9aff", "#7f3ef5"
+        ]
+
+        steps = len(colors)
+        step_w = w / steps
+        for i, color in enumerate(colors):
+            x0 = int(i * step_w)
+            x1 = int(x0 + step_w) + 1
+            c.create_rectangle(x0, 0, x1, h, fill=color, outline=color)
+
+        # Border radius effect (dark corner pixels)
+        for corner_x in [0, 1, w - 1, w - 2]:
+            for corner_y in [0, 1, h - 1, h - 2]:
+                if (corner_x <= 1 and corner_y <= 1) or \
+                   (corner_x >= w - 2 and corner_y <= 1) or \
+                   (corner_x <= 1 and corner_y >= h - 2) or \
+                   (corner_x >= w - 2 and corner_y >= h - 2):
+                    c.create_rectangle(corner_x, corner_y, corner_x + 1,
+                                       corner_y + 1, fill=THEME["bg_panel"],
+                                       outline=THEME["bg_panel"])
+
+        # Text
+        c.create_text(
+            w // 2, h // 2,
+            text="✨  Today Report!  ✨",
+            font=("Segoe UI", 10, "bold"),
+            fill="#f0f0f0",
+            tags="btn_text"
+        )
+
+    def _open_today_report(self, event=None):
+        """Open the Today Report window."""
+        try:
+            from hck_gpt.report_window import open_today_report
+            open_today_report(self.parent)
+        except Exception as e:
+            self.add_message(f"hck_GPT: Could not open report — {e}")
 
     # ================================================================
     # RESIZE → keep bottom docking
