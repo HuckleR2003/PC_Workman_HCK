@@ -33,7 +33,11 @@ def build_monitoring_alerts_page(self, parent):
     canvas.configure(yscrollcommand=scrollbar.set)
 
     def _on_mousewheel(event):
-        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        try:
+            if canvas.winfo_exists():
+                canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except Exception:
+            pass
     canvas.bind_all("<MouseWheel>", _on_mousewheel, add="+")
 
     canvas.pack(side="left", fill="both", expand=True)

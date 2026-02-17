@@ -108,59 +108,63 @@ def _build_central(self, parent):
     tk.Label(left, text="QUICK ACTIONS", font=("Segoe UI", 6, "bold"),
              bg="#0a0e14", fg="#4b5563").pack(anchor="w", pady=(0, 3))
 
-    columns = tk.Frame(left, bg="#0a0e14")
-    columns.pack(fill="both", expand=True)
-
-    col1 = tk.Frame(columns, bg="#0a0e14")
-    col1.pack(side="left", fill="both", expand=True, padx=(0, 2))
-
-    col2 = tk.Frame(columns, bg="#0a0e14")
-    col2.pack(side="left", fill="both", expand=True, padx=(2, 0))
-
     def _nav_to(page_id, subpage_id=None):
-        """Navigate via sidebar handler"""
         if hasattr(self, '_handle_sidebar_navigation'):
             self._handle_sidebar_navigation(page_id, subpage_id)
             if hasattr(self, 'sidebar') and self.sidebar:
                 self.sidebar.set_active_page(page_id, subpage_id)
 
-    col1_items = [
-        ("📋", "Health Report", "#3b82f6", None, [
-            "Advanced PC health report.",
-            "Component history in one place."
-        ], lambda: _nav_to("my_pc", "health")),
-        ("⚠", "STATS & ALERTS", "#f59e0b", "NO ALERTS", [
-            "Monthly statistics overview.",
-            "Watch temp & voltage spikes.",
-            "Notifications on suspicious activity!"
-        ], lambda: _nav_to("monitoring_alerts", "alerts")),
-        ("⚡", "Optimization", "#f59e0b", None, [
-            "Hardware optimization tools.",
-            "Automatic daily operations."
-        ], lambda: _nav_to("optimization")),
-    ]
+    # Row 1: two small buttons side by side
+    row1 = tk.Frame(left, bg="#0a0e14")
+    row1.pack(fill="x")
+    r1_left = tk.Frame(row1, bg="#0a0e14")
+    r1_left.pack(side="left", fill="both", expand=True, padx=(0, 1))
+    r1_right = tk.Frame(row1, bg="#0a0e14")
+    r1_right.pack(side="left", fill="both", expand=True, padx=(1, 0))
 
-    col2_items = [
-        ("🗑️", "Cleanup", "#ef4444", None, [
-            "Cleanup tools.",
-            "Combined power in one place!"
-        ], lambda: _nav_to("optimization", "services")),
-        ("🚀", "First Setup", "#8b5cf6", None, [
-            "DRIVER'S UPDATE - All in ONE",
-            "USELESS SERVICES OFF",
-            "REMOVE: Cortana, OneDrive"
-        ], lambda: _nav_to("optimization", "wizard")),
-        ("🛡", "Stability Tests", "#10b981", None, [
-            "PC Workman internal diagnostics.",
-            "File integrity, engine status, logs."
-        ], lambda: _open_stability_tests(self)),
-    ]
+    _create_action_btn(r1_left, "\U0001f4cb", "Health Report", "#3b82f6", None,
+                       ["Advanced PC health report.", "Component history in one place."],
+                       lambda: _nav_to("my_pc", "health"))
+    _create_action_btn(r1_right, "\U0001f5d1\ufe0f", "Cleanup", "#ef4444", None,
+                       ["Cleanup tools.", "Combined power in one place!"],
+                       lambda: _nav_to("optimization", "services"))
 
-    for icon, title, color, badge, tooltip, cmd in col1_items:
-        _create_action_btn(col1, icon, title, color, badge, tooltip, cmd)
+    # Row 2: LARGE - STATS & ALERTS (yellow gradient)
+    _create_large_gradient_btn(
+        left, "\u26a0", "STATS & ALERTS",
+        (184, 134, 11), (251, 191, 36),
+        lambda: _nav_to("monitoring_alerts", "alerts"),
+        badge_text="NO ALERTS", badge_bg="#166534",
+        tooltip=["Monthly statistics overview.", "Watch temp & voltage spikes."]
+    )
 
-    for icon, title, color, badge, tooltip, cmd in col2_items:
-        _create_action_btn(col2, icon, title, color, badge, tooltip, cmd)
+    # Row 3: LARGE - Optimization & Services (dark yellow -> dark red)
+    _create_large_gradient_btn(
+        left, "\u26a1", "Optimization & Services",
+        (139, 105, 20), (127, 29, 29),
+        lambda: _nav_to("optimization"),
+        tooltip=["Hardware optimization tools.", "Automatic daily operations."]
+    )
+
+    # Row 4: LARGE - First Setup & Drivers (red -> purple)
+    _create_large_gradient_btn(
+        left, "\U0001f680", "First Setup & Drivers",
+        (239, 68, 68), (107, 33, 168),
+        lambda: _nav_to("optimization", "wizard"),
+        badge_text="Great", badge_bg="#166534",
+        sub_text="Not need to do",
+        tooltip=["DRIVER'S UPDATE - All in ONE", "USELESS SERVICES OFF"]
+    )
+
+    # Row 5: small full-width - Stability Tests
+    _create_action_btn(left, "\U0001f6e1", "Stability Tests", "#10b981", None,
+                       ["PC Workman internal diagnostics.", "File integrity, engine status, logs."],
+                       lambda: _open_stability_tests(self))
+
+    # Row 6: small full-width - Your Account
+    _create_action_btn(left, "\U0001f464", "Your Account - Details", "#8b5cf6", None,
+                       ["Account details and preferences.", "Manage your PC Workman profile."],
+                       None)
 
     right = tk.Frame(container, bg="#0a0e27", width=408)
     right.pack(side="right", fill="y", padx=5, pady=5)
@@ -221,6 +225,115 @@ def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, com
     title_lbl.bind("<Leave>", on_leave)
 
 
+def _lerp_color(c1, c2, t):
+    """Interpolate between two RGB tuples"""
+    return tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
+
+
+def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, command=None,
+                                badge_text=None, badge_bg="#166534", sub_text=None, tooltip=None):
+    """Create a large gradient button with optional badge and sub-text"""
+    BORDER_COLOR = "#2a2d34"
+    HEIGHT = 42
+
+    outer = tk.Frame(parent, bg=BORDER_COLOR, bd=0, highlightthickness=1,
+                     highlightbackground=BORDER_COLOR)
+    outer.pack(fill="x", pady=2)
+
+    canvas = tk.Canvas(outer, height=HEIGHT, bg="#1a1d24", highlightthickness=0,
+                       cursor="hand2")
+    canvas.pack(fill="x")
+
+    def _draw_gradient(bright=1.0):
+        canvas.delete("gradient")
+        w = canvas.winfo_width()
+        if w < 10:
+            w = 400
+        for x in range(0, w, 2):
+            t = x / max(w - 1, 1)
+            r, g, b = _lerp_color(grad_start, grad_end, t)
+            r = min(255, int(r * bright))
+            g = min(255, int(g * bright))
+            b = min(255, int(b * bright))
+            color = f"#{r:02x}{g:02x}{b:02x}"
+            canvas.create_rectangle(x, 0, x + 2, HEIGHT, fill=color, outline=color, tags="gradient")
+
+    def _draw_content():
+        canvas.delete("content")
+        w = canvas.winfo_width()
+        if w < 10:
+            w = 400
+
+        # Icon + title (left side)
+        canvas.create_text(
+            12, HEIGHT // 2,
+            text=icon, font=("Segoe UI", 11),
+            fill="#ffffff", anchor="w", tags="content"
+        )
+        canvas.create_text(
+            32, HEIGHT // 2,
+            text=title, font=("Segoe UI", 10, "bold"),
+            fill="#ffffff", anchor="w", tags="content"
+        )
+
+        # Badge (right side)
+        if badge_text:
+            bx = w - 12
+            # Badge background
+            text_w = len(badge_text) * 6 + 12
+            pad_y = 4
+            if sub_text:
+                pad_y = 2
+            canvas.create_rectangle(
+                bx - text_w, HEIGHT // 2 - 9 - (3 if sub_text else 0),
+                bx, HEIGHT // 2 + 9 - (3 if sub_text else 0),
+                fill=badge_bg, outline=badge_bg, tags="content"
+            )
+            canvas.create_text(
+                bx - text_w // 2, HEIGHT // 2 - (3 if sub_text else 0),
+                text=badge_text, font=("Segoe UI", 6, "bold"),
+                fill="#ffffff", tags="content"
+            )
+            if sub_text:
+                canvas.create_text(
+                    bx - text_w // 2, HEIGHT // 2 + 12,
+                    text=sub_text, font=("Segoe UI", 5),
+                    fill="#9ca3af", tags="content"
+                )
+
+    def _on_configure(e=None):
+        _draw_gradient()
+        _draw_content()
+
+    canvas.bind("<Configure>", _on_configure)
+
+    # Hover effects
+    def _on_enter(e=None):
+        _draw_gradient(bright=1.15)
+        _draw_content()
+
+    def _on_leave(e=None):
+        _draw_gradient(bright=1.0)
+        _draw_content()
+
+    canvas.bind("<Enter>", _on_enter)
+    canvas.bind("<Leave>", _on_leave)
+
+    if command:
+        canvas.bind("<Button-1>", lambda e: command())
+
+    # Info button on the right edge
+    info_btn = tk.Label(outer, text="i", font=("Segoe UI", 7, "bold"),
+                        bg="#0a0a0a", fg="#6b7280", width=2, cursor="hand2")
+    info_btn.place(relx=1.0, rely=0.0, anchor="ne", relheight=1.0)
+
+    if tooltip:
+        InfoTooltip(info_btn, tooltip)
+
+    info_btn.bind("<Enter>", lambda e: info_btn.config(bg="#3b82f6", fg="#ffffff"))
+    info_btn.bind("<Leave>", lambda e: info_btn.config(bg="#0a0a0a", fg="#6b7280"))
+
+
 def _build_hey_user_table(self, parent):
     """Build Hey-USER panel with cropped Hardware Table (MOTHERBOARD + CPU)"""
     import socket
@@ -240,7 +353,11 @@ def _build_hey_user_table(self, parent):
 
     # Mouse wheel scrolling
     def _on_mousewheel(event):
-        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        try:
+            if canvas.winfo_exists():
+                canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except Exception:
+            pass
     canvas.bind_all("<MouseWheel>", _on_mousewheel, add="+")
 
     # "Show Full Table" button at the very bottom (outside scroll)

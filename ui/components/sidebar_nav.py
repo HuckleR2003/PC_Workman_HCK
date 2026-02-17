@@ -70,40 +70,50 @@ class SidebarNav:
 
     def _build_logo(self):
         """Buduje sekcję logo u góry - tekstowe logo w stylu Snyk Evo"""
-        logo_frame = tk.Frame(self.frame, bg=self.COLORS["bg"], height=60)
+        logo_frame = tk.Frame(self.frame, bg=self.COLORS["bg"], height=60, cursor="hand2")
         logo_frame.pack(fill="x", pady=(15, 10))
         logo_frame.pack_propagate(False)
 
-        # Tekstowe logo w stylu Snyk Evo
-        logo_container = tk.Frame(logo_frame, bg=self.COLORS["bg"])
+        logo_container = tk.Frame(logo_frame, bg=self.COLORS["bg"], cursor="hand2")
         logo_container.pack(pady=10, padx=15, anchor="w")
 
-        # Ikona "evo" style (jak na grafice Snyk)
-        tk.Label(
+        icon_lbl = tk.Label(
             logo_container,
             text="◈",
             font=("Segoe UI", 18),
             bg=self.COLORS["bg"],
-            fg=self.COLORS["accent"]
-        ).pack(side="left", padx=(0, 8))
+            fg=self.COLORS["accent"],
+            cursor="hand2"
+        )
+        icon_lbl.pack(side="left", padx=(0, 8))
 
-        # Tekst HCK (bold, biały)
-        tk.Label(
+        hck_lbl = tk.Label(
             logo_container,
             text="HCK",
             font=("Segoe UI Semibold", 15, "bold"),
             bg=self.COLORS["bg"],
-            fg="#ffffff"
-        ).pack(side="left")
+            fg="#ffffff",
+            cursor="hand2"
+        )
+        hck_lbl.pack(side="left")
 
-        # Tekst _Labs (mniejszy, szary)
-        tk.Label(
+        labs_lbl = tk.Label(
             logo_container,
             text="_Labs",
             font=("Segoe UI", 10),
             bg=self.COLORS["bg"],
-            fg=self.COLORS["text"]
-        ).pack(side="left", pady=(3, 0))
+            fg=self.COLORS["text"],
+            cursor="hand2"
+        )
+        labs_lbl.pack(side="left", pady=(3, 0))
+
+        def _go_dashboard(e=None):
+            self._set_active("dashboard")
+            if self.on_navigate:
+                self.on_navigate("dashboard", None)
+
+        for w in [logo_frame, logo_container, icon_lbl, hck_lbl, labs_lbl]:
+            w.bind("<Button-1>", _go_dashboard)
 
     def _build_separator(self):
         """Buduje separator pod logo"""

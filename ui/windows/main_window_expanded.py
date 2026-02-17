@@ -215,12 +215,21 @@ class ExpandedMainWindow:
         if self.current_view == page_id and page_id != "dashboard":
             return
 
-        # Close any open overlay first
-        self._close_overlay()
+        # Kill overlay immediately (no animation) to prevent race conditions
+        if self.overlay_frame:
+            try:
+                self.overlay_frame.destroy()
+            except Exception:
+                pass
+            self.overlay_frame = None
+            self.active_overlay = None
 
         # Clear current content
         for widget in self.content_area.winfo_children():
-            widget.destroy()
+            try:
+                widget.destroy()
+            except Exception:
+                pass
 
         self.current_view = page_id
 
@@ -343,90 +352,82 @@ class ExpandedMainWindow:
 
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
-        import sys
-        print(f"[Sidebar Nav] Navigate to: {page_id}" + (f".{subpage_id}" if subpage_id else ""), flush=True)
-        sys.stdout.flush()
+        try:
+            print(f"[Sidebar Nav] Navigate to: {page_id}" + (f".{subpage_id}" if subpage_id else ""), flush=True)
 
-        # Pages that replace the entire content area (not overlay)
-        direct_pages = {
-            "fan_control.fans_hardware": "fans_hardware",
-            "fan_control.usage_statistics": "fans_usage_stats",
-            "fan_control.fan_dashboard": "fan_control",
-            "fan_control": "fan_control",
-            # Monitoring & Alerts - direct page
-            "monitoring_alerts": "monitoring_alerts",
-            "monitoring_alerts.temperature": "monitoring_alerts",
-            "monitoring_alerts.voltage": "monitoring_alerts",
-            "monitoring_alerts.alerts": "monitoring_alerts",
-        }
+            # Pages that replace the entire content area (not overlay)
+            direct_pages = {
+                "dashboard": "dashboard",
+                "fan_control.fans_hardware": "fans_hardware",
+                "fan_control.usage_statistics": "fans_usage_stats",
+                "fan_control.fan_dashboard": "fan_control",
+                "fan_control": "fan_control",
+                "monitoring_alerts": "monitoring_alerts",
+                "monitoring_alerts.temperature": "monitoring_alerts",
+                "monitoring_alerts.voltage": "monitoring_alerts",
+                "monitoring_alerts.alerts": "monitoring_alerts",
+            }
 
-        # Check if this is a direct page switch
-        if subpage_id:
-            full_id = f"{page_id}.{subpage_id}"
+            # Build lookup key
+            if subpage_id:
+                full_id = f"{page_id}.{subpage_id}"
+            else:
+                full_id = page_id
+
+            # Fast path: direct page switch
             if full_id in direct_pages:
-                self._switch_to_page(direct_pages[full_id])
+                target = direct_pages[full_id]
+                self.current_view = None  # Force rebuild
+                self._switch_to_page(target)
                 return
-        elif page_id in direct_pages:
-            self._switch_to_page(direct_pages[page_id])
-            return
+            if page_id in direct_pages:
+                target = direct_pages[page_id]
+                self.current_view = None  # Force rebuild
+                self._switch_to_page(target)
+                return
 
-        # Map sidebar IDs to overlay pages
-        page_map = {
-            "dashboard": "DASHBOARD",  # Special: go to dashboard
-            # My PC section
-            "my_pc": "your_pc",
-            "my_pc.central": "your_pc",
-            "my_pc.efficiency": "your_pc",
-            "my_pc.sensors": "sensors",
-            "my_pc.health": "your_pc",
-            # Optimization section
-            "optimization": "optimization",
-            "optimization.services": "optimization",
-            "optimization.startup": "optimization",
-            "optimization.wizard": "optimization",
-            # Statistics section
-            "statistics": "statistics",
-            "statistics.stats_today": "statistics",
-            "statistics.stats_weekly": "statistics",
-            "statistics.stats_monthly": "statistics",
-            # Monitoring & Alerts section
-            "monitoring_alerts": "monitoring_alerts",
-            "monitoring_alerts.temperature": "monitoring_alerts",
-            "monitoring_alerts.voltage": "monitoring_alerts",
-            "monitoring_alerts.alerts": "monitoring_alerts",
-            # Other
-            "settings": "settings",
-            "pinned": None,
-        }
+            # Map sidebar IDs to overlay pages
+            page_map = {
+                "my_pc": "your_pc",
+                "my_pc.central": "your_pc",
+                "my_pc.efficiency": "your_pc",
+                "my_pc.sensors": "sensors",
+                "my_pc.health": "your_pc",
+                "optimization": "optimization",
+                "optimization.services": "optimization",
+                "optimization.startup": "optimization",
+                "optimization.wizard": "optimization",
+                "statistics": "statistics",
+                "statistics.stats_today": "statistics",
+                "statistics.stats_weekly": "statistics",
+                "statistics.stats_monthly": "statistics",
+                "settings": "settings",
+                "pinned": None,
+            }
 
-        # Determine target page
-        if subpage_id:
-            full_id = f"{page_id}.{subpage_id}"
             target = page_map.get(full_id, page_map.get(page_id))
-        else:
-            target = page_map.get(page_id)
 
-        # Handle special cases
-        if target == "overlay_launch":
-            # Launch overlay widget
-            if create_overlay_widget:
-                create_overlay_widget(self.root, self.monitor)
-            return
+            if target is None:
+                self.current_view = None
+                self._switch_to_page("dashboard")
+                return
 
-        if target == "DASHBOARD" or target is None:
-            # Go back to dashboard - force rebuild
-            self._close_overlay()
-            self.current_view = None  # Force rebuild
-            self._switch_to_page("dashboard")
-            return
+            # For overlay pages, ensure dashboard is active first
+            if self.current_view != "dashboard":
+                self.current_view = None
+                self._switch_to_page("dashboard")
 
-        # For overlay pages, first make sure we're on dashboard, then show overlay
-        if self.current_view != "dashboard":
-            self.current_view = None  # Force rebuild
-            self._switch_to_page("dashboard")
+            self._show_overlay(target)
 
-        # Show the overlay page
-        self._show_overlay(target)
+        except Exception as e:
+            print(f"[Sidebar Nav] Error: {e}")
+            import traceback
+            traceback.print_exc()
+            try:
+                self.current_view = None
+                self._switch_to_page("dashboard")
+            except Exception:
+                pass
 
     def _build_hckgpt_banner(self):
         """Build hck_GPT banner at bottom with sliding chat panel"""
