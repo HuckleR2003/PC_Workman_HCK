@@ -246,11 +246,28 @@ class InsightsEngine:
         if not self._process_aggregator:
             return None
         try:
-            top = self._process_aggregator.get_current_hour_top(5)
+            top = self._process_aggregator.get_current_hour_top(10)
             if not top:
                 return None
 
-            classified = self._classify_processes(top)
+            # Filter out system/idle processes and cap CPU at 100%
+            filtered = []
+            for proc in top:
+                name = proc.get("name", "").lower()
+                # Skip system idle process and other OS noise
+                if self._is_system_noise(name):
+                    continue
+                # Cap CPU at 100% (psutil can report per-core values)
+                if proc.get("cpu_avg", 0) > 100:
+                    proc["cpu_avg"] = min(proc["cpu_avg"], 100.0)
+                if proc.get("cpu_max", 0) > 100:
+                    proc["cpu_max"] = min(proc["cpu_max"], 100.0)
+                filtered.append(proc)
+
+            if not filtered:
+                return None
+
+            classified = self._classify_processes(filtered)
 
             # Game running?
             if classified["games"]:
@@ -285,16 +302,34 @@ class InsightsEngine:
                 if cpu > 15:
                     return f"hck_GPT: {name} is working hard — CPU {cpu:.0f}%."
 
-            # Heavy unknown app (>30% CPU)
-            for proc in top[:3]:
+            # Heavy unknown app (>30% CPU) — only non-system processes
+            for proc in filtered[:3]:
                 cpu = proc.get("cpu_avg", 0)
-                if cpu > 30:
+                ptype = proc.get("process_type", "")
+                if cpu > 30 and ptype != "system":
                     name = proc.get("display_name", proc.get("name", "?"))
                     return f"hck_GPT: {name} is pushing CPU to {cpu:.0f}%."
 
             return None
         except Exception:
             return None
+
+    @staticmethod
+    def _is_system_noise(name):
+        """Check if a process name is system noise that should be ignored."""
+        noise = {
+            "system idle process", "idle", "system",
+            "registry", "memory compression", "secure system",
+            "system interrupts", "ntoskrnl", "wininit",
+            "csrss", "smss", "lsass", "services",
+        }
+        name_lower = name.lower().strip()
+        if name_lower in noise:
+            return True
+        # Also catch partial matches for idle-like processes
+        if "idle" in name_lower:
+            return True
+        return False
 
     def _check_session_milestone(self):
         """Session duration milestones."""
@@ -335,13 +370,19 @@ class InsightsEngine:
         # Current load from live accumulator
         if self._process_aggregator:
             try:
-                top = self._process_aggregator.get_current_hour_top(3)
+                top = self._process_aggregator.get_current_hour_top(10)
+                # Filter system noise
+                top = [p for p in top if not self._is_system_noise(p.get("name", ""))]
+                for p in top:
+                    if p.get("cpu_avg", 0) > 100:
+                        p["cpu_avg"] = 100.0
                 if top:
-                    total_cpu = sum(p.get("cpu_avg", 0) for p in top)
-                    total_ram = sum(p.get("ram_avg_mb", 0) for p in top)
+                    top3 = top[:3]
+                    total_cpu = sum(min(p.get("cpu_avg", 0), 100) for p in top3)
+                    total_ram = sum(p.get("ram_avg_mb", 0) for p in top3)
                     lines.append(f"💪 Top 3 load: CPU ~{total_cpu:.0f}%, RAM ~{total_ram:.0f}MB")
 
-                    heaviest = top[0]
+                    heaviest = top3[0]
                     h_name = heaviest.get("display_name", heaviest.get("name", "?"))
                     lines.append(f"   Heaviest: {h_name} ({heaviest.get('cpu_avg', 0):.1f}% CPU)")
             except Exception:
@@ -608,9 +649,10 @@ class InsightsEngine:
         # Live process info
         if self._process_aggregator:
             try:
-                top = self._process_aggregator.get_current_hour_top(1)
+                top = self._process_aggregator.get_current_hour_top(5)
+                top = [p for p in top if not self._is_system_noise(p.get("name", ""))]
                 if top:
-                    classified = self._classify_processes(top)
+                    classified = self._classify_processes(top[:1])
                     if classified["games"]:
                         g = classified["games"][0]
                         name = g.get("display_name", g["name"])
