@@ -559,10 +559,14 @@ class HCKGPTPanel:
         self.add_colored(session_str + "\n", "accent")
 
         total_h = data.get("total_uptime_hours", 0)
-        if total_h > 0:
-            total_str = f"{total_h / 24:.1f} days ({total_h:.0f}h)" if total_h >= 24 else f"{total_h:.1f}h"
+        if total_h >= 24:
+            total_str = f"{total_h / 24:.1f} days ({total_h:.0f}h)"
+        elif total_h >= 1:
+            total_str = f"{total_h:.1f}h"
+        elif total_h > 0:
+            total_str = f"{total_h * 60:.0f}min"
         else:
-            total_str = "collecting..."
+            total_str = "< 1 min"
         self.add_colored("  Lifetime: ", "muted")
         self.add_colored(total_str + "\n", "purple")
 
