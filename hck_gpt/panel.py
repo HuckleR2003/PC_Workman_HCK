@@ -2,12 +2,14 @@
 """
 hck_GPT Panel - Sliding chat interface with service wizard.
 Used in both Minimal and Expanded modes.
+Features: auto-greeting, periodic insight ticker, dynamic banner status.
 """
 
 import tkinter as tk
 from tkinter import ttk
 from ui.theme import THEME
 import os
+import time
 
 try:
     from hck_gpt.chat_handler import ChatHandler
@@ -24,8 +26,8 @@ class HCKGPTPanel:
         self.parent = parent
         self.width = width
         self.collapsed_h = collapsed_h
-        self.expanded_h = expanded_h  # Normal expanded height (increased)
-        self.max_h = max_h  # Maximum expanded height (increased)
+        self.expanded_h = expanded_h
+        self.max_h = max_h
         self.total_h = collapsed_h + expanded_h
         self.current_mode = "normal"  # normal, maximized
 
@@ -33,6 +35,11 @@ class HCKGPTPanel:
         self.animating = False
         self.after_id = None
         self.cursor_visible = True
+
+        # Insight ticker state
+        self._ticker_id = None
+        self._last_greeting_session = 0
+        self._banner_ticker_id = None
 
         # Initialize chat handler
         self.chat_handler = ChatHandler() if HAS_CHAT_HANDLER else None
@@ -156,7 +163,7 @@ class HCKGPTPanel:
             bd=0,
             wrap="word",
             font=("Consolas", 10),
-            height=10,  # Increased default height
+            height=10,
             yscrollcommand=scrollbar.set
         )
         self.log.pack(side="left", fill="both", expand=True)
@@ -227,6 +234,9 @@ class HCKGPTPanel:
         # welcome
         self._welcome()
 
+        # Start banner status ticker
+        self._start_banner_ticker()
+
         parent.bind("<Configure>", self._on_resize)
 
     # ================================================================
@@ -236,7 +246,6 @@ class HCKGPTPanel:
         w = self.width
         h = self.collapsed_h
 
-        # More gradient steps for smoother transition
         colors = [
             "#7f3ef5",  # Purple
             "#9540ED",
@@ -254,19 +263,17 @@ class HCKGPTPanel:
 
         for i, color in enumerate(colors):
             x0 = int(i * step_w)
-            x1 = int(x0 + step_w) + 1  # +1 to avoid gaps
+            x1 = int(x0 + step_w) + 1
             self.banner.create_rectangle(x0, 0, x1, h, fill=color, outline=color)
 
     # ================================================================
     # HOVER EFFECTS
     # ================================================================
     def _on_banner_enter(self, event=None):
-        """Banner hover enter - subtle highlight"""
         self.banner.itemconfig(self.banner_text, fill=THEME["accent"])
         self.banner.itemconfig(self.banner_arrow, fill=THEME["accent"])
 
     def _on_banner_leave(self, event=None):
-        """Banner hover leave - restore"""
         self.banner.itemconfig(self.banner_text, fill="#ffffff")
         self.banner.itemconfig(self.banner_arrow, fill="#ffffff")
 
@@ -275,15 +282,20 @@ class HCKGPTPanel:
     # ================================================================
     def _welcome(self):
         self.add_message("hck_GPT: Welcome! I'm your Workman Manager.")
-        self.add_message("hck_GPT: I'm in early-access — but I'm here to help you.")
+        self.add_message("hck_GPT: I monitor your system and track usage patterns.")
         self.add_message("")
-        self.add_message("💡 Try typing 'service setup' to optimize your PC!")
-        self.add_message("   or 'help' to see all commands.")
+        self.add_message("💡 Commands: 'stats', 'alerts', 'insights', 'teaser', 'help'")
+        self.add_message("   or 'service setup' to optimize your PC!")
 
     # ================================================================
     # ADD MESSAGE
     # ================================================================
     def add_message(self, msg):
+        try:
+            if not self.log.winfo_exists():
+                return
+        except Exception:
+            return
         self.log.config(state="normal")
         self.log.insert("end", msg + "\n")
         self.log.see("end")
@@ -294,6 +306,11 @@ class HCKGPTPanel:
     # ================================================================
     def _start_cursor_blink(self):
         def toggle():
+            try:
+                if not self.entry.winfo_exists():
+                    return
+            except Exception:
+                return
             if self.cursor_visible:
                 self.entry.config(insertbackground=THEME["accent"])
             else:
@@ -325,6 +342,12 @@ class HCKGPTPanel:
         self.banner.itemconfig(self.banner_text, text="hck_GPT — Your PC Companion   •   Click to collapse")
         self._animate(self.collapsed_h, self.total_h)
 
+        # Auto-greeting (once per 30 min)
+        self._show_auto_greeting()
+
+        # Start insight ticker
+        self._start_insight_ticker()
+
     # ================================================================
     # CLOSE
     # ================================================================
@@ -334,6 +357,102 @@ class HCKGPTPanel:
         self.banner.itemconfig(self.banner_text, text="hck_GPT — Your PC Companion   •   Click to expand")
         self._animate(self.total_h, self.collapsed_h,
                       on_end=lambda: self.chat.pack_forget())
+
+        # Stop insight ticker
+        self._stop_insight_ticker()
+
+    # ================================================================
+    # AUTO-GREETING
+    # ================================================================
+    def _show_auto_greeting(self):
+        """Show personalized greeting when panel opens (max once per 30 min)."""
+        now = time.time()
+        if (now - self._last_greeting_session) < 1800:
+            return
+
+        if self.chat_handler and self.chat_handler.insights:
+            try:
+                greeting_lines = self.chat_handler.insights.get_greeting()
+                if greeting_lines:
+                    self.add_message("")
+                    for line in greeting_lines:
+                        self.add_message(line)
+                    self._last_greeting_session = now
+            except Exception:
+                pass
+
+    # ================================================================
+    # INSIGHT TICKER (periodic while panel is open)
+    # ================================================================
+    def _start_insight_ticker(self):
+        """Schedule periodic insight checks while panel is open."""
+        self._stop_insight_ticker()
+        self._tick_insight()
+
+    def _stop_insight_ticker(self):
+        """Cancel the insight ticker."""
+        if self._ticker_id is not None:
+            try:
+                self.frame.after_cancel(self._ticker_id)
+            except Exception:
+                pass
+            self._ticker_id = None
+
+    def _tick_insight(self):
+        """Check for notable insights and show them."""
+        if not self.is_open:
+            return
+
+        try:
+            if not self.frame.winfo_exists():
+                return
+        except Exception:
+            return
+
+        if self.chat_handler and self.chat_handler.insights:
+            try:
+                msg = self.chat_handler.insights.get_current_insight()
+                if msg:
+                    self.add_message("")
+                    self.add_message(msg)
+            except Exception:
+                pass
+
+        # Schedule next tick (60 seconds)
+        try:
+            self._ticker_id = self.frame.after(60000, self._tick_insight)
+        except Exception:
+            pass
+
+    # ================================================================
+    # BANNER STATUS TICKER
+    # ================================================================
+    def _start_banner_ticker(self):
+        """Update banner text with live status every 30 seconds."""
+        self._update_banner_status()
+
+    def _update_banner_status(self):
+        """Refresh the banner with dynamic status info."""
+        try:
+            if not self.banner.winfo_exists():
+                return
+        except Exception:
+            return
+
+        if not self.is_open and self.chat_handler and self.chat_handler.insights:
+            try:
+                status = self.chat_handler.insights.get_banner_status()
+                if status:
+                    text = f"hck_GPT — {status}   •   Click to expand"
+                    self.banner.itemconfig(self.banner_text, text=text)
+            except Exception:
+                pass
+
+        # Schedule next update (30 seconds)
+        try:
+            self._banner_ticker_id = self.frame.after(30000, self._update_banner_status)
+        except Exception:
+            pass
 
     # ================================================================
     # RESIZE → keep bottom docking
@@ -356,24 +475,21 @@ class HCKGPTPanel:
     # SMOOTH ANIMATION WITH EASING
     # ================================================================
     def _animate(self, start_h, end_h, duration_ms=200, on_end=None):
-        """Smooth animation with easing for buttery transitions"""
         if self.after_id:
             self.frame.after_cancel(self.after_id)
 
-        import time
-        start_time = time.time()
+        import time as _time
+        start_time = _time.time()
         diff = end_h - start_h
         parent_h = self.parent.winfo_height()
 
         def ease_out_cubic(t):
-            """Easing function for smooth deceleration"""
             return 1 - pow(1 - t, 3)
 
         def anim():
-            elapsed = (time.time() - start_time) * 1000  # ms
+            elapsed = (_time.time() - start_time) * 1000
             progress = min(elapsed / duration_ms, 1.0)
 
-            # Apply easing
             eased_progress = ease_out_cubic(progress)
             current_h = start_h + (diff * eased_progress)
 
@@ -384,14 +500,12 @@ class HCKGPTPanel:
             self.frame.place_configure(height=int(current_h), y=int(y))
 
             if progress >= 1.0:
-                # Animation complete
                 self.frame.place_configure(height=end_h, y=parent_h - end_h)
                 if on_end:
                     on_end()
                 self.animating = False
                 return
 
-            # Continue animation (60 FPS target)
             self.after_id = self.frame.after(16, anim)
 
         self.animating = True
@@ -417,14 +531,13 @@ class HCKGPTPanel:
             # Check if we need to clear chat (wizard starting)
             if text.lower() in ["yes", "y", "yeah", "ok", "sure", "tak", "t"]:
                 if self.chat_handler.wizard.state == "questions":
-                    # User said yes to intro, clear chat
                     self.clear_chat()
 
             # Add response messages
             for response in responses:
                 self.add_message(response)
         else:
-            self.add_message("hck_GPT: (AI not connected yet)")
+            self.add_message("hck_GPT: (Chat handler not available)")
 
     def clear_chat(self):
         """Clear the chat log"""
@@ -435,10 +548,7 @@ class HCKGPTPanel:
     def _start_service_setup(self):
         """Start the Service Setup wizard via button"""
         if self.chat_handler:
-            # Clear chat first
             self.clear_chat()
-
-            # Start wizard
             responses = self.chat_handler.wizard.start()
             for response in responses:
                 self.add_message(response)
@@ -448,22 +558,18 @@ class HCKGPTPanel:
     def _toggle_maximize(self):
         """Toggle between normal and maximized chat log height"""
         if self.current_mode == "normal":
-            # Maximize - increase text height
             self.current_mode = "maximized"
-            self.log.config(height=18)  # Bigger text area (reduced from 22 to fit input)
+            self.log.config(height=18)
             self.expand_btn.config(text="⬛ Normal")
 
-            # Expand panel to accommodate
             if self.is_open:
                 target_h = self.collapsed_h + self.max_h
                 self._animate(self.total_h, target_h, on_end=lambda: setattr(self, 'total_h', target_h))
         else:
-            # Back to normal - decrease text height
             self.current_mode = "normal"
-            self.log.config(height=10)  # Normal text area
+            self.log.config(height=10)
             self.expand_btn.config(text="⬜ Maximize")
 
-            # Shrink panel back
             if self.is_open:
                 target_h = self.collapsed_h + self.expanded_h
                 self._animate(self.total_h, target_h, on_end=lambda: setattr(self, 'total_h', target_h))

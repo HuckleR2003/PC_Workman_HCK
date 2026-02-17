@@ -1,11 +1,19 @@
 # hck_gpt/chat_handler.py
 """
 Chat Handler
-Main logic for hck_GPT chat interactions and command processing
+Main logic for hck_GPT chat interactions and command processing.
+Routes user messages to service wizard, insights engine, or default response.
 """
 
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
+
+try:
+    from .insights import InsightsEngine
+    HAS_INSIGHTS = True
+except ImportError:
+    HAS_INSIGHTS = False
+
 
 class ChatHandler:
     """Handles chat messages and commands for hck_GPT"""
@@ -14,6 +22,7 @@ class ChatHandler:
         self.wizard = ServiceSetupWizard()
         self.services_manager = ServicesManager()
         self.conversation_history = []
+        self.insights = InsightsEngine() if HAS_INSIGHTS else None
 
     def process_message(self, user_message):
         """
@@ -46,13 +55,76 @@ class ChatHandler:
         elif any(cmd in message_lower for cmd in ["service status", "services status", "show services"]):
             return self._show_service_status()
 
+        # --- Insights commands ---
+
+        # Stats / habits
+        elif any(cmd in message_lower for cmd in [
+            "stats", "habits", "top apps", "usage", "co uzywam",
+            "statystyki", "nawyki"
+        ]):
+            return self._insights_habits()
+
+        # Anomalies / alerts
+        elif any(cmd in message_lower for cmd in [
+            "alerts", "anomalies", "spikes", "anomalie", "alerty"
+        ]):
+            return self._insights_anomalies()
+
+        # Current insight
+        elif any(cmd in message_lower for cmd in [
+            "insights", "what's up", "whats up", "co nowego",
+            "status", "co sie dzieje"
+        ]):
+            return self._insights_current()
+
+        # Teaser
+        elif any(cmd in message_lower for cmd in [
+            "teaser", "predict", "guess", "co dzis"
+        ]):
+            return self._insights_teaser()
+
+        # Summary
+        elif "summary" in message_lower or "podsumowanie" in message_lower:
+            return self._insights_habits()
+
         # Help command
-        elif any(cmd in message_lower for cmd in ["help", "commands", "?"]):
+        elif any(cmd in message_lower for cmd in ["help", "commands", "?", "pomoc"]):
             return self._show_help()
 
-        # Default response (AI not connected)
+        # Default response — show insight instead of "AI not connected"
         else:
             return self._default_response(user_message)
+
+    # ================================================================
+    # INSIGHTS COMMANDS
+    # ================================================================
+
+    def _insights_habits(self):
+        if self.insights:
+            return self.insights.get_habit_summary()
+        return ["hck_GPT: Insights engine not available."]
+
+    def _insights_anomalies(self):
+        if self.insights:
+            return self.insights.get_anomaly_report()
+        return ["hck_GPT: Insights engine not available."]
+
+    def _insights_current(self):
+        if self.insights:
+            msg = self.insights.get_current_insight()
+            if msg:
+                return [msg]
+            return ["hck_GPT: All quiet right now. No anomalies, no heavy loads."]
+        return ["hck_GPT: Insights engine not available."]
+
+    def _insights_teaser(self):
+        if self.insights:
+            return self.insights.get_teaser()
+        return ["hck_GPT: Insights engine not available."]
+
+    # ================================================================
+    # SERVICE COMMANDS
+    # ================================================================
 
     def _restore_services(self):
         """Restore all previously disabled services"""
@@ -118,7 +190,6 @@ class ChatHandler:
         if summary["count"] > 0:
             messages.append("Currently disabled:")
             for service in summary["services"]:
-                # Try to find the display name
                 display_name = service
                 for category, info in self.services_manager.SERVICES.items():
                     if service in info["services"]:
@@ -142,32 +213,42 @@ class ChatHandler:
         """Show available commands"""
         return [
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "🤖 hck_GPT - Available Commands",
+            "🤖 hck_GPT — Available Commands",
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "",
+            "Intelligence:",
+            "  • stats / habits — Your usage profile & top apps",
+            "  • alerts — Anomaly report (spikes, temps)",
+            "  • insights — What's happening right now",
+            "  • teaser — Personality-driven prediction",
             "",
             "Service Optimization:",
-            "  • service setup - Start service optimization wizard",
-            "  • service status - Show current service state",
-            "  • restore services - Re-enable all disabled services",
+            "  • service setup — Start service optimization wizard",
+            "  • service status — Show current service state",
+            "  • restore services — Re-enable all disabled services",
             "",
             "General:",
-            "  • help - Show this help message",
+            "  • help — Show this message",
             "",
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "More features coming soon!",
-            "Full AI integration in development 🚀"
         ]
 
     def _default_response(self, user_message):
-        """Default response when AI is not connected"""
-        return [
-            f"> {user_message}",
-            "",
-            "hck_GPT: AI is not connected yet.",
-            "Available commands:",
-            "  • Type 'service setup' for PC optimization",
-            "  • Type 'help' for all commands"
-        ]
+        """Smart default: show current insight + hint commands."""
+        lines = [f"> {user_message}", ""]
+
+        # Try to show something useful
+        if self.insights:
+            msg = self.insights.get_current_insight()
+            if msg:
+                lines.append(msg)
+                lines.append("")
+
+        lines.extend([
+            "hck_GPT: I don't have full AI yet, but I'm learning!",
+            "Try: 'stats', 'alerts', 'insights', 'teaser', or 'help'"
+        ])
+        return lines
 
     def clear_history(self):
         """Clear conversation history"""

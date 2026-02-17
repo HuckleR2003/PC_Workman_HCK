@@ -8,6 +8,7 @@ from .chat_handler import ChatHandler
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
 from .panel import HCKGPTPanel
+from .insights import InsightsEngine
 
 __version__ = "1.0.0"
-__all__ = ["ChatHandler", "ServiceSetupWizard", "ServicesManager", "HCKGPTPanel"]
+__all__ = ["ChatHandler", "ServiceSetupWizard", "ServicesManager", "HCKGPTPanel", "InsightsEngine"]
