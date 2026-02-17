@@ -79,15 +79,18 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 Modular, scalable design:
 ```
 PC_Workman/
-├── core/              # Real-time data collection & analysis
-├── hck_gpt/           # AI diagnostics engine
-├── ui/                # Tkinter + Matplotlib interface
-├── hck_stats_engine/  # Statistical aggregation & trends
-├── settings/          # Configuration files
+├── core/              # Real-time data collection (background-threaded monitor)
+├── hck_gpt/           # Local AI insights engine (no external API)
+├── hck_stats_engine/  # SQLite pipeline: minute/hourly/daily/monthly stats
+├── ui/
+│   ├── windows/       # Main window modes (expanded, minimal)
+│   ├── components/    # Reusable widgets (charts, LED bars, tooltips)
+│   └── pages/         # Full-page views (monitoring, fan control)
 ├── data/
 │   ├── logs/          # CSV logs (raw, hourly, daily, weekly, monthly)
-│   └── cache/         # Runtime cache & process patterns
-└── utils/             # System utilities & helpers
+│   ├── cache/         # Runtime cache & process patterns
+│   └── hck_stats.db   # SQLite long-term storage (WAL mode)
+└── tests/             # Unit tests
 ```
 
 **Design principles:**
@@ -139,9 +142,25 @@ PC_Workman/
 - `winfo_exists()` guards on all widget update methods
 - Fixed routing IDs for new subitems (temperature, voltage, alerts)
 
-### Codebase
+### Performance Optimization
+- Background-threaded `psutil.process_iter()` — GUI thread never blocks on system calls
+- Dashboard update cadence: 300ms → 1000ms, hardware cards every 2s, tray every 3s
+- Widget reuse pattern for TOP 5 processes (no destroy/recreate)
+- Nav button gradients drawn once (removed per-pixel `<Configure>` redraw on window move)
+- Realtime chart: reusable canvas rectangles, 2s interval
+
+### Dashboard Chart
+- All time filters working: LIVE, 1H, 4H, 1D, 1W, 1M
+- Pulls real data from `hck_stats_engine` SQLite (minute/hourly/daily tables)
+- Auto-refresh historical data every ~30s
+
+### Stats Engine Fixes
+- Lifetime uptime persists across sessions (shutdown flush + multi-table query)
+- System idle process filtered at source (no more "1012% CPU" messages)
+
+### Codebase Cleanup
+- Removed unused: `utils/`, `settings/`, `expandable_list.py`, dead animation code
 - Removed in-app mini-monitor overlay (kept external one)
-- Removed stale AI-style comments (CYBERPUNK, MEGA, Apple style, etc.)
 - Integrated temperature data pipeline: scheduler -> aggregator -> SQLite
 
 ---
@@ -241,50 +260,41 @@ Fixed broken imports after cleanup
 ```
 HCK_Labs/PC_Workman_HCK/
 ├── core/
-│   ├── __init__.py
-│   ├── analyzer.py      # Data analysis & trends
-│   ├── logger.py        # File logging system
-│   ├── monitor.py       # Real-time data collection
-│   └── scheduler.py     # Background scheduler
+│   ├── monitor.py           # Background-threaded system monitoring
+│   ├── logger.py            # File logging system
+│   ├── analyzer.py          # Data analysis & trends
+│   ├── scheduler.py         # Background scheduler
+│   ├── process_classifier.py # Process categorization (Gaming/Browser/Dev/etc.)
+│   └── process_data_manager.py # Process tracking & statistics
 ├── hck_gpt/
-│   ├── __init__.py
-│   ├── ai_logic.py      # AI analysis algorithms
-│   ├── detector.py      # Pattern detection
-│   ├── hck_gpt.py       # Main AI module
-│   └── model_cache/     # Cached AI models
-├── ui/
-│   ├── main_window.py   # Main interface
-│   ├── charts.py        # Matplotlib charts
-│   ├── dialogs.py       # Popup dialogs
-│   └── theme.py         # UI theming
+│   ├── chat_handler.py      # Command routing (stats, alerts, insights, etc.)
+│   ├── insights.py          # Local InsightsEngine (habits, anomalies, teasers)
+│   ├── panel.py             # Chat panel UI (gradient banner, ticker, greeting)
+│   ├── report_window.py     # Today Report Toplevel (chart, processes, alerts)
+│   └── services_manager.py  # Windows services optimization
 ├── hck_stats_engine/
-│   ├── avg_calculator.py    # Statistical calculations
-│   ├── time_utils.py        # Time handling
-│   └── trend_analysis.py    # Trend detection
-├── settings/
-│   ├── config.json      # Main configuration
-│   ├── paths.json       # Path definitions
-│   └── user_prefs.json  # User preferences
+│   ├── db_manager.py        # WAL-mode SQLite, thread-local connections
+│   ├── aggregator.py        # Minute/hourly/daily/monthly aggregation
+│   ├── process_aggregator.py # Per-process CPU/RAM tracking
+│   ├── query_api.py         # Range queries with auto-granularity
+│   ├── events.py            # Spike/anomaly detection
+│   └── constants.py         # Retention config (7d/90d/forever)
+├── ui/
+│   ├── windows/
+│   │   ├── main_window_expanded.py  # Full dashboard (980x575)
+│   │   └── main_window.py           # Minimal mode
+│   ├── components/
+│   │   ├── charts.py, led_bars.py, yourpc_page.py, ...
+│   └── pages/
+│       ├── monitoring_alerts.py     # Time-Travel Statistics Center
+│       └── fan_control.py           # Fan curves & hardware
 ├── data/
-│   ├── logs/            # CSV data files
-│   │   ├── raw_usage.csv
-│   │   ├── minute_avg.csv
-│   │   ├── hourly_usage.csv
-│   │   ├── daily_usage.csv
-│   │   ├── weekly_usage.csv
-│   │   └── monthly_usage.csv
-│   └── cache/           # Runtime cache
+│   ├── logs/                # CSV logs (raw, hourly, daily)
+│   ├── cache/               # Runtime cache
+│   └── hck_stats.db         # SQLite long-term storage
 ├── tests/
-│   ├── test_analyzer.py
-│   ├── test_monitor.py
-│   └── test_avg_calculator.py
-├── docs/
-│   ├── TECHNICAL.md
-│   └── screenshots/
 ├── CHANGELOG.md
-├── GETTING_STARTED.md
 ├── requirements.txt
-├── setup.py
 ├── startup.py
 └── import_core.py
 ```

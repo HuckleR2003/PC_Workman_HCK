@@ -97,7 +97,55 @@ Replaced empty CSV aggregation files with a proper SQLite pipeline.
 - Routing IDs updated: `temperature`, `voltage`, `alerts` (replaced stale `realtime`, `processes`)
 - Sidebar subitem renamed: "Events Log" → "Centrum & Alerts"
 
+### Performance Optimization — Zero-Lag Dashboard
+Heavy profiling and iterative optimization to eliminate all UI stutter.
+
+**Background-threaded monitoring:**
+- `Monitor.start_background_collection()` — `psutil.process_iter()` moved off GUI thread to a daemon thread
+- `read_snapshot()` now returns cached data instantly (non-blocking)
+- Startup: `startup.py` launches background collection before UI init
+
+**Dashboard update cadence:**
+- Main loop: 300ms → 1000ms
+- Hardware cards: every 2s (was every tick)
+- System tray: every 3s (was every tick)
+- TOP 5 processes: every 3s (was every tick)
+- Realtime chart: 2s interval with reusable canvas items (no create/delete)
+
+**Widget reuse pattern (TOP 5 processes):**
+- Previously: destroy + recreate 10 widget trees every 300ms
+- Now: create once, update labels via `.config()` and `.place(relwidth=...)`
+
+**Nav button gradient fix:**
+- Removed `<Configure>` binding (fired on every window-move pixel, 8 buttons × 200 canvas lines)
+- Gradient drawn once with 4px strips (window is non-resizable)
+- Removed dead `_animate_button_shimmer()` (was 30 FPS / 33ms — ~800 canvas items redrawn per frame)
+
+**Realtime chart rewrite:**
+- Replaced PhotoImage pixel-by-pixel rendering (70,000 Python iterations/frame) with canvas rectangle pool
+- Items created once, only `canvas.coords()` updated per tick — near-zero overhead
+
+### Dashboard Chart — Historical Data Integration
+- All time filter buttons now work: LIVE, 1H, 4H, 1D, 1W, 1M
+- 1H/4H query `minute_stats`, 1D queries `hourly_stats`, 1W/1M query `daily_stats`
+- Auto-refresh historical data every ~30s while on non-LIVE mode
+- Chart rebuilds item pool on filter switch (handles different data sizes)
+
+### Stats Engine Fixes
+- **Lifetime uptime persistence**: `flush_on_shutdown()` now aggregates current hour into `hourly_stats`
+- **Cross-session data**: `get_summary_stats()` queries all 3 tables (daily → hourly → minute) with dedup
+- **System idle process filter**: filtered at source (`process_aggregator.py`) + display (`insights.py`)
+- **CPU cap at 100%**: `psutil` per-core values >100% now capped in aggregator and insights
+
+### Info Panel Restyle
+- Height reduced from 100px to 50px
+- Purple accent (#a78bfa), Consolas 8pt font, thin gradient line
+- Typing animation with 4 rotating messages about PC Workman
+
 ### Codebase Cleanup
+- Removed unused files: `utils/` package (file_utils, net_utils, system_info), `settings/` dir, `expandable_list.py`
+- Removed empty artifacts: `_nul`, `nul`, `fan_settings_ultimate.json`
+- Removed dead animation code (~60 lines of `_animate_button_shimmer`)
 - Removed AI-style comments (CYBERPUNK, MEGA, Apple style, SystemCare, personal reminders)
 - Temperature data pipeline: scheduler reads `cpu_temp`/`gpu_temp` from snapshot → passes to aggregator → stored in `minute_stats`
 - Replaced temporary chart placeholders with real data-driven charts
@@ -223,9 +271,8 @@ Revolutionary transition from single-window architecture to intelligent dual-mod
 
 **Technical Implementation:**
 - `_create_nav_button()` - Canvas-based gradient renderer
-- `_animate_button_shimmer()` - RGB gradient cycling loop
 - Gradient color maps with RGB tuples for smooth interpolation
-- Frame-based animation system (33ms interval = 30 FPS)
+- Static gradient (drawn once, no animation — optimized in v1.6.8)
 
 ### 🌟 Startup Experience Enhancement
 **Professional Splash Screen:**
