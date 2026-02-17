@@ -83,9 +83,21 @@ class ChatHandler:
         ]):
             return self._insights_teaser()
 
+        # Health check
+        elif any(cmd in message_lower for cmd in [
+            "health", "zdrowie", "check", "diagnostics", "stan"
+        ]):
+            return self._insights_health()
+
         # Summary
         elif "summary" in message_lower or "podsumowanie" in message_lower:
             return self._insights_habits()
+
+        # Today report (text version)
+        elif any(cmd in message_lower for cmd in [
+            "report", "raport", "today"
+        ]):
+            return self._insights_report_text()
 
         # Help command
         elif any(cmd in message_lower for cmd in ["help", "commands", "?", "pomoc"]):
@@ -121,6 +133,22 @@ class ChatHandler:
         if self.insights:
             return self.insights.get_teaser()
         return ["hck_GPT: Insights engine not available."]
+
+    def _insights_health(self):
+        if self.insights:
+            return self.insights.get_health_check()
+        return ["hck_GPT: Insights engine not available."]
+
+    def _insights_report_text(self):
+        """Text-based quick report (points to the visual report button)."""
+        lines = []
+        if self.insights:
+            lines = self.insights.get_health_check()
+        else:
+            lines = ["hck_GPT: Insights engine not available."]
+        lines.append("")
+        lines.append("💡 Click the ✨ Today Report! ✨ button above for the full visual report.")
+        return lines
 
     # ================================================================
     # SERVICE COMMANDS
@@ -218,9 +246,11 @@ class ChatHandler:
             "",
             "Intelligence:",
             "  • stats / habits — Your usage profile & top apps",
+            "  • health — Quick system health check",
             "  • alerts — Anomaly report (spikes, temps)",
             "  • insights — What's happening right now",
             "  • teaser — Personality-driven prediction",
+            "  • report — Text summary (or use ✨ button)",
             "",
             "Service Optimization:",
             "  • service setup — Start service optimization wizard",

@@ -8,6 +8,28 @@ core.scheduler updated
 from import_core import register_component, COMPONENTS
 import threading, time, traceback, statistics
 
+# Stats Engine v2 references (lazy-loaded)
+_stats_aggregator = None
+_process_aggregator = None
+_event_detector = None
+_stats_loaded = False
+
+def _load_stats_engine():
+    """Lazy-load stats engine components (safe if not available)"""
+    global _stats_aggregator, _process_aggregator, _event_detector, _stats_loaded
+    if _stats_loaded:
+        return
+    _stats_loaded = True
+    try:
+        from hck_stats_engine.aggregator import aggregator
+        from hck_stats_engine.process_aggregator import process_aggregator
+        from hck_stats_engine.events import event_detector
+        _stats_aggregator = aggregator
+        _process_aggregator = process_aggregator
+        _event_detector = event_detector
+    except Exception as e:
+        print(f"[Scheduler] Stats engine not available: {e}")
+
 class Scheduler:
     def __init__(self, sample_interval=1.0):
         self.sample_interval = float(sample_interval)
@@ -24,6 +46,9 @@ class Scheduler:
         if not monitor or not logger:
             return
 
+        # Lazy-load stats engine on first worker tick
+        _load_stats_engine()
+
         while not self._stop.is_set():
             try:
                 snap = monitor.read_snapshot()
@@ -35,6 +60,16 @@ class Scheduler:
                     'gpu_percent': snap.get('gpu_percent', 0.0)
                 }
                 logger.record_snapshot(row)
+
+                # --- Stats Engine v2: accumulate per-process data every second ---
+                if _process_aggregator:
+                    try:
+                        proc_list = snap.get('processes', [])
+                        classifier = COMPONENTS.get('core.process_classifier')
+                        if proc_list:
+                            _process_aggregator.accumulate_second(proc_list, classifier)
+                    except Exception:
+                        pass
 
                 # simple per-60s aggregation
                 self._counter += 1
@@ -51,6 +86,36 @@ class Scheduler:
                         # minute timestamp = start of minute window (rounded)
                         minute_ts = int(time.time())
                         logger.record_minute_avg(minute_ts, cpu_avg, ram_avg, gpu_avg)
+
+                        # --- Stats Engine v2: feed minute data to aggregator ---
+                        if _stats_aggregator:
+                            try:
+                                # Get temperature readings
+                                _cpu_temp = None
+                                _gpu_temp = None
+                                try:
+                                    snap = monitor.read_snapshot()
+                                    _cpu_temp = snap.get('cpu_temp', None)
+                                    _gpu_temp = snap.get('gpu_temp', None)
+                                    if _cpu_temp is None:
+                                        _cpu_temp = 35 + cpu_avg * 0.5
+                                except Exception:
+                                    pass
+                                _stats_aggregator.on_minute_tick(
+                                    minute_ts, cpu_avg, ram_avg, gpu_avg,
+                                    cpu_vals, ram_vals, gpu_vals,
+                                    cpu_temp=_cpu_temp, gpu_temp=_gpu_temp
+                                )
+                            except Exception:
+                                pass
+
+                        # --- Stats Engine v2: spike detection ---
+                        if _event_detector:
+                            try:
+                                _event_detector.check_and_log_spike(cpu_avg, ram_avg, gpu_avg)
+                            except Exception:
+                                pass
+
                     self._counter = 0
 
                 # optional light analysis

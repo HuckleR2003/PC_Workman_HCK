@@ -145,21 +145,22 @@ class HCKGPTPanel:
         )
         clear_btn.pack(side="right")
 
-        # ========== TODAY REPORT BUTTON (rainbow gradient) ==========
-        report_bar = tk.Frame(self.chat, bg=THEME["bg_panel"])
-        report_bar.pack(fill="x", padx=8, pady=(0, 4))
-
-        self._report_btn_canvas = tk.Canvas(
-            report_bar, height=28, bg=THEME["bg_panel"],
-            highlightthickness=0, cursor="hand2"
+        # Today Report Button (same style as Service Setup)
+        report_btn = tk.Button(
+            control_bar,
+            text="Today Report",
+            bg=THEME["bg_main"],
+            fg=THEME["accent2"],
+            activebackground=THEME["accent2"],
+            activeforeground=THEME["text"],
+            font=("Consolas", 9, "bold"),
+            bd=0,
+            padx=10,
+            pady=4,
+            command=self._run_today_report,
+            cursor="hand2"
         )
-        self._report_btn_canvas.pack(fill="x")
-        self._report_btn_canvas.bind("<Configure>", self._draw_report_button)
-        self._report_btn_canvas.bind("<Button-1>", self._open_today_report)
-        self._report_btn_canvas.bind("<Enter>",
-            lambda e: self._report_btn_canvas.itemconfig("btn_text", fill="#ffffff"))
-        self._report_btn_canvas.bind("<Leave>",
-            lambda e: self._report_btn_canvas.itemconfig("btn_text", fill="#f0f0f0"))
+        report_btn.pack(side="left", padx=(0, 4))
 
         # LOG with custom scrollbar
         log_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
@@ -185,6 +186,27 @@ class HCKGPTPanel:
         self.log.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=self.log.yview)
         self.log.config(state="disabled")
+
+        # Color tags for rich report output
+        self.log.tag_configure("accent", foreground=THEME["accent"])
+        self.log.tag_configure("accent_bold", foreground=THEME["accent"],
+                               font=("Consolas", 10, "bold"))
+        self.log.tag_configure("cpu", foreground="#d94545")
+        self.log.tag_configure("gpu", foreground="#4b9aff")
+        self.log.tag_configure("ram", foreground="#ffd24a")
+        self.log.tag_configure("purple", foreground="#a855f7")
+        self.log.tag_configure("green", foreground="#22c55e")
+        self.log.tag_configure("red", foreground="#ef4444")
+        self.log.tag_configure("yellow", foreground="#fbbf24")
+        self.log.tag_configure("yellow_bold", foreground="#fbbf24",
+                               font=("Consolas", 10, "bold"))
+        self.log.tag_configure("muted", foreground=THEME["muted"])
+        self.log.tag_configure("bold", foreground=THEME["text"],
+                               font=("Consolas", 10, "bold"))
+        self.log.tag_configure("header", foreground=THEME["accent"],
+                               font=("Consolas", 10, "bold"),
+                               underline=True)
+        self.log.tag_configure("divider", foreground="#2a2d34")
 
         # ENTRY BAR with modern design
         entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
@@ -331,6 +353,25 @@ class HCKGPTPanel:
         self.log.insert("end", msg + "\n")
         self.log.see("end")
         self.log.config(state="disabled")
+
+    def add_colored(self, text, tag=None):
+        """Add text with a color tag (no newline — caller controls layout)."""
+        try:
+            if not self.log.winfo_exists():
+                return
+        except Exception:
+            return
+        self.log.config(state="normal")
+        if tag:
+            self.log.insert("end", text, tag)
+        else:
+            self.log.insert("end", text)
+        self.log.see("end")
+        self.log.config(state="disabled")
+
+    def add_line(self):
+        """Add a newline."""
+        self.add_colored("\n")
 
     # ================================================================
     # CURSOR BLINK
@@ -486,59 +527,240 @@ class HCKGPTPanel:
             pass
 
     # ================================================================
-    # TODAY REPORT BUTTON (rainbow gradient)
+    # TODAY REPORT (in-chat, colored)
     # ================================================================
-    def _draw_report_button(self, event=None):
-        """Draw rainbow gradient button on canvas."""
-        c = self._report_btn_canvas
-        c.delete("all")
-        w = c.winfo_width()
-        h = 28
+    def _run_today_report(self):
+        """Generate Today Report directly in the chat with colored text."""
+        self.clear_chat()
 
-        if w < 10:
+        try:
+            from hck_gpt.report_window import TodayReportWindow
+            # Reuse data gathering logic without opening window
+            data = self._gather_report_data()
+        except Exception:
+            data = None
+
+        # Header
+        self.add_colored("=" * 44 + "\n", "divider")
+        self.add_colored("  TODAY REPORT", "header")
+        self.add_colored("  " + time.strftime("%A, %B %d  %H:%M") + "\n", "muted")
+        self.add_colored("=" * 44 + "\n", "divider")
+
+        if not data:
+            self.add_colored("\nData not available yet.\n", "muted")
             return
 
-        # Rainbow gradient colors
-        colors = [
-            "#7f3ef5", "#9540ED", "#C154DC", "#EE76A4",
-            "#FF7B59", "#FF6A2F", "#fbbf24", "#22c55e",
-            "#00ffc8", "#4b9aff", "#7f3ef5"
-        ]
+        # SECTION 1: UPTIME
+        self.add_line()
+        self.add_colored("  UPTIME\n", "accent_bold")
 
-        steps = len(colors)
-        step_w = w / steps
-        for i, color in enumerate(colors):
-            x0 = int(i * step_w)
-            x1 = int(x0 + step_w) + 1
-            c.create_rectangle(x0, 0, x1, h, fill=color, outline=color)
+        session_str = self._fmt_short(data.get("session_uptime", 0))
+        self.add_colored("  Session:  ", "muted")
+        self.add_colored(session_str + "\n", "accent")
 
-        # Border radius effect (dark corner pixels)
-        for corner_x in [0, 1, w - 1, w - 2]:
-            for corner_y in [0, 1, h - 1, h - 2]:
-                if (corner_x <= 1 and corner_y <= 1) or \
-                   (corner_x >= w - 2 and corner_y <= 1) or \
-                   (corner_x <= 1 and corner_y >= h - 2) or \
-                   (corner_x >= w - 2 and corner_y >= h - 2):
-                    c.create_rectangle(corner_x, corner_y, corner_x + 1,
-                                       corner_y + 1, fill=THEME["bg_panel"],
-                                       outline=THEME["bg_panel"])
+        total_h = data.get("total_uptime_hours", 0)
+        if total_h > 0:
+            total_str = f"{total_h / 24:.1f} days ({total_h:.0f}h)" if total_h >= 24 else f"{total_h:.1f}h"
+        else:
+            total_str = "collecting..."
+        self.add_colored("  Lifetime: ", "muted")
+        self.add_colored(total_str + "\n", "purple")
 
-        # Text
-        c.create_text(
-            w // 2, h // 2,
-            text="✨  Today Report!  ✨",
-            font=("Segoe UI", 10, "bold"),
-            fill="#f0f0f0",
-            tags="btn_text"
-        )
+        days = data.get("days_tracked", 0)
+        if days > 0:
+            self.add_colored(f"  Tracked:  {days} day{'s' if days != 1 else ''}", "muted")
+            pts = data.get("data_points", 0)
+            if pts:
+                self.add_colored(f" / {pts} points today", "muted")
+            self.add_line()
 
-    def _open_today_report(self, event=None):
-        """Open the Today Report window."""
+        # SECTION 2: AVERAGES
+        self.add_line()
+        self.add_colored("  TODAY AVERAGES", "accent_bold")
+        self.add_colored("               ", "muted")
+        self.add_colored("avg    ", "bold")
+        self.add_colored("peak\n", "bold")
+
+        cpu_avg = data.get("cpu_avg", 0)
+        cpu_max = data.get("cpu_max", 0)
+        self.add_colored("  CPU  ", "muted")
+        self.add_colored(f"{cpu_avg:5.1f}%", "cpu")
+        self.add_colored("  ", "muted")
+        self.add_colored(f"{cpu_max:5.1f}%\n", "cpu")
+
+        gpu_avg = data.get("gpu_avg", 0)
+        gpu_max = data.get("gpu_max", 0)
+        self.add_colored("  GPU  ", "muted")
+        self.add_colored(f"{gpu_avg:5.1f}%", "gpu")
+        self.add_colored("  ", "muted")
+        self.add_colored(f"{gpu_max:5.1f}%\n", "gpu")
+
+        ram_avg = data.get("ram_avg", 0)
+        ram_max = data.get("ram_max", 0)
+        self.add_colored("  RAM  ", "muted")
+        self.add_colored(f"{ram_avg:5.1f}%", "ram")
+        self.add_colored("  ", "muted")
+        self.add_colored(f"{ram_max:5.1f}%\n", "ram")
+
+        # SECTION 3: TOP SYSTEM PROCESSES
+        if data.get("top_system"):
+            self.add_line()
+            self.add_colored("  TOP SYSTEM PROCESSES\n", "accent_bold")
+            for i, p in enumerate(data["top_system"][:5], 1):
+                name = p.get("_display", p.get("process_name", "?"))
+                if len(name) > 20:
+                    name = name[:18] + ".."
+                cpu = p.get("cpu_avg", 0)
+                ram = p.get("ram_avg_mb", 0)
+                rank_tag = "accent" if i == 1 else "muted"
+                self.add_colored(f"  {i}. ", rank_tag)
+                self.add_colored(f"{name:<20s}", "bold")
+                self.add_colored(f" CPU ", "muted")
+                self.add_colored(f"{cpu:4.1f}%", "cpu")
+                self.add_colored(f"  RAM ", "muted")
+                self.add_colored(f"{ram:.0f}MB\n", "ram")
+
+        # SECTION 4: TOP APPS
+        if data.get("top_apps"):
+            self.add_line()
+            self.add_colored("  TOP APPS / GAMES / BROWSERS\n", "accent_bold")
+            for i, p in enumerate(data["top_apps"][:5], 1):
+                name = p.get("_display", p.get("process_name", "?"))
+                if len(name) > 20:
+                    name = name[:18] + ".."
+                cpu = p.get("cpu_avg", 0)
+                ram = p.get("ram_avg_mb", 0)
+                cat = p.get("_category", "")
+                rank_tag = "accent" if i == 1 else "muted"
+                self.add_colored(f"  {i}. ", rank_tag)
+                self.add_colored(f"{name:<20s}", "bold")
+
+                # Category tag
+                cat_tags = {
+                    "Gaming": "red", "Browser": "gpu",
+                    "Development": "green", "Media": "ram",
+                }
+                if cat and cat not in ("Unknown", "System"):
+                    ctag = cat_tags.get(cat, "muted")
+                    self.add_colored(f" [{cat}]", ctag)
+
+                self.add_colored(f" {cpu:.1f}%", "cpu")
+                self.add_colored(f" {ram:.0f}MB\n", "muted")
+
+        # SECTION 5: ALERTS
+        self.add_line()
+        alerts = data.get("alerts_count", {})
+        total = alerts.get("total", 0)
+        critical = alerts.get("critical", 0)
+
+        if total == 0:
+            self.add_colored("  TEMP & VOLTAGES: NO ALERTS\n", "yellow_bold")
+        elif critical > 0:
+            self.add_colored(f"  TEMP & VOLTAGES: {critical} CRITICAL\n", "red")
+        else:
+            self.add_colored(f"  TEMP & VOLTAGES: {total} WARNING(S)\n", "yellow_bold")
+
+        self.add_colored("=" * 44 + "\n", "divider")
+
+    def _gather_report_data(self):
+        """Gather data for the in-chat report."""
+        import traceback
+        data = {
+            "session_uptime": 0,
+            "total_uptime_hours": 0,
+            "days_tracked": 0,
+            "cpu_avg": 0, "gpu_avg": 0, "ram_avg": 0,
+            "cpu_max": 0, "gpu_max": 0, "ram_max": 0,
+            "top_system": [],
+            "top_apps": [],
+            "alerts_count": {"total": 0, "critical": 0, "warning": 0, "info": 0},
+            "data_points": 0,
+        }
+
         try:
-            from hck_gpt.report_window import open_today_report
-            open_today_report(self.parent)
-        except Exception as e:
-            self.add_message(f"hck_GPT: Could not open report — {e}")
+            from hck_gpt.insights import insights_engine
+            data["session_uptime"] = insights_engine.get_session_uptime()
+        except Exception:
+            pass
+
+        try:
+            from hck_stats_engine.query_api import query_api
+            from hck_stats_engine.events import event_detector
+            from datetime import datetime
+
+            now = time.time()
+            today_start = datetime.now().replace(
+                hour=0, minute=0, second=0, microsecond=0).timestamp()
+
+            usage = query_api.get_usage_for_range(today_start, now, max_points=60)
+            if usage:
+                data["data_points"] = len(usage)
+                cpu_vals = [d.get("cpu_avg", 0) or 0 for d in usage]
+                gpu_vals = [d.get("gpu_avg", 0) or 0 for d in usage]
+                ram_vals = [d.get("ram_avg", 0) or 0 for d in usage]
+
+                if cpu_vals:
+                    data["cpu_avg"] = sum(cpu_vals) / len(cpu_vals)
+                    data["cpu_max"] = max(cpu_vals)
+                if gpu_vals:
+                    data["gpu_avg"] = sum(gpu_vals) / len(gpu_vals)
+                    data["gpu_max"] = max(gpu_vals)
+                if ram_vals:
+                    data["ram_avg"] = sum(ram_vals) / len(ram_vals)
+                    data["ram_max"] = max(ram_vals)
+
+            summary = query_api.get_summary_stats(days=9999)
+            if summary:
+                data["total_uptime_hours"] = summary.get("total_uptime_hours", 0)
+
+            date_range = query_api.get_available_date_range()
+            if date_range:
+                data["days_tracked"] = date_range.get("total_days", 0)
+
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            procs = query_api.get_process_daily_breakdown(today_str, top_n=20)
+
+            try:
+                from core.process_classifier import classifier
+                for p in procs:
+                    name = p.get("process_name", "")
+                    info = classifier.classify_process(name)
+                    p["_type"] = info.get("type", "unknown")
+                    p["_display"] = info.get("display_name", name)
+                    p["_category"] = info.get("category", "")
+            except Exception:
+                for p in procs:
+                    p["_type"] = "unknown"
+                    p["_display"] = p.get("display_name", p.get("process_name", "?"))
+                    p["_category"] = p.get("category", "")
+
+            data["top_system"] = [p for p in procs if p["_type"] == "system"][:5]
+            data["top_apps"] = [
+                p for p in procs
+                if p["_type"] in ("browser", "program", "unknown")
+                and p.get("cpu_avg", 0) > 0.5
+            ][:5]
+
+            data["alerts_count"] = event_detector.get_active_alerts_count()
+
+        except Exception:
+            traceback.print_exc()
+
+        return data
+
+    def _fmt_short(self, seconds):
+        """Short duration format."""
+        if not seconds:
+            return "0s"
+        seconds = float(seconds)
+        if seconds < 60:
+            return f"{int(seconds)}s"
+        m = int(seconds // 60)
+        h = m // 60
+        mins = m % 60
+        if h > 0:
+            return f"{h}h {mins}min"
+        return f"{mins}min"
 
     # ================================================================
     # RESIZE → keep bottom docking

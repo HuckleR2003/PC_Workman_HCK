@@ -7,6 +7,7 @@ No external AI — all rule-based logic.
 """
 
 import time
+import random
 import traceback
 from datetime import datetime, timedelta
 
@@ -21,11 +22,54 @@ class InsightsEngine:
         self._classifier = None
         self._loaded = False
 
+        # Session tracking
+        self._session_start = time.time()
+
         # Caches
         self._last_greeting_time = 0
         self._last_greeting_text = None
         self._last_insight_time = 0
-        self._last_insight_text = None
+        self._last_insight_msg = None  # Dedup: don't repeat same insight
+
+        # Teaser templates (variety)
+        self._teaser_templates = {
+            "Gaming": [
+                "Ready for another round of {name}? Your GPU is warmed up. 🎮",
+                "{name} again? Let's see if your CPU can keep up today. 🎮",
+                "Your PC is expecting {name} — it's been {freq}/7 days. 🎮",
+                "{name} incoming? Average CPU hit: {cpu:.0f}%. Game on. 🎮",
+            ],
+            "Browser": [
+                "{name} again? Your RAM knows the drill. 🌐",
+                "Round {freq} of {name} this week. Classic. 🌐",
+                "{name} — your RAM's favorite customer. ~{ram:.0f}MB daily. 🌐",
+                "Tabs are calling! {name} has been active {freq}/7 days. 🌐",
+            ],
+            "Development": [
+                "Back to {name}? Let's see what you build today. 💻",
+                "{name} — {freq}/7 days. Productivity mode activated. 💻",
+                "Time to code? {name} is your daily driver. 💻",
+            ],
+            "Communication": [
+                "{name} calling — you use it almost every day. 💬",
+                "{name} — {freq}/7 days. Staying connected. 💬",
+            ],
+            "Media": [
+                "{name} time? {freq}/7 days and counting. 🎵",
+                "{name} — part of your daily routine now. 🎵",
+            ],
+            "_default": [
+                "{name} — {freq}/7 days. It's basically part of your system now.",
+                "You've been using {name} regularly. CPU avg: {cpu:.0f}%.",
+            ],
+        }
+
+    # ================================================================
+    # SESSION
+    # ================================================================
+    def get_session_uptime(self):
+        """Returns current session uptime in seconds."""
+        return time.time() - self._session_start
 
     # ================================================================
     # LAZY LOADING
@@ -100,7 +144,6 @@ class InsightsEngine:
             qualifier = "light" if cpu_avg < 30 else "moderate" if cpu_avg < 60 else "heavy"
             line = f"hck_GPT: Yesterday was a {qualifier} day — CPU averaged {cpu_avg:.0f}%"
 
-            # Top culprit
             if yesterday_procs:
                 top = yesterday_procs[0]
                 name = top.get("display_name", top.get("process_name", "?"))
@@ -113,6 +156,11 @@ class InsightsEngine:
         teaser = self._build_teaser()
         if teaser:
             lines.append(f"hck_GPT: {teaser}")
+
+        # Session uptime context
+        session_h = self.get_session_uptime() / 3600
+        if session_h > 4:
+            lines.append(f"hck_GPT: You've been running for {session_h:.1f}h this session. Stay hydrated!")
 
         if not lines:
             lines.append("hck_GPT: Welcome back! I'm monitoring your system.")
@@ -127,7 +175,7 @@ class InsightsEngine:
     def get_current_insight(self):
         """One contextual message about what's happening right now.
         Returns a single string or None if nothing notable.
-        Rate-limited to once per 30 seconds.
+        Rate-limited to once per 30 seconds. Won't repeat same message.
         """
         now = time.time()
         if (now - self._last_insight_time) < 30:
@@ -138,15 +186,22 @@ class InsightsEngine:
 
         # Priority 1: Recent spike events (last 5 min)
         spike_msg = self._check_recent_spikes(minutes=5)
-        if spike_msg:
+        if spike_msg and spike_msg != self._last_insight_msg:
+            self._last_insight_msg = spike_msg
             return spike_msg
 
         # Priority 2: Heavy process running right now
         live_msg = self._check_live_processes()
-        if live_msg:
+        if live_msg and live_msg != self._last_insight_msg:
+            self._last_insight_msg = live_msg
             return live_msg
 
-        # Priority 3: General status
+        # Priority 3: Session milestone
+        session_msg = self._check_session_milestone()
+        if session_msg and session_msg != self._last_insight_msg:
+            self._last_insight_msg = session_msg
+            return session_msg
+
         return None  # Nothing notable — stay quiet
 
     def _check_recent_spikes(self, minutes=5):
@@ -202,8 +257,13 @@ class InsightsEngine:
                 g = classified["games"][0]
                 name = g.get("display_name", g["name"])
                 cpu = g.get("cpu_avg", 0)
-                return (f"hck_GPT: {name} is running — "
-                        f"CPU {cpu:.0f}%. Game on.")
+                ram = g.get("ram_avg_mb", 0)
+                msgs = [
+                    f"hck_GPT: {name} is running — CPU {cpu:.0f}%. Game on.",
+                    f"hck_GPT: {name} active — CPU {cpu:.0f}%, RAM {ram:.0f}MB.",
+                    f"hck_GPT: Gaming detected: {name} @ CPU {cpu:.0f}%.",
+                ]
+                return random.choice(msgs)
 
             # Heavy browser?
             if classified["browsers"]:
@@ -211,8 +271,11 @@ class InsightsEngine:
                 name = b.get("display_name", b["name"])
                 ram = b.get("ram_avg_mb", 0)
                 if ram > 500:
-                    return (f"hck_GPT: {name} is using {ram:.0f}MB RAM. "
-                            f"Classic browser appetite.")
+                    msgs = [
+                        f"hck_GPT: {name} is using {ram:.0f}MB RAM. Classic browser appetite.",
+                        f"hck_GPT: {name} — {ram:.0f}MB RAM. Tabs adding up?",
+                    ]
+                    return random.choice(msgs)
 
             # Heavy dev tool?
             if classified["dev_tools"]:
@@ -222,9 +285,120 @@ class InsightsEngine:
                 if cpu > 15:
                     return f"hck_GPT: {name} is working hard — CPU {cpu:.0f}%."
 
+            # Heavy unknown app (>30% CPU)
+            for proc in top[:3]:
+                cpu = proc.get("cpu_avg", 0)
+                if cpu > 30:
+                    name = proc.get("display_name", proc.get("name", "?"))
+                    return f"hck_GPT: {name} is pushing CPU to {cpu:.0f}%."
+
             return None
         except Exception:
             return None
+
+    def _check_session_milestone(self):
+        """Session duration milestones."""
+        hours = self.get_session_uptime() / 3600
+
+        # Only trigger at specific milestones (with 2 min window)
+        milestones = {
+            1: "1 hour in! Your system is running smooth.",
+            2: "2 hours of monitoring. Everything logged.",
+            4: "4 hours! That's a solid session.",
+            8: "8 hours of uptime — marathon session!",
+            12: "12 hours. Your PC is a trooper.",
+        }
+
+        for milestone_h, msg in milestones.items():
+            if milestone_h <= hours < milestone_h + (2 / 60):  # 2 min window
+                return f"hck_GPT: ⏱ {msg}"
+
+        return None
+
+    # ================================================================
+    # HEALTH CHECK (quick status)
+    # ================================================================
+    def get_health_check(self):
+        """Quick system health check. Returns list of chat messages."""
+        self._ensure_loaded()
+        lines = [
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "🩺 hck_GPT — Quick Health Check",
+            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            ""
+        ]
+
+        # Session info
+        session_str = self._format_duration(self.get_session_uptime())
+        lines.append(f"⏱ Session uptime: {session_str}")
+
+        # Current load from live accumulator
+        if self._process_aggregator:
+            try:
+                top = self._process_aggregator.get_current_hour_top(3)
+                if top:
+                    total_cpu = sum(p.get("cpu_avg", 0) for p in top)
+                    total_ram = sum(p.get("ram_avg_mb", 0) for p in top)
+                    lines.append(f"💪 Top 3 load: CPU ~{total_cpu:.0f}%, RAM ~{total_ram:.0f}MB")
+
+                    heaviest = top[0]
+                    h_name = heaviest.get("display_name", heaviest.get("name", "?"))
+                    lines.append(f"   Heaviest: {h_name} ({heaviest.get('cpu_avg', 0):.1f}% CPU)")
+            except Exception:
+                pass
+
+        # Today's summary
+        summary = self._get_summary(days=1)
+        if summary and summary.get("cpu_avg"):
+            lines.append("")
+            lines.append(f"📊 Today avg: CPU {summary['cpu_avg']:.0f}% | "
+                         f"RAM {summary.get('ram_avg', 0):.0f}% | "
+                         f"GPU {summary.get('gpu_avg', 0):.0f}%")
+
+            cpu_max = summary.get("cpu_max", 0)
+            if cpu_max > 85:
+                lines.append(f"   ⚠️ Peak CPU: {cpu_max:.0f}% — that's high!")
+            elif cpu_max > 0:
+                lines.append(f"   Peak CPU: {cpu_max:.0f}%")
+
+        # Alerts
+        if self._event_detector:
+            try:
+                alerts = self._event_detector.get_active_alerts_count()
+                total = alerts.get("total", 0)
+                if total == 0:
+                    lines.append("")
+                    lines.append("✅ No active alerts — system is healthy")
+                else:
+                    crit = alerts.get("critical", 0)
+                    warn = alerts.get("warning", 0)
+                    lines.append("")
+                    parts = []
+                    if crit:
+                        parts.append(f"🔴 {crit} critical")
+                    if warn:
+                        parts.append(f"⚠️ {warn} warnings")
+                    lines.append(f"Active alerts: {', '.join(parts)}")
+            except Exception:
+                pass
+
+        # Data collection status
+        if self._query_api:
+            try:
+                date_range = self._query_api.get_available_date_range()
+                if date_range:
+                    days = date_range.get("total_days", 0)
+                    lines.append("")
+                    lines.append(f"📅 Data collected: {days} day{'s' if days != 1 else ''} "
+                                 f"(since {date_range.get('earliest_date', '?')})")
+                else:
+                    lines.append("")
+                    lines.append("📅 Data collection: just started — give it time")
+            except Exception:
+                pass
+
+        lines.extend(["", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"])
+        return lines
 
     # ================================================================
     # HABIT SUMMARY
@@ -290,6 +464,17 @@ class InsightsEngine:
                 direction = "heavier" if diff > 0 else "lighter"
                 lines.append(f"📈 Weekly trend: {direction} usage than last week "
                              f"(CPU avg {this_week['cpu_avg']:.0f}% vs {last_week['cpu_avg']:.0f}%)")
+            else:
+                lines.append(f"📈 Weekly: stable usage (CPU avg ~{this_week['cpu_avg']:.0f}%)")
+
+        # Recurring patterns
+        patterns = self._detect_recurring_patterns(days=7)
+        if patterns:
+            lines.append("")
+            lines.append("🔄 Your regulars (last 7 days):")
+            for p in patterns[:3]:
+                lines.append(f"   {p['display_name']} — {p['frequency']}/7 days, "
+                             f"CPU ~{p['avg_cpu']:.0f}%")
 
         lines.extend(["", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"])
         return lines
@@ -353,7 +538,18 @@ class InsightsEngine:
                 desc = e.get("description", "Unknown event")
 
                 icon = "🔴" if severity == "critical" else "⚠️" if severity == "warning" else "ℹ️"
+                # Truncate long descriptions
+                if len(desc) > 60:
+                    desc = desc[:57] + "..."
                 lines.append(f"  {icon} [{time_str}] {desc}")
+
+            # Summary insight
+            if counts["critical"] > 2:
+                lines.append("")
+                lines.append("⚠️ Multiple critical events — check your cooling and load.")
+            elif total > 10:
+                lines.append("")
+                lines.append("📊 High event count — your system was under pressure.")
 
         except Exception as ex:
             lines.append(f"Error reading events: {ex}")
@@ -362,36 +558,32 @@ class InsightsEngine:
         return lines
 
     # ================================================================
-    # TEASER (personality-driven)
+    # TEASER (personality-driven, with variety)
     # ================================================================
     def _build_teaser(self):
         """Build a personality-driven teaser based on 7-day recurring patterns.
-        Returns a single string or None.
+        Returns a single string or None. Uses template variety.
         """
         patterns = self._detect_recurring_patterns(days=7)
         if not patterns:
             return None
 
-        # Find the most frequent recurring app
         top = patterns[0]
         name = top["display_name"]
         category = top.get("category", "")
         freq = top["frequency"]
+        cpu = top.get("avg_cpu", 0)
+        ram = top.get("avg_ram", 0)
 
-        if category == "Gaming":
-            return f"Ready for another round of {name}? Your GPU is warmed up. 🎮"
-        elif category == "Browser":
-            return f"{name} again? Your RAM knows the drill. 🌐"
-        elif category == "Development":
-            return f"Back to {name}? Let's see what you build today. 💻"
-        elif category == "Communication":
-            return f"{name} calling — you use it almost every day."
-        elif category == "Media":
-            return f"{name} time? You've been on it {freq} of the last 7 days."
-        elif freq >= 5:
-            return f"{name} — {freq}/7 days. It's basically part of your system now."
+        # Pick template category
+        templates = self._teaser_templates.get(category,
+                    self._teaser_templates["_default"])
 
-        return None
+        template = random.choice(templates)
+        try:
+            return template.format(name=name, freq=freq, cpu=cpu, ram=ram)
+        except (KeyError, ValueError):
+            return f"{name} — you use it {freq}/7 days."
 
     def get_teaser(self):
         """Public teaser method. Returns list of messages."""
@@ -399,14 +591,15 @@ class InsightsEngine:
         teaser = self._build_teaser()
         if teaser:
             return [f"hck_GPT: {teaser}"]
-        return ["hck_GPT: Not enough usage data to detect your habits yet."]
+        return ["hck_GPT: Not enough usage data to detect your habits yet.",
+                "hck_GPT: Keep the app running — I learn from your usage patterns."]
 
     # ================================================================
     # BANNER STATUS (compact one-liner)
     # ================================================================
     def get_banner_status(self):
         """Short status string for the panel banner.
-        Returns string like 'CPU 12% | RAM 45% | All quiet'
+        Returns string like 'Battlefield running | 2 alerts' or 'System monitored'
         """
         self._ensure_loaded()
 
@@ -422,6 +615,12 @@ class InsightsEngine:
                         g = classified["games"][0]
                         name = g.get("display_name", g["name"])
                         parts.append(f"{name} running")
+                    elif classified["browsers"]:
+                        b = classified["browsers"][0]
+                        ram = b.get("ram_avg_mb", 0)
+                        if ram > 300:
+                            name = b.get("display_name", b["name"])
+                            parts.append(f"{name} {ram:.0f}MB")
             except Exception:
                 pass
 
@@ -433,14 +632,16 @@ class InsightsEngine:
                 if total > 0:
                     crit = alerts.get("critical", 0)
                     if crit > 0:
-                        parts.append(f"{crit} critical alert{'s' if crit > 1 else ''}")
+                        parts.append(f"{crit} critical")
                     else:
                         parts.append(f"{total} alert{'s' if total > 1 else ''}")
             except Exception:
                 pass
 
         if not parts:
-            parts.append("System monitored")
+            # Fallback: show session uptime
+            uptime = self._format_duration(self.get_session_uptime())
+            parts.append(f"Session: {uptime}")
 
         return " | ".join(parts)
 
@@ -504,8 +705,7 @@ class InsightsEngine:
             return []
 
         try:
-            # Collect per-day breakdowns
-            process_days = {}  # {process_name: {days_seen, total_cpu, total_ram, display_name, category}}
+            process_days = {}
 
             for offset in range(days):
                 date = (datetime.now() - timedelta(days=offset)).strftime("%Y-%m-%d")
@@ -515,7 +715,6 @@ class InsightsEngine:
                     name = p.get("process_name", "")
                     if not name:
                         continue
-                    # Skip system processes
                     ptype = p.get("process_type", "")
                     if ptype == "system":
                         continue
@@ -523,7 +722,6 @@ class InsightsEngine:
                     cpu = p.get("cpu_avg", 0)
                     ram = p.get("ram_avg_mb", 0)
 
-                    # Minimum threshold: >5% CPU or >100MB RAM
                     if cpu < 5 and ram < 100:
                         continue
 
@@ -540,7 +738,6 @@ class InsightsEngine:
                     process_days[name]["total_cpu"] += cpu
                     process_days[name]["total_ram"] += ram
 
-            # Filter: must appear on at least 50% of days (min 3 days for 7-day window)
             min_days = max(3, days // 2)
             results = []
 
@@ -558,7 +755,6 @@ class InsightsEngine:
                     "avg_ram": round(data["total_ram"] / freq, 1),
                 })
 
-            # Sort by frequency desc, then by avg_cpu desc
             results.sort(key=lambda x: (x["frequency"], x["avg_cpu"]), reverse=True)
             return results
 
