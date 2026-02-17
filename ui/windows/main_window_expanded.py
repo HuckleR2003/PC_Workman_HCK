@@ -1357,100 +1357,61 @@ class ExpandedMainWindow:
             pass
 
     def _build_ai_writing_panel(self, parent):
-        """Build AI writing panel with typing animation"""
-        panel = tk.Frame(parent, bg="#0a0e27", height=100)
-        panel.pack(fill="x", padx=5, pady=(5, 5))
+        """Build compact info panel with typing animation"""
+        panel = tk.Frame(parent, bg="#0a0e27", height=50)
+        panel.pack(fill="x", padx=5, pady=(3, 3))
         panel.pack_propagate(False)
 
-        # Category selection (top - very minimal)
-        categories = tk.Frame(panel, bg="#0a0e27")
-        categories.pack(fill="x", pady=(5, 5))
+        # Thin accent line at top
+        tk.Frame(panel, bg="#8b5cf6", height=1).pack(fill="x")
 
-        # Category 1: Person + Heart (Human)
-        cat1 = tk.Label(
-            categories,
-            text="👤❤️",
-            font=("Segoe UI", 8),
-            bg="#0a0e27",
-            fg="#64748b",
-            cursor="hand2",
-            padx=5
-        )
-        cat1.pack(side="left", padx=2)
-
-        # Category 2: Robot + Money (AI - selected by default)
-        self.ai_cat2 = tk.Label(
-            categories,
-            text="🤖💵",
-            font=("Segoe UI", 8),
-            bg="#fbbf24",  # Yellow highlight - selected
-            fg="#ffffff",
-            cursor="hand2",
-            padx=5
-        )
-        self.ai_cat2.pack(side="left", padx=2)
-
-        # Click handlers
-        def select_cat1(e):
-            cat1.config(bg="#fbbf24", fg="#ffffff")
-            self.ai_cat2.config(bg="#0a0e27", fg="#64748b")
-            self.current_ai_category = 1
-
-        def select_cat2(e):
-            cat1.config(bg="#0a0e27", fg="#64748b")
-            self.ai_cat2.config(bg="#fbbf24", fg="#ffffff")
-            self.current_ai_category = 2
-
-        cat1.bind("<Button-1>", select_cat1)
-        self.ai_cat2.bind("<Button-1>", select_cat2)
-        self.current_ai_category = 2  # Default selected
-
-        # AI text display area
+        # Text display area — fills entire panel
         text_area = tk.Frame(panel, bg="#0f1117")
-        text_area.pack(fill="both", expand=True, padx=5, pady=(0, 5))
+        text_area.pack(fill="both", expand=True, padx=4, pady=2)
 
         # Text label with cursor
         self.ai_text_container = tk.Frame(text_area, bg="#0f1117")
-        self.ai_text_container.pack(expand=True)
+        self.ai_text_container.pack(fill="both", expand=True)
 
         self.ai_text_label = tk.Label(
             self.ai_text_container,
             text="",
-            font=("Segoe UI", 7),
+            font=("Consolas", 8),
             bg="#0f1117",
-            fg="#10b981",
+            fg="#a78bfa",
             wraplength=200,
-            justify="left"
+            justify="left",
+            anchor="nw"
         )
-        self.ai_text_label.pack(side="left")
+        self.ai_text_label.pack(side="left", fill="both", expand=True)
 
         # Blinking cursor
         self.ai_cursor = tk.Label(
             self.ai_text_container,
-            text="█",
-            font=("Segoe UI", 7),
+            text="|",
+            font=("Consolas", 8, "bold"),
             bg="#0f1117",
-            fg="#10b981"
+            fg="#a78bfa"
         )
-        self.ai_cursor.pack(side="left")
+        self.ai_cursor.pack(side="left", anchor="n")
 
-        # AI messages (4 messages cycling)
+        # Messages — shorter, punchier
         self.ai_messages = [
-            "Totalny ziomek (bro) przedstawiciel twojego PC, który tylko czeka by dbać o zasoby i być dla użytkownika.",
-            "Pełno naszych funkcji Optymalizacji (narzędzia 16) jest stworzonych tak, by po konfiguracji użytkownik niczym się nie przejmował i miał dokładnie te funkcje, te wyłączone usługi, i inne rzeczy które chce. Bez zaglądania więcej tam.",
-            "Wkładam serce, jako samotny informatyk-media manager-researcher-student AI :) Pozdrawiam z Holandii :), pracuję jako order picker.",
-            "Wiem że na tym etapie nikt tego nie przeczyta. Ale jak się znajdzie ktoś taki to dziękuję że jesteś!"
+            "PC Workman — by Marcin 'HCK' Firmuga",
+            "16 optimization tools, one-click setup.",
+            "Built with heart from the Netherlands.",
+            "Your PC, Smarter. Always watching.",
         ]
 
         self.ai_current_message_index = 0
         self.ai_current_text = ""
-        self.ai_typing = False  # Will be set to True on first call
+        self.ai_typing = False
         self.ai_deleting = False
         self.ai_char_index = 0
 
-        # Start animations (after small delay to ensure widgets are ready)
-        self.root.after(100, self._animate_ai_cursor)
-        self.root.after(100, self._animate_ai_typing)
+        # Start animations
+        self.root.after(500, self._animate_ai_cursor)
+        self.root.after(500, self._animate_ai_typing)
 
     def _animate_ai_cursor(self):
         """Blink cursor animation"""
@@ -1458,14 +1419,16 @@ class ExpandedMainWindow:
             return
 
         try:
+            if not self.ai_cursor.winfo_exists():
+                return
             current_fg = self.ai_cursor.cget("fg")
-            if current_fg == "#10b981":
-                self.ai_cursor.config(fg="#0f1117")  # Hide (same as bg)
+            if current_fg == "#a78bfa":
+                self.ai_cursor.config(fg="#0f1117")  # Hide
             else:
-                self.ai_cursor.config(fg="#10b981")  # Show
+                self.ai_cursor.config(fg="#a78bfa")  # Show
 
             if self._running:
-                self.root.after(500, self._animate_ai_cursor)
+                self.root.after(600, self._animate_ai_cursor)
         except:
             pass
 
@@ -1475,49 +1438,45 @@ class ExpandedMainWindow:
             return
 
         try:
-            message = self.ai_messages[self.ai_current_message_index]
-            delay = 50  # Default delay
+            if not self.ai_text_label.winfo_exists():
+                return
 
-            # State machine: idle -> typing -> waiting -> deleting -> idle
+            message = self.ai_messages[self.ai_current_message_index]
+            delay = 70
+
             if not self.ai_typing and not self.ai_deleting:
-                # START TYPING
                 self.ai_typing = True
                 self.ai_char_index = 0
                 self.ai_current_text = ""
-                delay = 50
+                delay = 70
 
             elif self.ai_typing:
-                # TYPING CHARACTER BY CHARACTER
                 if self.ai_char_index < len(message):
                     self.ai_current_text = message[:self.ai_char_index + 1]
                     self.ai_text_label.config(text=self.ai_current_text)
                     self.ai_char_index += 1
-                    delay = 50  # 50ms per character
+                    delay = 70
                 else:
-                    # FINISHED TYPING - switch to deleting mode after wait
                     self.ai_typing = False
                     self.ai_deleting = True
-                    delay = 5000  # Wait 5 seconds before deleting
+                    delay = 6000  # Hold 6s
 
             elif self.ai_deleting:
-                # DELETING WITH BACKSPACE
                 if len(self.ai_current_text) > 0:
-                    self.ai_current_text = self.ai_current_text[:-1]
+                    # Delete 3 chars at a time for speed
+                    self.ai_current_text = self.ai_current_text[:-3] if len(self.ai_current_text) > 3 else ""
                     self.ai_text_label.config(text=self.ai_current_text)
-                    delay = 20  # 20ms per character (faster deletion)
+                    delay = 30
                 else:
-                    # FINISHED DELETING - move to next message
                     self.ai_deleting = False
                     self.ai_current_message_index = (self.ai_current_message_index + 1) % len(self.ai_messages)
-                    delay = 1000  # Wait 1 second before next message
+                    delay = 1500
 
-            # Continue animation
             if self._running:
                 self.root.after(delay, self._animate_ai_typing)
-        except Exception as e:
-            print(f"[AI Typing] Error: {e}")
+        except Exception:
             if self._running:
-                self.root.after(1000, self._animate_ai_typing)
+                self.root.after(2000, self._animate_ai_typing)
 
     def _animate_button_shimmer(self):
         """ANIMATED RGB GRADIENT - kolory zmieniają się płynnie! 🌈"""
@@ -1578,8 +1537,7 @@ class ExpandedMainWindow:
                 self.root.after(33, self._animate_button_shimmer)
 
     def _render_expanded_user_processes(self, procs):
-        """Render TOP 5 user processes with refresh animation"""
-        # Guard against destroyed container
+        """Render TOP 5 user processes — reuse widgets instead of destroy/recreate"""
         if not hasattr(self, 'expanded_user_container'):
             return
         try:
@@ -1588,83 +1546,84 @@ class ExpandedMainWindow:
         except Exception:
             return
 
-        # Clear old widgets
-        for widget in self.expanded_user_widgets:
-            try:
-                widget.destroy()
-            except Exception:
-                pass
-        self.expanded_user_widgets = []
+        # Cache psutil values (avoid calling per-row)
+        cpu_cores = self._cached_cpu_count()
+        total_ram_mb = self._cached_total_ram_mb()
 
-        # Get total system CPU and RAM usage
-        total_cpu = psutil.cpu_percent() if psutil else 100
-        total_ram_pct = psutil.virtual_memory().percent if psutil else 100
-
-        # Gradient backgrounds for TOP 1-5
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
-        for i, proc in enumerate(procs[:5], start=1):
-            # Get process info
-            display_name = proc.get('name', 'unknown')
-            cpu_raw = proc.get('cpu_percent', 0)  # Per-core CPU usage
-            ram_mb = proc.get('ram_MB', 0)
+        # First call: create widgets; later: just update labels
+        if not self.expanded_user_widgets:
+            for i in range(5):
+                row_bg = row_gradients[i]
+                row = tk.Frame(self.expanded_user_container, bg=row_bg, height=22)
+                row.pack(fill="x", pady=0)
+                row.pack_propagate(False)
 
-            # Convert CPU to system-relative percentage
-            # psutil gives per-core % (0-100 per core), we need % of total CPU usage
-            cpu_cores = psutil.cpu_count() if psutil else 1
-            cpu_system_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+                name_lbl = tk.Label(row, text="", font=("Segoe UI", 7),
+                                    bg=row_bg, fg=THEME["text"], anchor="w")
+                name_lbl.pack(side="left", padx=4, fill="y")
 
-            # Calculate RAM as % of total RAM
-            total_ram_mb = (psutil.virtual_memory().total / (1024 * 1024)) if psutil else 8192
-            ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
+                bars_frame = tk.Frame(row, bg=row_bg)
+                bars_frame.pack(side="right", padx=3)
 
-            # Row with gradient background
-            row_bg = row_gradients[i-1] if i <= len(row_gradients) else THEME["bg_panel"]
-            row = tk.Frame(self.expanded_user_container, bg=row_bg, height=22)
-            row.pack(fill="x", pady=0)
-            row.pack_propagate(False)
+                cpu_container = tk.Frame(bars_frame, bg=row_bg)
+                cpu_container.pack(side="left", padx=1)
+                tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
+                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
+                cpu_bar_bg = tk.Frame(cpu_container, bg="#0f1117", width=30, height=4)
+                cpu_bar_bg.pack(side="left", padx=(0, 2))
+                cpu_bar_bg.pack_propagate(False)
+                cpu_fill = tk.Frame(cpu_bar_bg, bg="#3b82f6", height=4)
+                cpu_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
+                cpu_val = tk.Label(cpu_container, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#3b82f6", width=4, anchor="e")
+                cpu_val.pack(side="left")
 
-            # Process name
-            name_lbl = tk.Label(
-                row,
-                text=f"{i}. {display_name[:14]}",
-                font=("Segoe UI", 7),
-                bg=row_bg,
-                fg=THEME["text"],
-                anchor="w"
-            )
-            name_lbl.pack(side="left", padx=4, fill="y")
+                ram_container = tk.Frame(bars_frame, bg=row_bg)
+                ram_container.pack(side="left", padx=1)
+                tk.Label(ram_container, text="R", font=("Segoe UI", 6),
+                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
+                ram_bar_bg = tk.Frame(ram_container, bg="#0f1117", width=30, height=4)
+                ram_bar_bg.pack(side="left", padx=(0, 2))
+                ram_bar_bg.pack_propagate(False)
+                ram_fill = tk.Frame(ram_bar_bg, bg="#fbbf24", height=4)
+                ram_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
+                ram_val = tk.Label(ram_container, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#fbbf24", width=4, anchor="e")
+                ram_val.pack(side="left")
 
-            # CPU/RAM bars side by side
-            bars_frame = tk.Frame(row, bg=row_bg)
-            bars_frame.pack(side="right", padx=3)
+                self.expanded_user_widgets.append({
+                    "row": row, "name": name_lbl,
+                    "cpu_fill": cpu_fill, "cpu_val": cpu_val,
+                    "ram_fill": ram_fill, "ram_val": ram_val,
+                })
 
-            # CPU
-            cpu_container = tk.Frame(bars_frame, bg=row_bg)
-            cpu_container.pack(side="left", padx=1)
+        # Update existing widgets with new data
+        for i, widget_data in enumerate(self.expanded_user_widgets):
+            if i < len(procs):
+                proc = procs[i]
+                display_name = proc.get('name', 'unknown')
+                cpu_raw = proc.get('cpu_percent', 0)
+                ram_mb = proc.get('ram_MB', 0)
+                cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+                ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
-            tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
-                    bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-
-            self._create_mini_bar(cpu_container, cpu_system_pct, "#3b82f6", f"{cpu_system_pct:.0f}%", row_bg)
-
-            # RAM
-            ram_container = tk.Frame(bars_frame, bg=row_bg)
-            ram_container.pack(side="left", padx=1)
-
-            tk.Label(ram_container, text="R", font=("Segoe UI", 6),
-                    bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-
-            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_pct:.0f}%", row_bg)
-
-            self.expanded_user_widgets.append(row)
-
-        # Refresh animation (pulse)
-        self._animate_panel(self.expanded_user_container)
+                widget_data["name"].config(text=f"{i+1}. {display_name[:14]}")
+                widget_data["cpu_fill"].place(relwidth=min(cpu_pct / 100.0, 1.0))
+                widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
+                widget_data["ram_fill"].place(relwidth=min(ram_pct / 100.0, 1.0))
+                widget_data["ram_val"].config(text=f"{ram_pct:.0f}%")
+                widget_data["row"].pack(fill="x", pady=0)
+            else:
+                widget_data["name"].config(text="")
+                widget_data["cpu_fill"].place(relwidth=0)
+                widget_data["cpu_val"].config(text="")
+                widget_data["ram_fill"].place(relwidth=0)
+                widget_data["ram_val"].config(text="")
 
     def _render_expanded_system_processes(self, procs):
-        """Render TOP 5 system processes with refresh animation"""
-        # Guard against destroyed container
+        """Render TOP 5 system processes — reuse widgets instead of destroy/recreate"""
         if not hasattr(self, 'expanded_sys_container'):
             return
         try:
@@ -1673,78 +1632,80 @@ class ExpandedMainWindow:
         except Exception:
             return
 
-        # Clear old widgets
-        for widget in self.expanded_sys_widgets:
-            try:
-                widget.destroy()
-            except Exception:
-                pass
-        self.expanded_sys_widgets = []
+        cpu_cores = self._cached_cpu_count()
+        total_ram_mb = self._cached_total_ram_mb()
 
-        # Get total system CPU and RAM usage
-        total_cpu = psutil.cpu_percent() if psutil else 100
-        total_ram_pct = psutil.virtual_memory().percent if psutil else 100
-
-        # Gradient backgrounds for TOP 1-5
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
-        for i, proc in enumerate(procs[:5], start=1):
-            # Get process info
-            display_name = proc.get('name', 'unknown')
-            cpu_raw = proc.get('cpu_percent', 0)  # Per-core CPU usage
-            ram_mb = proc.get('ram_MB', 0)
+        # First call: create widgets; later: just update labels
+        if not self.expanded_sys_widgets:
+            for i in range(5):
+                row_bg = row_gradients[i]
+                row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=22)
+                row.pack(fill="x", pady=0)
+                row.pack_propagate(False)
 
-            # Convert CPU to system-relative percentage
-            cpu_cores = psutil.cpu_count() if psutil else 1
-            cpu_system_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+                name_lbl = tk.Label(row, text="", font=("Segoe UI", 7),
+                                    bg=row_bg, fg=THEME["text"], anchor="w")
+                name_lbl.pack(side="left", padx=4, fill="y")
 
-            # Calculate RAM as % of total RAM
-            total_ram_mb = (psutil.virtual_memory().total / (1024 * 1024)) if psutil else 8192
-            ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
+                bars_frame = tk.Frame(row, bg=row_bg)
+                bars_frame.pack(side="right", padx=3)
 
-            # Row with gradient background
-            row_bg = row_gradients[i-1] if i <= len(row_gradients) else THEME["bg_panel"]
-            row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=22)
-            row.pack(fill="x", pady=0)
-            row.pack_propagate(False)
+                cpu_container = tk.Frame(bars_frame, bg=row_bg)
+                cpu_container.pack(side="left", padx=1)
+                tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
+                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
+                cpu_bar_bg = tk.Frame(cpu_container, bg="#0f1117", width=30, height=4)
+                cpu_bar_bg.pack(side="left", padx=(0, 2))
+                cpu_bar_bg.pack_propagate(False)
+                cpu_fill = tk.Frame(cpu_bar_bg, bg="#3b82f6", height=4)
+                cpu_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
+                cpu_val = tk.Label(cpu_container, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#3b82f6", width=4, anchor="e")
+                cpu_val.pack(side="left")
 
-            # Process name
-            name_lbl = tk.Label(
-                row,
-                text=f"{i}. {display_name[:14]}",
-                font=("Segoe UI", 7),
-                bg=row_bg,
-                fg=THEME["text"],
-                anchor="w"
-            )
-            name_lbl.pack(side="left", padx=4, fill="y")
+                ram_container = tk.Frame(bars_frame, bg=row_bg)
+                ram_container.pack(side="left", padx=1)
+                tk.Label(ram_container, text="R", font=("Segoe UI", 6),
+                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
+                ram_bar_bg = tk.Frame(ram_container, bg="#0f1117", width=30, height=4)
+                ram_bar_bg.pack(side="left", padx=(0, 2))
+                ram_bar_bg.pack_propagate(False)
+                ram_fill = tk.Frame(ram_bar_bg, bg="#fbbf24", height=4)
+                ram_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
+                ram_val = tk.Label(ram_container, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#fbbf24", width=4, anchor="e")
+                ram_val.pack(side="left")
 
-            # CPU/RAM bars side by side
-            bars_frame = tk.Frame(row, bg=row_bg)
-            bars_frame.pack(side="right", padx=3)
+                self.expanded_sys_widgets.append({
+                    "row": row, "name": name_lbl,
+                    "cpu_fill": cpu_fill, "cpu_val": cpu_val,
+                    "ram_fill": ram_fill, "ram_val": ram_val,
+                })
 
-            # CPU
-            cpu_container = tk.Frame(bars_frame, bg=row_bg)
-            cpu_container.pack(side="left", padx=1)
+        # Update existing widgets with new data
+        for i, widget_data in enumerate(self.expanded_sys_widgets):
+            if i < len(procs):
+                proc = procs[i]
+                display_name = proc.get('name', 'unknown')
+                cpu_raw = proc.get('cpu_percent', 0)
+                ram_mb = proc.get('ram_MB', 0)
+                cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
+                ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
-            tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
-                    bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-
-            self._create_mini_bar(cpu_container, cpu_system_pct, "#3b82f6", f"{cpu_system_pct:.0f}%", row_bg)
-
-            # RAM
-            ram_container = tk.Frame(bars_frame, bg=row_bg)
-            ram_container.pack(side="left", padx=1)
-
-            tk.Label(ram_container, text="R", font=("Segoe UI", 6),
-                    bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-
-            self._create_mini_bar(ram_container, ram_pct, "#fbbf24", f"{ram_pct:.0f}%", row_bg)
-
-            self.expanded_sys_widgets.append(row)
-
-        # Refresh animation (pulse)
-        self._animate_panel(self.expanded_sys_container)
+                widget_data["name"].config(text=f"{i+1}. {display_name[:14]}")
+                widget_data["cpu_fill"].place(relwidth=min(cpu_pct / 100.0, 1.0))
+                widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
+                widget_data["ram_fill"].place(relwidth=min(ram_pct / 100.0, 1.0))
+                widget_data["ram_val"].config(text=f"{ram_pct:.0f}%")
+                widget_data["row"].pack(fill="x", pady=0)
+            else:
+                widget_data["name"].config(text="")
+                widget_data["cpu_fill"].place(relwidth=0)
+                widget_data["cpu_val"].config(text="")
+                widget_data["ram_fill"].place(relwidth=0)
+                widget_data["ram_val"].config(text="")
 
     def _create_mini_bar(self, parent, value, color, text, bg):
         """Create mini inline bar for compact display"""
@@ -1869,50 +1830,65 @@ class ExpandedMainWindow:
         if self.switch_to_minimal_callback:
             self.switch_to_minimal_callback()
 
+    def _cached_cpu_count(self):
+        """Cached CPU core count (never changes at runtime)."""
+        if not hasattr(self, '_cpu_count_cache'):
+            self._cpu_count_cache = psutil.cpu_count() if psutil else 1
+        return self._cpu_count_cache
+
+    def _cached_total_ram_mb(self):
+        """Cached total RAM in MB (never changes at runtime)."""
+        if not hasattr(self, '_total_ram_mb_cache'):
+            self._total_ram_mb_cache = (psutil.virtual_memory().total / (1024 * 1024)) if psutil else 8192
+        return self._total_ram_mb_cache
+
     def _update_loop(self):
-        """Update loop for session averages, live metrics, and processes - AFTER() BASED"""
+        """Update loop — 1s cadence, lightweight label updates only."""
         if not self._running:
             return
 
         try:
-            # Get current sample
             sample = self._get_current_sample()
 
             if sample:
-                # Add to session samples
                 self.session_samples.append(sample)
-
-                # Keep only last N samples
                 if len(self.session_samples) > self.max_session_samples:
                     self.session_samples.pop(0)
 
-                # Calculate averages
-                avg_cpu = sum(s.get("cpu_percent", 0) for s in self.session_samples) / len(self.session_samples)
-                avg_gpu = sum(s.get("gpu_percent", 0) for s in self.session_samples) / len(self.session_samples)
-                avg_ram = sum(s.get("ram_percent", 0) for s in self.session_samples) / len(self.session_samples)
+                n = len(self.session_samples)
+                avg_cpu = sum(s.get("cpu_percent", 0) for s in self.session_samples) / n
+                avg_gpu = sum(s.get("gpu_percent", 0) for s in self.session_samples) / n
+                avg_ram = sum(s.get("ram_percent", 0) for s in self.session_samples) / n
 
-                # Update session bars (every 0.3s)
                 self._update_session_bar("cpu", avg_cpu)
                 self._update_session_bar("gpu", avg_gpu)
                 self._update_session_bar("ram", avg_ram)
 
-                # Update live metrics (every 0.3s)
                 self._update_live_metrics(sample)
 
-                # Update hardware cards (only on dashboard)
-                if self.current_view == "dashboard":
+                # Hardware cards every 2nd tick (2s)
+                if not hasattr(self, '_hw_card_counter'):
+                    self._hw_card_counter = 0
+                self._hw_card_counter += 1
+                if self._hw_card_counter >= 2 and self.current_view == "dashboard":
+                    self._hw_card_counter = 0
                     self._update_hardware_cards(sample)
 
-                # Update system tray icon
+                # Tray icon every 3rd tick (3s)
                 if self.tray_manager:
-                    cpu = sample.get("cpu_percent", 0)
-                    ram = sample.get("ram_percent", 0)
-                    gpu = sample.get("gpu_percent", 0)
-                    cpu_temp = sample.get("cpu_temp", 0)
-                    gpu_temp = sample.get("gpu_temp", 0)
-                    self.tray_manager.update_stats(cpu, ram, gpu, cpu_temp, gpu_temp)
+                    if not hasattr(self, '_tray_counter'):
+                        self._tray_counter = 0
+                    self._tray_counter += 1
+                    if self._tray_counter >= 3:
+                        self._tray_counter = 0
+                        cpu = sample.get("cpu_percent", 0)
+                        ram = sample.get("ram_percent", 0)
+                        gpu = sample.get("gpu_percent", 0)
+                        cpu_temp = sample.get("cpu_temp", 0)
+                        gpu_temp = sample.get("gpu_temp", 0)
+                        self.tray_manager.update_stats(cpu, ram, gpu, cpu_temp, gpu_temp)
 
-                # Update TOP 5 processes every 1 second (3 cycles)
+                # TOP 5 processes every 3rd tick (3s)
                 if not hasattr(self, '_update_counter'):
                     self._update_counter = 0
                 self._update_counter += 1
@@ -1926,9 +1902,9 @@ class ExpandedMainWindow:
             import traceback
             traceback.print_exc()
 
-        # Schedule next update - CRITICAL: use after() not sleep()
+        # 1-second cadence (was 300ms — main lag source)
         if self._running:
-            self.root.after(300, self._update_loop)  # 300ms = 0.3s
+            self.root.after(1000, self._update_loop)
 
     def _get_current_sample(self):
         """Get current system sample"""

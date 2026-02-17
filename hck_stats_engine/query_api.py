@@ -432,6 +432,10 @@ class StatsQueryAPI:
     def get_summary_stats(self, days=7):
         """Get summary statistics for the last N days.
 
+        Uses daily_stats when available, falls back to hourly_stats and
+        minute_stats so that lifetime uptime is computed even before
+        the first day-boundary aggregation.
+
         Args:
             days: Number of days to summarize
 
@@ -449,6 +453,7 @@ class StatsQueryAPI:
         cutoff = time.time() - days * SECONDS_PER_DAY
 
         try:
+            # --- Primary: daily_stats ---
             rows = conn.execute("""
                 SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
                        uptime_minutes, sample_count
@@ -457,22 +462,90 @@ class StatsQueryAPI:
                 ORDER BY timestamp ASC
             """, (cutoff,)).fetchall()
 
-            if not rows:
+            daily_uptime_min = 0
+            daily_samples = 0
+            daily_days = 0
+
+            if rows:
+                daily_uptime_min = sum(r['uptime_minutes'] or 0 for r in rows)
+                daily_samples = sum(r['sample_count'] for r in rows)
+                daily_days = len(rows)
+
+            # --- Supplement: hourly_stats (hours not yet rolled into daily) ---
+            # Find the latest daily_stats timestamp so we only count
+            # hourly data that hasn't been aggregated yet.
+            latest_daily_ts = 0
+            if rows:
+                latest_daily_ts = max(r['uptime_minutes'] for r in rows) if False else 0
+            try:
+                ld_row = conn.execute(
+                    "SELECT MAX(timestamp) as t FROM daily_stats WHERE timestamp >= ?",
+                    (cutoff,)).fetchone()
+                if ld_row and ld_row['t']:
+                    latest_daily_ts = ld_row['t'] + SECONDS_PER_DAY
+            except Exception:
+                pass
+
+            hourly_uptime_min = 0
+            hourly_rows = []
+            try:
+                hourly_cutoff = max(cutoff, latest_daily_ts)
+                hourly_rows = conn.execute("""
+                    SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
+                           sample_count
+                    FROM hourly_stats
+                    WHERE timestamp >= ?
+                    ORDER BY timestamp ASC
+                """, (hourly_cutoff,)).fetchall()
+                if hourly_rows:
+                    # Each hourly row's sample_count = minutes of data
+                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows)
+            except Exception:
+                pass
+
+            # --- Supplement: minute_stats (current hour, not yet in hourly) ---
+            minute_uptime_min = 0
+            minute_rows = []
+            try:
+                latest_hourly_ts = 0
+                lh_row = conn.execute(
+                    "SELECT MAX(timestamp) as t FROM hourly_stats WHERE timestamp >= ?",
+                    (cutoff,)).fetchone()
+                if lh_row and lh_row['t']:
+                    latest_hourly_ts = lh_row['t'] + SECONDS_PER_HOUR
+
+                minute_cutoff = max(cutoff, latest_daily_ts, latest_hourly_ts)
+                minute_rows = conn.execute("""
+                    SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
+                           sample_count
+                    FROM minute_stats
+                    WHERE timestamp >= ?
+                    ORDER BY timestamp ASC
+                """, (minute_cutoff,)).fetchall()
+                if minute_rows:
+                    # Each minute_stats row = ~1 minute of uptime
+                    minute_uptime_min = len(minute_rows)
+            except Exception:
+                pass
+
+            # Combine all rows for averages/peaks
+            all_rows = list(rows) + list(hourly_rows) + list(minute_rows)
+            if not all_rows:
                 return {}
 
-            total_samples = sum(r['sample_count'] for r in rows)
-            total_uptime = sum(r['uptime_minutes'] or 0 for r in rows)
+            total_uptime_min = daily_uptime_min + hourly_uptime_min + minute_uptime_min
+            total_samples = sum(r['sample_count'] for r in all_rows)
 
             return {
-                'cpu_avg': round(sum(r['cpu_avg'] for r in rows) / len(rows), 2),
-                'ram_avg': round(sum(r['ram_avg'] for r in rows) / len(rows), 2),
-                'gpu_avg': round(sum(r['gpu_avg'] for r in rows) / len(rows), 2),
-                'cpu_max': round(max(r['cpu_max'] for r in rows), 2),
-                'ram_max': round(max(r['ram_max'] for r in rows), 2),
-                'gpu_max': round(max(r['gpu_max'] for r in rows), 2),
-                'total_uptime_hours': round(total_uptime / 60, 1),
+                'cpu_avg': round(sum(r['cpu_avg'] for r in all_rows) / len(all_rows), 2),
+                'ram_avg': round(sum(r['ram_avg'] for r in all_rows) / len(all_rows), 2),
+                'gpu_avg': round(sum(r['gpu_avg'] for r in all_rows) / len(all_rows), 2),
+                'cpu_max': round(max(r['cpu_max'] for r in all_rows), 2),
+                'ram_max': round(max(r['ram_max'] for r in all_rows), 2),
+                'gpu_max': round(max(r['gpu_max'] for r in all_rows), 2),
+                'total_uptime_hours': round(total_uptime_min / 60, 1),
                 'data_points': total_samples,
-                'days_with_data': len(rows),
+                'days_with_data': max(daily_days, 1),
             }
 
         except Exception as e:

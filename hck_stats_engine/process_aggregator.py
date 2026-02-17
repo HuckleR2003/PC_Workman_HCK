@@ -54,6 +54,15 @@ class ProcessAggregator:
             cpu = proc.get('cpu_percent', 0.0)
             ram = proc.get('ram_MB', 0.0)
 
+            # Skip system idle process entirely (reports inflated CPU %)
+            if proc_name in ('system idle process', 'idle', 'memory compression',
+                             'system interrupts', 'secure system'):
+                continue
+
+            # Cap CPU at 100% (psutil can report per-core values)
+            if cpu > 100:
+                cpu = 100.0
+
             # Skip idle processes (saves memory)
             if cpu < 0.1 and ram < 1.0:
                 continue
