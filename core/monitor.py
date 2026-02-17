@@ -11,6 +11,7 @@ Provides:
 
 from import_core import register_component
 import time
+import threading
 import psutil
 import platform
 
@@ -24,7 +25,35 @@ except Exception:
 class Monitor:
     def __init__(self):
         self.name = "core.monitor"
+        self._cached_snapshot = None
+        self._snapshot_lock = threading.Lock()
+        self._bg_running = False
         register_component(self.name, self)
+
+    def start_background_collection(self, interval=1.0):
+        """Start background thread that collects snapshots every N seconds.
+        This keeps process_iter() off the GUI thread."""
+        if self._bg_running:
+            return
+        self._bg_running = True
+        self._bg_interval = interval
+        t = threading.Thread(target=self._bg_collect_loop, daemon=True)
+        t.start()
+        print("[Monitor] Background collection started")
+
+    def stop_background_collection(self):
+        self._bg_running = False
+
+    def _bg_collect_loop(self):
+        """Background thread: collect snapshots continuously."""
+        while self._bg_running:
+            try:
+                snap = self._collect_snapshot()
+                with self._snapshot_lock:
+                    self._cached_snapshot = snap
+            except Exception as e:
+                print(f"[Monitor] BG collection error: {e}")
+            time.sleep(self._bg_interval)
 
     def _get_gpu_percent(self):
         if not _GPUS_AVAILABLE:
@@ -39,24 +68,14 @@ class Monitor:
         except Exception:
             return 0.0
 
-    def read_snapshot(self):
-        """
-        Returns a snapshot dict:
-        {
-            "timestamp": float (unix),
-            "cpu_percent": float,
-            "ram_percent": float,
-            "gpu_percent": float,
-            "processes": [ {"pid": int, "name": str, "cpu_percent": float, "ram_MB": float}, ... ]
-        }
-        """
+    def _collect_snapshot(self):
+        """Internal: actually collect system data (may be slow ~100-300ms)."""
         ts = time.time()
         cpu = psutil.cpu_percent(interval=None)  # non-blocking
         ram = psutil.virtual_memory().percent
         gpu = self._get_gpu_percent()
 
         procs = []
-        # iterate processes and collect simple metrics - robust to AccessDenied
         for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info']):
             try:
                 info = p.info
@@ -72,14 +91,22 @@ class Monitor:
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
-        snapshot = {
+        return {
             'timestamp': ts,
             'cpu_percent': round(cpu, 2),
             'ram_percent': round(ram, 2),
             'gpu_percent': round(gpu, 2),
             'processes': procs
         }
-        return snapshot
+
+    def read_snapshot(self):
+        """Returns cached snapshot (non-blocking for GUI thread).
+        Falls back to direct collection if background thread not started."""
+        with self._snapshot_lock:
+            if self._cached_snapshot is not None:
+                return self._cached_snapshot
+        # Fallback: direct collection (blocks caller)
+        return self._collect_snapshot()
 
     def top_processes(self, n=6, by='cpu'):
         """

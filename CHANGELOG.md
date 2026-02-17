@@ -12,30 +12,36 @@ Full local intelligence layer — no external AI, all rule-based logic on Stats 
 
 **InsightsEngine capabilities:**
 - `get_greeting()` — time-of-day + yesterday's summary + recurring app teaser (cached 30min)
-- `get_current_insight()` — real-time spike alerts, gaming/browser detection (rate-limited 30s)
-- `get_habit_summary()` — top 5 apps, browser/game/dev highlights, weekly CPU trend comparison
-- `get_anomaly_report()` — 24h events grouped by severity with timestamps
-- `get_teaser()` — 7-day recurring pattern detection, personality-driven messages per category
-- `get_banner_status()` — compact one-liner for collapsed panel banner
+- `get_current_insight()` — real-time spike alerts, gaming/browser detection, session milestones (dedup: won't repeat same message)
+- `get_habit_summary()` — top 5 apps, browser/game/dev highlights, weekly CPU trend, recurring patterns list
+- `get_health_check()` — quick diagnostics: session uptime, current load, today's averages, alert count, data collection status
+- `get_anomaly_report()` — 24h events grouped by severity with timestamps + summary insight
+- `get_teaser()` — 7-day recurring pattern detection, 15+ template variants per category (Gaming, Browser, Dev, Media, etc.)
+- `get_banner_status()` — compact one-liner with session uptime fallback
 - `_detect_recurring_patterns()` — finds apps used on 50%+ of last 7 days (>5% CPU or >100MB RAM)
+- Session milestone notifications at 1h, 2h, 4h, 8h, 12h marks
 
-**ChatHandler new commands:** `stats`, `habits`, `alerts`, `insights`, `teaser`, `help` (updated)
-- Polish language support: `co uzywam`, `statystyki`, `co nowego`, `alerty`, `co dzis`
+**ChatHandler commands:** `stats`, `habits`, `health`, `alerts`, `insights`, `teaser`, `report`, `help`
+- Polish language: `co uzywam`, `statystyki`, `co nowego`, `alerty`, `co dzis`, `zdrowie`, `raport`
 - Default response now shows current insight instead of "AI not connected"
+- `report` command shows text summary + points to visual Today Report button
 
 **Panel upgrades:**
-- Rainbow gradient "Today Report!" button (canvas-based, full-width)
-- Smooth pixel-level fade banner (5-anchor RGB interpolation replacing discrete color blocks)
+- Rainbow gradient "Today Report!" button (canvas-based, full-width, hover effect)
+- Smooth pixel-level fade banner (5-anchor RGB interpolation)
 - Auto-greeting on panel open (once per 30min session)
-- Insight ticker: checks every 60s while panel is open, shows notable events
-- Banner status ticker: updates collapsed banner with live system status every 30s
+- Insight ticker: 60s interval, dedup (no repeat messages), `winfo_exists()` guards
+- Banner status ticker: 30s interval with session uptime fallback
 
-**Today Report window:**
-- Session uptime + lifetime uptime (from `daily_stats.uptime_minutes`)
-- Mini usage chart: CPU (red) / GPU (blue) / RAM (yellow) lines with averages panel
-- Top 5 system processes with CPU/RAM stats
-- Top 5 user apps with category badges (Gaming, Browser, Development, etc.)
-- Yellow alert banner: TEMP & VOLTAGES status
+**Today Report window (Toplevel):**
+- Session uptime + lifetime uptime + data collection status (days tracked, data points)
+- Mini canvas chart: CPU/GPU/RAM lines with Y-axis % labels, X-axis time labels (start→end)
+- Averages panel + Peaks panel side-by-side with chart
+- Top 5 system processes + Top 5 user apps with active time, category badges (Gaming/Browser/Dev/etc.)
+- Yellow alert banner: TEMP & VOLTAGES status (green/yellow/red based on severity)
+- Refresh button for live data reload
+- Singleton pattern (only one window open at a time)
+- Scoped mousewheel binding (only when hovering report window — no leak to main app)
 
 ### HCK Stats Engine v2 — SQLite Long-Term Storage
 Replaced empty CSV aggregation files with a proper SQLite pipeline.

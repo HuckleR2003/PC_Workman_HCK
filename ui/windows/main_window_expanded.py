@@ -1011,7 +1011,7 @@ class ExpandedMainWindow:
         self.live_ram_label.pack(side="left", padx=8)
 
         # Time filter buttons
-        self.chart_filter = "SESSION"  # Default filter
+        self.chart_filter = "LIVE"  # Default filter
 
         # Separator (visual space)
         tk.Frame(metrics_frame, bg="#1a1d24", width=2).pack(side="left", padx=10)
@@ -1047,8 +1047,11 @@ class ExpandedMainWindow:
                     # Highlight selected
                     f_btn.config(bg="#2563eb", fg="#ffffff")
                     self.chart_filter = f_name
-                    # Load historical data for long-range modes
-                    if f_name in ('1D', '1W', '1M'):
+                    # Force chart item rebuild on filter change
+                    if hasattr(self, '_chart_last_num'):
+                        self._chart_last_num = -1
+                    # Load historical data for non-LIVE modes
+                    if f_name != 'LIVE':
                         self._load_historical_chart_data(f_name)
                     else:
                         self._historical_chart_data = None
@@ -1457,63 +1460,6 @@ class ExpandedMainWindow:
             if self._running:
                 self.root.after(2000, self._animate_ai_typing)
 
-    def _animate_button_shimmer(self):
-        """ANIMATED RGB GRADIENT - kolory zmieniają się płynnie! 🌈"""
-        if not hasattr(self, 'nav_button_canvases') or not self._running:
-            return
-
-        try:
-            for btn_data in self.nav_button_canvases:
-                canvas = btn_data['canvas']
-                gradient_rgb = btn_data['gradient_rgb']
-
-                # Update gradient offset
-                offset = btn_data.get('gradient_offset', 0)
-                offset = (offset + 0.005) % 1.0  # Slow RGB cycling
-                btn_data['gradient_offset'] = offset
-
-                # Redraw gradient with new offset
-                canvas.delete("gradient")
-
-                width = canvas.winfo_width()
-                if width <= 1:
-                    continue
-
-                gradient_start = 40  # After icon
-                gradient_width = width - gradient_start
-                height = 45
-
-                # Draw animated gradient
-                for i in range(int(gradient_width)):
-                    ratio = i / gradient_width if gradient_width > 0 else 0
-                    animated_ratio = (ratio + offset) % 1.0
-
-                    if animated_ratio < 0.5:
-                        local_ratio = animated_ratio * 2
-                        r = int(gradient_rgb[0][0] + (gradient_rgb[1][0] - gradient_rgb[0][0]) * local_ratio)
-                        g = int(gradient_rgb[0][1] + (gradient_rgb[1][1] - gradient_rgb[0][1]) * local_ratio)
-                        b = int(gradient_rgb[0][2] + (gradient_rgb[1][2] - gradient_rgb[0][2]) * local_ratio)
-                    else:
-                        local_ratio = (animated_ratio - 0.5) * 2
-                        r = int(gradient_rgb[1][0] + (gradient_rgb[2][0] - gradient_rgb[1][0]) * local_ratio)
-                        g = int(gradient_rgb[1][1] + (gradient_rgb[2][1] - gradient_rgb[1][1]) * local_ratio)
-                        b = int(gradient_rgb[1][2] + (gradient_rgb[2][2] - gradient_rgb[1][2]) * local_ratio)
-
-                    grad_color = f"#{r:02x}{g:02x}{b:02x}"
-                    x = gradient_start + i
-                    canvas.create_line(x, 0, x, height, fill=grad_color, tags="gradient")
-
-                # Keep text on top
-                canvas.tag_raise("text")
-                canvas.tag_raise("icon")
-
-            # Continue animation (60 FPS for smooth gradient)
-            if self._running:
-                self.root.after(33, self._animate_button_shimmer)
-        except Exception as e:
-            print(f"[RGB Animation] Error: {e}")
-            if self._running:
-                self.root.after(33, self._animate_button_shimmer)
 
     def _render_expanded_user_processes(self, procs):
         """Render TOP 5 user processes — reuse widgets instead of destroy/recreate"""
@@ -1955,7 +1901,13 @@ class ExpandedMainWindow:
             import time as _time
 
             now = _time.time()
-            range_map = {'1D': 86400, '1W': 7 * 86400, '1M': 30 * 86400}
+            range_map = {
+                '1H': 3600,
+                '4H': 4 * 3600,
+                '1D': 86400,
+                '1W': 7 * 86400,
+                '1M': 30 * 86400,
+            }
             duration = range_map.get(mode, 86400)
             start_ts = now - duration
 
@@ -1967,8 +1919,10 @@ class ExpandedMainWindow:
                     'ram': [d['ram_avg'] for d in data],
                     'gpu': [d['gpu_avg'] for d in data],
                 }
+                print(f"[Chart] Loaded {len(data)} points for {mode} ({duration}s range)")
             else:
                 self._historical_chart_data = None
+                print(f"[Chart] No data available for {mode}")
         except Exception as e:
             print(f"[ExpandedMode] Historical data load error: {e}")
             self._historical_chart_data = None
@@ -1991,11 +1945,20 @@ class ExpandedMainWindow:
             cw = width - margin * 2
             ch = height - margin * 2
 
-            # Get data
+            # Periodically refresh historical data (~every 30s)
+            if hasattr(self, 'chart_filter') and self.chart_filter != 'LIVE':
+                if not hasattr(self, '_hist_refresh_counter'):
+                    self._hist_refresh_counter = 0
+                self._hist_refresh_counter += 1
+                if self._hist_refresh_counter >= 15:  # 15 × 2s = 30s
+                    self._hist_refresh_counter = 0
+                    self._load_historical_chart_data(self.chart_filter)
+
+            # Get data — historical for non-LIVE modes, live rolling buffer for LIVE
             if (hasattr(self, '_historical_chart_data') and
                     self._historical_chart_data and
                     hasattr(self, 'chart_filter') and
-                    self.chart_filter in ('1D', '1W', '1M')):
+                    self.chart_filter != 'LIVE'):
                 cpu_data = self._historical_chart_data.get('cpu', [])
                 ram_data = self._historical_chart_data.get('ram', [])
                 gpu_data = self._historical_chart_data.get('gpu', [])
