@@ -642,80 +642,59 @@ class ExpandedMainWindow:
 
         # NOTE: Canvas storage removed - no animation needed
 
-        # Draw button after canvas is ready
-        def draw_button(event=None, anim_offset=0):
-            canvas.delete("all")
+        # Draw button once after canvas is mapped (no <Configure> redraw needed
+        # since the window is fixed-size / non-resizable).
+        def draw_button_once():
             width = canvas.winfo_width()
             if width <= 1:
-                canvas.after(50, draw_button)
+                canvas.after(50, draw_button_once)
                 return
 
             height = canvas_height
 
-            # LEFT SECTION - ICON (40px width, dark background) - NO "/" separator!
+            # LEFT SECTION - ICON (40px dark background)
             icon_width = 40
             canvas.create_rectangle(0, 0, icon_width, height, fill="#1a1d24", outline="")
 
             # Icon (centered)
-            icon_x = icon_width // 2
-            icon_y = height // 2
             if page_id and page_id in self.nav_icons:
-                canvas.create_image(icon_x, icon_y, image=self.nav_icons[page_id], tags="icon")
+                canvas.create_image(icon_width // 2, height // 2,
+                                    image=self.nav_icons[page_id], tags="icon")
 
-            # RIGHT SECTION - ANIMATED GRADIENT TEXT AREA (starts right after icon!)
-            gradient_start = icon_width  # No gap, no diagonal separator!
+            # RIGHT SECTION - STATIC GRADIENT (use wider strips for performance)
+            gradient_start = icon_width
             gradient_width = width - gradient_start
+            strip_w = 4  # 4px strips instead of 1px — 4x fewer canvas items
 
-            # Draw STATIC GRADIENT (vertical lines with color interpolation - NO animation)
-            for i in range(int(gradient_width)):
-                # Calculate color interpolation (3-color gradient: dark -> mid -> light)
+            for i in range(0, int(gradient_width), strip_w):
                 ratio = i / gradient_width if gradient_width > 0 else 0
 
-                # STATIC ratio (no anim_offset)
                 if ratio < 0.5:
-                    # First half: dark to mid
-                    local_ratio = ratio * 2
-                    r = int(gradient_rgb[0][0] + (gradient_rgb[1][0] - gradient_rgb[0][0]) * local_ratio)
-                    g = int(gradient_rgb[0][1] + (gradient_rgb[1][1] - gradient_rgb[0][1]) * local_ratio)
-                    b = int(gradient_rgb[0][2] + (gradient_rgb[1][2] - gradient_rgb[0][2]) * local_ratio)
+                    lr = ratio * 2
+                    r = int(gradient_rgb[0][0] + (gradient_rgb[1][0] - gradient_rgb[0][0]) * lr)
+                    g = int(gradient_rgb[0][1] + (gradient_rgb[1][1] - gradient_rgb[0][1]) * lr)
+                    b = int(gradient_rgb[0][2] + (gradient_rgb[1][2] - gradient_rgb[0][2]) * lr)
                 else:
-                    # Second half: mid to light
-                    local_ratio = (ratio - 0.5) * 2
-                    r = int(gradient_rgb[1][0] + (gradient_rgb[2][0] - gradient_rgb[1][0]) * local_ratio)
-                    g = int(gradient_rgb[1][1] + (gradient_rgb[2][1] - gradient_rgb[1][1]) * local_ratio)
-                    b = int(gradient_rgb[1][2] + (gradient_rgb[2][2] - gradient_rgb[1][2]) * local_ratio)
+                    lr = (ratio - 0.5) * 2
+                    r = int(gradient_rgb[1][0] + (gradient_rgb[2][0] - gradient_rgb[1][0]) * lr)
+                    g = int(gradient_rgb[1][1] + (gradient_rgb[2][1] - gradient_rgb[1][1]) * lr)
+                    b = int(gradient_rgb[1][2] + (gradient_rgb[2][2] - gradient_rgb[1][2]) * lr)
 
-                grad_color = f"#{r:02x}{g:02x}{b:02x}"
                 x = gradient_start + i
-                canvas.create_line(x, 0, x, height, fill=grad_color, tags="gradient")
+                canvas.create_rectangle(x, 0, x + strip_w, height,
+                                        fill=f"#{r:02x}{g:02x}{b:02x}", outline="")
 
-            # Button text
-            text_x = gradient_start + 15  # Closer to icon (was 20)
+            # Shadow then text (shadow under, text on top)
+            text_x = gradient_start + 15
             text_y = height // 2
-            canvas.create_text(
-                text_x, text_y,
-                text=clean_text.upper(),
-                font=("Segoe UI Semibold", 11, "bold"),  # Semibold for modern, sleek look
-                fill="#ffffff",
-                anchor="w",
-                tags="text"
-            )
+            canvas.create_text(text_x + 1, text_y + 1, text=clean_text.upper(),
+                               font=("Segoe UI Semibold", 11, "bold"),
+                               fill="#000000", anchor="w", tags="text_shadow")
+            canvas.create_text(text_x, text_y, text=clean_text.upper(),
+                               font=("Segoe UI Semibold", 11, "bold"),
+                               fill="#ffffff", anchor="w", tags="text")
 
-            # Shadow for depth
-            canvas.create_text(
-                text_x + 1, text_y + 1,
-                text=clean_text.upper(),
-                font=("Segoe UI Semibold", 11, "bold"),
-                fill="#000000",
-                anchor="w",
-                tags="text_shadow"
-            )
-            # Move text to front
-            canvas.tag_raise("text")
-
-        # Bind resize to redraw
-        canvas.bind("<Configure>", draw_button)
-        draw_button()
+        draw_button_once()
 
         # === CLICK HANDLER ===
         if page_id:
@@ -1995,33 +1974,24 @@ class ExpandedMainWindow:
             self._historical_chart_data = None
 
     def _update_realtime_chart(self):
-        """Draw ultra modern 3-bar real-time chart (CPU, RAM, GPU)"""
+        """Draw 3-bar real-time chart using reusable canvas rectangles."""
         if not hasattr(self, 'realtime_canvas') or not self._running:
             return
 
         try:
             canvas = self.realtime_canvas
-            canvas.delete("all")  # Clear canvas
-
-            # Get canvas dimensions
             width = canvas.winfo_width()
             height = canvas.winfo_height()
 
             if width <= 1 or height <= 1:
-                # Canvas not ready yet
                 self.root.after(100, self._update_realtime_chart)
                 return
 
-            # Chart area (leave margins)
-            margin_left = 10
-            margin_right = 10
-            margin_top = 10
-            margin_bottom = 10
+            margin = 10
+            cw = width - margin * 2
+            ch = height - margin * 2
 
-            chart_width = width - margin_left - margin_right
-            chart_height = height - margin_top - margin_bottom
-
-            # Get data - use historical data if in historical mode
+            # Get data
             if (hasattr(self, '_historical_chart_data') and
                     self._historical_chart_data and
                     hasattr(self, 'chart_filter') and
@@ -2034,63 +2004,60 @@ class ExpandedMainWindow:
                 ram_data = self.chart_data.get('ram', [])
                 gpu_data = self.chart_data.get('gpu', [])
 
-            # Number of samples to display
-            num_samples = max(len(cpu_data), len(ram_data), len(gpu_data))
-            if num_samples == 0:
-                # No data yet, schedule next update
+            num = max(len(cpu_data), len(ram_data), len(gpu_data))
+            if num == 0:
                 self.root.after(1000, self._update_realtime_chart)
                 return
 
-            # Bar width
-            bar_width = chart_width / num_samples if num_samples > 0 else 1
+            bar_w = max(int(cw / num), 1)
+            bottom_y = margin + ch
 
-            # Colors (DARK BLUE for CPU, YELLOW for RAM, GREEN for GPU)
-            cpu_color = "#1e3a8a"  # Dark blue
-            ram_color = "#fbbf24"  # Yellow
-            gpu_color = "#10b981"  # Green (same as in hardware section)
+            # Initialize reusable canvas items pool on first run
+            if not hasattr(self, '_chart_items'):
+                self._chart_items = {'cpu': [], 'ram': [], 'gpu': []}
+                self._chart_last_num = 0
 
-            # Draw bars from BOTTOM TO TOP
-            # Strategy: Draw highest value first (at bottom) so lower values overlay on top
-            for i in range(num_samples):
-                x = margin_left + (i * bar_width)
+            # If number of bars changed, clear and recreate pool
+            if num != self._chart_last_num:
+                canvas.delete("chart_bar")
+                self._chart_items = {'cpu': [], 'ram': [], 'gpu': []}
+                for i in range(num):
+                    x1 = margin + i * bar_w
+                    x2 = x1 + max(bar_w - 1, 1)
+                    # Create bars (layered: cpu behind, ram middle, gpu front)
+                    cid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
+                                                  fill="#1e3a8a", outline="", tags="chart_bar")
+                    self._chart_items['cpu'].append(cid)
+                    rid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
+                                                  fill="#fbbf24", outline="", tags="chart_bar")
+                    self._chart_items['ram'].append(rid)
+                    gid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
+                                                  fill="#10b981", outline="", tags="chart_bar")
+                    self._chart_items['gpu'].append(gid)
+                self._chart_last_num = num
 
-                # Get values
+            # Update bar positions (just coords, no create/delete)
+            for i in range(num):
+                x1 = margin + i * bar_w
+                x2 = x1 + max(bar_w - 1, 1)
+
                 cpu_val = cpu_data[i] if i < len(cpu_data) else 0
                 ram_val = ram_data[i] if i < len(ram_data) else 0
                 gpu_val = gpu_data[i] if i < len(gpu_data) else 0
 
-                # Calculate heights (percentage of chart height)
-                cpu_h = (cpu_val / 100.0) * chart_height
-                ram_h = (ram_val / 100.0) * chart_height
-                gpu_h = (gpu_val / 100.0) * chart_height
+                cpu_top = bottom_y - int((cpu_val / 100.0) * ch)
+                ram_top = bottom_y - int((ram_val / 100.0) * ch)
+                gpu_top = bottom_y - int((gpu_val / 100.0) * ch)
 
-                # Sort by value (draw highest first so it's at bottom)
-                bars = [
-                    (cpu_h, cpu_color),
-                    (ram_h, ram_color),
-                    (gpu_h, gpu_color)
-                ]
-                bars.sort(reverse=True, key=lambda b: b[0])
+                canvas.coords(self._chart_items['cpu'][i], x1, cpu_top, x2, bottom_y)
+                canvas.coords(self._chart_items['ram'][i], x1, ram_top, x2, bottom_y)
+                canvas.coords(self._chart_items['gpu'][i], x1, gpu_top, x2, bottom_y)
 
-                # Draw bars from bottom to top
-                for bar_h, bar_color in bars:
-                    if bar_h > 0:
-                        y1 = margin_top + chart_height  # Bottom
-                        y2 = y1 - bar_h  # Top
-
-                        canvas.create_rectangle(
-                            x, y2,
-                            x + bar_width - 1, y1,
-                            fill=bar_color,
-                            outline=""
-                        )
-
-            # Schedule next update (every 1 second)
-            self.root.after(1000, self._update_realtime_chart)
+            self.root.after(2000, self._update_realtime_chart)
         except Exception as e:
             print(f"[Chart] Error: {e}")
             if self._running:
-                self.root.after(1000, self._update_realtime_chart)
+                self.root.after(2000, self._update_realtime_chart)
 
     def _update_hardware_cards(self, sample):
         """Update hardware cards with sparklines and status"""
@@ -4680,6 +4647,9 @@ But better: AI-powered insights, calm design, universal hardware support"""
     def quit(self):
         """Quit the window"""
         self._running = False
+        # Stop background monitor collection
+        if self.monitor and hasattr(self.monitor, 'stop_background_collection'):
+            self.monitor.stop_background_collection()
         try:
             self.root.quit()
             self.root.destroy()

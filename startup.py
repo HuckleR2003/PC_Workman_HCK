@@ -157,6 +157,11 @@ def run_demo():
     monitor = COMPONENTS.get('core.monitor')
     data_manager = COMPONENTS.get('core.process_data_manager')
 
+    # Start background data collection (keeps process_iter off GUI thread)
+    if monitor and hasattr(monitor, 'start_background_collection'):
+        monitor.start_background_collection(interval=1.0)
+        log("Monitor background collection started", "OK")
+
     # --- Step 6: Start scheduler ---
     if scheduler:
         try:
