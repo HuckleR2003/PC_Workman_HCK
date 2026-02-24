@@ -256,7 +256,7 @@ Fixed broken imports after cleanup
 - Safe system optimizations with rollback
 
 
-## 📁 Project Structure
+## Project Structure
 ```
 HCK_Labs/PC_Workman_HCK/
 ├── core/
@@ -299,7 +299,7 @@ HCK_Labs/PC_Workman_HCK/
 └── import_core.py
 ```
 -
-## 🛠️ Installation
+## Installation
 
 ### Requirements
 - **Python 3.9+** (or use .exe)
@@ -397,7 +397,7 @@ Click any process to see more details.
 - Include tests for new features
 - Update documentation
 -
-## 💻 System Requirements
+## System Requirements
 
 **Minimum:**
 - Python 3.9+
@@ -422,7 +422,7 @@ Click any process to see more details.
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
 - **[docs/TECHNICAL.md](./docs/TECHNICAL.md)** - Architecture deep dive (coming)
 -
-## 👤 About
+## About
 
 **Marcin Firmuga** | Software Engineer
 
@@ -441,3 +441,4 @@ Free for personal and commercial use. Attribution appreciated.
 -
 
 **Ship what you have. Improve it later.** 💙
+
