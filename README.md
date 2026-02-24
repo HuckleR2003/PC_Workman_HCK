@@ -22,7 +22,7 @@ PC_Workman is a real-time system monitoring tool built in Python. It combines li
 - Voltage spike detection → unique feature nobody else has
 - Built for understanding, not just watching
 -
-## 🚀 Quick Start
+## Quick Start
 
 ### Windows Users (Easiest)
 ```
@@ -327,7 +327,7 @@ python startup.py
 ### From .exe
 [Download from Releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases) → Double-click → Done
 -
-## 📖 Usage
+## Usage
 ### First Launch
 1. Dashboard opens showing real-time metrics
 2. Give it 5 seconds to collect initial data
@@ -349,7 +349,7 @@ python startup.py
 
 Click any process to see more details.
 -
-## 📈 Data & Privacy
+## Data & Privacy
 
 ### What's Collected
 - CPU/GPU/RAM usage (on your device only)
@@ -369,7 +369,7 @@ Click any process to see more details.
 - No user tracking
 - Open source (code is auditable)
 -
-## 🗂️ Versioning
+## Versioning
 
 | Version | Status | Key Features |
 |---------|--------|--------------|
@@ -384,7 +384,7 @@ Click any process to see more details.
 
 **[Full Changelog](./CHANGELOG.md)**
 -
-## 🤝 Contributing
+## Contributing
 
 ### For Users
 - Found a bug? [Open Issue](https://github.com/HuckleR2003/PC_Workman_HCK/issues)
@@ -439,4 +439,5 @@ Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
 -
+
 **Ship what you have. Improve it later.** 💙
