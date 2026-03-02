@@ -830,7 +830,75 @@
     <div class="timeline-container">
 
         <!-- ROW 1: Posts #1 & #2 -->
-        <!-- ROW 0n: Post - Job Search IT (February 27, 2026) -->
+<div class="timeline-row">
+    <article class="post-card" style="grid-column: 1 / -1; max-width: 600px; border: 2px solid var(--accent-gold); background: linear-gradient(135deg, rgba(255, 215, 0, 0.03), rgba(0, 217, 255, 0.03));">
+        <div class="post-header">
+            <div class="post-logo">HCK</div>
+            <div class="post-meta">
+                <div class="post-author">HCK_Labs</div>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <time class="post-date">February 28, 2026</time> <!-- SPRAWDŹ DATĘ - 29.02 nie istnieje w 2026! -->
+                    <span style="color: var(--accent-gold); font-size: 0.75rem; font-weight: 600;">• PC_Workman 1.6.8 🔥</span>
+                </div>
+            </div>
+        </div>
+        <div class="post-divider"></div>
+        <h3 class="post-title">You know that moment when "quick fix" turns into 3 weeks of deep work? Yeah, that happened.</h3>
+        <p class="post-preview">Started with: "Let's fix the chart data system" (estimated: 1 day). Ended with: complete rebuild of PC_Workman 1.6.8. 70% performance boost, AI that actually learns your patterns, and 500+ lines of dead code deleted.</p>
+
+        <div class="post-image">
+            <span>[Screenshot - PC_Workman 1.6.8, HCK_STATS_ENGINE, charts]</span>
+        </div>
+
+        <button class="expand-button" onclick="togglePost(this)">
+            <span>Expand content</span>
+            <span class="expand-icon">▼</span>
+        </button>
+
+        <div class="post-full-content">
+            <div class="post-full-text">
+                <p>Hey Hello! You know that moment when "quick fix" turns into 3 weeks of deep work?</p>
+                <p>Yeah, that happened.</p>
+
+                <p>Started with: <em>"Let's fix the chart data system"</em> (estimated: 1 day)<br>
+                Ended with: <strong>Complete rebuild of PC_Workman 1.6.8</strong></p>
+
+                <div style="padding: 1rem; background: rgba(255, 215, 0, 0.05); border-left: 3px solid var(--accent-gold); border-radius: 8px; margin: 1rem 0;">
+                    <p style="color: var(--accent-gold); font-weight: 600; margin-bottom: 0.75rem;">What changed:</p>
+
+                    <p><strong>🏗️ Built HCK_STATS_ENGINE from scratch</strong><br>
+                    New data aggregation pipeline — hourly/daily stats, SQLite with WAL mode, crash-safe transactions. Real historical data instead of temporary placeholders.</p>
+
+                    <p style="margin-top: 0.75rem;"><strong>🤖 Made AI actually intelligent</strong><br>
+                    Context-aware assistant that learns your patterns.<br>
+                    <em>"Good morning, CPU spiked yesterday at 3 PM — Chrome again?"</em><br>
+                    Knows when you game, work, or just browse. Proactive, not reactive.</p>
+
+                    <p style="margin-top: 0.75rem;"><strong>⚡ 70% performance boost</strong><br>
+                    Main loop: 300ms → 1000ms. Widget pooling instead of destroy/recreate. Background threading for heavy telemetry. Canvas rendering orders of magnitude faster.</p>
+
+                    <p style="margin-top: 0.75rem;"><strong>🐛 Fixed 2 critical bugs</strong><br>
+                    Data aggregation multi-tier fallback (no more double-counting). Telemetry sanitization (system noise filtered out, 100% CPU cap).</p>
+
+                    <p style="margin-top: 0.75rem;"><strong>✨ Polish everywhere</strong><br>
+                    Consolas mono-font, purple accents, defensive coding with winfo_exists() guards, deleted 500+ lines of dead code.</p>
+                </div>
+
+                <p>22yo solo dev, month 8 of build-in-public.</p>
+                <p>This is what happens when you follow problems to their root instead of band-aiding symptoms.</p>
+
+                <p style="margin-top: 1rem; padding: 0.75rem; background: rgba(255, 215, 0, 0.08); border-radius: 8px;">
+                    <strong>PC_Workman = open source, MIT license, free forever.</strong><br>
+                    ⭐ Drop a star if this vibes: <a href="https://lnkd.in/dn6kJhxA" style="color: var(--accent-cyan);" target="_blank">lnkd.in/dn6kJhxA</a>
+                </p>
+
+                <p><em>Question: How long your project lives? 😊</em></p>
+
+                <p style="color: var(--accent-cyan); font-size: 0.85rem;">#BuildInPublic #OpenSource #Python #AI</p>
+            </div>
+        </div>
+    </article>
+</div>
 <div class="timeline-row">
     <article class="post-card" style="grid-column: 1 / -1; max-width: 600px; border: 2px solid var(--accent-cyan); background: linear-gradient(135deg, rgba(0, 217, 255, 0.03), rgba(0, 255, 153, 0.03));">
         <div class="post-header">
@@ -3814,6 +3882,7 @@ Click any process → instant details</pre>
 </body>
 
 </html>
+
 
 
 
