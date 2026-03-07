@@ -2581,6 +2581,100 @@ html<!-- ROW 0f: Post - IT Interview Day (luty 2026) -->
     </div>
 
     <div class="timeline-container">
+        <!-- ===== POST: SECURITY DEEP-DIVE ARTICLES - 5 WPISÓW ===== -->
+<div class="timeline-row">
+    <article class="post-card" style="grid-column: 1 / -1;">
+        <div class="post-header">
+            <a href="profile.html">
+                <div class="post-logo">HCK</div>
+            </a>
+            <div class="post-meta">
+                <a href="profile.html">
+                    <div class="post-author">HCK_Labs</div>
+                </a>
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <time class="post-date">January 21, 2026</time>
+                    <span style="color: var(--accent-cyan); font-size: 0.75rem; font-weight: 600;">• Trust no one, verify everything 🔒</span>
+                </div>
+            </div>
+        </div>
+        <div class="post-divider"></div>
+        <h3 class="post-title">Just dropped something big for PC_Workman. After months of work — security now runs behind the scenes.</h3>
+        <p class="post-preview">Sigstore cert, nonstop CodeQL, VirusTotal on every build, OpenSSF 25%. Two deep-dive articles on why I went full "trust no one, verify everything" mode. Not promises. Proof.</p>
+
+        <button class="expand-button" onclick="togglePost(this)">
+            <span>Expand thread (5 wpisów)</span>
+            <span class="expand-icon">▼</span>
+        </button>
+
+        <div class="post-full-content">
+            <div class="post-full-text" style="background: rgba(0, 0, 0, 0.2);">
+
+                <!-- WPIS 1/5 -->
+                <div style="padding: 1rem; border-left: 3px solid var(--accent-cyan); margin-bottom: 1.5rem; background: rgba(0, 217, 255, 0.05);">
+                    <p style="font-size: 0.85rem; color: var(--accent-cyan); margin-bottom: 0.5rem;">📌 WPIS 1/5</p>
+                    <p>Just dropped something big for PC_Workman.</p>
+                    <p style="margin-top: 0.75rem;">After months of work — <strong>security now runs behind the scenes…</strong></p>
+                    <div style="margin-top: 0.75rem; display: grid; gap: 0.4rem; color: var(--text-secondary);">
+                        <p>🔏 Sigstore cert</p>
+                        <p>🔍 Nonstop CodeQL</p>
+                        <p>🛡️ VirusTotal on every build</p>
+                        <p>📊 OpenSSF 25%</p>
+                    </div>
+                    <p style="margin-top: 0.75rem;">I wrote two deep-dive articles about why I went full <strong>"trust no one, verify everything"</strong> mode.</p>
+                </div>
+
+                <!-- WPIS 2/5 -->
+                <div style="padding: 1rem; border-left: 3px solid var(--text-secondary); margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">WPIS 2/5</p>
+                    <p><strong>Why the sudden security obsession?</strong></p>
+                    <p style="margin-top: 0.75rem;">Because I realized:</p>
+                    <p style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(0, 217, 255, 0.05); border-left: 3px solid var(--accent-cyan); border-radius: 8px; font-style: italic;">
+                        If I'm asking people to download and run my .exe on their machines… I owe them bulletproof guarantees.
+                    </p>
+                    <p style="margin-top: 0.75rem; font-size: 1.05rem; font-weight: 600; color: var(--accent-cyan);">Not promises. Proof.</p>
+                    <p style="margin-top: 0.75rem; color: var(--accent-cyan); font-size: 0.85rem;">#PC_Workman #HCK_Labs</p>
+                </div>
+
+                <!-- WPIS 3/5 -->
+                <div style="padding: 1rem; border-left: 3px solid var(--text-secondary); margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">WPIS 3/5</p>
+                    <p><strong>You don't have to take my word for it.</strong></p>
+                    <p style="margin-top: 0.75rem; color: var(--text-secondary);">Verify it yourself:</p>
+                    <div style="margin-top: 0.5rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; display: grid; gap: 0.5rem;">
+                        <p>→ Drop the .exe on <a href="https://virustotal.com" style="color: var(--accent-cyan);" target="_blank">virustotal.com</a></p>
+                        <p>→ Check the Sigstore signature <span style="color: var(--text-secondary); font-size: 0.9rem;">(cosign or rekor-cli — commands in the articles)</span></p>
+                        <p>→ Peek at live CodeQL alerts, Dependabot, secret scanning in the PC_Workman repo</p>
+                    </div>
+                </div>
+
+                <!-- WPIS 4/5 -->
+                <div style="padding: 1rem; border-left: 3px solid var(--accent-green); margin-bottom: 1.5rem; background: rgba(0, 255, 153, 0.03);">
+                    <p style="font-size: 0.85rem; color: var(--accent-green); margin-bottom: 0.5rem;">WPIS 4/5</p>
+                    <p>Big thanks to everyone who's already testing, reporting bugs, or just starring the repo.</p>
+                    <p style="margin-top: 0.75rem; font-style: italic; color: var(--text-secondary);">That feedback hit different.</p>
+                    <p style="margin-top: 0.75rem;">Now it's not just my tool anymore.</p>
+                    <p style="font-size: 1.05rem; font-weight: 600; color: var(--accent-green);">It's ours.</p>
+                    <p style="margin-top: 0.5rem; color: var(--text-secondary);">And it's getting safer every day.</p>
+                </div>
+
+                <!-- WPIS 5/5 -->
+                <div style="padding: 1rem; border-left: 3px solid var(--accent-gold); margin-bottom: 0; background: rgba(255, 215, 0, 0.05);">
+                    <p style="font-size: 0.85rem; color: var(--accent-gold); margin-bottom: 0.5rem;">✅ WPIS 5/5 - KONIEC</p>
+                    <p><strong>Quick poll for the real ones:</strong></p>
+                    <p style="margin-top: 0.75rem;">How paranoid are YOU about the software you run?</p>
+                    <div style="margin-top: 0.75rem; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border-radius: 8px; display: grid; gap: 0.4rem;">
+                        <p>🅐 "Eh, if it works…"</p>
+                        <p>🅑 VirusTotal + manual check</p>
+                        <p>🅒 Full supply-chain paranoia like me</p>
+                    </div>
+                    <p style="margin-top: 0.75rem; color: var(--text-secondary); font-style: italic;">Reply below. Curious who else is in camp C. 👇</p>
+                </div>
+
+            </div>
+        </div>
+    </article>
+</div>
 <!-- ===== POST: SECURITY STACK - 4 WPISY ===== -->
 <div class="timeline-row">
     <article class="post-card" style="grid-column: 1 / -1;">
@@ -4095,6 +4189,7 @@ Click any process → instant details</pre>
 </body>
 
 </html>
+
 
 
 
