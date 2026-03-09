@@ -178,17 +178,16 @@ class MainWindow:
 
         # Save process data
         if self.data_manager:
-            try:
-                self.data_manager.save_statistics()
-            except:
-                pass
+    try:
+        self.data_manager.save_statistics()
+    except Exception as e:
+        print(f"[Shutdown] Failed to save statistics: {e}")
 
-        # Stop tray
-        if self.tray_manager:
-            try:
-                self.tray_manager.stop()
-            except:
-                pass
+if self.tray_manager:
+    try:
+        self.tray_manager.stop()
+    except Exception as e:
+        print(f"[Shutdown] Failed to stop tray: {e}")
 
         # Destroy window
         try:
@@ -1222,7 +1221,9 @@ class MainWindow:
                               bg=row_bg, fg="#6b7280", width=3)
             ram_lbl.pack(side="left", padx=(0,2))
 
-            ram_pct = min((ram_mb / 8192) * 100, 100)
+            ASSUMED_RAM_GB = 8
+            ASSUMED_RAM_MB = ASSUMED_RAM_GB * 1024 
+            ram_pct = min((ram_mb / self.ASSUMED_RAM_MB) * 100, 100)
             self._create_inline_bar(ram_container, ram_pct, "#fbbf24", f"{ram_mb:.0f}MB", bg=row_bg)
 
             # Click to show info
