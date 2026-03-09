@@ -69,19 +69,17 @@ class MainWindow:
         self.position_locked = True  # Start locked to bottom-right
         self.root.resizable(False, False)
 
-        # Components
         self.logger = COMPONENTS.get('core.logger')
         self.monitor = COMPONENTS.get('core.monitor')
         self.classifier = COMPONENTS.get('core.process_classifier')
         self.data_manager = COMPONENTS.get('core.process_data_manager')
 
-        # UI State
         self.sidebar_expanded = True
         self._auto_collapse_after_ms = 3000
         self._sidebar_animating = False
         self.is_minimized_to_tray = False
 
-        # Selected time point on chart (for detail view)
+        # Selected time point on chart
         self.selected_timestamp = None
         self.time_travel_mode = False  # When True, freeze process lists at selected time
 
@@ -92,7 +90,6 @@ class MainWindow:
         self.tray_manager = None
         self._init_system_tray()
 
-        # Build UI
         self._build_style()
         self._position_window()
         self._build_ui()
@@ -173,7 +170,6 @@ class MainWindow:
     def _show_stats_window(self):
         """Show statistics window"""
         self._restore_from_tray()
-        # TODO: Implement stats window
         print("[Stats] Statistics window - Coming soon!")
 
     def _quit_application(self):
@@ -208,17 +204,14 @@ class MainWindow:
         s.configure("TLabel", foreground=THEME["text"], background=THEME["bg_panel"])
 
     def _build_ui(self):
-        # Sidebar
         self.sidebar = tk.Frame(self.root, bg=THEME["bg_sidebar"], height=THEME["win_height"])
         self.sidebar.place(x=0, y=0, width=THEME["sidebar_expanded"], height=THEME["win_height"])
 
-        # Content area
         content_x = THEME["sidebar_expanded"]
         content_w = THEME["win_width"] - content_x
         self.content = tk.Frame(self.root, bg=THEME["bg_main"])
         self.content.place(x=content_x, y=0, width=content_w, height=THEME["win_height"])
 
-        # Build components
         self._build_sidebar_contents()
         self._build_all_pages()
         self.show_page("dashboard")
@@ -403,7 +396,6 @@ class MainWindow:
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
         back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
 
-        # Content area
         content = tk.Frame(parent, bg=THEME["bg_main"])
         content.pack(fill="both", expand=True, padx=20, pady=10)
 
@@ -490,7 +482,6 @@ class MainWindow:
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
         back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
 
-        # Content area - 3 columns side by side
         content = tk.Frame(parent, bg=THEME["bg_main"])
         content.pack(fill="both", expand=True, padx=20, pady=10)
 
@@ -697,13 +688,11 @@ class MainWindow:
     def _open_services_wizard(self):
         """Open services management wizard"""
         print("[Optimization] Opening Services Wizard...")
-        # TODO: Integrate with hck_GPT services wizard
         pass
 
     def _quick_disable_services(self):
         """Quick disable unnecessary services"""
         print("[Optimization] Quick disabling unnecessary services...")
-        # TODO: Implement quick service optimization
         pass
 
     def _build_dashboard_view(self, parent):
