@@ -473,8 +473,18 @@ class StatsAggregator:
             print(f"[StatsAggregator] CSV pruning error: {e}")
 
     def flush_on_shutdown(self):
-        """Flush any pending data before app exit"""
+        """Flush any pending data before app exit.
+        Aggregates the current (incomplete) hour into hourly_stats
+        so lifetime uptime is preserved across sessions.
+        """
         try:
+            # Aggregate current incomplete hour into hourly_stats
+            # so minute_stats data is not orphaned on next launch.
+            current_hour = int(time.time() // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
+            if current_hour >= self._last_hour_boundary:
+                self._aggregate_hour(current_hour)
+                print(f"[StatsAggregator] Flushed current hour to hourly_stats")
+
             if self._process_aggregator:
                 self._process_aggregator.flush_all()
             print("[StatsAggregator] Shutdown flush completed")

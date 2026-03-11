@@ -475,8 +475,6 @@ class StatsQueryAPI:
             # Find the latest daily_stats timestamp so we only count
             # hourly data that hasn't been aggregated yet.
             latest_daily_ts = 0
-            if rows:
-                latest_daily_ts = max(r['uptime_minutes'] for r in rows) if False else 0
             try:
                 ld_row = conn.execute(
                     "SELECT MAX(timestamp) as t FROM daily_stats WHERE timestamp >= ?",
@@ -498,8 +496,9 @@ class StatsQueryAPI:
                     ORDER BY timestamp ASC
                 """, (hourly_cutoff,)).fetchall()
                 if hourly_rows:
-                    # Each hourly row's sample_count = minutes of data
-                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows)
+                    # sample_count = total seconds (~3600 for full hour)
+                    # Convert to minutes: seconds / 60
+                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows) / 60
             except Exception:
                 pass
 
