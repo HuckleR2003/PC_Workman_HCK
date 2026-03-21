@@ -26,7 +26,7 @@ hiddenimports = [
     'ui.components.fan_curve_editor', 'ui.components.fan_dashboard', 'ui.components.pro_info_table',
     'ui.pages', 'ui.pages.page_all_stats', 'ui.pages.page_day_stats',
     'hck_stats_engine', 'hck_stats_engine.avg_calculator', 'hck_stats_engine.trend_analysis', 'hck_stats_engine.time_utils',
-    'hck_gpt', 'hck_gpt.services_manager', 'hck_gpt.service_setup_wizard', 'hck_gpt.chat_handler',
+    'hck_gpt', 'hck_gpt.panel', 'hck_gpt.services_manager', 'hck_gpt.service_setup_wizard', 'hck_gpt.chat_handler', 'hck_gpt.insights', 'hck_gpt.report_window',
     'utils', 'utils.file_utils', 'utils.net_utils', 'utils.system_info',
     'import_core',
 ]
