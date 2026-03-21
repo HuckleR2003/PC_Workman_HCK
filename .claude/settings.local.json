@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(.venv/Scripts/python -m pip install:*)",
+      "Bash(.venv/Scripts/python:*)",
+      "Bash(mv:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout /t:*)",
+      "Bash(timeout:*)",
+      "Bash(find:*)",
+      "Bash(ping:*)",
+      "Bash(start python main.py)",
+      "Bash(echo:*)",
+      "Bash(ls:*)",
+      "Bash(for dir in utils hck_gpt)",
+      "Bash(do ls \"c:\\\\Users\\\\kemat\\\\Desktop\\\\PC_Workman_HCK 1.6.1\\\\$dir\\\\__init__.py\")",
+      "Bash(done)",
+      "Bash(powershell:*)",
+      "Bash(xargs:*)",
+      "Bash(unzip:*)",
+      "Bash(du -sh *)",
+      "Bash(wc:*)",
+      "Bash(start python startup.py:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

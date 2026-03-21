@@ -1,0 +1,1 @@
+Core modules communicate via import_core registry.\nstartup.py instantiates UI and starts scheduler.\n

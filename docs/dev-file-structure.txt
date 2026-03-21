@@ -1,0 +1,83 @@
+_______________________________________________________________________
+HCK_Labs/PC_Workman_HCK
+├────╮	Folder '__pycache__'
+│    └── `import_core.cpython-314.pyc`
+├────╮	Folder 'ai'
+│    ├── `__init__.py`
+│    ├── `ai_logic.py`
+│    ├── `detector.py`
+│    ├── `hck_gpt.py`
+│    └──────────────────╮ Folder '__pycache__'
+│			├── `__init__.cpython-314.pyc` 
+│			├── `ai_logic.cpython-314.pyc`
+│			├── `detector.cpython-314.pyc`
+│			├── `hck_gpt.cpython-314.pyc`
+│			└╮  `Folder 'model_cache`
+|			 └── `__init__.py`
+├────╮	Folder 'core'
+|    ├── `__init__.py`
+|    ├── `analyzer.py`
+|    ├── `logger.py`
+|    ├── `monitor.py`
+|    ├── `scheduler.py`
+|    └──────────────────╮ Folder '__pycache__'
+│			├── `__init__.cpython-314.pyc`
+│			├── `analyzer.cpython-314.pyc`
+│			├── `logger.cpython-314.pyc`
+│			├── `monitor.cpython-314.pyc`
+│			└── `scheduler.cpython-314.pyc`
+├────╮	Folder 'data'
+│    └──╮  Folder 'cache'
+│    	├── `runtime_cache.json`
+│    	├── `summary_temp.txt`
+│    	└╮  Folder 'logs'
+|	 ├── `daily_usage.csv`
+|	 ├── `hourly_usage.csv`
+|	 ├── `minute_avg.csv`
+|	 ├── `monthly_usage.csv`
+|	 ├── `raw_usage.csv`
+|	 ├── `weekly_usage.csv`
+|	 └╮  Folder 'process_info'
+|	  ├──  `process_patterns.json`
+|	  ├──  `processes_today.json`
+|	  └──  `processes_total_average.json`
+├────╮	Folder 'docs'
+│    ├── `dev-structure.txt` - THIS FILE <3
+│    ├── `how_it_works_cross.txt`
+│    ├── `screen_v1.png` - first kaputt view.
+│    ├── `screen_v2.png` - better future vision.
+|    └── README_PL.md
+├────╮	Folder 'hck_stats_engine'
+|    ├── `__init__.py`
+|    ├── `avg_calculator.py`
+|    ├── `time_utils.py`
+|    ├── `trend_analysis.py`
+|    └──────────────────╮ Folder '__pycache__'    
+|			├── `__init__.cpython-314.pyc`
+|			├── `avg_calculator.cpython-314.pyc`
+|			└── `trend_analysis.cpython-314.pyc`
+├────╮	Folder 'settings'
+|    ├── `config.json`
+|    ├── `paths.json`
+|    └── `user_prefs.json`
+├────╮	Folder 'tests'
+|    ├── `test_analyzer.py`
+|    ├── `test_avg_calculator.py`
+|    └── `test_monitor.py`
+├────╮	Folder 'ui'
+│    ├── `charts.py`
+│    ├── `dialogs.py`
+│    ├── `main_window.py`
+│    ├── `theme.py`
+│    └──────────────────╮ Folder '__pycache__'
+│			└── `main_window.cpython-314.pyc`
+├────╮	Folder 'utils'
+|    ├── `file_utils.py`
+|    ├── `net_utils.py`
+|    └── `system_info.py`
+├──`CHANGELOD.md`
+├──`import_core.py`
+├──`README.md`
+├──`requirements.txt`
+├──`setup.py`
+├──`startup.py`
