@@ -6,9 +6,6 @@
 ![Version](https://img.shields.io/badge/Version-1.6.8-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
-![Commits](https://img.shields.io/badge/commits-92-orange)
-![Hours](https://img.shields.io/badge/dev%20hours-800+-red)
-![Laptop](https://img.shields.io/badge/laptop-94°C-ff0000)
 
 ## Overview
 
