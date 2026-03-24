@@ -1,0 +1,23 @@
+<svg viewBox="0 0 160 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad-hackernoon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a192f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1d24;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="160" height="48" rx="6" fill="url(#grad-hackernoon)"/>
+  
+  <!-- White bottom bar -->
+  <rect y="45" width="160" height="3" fill="#ffffff"/>
+  
+  <g transform="translate(12, 10)">
+    <rect x="0" y="0" width="2" height="8" fill="#ffffff"/>
+    <rect x="3" y="3" width="2" height="5" fill="#ffffff"/>
+    <rect x="6" y="0" width="2" height="8" fill="#ffffff"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="32" y="32" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#ffffff">HackerNoon</text>
+</svg>
