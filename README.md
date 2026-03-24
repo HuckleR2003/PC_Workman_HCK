@@ -8,6 +8,23 @@
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
+## 🌐 Connect with Me
+
+<div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
+  <a href="https://linkedin.com/in/marcinfirmuga">
+    <img src="https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/social-badges/badge-linkedin.svg" height="48" alt="LinkedIn">
+  </a>
+  <a href="https://x.com/hck_lab">
+    <img src="https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/social-badges/badge-twitter.svg" height="48" alt="Twitter/X">
+  </a>
+  <a href="https://medium.com/@MarcinFirmuga">
+    <img src="https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/social-badges/badge-medium.svg" height="48" alt="Medium">
+  </a>
+  <a href="https://hackernoon.com/u/huckler">
+    <img src="https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/social-badges/badge-hackernoon.svg" height="48" alt="HackerNoon">
+  </a>
+</div>
+
 ## Overview
 
 PC_Workman is a real-time system monitor built over 800 hours on hardware that peaked at 94°C during development. It answers the question most monitoring tools ignore: not just WHAT is happening, but WHY.
