@@ -1,6 +1,6 @@
 # ui/pages/fan_control/__init__.py
 """
-Fan Control - zakładki związane z wentylatorami
+Fan Control pages and helpers.
 """
 
 from ui.pages.fan_control.hardware_info import FansHardwarePage, create_fans_hardware_page
