@@ -589,8 +589,6 @@ class ExpandedMainWindow:
         for text, color in nav_buttons_right:
             self._create_nav_button(right_nav, text, color, pady=0)
 
-        # NOTE: Shimmer animation REMOVED - static gradient instead
-
     def _create_nav_button(self, parent, text, color, pady=4):
         """Create gradient sidebar button"""
         # Main button container
@@ -639,8 +637,6 @@ class ExpandedMainWindow:
             cursor="hand2"
         )
         canvas.pack(fill="x")
-
-        # NOTE: Canvas storage removed - no animation needed
 
         # Draw button once after canvas is mapped (no <Configure> redraw needed
         # since the window is fixed-size / non-resizable).
@@ -873,7 +869,7 @@ class ExpandedMainWindow:
         # Health status - smaller font
         health_label = tk.Label(
             inner,
-            text="✓ Wszystko OK",
+            text="✓ All good",
             font=("Segoe UI", 6),
             bg=THEME["bg_panel"],
             fg="#10b981",
@@ -884,7 +880,7 @@ class ExpandedMainWindow:
         # Load status - smaller font
         load_label = tk.Label(
             inner,
-            text="Brak aktywności",
+            text="No activity",
             font=("Segoe UI", 6),
             bg=THEME["bg_panel"],
             fg=THEME["muted"],
@@ -967,14 +963,14 @@ class ExpandedMainWindow:
         # Start chart update animation
         self._update_realtime_chart()
 
-        # Live Metrics Line (AKTUALNE UŻYCIE)
+        # Live metrics line
         metrics_frame = tk.Frame(center, bg="#1a1d24", height=28)
         metrics_frame.pack(fill="x")
         metrics_frame.pack_propagate(False)
 
         tk.Label(
             metrics_frame,
-            text="AKTUALNE UŻYCIE:",
+            text="CURRENT USAGE:",
             font=("Segoe UI", 7, "bold"),
             bg="#1a1d24",
             fg="#6b7280"
@@ -1246,7 +1242,7 @@ class ExpandedMainWindow:
         # Statystyki button (brighter)
         stats_btn = tk.Label(
             optim_actions,
-            text="Statystyki podniesienia wydajności",
+            text="Performance improvement statistics",
             font=("Segoe UI", 7, "bold"),
             bg="#10b981",
             fg="#ffffff",
@@ -1867,7 +1863,7 @@ class ExpandedMainWindow:
             pass
 
     def _update_live_metrics(self, sample):
-        """Update live metrics line (AKTUALNE UŻYCIE)"""
+        """Update live metrics line."""
         try:
             if not hasattr(self, 'live_cpu_label') or not self.live_cpu_label.winfo_exists():
                 return
@@ -2072,13 +2068,13 @@ class ExpandedMainWindow:
 
         # Update health status - SHORTER TEXTS
         if value < 85:
-            card["health_label"].config(text="✓ Wszystko OK", fg="#10b981")
+            card["health_label"].config(text="✓ All good", fg="#10b981")
         else:
             card["health_label"].config(text="⚠ Inspekcja", fg="#f59e0b")
 
         # Update load status - SHORTER TEXTS
         if value < 10:
-            card["load_label"].config(text="Brak aktywności", fg=THEME["muted"])
+            card["load_label"].config(text="No activity", fg=THEME["muted"])
         elif value < 50:
             card["load_label"].config(text="Standard", fg="#3b82f6")
         elif value < 80:
@@ -2542,7 +2538,7 @@ class ExpandedMainWindow:
         def on_curve_change(points):
             """Handle fan curve changes"""
             print(f"[FanCurve] Curve changed: {[(p.temp, p.speed) for p in points]}")
-            # TODO: Apply curve to hardware (requires admin + compatible hardware)
+            # Hardware-level apply is handled by dedicated backends when available.
 
         # Create fan curve editor
         editor = create_fan_curve_page(parent, on_curve_change)
@@ -2802,12 +2798,12 @@ class ExpandedMainWindow:
             fg="#ffffff"
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
-        about_text = """PC_Workman HCK is a next-generation Windows system monitoring and optimization tool.
+        about_text = """PC_Workman HCK is a Windows system monitoring and optimization tool.
 
 Our mission: Make system monitoring accessible, beautiful, and intelligent.
 
 Inspired by: Tesla UI, Apple macOS, MSI Afterburner
-But better: AI-powered insights, calm design, universal hardware support"""
+Includes practical insights, calm design, and universal hardware support"""
 
         tk.Label(
             about_frame,
@@ -2986,18 +2982,18 @@ But better: AI-powered insights, calm design, universal hardware support"""
         ).pack(pady=20)
 
     def _build_fancontrol_page(self, parent):
-        """Build NEW AI-Enhanced Fan Dashboard - Next-Gen Cooling Control"""
+        """Build fan dashboard page."""
         main = tk.Frame(parent, bg="#0f1117")
         main.pack(fill="both", expand=True)
 
         # No "Dashboard Back!" button - only X button in top-right corner
         # This saves space and is cleaner!
 
-        # === FAN DASHBOARD ULTIMATE (Vertical sliders + SZTOS!) ===
+        # Fan dashboard container
         dashboard_container = tk.Frame(main, bg="#0f1117")
         dashboard_container.pack(fill="both", expand=True)
 
-        # Create FAN DASHBOARD ULTIMATE
+        # Create fan dashboard
         self.fan_dashboard = create_fan_dashboard(dashboard_container)
 
         # Store reference for updates
@@ -4075,7 +4071,7 @@ But better: AI-powered insights, calm design, universal hardware support"""
             {
                 "icon": "🤖",
                 "title": "HCK_GPT Assistant",
-                "subtitle": "Your AI-powered PC companion",
+                "subtitle": "Your PC companion",
                 "color": "#10b981",
                 "content": [
                     "The future is here. [HCK_GPT] is evolving into your personal system assistant - learning about you and your habits to provide truly customized support.",
