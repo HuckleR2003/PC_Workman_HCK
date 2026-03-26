@@ -1,13 +1,5 @@
 # ui/main_window.py
-"""
-PC Workman Main Window v1.6.8 - Enhanced Guardian UI
-- System tray with battery-style icon (CPU/GPU monitoring)
-- Window positioning (bottom-right corner with lock/unlock)
-- Enhanced process classification and data tracking
-- Interactive charts with click events and time-travel
-- Expandable TOP5 lists with real-time updates
-- Data View modes: 1H, 4H, SESSION
-"""
+"""Main application window for PC Workman."""
 
 import tkinter as tk
 from tkinter import ttk
@@ -173,7 +165,6 @@ class MainWindow:
     def _show_stats_window(self):
         """Show statistics window"""
         self._restore_from_tray()
-        # TODO: Implement stats window
         print("[Stats] Statistics window - Coming soon!")
 
     def _quit_application(self):
@@ -562,13 +553,13 @@ class MainWindow:
         temp_label.pack(side="left", padx=2)
 
         # Status line 1: Component health
-        status1 = tk.Label(panel, text="⚙️ Wszystko działa sprawnie",
+        status1 = tk.Label(panel, text="⚙️ System status: stable",
                           font=("Segoe UI", 6), bg=THEME["bg_panel"],
                           fg="#10b981", anchor="w")
         status1.pack(fill="x", padx=6, pady=(2, 0))
 
         # Status line 2: Load status
-        status2 = tk.Label(panel, text="📊 Standardowa aktywność",
+        status2 = tk.Label(panel, text="📊 Normal activity",
                           font=("Segoe UI", 6), bg=THEME["bg_panel"],
                           fg="#fbbf24", anchor="w")
         status2.pack(fill="x", padx=6, pady=(0, 4))
@@ -636,13 +627,13 @@ class MainWindow:
 
                 # CPU status based on usage
                 if cpu_pct < 30:
-                    cpu_widgets["status2"].config(text="📊 Bez aktywności", fg="#10b981")
+                    cpu_widgets["status2"].config(text="📊 Idle", fg="#10b981")
                 elif cpu_pct < 60:
-                    cpu_widgets["status2"].config(text="📊 Standardowa aktywność", fg="#fbbf24")
+                    cpu_widgets["status2"].config(text="📊 Normal activity", fg="#fbbf24")
                 elif cpu_pct < 85:
-                    cpu_widgets["status2"].config(text="📊 Nadmierne obciążenie", fg="#f97316")
+                    cpu_widgets["status2"].config(text="📊 High load", fg="#f97316")
                 else:
-                    cpu_widgets["status2"].config(text="📊 Nadzwyczajne obciążenie", fg="#ef4444")
+                    cpu_widgets["status2"].config(text="📊 Critical load", fg="#ef4444")
 
                 # Simulated CPU temp (based on load) - since psutil doesn't support temps on Windows easily
                 cpu_temp = 35 + (cpu_pct * 0.5)  # 35°C base + load factor
@@ -657,13 +648,13 @@ class MainWindow:
 
                 # RAM status
                 if ram_pct < 40:
-                    ram_widgets["status2"].config(text="📊 Bez aktywności", fg="#10b981")
+                    ram_widgets["status2"].config(text="📊 Idle", fg="#10b981")
                 elif ram_pct < 70:
-                    ram_widgets["status2"].config(text="📊 Standardowa aktywność", fg="#fbbf24")
+                    ram_widgets["status2"].config(text="📊 Normal activity", fg="#fbbf24")
                 elif ram_pct < 90:
-                    ram_widgets["status2"].config(text="📊 Nadmierne obciążenie", fg="#f97316")
+                    ram_widgets["status2"].config(text="📊 High load", fg="#f97316")
                 else:
-                    ram_widgets["status2"].config(text="📊 Nadzwyczajne obciążenie", fg="#ef4444")
+                    ram_widgets["status2"].config(text="📊 Critical load", fg="#ef4444")
 
                 # Simulated RAM temp
                 ram_temp = 30 + (ram_pct * 0.3)
@@ -678,13 +669,13 @@ class MainWindow:
 
                 # GPU status
                 if gpu_pct < 30:
-                    gpu_widgets["status2"].config(text="📊 Bez aktywności", fg="#10b981")
+                    gpu_widgets["status2"].config(text="📊 Idle", fg="#10b981")
                 elif gpu_pct < 60:
-                    gpu_widgets["status2"].config(text="📊 Standardowa aktywność", fg="#fbbf24")
+                    gpu_widgets["status2"].config(text="📊 Normal activity", fg="#fbbf24")
                 elif gpu_pct < 85:
-                    gpu_widgets["status2"].config(text="📊 Nadmierne obciążenie", fg="#f97316")
+                    gpu_widgets["status2"].config(text="📊 High load", fg="#f97316")
                 else:
-                    gpu_widgets["status2"].config(text="📊 Nadzwyczajne obciążenie", fg="#ef4444")
+                    gpu_widgets["status2"].config(text="📊 Critical load", fg="#ef4444")
 
                 # Simulated GPU temp
                 gpu_temp = 40 + (gpu_pct * 0.6)
@@ -697,13 +688,11 @@ class MainWindow:
     def _open_services_wizard(self):
         """Open services management wizard"""
         print("[Optimization] Opening Services Wizard...")
-        # TODO: Integrate with hck_GPT services wizard
         pass
 
     def _quick_disable_services(self):
         """Quick disable unnecessary services"""
         print("[Optimization] Quick disabling unnecessary services...")
-        # TODO: Implement quick service optimization
         pass
 
     def _build_dashboard_view(self, parent):
@@ -746,7 +735,7 @@ class MainWindow:
         # Bind click event on chart
         self.canvas.mpl_connect('button_press_event', self._on_chart_click)
 
-        # TOP5 User Processes (minimalistic modern design)
+        # TOP 5 User Processes
         self.top5_frame = tk.Frame(parent, bg=THEME["bg_panel"])
         self.top5_frame.place(x=8, y=64 + chart_h + 6, width=content_w - right_w - 8, height=120)
 
@@ -768,7 +757,7 @@ class MainWindow:
         # Store process row widgets
         self.top5_widgets = []
 
-        # Action buttons below TOP 5 User Processes - APPLE STYLE (flat, modern, elegant)
+        # Action buttons below TOP 5 User Processes
         btn_y = 64 + chart_h + 6 + 120 + 6
         btn_width = (content_w - right_w - 8 - 8) // 2
         btn_height = 51  # 40% less than 85px (85 * 0.6 = 51)
@@ -1182,7 +1171,7 @@ class MainWindow:
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
         for i, proc in enumerate(procs[:5], start=1):  # Ensure only TOP 5
-            # Get process info (NO EMOJIS!)
+            # Get process info
             if self.classifier and 'classification' in proc:
                 cls = proc['classification']
                 display_name = cls.get('display_name', proc['name'])
@@ -1203,7 +1192,7 @@ class MainWindow:
             # Process name (left side) - clean and compact
             name_lbl = tk.Label(
                 row,
-                text=f"{i}. {display_name[:18]}",  # Longer names, no emoji
+                text=f"{i}. {display_name[:18]}",
                 font=("Segoe UI", 8),
                 bg=row_bg,
                 fg=THEME["text"],
@@ -1275,7 +1264,7 @@ class MainWindow:
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
         for i, proc in enumerate(procs[:5], start=1):  # Ensure only TOP 5
-            # Get process info (NO EMOJIS!)
+            # Get process info
             if self.classifier and 'classification' in proc:
                 cls = proc['classification']
                 display_name = cls.get('display_name', proc['name'])
@@ -1296,7 +1285,7 @@ class MainWindow:
             # Process name (left side) - clean and compact
             name_lbl = tk.Label(
                 row,
-                text=f"{i}. {display_name[:16]}",  # Clean names, no emoji
+                text=f"{i}. {display_name[:16]}",
                 font=("Segoe UI", 8),
                 bg=row_bg,
                 fg=THEME["text"],
