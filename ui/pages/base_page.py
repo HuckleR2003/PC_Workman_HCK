@@ -1,6 +1,6 @@
 # ui/pages/base_page.py
 """
-Bazowa klasa dla wszystkich stron/zakładek
+Base class for all pages/tabs.
 """
 
 import tkinter as tk
@@ -8,8 +8,8 @@ import tkinter as tk
 
 class BasePage:
     """
-    Bazowa klasa dla stron aplikacji.
-    Zapewnia spójny interfejs i wspólne funkcjonalności.
+    Base class for application pages.
+    Provides a consistent interface and shared functionality.
     """
 
     COLORS = {
@@ -27,9 +27,9 @@ class BasePage:
     def __init__(self, parent, app=None, monitor=None):
         """
         Args:
-            parent: Widget rodzica (tk.Frame)
-            app: Referencja do głównej aplikacji
-            monitor: Referencja do monitora systemu
+            parent: Parent widget (`tk.Frame`)
+            app: Main application reference
+            monitor: System monitor reference
         """
         self.parent = parent
         self.app = app
@@ -40,18 +40,18 @@ class BasePage:
         self._build()
 
     def _build(self):
-        """Buduje zawartość strony - do nadpisania w podklasach"""
+        """Build page content (override in subclasses)."""
         self.frame = tk.Frame(self.parent, bg=self.COLORS["bg"])
         self.frame.pack(fill="both", expand=True)
 
     def destroy(self):
-        """Niszczy stronę i zatrzymuje aktualizacje"""
+        """Destroy page and stop updates."""
         self._running = False
         if self.frame:
             self.frame.destroy()
 
     def _create_header(self, title, subtitle=""):
-        """Tworzy nagłówek strony"""
+        """Create page header."""
         header = tk.Frame(self.frame, bg=self.COLORS["bg"])
         header.pack(fill="x", padx=20, pady=(15, 10))
 
@@ -75,7 +75,7 @@ class BasePage:
         return header
 
     def _create_card(self, parent, title=None):
-        """Tworzy kartę z opcjonalnym tytułem"""
+        """Create a card with optional title."""
         card = tk.Frame(parent, bg=self.COLORS["card_bg"])
 
         if title:
