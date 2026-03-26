@@ -1,14 +1,4 @@
-"""
-Fan Dashboard ULTIMATE - Next-Gen AI-Powered Fan Control
-Complete redesign with vertical gradient sliders, color-coded buttons, advanced cooling
-
-NEW FEATURES:
-- LEFT PANEL: Vertical sliders with gradient (bottom=cool/green, top=hot/red)
-- TOP: Color-coded profile buttons (Silent=green, Balanced=blue, Performance=red, AI=purple)
-- CENTER: Interactive fan curve graph with drag-and-drop points
-- RIGHT PANEL: Advanced cooling controls (PWM/DC, Multi-fan sync, 0dB mode, Fan health)
-- Beats MSI Afterburner & ASUS GPU Tweak with AI + modern UX
-"""
+"""Fan dashboard UI and controls."""
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -32,10 +22,6 @@ except ImportError:
 # Import base classes
 from ui.components.fan_curve_editor import FanCurvePoint
 
-
-# ============================================================
-# HELPER CLASSES (FanData, FanAIEngine, CompactFanCurveGraph)
-# ============================================================
 
 class FanData:
     """Fan data container"""
@@ -235,7 +221,7 @@ class CompactFanCurveGraph(tk.Canvas):
         self._draw()
 
     def update_realtime_data(self, current_temp: float, temps: List[float]):
-        """Update real-time data (placeholder)"""
+        """Update real-time data."""
         pass
 
 
@@ -720,9 +706,6 @@ class SaveProfileDialog:
 
             messagebox.showinfo("Loaded", f"✅ Configuration loaded from file!\n{len(curve_data)} curve points imported.")
 
-            # TODO: Apply loaded curve to graph (needs parent reference)
-            # For now just show success message
-
             self.dialog.destroy()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load configuration: {e}")
@@ -778,9 +761,6 @@ class FanDashboardUltimate:
 
         # Center: Graph (takes remaining space)
         self._build_center_panel(middle)
-
-        # NOTE: Right panel (Advanced Cooling Controls) REMOVED
-        # NOTE: Action buttons moved to center panel (under graph)
 
     def _build_profile_buttons(self, parent):
         """Build trapezoidal profile buttons (MSI Afterburner style)"""
