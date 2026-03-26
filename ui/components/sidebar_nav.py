@@ -1,7 +1,7 @@
 # ui/components/sidebar_nav.py
 """
 PC Workman - Sidebar Navigation Component (Snyk Evo Style)
-Stały sidebar z hierarchiczną nawigacją i logo HCK_Labs
+Fixed sidebar with hierarchical navigation and HCK_Labs branding.
 """
 
 import tkinter as tk
@@ -19,42 +19,42 @@ from ui.theme import THEME
 
 class SidebarNav:
     """
-    Stały sidebar nawigacyjny w stylu Snyk Evo
-    - Logo HCK_Labs u góry
-    - Hierarchiczna nawigacja z kategoriami i podkategoriami
-    - Hover effects i active states
+    Fixed Snyk Evo-style navigation sidebar.
+    - HCK_Labs logo at the top
+    - Hierarchical navigation with categories and subcategories
+    - Hover effects and active states
     """
 
-    # Kolory w stylu Snyk Evo (ciemny motyw)
+    # Snyk Evo-style colors (dark theme)
     COLORS = {
-        "bg": "#0d0f12",           # Bardzo ciemne tło
-        "bg_hover": "#1a1d24",     # Hover tło
-        "bg_active": "#1f2937",    # Aktywny element
-        "text": "#9ca3af",         # Szary tekst
-        "text_hover": "#e5e7eb",   # Jaśniejszy tekst na hover
-        "text_active": "#ffffff",  # Biały tekst dla aktywnych
-        "accent": "#f472b6",       # Różowy akcent (jak Snyk)
-        "accent_icon": "#ec4899",  # Ikona akcentu
+        "bg": "#0d0f12",           # Very dark background
+        "bg_hover": "#1a1d24",     # Hover background
+        "bg_active": "#1f2937",    # Active item
+        "text": "#9ca3af",         # Gray text
+        "text_hover": "#e5e7eb",   # Lighter hover text
+        "text_active": "#ffffff",  # Active text
+        "accent": "#f472b6",       # Pink accent (Snyk-like)
+        "accent_icon": "#ec4899",  # Accent icon color
         "separator": "#1f2937",    # Separator
-        "subitem_bg": "#0d0f12",   # Tło podkategorii
+        "subitem_bg": "#0d0f12",   # Subcategory background
     }
 
     def __init__(self, parent, width=180, on_navigate=None):
         """
         Args:
-            parent: Rodzic Tkinter
-            width: Szerokość sidebara (domyślnie 180px)
-            on_navigate: Callback wywoływany przy nawigacji (page_id, subpage_id)
+            parent: Tkinter parent widget
+            width: Sidebar width (default: 180px)
+            on_navigate: Navigation callback (page_id, subpage_id)
         """
         self.parent = parent
         self.width = width
         self.on_navigate = on_navigate
-        self.active_item = "dashboard"  # Domyślnie aktywny
-        self.expanded_categories = set()  # Kategorie z rozwiniętymi podkategoriami
-        self.item_widgets = {}  # Przechowuje referencje do widgetów
-        self.logo_image = None  # Referencja do obrazka logo
+        self.active_item = "dashboard"  # Default active page
+        self.expanded_categories = set()  # Expanded categories
+        self.item_widgets = {}  # Widget references
+        self.logo_image = None  # Logo image reference
 
-        # Główny frame sidebara
+        # Main sidebar frame
         self.frame = tk.Frame(
             parent,
             bg=self.COLORS["bg"],
@@ -62,14 +62,14 @@ class SidebarNav:
         )
         self.frame.pack_propagate(False)
 
-        # Buduj zawartość
+        # Build content
         self._build_logo()
         self._build_separator()
         self._build_navigation()
         self._build_bottom_section()
 
     def _build_logo(self):
-        """Buduje sekcję logo u góry - tekstowe logo w stylu Snyk Evo"""
+        """Build top logo section."""
         logo_frame = tk.Frame(self.frame, bg=self.COLORS["bg"], height=60, cursor="hand2")
         logo_frame.pack(fill="x", pady=(15, 10))
         logo_frame.pack_propagate(False)
@@ -116,17 +116,17 @@ class SidebarNav:
             w.bind("<Button-1>", _go_dashboard)
 
     def _build_separator(self):
-        """Buduje separator pod logo"""
+        """Build separator below logo."""
         sep = tk.Frame(self.frame, bg=self.COLORS["separator"], height=1)
         sep.pack(fill="x", padx=12, pady=(0, 10))
 
     def _build_navigation(self):
-        """Buduje główną nawigację"""
-        # Kontener na nawigację (scrollowalny)
+        """Build main navigation."""
+        # Navigation container
         self.nav_container = tk.Frame(self.frame, bg=self.COLORS["bg"])
         self.nav_container.pack(fill="both", expand=True, padx=0)
 
-        # Definicja struktury nawigacji
+        # Navigation structure definition
         nav_structure = [
             {
                 "id": "dashboard",
@@ -141,7 +141,7 @@ class SidebarNav:
                 "subitems": [
                     ("temperature", "Temperature"),
                     ("voltage", "Voltage"),
-                    ("alerts", "Centrum & Alerts"),
+                    ("alerts", "Center & Alerts"),
                 ]
             },
             {
@@ -187,28 +187,28 @@ class SidebarNav:
             },
         ]
 
-        # Buduj elementy nawigacji
+        # Build navigation items
         for item in nav_structure:
             self._create_nav_item(item)
 
     def _create_nav_item(self, item):
-        """Tworzy pojedynczy element nawigacji (może mieć podkategorie)"""
+        """Create a single navigation item (can include subitems)."""
         item_id = item["id"]
         has_subitems = item["subitems"] is not None
 
-        # Główny kontener elementu
+        # Main item container
         item_frame = tk.Frame(self.nav_container, bg=self.COLORS["bg"])
         item_frame.pack(fill="x")
 
-        # Przycisk główny
+        # Main button
         btn = tk.Frame(item_frame, bg=self.COLORS["bg"], cursor="hand2")
         btn.pack(fill="x", padx=8, pady=1)
 
-        # Wewnętrzny kontener z paddingiem
+        # Inner container with padding
         inner = tk.Frame(btn, bg=self.COLORS["bg"])
         inner.pack(fill="x", padx=10, pady=8)
 
-        # Ikona
+        # Icon
         icon_label = tk.Label(
             inner,
             text=item["icon"],
@@ -219,7 +219,7 @@ class SidebarNav:
         )
         icon_label.pack(side="left")
 
-        # Tekst
+        # Text
         text_label = tk.Label(
             inner,
             text=item["label"],
@@ -230,7 +230,7 @@ class SidebarNav:
         )
         text_label.pack(side="left", padx=(5, 0), fill="x", expand=True)
 
-        # Strzałka rozwijania (jeśli ma podkategorie)
+        # Expand arrow (if subitems exist)
         arrow_label = None
         if has_subitems:
             arrow_label = tk.Label(
@@ -242,16 +242,16 @@ class SidebarNav:
             )
             arrow_label.pack(side="right")
 
-        # Kontener na podkategorie (ukryty domyślnie)
+        # Subitems container (hidden by default)
         subitems_frame = None
         if has_subitems:
             subitems_frame = tk.Frame(item_frame, bg=self.COLORS["bg"])
-            # Nie pakujemy - będzie pokazany po rozwinięciu
+            # Deliberately not packed yet; shown on expand
 
             for sub_id, sub_label in item["subitems"]:
                 self._create_subitem(subitems_frame, item_id, sub_id, sub_label)
 
-        # Przechowaj referencje
+        # Store references
         self.item_widgets[item_id] = {
             "btn": btn,
             "inner": inner,
@@ -272,7 +272,7 @@ class SidebarNav:
         def on_leave(e, iid=item_id):
             self._handle_item_hover(iid, False)
 
-        # Binduj eventy do wszystkich elementów
+        # Bind events to all item widgets
         for widget in [btn, inner, icon_label, text_label]:
             widget.bind("<Button-1>", on_click)
             widget.bind("<Enter>", on_enter)
@@ -284,16 +284,16 @@ class SidebarNav:
             arrow_label.bind("<Leave>", on_leave)
 
     def _create_subitem(self, parent, parent_id, sub_id, label):
-        """Tworzy element podkategorii"""
+        """Create a subcategory item."""
         full_id = f"{parent_id}.{sub_id}"
 
         btn = tk.Frame(parent, bg=self.COLORS["bg"], cursor="hand2")
         btn.pack(fill="x", padx=8, pady=1)
 
         inner = tk.Frame(btn, bg=self.COLORS["bg"])
-        inner.pack(fill="x", padx=(30, 10), pady=6)  # Większy lewy padding
+        inner.pack(fill="x", padx=(30, 10), pady=6)  # Increased left padding
 
-        # Tekst podkategorii
+        # Subitem label
         text_label = tk.Label(
             inner,
             text=label,
@@ -304,7 +304,7 @@ class SidebarNav:
         )
         text_label.pack(side="left", fill="x", expand=True)
 
-        # Przechowaj referencje
+        # Store references
         self.item_widgets[full_id] = {
             "btn": btn,
             "inner": inner,
@@ -328,25 +328,25 @@ class SidebarNav:
             widget.bind("<Leave>", on_leave)
 
     def _handle_item_click(self, item_id):
-        """Obsługa kliknięcia w element nawigacji"""
+        """Handle top-level navigation item click."""
         widgets = self.item_widgets.get(item_id)
         if not widgets:
             return
 
         if widgets["has_subitems"]:
-            # Toggle rozwinięcia
+            # Toggle expanded state
             if item_id in self.expanded_categories:
                 self._collapse_category(item_id)
             else:
                 self._expand_category(item_id)
         else:
-            # Nawiguj do strony
+            # Navigate to page
             self._set_active(item_id)
             if self.on_navigate:
                 self.on_navigate(item_id, None)
 
     def _handle_subitem_click(self, full_id):
-        """Obsługa kliknięcia w podkategorię"""
+        """Handle subitem click."""
         print(f"[SidebarNav] Subitem clicked: {full_id}")
         parts = full_id.split(".")
         parent_id = parts[0]
@@ -360,7 +360,7 @@ class SidebarNav:
             print("[SidebarNav] WARNING: No callback set!")
 
     def _expand_category(self, item_id):
-        """Rozwija kategorię"""
+        """Expand category."""
         widgets = self.item_widgets.get(item_id)
         if not widgets or not widgets["subitems_frame"]:
             return
@@ -368,12 +368,12 @@ class SidebarNav:
         self.expanded_categories.add(item_id)
         widgets["subitems_frame"].pack(fill="x")
 
-        # Obróć strzałkę
+        # Rotate arrow
         if widgets["arrow"]:
             widgets["arrow"].config(text="⌄")
 
     def _collapse_category(self, item_id):
-        """Zwija kategorię"""
+        """Collapse category."""
         widgets = self.item_widgets.get(item_id)
         if not widgets or not widgets["subitems_frame"]:
             return
@@ -381,18 +381,18 @@ class SidebarNav:
         self.expanded_categories.discard(item_id)
         widgets["subitems_frame"].pack_forget()
 
-        # Przywróć strzałkę
+        # Restore arrow
         if widgets["arrow"]:
             widgets["arrow"].config(text="›")
 
     def _set_active(self, item_id):
-        """Ustawia aktywny element"""
-        # Usuń poprzedni aktywny stan
+        """Set active item."""
+        # Clear previous active state
         self._clear_active_states()
 
         self.active_item = item_id
 
-        # Ustaw nowy aktywny stan
+        # Apply new active state
         widgets = self.item_widgets.get(item_id)
         if widgets:
             bg = self.COLORS["bg_active"]
@@ -408,7 +408,7 @@ class SidebarNav:
                 widgets["arrow"].config(bg=bg, fg=fg)
 
     def _clear_active_states(self):
-        """Czyści wszystkie aktywne stany"""
+        """Clear all active states."""
         bg = self.COLORS["bg"]
         fg = self.COLORS["text"]
 
@@ -423,9 +423,9 @@ class SidebarNav:
                 widgets["arrow"].config(bg=bg, fg=fg)
 
     def _handle_item_hover(self, item_id, entering):
-        """Obsługa hover na elemencie"""
+        """Handle hover on top-level item."""
         if item_id == self.active_item:
-            return  # Nie zmieniaj aktywnego elementu
+            return  # Keep active item styling unchanged
 
         widgets = self.item_widgets.get(item_id)
         if not widgets:
@@ -448,7 +448,7 @@ class SidebarNav:
             widgets["arrow"].config(bg=bg, fg=fg)
 
     def _handle_subitem_hover(self, full_id, entering):
-        """Obsługa hover na podkategorii"""
+        """Handle hover on subitem."""
         if full_id == self.active_item:
             return
 
@@ -468,12 +468,12 @@ class SidebarNav:
         widgets["text"].config(bg=bg, fg=fg)
 
     def _build_bottom_section(self):
-        """Buduje dolną sekcję sidebara (Pinned, Settings)"""
+        """Build bottom sidebar section (Pinned, Settings)."""
         # Separator
         sep = tk.Frame(self.frame, bg=self.COLORS["separator"], height=1)
         sep.pack(fill="x", padx=12, pady=10, side="bottom")
 
-        # Kontener na dolne elementy
+        # Bottom items container
         bottom = tk.Frame(self.frame, bg=self.COLORS["bg"])
         bottom.pack(fill="x", side="bottom", pady=(0, 15))
 
@@ -484,7 +484,7 @@ class SidebarNav:
         self._create_bottom_item(bottom, "pinned", "📌", "Pinned")
 
     def _create_bottom_item(self, parent, item_id, icon, label):
-        """Tworzy element w dolnej sekcji"""
+        """Create an item in bottom section."""
         btn = tk.Frame(parent, bg=self.COLORS["bg"], cursor="hand2")
         btn.pack(fill="x", padx=8, pady=1)
 
@@ -536,22 +536,22 @@ class SidebarNav:
             widget.bind("<Leave>", on_leave)
 
     def pack(self, **kwargs):
-        """Pakuje sidebar"""
+        """Pack sidebar widget."""
         self.frame.pack(**kwargs)
 
     def place(self, **kwargs):
-        """Umieszcza sidebar"""
+        """Place sidebar widget."""
         self.frame.place(**kwargs)
 
     def grid(self, **kwargs):
-        """Griduje sidebar"""
+        """Grid sidebar widget."""
         self.frame.grid(**kwargs)
 
     def set_active_page(self, page_id, subpage_id=None):
-        """Programowo ustawia aktywną stronę"""
+        """Set active page programmatically."""
         if subpage_id:
             full_id = f"{page_id}.{subpage_id}"
-            # Rozwiń kategorię jeśli nie jest rozwinięta
+            # Expand category if not already expanded
             if page_id not in self.expanded_categories:
                 self._expand_category(page_id)
             self._set_active(full_id)
