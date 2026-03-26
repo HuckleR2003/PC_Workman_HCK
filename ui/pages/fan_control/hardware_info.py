@@ -1,7 +1,7 @@
 # ui/components/fans_hardware_page.py
 """
 PC Workman - FANS Hardware Info Page
-Kompaktowe informacje o wentylatorach w stylu Snyk Evo
+Compact fan information in Snyk Evo style.
 """
 
 import tkinter as tk
@@ -18,11 +18,11 @@ except ImportError:
 
 class FansHardwarePage:
     """
-    Strona FANS - Hardware Info
-    Wyświetla informacje o wentylatorach:
-    - Główne: CPU Fan, GPU Fan (po lewej)
-    - Case Fans: 4 sloty (po prawej)
-    - Pod spodem: modele CPU/GPU i info o wentylatorach
+    FANS - Hardware Info page.
+    Shows fan information:
+    - Main: CPU fan, GPU fan (left)
+    - Case fans: 4 slots (right)
+    - Bottom: CPU/GPU models and fan details
     """
 
     COLORS = {
@@ -46,7 +46,7 @@ class FansHardwarePage:
         self.rpm_labels = {}
         self.info_labels = {}
 
-        # Symulowane dane wentylatorów (w prawdziwej app - z hardware sensors)
+        # Simulated fan data (replace with hardware sensors when available)
         self.fan_data = {
             "cpu": {"name": "CPU Fan", "rpm": 1250, "max_rpm": 2500, "model": "Noctua NH-D15"},
             "gpu": {"name": "GPU Fan", "rpm": 1800, "max_rpm": 3000, "model": "Stock Cooler"},
@@ -60,7 +60,7 @@ class FansHardwarePage:
         self._start_updates()
 
     def _build_page(self):
-        """Buduje główną stronę"""
+        """Build main page."""
         # Header
         header = tk.Frame(self.parent, bg=self.COLORS["bg"])
         header.pack(fill="x", padx=20, pady=(15, 10))
@@ -81,11 +81,11 @@ class FansHardwarePage:
             fg=self.COLORS["text_muted"]
         ).pack(side="left", padx=(15, 0))
 
-        # Główny kontener na karty wentylatorów
+        # Main container for fan cards
         fans_container = tk.Frame(self.parent, bg=self.COLORS["bg"])
         fans_container.pack(fill="both", expand=True, padx=20, pady=10)
 
-        # LEWA STRONA - Główne wentylatory (CPU, GPU)
+        # LEFT SIDE - Main fans (CPU, GPU)
         left_frame = tk.Frame(fans_container, bg=self.COLORS["bg"])
         left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
@@ -103,7 +103,7 @@ class FansHardwarePage:
         # GPU Fan gauge
         self._create_main_fan_card(left_frame, "gpu", "GPU Fan", self.COLORS["accent_orange"])
 
-        # PRAWA STRONA - Case Fans (4 sloty w jednej linii)
+        # RIGHT SIDE - Case fans (4 slots in one row)
         right_frame = tk.Frame(fans_container, bg=self.COLORS["bg"])
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
@@ -115,30 +115,30 @@ class FansHardwarePage:
             fg=self.COLORS["accent_purple"]
         ).pack(anchor="w", pady=(0, 8))
 
-        # Kontener na 4 małe karty case fans
+        # Container for 4 compact case fan cards
         case_fans_row = tk.Frame(right_frame, bg=self.COLORS["bg"])
         case_fans_row.pack(fill="x")
 
         for i, fan_id in enumerate(["case1", "case2", "case3", "case4"]):
             self._create_case_fan_card(case_fans_row, fan_id, self.fan_data[fan_id]["name"])
 
-        # DOLNA SEKCJA - Modele i szczegóły
+        # BOTTOM SECTION - Models and details
         self._build_details_section()
 
     def _create_main_fan_card(self, parent, fan_id, title, accent_color):
-        """Tworzy kartę głównego wentylatora (CPU/GPU) z gauge"""
+        """Create main fan card (CPU/GPU) with gauge."""
         card = tk.Frame(parent, bg=self.COLORS["card_bg"], relief="flat", bd=0)
         card.pack(fill="x", pady=5)
 
-        # Wewnętrzny padding
+        # Inner padding
         inner = tk.Frame(card, bg=self.COLORS["card_bg"])
         inner.pack(fill="both", expand=True, padx=15, pady=12)
 
-        # Lewa część - gauge
+        # Left side - gauge
         gauge_frame = tk.Frame(inner, bg=self.COLORS["card_bg"])
         gauge_frame.pack(side="left")
 
-        # Canvas dla gauge (półkole)
+        # Gauge canvas (semi-circle)
         gauge_size = 80
         canvas = tk.Canvas(
             gauge_frame,
@@ -155,14 +155,14 @@ class FansHardwarePage:
             "color": accent_color
         }
 
-        # Rysuj początkowy gauge
+        # Draw initial gauge
         self._draw_gauge(fan_id, self.fan_data[fan_id]["rpm"], self.fan_data[fan_id]["max_rpm"])
 
-        # Prawa część - informacje
+        # Right side - details
         info_frame = tk.Frame(inner, bg=self.COLORS["card_bg"])
         info_frame.pack(side="left", fill="both", expand=True, padx=(15, 0))
 
-        # Tytuł
+        # Title
         tk.Label(
             info_frame,
             text=title,
@@ -182,7 +182,7 @@ class FansHardwarePage:
         rpm_label.pack(anchor="w")
         self.rpm_labels[fan_id] = rpm_label
 
-        # Procent
+        # Percentage
         pct = int((self.fan_data[fan_id]["rpm"] / self.fan_data[fan_id]["max_rpm"]) * 100)
         pct_label = tk.Label(
             info_frame,
@@ -194,7 +194,7 @@ class FansHardwarePage:
         pct_label.pack(anchor="w")
 
     def _create_case_fan_card(self, parent, fan_id, title):
-        """Tworzy kompaktową kartę case fan"""
+        """Create compact case fan card."""
         card = tk.Frame(parent, bg=self.COLORS["card_bg"], relief="flat", bd=0)
         card.pack(side="left", fill="both", expand=True, padx=2, pady=2)
 
@@ -218,10 +218,10 @@ class FansHardwarePage:
             "color": self.COLORS["accent_purple"]
         }
 
-        # Rysuj gauge
+        # Draw gauge
         self._draw_gauge(fan_id, self.fan_data[fan_id]["rpm"], self.fan_data[fan_id]["max_rpm"])
 
-        # Nazwa
+        # Name
         tk.Label(
             inner,
             text=title,
@@ -230,7 +230,7 @@ class FansHardwarePage:
             fg=self.COLORS["text"]
         ).pack()
 
-        # RPM (mały)
+        # RPM (compact)
         rpm = self.fan_data[fan_id]["rpm"]
         rpm_text = f"{rpm}" if rpm > 0 else "N/A"
         rpm_label = tk.Label(
@@ -244,7 +244,7 @@ class FansHardwarePage:
         self.rpm_labels[fan_id] = rpm_label
 
     def _draw_gauge(self, fan_id, rpm, max_rpm):
-        """Rysuje gauge (półkole) dla wentylatora"""
+        """Draw fan gauge (semi-circle)."""
         gauge_data = self.fan_gauges.get(fan_id)
         if not gauge_data:
             return
@@ -255,12 +255,12 @@ class FansHardwarePage:
 
         canvas.delete("all")
 
-        # Parametry
+        # Parameters
         cx, cy = size // 2, size // 2 + 5
         radius = size // 2 - 5
         thickness = 6 if size > 60 else 4
 
-        # Tło gauge (szary łuk)
+        # Gauge background (gray arc)
         canvas.create_arc(
             cx - radius, cy - radius,
             cx + radius, cy + radius,
@@ -270,7 +270,7 @@ class FansHardwarePage:
             style="arc"
         )
 
-        # Wartość gauge (kolorowy łuk)
+        # Gauge value (colored arc)
         if max_rpm > 0:
             pct = min(rpm / max_rpm, 1.0)
             extent = 180 * pct
@@ -284,7 +284,7 @@ class FansHardwarePage:
                 style="arc"
             )
 
-        # Tekst procent (tylko dla dużych)
+        # Percentage text (only for large gauge)
         if size > 60:
             pct_text = f"{int(pct * 100)}%" if max_rpm > 0 else "N/A"
             canvas.create_text(
@@ -295,7 +295,7 @@ class FansHardwarePage:
             )
 
     def _build_details_section(self):
-        """Buduje sekcję ze szczegółami - modele CPU/GPU i info o wentylatorach"""
+        """Build details section with CPU/GPU models and fan info."""
         details = tk.Frame(self.parent, bg=self.COLORS["bg"])
         details.pack(fill="x", padx=20, pady=(15, 10))
 
@@ -303,11 +303,11 @@ class FansHardwarePage:
         sep = tk.Frame(details, bg=self.COLORS["card_border"], height=1)
         sep.pack(fill="x", pady=(0, 15))
 
-        # Dwie kolumny
+        # Two columns
         columns = tk.Frame(details, bg=self.COLORS["bg"])
         columns.pack(fill="x")
 
-        # LEWA KOLUMNA - CPU/GPU Models
+        # LEFT COLUMN - CPU/GPU models
         left_col = tk.Frame(columns, bg=self.COLORS["bg"])
         left_col.pack(side="left", fill="both", expand=True)
 
@@ -319,11 +319,11 @@ class FansHardwarePage:
             fg=self.COLORS["accent_green"]
         ).pack(anchor="w", pady=(0, 8))
 
-        # CPU Model
+        # CPU/GPU models
         self._create_model_row(left_col, "CPU Cooler:", self.fan_data["cpu"]["model"])
         self._create_model_row(left_col, "GPU Cooler:", self.fan_data["gpu"]["model"])
 
-        # PRAWA KOLUMNA - Case Fan Models
+        # RIGHT COLUMN - case fan models
         right_col = tk.Frame(columns, bg=self.COLORS["bg"])
         right_col.pack(side="right", fill="both", expand=True)
 
@@ -341,7 +341,7 @@ class FansHardwarePage:
             self._create_model_row(right_col, f"{name}:", model)
 
     def _create_model_row(self, parent, label, value):
-        """Tworzy wiersz z etykietą i wartością modelu"""
+        """Create a model row with label and value."""
         row = tk.Frame(parent, bg=self.COLORS["bg"])
         row.pack(fill="x", pady=2)
 
@@ -365,37 +365,37 @@ class FansHardwarePage:
         ).pack(side="left")
 
     def _start_updates(self):
-        """Uruchamia cykliczne aktualizacje danych"""
+        """Start periodic data updates."""
         self._update_data()
 
     def _update_data(self):
-        """Aktualizuje dane wentylatorów (symulacja)"""
+        """Update fan data (simulation)."""
         try:
-            # Symulacja zmian RPM (w prawdziwej app - odczyt z hardware)
+            # Simulated RPM changes (replace with hardware reads)
             for fan_id, data in self.fan_data.items():
                 if data["max_rpm"] > 0 and data["rpm"] > 0:
-                    # Losowa zmiana +/- 50 RPM
+                    # Random delta +/- 50 RPM
                     change = random.randint(-50, 50)
                     new_rpm = max(500, min(data["max_rpm"], data["rpm"] + change))
                     self.fan_data[fan_id]["rpm"] = new_rpm
 
-                    # Aktualizuj gauge
+                    # Update gauge
                     self._draw_gauge(fan_id, new_rpm, data["max_rpm"])
 
-                    # Aktualizuj label RPM
+                    # Update RPM label
                     if fan_id in self.rpm_labels:
                         if fan_id.startswith("case"):
                             self.rpm_labels[fan_id].config(text=f"{new_rpm}")
                         else:
                             self.rpm_labels[fan_id].config(text=f"{new_rpm} RPM")
 
-            # Następna aktualizacja za 2 sekundy
+            # Next update in 2 seconds
             self.parent.after(2000, self._update_data)
         except tk.TclError:
-            # Widget został zniszczony
+            # Widget destroyed
             pass
 
 
 def create_fans_hardware_page(parent, monitor=None):
-    """Factory function do tworzenia strony FANS Hardware Info"""
+    """Factory function for FANS Hardware Info page."""
     return FansHardwarePage(parent, monitor)

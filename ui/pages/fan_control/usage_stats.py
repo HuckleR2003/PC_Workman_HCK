@@ -1,7 +1,7 @@
 # ui/components/fans_usage_stats_page.py
 """
 PC Workman - FANS Usage Statistics Page
-Wykresy intensywności użycia wentylatorów z wyborem przedziału czasowego
+Fan intensity charts with selectable time ranges.
 """
 
 import tkinter as tk
@@ -21,9 +21,9 @@ except ImportError:
 
 class FansUsageStatsPage:
     """
-    Strona Usage Statistics - wykresy intensywności wentylatorów
-    - Wybór przedziału: NOW (1 min), 1Hr, 3Hrs, 12Hrs
-    - Wykresy dla CPU Fan, GPU Fan, Case Fans
+    Usage Statistics page for fan intensity charts.
+    - Selectable range: NOW (1 min), 1Hr, 3Hrs, 12Hrs
+    - Charts for CPU fan, GPU fan, and case fans
     """
 
     COLORS = {
@@ -57,30 +57,30 @@ class FansUsageStatsPage:
         self.charts = {}
         self.chart_canvases = {}
 
-        # Dane historyczne (symulowane)
+        # Simulated historical data
         self.history_data = {
             "cpu": deque(maxlen=720),     # 12h * 60 samples/hr
             "gpu": deque(maxlen=720),
             "case_avg": deque(maxlen=720),
         }
 
-        # Wypełnij początkowe dane
+        # Fill initial data
         self._generate_initial_data()
 
         self._build_page()
         self._start_updates()
 
     def _generate_initial_data(self):
-        """Generuje początkowe dane historyczne"""
-        # Symulacja danych z ostatnich 12 godzin
+        """Generate initial historical data."""
+        # Simulate data for the last 12 hours
         for i in range(720):
             self.history_data["cpu"].append(random.randint(800, 2200))
             self.history_data["gpu"].append(random.randint(1200, 2800))
             self.history_data["case_avg"].append(random.randint(600, 1200))
 
     def _build_page(self):
-        """Buduje główną stronę"""
-        # Header z tytułem
+        """Build main page."""
+        # Header with title
         header = tk.Frame(self.parent, bg=self.COLORS["bg"])
         header.pack(fill="x", padx=20, pady=(15, 5))
 
@@ -107,24 +107,24 @@ class FansUsageStatsPage:
         charts_frame = tk.Frame(self.parent, bg=self.COLORS["bg"])
         charts_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
-        # Dwie kolumny wykresów
+        # Two chart columns
         left_charts = tk.Frame(charts_frame, bg=self.COLORS["bg"])
         left_charts.pack(side="left", fill="both", expand=True, padx=(0, 5))
 
         right_charts = tk.Frame(charts_frame, bg=self.COLORS["bg"])
         right_charts.pack(side="right", fill="both", expand=True, padx=(5, 0))
 
-        # CPU Fan chart (lewa góra)
+        # CPU fan chart (top-left)
         self._create_chart(left_charts, "cpu", "CPU Fan Intensity", self.COLORS["accent_blue"])
 
-        # GPU Fan chart (lewa dół)
+        # GPU fan chart (bottom-left)
         self._create_chart(left_charts, "gpu", "GPU Fan Intensity", self.COLORS["accent_orange"])
 
-        # Case Fans Average chart (prawa)
+        # Case fans average chart (right)
         self._create_chart(right_charts, "case_avg", "Case Fans Average", self.COLORS["accent_purple"], tall=True)
 
     def _build_time_selector(self):
-        """Buduje selektor przedziału czasowego"""
+        """Build time range selector."""
         selector_frame = tk.Frame(self.parent, bg=self.COLORS["bg"])
         selector_frame.pack(fill="x", padx=20, pady=(10, 5))
 
@@ -136,7 +136,7 @@ class FansUsageStatsPage:
             fg=self.COLORS["text_muted"]
         ).pack(side="left", padx=(0, 15))
 
-        # Przyciski wyboru
+        # Range buttons
         buttons_frame = tk.Frame(selector_frame, bg=self.COLORS["bg"])
         buttons_frame.pack(side="left")
 
@@ -170,7 +170,7 @@ class FansUsageStatsPage:
             btn.bind("<Enter>", on_enter)
             btn.bind("<Leave>", on_leave)
 
-        # Opis aktualnego zakresu
+        # Current range description
         self.range_description = tk.Label(
             selector_frame,
             text=self.TIME_RANGES[self.current_range]["description"],
@@ -181,11 +181,11 @@ class FansUsageStatsPage:
         self.range_description.pack(side="left", padx=(20, 0))
 
     def _select_range(self, range_id):
-        """Zmienia wybrany przedział czasowy"""
+        """Change selected time range."""
         if range_id == self.current_range:
             return
 
-        # Aktualizuj przyciski
+        # Update button styles
         for rid, btn in self.range_buttons.items():
             if rid == range_id:
                 btn.config(
@@ -201,15 +201,15 @@ class FansUsageStatsPage:
         self.current_range = range_id
         self.range_description.config(text=self.TIME_RANGES[range_id]["description"])
 
-        # Odśwież wykresy
+        # Refresh charts
         self._update_all_charts()
 
     def _create_chart(self, parent, chart_id, title, color, tall=False):
-        """Tworzy pojedynczy wykres"""
+        """Create a single chart."""
         card = tk.Frame(parent, bg=self.COLORS["card_bg"])
         card.pack(fill="both", expand=True, pady=5)
 
-        # Tytuł
+        # Title
         header = tk.Frame(card, bg=self.COLORS["card_bg"])
         header.pack(fill="x", padx=15, pady=(10, 5))
 
@@ -221,7 +221,7 @@ class FansUsageStatsPage:
             fg=self.COLORS["text"]
         ).pack(side="left")
 
-        # Aktualne RPM
+        # Current RPM
         current_rpm = list(self.history_data[chart_id])[-1] if self.history_data[chart_id] else 0
         rpm_label = tk.Label(
             header,
@@ -238,7 +238,7 @@ class FansUsageStatsPage:
             fig = Figure(figsize=(4, chart_height), dpi=100, facecolor=self.COLORS["chart_bg"])
             ax = fig.add_subplot(111)
 
-            # Stylizacja wykresu
+            # Chart styling
             ax.set_facecolor(self.COLORS["chart_bg"])
             ax.tick_params(colors=self.COLORS["text_muted"], labelsize=7)
             ax.spines['bottom'].set_color(self.COLORS["grid_color"])
@@ -260,10 +260,10 @@ class FansUsageStatsPage:
             }
             self.chart_canvases[chart_id] = canvas
 
-            # Rysuj początkowy wykres
+            # Draw initial chart
             self._update_chart(chart_id)
         else:
-            # Fallback bez matplotlib
+            # Fallback without matplotlib
             tk.Label(
                 card,
                 text="(Matplotlib required for charts)",
@@ -273,7 +273,7 @@ class FansUsageStatsPage:
             ).pack(pady=20)
 
     def _update_chart(self, chart_id):
-        """Aktualizuje pojedynczy wykres"""
+        """Update a single chart."""
         if chart_id not in self.charts:
             return
 
@@ -283,10 +283,10 @@ class FansUsageStatsPage:
 
         ax.clear()
 
-        # Pobierz dane dla wybranego zakresu
+        # Get data for selected range
         range_seconds = self.TIME_RANGES[self.current_range]["seconds"]
 
-        # Konwertuj sekundy na liczbę próbek (1 próbka / minutę)
+        # Convert seconds to sample count (1 sample / minute)
         samples_needed = min(range_seconds // 60, len(self.history_data[chart_id]))
 
         data = list(self.history_data[chart_id])[-samples_needed:] if samples_needed > 0 else []
@@ -294,15 +294,15 @@ class FansUsageStatsPage:
         if data:
             x = range(len(data))
 
-            # Wypełniony wykres (area chart)
+            # Filled area chart
             ax.fill_between(x, data, alpha=0.3, color=color)
             ax.plot(x, data, color=color, linewidth=1.5)
 
-            # Aktualne RPM
+            # Current RPM
             current_rpm = data[-1]
             chart["rpm_label"].config(text=f"{current_rpm} RPM")
 
-        # Stylizacja
+        # Styling
         ax.set_facecolor(self.COLORS["chart_bg"])
         ax.tick_params(colors=self.COLORS["text_muted"], labelsize=7)
         ax.spines['bottom'].set_color(self.COLORS["grid_color"])
@@ -311,42 +311,42 @@ class FansUsageStatsPage:
         ax.spines['left'].set_color(self.COLORS["grid_color"])
         ax.grid(True, alpha=0.2, color=self.COLORS["grid_color"])
 
-        # Odśwież canvas
+        # Refresh canvas
         if chart_id in self.chart_canvases:
             self.chart_canvases[chart_id].draw()
 
     def _update_all_charts(self):
-        """Aktualizuje wszystkie wykresy"""
+        """Update all charts."""
         for chart_id in self.charts:
             self._update_chart(chart_id)
 
     def _start_updates(self):
-        """Uruchamia cykliczne aktualizacje"""
+        """Start periodic updates."""
         self._add_new_data()
 
     def _add_new_data(self):
-        """Dodaje nowe dane i aktualizuje wykresy"""
+        """Add new data and update charts."""
         try:
-            # Dodaj nowe próbki (symulacja)
+            # Add new simulated samples
             cpu_rpm = list(self.history_data["cpu"])[-1] if self.history_data["cpu"] else 1500
             gpu_rpm = list(self.history_data["gpu"])[-1] if self.history_data["gpu"] else 2000
             case_rpm = list(self.history_data["case_avg"])[-1] if self.history_data["case_avg"] else 900
 
-            # Losowe zmiany
+            # Random deltas
             self.history_data["cpu"].append(max(500, min(2500, cpu_rpm + random.randint(-100, 100))))
             self.history_data["gpu"].append(max(800, min(3000, gpu_rpm + random.randint(-150, 150))))
             self.history_data["case_avg"].append(max(400, min(1500, case_rpm + random.randint(-50, 50))))
 
-            # Aktualizuj wykresy co 5 sekund
+            # Refresh charts every 5 seconds
             self._update_all_charts()
 
-            # Następna aktualizacja
+            # Next update
             self.parent.after(5000, self._add_new_data)
         except tk.TclError:
-            # Widget zniszczony
+            # Widget destroyed
             pass
 
 
 def create_fans_usage_stats_page(parent, monitor=None):
-    """Factory function do tworzenia strony Usage Statistics"""
+    """Factory function for the Usage Statistics page."""
     return FansUsageStatsPage(parent, monitor)
