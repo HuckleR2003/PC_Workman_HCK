@@ -1,24 +1,24 @@
 # ui/pages/__init__.py
 """
 PC Workman - Pages Module
-Profesjonalna struktura zakładek aplikacji
+Professional app page structure
 
-Struktura:
+Structure:
     pages/
     ├── __init__.py
-    ├── base_page.py          # Bazowa klasa dla wszystkich stron
-    ├── fan_control/          # Zakładki Fan Control
+    ├── base_page.py          # Base class for all pages
+    ├── fan_control/          # Fan Control tabs
     │   ├── __init__.py
     │   ├── dashboard.py      # Fan Dashboard
     │   ├── hardware_info.py  # FANS - Hardware Info
     │   └── usage_stats.py    # Usage Statistics
-    ├── my_pc/                # Zakładki My PC
+    ├── my_pc/                # My PC tabs
     │   ├── __init__.py
     │   ├── central.py
     │   ├── efficiency.py
     │   ├── sensors.py
     │   └── health.py
-    ├── monitoring/           # Zakładki Monitoring
-    ├── optimization/         # Zakładki Optimization
-    └── statistics/           # Zakładki Statistics
+    ├── monitoring/           # Monitoring tabs
+    ├── optimization/         # Optimization tabs
+    └── statistics/           # Statistics tabs
 """
