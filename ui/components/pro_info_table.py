@@ -480,7 +480,7 @@ class ProInfoTable(tk.Frame):
         tk.Label(fans_strip, text="|", font=("Segoe UI", 7),
                 bg="#000000", fg="#64748b").pack(side="left", padx=3)
 
-        # Fan entries (placeholder - will be updated with real data)
+        # Fan entries (updated with runtime data when available)
         fans = [
             ("CPU", "560 RPM"),
             ("BODYFAN", "990 RPM"),
