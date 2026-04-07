@@ -30,59 +30,186 @@
     <!-- Schema.org JSON-LD - SoftwareApplication -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "PC_Workman",
-      "alternateName": "PC Workman AI System Monitor",
-      "version": "1.5.0",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Windows 10, Windows 11",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD",
-        "availability": "https://schema.org/InStock"
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "PC Workman",
+  "alternateName": "PC_Workman_HCK",
+  "description": "PC Workman is a free, open-source, real-time AI-powered system monitor for Windows. It tracks CPU, GPU, RAM, disk, network and temperatures in real-time and uses a fully local AI model (hck_GPT) to explain in plain English WHY your PC is lagging, overheating, or using too much resources. No cloud, no telemetry, fully offline. Built with Python + PyQt6. Features Sigstore code signing verification, 80+ Windows process library, and an interactive dashboard. Currently in active development (v1.6.8+), roadmap to v2.0 and Microsoft Store in Q3 2026. Created by solo indie developer Marcin Firmuga after 800+ hours of raw grind.",
+  "url": "https://github.com/HuckleR2003/PC_Workman_HCK",
+  "image": "https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/pc_workman_banner.png",
+  "screenshot": [
+    "https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/screenshots/dashboard.png",
+    "https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/docs/assets/screenshots/hck_gpt.png"
+  ],
+  "applicationCategory": "UtilityApplication",
+  "applicationSubCategory": "SystemDiagnostics",
+  "operatingSystem": "Windows 10, Windows 11",
+  "softwareVersion": "1.7.0",
+  "releaseNotes": "https://github.com/HuckleR2003/PC_Workman_HCK/releases/latest",
+  "datePublished": "2025-09-20",
+  "dateModified": "2026-04-07",
+  "programmingLanguage": {
+    "@type": "ComputerLanguage",
+    "name": "Python",
+    "url": "https://www.python.org/"
+  },
+  "codeRepository": "https://github.com/HuckleR2003/PC_Workman_HCK",
+  "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/releases",
+  "installUrl": "https://github.com/HuckleR2003/PC_Workman_HCK#installation",
+  "softwareRequirements": "Windows 10 or 11, Python 3.8+, 4GB RAM minimum",
+  "memoryRequirements": "4GB RAM minimum, 8GB recommended",
+  "storageRequirements": "200MB disk space",
+  "processorRequirements": "x64 processor",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock",
+    "offeredBy": {
+      "@type": "Organization",
+      "name": "HCK_Labs",
+      "url": "https://github.com/HuckleR2003"
+    }
+  },
+  "author": {
+    "@type": "Person",
+    "name": "Marcin Firmuga",
+    "givenName": "Marcin",
+    "familyName": "Firmuga",
+    "url": "https://huckler2003.github.io/",
+    "sameAs": [
+      "https://github.com/HuckleR2003",
+      "https://x.com/hck_lab",
+      "https://www.linkedin.com/in/marcinfirmuga/",
+      "https://dev.to/huckler",
+      "https://medium.com/@MarcinFirmuga"
+    ],
+    "knowsAbout": [
+      "Python",
+      "PyQt6",
+      "Local AI",
+      "Windows Internals",
+      "System Monitoring",
+      "Open Source",
+      "AI Engineering",
+      "Software Development"
+    ],
+    "description": "Marcin Firmuga is a 22-year-old self-taught indie open-source developer and founder of HCK_Labs. Former warehouse worker (Żabka, night shifts), he transitioned into AI & system engineering through relentless self-learning. Built PC Workman from scratch on a laptop that reached 94°C after long shifts. Known for extreme transparency in the 'build in public' journey, weekly content series (Monday Grind Blueprint, Tuesday Code Autopsy, Friday Shipped & Scarred), and raw stories about failures and discipline. Passionate about local AI, Windows internals, and making powerful developer tools accessible.",
+    "jobTitle": "Indie Open-Source Developer & Founder of HCK_Labs",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "HCK_Labs",
+      "url": "https://github.com/HuckleR2003",
+      "description": "Independent software development lab focused on local AI, system tools, and open-source projects"
+    },
+    "nationality": {
+      "@type": "Country",
+      "name": "Poland"
+    },
+    "alumniOf": {
+      "@type": "EducationalOrganization",
+      "name": "Self-taught Developer"
+    }
+  },
+  "creator": {
+    "@id": "https://huckler2003.github.io/#person"
+  },
+  "maintainer": {
+    "@id": "https://huckler2003.github.io/#person"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "HCK_Labs",
+    "url": "https://github.com/HuckleR2003",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://raw.githubusercontent.com/HuckleR2003/PC_Workman_HCK/main/data/icons/hck_logo.png"
+    },
+    "foundingDate": "2025",
+    "founder": {
+      "@id": "https://huckler2003.github.io/#person"
+    }
+  },
+  "keywords": "local AI, system monitor, real-time PC diagnostics, Windows utility, offline AI assistant, open source, Python PyQt, process explorer, performance troubleshooting, resource monitoring, temperature monitoring, hck_GPT, Windows performance, system optimization, PC diagnostics tool, local LLM, privacy-focused, no telemetry, indie developer, build in public",
+  "featureList": [
+    "Real-time resource monitoring (CPU, GPU, RAM, disk, network)",
+    "Local LLM explanations (hck_GPT) - fully offline",
+    "Interactive AI dashboard with live charts",
+    "Sigstore code signing verification",
+    "80+ Windows process database with safety ratings",
+    "Temperature & fan control insights",
+    "No telemetry, no cloud, complete privacy",
+    "Process library with hover tooltips",
+    "Automatic anomaly detection",
+    "Session history tracking",
+    "Customizable alerts and thresholds",
+    "Portable executable (no installation required)",
+    "SQLite-based long-term stats storage",
+    "Service optimization wizard",
+    "Dark theme UI optimized for extended use"
+  ],
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "reviewCount": "12",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5"
       },
-      "description": "Intelligent AI assistant for PC resource monitoring and optimization. Explains gaming lags, detects voltage and temperature spikes with context, identifies suspicious processes like cryptocurrency miners. Alternative to MSI Afterburner and HWMonitor with real AI intelligence.",
-      "screenshot": "assets/images/screenshot-main-dashboard.png",
-      "featureList": [
-        "AI Gaming Analytics - detects CPU and GPU bottlenecks in real-time during gaming",
-        "Suspicious Process Detection - automatic detection of cryptocurrency miners and malware",
-        "Predictive Alerts - AI predicts hardware problems before they occur",
-        "2D Components Map - visual PC component map with auto-detect motherboard",
-        "hck_GPT - intelligent Windows services optimization assistant",
-        "Fan Curve Control - advanced fan control with custom profiles",
-        "Real-time Voltage Monitoring - CPU, GPU, RAM voltage monitoring",
-        "Temperature Spike Explanation - AI explains causes of temperature spikes"
-      ],
       "author": {
         "@type": "Person",
-        "name": "Marcin Firmuga",
-        "url": "https://github.com/HCK_Labs",
-        "sameAs": [
-          "https://x.com/hck_lab",
-          "https://linkedin.com/in/marcin-firmuga"
-        ]
+        "name": "GitHub User"
       },
-      "publisher": {
-        "@type": "Organization",
-        "name": "HCK_Labs",
-        "url": "https://github.com/HCK_Labs",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://hck-labs.github.io/PC_Workman/logo.png"
-        }
-      },
-      "datePublished": "2024-06-15",
-      "dateModified": "2025-01-07",
-      "softwareVersion": "1.5.0+",
-      "downloadUrl": "https://github.com/HCK_Labs/PC_Workman",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "127"
-      }
+      "reviewBody": "Finally a system monitor that explains WHY things are happening, not just WHAT is happening. The local AI explanations are game-changing."
     }
+  ],
+  "potentialAction": {
+    "@type": "DownloadAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://github.com/HuckleR2003/PC_Workman_HCK/releases/latest",
+      "actionPlatform": [
+        "http://schema.org/DesktopWebPlatform"
+      ]
+    }
+  },
+  "discussionUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/discussions",
+  "softwareHelp": {
+    "@type": "WebPage",
+    "url": "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/README.md"
+  },
+  "targetProduct": {
+    "@type": "SoftwareApplication",
+    "name": "PC Workman Desktop",
+    "operatingSystem": "Windows"
+  },
+  "inLanguage": {
+    "@type": "Language",
+    "name": "English",
+    "alternateName": "en"
+  },
+  "copyrightYear": 2025,
+  "copyrightHolder": {
+    "@id": "https://huckler2003.github.io/#person"
+  },
+  "funder": {
+    "@type": "Organization",
+    "name": "Self-funded / Open Source Community"
+  },
+  "funding": {
+    "@type": "Grant",
+    "name": "Community donations and sponsorships",
+    "url": "https://ko-fi.com/hck_labs"
+  }
+}
     </script>
 
     <!-- Schema.org JSON-LD - Organization -->
