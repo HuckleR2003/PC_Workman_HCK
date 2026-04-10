@@ -1,0 +1,772 @@
+{
+  "chrome.exe": {
+    "name": "Google Chrome",
+    "vendor": "Google LLC",
+    "category": "browser",
+    "description": "Web browser. RAM usage increases with open tabs.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-25%",
+    "typical_ram": "200-800MB per window"
+  },
+  "msedge.exe": {
+    "name": "Microsoft Edge",
+    "vendor": "Microsoft Corporation",
+    "category": "browser",
+    "description": "Chromium-based browser. Similar RAM behavior to Chrome.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "150-600MB"
+  },
+  "firefox.exe": {
+    "name": "Mozilla Firefox",
+    "vendor": "Mozilla Foundation",
+    "category": "browser",
+    "description": "Open-source web browser. Generally lighter than Chrome.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-15%",
+    "typical_ram": "150-500MB"
+  },
+  "opera.exe": {
+    "name": "Opera Browser",
+    "vendor": "Opera Software",
+    "category": "browser",
+    "description": "Chromium-based with built-in VPN and ad blocker.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "200-700MB"
+  },
+  "brave.exe": {
+    "name": "Brave Browser",
+    "vendor": "Brave Software",
+    "category": "browser",
+    "description": "Privacy-focused Chromium browser with ad blocking.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "4-18%",
+    "typical_ram": "180-600MB"
+  },
+  "python.exe": {
+    "name": "Python Interpreter",
+    "vendor": "Python Software Foundation",
+    "category": "development",
+    "description": "Runs Python scripts. Usage depends on script complexity.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-100%",
+    "typical_ram": "20-500MB"
+  },
+  "pythonw.exe": {
+    "name": "Python (No Console)",
+    "vendor": "Python Software Foundation",
+    "category": "development",
+    "description": "Python without console window. Used by GUI apps like PC_Workman.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-50%",
+    "typical_ram": "30-400MB"
+  },
+  "node.exe": {
+    "name": "Node.js Runtime",
+    "vendor": "OpenJS Foundation",
+    "category": "development",
+    "description": "JavaScript runtime for server-side apps and dev tools.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "50-300MB"
+  },
+  "code.exe": {
+    "name": "Visual Studio Code",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Popular code editor. Extensions increase resource usage.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-20%",
+    "typical_ram": "150-800MB"
+  },
+  "discord.exe": {
+    "name": "Discord",
+    "vendor": "Discord Inc.",
+    "category": "communication",
+    "description": "Voice, video, and text chat platform for communities.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "150-400MB"
+  },
+  "spotify.exe": {
+    "name": "Spotify",
+    "vendor": "Spotify AB",
+    "category": "media",
+    "description": "Music streaming service. Background playback is lightweight.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-300MB"
+  },
+  "steam.exe": {
+    "name": "Steam Client",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "Game distribution platform. Background overlay can impact games.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "100-400MB"
+  },
+  "epicgameslauncher.exe": {
+    "name": "Epic Games Launcher",
+    "vendor": "Epic Games",
+    "category": "gaming",
+    "description": "Game launcher and store. Heavy when updating games.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "200-600MB"
+  },
+  "riotclientservices.exe": {
+    "name": "Riot Client",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "Launcher for League of Legends, Valorant, TFT.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "50-200MB"
+  },
+  "explorer.exe": {
+    "name": "Windows Explorer",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows shell and file manager. Critical system process.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "50-150MB"
+  },
+  "svchost.exe": {
+    "name": "Service Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts Windows services. Multiple instances are normal.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-200MB per instance"
+  },
+  "system": {
+    "name": "System Process",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Core Windows NT kernel and system threads. Always running.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-50MB"
+  },
+  "dwm.exe": {
+    "name": "Desktop Window Manager",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages visual effects, transparency, and window composition.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "50-200MB"
+  },
+  "taskmgr.exe": {
+    "name": "Task Manager",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows Task Manager for monitoring and managing processes.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "30-80MB"
+  },
+  "csrss.exe": {
+    "name": "Client Server Runtime",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Critical Windows subsystem. Handles console windows and threads.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-20MB"
+  },
+  "winlogon.exe": {
+    "name": "Windows Logon",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages user login/logout and Ctrl+Alt+Del screen.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-15MB"
+  },
+  "lsass.exe": {
+    "name": "Local Security Authority",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Handles Windows security policy and authentication.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-30MB"
+  },
+  "nvcontainer.exe": {
+    "name": "NVIDIA Container",
+    "vendor": "NVIDIA Corporation",
+    "category": "system",
+    "description": "Hosts NVIDIA services like GeForce Experience and telemetry.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-100MB"
+  },
+  "nvdisplay.container.exe": {
+    "name": "NVIDIA Display Container",
+    "vendor": "NVIDIA Corporation",
+    "category": "system",
+    "description": "Manages NVIDIA Control Panel and display settings.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-50MB"
+  },
+  "applicationframehost.exe": {
+    "name": "Application Frame Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts Universal Windows Platform (UWP) apps.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-100MB"
+  },
+  "runtimebroker.exe": {
+    "name": "Runtime Broker",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages permissions for UWP apps. High RAM = app permission bug.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-150MB"
+  },
+  "searchindexer.exe": {
+    "name": "Windows Search Indexer",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Indexes files for faster search. Heavy during initial indexing.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "50-300MB"
+  },
+  "antimalwareservice.exe": {
+    "name": "Windows Defender",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows Defender antivirus. Scans can be CPU-intensive.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-30%",
+    "typical_ram": "50-200MB"
+  },
+  "git.exe": {
+    "name": "Git Version Control",
+    "vendor": "Git SCM",
+    "category": "development",
+    "description": "Distributed version control system for code repositories.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "10-50MB"
+  },
+  "docker.exe": {
+    "name": "Docker Desktop",
+    "vendor": "Docker Inc.",
+    "category": "development",
+    "description": "Container platform. Heavy when running multiple containers.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "500-2000MB"
+  },
+  "teams.exe": {
+    "name": "Microsoft Teams",
+    "vendor": "Microsoft Corporation",
+    "category": "communication",
+    "description": "Business communication platform. Heavy during video calls.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "200-800MB"
+  },
+  "zoom.exe": {
+    "name": "Zoom Meetings",
+    "vendor": "Zoom Video Communications",
+    "category": "communication",
+    "description": "Video conferencing app. GPU acceleration recommended.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "150-500MB"
+  },
+  "slack.exe": {
+    "name": "Slack",
+    "vendor": "Slack Technologies",
+    "category": "communication",
+    "description": "Team messaging platform. Electron-based, RAM-heavy.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "150-600MB"
+  },
+  "skype.exe": {
+    "name": "Skype",
+    "vendor": "Microsoft Corporation",
+    "category": "communication",
+    "description": "Video calls and messaging. Legacy version, being replaced by Teams.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-20%",
+    "typical_ram": "100-400MB"
+  },
+  "vlc.exe": {
+    "name": "VLC Media Player",
+    "vendor": "VideoLAN",
+    "category": "media",
+    "description": "Versatile media player. Lightweight and open-source.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-25%",
+    "typical_ram": "50-200MB"
+  },
+  "obs64.exe": {
+    "name": "OBS Studio",
+    "vendor": "OBS Project",
+    "category": "media",
+    "description": "Screen recording and streaming software. GPU encoding recommended.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-50%",
+    "typical_ram": "200-800MB"
+  },
+  "photoshop.exe": {
+    "name": "Adobe Photoshop",
+    "vendor": "Adobe Inc.",
+    "category": "media",
+    "description": "Professional image editing. RAM usage depends on file size.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-80%",
+    "typical_ram": "500-3000MB"
+  },
+  "illustrator.exe": {
+    "name": "Adobe Illustrator",
+    "vendor": "Adobe Inc.",
+    "category": "media",
+    "description": "Vector graphics editor. GPU acceleration for complex artwork.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-70%",
+    "typical_ram": "400-2000MB"
+  },
+  "excel.exe": {
+    "name": "Microsoft Excel",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Spreadsheet application. Large files can be CPU-intensive.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "100-800MB"
+  },
+  "winword.exe": {
+    "name": "Microsoft Word",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Document editor. Generally lightweight unless heavy formatting.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "100-400MB"
+  },
+  "powerpnt.exe": {
+    "name": "Microsoft PowerPoint",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Presentation software. Videos and animations increase usage.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "150-600MB"
+  },
+  "outlook.exe": {
+    "name": "Microsoft Outlook",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Email and calendar client. Syncing large mailboxes is heavy.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-20%",
+    "typical_ram": "150-500MB"
+  },
+  "notion.exe": {
+    "name": "Notion",
+    "vendor": "Notion Labs",
+    "category": "productivity",
+    "description": "Note-taking and collaboration workspace. Electron-based.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-15%",
+    "typical_ram": "150-500MB"
+  },
+  "valorant.exe": {
+    "name": "Valorant",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "Competitive tactical shooter. CPU-heavy for high FPS.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-90%",
+    "typical_ram": "2000-4000MB"
+  },
+  "league of legends.exe": {
+    "name": "League of Legends",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "MOBA game. Moderate requirements, optimized for older hardware.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "1500-3000MB"
+  },
+  "csgo.exe": {
+    "name": "Counter-Strike: GO",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "Competitive FPS. CPU-bound for high frame rates.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "40-85%",
+    "typical_ram": "1500-3000MB"
+  },
+  "fortnite.exe": {
+    "name": "Fortnite",
+    "vendor": "Epic Games",
+    "category": "gaming",
+    "description": "Battle royale game. DX12 mode recommended for newer GPUs.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-80%",
+    "typical_ram": "3000-6000MB"
+  },
+  "gta5.exe": {
+    "name": "Grand Theft Auto V",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Open-world game. GPU-heavy with high settings.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-75%",
+    "typical_ram": "4000-8000MB"
+  },
+  "minecraft.exe": {
+    "name": "Minecraft Java Edition",
+    "vendor": "Mojang Studios",
+    "category": "gaming",
+    "description": "Sandbox game. Single-threaded, benefits from high CPU clock.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "1000-4000MB"
+  },
+  "javaw.exe": {
+    "name": "Java Runtime",
+    "vendor": "Oracle Corporation",
+    "category": "development",
+    "description": "Runs Java applications. Used by Minecraft and development tools.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "5-80%",
+    "typical_ram": "100-4000MB"
+  },
+  "wininit.exe": {
+    "name": "Windows Initialization",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Starts critical Windows services during boot.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-15MB"
+  },
+  "services.exe": {
+    "name": "Services Control Manager",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages Windows services. Critical system process.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-30MB"
+  },
+  "spoolsv.exe": {
+    "name": "Print Spooler",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages print jobs. Can be disabled if no printer used.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-50MB"
+  },
+  "audiodg.exe": {
+    "name": "Windows Audio Device Graph",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Processes audio streams and effects. Isolated for stability.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "20-80MB"
+  },
+  "conhost.exe": {
+    "name": "Console Window Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts console (cmd.exe) windows. One per console instance.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-20MB"
+  },
+  "cmd.exe": {
+    "name": "Command Prompt",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows command-line interpreter. Used for scripts and admin tasks.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "5-30MB"
+  },
+  "powershell.exe": {
+    "name": "Windows PowerShell",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Advanced scripting shell for automation and admin tasks.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "30-150MB"
+  },
+  "notepad.exe": {
+    "name": "Notepad",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Simple text editor. Extremely lightweight.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-15MB"
+  },
+  "calculator.exe": {
+    "name": "Calculator",
+    "vendor": "Microsoft Corporation",
+    "category": "productivity",
+    "description": "Windows calculator app. Minimal resource usage.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-30MB"
+  },
+  "msiexec.exe": {
+    "name": "Windows Installer",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Installs, maintains, and removes software (.msi packages).",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "20-200MB"
+  },
+  "trustedinstaller.exe": {
+    "name": "Windows Modules Installer",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Installs Windows updates. High CPU during update installation.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-80%",
+    "typical_ram": "50-500MB"
+  },
+  "vmmem": {
+    "name": "WSL 2 Virtual Machine",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows Subsystem for Linux 2 memory process.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-50%",
+    "typical_ram": "100-4000MB"
+  },
+  "wsl.exe": {
+    "name": "Windows Subsystem for Linux",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Runs Linux distributions on Windows. Popular for development.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-40%",
+    "typical_ram": "50-2000MB"
+  },
+  "windowsterminal.exe": {
+    "name": "Windows Terminal",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Modern terminal for cmd, PowerShell, and WSL. GPU-accelerated.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "50-200MB"
+  },
+  "malwarebytes.exe": {
+    "name": "Malwarebytes",
+    "vendor": "Malwarebytes Corporation",
+    "category": "security",
+    "description": "Anti-malware protection. Scans can be CPU-intensive.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-40%",
+    "typical_ram": "50-300MB"
+  },
+  "ccleaner.exe": {
+    "name": "CCleaner",
+    "vendor": "Piriform (Avast)",
+    "category": "utility",
+    "description": "System cleaner and optimizer. Use with caution on registry.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "2-20%",
+    "typical_ram": "30-150MB"
+  },
+  "torrent.exe": {
+    "name": "BitTorrent Client",
+    "vendor": "Various",
+    "category": "network",
+    "description": "P2P file sharing. Can saturate bandwidth and slow network.",
+    "power_usage": "medium",
+    "safety": "caution",
+    "typical_cpu": "3-25%",
+    "typical_ram": "50-400MB"
+  },
+  "utorrent.exe": {
+    "name": "uTorrent",
+    "vendor": "BitTorrent Inc.",
+    "category": "network",
+    "description": "Lightweight torrent client. Limit upload/download for performance.",
+    "power_usage": "medium",
+    "safety": "caution",
+    "typical_cpu": "2-20%",
+    "typical_ram": "30-200MB"
+  },
+  "winrar.exe": {
+    "name": "WinRAR",
+    "vendor": "RARLAB",
+    "category": "utility",
+    "description": "Archive extraction and compression tool. CPU-heavy during compression.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-100%",
+    "typical_ram": "30-300MB"
+  },
+  "7zfm.exe": {
+    "name": "7-Zip File Manager",
+    "vendor": "Igor Pavlov",
+    "category": "utility",
+    "description": "Open-source file archiver. Faster compression than WinRAR.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-100%",
+    "typical_ram": "20-200MB"
+  },
+  "everything.exe": {
+    "name": "Everything Search",
+    "vendor": "Voidtools",
+    "category": "utility",
+    "description": "Instant file search. Much faster than Windows search.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-50MB"
+  },
+  "anydesk.exe": {
+    "name": "AnyDesk",
+    "vendor": "AnyDesk Software",
+    "category": "remote",
+    "description": "Remote desktop software. Lightweight and fast.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "50-200MB"
+  },
+  "teamviewer.exe": {
+    "name": "TeamViewer",
+    "vendor": "TeamViewer GmbH",
+    "category": "remote",
+    "description": "Remote support and access. Heavier than AnyDesk.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-35%",
+    "typical_ram": "100-400MB"
+  },
+  "bluestacks.exe": {
+    "name": "BlueStacks",
+    "vendor": "BlueStack Systems",
+    "category": "emulator",
+    "description": "Android emulator for PC. Very resource-intensive.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-80%",
+    "typical_ram": "1000-4000MB"
+  },
+  "memu.exe": {
+    "name": "MEmu Play",
+    "vendor": "Microvirt",
+    "category": "emulator",
+    "description": "Android emulator optimized for gaming. Heavy RAM usage.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-70%",
+    "typical_ram": "1000-3000MB"
+  },
+  "vmware.exe": {
+    "name": "VMware Workstation",
+    "vendor": "VMware Inc.",
+    "category": "virtualization",
+    "description": "Virtual machine software. Resource usage depends on VM settings.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-90%",
+    "typical_ram": "500-8000MB"
+  },
+  "virtualbox.exe": {
+    "name": "Oracle VM VirtualBox",
+    "vendor": "Oracle Corporation",
+    "category": "virtualization",
+    "description": "Free virtualization software. Similar resource needs to VMware.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-90%",
+    "typical_ram": "500-8000MB"
+  }
+}
