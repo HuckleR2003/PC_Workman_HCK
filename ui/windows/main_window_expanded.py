@@ -26,7 +26,7 @@ except ImportError:
     psutil = None
 
 from ui.theme import THEME
-from ui.components.led_bars import LEDSegmentBar
+from ui.components.led_bars import LEDSegmentBar, AnimatedBar
 from ui.components.sidebar_nav import SidebarNav
 from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_stats_page
 
@@ -710,49 +710,40 @@ class ExpandedMainWindow:
         canvas.bind("<Leave>", on_leave)
 
     def _create_session_bar(self, parent, label, color_start, color_end, key):
-        """Create gradient session average bar - COMPACT VERSION"""
+        """Create session average bar with AnimatedBar."""
         row = tk.Frame(parent, bg=THEME["bg_main"])
-        row.pack(fill="x", pady=1)  # Reduced from 2 to 1
+        row.pack(fill="x", pady=1)
 
-        # Label - smaller font
         lbl = tk.Label(
             row,
             text=label,
-            font=("Segoe UI", 8, "bold"),  # Reduced from 9 to 8
+            font=("Segoe UI", 8, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"],
-            width=4,  # Reduced from 5 to 4
+            width=4,
             anchor="w"
         )
-        lbl.pack(side="left", padx=(8, 4))  # Reduced padding
+        lbl.pack(side="left", padx=(8, 4))
 
-        # Bar background - SMALLER HEIGHT
-        bar_bg = tk.Frame(row, bg="#1a1d24", height=16)  # Reduced from 22 to 16
-        bar_bg.pack(side="left", fill="x", expand=True, padx=4)  # Reduced padding
-        bar_bg.pack_propagate(False)
+        bar = AnimatedBar(row, color_start, bg_color="#1a1d24", height=16)
+        bar.bg_frame.pack(side="left", fill="x", expand=True, padx=4)
 
-        # Bar fill (gradient effect via solid color for now)
-        bar_fill = tk.Frame(bar_bg, bg=color_start, height=16)  # Reduced from 22 to 16
-        bar_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
-
-        # Value label - smaller font
         val_lbl = tk.Label(
             row,
             text="0%",
-            font=("Consolas", 8, "bold"),  # Reduced from 10 to 8
+            font=("Consolas", 8, "bold"),
             bg=THEME["bg_main"],
             fg=color_start,
-            width=4,  # Reduced from 5 to 4
+            width=4,
             anchor="e"
         )
-        val_lbl.pack(side="right", padx=(4, 8))  # Reduced padding
+        val_lbl.pack(side="right", padx=(4, 8))
 
-        # Store references
         if not hasattr(self, 'session_bars'):
             self.session_bars = {}
 
         self.session_bars[key] = {
-            "fill": bar_fill,
+            "bar": bar,
             "label": val_lbl,
             "color": color_start
         }
@@ -952,16 +943,20 @@ class ExpandedMainWindow:
         )
         self.realtime_canvas.pack(fill="both", expand=True, padx=8, pady=5)
 
+        # Trigger chart draw once canvas actually has dimensions
+        self.realtime_canvas.bind('<Configure>', self._on_chart_configure)
+
         # Data storage for chart (100 samples per resource)
         self.chart_data = {
-            "cpu": [],  # CPU usage history
-            "ram": [],  # RAM usage history
-            "gpu": []   # GPU usage history
+            "cpu": [],
+            "ram": [],
+            "gpu": []
         }
-        self.chart_max_samples = 100  # 100 seconds of data
+        self.chart_max_samples = 100
+        self._chart_after_id = None
 
-        # Start chart update animation
-        self._update_realtime_chart()
+        # Start chart update loop
+        self._schedule_chart_update(100)
 
         # Live metrics line
         metrics_frame = tk.Frame(center, bg="#1a1d24", height=28)
@@ -1043,14 +1038,14 @@ class ExpandedMainWindow:
                     # Highlight selected
                     f_btn.config(bg="#2563eb", fg="#ffffff")
                     self.chart_filter = f_name
-                    # Force chart item rebuild on filter change
                     if hasattr(self, '_chart_last_num'):
                         self._chart_last_num = -1
-                    # Load historical data for non-LIVE modes
                     if f_name != 'LIVE':
                         self._load_historical_chart_data(f_name)
                     else:
                         self._historical_chart_data = None
+                    # Immediate redraw — don't wait for 2s timer
+                    self._schedule_chart_update(50)
                 return on_click
 
             btn.bind("<Button-1>", make_filter_click(filter_name, btn))
@@ -1458,7 +1453,7 @@ class ExpandedMainWindow:
 
 
     def _render_expanded_user_processes(self, procs):
-        """Render TOP 5 user processes — reuse widgets instead of destroy/recreate"""
+        """Render TOP 5 user processes — 2-line rows with animated bars."""
         if not hasattr(self, 'expanded_user_container'):
             return
         try:
@@ -1467,60 +1462,70 @@ class ExpandedMainWindow:
         except Exception:
             return
 
-        # Cache psutil values (avoid calling per-row)
         cpu_cores = self._cached_cpu_count()
         total_ram_mb = self._cached_total_ram_mb()
 
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
-        # First call: create widgets; later: just update labels
         if not self.expanded_user_widgets:
             for i in range(5):
                 row_bg = row_gradients[i]
-                row = tk.Frame(self.expanded_user_container, bg=row_bg, height=22)
-                row.pack(fill="x", pady=0)
+                row = tk.Frame(self.expanded_user_container, bg=row_bg, height=36)
+                row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
 
-                name_lbl = tk.Label(row, text="", font=("Segoe UI", 7),
-                                    bg=row_bg, fg=THEME["text"], anchor="w")
-                name_lbl.pack(side="left", padx=4, fill="y")
+                # Line 1 — process name
+                top_line = tk.Frame(row, bg=row_bg)
+                top_line.pack(fill="x", padx=6, pady=(4, 0))
 
-                bars_frame = tk.Frame(row, bg=row_bg)
-                bars_frame.pack(side="right", padx=3)
+                name_lbl = tk.Label(
+                    top_line, text="", font=("Segoe UI", 7, "bold"),
+                    bg=row_bg, fg=THEME["text"], anchor="w"
+                )
+                name_lbl.pack(side="left")
 
-                cpu_container = tk.Frame(bars_frame, bg=row_bg)
-                cpu_container.pack(side="left", padx=1)
-                tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
-                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-                cpu_bar_bg = tk.Frame(cpu_container, bg="#0f1117", width=30, height=4)
-                cpu_bar_bg.pack(side="left", padx=(0, 2))
-                cpu_bar_bg.pack_propagate(False)
-                cpu_fill = tk.Frame(cpu_bar_bg, bg="#3b82f6", height=4)
-                cpu_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
-                cpu_val = tk.Label(cpu_container, text="0%", font=("Consolas", 6),
-                                   bg=row_bg, fg="#3b82f6", width=4, anchor="e")
+                # Line 2 — CPU + RAM bars
+                bars_line = tk.Frame(row, bg=row_bg)
+                bars_line.pack(fill="x", padx=6, pady=(2, 4))
+
+                # CPU half
+                cpu_half = tk.Frame(bars_line, bg=row_bg)
+                cpu_half.pack(side="left", fill="x", expand=True)
+
+                tk.Label(cpu_half, text="CPU", font=("Segoe UI", 6, "bold"),
+                         bg=row_bg, fg="#3b82f6").pack(side="left")
+
+                cpu_bar = AnimatedBar(cpu_half, "#3b82f6", bg_color="#0d1117", height=5)
+                cpu_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
+
+                cpu_val = tk.Label(cpu_half, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#3b82f6", width=3, anchor="e")
                 cpu_val.pack(side="left")
 
-                ram_container = tk.Frame(bars_frame, bg=row_bg)
-                ram_container.pack(side="left", padx=1)
-                tk.Label(ram_container, text="R", font=("Segoe UI", 6),
-                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-                ram_bar_bg = tk.Frame(ram_container, bg="#0f1117", width=30, height=4)
-                ram_bar_bg.pack(side="left", padx=(0, 2))
-                ram_bar_bg.pack_propagate(False)
-                ram_fill = tk.Frame(ram_bar_bg, bg="#fbbf24", height=4)
-                ram_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
-                ram_val = tk.Label(ram_container, text="0%", font=("Consolas", 6),
-                                   bg=row_bg, fg="#fbbf24", width=4, anchor="e")
+                # Divider
+                tk.Frame(bars_line, bg="#2a2d34", width=1).pack(
+                    side="left", fill="y", padx=3)
+
+                # RAM half
+                ram_half = tk.Frame(bars_line, bg=row_bg)
+                ram_half.pack(side="left", fill="x", expand=True)
+
+                tk.Label(ram_half, text="RAM", font=("Segoe UI", 6, "bold"),
+                         bg=row_bg, fg="#fbbf24").pack(side="left")
+
+                ram_bar = AnimatedBar(ram_half, "#fbbf24", bg_color="#0d1117", height=5)
+                ram_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
+
+                ram_val = tk.Label(ram_half, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
                 self.expanded_user_widgets.append({
                     "row": row, "name": name_lbl,
-                    "cpu_fill": cpu_fill, "cpu_val": cpu_val,
-                    "ram_fill": ram_fill, "ram_val": ram_val,
+                    "cpu_bar": cpu_bar, "cpu_val": cpu_val,
+                    "ram_bar": ram_bar, "ram_val": ram_val,
                 })
 
-        # Update existing widgets with new data
         for i, widget_data in enumerate(self.expanded_user_widgets):
             if i < len(procs):
                 proc = procs[i]
@@ -1530,17 +1535,17 @@ class ExpandedMainWindow:
                 cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
                 ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
-                widget_data["name"].config(text=f"{i+1}. {display_name[:14]}")
-                widget_data["cpu_fill"].place(relwidth=min(cpu_pct / 100.0, 1.0))
+                widget_data["name"].config(text=f"{i+1}. {display_name[:20]}")
+                widget_data["cpu_bar"].set_target(cpu_pct)
                 widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
-                widget_data["ram_fill"].place(relwidth=min(ram_pct / 100.0, 1.0))
+                widget_data["ram_bar"].set_target(ram_pct)
                 widget_data["ram_val"].config(text=f"{ram_pct:.0f}%")
-                widget_data["row"].pack(fill="x", pady=0)
+                widget_data["row"].pack(fill="x", pady=1)
             else:
                 widget_data["name"].config(text="")
-                widget_data["cpu_fill"].place(relwidth=0)
+                widget_data["cpu_bar"].set_target(0)
                 widget_data["cpu_val"].config(text="")
-                widget_data["ram_fill"].place(relwidth=0)
+                widget_data["ram_bar"].set_target(0)
                 widget_data["ram_val"].config(text="")
 
     def _render_expanded_system_processes(self, procs):
@@ -1558,54 +1563,65 @@ class ExpandedMainWindow:
 
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
 
-        # First call: create widgets; later: just update labels
         if not self.expanded_sys_widgets:
             for i in range(5):
                 row_bg = row_gradients[i]
-                row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=22)
-                row.pack(fill="x", pady=0)
+                row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=36)
+                row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
 
-                name_lbl = tk.Label(row, text="", font=("Segoe UI", 7),
-                                    bg=row_bg, fg=THEME["text"], anchor="w")
-                name_lbl.pack(side="left", padx=4, fill="y")
+                # Line 1 — process name
+                top_line = tk.Frame(row, bg=row_bg)
+                top_line.pack(fill="x", padx=6, pady=(4, 0))
 
-                bars_frame = tk.Frame(row, bg=row_bg)
-                bars_frame.pack(side="right", padx=3)
+                name_lbl = tk.Label(
+                    top_line, text="", font=("Segoe UI", 7, "bold"),
+                    bg=row_bg, fg=THEME["text"], anchor="w"
+                )
+                name_lbl.pack(side="left")
 
-                cpu_container = tk.Frame(bars_frame, bg=row_bg)
-                cpu_container.pack(side="left", padx=1)
-                tk.Label(cpu_container, text="C", font=("Segoe UI", 6),
-                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-                cpu_bar_bg = tk.Frame(cpu_container, bg="#0f1117", width=30, height=4)
-                cpu_bar_bg.pack(side="left", padx=(0, 2))
-                cpu_bar_bg.pack_propagate(False)
-                cpu_fill = tk.Frame(cpu_bar_bg, bg="#3b82f6", height=4)
-                cpu_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
-                cpu_val = tk.Label(cpu_container, text="0%", font=("Consolas", 6),
-                                   bg=row_bg, fg="#3b82f6", width=4, anchor="e")
+                # Line 2 — CPU + RAM bars
+                bars_line = tk.Frame(row, bg=row_bg)
+                bars_line.pack(fill="x", padx=6, pady=(2, 4))
+
+                # CPU half
+                cpu_half = tk.Frame(bars_line, bg=row_bg)
+                cpu_half.pack(side="left", fill="x", expand=True)
+
+                tk.Label(cpu_half, text="CPU", font=("Segoe UI", 6, "bold"),
+                         bg=row_bg, fg="#3b82f6").pack(side="left")
+
+                cpu_bar = AnimatedBar(cpu_half, "#3b82f6", bg_color="#0d1117", height=5)
+                cpu_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
+
+                cpu_val = tk.Label(cpu_half, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#3b82f6", width=3, anchor="e")
                 cpu_val.pack(side="left")
 
-                ram_container = tk.Frame(bars_frame, bg=row_bg)
-                ram_container.pack(side="left", padx=1)
-                tk.Label(ram_container, text="R", font=("Segoe UI", 6),
-                         bg=row_bg, fg="#6b7280", width=2).pack(side="left")
-                ram_bar_bg = tk.Frame(ram_container, bg="#0f1117", width=30, height=4)
-                ram_bar_bg.pack(side="left", padx=(0, 2))
-                ram_bar_bg.pack_propagate(False)
-                ram_fill = tk.Frame(ram_bar_bg, bg="#fbbf24", height=4)
-                ram_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
-                ram_val = tk.Label(ram_container, text="0%", font=("Consolas", 6),
-                                   bg=row_bg, fg="#fbbf24", width=4, anchor="e")
+                # Divider
+                tk.Frame(bars_line, bg="#2a2d34", width=1).pack(
+                    side="left", fill="y", padx=3)
+
+                # RAM half
+                ram_half = tk.Frame(bars_line, bg=row_bg)
+                ram_half.pack(side="left", fill="x", expand=True)
+
+                tk.Label(ram_half, text="RAM", font=("Segoe UI", 6, "bold"),
+                         bg=row_bg, fg="#fbbf24").pack(side="left")
+
+                ram_bar = AnimatedBar(ram_half, "#fbbf24", bg_color="#0d1117", height=5)
+                ram_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
+
+                ram_val = tk.Label(ram_half, text="0%", font=("Consolas", 6),
+                                   bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
                 self.expanded_sys_widgets.append({
                     "row": row, "name": name_lbl,
-                    "cpu_fill": cpu_fill, "cpu_val": cpu_val,
-                    "ram_fill": ram_fill, "ram_val": ram_val,
+                    "cpu_bar": cpu_bar, "cpu_val": cpu_val,
+                    "ram_bar": ram_bar, "ram_val": ram_val,
                 })
 
-        # Update existing widgets with new data
         for i, widget_data in enumerate(self.expanded_sys_widgets):
             if i < len(procs):
                 proc = procs[i]
@@ -1615,17 +1631,17 @@ class ExpandedMainWindow:
                 cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
                 ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
-                widget_data["name"].config(text=f"{i+1}. {display_name[:14]}")
-                widget_data["cpu_fill"].place(relwidth=min(cpu_pct / 100.0, 1.0))
+                widget_data["name"].config(text=f"{i+1}. {display_name[:20]}")
+                widget_data["cpu_bar"].set_target(cpu_pct)
                 widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
-                widget_data["ram_fill"].place(relwidth=min(ram_pct / 100.0, 1.0))
+                widget_data["ram_bar"].set_target(ram_pct)
                 widget_data["ram_val"].config(text=f"{ram_pct:.0f}%")
-                widget_data["row"].pack(fill="x", pady=0)
+                widget_data["row"].pack(fill="x", pady=1)
             else:
                 widget_data["name"].config(text="")
-                widget_data["cpu_fill"].place(relwidth=0)
+                widget_data["cpu_bar"].set_target(0)
                 widget_data["cpu_val"].config(text="")
-                widget_data["ram_fill"].place(relwidth=0)
+                widget_data["ram_bar"].set_target(0)
                 widget_data["ram_val"].config(text="")
 
     def _create_mini_bar(self, parent, value, color, text, bg):
@@ -1846,18 +1862,14 @@ class ExpandedMainWindow:
         return None
 
     def _update_session_bar(self, key, value):
-        """Update session average bar"""
+        """Update session average bar with smooth animation."""
         if not hasattr(self, 'session_bars'):
             return
-
         bar_data = self.session_bars.get(key)
         if not bar_data:
             return
-
         try:
-            if not bar_data["fill"].winfo_exists():
-                return
-            bar_data["fill"].place(relwidth=min(value / 100.0, 1.0))
+            bar_data["bar"].set_target(value)
             bar_data["label"].config(text=f"{value:.1f}%")
         except Exception:
             pass
@@ -1923,8 +1935,26 @@ class ExpandedMainWindow:
             print(f"[ExpandedMode] Historical data load error: {e}")
             self._historical_chart_data = None
 
+    def _schedule_chart_update(self, delay_ms=2000):
+        """Schedule chart update, cancelling any pending one to avoid duplicate loops."""
+        if self._chart_after_id is not None:
+            try:
+                self.root.after_cancel(self._chart_after_id)
+            except Exception:
+                pass
+        self._chart_after_id = self.root.after(delay_ms, self._update_realtime_chart)
+
+    def _on_chart_configure(self, event):
+        """Called when canvas gets real dimensions (first map or resize)."""
+        if event.width <= 1 or event.height <= 1:
+            return
+        if hasattr(self, '_chart_last_num'):
+            self._chart_last_num = -1
+        self._schedule_chart_update(50)
+
     def _update_realtime_chart(self):
         """Draw 3-bar real-time chart using reusable canvas rectangles."""
+        self._chart_after_id = None
         if not hasattr(self, 'realtime_canvas') or not self._running:
             return
 
@@ -1934,27 +1964,24 @@ class ExpandedMainWindow:
             height = canvas.winfo_height()
 
             if width <= 1 or height <= 1:
-                self.root.after(100, self._update_realtime_chart)
+                self._schedule_chart_update(150)
                 return
 
             margin = 10
             cw = width - margin * 2
             ch = height - margin * 2
+            bottom_y = margin + ch
 
-            # Periodically refresh historical data (~every 30s)
-            if hasattr(self, 'chart_filter') and self.chart_filter != 'LIVE':
-                if not hasattr(self, '_hist_refresh_counter'):
-                    self._hist_refresh_counter = 0
-                self._hist_refresh_counter += 1
-                if self._hist_refresh_counter >= 15:  # 15 × 2s = 30s
+            # Periodically refresh historical data (~every 30s in non-LIVE mode)
+            if getattr(self, 'chart_filter', 'LIVE') != 'LIVE':
+                self._hist_refresh_counter = getattr(self, '_hist_refresh_counter', 0) + 1
+                if self._hist_refresh_counter >= 15:
                     self._hist_refresh_counter = 0
                     self._load_historical_chart_data(self.chart_filter)
 
-            # Get data — historical for non-LIVE modes, live rolling buffer for LIVE
-            if (hasattr(self, '_historical_chart_data') and
-                    self._historical_chart_data and
-                    hasattr(self, 'chart_filter') and
-                    self.chart_filter != 'LIVE'):
+            # Select data source
+            if (getattr(self, 'chart_filter', 'LIVE') != 'LIVE' and
+                    getattr(self, '_historical_chart_data', None)):
                 cpu_data = self._historical_chart_data.get('cpu', [])
                 ram_data = self._historical_chart_data.get('ram', [])
                 gpu_data = self._historical_chart_data.get('gpu', [])
@@ -1964,59 +1991,60 @@ class ExpandedMainWindow:
                 gpu_data = self.chart_data.get('gpu', [])
 
             num = max(len(cpu_data), len(ram_data), len(gpu_data))
+
             if num == 0:
-                self.root.after(1000, self._update_realtime_chart)
+                canvas.delete("all")
+                canvas.create_text(
+                    width // 2, height // 2,
+                    text="Collecting data...",
+                    fill="#2a2d34", font=("Segoe UI", 9), tags="placeholder"
+                )
+                self._schedule_chart_update(500)
                 return
 
-            bar_w = max(int(cw / num), 1)
-            bottom_y = margin + ch
+            canvas.delete("placeholder")
 
-            # Initialize reusable canvas items pool on first run
+            bar_w = max(int(cw / num), 1)
+
             if not hasattr(self, '_chart_items'):
                 self._chart_items = {'cpu': [], 'ram': [], 'gpu': []}
                 self._chart_last_num = 0
 
-            # If number of bars changed, clear and recreate pool
-            if num != self._chart_last_num:
+            # Rebuild pool when bar count changes
+            if num != getattr(self, '_chart_last_num', 0):
                 canvas.delete("chart_bar")
                 self._chart_items = {'cpu': [], 'ram': [], 'gpu': []}
                 for i in range(num):
                     x1 = margin + i * bar_w
                     x2 = x1 + max(bar_w - 1, 1)
-                    # Create bars (layered: cpu behind, ram middle, gpu front)
                     cid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
-                                                  fill="#1e3a8a", outline="", tags="chart_bar")
-                    self._chart_items['cpu'].append(cid)
+                                                  fill="#3b82f6", outline="", tags="chart_bar")
                     rid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
                                                   fill="#fbbf24", outline="", tags="chart_bar")
-                    self._chart_items['ram'].append(rid)
                     gid = canvas.create_rectangle(x1, bottom_y, x2, bottom_y,
                                                   fill="#10b981", outline="", tags="chart_bar")
+                    self._chart_items['cpu'].append(cid)
+                    self._chart_items['ram'].append(rid)
                     self._chart_items['gpu'].append(gid)
                 self._chart_last_num = num
 
-            # Update bar positions (just coords, no create/delete)
+            # Update bar positions directly
             for i in range(num):
                 x1 = margin + i * bar_w
                 x2 = x1 + max(bar_w - 1, 1)
-
-                cpu_val = cpu_data[i] if i < len(cpu_data) else 0
-                ram_val = ram_data[i] if i < len(ram_data) else 0
-                gpu_val = gpu_data[i] if i < len(gpu_data) else 0
-
-                cpu_top = bottom_y - int((cpu_val / 100.0) * ch)
-                ram_top = bottom_y - int((ram_val / 100.0) * ch)
-                gpu_top = bottom_y - int((gpu_val / 100.0) * ch)
-
+                cpu_top = bottom_y - int((cpu_data[i] if i < len(cpu_data) else 0) / 100.0 * ch)
+                ram_top = bottom_y - int((ram_data[i] if i < len(ram_data) else 0) / 100.0 * ch)
+                gpu_top = bottom_y - int((gpu_data[i] if i < len(gpu_data) else 0) / 100.0 * ch)
                 canvas.coords(self._chart_items['cpu'][i], x1, cpu_top, x2, bottom_y)
                 canvas.coords(self._chart_items['ram'][i], x1, ram_top, x2, bottom_y)
                 canvas.coords(self._chart_items['gpu'][i], x1, gpu_top, x2, bottom_y)
 
-            self.root.after(2000, self._update_realtime_chart)
+            self._schedule_chart_update(2000)
+
         except Exception as e:
             print(f"[Chart] Error: {e}")
             if self._running:
-                self.root.after(2000, self._update_realtime_chart)
+                self._schedule_chart_update(2000)
 
     def _update_hardware_cards(self, sample):
         """Update hardware cards with sparklines and status"""
