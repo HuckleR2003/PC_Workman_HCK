@@ -49,7 +49,7 @@ class MainWindow:
         self.switch_to_expanded_callback = switch_to_expanded_callback
 
         self.root = tk.Tk()
-        self.root.title("PC Workman – HCK_Labs v1.6.8")
+        self.root.title("PC Workman – HCK_Labs v1.7.1")
         self.root.configure(bg=THEME["bg_main"])
 
         # Window settings

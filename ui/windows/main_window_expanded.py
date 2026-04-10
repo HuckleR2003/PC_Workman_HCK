@@ -1,6 +1,6 @@
 # ui/main_window_expanded.py
 """
-PC Workman - EXPANDED MODE (Main Window) v1.6.8
+PC Workman - EXPANDED MODE (Main Window) v1.7.1
 980x500 resolution, centered, full-featured interface
 Full-featured interface with modern dark theme
 """
@@ -95,7 +95,7 @@ class ExpandedMainWindow:
 
         # Create root window
         self.root = tk.Tk()
-        self.root.title("PC Workman - HCK Labs v1.6.8")
+        self.root.title("PC Workman - HCK Labs v1.7.1")
         self.root.geometry("1160x575")  # Expanded for sidebar (980 + 180)
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
@@ -1092,7 +1092,7 @@ class ExpandedMainWindow:
         self.expanded_sys_widgets = []
 
     def _build_feature_buttons(self, parent):
-        """Build innovative feature buttons - Turbo Boost & More Optimization Tools"""
+        """Build feature buttons — Turbo Boost & More Optimization Tools."""
         buttons_container = tk.Frame(parent, bg=THEME["bg_main"])
         buttons_container.pack(fill="x", pady=(8, 0))
 
@@ -2358,133 +2358,6 @@ class ExpandedMainWindow:
             self._build_guide_page(content_frame)
 
     # ========== PAGE BUILDERS ==========
-    # Note: _build_yourpc_page moved to ui/yourpc_page.py module
-
-    def _build_yourpc_page_OLD_REMOVED(self, parent):
-        """Build YOUR PC page - Hardware health and personal data"""
-        # Scrollable container
-        canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
-        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg="#0f1117")
-
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        canvas.pack(side="left", fill="both", expand=True, padx=20, pady=10)
-        scrollbar.pack(side="right", fill="y")
-
-        # Get hardware info
-        try:
-            import platform
-            cpu_model = platform.processor() if platform.processor() else "Unknown CPU"
-        except:
-            cpu_model = "Unknown CPU"
-
-        try:
-            ram_total = psutil.virtual_memory().total / (1024**3)
-            ram_used = psutil.virtual_memory().used / (1024**3)
-            ram_percent = psutil.virtual_memory().percent
-        except:
-            ram_total, ram_used, ram_percent = 0, 0, 0
-
-        try:
-            import GPUtil
-            gpus = GPUtil.getGPUs()
-            gpu_model = gpus[0].name if gpus else "Unknown GPU"
-            gpu_temp = gpus[0].temperature if gpus and hasattr(gpus[0], 'temperature') else 0
-            gpu_load = gpus[0].load * 100 if gpus else 0
-        except:
-            gpu_model = "Unknown GPU"
-            gpu_temp = 0
-            gpu_load = 0
-
-        # Hardware sections
-        hardware_sections = [
-            {
-                "title": "🖥️ CPU Information",
-                "icon_color": "#3b82f6",
-                "items": [
-                    ("Model", cpu_model),
-                    ("Cores", str(psutil.cpu_count(logical=False)) if psutil else "N/A"),
-                    ("Threads", str(psutil.cpu_count(logical=True)) if psutil else "N/A"),
-                    ("Current Usage", f"{psutil.cpu_percent(interval=0.1)}%" if psutil else "N/A"),
-                    ("Temperature", "30-70°C (simulated)")
-                ]
-            },
-            {
-                "title": "💾 RAM Information",
-                "icon_color": "#fbbf24",
-                "items": [
-                    ("Total Memory", f"{ram_total:.2f} GB"),
-                    ("Used Memory", f"{ram_used:.2f} GB"),
-                    ("Usage", f"{ram_percent:.1f}%"),
-                    ("Available", f"{(ram_total - ram_used):.2f} GB")
-                ]
-            },
-            {
-                "title": "🎮 GPU Information",
-                "icon_color": "#10b981",
-                "items": [
-                    ("Model", gpu_model),
-                    ("Current Load", f"{gpu_load:.1f}%"),
-                    ("Temperature", f"{gpu_temp}°C" if gpu_temp > 0 else "N/A"),
-                    ("Status", "Operational" if gpu_load < 90 else "High Load")
-                ]
-            }
-        ]
-
-        for section in hardware_sections:
-            # Section frame
-            section_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-            section_frame.pack(fill="x", padx=10, pady=8)
-
-            # Section header
-            header = tk.Frame(section_frame, bg=section["icon_color"], height=40)
-            header.pack(fill="x")
-            header.pack_propagate(False)
-
-            title_lbl = tk.Label(
-                header,
-                text=section["title"],
-                font=("Segoe UI", 13, "bold"),
-                bg=section["icon_color"],
-                fg="#ffffff"
-            )
-            title_lbl.pack(side="left", padx=15, pady=8)
-
-            # Items
-            for label, value in section["items"]:
-                item_frame = tk.Frame(section_frame, bg="#1a1d24")
-                item_frame.pack(fill="x", padx=15, pady=4)
-
-                lbl = tk.Label(
-                    item_frame,
-                    text=label,
-                    font=("Segoe UI", 10, "bold"),
-                    bg="#1a1d24",
-                    fg="#94a3b8",
-                    width=20,
-                    anchor="w"
-                )
-                lbl.pack(side="left")
-
-                val = tk.Label(
-                    item_frame,
-                    text=value,
-                    font=("Consolas", 10),
-                    bg="#1a1d24",
-                    fg="#ffffff",
-                    anchor="w"
-                )
-                val.pack(side="left", padx=10)
-
-            # Bottom padding
-            tk.Frame(section_frame, bg="#1a1d24", height=10).pack()
 
     def _build_sensors_page(self, parent):
         """Build SENSORS page - HWMonitor-style hierarchical sensor tree 🌲"""
@@ -2910,8 +2783,8 @@ Includes practical insights, calm design, and universal hardware support"""
         ).pack(anchor="w", padx=15, pady=(15, 10))
 
         version_info = [
-            ("Current Version", "v1.6.8 - Stats Engine & Time-Travel"),
-            ("Release Date", "February 15, 2026"),
+            ("Current Version", "v1.7.1 - Cleanup & Test Coverage"),
+            ("Release Date", "April 10, 2026"),
             ("Architecture", "Dual-Mode (Minimal + Expanded)"),
             ("Language", "Python 3.x + Tkinter"),
             ("License", "Educational Project - HCK_Labs")
@@ -4528,7 +4401,7 @@ Includes practical insights, calm design, and universal hardware support"""
 
         tk.Label(
             version_frame,
-            text="v1.6.8",
+            text="v1.7.1",
             font=("Segoe UI", 12, "bold"),
             bg="#0f1117",
             fg="#10b981"
@@ -4536,7 +4409,7 @@ Includes practical insights, calm design, and universal hardware support"""
 
         tk.Label(
             version_frame,
-            text=" - 13.01.2026",
+            text=" - 10.04.2026",
             font=("Segoe UI", 12),
             bg="#0f1117",
             fg="#64748b"
