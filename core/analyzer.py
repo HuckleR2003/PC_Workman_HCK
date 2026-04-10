@@ -1,4 +1,3 @@
-### HCK_Labs
 # core/analyzer.py
 """
 core.analyzer
