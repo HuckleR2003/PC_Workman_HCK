@@ -240,8 +240,7 @@ class HardwareSensors:
                 'type': 'memory'
             }
 
-            # Clock (if available)
-            # Note: GPUtil doesn't provide clock speeds, would need nvidia-smi or similar
+            # Clock speeds require nvidia-smi; GPUtil does not expose them
 
         except Exception as e:
             print(f"[HardwareSensors] GPU error: {e}")
