@@ -1,11 +1,59 @@
-# ui/led_bars.py
+# ui/components/led_bars.py
 """
 LED-style segment bars for CPU/GPU/RAM usage.
 Scalable, color-mapped, neon-styled segments like MSI Afterburner.
+Also provides AnimatedBar — a smooth ease-out progress bar usable anywhere.
 """
 
 import tkinter as tk
 from ui.theme import THEME
+
+
+class AnimatedBar:
+    """
+    Smooth animated progress bar with ease-out interpolation.
+    Usage:
+        bar = AnimatedBar(parent, fill_color="#3b82f6", height=5)
+        bar.bg_frame.pack(...)   # place the bar in layout
+        bar.set_target(75.0)     # animate to 75%
+    """
+
+    _EASE = 0.18          # fraction of gap closed per frame (ease-out)
+    _FRAME_MS = 16        # ~60 fps
+    _SNAP = 0.004         # snap to target when closer than 0.4%
+
+    def __init__(self, parent, fill_color, bg_color="#0f1117", height=5):
+        self._current = 0.0
+        self._target = 0.0
+        self._animating = False
+
+        self.bg_frame = tk.Frame(parent, bg=bg_color, height=height)
+        self._fill = tk.Frame(self.bg_frame, bg=fill_color, height=height)
+        self._fill.place(x=0, y=0, relwidth=0.0, relheight=1.0)
+
+    def set_target(self, pct: float):
+        """Set target percentage 0–100 and start animating if not already."""
+        self._target = max(0.0, min(100.0, pct)) / 100.0
+        if not self._animating:
+            self._animating = True
+            self._step()
+
+    def _step(self):
+        diff = self._target - self._current
+        if abs(diff) < self._SNAP:
+            self._current = self._target
+            self._animating = False
+            try:
+                self._fill.place(relwidth=self._current)
+            except Exception:
+                pass
+            return
+        self._current += diff * self._EASE
+        try:
+            self._fill.place(relwidth=self._current)
+            self._fill.after(self._FRAME_MS, self._step)
+        except Exception:
+            self._animating = False
 
 class LEDSegmentBar:
     def __init__(self, parent, label, color_map, segments=18, height=22):
