@@ -1,4 +1,3 @@
-### HCK_Labs
 # core/monitor.py
 """
 core.monitor
@@ -13,14 +12,13 @@ from import_core import register_component
 import time
 import threading
 import psutil
-import platform
 
-# Try to import GPUtil. If not = GPU usage = 0
 try:
     import GPUtil
     _GPUS_AVAILABLE = True
 except Exception:
     _GPUS_AVAILABLE = False
+
 
 class Monitor:
     def __init__(self):
@@ -62,14 +60,12 @@ class Monitor:
             gpus = GPUtil.getGPUs()
             if not gpus:
                 return 0.0
-            # return avg usage percentage across GPUs
             vals = [g.load * 100.0 for g in gpus]
             return round(sum(vals) / len(vals), 2)
         except Exception:
             return 0.0
 
     def _collect_snapshot(self):
-        """Internal: actually collect system data (may be slow ~100-300ms)."""
         ts = time.time()
         cpu = psutil.cpu_percent(interval=None)  # non-blocking
         ram = psutil.virtual_memory().percent
@@ -100,12 +96,10 @@ class Monitor:
         }
 
     def read_snapshot(self):
-        """Returns cached snapshot (non-blocking for GUI thread).
-        Falls back to direct collection if background thread not started."""
+        """Returns cached snapshot. Falls back to direct collection if background thread not started."""
         with self._snapshot_lock:
             if self._cached_snapshot is not None:
                 return self._cached_snapshot
-        # Fallback: direct collection (blocks caller)
         return self._collect_snapshot()
 
     def top_processes(self, n=6, by='cpu'):
@@ -125,5 +119,5 @@ class Monitor:
         procs_sorted = sorted(procs, key=key, reverse=True)
         return procs_sorted[:n]
 
-# register instance
+
 monitor = Monitor()
