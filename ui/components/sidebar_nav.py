@@ -156,6 +156,12 @@ class SidebarNav:
                 ]
             },
             {
+                "id": "first_setup",
+                "label": "Setup & Drivers",
+                "icon": "⚙",
+                "subitems": None
+            },
+            {
                 "id": "fan_control",
                 "label": "Fan Control",
                 "icon": "❊",
