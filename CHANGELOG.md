@@ -1,6 +1,86 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.2] - 2026-04-13
+
+### New: First Setup & Drivers page (`ui/pages/first_setup_drivers.py`)
+- Full system readiness page: health score gauge (0–100 arc), 4 driver health cards (GPU / Audio / Network / USB), startup program list, setup checklist
+- Driver data sourced directly from Windows registry — no admin rights required
+- Background scan via `threading.Thread`; UI updates on main thread via `after(0, ...)`
+- Health score computed from driver ages and startup count; color-coded green/amber/red
+- Each driver card: left accent bar, freshness bar (age ratio), status badge (CURRENT / 6+ MONTHS / Xmo OLD), Device Manager shortcut
+- Pulsing scan dot animation while scan is in progress; Re-Scan button refreshes all data
+- Canvas width auto-bound to parent via `<Configure>` — no horizontal overflow
+- Setup Checklist: 6 items, persisted to `data/cache/setup_checklist.json`, animated progress bar
+- Sidebar entry "Setup & Drivers" placed after My PC as a simple (no-dropdown) button
+- Fixed `yourpc_page.py`: "First Setup & Drivers" button now navigates to `first_setup` (was incorrectly routed to `optimization/wizard`)
+- Badge on My PC button shows live checklist completion `X/6 done` loaded from JSON
+
+### hck_GPT Chat — Time Badge
+- New `_make_time_badge()` in `panel.py`: inline `tk.Canvas` badge (62×14px) embedded in the chat Text widget via `window_create`
+- Badge design: red left/right bars, dark centre, current time in `HH:MM` format (Consolas 7 bold, silver `#94a3b8`)
+- Inserted automatically before every `hck_GPT:` message
+
+### Process Library Expansion (`data/process_library.json`)
+- Added 8 new entries: `claude.exe`, `datatransfer.exe`, `wmiprvse.exe`, `msmpeng.exe`, `registry`, `hitman.exe`, `hitman2.exe`, `hitman3.exe`
+
+### TOP 5 Dashboard — Process Tooltips
+- Imported `ProcessTooltip` + `process_library` in `main_window_expanded.py`
+- `<Enter>` / `<Leave>` bindings on both name label and row frame in user and system TOP 5 panels
+- `proc_name` stored in widget_data, updated each render cycle — tooltip always reflects current process
+
+---
+
+## [1.7.1] - 2026-04-10
+
+### Code Cleanup
+- `core/monitor.py` — removed redundant inline comments, unused `import platform`, `### HCK_Labs` header
+- `core/analyzer.py` — removed `### HCK_Labs` header
+- `core/hardware_sensors.py` — rephrased GPU clock comment, removed "Note:" prefix
+- `ui/windows/main_window_expanded.py` — deleted dead `_build_yourpc_page_OLD_REMOVED` (~130 lines), stale module-moved comment, "innovative" docstring wording
+
+### Versioning & Packaging
+- Bumped version to `1.7.1` across `setup.py`, `startup.py`, `main_window.py`, `main_window_expanded.py`, `README.md`
+- `requirements.txt` — removed `tkinter` and `tk>=0.1.0` (both stdlib, not pip-installable)
+- Release date updated to `2026-04-10`
+
+### Test Coverage
+- `tests/test_monitor.py` — rewritten: 7 test cases; fixed broken `monitor.read()` call → `read_snapshot()`; covers snapshot keys, value types, process parsing, CPU/RAM sort, n-limit, cache hit, background thread
+- `tests/test_analyzer.py` — rewritten: 7 test cases; logger injected via `COMPONENTS` mock; covers averages, spike detection, empty buffer, old-sample filtering, threshold edge cases
+- `tests/test_avg_calculator.py` — rewritten: 4 test cases; uses `tempfile` + patched `HOURLY` path; covers missing file, single-day avg, multi-day split, result key presence
+
+### UI — TOP 5 Process Panels
+- Row height `22px → 36px`; layout changed from single-line to 2-line: name on top, CPU+RAM bars below
+- Labels `C` / `R` replaced with `CPU` (blue) / `RAM` (amber) with accent color matching bar fill
+- Max visible process name length `14 → 20` characters
+- Thin vertical divider between CPU and RAM halves
+
+### AnimatedBar — Reusable Animated Progress Bar
+- New class `AnimatedBar` in `ui/components/led_bars.py`
+- Ease-out interpolation: `EASE = 0.18`, `~60fps` via `after(16ms)`, snaps at `< 0.4%` delta
+- API: `bar.bg_frame` for layout placement, `bar.set_target(pct)` to animate
+- Applied to: TOP 5 user process rows, TOP 5 system process rows, Session Averages (CPU/GPU/RAM)
+
+### Dashboard Chart — Bug Fixes & Colors
+- Fixed blank chart on startup: `<Configure>` binding detects when canvas has real dimensions and triggers first draw
+- Added `_schedule_chart_update()` with `after_cancel()` — prevents duplicate update loops
+- Filter buttons `LIVE / 1H / 4H / 1D / 1W / 1M` now trigger immediate redraw (`after(50ms)`) instead of waiting for 2s timer
+- Fixed bar colors: CPU `#3b82f6`, RAM `#fbbf24`, GPU `#10b981` (replaced dark/brown placeholders)
+- Placeholder text `"Collecting data..."` shown while buffer is empty instead of silent no-op
+
+---
+
+## [1.7.0] - 2026-03-XX
+
+### hck_GPT — Process Knowledge Base
+- New file `hck_gpt/process_library.py` — static knowledge base with definitions for 80+ common Windows processes and applications
+- Each entry includes: publisher/author, short description, security classification, energy profile, expected CPU/RAM usage ranges, and contextual notes (e.g. "Heavy load during library updates" for Epic Games Launcher, Steam)
+- Categories covered: gaming launchers, browsers, development tools, communication apps, Windows system processes, media players, security software
+- Used by hck_GPT tooltip system: hovering a process name in any TOP 5 panel shows a rich popup with the above data
+- Graceful fallback: unknown processes display raw psutil data without crashing
+
+---
+
 ## [1.6.8] - 2026-02-17
 
 ### hck_GPT Intelligence System
