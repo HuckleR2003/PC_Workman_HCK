@@ -10,6 +10,7 @@ from tkinter import ttk
 from ui.theme import THEME
 import os
 import time
+import re 
 
 try:
     from hck_gpt.chat_handler import ChatHandler
@@ -17,6 +18,15 @@ try:
 except ImportError:
     HAS_CHAT_HANDLER = False
     print("[hck_GPT] ChatHandler not available")
+
+# process library and tooltip
+try:
+    from hck_gpt.process_library import process_library
+    from hck_gpt.tooltip import ProcessTooltip
+    HAS_PROCESS_LIBRARY = True
+except ImportError:
+    HAS_PROCESS_LIBRARY = False
+    print("[hck_GPT] Process library not available")
 
 SEND_ICON = "data/icons/send_hck.png"
 
@@ -41,10 +51,13 @@ class HCKGPTPanel:
         self._last_greeting_session = 0
         self._banner_ticker_id = None
 
-        # Initialize chat handler
+        # chat handler
         self.chat_handler = ChatHandler() if HAS_CHAT_HANDLER else None
+        
+        # tooltip system
+        self.tooltip = ProcessTooltip(parent) if HAS_PROCESS_LIBRARY else None
 
-        # MAIN PANEL with subtle shadow effect
+        # MAIN PANEL
         self.frame = tk.Frame(parent, bg=THEME["bg_panel"])
         self.frame.place(
             x=0,
@@ -53,7 +66,7 @@ class HCKGPTPanel:
             height=collapsed_h
         )
 
-        # ========== BANNER WITH SMOOTH GRADIENT ==========
+        # ========== BANNER GRADIENT ==========
         self.banner = tk.Canvas(
             self.frame,
             height=self.collapsed_h,
@@ -64,7 +77,7 @@ class HCKGPTPanel:
 
         self._draw_gradient_banner()
 
-        # Banner text with better positioning
+        # Banner text positioning
         self.banner_text = self.banner.create_text(
             14, self.collapsed_h // 2,
             anchor="w",
@@ -186,6 +199,8 @@ class HCKGPTPanel:
         self.log.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=self.log.yview)
         self.log.config(state="disabled")
+        # Bind tooltips after adding text
+        self._bind_process_tooltips()
 
         # Color tags for rich report output
         self.log.tag_configure("accent", foreground=THEME["accent"])
@@ -341,6 +356,33 @@ class HCKGPTPanel:
         self.add_message("   or 'service setup' to optimize your PC!")
 
     # ================================================================
+    # TIME BADGE
+    # ================================================================
+    def _make_time_badge(self):
+        """Create a small inline canvas badge: |R| HH:MM |R|  (red bars, dark center)."""
+        badge = tk.Canvas(
+            self.log,
+            width=62, height=14,
+            bg=THEME["bg_panel"],
+            highlightthickness=0,
+            cursor="arrow",
+        )
+        # Center dark background
+        badge.create_rectangle(0, 0, 62, 14, fill="#0d0f14", outline="")
+        # Left red bar
+        badge.create_rectangle(0, 0, 3, 14, fill="#dc2626", outline="")
+        # Right red bar
+        badge.create_rectangle(59, 0, 62, 14, fill="#dc2626", outline="")
+        # Thin inner accent lines (silver border)
+        badge.create_line(3, 0, 3, 14, fill="#374151")
+        badge.create_line(59, 0, 59, 14, fill="#374151")
+        # Time text
+        t = time.strftime("%H:%M")
+        badge.create_text(31, 7, text=t, fill="#94a3b8",
+                          font=("Consolas", 7, "bold"), anchor="center")
+        return badge
+
+    # ================================================================
     # ADD MESSAGE
     # ================================================================
     def add_message(self, msg):
@@ -350,9 +392,16 @@ class HCKGPTPanel:
         except Exception:
             return
         self.log.config(state="normal")
+        if msg.startswith("hck_GPT:"):
+            badge = self._make_time_badge()
+            self.log.window_create("end", window=badge, padx=2, pady=1)
+            self.log.insert("end", " ")
         self.log.insert("end", msg + "\n")
         self.log.see("end")
         self.log.config(state="disabled")
+
+        # Bind tooltips after adding text
+        self._bind_process_tooltips()
 
     def add_colored(self, text, tag=None):
         """Add text with a color tag (no newline — caller controls layout)."""
@@ -767,7 +816,66 @@ class HCKGPTPanel:
         return f"{mins}min"
 
     # ================================================================
-    # RESIZE → keep bottom docking
+    # PROCESS TOOLTIP BINDING
+    # ================================================================
+    def _bind_process_tooltips(self):
+        """
+        Scan chat text for process names and bind hover events
+        """
+        if not HAS_PROCESS_LIBRARY or not self.tooltip:
+            return
+        
+        # Get all text
+        content = self.log.get("1.0", "end-1c")
+        
+        # Search for .exe patterns
+        exe_pattern = r'\b\w+\.exe\b'
+        
+        for match in re.finditer(exe_pattern, content, re.IGNORECASE):
+            process_name = match.group(0)
+            start_idx = match.start()
+            end_idx = match.end()
+            
+            # Convert to Tkinter text indices
+            line_num = content[:start_idx].count('\n') + 1
+            col_num = start_idx - content[:start_idx].rfind('\n') - 1
+            
+            start_pos = f"{line_num}.{col_num}"
+            end_pos = f"{line_num}.{col_num + len(process_name)}"
+            
+            # Check if process exists in library
+            info = process_library.get_process_info(process_name)
+            
+            if info:
+                # Add tag for clickable/hoverable text
+                tag_name = f"process_{process_name}_{start_idx}"
+                self.log.tag_add(tag_name, start_pos, end_pos)
+                
+                # Style the process name (underline, color)
+                self.log.tag_config(
+                    tag_name,
+                    foreground=THEME["accent2"],
+                    underline=True
+                )
+                
+                # Bind hover events
+                tooltip_text = process_library.format_tooltip_text(process_name)
+                
+                self.log.tag_bind(
+                    tag_name,
+                    "<Enter>",
+                    lambda e, pn=process_name, tt=tooltip_text: 
+                        self.tooltip.show(e, pn, tt)
+                )
+                
+                self.log.tag_bind(
+                    tag_name,
+                    "<Leave>",
+                    lambda e: self.tooltip.hide()
+                )
+
+    # ================================================================
+    # RESIZE -> keep bottom docking
     # ================================================================
     def _on_resize(self, event=None):
         parent_h = self.parent.winfo_height()
