@@ -147,13 +147,23 @@ def _build_central(self, parent):
     )
 
     # Row 4: LARGE - First Setup & Drivers (red -> purple)
+    try:
+        from ui.pages.first_setup_drivers import _load_checklist, _CHECKLIST
+        _cl = _load_checklist()
+        _done = sum(1 for k, _ in _CHECKLIST if _cl.get(k, False))
+        _total = len(_CHECKLIST)
+        _badge_txt = f"{_done}/{_total} done"
+        _badge_bg  = "#166534" if _done == _total else "#1e3a5f" if _done > 0 else "#6b1212"
+        _sub_txt   = "All checks passed ✓" if _done == _total else f"{_total - _done} items pending"
+    except Exception:
+        _badge_txt, _badge_bg, _sub_txt = "Check", "#1e3a5f", "Driver health & startup control"
     _create_large_gradient_btn(
         left, "\U0001f680", "First Setup & Drivers",
         (239, 68, 68), (107, 33, 168),
-        lambda: _nav_to("optimization", "wizard"),
-        badge_text="Great", badge_bg="#166534",
-        sub_text="Not need to do",
-        tooltip=["DRIVER'S UPDATE - All in ONE", "USELESS SERVICES OFF"]
+        lambda: _nav_to("first_setup"),
+        badge_text=_badge_txt, badge_bg=_badge_bg,
+        sub_text=_sub_txt,
+        tooltip=["Driver health  ·  Startup control", "Registry-based scan  ·  No admin needed"]
     )
 
     # Row 5: small full-width - Stability Tests
