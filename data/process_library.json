@@ -768,5 +768,85 @@
     "safety": "safe",
     "typical_cpu": "10-90%",
     "typical_ram": "500-8000MB"
+  },
+  "claude.exe": {
+    "name": "Claude Desktop",
+    "vendor": "Anthropic",
+    "category": "productivity",
+    "description": "Anthropic's Claude AI assistant desktop app. Electron-based, GPU-accelerated inference.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-20%",
+    "typical_ram": "200-600MB"
+  },
+  "datatransfer.exe": {
+    "name": "Data Transfer Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Part of Windows Connected Devices Platform. Handles data sync between devices.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-40MB"
+  },
+  "wmiprvse.exe": {
+    "name": "WMI Provider Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows Management Instrumentation host. Feeds hardware data to monitoring tools.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "20-80MB"
+  },
+  "msmpeng.exe": {
+    "name": "Windows Defender Engine",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Core antivirus engine for Windows Defender. CPU spikes during background scans.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "80-300MB"
+  },
+  "registry": {
+    "name": "Windows Registry Process",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "NT kernel process managing the Windows registry hive in memory. Always present.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-80MB"
+  },
+  "hitman2.exe": {
+    "name": "HITMAN 2",
+    "vendor": "IO Interactive",
+    "category": "gaming",
+    "description": "Stealth action game. GPU-heavy with high detail; benefits from fast SSD streaming.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "4000-8000MB"
+  },
+  "hitman3.exe": {
+    "name": "HITMAN World of Assassination",
+    "vendor": "IO Interactive",
+    "category": "gaming",
+    "description": "Stealth sandbox game (HITMAN 3 / WoA). Ray-tracing support; VRAM-hungry at 4K.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "4000-10000MB"
+  },
+  "hitman.exe": {
+    "name": "HITMAN (2016)",
+    "vendor": "IO Interactive",
+    "category": "gaming",
+    "description": "Reboot of the Hitman franchise. CPU-intensive AI and crowd simulation.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-65%",
+    "typical_ram": "3000-6000MB"
   }
 }
