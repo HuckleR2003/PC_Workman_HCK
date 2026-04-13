@@ -33,6 +33,14 @@ from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_st
 # YOUR PC page helper
 from ui.components.yourpc_page import build_yourpc_page
 
+# Process library tooltip
+try:
+    from hck_gpt.process_library import process_library as _proc_lib
+    from hck_gpt.tooltip import ProcessTooltip
+    _HAS_PROC_LIB = True
+except ImportError:
+    _HAS_PROC_LIB = False
+
 # Fan Dashboard (Advanced cooling control)
 from ui.components.fan_dashboard import create_fan_dashboard
 
@@ -244,6 +252,8 @@ class ExpandedMainWindow:
             self._build_fan_dashboard_view()
         elif page_id == "monitoring_alerts":
             self._build_monitoring_alerts_view()
+        elif page_id == "first_setup":
+            self._build_first_setup_view()
         else:
             # For other pages, use the overlay system
             self._build_dashboard_view()
@@ -350,6 +360,11 @@ class ExpandedMainWindow:
         from ui.pages.monitoring_alerts import build_monitoring_alerts_page
         build_monitoring_alerts_page(self, self.content_area)
 
+    def _build_first_setup_view(self):
+        """Build First Setup & Drivers page — driver health, startup, checklist."""
+        from ui.pages.first_setup_drivers import build_first_setup_page
+        build_first_setup_page(self, self.content_area)
+
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
         try:
@@ -366,6 +381,10 @@ class ExpandedMainWindow:
                 "monitoring_alerts.temperature": "monitoring_alerts",
                 "monitoring_alerts.voltage": "monitoring_alerts",
                 "monitoring_alerts.alerts": "monitoring_alerts",
+                "first_setup": "first_setup",
+                "first_setup.drivers": "first_setup",
+                "first_setup.startup": "first_setup",
+                "first_setup.checklist": "first_setup",
             }
 
             # Build lookup key
@@ -919,6 +938,9 @@ class ExpandedMainWindow:
         self.expanded_user_container = tk.Frame(left_panel, bg=THEME["bg_panel"])
         self.expanded_user_container.pack(fill="both", expand=True, padx=5, pady=(0, 5))
         self.expanded_user_widgets = []
+
+        # Process tooltip (shared for both TOP 5 panels)
+        self._process_tooltip = ProcessTooltip(self.root) if _HAS_PROC_LIB else None
 
         # AI Writing Panel (bottom of left panel)
         self._build_ai_writing_panel(left_panel)
@@ -1520,11 +1542,28 @@ class ExpandedMainWindow:
                                    bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
-                self.expanded_user_widgets.append({
+                widget_data = {
                     "row": row, "name": name_lbl,
                     "cpu_bar": cpu_bar, "cpu_val": cpu_val,
                     "ram_bar": ram_bar, "ram_val": ram_val,
-                })
+                    "proc_name": "",
+                }
+                self.expanded_user_widgets.append(widget_data)
+
+                # Tooltip bindings
+                if self._process_tooltip:
+                    def _enter(e, wd=widget_data):
+                        pn = wd["proc_name"]
+                        if pn:
+                            tt = _proc_lib.format_tooltip_text(pn)
+                            if tt:
+                                self._process_tooltip.show(e, pn, tt)
+                    def _leave(e):
+                        self._process_tooltip.hide()
+                    name_lbl.bind("<Enter>", _enter)
+                    name_lbl.bind("<Leave>", _leave)
+                    row.bind("<Enter>", _enter)
+                    row.bind("<Leave>", _leave)
 
         for i, widget_data in enumerate(self.expanded_user_widgets):
             if i < len(procs):
@@ -1535,6 +1574,7 @@ class ExpandedMainWindow:
                 cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
                 ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
+                widget_data["proc_name"] = display_name
                 widget_data["name"].config(text=f"{i+1}. {display_name[:20]}")
                 widget_data["cpu_bar"].set_target(cpu_pct)
                 widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
@@ -1616,11 +1656,28 @@ class ExpandedMainWindow:
                                    bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
-                self.expanded_sys_widgets.append({
+                sys_widget_data = {
                     "row": row, "name": name_lbl,
                     "cpu_bar": cpu_bar, "cpu_val": cpu_val,
                     "ram_bar": ram_bar, "ram_val": ram_val,
-                })
+                    "proc_name": "",
+                }
+                self.expanded_sys_widgets.append(sys_widget_data)
+
+                # Tooltip bindings
+                if self._process_tooltip:
+                    def _sys_enter(e, wd=sys_widget_data):
+                        pn = wd["proc_name"]
+                        if pn:
+                            tt = _proc_lib.format_tooltip_text(pn)
+                            if tt:
+                                self._process_tooltip.show(e, pn, tt)
+                    def _sys_leave(e):
+                        self._process_tooltip.hide()
+                    name_lbl.bind("<Enter>", _sys_enter)
+                    name_lbl.bind("<Leave>", _sys_leave)
+                    row.bind("<Enter>", _sys_enter)
+                    row.bind("<Leave>", _sys_leave)
 
         for i, widget_data in enumerate(self.expanded_sys_widgets):
             if i < len(procs):
@@ -1631,6 +1688,7 @@ class ExpandedMainWindow:
                 cpu_pct = (cpu_raw / cpu_cores) if cpu_cores > 0 else cpu_raw
                 ram_pct = (ram_mb / total_ram_mb) * 100 if total_ram_mb > 0 else 0
 
+                widget_data["proc_name"] = display_name
                 widget_data["name"].config(text=f"{i+1}. {display_name[:20]}")
                 widget_data["cpu_bar"].set_target(cpu_pct)
                 widget_data["cpu_val"].config(text=f"{cpu_pct:.0f}%")
