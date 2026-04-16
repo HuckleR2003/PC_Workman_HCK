@@ -1,9 +1,3 @@
-"""
-HCK Stats Engine v2 - Query API
-Read interface for UI charts and data display.
-Automatically selects optimal data granularity based on requested time range.
-"""
-
 import time
 from datetime import datetime, timezone
 
@@ -14,31 +8,11 @@ from hck_stats_engine.db_manager import db_manager
 
 
 class StatsQueryAPI:
-    """Read-only query interface for historical statistics"""
-
     def __init__(self):
         print("[StatsQueryAPI] Initialized")
 
     def get_usage_for_range(self, start_ts, end_ts, max_points=500):
-        """Get system usage data for a time range with automatic granularity.
-
-        Auto-selects the best table based on range duration:
-          - <=2 hours: minute_stats (~120 points)
-          - <=2 days: minute_stats (downsampled if needed)
-          - <=14 days: hourly_stats (~336 points)
-          - <=120 days: daily_stats (~120 points)
-          - >120 days: monthly_stats
-
-        Args:
-            start_ts: Start Unix timestamp
-            end_ts: End Unix timestamp
-            max_points: Maximum data points to return (for UI performance)
-
-        Returns:
-            list of dicts: [{timestamp, cpu_avg, cpu_min, cpu_max, ram_avg, ram_min,
-                            ram_max, gpu_avg, gpu_min, gpu_max}, ...]
-            Empty list if no data or database unavailable.
-        """
+        # <=2d → minute_stats, <=14d → hourly, <=120d → daily, else monthly
         if not db_manager.is_ready:
             return []
 
@@ -62,7 +36,6 @@ class StatsQueryAPI:
             return []
 
     def _query_minute_range(self, conn, start_ts, end_ts, max_points):
-        """Query minute_stats table"""
         rows = conn.execute("""
             SELECT timestamp, cpu_avg, cpu_min, cpu_max,
                    ram_avg, ram_min, ram_max,
@@ -77,7 +50,6 @@ class StatsQueryAPI:
         return self._downsample(results, max_points)
 
     def _query_hourly_range(self, conn, start_ts, end_ts, max_points):
-        """Query hourly_stats table"""
         rows = conn.execute("""
             SELECT timestamp, cpu_avg, cpu_min, cpu_max,
                    ram_avg, ram_min, ram_max,
@@ -92,7 +64,6 @@ class StatsQueryAPI:
         return self._downsample(results, max_points)
 
     def _query_daily_range(self, conn, start_ts, end_ts, max_points):
-        """Query daily_stats table"""
         rows = conn.execute("""
             SELECT timestamp, cpu_avg, cpu_min, cpu_max,
                    ram_avg, ram_min, ram_max,
@@ -112,7 +83,6 @@ class StatsQueryAPI:
         return self._downsample(results, max_points)
 
     def _query_monthly_range(self, conn, start_ts, end_ts, max_points):
-        """Query monthly_stats table"""
         rows = conn.execute("""
             SELECT timestamp, cpu_avg, cpu_min, cpu_max,
                    ram_avg, ram_min, ram_max,
@@ -132,7 +102,6 @@ class StatsQueryAPI:
         return results
 
     def _row_to_dict(self, row):
-        """Convert sqlite3.Row to standard dict"""
         return {
             'timestamp': row['timestamp'],
             'cpu_avg': row['cpu_avg'],
@@ -150,9 +119,6 @@ class StatsQueryAPI:
         }
 
     def _downsample(self, data, max_points):
-        """Reduce number of data points if exceeding max_points.
-        Uses simple nth-element selection to preserve data shape.
-        """
         if len(data) <= max_points:
             return data
 
@@ -475,6 +441,8 @@ class StatsQueryAPI:
             # Find the latest daily_stats timestamp so we only count
             # hourly data that hasn't been aggregated yet.
             latest_daily_ts = 0
+            if rows:
+                latest_daily_ts = max(r['uptime_minutes'] for r in rows) if False else 0
             try:
                 ld_row = conn.execute(
                     "SELECT MAX(timestamp) as t FROM daily_stats WHERE timestamp >= ?",
@@ -496,9 +464,8 @@ class StatsQueryAPI:
                     ORDER BY timestamp ASC
                 """, (hourly_cutoff,)).fetchall()
                 if hourly_rows:
-                    # sample_count = total seconds (~3600 for full hour)
-                    # Convert to minutes: seconds / 60
-                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows) / 60
+                    # Each hourly row's sample_count = minutes of data
+                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows)
             except Exception:
                 pass
 
