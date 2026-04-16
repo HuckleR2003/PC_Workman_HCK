@@ -93,6 +93,14 @@ def _show_tab(self, tab_id):
 
     if tab_id == "central":
         _build_central(self, self.yourpc_content_frame)
+    elif tab_id == "health":
+        _build_health(self, self.yourpc_content_frame)
+    elif tab_id == "components":
+        _build_components(self, self.yourpc_content_frame)
+    elif tab_id == "efficiency":
+        _build_efficiency(self, self.yourpc_content_frame)
+    elif tab_id == "startup":
+        _build_startup(self, self.yourpc_content_frame)
     else:
         tk.Label(self.yourpc_content_frame, text=f"{tab_id.upper()} - Coming Soon",
                 font=("Segoe UI", 12), bg="#0a0e14", fg="#6b7280").pack(pady=50)
@@ -128,6 +136,22 @@ def _build_central(self, parent):
     _create_action_btn(r1_right, "\U0001f5d1\ufe0f", "Cleanup", "#ef4444", None,
                        ["Cleanup tools.", "Combined power in one place!"],
                        lambda: _nav_to("optimization", "services"))
+
+    # Row 1.5: System utilities (3 across)
+    import subprocess as _sp
+    row_sys = tk.Frame(left, bg="#0a0e14")
+    row_sys.pack(fill="x", pady=(2, 0))
+    for _ico, _title, _color, _cmd in [
+        ("⚙️", "Device Manager", "#6b7280",
+         lambda: _sp.Popen(["devmgmt.msc"], shell=True)),
+        ("📊", "Task Manager",   "#6b7280",
+         lambda: _sp.Popen(["taskmgr"])),
+        ("💾", "Export Report",  "#6b7280",
+         lambda: _export_health_report()),
+    ]:
+        _col_f = tk.Frame(row_sys, bg="#0a0e14")
+        _col_f.pack(side="left", fill="both", expand=True, padx=1)
+        _create_action_btn(_col_f, _ico, _title, _color, command=_cmd)
 
     # Row 2: LARGE - STATS & ALERTS (yellow gradient)
     _create_large_gradient_btn(
@@ -657,6 +681,42 @@ def _build_disk_fans_strip(parent):
              bg="#000000", fg="#ffffff").pack(side="left", padx=6)
 
 
+def _export_health_report():
+    import json, datetime, subprocess as _sp
+    try:
+        report = {"generated_at": datetime.datetime.now().isoformat()}
+        try:
+            from core.hardware_detector import get_hardware_detector
+            det = get_hardware_detector()
+            if det.is_ready:
+                report["hardware"] = det.get_data()
+        except Exception:
+            pass
+        try:
+            import psutil as _psu
+            report["cpu_pct"] = _psu.cpu_percent(interval=0.1)
+            mem = _psu.virtual_memory()
+            report["ram_used_gb"] = round(mem.used / 1024 ** 3, 2)
+            report["ram_total_gb"] = round(mem.total / 1024 ** 3, 2)
+            report["ram_pct"] = mem.percent
+            report["uptime_sec"] = int(__import__("time").time() - _psu.boot_time())
+        except Exception:
+            pass
+
+        cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__)))), "data", "cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(cache_dir, f"health_report_{ts}.json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2, default=str)
+
+        # Open folder in explorer so user can see the file
+        _sp.Popen(["explorer", "/select,", path])
+    except Exception as ex:
+        print(f"[Export] Failed: {ex}")
+
+
 def _open_stability_tests(self):
     from ui.pages.stability_tests import build_stability_tests_page
     if hasattr(self, '_show_direct_page'):
@@ -706,3 +766,814 @@ def _show_full_table_popup(self, parent):
     else:
         tk.Label(content, text="PRO INFO TABLE not available",
                 font=("Segoe UI", 10), bg="#0a0e27", fg="#6b7280").pack(pady=50)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED HELPERS
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _make_scroll_frame(parent):
+    """Returns (scrollable_frame, canvas) with mouse-wheel and full-width support."""
+    BG = "#0a0e14"
+    canvas = tk.Canvas(parent, bg=BG, highlightthickness=0)
+    sb = tk.Scrollbar(parent, orient="vertical", command=canvas.yview,
+                      bg="#000000", troughcolor=BG, activebackground="#1a1d24", width=6)
+    sf = tk.Frame(canvas, bg=BG)
+    sf.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    win_id = canvas.create_window((0, 0), window=sf, anchor="nw")
+    canvas.configure(yscrollcommand=sb.set)
+
+    # Keep inner frame as wide as the canvas
+    canvas.bind("<Configure>", lambda e: canvas.itemconfig(win_id, width=e.width - 2))
+
+    def _mw(event):
+        try:
+            if canvas.winfo_exists():
+                canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except Exception:
+            pass
+    canvas.bind_all("<MouseWheel>", _mw, add="+")
+
+    sb.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+    return sf, canvas
+
+
+def _sec_hdr(parent, text):
+    """Compact section divider label."""
+    row = tk.Frame(parent, bg="#0a0e14")
+    row.pack(fill="x", padx=8, pady=(6, 1))
+    tk.Label(row, text=text, font=("Segoe UI", 6, "bold"),
+             bg="#0a0e14", fg="#4b5563").pack(side="left")
+    tk.Frame(row, bg="#1f2937", height=1).pack(side="left", fill="x", expand=True, padx=6)
+
+
+def _spec_row(parent, label, value, value_color="#e2e8f0", bg="#1a1d24"):
+    """Single key-value row inside a card."""
+    row = tk.Frame(parent, bg=bg)
+    row.pack(fill="x", padx=6, pady=0)
+    tk.Label(row, text=label, font=("Segoe UI", 7), bg=bg,
+             fg="#6b7280", anchor="w", width=16).pack(side="left")
+    tk.Label(row, text=value, font=("Segoe UI", 7, "bold"), bg=bg,
+             fg=value_color, anchor="w").pack(side="left")
+
+
+def _card(parent, title, icon, accent="#3b82f6", width=None):
+    """Titled card frame. Returns inner frame."""
+    outer = tk.Frame(parent, bg="#1a1d24",
+                     highlightbackground="#2a2d34", highlightthickness=1)
+    if width:
+        outer.config(width=width)
+        outer.pack_propagate(False)
+
+    hdr = tk.Frame(outer, bg=accent, height=18)
+    hdr.pack(fill="x")
+    hdr.pack_propagate(False)
+    tk.Label(hdr, text=f"{icon} {title}", font=("Segoe UI", 7, "bold"),
+             bg=accent, fg="#ffffff", padx=6).pack(side="left", fill="y")
+
+    inner = tk.Frame(outer, bg="#1a1d24")
+    inner.pack(fill="both", expand=True, pady=2)
+    return outer, inner
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HEALTH TAB
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_health(self, parent):
+    """Health tab — live component health overview, uptime, recent events."""
+    BG = "#0a0e14"
+    sf, _ = _make_scroll_frame(parent)
+    refs = {}
+
+    # ── Row 1: 4 metric cards ─────────────────────────────
+    _sec_hdr(sf, "COMPONENT STATUS")
+    cards_row = tk.Frame(sf, bg=BG)
+    cards_row.pack(fill="x", padx=8, pady=2)
+
+    _card_defs = [
+        ("cpu_temp", "CPU TEMP", "🔥"),
+        ("gpu_temp", "GPU TEMP", "🖥"),
+        ("ram_pct",  "RAM",      "💾"),
+        ("disk_pct", "DISK",     "🗄"),
+    ]
+    for key, label, icon in _card_defs:
+        col = tk.Frame(cards_row, bg="#1a1d24",
+                       highlightbackground="#2a2d34", highlightthickness=1)
+        col.pack(side="left", fill="both", expand=True, padx=2)
+        tk.Label(col, text=icon, font=("Segoe UI", 13), bg="#1a1d24",
+                 fg="#94a3b8").pack(pady=(5, 0))
+        tk.Label(col, text=label, font=("Segoe UI", 6, "bold"),
+                 bg="#1a1d24", fg="#4b5563").pack()
+        val_lbl = tk.Label(col, text="—", font=("Segoe UI", 13, "bold"),
+                           bg="#1a1d24", fg="#10b981")
+        val_lbl.pack(pady=(1, 0))
+        status_lbl = tk.Label(col, text=" ", font=("Segoe UI", 6),
+                               bg="#1a1d24", fg="#6b7280", pady=3)
+        status_lbl.pack()
+        refs[key] = (val_lbl, status_lbl)
+
+    # ── Row 2: Health score gauge + uptime panel ───────────
+    _sec_hdr(sf, "HEALTH SCORE  ·  UPTIME")
+    mid_row = tk.Frame(sf, bg=BG)
+    mid_row.pack(fill="x", padx=8, pady=2)
+
+    # Score gauge (left)
+    gauge_outer = tk.Frame(mid_row, bg="#1a1d24", width=110,
+                           highlightbackground="#2a2d34", highlightthickness=1)
+    gauge_outer.pack(side="left", fill="y", padx=(0, 4))
+    gauge_outer.pack_propagate(False)
+    tk.Label(gauge_outer, text="HEALTH SCORE", font=("Segoe UI", 6, "bold"),
+             bg="#1a1d24", fg="#4b5563").pack(pady=(4, 0))
+    score_canvas = tk.Canvas(gauge_outer, width=80, height=46,
+                             bg="#1a1d24", highlightthickness=0)
+    score_canvas.pack()
+    score_lbl = tk.Label(gauge_outer, text="—", font=("Segoe UI", 14, "bold"),
+                         bg="#1a1d24", fg="#10b981")
+    score_lbl.pack()
+    score_sub = tk.Label(gauge_outer, text=" ", font=("Segoe UI", 6),
+                         bg="#1a1d24", fg="#6b7280", pady=3)
+    score_sub.pack()
+    refs["score_canvas"] = score_canvas
+    refs["score_lbl"] = score_lbl
+    refs["score_sub"] = score_sub
+
+    # Uptime + alerts (right)
+    right_col = tk.Frame(mid_row, bg=BG)
+    right_col.pack(side="left", fill="both", expand=True)
+
+    up_card = tk.Frame(right_col, bg="#1a1d24",
+                       highlightbackground="#2a2d34", highlightthickness=1)
+    up_card.pack(fill="x", pady=(0, 3))
+    tk.Label(up_card, text="UPTIME", font=("Segoe UI", 6, "bold"),
+             bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
+    for key, label in [("session_up", "Session"), ("lifetime_up", "Lifetime (all-time)")]:
+        row = tk.Frame(up_card, bg="#1a1d24")
+        row.pack(fill="x", padx=8, pady=1)
+        tk.Label(row, text=label, font=("Segoe UI", 7), bg="#1a1d24",
+                 fg="#6b7280", width=18, anchor="w").pack(side="left")
+        lbl = tk.Label(row, text="—", font=("Segoe UI", 7, "bold"),
+                       bg="#1a1d24", fg="#94a3b8")
+        lbl.pack(side="left")
+        refs[key] = lbl
+    tk.Frame(up_card, bg="#1a1d24", height=3).pack()
+
+    # Alerts summary
+    alerts_card = tk.Frame(right_col, bg="#1a1d24",
+                           highlightbackground="#2a2d34", highlightthickness=1)
+    alerts_card.pack(fill="x")
+    tk.Label(alerts_card, text="ALERTS (last 24h)", font=("Segoe UI", 6, "bold"),
+             bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
+    alerts_row = tk.Frame(alerts_card, bg="#1a1d24")
+    alerts_row.pack(fill="x", padx=8, pady=(0, 4))
+    for key, label, color in [
+        ("alerts_critical", "Critical", "#ef4444"),
+        ("alerts_warning",  "Warning",  "#f59e0b"),
+        ("alerts_info",     "Info",     "#6b7280"),
+    ]:
+        col_f = tk.Frame(alerts_row, bg="#1a1d24")
+        col_f.pack(side="left", padx=8)
+        cnt_lbl = tk.Label(col_f, text="—", font=("Segoe UI", 13, "bold"),
+                           bg="#1a1d24", fg=color)
+        cnt_lbl.pack()
+        tk.Label(col_f, text=label, font=("Segoe UI", 6), bg="#1a1d24",
+                 fg="#6b7280").pack()
+        refs[key] = cnt_lbl
+
+    # ── Row 3: Recent events table ─────────────────────────
+    _sec_hdr(sf, "RECENT EVENTS")
+    events_outer = tk.Frame(sf, bg="#0f1117",
+                            highlightbackground="#2a2d34", highlightthickness=1)
+    events_outer.pack(fill="x", padx=8, pady=2)
+
+    hdr_bar = tk.Frame(events_outer, bg="#111827")
+    hdr_bar.pack(fill="x")
+    for col_txt, col_w in [("TIME", 10), ("SEV", 8), ("METRIC", 10), ("DESCRIPTION", 36)]:
+        tk.Label(hdr_bar, text=col_txt, font=("Segoe UI", 6, "bold"),
+                 bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=2)
+
+    refs["events_outer"] = events_outer
+    refs["events_populated"] = False
+
+    # ── Live refresh loop ──────────────────────────────────
+    def _refresh():
+        if not parent.winfo_exists():
+            return
+        try:
+            _health_refresh(refs)
+        except Exception:
+            pass
+        parent.after(2000, _refresh)
+
+    parent.after(300, _refresh)
+
+
+def _health_refresh(refs):
+    """Update all health tab widgets. Called on the main thread via after()."""
+    try:
+        import psutil as _psu
+        cpu_pct = _psu.cpu_percent(interval=None)
+        mem = _psu.virtual_memory()
+        ram_pct = mem.percent
+    except Exception:
+        cpu_pct, ram_pct = 0.0, 0.0
+
+    try:
+        from core.hardware_sensors import get_cpu_temp, get_gpu_temp
+        cpu_temp = get_cpu_temp() or (35 + cpu_pct * 0.4)
+        gpu_temp = get_gpu_temp()
+    except Exception:
+        cpu_temp = 35 + cpu_pct * 0.4
+        gpu_temp = 0.0
+
+    disk_pct = 0.0
+    try:
+        import psutil as _psu2
+        for p in _psu2.disk_partitions():
+            try:
+                u = _psu2.disk_usage(p.mountpoint)
+                if u.percent > disk_pct:
+                    disk_pct = u.percent
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    def _temp_col(t):
+        if t >= 90: return "#ef4444"
+        if t >= 85: return "#f97316"
+        if t >= 70: return "#fbbf24"
+        return "#10b981"
+
+    def _pct_col(p):
+        if p >= 95: return "#ef4444"
+        if p >= 85: return "#f97316"
+        if p >= 75: return "#fbbf24"
+        return "#10b981"
+
+    def _temp_status(t):
+        if t >= 90: return "CRITICAL"
+        if t >= 85: return "HOT"
+        if t >= 70: return "WARM"
+        return "COOL"
+
+    def _pct_status(p):
+        if p >= 95: return "CRITICAL"
+        if p >= 85: return "HIGH"
+        if p >= 75: return "MODERATE"
+        return "NORMAL"
+
+    card_vals = {
+        "cpu_temp": (f"{cpu_temp:.0f}°C", _temp_col(cpu_temp), _temp_status(cpu_temp)),
+        "gpu_temp": (f"{gpu_temp:.0f}°C" if gpu_temp else "N/A",
+                     _temp_col(gpu_temp) if gpu_temp else "#6b7280",
+                     _temp_status(gpu_temp) if gpu_temp else "N/A"),
+        "ram_pct":  (f"{ram_pct:.0f}%", _pct_col(ram_pct), _pct_status(ram_pct)),
+        "disk_pct": (f"{disk_pct:.0f}%", _pct_col(disk_pct), _pct_status(disk_pct)),
+    }
+    for key, (val, color, status) in card_vals.items():
+        if key in refs:
+            try:
+                v_lbl, s_lbl = refs[key]
+                if v_lbl.winfo_exists():
+                    v_lbl.config(text=val, fg=color)
+                    s_lbl.config(text=status)
+            except Exception:
+                pass
+
+    # Health score
+    score = 100
+    if cpu_temp >= 90: score -= 20
+    elif cpu_temp >= 85: score -= 12
+    elif cpu_temp >= 70: score -= 5
+    if gpu_temp and gpu_temp >= 90: score -= 20
+    elif gpu_temp and gpu_temp >= 85: score -= 12
+    elif gpu_temp and gpu_temp >= 70: score -= 5
+    if ram_pct >= 95: score -= 15
+    elif ram_pct >= 85: score -= 8
+    elif ram_pct >= 75: score -= 4
+    if disk_pct >= 95: score -= 10
+    elif disk_pct >= 85: score -= 5
+    score = max(0, min(100, score))
+    sc_col = "#10b981" if score >= 80 else "#fbbf24" if score >= 60 else "#ef4444"
+    sc_txt = "GOOD" if score >= 80 else "FAIR" if score >= 60 else "POOR"
+    try:
+        sc = refs["score_canvas"]
+        if sc.winfo_exists():
+            sc.delete("all")
+            # Background arc
+            sc.create_arc(8, 4, 72, 44, start=200, extent=-160,
+                          style="arc", outline="#2a2d34", width=5)
+            # Filled arc
+            sc.create_arc(8, 4, 72, 44, start=200, extent=-int(160 * score / 100),
+                          style="arc", outline=sc_col, width=5)
+        refs["score_lbl"].config(text=str(score), fg=sc_col)
+        refs["score_sub"].config(text=sc_txt)
+    except Exception:
+        pass
+
+    # Uptime
+    try:
+        import psutil as _pu3, time as _t
+        boot_ts = _pu3.boot_time()
+        sec = int(_t.time() - boot_ts)
+        h, m = sec // 3600, (sec % 3600) // 60
+        session_str = f"{h}h {m}m"
+    except Exception:
+        session_str = "N/A"
+
+    lifetime_str = session_str
+    try:
+        from hck_stats_engine.query_api import query_api
+        lt = query_api.get_lifetime_uptime() if hasattr(query_api, "get_lifetime_uptime") else None
+        if lt:
+            lh, lm = int(lt // 3600), int((lt % 3600) // 60)
+            lifetime_str = f"{lh}h {lm}m"
+    except Exception:
+        pass
+
+    for key, val in [("session_up", session_str), ("lifetime_up", lifetime_str)]:
+        try:
+            lbl = refs.get(key)
+            if lbl and lbl.winfo_exists():
+                lbl.config(text=val)
+        except Exception:
+            pass
+
+    # Alerts
+    try:
+        from hck_stats_engine.events import event_detector
+        counts = event_detector.get_active_alerts_count()
+        for key, sev in [("alerts_critical", "critical"),
+                         ("alerts_warning", "warning"),
+                         ("alerts_info", "info")]:
+            lbl = refs.get(key)
+            if lbl and lbl.winfo_exists():
+                lbl.config(text=str(counts.get(sev, 0)))
+    except Exception:
+        pass
+
+    # Events table (populate once)
+    if not refs.get("events_populated"):
+        try:
+            _populate_events_table(refs["events_outer"])
+            refs["events_populated"] = True
+        except Exception:
+            pass
+
+
+def _populate_events_table(parent):
+    """Query recent events from SQLite and render rows."""
+    events = []
+    try:
+        from hck_stats_engine.db_manager import db_manager
+        if db_manager.is_ready:
+            conn = db_manager.get_connection()
+            if conn:
+                rows = conn.execute(
+                    "SELECT timestamp, severity, metric, description "
+                    "FROM events ORDER BY timestamp DESC LIMIT 10"
+                ).fetchall()
+                import datetime
+                for r in rows:
+                    ts = r["timestamp"]
+                    dt = datetime.datetime.fromtimestamp(ts).strftime("%H:%M:%S")
+                    events.append({
+                        "time": dt,
+                        "severity": r["severity"] or "",
+                        "metric": r["metric"] or "",
+                        "description": (r["description"] or "")[:50],
+                    })
+    except Exception:
+        pass
+
+    if not events:
+        tk.Label(parent, text="No events recorded yet.", font=("Segoe UI", 7),
+                 bg="#0f1117", fg="#4b5563", pady=6).pack()
+        return
+
+    sev_colors = {"critical": "#ef4444", "warning": "#f59e0b", "info": "#6b7280"}
+    for ev in events:
+        row = tk.Frame(parent, bg="#0f1117")
+        row.pack(fill="x")
+        sc = sev_colors.get(ev["severity"], "#6b7280")
+        for text, w, fg in [
+            (ev["time"], 10, "#6b7280"),
+            (ev["severity"][:4].upper(), 8, sc),
+            (ev["metric"][:10], 10, "#94a3b8"),
+            (ev["description"][:46], 36, "#64748b"),
+        ]:
+            tk.Label(row, text=text, font=("Segoe UI", 6), bg="#0f1117",
+                     fg=fg, width=w, anchor="w").pack(side="left", padx=2)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPONENTS TAB
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_components(self, parent):
+    """Components tab — detailed hardware specs via hardware_detector."""
+    BG = "#0a0e14"
+    sf, _ = _make_scroll_frame(parent)
+
+    # Loading state
+    loading_lbl = tk.Label(sf, text="Scanning hardware…", font=("Segoe UI", 9),
+                           bg=BG, fg="#4b5563")
+    loading_lbl.pack(pady=20)
+
+    def _on_scan_done(data):
+        if not parent.winfo_exists():
+            return
+        parent.after(0, lambda: _render_components(sf, loading_lbl, data))
+
+    try:
+        from core.hardware_detector import get_hardware_detector
+        det = get_hardware_detector()
+        if det.is_ready:
+            _on_scan_done(det.get_data())
+        else:
+            det.scan_async(on_done=_on_scan_done)
+    except Exception as ex:
+        loading_lbl.config(text=f"Hardware scan failed: {ex}", fg="#ef4444")
+
+
+def _render_components(sf, loading_lbl, data):
+    """Render component cards after scan completes."""
+    try:
+        if loading_lbl.winfo_exists():
+            loading_lbl.destroy()
+    except Exception:
+        pass
+
+    BG = "#0a0e14"
+    cpu = data.get("cpu", {})
+    gpu = data.get("gpu", {})
+    ram = data.get("ram", {})
+    storage = data.get("storage", {})
+    mb = data.get("motherboard", {})
+
+    # ── CPU + GPU row ──────────────────────────────────────
+    _sec_hdr(sf, "PROCESSOR  ·  GRAPHICS")
+    row1 = tk.Frame(sf, bg=BG)
+    row1.pack(fill="x", padx=8, pady=2)
+
+    cpu_outer, cpu_inner = _card(row1, "CPU", "🔥", "#3b82f6")
+    cpu_outer.pack(side="left", fill="both", expand=True, padx=(0, 3))
+    _spec_row(cpu_inner, "Name", cpu.get("name", "N/A"))
+    cores_p = cpu.get("cores_physical", 0)
+    cores_l = cpu.get("cores_logical", 0)
+    _spec_row(cpu_inner, "Cores / Threads", f"{cores_p}C / {cores_l}T" if cores_p else "N/A")
+    freq_cur = cpu.get("freq_current_mhz", 0)
+    freq_max = cpu.get("freq_max_mhz", 0)
+    _spec_row(cpu_inner, "Freq (cur / max)",
+              f"{freq_cur} / {freq_max} MHz" if freq_cur else "N/A")
+    _spec_row(cpu_inner, "Arch", cpu.get("architecture", "N/A"))
+    tk.Frame(cpu_inner, bg="#1a1d24", height=3).pack()
+
+    gpu_outer, gpu_inner = _card(row1, "GPU", "🖥", "#8b5cf6")
+    gpu_outer.pack(side="left", fill="both", expand=True)
+    _spec_row(gpu_inner, "Name", gpu.get("name", "N/A"))
+    vram = gpu.get("vram_mb", 0)
+    _spec_row(gpu_inner, "VRAM", f"{vram / 1024:.1f} GB" if vram else "N/A")
+    _spec_row(gpu_inner, "Driver ver", gpu.get("driver_version", "N/A") or "N/A")
+    _spec_row(gpu_inner, "Driver date", gpu.get("driver_date", "N/A") or "N/A")
+    tk.Frame(gpu_inner, bg="#1a1d24", height=3).pack()
+
+    # ── RAM + Storage row ──────────────────────────────────
+    _sec_hdr(sf, "MEMORY  ·  STORAGE")
+    row2 = tk.Frame(sf, bg=BG)
+    row2.pack(fill="x", padx=8, pady=2)
+
+    ram_outer, ram_inner = _card(row2, "RAM", "💾", "#10b981")
+    ram_outer.pack(side="left", fill="both", expand=True, padx=(0, 3))
+    _spec_row(ram_inner, "Total", f"{ram.get('total_gb', 0):.1f} GB")
+    _spec_row(ram_inner, "Used", f"{ram.get('used_gb', 0):.1f} GB ({ram.get('percent', 0):.0f}%)",
+              value_color=_pct_color_str(ram.get("percent", 0)))
+    speed = ram.get("speed_mhz", 0)
+    _spec_row(ram_inner, "Speed", f"{speed} MHz" if speed else "N/A")
+    _spec_row(ram_inner, "Form factor", ram.get("form_factor", "N/A") or "N/A")
+    slots = ram.get("slots_used", 0)
+    _spec_row(ram_inner, "Modules", f"{slots} slot(s) used" if slots else "N/A")
+    tk.Frame(ram_inner, bg="#1a1d24", height=3).pack()
+
+    st_outer, st_inner = _card(row2, "Storage", "🗄", "#f59e0b")
+    st_outer.pack(side="left", fill="both", expand=True)
+    drives = storage.get("drives", [])
+    parts = storage.get("partitions", [])
+    if drives:
+        for d in drives:
+            model = d.get("model", "Unknown")[:22]
+            size = d.get("size_gb", 0)
+            _spec_row(st_inner, model, f"{size:.0f} GB" if size else "N/A")
+    else:
+        _spec_row(st_inner, "Drives", "N/A")
+    if parts:
+        tk.Frame(st_inner, bg="#2a2d34", height=1).pack(fill="x", padx=4, pady=2)
+        for p in parts[:4]:
+            dev = p.get("device", "?")[0] + ":"
+            pct = p.get("percent", 0)
+            free = p.get("free_gb", 0)
+            _spec_row(st_inner, dev, f"{pct:.0f}%  {free:.1f} GB free",
+                      value_color=_pct_color_str(pct))
+    tk.Frame(st_inner, bg="#1a1d24", height=3).pack()
+
+    # ── Motherboard ────────────────────────────────────────
+    _sec_hdr(sf, "MOTHERBOARD")
+    mb_row = tk.Frame(sf, bg=BG)
+    mb_row.pack(fill="x", padx=8, pady=2)
+    mb_outer, mb_inner = _card(mb_row, "Motherboard", "⚡", "#ef4444")
+    mb_outer.pack(fill="x")
+    mb_name = " ".join(filter(None, [mb.get("manufacturer", ""), mb.get("product", "")])) or "N/A"
+    _spec_row(mb_inner, "Model", mb_name)
+    _spec_row(mb_inner, "Version", mb.get("version", "N/A") or "N/A")
+    tk.Frame(mb_inner, bg="#1a1d24", height=4).pack()
+
+
+def _pct_color_str(pct: float) -> str:
+    if pct >= 95: return "#ef4444"
+    if pct >= 85: return "#f97316"
+    if pct >= 75: return "#fbbf24"
+    return "#10b981"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EFFICIENCY TAB
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_efficiency(self, parent):
+    """Efficiency tab — live top process consumers + power plan."""
+    BG = "#0a0e14"
+    sf, _ = _make_scroll_frame(parent)
+    refs = {}
+
+    # ── CPU Frequency bar ──────────────────────────────────
+    _sec_hdr(sf, "CPU FREQUENCY")
+    freq_frame = tk.Frame(sf, bg="#1a1d24",
+                          highlightbackground="#2a2d34", highlightthickness=1)
+    freq_frame.pack(fill="x", padx=8, pady=2)
+    freq_bar_canvas = tk.Canvas(freq_frame, height=12, bg="#1a1d24",
+                                highlightthickness=0)
+    freq_bar_canvas.pack(fill="x", padx=6, pady=4)
+    freq_lbl = tk.Label(freq_frame, text="—", font=("Segoe UI", 6),
+                        bg="#1a1d24", fg="#94a3b8", pady=2)
+    freq_lbl.pack(anchor="e", padx=8)
+    refs["freq_bar"] = freq_bar_canvas
+    refs["freq_lbl"] = freq_lbl
+
+    # ── Top CPU consumers ──────────────────────────────────
+    _sec_hdr(sf, "TOP CPU CONSUMERS")
+    cpu_frame = tk.Frame(sf, bg="#0f1117",
+                         highlightbackground="#2a2d34", highlightthickness=1)
+    cpu_frame.pack(fill="x", padx=8, pady=2)
+    refs["cpu_procs_frame"] = cpu_frame
+
+    # ── Top RAM consumers ──────────────────────────────────
+    _sec_hdr(sf, "TOP RAM CONSUMERS")
+    ram_frame = tk.Frame(sf, bg="#0f1117",
+                         highlightbackground="#2a2d34", highlightthickness=1)
+    ram_frame.pack(fill="x", padx=8, pady=2)
+    refs["ram_procs_frame"] = ram_frame
+
+    # ── Power plan ─────────────────────────────────────────
+    _sec_hdr(sf, "POWER PLAN")
+    pwr_frame = tk.Frame(sf, bg="#1a1d24",
+                         highlightbackground="#2a2d34", highlightthickness=1)
+    pwr_frame.pack(fill="x", padx=8, pady=2)
+    pwr_lbl = tk.Label(pwr_frame, text="Detecting…", font=("Segoe UI", 8, "bold"),
+                       bg="#1a1d24", fg="#94a3b8", pady=6)
+    pwr_lbl.pack(anchor="w", padx=10)
+    refs["pwr_lbl"] = pwr_lbl
+
+    def _load_power_plan():
+        try:
+            import subprocess
+            r = subprocess.run(["powercfg", "/getactivescheme"],
+                               capture_output=True, text=True, timeout=3)
+            line = r.stdout.strip()
+            if "(" in line and ")" in line:
+                name = line[line.rfind("(") + 1:line.rfind(")")]
+            else:
+                name = line[-30:] if line else "N/A"
+        except Exception:
+            name = "N/A"
+        if parent.winfo_exists():
+            parent.after(0, lambda: pwr_lbl.config(text=name) if pwr_lbl.winfo_exists() else None)
+
+    import threading as _thr
+    _thr.Thread(target=_load_power_plan, daemon=True).start()
+
+    # ── Live refresh ───────────────────────────────────────
+    def _refresh():
+        if not parent.winfo_exists():
+            return
+        try:
+            _efficiency_refresh(refs)
+        except Exception:
+            pass
+        parent.after(2000, _refresh)
+
+    parent.after(300, _refresh)
+
+
+def _efficiency_refresh(refs):
+    """Update efficiency tab widgets."""
+    try:
+        import psutil as _psu
+
+        # CPU frequency bar
+        freq = _psu.cpu_freq()
+        if freq:
+            cur, max_f = freq.current, freq.max or freq.current
+            pct = min(1.0, cur / max_f) if max_f else 0.5
+            fc = refs.get("freq_bar")
+            if fc and fc.winfo_exists():
+                w = fc.winfo_width() or 200
+                fc.delete("all")
+                fc.create_rectangle(0, 0, w, 12, fill="#1f2937", outline="")
+                bar_col = "#3b82f6" if pct < 0.8 else "#f59e0b" if pct < 0.95 else "#ef4444"
+                fc.create_rectangle(0, 0, int(w * pct), 12, fill=bar_col, outline="")
+            fl = refs.get("freq_lbl")
+            if fl and fl.winfo_exists():
+                fl.config(text=f"{cur:.0f} MHz  /  {max_f:.0f} MHz max")
+
+        # Top CPU processes
+        cpu_f = refs.get("cpu_procs_frame")
+        if cpu_f and cpu_f.winfo_exists():
+            for w in cpu_f.winfo_children():
+                w.destroy()
+            procs = sorted(_psu.process_iter(["name", "cpu_percent"]),
+                           key=lambda p: p.info.get("cpu_percent", 0) or 0,
+                           reverse=True)[:6]
+            _render_proc_rows(cpu_f, procs, "cpu_percent", "%", "#3b82f6")
+
+        # Top RAM processes
+        ram_f = refs.get("ram_procs_frame")
+        if ram_f and ram_f.winfo_exists():
+            for w in ram_f.winfo_children():
+                w.destroy()
+            procs = sorted(_psu.process_iter(["name", "memory_percent"]),
+                           key=lambda p: p.info.get("memory_percent", 0) or 0,
+                           reverse=True)[:6]
+            _render_proc_rows(ram_f, procs, "memory_percent", "%", "#10b981")
+    except Exception:
+        pass
+
+
+def _render_proc_rows(parent, procs, metric_key, unit, bar_color):
+    """Render process rows with mini usage bars."""
+    BG = "#0f1117"
+    hdr = tk.Frame(parent, bg="#111827")
+    hdr.pack(fill="x")
+    tk.Label(hdr, text="PROCESS", font=("Segoe UI", 6, "bold"),
+             bg="#111827", fg="#4b5563", width=24, anchor="w").pack(side="left", padx=4)
+    tk.Label(hdr, text="USAGE", font=("Segoe UI", 6, "bold"),
+             bg="#111827", fg="#4b5563").pack(side="right", padx=4)
+
+    for proc in procs:
+        try:
+            name = (proc.info.get("name", "?") or "?")[:22]
+            val = proc.info.get(metric_key, 0) or 0
+        except Exception:
+            continue
+        row = tk.Frame(parent, bg=BG)
+        row.pack(fill="x", pady=0)
+        tk.Label(row, text=name, font=("Segoe UI", 7), bg=BG,
+                 fg="#94a3b8", width=24, anchor="w").pack(side="left", padx=4)
+        bar_outer = tk.Frame(row, bg="#1f2937", height=8)
+        bar_outer.pack(side="left", fill="x", expand=True, padx=4, pady=3)
+        bar_outer.update_idletasks()
+        bar_w = max(1, int((val / 100) * 120))
+        bar_inner = tk.Frame(bar_outer, bg=bar_color, width=bar_w, height=8)
+        bar_inner.place(x=0, y=0, relheight=1.0)
+        tk.Label(row, text=f"{val:.1f}{unit}", font=("Segoe UI", 6, "bold"),
+                 bg=BG, fg="#e2e8f0", width=7, anchor="e").pack(side="right", padx=4)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STARTUP TAB
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_startup(self, parent):
+    """Startup tab — read-only registry startup program list."""
+    BG = "#0a0e14"
+    sf, _ = _make_scroll_frame(parent)
+
+    loading_lbl = tk.Label(sf, text="Reading startup entries…", font=("Segoe UI", 8),
+                           bg=BG, fg="#4b5563", pady=10)
+    loading_lbl.pack()
+
+    def _load():
+        entries = _read_startup_registry()
+        if parent.winfo_exists():
+            parent.after(0, lambda: _render_startup(sf, loading_lbl, entries, self))
+
+    import threading as _thr
+    _thr.Thread(target=_load, daemon=True).start()
+
+
+def _read_startup_registry() -> list:
+    """Return list of {'name', 'command', 'source'} from Run keys."""
+    entries = []
+    try:
+        import winreg
+        keys = [
+            (winreg.HKEY_CURRENT_USER,
+             r"Software\Microsoft\Windows\CurrentVersion\Run", "HKCU"),
+            (winreg.HKEY_LOCAL_MACHINE,
+             r"Software\Microsoft\Windows\CurrentVersion\Run", "HKLM"),
+        ]
+        for hive, path, label in keys:
+            try:
+                key = winreg.OpenKey(hive, path)
+                i = 0
+                while True:
+                    try:
+                        name, cmd, _ = winreg.EnumValue(key, i)
+                        entries.append({
+                            "name": name,
+                            "command": cmd[:60],
+                            "source": label,
+                        })
+                        i += 1
+                    except OSError:
+                        break
+                winreg.CloseKey(key)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return entries
+
+
+def _render_startup(sf, loading_lbl, entries, self_ref):
+    """Render startup list after registry read."""
+    try:
+        if loading_lbl.winfo_exists():
+            loading_lbl.destroy()
+    except Exception:
+        pass
+
+    BG = "#0a0e14"
+    count = len(entries)
+    color = "#ef4444" if count > 12 else "#f59e0b" if count > 8 else "#10b981"
+
+    # Count badge row
+    badge_row = tk.Frame(sf, bg=BG)
+    badge_row.pack(fill="x", padx=8, pady=(4, 2))
+    tk.Label(badge_row, text=f"{count} startup items found",
+             font=("Segoe UI", 9, "bold"), bg=BG, fg=color).pack(side="left")
+
+    if count > 8:
+        hint = "   High startup count may slow boot time."
+        tk.Label(badge_row, text=hint, font=("Segoe UI", 7), bg=BG,
+                 fg="#6b7280").pack(side="left")
+
+    # Table header
+    hdr = tk.Frame(sf, bg="#111827")
+    hdr.pack(fill="x", padx=8)
+    for col_txt, col_w in [("NAME", 22), ("SOURCE", 6), ("COMMAND", 40)]:
+        tk.Label(hdr, text=col_txt, font=("Segoe UI", 6, "bold"),
+                 bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=3)
+
+    # Rows
+    table = tk.Frame(sf, bg="#0f1117", highlightbackground="#2a2d34",
+                     highlightthickness=1)
+    table.pack(fill="x", padx=8, pady=(0, 4))
+
+    if not entries:
+        tk.Label(table, text="No startup items found in registry.",
+                 font=("Segoe UI", 7), bg="#0f1117", fg="#4b5563", pady=8).pack()
+    else:
+        for i, e in enumerate(entries):
+            row_bg = "#0f1117" if i % 2 == 0 else "#111827"
+            row = tk.Frame(table, bg=row_bg)
+            row.pack(fill="x")
+            src_col = "#3b82f6" if e["source"] == "HKCU" else "#8b5cf6"
+            for text, w, fg in [
+                (e["name"][:22], 22, "#e2e8f0"),
+                (e["source"], 6, src_col),
+                (e["command"][:40], 40, "#6b7280"),
+            ]:
+                tk.Label(row, text=text, font=("Segoe UI", 7), bg=row_bg,
+                         fg=fg, width=w, anchor="w").pack(side="left", padx=3, pady=1)
+
+    # "Manage in Setup & Drivers" button
+    tk.Frame(sf, bg=BG, height=4).pack()
+    manage_btn = tk.Label(sf, text="Manage startup in  Setup & Drivers →",
+                          font=("Segoe UI", 8, "bold"), bg="#1e3a5f",
+                          fg="#93c5fd", cursor="hand2", pady=6)
+    manage_btn.pack(fill="x", padx=8, pady=2)
+
+    def _goto_setup():
+        try:
+            if hasattr(self_ref, "_handle_sidebar_navigation"):
+                self_ref._handle_sidebar_navigation("first_setup", None)
+                if hasattr(self_ref, "sidebar") and self_ref.sidebar:
+                    self_ref.sidebar.set_active_page("first_setup", None)
+        except Exception:
+            pass
+
+    manage_btn.bind("<Button-1>", lambda e: _goto_setup())
+    manage_btn.bind("<Enter>", lambda e: manage_btn.config(bg="#1d4ed8"))
+    manage_btn.bind("<Leave>", lambda e: manage_btn.config(bg="#1e3a5f"))
