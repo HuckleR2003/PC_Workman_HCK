@@ -254,6 +254,8 @@ class ExpandedMainWindow:
             self._build_monitoring_alerts_view()
         elif page_id == "first_setup":
             self._build_first_setup_view()
+        elif page_id == "optimization":
+            self._build_optimization_view()
         else:
             # For other pages, use the overlay system
             self._build_dashboard_view()
@@ -365,6 +367,10 @@ class ExpandedMainWindow:
         from ui.pages.first_setup_drivers import build_first_setup_page
         build_first_setup_page(self, self.content_area)
 
+    def _build_optimization_view(self):
+        from ui.pages.optimization_services import build_optimization_page
+        build_optimization_page(self, self.content_area)
+
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
         try:
@@ -385,6 +391,10 @@ class ExpandedMainWindow:
                 "first_setup.drivers": "first_setup",
                 "first_setup.startup": "first_setup",
                 "first_setup.checklist": "first_setup",
+                "optimization": "optimization",
+                "optimization.services": "optimization",
+                "optimization.startup": "optimization",
+                "optimization.wizard": "optimization",
             }
 
             # Build lookup key
