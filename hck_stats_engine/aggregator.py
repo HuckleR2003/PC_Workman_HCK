@@ -18,8 +18,6 @@ from hck_stats_engine.db_manager import db_manager
 
 
 class StatsAggregator:
-    """Central aggregation pipeline for system statistics"""
-
     def __init__(self):
         self._last_hour_boundary = 0
         self._last_day_boundary = 0
@@ -31,7 +29,6 @@ class StatsAggregator:
         print("[StatsAggregator] Initialized")
 
     def _init_boundaries(self):
-        """Initialize boundary timestamps from database"""
         conn = db_manager.get_connection()
         if not conn:
             now = time.time()
@@ -40,14 +37,12 @@ class StatsAggregator:
             return
 
         try:
-            # Get last hour boundary from hourly_stats
             row = conn.execute("SELECT MAX(timestamp) FROM hourly_stats").fetchone()
             if row and row[0]:
                 self._last_hour_boundary = row[0]
             else:
                 self._last_hour_boundary = int(time.time() // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
 
-            # Get last day boundary from daily_stats
             row = conn.execute("SELECT MAX(timestamp) FROM daily_stats").fetchone()
             if row and row[0]:
                 self._last_day_boundary = row[0]
@@ -61,25 +56,15 @@ class StatsAggregator:
             self._last_day_boundary = int(now // SECONDS_PER_DAY) * SECONDS_PER_DAY
 
     def set_process_aggregator(self, proc_agg):
-        """Link process aggregator"""
         self._process_aggregator = proc_agg
 
     def on_minute_tick(self, timestamp, cpu_avg, ram_avg, gpu_avg,
                        cpu_vals=None, ram_vals=None, gpu_vals=None,
                        cpu_temp=None, gpu_temp=None):
-        """Called by scheduler every 60 seconds with aggregated minute data.
-
-        Args:
-            timestamp: Unix epoch for the minute
-            cpu_avg, ram_avg, gpu_avg: Pre-computed averages
-            cpu_vals, ram_vals, gpu_vals: Raw 60-second value lists for min/max
-            cpu_temp, gpu_temp: Optional temperature readings
-        """
         if not db_manager.is_ready:
             return
 
         try:
-            # Insert minute stats
             self._insert_minute_stats(timestamp, cpu_avg, ram_avg, gpu_avg,
                                       cpu_vals, ram_vals, gpu_vals,
                                       cpu_temp, gpu_temp)
@@ -109,7 +94,6 @@ class StatsAggregator:
     def _insert_minute_stats(self, timestamp, cpu_avg, ram_avg, gpu_avg,
                              cpu_vals, ram_vals, gpu_vals,
                              cpu_temp=None, gpu_temp=None):
-        """Insert a minute stats row into SQLite"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -149,7 +133,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Insert minute error: {e}")
 
     def _aggregate_hour(self, hour_ts):
-        """Aggregate minute_stats for a given hour into hourly_stats"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -167,7 +150,6 @@ class StatsAggregator:
             if not rows:
                 return
 
-            # Compute aggregates
             cpu_avgs = [r['cpu_avg'] for r in rows]
             cpu_mins = [r['cpu_min'] for r in rows]
             cpu_maxs = [r['cpu_max'] for r in rows]
@@ -221,7 +203,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Hourly aggregation error: {e}")
 
     def _aggregate_day(self, day_ts):
-        """Aggregate hourly_stats for a given day into daily_stats"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -288,7 +269,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Daily aggregation error: {e}")
 
     def _check_weekly_monthly(self, day_ts):
-        """Check if we need weekly/monthly aggregation"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -304,7 +284,6 @@ class StatsAggregator:
             self._aggregate_monthly(day_ts, dt)
 
     def _aggregate_weekly(self, week_start_ts, dt):
-        """Aggregate daily_stats for the previous week"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -352,7 +331,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Weekly aggregation error: {e}")
 
     def _aggregate_monthly(self, month_start_ts, dt):
-        """Aggregate daily_stats for the previous month"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -406,7 +384,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Monthly aggregation error: {e}")
 
     def _run_pruning(self):
-        """Delete old data per retention policy"""
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -437,7 +414,6 @@ class StatsAggregator:
             print(f"[StatsAggregator] Pruning error: {e}")
 
     def _prune_raw_csv(self):
-        """Truncate raw_usage.csv to last 24 hours"""
         csv_path = os.path.join(LOGS_DIR, "raw_usage.csv")
         if not os.path.exists(csv_path):
             return
@@ -473,18 +449,7 @@ class StatsAggregator:
             print(f"[StatsAggregator] CSV pruning error: {e}")
 
     def flush_on_shutdown(self):
-        """Flush any pending data before app exit.
-        Aggregates the current (incomplete) hour into hourly_stats
-        so lifetime uptime is preserved across sessions.
-        """
         try:
-            # Aggregate current incomplete hour into hourly_stats
-            # so minute_stats data is not orphaned on next launch.
-            current_hour = int(time.time() // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
-            if current_hour >= self._last_hour_boundary:
-                self._aggregate_hour(current_hour)
-                print(f"[StatsAggregator] Flushed current hour to hourly_stats")
-
             if self._process_aggregator:
                 self._process_aggregator.flush_all()
             print("[StatsAggregator] Shutdown flush completed")
@@ -492,5 +457,4 @@ class StatsAggregator:
             print(f"[StatsAggregator] Shutdown flush error: {e}")
 
 
-# Singleton instance
 aggregator = StatsAggregator()
