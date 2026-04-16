@@ -1,21 +1,14 @@
 # core/scheduler.py
-"""
-core.scheduler updated
-- collects per-second snapshots
-- every 60 seconds computes minute-average from last 60 samples and writes to logger.minute buffer
-"""
-
 from import_core import register_component, COMPONENTS
 import threading, time, traceback, statistics
 
-# Stats Engine v2 references (lazy-loaded)
+# Stats Engine
 _stats_aggregator = None
 _process_aggregator = None
 _event_detector = None
 _stats_loaded = False
 
 def _load_stats_engine():
-    """Lazy-load stats engine components (safe if not available)"""
     global _stats_aggregator, _process_aggregator, _event_detector, _stats_loaded
     if _stats_loaded:
         return
@@ -46,13 +39,11 @@ class Scheduler:
         if not monitor or not logger:
             return
 
-        # Lazy-load stats engine on first worker tick
         _load_stats_engine()
 
         while not self._stop.is_set():
             try:
                 snap = monitor.read_snapshot()
-                # record per second
                 row = {
                     'timestamp': snap['timestamp'],
                     'cpu_percent': snap.get('cpu_percent', 0.0),
@@ -61,7 +52,6 @@ class Scheduler:
                 }
                 logger.record_snapshot(row)
 
-                # --- Stats Engine v2: accumulate per-process data every second ---
                 if _process_aggregator:
                     try:
                         proc_list = snap.get('processes', [])
@@ -83,14 +73,11 @@ class Scheduler:
                         cpu_avg = statistics.mean(cpu_vals)
                         ram_avg = statistics.mean(ram_vals)
                         gpu_avg = statistics.mean(gpu_vals)
-                        # minute timestamp = start of minute window (rounded)
                         minute_ts = int(time.time())
                         logger.record_minute_avg(minute_ts, cpu_avg, ram_avg, gpu_avg)
 
-                        # --- Stats Engine v2: feed minute data to aggregator ---
                         if _stats_aggregator:
                             try:
-                                # Get temperature readings
                                 _cpu_temp = None
                                 _gpu_temp = None
                                 try:
@@ -109,7 +96,6 @@ class Scheduler:
                             except Exception:
                                 pass
 
-                        # --- Stats Engine v2: spike detection ---
                         if _event_detector:
                             try:
                                 _event_detector.check_and_log_spike(cpu_avg, ram_avg, gpu_avg)
@@ -118,7 +104,6 @@ class Scheduler:
 
                     self._counter = 0
 
-                # optional light analysis
                 if analyzer:
                     try:
                         analyzer.detect_spike_last(seconds=30, threshold_percent=50.0)
@@ -143,5 +128,4 @@ class Scheduler:
         if self._thread:
             self._thread.join(timeout=2.0)
 
-# register instance
 scheduler = Scheduler(sample_interval=1.0)
