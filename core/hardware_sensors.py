@@ -1,8 +1,3 @@
-"""
-Hardware Sensors Module - HWMonitor Style Organization
-Provides hierarchical sensor data: CPU → GPU → Motherboard → Storage → RAM
-"""
-
 import psutil
 import platform
 import time
@@ -24,10 +19,6 @@ except ImportError:
 
 
 class HardwareSensors:
-    """
-    Collects and organizes hardware sensor data in HWMonitor-style hierarchy
-    """
-
     def __init__(self):
         self.last_update = 0
         self.update_interval = 1.0  # 1 second between updates
@@ -39,7 +30,6 @@ class HardwareSensors:
         self.ram_total = self._get_ram_total()
 
     def _get_cpu_name(self) -> str:
-        """Get CPU model name"""
         if HAS_CPUINFO:
             try:
                 info = cpuinfo.get_cpu_info()
@@ -51,7 +41,6 @@ class HardwareSensors:
         return f"{platform.processor()} (CPU)"
 
     def _get_gpu_name(self) -> str:
-        """Get GPU model name"""
         if HAS_GPU:
             try:
                 gpus = GPUtil.getGPUs()
@@ -63,7 +52,6 @@ class HardwareSensors:
         return "GPU (Not detected / Integrated)"
 
     def _get_ram_total(self) -> float:
-        """Get total RAM in GB"""
         try:
             total_bytes = psutil.virtual_memory().total
             return round(total_bytes / (1024**3), 1)  # Convert to GB
@@ -71,19 +59,7 @@ class HardwareSensors:
             return 0.0
 
     def get_sensor_tree(self, force_update: bool = False) -> Dict[str, Any]:
-        """
-        Get complete sensor tree in HWMonitor-style hierarchy
-
-        Returns:
-            {
-                'CPU': {...},
-                'GPU': {...},
-                'RAM': {...},
-                'Storage': {...},
-                'Motherboard': {...}
-            }
-        """
-        # Check if we need to update (throttle to 1 second)
+        # throttle to 1 second
         now = time.time()
         if not force_update and self._cached_data and (now - self.last_update) < self.update_interval:
             return self._cached_data
@@ -94,7 +70,6 @@ class HardwareSensors:
             'GPU': self._get_gpu_sensors(),
             'RAM': self._get_ram_sensors(),
             'Storage': self._get_storage_sensors(),
-            # 'Motherboard': self._get_motherboard_sensors(),  # Requires WMI on Windows
         }
 
         self._cached_data = tree
@@ -102,7 +77,6 @@ class HardwareSensors:
         return tree
 
     def _get_cpu_sensors(self) -> Dict[str, Any]:
-        """Get CPU sensor data"""
         sensors = {
             'name': self.cpu_name,
             'sensors': {}
@@ -134,7 +108,6 @@ class HardwareSensors:
                         }
 
             else:
-                # Fallback: simulated temperature based on usage
                 cpu_percent = psutil.cpu_percent(interval=0.1)
                 estimated_temp = 35 + (cpu_percent * 0.5)  # Rough estimate
                 sensors['sensors']['Temperature (estimated)'] = {
@@ -188,7 +161,6 @@ class HardwareSensors:
         return sensors
 
     def _get_gpu_sensors(self) -> Dict[str, Any]:
-        """Get GPU sensor data"""
         sensors = {
             'name': self.gpu_name,
             'sensors': {}
@@ -254,7 +226,6 @@ class HardwareSensors:
         return sensors
 
     def _get_ram_sensors(self) -> Dict[str, Any]:
-        """Get RAM sensor data"""
         sensors = {
             'name': f"RAM ({self.ram_total} GB Total)",
             'sensors': {}
@@ -297,7 +268,6 @@ class HardwareSensors:
         return sensors
 
     def _get_storage_sensors(self) -> Dict[str, Any]:
-        """Get storage device sensor data"""
         sensors = {
             'name': 'Storage',
             'sensors': {}
@@ -310,7 +280,6 @@ class HardwareSensors:
                 try:
                     usage = psutil.disk_usage(partition.mountpoint)
 
-                    # Clean device name
                     device_name = partition.device.replace('\\', '').replace(':', '')
 
                     sensors['sensors'][f'{device_name} ({partition.fstype})'] = {
@@ -338,10 +307,6 @@ class HardwareSensors:
         return sensors
 
     def get_sensor_color(self, sensor_type: str, raw_value: float) -> str:
-        """
-        Get color for sensor based on type and value
-        Returns: hex color string
-        """
         if sensor_type == 'temperature':
             if raw_value < 60:
                 return "#10b981"  # Green - safe
@@ -362,16 +327,6 @@ class HardwareSensors:
             return "#64748b"  # Gray - neutral
 
     def get_flat_sensor_list(self) -> List[Dict[str, Any]]:
-        """
-        Get flat list of all sensors (for "Group by Type" view)
-
-        Returns:
-            [
-                {'category': 'CPU', 'name': 'Package Temperature', 'value': '52°C', ...},
-                {'category': 'GPU', 'name': 'Core Temperature', 'value': '68°C', ...},
-                ...
-            ]
-        """
         tree = self.get_sensor_tree()
         flat_list = []
 
@@ -391,11 +346,46 @@ class HardwareSensors:
         return flat_list
 
 
+def get_cpu_temp() -> float:
+    try:
+        sensors = get_hardware_sensors()
+        cpu = sensors._get_cpu_sensors()
+        for v in cpu['sensors'].values():
+            if v['type'] == 'temperature':
+                return float(v['raw'])
+    except Exception:
+        pass
+    return 0.0
+
+
+def get_gpu_temp() -> float:
+    try:
+        sensors = get_hardware_sensors()
+        gpu = sensors._get_gpu_sensors()
+        for v in gpu['sensors'].values():
+            if v['type'] == 'temperature':
+                return float(v['raw'])
+    except Exception:
+        pass
+    return 0.0
+
+
+def get_gpu_usage() -> float:
+    try:
+        sensors = get_hardware_sensors()
+        gpu = sensors._get_gpu_sensors()
+        for v in gpu['sensors'].values():
+            if v['type'] == 'usage':
+                return float(v['raw'])
+    except Exception:
+        pass
+    return 0.0
+
+
 # Singleton instance
 _hardware_sensors_instance = None
 
 def get_hardware_sensors() -> HardwareSensors:
-    """Get singleton HardwareSensors instance"""
     global _hardware_sensors_instance
     if _hardware_sensors_instance is None:
         _hardware_sensors_instance = HardwareSensors()
