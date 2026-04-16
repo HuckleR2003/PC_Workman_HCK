@@ -1,13 +1,4 @@
 # core/monitor.py
-"""
-core.monitor
-Real monitor using psutil (CPU, RAM, per-process) and optional GPUtil for GPU.
-Provides:
- - Monitor.read_snapshot() -> dict
- - Monitor.top_processes(n=6) -> list of dicts
- - In-memory buffer (managed by scheduler/logger) lives outside here.
-"""
-
 from import_core import register_component
 import time
 import threading
@@ -29,8 +20,6 @@ class Monitor:
         register_component(self.name, self)
 
     def start_background_collection(self, interval=1.0):
-        """Start background thread that collects snapshots every N seconds.
-        This keeps process_iter() off the GUI thread."""
         if self._bg_running:
             return
         self._bg_running = True
@@ -43,7 +32,6 @@ class Monitor:
         self._bg_running = False
 
     def _bg_collect_loop(self):
-        """Background thread: collect snapshots continuously."""
         while self._bg_running:
             try:
                 snap = self._collect_snapshot()
@@ -96,17 +84,12 @@ class Monitor:
         }
 
     def read_snapshot(self):
-        """Returns cached snapshot. Falls back to direct collection if background thread not started."""
         with self._snapshot_lock:
             if self._cached_snapshot is not None:
                 return self._cached_snapshot
         return self._collect_snapshot()
 
     def top_processes(self, n=6, by='cpu'):
-        """
-        Return top n processes sorted by 'cpu' or 'ram' or 'cpu+ram'.
-        'ram' sorts by ram_MB, 'cpu' sorts by cpu_percent.
-        """
         snap = self.read_snapshot()
         procs = snap.get('processes', [])
         if by == 'ram':
