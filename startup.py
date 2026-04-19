@@ -123,7 +123,6 @@ def run_demo():
     # --- Step 3: Load stats engine ---
     try:
         import hck_stats_engine.avg_calculator
-        import hck_stats_engine.trend_analysis
         log("Stats engine (legacy) loaded", "OK")
     except Exception as e:
         log(f"Stats engine legacy FAILED: {e}", "ERROR")
