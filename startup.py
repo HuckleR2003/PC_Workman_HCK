@@ -71,6 +71,16 @@ if sys.platform == 'win32':
 
 print("[+] Core systems loaded")
 
+try:
+    from utils.fonts import load
+    _n = load()
+    if _n:
+        print(f"[+] Inter font loaded ({_n} files)")
+    else:
+        print("[~] Inter not found — using Segoe UI  (place Inter*.ttf in assets/fonts/ to upgrade)")
+except Exception:
+    pass
+
 # ============================================
 # STARTUP SEQUENCE
 # ============================================
