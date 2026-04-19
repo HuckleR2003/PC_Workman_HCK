@@ -1,8 +1,8 @@
-# PC_Workman 1.7.1
+# PC_Workman 1.7.2
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
-![Version](https://img.shields.io/badge/Version-1.7.1-blue)
+![Version](https://img.shields.io/badge/Version-1.7.2-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 -
@@ -61,12 +61,20 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Bottleneck detection (CPU vs GPU limited)
 - Safe system optimization with rollback
 
+### First Setup & Drivers *(new in 1.7.2)*
+- Health score gauge (0–100 arc) — computed from driver ages and startup count
+- 4 driver health cards: GPU, Audio, Network, USB — real data from Windows registry
+- Driver freshness bar per card; status badges: CURRENT / 6+ MONTHS / Xmo OLD
+- Startup program list (registry HKCU/HKLM Run keys), 6-item setup checklist with persistent state
+- Quick Actions: Windows Update, Device Manager, Services, Task Scheduler, System Info, MSConfig
+
 ### Interface
 - Modern dashboard (Apple-inspired design)
 - Ultra-compact information density
 - Color-coded process lists
 - Interactive charts and metrics
 - Click-to-investigate functionality
+- Process tooltips on TOP 5 panels — hover any process name for instant library lookup
 
 ### Coming Soon
 - Official .exe installer (v1.6.0)
@@ -100,7 +108,29 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.1] - `2026-04-10` - CURRENT
+## What's New [1.7.2] - `2026-04-20` - CURRENT
+
+### Optimization Center Redesign
+- Full hero header with pulsing TURBO BOOST button (amber gradient, `math.sin` animation)
+- Emerald rectangular badge showing active feature count (e.g. `1 / 14`)
+- TURBO BOOST now flashes individual Quick Action buttons green/red for 2.5s
+- Features list and Quick Actions columns swapped; left column fixed 280px
+- AUTO RAM Flush state persisted in `settings/user_prefs.json` — survives restarts
+- Compact RAM Flush card with cleaner bordeaux→emerald RUN button
+
+### Font System
+- `utils/fonts.py` — loads Inter font via Windows GDI32; falls back to Segoe UI automatically
+
+### Repository Cleanup
+- Added proper `.gitignore` (replaced `.gitignore.txt`); now excludes logs, cache, user prefs, fonts
+- Removed 7 orphaned/dead files: `report_window.py`, 3 utils stubs, `hck_gpt_panel.py`, `trend_analysis.py`, `google9bc8246e2e876106.html`
+- Removed old screenshots folder and HTML backups from `docs/`
+- Fixed broken import paths in `main_window.py` (`ui.page_*` → `ui.pages.page_*`)
+- Cleared all `__pycache__/` directories
+
+---
+
+## What's New [1.7.1] - `2026-04-10`
 
 ### hck_GPT Intelligence System
 - Local insights engine: habit tracking, anomaly awareness, personalized teasers
@@ -379,7 +409,8 @@ Click any process to see more details.
 | v1.4.0 | Released | System tray, enhanced UI |
 | v1.5.7 | Released | Modern dashboard, hardware monitoring |
 | v1.6.3 | Released | Fan dashboard, menu system, .exe |
-| **v1.7.1** | **Current** | **Stats Engine v2, Time-Travel, Monitoring** |
+| v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
+| **v1.7.2** | **Current** | **Optimization Center redesign, Inter font, repo cleanup** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
