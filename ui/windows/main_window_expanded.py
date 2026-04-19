@@ -368,8 +368,17 @@ class ExpandedMainWindow:
         build_first_setup_page(self, self.content_area)
 
     def _build_optimization_view(self):
-        from ui.pages.optimization_services import build_optimization_page
-        build_optimization_page(self, self.content_area)
+        self._build_page_header("Optimization & Services", "Boost, clean and automate your PC")
+        try:
+            from ui.pages.optimization_services import build_optimization_page
+            build_optimization_page(self, self.content_area)
+        except Exception as e:
+            import traceback
+            err = tk.Label(self.content_area, text=f"Failed to load page:\n{e}",
+                           font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                           justify="left", padx=20, pady=20)
+            err.pack(anchor="nw")
+            traceback.print_exc()
 
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
