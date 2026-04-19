@@ -1,6 +1,33 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.2] - 2026-04-20
+
+### Optimization & Services — Full Redesign
+- New "OPTIMIZATION CENTER" hero header with TURBO BOOST gradient button (amber pulse animation via `math.sin`)
+- Rectangular emerald badge showing `1 / 14 active` features count
+- TURBO BOOST flashes individual Quick Action button backgrounds green/red for 2.5s on run
+- Columns swapped: Features list (with coming-soon rows) on left, Quick Actions on right
+- Left column fixed at 280px width; right column expands freely
+- AUTO RAM Flush settings persisted to `settings/user_prefs.json` — survives restarts
+- Compact RAM flush card: removed live RAM % display, cleaner RUN canvas button (72×28px, bordeaux→emerald gradient)
+- RAM monitor daemon auto-restarts on launch if `ram_auto=True` was last saved state
+
+### Font System
+- New `utils/fonts.py` — loads Inter font family via Windows GDI32 (`AddFontResourceW`)
+- Falls back to Segoe UI if `assets/fonts/InterVariable.ttf` not present
+- Font loaded once at startup, available to all tkinter widgets by name
+
+### Repository Cleanup (pre-release)
+- `.gitignore.txt` → replaced with proper `.gitignore` (added `data/logs/`, `settings/user_prefs.json`, `assets/fonts/*.ttf`)
+- Removed `docs/backup/`, `docs/1.5.0_official_annouce_screens/`, `docs/google9bc8246e2e876106.html`
+- Removed orphaned `utils/file_utils.py`, `utils/net_utils.py`, `utils/system_info.py` (never imported)
+- Removed `hck_gpt/report_window.py` (640 lines, unused)
+- Removed `ui/hck_gpt_panel.py` (backward-compat shim, no longer needed)
+- Removed `hck_stats_engine/trend_analysis.py` (dead code, never called)
+- Fixed broken import paths in `main_window.py`: `ui.page_day_stats` → `ui.pages.page_day_stats`
+- Cleared all `__pycache__/` directories
+
 ## [1.7.2] - 2026-04-13
 
 ### New: First Setup & Drivers page (`ui/pages/first_setup_drivers.py`)
