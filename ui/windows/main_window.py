@@ -347,7 +347,7 @@ class MainWindow:
 
         # Day Stats page
         try:
-            from ui.page_day_stats import DayStatsPage
+            from ui.pages.page_day_stats import DayStatsPage
             day_stats_page = DayStatsPage(self.content, self.data_manager, self.classifier)
             self.pages["day_stats"] = day_stats_page.frame
             self.day_stats_page = day_stats_page
@@ -357,7 +357,7 @@ class MainWindow:
 
         # All Stats page
         try:
-            from ui.page_all_stats import AllStatsPage
+            from ui.pages.page_all_stats import AllStatsPage
             all_stats_page = AllStatsPage(self.content, self.data_manager, self.classifier)
             self.pages["all_stats"] = all_stats_page.frame
             self.all_stats_page = all_stats_page
