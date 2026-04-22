@@ -1,10 +1,5 @@
 # hck_gpt/chat_handler.py
-"""
-Chat Handler
-Main logic for hck_GPT chat interactions and command processing.
-Routes user messages to service wizard, insights engine, or default response.
-"""
-
+from __future__ import annotations
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
 
@@ -14,277 +9,488 @@ try:
 except ImportError:
     HAS_INSIGHTS = False
 
+# ── New AI layer (intent parser + response builder + memory) ──────────────────
+try:
+    from .intents.parser        import intent_parser
+    from .intents.lang_detect   import detect_language
+    from .responses.builder     import response_builder
+    from .memory.session_memory import session_memory
+    from .memory.user_knowledge import user_knowledge
+    HAS_AI_LAYER = True
+except Exception:
+    HAS_AI_LAYER = False
+
+# ── Proactive background monitor ──────────────────────────────────────────────
+try:
+    from .memory.proactive_monitor import proactive_monitor
+    HAS_PROACTIVE = True
+except Exception:
+    HAS_PROACTIVE = False
+
+# ── Hybrid Engine (rule + Ollama LLM) ─────────────────────────────────────────
+try:
+    from .engine.hybrid_engine import hybrid_engine
+    HAS_HYBRID = True
+except Exception:
+    HAS_HYBRID = False
+
+_NO_INSIGHTS = ["hck_GPT: Insights engine not available."]
+
+# Legacy keyword routes (kept as fallback for service/wizard commands)
+_ROUTES: list[tuple[tuple[str, ...], str]] = [
+    (("service setup", "service's setup", "setup services"),
+     "_cmd_service_setup"),
+    (("restore services", "enable services", "restore all"),
+     "_restore_services"),
+    (("service status", "services status", "show services"),
+     "_show_service_status"),
+    (("alerts", "anomalies", "spikes", "anomalie", "alerty"),
+     "_cmd_anomalies"),
+    (("insights", "what's up", "whats up", "co nowego",
+      "status", "co sie dzieje"),
+     "_cmd_insights"),
+    (("teaser", "predict", "guess", "co dzis"),
+     "_cmd_teaser"),
+    (("report", "raport", "today"),
+     "_insights_report_text"),
+]
+
+# Intents handled by legacy route only (bypass AI layer entirely).
+# Covers: service commands + InsightsEngine commands that must NOT go to Ollama.
+_LEGACY_ONLY_KEYWORDS = (
+    # ── Service wizard commands ───────────────────────────────────────────────
+    "service setup", "service's setup", "setup services",
+    "restore services", "enable services", "restore all",
+    "service status", "services status", "show services",
+    # ── InsightsEngine commands (must use stats DB, not Ollama) ───────────────
+    "alerts", "anomalies", "anomalie", "alerty", "spikes",
+    "insights", "co nowego", "co sie dzieje", "whats up", "what's up",
+    "teaser", "predict", "co dzis", "guess",
+    "today report", "raport",
+)
+
+# ── Quick shorthand aliases ───────────────────────────────────────────────────
+# Exact stripped-lower match → response_builder intent name (bypasses parser).
+_QUICK_ALIASES: dict[str, str] = {
+    # Hardware
+    "cpu":           "hw_cpu",
+    "procesor":      "hw_cpu",
+    "ram":           "hw_ram",
+    "pamiec":        "hw_ram",       # accent-stripped
+    "pamięć":        "hw_ram",
+    "gpu":           "hw_gpu",
+    "karta":         "hw_gpu",
+    "grafika":       "hw_gpu",
+    "mb":            "hw_motherboard",
+    "motherboard":   "hw_motherboard",
+    "plyta":         "hw_motherboard",
+    "płyta":         "hw_motherboard",
+    "disk":          "hw_storage",
+    "storage":       "hw_storage",
+    "dysk":          "hw_storage",
+    "dyski":         "hw_storage",
+    "specs":         "hw_all",
+    "spec":          "hw_all",
+    "specyfikacja":  "hw_all",
+    # Diagnostics
+    "health":        "health_check",
+    "zdrowie":       "health_check",
+    "temp":          "temperature",
+    "temps":         "temperature",
+    "temperatury":   "temperature",
+    "throttle":      "throttle_check",
+    # Performance
+    "perf":          "performance",
+    "wydajnosc":     "performance",  # accent-stripped
+    "wydajność":     "performance",
+    "procesy":       "processes",
+    "processes":     "processes",
+    "top":           "processes",
+    # Stats / session
+    "stats":         "stats",
+    "statystyki":    "stats",
+    "uptime":        "uptime",
+    "sesja":         "uptime",
+    # System
+    "optimization":  "optimization",
+    "optymalizacja": "optimization",
+    "power":         "power_plan",
+    "zasilanie":     "power_plan",
+}
+
+# Keywords that show the styled help card (handled directly, not via builder).
+_HELP_KEYWORDS = frozenset({
+    "komendy", "commands", "help", "pomoc",
+    "komendy!", "commands!", "help!", "pomoc!",
+    "?",
+})
+
+# Keywords that trigger the reset confirmation flow.
+_RESET_KEYWORDS = frozenset({
+    "reset", "reset data", "reset db", "restore data",
+    "zresetuj", "zresetuj dane", "resetuj dane",
+    "clear data", "clear db", "reset bazy", "zresetuj baze",
+    "wyczysc dane",
+})
+
 
 class ChatHandler:
-    """Handles chat messages and commands for hck_GPT"""
-
-    def __init__(self):
-        self.wizard = ServiceSetupWizard()
+    def __init__(self) -> None:
+        self.wizard           = ServiceSetupWizard()
         self.services_manager = ServicesManager()
-        self.conversation_history = []
-        self.insights = InsightsEngine() if HAS_INSIGHTS else None
+        self.insights: InsightsEngine | None = (
+            InsightsEngine() if HAS_INSIGHTS else None
+        )
+        # Background hardware scan on first init
+        if HAS_AI_LAYER:
+            self._trigger_hw_scan()
 
-    def process_message(self, user_message):
-        """
-        Process user message and return response
+        # Proactive monitor is started from panel.py after callbacks are registered
+        # (here we just keep a reference for lang sync)
+        self._last_lang: str = "pl"
 
-        Args:
-            user_message: String message from user
+        # Two-step reset flow state
+        self._pending_reset: bool = False
 
-        Returns:
-            list: Response messages to display
-        """
-        user_message = user_message.strip()
+    def _trigger_hw_scan(self) -> None:
+        """Run hardware scan in background thread if knowledge DB is stale."""
+        import threading
+        def _scan():
+            try:
+                from .context.hardware_scanner import scan_and_store
+                scan_and_store()
+            except Exception:
+                pass
+        threading.Thread(target=_scan, daemon=True).start()
 
-        # If wizard is active, route to wizard
+    def process_message(self, user_message: str) -> list[str]:
+        msg   = user_message.strip()
+        lower = msg.lower().strip()
+
+        # ── 0. Reset confirmation flow (two-step, waits for tak/yes) ─────────
+        if self._pending_reset:
+            return self._handle_reset_confirm(lower)
+
+        # ── 1. Service wizard takes priority ──────────────────────────────────
         if self.wizard.is_active():
-            return self.wizard.process_input(user_message)
+            return self.wizard.process_input(msg)
 
-        # Process commands
-        message_lower = user_message.lower()
+        # ── 2. Hard-route service/insights commands (bypass AI layer) ─────────
+        if any(kw in lower for kw in _LEGACY_ONLY_KEYWORDS):
+            for keywords, handler in _ROUTES:
+                if any(kw in lower for kw in keywords):
+                    return getattr(self, handler)()
 
-        # Service Setup command
-        if any(cmd in message_lower for cmd in ["service setup", "service's setup", "setup services"]):
-            return self.wizard.start()
+        # ── 3. Help card — exact trigger words ────────────────────────────────
+        if lower in _HELP_KEYWORDS:
+            return self._show_help(self._last_lang)
 
-        # Restore services command
-        elif any(cmd in message_lower for cmd in ["restore services", "enable services", "restore all"]):
-            return self._restore_services()
+        # ── 4. Reset command ──────────────────────────────────────────────────
+        if lower in _RESET_KEYWORDS:
+            return self._cmd_reset_confirm()
 
-        # Service status command
-        elif any(cmd in message_lower for cmd in ["service status", "services status", "show services"]):
-            return self._show_service_status()
+        # ── 5. Quick shorthand aliases (single-word bypasses full parser) ─────
+        alias_intent = _QUICK_ALIASES.get(lower)
+        if alias_intent and HAS_AI_LAYER:
+            try:
+                lang = detect_language(msg)
+                self._last_lang = lang
+                if HAS_PROACTIVE:
+                    try:
+                        proactive_monitor.set_language(lang)
+                    except Exception:
+                        pass
+                from .intents.parser import ParseResult as _PR
+                fake = _PR(intent=alias_intent, confidence=1.0, raw_text=msg)
+                resp = response_builder.build(fake, lang=lang)
+                if resp:
+                    session_memory.add_message("user", msg)
+                    session_memory.push_topic(alias_intent)
+                    for line in resp:
+                        session_memory.add_message("assistant", line)
+                    return resp
+            except Exception:
+                pass
 
-        # --- Insights commands ---
+        # ── 6. AI intent layer ────────────────────────────────────────────────
+        if HAS_AI_LAYER:
+            try:
+                lang = detect_language(msg)
+                self._last_lang = lang
+                if HAS_PROACTIVE:
+                    try:
+                        proactive_monitor.set_language(lang)
+                    except Exception:
+                        pass
 
-        # Stats / habits
-        elif any(cmd in message_lower for cmd in [
-            "stats", "habits", "top apps", "usage", "co uzywam",
-            "statystyki", "nawyki"
-        ]):
-            return self._insights_habits()
+                result = intent_parser.parse(msg)
+                session_memory.add_message("user", msg)
 
-        # Anomalies / alerts
-        elif any(cmd in message_lower for cmd in [
-            "alerts", "anomalies", "spikes", "anomalie", "alerty"
-        ]):
-            return self._insights_anomalies()
+                # Hybrid engine: rule engine (fast) OR Ollama (smart)
+                response = None
+                if HAS_HYBRID:
+                    response = hybrid_engine.process(msg, result, lang=lang)
+                elif result.is_confident(threshold=0.4):
+                    response = response_builder.build(result, lang=lang)
 
-        # Current insight
-        elif any(cmd in message_lower for cmd in [
-            "insights", "what's up", "whats up", "co nowego",
-            "status", "co sie dzieje"
-        ]):
-            return self._insights_current()
+                if response:
+                    session_memory.push_topic(result.intent)
+                    for line in response:
+                        session_memory.add_message("assistant", line)
+                    try:
+                        user_knowledge.log_message(
+                            session_memory.session_id, "user", msg)
+                        first_line = response[0] if response else ""
+                        user_knowledge.log_message(
+                            session_memory.session_id, "assistant", first_line)
+                    except Exception:
+                        pass
+                    return response
+            except Exception:
+                pass
 
-        # Teaser
-        elif any(cmd in message_lower for cmd in [
-            "teaser", "predict", "guess", "co dzis"
-        ]):
-            return self._insights_teaser()
+        # ── 7. Legacy keyword routes (habits/insights/teaser) ─────────────────
+        for keywords, handler in _ROUTES:
+            if any(kw in lower for kw in keywords):
+                return getattr(self, handler)()
 
-        # Health check
-        elif any(cmd in message_lower for cmd in [
-            "health", "zdrowie", "check", "diagnostics", "stan"
-        ]):
-            return self._insights_health()
+        # ── 8. Legacy habits (stats keyword) ──────────────────────────────────
+        if any(kw in lower for kw in (
+            "habits", "top apps", "usage", "co uzywam",
+            "nawyki", "summary", "podsumowanie"
+        )):
+            return self._cmd_habits()
 
-        # Summary
-        elif "summary" in message_lower or "podsumowanie" in message_lower:
-            return self._insights_habits()
+        return self._default_response(msg)
 
-        # Today report (text version)
-        elif any(cmd in message_lower for cmd in [
-            "report", "raport", "today"
-        ]):
-            return self._insights_report_text()
+    # ── Insights commands ─────────────────────────────────────────────
 
-        # Help command
-        elif any(cmd in message_lower for cmd in ["help", "commands", "?", "pomoc"]):
-            return self._show_help()
+    def _cmd_habits(self) -> list[str]:
+        return self.insights.get_habit_summary() if self.insights else _NO_INSIGHTS
 
-        # Default response — show insight instead of "AI not connected"
-        else:
-            return self._default_response(user_message)
+    def _cmd_anomalies(self) -> list[str]:
+        return self.insights.get_anomaly_report() if self.insights else _NO_INSIGHTS
 
-    # ================================================================
-    # INSIGHTS COMMANDS
-    # ================================================================
+    def _cmd_insights(self) -> list[str]:
+        if not self.insights:
+            return _NO_INSIGHTS
+        msg = self.insights.get_current_insight()
+        return [msg] if msg else ["hck_GPT: All quiet right now. No anomalies, no heavy loads."]
 
-    def _insights_habits(self):
-        if self.insights:
-            return self.insights.get_habit_summary()
-        return ["hck_GPT: Insights engine not available."]
+    def _cmd_teaser(self) -> list[str]:
+        return self.insights.get_teaser() if self.insights else _NO_INSIGHTS
 
-    def _insights_anomalies(self):
-        if self.insights:
-            return self.insights.get_anomaly_report()
-        return ["hck_GPT: Insights engine not available."]
+    def _cmd_health(self) -> list[str]:
+        return self.insights.get_health_check() if self.insights else _NO_INSIGHTS
 
-    def _insights_current(self):
-        if self.insights:
-            msg = self.insights.get_current_insight()
-            if msg:
-                return [msg]
-            return ["hck_GPT: All quiet right now. No anomalies, no heavy loads."]
-        return ["hck_GPT: Insights engine not available."]
+    def _cmd_service_setup(self) -> list[str]:
+        return self.wizard.start()
 
-    def _insights_teaser(self):
-        if self.insights:
-            return self.insights.get_teaser()
-        return ["hck_GPT: Insights engine not available."]
-
-    def _insights_health(self):
-        if self.insights:
-            return self.insights.get_health_check()
-        return ["hck_GPT: Insights engine not available."]
-
-    def _insights_report_text(self):
-        """Text-based quick report (points to the visual report button)."""
-        lines = []
-        if self.insights:
-            lines = self.insights.get_health_check()
-        else:
-            lines = ["hck_GPT: Insights engine not available."]
-        lines.append("")
-        lines.append("💡 Click the ✨ Today Report! ✨ button above for the full visual report.")
+    def _insights_report_text(self) -> list[str]:
+        lines = (self.insights.get_health_check() if self.insights
+                 else list(_NO_INSIGHTS))
+        lines += ["", "Click the Today Report button above for the full visual report."]
         return lines
 
-    # ================================================================
-    # SERVICE COMMANDS
-    # ================================================================
+    # ── Service commands ──────────────────────────────────────────────
 
-    def _restore_services(self):
-        """Restore all previously disabled services"""
-        messages = [
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "🔄 Restoring Services...",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            ""
-        ]
-
+    def _restore_services(self) -> list[str]:
+        msgs = ["━" * 28, "Restoring Services...", "━" * 28, ""]
         summary = self.services_manager.get_disabled_services_summary()
 
         if summary["count"] == 0:
-            messages.extend([
+            return msgs + [
                 "No services to restore.",
                 "All services are currently enabled.",
                 "",
-                "Type 'service setup' to optimize your PC"
-            ])
-            return messages
+                "Type 'service setup' to optimize your PC",
+            ]
 
-        messages.append(f"Restoring {summary['count']} services...")
-        messages.append("")
-
+        msgs += [f"Restoring {summary['count']} services...", ""]
         results = self.services_manager.restore_all_services()
+        ok = sum(1 for _, s, _ in results if s)
+        fail = len(results) - ok
 
-        success_count = sum(1 for r in results if r[1])
-        fail_count = len(results) - success_count
+        for service, success, _ in results:
+            msgs.append(f"{'Restored' if success else 'Failed'}: {service}")
 
-        for service, success, msg in results:
-            if success:
-                messages.append(f"✅ Restored: {service}")
-            else:
-                messages.append(f"❌ Failed: {service}")
+        msgs += ["", "━" * 28, f"Restore Complete!  {ok} restored"]
+        if fail:
+            msgs.append(f"   {fail} failed (may need admin rights)")
+        return msgs
 
-        messages.extend([
-            "",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            f"✨ Restore Complete!",
-            f"   {success_count} services restored"
-        ])
-
-        if fail_count > 0:
-            messages.append(f"   {fail_count} services failed (may need admin)")
-
-        return messages
-
-    def _show_service_status(self):
-        """Show current service optimization status"""
-        messages = [
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "📊 Service Status",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            ""
-        ]
-
+    def _show_service_status(self) -> list[str]:
+        msgs = ["━" * 28, "Service Status", "━" * 28, ""]
         summary = self.services_manager.get_disabled_services_summary()
-
-        messages.append(f"Disabled Services: {summary['count']}")
-        messages.append(f"Last Modified: {summary['timestamp']}")
-        messages.append("")
+        msgs += [f"Disabled: {summary['count']}", f"Modified: {summary['timestamp']}", ""]
 
         if summary["count"] > 0:
-            messages.append("Currently disabled:")
-            for service in summary["services"]:
-                display_name = service
-                for category, info in self.services_manager.SERVICES.items():
-                    if service in info["services"]:
-                        display_name = f"{service} ({info['display']})"
+            msgs.append("Currently disabled:")
+            for svc in summary["services"]:
+                label = svc
+                for _, info in self.services_manager.SERVICES.items():
+                    if svc in info["services"]:
+                        label = f"{svc} ({info['display']})"
                         break
-                messages.append(f"  • {display_name}")
+                msgs.append(f"  • {label}")
         else:
-            messages.append("No services are currently disabled")
+            msgs.append("No services are currently disabled")
 
-        messages.extend([
-            "",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "Commands:",
-            "  • 'restore services' - Re-enable all",
-            "  • 'service setup' - Run optimization again"
-        ])
+        msgs += ["", "━" * 28,
+                 "Commands:",
+                 "  • 'restore services'  — re-enable all",
+                 "  • 'service setup'     — run again"]
+        return msgs
 
-        return messages
-
-    def _show_help(self):
-        """Show available commands"""
+    def _show_help(self, lang: str = "pl") -> list[str]:
+        bar = "━" * 34
+        if lang == "en":
+            return [
+                bar,
+                "hck_GPT — what I can do",
+                bar,
+                "",
+                "Hardware (ask naturally):",
+                "  'what CPU do I have'     'specs'",
+                "  'how much RAM'           'what GPU'",
+                "  'what motherboard'       'disk space'",
+                "",
+                "Quick shortcuts — just type one word:",
+                "  cpu   ram   gpu   mb   disk   storage",
+                "  specs   health   temp   perf   stats   top",
+                "",
+                "Diagnostics:",
+                "  'health check'           'is my PC ok'",
+                "  'temperatures'           'is CPU throttling'",
+                "  'performance'            'top processes'",
+                "",
+                "Statistics:",
+                "  stats   insights   alerts   teaser   report",
+                "",
+                "Services:",
+                "  'service setup'    — optimization wizard",
+                "  'service status'   — check service state",
+                "  'restore services' — re-enable all",
+                "",
+                "Database:",
+                "  reset  — clear knowledge base (asks for confirmation)",
+                "",
+                bar,
+            ]
         return [
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "🤖 hck_GPT — Available Commands",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            bar,
+            "hck_GPT — co mogę zrobić",
+            bar,
             "",
-            "Intelligence:",
-            "  • stats / habits — Your usage profile & top apps",
-            "  • health — Quick system health check",
-            "  • alerts — Anomaly report (spikes, temps)",
-            "  • insights — What's happening right now",
-            "  • teaser — Personality-driven prediction",
-            "  • report — Text summary (or use ✨ button)",
+            "Sprzęt (pytaj naturalnie):",
+            "  'jaki mam procesor'  'specyfikacja'",
+            "  'ile ram mam'        'jaka karta graficzna'",
+            "  'jaka płyta główna'  'ile miejsca na dysku'",
             "",
-            "Service Optimization:",
-            "  • service setup — Start service optimization wizard",
-            "  • service status — Show current service state",
-            "  • restore services — Re-enable all disabled services",
+            "Skróty — wpisz samo słowo:",
+            "  cpu   ram   gpu   mb   disk   storage",
+            "  specs   health   temp   perf   stats   top",
             "",
-            "General:",
-            "  • help — Show this message",
+            "Diagnostyka:",
+            "  'czy komputer jest zdrowy'  'health'",
+            "  'jakie temperatury'         'czy CPU throttluje'",
+            "  'wydajność'                 'top procesy'",
             "",
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+            "Statystyki:",
+            "  stats   insights   alerts   teaser   report",
+            "",
+            "Serwisy:",
+            "  'service setup'     — kreator optymalizacji",
+            "  'service status'    — stan serwisów",
+            "  'restore services'  — przywróć wszystkie",
+            "",
+            "Baza danych:",
+            "  reset  — wyczyść bazę wiedzy (pyta o potwierdzenie)",
+            "",
+            bar,
         ]
 
-    def _default_response(self, user_message):
-        """Smart default: show current insight + hint commands."""
-        lines = [f"> {user_message}", ""]
+    # ── Reset flow ────────────────────────────────────────────────────────────
 
-        # Try to show something useful
+    def _cmd_reset_confirm(self) -> list[str]:
+        """First step: show confirmation prompt and set pending flag."""
+        self._pending_reset = True
+        bar = "━" * 34
+        return [
+            bar,
+            "hck_GPT: ⚠ Reset bazy danych",
+            bar,
+            "",
+            "Zostanie usunięte:",
+            "  • Profil sprzętu  (CPU, GPU, RAM, płyta główna)",
+            "  • Fakty i notatki o komputerze",
+            "  • Historia rozmów (log)",
+            "  • Wzorce użytkowania",
+            "",
+            "Pamięć sesji (RAM) zostaje — zniknie po restarcie.",
+            "",
+            "Wpisz  tak / yes  aby potwierdzić.",
+            "Wpisz cokolwiek innego aby anulować.",
+            "",
+            bar,
+        ]
+
+    def _handle_reset_confirm(self, lower: str) -> list[str]:
+        """Second step: execute or cancel based on user reply."""
+        if lower.strip() in ("tak", "yes", "potwierdz", "potwierdź",
+                              "confirm", "ok", "y", "yep"):
+            return self._execute_reset()
+        self._pending_reset = False
+        return ["hck_GPT: Anulowano — baza danych nie została zresetowana."]
+
+    def _execute_reset(self) -> list[str]:
+        """Wipe all tables in user_knowledge + clear in-RAM session state."""
+        self._pending_reset = False
+        bar = "━" * 34
+        try:
+            from .memory.user_knowledge import user_knowledge as _uk
+            from .memory.session_memory  import session_memory as _sm
+            _uk.reset_all()
+            # Clear in-RAM session data too
+            _sm._messages.clear()
+            _sm._events.clear()
+            _sm._topic_stack.clear()
+            _sm._cpu_trend.clear()
+            _sm._ram_trend.clear()
+            _sm.conversation_summary    = ""
+            _sm.greeted_this_session    = False
+            _sm.hardware_scanned        = False
+            # Restart background hardware scan so DB repopulates
+            self._trigger_hw_scan()
+            return [
+                bar,
+                "hck_GPT: ✓ Baza danych wyczyszczona.",
+                bar,
+                "",
+                "Usunięto: profil sprzętu, fakty, historia rozmów.",
+                "Pamięć sesji: wyczyszczona.",
+                "",
+                "Skanowanie sprzętu uruchomi się automatycznie.",
+                "Wpisz 'specs' za chwilę aby zweryfikować.",
+            ]
+        except Exception as exc:
+            return [
+                f"hck_GPT: ⚠ Błąd podczas resetowania: {exc}",
+                "  Spróbuj ponownie lub sprawdź uprawnienia do AppData.",
+            ]
+
+    def _default_response(self, msg: str) -> list[str]:
+        lines: list[str] = []
         if self.insights:
-            msg = self.insights.get_current_insight()
-            if msg:
-                lines.append(msg)
-                lines.append("")
-
-        lines.extend([
-            "hck_GPT: I don't have full AI yet, but I'm learning!",
-            "Try: 'stats', 'alerts', 'insights', 'teaser', or 'help'"
-        ])
+            current = self.insights.get_current_insight()
+            if current:
+                lines += [current, ""]
+        lines += [
+            "hck_GPT: Nie rozumiem tego zapytania.",
+            "  Spróbuj: 'specyfikacja', 'health', 'stats', 'help'",
+            "  lub zapytaj naturalnie: 'jaki mam procesor'",
+        ]
         return lines
 
-    def clear_history(self):
-        """Clear conversation history"""
-        self.conversation_history = []
-
-    def reset(self):
-        """Reset handler to initial state"""
+    def reset(self) -> None:
         self.wizard.reset()
-        self.conversation_history = []
