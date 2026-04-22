@@ -1,6 +1,126 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.2] - 2026-04-22
+
+### hck_GPT — AI Layer & Hybrid Engine
+
+**Panel — Bordeaux Noir redesign** (`hck_gpt/panel.py`)
+- Gradient banner redrawn every frame with 5-anchor black→crimson interpolation and sine-wave shimmer per strip
+- Left accent bar pulses between `#8b0000` and `#ff2040`; ONLINE badge text pulses between `#ff5566` and `#cc2030`
+- `AI` badge rendered as vector rectangle (`#5c0f1a` fill, white 7pt Consolas text) — no image file
+- ONLINE badge: dark rect `#1e0508` + crimson outline, pulsing text; no moving line across banner
+- Banner sweep at 100 ms; gradient redraw uses `tags="grad"` / `tag_raise("ui")` to keep UI elements on top
+- Proactive monitor wired in `__init__`: `register_push` schedules alert messages on main thread via `after(0, ...)`; `register_banner` updates status text when panel is closed
+
+**Chat handler** (`hck_gpt/chat_handler.py`)
+- Language detected per message (`detect_language`) → `proactive_monitor.set_language(lang)` → `hybrid_engine.process(msg, result, lang)`
+- `_LEGACY_ONLY_KEYWORDS` expanded to cover all `_ROUTES` keys (`alerts`, `insights`, `teaser`, `raport`, etc.) — prevents Ollama from intercepting InsightsEngine commands
+
+**Response builder** (`hck_gpt/responses/builder.py`)
+- Full bilingual rewrite: `_t(lang, pl, en)`, `_pick(lang, pl_pool, en_pool)`, `_followup(key, lang)` helpers
+- 20+ handlers updated: CPU, GPU, RAM, health check, temperature, throttle, performance, greeting, thanks, help, small talk, processes, storage, optimization, uptime, power plan, stats, motherboard, service wizard
+- Response variety via `random.choice()` pools: 4+4 greetings, 4+4 thanks, 3+3 health intros, 3+3 perf intros
+- `_resp_hw_storage()`: skips `remote` drives, caps at 5 drives, uses `all=False` partitions (no network-drive freeze)
+- `_resp_processes()`: capped at 128 process iterations
+
+**Intent vocabulary** (`hck_gpt/intents/vocabulary.py`)
+- All diagnostic intents enriched with multi-word phrases (`"health check"`, `"system health"`, `"pc health"` etc.) — confidence now reaches 1.00 for direct queries
+- New `small_talk` intent (low-scoring tokens → Ollama preferred)
+- Pattern tuning: diagnostic intents score ≥ 0.60 to route through rule engine
+
+**Intent parser** (`hck_gpt/intents/parser.py`)
+- Added `_ascii_fold()`, `_normalize_accents()`, `_ACCENT_MAP` for Polish accent normalization
+- Dual scoring: scores against original text AND ASCII-folded version, takes `max()` — fixes "dzieki"→thanks, "wydajnosc"→performance, "specyfikacja"→hw_all
+- `folded_patterns_cache` built once per `parse()` call (not per intent)
+
+**Session memory** (`hck_gpt/memory/session_memory.py`)
+- CPU/RAM trend buffers (`deque` maxlen=8): `push_metric()`, `get_trend()` (compares first/second half averages, delta > 5 = rising/falling), `trend_summary()`
+- Auto-conversation-summary every 6 user messages: `_auto_summarize_impl()` extracts topic stack labels
+- `get_context_for_llm()` → compact multi-section string: current topic + summary + last 3 exchanges + recent events + trends
+- `add_message()`: strips null bytes, wraps auto-summarize in try/except
+- `recent_exchange_text()`: strips `"hck_GPT:"` prefix, formats as `User:` / `hck_GPT:` pairs
+
+**System context** (`hck_gpt/context/system_context.py`)
+- Top 3 processes: capped at 128 iterations, stored as `{name, cpu, ram_mb}`
+- Temperature reading: `sensors_temperatures()` → up to 6 readings
+- Windows-safe disk: `os.environ.get("SystemDrive","C:") + "\\"`
+- Trend push rate-limited to 30s; `math.isnan()` guard before `session_memory.push_metric()`
+- `build_llm_context(lang)` → 6 sections: Live State, Today's Averages, Top Processes, Temperatures, Hardware Profile, Conversation Context
+
+**Proactive monitor** (`hck_gpt/memory/proactive_monitor.py`)
+- CPU counter resets to 0 immediately when CPU drops 10 % below threshold (was slow decrement)
+- `cpu_percent(interval=1)` (reduced from 2s blocking)
+- Windows disk path: `SystemDrive` env var with partition fallback
+- `freq.max > 0` guard in throttle check; empty tips guard in `_maybe_idle_tip()`
+
+**New: Hybrid Engine** (`hck_gpt/engine/hybrid_engine.py`, `hck_gpt/engine/__init__.py`)
+- `OllamaClient`: `is_available()`, `list_models()`, `generate()` — stdlib `http.client` only, `try/finally conn.close()` in all three methods
+- `HybridEngine` routing: `RULE_THRESHOLD=0.60` → rule engine; `_OLLAMA_PREFERRED_INTENTS={"small_talk","unknown"}` → Ollama first; low-confidence fallback chain
+- Temporary unavailability: 60s cooldown after timeout, 30s after empty response (not a full blacklist)
+- `_build_system_prompt(lang)`: 4-section prompt — Identity, Rules (9 hard rules: short, no markdown, no invented data), PC Context (`build_llm_context`), Language instruction
+- Model preference: `llama3.2` > `mistral` > `phi3` > `gemma2` > `qwen2.5`
+- `get_status()` → diagnostic dict
+
+**New: Language detection** (`hck_gpt/intents/lang_detect.py`)
+- `detect_language(text) → "pl" | "en"`; instant PL on diacritic detection; word-frequency scoring fallback; default PL
+
+**New: User knowledge base** (`hck_gpt/memory/user_knowledge.py`)
+- SQLite at `AppData/Local/PC_Workman_HCK/user_knowledge.db`, WAL mode, per-call connection with `try/finally`
+- Tables: `hardware_profile`, `usage_patterns`, `user_facts`, `conversation_log`
+- `hardware_is_fresh(max_age_hours=24)`, `build_knowledge_summary()`
+
+**New: Hardware scanner** (`hck_gpt/context/hardware_scanner.py`)
+- `scan_and_store(force=False)`: skips if fresh (24h); runs in background daemon thread on import
+- `_scan_psutil()`: cores, freq, RAM, partitions; `_scan_wmi()`: CPU model, GPU + VRAM, mobo, RAM speed; `_scan_os()`: Windows version
+
+### Efficiency Tab — Fixes & Per-Core Stats (`ui/components/yourpc_page.py`)
+- Fixed C11 bug: `cpu_count(logical=True)=12` was used on 6-core CPU; switched to `cpu_count(logical=False)` → correct physical core count
+- Fixed invisible avg text: `fg="#6366f1"` on dark bg → `fg="#a5b4fc"` (light lavender, clearly visible)
+- Module-level `_CORE_SESSION` dict tracks min/max/sum/cnt per physical core across refresh ticks
+- Core card now shows min / max / avg per core below the bar
+- Side-by-side TOP CPU and TOP RAM consumers (separate `consumers_row` frame, both packed left)
+- Process rank tracker (`_PROC_SESSION`): rank badge, name, NOW%, session AVG%, time-in-rank duration
+
+### HCK_Labs Globe Icon (`ui/windows/main_window_expanded.py`)
+- Replaced filled square with vector globe: circle (sphere outline) + meridian oval + equator line + N/S parallels, drawn with `create_oval` / `create_line` — no image file
+
+### Stability Fixes
+- `process_iter()` capped at 128 entries in both `system_context.py` and `responses/builder.py` (prevents UI hang on loaded systems)
+- Network drive freeze: `disk_usage()` skips `remote` drives, uses `all=False`, capped at 5
+- `None`/`NaN` guard before `session_memory.push_metric()`
+- `_auto_summarize()` exceptions swallowed via `_auto_summarize_impl()` — `add_message()` never raises
+- Null bytes sanitized in `add_message()`
+- Connection leaks fixed: `try/finally conn.close()` in all three `OllamaClient` methods
+- Ollama hijack of InsightsEngine commands fixed via expanded `_LEGACY_ONLY_KEYWORDS`
+
+---
+
+## [1.7.2] - 2026-04-21
+
+### Dashboard Nav Buttons — Full Redesign
+- New dark-gradient canvas buttons: deep navy `#080b18`→`#101626`, 3px accent stripe on left edge
+- Bordeaux/crimson L-corner brackets (`|_` + `_|`) on bottom of each button
+- Hover fills button with darkened version of each button's accent colour (72% blend)
+- Vector icons drawn programmatically per page (no PNG files): monitor, `!`, bar chart, bolt, fan, flask, book
+- Removed "QUICK ACCESS" / "EXPLORE" section labels — more vertical space for buttons
+- Button labels updated: "Sensors" → "MONITORING / Centrum", "Live Graphs" → "AllMonitor", "Advanced Dashboard" → "FAN Dashboard — Central"
+
+### Navigation Routing Fixes
+- "MONITORING — Centrum" now correctly loads `build_monitoring_alerts_page` (fixed wrong import name)
+- "AllMonitor" click opens `My PC — Hardware & Health` overlay + auto-triggers ProInfoTable popup (180ms delay)
+- Overlay title for `live_graphs` fixed to show "My PC - Hardware & Health"
+- `_launch_hw_table_window_root` helper added for root-anchored popup calls
+
+### HCK_Labs & Guide Pages — Blog Redesign
+- HCK_Labs: hero section, 3-col About cards, 6-item features grid, comparison table, build info footer
+- Guide: full-width blog with 5 article sections, Quick Tips row, "▶ Guide on program LIVE" placeholder button
+
+### Turbo Boost — Coming Soon State
+- Turbo Boost button in main dashboard set to grayed-out state (all colours #374151/muted)
+- Hover shows floating tooltip: "Coming soon… Check Optimization Center for features"
+- Toggle/launch bindings removed until feature is fully implemented
+
 ## [1.7.2] - 2026-04-20
 
 ### Optimization & Services — Full Redesign

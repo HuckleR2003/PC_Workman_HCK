@@ -57,6 +57,12 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - "Today Report" with usage chart, top processes, and alert status
 - 7-day recurring pattern detection (games, browsers, dev tools)
 - Spike/anomaly reporting from Stats Engine events
+- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions
+- **Bilingual**: all responses in Polish and English, auto-detected per message
+- **Proactive monitor**: background alerts for CPU spikes, RAM pressure, throttling, low disk, long uptime
+- Session memory with CPU/RAM trend tracking and conversation context for LLM
+- SQLite user knowledge base (hardware profile, usage patterns, facts) at `AppData/Local/`
+- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed)
 - Gaming analytics with FPS tracking
 - Bottleneck detection (CPU vs GPU limited)
 - Safe system optimization with rollback
@@ -88,7 +94,15 @@ Modular, scalable design:
 ```
 PC_Workman/
 ├── core/              # Real-time data collection (background-threaded monitor)
-├── hck_gpt/           # Local AI insights engine (no external API)
+├── hck_gpt/
+│   ├── engine/        # Hybrid Engine: rule routing + Ollama LLM client
+│   ├── intents/       # Intent parser, vocabulary, language detection
+│   ├── memory/        # Session memory, user knowledge (SQLite), proactive monitor
+│   ├── context/       # System context builder, hardware scanner
+│   ├── responses/     # Bilingual response builder
+│   ├── chat_handler.py
+│   ├── insights.py    # InsightsEngine (habits, anomalies, teasers)
+│   └── panel.py       # Chat panel UI
 ├── hck_stats_engine/  # SQLite pipeline: minute/hourly/daily/monthly stats
 ├── ui/
 │   ├── windows/       # Main window modes (expanded, minimal)
@@ -108,25 +122,35 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.2] - `2026-04-20` - CURRENT
+## What's New [1.7.2] - `2026-04-22` - CURRENT
 
-### Optimization Center Redesign
-- Full hero header with pulsing TURBO BOOST button (amber gradient, `math.sin` animation)
-- Emerald rectangular badge showing active feature count (e.g. `1 / 14`)
-- TURBO BOOST now flashes individual Quick Action buttons green/red for 2.5s
-- Features list and Quick Actions columns swapped; left column fixed 280px
-- AUTO RAM Flush state persisted in `settings/user_prefs.json` — survives restarts
-- Compact RAM Flush card with cleaner bordeaux→emerald RUN button
+### hck_GPT — AI Layer & Hybrid Engine
+- **Bordeaux Noir panel**: animated black→crimson gradient banner with sine-wave shimmer, `AI` vector badge, pulsing `ONLINE` badge — no image files
+- **Hybrid Engine** (`hck_gpt/engine/`): routes low-confidence / open-ended messages to Ollama LLM (local), rule engine handles everything else; graceful 60s cooldown on Ollama unavailability
+- **Bilingual responses**: every handler now replies in Polish or English based on auto-detected language; `random.choice()` pools for variety
+- **Proactive monitor**: background daemon watches CPU, RAM, throttling, disk, session uptime; pushes alerts to chat panel and banner status bar
+- **Session memory extended**: CPU/RAM trend buffers, auto conversation summary every 6 messages, `get_context_for_llm()` injected into Ollama system prompt
+- **Rich system context**: top 3 processes, temperature readings, 6-section LLM context string (live state, today's averages, processes, temps, hardware profile, conversation)
+- **User knowledge base**: SQLite at AppData — hardware profile, facts, usage patterns; background hardware scan via psutil + WMI (CPU model, GPU, VRAM, motherboard, RAM speed)
+- **Parser improvements**: ASCII-fold dual scoring for Polish accent normalization; vocabulary enriched with multi-word phrases for reliable confidence above routing threshold
+- **Efficiency tab**: fixed physical core count (was showing logical count); fixed invisible avg text color; per-core session min/max/avg; side-by-side TOP CPU/RAM consumers
+- **HCK_Labs globe icon**: vector globe drawn with canvas primitives — sphere + meridian + equator + parallels
 
-### Font System
-- `utils/fonts.py` — loads Inter font via Windows GDI32; falls back to Segoe UI automatically
+### Earlier in 1.7.2 (`2026-04-21`)
+- Dashboard nav buttons full redesign (dark-gradient, accent stripe, bordeaux L-brackets, vector icons)
+- HCK_Labs and Guide pages full blog-style redesign
+- Navigation routing fixes (MONITORING, AllMonitor, overlay title)
+- Turbo Boost set to coming-soon state with tooltip
 
-### Repository Cleanup
-- Added proper `.gitignore` (replaced `.gitignore.txt`); now excludes logs, cache, user prefs, fonts
-- Removed 7 orphaned/dead files: `report_window.py`, 3 utils stubs, `hck_gpt_panel.py`, `trend_analysis.py`, `google9bc8246e2e876106.html`
-- Removed old screenshots folder and HTML backups from `docs/`
-- Fixed broken import paths in `main_window.py` (`ui.page_*` → `ui.pages.page_*`)
-- Cleared all `__pycache__/` directories
+### Earlier in 1.7.2 (`2026-04-20`)
+- Optimization Center redesign: TURBO BOOST button, feature count badge, column layout, RAM Flush card
+- `utils/fonts.py` — Inter font via GDI32 with Segoe UI fallback
+- Repository cleanup: proper `.gitignore`, 7 dead files removed, broken imports fixed, `__pycache__` cleared
+
+### Earlier in 1.7.2 (`2026-04-13`)
+- First Setup & Drivers page: health score gauge, 4 driver health cards (registry data), setup checklist with persistent state
+- hck_GPT chat time badge (inline canvas, per-message `HH:MM`)
+- Process library expanded (+8 entries); process tooltips on TOP 5 panels
 
 ---
 
@@ -410,7 +434,7 @@ Click any process to see more details.
 | v1.5.7 | Released | Modern dashboard, hardware monitoring |
 | v1.6.3 | Released | Fan dashboard, menu system, .exe |
 | v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
-| **v1.7.2** | **Current** | **Optimization Center redesign, Inter font, repo cleanup** |
+| **v1.7.2** | **Current** | **hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, proactive monitor, Efficiency tab fixes** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
