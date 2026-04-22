@@ -559,25 +559,16 @@ class ExpandedMainWindow:
         left_nav.pack(side="left", fill="y", padx=(0, 10))
         left_nav.pack_propagate(False)
 
-        tk.Label(
-            left_nav,
-            text="QUICK ACCESS",
-            font=("Segoe UI", 9, "bold"),
-            bg=THEME["bg_panel"],
-            fg=THEME["muted"]
-        ).pack(pady=(10, 5))
-
-        # Navigation buttons (left)
+        # Navigation buttons (left) — no section label, max space for buttons
         nav_buttons_left = [
-            ("💻 Your PC", "#3b82f6"),
-            ("🌲 Sensors", "#8b5cf6"),
-            ("📊 Live Graphs", "#f97316"),
-            ("🌀 Fan Curves", "#a855f7"),
-            ("⚡ Optimization", "#10b981"),
+            ("💻 My PC", "#3b82f6", "— Central"),
+            ("📡 Monitoring", "#8b5cf6", "Centrum"),
+            ("📊 AllMonitor", "#f97316", "see all min,max data"),
+            ("⚡ Optimization", "#10b981", ""),
         ]
 
-        for text, color in nav_buttons_left:
-            self._create_nav_button(left_nav, text, color, pady=0)
+        for text, color, subtitle in nav_buttons_left:
+            self._create_nav_button(left_nav, text, color, subtitle, pady=2)
 
         # CENTER - SESSION AVERAGE BARS
         center = tk.Frame(middle, bg=THEME["bg_main"])
@@ -609,143 +600,167 @@ class ExpandedMainWindow:
         right_nav.pack(side="right", fill="y", padx=(10, 0))
         right_nav.pack_propagate(False)
 
-        tk.Label(
-            right_nav,
-            text="EXPLORE",
-            font=("Segoe UI", 9, "bold"),
-            bg=THEME["bg_panel"],
-            fg=THEME["muted"]
-        ).pack(pady=(10, 5))
-
-        # Navigation buttons (right)
+        # Navigation buttons (right) — no section label
         nav_buttons_right = [
-            ("🌀 Advanced Dashboard", "#8b5cf6"),
-            ("🚀 HCK_Labs", "#f59e0b"),
-            ("📖 Guide", "#06b6d4"),
+            ("🌀 FAN Dashboard", "#8b5cf6", "— Central"),
+            ("🚀 HCK_Labs", "#f59e0b", ""),
+            ("📖 Guide", "#06b6d4", ""),
         ]
 
-        for text, color in nav_buttons_right:
-            self._create_nav_button(right_nav, text, color, pady=0)
+        for text, color, subtitle in nav_buttons_right:
+            self._create_nav_button(right_nav, text, color, subtitle, pady=2)
 
-    def _create_nav_button(self, parent, text, color, pady=4):
-        """Create gradient sidebar button"""
-        # Main button container
+    def _create_nav_button(self, parent, text, color, subtitle="", pady=4):
+        """Dark gradient nav button: deep navy bg, bordeaux L-corner brackets, bold text."""
         btn_container = tk.Frame(parent, bg=THEME["bg_panel"])
-        btn_container.pack(fill="x", padx=8, pady=pady)
+        btn_container.pack(fill="x", padx=6, pady=pady)
 
-        # Click handler - map text to page ID
         page_map = {
-            "💻 Your PC": "your_pc",
-            "🌲 Sensors": "sensors",
-            "📊 Live Graphs": "live_graphs",
-            "🌀 Fan Curves": "fan_curves",
-            "⚡ Optimization": "optimization",
-            "📊 Statistics": "statistics",
-            "🌀 Advanced Dashboard": "fan_control",
-            "🚀 HCK_Labs": "hck_labs",
-            "📖 Guide": "guide"
+            "💻 My PC":         "your_pc",
+            "📡 Monitoring":    "sensors",
+            "📊 AllMonitor":    "live_graphs",
+            "⚡ Optimization":  "optimization",
+            "🌀 FAN Dashboard": "fan_control",
+            "🚀 HCK_Labs":      "hck_labs",
+            "📖 Guide":         "guide",
         }
+        page_id    = page_map.get(text)
+        clean_text = text.split(" ", 1)[-1] if " " in text else text
 
-        page_id = page_map.get(text)
+        # Accent color parsed to RGB for glow effect
+        ac_r = int(color[1:3], 16)
+        ac_g = int(color[3:5], 16)
+        ac_b = int(color[5:7], 16)
 
-        # Clean text name (remove emoji)
-        clean_text = text.split()[-1] if ' ' in text else text
-        if clean_text == "PC":
-            clean_text = "MY PC"
+        ICON_W  = 44          # left icon panel width
+        CL      = 11          # corner bracket arm length (px)
+        BW      = 2           # bracket stroke width (px)
+        BD      = "#6b0a1a"   # bordeaux dark
+        BL      = "#c0182a"   # crimson light
+        BH      = "#e8253f"   # crimson hover
 
-        # === GRADIENT COLOR MAPS ===
-        gradient_maps = {
-            "#3b82f6": [(30, 64, 175), (59, 130, 246), (96, 165, 250)],  # Blue gradient
-            "#10b981": [(4, 120, 87), (16, 185, 129), (52, 211, 153)],   # Green gradient
-            "#8b5cf6": [(107, 33, 168), (139, 92, 246), (167, 139, 250)], # Purple gradient
-            "#f59e0b": [(217, 119, 6), (245, 158, 11), (251, 191, 36)],  # Orange gradient
-            "#ef4444": [(185, 28, 28), (239, 68, 68), (248, 113, 113)],  # Red gradient
-            "#ec4899": [(190, 24, 93), (236, 72, 153), (244, 114, 182)]  # Pink gradient
-        }
-
-        gradient_rgb = gradient_maps.get(color, [(59, 130, 246), (96, 165, 250), (147, 197, 253)])
-
-        # === CANVAS BUTTON (45px height) ===
-        canvas_height = 45
-        canvas = tk.Canvas(
-            btn_container,
-            bg=THEME["bg_panel"],
-            height=canvas_height,
-            highlightthickness=0,
-            cursor="hand2"
-        )
+        btn_h = 58 if subtitle else 46
+        canvas = tk.Canvas(btn_container, bg=THEME["bg_panel"],
+                           height=btn_h, highlightthickness=0, cursor="hand2")
         canvas.pack(fill="x")
 
-        # Draw button once after canvas is mapped (no <Configure> redraw needed
-        # since the window is fixed-size / non-resizable).
-        def draw_button_once():
-            width = canvas.winfo_width()
-            if width <= 1:
-                canvas.after(50, draw_button_once)
+        def _redraw(hovered=False):
+            canvas.delete("all")
+            w = canvas.winfo_width()
+            if w <= 1:
                 return
+            h = btn_h
 
-            height = canvas_height
+            # ── Background gradient ───────────────────────────────────────────
+            # Normal: very dark navy  |  Hover: dark accent colour bleeds in
+            STRIP = 3
+            # base dark colours (left → right endpoints)
+            base0 = (0x08, 0x0b, 0x18)
+            base1 = (0x10, 0x16, 0x26)
+            # target hover colours: darkened accent (≈30% of accent, rest black)
+            hov0  = (ac_r // 5, ac_g // 5, ac_b // 5)
+            hov1  = (ac_r // 3, ac_g // 3, ac_b // 3)
+            blend = 0.72 if hovered else 0.0   # 0=base only, 1=hover only
 
-            # LEFT SECTION - ICON (40px dark background)
-            icon_width = 40
-            canvas.create_rectangle(0, 0, icon_width, height, fill="#1a1d24", outline="")
+            for x in range(0, w, STRIP):
+                t  = x / w
+                # interpolate base left→right
+                br = int(base0[0] + (base1[0] - base0[0]) * t)
+                bg_ = int(base0[1] + (base1[1] - base0[1]) * t)
+                bb = int(base0[2] + (base1[2] - base0[2]) * t)
+                # interpolate hover left→right
+                hr_ = int(hov0[0] + (hov1[0] - hov0[0]) * t)
+                hg_ = int(hov0[1] + (hov1[1] - hov0[1]) * t)
+                hb_ = int(hov0[2] + (hov1[2] - hov0[2]) * t)
+                # blend
+                r  = min(255, int(br + (hr_ - br) * blend))
+                g_ = min(255, int(bg_ + (hg_ - bg_) * blend))
+                b_ = min(255, int(bb + (hb_ - bb) * blend))
+                canvas.create_rectangle(x, 0, x + STRIP, h,
+                                        fill=f"#{r:02x}{g_:02x}{b_:02x}", outline="")
 
-            # Icon (centered)
-            if page_id and page_id in self.nav_icons:
-                canvas.create_image(icon_width // 2, height // 2,
-                                    image=self.nav_icons[page_id], tags="icon")
+            # ── Icon panel (darkest left section) ────────────────────────────
+            canvas.create_rectangle(0, 0, ICON_W, h, fill="#05070d", outline="")
 
-            # RIGHT SECTION - STATIC GRADIENT (use wider strips for performance)
-            gradient_start = icon_width
-            gradient_width = width - gradient_start
-            strip_w = 4  # 4px strips instead of 1px — 4x fewer canvas items
+            # 3-px left accent stripe in button accent colour
+            canvas.create_rectangle(0, 0, 3, h, fill=color, outline="")
 
-            for i in range(0, int(gradient_width), strip_w):
-                ratio = i / gradient_width if gradient_width > 0 else 0
+            # vector icon (drawn programmatically)
+            _draw_page_icon(canvas, page_id, ICON_W // 2, h // 2, color)
 
-                if ratio < 0.5:
-                    lr = ratio * 2
-                    r = int(gradient_rgb[0][0] + (gradient_rgb[1][0] - gradient_rgb[0][0]) * lr)
-                    g = int(gradient_rgb[0][1] + (gradient_rgb[1][1] - gradient_rgb[0][1]) * lr)
-                    b = int(gradient_rgb[0][2] + (gradient_rgb[1][2] - gradient_rgb[0][2]) * lr)
-                else:
-                    lr = (ratio - 0.5) * 2
-                    r = int(gradient_rgb[1][0] + (gradient_rgb[2][0] - gradient_rgb[1][0]) * lr)
-                    g = int(gradient_rgb[1][1] + (gradient_rgb[2][1] - gradient_rgb[1][1]) * lr)
-                    b = int(gradient_rgb[1][2] + (gradient_rgb[2][2] - gradient_rgb[1][2]) * lr)
+            # thin separator after icon area
+            canvas.create_rectangle(ICON_W, 4, ICON_W + 1, h - 4,
+                                    fill="#1c2135", outline="")
 
-                x = gradient_start + i
-                canvas.create_rectangle(x, 0, x + strip_w, height,
-                                        fill=f"#{r:02x}{g:02x}{b:02x}", outline="")
+            # ── Right-edge colour hint (subtle accent glow) ───────────────────
+            GW = 22
+            for i in range(GW):
+                a  = (1 - i / GW) * 0.20
+                xp = w - GW + i
+                r2 = min(255, int(0x10 + (ac_r - 0x10) * a))
+                g2 = min(255, int(0x16 + (ac_g - 0x16) * a))
+                b2 = min(255, int(0x26 + (ac_b - 0x26) * a))
+                canvas.create_line(xp, 0, xp, h,
+                                   fill=f"#{r2:02x}{g2:02x}{b2:02x}")
 
-            # Shadow then text (shadow under, text on top)
-            text_x = gradient_start + 15
-            text_y = height // 2
-            canvas.create_text(text_x + 1, text_y + 1, text=clean_text.upper(),
-                               font=("Segoe UI Semibold", 11, "bold"),
-                               fill="#000000", anchor="w", tags="text_shadow")
-            canvas.create_text(text_x, text_y, text=clean_text.upper(),
-                               font=("Segoe UI Semibold", 11, "bold"),
-                               fill="#ffffff", anchor="w", tags="text")
+            # ── Bottom accent line: bordeaux→crimson, right 55% of button ────
+            lx0 = int(w * 0.45)
+            lw  = w - lx0
+            for x in range(lx0, w):
+                t  = (x - lx0) / lw if lw else 0
+                r3 = int(0x6b + (0xc0 - 0x6b) * t)
+                g3 = int(0x0a + (0x18 - 0x0a) * t)
+                b3 = int(0x1a + (0x2a - 0x1a) * t)
+                canvas.create_line(x, h - 1, x + 1, h - 1,
+                                   fill=f"#{r3:02x}{g3:02x}{b3:02x}")
 
-        draw_button_once()
+            # ── Bottom-only L-corner brackets ────────────────────────────────
+            bl     = BL if not hovered else BH
+            tx_off = ICON_W + 5
 
-        # === CLICK HANDLER ===
+            # Bottom-left  |_
+            canvas.create_rectangle(tx_off,     h - 2 - CL, tx_off + BW, h - 2, fill=BD, outline="")
+            canvas.create_rectangle(tx_off,     h - 2 - BW, tx_off + CL, h - 2, fill=BD, outline="")
+            # Bottom-right  _|
+            canvas.create_rectangle(w - 5 - BW, h - 2 - CL, w - 5, h - 2, fill=bl, outline="")
+            canvas.create_rectangle(w - 5 - CL, h - 2 - BW, w - 5, h - 2, fill=bl, outline="")
+
+            # ── Text — vertically centred with room to breathe ────────────────
+            tx = ICON_W + 14
+            if subtitle:
+                # main text at 38% height, subtitle at 68%
+                ty_main = int(h * 0.38)
+                ty_sub  = int(h * 0.68)
+            else:
+                ty_main = h // 2
+
+            # Drop shadow
+            canvas.create_text(tx + 1, ty_main + 1, text=clean_text.upper(),
+                               font=("Segoe UI Black", 10),
+                               fill="#000000", anchor="w")
+            # Main label
+            canvas.create_text(tx, ty_main, text=clean_text.upper(),
+                               font=("Segoe UI Black", 10),
+                               fill="#ffffff", anchor="w")
+
+            if subtitle:
+                canvas.create_text(tx, ty_sub, text=subtitle,
+                                   font=("Segoe UI", 8),
+                                   fill="#8490a8", anchor="w")
+
+        def _draw_once():
+            if canvas.winfo_width() <= 1:
+                canvas.after(30, _draw_once)
+                return
+            _redraw(False)
+
+        _draw_once()
+
         if page_id:
-            def on_click(e):
-                self._show_overlay(page_id)
-            canvas.bind("<Button-1>", on_click)
+            canvas.bind("<Button-1>", lambda e: self._show_overlay(page_id))
 
-        # === HOVER EFFECT - just visual feedback ===
-        def on_enter(e):
-            # Simple hover - could add subtle effect later if needed
-            pass
-
-        def on_leave(e):
-            pass
-
-        canvas.bind("<Enter>", on_enter)
-        canvas.bind("<Leave>", on_leave)
+        canvas.bind("<Enter>", lambda e: _redraw(True))
+        canvas.bind("<Leave>", lambda e: _redraw(False))
 
     def _create_session_bar(self, parent, label, color_start, color_end, key):
         """Create session average bar with AnimatedBar."""
@@ -1136,115 +1151,82 @@ class ExpandedMainWindow:
         buttons_row = tk.Frame(buttons_container, bg=THEME["bg_main"])
         buttons_row.pack(fill="x", padx=5)
 
-        # Left: Boost mode
-        turbo_btn = tk.Frame(buttons_row, bg="#2563eb", cursor="hand2")  # Bright blue border
+        # Left: Turbo Boost — COMING SOON (greyed out)
+        turbo_btn = tk.Frame(buttons_row, bg="#2a2d35")
         turbo_btn.pack(side="left", fill="both", expand=True, padx=(0, 3))
 
-        # Main content container with glowing background
-        turbo_content = tk.Frame(turbo_btn, bg="#1e40af")  # Brighter background
+        turbo_content = tk.Frame(turbo_btn, bg="#1e2028")
         turbo_content.pack(fill="both", expand=True, padx=2, pady=2)
 
-        # Header row with GLOWING background: "Turbo Boost: ON/OFF"
-        turbo_header = tk.Frame(turbo_content, bg="#3b82f6")  # Bright glowing blue header
+        turbo_header = tk.Frame(turbo_content, bg="#2a2d35")
         turbo_header.pack(fill="x", padx=8, pady=(6, 4))
 
         tk.Label(
             turbo_header,
             text="Turbo Boost:",
             font=("Segoe UI", 11, "bold"),
-            bg="#3b82f6",  # Bright background
-            fg="#ffffff",
-            padx=6,
-            pady=2
+            bg="#2a2d35",
+            fg="#6b7280",
+            padx=6, pady=2
         ).pack(side="left")
 
-        # ON/OFF with glowing animation
-        self.turbo_status_label = tk.Label(
+        tk.Label(
             turbo_header,
             text="OFF",
             font=("Segoe UI", 11, "bold"),
-            bg="#3b82f6",  # Bright background
-            fg="#fca5a5",  # Lighter red when OFF
-            padx=4,
-            pady=2
-        )
-        self.turbo_status_label.pack(side="left", padx=(5, 6))
+            bg="#2a2d35",
+            fg="#4b5563",
+            padx=4, pady=2
+        ).pack(side="left")
 
-        # Start glowing animation
         self.turbo_active = False
-        self._animate_turbo_glow()
 
-        # Thin separator line (brighter) - moved up (no subtitle)
-        tk.Frame(turbo_content, bg="#60a5fa", height=2).pack(fill="x", pady=(4, 4))
+        tk.Frame(turbo_content, bg="#374151", height=1).pack(fill="x", pady=(4, 4))
 
-        # Bottom action buttons
-        turbo_actions = tk.Frame(turbo_content, bg="#1e40af")
+        turbo_actions = tk.Frame(turbo_content, bg="#1e2028")
         turbo_actions.pack(fill="x", padx=8, pady=(0, 6))
 
-        # Configure button
-        config_btn = tk.Label(
+        tk.Label(
             turbo_actions,
             text="Configure",
             font=("Segoe UI", 7, "bold"),
-            bg="#3b82f6",
-            fg="#ffffff",
-            cursor="hand2",
-            padx=8,
-            pady=3
-        )
-        config_btn.pack(side="left")
+            bg="#374151", fg="#6b7280",
+            padx=8, pady=3
+        ).pack(side="left")
 
-        # Click handler - opens Optimization overlay
-        def open_optimization(e):
-            self._show_overlay("optimization")
-
-        config_btn.bind("<Button-1>", open_optimization)
-
-        # Hover effect
-        def on_enter_config(e):
-            config_btn.config(bg="#60a5fa")  # Brighter on hover
-        def on_leave_config(e):
-            config_btn.config(bg="#3b82f6")
-        config_btn.bind("<Enter>", on_enter_config)
-        config_btn.bind("<Leave>", on_leave_config)
-
-        # Launch/Stop button (brighter)
-        self.turbo_action_btn = tk.Label(
+        tk.Label(
             turbo_actions,
             text="Launch",
             font=("Segoe UI", 7, "bold"),
-            bg="#34d399",  # Brighter green
-            fg="#ffffff",
-            cursor="hand2",
-            padx=10,
-            pady=3
+            bg="#374151", fg="#6b7280",
+            padx=10, pady=3
+        ).pack(side="right")
+
+        # ── Coming soon tooltip ───────────────────────────────────────────────
+        _tip = tk.Label(
+            self.root,
+            text="Coming soon…\nCheck Optimization Center for features",
+            font=("Segoe UI", 9),
+            bg="#1c1f27", fg="#94a3b8",
+            padx=10, pady=8,
+            justify="center",
+            relief="flat",
+            bd=0
         )
-        self.turbo_action_btn.pack(side="right")
 
-        def toggle_turbo(e):
-            self.turbo_active = not self.turbo_active
-            if self.turbo_active:
-                self.turbo_status_label.config(text="ON", fg="#6ee7b7")  # Brighter green
-                self.turbo_action_btn.config(text="Stop", bg="#f87171")  # Brighter red
-            else:
-                self.turbo_status_label.config(text="OFF", fg="#fca5a5")  # Light red
-                self.turbo_action_btn.config(text="Launch", bg="#34d399")  # Bright green
+        def _show_tip(e):
+            x = turbo_btn.winfo_rootx()
+            y = turbo_btn.winfo_rooty() + turbo_btn.winfo_height() + 4
+            _tip.place(x=x - self.root.winfo_rootx(),
+                       y=y - self.root.winfo_rooty())
+            _tip.lift()
 
-        self.turbo_action_btn.bind("<Button-1>", toggle_turbo)
+        def _hide_tip(e):
+            _tip.place_forget()
 
-        # Hover effect
-        def on_enter_action(e):
-            if self.turbo_active:
-                self.turbo_action_btn.config(bg="#fca5a5")  # Lighter red on hover
-            else:
-                self.turbo_action_btn.config(bg="#6ee7b7")  # Lighter green on hover
-        def on_leave_action(e):
-            if self.turbo_active:
-                self.turbo_action_btn.config(bg="#f87171")  # Bright red
-            else:
-                self.turbo_action_btn.config(bg="#34d399")  # Bright green
-        self.turbo_action_btn.bind("<Enter>", on_enter_action)
-        self.turbo_action_btn.bind("<Leave>", on_leave_action)
+        for w in (turbo_btn, turbo_content, turbo_header, turbo_actions):
+            w.bind("<Enter>", _show_tip, add="+")
+            w.bind("<Leave>", _hide_tip, add="+")
 
         # === RIGHT: MORE OPTIMIZATION TOOLS ===
         optim_btn = tk.Frame(buttons_row, bg="#10b981", cursor="hand2")  # Bright green border
@@ -2411,9 +2393,8 @@ class ExpandedMainWindow:
         # Title
         title_map = {
             "your_pc": "💻 My PC - Hardware & Health",
-            "sensors": "🌲 Hardware Sensors - HWMonitor Style",
-            "live_graphs": "📊 Live Hardware Graphs - MSI Afterburner Style",
-            "fan_curves": "🌀 Fan Curve Editor - Custom Cooling",
+            "sensors": "📡 MONITORING — Centrum",
+            "live_graphs": "💻 My PC - Hardware & Health",
             "optimization": "⚡ System Optimization",
             "statistics": "📊 Detailed Statistics",
             "fan_control": "🌀 Fan Dashboard",
@@ -2442,11 +2423,10 @@ class ExpandedMainWindow:
         if page_id == "your_pc":
             build_yourpc_page(self, content_frame)  # Use helper module
         elif page_id == "sensors":
-            self._build_sensors_page(content_frame)
+            self._build_monitoring_sensors_page(content_frame)
         elif page_id == "live_graphs":
-            self._build_live_graphs_page(content_frame)
-        elif page_id == "fan_curves":
-            self._build_fan_curves_page(content_frame)
+            build_yourpc_page(self, content_frame)
+            content_frame.after(180, _open_hw_table_popup, self.root)
         elif page_id == "optimization":
             self._build_optimization_page(content_frame)
         elif page_id == "statistics":
@@ -2464,67 +2444,25 @@ class ExpandedMainWindow:
 
     # ========== PAGE BUILDERS ==========
 
-    def _build_sensors_page(self, parent):
-        """Build SENSORS page - HWMonitor-style hierarchical sensor tree 🌲"""
-        from core.hardware_sensors import get_hardware_sensors
-        from ui.components.sensor_tree import create_sensor_tree_page
-
-        # Get hardware sensors singleton
-        sensors = get_hardware_sensors()
-
-        # Create sensor tree page with auto-refresh
-        tree_view = create_sensor_tree_page(parent, sensors)
-
-        # Auto-refresh every 2 seconds
-        def auto_refresh():
-            try:
-                tree_view.refresh()
-                parent.after(2000, auto_refresh)
-            except:
-                pass  # Stop if widget destroyed
-
-        auto_refresh()
+    def _build_monitoring_sensors_page(self, parent):
+        """MONITORING — Centrum: loads Monitoring & Alerts page"""
+        try:
+            from ui.pages.monitoring_alerts import build_monitoring_alerts_page
+            build_monitoring_alerts_page(self, parent)
+        except Exception as e:
+            import traceback
+            tk.Label(parent, text=f"Monitoring page error:\n{e}",
+                     font=("Segoe UI", 10), bg="#0f1117", fg="#ef4444",
+                     justify="left").pack(anchor="nw", padx=20, pady=20)
+            traceback.print_exc()
 
     def _build_live_graphs_page(self, parent):
-        """Build LIVE GRAPHS page - MSI Afterburner-style real-time graphs 📊"""
-        from ui.components.hardware_graphs import create_graphs_page
-
-        # Create graphs panel
-        graphs_panel = create_graphs_page(parent, self.monitor)
-
-        # Store reference for updates
-        if not hasattr(self, '_graphs_panels'):
-            self._graphs_panels = []
-        self._graphs_panels.append(graphs_panel)
-
-        # Auto-update every 0.2s (5 FPS)
-        def auto_update():
-            try:
-                # Get current sample
-                sample = self.monitor.get_current_sample()
-                graphs_panel.update(sample)
-                parent.after(200, auto_update)  # 0.2s = 200ms
-            except:
-                pass  # Stop if widget destroyed
-
-        auto_update()
-
-    def _build_fan_curves_page(self, parent):
-        """Build FAN CURVES page - MSI Afterburner-style fan curve editor 🌀"""
-        from ui.components.fan_curve_editor import create_fan_curve_page
-
-        def on_curve_change(points):
-            """Handle fan curve changes"""
-            print(f"[FanCurve] Curve changed: {[(p.temp, p.speed) for p in points]}")
-            # Hardware-level apply is handled by dedicated backends when available.
-
-        # Create fan curve editor
-        editor = create_fan_curve_page(parent, on_curve_change)
-
-        # Store reference
-        if not hasattr(self, '_fan_curve_editors'):
-            self._fan_curve_editors = []
-        self._fan_curve_editors.append(editor)
+        """AllMonitor — opens My PC overlay then immediately shows HW table popup"""
+        # Close current overlay, open your_pc, then trigger table popup
+        self._close_overlay()
+        self._show_overlay("your_pc")
+        # After overlay is built, fire the table popup
+        self.root.after(150, _launch_hw_table_window_root, self.root)
 
     def _build_optimization_page(self, parent):
         """Build Optimization page - System optimization recommendations"""
@@ -2678,286 +2616,153 @@ class ExpandedMainWindow:
         ).pack(expand=True)
 
     def _build_hcklabs_page(self, parent):
-        """Build HCK Labs page"""
-        # Scrollable container
-        canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
-        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg="#0f1117")
+        """HCK Labs — minimalist blog style"""
+        BG      = "#080b10"
+        CARD    = "#0e1118"
+        BORDER  = "#181d2e"
+        TEXT    = "#e2e8f0"
+        MUTED   = "#475569"
+        DIM     = "#94a3b8"
+        AMBER   = "#f59e0b"
+        EMERALD = "#10b981"
+        VIOLET  = "#8b5cf6"
+        BLUE    = "#3b82f6"
 
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
+        # ── scrollable container ─────────────────────────────────────────────
+        cv = tk.Canvas(parent, bg=BG, highlightthickness=0)
+        sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview,
+                          bg=BG, troughcolor=BG, width=5)
+        sf = tk.Frame(cv, bg=BG)
+        sf.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+        win_id = cv.create_window((0, 0), window=sf, anchor="nw")
+        cv.configure(yscrollcommand=sb.set)
+        cv.bind("<Configure>", lambda e: cv.itemconfig(win_id, width=e.width))
+        cv.bind_all("<MouseWheel>", lambda e: cv.yview_scroll(int(-1*(e.delta/120)), "units"), add="+")
+        sb.pack(side="right", fill="y")
+        cv.pack(side="left", fill="both", expand=True)
 
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        # ── HERO ─────────────────────────────────────────────────────────────
+        hero = tk.Frame(sf, bg=CARD)
+        hero.pack(fill="x")
+        tk.Frame(hero, bg=AMBER, height=3).pack(fill="x")
 
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        hero_inner = tk.Frame(hero, bg=CARD)
+        hero_inner.pack(fill="x", padx=32, pady=(28, 24))
 
-        # === HEADER ===
-        header = tk.Frame(scrollable_frame, bg="#1a1d24")
-        header.pack(fill="x", padx=20, pady=(20, 10))
+        tk.Label(hero_inner, text="HCK_Labs", font=("Segoe UI Light", 30),
+                 bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
+        tk.Label(hero_inner, text="Engineering · Monitoring · Intelligence",
+                 font=("Segoe UI", 11), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 14))
 
-        tk.Label(
-            header,
-            text="🚀 HCK_Labs",
-            font=("Segoe UI Light", 24, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 5))
+        # Quick action row
+        btn_row = tk.Frame(hero_inner, bg=CARD)
+        btn_row.pack(anchor="w")
 
-        tk.Label(
-            header,
-            text="Educational AI-Engineering Project",
-            font=("Segoe UI Semilight", 12),
-            bg="#1a1d24",
-            fg="#8b5cf6"
-        ).pack(anchor="w", padx=15, pady=(0, 15))
+        def _make_hero_btn(p, label, color, cmd):
+            b = tk.Label(p, text=label, font=("Segoe UI Semibold", 9, "bold"),
+                         bg=color, fg="#000000" if color in (AMBER, EMERALD) else "#ffffff",
+                         padx=16, pady=7, cursor="hand2")
+            b.pack(side="left", padx=(0, 10))
+            b.bind("<Button-1>", lambda e: cmd())
+            return b
 
-        # === QUICK ACTIONS (SERVICES + CHECK UPDATE) ===
-        actions_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        actions_frame.pack(fill="x", padx=20, pady=10)
+        _make_hero_btn(btn_row, "🔧 Services", VIOLET,
+                       lambda: self._show_services_dialog(sf))
+        _make_hero_btn(btn_row, "🔄 Check Update", EMERALD,
+                       lambda: self._show_update_dialog(sf))
 
-        tk.Label(
-            actions_frame,
-            text="Quick Actions",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
+        tk.Frame(hero, bg=BORDER, height=1).pack(fill="x")
 
-        buttons_row = tk.Frame(actions_frame, bg="#1a1d24")
-        buttons_row.pack(fill="x", padx=15, pady=10)
+        # ── ABOUT (2-col grid) ───────────────────────────────────────────────
+        def _section(title, subtitle=None):
+            wrap = tk.Frame(sf, bg=BG)
+            wrap.pack(fill="x", padx=24, pady=(22, 0))
+            tk.Label(wrap, text=title, font=("Segoe UI Semibold", 13, "bold"),
+                     bg=BG, fg=TEXT, anchor="w").pack(anchor="w")
+            if subtitle:
+                tk.Label(wrap, text=subtitle, font=("Segoe UI", 9),
+                         bg=BG, fg=MUTED, anchor="w").pack(anchor="w", pady=(1, 0))
+            tk.Frame(wrap, bg=BORDER, height=1).pack(fill="x", pady=(8, 0))
+            return wrap
 
-        # SERVICES Button
-        services_btn = tk.Button(
-            buttons_row,
-            text="🔧 SERVICES",
-            font=("Segoe UI Semibold", 11, "bold"),
-            bg="#8b5cf6",
-            fg="#ffffff",
-            activebackground="#7c3aed",
-            activeforeground="#ffffff",
-            bd=0,
-            padx=20,
-            pady=10,
-            cursor="hand2",
-            command=lambda: self._show_services_dialog(scrollable_frame)
-        )
-        services_btn.pack(side="left", padx=(0, 15))
+        def _card(parent, accent, title, body):
+            frame = tk.Frame(parent, bg=CARD)
+            frame.pack(side="left", fill="both", expand=True, padx=(0, 8), pady=8)
+            tk.Frame(frame, bg=accent, height=3).pack(fill="x")
+            inner = tk.Frame(frame, bg=CARD)
+            inner.pack(fill="both", expand=True, padx=14, pady=12)
+            tk.Label(inner, text=title, font=("Segoe UI Semibold", 10, "bold"),
+                     bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
+            tk.Label(inner, text=body, font=("Segoe UI", 9), bg=CARD, fg=DIM,
+                     anchor="w", justify="left", wraplength=280).pack(anchor="w", pady=(4, 0))
 
-        # CHECK UPDATE Button
-        update_btn = tk.Button(
-            buttons_row,
-            text="🔄 CHECK UPDATE!",
-            font=("Segoe UI Semibold", 11, "bold"),
-            bg="#10b981",
-            fg="#ffffff",
-            activebackground="#059669",
-            activeforeground="#ffffff",
-            bd=0,
-            padx=20,
-            pady=10,
-            cursor="hand2",
-            command=lambda: self._show_update_dialog(scrollable_frame)
-        )
-        update_btn.pack(side="left")
+        _section("About", "What PC_Workman is and why it exists")
+        about_row = tk.Frame(sf, bg=BG)
+        about_row.pack(fill="x", padx=24)
+        _card(about_row, BLUE, "Mission",
+              "Make system monitoring accessible, beautiful, and intelligent for everyone — not just power users.")
+        _card(about_row, VIOLET, "Inspiration",
+              "Designed with learnings from Tesla UI, Apple macOS, and MSI Afterburner. Calm, dense, and fast.")
+        _card(about_row, EMERALD, "Philosophy",
+              "Local-first. No cloud. No telemetry. Everything runs on your machine — configure once, runs forever.")
 
-        # === ABOUT PROJECT ===
-        about_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        about_frame.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(
-            about_frame,
-            text="About PC_Workman",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
-
-        about_text = """PC_Workman HCK is a Windows system monitoring and optimization tool.
-
-Our mission: Make system monitoring accessible, beautiful, and intelligent.
-
-Inspired by: Tesla UI, Apple macOS, MSI Afterburner
-Includes practical insights, calm design, and universal hardware support"""
-
-        tk.Label(
-            about_frame,
-            text=about_text,
-            font=("Segoe UI", 10),
-            bg="#1a1d24",
-            fg="#cbd5e1",
-            justify="left",
-            wraplength=850
-        ).pack(anchor="w", padx=15, pady=(0, 15))
-
-        # === KEY FEATURES ===
-        features_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        features_frame.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(
-            features_frame,
-            text="What Makes Us Unique",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
-
+        # ── FEATURES GRID ───────────────────────────────────────────────────
+        _section("What makes it different")
         features = [
-            ("🎯 Dual-Mode System", "Minimal monitoring + Expanded control center"),
-            ("🤖 AI Assistant", "hck_GPT provides intelligent optimization suggestions"),
-            ("📊 Smart Analytics", "Session tracking, predictive alerts, performance scoring"),
-            ("🎨 Modern UI", "Tesla/Apple level design, smooth animations, calm colors"),
-            ("⚡ Background Tools", "Auto-optimization running silently in the background"),
-            ("🌐 Universal Support", "All CPUs, All GPUs, All configurations")
+            (AMBER,   "Dual-Mode",        "Minimal widget + full control center — switch instantly"),
+            (VIOLET,  "HCK_GPT",          "Local AI insights, habit tracking, anomaly alerts — no API key"),
+            (BLUE,    "Stats Engine v2",   "SQLite pipeline: minute → hourly → daily → monthly retention"),
+            (EMERALD, "Auto Optimization", "RAM flush, DNS cache, temp files, process priority — automated & silent"),
+            ("#ef4444","Time-Travel Stats","Click any historical point to see what was running then"),
+            (DIM,     "Universal HW",      "All CPUs, all GPUs, all configs — no driver dependencies"),
         ]
+        grid_outer = tk.Frame(sf, bg=BG)
+        grid_outer.pack(fill="x", padx=24)
+        row_frame = None
+        for i, (accent, title, body) in enumerate(features):
+            if i % 3 == 0:
+                row_frame = tk.Frame(grid_outer, bg=BG)
+                row_frame.pack(fill="x")
+            _card(row_frame, accent, title, body)
 
-        for title, desc in features:
-            feature_row = tk.Frame(features_frame, bg="#0f1117")
-            feature_row.pack(fill="x", padx=15, pady=5)
+        # ── COMPARE TABLE ───────────────────────────────────────────────────
+        _section("vs Competition")
+        comp_wrap = tk.Frame(sf, bg=BG)
+        comp_wrap.pack(fill="x", padx=24, pady=(8, 0))
 
-            tk.Label(
-                feature_row,
-                text=title,
-                font=("Segoe UI Semibold", 10, "bold"),
-                bg="#0f1117",
-                fg="#10b981"
-            ).pack(anchor="w", padx=10, pady=(8, 2))
-
-            tk.Label(
-                feature_row,
-                text=desc,
-                font=("Segoe UI", 9),
-                bg="#0f1117",
-                fg="#94a3b8"
-            ).pack(anchor="w", padx=10, pady=(0, 8))
-
-        # === COMPETITIVE EDGE ===
-        comp_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        comp_frame.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(
-            comp_frame,
-            text="Better Than Competition",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
-
-        comparisons = [
-            ("vs MSI Afterburner", "✅ Full system optimization, not just GPU overclock"),
-            ("vs GeForce Experience", "✅ All GPUs supported, lightweight, no forced login"),
-            ("vs HWMonitor", "✅ Actionable insights, not just read-only sensors"),
-            ("vs Task Manager", "✅ AI suggestions, beautiful UI, predictive alerts")
+        rows = [
+            ("vs MSI Afterburner",    "Full system, not just GPU"),
+            ("vs GeForce Experience", "All GPUs · no forced login · lightweight"),
+            ("vs HWMonitor",          "Actionable insights, not just read-only numbers"),
+            ("vs Task Manager",       "AI suggestions · historical trends · auto-optimization"),
         ]
+        for i, (vs, advantage) in enumerate(rows):
+            bg_row = CARD if i % 2 == 0 else "#0a0d13"
+            r = tk.Frame(comp_wrap, bg=bg_row)
+            r.pack(fill="x")
+            tk.Label(r, text=vs, font=("Segoe UI Semibold", 9, "bold"),
+                     bg=bg_row, fg=BLUE, width=24, anchor="w").pack(side="left", padx=16, pady=8)
+            tk.Label(r, text="→  " + advantage, font=("Segoe UI", 9),
+                     bg=bg_row, fg=DIM).pack(side="left", padx=4, pady=8)
 
-        for vs, advantage in comparisons:
-            comp_row = tk.Frame(comp_frame, bg="#0f1117")
-            comp_row.pack(fill="x", padx=15, pady=3)
-
-            tk.Label(
-                comp_row,
-                text=vs,
-                font=("Segoe UI Semibold", 9, "bold"),
-                bg="#0f1117",
-                fg="#3b82f6",
-                width=22,
-                anchor="w"
-            ).pack(side="left", padx=10, pady=5)
-
-            tk.Label(
-                comp_row,
-                text=advantage,
-                font=("Segoe UI", 9),
-                bg="#0f1117",
-                fg="#cbd5e1"
-            ).pack(side="left", padx=5, pady=5)
-
-        # === VERSION INFO ===
-        version_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        version_frame.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(
-            version_frame,
-            text="Version Information",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
-
-        version_info = [
-            ("Current Version", "v1.7.1 - Cleanup & Test Coverage"),
-            ("Release Date", "April 10, 2026"),
-            ("Architecture", "Dual-Mode (Minimal + Expanded)"),
-            ("Language", "Python 3.x + Tkinter"),
-            ("License", "Educational Project - HCK_Labs")
+        # ── VERSION FOOTER ───────────────────────────────────────────────────
+        _section("Build info")
+        footer = tk.Frame(sf, bg=CARD)
+        footer.pack(fill="x", padx=24, pady=(8, 32))
+        pairs = [
+            ("Version", "PC_Workman HCK 1.7.2"),
+            ("Engine", "Stats Engine v2 — SQLite WAL"),
+            ("Runtime", "Python 3.9+ / tkinter"),
+            ("License", "MIT — HCK_Labs"),
         ]
-
-        for label, value in version_info:
-            version_row = tk.Frame(version_frame, bg="#0f1117")
-            version_row.pack(fill="x", padx=15, pady=3)
-
-            tk.Label(
-                version_row,
-                text=f"{label}:",
-                font=("Segoe UI Semibold", 9, "bold"),
-                bg="#0f1117",
-                fg="#64748b",
-                width=18,
-                anchor="w"
-            ).pack(side="left", padx=10, pady=5)
-
-            tk.Label(
-                version_row,
-                text=value,
-                font=("Segoe UI", 9),
-                bg="#0f1117",
-                fg="#f59e0b"
-            ).pack(side="left", padx=5, pady=5)
-
-        # === MAINTAINER ===
-        maintainer_frame = tk.Frame(scrollable_frame, bg="#1a1d24")
-        maintainer_frame.pack(fill="x", padx=20, pady=10)
-
-        tk.Label(
-            maintainer_frame,
-            text="Development",
-            font=("Segoe UI Semibold", 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w", padx=15, pady=(15, 10))
-
-        tk.Label(
-            maintainer_frame,
-            text="Maintainer: Marcin Firmuga",
-            font=("Segoe UI Semibold", 10),
-            bg="#1a1d24",
-            fg="#8b5cf6"
-        ).pack(anchor="w", padx=15, pady=5)
-
-        tk.Label(
-            maintainer_frame,
-            text="Built with AI assistance (Claude Sonnet 4.5)\nFocus: Learning through real-world software engineering",
-            font=("Segoe UI", 9),
-            bg="#1a1d24",
-            fg="#94a3b8",
-            justify="left"
-        ).pack(anchor="w", padx=15, pady=(0, 15))
-
-        # === FOOTER ===
-        footer = tk.Frame(scrollable_frame, bg="#0f1117")
-        footer.pack(fill="x", padx=20, pady=20)
-
-        tk.Label(
-            footer,
-            text="Thank you for using PC_Workman HCK!\n\n\"Your PC, Smarter.\"",
-            font=("Segoe UI Semilight", 11),
-            bg="#0f1117",
-            fg="#64748b",
-            justify="center"
-        ).pack(pady=20)
+        for label, val in pairs:
+            r = tk.Frame(footer, bg=CARD)
+            r.pack(fill="x", padx=16, pady=3)
+            tk.Label(r, text=label, font=("Segoe UI", 9), bg=CARD,
+                     fg=MUTED, width=12, anchor="w").pack(side="left")
+            tk.Label(r, text=val, font=("Segoe UI Semibold", 9), bg=CARD,
+                     fg=TEXT).pack(side="left", padx=8)
+        tk.Frame(footer, bg=BG, height=8).pack(fill="x")
 
     def _build_fancontrol_page(self, parent):
         """Build fan dashboard page."""
@@ -3933,376 +3738,158 @@ Includes practical insights, calm design, and universal hardware support"""
         ).pack()
 
     def _build_guide_page(self, parent):
-        """Build Guide page"""
-        # Scrollable container
-        canvas = tk.Canvas(parent, bg="#0f1117", highlightthickness=0)
-        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas, bg="#0f1117")
+        """Guide — full-width minimalist blog with live-guide button placeholder"""
+        BG      = "#080b10"
+        CARD    = "#0e1118"
+        BORDER  = "#181d2e"
+        TEXT    = "#e2e8f0"
+        MUTED   = "#475569"
+        DIM     = "#94a3b8"
+        VIOLET  = "#8b5cf6"
+        BLUE    = "#3b82f6"
+        EMERALD = "#10b981"
+        AMBER   = "#f59e0b"
 
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
+        # ── scrollable ────────────────────────────────────────────────────────────
+        cv = tk.Canvas(parent, bg=BG, highlightthickness=0)
+        sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview,
+                          bg=BG, troughcolor=BG, width=5)
+        sf = tk.Frame(cv, bg=BG)
+        sf.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+        win_id = cv.create_window((0, 0), window=sf, anchor="nw")
+        cv.configure(yscrollcommand=sb.set)
+        cv.bind("<Configure>", lambda e: cv.itemconfig(win_id, width=e.width))
+        cv.bind_all("<MouseWheel>", lambda e: cv.yview_scroll(int(-1*(e.delta/120)), "units"), add="+")
+        sb.pack(side="right", fill="y")
+        cv.pack(side="left", fill="both", expand=True)
 
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        # ── HERO ─────────────────────────────────────────────────────────────────
+        hero = tk.Frame(sf, bg=CARD)
+        hero.pack(fill="x")
+        tk.Frame(hero, bg=VIOLET, height=3).pack(fill="x")
 
-        canvas.pack(side="left", fill="both", expand=True, padx=20, pady=10)
-        scrollbar.pack(side="right", fill="y")
+        hero_inner = tk.Frame(hero, bg=CARD)
+        hero_inner.pack(fill="x", padx=32, pady=(24, 20))
 
-        # Header section
-        header_container = tk.Frame(scrollable_frame, bg="#0f1117")
-        header_container.pack(fill="x", padx=15, pady=(10, 20))
+        left_hero = tk.Frame(hero_inner, bg=CARD)
+        left_hero.pack(side="left", fill="both", expand=True)
 
-        # Header background with gradient effect
-        header_bg = tk.Frame(header_container, bg="#1a1d24", bd=0)
-        header_bg.pack(fill="x")
+        tk.Label(left_hero, text="Program Guide",
+                 font=("Segoe UI Light", 28), bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
+        tk.Label(left_hero, text="Everything you need to get the most out of PC_Workman",
+                 font=("Segoe UI", 10), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(3, 0))
 
-        # Top accent line (cyber glow)
-        accent_top = tk.Frame(header_bg, bg="#8b5cf6", height=3)
-        accent_top.pack(fill="x")
+        # Live Guide button (right side of hero) — placeholder for future interactive tour
+        live_btn = tk.Label(hero_inner,
+                            text="▶  Guide on program LIVE",
+                            font=("Segoe UI Semibold", 10, "bold"),
+                            bg=VIOLET, fg="#ffffff",
+                            padx=18, pady=10, cursor="hand2")
+        live_btn.pack(side="right", padx=(0, 0), anchor="center")
 
-        # Header content
-        header_content = tk.Frame(header_bg, bg="#1a1d24")
-        header_content.pack(fill="x", padx=20, pady=15)
+        def _live_guide_click(e=None):
+            # TODO: close overlay, dim dashboard, highlight elements one by one
+            import tkinter.messagebox as mb
+            mb.showinfo("Coming Soon",
+                        "Interactive Live Guide is coming in v1.8!\n\nIt will highlight each dashboard element with a short tooltip.",
+                        parent=parent)
 
-        # Title section
-        title_section = tk.Frame(header_content, bg="#1a1d24")
-        title_section.pack(side="left", fill="both", expand=True)
+        live_btn.bind("<Button-1>", _live_guide_click)
+        live_btn.bind("<Enter>", lambda e: live_btn.config(bg="#7c3aed"))
+        live_btn.bind("<Leave>", lambda e: live_btn.config(bg=VIOLET))
 
-        tk.Label(
-            title_section,
-            text="User Guide - Program Advantages",
-            font=("Segoe UI Light", 22, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff"
-        ).pack(anchor="w")
+        tk.Frame(hero, bg=BORDER, height=1).pack(fill="x")
 
-        tk.Label(
-            title_section,
-            text="Everything you need to maximize PC_Workman potential",
-            font=("Segoe UI", 9),
-            bg="#1a1d24",
-            fg="#64748b"
-        ).pack(anchor="w", pady=(3, 0))
+        # ── SECTION HELPER ────────────────────────────────────────────────────────
+        def _section_hdr(icon, title, subtitle, accent):
+            wrap = tk.Frame(sf, bg=BG)
+            wrap.pack(fill="x", padx=0, pady=(0, 0))
+            bar = tk.Frame(wrap, bg=accent, height=2)
+            bar.pack(fill="x")
+            inner = tk.Frame(wrap, bg=CARD)
+            inner.pack(fill="x", padx=28, pady=14)
+            tk.Label(inner, text=f"{icon}  {title}",
+                     font=("Segoe UI Semibold", 13, "bold"),
+                     bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
+            if subtitle:
+                tk.Label(inner, text=subtitle, font=("Segoe UI", 9),
+                         bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(1, 0))
+            return wrap
 
-        # Navigation button
-        nav_btn = tk.Label(
-            header_content,
-            text="⚡ Navigation Quick!",
-            font=("Segoe UI Semibold", 11, "bold"),
-            bg="#2d2d35",
-            fg="#ffd700",  # Gold text
-            cursor="hand2",
-            padx=20,
-            pady=10,
-            relief="flat"
-        )
-        nav_btn.pack(side="right", padx=10)
+        def _article(bullets, accent=DIM):
+            body = tk.Frame(sf, bg=BG)
+            body.pack(fill="x", padx=28, pady=(4, 18))
+            for bullet in bullets:
+                row = tk.Frame(body, bg=BG)
+                row.pack(fill="x", pady=3)
+                tk.Frame(row, bg=accent, width=3).pack(side="left", fill="y", padx=(0, 10))
+                tk.Label(row, text=bullet, font=("Segoe UI", 10),
+                         bg=BG, fg=DIM, anchor="w", justify="left", wraplength=820).pack(anchor="w", pady=4)
 
-        # Navigation quick menu
-        def show_nav_menu(e):
-            menu = tk.Menu(self.root, tearoff=0, bg="#1a1d24", fg="#ffffff",
-                          font=("Segoe UI", 9), borderwidth=0)
-            menu.add_command(label="💻 Your PC", command=lambda: self._show_overlay("your_pc"))
-            menu.add_command(label="🌲 Sensors", command=lambda: self._show_overlay("sensors"))
-            menu.add_command(label="📊 Live Graphs", command=lambda: self._show_overlay("live_graphs"))
-            menu.add_command(label="🌀 Fan Curves", command=lambda: self._show_overlay("fan_curves"))
-            menu.add_separator()
-            menu.add_command(label="⚡ Optimization", command=lambda: self._show_overlay("optimization"))
-            menu.add_command(label="📊 Statistics", command=lambda: self._show_overlay("statistics"))
-            menu.add_separator()
-            menu.add_command(label="📌 Floating Monitor", command=self._launch_overlay_widget)
-            menu.tk_popup(e.x_root, e.y_root)
+        # ── ARTICLES ──────────────────────────────────────────────────────────────
+        _section_hdr("✨", "Core Monitoring", "What runs under the hood", BLUE)
+        _article([
+            "Real-time CPU, GPU, RAM tracking — updates every second, background-threaded so the UI never freezes.",
+            "Session averages shown on the dashboard give you a quick health baseline without digging into charts.",
+            "Stats Engine v2 stores minute-by-minute data in SQLite — browse 1D / 3D / 1W / 1M history in Monitoring.",
+            "All data lives on your machine. No cloud, no telemetry, no accounts.",
+        ], BLUE)
 
-        nav_btn.bind("<Button-1>", show_nav_menu)
+        _section_hdr("🤖", "HCK_GPT Assistant", "Your local AI companion — no internet needed", EMERALD)
+        _article([
+            "Type 'stats', 'alerts', 'insights', or 'teaser' in the chat to get personalized system summaries.",
+            "HCK_GPT learns your usage patterns (games, dev tools, browsers) and adapts its messages over time.",
+            "Today Report shows a session chart, top processes, alert status, and uptime — one click in the chat panel.",
+            "Everything runs locally — no API key, no data sent anywhere.",
+        ], EMERALD)
 
-        # Hover effect
-        def on_enter(e):
-            nav_btn.config(bg="#3d3d45", fg="#ffed4e")
-        def on_leave(e):
-            nav_btn.config(bg="#2d2d35", fg="#ffd700")
-        nav_btn.bind("<Enter>", on_enter)
-        nav_btn.bind("<Leave>", on_leave)
+        _section_hdr("⚡", "Optimization & Automation", "Set it once, forget about it", AMBER)
+        _article([
+            "AUTO RAM Flush monitors memory every 10 seconds. If usage stays above threshold for 30s, it flushes automatically.",
+            "TURBO BOOST runs all Quick Actions at once — power plan, DNS, temp files, process priority.",
+            "Settings persist across restarts — your AUTO toggle state is saved in settings/user_prefs.json.",
+            "Optimization Center shows 1/14 active features — more coming with each release.",
+        ], AMBER)
 
-        # Bottom accent line
-        accent_bottom = tk.Frame(header_bg, bg="#3b82f6", height=2)
-        accent_bottom.pack(fill="x")
+        _section_hdr("📊", "AllMonitor & Graphs", "Full picture of your hardware", VIOLET)
+        _article([
+            "AllMonitor page shows live scrolling graphs for CPU, GPU, RAM — updated every 200ms.",
+            "Hardware & Health Table (OPEN TABLE button) shows every sensor: temps, voltages, fan speeds.",
+            "Monitoring — Centrum page shows time-travel statistics with spike detection and hover tooltips.",
+            "Fan Dashboard controls cooling profiles and shows fan curve visualizations.",
+        ], VIOLET)
 
-        # Guide categories
-        categories = [
-            {
-                "icon": "✨",
-                "title": "Core Features",
-                "subtitle": "What makes PC_Workman special",
-                "color": "#8b5cf6",
-                "content": [
-                    "PC_Workman is built with **you** in mind - designed to serve your needs and adapt to your workflow. Our philosophy is simple: configure once, benefit forever.",
+        _section_hdr("🛡️", "Privacy & Safety", "Your PC, your data, your rules", "#64748b")
+        _article([
+            "PC_Workman is 100% offline. Nothing is transmitted, collected, or uploaded.",
+            "Every feature can be disabled individually — monitoring only, optimization only, or everything.",
+            "Optimization actions are safe: RAM flush uses Windows APIs, no registry edits without confirmation.",
+            "Logs stored in data/logs/ — delete anytime, program recreates them on next launch.",
+        ], "#64748b")
 
-                    "• **Background Intelligence**: Once you set up your preferences in [Optimization Options], the program works silently in the background - day after day, month after month - automatically executing your configured sequences. No manual intervention needed.",
+        # ── PRO TIPS ROW ─────────────────────────────────────────────────────────
+        tips_hdr = tk.Frame(sf, bg=BG)
+        tips_hdr.pack(fill="x", padx=28, pady=(8, 4))
+        tk.Label(tips_hdr, text="💡  Quick Tips", font=("Segoe UI Semibold", 11, "bold"),
+                 bg=BG, fg=AMBER).pack(anchor="w")
+        tk.Frame(tips_hdr, bg=BORDER, height=1).pack(fill="x", pady=(4, 0))
 
-                    "• **Set & Forget**: Whether it's cleaning temporary files, optimizing RAM usage, or monitoring temperatures - PC_Workman handles it all while you focus on what matters: your work, gaming, or creativity.",
-
-                    "• **Smart Monitoring**: Real-time tracking of CPU, GPU, RAM with intelligent alerts only when something truly needs your attention. No annoying pop-ups for normal behavior."
-                ]
-            },
-            {
-                "icon": "🤖",
-                "title": "HCK_GPT Assistant",
-                "subtitle": "Your PC companion",
-                "color": "#10b981",
-                "content": [
-                    "The future is here. [HCK_GPT] is evolving into your personal system assistant - learning about you and your habits to provide truly customized support.",
-
-                    "• **Context Awareness**: HCK_GPT will remember your favorite games (Steam, Epic), your creative tools (VSCode, Blender, Photoshop), and your work patterns - adjusting recommendations accordingly.",
-
-                    "• **Intelligent Suggestions**: 'I see you're launching Cyberpunk 2077 - would you like me to close background apps and boost GPU performance?' That's the level of intelligence we're building.",
-
-                    "• **Learning System**: The more you use PC_Workman, the smarter HCK_GPT becomes. It learns your preferences, schedules, and optimization needs to serve you better every day."
-                ]
-            },
-            {
-                "icon": "🛡️",
-                "title": "Security & Privacy",
-                "subtitle": "Your data, your control",
-                "color": "#3b82f6",
-                "content": [
-                    "We take your privacy seriously. PC_Workman operates **entirely on your device** - no cloud uploads, no data collection, no telemetry.",
-
-                    "• **Offline First**: All monitoring, optimization, and AI processing happens locally. Your system data never leaves your PC.",
-
-                    "• **Full Control**: Every feature can be enabled or disabled. Want just monitoring? Done. Only optimization? You got it. Complete customization is in your hands.",
-
-                    "• **Transparent Operations**: Check logs, review actions, understand exactly what PC_Workman does. No hidden processes, no mysterious background tasks."
-                ]
-            },
-            {
-                "icon": "⚡",
-                "title": "Performance Optimization",
-                "subtitle": "Squeeze every drop of power",
-                "color": "#f59e0b",
-                "content": [
-                    "Transform your PC from sluggish to lightning-fast with our intelligent optimization engine powered by advanced algorithms.",
-
-                    "• **Smart Cleanup**: [Optimization Options] provides one-click solutions: clear temp files, optimize startup programs, defrag registry, boost RAM - all automated and safe.",
-
-                    "• **Gaming Mode**: Automatically detect game launches and apply performance profiles: close unnecessary apps, boost CPU/GPU, disable Windows updates during gameplay.",
-
-                    "• **Custom Profiles**: Create profiles for different scenarios - 'Work Mode' (minimal resource usage), 'Creative Mode' (max RAM for Photoshop/Blender), 'Gaming Mode' (max performance).",
-
-                    "• **Real Results**: Users report 15-30% FPS improvements in games, 40% faster app launches, and significantly smoother multitasking. Your mileage may vary, but the gains are real."
-                ]
-            },
-            {
-                "icon": "📊",
-                "title": "Advanced Monitoring",
-                "subtitle": "Know your system inside out",
-                "color": "#ef4444",
-                "content": [
-                    "Access professional-grade monitoring tools that rival software costing hundreds of dollars - completely free.",
-
-                    "• **HWMonitor-Style Sensors**: Hierarchical tree showing every temperature, voltage, fan speed, and clock - color-coded for instant health checks (green/yellow/red).",
-
-                    "• **MSI Afterburner Graphs**: Real-time scrolling graphs with 30 seconds of history. See exactly when your CPU spiked or GPU throttled.",
-
-                    "• **Fan Curve Editor**: Visual drag-and-drop interface to create custom cooling profiles. Silent for office work, aggressive for gaming - you control the balance.",
-
-                    "• **System Tray Intelligence**: Our enhanced 3-bar icon shows CPU/GPU/RAM at a glance with temperature tooltips. The most informative tray icon you'll ever see."
-                ]
-            },
-            {
-                "icon": "🎯",
-                "title": "Workflow Integration",
-                "subtitle": "Fits seamlessly into your routine",
-                "color": "#ec4899",
-                "content": [
-                    "PC_Workman adapts to how **you** work, not the other way around. Our design philosophy: invisible when you don't need us, powerful when you do.",
-
-                    "• **Minimal Mode**: Compact widget in bottom-right corner - always visible, never intrusive. Perfect for monitoring during work or gaming.",
-
-                    "• **Overlay Monitor**: Always-on-top mini-monitor shows live CPU/GPU/RAM above all applications. Check performance without alt-tabbing from your game or Photoshop.",
-
-                    "• **Dual Operation**: Main window for deep analysis, tray icon for quick checks, overlay for continuous monitoring - three interfaces, one powerful tool.",
-
-                    "• **Smart Notifications**: Beautiful toast notifications only appear when necessary - 'High temperature detected' or 'RAM usage critical' - never spam, always helpful."
-                ]
-            }
+        tips = [
+            ("Floating Monitor", "Launch the always-on-top overlay from the dashboard — stays above all windows."),
+            ("Tray Icon", "3-bar icon in system tray shows CPU/GPU/RAM at a glance — right-click for quick actions."),
+            ("Minimal Mode", "Switch to compact mode for passive monitoring while you work or game."),
+            ("Mouse Wheel", "Scroll anywhere inside panels — all pages support mousewheel navigation."),
         ]
-
-        for category in categories:
-            self._create_guide_category(scrollable_frame, category)
-
-        # === FOOTER - PRO TIPS! ===
-        footer = tk.Frame(scrollable_frame, bg="#1a1d24")
-        footer.pack(fill="x", padx=15, pady=(20, 30))
-
-        tk.Label(
-            footer,
-            text="💡 Pro Tip",
-            font=("Segoe UI Semibold", 12, "bold"),
-            bg="#1a1d24",
-            fg="#ffd700"
-        ).pack(anchor="w", padx=15, pady=(10, 5))
-
-        tk.Label(
-            footer,
-            text="Press the mini-monitor in the left panel to launch the overlay monitor - it will stay visible above all windows!",
-            font=("Segoe UI", 10),
-            bg="#1a1d24",
-            fg="#94a3b8",
-            wraplength=520,
-            justify="left"
-        ).pack(anchor="w", padx=15, pady=(0, 10))
-
-    def _create_guide_category(self, parent, category):
-        """Create single guide category with cyberpunk styling"""
-        # Category container
-        container = tk.Frame(parent, bg="#0f1117")
-        container.pack(fill="x", padx=15, pady=10)
-
-        # Category card with accent border
-        card = tk.Frame(container, bg=category["color"], bd=0)
-        card.pack(fill="x")
-
-        # Left accent bar
-        accent = tk.Frame(card, bg=category["color"], width=5)
-        accent.pack(side="left", fill="y")
-
-        # Card content
-        content_bg = tk.Frame(card, bg="#1a1d24")
-        content_bg.pack(side="left", fill="both", expand=True)
-
-        # Header section
-        header = tk.Frame(content_bg, bg="#1a1d24")
-        header.pack(fill="x", padx=20, pady=15)
-
-        # Icon + Title
-        title_row = tk.Frame(header, bg="#1a1d24")
-        title_row.pack(fill="x")
-
-        tk.Label(
-            title_row,
-            text=category["icon"],
-            font=("Segoe UI", 24),
-            bg="#1a1d24",
-            fg=category["color"]
-        ).pack(side="left", padx=(0, 10))
-
-        title_section = tk.Frame(title_row, bg="#1a1d24")
-        title_section.pack(side="left", fill="x", expand=True)
-
-        tk.Label(
-            title_section,
-            text=category["title"],
-            font=("Segoe UI Semibold", 16, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff",
-            anchor="w"
-        ).pack(fill="x")
-
-        tk.Label(
-            title_section,
-            text=category["subtitle"],
-            font=("Segoe UI", 9),
-            bg="#1a1d24",
-            fg="#64748b",
-            anchor="w"
-        ).pack(fill="x")
-
-        # Content - mini gradient cards instead of bullet points
-        content_frame = tk.Frame(content_bg, bg="#1a1d24")
-        content_frame.pack(fill="x", padx=20, pady=(0, 15))
-
-        # Gradient colors for mini-cards
-        gradient_colors = [
-            "#f0f4ff",  # Light blue
-            "#fff4f0",  # Light orange
-            "#f0fff4",  # Light green
-            "#fff0f8",  # Light pink
-            "#f4f0ff",  # Light purple
-            "#fffbf0"   # Light yellow
-        ]
-        color_idx = 0
-
-        for paragraph in category["content"]:
-            # Process markdown-style highlights
-            processed = self._process_markdown_highlights(paragraph)
-
-            # Check if it's a bullet point
-            if paragraph.strip().startswith("•"):
-                # Create mini-card with gradient background
-                mini_card = tk.Frame(content_frame, bg=gradient_colors[color_idx % len(gradient_colors)])
-                mini_card.pack(fill="x", pady=2)
-                color_idx += 1
-
-                # Remove bullet point from text
-                clean_text = processed.replace("•", "").strip()
-
-                # Split into title and description if there's a colon
-                if ":" in clean_text:
-                    parts = clean_text.split(":", 1)
-                    title = parts[0].strip()
-                    desc = parts[1].strip()
-
-                    # Title (bold part)
-                    tk.Label(
-                        mini_card,
-                        text=title,
-                        font=("Segoe UI", 8, "bold"),
-                        bg=mini_card["bg"],
-                        fg="#1a1d24",
-                        anchor="w"
-                    ).pack(fill="x", padx=10, pady=(4, 0))
-
-                    # Description
-                    tk.Label(
-                        mini_card,
-                        text=desc,
-                        font=("Segoe UI", 7),
-                        bg=mini_card["bg"],
-                        fg="#334155",
-                        anchor="w",
-                        wraplength=480,
-                        justify="left"
-                    ).pack(fill="x", padx=10, pady=(0, 4))
-                else:
-                    # No colon, just show the text
-                    tk.Label(
-                        mini_card,
-                        text=clean_text,
-                        font=("Segoe UI", 7),
-                        bg=mini_card["bg"],
-                        fg="#1a1d24",
-                        anchor="w",
-                        wraplength=480,
-                        justify="left"
-                    ).pack(fill="x", padx=10, pady=4)
-            else:
-                # Regular paragraph (intro text)
-                p_label = tk.Label(
-                    content_frame,
-                    text=processed,
-                    font=("Segoe UI", 9),
-                    bg="#1a1d24",
-                    fg="#cbd5e1",
-                    anchor="w",
-                    wraplength=500,
-                    justify="left"
-                )
-                p_label.pack(fill="x", pady=(0, 8))
-
-    def _process_markdown_highlights(self, text):
-        """Process markdown-style highlights [text] and **bold**"""
-        # Replace [keyword] with highlighted version (we'll use uppercase + color via emoji)
-        import re
-
-        # [keyword] → 「KEYWORD」 (Japanese brackets for tech feel)
-        text = re.sub(r'\[([^\]]+)\]', r'「\1」', text)
-
-        # **bold** → BOLD (we can't do actual bold in Label, so use caps)
-        text = re.sub(r'\*\*([^\*]+)\*\*', r'\1', text)
-
-        return text
+        tips_row = tk.Frame(sf, bg=BG)
+        tips_row.pack(fill="x", padx=28, pady=(0, 32))
+        for tip_title, tip_body in tips:
+            tip_card = tk.Frame(tips_row, bg=CARD)
+            tip_card.pack(side="left", fill="both", expand=True, padx=(0, 8))
+            tk.Frame(tip_card, bg=AMBER, height=2).pack(fill="x")
+            tk.Label(tip_card, text=tip_title, font=("Segoe UI Semibold", 9, "bold"),
+                     bg=CARD, fg=TEXT).pack(anchor="w", padx=12, pady=(10, 2))
+            tk.Label(tip_card, text=tip_body, font=("Segoe UI", 9), bg=CARD, fg=DIM,
+                     wraplength=180, justify="left").pack(anchor="w", padx=12, pady=(0, 10))
 
     # ========== OVERLAY WIDGET ==========
 
@@ -4592,3 +4179,153 @@ Includes practical insights, calm design, and universal hardware support"""
             self.root.destroy()
         except:
             pass
+
+
+# ========== MODULE-LEVEL HELPERS ==========
+
+def _open_hw_table_popup(anchor):
+    """Core: open ProInfoTable popup anchored to any tk widget or window."""
+    try:
+        from ui.components.pro_info_table import ProInfoTable
+    except ImportError:
+        ProInfoTable = None
+
+    popup = tk.Toplevel(anchor)
+    popup.title("Hardware & Health")
+    popup.configure(bg="#0a0e14")
+    popup.attributes("-topmost", True)
+    popup.resizable(True, True)
+
+    # Header
+    hdr = tk.Frame(popup, bg="#111827")
+    hdr.pack(fill="x")
+    tk.Label(hdr, text="Hardware & Health Table",
+             font=("Segoe UI Semibold", 11), bg="#111827",
+             fg="#ffffff", pady=8).pack(side="left", padx=14)
+    x_btn = tk.Label(hdr, text="✕", font=("Segoe UI", 12, "bold"),
+                     bg="#111827", fg="#64748b", padx=12, cursor="hand2")
+    x_btn.pack(side="right", pady=5)
+    x_btn.bind("<Button-1>", lambda e: popup.destroy())
+    x_btn.bind("<Enter>", lambda e: x_btn.config(fg="#ef4444"))
+    x_btn.bind("<Leave>", lambda e: x_btn.config(fg="#64748b"))
+
+    content = tk.Frame(popup, bg="#0a0e14")
+    content.pack(fill="both", expand=True, padx=4, pady=4)
+
+    if ProInfoTable:
+        try:
+            table = ProInfoTable(content)
+            table.pack(fill="both", expand=True)
+        except Exception as e:
+            tk.Label(content, text=f"Error loading table: {e}",
+                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444").pack(pady=50)
+    else:
+        tk.Label(content, text="Hardware table not available",
+                 font=("Segoe UI", 10), bg="#0a0e14", fg="#6b7280").pack(pady=50)
+
+    # Center on screen
+    popup.update_idletasks()
+    w, h = 520, 640
+    sw = popup.winfo_screenwidth()
+    sh = popup.winfo_screenheight()
+    popup.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
+
+
+def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
+    """
+    Draw a crisp vector icon centred at (cx, cy) on an existing tk.Canvas.
+    All coordinates are relative to (cx, cy).  Icons fit inside ~20×24 px.
+    """
+    import math
+
+    A   = accent        # primary accent colour
+    BG  = "#05070d"     # icon panel background (same as icon section fill)
+    W   = "#ffffff"     # white for inset details
+    DK  = "#0a0e1a"     # dark for screen / details
+
+    def R(x0, y0, x1, y1, fill=A, outline=""):
+        canvas.create_rectangle(cx+x0, cy+y0, cx+x1, cy+y1, fill=fill, outline=outline)
+
+    def O(x0, y0, x1, y1, fill=A, outline=""):
+        canvas.create_oval(cx+x0, cy+y0, cx+x1, cy+y1, fill=fill, outline=outline)
+
+    def P(*pts, fill=A, outline=""):
+        flat = []
+        for x, y in pts:
+            flat += [cx + x, cy + y]
+        canvas.create_polygon(flat, fill=fill, outline=outline, smooth=False)
+
+    def Arc(x0, y0, x1, y1, **kw):
+        canvas.create_arc(cx+x0, cy+y0, cx+x1, cy+y1, **kw)
+
+    # ── MY PC — monitor + stand ───────────────────────────────────────────────
+    if page_id == "your_pc":
+        R(-11, -10,  11,  5)                    # bezel
+        R( -9,  -8,   9,  3, fill=DK)           # screen glass
+        R( -1,   5,   1,  9)                    # stand arm
+        R( -6,   8,   6, 11)                    # base
+        O(  7,   0,   9,  2, fill="#10b981")    # power LED green
+
+    # ── MONITORING — big exclamation mark ────────────────────────────────────
+    elif page_id == "sensors":
+        R(-2, -12,  2,  4, fill=A)             # stem (tall)
+        O(-3,   6,  3, 12, fill=A)             # dot (round)
+
+    # ── ALLMONITOR — bar chart ────────────────────────────────────────────────
+    elif page_id == "live_graphs":
+        R(-11,  3, -5, 10)                      # short bar
+        R( -3, -3,  3, 10)                      # medium bar
+        R(  5, -9, 11, 10)                      # tall bar
+        R(-13,  9, 13, 12)                      # baseline
+
+    # ── OPTIMIZATION — lightning bolt ─────────────────────────────────────────
+    elif page_id == "optimization":
+        P((4,-12), (-2,-1), (3,-1), (-4,12), (-5,12),
+          (1, 1), (-4,  1), (2,-12))
+
+    # ── FAN DASHBOARD — monitor icon (same as My PC), purple tint ────────────
+    elif page_id == "fan_control":
+        R(-11, -10,  11,  5)                    # bezel
+        R( -9,  -8,   9,  3, fill=DK)           # screen glass
+        R( -1,   5,   1,  9)                    # stand arm
+        R( -6,   8,   6, 11)                    # base
+        O(  7,   0,   9,  2, fill="#a78bfa")    # purple LED
+
+    # ── HCK_LABS — globe icon ─────────────────────────────────────────────────
+    elif page_id == "hck_labs":
+        O(-11, -11, 11, 11)                                                    # outer sphere
+        O( -5, -11,  5, 11)                                                    # central meridian oval
+        canvas.create_line(cx-11, cy,   cx+11, cy,   fill=accent, width=1.5)  # equator
+        canvas.create_line(cx- 9, cy-5, cx+ 9, cy-5, fill=accent, width=1.0)  # N parallel
+        canvas.create_line(cx- 9, cy+5, cx+ 9, cy+5, fill=accent, width=1.0)  # S parallel
+
+    # ── GUIDE — open book ─────────────────────────────────────────────────────
+    elif page_id == "guide":
+        P((-1,-9), (-11,-7), (-11,8), (-1,7))          # left page
+        P(( 1,-9), ( 11,-7), ( 11,8), ( 1,7))          # right page
+        R(-1, -9,  1,  9, fill=DK)                     # spine
+        # lines left
+        for ly in (-4, -1, 2):
+            R(-9, ly, -3, ly+1, fill=DK)
+        # lines right
+        for ly in (-4, -1, 2):
+            R( 3, ly,  9, ly+1, fill=DK)
+
+
+def _launch_hw_table_window(parent):
+    """Alias kept for compatibility."""
+    _open_hw_table_popup(parent)
+
+
+def _launch_hw_table_window_root(root):
+    """Called via root.after() — uses root as anchor."""
+    _open_hw_table_popup(root)
+
+    # Size and position after content loads
+    popup.update_idletasks()
+    w, h = 520, 640
+    sw = popup.winfo_screenwidth()
+    sh = popup.winfo_screenheight()
+    x = (sw - w) // 2
+    y = (sh - h) // 2
+    popup.geometry(f"{w}x{h}+{x}+{y}")
