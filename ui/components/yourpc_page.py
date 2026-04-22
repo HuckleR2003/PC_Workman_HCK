@@ -1301,48 +1301,145 @@ def _pct_color_str(pct: float) -> str:
 # EFFICIENCY TAB
 # ─────────────────────────────────────────────────────────────────────────────
 
+# Session state — persists for the app lifetime
+_CORE_SESSION: dict = {}   # core_idx → {"min": f, "max": f, "sum": f, "cnt": i}
+_PROC_SESSION: dict = {}   # proc_name → {cpu_sum, cpu_cnt, ram_sum, ram_cnt,
+                           #               t1, t3, t5, t1r, t3r, t5r}
+
+
+def _eff_sec_hdr(parent, text, accent="#3b82f6"):
+    """Styled section header for the Efficiency tab."""
+    row = tk.Frame(parent, bg="#090c12")
+    row.pack(fill="x", pady=(10, 3))
+    tk.Label(row, text=text, font=("Segoe UI", 8, "bold"),
+             bg="#090c12", fg=accent, padx=2).pack(side="left")
+    tk.Frame(row, bg=accent, height=1).pack(
+        side="left", fill="x", expand=True, padx=(6, 0))
+
+
+def _fmt_rank_dur(label, seconds):
+    """Format a 'top-rank for X time' string."""
+    if seconds < 60:
+        return f"{label} {int(seconds)}s"
+    if seconds < 3600:
+        return f"{label} {int(seconds // 60)}m"
+    h, m = int(seconds // 3600), int((seconds % 3600) // 60)
+    return f"{label} {h}h{m:02d}m"
+
+
 def _build_efficiency(self, parent):
-    """Efficiency tab — live top process consumers + power plan."""
-    BG = "#0a0e14"
+    """Efficiency tab — cores usage grid, side-by-side top consumers, power plan."""
     sf, _ = _make_scroll_frame(parent)
     refs = {}
 
-    # ── CPU Frequency bar ──────────────────────────────────
-    _sec_hdr(sf, "CPU FREQUENCY")
-    freq_frame = tk.Frame(sf, bg="#1a1d24",
-                          highlightbackground="#2a2d34", highlightthickness=1)
-    freq_frame.pack(fill="x", padx=8, pady=2)
-    freq_bar_canvas = tk.Canvas(freq_frame, height=12, bg="#1a1d24",
+    # ── CPU Frequency bar ──────────────────────────────────────────────────
+    _eff_sec_hdr(sf, "CPU FREQUENCY", "#3b82f6")
+    freq_frame = tk.Frame(sf, bg="#0d1219",
+                          highlightbackground="#1e2a40", highlightthickness=1)
+    freq_frame.pack(fill="x", padx=8, pady=(0, 4))
+
+    freq_top = tk.Frame(freq_frame, bg="#0d1219")
+    freq_top.pack(fill="x", padx=8, pady=(6, 2))
+    tk.Label(freq_top, text="CURRENT CLOCK", font=("Segoe UI", 7, "bold"),
+             bg="#0d1219", fg="#374151").pack(side="left")
+    freq_lbl = tk.Label(freq_top, text="— MHz", font=("Segoe UI", 8, "bold"),
+                        bg="#0d1219", fg="#93c5fd")
+    freq_lbl.pack(side="right")
+    freq_bar_canvas = tk.Canvas(freq_frame, height=10, bg="#0d1219",
                                 highlightthickness=0)
-    freq_bar_canvas.pack(fill="x", padx=6, pady=4)
-    freq_lbl = tk.Label(freq_frame, text="—", font=("Segoe UI", 6),
-                        bg="#1a1d24", fg="#94a3b8", pady=2)
-    freq_lbl.pack(anchor="e", padx=8)
+    freq_bar_canvas.pack(fill="x", padx=8, pady=(0, 6))
     refs["freq_bar"] = freq_bar_canvas
     refs["freq_lbl"] = freq_lbl
 
-    # ── Top CPU consumers ──────────────────────────────────
-    _sec_hdr(sf, "TOP CPU CONSUMERS")
-    cpu_frame = tk.Frame(sf, bg="#0f1117",
-                         highlightbackground="#2a2d34", highlightthickness=1)
-    cpu_frame.pack(fill="x", padx=8, pady=2)
+    # ── Cores Usage grid ───────────────────────────────────────────────────
+    _eff_sec_hdr(sf, "CORES USAGE", "#818cf8")
+    cores_outer = tk.Frame(sf, bg="#0d1219",
+                           highlightbackground="#2a2050", highlightthickness=1)
+    cores_outer.pack(fill="x", padx=8, pady=(0, 4))
+
+    import psutil as _psu_init
+    # logical=False → physical cores only (e.g. 6, not 12 with HT)
+    core_count = _psu_init.cpu_count(logical=False) or _psu_init.cpu_count(logical=True) or 1
+    cols = 4 if core_count >= 8 else (3 if core_count >= 5 else 2)
+
+    grid_f = tk.Frame(cores_outer, bg="#0d1219")
+    grid_f.pack(fill="x", padx=6, pady=6)
+
+    core_widgets = []
+    for i in range(core_count):
+        r_idx, c_idx = i // cols, i % cols
+        grid_f.columnconfigure(c_idx, weight=1)
+
+        card = tk.Frame(grid_f, bg="#111827",
+                        highlightbackground="#1e2d42", highlightthickness=1)
+        card.grid(row=r_idx, column=c_idx, padx=2, pady=2, sticky="nsew")
+
+        # Header: core label + current %
+        ch = tk.Frame(card, bg="#0d1520")
+        ch.pack(fill="x")
+        tk.Label(ch, text=f"C{i}", font=("Segoe UI", 7, "bold"),
+                 bg="#0d1520", fg="#818cf8", padx=5, pady=2).pack(side="left")
+        vl = tk.Label(ch, text="—%", font=("Segoe UI", 8, "bold"),
+                      bg="#0d1520", fg="#e2e8f0", padx=4, pady=2)
+        vl.pack(side="right")
+
+        # Usage bar
+        bc = tk.Canvas(card, height=4, bg="#111827", highlightthickness=0)
+        bc.pack(fill="x", padx=3, pady=(2, 2))
+
+        # Stats row: ↓min  ↑max  ~avg
+        sr = tk.Frame(card, bg="#111827")
+        sr.pack(fill="x", padx=4, pady=(0, 4))
+        mn = tk.Label(sr, text="↓ —", font=("Consolas", 6),
+                      bg="#111827", fg="#374151")
+        mn.pack(side="left")
+        mx = tk.Label(sr, text="↑ —", font=("Consolas", 6),
+                      bg="#111827", fg="#374151")
+        mx.pack(side="left", padx=(4, 0))
+        av = tk.Label(sr, text="~ —", font=("Consolas", 6, "bold"),
+                      bg="#111827", fg="#a5b4fc")
+        av.pack(side="right")
+
+        core_widgets.append({"bar": bc, "val": vl, "min": mn, "max": mx, "avg": av})
+
+    refs["core_widgets"] = core_widgets
+    refs["core_count"] = core_count
+
+    # ── Top consumers — side by side ───────────────────────────────────────
+    consumers_row = tk.Frame(sf, bg="#090c12")
+    consumers_row.pack(fill="x", padx=8, pady=(4, 4))
+
+    # CPU column
+    cpu_col = tk.Frame(consumers_row, bg="#090c12")
+    cpu_col.pack(side="left", fill="both", expand=True)
+    _eff_sec_hdr(cpu_col, "TOP CPU CONSUMERS", "#3b82f6")
+    cpu_frame = tk.Frame(cpu_col, bg="#0f1117",
+                         highlightbackground="#1e2d42", highlightthickness=1)
+    cpu_frame.pack(fill="both", expand=True)
     refs["cpu_procs_frame"] = cpu_frame
 
-    # ── Top RAM consumers ──────────────────────────────────
-    _sec_hdr(sf, "TOP RAM CONSUMERS")
-    ram_frame = tk.Frame(sf, bg="#0f1117",
-                         highlightbackground="#2a2d34", highlightthickness=1)
-    ram_frame.pack(fill="x", padx=8, pady=2)
+    # Divider
+    tk.Frame(consumers_row, bg="#1e2937", width=1).pack(
+        side="left", fill="y", padx=5)
+
+    # RAM column
+    ram_col = tk.Frame(consumers_row, bg="#090c12")
+    ram_col.pack(side="left", fill="both", expand=True)
+    _eff_sec_hdr(ram_col, "TOP RAM CONSUMERS", "#10b981")
+    ram_frame = tk.Frame(ram_col, bg="#0f1117",
+                         highlightbackground="#0f2e24", highlightthickness=1)
+    ram_frame.pack(fill="both", expand=True)
     refs["ram_procs_frame"] = ram_frame
 
-    # ── Power plan ─────────────────────────────────────────
-    _sec_hdr(sf, "POWER PLAN")
-    pwr_frame = tk.Frame(sf, bg="#1a1d24",
-                         highlightbackground="#2a2d34", highlightthickness=1)
-    pwr_frame.pack(fill="x", padx=8, pady=2)
-    pwr_lbl = tk.Label(pwr_frame, text="Detecting…", font=("Segoe UI", 8, "bold"),
-                       bg="#1a1d24", fg="#94a3b8", pady=6)
-    pwr_lbl.pack(anchor="w", padx=10)
+    # ── Power plan ─────────────────────────────────────────────────────────
+    _eff_sec_hdr(sf, "POWER PLAN", "#f59e0b")
+    pwr_frame = tk.Frame(sf, bg="#0d1219",
+                         highlightbackground="#2a1f0a", highlightthickness=1)
+    pwr_frame.pack(fill="x", padx=8, pady=(0, 10))
+    pwr_lbl = tk.Label(pwr_frame, text="Detecting…",
+                       font=("Segoe UI", 9, "bold"),
+                       bg="#0d1219", fg="#fbbf24", pady=8, padx=10)
+    pwr_lbl.pack(anchor="w")
     refs["pwr_lbl"] = pwr_lbl
 
     def _load_power_plan():
@@ -1358,12 +1455,13 @@ def _build_efficiency(self, parent):
         except Exception:
             name = "N/A"
         if parent.winfo_exists():
-            parent.after(0, lambda: pwr_lbl.config(text=name) if pwr_lbl.winfo_exists() else None)
+            parent.after(0, lambda: pwr_lbl.config(text=name)
+                         if pwr_lbl.winfo_exists() else None)
 
     import threading as _thr
     _thr.Thread(target=_load_power_plan, daemon=True).start()
 
-    # ── Live refresh ───────────────────────────────────────
+    # ── Live refresh ───────────────────────────────────────────────────────
     def _refresh():
         if not parent.winfo_exists():
             return
@@ -1373,15 +1471,18 @@ def _build_efficiency(self, parent):
             pass
         parent.after(2000, _refresh)
 
-    parent.after(300, _refresh)
+    parent.after(400, _refresh)
 
 
 def _efficiency_refresh(refs):
-    """Update efficiency tab widgets."""
-    try:
-        import psutil as _psu
+    """Update all efficiency tab widgets."""
+    import psutil as _psu
+    import time
 
-        # CPU frequency bar
+    now = time.time()
+
+    # ── CPU frequency bar ──────────────────────────────────────────────────
+    try:
         freq = _psu.cpu_freq()
         if freq:
             cur, max_f = freq.current, freq.max or freq.current
@@ -1390,64 +1491,207 @@ def _efficiency_refresh(refs):
             if fc and fc.winfo_exists():
                 w = fc.winfo_width() or 200
                 fc.delete("all")
-                fc.create_rectangle(0, 0, w, 12, fill="#1f2937", outline="")
-                bar_col = "#3b82f6" if pct < 0.8 else "#f59e0b" if pct < 0.95 else "#ef4444"
-                fc.create_rectangle(0, 0, int(w * pct), 12, fill=bar_col, outline="")
+                fc.create_rectangle(0, 0, w, 10, fill="#1f2937", outline="")
+                bar_col = ("#3b82f6" if pct < 0.80
+                           else "#f59e0b" if pct < 0.95 else "#ef4444")
+                fc.create_rectangle(0, 0, int(w * pct), 10,
+                                    fill=bar_col, outline="")
             fl = refs.get("freq_lbl")
             if fl and fl.winfo_exists():
                 fl.config(text=f"{cur:.0f} MHz  /  {max_f:.0f} MHz max")
+    except Exception:
+        pass
 
-        # Top CPU processes
+    # ── Per-core usage ─────────────────────────────────────────────────────
+    try:
+        per_core = _psu.cpu_percent(percpu=True)
+        widgets = refs.get("core_widgets", [])
+        for i, (usage, w) in enumerate(zip(per_core, widgets)):
+            s = _CORE_SESSION.setdefault(i, {
+                "min": 999.0, "max": 0.0, "sum": 0.0, "cnt": 0
+            })
+            s["min"] = min(s["min"], usage)
+            s["max"] = max(s["max"], usage)
+            s["sum"] += usage
+            s["cnt"] += 1
+            avg = s["sum"] / s["cnt"]
+            try:
+                if w["val"].winfo_exists():
+                    col = ("#e2e8f0" if usage < 60
+                           else "#fbbf24" if usage < 85 else "#f87171")
+                    w["val"].config(text=f"{usage:.0f}%", fg=col)
+                bc = w["bar"]
+                if bc.winfo_exists():
+                    bw = bc.winfo_width() or 60
+                    bc.delete("all")
+                    bc.create_rectangle(0, 0, bw, 4, fill="#1f2937", outline="")
+                    bar_col = ("#818cf8" if usage < 60
+                               else "#f59e0b" if usage < 85 else "#ef4444")
+                    bc.create_rectangle(0, 0, int(bw * usage / 100), 4,
+                                        fill=bar_col, outline="")
+                if s["cnt"] > 1:
+                    if w["min"].winfo_exists():
+                        w["min"].config(text=f"↓ {s['min']:.0f}%")
+                    if w["max"].winfo_exists():
+                        w["max"].config(text=f"↑ {s['max']:.0f}%")
+                    if w["avg"].winfo_exists():
+                        w["avg"].config(text=f"~ {avg:.0f}%")
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # ── Top CPU processes ──────────────────────────────────────────────────
+    try:
+        cpu_procs = sorted(
+            _psu.process_iter(["name", "cpu_percent"]),
+            key=lambda p: p.info.get("cpu_percent", 0) or 0,
+            reverse=True
+        )[:6]
+
+        for rank, proc in enumerate(cpu_procs):
+            pname = proc.info.get("name", "?") or "?"
+            val = proc.info.get("cpu_percent", 0) or 0
+            ps = _PROC_SESSION.setdefault(pname, {
+                "cpu_sum": 0.0, "cpu_cnt": 0,
+                "ram_sum": 0.0, "ram_cnt": 0,
+                "t1": None, "t3": None, "t5": None,
+                "t1r": None, "t3r": None, "t5r": None,
+            })
+            ps["cpu_sum"] += val
+            ps["cpu_cnt"] += 1
+            if rank == 0 and ps["t1"] is None:
+                ps["t1"] = now
+            if rank < 3 and ps["t3"] is None:
+                ps["t3"] = now
+            if rank < 5 and ps["t5"] is None:
+                ps["t5"] = now
+
         cpu_f = refs.get("cpu_procs_frame")
         if cpu_f and cpu_f.winfo_exists():
             for w in cpu_f.winfo_children():
                 w.destroy()
-            procs = sorted(_psu.process_iter(["name", "cpu_percent"]),
-                           key=lambda p: p.info.get("cpu_percent", 0) or 0,
-                           reverse=True)[:6]
-            _render_proc_rows(cpu_f, procs, "cpu_percent", "%", "#3b82f6")
+            _render_proc_rows(cpu_f, cpu_procs, "cpu_percent",
+                              "#3b82f6", "cpu", now)
+    except Exception:
+        pass
 
-        # Top RAM processes
+    # ── Top RAM processes ──────────────────────────────────────────────────
+    try:
+        ram_procs = sorted(
+            _psu.process_iter(["name", "memory_percent"]),
+            key=lambda p: p.info.get("memory_percent", 0) or 0,
+            reverse=True
+        )[:6]
+
+        for rank, proc in enumerate(ram_procs):
+            pname = proc.info.get("name", "?") or "?"
+            val = proc.info.get("memory_percent", 0) or 0
+            ps = _PROC_SESSION.setdefault(pname, {
+                "cpu_sum": 0.0, "cpu_cnt": 0,
+                "ram_sum": 0.0, "ram_cnt": 0,
+                "t1": None, "t3": None, "t5": None,
+                "t1r": None, "t3r": None, "t5r": None,
+            })
+            ps["ram_sum"] += val
+            ps["ram_cnt"] += 1
+            if rank == 0 and ps["t1r"] is None:
+                ps["t1r"] = now
+            if rank < 3 and ps["t3r"] is None:
+                ps["t3r"] = now
+            if rank < 5 and ps["t5r"] is None:
+                ps["t5r"] = now
+
         ram_f = refs.get("ram_procs_frame")
         if ram_f and ram_f.winfo_exists():
             for w in ram_f.winfo_children():
                 w.destroy()
-            procs = sorted(_psu.process_iter(["name", "memory_percent"]),
-                           key=lambda p: p.info.get("memory_percent", 0) or 0,
-                           reverse=True)[:6]
-            _render_proc_rows(ram_f, procs, "memory_percent", "%", "#10b981")
+            _render_proc_rows(ram_f, ram_procs, "memory_percent",
+                              "#10b981", "ram", now)
     except Exception:
         pass
 
 
-def _render_proc_rows(parent, procs, metric_key, unit, bar_color):
-    """Render process rows with mini usage bars."""
-    BG = "#0f1117"
-    hdr = tk.Frame(parent, bg="#111827")
-    hdr.pack(fill="x")
-    tk.Label(hdr, text="PROCESS", font=("Segoe UI", 6, "bold"),
-             bg="#111827", fg="#4b5563", width=24, anchor="w").pack(side="left", padx=4)
-    tk.Label(hdr, text="USAGE", font=("Segoe UI", 6, "bold"),
-             bg="#111827", fg="#4b5563").pack(side="right", padx=4)
+def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
+    """Render process rows: rank badge · name · bar · current% · avg% · top-rank duration."""
+    BG  = "#0f1117"
+    HDR = "#0d1117"
 
-    for proc in procs:
+    # Column header
+    hdr = tk.Frame(parent, bg=HDR)
+    hdr.pack(fill="x")
+    tk.Label(hdr, text="  PROCESS", font=("Segoe UI", 6, "bold"),
+             bg=HDR, fg="#374151", anchor="w").pack(side="left", padx=2, pady=2)
+    tk.Label(hdr, text="NOW   AVG", font=("Consolas", 6, "bold"),
+             bg=HDR, fg="#374151", anchor="e").pack(side="right", padx=6, pady=2)
+
+    rank_colors = ["#f59e0b", "#94a3b8", "#78716c", "#4b5563", "#374151", "#2d3748"]
+
+    for rank, proc in enumerate(procs):
         try:
-            name = (proc.info.get("name", "?") or "?")[:22]
+            name = (proc.info.get("name", "?") or "?")
+            name_s = name[:16] if len(name) > 16 else name
             val = proc.info.get(metric_key, 0) or 0
         except Exception:
             continue
+
+        ps = _PROC_SESSION.get(name, {})
+
+        # Session average for this metric
+        if kind == "cpu":
+            cnt = ps.get("cpu_cnt", 0)
+            avg = (ps.get("cpu_sum", 0) / cnt) if cnt > 0 else val
+            t1k, t3k, t5k = "t1", "t3", "t5"
+        else:
+            cnt = ps.get("ram_cnt", 0)
+            avg = (ps.get("ram_sum", 0) / cnt) if cnt > 0 else val
+            t1k, t3k, t5k = "t1r", "t3r", "t5r"
+
+        # Top-rank duration badge
+        rank_badge = ""
+        if rank == 0 and ps.get(t1k):
+            rank_badge = _fmt_rank_dur("#1", now - ps[t1k])
+        elif rank < 3 and ps.get(t3k):
+            rank_badge = _fmt_rank_dur("top3", now - ps[t3k])
+        elif rank < 5 and ps.get(t5k):
+            rank_badge = _fmt_rank_dur("top5", now - ps[t5k])
+
+        # Process row
         row = tk.Frame(parent, bg=BG)
-        row.pack(fill="x", pady=0)
-        tk.Label(row, text=name, font=("Segoe UI", 7), bg=BG,
-                 fg="#94a3b8", width=24, anchor="w").pack(side="left", padx=4)
-        bar_outer = tk.Frame(row, bg="#1f2937", height=8)
-        bar_outer.pack(side="left", fill="x", expand=True, padx=4, pady=3)
-        bar_outer.update_idletasks()
-        bar_w = max(1, int((val / 100) * 120))
-        bar_inner = tk.Frame(bar_outer, bg=bar_color, width=bar_w, height=8)
-        bar_inner.place(x=0, y=0, relheight=1.0)
-        tk.Label(row, text=f"{val:.1f}{unit}", font=("Segoe UI", 6, "bold"),
-                 bg=BG, fg="#e2e8f0", width=7, anchor="e").pack(side="right", padx=4)
+        row.pack(fill="x")
+
+        # Rank number
+        rc = rank_colors[min(rank, len(rank_colors) - 1)]
+        tk.Label(row, text=f"{rank + 1}", font=("Consolas", 7, "bold"),
+                 bg=BG, fg=rc, width=2, anchor="center",
+                 pady=2).pack(side="left", padx=(3, 0))
+
+        # Process name
+        tk.Label(row, text=name_s, font=("Segoe UI", 7),
+                 bg=BG, fg="#94a3b8", anchor="w").pack(
+            side="left", padx=(2, 2), fill="x", expand=True)
+
+        # Stats on right
+        right = tk.Frame(row, bg=BG)
+        right.pack(side="right", padx=3)
+
+        tk.Label(right, text=f"{val:.1f}%", font=("Consolas", 7, "bold"),
+                 bg=BG, fg="#e2e8f0", width=5, anchor="e").pack(side="left")
+        tk.Label(right, text=f"{avg:.1f}%", font=("Consolas", 7),
+                 bg=BG, fg="#4b5563", width=5, anchor="e").pack(side="left", padx=(1, 0))
+
+        # Rank duration (if available)
+        if rank_badge:
+            tk.Label(right, text=rank_badge, font=("Segoe UI", 6),
+                     bg=BG, fg="#374151").pack(side="left", padx=(3, 0))
+
+        # Thin usage bar below the row
+        bar_wrap = tk.Frame(parent, bg=BG, height=3)
+        bar_wrap.pack(fill="x", padx=2)
+        bar_wrap.update_idletasks()
+        bw = max(1, int((val / 100) * (bar_wrap.winfo_width() or 160)))
+        tk.Frame(bar_wrap, bg=bar_color, width=bw, height=3).place(
+            x=0, y=0, relheight=1.0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
