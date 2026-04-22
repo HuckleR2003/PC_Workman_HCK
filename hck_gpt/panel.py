@@ -1,9 +1,4 @@
 # hck_gpt/panel.py
-"""
-hck_GPT Panel - Sliding chat interface with service wizard.
-Used in both Minimal and Expanded modes.
-Features: auto-greeting, periodic insight ticker, dynamic banner status.
-"""
 
 import tkinter as tk
 from tkinter import ttk
@@ -18,6 +13,12 @@ try:
 except ImportError:
     HAS_CHAT_HANDLER = False
     print("[hck_GPT] ChatHandler not available")
+
+try:
+    from hck_gpt.memory.proactive_monitor import proactive_monitor
+    HAS_PROACTIVE = True
+except Exception:
+    HAS_PROACTIVE = False
 
 # process library and tooltip
 try:
@@ -53,9 +54,26 @@ class HCKGPTPanel:
 
         # chat handler
         self.chat_handler = ChatHandler() if HAS_CHAT_HANDLER else None
-        
+
         # tooltip system
         self.tooltip = ProcessTooltip(parent) if HAS_PROCESS_LIBRARY else None
+
+        # Proactive monitor — register thread-safe callbacks, then start
+        if HAS_PROACTIVE:
+            try:
+                # push: injects alert messages into chat (thread-safe via after())
+                proactive_monitor.register_push(
+                    lambda msg: parent.after(0, lambda m=msg: self.add_message(m))
+                )
+                # banner: updates the banner text silently (thread-safe via after())
+                proactive_monitor.register_banner(
+                    lambda status: parent.after(
+                        0, lambda s=status: self._set_banner_status(s)
+                    )
+                )
+                proactive_monitor.start()
+            except Exception:
+                pass
 
         # MAIN PANEL
         self.frame = tk.Frame(parent, bg=THEME["bg_panel"])
@@ -77,22 +95,55 @@ class HCKGPTPanel:
 
         self._draw_gradient_banner()
 
-        # Banner text positioning
+        # Left accent pulse bar (3px, UI layer — animated via itemconfig)
+        self._left_bar = self.banner.create_rectangle(
+            0, 0, 3, self.collapsed_h, fill="#7a0f20", outline="", tags="ui"
+        )
+
+        # AI badge (bordeaux square, left side)
+        _bx = 10
+        _by = self.collapsed_h // 2 - 9
+        self.banner.create_rectangle(_bx, _by, _bx + 22, _by + 18,
+                                      fill="#5c0f1a", outline="", tags="ui")
+        self.banner.create_text(_bx + 11, _by + 9, text="AI",
+                                 font=("Segoe UI Black", 7),
+                                 fill="#ffffff", anchor="center", tags="ui")
+
+        # Main text
         self.banner_text = self.banner.create_text(
-            14, self.collapsed_h // 2,
+            42, self.collapsed_h // 2,
             anchor="w",
-            text="hck_GPT — Your PC Companion   •   Click to expand",
-            font=("Segoe UI", 10, "bold"),
-            fill="#ffffff"
+            text="hck_GPT  —  Your PC Companion",
+            font=("Segoe UI", 9, "bold"),
+            fill="#f0dde0",
+            tags="ui"
+        )
+
+        # ONLINE badge: dark bordeaux rect + pulsing light-red text (right side)
+        _oy = self.collapsed_h // 2
+        _obx1 = self.width - 64
+        _obx2 = self.width - 22
+        self._online_rect = self.banner.create_rectangle(
+            _obx1, _oy - 7, _obx2, _oy + 7,
+            fill="#1e0508", outline="#5c0f1a", tags="ui"
+        )
+        self._online_lbl = self.banner.create_text(
+            (_obx1 + _obx2) // 2, _oy,
+            anchor="center",
+            text="ONLINE",
+            font=("Segoe UI", 7, "bold"),
+            fill="#ff5566",
+            tags="ui"
         )
 
         # Arrow indicator
         self.banner_arrow = self.banner.create_text(
-            self.width - 20, self.collapsed_h // 2,
+            self.width - 8, self.collapsed_h // 2,
             anchor="e",
             text="▼",
-            font=("Arial", 10),
-            fill="#ffffff"
+            font=("Arial", 9),
+            fill="#c0182a",
+            tags="ui"
         )
 
         # Hover effects
@@ -100,14 +151,15 @@ class HCKGPTPanel:
         self.banner.bind("<Leave>", self._on_banner_leave)
         self.banner.bind("<Button-1>", self.toggle)
 
+        # Start Bordeaux living animation
+        self._start_banner_sweep()
+
         # ========== CHAT AREA ==========
         self.chat = tk.Frame(self.frame, bg=THEME["bg_panel"])
 
-        # Control bar with buttons
         control_bar = tk.Frame(self.chat, bg=THEME["bg_panel"])
         control_bar.pack(fill="x", padx=8, pady=(8, 4))
 
-        # Service Setup Button
         service_btn = tk.Button(
             control_bar,
             text="🔧 Service Setup",
@@ -124,7 +176,6 @@ class HCKGPTPanel:
         )
         service_btn.pack(side="left", padx=(0, 4))
 
-        # Expand/Maximize button
         self.expand_btn = tk.Button(
             control_bar,
             text="⬜ Maximize",
@@ -141,7 +192,6 @@ class HCKGPTPanel:
         )
         self.expand_btn.pack(side="left", padx=(0, 4))
 
-        # Clear chat button
         clear_btn = tk.Button(
             control_bar,
             text="🗑 Clear",
@@ -158,7 +208,6 @@ class HCKGPTPanel:
         )
         clear_btn.pack(side="right")
 
-        # Today Report Button (same style as Service Setup)
         report_btn = tk.Button(
             control_bar,
             text="Today Report",
@@ -175,11 +224,9 @@ class HCKGPTPanel:
         )
         report_btn.pack(side="left", padx=(0, 4))
 
-        # LOG with custom scrollbar
         log_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
         log_container.pack(fill="both", expand=True, padx=8, pady=(4, 6))
 
-        # Custom scrollbar
         scrollbar = tk.Scrollbar(log_container, bg=THEME["bg_main"],
                                 troughcolor=THEME["bg_panel"],
                                 activebackground=THEME["accent2"],
@@ -199,10 +246,8 @@ class HCKGPTPanel:
         self.log.pack(side="left", fill="both", expand=True)
         scrollbar.config(command=self.log.yview)
         self.log.config(state="disabled")
-        # Bind tooltips after adding text
         self._bind_process_tooltips()
 
-        # Color tags for rich report output
         self.log.tag_configure("accent", foreground=THEME["accent"])
         self.log.tag_configure("accent_bold", foreground=THEME["accent"],
                                font=("Consolas", 10, "bold"))
@@ -223,11 +268,9 @@ class HCKGPTPanel:
                                underline=True)
         self.log.tag_configure("divider", foreground="#2a2d34")
 
-        # ENTRY BAR with modern design
         entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
         entry_container.pack(fill="x", padx=8, pady=(0, 10))
 
-        # Entry field wrapper for border effect
         entry_wrapper = tk.Frame(entry_container, bg=THEME["accent2"], bd=0)
         entry_wrapper.pack(fill="x", side="left", expand=True)
 
@@ -245,14 +288,11 @@ class HCKGPTPanel:
         self.entry.pack(fill="both", expand=True, padx=8, pady=6)
         self.entry.bind("<Return>", lambda e: self._send())
 
-        # Focus effects
         self.entry.bind("<FocusIn>", lambda e: entry_wrapper.config(bg=THEME["accent"]))
         self.entry.bind("<FocusOut>", lambda e: entry_wrapper.config(bg=THEME["accent2"]))
 
-        # blinking cursor start
         self._start_cursor_blink()
 
-        # SEND BUTTON with modern design
         send_wrapper = tk.Frame(entry_container, bg=THEME["accent2"])
         send_wrapper.pack(side="right", padx=(8, 0))
 
@@ -284,70 +324,111 @@ class HCKGPTPanel:
             )
         self.send_btn.pack(padx=1, pady=1)
 
-        # welcome
         self._welcome()
 
-        # Start banner status ticker
         self._start_banner_ticker()
 
         parent.bind("<Configure>", self._on_resize)
 
-    # ================================================================
-    # SMOOTH GRADIENT BANNER (pixel-level fade)
-    # ================================================================
-    def _draw_gradient_banner(self):
+    # BORDEAUX NOIR GRADIENT BANNER (black → deep crimson, living shimmer)
+    def _draw_gradient_banner(self, phase=0.0):
+        """Redraws gradient strips with sine-wave shimmer. Tagged 'grad' — UI layer raised on top."""
+        import math
         w = self.width
         h = self.collapsed_h
 
-        # Anchor colors for smooth interpolation
+        self.banner.delete("grad")
+
         anchors = [
-            (0.0,  (127, 62, 245)),   # Purple
-            (0.25, (193, 84, 220)),    # Pink-purple
-            (0.50, (238, 118, 164)),   # Rose
-            (0.75, (255, 123, 89)),    # Salmon
-            (1.0,  (255, 106, 47)),    # Orange
+            (0.00, (0,   0,   0)),    # Pure black
+            (0.18, (10,  1,   3)),    # Black with crimson ghost
+            (0.45, (42,  6,   14)),   # Very dark bordeaux
+            (0.75, (85,  11,  22)),   # Dark crimson
+            (1.00, (118, 16,  32)),   # Deep bordeaux
         ]
 
-        # Draw 2px-wide strips for smooth fade
-        strip_w = 3
+        strip_w = 5
         for x in range(0, w, strip_w):
             t = x / max(w - 1, 1)
-
-            # Find surrounding anchors
-            c0 = anchors[0][1]
-            c1 = anchors[-1][1]
+            r, g, b = anchors[-1][1]
             for j in range(len(anchors) - 1):
                 if anchors[j][0] <= t <= anchors[j + 1][0]:
                     seg_t = (t - anchors[j][0]) / (anchors[j + 1][0] - anchors[j][0])
-                    c0 = anchors[j][1]
-                    c1 = anchors[j + 1][1]
+                    c0, c1 = anchors[j][1], anchors[j + 1][1]
                     r = int(c0[0] + (c1[0] - c0[0]) * seg_t)
                     g = int(c0[1] + (c1[1] - c0[1]) * seg_t)
                     b = int(c0[2] + (c1[2] - c0[2]) * seg_t)
-                    color = f"#{r:02x}{g:02x}{b:02x}"
                     break
-            else:
-                color = f"#{c1[0]:02x}{c1[1]:02x}{c1[2]:02x}"
 
-            self.banner.create_rectangle(
-                x, 0, x + strip_w + 1, h,
-                fill=color, outline=color
-            )
+            # Living shimmer: broad sine wave travelling across the gradient
+            shimmer = (math.sin(t * 5.0 + phase) + 1) / 2 * 0.16
+            r = min(255, int(r + shimmer * 90))
+            g = min(255, int(g + shimmer * 9))
+            b = min(255, int(b + shimmer * 14))
 
-    # ================================================================
+            self.banner.create_rectangle(x, 0, x + strip_w + 1, h,
+                                          fill=f"#{r:02x}{g:02x}{b:02x}",
+                                          outline=f"#{r:02x}{g:02x}{b:02x}",
+                                          tags="grad")
+
+        # Bottom crimson border (1px)
+        self.banner.create_rectangle(0, h - 1, w, h, fill="#9b1630", outline="", tags="grad")
+
+        # Keep UI items (badge, text, arrow) on top of fresh gradient
+        self.banner.tag_raise("ui")
+
+    # BORDEAUX LIVING ANIMATION (shimmer + pulse, no moving lines)
+    def _start_banner_sweep(self):
+        """Initialize Bordeaux Noir living animation."""
+        self._sweep_phase = 0.0
+        self._left_bar_phase = 0.0
+        self._online_pulse_phase = 0.0
+        self._do_banner_sweep()
+
+    def _do_banner_sweep(self):
+        """Animation tick: gradient shimmer wave, left bar pulse, ONLINE text pulse."""
+        import math
+        try:
+            if not self.banner.winfo_exists():
+                return
+        except Exception:
+            return
+
+        # Advance shimmer phase — sine wave travels across gradient (~6 s full cycle)
+        self._sweep_phase = (self._sweep_phase + 0.105) % (math.pi * 20)
+        self._draw_gradient_banner(phase=self._sweep_phase)
+
+        # Left accent bar pulse (dark bordeaux ↔ medium crimson)
+        self._left_bar_phase = (self._left_bar_phase + 0.09) % (2 * math.pi)
+        p = (math.sin(self._left_bar_phase) + 1) / 2
+        br = int(0x7a + p * (0xc0 - 0x7a))
+        bg_ = int(0x0f + p * (0x18 - 0x0f))
+        bb = int(0x20 + p * (0x2a - 0x20))
+        self.banner.itemconfig(self._left_bar, fill=f"#{br:02x}{bg_:02x}{bb:02x}")
+
+        # ONLINE text pulse (dark red ↔ bright crimson)
+        self._online_pulse_phase = (self._online_pulse_phase + 0.07) % (2 * math.pi)
+        op = (math.sin(self._online_pulse_phase) + 1) / 2
+        o_r = int(0xcc + op * (0xff - 0xcc))
+        o_g = int(0x20 + op * (0x66 - 0x20))
+        o_b = int(0x30 + op * (0x55 - 0x30))
+        self.banner.itemconfig(self._online_lbl, fill=f"#{o_r:02x}{o_g:02x}{o_b:02x}")
+
+        try:
+            self.banner.after(100, self._do_banner_sweep)
+        except Exception:
+            pass
+
     # HOVER EFFECTS
-    # ================================================================
     def _on_banner_enter(self, event=None):
-        self.banner.itemconfig(self.banner_text, fill=THEME["accent"])
-        self.banner.itemconfig(self.banner_arrow, fill=THEME["accent"])
+        self.banner.itemconfig(self.banner_text, fill="#ffffff")
+        self.banner.itemconfig(self.banner_arrow, fill="#e8253f")
 
     def _on_banner_leave(self, event=None):
-        self.banner.itemconfig(self.banner_text, fill="#ffffff")
-        self.banner.itemconfig(self.banner_arrow, fill="#ffffff")
+        self.banner.itemconfig(self.banner_text, fill="#f0dde0")
+        self.banner.itemconfig(self.banner_arrow, fill="#c0182a")
 
-    # ================================================================
     # WELCOME MESSAGES
-    # ================================================================
     def _welcome(self):
         self.add_message("hck_GPT: Welcome! I'm your Workman Manager.")
         self.add_message("hck_GPT: I monitor your system and track usage patterns.")
@@ -355,9 +436,7 @@ class HCKGPTPanel:
         self.add_message("💡 Commands: 'stats', 'alerts', 'insights', 'teaser', 'help'")
         self.add_message("   or 'service setup' to optimize your PC!")
 
-    # ================================================================
     # TIME BADGE
-    # ================================================================
     def _make_time_badge(self):
         """Create a small inline canvas badge: |R| HH:MM |R|  (red bars, dark center)."""
         badge = tk.Canvas(
@@ -376,15 +455,12 @@ class HCKGPTPanel:
         # Thin inner accent lines (silver border)
         badge.create_line(3, 0, 3, 14, fill="#374151")
         badge.create_line(59, 0, 59, 14, fill="#374151")
-        # Time text
         t = time.strftime("%H:%M")
         badge.create_text(31, 7, text=t, fill="#94a3b8",
                           font=("Consolas", 7, "bold"), anchor="center")
         return badge
 
-    # ================================================================
     # ADD MESSAGE
-    # ================================================================
     def add_message(self, msg):
         try:
             if not self.log.winfo_exists():
@@ -400,7 +476,6 @@ class HCKGPTPanel:
         self.log.see("end")
         self.log.config(state="disabled")
 
-        # Bind tooltips after adding text
         self._bind_process_tooltips()
 
     def add_colored(self, text, tag=None):
@@ -422,9 +497,7 @@ class HCKGPTPanel:
         """Add a newline."""
         self.add_colored("\n")
 
-    # ================================================================
     # CURSOR BLINK
-    # ================================================================
     def _start_cursor_blink(self):
         def toggle():
             try:
@@ -441,9 +514,7 @@ class HCKGPTPanel:
 
         toggle()
 
-    # ================================================================
     # TOGGLE
-    # ================================================================
     def toggle(self, event=None):
         if self.animating:
             return
@@ -453,38 +524,29 @@ class HCKGPTPanel:
         else:
             self.open()
 
-    # ================================================================
     # OPEN
-    # ================================================================
     def open(self):
         self.is_open = True
         self.chat.pack(side="top", fill="both")
         self.banner.itemconfig(self.banner_arrow, text="▲")
-        self.banner.itemconfig(self.banner_text, text="hck_GPT — Your PC Companion   •   Click to collapse")
+        self.banner.itemconfig(self.banner_text, text="hck_GPT  —  Your PC Companion")
         self._animate(self.collapsed_h, self.total_h)
 
-        # Auto-greeting (once per 30 min)
         self._show_auto_greeting()
 
-        # Start insight ticker
         self._start_insight_ticker()
 
-    # ================================================================
     # CLOSE
-    # ================================================================
     def close(self):
         self.is_open = False
         self.banner.itemconfig(self.banner_arrow, text="▼")
-        self.banner.itemconfig(self.banner_text, text="hck_GPT — Your PC Companion   •   Click to expand")
+        self.banner.itemconfig(self.banner_text, text="hck_GPT  —  Your PC Companion")
         self._animate(self.total_h, self.collapsed_h,
                       on_end=lambda: self.chat.pack_forget())
 
-        # Stop insight ticker
         self._stop_insight_ticker()
 
-    # ================================================================
     # AUTO-GREETING
-    # ================================================================
     def _show_auto_greeting(self):
         """Show personalized greeting when panel opens (max once per 30 min)."""
         now = time.time()
@@ -502,9 +564,7 @@ class HCKGPTPanel:
             except Exception:
                 pass
 
-    # ================================================================
     # INSIGHT TICKER (periodic while panel is open)
-    # ================================================================
     def _start_insight_ticker(self):
         """Schedule periodic insight checks while panel is open."""
         self._stop_insight_ticker()
@@ -539,15 +599,24 @@ class HCKGPTPanel:
             except Exception:
                 pass
 
-        # Schedule next tick (60 seconds)
         try:
             self._ticker_id = self.frame.after(60000, self._tick_insight)
         except Exception:
             pass
 
-    # ================================================================
+    # PROACTIVE MONITOR — silent banner update
+    def _set_banner_status(self, status: str) -> None:
+        """Called by proactive_monitor (via after()) to update banner text silently."""
+        try:
+            if not self.is_open and self.banner.winfo_exists():
+                self.banner.itemconfig(
+                    self.banner_text,
+                    text=f"hck_GPT  —  {status}"
+                )
+        except Exception:
+            pass
+
     # BANNER STATUS TICKER
-    # ================================================================
     def _start_banner_ticker(self):
         """Update banner text with live status every 30 seconds."""
         self._update_banner_status()
@@ -564,27 +633,22 @@ class HCKGPTPanel:
             try:
                 status = self.chat_handler.insights.get_banner_status()
                 if status:
-                    text = f"hck_GPT — {status}   •   Click to expand"
+                    text = f"hck_GPT  —  {status}"
                     self.banner.itemconfig(self.banner_text, text=text)
             except Exception:
                 pass
 
-        # Schedule next update (30 seconds)
         try:
             self._banner_ticker_id = self.frame.after(30000, self._update_banner_status)
         except Exception:
             pass
 
-    # ================================================================
     # TODAY REPORT (in-chat, colored)
-    # ================================================================
     def _run_today_report(self):
         """Generate Today Report directly in the chat with colored text."""
         self.clear_chat()
 
         try:
-            from hck_gpt.report_window import TodayReportWindow
-            # Reuse data gathering logic without opening window
             data = self._gather_report_data()
         except Exception:
             data = None
@@ -815,68 +879,28 @@ class HCKGPTPanel:
             return f"{h}h {mins}min"
         return f"{mins}min"
 
-    # ================================================================
-    # PROCESS TOOLTIP BINDING
-    # ================================================================
     def _bind_process_tooltips(self):
-        """
-        Scan chat text for process names and bind hover events
-        """
         if not HAS_PROCESS_LIBRARY or not self.tooltip:
             return
-        
-        # Get all text
         content = self.log.get("1.0", "end-1c")
-        
-        # Search for .exe patterns
-        exe_pattern = r'\b\w+\.exe\b'
-        
-        for match in re.finditer(exe_pattern, content, re.IGNORECASE):
-            process_name = match.group(0)
+        for match in re.finditer(r'\b\w+\.exe\b', content, re.IGNORECASE):
+            pname = match.group(0)
             start_idx = match.start()
-            end_idx = match.end()
-            
-            # Convert to Tkinter text indices
             line_num = content[:start_idx].count('\n') + 1
             col_num = start_idx - content[:start_idx].rfind('\n') - 1
-            
             start_pos = f"{line_num}.{col_num}"
-            end_pos = f"{line_num}.{col_num + len(process_name)}"
-            
-            # Check if process exists in library
-            info = process_library.get_process_info(process_name)
-            
+            end_pos = f"{line_num}.{col_num + len(pname)}"
+            info = process_library.get_process_info(pname)
             if info:
-                # Add tag for clickable/hoverable text
-                tag_name = f"process_{process_name}_{start_idx}"
-                self.log.tag_add(tag_name, start_pos, end_pos)
-                
-                # Style the process name (underline, color)
-                self.log.tag_config(
-                    tag_name,
-                    foreground=THEME["accent2"],
-                    underline=True
-                )
-                
-                # Bind hover events
-                tooltip_text = process_library.format_tooltip_text(process_name)
-                
-                self.log.tag_bind(
-                    tag_name,
-                    "<Enter>",
-                    lambda e, pn=process_name, tt=tooltip_text: 
-                        self.tooltip.show(e, pn, tt)
-                )
-                
-                self.log.tag_bind(
-                    tag_name,
-                    "<Leave>",
-                    lambda e: self.tooltip.hide()
-                )
+                tag = f"process_{pname}_{start_idx}"
+                self.log.tag_add(tag, start_pos, end_pos)
+                self.log.tag_config(tag, foreground=THEME["accent2"], underline=True)
+                tt = process_library.format_tooltip_text(pname)
+                self.log.tag_bind(tag, "<Enter>",
+                                  lambda e, n=pname, t=tt: self.tooltip.show(e, n, t))
+                self.log.tag_bind(tag, "<Leave>", lambda e: self.tooltip.hide())
 
-    # ================================================================
     # RESIZE -> keep bottom docking
-    # ================================================================
     def _on_resize(self, event=None):
         parent_h = self.parent.winfo_height()
         target_h = self.total_h if self.is_open else self.collapsed_h
@@ -891,9 +915,7 @@ class HCKGPTPanel:
             height=target_h
         )
 
-    # ================================================================
     # SMOOTH ANIMATION WITH EASING
-    # ================================================================
     def _animate(self, start_h, end_h, duration_ms=200, on_end=None):
         if self.after_id:
             self.frame.after_cancel(self.after_id)
@@ -931,9 +953,7 @@ class HCKGPTPanel:
         self.animating = True
         anim()
 
-    # ================================================================
     # SEND
-    # ================================================================
     def _send(self):
         text = self.entry.get().strip()
         if not text:
