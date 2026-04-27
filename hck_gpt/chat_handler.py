@@ -163,9 +163,20 @@ class ChatHandler:
                 pass
         threading.Thread(target=_scan, daemon=True).start()
 
-    def process_message(self, user_message: str) -> list[str]:
+    def process_message(self, user_message: str,
+                        ui_lang: str = "auto") -> list[str]:
         msg   = user_message.strip()
         lower = msg.lower().strip()
+
+        # ── Language resolution ───────────────────────────────────────────────
+        # ui_lang comes from the user's Language popup choice:
+        #   "en"   → always English regardless of input language
+        #   "pl"   → always Polish regardless of input language
+        #   "auto" → detect from message (default behaviour)
+        def _resolve_lang(text: str) -> str:
+            if ui_lang in ("en", "pl"):
+                return ui_lang
+            return detect_language(text)
 
         # ── 0. Reset confirmation flow (two-step, waits for tak/yes) ─────────
         if self._pending_reset:
@@ -183,7 +194,7 @@ class ChatHandler:
 
         # ── 3. Help card — exact trigger words ────────────────────────────────
         if lower in _HELP_KEYWORDS:
-            return self._show_help(self._last_lang)
+            return self._show_help(ui_lang if ui_lang in ("en", "pl") else self._last_lang)
 
         # ── 4. Reset command ──────────────────────────────────────────────────
         if lower in _RESET_KEYWORDS:
@@ -193,7 +204,7 @@ class ChatHandler:
         alias_intent = _QUICK_ALIASES.get(lower)
         if alias_intent and HAS_AI_LAYER:
             try:
-                lang = detect_language(msg)
+                lang = _resolve_lang(msg)
                 self._last_lang = lang
                 if HAS_PROACTIVE:
                     try:
@@ -215,7 +226,7 @@ class ChatHandler:
         # ── 6. AI intent layer ────────────────────────────────────────────────
         if HAS_AI_LAYER:
             try:
-                lang = detect_language(msg)
+                lang = _resolve_lang(msg)
                 self._last_lang = lang
                 if HAS_PROACTIVE:
                     try:
@@ -343,69 +354,66 @@ class ChatHandler:
         return msgs
 
     def _show_help(self, lang: str = "pl") -> list[str]:
-        bar = "━" * 34
+        bar = "━" * 38
         if lang == "en":
             return [
                 bar,
-                "hck_GPT — what I can do",
+                "◈ hck_GPT — Commands & Capabilities",
                 bar,
                 "",
-                "Hardware (ask naturally):",
-                "  'what CPU do I have'     'specs'",
-                "  'how much RAM'           'what GPU'",
-                "  'what motherboard'       'disk space'",
+                "◈ Hardware  — just type one word or ask naturally",
+                "  cpu · ram · gpu · mb · disk · storage · specs",
+                "  'what CPU do I have'    'how much RAM'",
+                "  'what motherboard'      'disk space free'",
                 "",
-                "Quick shortcuts — just type one word:",
-                "  cpu   ram   gpu   mb   disk   storage",
-                "  specs   health   temp   perf   stats   top",
+                "◈ Diagnostics  — system health & performance",
+                "  health · temp · perf · throttle",
+                "  'health check'          'is CPU throttling'",
+                "  'temperatures'          'top processes'",
                 "",
-                "Diagnostics:",
-                "  'health check'           'is my PC ok'",
-                "  'temperatures'           'is CPU throttling'",
-                "  'performance'            'top processes'",
+                "◈ Statistics & Insights",
+                "  stats · insights · alerts · teaser · report",
+                "  uptime · optimization · power",
                 "",
-                "Statistics:",
-                "  stats   insights   alerts   teaser   report",
-                "",
-                "Services:",
+                "◈ Services",
                 "  'service setup'    — optimization wizard",
                 "  'service status'   — check service state",
-                "  'restore services' — re-enable all",
+                "  'restore services' — re-enable all services",
                 "",
-                "Database:",
-                "  reset  — clear knowledge base (asks for confirmation)",
+                "◈ Database",
+                "  reset  — clear knowledge base (confirms first)",
+                "  wipe db  — full data wipe",
                 "",
                 bar,
             ]
+        # Polish
         return [
             bar,
-            "hck_GPT — co mogę zrobić",
+            "◈ hck_GPT — Komendy i możliwości",
             bar,
             "",
-            "Sprzęt (pytaj naturalnie):",
-            "  'jaki mam procesor'  'specyfikacja'",
-            "  'ile ram mam'        'jaka karta graficzna'",
-            "  'jaka płyta główna'  'ile miejsca na dysku'",
+            "◈ Sprzęt  — wpisz słowo lub zapytaj naturalnie",
+            "  cpu · ram · gpu · mb · dysk · specs · storage",
+            "  'jaki mam procesor'     'ile mam RAM'",
+            "  'jaka płyta główna'     'ile miejsca na dysku'",
             "",
-            "Skróty — wpisz samo słowo:",
-            "  cpu   ram   gpu   mb   disk   storage",
-            "  specs   health   temp   perf   stats   top",
+            "◈ Diagnostyka  — zdrowie i wydajność",
+            "  health · temp · perf · throttle",
+            "  'czy komputer jest zdrowy'   'czy CPU throttluje'",
+            "  'jakie temperatury'          'top procesy'",
             "",
-            "Diagnostyka:",
-            "  'czy komputer jest zdrowy'  'health'",
-            "  'jakie temperatury'         'czy CPU throttluje'",
-            "  'wydajność'                 'top procesy'",
+            "◈ Statystyki i wgląd",
+            "  stats · insights · alerts · teaser · report",
+            "  uptime · optimization · zasilanie",
             "",
-            "Statystyki:",
-            "  stats   insights   alerts   teaser   report",
-            "",
-            "Serwisy:",
+            "◈ Serwisy",
             "  'service setup'     — kreator optymalizacji",
             "  'service status'    — stan serwisów",
             "  'restore services'  — przywróć wszystkie",
             "",
-            "Baza danych:",
+            "◈ Baza danych",
             "  reset  — wyczyść bazę wiedzy (pyta o potwierdzenie)",
+            "  wipe db  — pełne czyszczenie danych",
             "",
             bar,
         ]

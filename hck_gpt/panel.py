@@ -52,6 +52,12 @@ class HCKGPTPanel:
         self._last_greeting_session = 0
         self._banner_ticker_id = None
 
+        # First hck_GPT: message gets brand badge ("hck_GPT" label) instead of time
+        self._brand_badge_once = True
+
+        # UI language: "auto" | "en" | "pl"  (default = English)
+        self._ui_lang = "en"
+
         # chat handler
         self.chat_handler = ChatHandler() if HAS_CHAT_HANDLER else None
 
@@ -75,14 +81,9 @@ class HCKGPTPanel:
             except Exception:
                 pass
 
-        # MAIN PANEL
+        # MAIN PANEL — starts off-screen below, slides up via _animate_initial_appearance()
         self.frame = tk.Frame(parent, bg=THEME["bg_panel"])
-        self.frame.place(
-            x=0,
-            y=parent.winfo_height() - collapsed_h,
-            width=self.width,
-            height=collapsed_h
-        )
+        self.frame.place(x=0, y=800, width=self.width, height=0)
 
         # ========== BANNER GRADIENT ==========
         self.banner = tk.Canvas(
@@ -154,6 +155,9 @@ class HCKGPTPanel:
         # Start Bordeaux living animation
         self._start_banner_sweep()
 
+        # Slide panel up from bottom on startup (0.7 s ease-out, 350 ms delay)
+        parent.after(350, lambda: self._animate(0, self.collapsed_h, duration_ms=700))
+
         # ========== CHAT AREA ==========
         self.chat = tk.Frame(self.frame, bg=THEME["bg_panel"])
 
@@ -207,6 +211,24 @@ class HCKGPTPanel:
             cursor="hand2"
         )
         clear_btn.pack(side="right")
+
+        lang_btn = tk.Button(
+            control_bar,
+            text="Languages",
+            bg="#111520",
+            fg="#6b7280",
+            activebackground="#1a1d28",
+            activeforeground="#9ca3af",
+            font=("Consolas", 9),
+            bd=0,
+            padx=10,
+            pady=4,
+            command=self._show_language_popup,
+            cursor="hand2",
+            highlightbackground="#2a3040",
+            highlightthickness=1,
+        )
+        lang_btn.pack(side="right", padx=(0, 6))
 
         report_btn = tk.Button(
             control_bar,
@@ -267,6 +289,10 @@ class HCKGPTPanel:
                                font=("Consolas", 10, "bold"),
                                underline=True)
         self.log.tag_configure("divider", foreground="#2a2d34")
+        self.log.tag_configure("teal", foreground="#2dd4bf")
+        self.log.tag_configure("orange", foreground="#f97316")
+        self.log.tag_configure("light_purple", foreground="#c084fc")
+        self.log.tag_configure("tip_block")  # tracking tag — no visual change
 
         entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
         entry_container.pack(fill="x", padx=8, pady=(0, 10))
@@ -430,11 +456,154 @@ class HCKGPTPanel:
 
     # WELCOME MESSAGES
     def _welcome(self):
-        self.add_message("hck_GPT: Welcome! I'm your Workman Manager.")
-        self.add_message("hck_GPT: I monitor your system and track usage patterns.")
+        import threading as _threading
+
+        # ── Session hours (quick sync read — DB is ready before panel init) ──
+        session_suffix = ""
+        try:
+            from hck_stats_engine.query_api import query_api as _qapi
+            _s = _qapi.get_summary_stats(days=9999)
+            _hrs = _s.get("total_uptime_hours", 0) if _s else 0
+            if _hrs >= 1:
+                session_suffix = f"  Session: {_hrs:.0f}h"
+            elif _hrs > 0:
+                session_suffix = f"  Session: {int(_hrs * 60)}m"
+        except Exception:
+            pass
+
+        # ── First message: brand badge ("hck_GPT") + welcome + session ──
+        self.add_message(
+            f"hck_GPT: Welcome back \u2014 PC Workman is armed and ready.{session_suffix}"
+        )
         self.add_message("")
-        self.add_message("💡 Commands: 'stats', 'alerts', 'insights', 'teaser', 'help'")
-        self.add_message("   or 'service setup' to optimize your PC!")
+        # ── 3-column table (Commands | Quick check | OPERATIONS) ──────────
+        self._add_welcome_tables()
+
+        # Prevent auto-greeting from firing when panel first opens
+        self._last_greeting_session = time.time()
+
+        # ── Async: time-of-day greeting + yesterday's stats ──
+        _threading.Thread(target=self._add_startup_quip, daemon=True).start()
+
+    def _add_welcome_tables(self):
+        """
+        3-column welcome table rendered directly in the log widget
+        so each title gets its own color tag:
+          Commands     → teal
+          Quick check  → orange
+          OPERATIONS   → light_purple
+
+        Column widths (chars):
+          Commands:    outer=28  inner=26
+          Quick check: outer=22  inner=20
+          OPERATIONS:  outer=28  inner=26
+          Separator:   2 spaces each
+          Total:       82 chars / line
+        """
+        try:
+            if not self.log.winfo_exists():
+                return
+        except Exception:
+            return
+
+        # ── content rows (inner widths: 26 | 20 | 26) ─────────────────────
+        rows = [
+            ("  stats · alerts · report ", "  cpu · ram · gpu   ", "  reset         wipe db   "),
+            ("  temp  · health · uptime ", "  disk  ·  mb       ", "  svc reset   restore svcs"),
+            ("  optimization  · commands", "                    ", "  turbo           [soon]  "),
+        ]
+
+        def _w(text, tag=None):
+            if tag:
+                self.log.insert("end", text, tag)
+            else:
+                self.log.insert("end", text)
+
+        self.log.config(state="normal")
+
+        # ── top border with colored titles ────────────────────────────────
+        _w("┌─ ");           _w("Commands",    "teal")
+        _w(" ───────────────┐  ┌─ ")
+        _w("Quick check",   "orange")
+        _w(" ──────┐  ┌─ ")
+        _w("OPERATIONS",    "light_purple")
+        _w(" ─────────────┐\n")
+
+        # ── content rows ──────────────────────────────────────────────────
+        for cmd, qc, ops in rows:
+            _w(f"│{cmd}│  │{qc}│  │{ops}│\n")
+
+        # ── bottom border ─────────────────────────────────────────────────
+        _w("└──────────────────────────┘  └────────────────────┘  └──────────────────────────┘\n")
+
+        self.log.see("end")
+        self.log.config(state="disabled")
+
+    def _add_startup_quip(self):
+        """
+        Background thread:
+          1) Time-of-day greeting  → hck_GPT: Good morning! / Good afternoon! / Good evening!
+          2) Yesterday summary     → CPU avg % + heaviest long-running app
+        """
+        from datetime import datetime as _dt, timedelta as _td
+
+        # ── Greeting by hour ──────────────────────────────────────────────────
+        hour = _dt.now().hour
+        if 5 <= hour < 12:
+            greeting = "Good morning!"
+        elif 12 <= hour < 18:
+            greeting = "Good afternoon!"
+        elif 18 <= hour < 22:
+            greeting = "Good evening!"
+        else:
+            greeting = "Late night session — respect."
+
+        # ── Yesterday's data ─────────────────────────────────────────────────
+        cpu_avg  = None
+        top_app  = None
+
+        try:
+            from hck_stats_engine.query_api import query_api as _qapi
+
+            # Overall avg for the last 24 h
+            summary = _qapi.get_summary_stats(days=1)
+            if summary:
+                cpu_avg = summary.get("cpu_avg")
+
+            # Yesterday's heaviest + longest process
+            # Score = cpu_avg × total_active_seconds (impact × duration)
+            yesterday_str = (_dt.now() - _td(days=1)).strftime("%Y-%m-%d")
+            rows = _qapi.get_process_daily_breakdown(yesterday_str, top_n=10)
+            if rows:
+                def _score(r):
+                    return (r.get("cpu_avg") or 0) * (r.get("total_active_seconds") or 0)
+                best = max(rows, key=_score)
+                raw = best.get("display_name") or best.get("process_name") or ""
+                top_app = raw.replace(".exe", "").strip() or None
+        except Exception:
+            pass
+
+        # ── Build messages ────────────────────────────────────────────────────
+        msg1 = f"hck_GPT: {greeting}"
+
+        if cpu_avg is not None and top_app:
+            msg2 = (
+                f"hck_GPT: Yesterday \u2014 CPU averaged {cpu_avg:.0f}%. "
+                f"Longest & heaviest: {top_app}."
+            )
+        elif cpu_avg is not None:
+            msg2 = f"hck_GPT: Yesterday \u2014 CPU averaged {cpu_avg:.0f}%. Clean run."
+        elif top_app:
+            msg2 = f"hck_GPT: Yesterday's top offender: {top_app}."
+        else:
+            msg2 = "hck_GPT: No data from yesterday yet \u2014 still collecting."
+
+        try:
+            self.parent.after(0, lambda: self.add_message(""))
+            self.parent.after(0, lambda m=msg1: self.add_message(m))
+            self.parent.after(0, lambda m=msg2: self.add_message(m))
+        except Exception:
+            pass
 
     # TIME BADGE
     def _make_time_badge(self):
@@ -460,6 +629,25 @@ class HCKGPTPanel:
                           font=("Consolas", 7, "bold"), anchor="center")
         return badge
 
+    # BRAND BADGE (first welcome message only)
+    def _make_brand_badge(self):
+        """Inline badge showing 'hck_GPT' label — used for the first message only."""
+        badge = tk.Canvas(
+            self.log,
+            width=62, height=14,
+            bg=THEME["bg_panel"],
+            highlightthickness=0,
+            cursor="arrow",
+        )
+        badge.create_rectangle(0, 0, 62, 14, fill="#0d0f14", outline="")
+        badge.create_rectangle(0,  0, 3,  14, fill="#dc2626", outline="")
+        badge.create_rectangle(59, 0, 62, 14, fill="#dc2626", outline="")
+        badge.create_line(3,  0, 3,  14, fill="#374151")
+        badge.create_line(59, 0, 59, 14, fill="#374151")
+        badge.create_text(31, 7, text="hck_GPT", fill="#c0182a",
+                          font=("Consolas", 6, "bold"), anchor="center")
+        return badge
+
     # ADD MESSAGE
     def add_message(self, msg):
         try:
@@ -469,14 +657,49 @@ class HCKGPTPanel:
             return
         self.log.config(state="normal")
         if msg.startswith("hck_GPT:"):
-            badge = self._make_time_badge()
+            if self._brand_badge_once:
+                # First ever hck_GPT message → brand badge + strip "hck_GPT:" prefix
+                badge = self._make_brand_badge()
+                self._brand_badge_once = False
+                msg = msg[len("hck_GPT:"):].lstrip()
+            else:
+                badge = self._make_time_badge()
             self.log.window_create("end", window=badge, padx=2, pady=1)
             self.log.insert("end", " ")
+        start_pos = self.log.index("end")
         self.log.insert("end", msg + "\n")
+        self._apply_inline_colors(start_pos)
         self.log.see("end")
         self.log.config(state="disabled")
 
         self._bind_process_tooltips()
+
+    # INLINE COLOR TAGGER
+    def _apply_inline_colors(self, start_pos: str):
+        """Colorize keywords in the just-inserted text range [start_pos … end]."""
+        end_pos = self.log.index("end")
+        # (pattern, tag)  — applied in order; first match wins for overlapping
+        patterns = [
+            (r'\d+\.?\d*\s*°C',          "orange"),        # temperatures   → orange
+            (r'\d+\.?\d*\s*(?:MB|GB)',    "light_purple"),  # sizes          → light purple
+            (r'\d+\.?\d*%',              "teal"),           # percentages    → teal
+            (r'⚠\S*',                    "yellow"),         # warning symbol → yellow
+            (r'◈\s+\S[^\n]*',            "teal"),           # ◈ section headers → teal
+        ]
+        for pattern, tag in patterns:
+            idx = start_pos
+            while True:
+                pos = self.log.search(pattern, idx, stopindex=end_pos, regexp=True)
+                if not pos:
+                    break
+                line_text = self.log.get(pos, f"{pos} lineend")
+                m = re.match(pattern, line_text)
+                if not m:
+                    idx = f"{pos}+1c"
+                    continue
+                match_end = f"{pos}+{len(m.group(0))}c"
+                self.log.tag_add(tag, pos, match_end)
+                idx = match_end
 
     def add_colored(self, text, tag=None):
         """Add text with a color tag (no newline — caller controls layout)."""
@@ -580,7 +803,7 @@ class HCKGPTPanel:
             self._ticker_id = None
 
     def _tick_insight(self):
-        """Check for notable insights and show them."""
+        """Show one rotating tip every 6 minutes — replaces the previous tip (no spam)."""
         if not self.is_open:
             return
 
@@ -594,13 +817,31 @@ class HCKGPTPanel:
             try:
                 msg = self.chat_handler.insights.get_current_insight()
                 if msg:
+                    # ── Delete previous tip block if it still exists ──────────
+                    try:
+                        ranges = self.log.tag_ranges("tip_block")
+                        if ranges:
+                            self.log.config(state="normal")
+                            # Iterate in reverse so earlier deletions don't shift later indices
+                            for i in range(len(ranges) - 2, -1, -2):
+                                self.log.delete(ranges[i], ranges[i + 1])
+                            self.log.config(state="disabled")
+                    except Exception:
+                        pass
+
+                    # ── Insert new tip, tag the full range ───────────────────
+                    tip_start = self.log.index("end")
                     self.add_message("")
                     self.add_message(msg)
+                    tip_end = self.log.index("end")
+                    self.log.config(state="normal")
+                    self.log.tag_add("tip_block", tip_start, tip_end)
+                    self.log.config(state="disabled")
             except Exception:
                 pass
 
         try:
-            self._ticker_id = self.frame.after(60000, self._tick_insight)
+            self._ticker_id = self.frame.after(360000, self._tick_insight)  # 6 minutes
         except Exception:
             pass
 
@@ -644,6 +885,89 @@ class HCKGPTPanel:
             pass
 
     # TODAY REPORT (in-chat, colored)
+    # ── LANGUAGE POPUP ────────────────────────────────────────────────────────
+    def _show_language_popup(self):
+        """Small language-selection popup anchored above the panel."""
+        # Build the popup window
+        pop = tk.Toplevel(self.parent)
+        pop.overrideredirect(True)
+        pop.configure(bg="#0d0f14",
+                      highlightbackground="#2a3040", highlightthickness=1)
+        pop.resizable(False, False)
+
+        # Position: above the panel, right-aligned
+        pop.update_idletasks()
+        fx = self.frame.winfo_rootx()
+        fy = self.frame.winfo_rooty()
+        fw = self.frame.winfo_width()
+        pop_w, pop_h = 188, 148
+        px = fx + fw - pop_w - 4
+        py = fy - pop_h - 4
+        pop.geometry(f"{pop_w}x{pop_h}+{px}+{py}")
+
+        # Title bar (thin crimson strip + label)
+        tk.Frame(pop, bg="#7a0f20", height=2).pack(fill="x")
+        hdr = tk.Frame(pop, bg="#0d0f14")
+        hdr.pack(fill="x", padx=10, pady=(6, 4))
+        tk.Label(hdr, text="UI Language",
+                 font=("Consolas", 8, "bold"),
+                 bg="#0d0f14", fg="#6b7280", anchor="w").pack(side="left")
+        tk.Label(hdr, text="✕",
+                 font=("Consolas", 9), bg="#0d0f14", fg="#374151",
+                 cursor="hand2").pack(side="right")
+        hdr.winfo_children()[-1].bind("<Button-1>", lambda e: pop.destroy())
+
+        tk.Frame(pop, bg="#1a1d28", height=1).pack(fill="x")
+
+        # Language options: (label, code, available, badge_text)
+        _LANGS = [
+            ("Default (auto)",  "auto", True,  ""),
+            ("English",         "en",   True,  ""),
+            ("Polski",          "pl",   True,  "⚠ not stable"),
+            ("Deutsch",         "de",   False, "soon"),
+        ]
+
+        for label, code, available, badge in _LANGS:
+            is_sel = getattr(self, '_ui_lang', 'en') == code
+
+            row = tk.Frame(pop, bg="#111520" if is_sel else "#0d0f14",
+                           cursor="hand2" if available else "arrow")
+            row.pack(fill="x", padx=5, pady=1)
+
+            # Accent bar (left edge — visible when selected)
+            tk.Frame(row, bg="#c0182a" if is_sel else "#0d0f14",
+                     width=2).pack(side="left", fill="y")
+
+            # Label
+            fg = "#e2e8f0" if is_sel else ("#9ca3af" if available else "#2a3040")
+            tk.Label(row, text=label,
+                     font=("Consolas", 8, "bold" if is_sel else "normal"),
+                     bg="#111520" if is_sel else "#0d0f14",
+                     fg=fg, anchor="w", padx=7, pady=5).pack(side="left", fill="x", expand=True)
+
+            # Badge (right side)
+            if badge:
+                bc = "#f59e0b" if badge.startswith("⚠") else "#374151"
+                tk.Label(row, text=badge,
+                         font=("Consolas", 6),
+                         bg="#111520" if is_sel else "#0d0f14",
+                         fg=bc, padx=5).pack(side="right")
+
+            if available and not is_sel:
+                def _select(c=code):
+                    self._ui_lang = c
+                    pop.destroy()
+                row.bind("<Button-1>", lambda e, c=code: _select(c))
+                for child in row.winfo_children():
+                    child.bind("<Button-1>", lambda e, c=code: _select(c))
+
+                row.bind("<Enter>", lambda e, r=row: r.config(bg="#161922"))
+                row.bind("<Leave>", lambda e, r=row: r.config(bg="#0d0f14"))
+
+        # Close when focus leaves the popup
+        pop.bind("<FocusOut>", lambda e: pop.destroy() if pop.winfo_exists() else None)
+        pop.focus_set()
+
     def _run_today_report(self):
         """Generate Today Report directly in the chat with colored text."""
         self.clear_chat()
@@ -966,7 +1290,9 @@ class HCKGPTPanel:
 
         # Process with chat handler
         if self.chat_handler:
-            responses = self.chat_handler.process_message(text)
+            responses = self.chat_handler.process_message(
+                text, ui_lang=getattr(self, '_ui_lang', 'auto')
+            )
 
             # Check if we need to clear chat (wizard starting)
             if text.lower() in ["yes", "y", "yeah", "ok", "sure", "tak", "t"]:
