@@ -518,6 +518,249 @@ class StatsQueryAPI:
             print(f"[StatsQueryAPI] Summary error: {e}")
             return {}
 
+    # =========================================================
+    # Temperature history
+    # =========================================================
+
+    def get_temperature_history(self, minutes: int = 60):
+        """Get CPU and GPU temperature readings from the last N minutes.
+
+        Args:
+            minutes: How many minutes back to look (default 60)
+
+        Returns:
+            dict: {
+                'cpu_current': float|None,   # most recent cpu_temp
+                'gpu_current': float|None,   # most recent gpu_temp
+                'cpu_avg': float|None,        # average over the window
+                'gpu_avg': float|None,
+                'cpu_max': float|None,
+                'gpu_max': float|None,
+                'samples': int,
+                'estimated': bool,            # True if values are software estimates
+            }
+        """
+        if not db_manager.is_ready:
+            return {}
+
+        conn = db_manager.get_connection()
+        if not conn:
+            return {}
+
+        cutoff = time.time() - minutes * 60
+
+        try:
+            rows = conn.execute("""
+                SELECT cpu_temp, gpu_temp
+                FROM minute_stats
+                WHERE timestamp >= ?
+                  AND cpu_temp IS NOT NULL
+                ORDER BY timestamp DESC
+                LIMIT 120
+            """, (cutoff,)).fetchall()
+
+            if not rows:
+                return {}
+
+            cpu_temps = [r['cpu_temp'] for r in rows if r['cpu_temp'] is not None]
+            gpu_temps = [r['gpu_temp'] for r in rows if r['gpu_temp'] is not None]
+
+            # Heuristic: if cpu_temp values cluster near the 35+cpu*0.5 formula
+            # they are probably software estimates rather than hardware sensor reads.
+            # We flag estimated=True when the most recent value is < 40°C AND
+            # max is also < 75°C (real sensors typically show variance + higher peaks).
+            cpu_max = max(cpu_temps) if cpu_temps else None
+            estimated = (cpu_max is not None and cpu_max < 75 and cpu_temps[0] < 45)
+
+            return {
+                'cpu_current': round(cpu_temps[0], 1) if cpu_temps else None,
+                'gpu_current': round(gpu_temps[0], 1) if gpu_temps else None,
+                'cpu_avg':     round(sum(cpu_temps) / len(cpu_temps), 1) if cpu_temps else None,
+                'gpu_avg':     round(sum(gpu_temps) / len(gpu_temps), 1) if gpu_temps else None,
+                'cpu_max':     round(max(cpu_temps), 1) if cpu_temps else None,
+                'gpu_max':     round(max(gpu_temps), 1) if gpu_temps else None,
+                'samples':     len(rows),
+                'estimated':   estimated,
+            }
+
+        except Exception as e:
+            print(f"[StatsQueryAPI] Temperature history error: {e}")
+            return {}
+
+    # =========================================================
+    # Long-term process learning
+    # =========================================================
+
+    def get_top_processes_lifetime(self, top_n: int = 10):
+        """Get the heaviest processes across all recorded days.
+
+        Args:
+            top_n: How many top processes to return
+
+        Returns:
+            list of dicts: [{process_name, display_name, category,
+                             cpu_avg, cpu_max, ram_avg_mb, days_active}, ...]
+        """
+        if not db_manager.is_ready:
+            return []
+
+        conn = db_manager.get_connection()
+        if not conn:
+            return []
+
+        try:
+            rows = conn.execute("""
+                SELECT process_name,
+                       MAX(display_name)                    AS display_name,
+                       MAX(category)                        AS category,
+                       AVG(cpu_avg)                         AS cpu_avg,
+                       MAX(cpu_max)                         AS cpu_max,
+                       AVG(ram_avg_mb)                      AS ram_avg_mb,
+                       COUNT(DISTINCT date_str)             AS days_active
+                FROM process_daily_stats
+                GROUP BY process_name
+                ORDER BY AVG(cpu_avg) DESC
+                LIMIT ?
+            """, (top_n,)).fetchall()
+
+            return [{
+                'process_name': r['process_name'],
+                'display_name': r['display_name'] or r['process_name'],
+                'category':     r['category'],
+                'cpu_avg':      round(r['cpu_avg'], 1),
+                'cpu_max':      round(r['cpu_max'], 1),
+                'ram_avg_mb':   round(r['ram_avg_mb'], 0),
+                'days_active':  r['days_active'],
+            } for r in rows]
+
+        except Exception as e:
+            print(f"[StatsQueryAPI] Lifetime process error: {e}")
+            return []
+
+    # =========================================================
+    # Weekly comparison
+    # =========================================================
+
+    def get_weekly_summary(self):
+        """Compare this week vs last week using daily_stats data.
+
+        Returns:
+            dict: {
+                'this_week':  {cpu_avg, ram_avg, gpu_avg, uptime_hours, days},
+                'last_week':  {cpu_avg, ram_avg, gpu_avg, uptime_hours, days},
+                'cpu_delta':  float,   # positive = higher this week
+                'ram_delta':  float,
+                'trend':      'up'|'down'|'stable'
+            }
+        """
+        if not db_manager.is_ready:
+            return {}
+
+        conn = db_manager.get_connection()
+        if not conn:
+            return {}
+
+        now = time.time()
+        this_week_start = now - 7 * SECONDS_PER_DAY
+        last_week_start = now - 14 * SECONDS_PER_DAY
+
+        def _week_stats(start_ts, end_ts):
+            rows = conn.execute("""
+                SELECT cpu_avg, ram_avg, gpu_avg, uptime_minutes, sample_count
+                FROM daily_stats
+                WHERE timestamp >= ? AND timestamp < ?
+                ORDER BY timestamp ASC
+            """, (start_ts, end_ts)).fetchall()
+            if not rows:
+                return None
+            return {
+                'cpu_avg':      round(sum(r['cpu_avg'] for r in rows) / len(rows), 1),
+                'ram_avg':      round(sum(r['ram_avg'] for r in rows) / len(rows), 1),
+                'gpu_avg':      round(sum(r['gpu_avg'] for r in rows) / len(rows), 1),
+                'uptime_hours': round(sum((r['uptime_minutes'] or 0) for r in rows) / 60, 1),
+                'days':         len(rows),
+            }
+
+        try:
+            this_week = _week_stats(this_week_start, now)
+            last_week = _week_stats(last_week_start, this_week_start)
+
+            if not this_week:
+                return {}
+
+            result = {'this_week': this_week, 'last_week': last_week}
+
+            if last_week:
+                cpu_delta = round(this_week['cpu_avg'] - last_week['cpu_avg'], 1)
+                ram_delta = round(this_week['ram_avg'] - last_week['ram_avg'], 1)
+                result['cpu_delta'] = cpu_delta
+                result['ram_delta'] = ram_delta
+                if cpu_delta > 5 or ram_delta > 5:
+                    result['trend'] = 'up'
+                elif cpu_delta < -5 or ram_delta < -5:
+                    result['trend'] = 'down'
+                else:
+                    result['trend'] = 'stable'
+
+            return result
+
+        except Exception as e:
+            print(f"[StatsQueryAPI] Weekly summary error: {e}")
+            return {}
+
+    def get_temperature_summary(self, days: int = 7):
+        """Get average and max temperatures over the last N days from hourly/daily stats.
+
+        Returns:
+            dict: {cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max, days_with_data}
+        """
+        if not db_manager.is_ready:
+            return {}
+
+        conn = db_manager.get_connection()
+        if not conn:
+            return {}
+
+        cutoff = time.time() - days * SECONDS_PER_DAY
+
+        try:
+            # Try daily_stats first (has cpu_temp_avg / gpu_temp_avg)
+            rows = conn.execute("""
+                SELECT cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max
+                FROM daily_stats
+                WHERE timestamp >= ?
+                  AND cpu_temp_avg IS NOT NULL
+            """, (cutoff,)).fetchall()
+
+            if not rows:
+                # Fallback to hourly_stats
+                rows = conn.execute("""
+                    SELECT cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max
+                    FROM hourly_stats
+                    WHERE timestamp >= ?
+                      AND cpu_temp_avg IS NOT NULL
+                """, (cutoff,)).fetchall()
+
+            if not rows:
+                return {}
+
+            cpu_avgs = [r['cpu_temp_avg'] for r in rows if r['cpu_temp_avg']]
+            cpu_maxs = [r['cpu_temp_max'] for r in rows if r['cpu_temp_max']]
+            gpu_avgs = [r['gpu_temp_avg'] for r in rows if r['gpu_temp_avg']]
+            gpu_maxs = [r['gpu_temp_max'] for r in rows if r['gpu_temp_max']]
+
+            return {
+                'cpu_temp_avg': round(sum(cpu_avgs) / len(cpu_avgs), 1) if cpu_avgs else None,
+                'cpu_temp_max': round(max(cpu_maxs), 1) if cpu_maxs else None,
+                'gpu_temp_avg': round(sum(gpu_avgs) / len(gpu_avgs), 1) if gpu_avgs else None,
+                'gpu_temp_max': round(max(gpu_maxs), 1) if gpu_maxs else None,
+                'days_with_data': len(rows),
+            }
+
+        except Exception as e:
+            print(f"[StatsQueryAPI] Temperature summary error: {e}")
+            return {}
+
 
 # Singleton instance
 query_api = StatsQueryAPI()

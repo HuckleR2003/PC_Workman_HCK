@@ -4,11 +4,17 @@ Central configuration for retention periods, thresholds, and paths
 """
 
 import os
+import sys
 
 # ============================================================
-# PATHS
+# PATHS — frozen-safe (onefile / onedir / dev)
 # ============================================================
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def _base_dir() -> str:
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR = _base_dir()
 DATA_DIR = os.path.join(BASE_DIR, "data")
 LOGS_DIR = os.path.join(DATA_DIR, "logs")
 DB_FILENAME = "hck_stats.db"

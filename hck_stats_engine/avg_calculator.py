@@ -5,7 +5,9 @@ from import_core import register_component
 import csv, os, statistics
 from datetime import datetime
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'logs')
+import sys as _sys
+_base = os.path.dirname(_sys.executable) if getattr(_sys, "frozen", False) else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(_base, 'data', 'logs')
 HOURLY = os.path.join(DATA_DIR, 'hourly_usage.csv')
 
 class AvgCalculator:
