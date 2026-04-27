@@ -784,7 +784,7 @@ class MainWindow:
         for widget in [self.expanded_btn, expanded_content]:
             widget.bind("<Button-1>", lambda e: self._switch_to_expanded())
 
-        # OPTIMIZATION OPTIONS button - Apple flat design with subtle gradient
+        # OPTIMIZATION OPTIONS button
         self.opt_btn_frame = tk.Frame(parent, bg="#0ea56a", cursor="hand2", relief="flat")
         self.opt_btn_frame.place(x=8, y=btn_y, width=btn_width - 4, height=btn_height)
 
@@ -814,7 +814,7 @@ class MainWindow:
         for widget in [self.opt_btn_frame, opt_content, opt_left, opt_text_frame]:
             widget.bind("<Button-1>", lambda e: self._open_optimization_page())
 
-        # YOUR PC button - Apple flat design
+        # YOUR PC button
         self.yourpc_btn_frame = tk.Frame(parent, bg="#2563eb", cursor="hand2", relief="flat")
         self.yourpc_btn_frame.place(x=8 + btn_width, y=btn_y, width=btn_width - 4, height=btn_height)
 
