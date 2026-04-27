@@ -54,9 +54,14 @@ def build_yourpc_page(self, parent):
     self.yourpc_active_tab = None
     self.yourpc_content_frame = None
 
-    nav_bar = tk.Frame(main, bg="#0f1117", height=28)
+    nav_bar = tk.Frame(main, bg="#0f1117", height=30)
     nav_bar.pack(fill="x")
     nav_bar.pack_propagate(False)
+
+    # Page title — left edge, bold modern
+    tk.Label(nav_bar, text="MY PC", font=("Inter", 8, "bold"),
+             bg="#0f1117", fg="#3b82f6", padx=10).pack(side="left", fill="y")
+    tk.Frame(nav_bar, bg="#1f2937", width=1).pack(side="left", fill="y", pady=5)
 
     tabs_frame = tk.Frame(nav_bar, bg="#0f1117")
     tabs_frame.pack(side="left", fill="y")
@@ -72,13 +77,13 @@ def build_yourpc_page(self, parent):
 
 
 def _create_tab(self, parent, text, tab_id):
-    tab = tk.Label(parent, text=text.upper(), font=("Segoe UI", 7, "bold"),
-                   bg="#0f1117", fg="#6b7280", padx=8, pady=4, cursor="hand2")
+    tab = tk.Label(parent, text=text.upper(), font=("Inter", 7, "bold"),
+                   bg="#0f1117", fg="#6b7280", padx=10, pady=4, cursor="hand2")
     tab.pack(side="left")
     self.yourpc_tabs[tab_id] = tab
 
     tab.bind("<Button-1>", lambda e: _show_tab(self, tab_id))
-    tab.bind("<Enter>", lambda e: tab.config(fg="#ffffff", bg="#1f2937") if self.yourpc_active_tab != tab_id else None)
+    tab.bind("<Enter>", lambda e: tab.config(fg="#e5e7eb", bg="#1a1f2e") if self.yourpc_active_tab != tab_id else None)
     tab.bind("<Leave>", lambda e: tab.config(fg="#6b7280", bg="#0f1117") if self.yourpc_active_tab != tab_id else None)
 
 
@@ -162,12 +167,12 @@ def _build_central(self, parent):
         tooltip=["Monthly statistics overview.", "Watch temp & voltage spikes."]
     )
 
-    # Row 3: LARGE - Optimization & Services (dark yellow -> dark red)
-    _create_large_gradient_btn(
-        left, "\u26a1", "Optimization & Services",
-        (139, 105, 20), (127, 29, 29),
-        lambda: _nav_to("optimization"),
-        tooltip=["Hardware optimization tools.", "Automatic daily operations."]
+    # Row 3: MULTI-SECTION — Optimization Center / Startup Manager / Services Manager
+    _create_optimization_hub(
+        left,
+        on_center=lambda: _nav_to("optimization"),
+        on_startup=lambda: _nav_to("startup_manager"),
+        on_services=lambda: _nav_to("services_manager"),
     )
 
     # Row 4: LARGE - First Setup & Drivers (red -> purple)
@@ -190,21 +195,234 @@ def _build_central(self, parent):
         tooltip=["Driver health  ·  Startup control", "Registry-based scan  ·  No admin needed"]
     )
 
-    # Row 5: small full-width - Stability Tests
-    _create_action_btn(left, "\U0001f6e1", "Stability Tests", "#10b981", None,
+    # ── Separator before bottom items ─────────────────────────────────────────
+    tk.Frame(left, bg="#1f2937", height=1).pack(fill="x", pady=(6, 2))
+
+    # ── Bottom row: Stability Tests + Your Account (side by side) ────────────
+    bottom_row = tk.Frame(left, bg="#0a0e14")
+    bottom_row.pack(fill="x")
+
+    left_col = tk.Frame(bottom_row, bg="#0a0e14")
+    left_col.pack(side="left", fill="both", expand=True, padx=(0, 1))
+    right_col = tk.Frame(bottom_row, bg="#0a0e14")
+    right_col.pack(side="left", fill="both", expand=True, padx=(1, 0))
+
+    _create_action_btn(left_col, "\U0001f6e1", "Stability Tests", "#10b981", None,
                        ["PC Workman internal diagnostics.", "File integrity, engine status, logs."],
                        lambda: _open_stability_tests(self))
 
-    # Row 6: small full-width - Your Account
-    _create_action_btn(left, "\U0001f464", "Your Account - Details", "#8b5cf6", None,
+    _create_action_btn(right_col, "\U0001f464", "Your Account", "#8b5cf6", None,
                        ["Account details and preferences.", "Manage your PC Workman profile."],
                        None)
+
+    # ── SESSION bar ───────────────────────────────────────────────────────────
+    try:
+        import psutil as _psu_ses, time as _t_ses
+        _sec = int(_t_ses.time() - _psu_ses.boot_time())
+        _h, _m = _sec // 3600, (_sec % 3600) // 60
+        _ses_txt = f"SESSION:  {_h}h {_m}m"
+    except Exception:
+        _ses_txt = "SESSION:  N/A"
+
+    ses_bar = tk.Frame(left, bg="#1e3a5f", height=20)
+    ses_bar.pack(fill="x", pady=(3, 0))
+    ses_bar.pack_propagate(False)
+    tk.Label(ses_bar, text=_ses_txt, font=("Inter", 7, "bold"),
+             bg="#1e3a5f", fg="#93c5fd").pack(side="left", padx=10, fill="y")
+    tk.Label(ses_bar, text="● LIVE", font=("Inter", 6),
+             bg="#1e3a5f", fg="#60a5fa").pack(side="right", padx=8, fill="y")
 
     right = tk.Frame(container, bg="#0a0e27", width=408)
     right.pack(side="right", fill="y", padx=5, pady=5)
     right.pack_propagate(False)
 
     _build_hey_user_table(self, right)
+
+
+def _get_startup_metrics():
+    """Return (count_optimize, count_disable) from Windows startup registry keys."""
+    count_all = 0
+    try:
+        import winreg
+        for hive, path in [
+            (winreg.HKEY_CURRENT_USER,
+             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"),
+            (winreg.HKEY_LOCAL_MACHINE,
+             r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"),
+            (winreg.HKEY_LOCAL_MACHINE,
+             r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"),
+        ]:
+            try:
+                k = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+                i = 0
+                while True:
+                    try:
+                        winreg.EnumValue(k, i)
+                        count_all += 1
+                        i += 1
+                    except OSError:
+                        break
+                winreg.CloseKey(k)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    count_optimize = max(0, count_all - 2)
+    count_disable  = count_all // 3
+    return count_optimize, count_disable
+
+
+def _get_services_metrics():
+    """Return count of potentially unnecessary running services."""
+    _UNNECESSARY = {
+        "diagtrack", "wmpnetworksvc", "fax", "xblauthmanager",
+        "xblgamesave", "xboxnetapisvc", "tabletinputservice",
+        "retaildemo", "wersvc", "remoteregistry", "dmwappushservice",
+        "walletservice", "printnotify", "wisvc",
+    }
+    count = 0
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["sc", "query", "state=", "running"],
+            capture_output=True, text=True, timeout=5,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        output = result.stdout.lower()
+        for svc in _UNNECESSARY:
+            if svc in output:
+                count += 1
+    except Exception:
+        pass
+    return count
+
+
+def _create_optimization_hub(parent, on_center=None, on_startup=None, on_services=None):
+    """
+    Multi-section Optimization banner.
+    Left (~58%): Optimization Center  →  on_center()
+    Right-top:   Startup Manager      →  on_startup()
+    Right-bottom: Services Manager    →  on_services()
+    Uses a single canvas with zone-based hover/click detection.
+    """
+    BORDER_COLOR = "#2a2d34"
+    HEIGHT = 86
+
+    outer = tk.Frame(parent, bg=BORDER_COLOR, bd=0,
+                     highlightthickness=1, highlightbackground=BORDER_COLOR)
+    outer.pack(fill="x", pady=2)
+
+    canvas = tk.Canvas(outer, height=HEIGHT, bg="#1a1d24", highlightthickness=0)
+    canvas.pack(fill="x")
+
+    _state = {"su": 0, "svc": 0, "hover": None}
+
+    def _draw(bc=1.0, bs=1.0, bsv=1.0):
+        canvas.delete("all")
+        w = canvas.winfo_width()
+        if w < 50:
+            w = 400
+        h = HEIGHT
+        sp = int(w * 0.57)   # left/right split column
+        hh = h // 2          # horizontal mid for right pane
+
+        # ── Left: Optimization Center (amber → dark red) ─────────────────
+        for x in range(0, sp, 2):
+            t = x / max(sp - 1, 1)
+            r, g, b = _lerp_color((139, 105, 20), (127, 29, 29), t)
+            col = f"#{min(255,int(r*bc)):02x}{min(255,int(g*bc)):02x}{min(255,int(b*bc)):02x}"
+            canvas.create_rectangle(x, 0, x + 2, h, fill=col, outline=col)
+        canvas.create_text(14, h // 2 - 12, text="⚡",
+                           font=("Segoe UI", 13), fill="#ffffff", anchor="w")
+        canvas.create_text(38, h // 2 - 14, text="Optimization Center",
+                           font=("Segoe UI", 10, "bold"), fill="#ffffff", anchor="w")
+        canvas.create_text(38, h // 2,
+                           text="TURBO BOOST  ·  RAM Flush  ·  TEMP clean",
+                           font=("Segoe UI", 6), fill="#e5c47a", anchor="w")
+        canvas.create_text(38, h // 2 + 12,
+                           text="Automated performance & cleanup",
+                           font=("Segoe UI", 6), fill="#a38a4a", anchor="w")
+
+        # ── Vertical divider ─────────────────────────────────────────────
+        canvas.create_rectangle(sp, 0, sp + 2, h, fill="#0d0f15", outline="")
+
+        # ── Right-top: Startup Manager (dark navy → blue) ─────────────
+        for x in range(sp + 2, w, 2):
+            t = (x - sp - 2) / max(w - sp - 3, 1)
+            r, g, b = _lerp_color((15, 40, 90), (37, 99, 235), t)
+            col = f"#{min(255,int(r*bs)):02x}{min(255,int(g*bs)):02x}{min(255,int(b*bs)):02x}"
+            canvas.create_rectangle(x, 0, x + 2, hh - 1, fill=col, outline=col)
+        canvas.create_text(sp + 12, hh // 2 - 6, text="🚀 Startup Manager",
+                           font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
+        n_su = _state["su"]
+        su_txt = f"{n_su} startup entries detected" if n_su else "Scanning..."
+        canvas.create_text(sp + 12, hh // 2 + 6, text=su_txt,
+                           font=("Segoe UI", 6), fill="#93c5fd", anchor="w")
+
+        # ── Horizontal divider ────────────────────────────────────────────
+        canvas.create_rectangle(sp + 2, hh - 1, w, hh + 1,
+                                fill="#0d0f15", outline="")
+
+        # ── Right-bottom: Services Manager (dark green → emerald) ──────
+        for x in range(sp + 2, w, 2):
+            t = (x - sp - 2) / max(w - sp - 3, 1)
+            r, g, b = _lerp_color((5, 40, 30), (16, 185, 129), t)
+            col = f"#{min(255,int(r*bsv)):02x}{min(255,int(g*bsv)):02x}{min(255,int(b*bsv)):02x}"
+            canvas.create_rectangle(x, hh + 1, x + 2, h, fill=col, outline=col)
+        canvas.create_text(sp + 12, hh + (h - hh) // 2 - 6,
+                           text="⚙ Services Manager",
+                           font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
+        n_svc = _state["svc"]
+        svc_txt = (f"{n_svc} potentially unnecessary" if n_svc else "Scanning...")
+        canvas.create_text(sp + 12, hh + (h - hh) // 2 + 6, text=svc_txt,
+                           font=("Segoe UI", 6), fill="#6ee7b7", anchor="w")
+
+    def _zone(x, y):
+        w = canvas.winfo_width() or 400
+        sp = int(w * 0.57)
+        if x < sp:
+            return "center"
+        return "startup" if y < HEIGHT // 2 else "services"
+
+    def _redraw():
+        z = _state["hover"]
+        _draw(bc=1.25 if z == "center" else 1.0,
+              bs=1.25 if z == "startup" else 1.0,
+              bsv=1.25 if z == "services" else 1.0)
+
+    canvas.bind("<Configure>", lambda e: _draw())
+    canvas.bind("<Enter>",     lambda e: (_state.update(hover=_zone(e.x, e.y)), _redraw()))
+    canvas.bind("<Leave>",     lambda e: (_state.update(hover=None), _draw()))
+    canvas.bind("<Motion>",    lambda e: (
+        _state.update(hover=_zone(e.x, e.y)), _redraw()
+        ) if _zone(e.x, e.y) != _state["hover"] else None)
+    def _click(e):
+        z = _zone(e.x, e.y)
+        if z == "center"   and on_center:   on_center()
+        elif z == "startup"  and on_startup:  on_startup()
+        elif z == "services" and on_services: on_services()
+    canvas.bind("<Button-1>", _click)
+
+    # Background scan — fills metrics without blocking UI
+    def _scan_bg():
+        import threading
+        def _do():
+            try:
+                su_opt, _ = _get_startup_metrics()
+                _state["su"] = su_opt
+            except Exception:
+                pass
+            try:
+                _state["svc"] = _get_services_metrics()
+            except Exception:
+                pass
+            try:
+                canvas.after(0, _draw)
+            except Exception:
+                pass
+        threading.Thread(target=_do, daemon=True).start()
+    _scan_bg()
+    return outer
 
 
 def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, command=None):
@@ -800,12 +1018,12 @@ def _make_scroll_frame(parent):
 
 
 def _sec_hdr(parent, text):
-    """Compact section divider label."""
+    """Section divider with bold Inter heading."""
     row = tk.Frame(parent, bg="#0a0e14")
-    row.pack(fill="x", padx=8, pady=(6, 1))
-    tk.Label(row, text=text, font=("Segoe UI", 6, "bold"),
-             bg="#0a0e14", fg="#4b5563").pack(side="left")
-    tk.Frame(row, bg="#1f2937", height=1).pack(side="left", fill="x", expand=True, padx=6)
+    row.pack(fill="x", padx=8, pady=(7, 2))
+    tk.Label(row, text=text, font=("Inter", 7, "bold"),
+             bg="#0a0e14", fg="#64748b", letterSpacing=1).pack(side="left")
+    tk.Frame(row, bg="#1e2535", height=1).pack(side="left", fill="x", expand=True, padx=8)
 
 
 def _spec_row(parent, label, value, value_color="#e2e8f0", bg="#1a1d24"):

@@ -1,7 +1,7 @@
 """
-PRO INFO TABLE - Ultra-Compact Hardware Monitoring
-Inspired by HWMonitor but BETTER - trapezoid headers, color-coded sections
-MOTHERBOARD → CPU → GPU with Voltage, Temperature, Power, Clocks
+PRO INFO TABLE — Ultra-Compact Hardware Monitoring
+Trapezoid headers, color-coded sections.
+MOTHERBOARD → CPU → GPU with Voltage, Temperature, Power, Clocks.
 """
 
 import tkinter as tk
