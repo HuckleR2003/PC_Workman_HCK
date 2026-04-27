@@ -26,7 +26,7 @@ class EventDetector:
                             cpu_temp=None, gpu_temp=None):
         """Check current values against baselines and log spikes.
 
-        Called every minute tick. Rate-limited to max 1 event per metric
+        Called every minute tick. 1 Event per metric
         per SPIKE_COOLDOWN seconds.
 
         Args:
@@ -96,7 +96,7 @@ class EventDetector:
 
     def _get_baseline(self, now):
         """Get recent baseline averages from minute_stats.
-        Cached for 60 seconds to avoid excessive queries.
+        Cached for 60 seconds to avoid queries.
         """
         if now - self._baseline_cache_time < 60 and self._baseline_cache:
             return self._baseline_cache
