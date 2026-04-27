@@ -28,9 +28,14 @@ RED     = "#ef4444"
 
 _TOTAL = 14
 
-_PREFS_PATH = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "settings", "user_prefs.json")
-)
+try:
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:
+    import sys as _sys
+    _APP_DIR = os.path.dirname(_sys.executable) if getattr(_sys, "frozen", False) \
+               else os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+_PREFS_PATH = os.path.join(_APP_DIR, "settings", "user_prefs.json")
 
 def _load_prefs():
     try:

@@ -39,7 +39,14 @@ AMBER  = "#f59e0b"
 RED    = "#ef4444"
 PURPLE = "#8b5cf6"
 
-CHECKLIST_PATH = os.path.join("data", "cache", "setup_checklist.json")
+try:
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:
+    import sys as _sys
+    _APP_DIR = os.path.dirname(_sys.executable) if getattr(_sys, "frozen", False) \
+               else os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+CHECKLIST_PATH = os.path.join(_APP_DIR, "data", "cache", "setup_checklist.json")
 
 # ─── Checklist definition ─────────────────────────────────────────────────────
 _CHECKLIST = [
@@ -842,7 +849,7 @@ def _fill_card(card, data):
         pass
 
 
-# ─── Arc gauge ────────────────────────────────────────────────────────────────
+# Arc gauge
 def _draw_arc(canvas, score):
     canvas.delete("all")
     W, H = 108, 92
