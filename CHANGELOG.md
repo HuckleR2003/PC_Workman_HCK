@@ -1,6 +1,79 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.2] - 2026-04-27
+
+### My PC — Central tab redesign
+
+**Optimization Hub** (`ui/components/yourpc_page.py`)
+- Zastąpiono pojedynczy przycisk "Optimization & Services" widgetem trójstrefowym na jednym Canvas:
+  - **Lewa strefa (57%)** — *Optimization Center*, gradient amber→ciemna czerwień
+  - **Prawa-górna** — *Startup Manager*, gradient navy→niebieski + live liczba wpisów
+  - **Prawa-dolna** — *Services Manager*, gradient zielony→emerald + live liczba usług
+- Zone detection via `_zone(x, y)` (podział `sp = int(w * 0.57)` + `HEIGHT // 2`)
+- Hover brightening 1.25× aktywnej strefy
+- Metryki odczytywane w daemon thread, aktualizacja przez `canvas.after(0, _draw)`
+- Usunięto baner hck_GPT z zakładki Central
+
+**Startup Manager** (`ui/pages/startup_manager.py`) — nowy plik
+- Odczyt wpisów startowych z `HKCU`, `HKLM`, `HKLM32` Run via `winreg`
+- Baza wiedzy 30 programów: impact (high/medium/low) + rekomendacja (disable/delay/keep)
+- Trzy panele: *Optimize at startup* / *Safe to disable* / *All entries*
+- Disable = prawdziwe usunięcie z rejestru (`winreg.DeleteValue`) + dialog potwierdzenia
+- Preferencje zapisywane do `data/cache/startup_prefs.json`
+
+**Services Manager** (`ui/pages/services_manager.py`) — nowy plik
+- Katalog 40+ usług Windows w 4 kategoriach: Essential (🔒) / Recommended / Optional / Likely Unnecessary
+- Batch query statusów jednym `sc query type= all state= all`
+- Stop / Start / Restart per wiersz; wykrywanie admina (`IsUserAnAdmin`), ostrzeżenie jeśli brak
+- **TURBO Mode**: checkboxy na Optional/Unneeded kolejkują usługi do auto-stop; zapis do `settings/turbo_services.json`
+- Logi zmian → `data/logs/service_changes.log`
+
+**Navigation wiring** (`ui/windows/main_window_expanded.py`)
+- Dodano `_build_startup_manager_view()` i `_build_services_manager_view()`
+- `elif page_id == "startup_manager"` / `"services_manager"` w `_switch_to_page()`
+- Obie strony dodane do `direct_pages` w `_handle_sidebar_navigation()`
+
+**PCWorkman.spec**
+- Dodano `ui.pages.startup_manager` i `ui.pages.services_manager` do `hiddenimports`
+
+### My PC — UI & fonts
+
+- Dodano etykietę **MY PC** (Inter Bold) + separator do paska nawigacyjnego
+- Zakładki: czcionka `Segoe UI 7` → `Inter 7 bold`; nagłówki sekcji: `Segoe UI 6` → `Inter 7 bold`
+- Przeniesiono Stability Tests + Your Account na dół zakładki (side by side)
+- Dodano pasek **SESSION** (`#1e3a5f`): `SESSION: Xh Ym` + `● LIVE`
+- Zwiększono wysokość panelu hck_GPT o ~18px (`expanded_h` 280→298)
+
+### hck_GPT — naprawy logiki
+
+- Naprawiono błąd językowy w `_show_help()` — używał `self._last_lang` przed detekcją; zmieniono na `ui_lang`
+- Przepisano `_show_help()` — nagłówki `◈`, układ dwukolumnowy, wersje PL i EN
+- Naprawiono `_resp_temperature()` — fallback do bazy `minute_stats` gdy `psutil.sensors_temperatures()` puste (Windows)
+- Naprawiono `_resp_speed_up_pc()` — usunięto bezwarunkowe TURBO BOOST + FPS tips
+
+### hck_stats_engine — nowe metody query_api
+
+- `get_temperature_history(minutes)` — cpu_temp/gpu_temp z `minute_stats`, current/avg/max
+- `get_temperature_summary(days)` — dane z `daily_stats`/`hourly_stats`
+- `get_top_processes_lifetime(top_n)` — TOP procesy wg avg CPU ze wszystkich dni
+- `get_weekly_summary()` — porównanie bieżących 7 dni vs poprzednie 7 z trendem
+
+### Release 1.7.2 — EXE & packaging
+
+- Wersja ujednolicona we wszystkich plikach (`setup.py`, `startup.py`, `README.md`, spec)
+- `requirements.txt` uzupełniony o `numpy>=1.24.0`, `requests>=2.28.0`, `pywin32>=305`
+- `PCWorkman.spec` przepisany — 25+ brakujących `hiddenimports` (`hck_gpt.*` submoduły, `ui.components.yourpc_page`, `utils.fonts`, `import_core`), katalog `settings/` dodany do `datas`, `COLLECT(name='PC_Workman_HCK_1.7.2')`
+- Build: `dist/PC_Workman_HCK_1.7.2/PC Workman HCK.exe` (10.3 MB launcher, ~94 MB total) ✅
+
+### Codebase cleanup
+
+- Usunięto komentarze `"Apple flat design"`, `"Apple inspired"`, `"Inspired by HWMonitor but BETTER"`
+- Usunięto docstring `"MSI Afterburner / Apple inspired"` z `main_window_expanded.py`
+- Usunięto `TODO: close overlay...` (zastąpione sensownym komentarzem)
+
+---
+
 ## [1.7.2] - 2026-04-22
 
 ### hck_GPT — AI Layer & Hybrid Engine
