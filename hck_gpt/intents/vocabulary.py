@@ -207,6 +207,113 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what do you know", "help me",
     ],
 
+    # ── Program info / meta ───────────────────────────────────────────────────
+    "about_program": [
+        # Polish — multi-word (high bonus)
+        "jak działa program", "o czym jest program", "czym jest pc workman",
+        "co to jest ten program", "co robi program", "jakie są funkcje",
+        "jak to działa", "powiedz o programie", "opisz program",
+        "co to workman", "czym jest hck", "do czego służy program",
+        "o czym jest aplikacja", "co potrafi program", "co umie program",
+        # Single tokens
+        "workman", "aplikacja", "hck_gpt",
+        # English
+        "how does it work", "what is this program", "what is pc workman",
+        "what does this do", "what is this software", "about this app",
+        "tell me about this program", "what is this app",
+        "what does pc workman do", "what does the program do",
+        "program features", "what can this do", "about the program",
+        "describe this software",
+    ],
+    "about_author": [
+        # Polish
+        "kto stworzył", "kto jest autorem", "kto to zrobił",
+        "kto napisał program", "kto zbudował", "kto opracował",
+        "autor programu", "twórca programu", "kto cię stworzył",
+        "kto cię zrobił", "przez kogo",
+        # English
+        "who made this", "who is the author", "who created this",
+        "who built this", "who wrote this", "who developed this",
+        "author of this program", "creator of pc workman",
+        "who made you", "who are you made by",
+    ],
+
+    # ── Security / virus check ────────────────────────────────────────────────
+    "virus_check": [
+        # Polish
+        "czy mam wirusa", "sprawdź wirusy", "czy jest malware",
+        "czy jest zagrożenie", "czy mam złośliwe oprogramowanie",
+        "sprawdź bezpieczeństwo", "czy coś podejrzanego działa",
+        "podejrzane procesy", "analiza bezpieczeństwa",
+        "czy coś złego działa", "czy mój komputer jest zainfekowany",
+        "skanowanie wirusów", "przeskanuj komputer",
+        # English
+        "do i have a virus", "virus check", "check for malware",
+        "any malware running", "security check", "suspicious processes",
+        "check security", "is there malware", "am i infected",
+        "check for threats", "malware scan", "any threats",
+        "is something suspicious running", "virus scan",
+        "check for viruses", "any dangerous processes",
+    ],
+
+    # ── Background / unnecessary programs ─────────────────────────────────────
+    "unnecessary_programs": [
+        # Polish
+        "niepotrzebne programy", "czy są niepotrzebne programy",
+        "czy chodzą w tle niepotrzebne programy",
+        "czy chodzą jakieś niepotrzebne programy",
+        "czy mam niepotrzebne programy", "co chodzi w tle",
+        "co działa w tle", "jakie programy działają w tle",
+        "zbędne programy", "niepotrzebne aplikacje w tle",
+        "co zużywa zasoby w tle", "wyłącz niepotrzebne",
+        "jakie aplikacje pożerają ram",
+        # English
+        "unnecessary programs", "useless background apps",
+        "any unnecessary programs running", "what is running in background",
+        "unnecessary apps", "bloatware check",
+        "background apps using resources",
+        "what programs are running unnecessarily",
+        "any background bloat",
+    ],
+
+    # ── Disk speed / optimization ─────────────────────────────────────────────
+    "disk_speed": [
+        # Polish
+        "jak przyspieszyć dysk", "dysk wolno chodzi",
+        "przyspieszenie dysku", "dysk jest wolny",
+        "jak wyczyścić dysk", "dysk c pełny",
+        "wolny dysk", "problemy z dyskiem",
+        "jak zwolnić miejsce na dysku", "co zajmuje dysk",
+        "co zajmuje miejsce", "dysk prawie pełny",
+        # English
+        "how to speed up disk", "disk is slow", "slow disk",
+        "speed up disk", "disk full", "disk optimization",
+        "optimize disk", "hard drive slow", "disk drive slow",
+        "how to free disk space", "what is using disk space",
+        "disk almost full", "clean up disk",
+    ],
+
+    # ── Speed up PC / FPS ─────────────────────────────────────────────────────
+    "speed_up_pc": [
+        # Polish
+        "jak przyspieszyć komputer", "przyspiesz komputer",
+        "jak mieć więcej fps", "komputer działa wolno",
+        "jak poprawić fps", "jak przyspieszyć gry",
+        "wolny komputer co zrobić", "co zrobić żeby komputer był szybszy",
+        "przyspieszenie komputera", "jak zoptymalizować komputer",
+        "jak przyspieszyć windows", "komputer chodzi wolno",
+        "co zrobić z wolnym komputerem", "przyspiesz pc",
+        "jak poprawić wydajność komputera",
+        # English
+        "how to speed up pc", "speed up my computer",
+        "how to get more fps", "pc is slow what to do",
+        "how to make pc faster", "pc runs slow",
+        "how to improve fps", "make games run faster",
+        "boost pc performance", "how to make computer faster",
+        "my pc is slow", "improve computer speed",
+        "get more fps", "how do i speed up my pc",
+    ],
+
     # ── Small talk / open conversation → goes to Ollama ──────────────────────
     "small_talk": [
         # deliberately low-scoring single tokens (Ollama handles these better)

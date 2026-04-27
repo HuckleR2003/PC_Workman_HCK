@@ -369,15 +369,16 @@ class ResponseBuilder:
     # ── Temperature ───────────────────────────────────────────────────────────
 
     def _resp_temperature(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        # ── 1. Try live hardware sensors (works on Linux / some Windows setups)
         try:
             import psutil
             temps = psutil.sensors_temperatures()
             if temps:
-                header = _t(lang, f"{self.PREFIX} Temperatury:", f"{self.PREFIX} Temperatures:")
+                header = _t(lang, f"{self.PREFIX} Temperatury (live):", f"{self.PREFIX} Temperatures (live):")
                 lines = [header]
                 for name, entries in temps.items():
                     for e in entries[:3]:
-                        label  = e.label or name
+                        label = e.label or name
                         if e.current > 85:
                             status = _t(lang, "⚠ GORĄCO", "⚠ HOT")
                         elif e.current > 70:
@@ -388,14 +389,102 @@ class ResponseBuilder:
                 return lines
         except Exception:
             pass
+
+        # ── 2. Fall back to DB — scheduler records cpu_temp every minute
+        try:
+            from hck_stats_engine.query_api import query_api
+            th = query_api.get_temperature_history(minutes=60)
+            if th:
+                cpu_cur  = th.get("cpu_current")
+                gpu_cur  = th.get("gpu_current")
+                cpu_avg  = th.get("cpu_avg")
+                gpu_avg  = th.get("gpu_avg")
+                cpu_max  = th.get("cpu_max")
+                gpu_max  = th.get("gpu_max")
+                samples  = th.get("samples", 0)
+                est      = th.get("estimated", False)
+
+                def _status(t):
+                    if t is None:
+                        return "—"
+                    if t > 85:
+                        return _t(lang, "⚠ GORĄCO", "⚠ HOT")
+                    if t > 70:
+                        return _t(lang, "! ciepło", "! warm")
+                    return "OK"
+
+                note = _t(lang,
+                    "  (szacowane — brak czujnika HW; scheduler oblicza z obciążenia)",
+                    "  (estimated — no HW sensor; scheduler derives from load)") if est else ""
+
+                header = _t(lang,
+                    f"{self.PREFIX} Temperatury (ostatnia godzina, {samples} próbek):",
+                    f"{self.PREFIX} Temperatures (last hour, {samples} samples):")
+                lines = [header]
+                if note:
+                    lines.append(note)
+                lines.append("")
+
+                if cpu_cur is not None:
+                    lines.append(
+                        f"  {'CPU teraz' if lang == 'pl' else 'CPU now':<20} "
+                        f"{cpu_cur:.0f}°C  {_status(cpu_cur)}")
+                if cpu_avg is not None:
+                    lines.append(
+                        f"  {'CPU śr. 1h' if lang == 'pl' else 'CPU avg 1h':<20} "
+                        f"{cpu_avg:.0f}°C")
+                if cpu_max is not None:
+                    lines.append(
+                        f"  {'CPU max 1h' if lang == 'pl' else 'CPU peak 1h':<20} "
+                        f"{cpu_max:.0f}°C  {_status(cpu_max)}")
+
+                if gpu_cur is not None:
+                    lines.append(
+                        f"  {'GPU teraz' if lang == 'pl' else 'GPU now':<20} "
+                        f"{gpu_cur:.0f}°C  {_status(gpu_cur)}")
+                if gpu_avg is not None:
+                    lines.append(
+                        f"  {'GPU śr. 1h' if lang == 'pl' else 'GPU avg 1h':<20} "
+                        f"{gpu_avg:.0f}°C")
+                if gpu_max is not None:
+                    lines.append(
+                        f"  {'GPU max 1h' if lang == 'pl' else 'GPU peak 1h':<20} "
+                        f"{gpu_max:.0f}°C  {_status(gpu_max)}")
+
+                # Long-term averages from daily stats
+                try:
+                    ts = query_api.get_temperature_summary(days=7)
+                    if ts and ts.get("cpu_temp_avg"):
+                        lines.append("")
+                        lines.append(_t(lang,
+                            f"  CPU śr. 7 dni:  {ts['cpu_temp_avg']:.0f}°C  "
+                            f"  max: {ts.get('cpu_temp_max', '—')}°C",
+                            f"  CPU avg 7 days: {ts['cpu_temp_avg']:.0f}°C  "
+                            f"  peak: {ts.get('cpu_temp_max', '—')}°C"))
+                        if ts.get("gpu_temp_avg"):
+                            lines.append(_t(lang,
+                                f"  GPU śr. 7 dni:  {ts['gpu_temp_avg']:.0f}°C  "
+                                f"  max: {ts.get('gpu_temp_max', '—')}°C",
+                                f"  GPU avg 7 days: {ts['gpu_temp_avg']:.0f}°C  "
+                                f"  peak: {ts.get('gpu_temp_max', '—')}°C"))
+                except Exception:
+                    pass
+
+                return lines
+        except Exception:
+            pass
+
+        # ── 3. No data at all
         if lang == "en":
             return [
-                f"{self.PREFIX} Can't read temperatures directly on Windows.",
-                "  Check: Monitoring tab → Sensors → Hardware Sensors",
+                f"{self.PREFIX} No temperature data yet.",
+                "  The scheduler collects CPU temp every minute — check back in a moment.",
+                "  For GPU temps, hardware sensor support is needed.",
             ]
         return [
-            f"{self.PREFIX} Nie mogę odczytać temperatur bezpośrednio.",
-            "  Sprawdź: zakładka Monitoring → Sensors → Hardware Sensors",
+            f"{self.PREFIX} Brak danych o temperaturach.",
+            "  Scheduler zapisuje temp. CPU co minutę — sprawdź za chwilę.",
+            "  Temperatury GPU wymagają czujnika sprzętowego.",
         ]
 
     # ── Throttle check ────────────────────────────────────────────────────────
@@ -669,6 +758,342 @@ class ResponseBuilder:
     def _resp_small_talk(self, r: ParseResult, lang: str = "pl") -> List[str]:
         pool = self._SMALLTALK_EN if lang == "en" else self._SMALLTALK_PL
         return [random.choice(pool).replace("{P}", self.PREFIX)]
+
+    # ── About the program ─────────────────────────────────────────────────────
+
+    def _resp_about_program(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        if lang == "en":
+            return [
+                f"{self.PREFIX} About PC Workman HCK v1.7.2:",
+                "  A real-time PC monitoring and optimization tool.",
+                "  • Live CPU / RAM / GPU tracking with history graphs",
+                "  • hck_GPT — AI assistant answering hardware questions",
+                "  • Stats engine — daily/weekly usage database (SQLite)",
+                "  • Optimization Center — one-click TURBO BOOST, RAM flush",
+                "  • Fan control editor, stability tests, hardware sensors",
+                "  • Process library — identifies 100+ running programs",
+                "  💬 Try: 'specs'  'health'  'temperatures'  'stats'",
+            ]
+        return [
+            f"{self.PREFIX} O programie PC Workman HCK v1.7.2:",
+            "  Narzędzie do monitorowania i optymalizacji PC w czasie rzeczywistym.",
+            "  • Śledzenie CPU / RAM / GPU na żywo z wykresami historii",
+            "  • hck_GPT — asystent AI odpowiadający na pytania o sprzęt",
+            "  • Silnik statystyk — baza danych użytkowania (SQLite)",
+            "  • Centrum optymalizacji — TURBO BOOST jednym kliknięciem, flush RAM",
+            "  • Edytor krzywej wentylatora, testy stabilności, czujniki sprzętu",
+            "  • Biblioteka procesów — identyfikuje 100+ działających programów",
+            "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'stats'",
+        ]
+
+    # ── About the author ──────────────────────────────────────────────────────
+
+    def _resp_about_author(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        if lang == "en":
+            return [
+                f"{self.PREFIX} PC Workman HCK was built by HCK Labs.",
+                "  An independent one-person development project.",
+                "  Focused on giving Windows users real insight into",
+                "  what their PC is actually doing — no bloat, no cloud.",
+            ]
+        return [
+            f"{self.PREFIX} PC Workman HCK został stworzony przez HCK Labs.",
+            "  Niezależny, jednoosobowy projekt deweloperski.",
+            "  Celem było danie użytkownikom Windows prawdziwego wglądu",
+            "  w to, co dzieje się z ich komputerem — bez zbędnych rzeczy.",
+        ]
+
+    # ── Virus / security check ────────────────────────────────────────────────
+
+    def _resp_virus_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        import time as _time
+        try:
+            import psutil
+            from hck_gpt.process_library import process_library as _lib
+        except Exception:
+            return [_t(lang,
+                       f"{self.PREFIX} Nie mogę sprawdzić procesów.",
+                       f"{self.PREFIX} Cannot check processes right now.")]
+
+        _SUSPICIOUS_PATTERNS = {
+            "xmrig", "cpuminer", "nicehash", "minerd", "claymore",
+            "cgminer", "bfgminer", "ethminer", "gminer", "phoenixminer",
+        }
+
+        checked = 0
+        unknown = []
+        suspicious = []
+
+        try:
+            for proc in psutil.process_iter(["name", "pid"]):
+                try:
+                    name = (proc.info.get("name") or "").lower().strip()
+                    if not name or name in ("system idle process", "idle"):
+                        continue
+                    checked += 1
+                    if checked > 120:
+                        break
+
+                    # Known suspicious patterns (miners etc.)
+                    base = name.replace(".exe", "")
+                    if any(pat in base for pat in _SUSPICIOUS_PATTERNS):
+                        suspicious.append(name)
+                        continue
+
+                    info = _lib.get_process_info(name)
+                    if info:
+                        if info.get("safety") in ("suspicious", "unsafe"):
+                            suspicious.append(f"{name}  [{info.get('name', '')}]")
+                    else:
+                        # Not in library — unknown but not necessarily bad
+                        if len(unknown) < 8 and not name.startswith(("svchost", "conhost")):
+                            unknown.append(name)
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if suspicious:
+            lines = [_t(lang,
+                        f"{self.PREFIX} ⚠ UWAGA — znaleziono podejrzane procesy!",
+                        f"{self.PREFIX} ⚠ WARNING — suspicious processes detected!")]
+            for s in suspicious[:5]:
+                lines.append(f"  ⚠ {s}")
+            lines.append(_t(lang,
+                            "  Sprawdź te procesy w Menedżerze zadań.",
+                            "  Check these in Task Manager immediately."))
+            return lines
+
+        header = _t(lang,
+                    f"{self.PREFIX} Skanowanie bezpieczeństwa ({checked} procesów):",
+                    f"{self.PREFIX} Security scan ({checked} processes):")
+        lines = [header,
+                 _t(lang, "  ✓ Brak podejrzanych procesów.", "  ✓ No suspicious processes found.")]
+
+        if unknown:
+            unk_label = _t(lang, f"  Nieznanych programom:", f"  Unrecognised programs:")
+            lines.append(unk_label)
+            for u in unknown[:5]:
+                lines.append(f"    — {u}")
+            lines.append(_t(lang,
+                            "  (Nieznane ≠ niebezpieczne — to np. własne aplikacje.)",
+                            "  (Unknown ≠ dangerous — could be your own tools.)"))
+        return lines
+
+    # ── Unnecessary / background programs ────────────────────────────────────
+
+    _BACKGROUND_BLOAT = {
+        "epicgameslauncher.exe", "battlenet.exe", "ubisoft connect.exe",
+        "gog galaxy.exe", "ea app.exe", "rockstarlauncher.exe",
+        "nvidiaSharecontainer.exe", "adobeupdateservice.exe",
+        "adobearm.exe", "acrobat.exe", "creativeclouduis.exe",
+        "ccleaner64.exe", "ccleanermonitor.exe",
+        "microsoftedgeupdate.exe", "googleupdater.exe",
+        "onedrive.exe", "dropbox.exe", "skype.exe",
+        "cortana.exe", "microsoftedgewebview2.exe",
+    }
+
+    def _resp_unnecessary_programs(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            import psutil
+        except Exception:
+            return [_t(lang,
+                       f"{self.PREFIX} Brak dostępu do procesów.",
+                       f"{self.PREFIX} Cannot read process list.")]
+
+        running_names: list[str] = []
+        try:
+            for proc in psutil.process_iter(["name", "memory_info"]):
+                try:
+                    n = (proc.info.get("name") or "").lower()
+                    if n:
+                        running_names.append(n)
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        found_bloat: list[str] = []
+        for name in running_names:
+            if name in self._BACKGROUND_BLOAT:
+                found_bloat.append(name)
+
+        header = _t(lang,
+                    f"{self.PREFIX} Programy działające w tle:",
+                    f"{self.PREFIX} Background program check:")
+
+        if not found_bloat:
+            return [
+                header,
+                _t(lang,
+                   "  ✓ Żadnych znanych zbędnych procesów w tle.",
+                   "  ✓ No known unnecessary background apps detected."),
+                _t(lang,
+                   "  Możesz sprawdzić dalej: zakładka Efficiency → lista procesów.",
+                   "  You can dig deeper: Efficiency tab → full process list."),
+            ]
+
+        lines = [
+            header,
+            _t(lang,
+               f"  Znaleziono {len(found_bloat)} zbędnych procesów:",
+               f"  Found {len(found_bloat)} potentially unnecessary programs:"),
+        ]
+        for b in found_bloat[:8]:
+            lines.append(f"  — {b}")
+        lines.append(_t(lang,
+                        "  Możesz je wyłączyć ze startu: Start → Menedżer zadań → Autostart.",
+                        "  Disable from startup: Start → Task Manager → Startup apps."))
+        return lines
+
+    # ── Disk speed / optimization ─────────────────────────────────────────────
+
+    def _resp_disk_speed(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        import os, tempfile
+        lines = [_t(lang, f"{self.PREFIX} Stan dysków:", f"{self.PREFIX} Disk status:")]
+
+        # Live disk usage
+        try:
+            import psutil
+            for p in psutil.disk_partitions(all=False):
+                if "remote" in (p.opts or "").lower():
+                    continue
+                try:
+                    u = psutil.disk_usage(p.mountpoint)
+                    free_gb  = round(u.free  / 1_073_741_824, 1)
+                    total_gb = round(u.total / 1_073_741_824, 1)
+                    used_pct = u.percent
+                    status = "⚠ " if used_pct > 85 else ("! " if used_pct > 70 else "  ")
+                    lines.append(f"  {status}{p.device}  {used_pct:.0f}% used"
+                                 f"  ({free_gb} GB free / {total_gb} GB)")
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # TEMP folder
+        try:
+            td = tempfile.gettempdir()
+            temp_mb = sum(
+                e.stat().st_size for e in os.scandir(td) if e.is_file(follow_symlinks=False)
+            ) // 1_048_576
+            if temp_mb > 100:
+                lines.append(_t(lang,
+                    f"  🗑 Folder TEMP: {temp_mb} MB  →  wyczyść w zakładce Optimization",
+                    f"  🗑 TEMP folder: {temp_mb} MB  →  clear in Optimization tab"))
+        except Exception:
+            pass
+
+        # AppData check
+        try:
+            appdata = os.environ.get('APPDATA', '')
+            if appdata and os.path.exists(appdata):
+                app_dirs = [d.name for d in os.scandir(appdata) if d.is_dir()]
+                count = len(app_dirs)
+                if count > 50:
+                    lines.append(_t(lang,
+                        f"  📁 AppData: {count} folderów — mogą być resztki starych aplikacji.",
+                        f"  📁 AppData: {count} folders — may contain leftovers from old apps."))
+                    lines.append(_t(lang,
+                        "     Wpisz '%appdata%' w Wyszukaj → przejrzyj i usuń foldery",
+                        "     Type '%appdata%' in Windows Search → review and delete old folders"))
+        except Exception:
+            pass
+
+        lines.append(_t(lang,
+            "  💡 Wskazówka: Optymalizacja → Wyczyść TEMP → Uruchom TURBO BOOST",
+            "  💡 Tip: Optimization → Clear TEMP → Run TURBO BOOST"))
+        return lines
+
+    # ── Speed up PC / FPS ─────────────────────────────────────────────────────
+
+    def _resp_speed_up_pc(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        import os, tempfile, subprocess
+        from hck_gpt.context.system_context import system_context
+        snap = system_context.snapshot()
+        cpu = snap.get("cpu_pct", 0) or 0
+        ram = snap.get("ram_pct", 0) or 0
+
+        header = _t(lang,
+                    f"{self.PREFIX} Plan przyspieszenia komputera:",
+                    f"{self.PREFIX} PC speed-up plan:")
+        recs: list[str] = []
+
+        # Power plan
+        try:
+            rp = subprocess.run(["powercfg", "/getactivescheme"],
+                                capture_output=True, text=True, timeout=3)
+            ln = rp.stdout.strip()
+            plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else "Unknown"
+            if "High Performance" not in plan and "Ultimate" not in plan:
+                recs.append(_t(lang,
+                    f"  ⚡ Plan zasilania: {plan}  →  zmień na High Performance",
+                    f"  ⚡ Power plan: {plan}  →  switch to High Performance"))
+        except Exception:
+            pass
+
+        # TEMP size
+        try:
+            temp_mb = sum(
+                e.stat().st_size
+                for e in os.scandir(tempfile.gettempdir())
+                if e.is_file(follow_symlinks=False)
+            ) // 1_048_576
+            if temp_mb > 150:
+                recs.append(_t(lang,
+                    f"  🗑 Folder TEMP: {temp_mb} MB  →  zakładka Optimization → Clear TEMP",
+                    f"  🗑 TEMP folder: {temp_mb} MB  →  Optimization tab → Clear TEMP"))
+        except Exception:
+            pass
+
+        # RAM pressure
+        if ram > 75:
+            recs.append(_t(lang,
+                f"  ⚠ RAM na {ram:.0f}%  →  zamknij zbędne karty/aplikacje lub włącz Auto RAM Flush",
+                f"  ⚠ RAM at {ram:.0f}%  →  close unused tabs/apps or enable Auto RAM Flush"))
+
+        # CPU pressure
+        if cpu > 80:
+            recs.append(_t(lang,
+                f"  ⚠ CPU na {cpu:.0f}%  →  sprawdź 'top' kto obciąża i zamknij zbędne",
+                f"  ⚠ CPU at {cpu:.0f}%  →  type 'top' to find and close the culprit"))
+
+        # Disk C: space
+        try:
+            import psutil
+            du = psutil.disk_usage("C:\\")
+            free_gb = round(du.free / 1_073_741_824, 1)
+            if free_gb < 15:
+                recs.append(_t(lang,
+                    f"  ⚠ Dysk C: tylko {free_gb} GB wolne  →  usuń pliki, wyczyść AppData",
+                    f"  ⚠ Drive C: only {free_gb} GB free  →  delete files, clean AppData"))
+        except Exception:
+            pass
+
+        # AppData
+        try:
+            appdata = os.environ.get('APPDATA', '')
+            if appdata and os.path.exists(appdata):
+                count = sum(1 for d in os.scandir(appdata) if d.is_dir())
+                if count > 60:
+                    recs.append(_t(lang,
+                        f"  📁 AppData: {count} folderów (dużo starych resztek aplikacji)",
+                        f"  📁 AppData: {count} folders (many old app leftovers)"))
+                    recs.append(_t(lang,
+                        "     → wpisz '%appdata%' w Windows Search i posprzątaj",
+                        "     → type '%appdata%' in Windows Search and clean up"))
+        except Exception:
+            pass
+
+        if not recs:
+            recs.append(_t(lang,
+                "  ✓ System wygląda dobrze — nie ma oczywistych usprawnień.",
+                "  ✓ System looks clean — no obvious wins found."))
+            recs.append(_t(lang,
+                "  💡 Możesz sprawdzić zakładkę Optimization → TURBO BOOST.",
+                "  💡 You can still try the Optimization tab → TURBO BOOST."))
+
+        return [header] + recs
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
