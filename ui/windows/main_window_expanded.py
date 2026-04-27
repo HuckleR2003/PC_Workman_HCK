@@ -97,6 +97,14 @@ class ExpandedMainWindow:
         # View switching system
         self.current_view = "dashboard"
 
+        # ── Persistent LIVE chart buffer — survives view switches ─────────────
+        # DO NOT reset in _build_dashboard_view(); data accumulates here forever.
+        self.chart_data = {"cpu": [], "ram": [], "gpu": []}
+        self.chart_max_samples = 100
+        self.chart_filter = "LIVE"
+        self._historical_chart_data = None
+        self._chart_after_id = None
+
         # System Tray
         self.tray_manager = None
         self._init_system_tray()
@@ -256,6 +264,10 @@ class ExpandedMainWindow:
             self._build_first_setup_view()
         elif page_id == "optimization":
             self._build_optimization_view()
+        elif page_id == "startup_manager":
+            self._build_startup_manager_view()
+        elif page_id == "services_manager":
+            self._build_services_manager_view()
         else:
             # For other pages, use the overlay system
             self._build_dashboard_view()
@@ -380,6 +392,32 @@ class ExpandedMainWindow:
             err.pack(anchor="nw")
             traceback.print_exc()
 
+    def _build_startup_manager_view(self):
+        """Build Startup Manager page."""
+        self._build_page_header("Startup Manager", "Control which programs launch at boot")
+        try:
+            from ui.pages.startup_manager import build_startup_manager_page
+            build_startup_manager_page(self, self.content_area)
+        except Exception as e:
+            import traceback
+            tk.Label(self.content_area, text=f"Failed to load Startup Manager:\n{e}",
+                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                     justify="left", padx=20, pady=20).pack(anchor="nw")
+            traceback.print_exc()
+
+    def _build_services_manager_view(self):
+        """Build Services Manager page."""
+        self._build_page_header("Services Manager", "Manage Windows services & TURBO integration")
+        try:
+            from ui.pages.services_manager import build_services_manager_page
+            build_services_manager_page(self, self.content_area)
+        except Exception as e:
+            import traceback
+            tk.Label(self.content_area, text=f"Failed to load Services Manager:\n{e}",
+                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                     justify="left", padx=20, pady=20).pack(anchor="nw")
+            traceback.print_exc()
+
     def _handle_sidebar_navigation(self, page_id, subpage_id=None):
         """Handle navigation from sidebar"""
         try:
@@ -404,6 +442,8 @@ class ExpandedMainWindow:
                 "optimization.services": "optimization",
                 "optimization.startup": "optimization",
                 "optimization.wizard": "optimization",
+                "startup_manager": "startup_manager",
+                "services_manager": "services_manager",
             }
 
             # Build lookup key
@@ -478,8 +518,8 @@ class ExpandedMainWindow:
                 parent=self.content_area,
                 width=content_w,
                 collapsed_h=34,
-                expanded_h=260,
-                max_h=400
+                expanded_h=298,
+                max_h=438
             )
         except Exception as e:
             print(f"[hck_GPT] Panel init error: {e}")
@@ -1002,14 +1042,9 @@ class ExpandedMainWindow:
         # Trigger chart draw once canvas actually has dimensions
         self.realtime_canvas.bind('<Configure>', self._on_chart_configure)
 
-        # Data storage for chart (100 samples per resource)
-        self.chart_data = {
-            "cpu": [],
-            "ram": [],
-            "gpu": []
-        }
-        self.chart_max_samples = 100
-        self._chart_after_id = None
+        # chart_data / chart_max_samples persist from __init__ — do NOT reset here.
+        # The LIVE buffer survives view switches so the chart never starts blank.
+        self._chart_after_id = None   # reset so _schedule_chart_update works on new canvas
 
         # Start chart update loop
         self._schedule_chart_update(100)
@@ -1057,8 +1092,7 @@ class ExpandedMainWindow:
         )
         self.live_ram_label.pack(side="left", padx=8)
 
-        # Time filter buttons
-        self.chart_filter = "LIVE"  # Default filter
+        # Time filter buttons (chart_filter persists from __init__ — not reset on view switch)
 
         # Separator (visual space)
         tk.Frame(metrics_frame, bg="#1a1d24", width=2).pack(side="left", padx=10)
@@ -1070,15 +1104,17 @@ class ExpandedMainWindow:
         # Create filter buttons - real-time + historical from SQLite
         filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
         self.filter_buttons = {}
-        self._historical_chart_data = None  # SQLite data cache
+        # Historical data cache — reset on dashboard rebuild (new canvas, reload needed)
+        self._historical_chart_data = None
 
         for idx, filter_name in enumerate(filter_options):
+            _active = (filter_name == getattr(self, 'chart_filter', 'LIVE'))
             btn = tk.Label(
                 filter_btns,
                 text=filter_name,
                 font=("Segoe UI", 6, "bold"),
-                bg="#000000" if filter_name != "LIVE" else "#2563eb",
-                fg="#6b7280" if filter_name != "LIVE" else "#ffffff",
+                bg="#2563eb" if _active else "#000000",
+                fg="#ffffff"  if _active else "#6b7280",
                 cursor="hand2",
                 padx=6,
                 pady=2
@@ -2070,7 +2106,9 @@ class ExpandedMainWindow:
                 self._chart_last_num = 0
 
             # Rebuild pool when bar count changes
-            if num != getattr(self, '_chart_last_num', 0):
+            _prev_num = getattr(self, '_chart_last_num', 0)
+            _new_bar_added = num > _prev_num
+            if num != _prev_num:
                 canvas.delete("chart_bar")
                 self._chart_items = {'cpu': [], 'ram': [], 'gpu': []}
                 for i in range(num):
@@ -2087,8 +2125,10 @@ class ExpandedMainWindow:
                     self._chart_items['gpu'].append(gid)
                 self._chart_last_num = num
 
-            # Update bar positions directly
-            for i in range(num):
+            # Update bar positions — animate newest bar when a new sample arrived
+            last = num - 1
+            update_range = range(num) if not _new_bar_added else range(num - 1)
+            for i in update_range:
                 x1 = margin + i * bar_w
                 x2 = x1 + max(bar_w - 1, 1)
                 cpu_top = bottom_y - int((cpu_data[i] if i < len(cpu_data) else 0) / 100.0 * ch)
@@ -2098,12 +2138,70 @@ class ExpandedMainWindow:
                 canvas.coords(self._chart_items['ram'][i], x1, ram_top, x2, bottom_y)
                 canvas.coords(self._chart_items['gpu'][i], x1, gpu_top, x2, bottom_y)
 
+            if _new_bar_added and last >= 0:
+                # Grow the newest bar from zero height (~60 fps, 600 ms ease-out)
+                lx1 = margin + last * bar_w
+                lx2 = lx1 + max(bar_w - 1, 1)
+                cpu_t = bottom_y - int((cpu_data[last] if last < len(cpu_data) else 0) / 100.0 * ch)
+                ram_t = bottom_y - int((ram_data[last] if last < len(ram_data) else 0) / 100.0 * ch)
+                gpu_t = bottom_y - int((gpu_data[last] if last < len(gpu_data) else 0) / 100.0 * ch)
+                self._start_bar_grow_anim(canvas, last, lx1, lx2, cpu_t, ram_t, gpu_t, bottom_y)
+
             self._schedule_chart_update(2000)
 
         except Exception as e:
             print(f"[Chart] Error: {e}")
             if self._running:
                 self._schedule_chart_update(2000)
+
+    def _start_bar_grow_anim(self, canvas, idx, x1, x2, cpu_t, ram_t, gpu_t, bottom_y):
+        """Start a 600 ms ease-out grow animation for the newest chart bar."""
+        import time as _time
+        self._bar_anim = {
+            'canvas': canvas,
+            'cpu_id': self._chart_items['cpu'][idx],
+            'ram_id': self._chart_items['ram'][idx],
+            'gpu_id': self._chart_items['gpu'][idx],
+            'x1': x1, 'x2': x2,
+            'cpu_t': cpu_t, 'ram_t': ram_t, 'gpu_t': gpu_t,
+            'bottom_y': bottom_y,
+            't0': _time.perf_counter(),
+            'dur': 0.60,
+        }
+        self._tick_bar_grow_anim()
+
+    def _tick_bar_grow_anim(self):
+        """Animation tick — runs at ~60 fps until the bar reaches full height."""
+        import time as _time
+        s = getattr(self, '_bar_anim', None)
+        if not s:
+            return
+        try:
+            if not s['canvas'].winfo_exists():
+                self._bar_anim = None
+                return
+        except Exception:
+            self._bar_anim = None
+            return
+
+        elapsed = _time.perf_counter() - s['t0']
+        t = min(elapsed / s['dur'], 1.0)
+        # ease-out cubic: fast start, slow finish
+        ease = 1.0 - (1.0 - t) ** 3
+        by = s['bottom_y']
+
+        def _lerp(target):
+            return int(by + (target - by) * ease)
+
+        c = s['canvas']
+        c.coords(s['cpu_id'], s['x1'], _lerp(s['cpu_t']), s['x2'], by)
+        c.coords(s['ram_id'], s['x1'], _lerp(s['ram_t']), s['x2'], by)
+        c.coords(s['gpu_id'], s['x1'], _lerp(s['gpu_t']), s['x2'], by)
+
+        if t < 1.0:
+            self.root.after(16, self._tick_bar_grow_anim)
+        else:
+            self._bar_anim = None
 
     def _update_hardware_cards(self, sample):
         """Update hardware cards with sparklines and status"""
@@ -3225,7 +3323,7 @@ class ExpandedMainWindow:
         close_btn.bind("<Leave>", on_leave)
 
     def _build_advanced_dashboard(self, parent):
-        """Build Advanced Dashboard - MSI Afterburner / Apple inspired"""
+        """Build Advanced Dashboard widget layout."""
         # Scrollable container
         canvas = tk.Canvas(parent, bg="#0a0e27", highlightthickness=0)
         scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
@@ -3788,7 +3886,7 @@ class ExpandedMainWindow:
         live_btn.pack(side="right", padx=(0, 0), anchor="center")
 
         def _live_guide_click(e=None):
-            # TODO: close overlay, dim dashboard, highlight elements one by one
+            # Interactive guide — highlight elements one by one
             import tkinter.messagebox as mb
             mb.showinfo("Coming Soon",
                         "Interactive Live Guide is coming in v1.8!\n\nIt will highlight each dashboard element with a short tooltip.",
