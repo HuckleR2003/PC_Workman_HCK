@@ -84,7 +84,8 @@ Only the latest stable version receives active security support.
 
 | Version | Supported | Security Updates | Notes |
 |---------|-----------|------------------|-------|
-| 1.6.x (latest) | Yes | Immediate | Active development branch |
+| 1.7.x (latest) | Yes | Immediate | Active development branch | New score at VirusTotal (0/61) |
+| 1.6.x | Yes | Immediate | Active development branch |
 | 1.5.x | Limited | Critical only | Upgrade recommended |
 | < 1.5 | No | None | End of life |
 

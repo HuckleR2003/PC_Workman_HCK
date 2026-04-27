@@ -74,6 +74,18 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Startup program list (registry HKCU/HKLM Run keys), 6-item setup checklist with persistent state
 - Quick Actions: Windows Update, Device Manager, Services, Task Scheduler, System Info, MSConfig
 
+### Startup Manager *(new in 1.7.2)*
+- Reads HKCU + HKLM + HKLM32 Run registry keys — no admin required
+- Knowledge base of 30 common programs with impact rating (High/Medium/Low) and recommendation
+- Three panels: Optimize at startup / Safe to disable / All entries
+- Disable = real registry removal with confirmation dialog; choices persist to `data/cache/startup_prefs.json`
+
+### Services Manager *(new in 1.7.2)*
+- Catalogue of 40+ Windows services in 4 categories: Essential (locked) / Recommended / Optional / Likely Unnecessary
+- Stop / Start / Restart per service; admin detection with warning banner
+- **TURBO Mode integration**: queue services for auto-stop when TURBO activates; saved to `settings/turbo_services.json`
+- All changes logged to `data/logs/service_changes.log`
+
 ### Interface
 - Modern dashboard (Apple-inspired design)
 - Ultra-compact information density
@@ -107,7 +119,7 @@ PC_Workman/
 ├── ui/
 │   ├── windows/       # Main window modes (expanded, minimal)
 │   ├── components/    # Reusable widgets (charts, LED bars, tooltips)
-│   └── pages/         # Full-page views (monitoring, fan control)
+│   └── pages/         # Full-page views (monitoring, fan control, startup, services)
 ├── data/
 │   ├── logs/          # CSV logs (raw, hourly, daily, weekly, monthly)
 │   ├── cache/         # Runtime cache & process patterns
@@ -122,9 +134,32 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.2] - `2026-04-22` - CURRENT
+## What's New [1.7.2] - `2026-04-27` - CURRENT
 
-### hck_GPT — AI Layer & Hybrid Engine
+### My PC — Startup & Services Manager
+- New **Startup Manager** page: reads registry Run keys, rates impact (High/Medium/Low), three panels (Optimize / Safe to disable / All), confirm-before-remove, prefs persisted
+- New **Services Manager** page: 40+ services catalogued, Stop/Start/Restart, admin detection, TURBO Mode integration (queue services for auto-stop), change log
+- Replaced single "Optimization & Services" button with **3-zone Optimization Hub**: Optimization Center (left), Startup Manager (top-right), Services Manager (bottom-right) — single Canvas with zone detection, hover brightening, live metrics in daemon thread
+- Removed hck_GPT banner from Central tab; added SESSION bar (`SESSION: Xh Ym` + `● LIVE`)
+- Nav bar: **MY PC** label (Inter Bold), tab/section fonts upgraded to Inter
+- Stability Tests + Your Account moved to bottom row (side by side)
+
+### hck_GPT — Bug fixes
+- Fixed `_show_help()` always responding in wrong language (used pre-detection `self._last_lang`)
+- Redesigned `_show_help()` with `◈` category headers, bilingual PL/EN
+- Fixed `_resp_temperature()` — DB fallback via `query_api` when `psutil.sensors_temperatures()` empty on Windows
+- Fixed `_resp_speed_up_pc()` — removed unconditional TURBO BOOST + FPS tips regardless of system state
+
+### hck_stats_engine — new query_api methods
+- `get_temperature_history()`, `get_temperature_summary()`, `get_top_processes_lifetime()`, `get_weekly_summary()`
+
+### Release packaging
+- All versions aligned to 1.7.2; `requirements.txt` completed; `PCWorkman.spec` fully rewritten (25+ hidden imports, `settings/` bundled); EXE build: `dist/PC_Workman_HCK_1.7.2/` (~94 MB) ✅
+- Codebase cleaned: removed all "Apple style", "Inspired by", TODO comments
+
+---
+
+### hck_GPT — AI Layer & Hybrid Engine *(2026-04-22)*
 - **Bordeaux Noir panel**: animated black→crimson gradient banner with sine-wave shimmer, `AI` vector badge, pulsing `ONLINE` badge — no image files
 - **Hybrid Engine** (`hck_gpt/engine/`): routes low-confidence / open-ended messages to Ollama LLM (local), rule engine handles everything else; graceful 60s cooldown on Ollama unavailability
 - **Bilingual responses**: every handler now replies in Polish or English based on auto-detected language; `random.choice()` pools for variety
@@ -136,18 +171,18 @@ PC_Workman/
 - **Efficiency tab**: fixed physical core count (was showing logical count); fixed invisible avg text color; per-core session min/max/avg; side-by-side TOP CPU/RAM consumers
 - **HCK_Labs globe icon**: vector globe drawn with canvas primitives — sphere + meridian + equator + parallels
 
-### Earlier in 1.7.2 (`2026-04-21`)
+### Earlier in 1.7.2 — dashboard & nav (`2026-04-21`)
 - Dashboard nav buttons full redesign (dark-gradient, accent stripe, bordeaux L-brackets, vector icons)
 - HCK_Labs and Guide pages full blog-style redesign
 - Navigation routing fixes (MONITORING, AllMonitor, overlay title)
 - Turbo Boost set to coming-soon state with tooltip
 
-### Earlier in 1.7.2 (`2026-04-20`)
+### Earlier in 1.7.2 — optimization & fonts (`2026-04-20`)
 - Optimization Center redesign: TURBO BOOST button, feature count badge, column layout, RAM Flush card
 - `utils/fonts.py` — Inter font via GDI32 with Segoe UI fallback
 - Repository cleanup: proper `.gitignore`, 7 dead files removed, broken imports fixed, `__pycache__` cleared
 
-### Earlier in 1.7.2 (`2026-04-13`)
+### Earlier in 1.7.2 — first setup & drivers (`2026-04-13`)
 - First Setup & Drivers page: health score gauge, 4 driver health cards (registry data), setup checklist with persistent state
 - hck_GPT chat time badge (inline canvas, per-message `HH:MM`)
 - Process library expanded (+8 entries); process tooltips on TOP 5 panels
@@ -341,7 +376,11 @@ HCK_Labs/PC_Workman_HCK/
 │   │   ├── charts.py, led_bars.py, yourpc_page.py, ...
 │   └── pages/
 │       ├── monitoring_alerts.py     # Time-Travel Statistics Center
-│       └── fan_control.py           # Fan curves & hardware
+│       ├── fan_control/             # Fan curves & hardware
+│       ├── startup_manager.py       # Startup programs manager (new)
+│       ├── services_manager.py      # Windows services + TURBO (new)
+│       ├── optimization_services.py # Optimization Center
+│       └── first_setup_drivers.py  # Driver health & checklist
 ├── data/
 │   ├── logs/                # CSV logs (raw, hourly, daily)
 │   ├── cache/               # Runtime cache
@@ -434,7 +473,7 @@ Click any process to see more details.
 | v1.5.7 | Released | Modern dashboard, hardware monitoring |
 | v1.6.3 | Released | Fan dashboard, menu system, .exe |
 | v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
-| **v1.7.2** | **Current** | **hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, proactive monitor, Efficiency tab fixes** |
+| **v1.7.2** | **Current** | **Startup Manager, Services Manager, Optimization Hub, hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, EXE build** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
