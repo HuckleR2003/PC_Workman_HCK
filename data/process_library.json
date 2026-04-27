@@ -848,5 +848,201 @@
     "safety": "safe",
     "typical_cpu": "30-65%",
     "typical_ram": "3000-6000MB"
+  },
+
+  "wermgr.exe": {
+    "name": "Windows Error Reporting",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Collects and sends crash reports to Microsoft. Spikes after app crashes.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-40MB"
+  },
+  "sihost.exe": {
+    "name": "Shell Infrastructure Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Handles shell-related UI including Action Center and taskbar notifications.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "fontdrvhost.exe": {
+    "name": "Font Driver Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Isolated host process for font rendering. Sandboxed for security.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-20MB"
+  },
+  "smss.exe": {
+    "name": "Session Manager Subsystem",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "First user-mode process started by NT kernel. Manages Windows sessions.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-15MB"
+  },
+  "dllhost.exe": {
+    "name": "COM Surrogate",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts COM objects (e.g. thumbnail generators). Multiple instances are normal.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-50MB"
+  },
+  "taskhostw.exe": {
+    "name": "Task Host for Windows",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Runs scheduled tasks and DLL-based services. Brief CPU spikes are normal.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-40MB"
+  },
+
+  "telegram.exe": {
+    "name": "Telegram Desktop",
+    "vendor": "Telegram FZ-LLC",
+    "category": "communication",
+    "description": "Messaging app with cloud sync. Lightweight compared to Electron apps.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "80-250MB"
+  },
+  "whatsapp.exe": {
+    "name": "WhatsApp Desktop",
+    "vendor": "Meta Platforms",
+    "category": "communication",
+    "description": "Desktop client for WhatsApp messaging. Electron-based.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-12%",
+    "typical_ram": "150-400MB"
+  },
+
+  "notepad++.exe": {
+    "name": "Notepad++",
+    "vendor": "Don Ho",
+    "category": "productivity",
+    "description": "Lightweight code/text editor with syntax highlighting and plugins.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "15-80MB"
+  },
+  "java.exe": {
+    "name": "Java Runtime (Console)",
+    "vendor": "Oracle Corporation",
+    "category": "development",
+    "description": "Runs Java apps with console output. Usage depends on application.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "5-80%",
+    "typical_ram": "100-4000MB"
+  },
+
+  "onedrive.exe": {
+    "name": "Microsoft OneDrive",
+    "vendor": "Microsoft Corporation",
+    "category": "cloud",
+    "description": "Cloud storage sync client. CPU spikes during file uploads and indexing.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "80-300MB"
+  },
+  "dropbox.exe": {
+    "name": "Dropbox",
+    "vendor": "Dropbox Inc.",
+    "category": "cloud",
+    "description": "Cloud storage sync. Background indexing can slow down older drives.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "100-350MB"
+  },
+
+  "avp.exe": {
+    "name": "Kaspersky Antivirus",
+    "vendor": "Kaspersky Lab",
+    "category": "security",
+    "description": "Kaspersky endpoint protection process. Scans can be CPU-heavy.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-40%",
+    "typical_ram": "100-400MB"
+  },
+  "avgui.exe": {
+    "name": "AVG Antivirus UI",
+    "vendor": "AVG Technologies (Avast)",
+    "category": "security",
+    "description": "AVG Antivirus user interface. Background guard is lightweight.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-30%",
+    "typical_ram": "80-300MB"
+  },
+  "mbam.exe": {
+    "name": "Malwarebytes Service",
+    "vendor": "Malwarebytes Corporation",
+    "category": "security",
+    "description": "Malwarebytes background protection service. Complements antivirus.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "50-200MB"
+  },
+
+  "xmrig.exe": {
+    "name": "XMRig Miner",
+    "vendor": "Unknown",
+    "category": "miner",
+    "description": "Monero cryptocurrency miner. Should NOT be running unless deliberately installed. Flag as suspicious.",
+    "power_usage": "very_high",
+    "safety": "suspicious",
+    "typical_cpu": "80-100%",
+    "typical_ram": "50-200MB"
+  },
+  "cpuminer.exe": {
+    "name": "CPU Miner",
+    "vendor": "Unknown",
+    "category": "miner",
+    "description": "Generic cryptocurrency miner. Unauthorized presence = malware.",
+    "power_usage": "very_high",
+    "safety": "suspicious",
+    "typical_cpu": "80-100%",
+    "typical_ram": "20-100MB"
+  },
+  "ethminer.exe": {
+    "name": "Ethereum Miner",
+    "vendor": "Unknown",
+    "category": "miner",
+    "description": "Ethereum/ETC GPU miner. Unauthorized presence = malware.",
+    "power_usage": "very_high",
+    "safety": "suspicious",
+    "typical_cpu": "20-50%",
+    "typical_ram": "50-200MB"
+  },
+  "nicehash.exe": {
+    "name": "NiceHash Miner",
+    "vendor": "NiceHash",
+    "category": "miner",
+    "description": "Crypto mining marketplace client. Legitimate if user-installed; suspicious otherwise.",
+    "power_usage": "very_high",
+    "safety": "suspicious",
+    "typical_cpu": "30-90%",
+    "typical_ram": "100-300MB"
   }
 }
