@@ -5,7 +5,7 @@
 ![Version](https://img.shields.io/badge/Version-1.7.2-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
--
+
 ## Overview
 PC_Workman is a real-time system monitoring tool built in Python. It combines live performance diagnostics, AI-assisted analysis, and a modular architecture designed for intelligent system optimization.
 
@@ -21,7 +21,7 @@ PC_Workman is a real-time system monitoring tool built in Python. It combines li
 - Time-travel diagnostics → click any historical point to see what was running
 - Voltage spike detection → unique feature nobody else has
 - Built for understanding, not just watching
--
+
 ## Quick Start
 
 ### Windows Users (Easiest)
@@ -100,7 +100,7 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Real temperature sensors (v1.5.1)
 - ML pattern detection (v2.0)
 - Predictive maintenance alerts (v2.0)
--
+
 ## Architecture
 Modular, scalable design:
 ```
@@ -132,7 +132,6 @@ PC_Workman/
 - Seamless inter-module communication
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
--
 
 ## What's New [1.7.2] - `2026-04-27` - CURRENT
 
@@ -441,7 +440,6 @@ python startup.py
 - **Red (85%+)** - Critical
 
 Click any process to see more details.
--
 ## Data & Privacy
 
 ### What's Collected
@@ -461,7 +459,6 @@ Click any process to see more details.
 - No data transmission
 - No user tracking
 - Open source (code is auditable)
--
 ## Versioning
 
 | Version | Status | Key Features |
@@ -477,7 +474,6 @@ Click any process to see more details.
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
--
 ## Contributing
 
 ### For Users
@@ -490,7 +486,6 @@ Click any process to see more details.
 - Follow existing code style
 - Include tests for new features
 - Update documentation
--
 ## System Requirements
 
 **Minimum:**
@@ -508,14 +503,11 @@ Click any process to see more details.
 **For Gaming Analytics:**
 - NVIDIA/AMD GPU drivers updated
 - DirectX 12 compatible system
--
-## 📚 Documentation
+## Documentation
 
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Installation & setup guide
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history & updates
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
-- **[docs/TECHNICAL.md](./docs/TECHNICAL.md)** - Architecture deep dive (coming)
--
 ## About
 
 **Marcin Firmuga** | Software Engineer
@@ -527,12 +519,11 @@ Order picker by day, programmer by night.
 - **Email:** firmuga.marcin.s@gmail.com
 
 Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
--
+
 ## 📄 License
 
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
--
 
 **Ship what you have. Improve it later.** 💙
 
