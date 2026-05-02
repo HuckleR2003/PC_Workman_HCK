@@ -55,6 +55,12 @@ class HCKGPTPanel:
         # First hck_GPT: message gets brand badge ("hck_GPT" label) instead of time
         self._brand_badge_once = True
 
+        # Active tip tracking — only 1 tip visible at a time
+        self._tip_active = False
+
+        # Conversation turn counter — unique bg tag per Q&A pair
+        self._turn_count = 0
+
         # UI language: "auto" | "en" | "pl"  (default = English)
         self._ui_lang = "en"
 
@@ -67,9 +73,12 @@ class HCKGPTPanel:
         # Proactive monitor — register thread-safe callbacks, then start
         if HAS_PROACTIVE:
             try:
-                # push: injects alert messages into chat (thread-safe via after())
+                # push: tip messages → _insert_tip (replaces previous tip, yellow badge)
+                #        alert messages → add_message (standard time badge)
                 proactive_monitor.register_push(
-                    lambda msg: parent.after(0, lambda m=msg: self.add_message(m))
+                    lambda msg: parent.after(0, lambda m=msg: (
+                        self._insert_tip(m) if "\U0001f4a1" in m else self.add_message(m)
+                    ))
                 )
                 # banner: updates the banner text silently (thread-safe via after())
                 proactive_monitor.register_banner(
@@ -78,6 +87,8 @@ class HCKGPTPanel:
                     )
                 )
                 proactive_monitor.start()
+                # Sync language immediately so first alerts match panel language
+                proactive_monitor.set_language(self._ui_lang)
             except Exception:
                 pass
 
@@ -292,9 +303,43 @@ class HCKGPTPanel:
         self.log.tag_configure("teal", foreground="#2dd4bf")
         self.log.tag_configure("orange", foreground="#f97316")
         self.log.tag_configure("light_purple", foreground="#c084fc")
-        self.log.tag_configure("tip_block")  # tracking tag — no visual change
+        self.log.tag_configure("user_msg", foreground=THEME["text"])
 
-        entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
+        # ── Navigation link tags — clickable [→ Name] markers ────────────────
+        # _nav_callbacks: name → callable (registered from main window)
+        # _nav_link_count: unique tag ID per link so each can have its own bind
+        self._nav_callbacks: dict = {}
+        self._nav_link_count: int = 0
+        # Pre-wire Virtual Memory — opens Windows sysdm.cpl directly, no nav needed
+        self._nav_callbacks["Virtual Memory"] = self._open_virtual_memory
+
+        # ── TIP STRIP — dedicated widget, always exactly one tip ──────────────
+        # Lives between log and input. Shown via pack(), hidden via pack_forget().
+        # Replaces the old mark-based in-log approach (which was unreliable with
+        # window_create). Guarantees: max 1 tip visible, instant replacement.
+        _TIP_BG = "#1c1900"   # ~10% #eab308 blended onto dark panel bg
+        _TIP_FG = "#7a6200"   # dark yellow text
+        self._tip_strip = tk.Frame(
+            self.chat, bg=_TIP_BG,
+            highlightbackground="#3a3100", highlightthickness=1
+        )
+        _tb = tk.Canvas(self._tip_strip, width=30, height=14,
+                        bg="#2e2800", highlightthickness=0)
+        _tb.create_text(15, 7, text="TIP", fill=_TIP_FG,
+                        font=("Consolas", 6, "bold"), anchor="center")
+        _tb.pack(side="left", padx=(6, 0), pady=2)
+        self._tip_label = tk.Label(
+            self._tip_strip, text="",
+            bg=_TIP_BG, fg=_TIP_FG,
+            font=("Consolas", 8),
+            wraplength=0, justify="left", anchor="w",
+            padx=5, pady=2
+        )
+        self._tip_label.pack(side="left", fill="x", expand=True)
+        # Hidden by default — _insert_tip() shows it, _remove_active_tip() hides it
+
+        self._entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
+        entry_container = self._entry_container
         entry_container.pack(fill="x", padx=8, pady=(0, 10))
 
         entry_wrapper = tk.Frame(entry_container, bg=THEME["accent2"], bd=0)
@@ -648,8 +693,186 @@ class HCKGPTPanel:
                           font=("Consolas", 6, "bold"), anchor="center")
         return badge
 
+    # USER BADGE — animated fill bar (green → yellow → red → green)
+    def _make_user_badge(self):
+        """
+        Animated 'USER' label badge.
+        Fills smoothly: green → yellow → red → green (≈ 9 s full cycle).
+        Text color stays dark for contrast.
+        """
+        badge = tk.Canvas(
+            self.log, width=44, height=14,
+            bg=THEME["bg_panel"], highlightthickness=0, cursor="arrow",
+        )
+        # Color stops for the cycle
+        _STOPS = [
+            (34,  197,  94),   # #22c55e  green
+            (234, 179,   8),   # #eab308  yellow
+            (220,  38,  38),   # #dc2626  red
+            (34,  197,  94),   # loop-back to green
+        ]
+        state = {'phase': 0.0}
+        bg_rect = badge.create_rectangle(0, 0, 44, 14, fill="#22c55e", outline="")
+        badge.create_text(22, 7, text="USER", fill="#071013",
+                          font=("Consolas", 6, "bold"), anchor="center")
+
+        def _tick():
+            try:
+                if not badge.winfo_exists():
+                    return
+            except Exception:
+                return
+            ph  = state['phase']
+            seg = int(ph) % 3
+            t   = ph - int(ph)
+            c0, c1 = _STOPS[seg], _STOPS[seg + 1]
+            r = int(c0[0] + (c1[0] - c0[0]) * t)
+            g = int(c0[1] + (c1[1] - c0[1]) * t)
+            b = int(c0[2] + (c1[2] - c0[2]) * t)
+            badge.itemconfig(bg_rect, fill=f"#{r:02x}{g:02x}{b:02x}")
+            # 0.033 step × 100 ms interval → full 3-segment cycle ≈ 9 s
+            state['phase'] = (ph + 0.033) % 3.0
+            badge.after(100, _tick)
+
+        _tick()
+        return badge
+
+    # ADD USER MESSAGE — badge + text (replaces old "> " prefix)
+    def _add_user_message(self, text: str):
+        """Insert user message with animated USER badge — no '>' prefix."""
+        try:
+            if not self.log.winfo_exists():
+                return
+        except Exception:
+            return
+        self.log.config(state="normal")
+        badge = self._make_user_badge()
+        self.log.window_create("end", window=badge, padx=2, pady=1)
+        start_pos = self.log.index("end")
+        self.log.insert("end", f" {text}\n", "user_msg")
+        self._apply_inline_colors(start_pos)
+        self.log.see("end")
+        self.log.config(state="disabled")
+        self._bind_process_tooltips()
+
+    # CONVERSATION TURN BACKGROUND — subtle burgundy tint over Q&A pair
+    _TURN_BG = "#1a1014"  # ~10 % blend of bordeaux #7a0f20 onto bg_panel #0f1114
+
+    def _apply_turn_background(self, turn_start: str):
+        """
+        Apply a faint burgundy background from turn_start to the current
+        end of the log, covering the user message + all AI response lines.
+        Each turn gets its own unique tag so colours never bleed across turns.
+        """
+        try:
+            if not self.log.winfo_exists():
+                return
+        except Exception:
+            return
+        try:
+            self.log.config(state="normal")
+            turn_end = self.log.index("end-1c")
+            tag = f"turn_bg_{self._turn_count}"
+            self._turn_count += 1
+            self.log.tag_configure(tag, background=self._TURN_BG)
+            self.log.tag_add(tag, turn_start, turn_end)
+            self.log.config(state="disabled")
+        except Exception:
+            pass
+
+    # ── NAV LINK INFRASTRUCTURE ───────────────────────────────────────────────
+
+    def register_nav_callback(self, name: str, callback) -> None:
+        """
+        Register a named navigation callback for [→ Name] links in chat.
+        Call this from the main window after creating the panel, e.g.:
+            panel.register_nav_callback("Optimization",
+                                        lambda: win._switch_to_page("optimization"))
+        """
+        self._nav_callbacks[name] = callback
+
+    @staticmethod
+    def _open_virtual_memory() -> None:
+        """Open Windows Virtual Memory settings (Advanced System Properties, tab 3)."""
+        try:
+            import subprocess
+            subprocess.Popen("control sysdm.cpl,,3", shell=True)
+        except Exception:
+            pass
+
+    def _apply_nav_links(self, start_pos: str) -> None:
+        """
+        Scan the text just inserted at start_pos for [→ Name] patterns.
+        Each match gets a unique teal-underline tag; if a callback is registered
+        for that name the tag is also bound to <Button-1> (clickable link).
+        """
+        end_pos = self.log.index("end")
+        idx = start_pos
+        while True:
+            pos = self.log.search(r'\[→ [^\]]+\]', idx, stopindex=end_pos, regexp=True)
+            if not pos:
+                break
+            line_text = self.log.get(pos, f"{pos} lineend")
+            m = re.match(r'\[→ ([^\]]+)\]', line_text)
+            if not m:
+                idx = f"{pos}+1c"
+                continue
+            match_end  = f"{pos}+{len(m.group(0))}c"
+            link_name  = m.group(1)
+            tag        = f"_nav_{self._nav_link_count}"
+            self._nav_link_count += 1
+            self.log.tag_configure(
+                tag,
+                foreground="#2dd4bf",
+                underline=True,
+                font=("Consolas", 10),
+            )
+            self.log.tag_add(tag, pos, match_end)
+            cb = self._nav_callbacks.get(link_name)
+            if cb:
+                self.log.tag_bind(tag, "<Button-1>", lambda e, c=cb: c())
+                self.log.tag_bind(tag, "<Enter>",
+                                  lambda e: self.log.config(cursor="hand2"))
+                self.log.tag_bind(tag, "<Leave>",
+                                  lambda e: self.log.config(cursor=""))
+            idx = match_end
+
+    # ACTIVE TIP — hide the tip strip
+    def _remove_active_tip(self) -> None:
+        if not self._tip_active:
+            return
+        try:
+            self._tip_strip.pack_forget()
+        except Exception:
+            pass
+        self._tip_active = False
+
+    # INSERT TIP — show/update tip strip (guaranteed max 1 tip, instant replace)
+    def _insert_tip(self, msg: str) -> None:
+        try:
+            if not self._tip_strip.winfo_exists():
+                return
+        except Exception:
+            return
+
+        if not msg or not msg.startswith("hck_GPT:"):
+            return
+
+        text = msg[len("hck_GPT:"):].lstrip().lstrip("\U0001f4a1").lstrip()
+        if not text:
+            return
+
+        self._tip_label.config(text=text)
+
+        if not self._tip_active:
+            self._tip_strip.pack(
+                fill="x", padx=8, pady=(0, 4),
+                before=self._entry_container
+            )
+            self._tip_active = True
+
     # ADD MESSAGE
-    def add_message(self, msg):
+    def add_message(self, msg, badge_type: str = "time"):
         try:
             if not self.log.winfo_exists():
                 return
@@ -662,6 +885,8 @@ class HCKGPTPanel:
                 badge = self._make_brand_badge()
                 self._brand_badge_once = False
                 msg = msg[len("hck_GPT:"):].lstrip()
+            elif badge_type == "tip":
+                badge = self._make_tip_badge()
             else:
                 badge = self._make_time_badge()
             self.log.window_create("end", window=badge, padx=2, pady=1)
@@ -669,6 +894,7 @@ class HCKGPTPanel:
         start_pos = self.log.index("end")
         self.log.insert("end", msg + "\n")
         self._apply_inline_colors(start_pos)
+        self._apply_nav_links(start_pos)
         self.log.see("end")
         self.log.config(state="disabled")
 
@@ -803,7 +1029,7 @@ class HCKGPTPanel:
             self._ticker_id = None
 
     def _tick_insight(self):
-        """Show one rotating tip every 6 minutes — replaces the previous tip (no spam)."""
+        """Show contextual insight every 6 minutes — replaces previous tip (no spam)."""
         if not self.is_open:
             return
 
@@ -817,31 +1043,12 @@ class HCKGPTPanel:
             try:
                 msg = self.chat_handler.insights.get_current_insight()
                 if msg:
-                    # ── Delete previous tip block if it still exists ──────────
-                    try:
-                        ranges = self.log.tag_ranges("tip_block")
-                        if ranges:
-                            self.log.config(state="normal")
-                            # Iterate in reverse so earlier deletions don't shift later indices
-                            for i in range(len(ranges) - 2, -1, -2):
-                                self.log.delete(ranges[i], ranges[i + 1])
-                            self.log.config(state="disabled")
-                    except Exception:
-                        pass
-
-                    # ── Insert new tip, tag the full range ───────────────────
-                    tip_start = self.log.index("end")
-                    self.add_message("")
-                    self.add_message(msg)
-                    tip_end = self.log.index("end")
-                    self.log.config(state="normal")
-                    self.log.tag_add("tip_block", tip_start, tip_end)
-                    self.log.config(state="disabled")
+                    self._insert_tip(msg)
             except Exception:
                 pass
 
         try:
-            self._ticker_id = self.frame.after(360000, self._tick_insight)  # 6 minutes
+            self._ticker_id = self.frame.after(360000, self._tick_insight)
         except Exception:
             pass
 
@@ -1285,10 +1492,20 @@ class HCKGPTPanel:
 
         self.entry.delete(0, "end")
 
-        # Show user message
-        self.add_message("> " + text)
+        # ── Record turn start for background grouping ─────────────────────────
+        _turn_start = None
+        try:
+            self.log.config(state="normal")
+            _turn_start = self.log.index("end")
+            self.log.config(state="disabled")
+        except Exception:
+            pass
+
+        # Show user message with animated USER badge
+        self._add_user_message(text)
 
         # Process with chat handler
+        _chat_cleared = False
         if self.chat_handler:
             responses = self.chat_handler.process_message(
                 text, ui_lang=getattr(self, '_ui_lang', 'auto')
@@ -1298,12 +1515,17 @@ class HCKGPTPanel:
             if text.lower() in ["yes", "y", "yeah", "ok", "sure", "tak", "t"]:
                 if self.chat_handler.wizard.state == "questions":
                     self.clear_chat()
+                    _chat_cleared = True
 
             # Add response messages
             for response in responses:
                 self.add_message(response)
         else:
             self.add_message("hck_GPT: (Chat handler not available)")
+
+        # ── Apply conversation turn background (skip if chat was cleared) ──────
+        if _turn_start and not _chat_cleared:
+            self._apply_turn_background(_turn_start)
 
     def clear_chat(self):
         """Clear the chat log"""
