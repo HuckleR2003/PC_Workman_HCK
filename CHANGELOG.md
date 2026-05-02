@@ -1,6 +1,53 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.3] - 2026-05-02
+
+### Live Guide — nowy moduł
+
+**`ui/guide/live_guide.py`** — nowy plik
+- Klasa `LiveGuide`: interaktywna nakładka spotlight na dashboard
+- Windows-only technika: `Toplevel` z `wm_attributes("-transparentcolor", "#ffffff")` + `-alpha 0.82`; białe prostokąty canvas = przeźroczyste "dziury", ciemny `#030610` przyciemnia resztę ekranu
+- 3 kroki: (1) realtime chart + przyciski filtrów LIVE/1H/4H/1D/1W/1M → (2) lewa/prawa nawigacja z opisem każdego przycisku → (3) karty hardware CPU/RAM/GPU + słupki Session Averages
+- Pływająca karta info: pasek akcentu `#8b5cf6`, badge kroku, tytuł, separator, treść, kropki postępu, przycisk DALEJ/Zakończ, ✕ zamknięcie; ESC zamyka overlay
+- `_get_spotlight(key)` oblicza bounds celu via `winfo_rootx/y/width/height` relative do `content_area`
+- Pozycjonowanie karty: bottom/top/right/center z flip-fallback gdy za blisko krawędzi
+- Package marker: `ui/guide/__init__.py`
+
+**`ui/windows/main_window_expanded.py`**
+- Dodano `self.guide_left_nav`, `self.guide_middle_center`, `self.guide_right_nav` jako widget refs w `_build_middle_section()`
+- `_live_guide_click`: `_close_overlay()` + 280ms delay → `_start_live_guide()`
+- `_start_live_guide()`: guard na `current_view == "dashboard"`, guard na `realtime_canvas`, zamknięcie poprzedniej instancji; tworzy i uruchamia `LiveGuide(self)`
+- Import blok z graceful fallback gdy `ui.guide.live_guide` niedostępny
+
+### hck_GPT — jakość odpowiedzi
+
+**`hck_gpt/responses/builder.py`**
+- `_resp_help` przepisany — 30 linii, 8 sekcji z emoji: 🖥 Hardware / 🩺 Diagnostics & Health / 📊 Performance & Stats / 🔍 Why is it doing that? / ⚡ Optimization / 🔒 Security / 😄 Fun/Personality / 💬 Small talk; pokrywa wszystkie 37 intentów; bilingual PL/EN
+- `_resp_optimization` przepisany — `system_context.snapshot()` dla live CPU/RAM, `_hw_profile()` dla flag HDD/RAM-low/few-cores; priorytetowy tip (🔴 >85% / 🟡 >70% / ✓ OK); linki [→ Optimization], [→ Startup Manager]; warunkowy [→ Virtual Memory] i nota o HDD
+- `_FOLLOWUPS` rozszerzony 3 → 8 kluczy: dodano `security`, `disk`, `why`, `process`, `session`; istniejące klucze `hw`/`health`/`perf` dostały dodatkowe pozycje
+- `_followup()` dodany do 9 handlerów: `_resp_virus_check` (oba paths), `_resp_disk_health`, `_resp_disk_usage_why`, `_resp_battery_drain`, `_resp_uptime`, `_resp_process_info` (oba paths), `_resp_throttle_check` (OK path), `_resp_perf_change`, `_resp_session_compare`
+- `record_response_data` dodany do: `_resp_hw_gpu` (`model`, `vram_gb`), `_resp_perf_change` (`cpu_today/yest`, `ram_today/yest`), `_resp_session_compare` (`cpu/ram today/yest`)
+
+### hck_GPT — hardware scanner & session data
+
+**`hck_gpt/context/hardware_scanner.py`**
+- WMI scan uzupełniony o RAM speed (MHz) i part number (`Win32_PhysicalMemory`)
+- Skanowanie modelu dysku głównego (`Win32_DiskDrive`, pierwszy wpis)
+
+**`hck_gpt/memory/session_memory.py`**
+- Session data store: `record_response_data(intent, data)`, `get_response_data(intent)`, `discussed_this_session()` — pozwala późniejszym handlerom referować dane raportowane wcześniej w sesji
+
+**`hck_gpt/panel.py`**
+- `_apply_nav_links(widget, text)` — renderuje `[→ Page]` tokeny jako klikalny link (kolor akcentu, podkreślenie on-hover), wywołuje zarejestrowany callback nawigacyjny
+- `register_nav_callback(page_id, fn)` — API do rejestracji callbacków nawigacji z main window
+- `_open_virtual_memory()` — helper otwierający Virtual Memory przez `subprocess` (SystemPropertiesAdvanced)
+
+**`hck_gpt/intents/vocabulary.py`**
+- Dodano multi-word patterns dla `hw_storage` i `hw_all` dla pewniejszego routingu powyżej progu confidence
+
+---
+
 ## [1.7.2] - 2026-04-27
 
 ### My PC — Central tab redesign
