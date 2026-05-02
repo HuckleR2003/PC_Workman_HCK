@@ -1,11 +1,11 @@
-# PC_Workman 1.7.2
+# PC_Workman 1.7.3
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
-![Version](https://img.shields.io/badge/Version-1.7.2-blue)
+![Version](https://img.shields.io/badge/Version-1.7.3-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
-
+-
 ## Overview
 PC_Workman is a real-time system monitoring tool built in Python. It combines live performance diagnostics, AI-assisted analysis, and a modular architecture designed for intelligent system optimization.
 
@@ -21,7 +21,7 @@ PC_Workman is a real-time system monitoring tool built in Python. It combines li
 - Time-travel diagnostics → click any historical point to see what was running
 - Voltage spike detection → unique feature nobody else has
 - Built for understanding, not just watching
-
+-
 ## Quick Start
 
 ### Windows Users (Easiest)
@@ -60,12 +60,22 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions
 - **Bilingual**: all responses in Polish and English, auto-detected per message
 - **Proactive monitor**: background alerts for CPU spikes, RAM pressure, throttling, low disk, long uptime
-- Session memory with CPU/RAM trend tracking and conversation context for LLM
+- Session memory with CPU/RAM trend tracking, conversation context for LLM, and session data store (cross-response referencing)
 - SQLite user knowledge base (hardware profile, usage patterns, facts) at `AppData/Local/`
-- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed)
+- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed/part number, primary disk model)
+- `_resp_help` covers all 37 intents across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk)
+- `_followup()` pool system: 8 keys, every handler ends with a contextual next-question hint
+- `_resp_optimization` uses live CPU/RAM snapshot + hardware-profile flags (HDD, low RAM, core count)
+- Chat panel nav links: clickable `[→ Page]` tokens route directly to app pages from AI responses
 - Gaming analytics with FPS tracking
 - Bottleneck detection (CPU vs GPU limited)
 - Safe system optimization with rollback
+
+### Live Guide *(new in 1.7.2)*
+- Interactive 3-step spotlight overlay (`ui/guide/live_guide.py`) launched from Guide page
+- Windows `-transparentcolor` technique: dim full screen, punch transparent hole over target widget
+- Step 1: main realtime chart + time-filter buttons; Step 2: left/right nav buttons with per-button descriptions; Step 3: hardware cards + session averages
+- Floating info card with accent bar, step dots, DALEJ / Zakończ button; ESC or ✕ to dismiss
 
 ### First Setup & Drivers *(new in 1.7.2)*
 - Health score gauge (0–100 arc) — computed from driver ages and startup count
@@ -100,7 +110,7 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Real temperature sensors (v1.5.1)
 - ML pattern detection (v2.0)
 - Predictive maintenance alerts (v2.0)
-
+-
 ## Architecture
 Modular, scalable design:
 ```
@@ -118,6 +128,7 @@ PC_Workman/
 ├── hck_stats_engine/  # SQLite pipeline: minute/hourly/daily/monthly stats
 ├── ui/
 │   ├── windows/       # Main window modes (expanded, minimal)
+│   ├── guide/         # Interactive spotlight guide (LiveGuide, 3-step tour)
 │   ├── components/    # Reusable widgets (charts, LED bars, tooltips)
 │   └── pages/         # Full-page views (monitoring, fan control, startup, services)
 ├── data/
@@ -132,8 +143,30 @@ PC_Workman/
 - Seamless inter-module communication
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
+-
 
-## What's New [1.7.2] - `2026-04-27` - CURRENT
+## What's New [1.7.3] - `2026-05-02` - CURRENT
+
+### Live Guide
+- New `ui/guide/live_guide.py` — `LiveGuide` class: interactive spotlight overlay with Windows `-transparentcolor` dim technique
+- 3-step dashboard tour: chart + filters → nav buttons (left/right) with per-button descriptions → hardware cards + session averages
+- Floating info card: accent bar, badge, step dots, DALEJ/Zakończ; ESC or ✕ to dismiss
+- Wired to "▶ Guide on program LIVE" button in Guide page; auto-returns to dashboard and waits for widgets
+
+### hck_GPT — AI quality & coverage
+- `_resp_help` fully rewritten: 8 sections with emoji headers covering all 37 intents (hardware, diagnostics, performance, why, optimization, security, fun, small talk) — bilingual PL/EN
+- `_resp_optimization` rewritten with live data: real CPU/RAM snapshot, hardware-profile flags (HDD, low RAM, few cores), priority tip (🔴/🟡/✓), conditional virtual-memory and HDD notes
+- `_FOLLOWUPS` pool expanded 3 → 8 keys (`hw`, `health`, `perf`, `security`, `disk`, `why`, `process`, `session`); `_followup()` wired into 9 handlers (`virus_check`, `disk_health`, `disk_usage_why`, `battery_drain`, `uptime`, `process_info`, `throttle_check`, `perf_change`, `session_compare`)
+- `record_response_data` added to `hw_gpu`, `perf_change`, `session_compare` — AI can now reference GPU model/VRAM and yesterday's stats in follow-up answers
+
+### hck_GPT — hardware & session data
+- WMI hardware scanner: RAM speed + part number, primary disk model added to user knowledge base
+- Session data store (`session_memory.record_response_data` / `get_response_data` / `discussed_this_session`) — cross-response referencing system
+- Chat panel nav links (`_apply_nav_links`): `[→ Page]` tokens in AI responses are clickable and route directly to app pages; `register_nav_callback()` API; `_open_virtual_memory()` helper
+
+---
+
+## What's New [1.7.2] - `2026-04-27` *(previous)*
 
 ### My PC — Startup & Services Manager
 - New **Startup Manager** page: reads registry Run keys, rates impact (High/Medium/Low), three panels (Optimize / Safe to disable / All), confirm-before-remove, prefs persisted
@@ -440,6 +473,7 @@ python startup.py
 - **Red (85%+)** - Critical
 
 Click any process to see more details.
+-
 ## Data & Privacy
 
 ### What's Collected
@@ -459,6 +493,7 @@ Click any process to see more details.
 - No data transmission
 - No user tracking
 - Open source (code is auditable)
+-
 ## Versioning
 
 | Version | Status | Key Features |
@@ -470,10 +505,12 @@ Click any process to see more details.
 | v1.5.7 | Released | Modern dashboard, hardware monitoring |
 | v1.6.3 | Released | Fan dashboard, menu system, .exe |
 | v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
-| **v1.7.2** | **Current** | **Startup Manager, Services Manager, Optimization Hub, hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, EXE build** |
+| v1.7.2 | Released | Startup/Services Manager, Optimization Hub, hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, EXE build |
+| **v1.7.3** | **Current** | **Live Guide, hck_GPT AI quality (followups, help rewrite, optimization live), session data store, WMI scan, nav links** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
+-
 ## Contributing
 
 ### For Users
@@ -486,6 +523,7 @@ Click any process to see more details.
 - Follow existing code style
 - Include tests for new features
 - Update documentation
+-
 ## System Requirements
 
 **Minimum:**
@@ -503,11 +541,14 @@ Click any process to see more details.
 **For Gaming Analytics:**
 - NVIDIA/AMD GPU drivers updated
 - DirectX 12 compatible system
-## Documentation
+-
+## 📚 Documentation
 
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Installation & setup guide
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history & updates
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
+- **[docs/TECHNICAL.md](./docs/TECHNICAL.md)** - Architecture deep dive (coming)
+-
 ## About
 
 **Marcin Firmuga** | Software Engineer
@@ -519,11 +560,12 @@ Order picker by day, programmer by night.
 - **Email:** firmuga.marcin.s@gmail.com
 
 Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
-
+-
 ## 📄 License
 
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
+-
 
 **Ship what you have. Improve it later.** 💙
 
