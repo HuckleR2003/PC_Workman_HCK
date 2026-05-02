@@ -50,6 +50,12 @@ try:
 except ImportError:
     create_overlay_widget = None
 
+# Live Guide
+try:
+    from ui.guide.live_guide import LiveGuide as _LiveGuide
+except ImportError:
+    _LiveGuide = None
+
 # System Tray
 try:
     from ui.system_tray import SystemTrayManager, ToastNotification
@@ -521,6 +527,18 @@ class ExpandedMainWindow:
                 expanded_h=298,
                 max_h=438
             )
+            # Wire clickable nav links — [→ Optimization] / [→ Startup Manager]
+            try:
+                self.gpt_panel.register_nav_callback(
+                    "Optimization",
+                    lambda: self._switch_to_page("optimization")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Startup Manager",
+                    lambda: self._switch_to_page("startup_manager")
+                )
+            except Exception:
+                pass
         except Exception as e:
             print(f"[hck_GPT] Panel init error: {e}")
             # Fallback: simple static banner
@@ -598,6 +616,7 @@ class ExpandedMainWindow:
         left_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=200)
         left_nav.pack(side="left", fill="y", padx=(0, 10))
         left_nav.pack_propagate(False)
+        self.guide_left_nav = left_nav   # used by LiveGuide spotlight
 
         # Navigation buttons (left) — no section label, max space for buttons
         nav_buttons_left = [
@@ -613,6 +632,7 @@ class ExpandedMainWindow:
         # CENTER - SESSION AVERAGE BARS
         center = tk.Frame(middle, bg=THEME["bg_main"])
         center.pack(side="left", fill="both", expand=True, padx=5)
+        self.guide_middle_center = center   # used by LiveGuide spotlight
 
         # Title - MINIMAL SPACING
         tk.Label(
@@ -639,6 +659,7 @@ class ExpandedMainWindow:
         right_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=200)
         right_nav.pack(side="right", fill="y", padx=(10, 0))
         right_nav.pack_propagate(False)
+        self.guide_right_nav = right_nav   # used by LiveGuide spotlight
 
         # Navigation buttons (right) — no section label
         nav_buttons_right = [
@@ -3886,11 +3907,9 @@ class ExpandedMainWindow:
         live_btn.pack(side="right", padx=(0, 0), anchor="center")
 
         def _live_guide_click(e=None):
-            # Interactive guide — highlight elements one by one
-            import tkinter.messagebox as mb
-            mb.showinfo("Coming Soon",
-                        "Interactive Live Guide is coming in v1.8!\n\nIt will highlight each dashboard element with a short tooltip.",
-                        parent=parent)
+            # Close guide overlay so dashboard is visible, then launch
+            self._close_overlay()
+            self.root.after(280, self._start_live_guide)
 
         live_btn.bind("<Button-1>", _live_guide_click)
         live_btn.bind("<Enter>", lambda e: live_btn.config(bg="#7c3aed"))
@@ -4134,6 +4153,38 @@ class ExpandedMainWindow:
             command=dialog.destroy
         )
         close_btn.pack(pady=15)
+
+    # ── Live Guide ────────────────────────────────────────────────────────────
+
+    def _start_live_guide(self) -> None:
+        """
+        Launch the interactive Live Guide on the dashboard.
+        If we're not on the dashboard, switch first and wait for it to render.
+        """
+        if _LiveGuide is None:
+            import tkinter.messagebox as mb
+            mb.showinfo("Live Guide", "LiveGuide module not found.", parent=self.root)
+            return
+
+        if self.current_view != "dashboard":
+            self._switch_to_page("dashboard")
+            self.root.after(400, self._start_live_guide)
+            return
+
+        # Ensure dashboard widgets exist (realtime_canvas is a reliable sentinel)
+        if not hasattr(self, "realtime_canvas"):
+            self.root.after(200, self._start_live_guide)
+            return
+
+        # Kill any existing guide before starting a fresh one
+        if hasattr(self, "_live_guide") and self._live_guide is not None:
+            try:
+                self._live_guide.close()
+            except Exception:
+                pass
+
+        self._live_guide = _LiveGuide(self)
+        self._live_guide.start()
 
     def _show_update_dialog(self, parent):
         """Show Check Update dialog"""

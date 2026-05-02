@@ -242,6 +242,8 @@ class MainWindow:
                     parent=self.content,
                     width=THEME["win_width"] - THEME["sidebar_expanded"] - 4
                 )
+                # Wire nav links — Virtual Memory already pre-registered in panel
+                # (Optimization/Startup require expanded window — not available here)
             except Exception as e:
                 print(f"[WARNING] Failed to initialize GPT Panel: {e}")
                 self.gpt = None
