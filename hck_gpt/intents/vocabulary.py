@@ -34,9 +34,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jaki procesor", "jaki mam procesor", "mój procesor",
         "pokaż procesor", "dane procesora", "info o procesorze",
         "ile rdzeni", "ile ghz", "ile mhz",
+        "co mam za procesor", "jaki to procesor", "powiedz mi o procesorze",
         "what cpu", "my cpu", "show cpu", "cpu info",
         "which cpu", "what processor", "my processor",
         "cpu details", "processor details",
+        "tell me about my cpu", "show me my processor",
     ],
     "hw_gpu": [
         # Tokens
@@ -75,12 +77,16 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Multi-word
         "dyski", "dysk twardy", "przestrzeń dyskowa", "pojemność dysku",
         "ile miejsca", "wolne miejsce", "ile gb dysk", "wolne na dysku",
+        "jaki mam dysk", "jaki dysk", "jaki dysk mam", "model dysku",
         "disk space", "my disk", "storage space", "free space",
         "how much space", "disk usage",
+        "what disk", "what disk do i have", "which disk", "what drive",
+        "what drives", "what hard drive", "disk model", "drive model",
+        "what storage", "my storage", "storage info",
     ],
     "hw_all": [
         # Tokens
-        "spec", "specs", "podzespoły", "komponenty",
+        "spec", "specs", "podzespoły", "komponenty", "components",
         # Multi-word
         "specyfikacja", "co mam", "mój komputer", "mój pc",
         "moje podzespoły", "jakie mam podzespoły", "jaki mam sprzęt",
@@ -89,6 +95,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "my specs", "my computer", "show specs", "full specs",
         "what hardware", "hardware info", "pc info", "system info",
         "show hardware", "all specs",
+        "what components", "what components i have", "which components",
+        "my components", "all components", "show components",
+        "what do i have", "show me my specs",
     ],
 
     # ── System health & diagnostics ───────────────────────────────────────────
@@ -215,6 +224,10 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak to działa", "powiedz o programie", "opisz program",
         "co to workman", "czym jest hck", "do czego służy program",
         "o czym jest aplikacja", "co potrafi program", "co umie program",
+        "co robi ten program", "co ten program robi", "jak działa ta aplikacja",
+        "czym jest ta aplikacja", "co to za program", "do czego to służy",
+        "po co jest ten program", "opowiedz o programie", "jakie funkcje ma",
+        "co oferuje program", "jakie możliwości ma",
         # Single tokens
         "workman", "aplikacja", "hck_gpt",
         # English
@@ -223,7 +236,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "tell me about this program", "what is this app",
         "what does pc workman do", "what does the program do",
         "program features", "what can this do", "about the program",
-        "describe this software",
+        "describe this software", "what does this program do",
+        "what is hck", "what is workman", "explain this app",
     ],
     "about_author": [
         # Polish
@@ -316,11 +330,234 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Small talk / open conversation → goes to Ollama ──────────────────────
     "small_talk": [
-        # deliberately low-scoring single tokens (Ollama handles these better)
+        # greeting-style small talk (higher score so rule fallback works)
+        "jak się masz", "co słychać", "co u ciebie", "jak leci",
+        "dobry wieczór", "dobry ranek", "dzień dobry",
+        "jakie masz rady", "co mi radzisz", "co dziś polecasz",
+        "how are you", "what's up", "good evening", "good morning",
+        "any tips for today", "what do you recommend",
+        # deliberate open-ended (Ollama handles better)
         "powiedz", "opowiedz", "zastanów", "jak myślisz",
         "co sądzisz", "twoja opinia", "porozmawiajmy",
         "tell me", "what do you think", "your opinion",
         "co o tym", "ciekawostka", "wiesz że",
+    ],
+
+    # ── TURBO Boost ───────────────────────────────────────────────────────────
+    "turbo_boost": [
+        # Polish
+        "turbo", "turbo boost", "włącz turbo", "uruchom turbo",
+        "co robi turbo", "jak działa turbo", "czy warto turbo",
+        "co to turbo", "czym jest turbo boost", "turbo mode",
+        "tryb turbo", "włącz tryb turbo", "aktywuj turbo",
+        "co daje turbo", "czy turbo pomaga", "kiedy włączyć turbo",
+        "turbo boost co to", "turbo boost jak włączyć",
+        # English
+        "enable turbo", "turn on turbo", "what is turbo boost",
+        "what does turbo do", "turbo boost mode", "how does turbo work",
+        "activate turbo", "is turbo worth it", "turbo boost help",
+    ],
+
+    # ── Why slow / lag ────────────────────────────────────────────────────────
+    "why_slow": [
+        # Polish
+        "dlaczego laguje", "dlaczego wolno", "dlaczego komputer wolno działa",
+        "co spowalnia", "co spowalnia komputer", "co spowalnia pc",
+        "komputer się zacina", "lagi na pc", "lagi w grze",
+        "dlaczego jest lag", "co powoduje lagi", "co powoduje spowolnienie",
+        "dlaczego gra laguje", "dlaczego działa tak wolno",
+        "co obciąża komputer", "co tak zwalnia", "skąd te lagi",
+        "co powoduje że jest wolno", "pc jest wolny dlaczego",
+        "dlaczego mój komputer laguje",
+        # English
+        "why is my pc slow", "why is it lagging", "what causes lag",
+        "what is slowing down my pc", "why does my computer lag",
+        "what's causing the slowdown", "why is everything slow",
+        "why does it stutter", "why am i getting lag",
+        "my pc is slow why", "what's making my pc slow",
+    ],
+
+    # ── Process info ──────────────────────────────────────────────────────────
+    "process_info": [
+        # Polish
+        "co to jest", "co to za proces", "co robi ten proces",
+        "czym jest svchost", "co to svchost.exe", "co to explorer.exe",
+        "co to chrome.exe", "co to discord.exe",
+        "czy mogę wyłączyć", "czy bezpiecznie wyłączyć",
+        "czy ten proces jest bezpieczny", "czy to wirus",
+        "co to za program", "czym jest ten program",
+        "do czego służy ten proces", "ten proces co robi",
+        "czy mogę zabić ten proces", "czy warto wyłączyć",
+        # English
+        "what is this process", "what does this process do",
+        "what is svchost", "can i disable this", "is this safe to kill",
+        "can i end this process", "what is chrome.exe",
+        "is this a virus", "what does svchost do",
+        "should i close this process", "what is this program",
+        "is it safe to end this task",
+    ],
+
+    # ── RAM why high ──────────────────────────────────────────────────────────
+    "ram_why_high": [
+        # Polish
+        "dlaczego ram jest wysoki", "dlaczego ram jest pełny",
+        "dlaczego ram jest na 90", "dlaczego ram jest zajęty",
+        "co zajmuje ram", "co zużywa ram", "ram jest pełny dlaczego",
+        "czy ram jest dobry", "czy mój ram wystarczy",
+        "dlaczego pamięć jest zajęta", "co zajmuje pamięć",
+        "ram skacze", "ram rośnie", "dlaczego ram rośnie",
+        "czy to normalne że ram jest na 94", "czy ram na 90 to normalne",
+        "ram przekroczył", "ram za wysoki", "za mało ramu",
+        # English
+        "why is ram so high", "why is ram full", "what's using ram",
+        "what is eating my ram", "ram is at 90 percent why",
+        "why is memory so high", "what uses so much ram",
+        "is ram at 94 percent normal", "why is ram jumping",
+        "what's consuming my memory",
+    ],
+
+    # ── GPU temperature why ───────────────────────────────────────────────────
+    "gpu_temp_why": [
+        # Polish
+        "czy gpu się przegrzewa", "dlaczego gpu jest gorące",
+        "gpu temperatura za wysoka", "karta graficzna się grzeje",
+        "dlaczego karta graficzna jest gorąca", "gpu nagrzewa się",
+        "gpu 80 stopni", "gpu 85 stopni", "gpu 90 stopni",
+        "czy gpu temp jest normalna", "ile powinna mieć gpu temperatura",
+        "gpu przegrzanie", "jak schłodzić gpu", "gpu za gorące",
+        # English
+        "is my gpu overheating", "why is gpu so hot",
+        "gpu temperature too high", "gpu running hot",
+        "is 80 degrees gpu normal", "is gpu 85c ok",
+        "gpu thermal throttling", "how to cool down gpu",
+        "why is my graphics card hot",
+    ],
+
+    # ── Disk health ───────────────────────────────────────────────────────────
+    "disk_health": [
+        # Polish
+        "czy dysk jest zdrowy", "stan dysku", "zdrowie dysku",
+        "czy ssd jest ok", "czy hdd jest ok", "sprawdź dysk",
+        "czy dysk może paść", "czy dysk nie umiera",
+        "smart dysk", "badania dysku", "diagnoza dysku",
+        "ile zostało dyskowi", "czy dysk jest dobry",
+        "dysk robi dziwne dźwięki", "problemy z dyskiem",
+        "czy dysk się starzeje",
+        # English
+        "is my disk healthy", "disk health check", "check disk health",
+        "is my ssd ok", "is my hdd ok", "disk smart status",
+        "how long will my disk last", "is my drive failing",
+        "check drive health", "disk diagnostics",
+    ],
+
+    # ── Startup programs check ───────────────────────────────────────────────
+    "startup_check": [
+        # Polish
+        "czy mam za dużo programów startowych", "ile mam programów startowych",
+        "co odpala się przy starcie", "co uruchamia się przy starcie",
+        "jakie programy startują automatycznie", "co się włącza przy logowaniu",
+        "za dużo autostart", "autostart sprawdź", "co jest w autostarcie",
+        "czy mój autostart jest ok", "sprawdź autostart",
+        "ile rzeczy odpala się z windows", "za dużo na starcie",
+        # English
+        "too many startup programs", "check startup apps", "startup programs list",
+        "what starts with windows", "startup check", "what launches on boot",
+        "how many startup programs", "startup manager", "autostart check",
+        "what runs at startup", "startup bloat",
+    ],
+
+    # ── High disk usage diagnosis ─────────────────────────────────────────────
+    "disk_usage_why": [
+        # Polish
+        "dlaczego dysk jest obciążony", "co zajmuje dysk", "dysk usage wysoki",
+        "dlaczego dysk pracuje na 100", "dysk na 100 procent dlaczego",
+        "co obciąża dysk", "skąd takie obciążenie dysku", "dysk szaleje",
+        "dysk muli dlaczego", "co tak bardzo korzysta z dysku",
+        "dlaczego led dysku cały czas miga", "aktywność dysku wysoka",
+        "disk activity 100", "wysoka aktywność dysku",
+        # English
+        "why is disk at 100", "disk usage high why", "what's causing disk activity",
+        "disk is at 100 percent", "why disk so active", "high disk usage",
+        "disk thrashing", "why is my disk so busy", "disk io why",
+        "what is reading my disk", "disk activity cause",
+    ],
+
+    # ── Battery / power drain ─────────────────────────────────────────────────
+    "battery_drain": [
+        # Polish
+        "który proces zużywa baterię", "co niszczy baterię",
+        "co rozładowuje baterię", "bateria szybko się rozładowuje dlaczego",
+        "co drenauje baterię", "co zabiera baterię", "brak baterii dlaczego",
+        "który program jest najgorszy dla baterii", "co zużywa prąd",
+        "jak oszczędzić baterię", "bateria szybko siada",
+        # English
+        "what drains battery", "battery drain cause", "which app drains battery",
+        "why does battery drain so fast", "battery life bad why",
+        "what uses most battery", "battery drain fix",
+        "which process kills battery", "save battery", "battery saving",
+    ],
+
+    # ── Performance change / delta ────────────────────────────────────────────
+    "perf_change": [
+        # Polish
+        "co się zmieniło w wydajności", "co się zmieniło od ostatniego uruchomienia",
+        "czy jest gorzej niż ostatnio", "od kiedy jest wolniej",
+        "kiedy zaczęło być wolniej", "co się zmieniło od startu",
+        "dlaczego dziś jest wolniej niż wczoraj", "co nowego obciąża komputer",
+        "co się pojawiło nowego", "które procesy są nowe",
+        "od kiedy komputer spowalnia", "kiedy zaczęło lagować",
+        # English
+        "what changed in performance", "what changed since last boot",
+        "why is it slower than yesterday", "when did it get slow",
+        "what's new that's slowing things", "performance got worse when",
+        "new processes slowing pc", "what recently started using cpu",
+        "performance degraded why", "what changed recently",
+    ],
+
+    # ── Fun / roast / personality ─────────────────────────────────────────────
+    "fun_roast": [
+        # Polish — meme questions
+        "dlaczego mój komputer mnie nienawidzi", "komputer mnie nienawidzi",
+        "czy mój pc jest głupi", "pc jest głupi", "komputer jest głupi",
+        "który proces jest największym leniem", "który program jest leniem",
+        "czy mogę powiedzieć chrome żeby się zamknął", "chrome się zamknij",
+        "dlaczego discord działa w tle jak stalker", "discord stalker",
+        "czy svchost to szpieg", "svchost szpieg", "czy to szpieg",
+        "czy mogę zrobić mojemu pc timeout", "pc timeout",
+        "dlaczego wszystko ładuje się jakby miało kaca",
+        "komputer ma kaca", "kac komputerowy",
+        "który program jest największym złodziejem ram",
+        "mój komputer dzisiaj leniwy", "pc jest leniwy dzisiaj",
+        "komputer sobie nie radzi", "komputer jest zmęczony",
+        # English — meme questions
+        "why does my computer hate me", "my pc hates me",
+        "is my pc dumb", "is my computer stupid",
+        "which process is the laziest", "who is the laziest program",
+        "can i tell chrome to close itself", "chrome please close",
+        "why does discord run in background like a stalker",
+        "is svchost a spy", "svchost spy",
+        "can i give my pc a timeout",
+        "why does everything load like it has a hangover",
+        "my computer is lazy today", "pc is tired today",
+        "which program steals the most ram",
+    ],
+
+    # ── Session compare ───────────────────────────────────────────────────────
+    "session_compare": [
+        # Polish
+        "co się zmieniło", "co się zmieniło od ostatniego razu",
+        "jak było wczoraj", "dlaczego wczoraj było lepiej",
+        "porównaj sesje", "porównaj z wczorajszym",
+        "jaka była wczoraj", "ile wczoraj zużywał cpu",
+        "jak wyglądała poprzednia sesja", "co się zmieniło od wczoraj",
+        "czy jest gorzej niż wczoraj", "czy jest lepiej niż wczoraj",
+        "wczorajsze statystyki", "porównanie z wczorajem",
+        # English
+        "what changed since last time", "compare with yesterday",
+        "was it better yesterday", "how does today compare",
+        "session comparison", "yesterday vs today",
+        "was cpu lower yesterday", "what changed",
+        "compare sessions", "is today worse than yesterday",
     ],
 }
 
@@ -342,6 +579,9 @@ ENTITY_MAP: Dict[str, str] = {
     "wydajność": "performance", "performance": "performance",
     "zdrowie": "health", "health": "health",
     "procesy": "processes", "processes": "processes",
+    # Actions
+    "turbo": "turbo", "lag": "lag", "lagi": "lag",
+    "wczoraj": "yesterday", "yesterday": "yesterday",
 }
 
 # ── Stopwords (ignored during tokenisation) ───────────────────────────────────
