@@ -79,6 +79,12 @@ class SessionMemory:
         self._ram_trend: Deque[float] = deque(maxlen=self.TREND_WINDOW)
         self._trend_last_at: float    = 0.0
 
+        # ── Session data store ────────────────────────────────────────────────
+        # Stores key values actually reported in responses this session.
+        # Allows later responses to reference what was shown earlier.
+        # Structure:  intent_name → {recorded_at: float, key: value, ...}
+        self._session_data: Dict[str, Any] = {}
+
         # ── Conversation summary ──────────────────────────────────────────────
         self.conversation_summary: str = ""
         self._summary_at_count: int    = 0   # message count when last summarized
@@ -158,6 +164,32 @@ class SessionMemory:
         self.live_snapshot = snapshot
 
     # ── Topic tracking ────────────────────────────────────────────────────────
+
+    # ── Session data store ────────────────────────────────────────────────────
+
+    def record_response_data(self, intent: str, data: dict) -> None:
+        """
+        Store the key values that were reported in a response for *intent*.
+        Called by ResponseBuilder handlers after they compute their output,
+        so later handlers can reference what was shown earlier in the session.
+
+        Example:
+            session_memory.record_response_data("hw_ram", {
+                "total_gb": 16, "speed": 3200, "current_pct": 51
+            })
+        """
+        self._session_data[intent] = {"recorded_at": time.time(), **data}
+
+    def get_response_data(self, intent: str) -> dict:
+        """
+        Retrieve values previously recorded for a given intent.
+        Returns an empty dict when the intent has not been reported yet.
+        """
+        return dict(self._session_data.get(intent, {}))
+
+    def discussed_this_session(self) -> List[str]:
+        """Return list of intents that have session data stored (= were reported)."""
+        return list(self._session_data.keys())
 
     def push_topic(self, topic: str) -> None:
         """Push a new conversation topic (e.g. 'cpu', 'gpu', 'health')."""
@@ -242,6 +274,12 @@ class SessionMemory:
             "processes": "processes", "optimization": "optimization",
             "power_plan": "power plan", "uptime": "session uptime",
             "hw_storage": "storage", "hw_motherboard": "motherboard",
+            # New intents
+            "turbo_boost": "TURBO Boost", "why_slow": "PC slowdown/lag",
+            "process_info": "process identification", "ram_why_high": "RAM usage",
+            "gpu_temp_why": "GPU temperature", "disk_health": "disk health",
+            "session_compare": "session comparison", "virus_check": "security scan",
+            "unnecessary_programs": "background programs", "speed_up_pc": "speed optimization",
         }
         topics_seen = []
         for t in self._topic_stack:
