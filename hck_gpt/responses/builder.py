@@ -136,6 +136,18 @@ _FOLLOWUPS: dict[str, dict[str, list[str]]] = {
             "  💬 Check 'health check' for current live system status",
         ],
     },
+    "startup": {
+        "pl": [
+            "  💬 Zapytaj 'czy mogę wyłączyć X ze startu' o konkretny program",
+            "  💬 Wpisz 'co zagraża mojemu PC' po pełny ranking ryzyk",
+            "  💬 Sprawdź 'zdrowie systemu' po całościową diagnozę",
+        ],
+        "en": [
+            "  💬 Ask 'is it safe to disable X from startup' for a specific program",
+            "  💬 Type 'what risks does my pc have' for a full risk ranking",
+            "  💬 Check 'health check' for a full system overview",
+        ],
+    },
 }
 
 
@@ -151,7 +163,8 @@ def _delta_label(current: float, typical, lang: str) -> str:
     """
     Compare current (live) value with typical (7-day avg).
     Returns a short contextual string, e.g.:
-        EN: '→ normal (avg 42%)'  /  '↑ +23% vs typical (42%)'
+        EN: '→ within your norm  (avg 42%)'  /  '↑ +23% above your norm  (avg 42%)'
+        PL: '→ norma  (śr. 42%)'             /  '↑ +23% vs typowe  (42%)'
     Returns '' when typical is None or zero.
     """
     if typical is None:
@@ -164,14 +177,14 @@ def _delta_label(current: float, typical, lang: str) -> str:
         return ""
     delta = current - typ
     if abs(delta) < 5:
-        return (f"→ normal (avg {typ:.0f}%)" if lang == "en"
-                else f"→ norma (śr. {typ:.0f}%)")
+        return (f"→ within your norm  (avg {typ:.0f}%)" if lang == "en"
+                else f"→ norma  (śr. {typ:.0f}%)")
     elif delta > 0:
-        return (f"↑ +{delta:.0f}% vs typical ({typ:.0f}%)" if lang == "en"
-                else f"↑ +{delta:.0f}% vs typowe ({typ:.0f}%)")
+        return (f"↑ +{delta:.0f}% above your norm  (avg {typ:.0f}%)" if lang == "en"
+                else f"↑ +{delta:.0f}% vs typowe  ({typ:.0f}%)")
     else:
-        return (f"↓ {delta:.0f}% vs typical ({typ:.0f}%)" if lang == "en"
-                else f"↓ {delta:.0f}% vs typowe ({typ:.0f}%)")
+        return (f"↓ {abs(delta):.0f}% below your norm  (avg {typ:.0f}%)" if lang == "en"
+                else f"↓ {abs(delta):.0f}% poniżej normy  (śr. {typ:.0f}%)")
 
 
 # ── Hardware profile — capability flags for personalised advice ───────────────
@@ -541,11 +554,15 @@ class ResponseBuilder:
         "{P} Ocena zdrowia systemu:",
         "{P} Sprawdzam kondycję PC...",
         "{P} Diagnostyka systemu:",
+        "{P} Oto jak twój PC sobie radzi:",
+        "{P} Szybki przegląd stanu maszyny:",
     ]
     _HEALTH_INTROS_EN = [
         "{P} System health check:",
-        "{P} Checking your PC health...",
-        "{P} Running diagnostics...",
+        "{P} Here's how your PC is doing:",
+        "{P} Running diagnostics:",
+        "{P} Let's see how your machine is holding up:",
+        "{P} Quick system check:",
     ]
 
     def _resp_health_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -591,11 +608,16 @@ class ResponseBuilder:
             intro = random.choice(self._HEALTH_INTROS_EN).replace("{P}", self.PREFIX)
             lines = [intro]
             if issues:
-                lines.append("Issues:")
+                lines.append("Issues found:")
                 lines.extend(issues)
             lines.extend(good)
             if not issues:
-                lines.append("All looks good ✓")
+                lines.append(random.choice([
+                    "Everything looks healthy ✓",
+                    "Your PC is in good shape ✓",
+                    "All good — nothing to worry about ✓",
+                    "All looks good ✓",
+                ]))
 
             # ── Pomysł 2: session reference ───────────────────────────────────
             ram_sess = session_memory.get_response_data("hw_ram")
@@ -815,11 +837,14 @@ class ResponseBuilder:
         "{P} Wydajność teraz:",
         "{P} Aktualne obciążenie systemu:",
         "{P} Sprawdzam co się dzieje:",
+        "{P} Oto co robi twój PC w tej chwili:",
     ]
     _PERF_INTROS_EN = [
         "{P} Current performance:",
         "{P} System load right now:",
         "{P} Here's what's happening:",
+        "{P} Live snapshot of your system:",
+        "{P} Here's what your PC is up to:",
     ]
 
     def _resp_performance(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -1109,18 +1134,21 @@ class ResponseBuilder:
                 "  🩺  Diagnostics & Health",
                 "      'health check'  /  'temperatures'  /  'is cpu throttling'",
                 "      'is my gpu overheating'  /  'disk health'",
+                "      'what risks does my pc have'  ← risk ranking",
                 "",
                 "  📊  Performance & Stats",
                 "      'performance'  /  'stats'  /  'top processes'  /  'uptime'",
                 "      'what changed in performance'  /  'compare sessions'",
+                "      'what changed on my pc since yesterday'  ← broad changes view",
                 "",
                 "  🔍  Why is it doing that?",
                 "      'why is it slow'  /  'why is ram so high'  /  'why is disk at 100'",
-                "      'what drains battery'  /  'unnecessary programs'",
+                "      'which process is draining my battery right now'  /  'unnecessary programs'",
                 "",
                 "  ⚡  Optimization",
                 "      'speed up pc'  /  'turbo boost'  /  'startup programs'",
                 "      'optimization'  /  'power plan'  /  'disk speed'",
+                "      'is it safe to disable X from startup'  ← startup safety check",
                 "",
                 "  🔒  Security",
                 "      'virus check'  /  'suspicious processes'  /  'what is svchost'",
@@ -1141,18 +1169,21 @@ class ResponseBuilder:
             "  🩺  Diagnostyka i zdrowie",
             "      'zdrowie systemu'  /  'jakie temperatury'  /  'czy CPU throttluje'",
             "      'czy GPU się przegrzewa'  /  'zdrowie dysku'",
+            "      'co zagraża mojemu PC'  ← ranking ryzyk",
             "",
             "  📊  Wydajność i statystyki",
             "      'wydajność'  /  'stats'  /  'top procesy'  /  'czas sesji'",
             "      'co się zmieniło w wydajności'  /  'porównaj sesje'",
+            "      'co się zmieniło od wczoraj'  ← szeroki widok zmian",
             "",
             "  🔍  Dlaczego tak działa?",
             "      'dlaczego laguje'  /  'dlaczego ram wysoki'  /  'dysk na 100 dlaczego'",
-            "      'co rozładowuje baterię'  /  'niepotrzebne programy'",
+            "      'który proces rozładowuje baterię teraz'  /  'niepotrzebne programy'",
             "",
             "  ⚡  Optymalizacja",
             "      'przyspiesz komputer'  /  'turbo boost'  /  'autostart'",
             "      'optymalizacja'  /  'plan zasilania'  /  'jak przyspieszyć dysk'",
+            "      'czy mogę wyłączyć X ze startu'  ← sprawdzenie bezpieczeństwa autostartu",
             "",
             "  🔒  Bezpieczeństwo",
             "      'sprawdź wirusy'  /  'podejrzane procesy'  /  'co to svchost'",
@@ -1197,7 +1228,7 @@ class ResponseBuilder:
     def _resp_about_program(self, r: ParseResult, lang: str = "pl") -> List[str]:
         if lang == "en":
             return [
-                f"{self.PREFIX} About PC Workman HCK v1.7.2:",
+                f"{self.PREFIX} About PC Workman HCK v1.7.3:",
                 "  A real-time PC monitoring and optimization tool.",
                 "  • Live CPU / RAM / GPU tracking with history graphs",
                 "  • hck_GPT — AI assistant answering hardware questions",
@@ -1208,7 +1239,7 @@ class ResponseBuilder:
                 "  💬 Try: 'specs'  'health'  'temperatures'  'stats'",
             ]
         return [
-            f"{self.PREFIX} O programie PC Workman HCK v1.7.2:",
+            f"{self.PREFIX} O programie PC Workman HCK v1.7.3:",
             "  Narzędzie do monitorowania i optymalizacji PC w czasie rzeczywistym.",
             "  • Śledzenie CPU / RAM / GPU na żywo z wykresami historii",
             "  • hck_GPT — asystent AI odpowiadający na pytania o sprzęt",
@@ -2073,6 +2104,413 @@ class ResponseBuilder:
         lines.append(_t(lang,
                         "  💬 Zarządzaj programami startowymi  [→ Startup Manager]",
                         "  💬 Manage startup programs  [→ Startup Manager]"))
+        lines.append(_followup("startup", lang))
+        return lines
+
+    # ── Startup safety — is it safe to disable X from startup? ───────────────
+
+    # Per-program safety verdict: True=safe, False=keep, None=depends on usage
+    _STARTUP_SAFETY_KB: dict = {
+        "chrome":       (True,  "Przeglądarka — nie potrzebuje startować z Windows, otwieraj ręcznie",
+                                "Browser — no reason to start with Windows, launch manually"),
+        "opera":        (True,  "Przeglądarka — wyłącz ze startu, otwieraj ręcznie",
+                                "Browser — safe to disable, open manually"),
+        "operagx":      (True,  "Przeglądarka gamingowa — bezpieczne do wyłączenia ze startu",
+                                "Gaming browser — safe to disable from startup"),
+        "brave":        (True,  "Przeglądarka — nie ma sensu startować z Windows",
+                                "Browser — no reason to start with Windows"),
+        "firefox":      (True,  "Przeglądarka — wyłącz ze startu",
+                                "Browser — safe to disable from startup"),
+        "spotify":      (True,  "Odtwarzacz muzyki — wyłącz, odpali się gdy klikniesz ikonę",
+                                "Music player — disable, it starts when you click the icon"),
+        "discord":      (True,  "Komunikator — bezpieczne do wyłączenia, uruchom ręcznie gdy potrzebny",
+                                "Chat app — safe to disable, launch manually when needed"),
+        "steam":        (True,  "Platforma gier — wyłącz ze startu, otwieraj gdy grasz",
+                                "Gaming platform — disable from startup, open when gaming"),
+        "epicgameslauncher": (True, "Launcher gier — nie potrzebuje startować z Windows",
+                                    "Game launcher — no need to start with Windows"),
+        "battlenet":    (True,  "Launcher Blizzard — wyłącz ze startu",
+                                "Blizzard launcher — safe to disable"),
+        "ubisoft":      (True,  "Launcher Ubisoft — wyłącz ze startu",
+                                "Ubisoft launcher — safe to disable"),
+        "skype":        (True,  "Skype — wyłącz ze startu; użytkownicy Discord/Teams nie potrzebują",
+                                "Skype — disable from startup; Discord/Teams users don't need it"),
+        "telegram":     (True,  "Telegram — wyłącz ze startu, uruchom ręcznie gdy potrzebny",
+                                "Telegram — disable from startup, launch manually when needed"),
+        "signal":       (True,  "Signal — wyłącz jeśli nie potrzebujesz powiadomień od razu po starcie",
+                                "Signal — disable if you don't need instant notifications at boot"),
+        "teams":        (None,  "Teams — zostaw jeśli używasz w pracy codziennie; wyłącz jeśli nie",
+                                "Teams — keep it if used for work daily; disable otherwise"),
+        "zoom":         (None,  "Zoom — zostaw jeśli masz regularne spotkania; inaczej wyłącz",
+                                "Zoom — keep for regular meetings; disable otherwise"),
+        "slack":        (None,  "Slack — zostaw jeśli używasz na co dzień",
+                                "Slack — keep it if you use it daily"),
+        "onedrive":     (None,  "OneDrive — wyłącz jeśli nie synchronizujesz aktywnie; zostaw jeśli tak",
+                                "OneDrive — disable if not actively syncing; keep if you do"),
+        "dropbox":      (None,  "Dropbox — wyłącz jeśli nie synchronizujesz aktywnie plików",
+                                "Dropbox — disable if not actively syncing files"),
+        "msedge":       (None,  "Edge — wyłączenie bezpieczne, możesz uruchomić ręcznie",
+                                "Edge — safe to disable, launch manually when needed"),
+        "realtek":      (False, "Sterownik audio Realtek — warto zostawić dla stabilności dźwięku",
+                                "Realtek audio driver — worth keeping for audio stability"),
+        "nvidia":       (False, "NVIDIA Panel / GeForce Experience — lepiej zostawić dla sterowników",
+                                "NVIDIA Control Panel / GeForce Experience — better to keep"),
+        "amd":          (False, "Oprogramowanie AMD — warto zostawić dla sterowników GPU/CPU",
+                                "AMD software — worth keeping for GPU/CPU drivers"),
+        "intel":        (False, "Intel software — powiązany ze sterownikami, lepiej zostaw",
+                                "Intel software — driver-related, better to keep"),
+        "windowsdefender": (False, "Windows Defender — NIE wyłączaj! To Twoje bezpieczeństwo systemowe",
+                                   "Windows Defender — do NOT disable! This is your system security"),
+    }
+
+    def _resp_startup_safety(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        raw = (r.raw_text or "").lower()
+
+        matched_slug = None
+        matched_data = None
+        for slug, data in self._STARTUP_SAFETY_KB.items():
+            if slug in raw:
+                matched_slug = slug
+                matched_data = data
+                break
+
+        if matched_data:
+            safe, reason_pl, reason_en = matched_data
+            if safe is True:
+                verdict = _t(lang, "✓ Bezpieczne do wyłączenia ze startu:", "✓ Safe to disable from startup:")
+            elif safe is False:
+                verdict = _t(lang, "⚠ Lepiej zostawić włączone:", "⚠ Better to keep enabled:")
+            else:
+                verdict = _t(lang, "➤ Zależy od użycia:", "➤ Depends on your usage:")
+            reason = reason_en if lang == "en" else reason_pl
+            return [
+                _t(lang,
+                   f"{self.PREFIX} Autostart — {matched_slug}:",
+                   f"{self.PREFIX} Startup — {matched_slug}:"),
+                f"  {verdict}",
+                f"  {reason}",
+                _t(lang,
+                   "  Zarządzaj tym i innymi wpisami  [→ Startup Manager]",
+                   "  Manage this and other startup entries  [→ Startup Manager]"),
+                _followup("startup", lang),
+            ]
+
+        # No specific program matched — general guide
+        if lang == "en":
+            return [
+                f"{self.PREFIX} Startup program safety guide:",
+                "  ✓ Safe to disable:  Chrome, Firefox, Spotify, Discord, Steam, game launchers",
+                "  ➤ Depends on use:   OneDrive, Teams, Zoom — disable if not used daily",
+                "  ⚠ Keep enabled:     security software, audio/GPU drivers, system services",
+                "  Rule: if you can launch it manually when you need it — disable it at boot.",
+                "  💬 See all your startup entries  [→ Startup Manager]",
+                _followup("startup", lang),
+            ]
+        return [
+            f"{self.PREFIX} Poradnik — co wyłączyć ze startu:",
+            "  ✓ Bezpieczne:    Chrome, Firefox, Spotify, Discord, Steam, launchery gier",
+            "  ➤ Zależy:        OneDrive, Teams, Zoom — wyłącz jeśli nie używasz codziennie",
+            "  ⚠ Zostaw:        antywirus, sterowniki audio/GPU, usługi systemowe",
+            "  Zasada: jeśli możesz uruchomić ręcznie — nie potrzebuje startować z Windows.",
+            "  💬 Przejrzyj wszystkie wpisy  [→ Startup Manager]",
+            _followup("startup", lang),
+        ]
+
+    # ── What changed on my PC since yesterday ────────────────────────────────
+
+    def _resp_pc_changes(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Broad 'what changed since yesterday' — goes beyond raw numbers to show:
+        new/missing active processes, performance shift summary, power plan,
+        startup entry count.
+        """
+        changes: list[str] = []
+
+        # ── 1. New / gone processes (top 10 today vs yesterday) ───────────────
+        try:
+            from hck_stats_engine.query_api import query_api
+            from datetime import datetime, timedelta
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            yest_str  = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+            t_rows = query_api.get_process_daily_breakdown(today_str, top_n=10) or []
+            y_rows = query_api.get_process_daily_breakdown(yest_str,  top_n=10) or []
+            t_procs = {row.get("process_name") for row in t_rows} - {None}
+            y_procs = {row.get("process_name") for row in y_rows} - {None}
+            new_today  = t_procs - y_procs
+            gone_today = y_procs - t_procs
+            if new_today:
+                names = ", ".join(sorted(new_today)[:3])
+                changes.append(_t(lang,
+                    f"  🆕 Nowe aktywne procesy (nie było wczoraj): {names}",
+                    f"  🆕 New active processes (not in yesterday's top): {names}"))
+            if gone_today:
+                names = ", ".join(sorted(gone_today)[:3])
+                changes.append(_t(lang,
+                    f"  👻 Nieaktywne dziś (były wczoraj): {names}",
+                    f"  👻 No longer active today (were in yesterday's top): {names}"))
+        except Exception:
+            pass
+
+        # ── 2. Performance delta summary (only if notable) ────────────────────
+        try:
+            from hck_stats_engine.query_api import query_api as qa
+            today = qa.get_daily_summary(days=1)
+            yest  = qa.get_daily_summary(days=2)
+            if today and yest:
+                cpu_t = today.get("cpu_avg") or 0
+                cpu_y = yest.get("cpu_avg")  or 0
+                ram_t = today.get("ram_avg") or 0
+                ram_y = yest.get("ram_avg")  or 0
+                cpu_d = cpu_t - cpu_y
+                ram_d = ram_t - ram_y
+                if abs(cpu_d) > 5 or abs(ram_d) > 5:
+                    cpu_arrow = "↑" if cpu_d > 3 else ("↓" if cpu_d < -3 else "→")
+                    ram_arrow = "↑" if ram_d > 3 else ("↓" if ram_d < -3 else "→")
+                    changes.append(_t(lang,
+                        f"  📊 Wydajność: CPU {cpu_arrow} {cpu_t:.0f}% (wczoraj {cpu_y:.0f}%) | RAM {ram_arrow} {ram_t:.0f}% (wczoraj {ram_y:.0f}%)",
+                        f"  📊 Performance: CPU {cpu_arrow} {cpu_t:.0f}% (yest {cpu_y:.0f}%) | RAM {ram_arrow} {ram_t:.0f}% (yest {ram_y:.0f}%)"))
+        except Exception:
+            pass
+
+        # ── 3. Current power plan ─────────────────────────────────────────────
+        try:
+            import subprocess
+            rp = subprocess.run(["powercfg", "/getactivescheme"],
+                                capture_output=True, text=True, timeout=3)
+            ln = rp.stdout.strip()
+            plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else ""
+            if plan:
+                changes.append(_t(lang,
+                    f"  ⚡ Aktywny plan zasilania: {plan}",
+                    f"  ⚡ Active power plan: {plan}"))
+        except Exception:
+            pass
+
+        # ── 4. Startup entry count ────────────────────────────────────────────
+        try:
+            import winreg
+            startup_count = 0
+            for hive, path in [
+                (winreg.HKEY_CURRENT_USER,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+                (winreg.HKEY_LOCAL_MACHINE,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+            ]:
+                try:
+                    key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+                    i = 0
+                    while True:
+                        try:
+                            winreg.EnumValue(key, i)
+                            startup_count += 1
+                            i += 1
+                        except OSError:
+                            break
+                    winreg.CloseKey(key)
+                except Exception:
+                    pass
+            if startup_count > 0:
+                if startup_count > 10:
+                    note = _t(lang, " ⚠ dużo — warto przejrzeć", " ⚠ high — worth reviewing")
+                elif startup_count <= 4:
+                    note = _t(lang, " ✓ bardzo czysty", " ✓ very clean")
+                else:
+                    note = ""
+                changes.append(_t(lang,
+                    f"  🚀 Programy startowe: {startup_count} wpisów{note}",
+                    f"  🚀 Startup programs: {startup_count} entries{note}"))
+        except Exception:
+            pass
+
+        header = _t(lang,
+            f"{self.PREFIX} Co się zmieniło na PC od wczoraj:",
+            f"{self.PREFIX} What changed on your PC since yesterday:")
+        lines = [header]
+
+        if not changes:
+            lines.append(_t(lang,
+                "  Za mało danych historycznych — potrzebuję min. 2 dni historii w bazie.",
+                "  Not enough history yet — need at least 2 days of data."))
+            lines.append(_t(lang,
+                "  Sprawdź zmiany ręcznie: zakładka AllMonitor → DayStats.",
+                "  Check manually: AllMonitor tab → DayStats."))
+        else:
+            lines.extend(changes)
+
+        lines.append(_t(lang,
+            "  💬 Pełna oś czasu: zakładka AllMonitor.",
+            "  💬 Full timeline: AllMonitor tab."))
+        lines.append(_followup("session", lang))
+        return lines
+
+    # ── System risk assessment ────────────────────────────────────────────────
+
+    def _resp_system_risk(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Ranks current system state by risk level across performance,
+        security and stability dimensions. Inspired by: 'which recent system
+        changes are creating the highest performance, security, or stability risk?'
+        """
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+        snap    = system_context.snapshot()
+        hw      = user_knowledge.get_all_hardware()
+        profile = _hw_profile(hw)
+
+        # risks: list of (level, message) — level 3=high, 2=medium, 1=info
+        risks: list[tuple[int, str]] = []
+
+        cpu = float(snap.get("cpu_pct", 0) or 0)
+        ram = float(snap.get("ram_pct", 0) or 0)
+
+        # ── Performance ───────────────────────────────────────────────────────
+        if cpu > 85:
+            risks.append((3, _t(lang,
+                f"🔴 CPU {cpu:.0f}% — ryzyko throttlingu i spowolnień (wydajność)",
+                f"🔴 CPU {cpu:.0f}% — throttle and slowdown risk (performance)")))
+        elif cpu > 70:
+            risks.append((2, _t(lang,
+                f"🟡 CPU {cpu:.0f}% — podwyższone obciążenie, mały margines",
+                f"🟡 CPU {cpu:.0f}% — elevated load, low headroom")))
+
+        if ram > 85:
+            risks.append((3, _t(lang,
+                f"🔴 RAM {ram:.0f}% — system może używać pagefile (stabilność/wydajność)",
+                f"🔴 RAM {ram:.0f}% — system may be swapping to pagefile (stability/performance)")))
+        elif ram > 70:
+            risks.append((2, _t(lang,
+                f"🟡 RAM {ram:.0f}% — mało wolnej pamięci, reaguj przy 85%+",
+                f"🟡 RAM {ram:.0f}% — low free memory headroom, act at 85%+")))
+
+        if snap.get("cpu_throttled"):
+            risks.append((3, _t(lang,
+                "🔴 CPU throttluje — moc ograniczona (przegrzanie / power limit) (stabilność)",
+                "🔴 CPU throttling — power is being limited (heat or power limit) (stability)")))
+
+        # ── Disk space ────────────────────────────────────────────────────────
+        try:
+            import psutil
+            for p in psutil.disk_partitions(all=False):
+                if "remote" in (p.opts or "").lower():
+                    continue
+                try:
+                    u = psutil.disk_usage(p.mountpoint)
+                    if u.percent > 90:
+                        free_gb = round(u.free / 1_073_741_824, 1)
+                        risks.append((3, _t(lang,
+                            f"🔴 Dysk {p.device}: {u.percent:.0f}% pełny ({free_gb} GB wolne) — ryzyko awarii zapisu (stabilność)",
+                            f"🔴 Drive {p.device}: {u.percent:.0f}% full ({free_gb} GB free) — write failure risk (stability)")))
+                    elif u.percent > 80:
+                        risks.append((2, _t(lang,
+                            f"🟡 Dysk {p.device}: {u.percent:.0f}% zajęty — zacznij zwalniać miejsce",
+                            f"🟡 Drive {p.device}: {u.percent:.0f}% used — start freeing space")))
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # ── Startup count ─────────────────────────────────────────────────────
+        try:
+            import winreg
+            startup_count = 0
+            for hive, path in [
+                (winreg.HKEY_CURRENT_USER,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+                (winreg.HKEY_LOCAL_MACHINE,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+            ]:
+                try:
+                    key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+                    i = 0
+                    while True:
+                        try:
+                            winreg.EnumValue(key, i)
+                            startup_count += 1
+                            i += 1
+                        except OSError:
+                            break
+                    winreg.CloseKey(key)
+                except Exception:
+                    pass
+            if startup_count > 12:
+                risks.append((2, _t(lang,
+                    f"🟡 Autostart: {startup_count} wpisów — zbędne tło + wolniejszy boot (wydajność)",
+                    f"🟡 Startup: {startup_count} entries — background bloat + slower boot (performance)")))
+            elif startup_count > 8:
+                risks.append((1, _t(lang,
+                    f"ℹ Autostart: {startup_count} wpisów — warto przejrzeć  [→ Startup Manager]",
+                    f"ℹ Startup: {startup_count} entries — worth reviewing  [→ Startup Manager]")))
+        except Exception:
+            pass
+
+        # ── Hardware profile ──────────────────────────────────────────────────
+        if profile["ram_very_low"]:
+            risks.append((3, _t(lang,
+                f"🔴 RAM: tylko {profile['ram_gb']:.0f} GB — krytycznie mało dla nowoczesnych systemów",
+                f"🔴 RAM: only {profile['ram_gb']:.0f} GB — critically low for modern workloads")))
+        elif profile["ram_low"] and ram > 60:
+            risks.append((2, _t(lang,
+                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% zajęte — bardzo mały margines",
+                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% used — very low margin")))
+        if profile["is_hdd"]:
+            risks.append((1, _t(lang,
+                "ℹ HDD wykryty — wolniejszy dysk to systemowe spowolnienie przy każdej operacji na plikach",
+                "ℹ HDD detected — slower disk causes system-wide slowdowns during file operations")))
+
+        # ── Security ─────────────────────────────────────────────────────────
+        try:
+            import psutil
+            from hck_gpt.process_library import process_library as _lib
+            _SUSPICIOUS_KW = {"xmrig", "cpuminer", "nicehash", "minerd", "cgminer"}
+            susp: list[str] = []
+            checked = 0
+            for proc in psutil.process_iter(["name"]):
+                try:
+                    nm = (proc.info.get("name") or "").lower()
+                    base = nm.replace(".exe", "")
+                    if any(kw in base for kw in _SUSPICIOUS_KW):
+                        susp.append(nm)
+                    else:
+                        info = _lib.get_process_info(nm)
+                        if info and info.get("safety") in ("suspicious", "unsafe"):
+                            susp.append(nm)
+                    checked += 1
+                    if checked >= 120:
+                        break
+                except Exception:
+                    continue
+            if susp:
+                names = ", ".join(susp[:3])
+                risks.append((3, _t(lang,
+                    f"🔴 Bezpieczeństwo: {len(susp)} podejrzanych procesów ({names}) — sprawdź natychmiast",
+                    f"🔴 Security: {len(susp)} suspicious process(es) ({names}) — check immediately")))
+        except Exception:
+            pass
+
+        # ── Sort descending by risk level ─────────────────────────────────────
+        risks.sort(key=lambda x: x[0], reverse=True)
+
+        header = _t(lang,
+            f"{self.PREFIX} Analiza ryzyka systemu:",
+            f"{self.PREFIX} System risk assessment:")
+        lines = [header]
+
+        if not risks:
+            lines.append(_t(lang,
+                "  ✅ Nie znaleziono aktywnych ryzyk. System wygląda zdrowo.",
+                "  ✅ No active risks found. System looks healthy."))
+        else:
+            lines.append(_t(lang,
+                f"  Wykryto {len(risks)} czynnik(ów) ryzyka — od najwyższego:",
+                f"  Found {len(risks)} risk factor(s) — ranked highest first:"))
+            for _, msg in risks[:6]:
+                lines.append(f"  {msg}")
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💬 Wpisz 'przyspiesz komputer' po plan naprawy  ·  'zdrowie systemu' po pełną diagnozę",
+            "  💬 Type 'speed up pc' for a fix plan  ·  'health check' for full diagnostics"))
+        lines.append(_followup("health", lang))
         return lines
 
     # ── Disk usage — why high ─────────────────────────────────────────────────
@@ -2620,6 +3058,495 @@ class ResponseBuilder:
             return [_t(lang,
                        f"{self.PREFIX} Brak danych — skanowanie sprzętu w toku.",
                        f"{self.PREFIX} No data yet — hardware scan running.")]
+
+
+    # ── Explain proactive message ─────────────────────────────────────────────
+
+    def _resp_explain_proactive(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Explain the most recently pushed proactive / teaser message.
+        Triggered when user asks: 'what does that mean?', 'what 3/7?',
+        'explain that', 'co to znaczy?', etc.
+        """
+        from hck_gpt.memory.session_memory import session_memory
+        last = session_memory.get_last_proactive()
+
+        if not last or not last.get("text"):
+            return [_t(lang,
+                f"{self.PREFIX} Nie mam żadnej ostatniej wiadomości do wyjaśnienia. "
+                "Zapytaj np. 'zdrowie systemu' lub 'stats'.",
+                f"{self.PREFIX} I don't have a recent message to explain. "
+                "Try asking 'health check' or 'stats'.")]
+
+        text = last.get("text", "")
+        ctx  = last.get("context", {})
+        ptype = ctx.get("type", "")
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Wyjaśniam ostatni komunikat:",
+            f"{self.PREFIX} Here's what that message meant:")]
+        lines.append(f"  » {text}")
+        lines.append("")
+
+        if ptype == "teaser":
+            proc = ctx.get("process", "?")
+            freq = ctx.get("freq",    "?")
+            cpu  = ctx.get("cpu",     None)
+            if lang == "en":
+                lines.append(f"  '{proc}' was active on {freq} out of the last 7 days.")
+                lines.append(f"  That makes it one of your regular tools — I track patterns over time.")
+                if cpu:
+                    lines.append(f"  When it runs, it averages {cpu:.0f}% CPU load.")
+            else:
+                lines.append(f"  '{proc}' był aktywny przez {freq} z ostatnich 7 dni.")
+                lines.append(f"  Oznacza to, że to regularny element Twojego zestawu.")
+                if cpu:
+                    lines.append(f"  Średnie obciążenie CPU gdy działa: {cpu:.0f}%.")
+
+        elif ptype in ("cpu_high", "cpu_crit"):
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  Your CPU was running at {val}% — that's sustained high load.")
+                lines.append(f"  Type 'top processes' to see which app caused it.")
+            else:
+                lines.append(f"  CPU pracował na {val}% — to utrzymane wysokie obciążenie.")
+                lines.append(f"  Wpisz 'top procesy' by znaleźć winowajcę.")
+
+        elif ptype in ("ram_high", "ram_crit"):
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  RAM was at {val}% — memory was getting tight.")
+                lines.append(f"  Ask me 'why is RAM high' for a detailed breakdown.")
+            else:
+                lines.append(f"  RAM był na {val}% — mało wolnej pamięci.")
+                lines.append(f"  Zapytaj 'dlaczego ram wysoki' po szczegółową analizę.")
+
+        elif ptype == "throttle":
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  Your CPU was throttled — running at only {val}% of max power.")
+                lines.append(f"  This is usually caused by heat. Check 'temperatures'.")
+            else:
+                lines.append(f"  CPU był dławiony — pracował na zaledwie {val}% mocy maksymalnej.")
+                lines.append(f"  Zwykle winne jest przegrzanie. Sprawdź 'temperatury'.")
+
+        elif ptype == "disk_low":
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  Your disk had only {val} GB of free space.")
+                lines.append(f"  Clean up TEMP files via the Optimization tab.")
+            else:
+                lines.append(f"  Na dysku zostało tylko {val} GB wolnego miejsca.")
+                lines.append(f"  Wyczyść pliki TEMP przez zakładkę Optimization.")
+
+        elif ptype == "long_session":
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  PC has been running for {val} hours without a restart.")
+                lines.append(f"  Memory leaks can accumulate over long sessions — consider restarting tonight.")
+            else:
+                lines.append(f"  PC działa od {val} godzin bez restartu.")
+                lines.append(f"  Przy długich sesjach mogą gromadzić się wycieki pamięci.")
+
+        elif ptype == "gpu_temp_spike":
+            val = ctx.get("val", "?")
+            if lang == "en":
+                lines.append(f"  GPU temperature hit {val}°C — that's a sudden heat spike.")
+                lines.append(f"  Check cooling, airflow, or lower your GPU load settings.")
+            else:
+                lines.append(f"  Temperatura GPU osiągnęła {val}°C — ostry skok ciepła.")
+                lines.append(f"  Sprawdź chłodzenie, wentylację lub obniż ustawienia GPU.")
+
+        elif ptype in ("all_clear",):
+            if lang == "en":
+                lines.append(f"  That was a routine status check — everything was healthy at that moment.")
+            else:
+                lines.append(f"  To był rutynowy przegląd — wszystko działało prawidłowo w tym momencie.")
+
+        elif ptype == "greeting":
+            if lang == "en":
+                lines.append(f"  That was my greeting — a quick summary of your PC's state when you opened the app.")
+            else:
+                lines.append(f"  To było powitanie — szybki przegląd stanu PC przy otwarciu aplikacji.")
+
+        else:
+            # Generic fallback
+            if lang == "en":
+                lines.append(f"  That was a proactive system notification. Ask me 'health check' or 'stats' for more.")
+            else:
+                lines.append(f"  To był proaktywny komunikat o stanie systemu. Zapytaj 'health' lub 'stats' po więcej.")
+
+        lines.append(_followup("health", lang))
+        return lines
+
+
+    # ── Browser cache / slow browser ─────────────────────────────────────────
+
+    def _resp_browser_cache(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        P = self.PREFIX
+        try:
+            import psutil
+            procs = []
+            BROWSERS = {"chrome.exe", "firefox.exe", "msedge.exe",
+                        "brave.exe", "opera.exe", "vivaldi.exe"}
+            total_mb = 0.0
+            counts: dict = {}
+            for proc in psutil.process_iter(["name", "memory_info"]):
+                try:
+                    nm = (proc.info["name"] or "").lower()
+                    if nm in BROWSERS:
+                        mb = (proc.info["memory_info"].rss / 1_048_576)
+                        total_mb += mb
+                        counts[nm] = counts.get(nm, 0) + 1
+                except Exception:
+                    pass
+            browser_lines = []
+            for bname, cnt in sorted(counts.items(), key=lambda x: -x[1]):
+                friendly = bname.replace(".exe", "").capitalize()
+                browser_lines.append(f"  {friendly}: {cnt} tab{'s' if cnt != 1 else ''}")
+            if not counts:
+                if lang == "en":
+                    return [f"{P} No browser is currently running.",
+                            "  Cache only matters while the browser is open.",
+                            _followup("perf", lang)]
+                return [f"{P} Żadna przeglądarka nie działa teraz.",
+                        "  Cache obciąża tylko przy otwartej przeglądarce.",
+                        _followup("perf", lang)]
+        except Exception:
+            total_mb = 0.0
+            browser_lines = []
+
+        # Severity band
+        if total_mb > 2000:
+            sev_en = f"HIGH — {total_mb:.0f} MB total across all browser processes."
+            sev_pl = f"WYSOKI — {total_mb:.0f} MB łącznie dla wszystkich procesów przeglądarki."
+            tip_en = "Consider closing unused tabs, disabling heavy extensions."
+            tip_pl = "Zamknij nieużywane zakładki, wyłącz ciężkie rozszerzenia."
+        elif total_mb > 800:
+            sev_en = f"MODERATE — {total_mb:.0f} MB in use."
+            sev_pl = f"UMIARKOWANY — {total_mb:.0f} MB w użyciu."
+            tip_en = "Cache is normal for this size. Close tabs you don't need."
+            tip_pl = "Cache OK przy tym rozmiarze. Zamknij zakładki których nie używasz."
+        else:
+            sev_en = f"LOW — {total_mb:.0f} MB, nothing to worry about."
+            sev_pl = f"NISKI — {total_mb:.0f} MB, bez obaw."
+            tip_en = "Browser memory is healthy. Cache isn't slowing you down."
+            tip_pl = "Pamięć przeglądarki OK. Cache nie spowalnia komputera."
+
+        if lang == "en":
+            lines = [f"{P} Browser memory footprint — {sev_en}"]
+            lines += browser_lines
+            lines.append(f"  Tip: {tip_en}")
+            lines.append("  To clear cache: Ctrl+Shift+Del in any browser.")
+        else:
+            lines = [f"{P} Pamięć przeglądarki — {sev_pl}"]
+            lines += browser_lines
+            lines.append(f"  Wskazówka: {tip_pl}")
+            lines.append("  Wyczyść cache: Ctrl+Shift+Del w dowolnej przeglądarce.")
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── RAM comparison (session + persistent history) ─────────────────────────
+
+    def _resp_ram_compare(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        P = self.PREFIX
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _ls_snap
+            ls = _ls_snap()
+        except Exception:
+            ls = {}
+
+        try:
+            import psutil
+            vm      = psutil.virtual_memory()
+            cur_pct = vm.percent
+            cur_mb  = vm.used / 1_048_576
+            tot_mb  = vm.total / 1_048_576
+        except Exception:
+            cur_pct = -1.0
+            cur_mb  = tot_mb = 0.0
+
+        # Pull multi-day history from metrics_store
+        try:
+            from hck_gpt.data.metrics_store import metrics_store as _ms
+            days = _ms.daily_summary(days=7)
+        except Exception:
+            days = []
+
+        # Session extremes from live_sensors historical baselines
+        sh       = ls.get("session_hist", {})
+        ram_hist = sh.get("ram_pct", [])
+        sess_min = ram_hist[0] if len(ram_hist) >= 2 else None
+        sess_max = ram_hist[1] if len(ram_hist) >= 2 else None
+        hist_avg = ls.get("_hist_ram_avg_7d", None)
+
+        if lang == "en":
+            lines = [f"{P} RAM comparison:"]
+            if cur_pct >= 0:
+                lines.append(f"  Now:      {cur_pct:.0f}%  ({cur_mb:.0f} MB / {tot_mb:.0f} MB)")
+            if sess_min is not None:
+                lines.append(f"  Session:  Min {sess_min:.0f}%  Max {sess_max:.0f}%")
+            if hist_avg is not None:
+                delta = cur_pct - hist_avg
+                sign  = "+" if delta >= 0 else ""
+                lines.append(f"  7-day avg: {hist_avg:.0f}%  →  today is {sign}{delta:.0f}% vs baseline")
+            if days:
+                lines.append("  Daily breakdown (last 7 days):")
+                for d in days[:5]:
+                    lines.append(f"    {d['date_str']}  avg {d['ram_avg']:.0f}%  max {d['ram_max']:.0f}%")
+            else:
+                lines.append("  Multi-day history builds up after a few sessions.")
+        else:
+            lines = [f"{P} Porównanie RAM:"]
+            if cur_pct >= 0:
+                lines.append(f"  Teraz:     {cur_pct:.0f}%  ({cur_mb:.0f} MB / {tot_mb:.0f} MB)")
+            if sess_min is not None:
+                lines.append(f"  Sesja:     Min {sess_min:.0f}%  Max {sess_max:.0f}%")
+            if hist_avg is not None:
+                delta = cur_pct - hist_avg
+                sign  = "+" if delta >= 0 else ""
+                lines.append(f"  Śr. 7 dni: {hist_avg:.0f}%  →  dziś {sign}{delta:.0f}% vs bazowy")
+            if days:
+                lines.append("  Dane dzienne (ostatnie 7 dni):")
+                for d in days[:5]:
+                    lines.append(f"    {d['date_str']}  śr. {d['ram_avg']:.0f}%  max {d['ram_max']:.0f}%")
+            else:
+                lines.append("  Historia wielodniowa narośnie po kilku sesjach.")
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── Swap / virtual memory / pagefile analysis ─────────────────────────────
+
+    def _resp_swap_analysis(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        P = self.PREFIX
+        try:
+            import psutil
+            sw = psutil.swap_memory()
+            swap_pct  = sw.percent
+            swap_used = sw.used  / 1_073_741_824   # GB
+            swap_tot  = sw.total / 1_073_741_824    # GB
+            vm        = psutil.virtual_memory()
+
+            # Top processes by virtual_memory_size (includes swap)
+            top: list = []
+            for proc in psutil.process_iter(["name", "memory_info"]):
+                try:
+                    mi = proc.info["memory_info"]
+                    vms_mb = mi.vms / 1_048_576
+                    rss_mb = mi.rss / 1_048_576
+                    # Likely on swap if VMS >> RSS
+                    swap_est = max(0.0, vms_mb - rss_mb)
+                    if swap_est > 50:
+                        top.append((proc.info["name"], swap_est))
+                except Exception:
+                    pass
+            top.sort(key=lambda x: -x[1])
+            top = top[:5]
+        except Exception:
+            swap_pct = -1.0
+            swap_used = swap_tot = 0.0
+            top = []
+            vm = None
+
+        if swap_pct < 0:
+            msg = _t(lang, "Nie mogę odczytać danych swap.", "Can't read swap data.")
+            return [f"{P} {msg}", _followup("perf", lang)]
+
+        if swap_tot < 0.1:
+            if lang == "en":
+                return [f"{P} No pagefile / swap configured on this system.",
+                        "  Windows is managing memory entirely in physical RAM.",
+                        _followup("perf", lang)]
+            return [f"{P} Brak pliku wymiany / swap na tym systemie.",
+                    "  Windows zarządza pamięcią wyłącznie w fizycznym RAM.",
+                    _followup("perf", lang)]
+
+        sev_en = "HIGH — swap heavily used, expect slowdowns" if swap_pct > 60 else \
+                 "MODERATE" if swap_pct > 25 else "LOW — healthy"
+        sev_pl = "WYSOKI — swap mocno zajęty, spodziewaj się spowolnienia" if swap_pct > 60 else \
+                 "UMIARKOWANY" if swap_pct > 25 else "NISKI — OK"
+
+        if lang == "en":
+            lines = [f"{P} Swap / Pagefile: {swap_pct:.0f}% used  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  → {sev_en}"]
+            lines.append(f"  Physical RAM: {vm.percent:.0f}% full  ({vm.used/1e9:.1f} / {vm.total/1e9:.1f} GB)")
+            if top:
+                lines.append("  Processes with largest virtual footprint (likely swap users):")
+                for name, mb in top:
+                    lines.append(f"    • {name[:22]:<22}  ~{mb:.0f} MB on swap")
+            if swap_pct > 60:
+                lines.append("  Fix: Close background apps, add more RAM, or increase pagefile size.")
+            else:
+                lines.append("  Swap is normal — Windows uses it as a buffer even when RAM is available.")
+        else:
+            lines = [f"{P} Swap / Plik wymiany: {swap_pct:.0f}% zajęty  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  → {sev_pl}"]
+            lines.append(f"  Fizyczny RAM: {vm.percent:.0f}% pełny  ({vm.used/1e9:.1f} / {vm.total/1e9:.1f} GB)")
+            if top:
+                lines.append("  Procesy z największym wirtualnym śladem (prawdopodobni użytkownicy swap):")
+                for name, mb in top:
+                    lines.append(f"    • {name[:22]:<22}  ~{mb:.0f} MB na swap")
+            if swap_pct > 60:
+                lines.append("  Rozwiązanie: zamknij programy w tle, dodaj RAM lub zwiększ rozmiar pliku wymiany.")
+            else:
+                lines.append("  Swap normalny — Windows używa go jako bufora nawet gdy RAM jest dostępny.")
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── Network usage by process (12th intent) ───────────────────────────────
+
+    def _resp_network_usage(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        P = self.PREFIX
+        net_rows: list = []
+        total_sent_mb = total_recv_mb = 0.0
+        try:
+            import psutil, time as _t
+
+            # Per-process net I/O: delta over 1 s window
+            # psutil.net_connections gives connections but not per-process bytes;
+            # use net_io_counters per-NIC for total, and process connections for top-N
+            before = psutil.net_io_counters()
+            _t.sleep(1.0)
+            after  = psutil.net_io_counters()
+            recv_mb = (after.bytes_recv - before.bytes_recv) / 1_048_576
+            sent_mb = (after.bytes_sent - before.bytes_sent) / 1_048_576
+            total_sent_mb = sent_mb
+            total_recv_mb = recv_mb
+
+            # Identify top processes by open connections count
+            conn_count: dict = {}
+            try:
+                for c in psutil.net_connections(kind="inet"):
+                    if c.pid and c.status == "ESTABLISHED":
+                        try:
+                            pname = psutil.Process(c.pid).name()
+                        except Exception:
+                            pname = f"PID {c.pid}"
+                        conn_count[pname] = conn_count.get(pname, 0) + 1
+            except (psutil.AccessDenied, Exception):
+                pass
+
+            top_conns = sorted(conn_count.items(), key=lambda x: -x[1])[:6]
+
+        except Exception:
+            top_conns = []
+            recv_mb = sent_mb = 0.0
+
+        # Live sensors for extra context
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _ls_snap
+            cpu_load = _ls_snap().get("cpu_load", -1.0)
+        except Exception:
+            cpu_load = -1.0
+
+        if lang == "en":
+            lines = [f"{P} Network activity — 1-second snapshot:"]
+            lines.append(f"  Download: {total_recv_mb:.2f} MB/s   Upload: {total_sent_mb:.2f} MB/s")
+            if top_conns:
+                lines.append("  Processes with most active connections:")
+                for pname, cnt in top_conns:
+                    lines.append(f"    • {pname[:28]:<28}  {cnt} connection{'s' if cnt != 1 else ''}")
+            else:
+                lines.append("  No established connections detected right now.")
+            if total_recv_mb + total_sent_mb > 5:
+                lines.append("  Tip: High background traffic? Check Windows Update, cloud sync, or antivirus.")
+            elif total_recv_mb + total_sent_mb < 0.1:
+                lines.append("  Network is nearly idle.")
+            if cpu_load > 60:
+                lines.append(f"  Note: CPU is at {cpu_load:.0f}% — network processing may be contributing.")
+        else:
+            lines = [f"{P} Aktywność sieciowa — pomiar 1-sekundowy:"]
+            lines.append(f"  Pobieranie: {total_recv_mb:.2f} MB/s   Wysyłanie: {total_sent_mb:.2f} MB/s")
+            if top_conns:
+                lines.append("  Procesy z największą liczbą aktywnych połączeń:")
+                for pname, cnt in top_conns:
+                    lines.append(f"    • {pname[:28]:<28}  {cnt} połączen{'ia' if cnt != 1 else 'ie'}")
+            else:
+                lines.append("  Brak aktywnych połączeń w tej chwili.")
+            if total_recv_mb + total_sent_mb > 5:
+                lines.append("  Wskazówka: Wysoki ruch w tle? Sprawdź Windows Update, sync chmury lub antywirusa.")
+            elif total_recv_mb + total_sent_mb < 0.1:
+                lines.append("  Sieć prawie bezczynna.")
+            if cpu_load > 60:
+                lines.append(f"  Uwaga: CPU jest na {cpu_load:.0f}% — obsługa sieci może dokładać swoje.")
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── USB / external drive transfer monitoring ──────────────────────────────
+
+    def _resp_usb_transfer(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        P = self.PREFIX
+        try:
+            import psutil
+            io1 = psutil.disk_io_counters(perdisk=True)
+            import time as _t
+            _t.sleep(0.5)
+            io2 = psutil.disk_io_counters(perdisk=True)
+
+            transfer_info: list = []
+            for disk_name in io2:
+                a = io1.get(disk_name)
+                b = io2.get(disk_name)
+                if not a or not b:
+                    continue
+                r_mb = (b.read_bytes  - a.read_bytes)  / 1_048_576 / 0.5
+                w_mb = (b.write_bytes - a.write_bytes) / 1_048_576 / 0.5
+                if r_mb + w_mb > 0.5:    # only show active disks
+                    transfer_info.append((disk_name, r_mb, w_mb))
+            transfer_info.sort(key=lambda x: -(x[1] + x[2]))
+
+            # CPU during transfer window
+            cpu_load = psutil.cpu_percent(interval=None)
+
+            # Partitions to map drive letters to disk names
+            parts = {p.device.rstrip("\\"): p for p in psutil.disk_partitions()}
+        except Exception:
+            transfer_info = []
+            cpu_load = -1.0
+            parts = {}
+
+        # Live sensors for context
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _ls_snap
+            ls = _ls_snap()
+            cpu_load = ls.get("cpu_load", cpu_load)
+        except Exception:
+            pass
+
+        if lang == "en":
+            lines = [f"{P} External / USB transfer — live I/O snapshot:"]
+            if not transfer_info:
+                lines.append("  No active disk I/O detected at the moment.")
+                lines.append("  If your transfer just started, ask me again in a few seconds.")
+            else:
+                for dname, r_mb, w_mb in transfer_info[:4]:
+                    arrow = f"R: {r_mb:.1f} MB/s" if r_mb > w_mb else f"W: {w_mb:.1f} MB/s"
+                    lines.append(f"  {dname:<12}  {arrow}  (R {r_mb:.1f} + W {w_mb:.1f} MB/s)")
+            if cpu_load >= 0:
+                cpu_note = "minimal" if cpu_load < 15 else "moderate" if cpu_load < 40 else "high"
+                lines.append(f"  CPU during transfer: {cpu_load:.0f}%  — {cpu_note} overhead.")
+                if cpu_load < 15:
+                    lines.append("  File transfers are very CPU-light on SSDs — storage controller handles it.")
+                elif cpu_load > 50:
+                    lines.append("  High CPU during transfer can happen with encryption, compression, or virus scanning.")
+            lines.append("  Tip: Transfer speed depends on USB version — USB 3.x is ~400 MB/s, USB 2.0 ~40 MB/s.")
+        else:
+            lines = [f"{P} Transfer zewnętrzny / USB — szybki odczyt I/O:"]
+            if not transfer_info:
+                lines.append("  Nie wykryto aktywnego transferu w tej chwili.")
+                lines.append("  Jeśli transfer właśnie się zaczął, zapytaj ponownie za chwilę.")
+            else:
+                for dname, r_mb, w_mb in transfer_info[:4]:
+                    arrow = f"R: {r_mb:.1f} MB/s" if r_mb > w_mb else f"Z: {w_mb:.1f} MB/s"
+                    lines.append(f"  {dname:<12}  {arrow}  (R {r_mb:.1f} + Z {w_mb:.1f} MB/s)")
+            if cpu_load >= 0:
+                cpu_note = "minimalny" if cpu_load < 15 else "umiarkowany" if cpu_load < 40 else "wysoki"
+                lines.append(f"  CPU podczas transferu: {cpu_load:.0f}%  — obciążenie {cpu_note}.")
+                if cpu_load < 15:
+                    lines.append("  Transfer plików to małe obciążenie CPU dla SSD — kontroler pamięci robi robotę.")
+                elif cpu_load > 50:
+                    lines.append("  Wysokie CPU podczas transferu może być efektem szyfrowania, kompresji lub antywirusa.")
+            lines.append("  Tip: Prędkość zależy od USB — USB 3.x ~400 MB/s, USB 2.0 ~40 MB/s.")
+        lines.append(_followup("perf", lang))
+        return lines
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────
