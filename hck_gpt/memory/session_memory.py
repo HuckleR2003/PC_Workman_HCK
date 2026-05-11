@@ -85,6 +85,12 @@ class SessionMemory:
         # Structure:  intent_name → {recorded_at: float, key: value, ...}
         self._session_data: Dict[str, Any] = {}
 
+        # ── Last proactive message store ──────────────────────────────────────
+        # Tracks the most recent autonomously pushed message so users can
+        # ask "what does that mean?" / "co to znaczy?" and get an explanation.
+        # Structure: {"text": str, "context": dict, "ts": float}
+        self._last_proactive: Dict[str, Any] = {}
+
         # ── Conversation summary ──────────────────────────────────────────────
         self.conversation_summary: str = ""
         self._summary_at_count: int    = 0   # message count when last summarized
@@ -157,6 +163,24 @@ class SessionMemory:
         for e in events:
             counts[e.event_type] = counts.get(e.event_type, 0) + 1
         return ", ".join(f"{k}×{v}" for k, v in counts.items())
+
+    # ── Last proactive message ────────────────────────────────────────────────
+
+    def set_last_proactive(self, text: str,
+                           context: Optional[Dict[str, Any]] = None) -> None:
+        """Store the most recent autonomously pushed message with its context.
+        Call this every time proactive_monitor or insights pushes a message so
+        the user can later ask 'what does that mean?' and get an explanation.
+        """
+        self._last_proactive = {
+            "text":    text,
+            "context": context or {},
+            "ts":      time.time(),
+        }
+
+    def get_last_proactive(self) -> Dict[str, Any]:
+        """Return the last stored proactive message (empty dict if none)."""
+        return dict(self._last_proactive)
 
     # ── Context snapshot ──────────────────────────────────────────────────────
 
