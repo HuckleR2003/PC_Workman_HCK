@@ -106,6 +106,11 @@ _QUICK_ALIASES: dict[str, str] = {
     "procesy":       "processes",
     "processes":     "processes",
     "top":           "processes",
+    # New intents — quick aliases
+    "turbo":         "turbo_boost",
+    "lag":           "why_slow",
+    "lagi":          "why_slow",
+    "laguje":        "why_slow",
     # Stats / session
     "stats":         "stats",
     "statystyki":    "stats",
@@ -153,30 +158,52 @@ class ChatHandler:
         self._pending_reset: bool = False
 
     def _trigger_hw_scan(self) -> None:
-        """Run hardware scan in background thread if knowledge DB is stale."""
+        """
+        Background thread: hardware scan + usage pattern update + pattern detection.
+        - scan_and_store()         → skipped if data is < 24 h old
+        - update_usage_patterns()  → skipped if patterns are < 24 h old
+        - detect_and_log_patterns()→ analyses data, writes to insights_log (48 h cooldown)
+        """
         import threading
         def _scan():
             try:
-                from .context.hardware_scanner import scan_and_store
+                from .context.hardware_scanner import (
+                    scan_and_store,
+                    update_usage_patterns,
+                    detect_and_log_patterns,
+                )
                 scan_and_store()
+                update_usage_patterns()
+                detect_and_log_patterns()
             except Exception:
                 pass
-        threading.Thread(target=_scan, daemon=True).start()
+        threading.Thread(target=_scan, daemon=True, name="hck_hw_scan").start()
 
     def process_message(self, user_message: str,
                         ui_lang: str = "auto") -> list[str]:
         msg   = user_message.strip()
         lower = msg.lower().strip()
 
-        # ── Language resolution ───────────────────────────────────────────────
+        # ── Language resolution — resolve ONCE at the top so every path uses it
         # ui_lang comes from the user's Language popup choice:
         #   "en"   → always English regardless of input language
         #   "pl"   → always Polish regardless of input language
         #   "auto" → detect from message (default behaviour)
-        def _resolve_lang(text: str) -> str:
-            if ui_lang in ("en", "pl"):
-                return ui_lang
-            return detect_language(text)
+        if ui_lang in ("en", "pl"):
+            lang = ui_lang
+        else:
+            lang = detect_language(msg) if HAS_AI_LAYER else "pl"
+        self._last_lang = lang
+
+        if HAS_PROACTIVE:
+            try:
+                proactive_monitor.set_language(lang)
+                proactive_monitor.set_user_active()
+            except Exception:
+                pass
+
+        def _resolve_lang(text: str) -> str:  # kept for inline calls below
+            return lang
 
         # ── 0. Reset confirmation flow (two-step, waits for tak/yes) ─────────
         if self._pending_reset:
@@ -200,17 +227,38 @@ class ChatHandler:
         if lower in _RESET_KEYWORDS:
             return self._cmd_reset_confirm()
 
+        # ── 4b. Smart "why" detection — before aliases, route WHY questions ─────
+        # Detects "dlaczego X" / "why is X" and maps to the correct diagnostic intent.
+        # This fires before the full parser so specific handlers get first priority.
+        _WHY_TRIGGERS = frozenset({"dlaczego", "czemu", "skąd", "co powoduje",
+                                   "why", "what causes", "why is", "why does"})
+        _has_why = any(kw in lower for kw in _WHY_TRIGGERS)
+        if _has_why and HAS_AI_LAYER:
+            _why_map = [
+                (("ram", "pamięć", "pamiec", "memory"), "ram_why_high"),
+                (("gpu", "karta graficzna", "graphics card", "karta się grzeje"), "gpu_temp_why"),
+                (("wolno", "lag", "lagi", "laguje", "slow", "sluggish", "stutter"), "why_slow"),
+                (("cpu", "procesor", "processor"), "why_slow"),
+            ]
+            try:
+                from .intents.parser import ParseResult as _PR_why
+                for keywords, why_intent in _why_map:
+                    if any(kw in lower for kw in keywords):
+                        _fake_why = _PR_why(intent=why_intent, confidence=0.85, raw_text=msg)
+                        _why_resp = response_builder.build(_fake_why, lang=lang)
+                        if _why_resp:
+                            session_memory.add_message("user", msg)
+                            session_memory.push_topic(why_intent)
+                            for line in _why_resp:
+                                session_memory.add_message("assistant", line)
+                            return _why_resp
+            except Exception:
+                pass
+
         # ── 5. Quick shorthand aliases (single-word bypasses full parser) ─────
         alias_intent = _QUICK_ALIASES.get(lower)
         if alias_intent and HAS_AI_LAYER:
             try:
-                lang = _resolve_lang(msg)
-                self._last_lang = lang
-                if HAS_PROACTIVE:
-                    try:
-                        proactive_monitor.set_language(lang)
-                    except Exception:
-                        pass
                 from .intents.parser import ParseResult as _PR
                 fake = _PR(intent=alias_intent, confidence=1.0, raw_text=msg)
                 resp = response_builder.build(fake, lang=lang)
@@ -226,14 +274,6 @@ class ChatHandler:
         # ── 6. AI intent layer ────────────────────────────────────────────────
         if HAS_AI_LAYER:
             try:
-                lang = _resolve_lang(msg)
-                self._last_lang = lang
-                if HAS_PROACTIVE:
-                    try:
-                        proactive_monitor.set_language(lang)
-                    except Exception:
-                        pass
-
                 result = intent_parser.parse(msg)
                 session_memory.add_message("user", msg)
 
@@ -260,12 +300,73 @@ class ChatHandler:
             except Exception:
                 pass
 
-        # ── 7. Legacy keyword routes (habits/insights/teaser) ─────────────────
+        # ── 7. Entity routing — unknown intent but clear hardware entity ─────────
+        # If the parser found no confident intent but extracted a known entity
+        # (cpu, gpu, ram, storage, motherboard), route directly to its hw_* handler.
+        # Example: "my gpu?" or "procesor?" → hw_gpu / hw_cpu
+        if HAS_AI_LAYER:
+            try:
+                _entity_intent_map = {
+                    "cpu":         "hw_cpu",
+                    "gpu":         "hw_gpu",
+                    "ram":         "hw_ram",
+                    "storage":     "hw_storage",
+                    "motherboard": "hw_motherboard",
+                }
+                _result_for_entity = intent_parser.parse(msg)
+                if _result_for_entity.entities:
+                    for ent_key, ent_intent in _entity_intent_map.items():
+                        if ent_key in _result_for_entity.entities:
+                            from .intents.parser import ParseResult as _PR2
+                            _fake = _PR2(intent=ent_intent, confidence=0.75,
+                                         entities=_result_for_entity.entities,
+                                         raw_text=msg)
+                            _resp = response_builder.build(_fake, lang=lang)
+                            if _resp:
+                                session_memory.add_message("user", msg)
+                                session_memory.push_topic(ent_intent)
+                                for line in _resp:
+                                    session_memory.add_message("assistant", line)
+                                return _resp
+            except Exception:
+                pass
+
+        # ── 7b. Context carry-over — short vague follow-up reuses last topic ────
+        # When the message is very short (≤ 2 tokens) and the last conversation
+        # topic is a hardware intent, assume the user is asking about that component.
+        # Example: "and?" / "a GPU?" after asking about CPU -> repeat/extend GPU info
+        if HAS_AI_LAYER:
+            try:
+                last_topic = session_memory.current_topic()
+                _hw_topics = {"hw_cpu", "hw_gpu", "hw_ram", "hw_storage",
+                              "hw_motherboard", "hw_all", "health_check",
+                              "temperature", "performance"}
+                _short_followup_words = frozenset({
+                    "a", "i", "to", "no", "ok", "and", "also", "more",
+                    "what", "jak", "jaki", "jaka", "dalej", "jeszcze",
+                })
+                msg_tokens = [t for t in lower.split() if t not in _short_followup_words]
+                if (last_topic in _hw_topics
+                        and len(msg_tokens) <= 2
+                        and not any(kw in lower for kw in _LEGACY_ONLY_KEYWORDS)):
+                    from .intents.parser import ParseResult as _PR3
+                    _ctx_fake = _PR3(intent=last_topic, confidence=0.65, raw_text=msg)
+                    _ctx_resp = response_builder.build(_ctx_fake, lang=lang)
+                    if _ctx_resp:
+                        session_memory.add_message("user", msg)
+                        session_memory.push_topic(last_topic)
+                        for line in _ctx_resp:
+                            session_memory.add_message("assistant", line)
+                        return _ctx_resp
+            except Exception:
+                pass
+
+        # ── 8. Legacy keyword routes (habits/insights/teaser) ─────────────────
         for keywords, handler in _ROUTES:
             if any(kw in lower for kw in keywords):
                 return getattr(self, handler)()
 
-        # ── 8. Legacy habits (stats keyword) ──────────────────────────────────
+        # ── 9. Legacy habits (stats keyword) ──────────────────────────────────
         if any(kw in lower for kw in (
             "habits", "top apps", "usage", "co uzywam",
             "nawyki", "summary", "podsumowanie"
@@ -449,6 +550,9 @@ class ChatHandler:
                               "confirm", "ok", "y", "yep"):
             return self._execute_reset()
         self._pending_reset = False
+        lang = self._last_lang
+        if lang == "en":
+            return ["hck_GPT: Cancelled — database was not reset."]
         return ["hck_GPT: Anulowano — baza danych nie została zresetowana."]
 
     def _execute_reset(self) -> list[str]:
@@ -488,16 +592,55 @@ class ChatHandler:
             ]
 
     def _default_response(self, msg: str) -> list[str]:
+        import re
+        lang  = self._last_lang
+        lower = msg.lower().strip()
+
+        # ── Smart proactive follow-up detection ───────────────────────────────
+        # Catch patterns like "what 3/7", "what does 3/7 mean", "explain that",
+        # "co to znaczy", etc. when there's a recent proactive message stored.
+        _PROACTIVE_RE = re.compile(
+            r'\d+/7'                        # "3/7", "5/7" etc.
+            r'|explain|clarify|what.*mean'
+            r'|that message|that alert|that notif'
+            r'|co to znacz|wyjaśnij|wytłumacz|o co chodzi|co miałeś'
+            r'|co znaczy|co oznacza|co chciałeś',
+            re.I
+        )
+        if _PROACTIVE_RE.search(lower) and HAS_AI_LAYER:
+            try:
+                from .memory.session_memory import session_memory as _sm
+                if _sm.get_last_proactive():
+                    from .intents.parser import ParseResult as _PR4
+                    _fake_ep = _PR4(intent="explain_proactive",
+                                    confidence=0.90, raw_text=msg)
+                    _ep_resp = response_builder.build(_fake_ep, lang=lang)
+                    if _ep_resp:
+                        session_memory.add_message("user", msg)
+                        session_memory.push_topic("explain_proactive")
+                        for line in _ep_resp:
+                            session_memory.add_message("assistant", line)
+                        return _ep_resp
+            except Exception:
+                pass
+
         lines: list[str] = []
         if self.insights:
             current = self.insights.get_current_insight()
             if current:
                 lines += [current, ""]
-        lines += [
-            "hck_GPT: Nie rozumiem tego zapytania.",
-            "  Spróbuj: 'specyfikacja', 'health', 'stats', 'help'",
-            "  lub zapytaj naturalnie: 'jaki mam procesor'",
-        ]
+        if lang == "en":
+            lines += [
+                "hck_GPT: I don't understand that query.",
+                "  Try: 'specs', 'health', 'stats', 'help'",
+                "  or ask naturally: 'what CPU do I have'",
+            ]
+        else:
+            lines += [
+                "hck_GPT: Nie rozumiem tego zapytania.",
+                "  Spróbuj: 'specyfikacja', 'health', 'stats', 'help'",
+                "  lub zapytaj naturalnie: 'jaki mam procesor'",
+            ]
         return lines
 
     def reset(self) -> None:
