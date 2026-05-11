@@ -100,19 +100,63 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what do i have", "show me my specs",
     ],
 
+    # ── Proactive message follow-up — "what does that mean?" ─────────────────
+    "explain_proactive": [
+        # Polish tokens
+        "wyjaśnij", "wytłumacz", "objaśnij",
+        # Polish multi-word
+        "co to znaczy", "co oznacza", "co miałeś na myśli",
+        "wyjaśnij ostatnią wiadomość", "co to był za komunikat",
+        "o co chodzi z tym", "wytłumacz mi to",
+        "co chciałeś powiedzieć", "co to za wiadomość",
+        "co znaczy taka wiadomość", "o co chodzi z tym komunikatem",
+        "co oznacza ta wiadomość", "co to znaczy 3/7",
+        "co to znaczy 4/7", "co to znaczy 5/7", "co to znaczy 6/7",
+        "co to znaczy 7/7", "co to znaczy 2/7",
+        "co oznacza x/7", "co to jest x/7",
+        # English tokens
+        "explain", "clarify",
+        # English multi-word
+        "what does that mean", "what did you mean",
+        "explain that", "explain the message",
+        "what was that message", "clarify that",
+        "what does 3/7 mean", "what is 3/7",
+        "what 3/7", "explain 3/7",
+        "what does 2/7 mean", "what does 4/7 mean",
+        "what does 5/7 mean", "what does 6/7 mean",
+        "what does 7/7 mean",
+        "what does it mean", "i don't understand that",
+        "explain that notification", "what was that notification",
+        "what was that alert", "what did that mean",
+        "what does that notification mean", "explain the alert",
+        "what were you saying", "what do you mean by that",
+    ],
+
     # ── System health & diagnostics ───────────────────────────────────────────
     "health_check": [
         # Tokens
         "zdrowie", "health", "kondycja", "diagnostyka", "diagnostics",
-        # Multi-word  ← these raise confidence significantly
+        # Multi-word PL ← these raise confidence significantly
         "stan systemu", "czy ok", "czy działa ok", "czy wszystko ok",
         "sprawdź komputer", "oceń komputer",
-        "health check", "system health", "is my pc ok",
-        "check health", "pc health", "system check",
         "czy komputer jest zdrowy", "jak działa mój komputer",
         "jak mój pc", "czy jest ok", "czy mam problem",
-        "jak system", "check system", "run diagnostics",
+        "jak system", "jak sobie radzi komputer", "jak sobie radzi pc",
+        "oceń stan pc", "pokaż stan systemu", "co słychać z pc",
+        "czy pc jest w porządku", "jak wygląda zdrowie systemu",
+        # Multi-word EN
+        "health check", "system health", "is my pc ok",
+        "check health", "pc health", "system check",
+        "check system", "run diagnostics",
         "is everything ok", "is it ok",
+        "how is my pc doing", "how is my computer doing",
+        "how's my pc doing", "how's my computer",
+        "how's my system", "how is my system",
+        "is my pc healthy", "is my pc fine",
+        "is everything running fine", "how's everything running",
+        "pc status", "system status", "status check",
+        "is my computer ok", "give me a status report",
+        "quick health check", "how's the pc",
     ],
     "temperature": [
         # Tokens
@@ -140,11 +184,20 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Tokens
         "wydajność", "performance", "szybkość", "speed",
         "fps", "lag", "laguje", "lagi", "wolno",
-        # Multi-word
+        # Multi-word PL
         "zacina się", "zacięcia ma", "działa wolno", "powolny komputer",
         "jak szybki", "aktualna wydajność", "obciążenie systemu",
+        "ile cpu używam", "ile ram używam", "jak bardzo obciążony",
+        "pokaż wydajność", "pokaż obciążenie", "co obciąża pc",
+        # Multi-word EN
         "how fast", "is it fast", "slow pc", "runs slow",
         "current performance", "performance check",
+        "how much cpu am i using", "what's my cpu usage",
+        "cpu usage right now", "current cpu load",
+        "how loaded is my pc", "show me performance",
+        "what's my ram usage", "ram usage now",
+        "how hard is my pc working", "how busy is my pc",
+        "what's the current load", "show system load",
     ],
     "stats": [
         # Tokens
@@ -490,11 +543,18 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "co drenauje baterię", "co zabiera baterię", "brak baterii dlaczego",
         "który program jest najgorszy dla baterii", "co zużywa prąd",
         "jak oszczędzić baterię", "bateria szybko siada",
+        "który proces rozładowuje baterię teraz", "co teraz zjada baterię",
+        "co zużywa baterię w tej chwili", "który program zabija baterię",
+        "co teraz drenuje baterię", "bateria się rozładowuje co to",
         # English
         "what drains battery", "battery drain cause", "which app drains battery",
         "why does battery drain so fast", "battery life bad why",
         "what uses most battery", "battery drain fix",
         "which process kills battery", "save battery", "battery saving",
+        "which process is draining my battery right now",
+        "what is draining my battery right now",
+        "what's eating my battery", "which app is killing my battery",
+        "what process uses most battery", "battery draining fast what to do",
     ],
 
     # ── Performance change / delta ────────────────────────────────────────────
@@ -540,6 +600,201 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why does everything load like it has a hangover",
         "my computer is lazy today", "pc is tired today",
         "which program steals the most ram",
+    ],
+
+    # ── Startup safety — can I disable X from startup? ───────────────────────
+    "startup_safety": [
+        # Polish
+        "czy mogę wyłączyć ze startu", "czy bezpiecznie wyłączyć ze startu",
+        "czy warto wyłączyć ze startu", "czy X w autostarcie jest potrzebny",
+        "czy powinienem wyłączyć ze startu", "co mogę wyłączyć ze startu",
+        "które programy startowe wyłączyć", "jakie programy startowe są zbędne",
+        "czy chrome może startować z windows", "czy discord musi startować",
+        "czy spotify potrzebuje autostart", "czy steam musi startować z windows",
+        "czy mogę usunąć z autostartu", "co usunąć z autostartu",
+        "które wpisy startowe są bezpieczne", "czy ten program musi startować",
+        "wyłączyć chrome ze startu", "wyłączyć discord ze startu",
+        "wyłączyć spotify ze startu", "wyłączyć steam ze startu",
+        # English
+        "is it safe to disable from startup", "can i disable from startup",
+        "should i disable from startup", "which startup programs to disable",
+        "can i remove from startup", "safe to remove from startup",
+        "is it safe to disable chrome from startup",
+        "is it safe to disable discord from startup",
+        "should i disable spotify from startup",
+        "can i turn off steam from startup", "what startup programs can i disable",
+        "which startup entries are safe to remove",
+        "is x safe to disable at startup", "disable from autostart",
+    ],
+
+    # ── What changed on my PC since yesterday ────────────────────────────────
+    "pc_changes": [
+        # Polish
+        "co się zmieniło od wczoraj", "co nowego na pc",
+        "co zmieniło się w systemie", "jakie zmiany od wczoraj",
+        "co jest inne niż wczoraj", "co nowego od ostatniego razu",
+        "zmiany systemowe", "co się pojawiło nowego w systemie",
+        "co się zmieniło na komputerze", "jakie są zmiany na pc",
+        "co nowego na komputerze", "co nowego w systemie",
+        "co się zmieniło od ostatniego uruchomienia systemu",
+        "jakie zmiany zaszły", "co się różni od wczoraj",
+        # English
+        "what changed since yesterday", "what's new on my pc",
+        "what changed on my pc", "what changed in the system",
+        "what's different today", "any changes since yesterday",
+        "what system changes happened", "what changed on my computer",
+        "what's new since last time", "what has changed",
+        "what changed on pc since yesterday", "system changes today",
+    ],
+
+    # ── System risk assessment ────────────────────────────────────────────────
+    "system_risk": [
+        # Polish
+        "co zagraża mojemu pc", "analiza ryzyka systemu", "ryzyko systemu",
+        "które zmiany są ryzykowne", "co stwarza ryzyko",
+        "co zagraża wydajności", "co zagraża stabilności",
+        "co może się zepsuć", "co powoduje największe ryzyko",
+        "jakie są ryzyka systemu", "które zmiany powodują problemy",
+        "co jest niebezpieczne w systemie", "co zagraża bezpieczeństwu",
+        "analiza zagrożeń", "stabilność systemu",
+        "co zagraża wydajności bezpieczeństwu stabilności",
+        "które zmiany tworzą ryzyko",
+        # English
+        "what risks does my pc have", "system risk assessment",
+        "which changes create risk", "what poses the highest risk",
+        "what is risky on my pc", "performance security stability risk",
+        "what threatens my system", "risk analysis",
+        "what could break", "what causes the most problems",
+        "which recent changes are risky", "system stability risk",
+        "what is creating stability risk", "what creates performance risk",
+        "recent changes highest risk", "system threat analysis",
+    ],
+
+    # ── Browser cache / slow browser ─────────────────────────────────────────
+    "browser_cache": [
+        # Polish
+        "czy przeglądarka jest wolna przez cache", "przeglądarka wolna przez cache",
+        "czy chrome ma za duży cache", "czy firefox ma za duży cache",
+        "cache przeglądarki jest za duży", "wyczyść cache przeglądarki",
+        "przeglądarka zwalnia przez cache", "przeglądarka jest powolna przez cache",
+        "co zajmuje pamięć w chrome", "chrome zajmuje za dużo ram",
+        "chrome jest wolny dlaczego", "firefox jest wolny dlaczego",
+        "edge jest wolny dlaczego", "przeglądarka pożera ram",
+        "chrome pożera ram", "chrome żre ram", "cache przeglądarki",
+        "czy warto wyczyścić cache", "kiedy wyczyścić cache",
+        "co to cache przeglądarki", "jak zmniejszyć zużycie ram przez chrome",
+        "dlaczego przeglądarka zajmuje tyle ram",
+        # English
+        "browser slow because of cache", "is browser slow because of caching",
+        "can you tell me if my browser is getting slow because of huge caching",
+        "browser cache too big", "clear browser cache", "chrome cache issue",
+        "why is chrome using so much ram", "why is browser using so much memory",
+        "chrome eating memory", "browser memory hog", "firefox memory issue",
+        "is my browser cache too large", "browser slow memory",
+        "chrome slow why", "edge slow why", "firefox slow why",
+        "browser ram usage high", "how to fix browser slowness",
+        "browser consuming too much memory", "chrome tab memory",
+    ],
+
+    # ── RAM usage comparison between sessions / experiments ──────────────────
+    "ram_compare": [
+        # Polish
+        "porównaj użycie ram", "porównaj ram z poprzedniej sesji",
+        "ile ram było wcześniej", "ram był wyższy wcześniej",
+        "porównaj exp1 i exp2 ram", "porównaj eksperymenty ram",
+        "jak ram wyglądał wcześniej", "ram w sesji poprzedniej",
+        "porównaj ram teraz i wcześniej", "porównaj zużycie pamięci",
+        "ile ram zajmował wcześniej program", "zmiana zużycia ram",
+        "ram rósł od startu", "jak ram rósł przez sesję",
+        "sesja vs sesja ram", "compare ram usage",
+        "było więcej ram zajęte wcześniej", "ram wcześniej vs teraz",
+        # English
+        "compare my exp1 and exp2 ram usage", "compare ram usage between experiments",
+        "compare ram sessions", "ram usage comparison",
+        "how does ram compare now vs before", "ram was higher earlier",
+        "ram increased over session", "compare ram between runs",
+        "session ram comparison", "how much ram was used before",
+        "ram usage then vs now", "did ram grow over time",
+        "compare memory usage", "ram usage over time",
+        "how much ram did it use earlier",
+    ],
+
+    # ── Swap / pagefile / virtual memory analysis ─────────────────────────────
+    "swap_analysis": [
+        # Polish
+        "plik wymiany", "pagefile", "swap", "wirtualna pamięć",
+        "co zajmuje swap", "co korzysta ze swap", "swap jest pełny",
+        "za mało ram swap używany", "procesy na swapie",
+        "które procesy używają swap", "swap usage wysoki",
+        "plik stronicowania pełny", "pagefile overflow",
+        "dlaczego jest swap", "swap spowalnia komputer",
+        "co siedzi na pagefile", "ram skończony swap używany",
+        "procesy korzystające ze swap", "swap wysoki co zrobić",
+        "jak zmniejszyć swap", "jak wyłączyć swap",
+        "czy swap spowalnia", "czy plik wymiany jest za mały",
+        # English
+        "which processes are taking up a lot of swap space and slowing me down",
+        "what is using swap space", "swap usage high", "pagefile full",
+        "what processes use swap", "swap space analysis",
+        "virtual memory usage", "pagefile overflow",
+        "too much swap being used", "swap is slow",
+        "processes using pagefile", "why is swap full",
+        "how to reduce swap usage", "ram out pagefile used",
+        "swap is eating performance", "pagefile performance impact",
+        "what's in my pagefile", "is swap slowing me down",
+        "virtual memory full", "swap file too small",
+    ],
+
+    # ── USB / external drive transfer monitoring ──────────────────────────────
+    "usb_transfer": [
+        # Polish
+        "zewnętrzny dysk transfer", "usb transfer", "kopiuję pliki ile cpu",
+        "transfer zdjęć ile cpu", "podłączyłem zewnętrzny dysk",
+        "zewnętrzny ssd podłączyłem", "usb kopiowanie ile zasobów",
+        "ile cpu zajmuje transfer", "transfer plików cpu",
+        "kopiowanie plików obciążenie", "usb dysk aktywność",
+        "transfer danych cpu", "zewnętrzny dysk aktywność",
+        "ile io dysku przy kopiowaniu", "usb transfer obciążenie",
+        "czy transfer spowalnia komputer", "kopiuję przez usb",
+        "transfer z dysku zewnętrznego", "skopiować pliki obciążenie",
+        "ile zajmuje kopiowanie", "prędkość transferu usb",
+        # English
+        "i connected my external ssd and am transferring photos how much cpu is it taking up",
+        "external ssd transfer cpu usage", "usb transfer cpu load",
+        "copying files how much cpu", "file transfer cpu usage",
+        "external drive transfer speed", "usb activity cpu",
+        "how much cpu does file transfer use", "disk io during transfer",
+        "transfer speed external drive", "copying photos cpu usage",
+        "external drive connected cpu load", "usb copy performance",
+        "how much resources does transfer use", "file copy cpu cost",
+        "disk transfer activity", "is file transfer slowing my pc",
+        "usb drive cpu overhead", "external disk io",
+    ],
+
+    # ── Network usage by process ──────────────────────────────────────────────
+    "network_usage": [
+        # Polish
+        "co używa internetu", "co korzysta z sieci", "co pobiera",
+        "który program pobiera dane", "który program wysyła dane",
+        "co zajmuje sieć", "sieć jest obciążona", "internet jest wolny dlaczego",
+        "które procesy używają sieci", "co drenuje sieć",
+        "co zużywa bandwidth", "co używa wifi", "co korzysta z wifi",
+        "który program używa internetu", "co pobiera w tle",
+        "co wysyła dane w tle", "aktywność sieciowa", "ruch sieciowy",
+        "ile danych pobiera mój komputer", "co niszczy internet",
+        "aktywność sieci", "który program żre internet",
+        "internet zajęty kto", "sieć 100 procent kto",
+        # English
+        "which process is using the network", "what is using my internet",
+        "what's eating my bandwidth", "network usage by process",
+        "which app is downloading in background", "what is using wifi",
+        "who is using my network", "network activity monitor",
+        "what process is sending data", "what process is receiving data",
+        "background downloads", "what is using my connection",
+        "which app uses most bandwidth", "network hog",
+        "why is my internet slow which process", "who is eating my bandwidth",
+        "internet usage by app", "network traffic by process",
+        "what is downloading", "what is uploading",
     ],
 
     # ── Session compare ───────────────────────────────────────────────────────
