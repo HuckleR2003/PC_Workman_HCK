@@ -1285,83 +1285,74 @@ class ExpandedMainWindow:
             w.bind("<Enter>", _show_tip, add="+")
             w.bind("<Leave>", _hide_tip, add="+")
 
-        # === RIGHT: MORE OPTIMIZATION TOOLS ===
-        optim_btn = tk.Frame(buttons_row, bg="#10b981", cursor="hand2")  # Bright green border
+        # === RIGHT: OPTIMIZATION CENTER (subtle link-style) ===
+        _OC_BG   = "#0c1018"
+        _OC_BD   = "#1a2235"
+        _OC_TEXT = "#3d5070"
+        _OC_HOV  = "#5a7499"
+
+        optim_btn = tk.Frame(buttons_row,
+                             bg=_OC_BD, cursor="hand2")
         optim_btn.pack(side="right", fill="both", expand=True, padx=(3, 0))
 
-        # Main content container with glowing background
-        optim_content = tk.Frame(optim_btn, bg="#047857")  # Brighter background
-        optim_content.pack(fill="both", expand=True, padx=2, pady=2)
+        optim_content = tk.Frame(optim_btn, bg=_OC_BG)
+        optim_content.pack(fill="both", expand=True, padx=1, pady=1)
 
-        # Header with GLOWING background
-        optim_header = tk.Frame(optim_content, bg="#10b981")  # Bright glowing green header
-        optim_header.pack(fill="x", padx=8, pady=(6, 4))
+        # Thin top accent — dark violet
+        tk.Frame(optim_content, bg="#2a1f4a", height=2).pack(fill="x")
 
+        optim_inner = tk.Frame(optim_content, bg=_OC_BG)
+        optim_inner.pack(fill="both", expand=True, padx=10, pady=6)
+
+        # Icon + label row
+        hdr_row = tk.Frame(optim_inner, bg=_OC_BG)
+        hdr_row.pack(anchor="w")
+        tk.Label(hdr_row, text="⚡", font=("Segoe UI", 9),
+                 bg=_OC_BG, fg="#2a3a5a").pack(side="left", padx=(0, 5))
+        optim_title = tk.Label(
+            hdr_row,
+            text="Optimization Center",
+            font=("Segoe UI Semibold", 9),
+            bg=_OC_BG, fg=_OC_TEXT, cursor="hand2",
+        )
+        optim_title.pack(side="left")
+
+        # Subtitle
         tk.Label(
-            optim_header,
-            text="More Optimization Tools",
-            font=("Segoe UI", 11, "bold"),
-            bg="#10b981",  # Bright background
-            fg="#ffffff",
-            padx=6,
-            pady=2
-        ).pack(anchor="w")
-
-        # Thin separator line (brighter) - moved up (no subtitles)
-        tk.Frame(optim_content, bg="#34d399", height=2).pack(fill="x", pady=(4, 4))
-
-        # Bottom action buttons
-        optim_actions = tk.Frame(optim_content, bg="#047857")
-        optim_actions.pack(fill="x", padx=8, pady=(0, 6))
-
-        # Statystyki button (brighter)
-        stats_btn = tk.Label(
-            optim_actions,
-            text="Performance improvement statistics",
-            font=("Segoe UI", 7, "bold"),
-            bg="#10b981",
-            fg="#ffffff",
-            cursor="hand2",
-            padx=8,
-            pady=3
-        )
-        stats_btn.pack(side="left")
-
-        # Click handler
-        def open_stats(e):
-            self._show_overlay("statistics")
-
-        stats_btn.bind("<Button-1>", open_stats)
-
-        # Hover effect
-        def on_enter_stats(e):
-            stats_btn.config(bg="#34d399")  # Brighter on hover
-        def on_leave_stats(e):
-            stats_btn.config(bg="#10b981")
-        stats_btn.bind("<Enter>", on_enter_stats)
-        stats_btn.bind("<Leave>", on_leave_stats)
-
-        # Active tools counter
-        self.tools_label = tk.Label(
-            optim_actions,
-            text="Active tools: ",
+            optim_inner,
+            text="Hardware & Health  →  My PC",
             font=("Segoe UI", 7),
-            bg="#047857",
-            fg="#a7f3d0"
-        )
-        self.tools_label.pack(side="right", padx=(0, 2))
+            bg=_OC_BG, fg="#242e40",
+        ).pack(anchor="w", pady=(1, 0))
 
-        self.tools_count_label = tk.Label(
-            optim_actions,
-            text="0/16",
-            font=("Segoe UI", 7, "bold"),
-            bg="#047857",
-            fg="#34d399"  # Brighter green for glowing effect
-        )
-        self.tools_count_label.pack(side="right")
+        # Thin bottom separator
+        tk.Frame(optim_content, bg=_OC_BD, height=1).pack(fill="x", side="bottom")
 
-        # Start glowing animation for numbers
-        self._animate_tools_glow()
+        # Active tools counter (kept for reference)
+        self.tools_label = tk.Label(optim_inner, text="",
+                                    font=("Segoe UI", 6),
+                                    bg=_OC_BG, fg="#1e2a3a")
+        self.tools_label.pack(anchor="w")
+        self.tools_count_label = tk.Label(optim_inner, text="",
+                                          font=("Segoe UI", 6),
+                                          bg=_OC_BG, fg="#1e2a3a")
+        self.tools_count_label.pack()
+
+        # Navigation → My PC (Hardware & Health)
+        def _go_hardware(e=None):
+            self._switch_to_page("your_pc")
+
+        def _oc_enter(e):
+            optim_title.config(fg=_OC_HOV)
+            optim_btn.config(bg="#253550")
+        def _oc_leave(e):
+            optim_title.config(fg=_OC_TEXT)
+            optim_btn.config(bg=_OC_BD)
+
+        for w in (optim_btn, optim_content, optim_inner, hdr_row, optim_title):
+            w.bind("<Button-1>", _go_hardware, add="+")
+            w.bind("<Enter>",   _oc_enter,    add="+")
+            w.bind("<Leave>",   _oc_leave,    add="+")
 
     def _animate_turbo_glow(self):
         """Animate glowing effect on Turbo Boost ON/OFF status"""
