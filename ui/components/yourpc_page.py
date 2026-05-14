@@ -6,6 +6,17 @@ import tkinter as tk
 import os
 import time
 
+# ── Typography ────────────────────────────────────────────────────────────────
+# Inter (loaded at startup via utils.fonts.load) → falls back to Segoe UI.
+# Segoe UI Semibold used for all headings.
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except Exception:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"   # section / card headings
+_BODY = _UIF                  # body text  (Inter or Segoe UI)
+_MONO = _MONOF                # numbers / values (Consolas)
+
 try:
     import psutil
 except ImportError:
