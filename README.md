@@ -1,8 +1,8 @@
-# PC_Workman 1.7.3
+# PC_Workman 1.7.4
 
 **Real-time PC monitoring + AI diagnostics.**
 ![Status](https://img.shields.io/badge/Status-Active%20Development-green)
-![Version](https://img.shields.io/badge/Version-1.7.3-blue)
+![Version](https://img.shields.io/badge/Version-1.7.4-blue)
 ![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
 ![License](https://img.shields.io/badge/License-MIT-blue)
 -
@@ -145,7 +145,26 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.3] - `2026-05-02` - CURRENT
+## What's New [1.7.4] - `2026-05-14` - CURRENT
+
+### Optimization Center — Full Redesign
+- Feature grid rebuilt as 2-column expandable card layout — each card has an inline info panel, no separate overlay
+- Snapshot strip (CPU / RAM / Disk) now shows subtle fill bars behind the percentage values
+- **Turbo Power Plan** now actually creates a "Turbo PC" power scheme via `powercfg`; handles non-English Windows, detects missing admin rights, restores original plan on exit
+- **Quick Actions** replaced: Startup Manager (nav), Services Manager (nav), Disk Defragmenter (run), Weekly Performance Report (window)
+- **Weekly Performance Report**: 6 bar charts (CPU/GPU/RAM avg + peak over 4 rolling weeks), AI text summary, TXT export
+- **LIVE NOW** sidebar: CPU/RAM/GPU mini-bars, refreshes every 2 s
+- Typography upgrade: Segoe UI Semibold throughout; fixed icon widget parenting bug
+
+### Dashboard
+- "More Optimization Tools" button replaced with a subtle dark "Optimization Center" chip — navigates to My PC → Hardware & Health; glow animation removed
+
+### My PC
+- `yourpc_page.py` now uses the shared `utils.fonts` font system (`_HDR / _BODY / _MONO`)
+
+---
+
+## What's New [1.7.3] - `2026-05-02` *(previous)*
 
 ### Live Guide
 - New `ui/guide/live_guide.py` — `LiveGuide` class: interactive spotlight overlay with Windows `-transparentcolor` dim technique
@@ -506,7 +525,8 @@ Click any process to see more details.
 | v1.6.3 | Released | Fan dashboard, menu system, .exe |
 | v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
 | v1.7.2 | Released | Startup/Services Manager, Optimization Hub, hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, EXE build |
-| **v1.7.3** | **Current** | **Live Guide, hck_GPT AI quality (followups, help rewrite, optimization live), session data store, WMI scan, nav links** |
+| v1.7.3 | Released | Live Guide, hck_GPT AI quality (followups, help rewrite, optimization live), session data store, WMI scan, nav links |
+| **v1.7.4** | **Current** | **Optimization Center redesign (2-col grid, expandable cards, Turbo PP creation, Weekly Report, LIVE NOW), dashboard button restyle** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
