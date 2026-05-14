@@ -1,6 +1,27 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.4] - 2026-05-14
+
+### Optimization Center — Full Redesign
+
+**`ui/pages/optimization_services.py`**
+- Feature grid rebuilt as 2-column layout with equal-width expandable cards; each card has an inline [i] info panel that opens/collapses without leaving the page
+- Snapshot strip (CPU / RAM / Disk) now renders subtle fill bars — 9% blend of accent color into surface background, drawn on Canvas to work around Tkinter's lack of alpha channel support
+- **Turbo Power Plan**: actually creates a "Turbo PC" power scheme via `powercfg /duplicatescheme` instead of just activating a preset; admin detection via `ctypes.IsUserAnAdmin`; GUID parser rewritten to be language-agnostic (no longer breaks on Polish or other non-English Windows); fallback to Ultimate Performance GUID if HP plan unavailable; `atexit` handler restores original plan on exit
+- **Quick Actions** fully replaced: Startup Apps Manager (nav link), Services Manager (nav link), Disk Defragmenter (run), Weekly Performance Report (opens window); removed old shortcuts (flush / telemetry / gaming mode); removed "ALL 4 run on TURBO BOOST" label; accent bars widened to 4px; RUN/OPEN buttons larger; Weekly Report row has dark-green background to distinguish it
+- **Weekly Performance Report**: `Toplevel` window with 6 bar charts (3×2 grid) — CPU avg, CPU peak, GPU avg, GPU peak, RAM avg, RAM peak across 4 rolling weeks; W4 = latest week rendered full-color + bold; older bars blended toward background; glow/shadow on latest bar; AI-generated text summary (trend direction, RAM pressure, spike detection); EXPORT .TXT button
+- **LIVE NOW** sidebar panel: auto-refreshing CPU/RAM/GPU mini-bars, updates every 2 s via `after()`
+- Typography upgraded: feature card titles `("Segoe UI Semibold", 8)`, descriptions larger and readable, Quick Actions labels in Segoe UI Semibold; fixed icon Canvas widgets being created before parent frame existed (reparenting via `configure(master=...)` is invalid in Tkinter — fixed by passing parent at creation)
+
+**`ui/windows/main_window_expanded.py`**
+- "More Optimization Tools" button replaced with a subtle dark "Optimization Center" chip (`#0c1018` bg, `#1a2235` border, muted text `#3d5070`); click navigates to My PC → Hardware & Health; glow animation removed
+
+**`ui/components/yourpc_page.py`**
+- Added `utils.fonts` import with `_HDR / _BODY / _MONO` aliases so the page uses the same Inter/Segoe UI Semibold font system as the rest of the app
+
+---
+
 ## [1.7.3] - 2026-05-02
 
 ### Live Guide — nowy moduł
