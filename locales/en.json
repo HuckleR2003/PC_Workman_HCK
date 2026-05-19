@@ -1,0 +1,275 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "dismiss": "Dismiss",
+    "reset": "Reset",
+    "enable": "Enable",
+    "disable": "Disable",
+    "on": "On",
+    "off": "Off",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading…",
+    "error": "Error",
+    "warning": "Warning",
+    "success": "Success",
+    "unknown": "Unknown",
+    "locked": "LOCKED",
+    "coming_soon": "Coming soon",
+    "not_available": "Not available"
+  },
+
+  "nav": {
+    "dashboard": "Dashboard",
+    "monitoring": "MONITORING & ALERTS",
+    "monitoring_temperature": "Temperature",
+    "monitoring_voltage": "Voltage",
+    "monitoring_alerts": "Center & Alerts",
+    "my_pc": "My PC",
+    "my_pc_central": "Central",
+    "my_pc_efficiency": "Efficiency",
+    "my_pc_sensors": "Sensors",
+    "my_pc_health": "Health",
+    "setup": "Setup & Drivers",
+    "fan_control": "Fan Control",
+    "fan_control_dashboard": "Dashboard",
+    "fan_control_hardware": "FANS - Hardware Info",
+    "fan_control_usage": "Usage Statistics",
+    "optimization": "Optimization",
+    "optimization_services": "Services",
+    "optimization_startup": "Startup",
+    "optimization_wizard": "Wizard",
+    "statistics": "Statistics",
+    "statistics_today": "Today",
+    "statistics_weekly": "Weekly",
+    "statistics_monthly": "Monthly",
+    "settings": "Settings",
+    "pinned": "Pinned"
+  },
+
+  "settings": {
+    "page_title": "Settings",
+    "section": {
+      "general": "GENERAL",
+      "general_badge": "PC WORKMAN",
+      "language": "Language",
+      "hck_gpt": "hck_GPT",
+      "notifications": "Notifications"
+    },
+    "language": {
+      "title": "Interface Language",
+      "subtitle": "Changes apply instantly.",
+      "notice": "More languages coming soon.",
+      "selector_label": "Language"
+    },
+    "general": {
+      "header": "PC WORKMAN",
+      "header_sub": "GENERAL",
+      "internet_toggle_label": "Locked Internet Toggle",
+      "internet_toggle_desc": "Connection control is managed by system policy.",
+      "reset_turbo_label": "RESET Turbo Boost",
+      "reset_turbo_desc": "Restore default CPU Turbo settings and clear overrides.",
+      "reset_turbo_btn": "RESET TURBO",
+      "reset_turbo_done": "Turbo settings restored.",
+      "startup_label": "Launch at Windows startup",
+      "startup_desc": "Start PC Workman automatically when Windows boots.",
+      "autohide_label": "Sidebar auto-hide",
+      "autohide_desc": "Sidebar collapses after 3 s when the cursor leaves it.",
+      "temp_unit_label": "Temperature unit",
+      "temp_unit_desc": "Display temperatures in Celsius or Fahrenheit.",
+      "temp_celsius": "Celsius (°C)",
+      "temp_fahrenheit": "Fahrenheit (°F)",
+      "debug_label": "Debug Control Center",
+      "debug_desc": "Access internal developer diagnostics (requires auth key).",
+      "debug_btn": "Open Debug",
+      "debug_denied": "Access denied — invalid authorization key",
+      "debug_dialog_title": "Authorization Required",
+      "debug_dialog_prompt": "Enter developer authorization key:"
+    },
+    "hck_gpt": {
+      "ollama_label": "Switch CORE AI to Ollama",
+      "ollama_badge_local": "LOCAL",
+      "ollama_badge_locked": "LOCKED",
+      "ollama_desc": "Run hck_GPT fully offline using a local Ollama model.\nRequires Ollama installed and a compatible model pulled.",
+      "model_label": "AI Model",
+      "context_label": "Context window",
+      "temperature_label": "Response temperature",
+      "history_label": "Keep conversation history",
+      "history_desc": "Remember previous messages within the session.",
+      "streaming_label": "Streaming responses",
+      "streaming_desc": "Show AI answer word-by-word as it generates."
+    },
+    "notifications": {
+      "new_startup_label": "New startup entry detected",
+      "new_startup_desc": "Show a toast when a program is added to Windows autostart.",
+      "new_app_label": "New application installed",
+      "new_app_desc": "Show a toast when a new application is installed.",
+      "proactive_label": "Proactive AI tips",
+      "proactive_desc": "Allow hck_GPT to send performance suggestions.",
+      "sound_label": "Notification sounds",
+      "sound_desc": "Play a sound for important alerts."
+    }
+  },
+
+  "guide": {
+    "title": "Quick Guide",
+    "subtitle": "Get started with PC Workman",
+    "step1_title": "Welcome to PC Workman",
+    "step1_body": "This tool monitors and optimizes your PC in real time.\nUse the sidebar to navigate between sections.",
+    "step2_title": "Hardware Monitoring",
+    "step2_body": "Go to MONITORING & ALERTS to watch\ntemperature, voltage and system health live.",
+    "step3_title": "Optimization Tools",
+    "step3_body": "Head to Optimization → Startup to manage\nprograms that launch with Windows.",
+    "step4_title": "Ask hck_GPT",
+    "step4_body": "Use the AI assistant on the right panel\nto ask questions about your hardware.",
+    "step5_title": "Settings",
+    "step5_body": "Change language, and program preferences.",
+    "btn_next": "Next  →",
+    "btn_done": "✓  Done",
+    "btn_show_more": "Show more  →",
+    "btn_got_it": "Got it  ✓",
+    "finale_title": "Was that enough?",
+    "finale_body": "You can expand any section or close the guide."
+  },
+
+  "toast": {
+    "startup_title": "New Startup Entry Detected",
+    "startup_body": "A program was added to Windows autostart.",
+    "startup_hive": "Registry: {hive} Run",
+    "startup_manage": "Open Startup Manager",
+    "startup_dismiss": "Dismiss",
+    "app_title": "New Application Installed",
+    "app_body": "A new program was added to your system.",
+    "app_ok": "OK"
+  },
+
+  "startup_manager": {
+    "page_title": "Startup Manager",
+    "col_name": "Program Name",
+    "col_exe": "Executable",
+    "col_hive": "Registry",
+    "col_status": "Status",
+    "btn_disable": "Disable",
+    "btn_enable": "Enable",
+    "btn_delete": "Delete",
+    "btn_refresh": "Refresh",
+    "status_enabled": "Enabled",
+    "status_disabled": "Disabled",
+    "confirm_delete": "Remove this entry from startup?",
+    "empty": "No startup entries found."
+  },
+
+  "optimization": {
+    "page_title": "Optimization",
+    "services_title": "Services",
+    "startup_title": "Startup Manager",
+    "wizard_title": "Optimization Wizard",
+    "btn_optimize": "Optimize Now",
+    "btn_scan": "Scan System",
+    "status_idle": "Ready",
+    "status_running": "Running…",
+    "status_done": "Complete"
+  },
+
+  "dashboard": {
+    "page_title": "Dashboard",
+    "cpu_label": "CPU",
+    "gpu_label": "GPU",
+    "ram_label": "RAM",
+    "temp_label": "Temperature",
+    "uptime_label": "Uptime",
+    "hello": "Hello, {name}",
+    "hello_default": "Hello!"
+  },
+
+  "fan_control": {
+    "page_title": "Fan Control",
+    "dashboard_title": "Fan Dashboard",
+    "hardware_title": "Hardware Info",
+    "usage_title": "Usage Statistics",
+    "rpm_label": "RPM",
+    "speed_label": "Speed",
+    "curve_label": "Curve",
+    "btn_apply": "Apply",
+    "btn_reset": "Reset to Default",
+    "auto_label": "Automatic",
+    "manual_label": "Manual"
+  },
+
+  "monitoring": {
+    "page_title": "Monitoring",
+    "temperature_title": "Temperature",
+    "voltage_title": "Voltage",
+    "alerts_title": "Center & Alerts",
+    "add_alert_btn": "Add Alert",
+    "no_alerts": "No alerts configured.",
+    "threshold_label": "Threshold",
+    "sensor_label": "Sensor",
+    "condition_above": "above",
+    "condition_below": "below"
+  },
+
+  "my_pc": {
+    "page_title": "My PC",
+    "central_title": "Central",
+    "efficiency_title": "Efficiency",
+    "sensors_title": "Sensors",
+    "health_title": "Health",
+    "score_label": "Health Score",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+
+  "statistics": {
+    "page_title": "Statistics",
+    "today_title": "Today",
+    "weekly_title": "Weekly",
+    "monthly_title": "Monthly",
+    "no_data": "No data for this period.",
+    "avg_label": "Average",
+    "max_label": "Maximum",
+    "min_label": "Minimum"
+  },
+
+  "hck_gpt": {
+    "panel_title": "hck_GPT",
+    "placeholder": "Ask anything about your hardware…",
+    "thinking": "Thinking…",
+    "send_btn": "Send",
+    "clear_btn": "Clear chat",
+    "copy_btn": "Copy",
+    "error_no_model": "No AI model configured.",
+    "error_timeout": "Request timed out.",
+    "tip_prefix": "Tip:"
+  },
+
+  "setup": {
+    "page_title": "Setup & Drivers",
+    "drivers_title": "Driver Status",
+    "btn_check": "Check Drivers",
+    "btn_install": "Install",
+    "btn_update": "Update",
+    "status_ok": "Up to date",
+    "status_outdated": "Update available",
+    "status_missing": "Missing"
+  },
+
+  "system_tray": {
+    "open": "Open PC Workman",
+    "minimize": "Minimize to tray",
+    "quit": "Quit"
+  },
+
+  "splash": {
+    "loading": "Loading…",
+    "initializing": "Initializing components…",
+    "ready": "Ready"
+  }
+}
