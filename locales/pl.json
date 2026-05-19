@@ -1,0 +1,275 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "close": "Zamknij",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "done": "Gotowe",
+    "dismiss": "Odrzuć",
+    "reset": "Resetuj",
+    "enable": "Włącz",
+    "disable": "Wyłącz",
+    "on": "Włącz",
+    "off": "Wyłącz",
+    "yes": "Tak",
+    "no": "Nie",
+    "loading": "Ładowanie…",
+    "error": "Błąd",
+    "warning": "Ostrzeżenie",
+    "success": "Sukces",
+    "unknown": "Nieznany",
+    "locked": "ZABLOKOWANE",
+    "coming_soon": "Wkrótce",
+    "not_available": "Niedostępne"
+  },
+
+  "nav": {
+    "dashboard": "Panel główny",
+    "monitoring": "MONITOROWANIE I ALERTY",
+    "monitoring_temperature": "Temperatura",
+    "monitoring_voltage": "Napięcie",
+    "monitoring_alerts": "Centrum i alerty",
+    "my_pc": "Mój komputer",
+    "my_pc_central": "Centrum",
+    "my_pc_efficiency": "Wydajność",
+    "my_pc_sensors": "Czujniki",
+    "my_pc_health": "Stan zdrowia",
+    "setup": "Konfiguracja i sterowniki",
+    "fan_control": "Kontrola wentylatorów",
+    "fan_control_dashboard": "Panel",
+    "fan_control_hardware": "Wentylatory — sprzęt",
+    "fan_control_usage": "Statystyki użycia",
+    "optimization": "Optymalizacja",
+    "optimization_services": "Usługi",
+    "optimization_startup": "Autostart",
+    "optimization_wizard": "Kreator",
+    "statistics": "Statystyki",
+    "statistics_today": "Dzisiaj",
+    "statistics_weekly": "Tygodniowe",
+    "statistics_monthly": "Miesięczne",
+    "settings": "Ustawienia",
+    "pinned": "Przypięte"
+  },
+
+  "settings": {
+    "page_title": "Ustawienia",
+    "section": {
+      "general": "OGÓLNE",
+      "general_badge": "PC WORKMAN",
+      "language": "Język",
+      "hck_gpt": "hck_GPT",
+      "notifications": "Powiadomienia"
+    },
+    "language": {
+      "title": "Język interfejsu",
+      "subtitle": "Zmiany zastosują się natychmiast.",
+      "notice": "Więcej języków wkrótce.",
+      "selector_label": "Język"
+    },
+    "general": {
+      "header": "PC WORKMAN",
+      "header_sub": "OGÓLNE",
+      "internet_toggle_label": "Zablokowane przełączanie Internetu",
+      "internet_toggle_desc": "Kontrola połączenia jest zarządzana przez zasady systemowe.",
+      "reset_turbo_label": "RESET Turbo Boost",
+      "reset_turbo_desc": "Przywróć domyślne ustawienia Turbo CPU i wyczyść nadpisania.",
+      "reset_turbo_btn": "RESET TURBO",
+      "reset_turbo_done": "Ustawienia Turbo przywrócone.",
+      "startup_label": "Uruchamiaj przy starcie Windows",
+      "startup_desc": "Uruchamiaj PC Workman automatycznie przy każdym uruchomieniu systemu.",
+      "autohide_label": "Auto-ukrywanie paska bocznego",
+      "autohide_desc": "Pasek boczny zwija się po 3 s gdy kursor go opuści.",
+      "temp_unit_label": "Jednostka temperatury",
+      "temp_unit_desc": "Wyświetlaj temperatury w Celsjuszu lub Fahrenheicie.",
+      "temp_celsius": "Celsjusz (°C)",
+      "temp_fahrenheit": "Fahrenheit (°F)",
+      "debug_label": "Centrum debugowania",
+      "debug_desc": "Dostęp do wewnętrznych narzędzi diagnostycznych (wymaga klucza).",
+      "debug_btn": "Otwórz debuger",
+      "debug_denied": "Odmowa dostępu — nieprawidłowy klucz autoryzacyjny",
+      "debug_dialog_title": "Wymagana autoryzacja",
+      "debug_dialog_prompt": "Podaj deweloperski klucz autoryzacyjny:"
+    },
+    "hck_gpt": {
+      "ollama_label": "Przełącz CORE AI na Ollama",
+      "ollama_badge_local": "LOKALNE",
+      "ollama_badge_locked": "ZABLOKOWANE",
+      "ollama_desc": "Uruchom hck_GPT w pełni offline, używając lokalnego modelu Ollama.\nWymaga zainstalowania Ollama i pobranego kompatybilnego modelu.",
+      "model_label": "Model AI",
+      "context_label": "Okno kontekstu",
+      "temperature_label": "Temperatura odpowiedzi",
+      "history_label": "Zachowaj historię rozmów",
+      "history_desc": "Pamiętaj poprzednie wiadomości w sesji.",
+      "streaming_label": "Odpowiedzi strumieniowe",
+      "streaming_desc": "Pokazuj odpowiedź AI słowo po słowie podczas generowania."
+    },
+    "notifications": {
+      "new_startup_label": "Nowy element autostartu wykryty",
+      "new_startup_desc": "Pokaż powiadomienie gdy program zostanie dodany do autostartu.",
+      "new_app_label": "Zainstalowano nową aplikację",
+      "new_app_desc": "Pokaż powiadomienie gdy nowa aplikacja zostanie zainstalowana.",
+      "proactive_label": "Proaktywne porady AI",
+      "proactive_desc": "Pozwól hck_GPT wysyłać sugestie dotyczące wydajności.",
+      "sound_label": "Dźwięki powiadomień",
+      "sound_desc": "Odtwarzaj dźwięk dla ważnych alertów."
+    }
+  },
+
+  "guide": {
+    "title": "Szybki przewodnik",
+    "subtitle": "Zacznij korzystać z PC Workman",
+    "step1_title": "Witaj w PC Workman",
+    "step1_body": "To narzędzie monitoruje i optymalizuje Twój komputer w czasie rzeczywistym.\nUżyj paska bocznego by poruszać się między sekcjami.",
+    "step2_title": "Monitorowanie sprzętu",
+    "step2_body": "Przejdź do MONITOROWANIE I ALERTY, by obserwować\ntemperaturę, napięcie i stan systemu na żywo.",
+    "step3_title": "Narzędzia optymalizacji",
+    "step3_body": "Przejdź do Optymalizacja → Autostart, by zarządzać\nprogramami uruchamiającymi się z Windowsem.",
+    "step4_title": "Zapytaj hck_GPT",
+    "step4_body": "Użyj asystenta AI w prawym panelu,\nby zadawać pytania o swój sprzęt.",
+    "step5_title": "Ustawienia",
+    "step5_body": "Zmień język i preferencje programu.",
+    "btn_next": "Dalej  →",
+    "btn_done": "✓  Gotowe",
+    "btn_show_more": "Pokaż więcej  →",
+    "btn_got_it": "Rozumiem  ✓",
+    "finale_title": "Czy to wystarczy?",
+    "finale_body": "Możesz rozwinąć dowolną sekcję lub zamknąć przewodnik."
+  },
+
+  "toast": {
+    "startup_title": "Wykryto nowy element startowy",
+    "startup_body": "Program został dodany do autostartu Windows.",
+    "startup_hive": "Rejestr: {hive} Run",
+    "startup_manage": "Zarządzaj autostartem",
+    "startup_dismiss": "Odrzuć",
+    "app_title": "Zainstalowano nową aplikację",
+    "app_body": "Nowy program został dodany do systemu.",
+    "app_ok": "OK"
+  },
+
+  "startup_manager": {
+    "page_title": "Menadżer autostartu",
+    "col_name": "Nazwa programu",
+    "col_exe": "Plik wykonywalny",
+    "col_hive": "Rejestr",
+    "col_status": "Status",
+    "btn_disable": "Wyłącz",
+    "btn_enable": "Włącz",
+    "btn_delete": "Usuń",
+    "btn_refresh": "Odśwież",
+    "status_enabled": "Włączony",
+    "status_disabled": "Wyłączony",
+    "confirm_delete": "Usunąć ten wpis z autostartu?",
+    "empty": "Nie znaleziono wpisów autostartu."
+  },
+
+  "optimization": {
+    "page_title": "Optymalizacja",
+    "services_title": "Usługi",
+    "startup_title": "Menadżer autostartu",
+    "wizard_title": "Kreator optymalizacji",
+    "btn_optimize": "Optymalizuj teraz",
+    "btn_scan": "Skanuj system",
+    "status_idle": "Gotowy",
+    "status_running": "Trwa…",
+    "status_done": "Zakończono"
+  },
+
+  "dashboard": {
+    "page_title": "Panel główny",
+    "cpu_label": "CPU",
+    "gpu_label": "GPU",
+    "ram_label": "RAM",
+    "temp_label": "Temperatura",
+    "uptime_label": "Czas pracy",
+    "hello": "Witaj, {name}",
+    "hello_default": "Witaj!"
+  },
+
+  "fan_control": {
+    "page_title": "Kontrola wentylatorów",
+    "dashboard_title": "Panel wentylatorów",
+    "hardware_title": "Informacje o sprzęcie",
+    "usage_title": "Statystyki użycia",
+    "rpm_label": "RPM",
+    "speed_label": "Prędkość",
+    "curve_label": "Krzywa",
+    "btn_apply": "Zastosuj",
+    "btn_reset": "Przywróć domyślne",
+    "auto_label": "Automatyczny",
+    "manual_label": "Ręczny"
+  },
+
+  "monitoring": {
+    "page_title": "Monitorowanie",
+    "temperature_title": "Temperatura",
+    "voltage_title": "Napięcie",
+    "alerts_title": "Centrum i alerty",
+    "add_alert_btn": "Dodaj alert",
+    "no_alerts": "Brak skonfigurowanych alertów.",
+    "threshold_label": "Próg",
+    "sensor_label": "Czujnik",
+    "condition_above": "powyżej",
+    "condition_below": "poniżej"
+  },
+
+  "my_pc": {
+    "page_title": "Mój komputer",
+    "central_title": "Centrum",
+    "efficiency_title": "Wydajność",
+    "sensors_title": "Czujniki",
+    "health_title": "Stan zdrowia",
+    "score_label": "Wynik stanu",
+    "good": "Dobry",
+    "fair": "Przeciętny",
+    "poor": "Zły"
+  },
+
+  "statistics": {
+    "page_title": "Statystyki",
+    "today_title": "Dzisiaj",
+    "weekly_title": "Tygodniowe",
+    "monthly_title": "Miesięczne",
+    "no_data": "Brak danych dla tego okresu.",
+    "avg_label": "Średnia",
+    "max_label": "Maksimum",
+    "min_label": "Minimum"
+  },
+
+  "hck_gpt": {
+    "panel_title": "hck_GPT",
+    "placeholder": "Zapytaj o cokolwiek dotyczącego sprzętu…",
+    "thinking": "Myślę…",
+    "send_btn": "Wyślij",
+    "clear_btn": "Wyczyść czat",
+    "copy_btn": "Kopiuj",
+    "error_no_model": "Nie skonfigurowano modelu AI.",
+    "error_timeout": "Żądanie przekroczyło limit czasu.",
+    "tip_prefix": "Wskazówka:"
+  },
+
+  "setup": {
+    "page_title": "Konfiguracja i sterowniki",
+    "drivers_title": "Stan sterowników",
+    "btn_check": "Sprawdź sterowniki",
+    "btn_install": "Zainstaluj",
+    "btn_update": "Aktualizuj",
+    "status_ok": "Aktualne",
+    "status_outdated": "Dostępna aktualizacja",
+    "status_missing": "Brakujący"
+  },
+
+  "system_tray": {
+    "open": "Otwórz PC Workman",
+    "minimize": "Minimalizuj do zasobnika",
+    "quit": "Zamknij"
+  },
+
+  "splash": {
+    "loading": "Ładowanie…",
+    "initializing": "Inicjalizacja komponentów…",
+    "ready": "Gotowy"
+  }
+}
