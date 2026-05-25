@@ -2,6 +2,7 @@
 from __future__ import annotations
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
+from import_core import register_component, update_status, STATUS_OK, STATUS_IDLE
 
 try:
     from .insights import InsightsEngine
@@ -121,6 +122,42 @@ _QUICK_ALIASES: dict[str, str] = {
     "optymalizacja": "optimization",
     "power":         "power_plan",
     "zasilanie":     "power_plan",
+    # New intents
+    "voltage":       "voltage_check",
+    "vcore":         "voltage_check",
+    "napięcie":      "voltage_check",
+    "fans":          "fan_speed",
+    "fan":           "fan_speed",
+    "wentylator":    "fan_speed",
+    "gaming":        "gaming_session",
+    "fps":           "gaming_session",
+    "weekly":        "weekly_trends",
+    "tygodniowe":    "weekly_trends",
+    "overheat":      "thermal_prediction",
+    "przegrzanie":   "thermal_prediction",
+    # Community feedback intents — quick aliases
+    "sterowniki":         "driver_status",
+    "drivers":            "driver_status",
+    "driver":             "driver_status",
+    "wentylatory":        "fan_noise_history",
+    "glosnosc":           "fan_noise_history",
+    "głośność":           "fan_noise_history",
+    "czas gier":          "gaming_vs_work_time",
+    "gaming time":        "gaming_vs_work_time",
+    "nieuzywane":         "stale_apps",
+    "unused apps":        "stale_apps",
+    "degradacja fps":     "fps_degradation",
+    "fps drop":           "fps_degradation",
+    "startup wolny":      "startup_slowdown",
+    "slow boot":          "startup_slowdown",
+    "goracej":            "temp_comparison",
+    "hotter":             "temp_comparison",
+    "crash":              "crash_context",
+    "freeze":             "crash_context",
+    "bateria":            "battery_drain_rate",
+    "battery":            "battery_drain_rate",
+    "prad":               "power_after_restart",
+    "power usage":        "power_after_restart",
 }
 
 # Keywords that show the styled help card (handled directly, not via builder).
@@ -156,6 +193,8 @@ class ChatHandler:
 
         # Two-step reset flow state
         self._pending_reset: bool = False
+
+        register_component('hck_gpt.chat_handler', self, STATUS_OK)
 
     def _trigger_hw_scan(self) -> None:
         """
@@ -272,9 +311,11 @@ class ChatHandler:
                 pass
 
         # ── 6. AI intent layer ────────────────────────────────────────────────
+        _parsed_result = None   # shared across steps 6 + 7 to avoid double-parse
         if HAS_AI_LAYER:
             try:
-                result = intent_parser.parse(msg)
+                _parsed_result = intent_parser.parse(msg)
+                result = _parsed_result
                 session_memory.add_message("user", msg)
 
                 # Hybrid engine: rule engine (fast) OR Ollama (smart)
@@ -313,7 +354,8 @@ class ChatHandler:
                     "storage":     "hw_storage",
                     "motherboard": "hw_motherboard",
                 }
-                _result_for_entity = intent_parser.parse(msg)
+                # Reuse step-6 parse result to avoid calling the parser twice
+                _result_for_entity = _parsed_result or intent_parser.parse(msg)
                 if _result_for_entity.entities:
                     for ent_key, ent_intent in _entity_intent_map.items():
                         if ent_key in _result_for_entity.entities:
@@ -476,6 +518,25 @@ class ChatHandler:
                 "  stats · insights · alerts · teaser · report",
                 "  uptime · optimization · power",
                 "",
+                "◈ Time-Travel Diagnostics  — compare NOW vs history",
+                "  'is my pc hotter than usual lately'  ← temp_comparison",
+                "  'why are fps worse than last month'  ← fps_degradation",
+                "  'what changed since yesterday'       ← pc_changes",
+                "  'what was happening before the freeze' ← crash_context",
+                "  'why did this app start behaving differently' ← app_behavior_change",
+                "",
+                "◈ Identity & Security",
+                "  'is conhost.exe a windows process'  ← process_identity",
+                "  'virus check'  ·  'suspicious processes'",
+                "  'driver status'  ·  'which drivers are installed'",
+                "",
+                "◈ Usage & Habits",
+                "  'which apps haven't been opened in a month'  ← stale_apps",
+                "  'gaming vs work time'   ← time breakdown",
+                "  'what slows down startup'  ← startup_slowdown",
+                "  'which game stresses hardware most'  ← game_hardware_stress",
+                "  'battery drain during gaming'  ·  'power since restart'",
+                "",
                 "◈ Services",
                 "  'service setup'    — optimization wizard",
                 "  'service status'   — check service state",
@@ -506,6 +567,25 @@ class ChatHandler:
             "◈ Statystyki i wgląd",
             "  stats · insights · alerts · teaser · report",
             "  uptime · optimization · zasilanie",
+            "",
+            "◈ Time-Travel Diagnostyka  — teraz vs historia",
+            "  'czy komputer jest ostatnio goręcej niż zwykle'  ← temp_comparison",
+            "  'dlaczego fps gorsze niż miesiąc temu'          ← fps_degradation",
+            "  'co się zmieniło od wczoraj'                    ← pc_changes",
+            "  'co się działo przed ostatnim freezem'          ← crash_context",
+            "  'dlaczego ta aplikacja działa inaczej'          ← app_behavior_change",
+            "",
+            "◈ Identyfikacja i bezpieczeństwo",
+            "  'czy conhost.exe to część windows'  ← process_identity",
+            "  'sprawdź wirusy'  ·  'podejrzane procesy'",
+            "  'sterowniki'  ·  'jakie mam sterowniki'",
+            "",
+            "◈ Nawyki i użytkowanie",
+            "  'które apki nie były otwierane od miesiąca'  ← stale_apps",
+            "  'ile czasu na grach vs praca'  ← gaming_vs_work_time",
+            "  'co zwalnia uruchamianie'       ← startup_slowdown",
+            "  'która gra obciąża hardware'    ← game_hardware_stress",
+            "  'bateria podczas grania'  ·  'prąd od restartu'",
             "",
             "◈ Serwisy",
             "  'service setup'     — kreator optymalizacji",
