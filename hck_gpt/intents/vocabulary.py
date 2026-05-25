@@ -814,6 +814,697 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "was cpu lower yesterday", "what changed",
         "compare sessions", "is today worse than yesterday",
     ],
+
+    # ── Voltage / VCore / power delivery ─────────────────────────────────────
+    "voltage_check": [
+        # Polish tokens
+        "napięcie", "vcore", "voltage", "volt",
+        # Polish multi-word
+        "napięcie cpu", "napięcie procesora", "jakie jest napięcie",
+        "ile ma vcore", "czy vcore jest ok", "czy napięcie jest normalne",
+        "napięcie rdzenia", "napięcie gpu", "napięcie ram",
+        "vcore jest za wysokie", "vcore skacze", "napięcie skacze",
+        "czy moje napięcie jest bezpieczne", "jakie napięcie ma cpu",
+        "pokaż napięcie", "vcore teraz", "napięcie ddr",
+        # English tokens
+        "vcore", "vcpu", "vddr",
+        # English multi-word
+        "what is my cpu voltage", "what's my vcore", "show voltage",
+        "is my vcore normal", "is my voltage safe", "cpu voltage check",
+        "voltage too high", "vcore spiking", "check voltages",
+        "gpu voltage", "ddr voltage", "memory voltage",
+        "what voltage is my cpu running at", "is vcore safe",
+        "my voltage is high", "voltage spike", "power delivery",
+    ],
+
+    # ── Fan speed / cooling health ────────────────────────────────────────────
+    "fan_speed": [
+        # Polish tokens
+        "wentylator", "wentylatora", "wiatrak", "rpm", "chłodzenie",
+        # Polish multi-word
+        "prędkość wentylatora", "ile obrotów wentylator", "wentylator rpm",
+        "czy chłodzenie działa", "czy wentylator działa",
+        "wentylator na 100", "wentylator głośny", "dlaczego wentylator głośny",
+        "dlaczego pc hałasuje", "dlaczego komputer hałasuje",
+        "chłodzenie procesora", "wentylator cpu", "wentylator gpu",
+        "obroty wentylatora", "fan speed", "sprawdź wentylatora",
+        "wentylator się nie kręci", "chłodzenie nie działa",
+        "ile obrotów ma mój wentylator", "obróty chłodzenia",
+        # English tokens
+        "fans", "cooler", "cooling",
+        # English multi-word
+        "what is my fan speed", "fan rpm check", "how fast are my fans",
+        "is my cooling working", "why is my fan loud", "fan noise",
+        "cpu fan speed", "gpu fan speed", "case fans",
+        "why is pc so loud", "fans at 100 percent",
+        "is my cpu cooler working", "check fan speed", "fan rpm",
+        "cooling system check", "cpu cooler rpm", "are fans spinning",
+        "why is computer so noisy", "fan running loud",
+    ],
+
+    # ── Gaming session / FPS context ─────────────────────────────────────────
+    "gaming_session": [
+        # Polish tokens
+        "gra", "granie", "gaming", "fps", "klatki",
+        # Polish multi-word
+        "jak było podczas grania", "podczas grania cpu",
+        "jak się trzymał komputer podczas grania",
+        "jak grało się na tym pc", "sesja gamingowa",
+        "czy pc wytrzyma granie", "czy mogę grać",
+        "jak radzi sobie pc podczas gry", "jak wyglądała sesja gry",
+        "podsumowanie sesji gry", "co się działo podczas gry",
+        "komputer grzał podczas gry", "fps drops dlaczego",
+        "dlaczego fps spada", "dlaczego gra się zacina",
+        "jak poprawić fps", "więcej fps jak",
+        "optymalizacja pod gry", "ustawienia pod gry",
+        "czy mój pc radzi sobie z grami", "jak wydajność w grach",
+        "jak mój komputer radzi sobie z grami",
+        # English multi-word
+        "gaming session summary", "how was my gaming session",
+        "fps drops why", "why fps drops", "game session stats",
+        "how did pc handle gaming", "gaming performance",
+        "optimize for gaming", "is my pc good for gaming",
+        "fps drop fix", "stutter during gaming", "game lags",
+        "why does game lag", "game performance check",
+        "how many fps can i get", "gaming optimization",
+        "my pc during gaming", "pc gaming stats",
+    ],
+
+    # ── Weekly trends / historical performance ────────────────────────────────
+    "weekly_trends": [
+        # Polish tokens
+        "tydzień", "tygodniu", "tygodnia", "tygodniowe",
+        # Polish multi-word
+        "jak był ten tydzień", "podsumowanie tygodnia",
+        "jak wyglądał tydzień", "co się działo w tym tygodniu",
+        "czy ten tydzień był gorszy", "trend tygodniowy",
+        "jak wyglądał mój pc przez tydzień",
+        "wydajność przez tydzień", "tydzień vs tydzień",
+        "porównaj tygodnie", "czy w tym tygodniu jest gorzej",
+        "jak wypadł ten tydzień", "poprzedni tydzień vs teraz",
+        "przez ostatni tydzień co się działo",
+        "tygodniowe podsumowanie wydajności",
+        "jak tydzień wyglądał pod względem wydajności",
+        # English multi-word
+        "weekly summary", "this week performance",
+        "how was this week", "weekly trends",
+        "week performance review", "compare weeks",
+        "week over week", "how did pc perform this week",
+        "weekly performance report", "what happened this week",
+        "weekly stats", "performance over the week",
+        "this week vs last week", "weekly average",
+        "performance trend this week", "cpu trend weekly",
+    ],
+
+    # ── Thermal prediction / overheat risk ────────────────────────────────────
+    "thermal_prediction": [
+        # Polish multi-word
+        "czy się przegrzeje", "czy jest ryzyko przegrzania",
+        "czy mój komputer się przegrzeje", "czy mogę grać bez ryzyka przegrzania",
+        "czy temperatura jest bezpieczna do gry", "czy thermal throttle grozi",
+        "czy będzie throttlować", "ryzyko przegrzania",
+        "czy chłodzenie wystarczy", "czy wytrzyma obciążenie",
+        "czy mogę uruchomić to bez przegrzania",
+        "temperatura jest bliska limitu", "czy temp jest bezpieczna",
+        "czy mój cooler wystarczy do gry", "jak długo mogę grać bez przegrzania",
+        "czy mam ryzyko termiczne",
+        # English multi-word
+        "will my pc overheat", "is there overheat risk",
+        "will it thermal throttle", "is it safe to game with these temps",
+        "can my cooling handle this", "thermal throttle risk",
+        "will cpu overheat during gaming", "is my cooling enough",
+        "overheat risk check", "can i game without overheating",
+        "is temperature safe for gaming", "will it throttle",
+        "thermal safety check", "how long before overheat",
+        "is my cooler sufficient", "safe to run heavy workload",
+        "temps are near limit is it ok",
+    ],
+
+    # ── Process deep-dive / why so heavy ─────────────────────────────────────
+    "process_deep_dive": [
+        # Polish multi-word
+        "dlaczego chrome tyle ram", "dlaczego discord tyle ram",
+        "dlaczego x używa tyle ram", "dlaczego x tyle zajmuje",
+        "dlaczego ten program tyle żre", "co powoduje że x tyle używa",
+        "dlaczego ten proces jest taki ciężki", "czy to normalne że x tyle ram",
+        "co robił ten program tak intensywnie", "dlaczego svchost tyle cpu",
+        "dlaczego x zużywa tyle cpu", "co robi ten program przez cały czas",
+        "czy mogę ograniczyć x w tle", "x tyle zjada dlaczego",
+        "dlaczego x jest tak ciężki", "co robi x żeby tyle zajmować",
+        "czy x powinien tyle zajmować", "normalnie x tyle zajmuje",
+        # English multi-word
+        "why is chrome using 2gb", "why does discord use so much ram",
+        "why is x using so much memory", "why does x take so much cpu",
+        "is it normal for x to use that much", "why is this process so heavy",
+        "what is svchost doing using 15 percent", "why is x so resource hungry",
+        "can i limit x background usage", "why does x run all the time",
+        "why x uses so much", "what is x doing to use so much cpu",
+        "is it normal for x to use that much ram", "x memory usage high why",
+        "x cpu usage high why", "deep dive into process",
+        "why does x take so many resources", "x is really heavy why",
+    ],
+    # ── PC froze / stutter symptom ───────────────────────────────────────────
+    "symptom_freeze": [
+        # Polish
+        "zamroziło się", "pc się zamroziło", "komputer się zawiesił",
+        "zawieszenie systemu", "ekran stanął", "all froze", "screen froze",
+        "na chwilę się zawiesiło", "przez chwilę nic nie reagowało",
+        "pc nie reaguje", "zawiesiło na sekundę", "zawiesiło na chwilę",
+        "zacięcie na sekundę", "pc stanął na chwilę",
+        "błąd zamrożenia", "system się zawiesił raz", "komputer stanął",
+        "na chwilę zamroziło", "kliknąłem i nic", "kursor się zatrzymał",
+        "myszka się zacięła na chwilę", "pc krótko się zawiesił",
+        # English
+        "pc froze for a second", "everything froze", "system froze",
+        "computer froze briefly", "screen froze for a moment",
+        "pc became unresponsive", "it froze for a second",
+        "nothing responded for a moment", "pc locked up",
+        "brief freeze", "micro freeze", "stutter then freeze",
+        "mouse stopped for a second", "freeze spike",
+        "app froze", "game froze", "windows froze",
+    ],
+
+    # ── Loud fan / noisy PC ───────────────────────────────────────────────────
+    "symptom_noisy": [
+        # Polish
+        "komputer hałasuje", "pc hałasuje", "głośny wentylator",
+        "wentylator jest głośny", "coś głośno hałasuje w pc",
+        "komputer jest głośny", "pc jest głośny", "dudni komputer",
+        "pc ryczy", "wentylator rzyczy", "coś głośno pracuje",
+        "od czego hałasuje pc", "co powoduje hałas", "skąd ten hałas",
+        "dlaczego komputer jest taki głośny", "hałas przy obciążeniu",
+        "głośny pod obciążeniem", "wentylator przy starcie głośny",
+        # English
+        "pc is loud", "noisy pc", "loud fan", "fans are loud",
+        "computer is very noisy", "what is making that noise",
+        "why is pc so loud", "why is my computer noisy",
+        "noisy under load", "fan running at full speed loud",
+        "pc sounds like a jet engine", "loud when gaming",
+        "loud at startup", "fan noise fix",
+    ],
+
+    # ── Is this normal? Baseline comparison ──────────────────────────────────
+    "compare_baseline": [
+        # Polish
+        "czy to normalne", "czy tak powinno być",
+        "czy to wysoki wynik", "czy tak jest normalnie",
+        "czy cpu na 70 to normalne", "czy ram na 80 to normalne",
+        "czy to w normie", "czy to za dużo", "czy to za wysoko",
+        "czy powinienem się martwić", "czy to niepokojące",
+        "czy taka temperatura jest ok", "czy takie obciążenie jest ok",
+        "czy to jest dobre czy złe", "norma czy nie",
+        "czy to jest powyżej normy", "co jest normalne dla mojego pc",
+        # English
+        "is this normal", "is this expected", "is that too high",
+        "is cpu at 70 normal", "is ram at 80 normal",
+        "should i be worried", "is this a problem",
+        "normal or not", "is this reading ok",
+        "is that temperature okay", "is that usage okay",
+        "is this within normal range", "good or bad reading",
+        "is that value dangerous", "should this be lower",
+        "what is normal for my pc", "is cpu load normal",
+    ],
+
+    # ── Game-ready check ─────────────────────────────────────────────────────
+    "game_ready": [
+        # Polish
+        "czy mogę grać", "czy pc jest gotowy do gry",
+        "czy mój komputer wytrzyma grę", "czy jest ok do grania",
+        "czy powinienem zamknąć coś przed grą",
+        "co zamknąć przed grą", "przygotuj pc pod gry",
+        "czy warto coś wyłączyć przed graniem",
+        "co wyłączyć przed grą", "przygotowanie do grania",
+        "czy system jest gotowy", "optymalizuj pod grę",
+        "jak przygotować pc do grania", "czy turbo przed grą",
+        "szybki test przed grą", "sprawdź przed grą",
+        "co zrobić przed grą", "zanim zacznę grać",
+        # English
+        "am i ready to game", "is my pc ready for gaming",
+        "should i close anything before gaming",
+        "what to close before gaming", "prepare pc for gaming",
+        "optimize before game", "is it ok to start gaming now",
+        "pre-game check", "pre-gaming optimization",
+        "should i use turbo before gaming",
+        "what should i turn off before gaming",
+        "gaming prep", "get ready to game",
+        "is pc in good state for gaming",
+    ],
+
+    # ── Morning brief / first-launch context ─────────────────────────────────
+    "morning_brief": [
+        # Polish
+        "co się działo przez noc", "podsumowanie nocy",
+        "co się działo gdy byłem nieobecny", "raport poranny",
+        "co nowego od uruchomienia", "co się zdarzyło od startu",
+        "co się działo gdy spałem", "podsumowanie od uruchomienia",
+        "jak szło przez noc", "raport z nocy",
+        "co wybrało się dzisiaj", "co dzisiaj na start",
+        "witaj nowy dzień pc", "poranny stan systemu",
+        # English
+        "what happened overnight", "morning briefing",
+        "morning pc summary", "what happened while i was away",
+        "overnight report", "what went on while i was asleep",
+        "system report since boot", "since boot summary",
+        "morning status", "good morning pc status",
+        "what has happened today", "today so far summary",
+        "system digest", "daily brief",
+    ],
+
+    # ── Session digest / end-of-day summary ──────────────────────────────────
+    "session_digest": [
+        # Polish
+        "podsumuj dzisiaj", "podsumowanie sesji", "co dziś się działo",
+        "jak wyglądał dzień na pc", "dzisiejsze podsumowanie",
+        "co się działo dzisiaj na pc", "sesja podsumowanie",
+        "co pc robił dzisiaj", "raport z sesji",
+        "jak minął dzień komputerowy", "pokaż co się działo",
+        "co się wydarzyło podczas tej sesji",
+        "jak wyglądała ta sesja", "zakończenie sesji",
+        # English
+        "summarize today", "session summary",
+        "what happened today on my pc", "today's pc report",
+        "how was today on my pc", "daily summary",
+        "end of day report", "session digest",
+        "what did my pc do today", "wrap up today",
+        "what happened this session", "today's activity",
+        "session report", "pc activity report",
+    ],
+
+    # ── Force close / kill process ────────────────────────────────────────────
+    "process_kill": [
+        # Polish
+        "zabij proces", "zamknij na siłę", "wymuś zamknięcie",
+        "zabij chrome", "zabij discorda", "zabij steam",
+        "zamknij chrome na siłę", "wymuś zamknięcie procesu",
+        "zakończ zadanie", "kill process", "end task",
+        "force close", "force quit", "zakończ",
+        "zamknij program który nie reaguje",
+        "nie można zamknąć programu", "program się nie zamyka",
+        "jak zamknąć zawieszony program",
+        "jak zakończyć zablokowany program",
+        # English
+        "kill chrome", "kill process", "force close chrome",
+        "force quit discord", "end task for x",
+        "how to force close a program", "program won't close",
+        "kill unresponsive app", "force kill process",
+        "terminate program", "how to end task",
+        "close frozen program", "force close frozen app",
+        "how to kill background process",
+        "end process force", "force terminate",
+    ],
+
+    # ── Temperature history ───────────────────────────────────────────────────
+    "thermal_history": [
+        # Polish
+        "historia temperatur", "jak wyglądały temperatury",
+        "jakie były temperatury dzisiaj", "temperatura przez sesję",
+        "historyczne temperatury", "czy temperatura rosła",
+        "jak rosła temperatura", "temperatura w czasie",
+        "trendy temperatur", "temperatura podczas grania wcześniej",
+        "jak zmieniała się temperatura", "temperatura log",
+        "czy były skoki temperatury", "peaki temperatur",
+        "maksymalna temperatura dzisiaj",
+        # English
+        "show temperature history", "temperature over time",
+        "how did temperatures look", "temp history",
+        "did temperature spike today", "temperature trend",
+        "historical temps", "thermal log", "temp over session",
+        "max temperature today", "peak temperature",
+        "temperature changes over time", "how hot did it get",
+        "thermal history", "temp spikes today",
+    ],
+
+    # ── Free up RAM ───────────────────────────────────────────────────────────
+    "ram_flush": [
+        # Polish
+        "zwolnij ram", "wyczyść ram", "odśwież pamięć",
+        "zrób ram flush", "ram flush", "wyczyść pamięć",
+        "jak zwolnić pamięć", "jak zrobić ram flush",
+        "odczaruj ram", "posprzątaj ram", "usuń z pamięci",
+        "zrestartuj pamięć", "możesz zwolnić ram",
+        "jak zmniejszyć zajętość ramu", "optymalizuj ram",
+        "uwolnij pamięć",
+        # English
+        "free up ram", "flush ram", "clear memory",
+        "ram flush", "clear ram", "free memory",
+        "how to free up ram", "empty standby list",
+        "memory flush", "release memory",
+        "how to clear ram", "optimize memory",
+        "reduce ram usage", "free system memory",
+        "reclaim ram", "clear cached memory",
+    ],
+
+    # ── Overclock / OC check ──────────────────────────────────────────────────
+    "overclock_check": [
+        # Polish
+        "czy jest overclockowany", "czy cpu jest oc",
+        "czy procesor jest podkręcony", "czy gpu jest oc",
+        "ile wynosi podkręcenie", "oc status",
+        "czy mam podkręcony procesor", "czy mam oc",
+        "czy jest podkręcony sprzęt", "oc check",
+        "czy powinienem podkręcić", "czy warto podkręcić cpu",
+        "jak bezpiecznie podkręcić", "czy mogę podkręcić",
+        "podkręcenie bezpieczne", "taktowanie powyżej normy",
+        # English
+        "is my cpu overclocked", "is it overclocked",
+        "oc check", "overclock status", "is gpu overclocked",
+        "am i running overclocked", "oc detection",
+        "should i overclock", "is overclocking safe",
+        "how to overclock safely", "can i overclock",
+        "running above base clock", "boost clock vs oc",
+        "is my cpu running at stock speeds",
+        "overclocking check", "xmp enabled",
+    ],
+
+    # ── What does AI know about my PC ────────────────────────────────────────
+    "ai_context": [
+        # Polish
+        "co wiesz o moim pc", "co o mnie wiesz",
+        "co zapamiętałeś", "co masz w pamięci o moim sprzęcie",
+        "jakie dane zebrałeś", "jakie informacje masz",
+        "co zebrałeś o moim komputerze", "co ci wiadomo",
+        "powiedz co wiesz o mnie", "jakie masz dane o moim pc",
+        "co widzisz o moim sprzęcie", "pokaż co wiesz",
+        "jaka jest twoja wiedza o moim pc",
+        # English
+        "what do you know about my pc", "what have you learned",
+        "what do you remember about my system",
+        "show me what you know", "what data have you collected",
+        "what information do you have about my pc",
+        "what have you observed about my hardware",
+        "tell me what you know", "ai context dump",
+        "what's in your memory about my pc",
+        "summarize what you know about my system",
+    ],
+
+    # ── Fan noise history — is fan louder than usual? ────────────────────────
+    "fan_noise_history": [
+        # Polish
+        "czy wentylator jest głośniejszy niż zwykle",
+        "wentylator jest głośniejszy", "wentylator głośniej",
+        "dlaczego wentylator tak hałasuje", "wentylator hałasuje bardziej",
+        "czy fan jest głośniejszy", "wentylator głośny teraz",
+        "fan głośniejszy niż wcześniej", "czy komputer jest głośniejszy",
+        "dlaczego komputer tak huczy", "głośny wentylator",
+        "wentylator warczy", "komputer huczy bardziej",
+        "czy to normalne że wentylator tak hałasuje",
+        "wentylator chodzi za mocno", "za głośny wentylator",
+        "wentylator szumi bardziej niż zwykle",
+        # English
+        "is my fan louder than usual", "fan is louder than normal",
+        "why is my fan so loud", "fan louder than before",
+        "is the fan spinning faster", "fan making more noise",
+        "computer is louder than usual", "fan noise increased",
+        "why is my computer so loud", "loud fan right now",
+        "fan ramping up", "fan is noisy", "louder fan than before",
+        "is fan noise normal", "fan spinning hard",
+        "why does my pc sound like a jet engine",
+    ],
+
+    # ── Driver status — installed drivers and update dates ───────────────────
+    "driver_status": [
+        # Polish
+        "jakie mam sterowniki", "kiedy były aktualizowane sterowniki",
+        "jakie sterowniki są zainstalowane", "lista sterowników",
+        "czy sterowniki są aktualne", "sprawdź sterowniki",
+        "sterowniki graficzne", "sterowniki gpu", "sterowniki nvidia",
+        "sterowniki amd", "sterowniki intel", "status sterowników",
+        "kiedy ostatnio zaktualizowałem sterowniki",
+        "czy moje sterowniki są przestarzałe",
+        "czy sterownik karty graficznej jest aktualny",
+        "jak stare są moje sterowniki", "data sterownika",
+        # English
+        "what drivers do i have installed", "when were drivers last updated",
+        "check my drivers", "driver status", "list my drivers",
+        "are my drivers up to date", "gpu driver version",
+        "nvidia driver version", "amd driver version",
+        "intel driver version", "driver check",
+        "when was my graphics driver last updated",
+        "are my drivers outdated", "driver update date",
+        "how old are my drivers", "driver info",
+        "which drivers are installed",
+    ],
+
+    # ── Gaming vs work time breakdown ────────────────────────────────────────
+    "gaming_vs_work_time": [
+        # Polish
+        "ile czasu spędzam na grach a ile na pracy",
+        "ile czasu na grach", "ile gram w gry",
+        "ile czasu na pracy przy komputerze",
+        "gry vs praca czas", "gry vs robota",
+        "ile procent czasu gram", "jaki procent to gry",
+        "jak spędzam czas na komputerze",
+        "podział czasu na pc", "analiza czasu na pc",
+        "ile czasu w grach vs aplikacje",
+        "ile grałem w tym tygodniu", "statystyki czasu gier",
+        # English
+        "how much time do i spend gaming vs working",
+        "gaming vs work time", "how much time gaming",
+        "time spent on games", "gaming vs productivity",
+        "how much do i game", "work vs play breakdown",
+        "gaming time stats", "time analysis on pc",
+        "how much time on games vs apps",
+        "gaming hours this week", "time breakdown pc",
+    ],
+
+    # ── Process identity — is this exe Windows or suspicious? ────────────────
+    "process_identity": [
+        # Polish
+        "czy ten plik exe jest częścią windows",
+        "czy ten proces jest częścią windows",
+        "czy to jest wirus czy windows",
+        "co to jest za plik exe", "co to jest za proces",
+        "czy to bezpieczny proces", "czy ten proces jest podejrzany",
+        "czy to windows czy wirus", "co robi ten plik",
+        "co to jest conhost exe", "co to jest werfault",
+        "co to jest msiexec", "co to jest taskhostw",
+        "skąd ten plik", "czy to złośliwe oprogramowanie",
+        "sprawdź ten plik", "czy mam to wyłączyć",
+        # English
+        "is this exe part of windows", "is this process windows or virus",
+        "what is this exe file", "what does this process do",
+        "is this a windows process", "is this process safe",
+        "is this process suspicious", "what is this file",
+        "is this malware", "check this process",
+        "should i be worried about this process",
+        "is it safe to kill this process", "is this file legitimate",
+        "what is conhost exe", "what is werfault",
+        "is msiexec safe", "what is taskhostw",
+    ],
+
+    # ── Stale / unused applications ──────────────────────────────────────────
+    "stale_apps": [
+        # Polish
+        "które aplikacje nie były otwierane od miesiąca",
+        "nieużywane aplikacje", "stare aplikacje na pc",
+        "które programy nie były uruchamiane",
+        "co nie jest otwierane od dawna",
+        "aplikacje których nie używam",
+        "które programy mogę odinstalować",
+        "co od dawna nie uruchomione",
+        "nieaktywne programy", "nieużywane programy",
+        "które apki są zbędne", "zapomniane programy",
+        "co odinstalować żeby zwolnić miejsce",
+        # English
+        "which apps have not been opened in a month",
+        "unused applications", "stale apps on my pc",
+        "apps i never use", "programs i haven't opened",
+        "which programs can i uninstall", "unused programs",
+        "inactive applications", "forgotten software",
+        "what apps to uninstall", "apps taking up space",
+        "programs not opened recently",
+        "clean up unused software",
+    ],
+
+    # ── FPS degradation — time-travel debugging ──────────────────────────────
+    "fps_degradation": [
+        # Polish
+        "dlaczego moje fps są gorsze niż miesiąc temu",
+        "fps gorsze niż kiedyś", "fps spadły z czasem",
+        "kiedyś miałem lepsze fps", "fps są coraz gorsze",
+        "dlaczego gra chodzi gorzej niż wcześniej",
+        "fps gorsze niż były", "wydajność w grach spadła",
+        "gra działała lepiej wcześniej", "fps degradacja",
+        "klatki gorsze niż poprzednio", "tracę fps z czasem",
+        "wydajność w grach coraz niższa",
+        # English
+        "why is my fps worse than last month",
+        "fps worse than before", "fps has dropped over time",
+        "used to have better fps", "fps getting worse",
+        "gaming performance dropped", "fps degradation",
+        "game runs worse than it used to",
+        "fps lower than they were", "performance decreased in games",
+        "frames per second dropped", "why are frames lower now",
+        "game feels slower than before",
+    ],
+
+    # ── App behavior change — why did X start behaving differently? ──────────
+    "app_behavior_change": [
+        # Polish
+        "dlaczego aplikacja zaczęła się zachowywać inaczej",
+        "aplikacja działa inaczej niż wcześniej",
+        "program zachowuje się dziwnie od jakiegoś czasu",
+        "coś się zmieniło w działaniu programu",
+        "program laguje od niedawna", "aplikacja spowalnia od tygodnia",
+        "dlaczego program X działa inaczej",
+        "coś się zmieniło po ostatniej aktualizacji",
+        "program działa gorzej od jakiegoś czasu",
+        "co się zmieniło że program działa wolniej",
+        # English
+        "why did my app start behaving differently",
+        "app is acting differently than before",
+        "program started behaving strangely",
+        "something changed with how this app works",
+        "app is slow since last week",
+        "why is this program different now",
+        "app changed behavior after update",
+        "program works worse since recently",
+        "something changed and now my app is slow",
+        "why is this app suddenly different",
+    ],
+
+    # ── Startup slowdown — what slows boot the most ──────────────────────────
+    "startup_slowdown": [
+        # Polish
+        "co najbardziej zwalnia komputer podczas uruchamiania",
+        "co spowalnia boot", "co hamuje uruchamianie",
+        "dlaczego komputer wolno się uruchamia",
+        "co zwalnia start systemu", "co spowalnia windows",
+        "co ładuje się przy starcie i zwalnia",
+        "boot jest wolny", "windows ładuje się długo",
+        "który program zwalnia boot", "startup jest wolny",
+        "co robić żeby szybciej bootować",
+        "jak przyspieszyć uruchamianie windows",
+        "co zajmuje czas przy uruchamianiu",
+        # English
+        "what slows down my computer during startup",
+        "what slows boot time", "boot is slow",
+        "what is slowing down windows startup",
+        "what runs at startup and slows my pc",
+        "slow boot cause", "why does windows take so long to boot",
+        "what is delaying startup", "boot time is too long",
+        "what causes slow startup", "fastest boot tips",
+        "how to speed up windows startup",
+        "what programs are slowing boot",
+    ],
+
+    # ── Temperature comparison — hotter than usual lately? ───────────────────
+    "temp_comparison": [
+        # Polish
+        "czy komputer jest ostatnio goręcej niż zwykle",
+        "czy temperatury są wyższe niż wcześniej",
+        "czy mój pc jest cieplejszy niż był",
+        "temperatury wzrosły ostatnio", "czy goręcej niż normalnie",
+        "czy cpu jest cieplejsze niż kiedyś",
+        "temperatura wyższa niż powinna", "co z temperaturami ostatnio",
+        "czy pc przegrzewa się bardziej niż wcześniej",
+        "temperatura wzrosła w porównaniu z poprzednim tygodniem",
+        "czy jest goręcej niż miesiąc temu",
+        # English
+        "is my pc hotter than usual lately",
+        "are temperatures higher than before",
+        "is my cpu running hotter than it used to",
+        "temperatures seem higher recently",
+        "is it hotter than normal", "temps have increased",
+        "running hotter than before", "temperature comparison over time",
+        "is my pc warmer than it was last week",
+        "has temperature increased compared to before",
+        "thermal history comparison",
+    ],
+
+    # ── Crash / freeze context — what happened before the crash? ─────────────
+    "crash_context": [
+        # Polish
+        "co się działo na moim pc tuż przed ostatnim freezem",
+        "co się działo przed ostatnim crashem",
+        "co było uruchomione przed zawieszeniem",
+        "co spowodowało ostatni freeze",
+        "dlaczego komputer się zawiesił",
+        "jaki był stan pc przed crashem",
+        "co działało przed freezem systemu",
+        "co zrobiłem przed ostatnim zawieszeniem",
+        "analiza przed crashem", "kontekst ostatniego freezu",
+        "co było aktywne przed zatrzymaniem komputera",
+        # English
+        "what was happening on my pc before the last freeze",
+        "what was running before the crash",
+        "what caused the last freeze",
+        "what was the pc state before it froze",
+        "what was active before the system froze",
+        "crash context", "freeze analysis",
+        "what happened before my pc crashed",
+        "pc state before crash",
+        "what processes were running before the freeze",
+        "what led to the system freeze",
+    ],
+
+    # ── Game hardware stress — which game stresses hardware most ─────────────
+    "game_hardware_stress": [
+        # Polish
+        "która gra najbardziej obciąża mój hardware",
+        "która gra najbardziej obciąża cpu",
+        "która gra najbardziej obciąża gpu",
+        "która gra najbardziej grzeje komputer",
+        "które gry są najbardziej wymagające",
+        "która gra powoduje największe obciążenie",
+        "gra vs obciążenie sprzętu",
+        "co najbardziej obciąża hardware podczas grania",
+        "która gra najbardziej eksploatuje gpu",
+        "wydajność gier na moim sprzęcie",
+        # English
+        "which game stresses my hardware the most",
+        "which game pushes cpu the hardest",
+        "which game pushes gpu the hardest",
+        "most demanding game for my hardware",
+        "which game heats up my pc the most",
+        "game vs hardware stress", "most hardware intensive game",
+        "which game is most demanding on my system",
+        "what game stresses hardware most",
+        "game performance on my hardware",
+        "most demanding games for my specs",
+    ],
+
+    # ── Battery drain rate — % lost during gaming/work ───────────────────────
+    "battery_drain_rate": [
+        # Polish
+        "ile procent baterii tracę podczas grania",
+        "ile procent baterii tracę podczas pracy",
+        "jak szybko rozładowuje się bateria podczas grania",
+        "ile bateria traci podczas gry",
+        "ile czasu wystarczy bateria podczas grania",
+        "bateria szybko spada podczas grania",
+        "ile prądu pobiera komputer podczas grania",
+        "bateria się szybko rozładowuje",
+        # English
+        "how much battery do i lose while gaming",
+        "battery drain during gaming", "battery drain while working",
+        "how fast does battery drain when gaming",
+        "how long does battery last gaming",
+        "battery drains fast during gaming",
+        "how much power does gaming use",
+        "battery percentage drop while gaming",
+        "battery life during gaming session",
+    ],
+
+    # ── Power usage after restart ─────────────────────────────────────────────
+    "power_after_restart": [
+        # Polish
+        "co od ostatniego restartu zużyło największo prądu",
+        "co zużyło najwięcej prądu od startu",
+        "ile prądu zużył mój komputer od restartu",
+        "co pochłonęło prąd od uruchomienia",
+        "który program zużył najwięcej energii",
+        "co pożarło prąd od startu systemu",
+        "analiza zużycia energii od startu",
+        # English
+        "what used the most power since last restart",
+        "power usage since startup",
+        "what consumed the most power after boot",
+        "energy usage since restart",
+        "which program used most power since start",
+        "power consumption since system start",
+        "what has been using the most power",
+    ],
 }
 
 # ── Entity extraction map ─────────────────────────────────────────────────────
@@ -837,6 +1528,19 @@ ENTITY_MAP: Dict[str, str] = {
     # Actions
     "turbo": "turbo", "lag": "lag", "lagi": "lag",
     "wczoraj": "yesterday", "yesterday": "yesterday",
+    # New entities
+    "napięcie": "voltage", "vcore": "voltage", "voltage": "voltage",
+    "wentylator": "fan", "fans": "fan", "rpm": "fan",
+    "gaming": "gaming", "fps": "gaming", "granie": "gaming",
+    "tydzień": "week", "weekly": "week", "tygodnia": "week",
+    # New entities (symptom + action + context)
+    "zamroziło": "freeze", "froze": "freeze", "freeze": "freeze",
+    "hałas": "noise", "głośny": "noise", "noisy": "noise",
+    "normalne": "baseline", "normal": "baseline",
+    "gra": "game", "grę": "game", "gaming": "game",
+    "zabij": "kill", "kill": "kill", "force": "kill",
+    "oc": "overclock", "podkręcony": "overclock",
+    "flush": "flush", "zwolnij": "flush",
 }
 
 # ── Stopwords (ignored during tokenisation) ───────────────────────────────────
