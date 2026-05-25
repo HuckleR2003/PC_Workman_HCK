@@ -304,6 +304,20 @@ class SessionMemory:
             "gpu_temp_why": "GPU temperature", "disk_health": "disk health",
             "session_compare": "session comparison", "virus_check": "security scan",
             "unnecessary_programs": "background programs", "speed_up_pc": "speed optimization",
+            # Community feedback intents
+            "fan_noise_history":    "fan noise analysis",
+            "driver_status":        "driver status",
+            "gaming_vs_work_time":  "gaming vs work time",
+            "process_identity":     "process identity check",
+            "stale_apps":           "unused applications",
+            "fps_degradation":      "FPS degradation (time-travel)",
+            "app_behavior_change":  "app behavior change",
+            "startup_slowdown":     "startup slowdown analysis",
+            "temp_comparison":      "temperature trend comparison",
+            "crash_context":        "crash/freeze context",
+            "game_hardware_stress": "game hardware stress",
+            "battery_drain_rate":   "battery drain rate",
+            "power_after_restart":  "power usage since restart",
         }
         topics_seen = []
         for t in self._topic_stack:
@@ -356,6 +370,74 @@ class SessionMemory:
         trends = self.trend_summary()
         if trends and trends != "stable":
             parts.append(f"Metric trends: {trends}")
+
+        return "\n".join(parts)
+
+    # ── Time-windowed event context (MEGA FEATURE: Time-Travel Debugging) ────
+
+    def get_events_for_window(self, within_minutes: float) -> List[ObservedEvent]:
+        """Return events that occurred within the given time window."""
+        return [e for e in self._events if e.age_minutes() <= within_minutes]
+
+    def get_spike_context(self, within_minutes: float = 120) -> Optional[str]:
+        """
+        Returns a structured summary of spikes/anomalies within the time window.
+        Used by crash_context and app_behavior_change handlers for Time-Travel.
+        """
+        events = self.get_events_for_window(within_minutes)
+        if not events:
+            return None
+
+        lines: List[str] = []
+        for evt in events:
+            age_m = evt.age_minutes()
+            lines.append(
+                f"  [{age_m:.0f}m ago] {evt.event_type}"
+                + (f": {evt.detail}" if evt.detail else "")
+            )
+        return "\n".join(lines) if lines else None
+
+    def get_time_windowed_context(self, intent: str, lang: str = "pl") -> str:
+        """
+        MEGA FEATURE: Context Time-Windowing for session data.
+        Returns compact context relevant to the given intent.
+        Crash/freeze intents get all events + trend context.
+        """
+        parts: List[str] = []
+
+        # Topic + summary always useful
+        topic = self.current_topic()
+        if topic:
+            parts.append(f"Current topic: {topic.replace('_', ' ')}")
+
+        summary = self.get_conversation_summary()
+        if summary:
+            parts.append(f"Context: {summary}")
+
+        # Intent-specific event window
+        _time_windows_min = {
+            "crash_context":        240.0,
+            "app_behavior_change":  120.0,
+            "fan_noise_history":    60.0,
+            "fps_degradation":      60.0,
+            "temp_comparison":      60.0,
+            "why_slow":             30.0,
+            "health_check":         30.0,
+        }
+        window = _time_windows_min.get(intent, 20.0)
+        spike_ctx = self.get_spike_context(within_minutes=window)
+        if spike_ctx:
+            parts.append(f"System events (last {window:.0f}min):\n{spike_ctx}")
+
+        # Metric trends
+        trends = self.trend_summary()
+        if trends and trends != "stable":
+            parts.append(f"Metric trends: {trends}")
+
+        # Recent exchange
+        recent = self.recent_exchange_text(n_pairs=3)
+        if recent:
+            parts.append("Recent chat:\n" + recent)
 
         return "\n".join(parts)
 
