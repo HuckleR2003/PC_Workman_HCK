@@ -32,17 +32,66 @@ import json
 import threading
 import time
 from typing import Any, Dict, List, Optional
+from import_core import register_component, update_status, STATUS_OK, STATUS_IDLE, STATUS_WARN
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 OLLAMA_HOST        = "localhost"
 OLLAMA_PORT        = 11434
 DEFAULT_MODEL      = "llama3.2"          # override: hybrid_engine.model = "mistral"
-RULE_THRESHOLD     = 0.60               # above → rule engine (deterministic)
+RULE_THRESHOLD     = 0.65               # above → rule engine (deterministic); raised from 0.60 so borderline queries get Ollama's natural language
 LOW_THRESHOLD      = 0.20               # below → no rule fallback at all
 OLLAMA_TIMEOUT     = 10                 # seconds before giving up on Ollama
 AVAILABILITY_TTL   = 300               # re-check Ollama availability every 5 min
 MAX_TOKENS         = 220               # max LLM output tokens (keep responses short)
-TEMPERATURE        = 0.72              # LLM temperature (slight creativity)
+TEMPERATURE        = 0.72              # default LLM temperature
+
+# Intent-aware temperature: factual queries need precision, small talk needs warmth
+_INTENT_TEMPERATURE: Dict[str, float] = {
+    # Factual / diagnostic — deterministic, low creativity
+    "hw_cpu":         0.35,
+    "hw_gpu":         0.35,
+    "hw_ram":         0.35,
+    "hw_storage":     0.35,
+    "hw_all":         0.35,
+    "hw_motherboard": 0.35,
+    "temperature":    0.35,
+    "throttle_check": 0.35,
+    "stats":          0.35,
+    "processes":      0.35,
+    "disk_health":    0.35,
+    "ram_why_high":   0.40,
+    "gpu_temp_why":   0.40,
+    "why_slow":       0.45,
+    "turbo_boost":    0.45,
+    "process_info":   0.40,
+    "session_compare":0.40,
+    # Performance / optimization — slight creativity OK
+    "performance":    0.55,
+    "optimization":   0.55,
+    "power_plan":     0.50,
+    "speed_up_pc":    0.55,
+    # Open-ended / conversational — more creative
+    "small_talk":     0.80,
+    "about_program":  0.65,
+    "help":           0.60,
+    "health_check":   0.50,
+    "unnecessary_programs": 0.50,
+    "virus_check":    0.50,
+    # New community intents
+    "fan_noise_history":    0.40,
+    "driver_status":        0.35,
+    "gaming_vs_work_time":  0.45,
+    "process_identity":     0.40,
+    "stale_apps":           0.50,
+    "fps_degradation":      0.45,
+    "app_behavior_change":  0.45,
+    "startup_slowdown":     0.50,
+    "temp_comparison":      0.35,
+    "crash_context":        0.45,
+    "game_hardware_stress": 0.45,
+    "battery_drain_rate":   0.40,
+    "power_after_restart":  0.40,
+}
 
 
 # ── Ollama HTTP Client ─────────────────────────────────────────────────────────
@@ -104,6 +153,7 @@ class OllamaClient:
         prompt: str,
         system: str,
         timeout: int = OLLAMA_TIMEOUT,
+        temperature: float = TEMPERATURE,
     ) -> Optional[str]:
         """
         POST /api/generate — non-streaming.
@@ -115,7 +165,7 @@ class OllamaClient:
             "system": system,
             "stream": False,
             "options": {
-                "temperature":  TEMPERATURE,
+                "temperature":  temperature,
                 "num_predict":  MAX_TOKENS,
                 "stop": ["\n\n\n", "User:", "hck_GPT:", "==="],
             },
@@ -159,6 +209,37 @@ class HybridEngine:
     # Intents that should always prefer Ollama (conversational / open-ended)
     _OLLAMA_PREFERRED_INTENTS = frozenset({"small_talk", "unknown"})
 
+    # MEGA FEATURE: Context Time-Windowing
+    # Maps intent → relevant history window in minutes for the LLM prompt.
+    # Intents that ask about NOW get a tight 5-min window (fresh data).
+    # Intents doing Time-Travel get a wide window (hours/days worth of context).
+    _CONTEXT_WINDOWS: dict[str, int] = {
+        # Real-time diagnostics — last 5 min is enough
+        "hw_cpu":           5,
+        "hw_gpu":           5,
+        "hw_ram":           5,
+        "temperature":      10,
+        "throttle_check":   5,
+        "performance":      5,
+        "processes":        5,
+        # Session-level — last 30 min
+        "health_check":     30,
+        "ram_why_high":     30,
+        "gpu_temp_why":     30,
+        "why_slow":         30,
+        "stats":            60,
+        # Time-Travel queries — need multi-hour / day context
+        "temp_comparison":  10080,   # 7 days
+        "fps_degradation":  10080,   # 7 days
+        "app_behavior_change": 2880, # 2 days
+        "crash_context":    240,     # 4 hours
+        "fan_noise_history": 1440,   # 24 hours
+        "game_hardware_stress": 2880,
+        "session_compare":  2880,
+        "perf_change":      2880,
+        "pc_changes":       2880,
+    }
+
     def __init__(self) -> None:
         self._ollama = OllamaClient()
         self.model   = DEFAULT_MODEL
@@ -175,6 +256,8 @@ class HybridEngine:
         self.llm_calls:       int = 0
         self.llm_successes:   int = 0
         self.rule_calls:      int = 0
+
+        register_component('hck_gpt.engine', self, STATUS_IDLE)
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -199,7 +282,7 @@ class HybridEngine:
         # ── OPEN-ENDED INTENTS → always try Ollama first ──────────────────────
         if intent in self._OLLAMA_PREFERRED_INTENTS:
             if self._check_available():
-                llm_resp = self._query_llm(msg, lang)
+                llm_resp = self._query_llm(msg, lang, result)
                 if llm_resp:
                     self.llm_successes += 1
                     return llm_resp
@@ -220,7 +303,7 @@ class HybridEngine:
 
         # ── MEDIUM CONFIDENCE → try Ollama, then rule fallback ────────────────
         if self._check_available():
-            llm_resp = self._query_llm(msg, lang)
+            llm_resp = self._query_llm(msg, lang, result)
             if llm_resp:
                 self.llm_successes += 1
                 return llm_resp
@@ -289,16 +372,21 @@ class HybridEngine:
 
     # ── LLM query ─────────────────────────────────────────────────────────────
 
-    def _query_llm(self, msg: str, lang: str) -> Optional[List[str]]:
+    def _query_llm(
+        self, msg: str, lang: str, result: Any = None
+    ) -> Optional[List[str]]:
         """Build full prompt + call Ollama, return formatted response lines."""
         self.llm_calls += 1
+        intent = getattr(result, "intent", "unknown") if result else "unknown"
+        temperature = _INTENT_TEMPERATURE.get(intent, TEMPERATURE)
         try:
-            system_prompt = self._build_system_prompt(lang)
+            system_prompt = self._build_system_prompt(lang, result)
             raw = self._ollama.generate(
                 model=self.model,
                 prompt=msg,
                 system=system_prompt,
                 timeout=OLLAMA_TIMEOUT,
+                temperature=temperature,
             )
         except Exception:
             # On exception, cool down for 60s (not 5min) — could be transient
@@ -319,12 +407,14 @@ class HybridEngine:
         - Strip markdown artifacts
         - Cap at 10 lines
         """
-        # Remove markdown artifacts
+        # Remove markdown artifacts and normalise bullet styles
         clean = (raw
                  .replace("**", "")
                  .replace("##", "")
                  .replace("# ", "")
                  .replace("---", "")
+                 .replace("\n- ", "\n• ")    # markdown dash-bullet → unicode bullet
+                 .replace("\n* ", "\n• ")    # markdown star-bullet → unicode bullet
                  .strip())
 
         raw_lines = [l.strip() for l in clean.split("\n") if l.strip()]
@@ -346,19 +436,23 @@ class HybridEngine:
 
     # ── System prompt builder ─────────────────────────────────────────────────
 
-    def _build_system_prompt(self, lang: str) -> str:
+    def _build_system_prompt(self, lang: str, result: Any = None) -> str:
         """
         Constructs a comprehensive system prompt for Ollama.
         Sections:
           [Identity]     — who hck_GPT is
+          [Intent]       — detected query intent (helps LLM focus)
           [Rules]        — how to respond
           [PC Context]   — live snapshot + hardware + history
           [Language]     — which language to use
         """
-        # Gather context
+        # Gather context — MEGA FEATURE: Context Time-Windowing
+        # Pick relevant history window based on intent type
+        intent = getattr(result, "intent", "unknown") if result else "unknown"
+        window_minutes = self._CONTEXT_WINDOWS.get(intent, 30)
         try:
             from hck_gpt.context.system_context import system_context
-            pc_ctx = system_context.build_llm_context(lang)
+            pc_ctx = system_context.build_llm_context_windowed(lang, window_minutes)
         except Exception:
             pc_ctx = "(PC context unavailable)"
 
@@ -372,6 +466,9 @@ class HybridEngine:
             "You are not a generic assistant — you are a specialized PC expert "
             "who knows this specific computer intimately."
         )
+
+        # Intent hint — guides the LLM on what kind of answer is expected
+        intent_block = self._build_intent_hint(result, lang)
 
         # Hard rules
         rules = (
@@ -397,15 +494,80 @@ class HybridEngine:
                 "Używaj naturalnego, potocznego języka — nie formalnego."
             )
 
-        # Combine
-        prompt = "\n\n".join([
+        # Combine — include intent block only when non-empty
+        sections = [
             f"[Identity]\n{identity}",
             f"[Rules]\n{rules}",
-            f"[PC Context]\n{pc_ctx}",
-            f"[Language]\n{lang_rule}",
-        ])
+        ]
+        if intent_block:
+            sections.append(f"[Intent]\n{intent_block}")
+        sections.append(f"[PC Context]\n{pc_ctx}")
+        sections.append(f"[Language]\n{lang_rule}")
 
-        return prompt
+        return "\n\n".join(sections)
+
+    # ── Intent hint builder ───────────────────────────────────────────────────
+
+    _INTENT_HINTS: Dict[str, str] = {
+        "hw_cpu":         "User is asking about their CPU — give model, clock speed, cores, and current load/temp.",
+        "hw_gpu":         "User is asking about their GPU — give model, VRAM, current load/temp.",
+        "hw_ram":         "User is asking about their RAM — give total, used, speed, and slots.",
+        "hw_storage":     "User is asking about storage — give drive sizes, used/free, and type (SSD/HDD).",
+        "hw_all":         "User wants a full hardware overview — cover CPU, GPU, RAM, storage concisely.",
+        "hw_motherboard": "User is asking about their motherboard — give manufacturer, model, chipset, BIOS.",
+        "temperature":    "User is asking about system temperatures — be specific: CPU, GPU, and threshold warnings.",
+        "throttle_check": "User is asking about CPU/GPU throttling — check current temps and clock speeds.",
+        "stats":          "User wants usage statistics — give today's averages and peaks for CPU/RAM.",
+        "processes":      "User is asking about running processes — list top consumers by CPU or RAM.",
+        "ram_why_high":   "User is asking why RAM usage is high — name the top consumers and explain.",
+        "gpu_temp_why":   "User is asking why GPU temperature is high — explain causes (load, cooling, drivers).",
+        "why_slow":       "User is asking why the PC is slow — check CPU/RAM/processes and give the real culprit.",
+        "turbo_boost":    "User is asking about Intel Turbo Boost or AMD Boost — explain how it works on their CPU.",
+        "process_info":   "User is asking about a specific process — explain what it does and if it's safe.",
+        "disk_health":    "User is asking about disk health — check usage, S.M.A.R.T. status if available.",
+        "session_compare":"User wants to compare today's metrics with yesterday's session.",
+        "performance":    "User is asking about general system performance — give actionable assessment.",
+        "optimization":   "User wants optimization advice — give 2-3 specific, actionable tips.",
+        "power_plan":     "User is asking about Windows power plan — explain current plan and tradeoffs.",
+        "speed_up_pc":    "User wants to speed up their PC — give the most impactful specific actions.",
+        "health_check":   "User wants an overall PC health assessment — cover temps, RAM, CPU, disk.",
+        "virus_check":    "User is asking about security/malware — check processes for red flags, recommend actions.",
+        "unnecessary_programs": "User wants to know what programs can be safely removed or disabled.",
+        "about_program":  "User is asking about PC Workman HCK itself — explain what it does.",
+        "small_talk":     "User is making casual conversation — be warm and friendly, briefly mention their PC status.",
+        # New community intents
+        "fan_noise_history":  "User is asking if their fan is louder than usual — compare current CPU/temp load to history, explain causes.",
+        "driver_status":      "User wants to know which drivers are installed and when they were updated — list key drivers with age.",
+        "gaming_vs_work_time":"User wants a breakdown of time spent gaming vs working — categorize CPU usage by app type.",
+        "process_identity":   "User is asking if a specific .exe is a Windows process or suspicious — check library and system path.",
+        "stale_apps":         "User wants to find apps they haven't used in a while — list likely unused installed programs.",
+        "fps_degradation":    "User says FPS is worse than it used to be — do Time-Travel comparison of GPU/CPU/temp over 30 days.",
+        "app_behavior_change":"User says an app started behaving differently — compare current vs 7-day metric trend, suggest causes.",
+        "startup_slowdown":   "User asks what slows startup the most — rank startup entries by boot impact, suggest disabling highest ones.",
+        "temp_comparison":    "User asks if PC is running hotter than usual — compare current temps to 7-day and 30-day historical averages.",
+        "crash_context":      "User asks what was happening before the last freeze — check session events, temps, and RAM pressure.",
+        "game_hardware_stress":"User asks which game stresses hardware most — show active game processes, GPU/CPU peak from history.",
+        "battery_drain_rate": "User asks how much battery is used during gaming — show current drain rate and estimates by activity type.",
+        "power_after_restart":"User asks what used most power since restart — show processes with most cumulative CPU time since boot.",
+    }
+
+    def _build_intent_hint(self, result: Any, lang: str) -> str:
+        if result is None:
+            return ""
+        intent    = getattr(result, "intent",   "unknown")
+        conf      = getattr(result, "confidence", 0.0)
+        entities  = getattr(result, "entities",  {})
+
+        hint = self._INTENT_HINTS.get(intent, "")
+        if not hint:
+            return ""
+
+        lines = [f"Detected query type: {intent} (confidence {conf:.0%})"]
+        lines.append(hint)
+        if entities:
+            ent_str = ", ".join(f"{k}={v}" for k, v in entities.items())
+            lines.append(f"Mentioned components: {ent_str}")
+        return "\n".join(lines)
 
     # ── Diagnostics ───────────────────────────────────────────────────────────
 
