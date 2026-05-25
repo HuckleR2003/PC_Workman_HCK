@@ -27,10 +27,16 @@ class SystemContext:
     """
 
     # Internal trend push interval (seconds) — push to session_memory no more than once per 30s
-    _TREND_PUSH_INTERVAL = 30.0
+    _TREND_PUSH_INTERVAL  = 30.0
+    # LLM context cache — rebuild at most every 5 s to avoid hammering psutil + SQLite
+    # on rapid Ollama calls (e.g. user sends multiple messages quickly)
+    _LLM_CONTEXT_CACHE_TTL = 5.0
 
     def __init__(self) -> None:
         self._last_trend_push: float = 0.0
+        self._llm_context_cache: str   = ""
+        self._llm_context_ts:    float = 0.0
+        self._llm_context_lang:  str   = ""    # invalidate cache on language switch
 
     # ── Main snapshot ──────────────────────────────────────────────────────────
 
@@ -231,7 +237,83 @@ class SystemContext:
         Generates a detailed multi-section context string for Ollama system prompt.
         Includes: live metrics, hardware, top processes, temps, today averages,
                   recent events from session_memory, conversation summary, trends.
+
+        Result is cached for _LLM_CONTEXT_CACHE_TTL seconds to avoid rebuilding
+        the full context (psutil + SQLite + session_memory) on every rapid message.
+        Cache is invalidated on language change.
         """
+        now = time.time()
+        if (self._llm_context_cache
+                and self._llm_context_lang == lang
+                and (now - self._llm_context_ts) < self._LLM_CONTEXT_CACHE_TTL):
+            return self._llm_context_cache
+
+        ctx = self._build_llm_context_impl(lang)
+        self._llm_context_cache = ctx
+        self._llm_context_ts    = now
+        self._llm_context_lang  = lang
+        return ctx
+
+    def build_llm_context_windowed(self, lang: str = "pl",
+                                    window_minutes: int = 30) -> str:
+        """
+        MEGA FEATURE: Context Time-Windowing.
+        Builds context constrained to the last `window_minutes` of data.
+        For wide windows (> 60 min) appends historical trend section from
+        metrics_store so the LLM gets time-travel context for degradation queries.
+
+        Falls back to build_llm_context() on any error.
+        """
+        try:
+            # Base context is always live (unchanged)
+            base = self._build_llm_context_impl(lang)
+
+            # For narrow windows (<= 30 min) — strip old "Today's Averages" section
+            # to avoid noise; the live snapshot is sufficient.
+            if window_minutes <= 30:
+                # Already fresh enough — return base minus heavy history sections
+                lines = base.split("\n\n")
+                filtered = [
+                    sec for sec in lines
+                    if not sec.startswith("=== Learned Usage Patterns")
+                    and not sec.startswith("=== Recent Patterns")
+                ]
+                return "\n\n".join(filtered)
+
+            # For wide windows — append historical trend from metrics_store
+            parts = [base]
+            try:
+                from hck_gpt.data.metrics_store import metrics_store
+                days = max(1, window_minutes // (60 * 24))
+                history = metrics_store.daily_summary(days=min(days, 30))
+                if history:
+                    trend_lines = [f"=== Historical Metrics ({days}-day trend) ==="]
+                    for row in history[:7]:
+                        d      = row.get("date_str") or "?"
+                        c_avg  = row.get("cpu_avg")       # cpu_load AVG
+                        c_max  = row.get("cpu_max")       # cpu_load MAX
+                        ct_avg = row.get("cpu_temp_avg")  # cpu_temp AVG
+                        g_avg  = row.get("gpu_avg")       # gpu_load AVG
+                        gt_avg = row.get("gpu_temp_avg")  # gpu_temp AVG
+                        r_avg  = row.get("ram_avg")       # ram_pct AVG
+                        parts_line = [d]
+                        if c_avg  is not None: parts_line.append(f"CPU {c_avg:.0f}%")
+                        if c_max  is not None: parts_line.append(f"peak {c_max:.0f}%")
+                        if ct_avg is not None: parts_line.append(f"temp {ct_avg:.0f}°C")
+                        if g_avg  is not None: parts_line.append(f"GPU {g_avg:.0f}%")
+                        if gt_avg is not None: parts_line.append(f"GPU_temp {gt_avg:.0f}°C")
+                        if r_avg  is not None: parts_line.append(f"RAM {r_avg:.0f}%")
+                        trend_lines.append("  " + "  |  ".join(parts_line))
+                    parts.append("\n".join(trend_lines))
+            except Exception:
+                pass
+
+            return "\n\n".join(parts)
+        except Exception:
+            return self.build_llm_context(lang)
+
+    def _build_llm_context_impl(self, lang: str = "pl") -> str:
+        """Internal — builds the full context string. Called by build_llm_context()."""
         snap   = self.snapshot()
         parts: List[str] = []
 
@@ -330,6 +412,66 @@ class SystemContext:
             conv_ctx = session_memory.get_context_for_llm()
             if conv_ctx:
                 parts.append("=== Conversation Context ===\n" + conv_ctx)
+        except Exception:
+            pass
+
+        # ── Section 7: Learned usage patterns (from usage_patterns table) ────
+        try:
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            patterns = user_knowledge.get_all_patterns()
+            pat_lines: List[str] = []
+            if patterns.get("typical_cpu_avg") is not None:
+                pat_lines.append(
+                    f"Typical CPU avg (7-day baseline): {patterns['typical_cpu_avg']}%")
+            if patterns.get("typical_ram_avg") is not None:
+                pat_lines.append(
+                    f"Typical RAM avg (7-day baseline): {patterns['typical_ram_avg']}%")
+            if patterns.get("top_app_week"):
+                pat_lines.append(
+                    f"Heaviest app this week: {patterns['top_app_week']}")
+            if pat_lines:
+                parts.append("=== Learned Usage Patterns ===\n" + "\n".join(pat_lines))
+        except Exception:
+            pass
+
+        # ── Section 8: Recent AI-discovered insights (from insights_log) ─────
+        try:
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            insights = user_knowledge.get_recent_insights(n=3)
+            if insights:
+                ins_lines: List[str] = []
+                for cat, insight, _ in insights:
+                    # Strip key prefix ("high_cpu_pattern: ") to keep it concise
+                    display = insight.split(": ", 1)[-1] if ": " in insight else insight
+                    ins_lines.append(f"  [{cat}] {display}")
+                parts.append(
+                    "=== Recent Patterns (AI-discovered) ===\n" + "\n".join(ins_lines))
+        except Exception:
+            pass
+
+        # ── Section 9: Today vs typical baseline (session delta) ─────────────
+        try:
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            patterns = user_knowledge.get_all_patterns()
+            typ_cpu = patterns.get("typical_cpu_avg")
+            typ_ram = patterns.get("typical_ram_avg")
+            today_cpu = snap.get("cpu_avg_today")
+            today_ram = snap.get("ram_avg_today")
+            delta_lines: List[str] = []
+            if today_cpu is not None and typ_cpu is not None:
+                diff = float(today_cpu) - float(typ_cpu)
+                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+                sign  = "+" if diff >= 0 else ""
+                delta_lines.append(
+                    f"CPU today {today_cpu}% vs typical {typ_cpu}%  {arrow} ({sign}{diff:.0f}%)")
+            if today_ram is not None and typ_ram is not None:
+                diff = float(today_ram) - float(typ_ram)
+                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+                sign  = "+" if diff >= 0 else ""
+                delta_lines.append(
+                    f"RAM today {today_ram}% vs typical {typ_ram}%  {arrow} ({sign}{diff:.0f}%)")
+            if delta_lines:
+                parts.append("=== Today vs Typical ===\n" + "\n".join(delta_lines))
         except Exception:
             pass
 
