@@ -3548,6 +3548,1214 @@ class ResponseBuilder:
         lines.append(_followup("perf", lang))
         return lines
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # MEGA FEATURE: Structured fallback — no AI-slop when data is unavailable
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _no_data(self, intent: str, lang: str, what_missing: str = "") -> List[str]:
+        """
+        Return a structured 'data unavailable' message instead of hallucinating.
+        Called by any handler when critical data is missing.
+        """
+        generic = _t(lang, "brak danych", "data unavailable")
+        detail  = f"  ({what_missing})" if what_missing else ""
+        if lang == "en":
+            return [
+                f"{self.PREFIX} ⚠ Not enough data for a reliable answer.",
+                f"  I'd rather tell you honestly than guess.{detail}",
+                "  What would help: use PC Workman for a few more days so the stats engine builds history.",
+                f"  Alternative: try 'health check' or 'stats' for what I do have.",
+            ]
+        return [
+            f"{self.PREFIX} ⚠ Za mało danych żeby udzielić pewnej odpowiedzi.",
+            f"  Wolę powiedzieć szczerze niż zgadywać.{detail}",
+            "  Co pomoże: uruchom PC Workman przez kilka dni — silnik statystyk buduje historię.",
+            f"  Alternatywa: spróbuj 'zdrowie systemu' lub 'stats' — to mam na pewno.",
+        ]
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MEGA FEATURE: Time-Travel helper — compare current to N-day history
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # Map from user-facing metric alias → daily_summary column name
+    _METRIC_COL_MAP: dict[str, str] = {
+        "cpu_temp":  "cpu_temp_avg",
+        "gpu_temp":  "gpu_temp_avg",
+        "cpu_load":  "cpu_avg",
+        "gpu_load":  "gpu_avg",
+        "ram_pct":   "ram_avg",
+    }
+
+    def _get_historical_comparison(
+        self, metric: str, days: int, lang: str
+    ) -> Optional[str]:
+        """
+        Compare current metric value to N-day historical average.
+        metric: 'cpu_temp', 'gpu_temp', 'cpu_load', 'ram_pct', 'gpu_load'
+        Returns a formatted comparison string or None if data missing.
+        """
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+
+            # Map metric alias → actual daily_summary column name
+            col = self._METRIC_COL_MAP.get(metric, metric)
+
+            summary = metrics_store.daily_summary(days=days)
+            if not summary:
+                return None
+
+            # Average of historical daily averages (ignore -1 / None entries)
+            valid = [
+                float(row[col]) for row in summary
+                if row.get(col) is not None and float(row.get(col, -1)) > 0
+            ]
+            if len(valid) < 2:
+                return None
+            hist_avg = sum(valid) / len(valid)
+            hist_max = max(valid)
+            hist_min = min(valid)
+
+            # Get current live value
+            from hck_gpt.data.live_sensors import snapshot as _ls_snap
+            live    = _ls_snap()
+            current = live.get(metric)
+            if current is None or current <= 0:
+                try:
+                    import psutil
+                    if metric == "cpu_load":
+                        current = psutil.cpu_percent(interval=None)
+                    elif metric == "ram_pct":
+                        current = psutil.virtual_memory().percent
+                except Exception:
+                    current = None
+
+            if current is None:
+                return None
+
+            diff  = float(current) - hist_avg
+            arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+            sign  = "+" if diff >= 0 else ""
+            unit  = "°C" if "temp" in metric else "%"
+
+            if lang == "en":
+                return (
+                    f"  Now: {current:.0f}{unit}  vs  {days}-day avg: {hist_avg:.0f}{unit}  "
+                    f"{arrow} ({sign}{diff:.0f}{unit})  |  range: {hist_min:.0f}–{hist_max:.0f}{unit}"
+                )
+            return (
+                f"  Teraz: {current:.0f}{unit}  vs  śr. {days} dni: {hist_avg:.0f}{unit}  "
+                f"{arrow} ({sign}{diff:.0f}{unit})  |  zakres: {hist_min:.0f}–{hist_max:.0f}{unit}"
+            )
+        except Exception:
+            return None
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # MEGA FEATURE: Micro-Benchmark trigger
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _trigger_micro_benchmark(self, bench_type: str) -> None:
+        """
+        Fire-and-forget background micro-test. Results stored in session_memory
+        under 'micro_bench' key so the NEXT query can reference real measured data.
+        bench_type: 'cpu_single', 'disk_seq', 'ram_bandwidth'
+        """
+        import threading
+
+        def _run_cpu_single() -> None:
+            import time as _t
+            start = _t.perf_counter()
+            x = 0.0
+            for i in range(1_000_000):
+                x += (i ** 0.5)
+            elapsed = _t.perf_counter() - start
+            score = round(1_000_000 / elapsed)
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.record_response_data("micro_bench", {
+                    "type": "cpu_single",
+                    "score": score,
+                    "elapsed_ms": round(elapsed * 1000),
+                })
+            except Exception:
+                pass
+
+        def _run_disk_seq() -> None:
+            import os, tempfile, time as _t
+            tmp = os.path.join(tempfile.gettempdir(), "_hck_bench_tmp.bin")
+            MB  = 32
+            data = b"\xAB" * (MB * 1_048_576)
+            try:
+                start_w = _t.perf_counter()
+                with open(tmp, "wb") as f:
+                    f.write(data)
+                write_mb_s = round(MB / (_t.perf_counter() - start_w))
+                start_r = _t.perf_counter()
+                with open(tmp, "rb") as f:
+                    _ = f.read()
+                read_mb_s = round(MB / (_t.perf_counter() - start_r))
+            except Exception:
+                write_mb_s = read_mb_s = -1
+            finally:
+                try:
+                    os.remove(tmp)
+                except Exception:
+                    pass
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.record_response_data("micro_bench", {
+                    "type":         "disk_seq",
+                    "write_mb_s":   write_mb_s,
+                    "read_mb_s":    read_mb_s,
+                    "test_size_mb": MB,
+                })
+            except Exception:
+                pass
+
+        runners = {
+            "cpu_single": _run_cpu_single,
+            "disk_seq":   _run_disk_seq,
+        }
+        fn = runners.get(bench_type)
+        if fn:
+            threading.Thread(target=fn, daemon=True,
+                             name=f"hck_microbench_{bench_type}").start()
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # NEW INTENT HANDLERS (community feedback)
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # ── Fan noise history ─────────────────────────────────────────────────────
+
+    def _resp_fan_noise_history(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+
+        snap = system_context.snapshot()
+        hw   = user_knowledge.get_all_hardware()
+        cpu  = float(snap.get("cpu_pct",  0) or 0)
+        ram  = float(snap.get("ram_pct",  0) or 0)
+        temp_now: Optional[float] = None
+
+        # Get current temperatures from snapshot
+        temps = snap.get("temperatures", [])
+        if temps:
+            temp_now = max(t for _, t in temps) if temps else None
+
+        # Historical temperature trend from metrics_store
+        hist_temp_cmp = self._get_historical_comparison("cpu_temp", 7, lang)
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Analiza głośności wentylatora:",
+            f"{self.PREFIX} Fan noise analysis:")]
+
+        # Main cause: temperature and CPU load
+        if cpu > 80 or (temp_now and temp_now > 80):
+            lines.append(_t(lang,
+                f"  🔴 CPU na {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} — wentylatory kręcą się szybciej, to normalne.",
+                f"  🔴 CPU at {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} — fans spinning up, that's expected."))
+        elif cpu > 55 or (temp_now and temp_now > 65):
+            lines.append(_t(lang,
+                f"  🟡 Umiarkowane obciążenie (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) — wentylatory mogą być słyszalne.",
+                f"  🟡 Moderate load (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) — fans may be audible."))
+        else:
+            lines.append(_t(lang,
+                f"  ✓ Niskie obciążenie (CPU {cpu:.0f}%) — jeśli fan hałasuje, może być kurz lub starzejące się łożysko.",
+                f"  ✓ Low load (CPU {cpu:.0f}%) — if fan is loud, suspect dust or aging bearing."))
+
+        # Historical comparison (time-travel)
+        if hist_temp_cmp:
+            lines.append(_t(lang, "  Porównanie historyczne (7 dni):", "  Historical comparison (7 days):"))
+            lines.append(hist_temp_cmp)
+        else:
+            lines.append(_t(lang,
+                "  Brak danych historycznych — wentylatory nie mają czujnika RPM przez psutil.",
+                "  No historical fan data — fan RPM not exposed via psutil on Windows."))
+
+        # Practical tips
+        lines.append("")
+        lines.append(_t(lang,
+            "  Możliwe przyczyny głośniejszego wentylatora:",
+            "  Possible causes of increased fan noise:"))
+        lines.append(_t(lang,
+            "  • Kurz w chłodniku — wyczyść sprężonym powietrzem (1x rok)",
+            "  • Dust in heatsink — clean with compressed air (1x/year)"))
+        lines.append(_t(lang,
+            "  • Zużyte łożysko wentylatora — charakterystyczny warkot/szum",
+            "  • Worn fan bearing — grinding or rattling sound"))
+        lines.append(_t(lang,
+            "  • Wysokie obciążenie (gry, render) — normalne i tymczasowe",
+            "  • High load (gaming, rendering) — normal and temporary"))
+        lines.append(_t(lang,
+            "  💬 Wpisz 'temperatury' po pełny raport termiczny",
+            "  💬 Type 'temperatures' for full thermal report"))
+        return lines
+
+    # ── Driver status ─────────────────────────────────────────────────────────
+
+    def _resp_driver_status(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Shows GPU/display/audio driver info with dates via PowerShell/WMI.
+        Color-codes by age: <6 months green, 6-18 months yellow, >18 months red.
+        """
+        import subprocess, datetime
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Status sterowników (kluczowe):",
+            f"{self.PREFIX} Driver status (key drivers):")]
+
+        # Query via PowerShell — fastest way to get driver dates on Windows
+        ps_cmd = (
+            "Get-WmiObject Win32_PnPSignedDriver | "
+            "Where-Object {$_.DeviceName -match 'Display|VGA|NVIDIA|AMD|Radeon|Intel.*Graphics|"
+            "Audio|Sound|High Definition|Ethernet|Wi-Fi|Wireless'} | "
+            "Select-Object DeviceName,DriverVersion,DriverDate | "
+            "ConvertTo-Json"
+        )
+        try:
+            result = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_cmd],
+                capture_output=True, text=True, timeout=8
+            )
+            import json as _json
+            raw = result.stdout.strip()
+            if not raw:
+                raise ValueError("empty")
+            data = _json.loads(raw)
+            if isinstance(data, dict):
+                data = [data]
+
+            now = datetime.datetime.now()
+            for drv in data[:8]:
+                name    = (drv.get("DeviceName")    or "?")[:40]
+                version = (drv.get("DriverVersion") or "?")[:20]
+                date_raw = drv.get("DriverDate") or ""
+
+                # WMI DriverDate format: "20231005000000.000000-000"
+                age_str = "?"
+                color   = ""
+                try:
+                    date_str = date_raw[:8]  # YYYYMMDD
+                    dt = datetime.datetime.strptime(date_str, "%Y%m%d")
+                    months = (now - dt).days // 30
+                    age_str = f"{months}m"
+                    if months < 6:
+                        color = "✓"
+                    elif months < 18:
+                        color = "!"
+                    else:
+                        color = "⚠"
+                except Exception:
+                    color = " "
+
+                lines.append(f"  {color} {name[:38]}")
+                lines.append(f"    ver {version}  ·  {age_str} old")
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie udało się pobrać listy sterowników przez PowerShell.",
+                "  Could not retrieve driver list via PowerShell."))
+            lines.append(_t(lang,
+                "  Sprawdź ręcznie: Start → Menedżer urządzeń",
+                "  Check manually: Start → Device Manager"))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  ⚠ = starszy niż 18 mies.  !  = 6–18 mies.  ✓ = świeży (<6 mies.)",
+            "  ⚠ = older than 18 months  !  = 6–18 months  ✓ = recent (<6 months)"))
+        lines.append(_t(lang,
+            "  Zaktualizuj sterowniki GPU w: NVIDIA GeForce Experience / AMD Software",
+            "  Update GPU drivers in: NVIDIA GeForce Experience / AMD Software"))
+        return lines
+
+    # ── Gaming vs work time ───────────────────────────────────────────────────
+
+    def _resp_gaming_vs_work_time(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Categorizes process CPU time from today's stats engine data into
+        gaming / productive / background categories.
+        """
+        lines = [_t(lang,
+            f"{self.PREFIX} Podział czasu na PC dziś:",
+            f"{self.PREFIX} Time breakdown on PC today:")]
+
+        _GAME_SLUGS = {
+            "csgo", "cs2", "valorant", "fortnite", "minecraft", "steam",
+            "epicgameslauncher", "battlenet", "gog", "ubisoft",
+            "leagueoflegends", "dota2", "rocketleague", "cyberpunk",
+            "witcher3", "ac_valhalla", "elden_ring", "apex", "pubg",
+            "overwatch", "destiny2", "r5apex", "cod", "warzone",
+        }
+        _WORK_SLUGS = {
+            "chrome", "firefox", "msedge", "brave", "opera",
+            "code", "pycharm", "devenv", "rider", "clion", "idea",
+            "word", "excel", "powerpnt", "winword", "excel",
+            "notepad", "notepad++", "sublime_text", "atom",
+            "cmd", "powershell", "windowsterminal", "python",
+            "node", "java", "slack", "teams", "zoom", "outlook",
+            "filezilla", "putty", "winscp",
+        }
+
+        gaming_cpu = 0.0
+        work_cpu   = 0.0
+        other_cpu  = 0.0
+        found_any  = False
+
+        try:
+            import psutil
+            for proc in psutil.process_iter(["name", "cpu_percent"]):
+                try:
+                    nm  = (proc.info.get("name") or "").lower().replace(".exe", "").replace("-", "").replace(" ", "")
+                    cpu = proc.info.get("cpu_percent") or 0
+                    if cpu < 0.1:
+                        continue
+                    found_any = True
+                    if any(g in nm for g in _GAME_SLUGS):
+                        gaming_cpu += cpu
+                    elif any(w in nm for w in _WORK_SLUGS):
+                        work_cpu += cpu
+                    else:
+                        other_cpu += cpu
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if not found_any:
+            return self._no_data("gaming_vs_work_time", lang,
+                _t(lang, "brak aktywnych procesów", "no active processes"))
+
+        total = gaming_cpu + work_cpu + other_cpu or 1.0
+        g_pct = gaming_cpu / total * 100
+        w_pct = work_cpu   / total * 100
+        o_pct = other_cpu  / total * 100
+
+        lines.append(_t(lang,
+            "  (Podział bazuje na aktywnych procesach teraz, nie całym dniu)",
+            "  (Split based on currently active processes, not full-day history)"))
+        lines.append("")
+        lines.append(_t(lang,
+            f"  🎮 Gry/Gaming:       {g_pct:.0f}%  CPU share",
+            f"  🎮 Gaming:           {g_pct:.0f}%  CPU share"))
+        lines.append(_t(lang,
+            f"  💼 Praca/Produktywność:  {w_pct:.0f}%  CPU share",
+            f"  💼 Productive/Work:  {w_pct:.0f}%  CPU share"))
+        lines.append(_t(lang,
+            f"  ⚙ System/Inne:       {o_pct:.0f}%  CPU share",
+            f"  ⚙ System/Other:     {o_pct:.0f}%  CPU share"))
+        lines.append("")
+
+        # Verdict
+        if g_pct > 50:
+            lines.append(_t(lang, "  → Aktualnie dominuje gaming.", "  → Gaming is currently dominant."))
+        elif w_pct > 50:
+            lines.append(_t(lang, "  → Aktualnie dominuje produktywność.", "  → Productivity is currently dominant."))
+        else:
+            lines.append(_t(lang, "  → Mix — nic nie dominuje wyraźnie.", "  → Mixed session — nothing clearly dominant."))
+
+        lines.append(_t(lang,
+            "  💬 Pełna historia: zakładka Statistics → Weekly",
+            "  💬 Full history: Statistics → Weekly tab"))
+        return lines
+
+    # ── Process identity ──────────────────────────────────────────────────────
+
+    def _resp_process_identity(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Checks if a named .exe is part of Windows, a known app, or suspicious.
+        Uses the process_library and a Windows system path check.
+        """
+        import os
+
+        raw = (r.raw_text or "").lower()
+
+        # Extract .exe name from query
+        import re as _re
+        match = _re.search(r'[\w\-]+\.exe', raw)
+        proc_name = match.group(0) if match else None
+
+        # Also try without .exe if user typed e.g. "co to conhost"
+        if not proc_name:
+            _WIN_PROCS = {
+                "svchost", "csrss", "lsass", "winlogon", "services", "smss",
+                "conhost", "dwm", "ntoskrnl", "explorer", "taskhostw",
+                "msiexec", "werfault", "searchindexer", "spoolsv",
+                "audiodg", "runtimebroker", "settingssynchost",
+            }
+            for wp in _WIN_PROCS:
+                if wp in raw:
+                    proc_name = wp + ".exe"
+                    break
+
+        if not proc_name:
+            if lang == "en":
+                return [
+                    f"{self.PREFIX} Which process do you want me to check?",
+                    "  Include the .exe name, e.g.: 'is conhost.exe safe'",
+                    "  or: 'what is werfault.exe'",
+                ]
+            return [
+                f"{self.PREFIX} Który proces chcesz sprawdzić?",
+                "  Podaj nazwę .exe, np.: 'czy conhost.exe jest bezpieczny'",
+                "  lub: 'co to jest werfault.exe'",
+            ]
+
+        # Check process library first
+        try:
+            from hck_gpt.process_library import process_library as _lib
+            info = _lib.get_process_info(proc_name)
+        except Exception:
+            info = None
+
+        # Windows system path check
+        is_system = False
+        win_paths  = [
+            os.environ.get("SystemRoot", "C:\\Windows"),
+            os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "System32"),
+            os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "SysWOW64"),
+        ]
+        try:
+            import psutil
+            for proc in psutil.process_iter(["name", "exe"]):
+                try:
+                    if (proc.info.get("name") or "").lower() == proc_name.lower():
+                        exe_path = proc.info.get("exe") or ""
+                        for wp in win_paths:
+                            if exe_path.lower().startswith(wp.lower()):
+                                is_system = True
+                                break
+                        break
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Identyfikacja procesu — {proc_name}:",
+            f"{self.PREFIX} Process identity — {proc_name}:")]
+
+        if info:
+            safety = info.get("safety", "unknown")
+            desc_key = "description_pl" if lang == "pl" else "description_en"
+            desc = info.get(desc_key) or info.get("description_en") or info.get("name", "?")
+            icon = {"safe": "✓", "suspicious": "⚠", "unsafe": "🔴"}.get(safety, "?")
+            lines.append(f"  {icon} {desc}")
+            if safety == "suspicious":
+                lines.append(_t(lang,
+                    "  ⚠ Oznaczony jako podejrzany — sprawdź w Menedżerze zadań.",
+                    "  ⚠ Flagged as suspicious — check in Task Manager."))
+            elif safety == "unsafe":
+                lines.append(_t(lang,
+                    "  🔴 Oznaczony jako niebezpieczny — zamknij i przeskanuj antywirusem.",
+                    "  🔴 Flagged as unsafe — close it and run antivirus scan."))
+        elif is_system:
+            lines.append(_t(lang,
+                f"  ✓ Proces systemowy Windows — uruchomiony z folderu System32.",
+                f"  ✓ Windows system process — running from System32 folder."))
+            lines.append(_t(lang,
+                "  Bezpieczny — nie przerywaj go.",
+                "  Safe — do not terminate it."))
+        else:
+            lines.append(_t(lang,
+                "  ? Nie ma go w bibliotece procesów PC Workman.",
+                "  ? Not found in PC Workman's process library."))
+            lines.append(_t(lang,
+                "  Nieznany ≠ niebezpieczny. Sprawdź: google 'co to [nazwa].exe'",
+                "  Unknown ≠ dangerous. Check: google 'what is [name].exe'"))
+            lines.append(_t(lang,
+                "  Podejrzany jeśli: w %TEMP%, brak podpisu, losowa nazwa",
+                "  Suspicious if: in %TEMP%, no digital signature, random name"))
+
+        lines.append(_followup("security", lang))
+        return lines
+
+    # ── Stale / unused apps ───────────────────────────────────────────────────
+
+    def _resp_stale_apps(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Lists installed programs from registry that have not been seen
+        in the process stats for 30+ days (if history available),
+        or just shows all installed with last-seen fallback.
+        """
+        import winreg
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Aplikacje prawdopodobnie nieużywane:",
+            f"{self.PREFIX} Likely unused applications:")]
+
+        installed: list[str] = []
+        reg_paths = [
+            (winreg.HKEY_CURRENT_USER,
+             r"Software\Microsoft\Windows\CurrentVersion\Uninstall"),
+            (winreg.HKEY_LOCAL_MACHINE,
+             r"Software\Microsoft\Windows\CurrentVersion\Uninstall"),
+            (winreg.HKEY_LOCAL_MACHINE,
+             r"Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"),
+        ]
+        seen: set[str] = set()
+        try:
+            for hive, path in reg_paths:
+                try:
+                    key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+                    i = 0
+                    while True:
+                        try:
+                            sub = winreg.EnumKey(key, i)
+                            try:
+                                sub_key = winreg.OpenKey(key, sub)
+                                name_val, _ = winreg.QueryValueEx(sub_key, "DisplayName")
+                                if name_val and name_val.lower() not in seen:
+                                    seen.add(name_val.lower())
+                                    installed.append(name_val)
+                                winreg.CloseKey(sub_key)
+                            except Exception:
+                                pass
+                            i += 1
+                        except OSError:
+                            break
+                    winreg.CloseKey(key)
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if not installed:
+            return self._no_data("stale_apps", lang,
+                _t(lang, "brak dostępu do rejestru Uninstall", "no access to Uninstall registry"))
+
+        # Filter obvious system/driver entries
+        _SKIP = {"microsoft", "windows", "redistributable", "runtime", "update",
+                 "directx", ".net", "visual c++", "driver", "intel", "amd", "nvidia",
+                 "realtek", "vc_redist", "vcredist"}
+        user_apps = [
+            a for a in installed
+            if not any(s in a.lower() for s in _SKIP)
+        ][:20]
+
+        # Try to cross-reference with process history in stats engine
+        used_recently: set[str] = set()
+        try:
+            from hck_stats_engine.query_api import query_api
+            from datetime import datetime, timedelta
+            cutoff_str = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+            today_str  = datetime.now().strftime("%Y-%m-%d")
+            rows = query_api.get_process_daily_breakdown(today_str, top_n=50) or []
+            for row in rows:
+                nm = (row.get("process_name") or "").lower()
+                for app in user_apps:
+                    if nm[:8] in app.lower():
+                        used_recently.add(app)
+        except Exception:
+            pass
+
+        stale = [a for a in user_apps if a not in used_recently]
+
+        if stale:
+            lines.append(_t(lang,
+                f"  Znaleziono {len(stale)} aplikacji bez widocznej aktywności w ostatnich 30 dniach:",
+                f"  Found {len(stale)} apps with no visible activity in the last 30 days:"))
+            for app in stale[:10]:
+                lines.append(f"  — {app[:50]}")
+            if len(stale) > 10:
+                lines.append(_t(lang, f"  ... i {len(stale)-10} więcej", f"  ... and {len(stale)-10} more"))
+        else:
+            lines.append(_t(lang,
+                "  Brak wyraźnie nieużywanych aplikacji w bazie ostatnich 30 dni.",
+                "  No clearly unused apps found in last 30 days of process data."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Odinstaluj przez: Start → Ustawienia → Aplikacje",
+            "  💡 Uninstall via: Start → Settings → Apps"))
+        return lines
+
+    # ── FPS degradation — time-travel debugging ───────────────────────────────
+
+    def _resp_fps_degradation(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Time-Travel: compares current GPU load + temps to 30-day history.
+        Looks for patterns that explain why FPS would degrade over time.
+        """
+        lines = [_t(lang,
+            f"{self.PREFIX} Analiza degradacji FPS (Time-Travel):",
+            f"{self.PREFIX} FPS degradation analysis (Time-Travel):")]
+
+        # GPU load trend
+        gpu_hist = self._get_historical_comparison("gpu_load", 30, lang)
+        # CPU temp trend (thermal throttle is fps killer)
+        cpu_temp_hist = self._get_historical_comparison("cpu_temp", 30, lang)
+        # GPU temp trend
+        gpu_temp_hist = self._get_historical_comparison("gpu_temp", 30, lang)
+
+        if not gpu_hist and not cpu_temp_hist:
+            lines.append(_t(lang,
+                "  Brak danych historycznych (min. 7 dni wymagane).",
+                "  Not enough historical data (need 7+ days of metrics_store data)."))
+        else:
+            if gpu_hist:
+                lines.append(_t(lang, "  GPU load (30 dni):", "  GPU load (30 days):"))
+                lines.append(gpu_hist)
+            if gpu_temp_hist:
+                lines.append(_t(lang, "  GPU temp (30 dni):", "  GPU temp (30 days):"))
+                lines.append(gpu_temp_hist)
+            if cpu_temp_hist:
+                lines.append(_t(lang, "  CPU temp (30 dni):", "  CPU temp (30 days):"))
+                lines.append(cpu_temp_hist)
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  Najczęstsze przyczyny degradacji FPS z czasem:",
+            "  Most common causes of FPS degradation over time:"))
+        lines.append(_t(lang,
+            "  🌡 Kurz → gorzsze chłodzenie → CPU/GPU throttluje → gorsza wydajność",
+            "  🌡 Dust buildup → worse cooling → CPU/GPU throttles → lower FPS"))
+        lines.append(_t(lang,
+            "  💾 Pełny dysk C: < 10 GB wolne → Windows swap spowalnia grę",
+            "  💾 Full drive C: < 10 GB free → Windows swap slows the game"))
+        lines.append(_t(lang,
+            "  🔄 Aktualizacja sterownika GPU — czasem nowe wersje są gorsze dla starszych gier",
+            "  🔄 GPU driver update — newer versions sometimes regress older titles"))
+        lines.append(_t(lang,
+            "  📦 Nowe apki w autostarcie pożerają RAM przy każdym starcie",
+            "  📦 New startup apps eating RAM from boot"))
+
+        # Trigger micro benchmark for disk
+        self._trigger_micro_benchmark("disk_seq")
+        lines.append("")
+        lines.append(_t(lang,
+            "  🔬 Uruchomiono micro-test dysku w tle — zapytaj 'jak szybki jest mój dysk' za 10s.",
+            "  🔬 Disk micro-benchmark running in background — ask 'disk speed' in ~10s for results."))
+
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── App behavior change ───────────────────────────────────────────────────
+
+    def _resp_app_behavior_change(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Time-Travel: checks if performance shifted since a week ago.
+        Helps answer "why did X start acting differently".
+        """
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+
+        snap     = system_context.snapshot()
+        patterns = user_knowledge.get_all_patterns()
+
+        cpu  = float(snap.get("cpu_pct", 0) or 0)
+        ram  = float(snap.get("ram_pct", 0) or 0)
+
+        # 7-day CPU delta
+        cpu_hist = self._get_historical_comparison("cpu_load", 7, lang)
+        ram_hist = self._get_historical_comparison("ram_pct",  7, lang)
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Analiza zmiany zachowania aplikacji:",
+            f"{self.PREFIX} App behavior change analysis:")]
+
+        # Check for notable changes
+        typ_cpu = float(patterns.get("typical_cpu_avg") or 0)
+        if typ_cpu > 0 and cpu > typ_cpu + 15:
+            lines.append(_t(lang,
+                f"  ⚠ CPU teraz {cpu:.0f}% vs norma {typ_cpu:.0f}% — coś pobiera więcej mocy niż zwykle.",
+                f"  ⚠ CPU now {cpu:.0f}% vs typical {typ_cpu:.0f}% — something is consuming more than usual."))
+
+        if cpu_hist:
+            lines.append(_t(lang, "  CPU trend (7 dni):", "  CPU trend (7 days):"))
+            lines.append(cpu_hist)
+        if ram_hist:
+            lines.append(_t(lang, "  RAM trend (7 dni):", "  RAM trend (7 days):"))
+            lines.append(ram_hist)
+
+        if not cpu_hist and not ram_hist:
+            lines.append(_t(lang,
+                "  Brak wystarczającej historii metryk — potrzebuję 7+ dni danych.",
+                "  Not enough metric history — need 7+ days of data."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  Typowe przyczyny zmiany zachowania aplikacji:",
+            "  Typical causes of app behavior change:"))
+        lines.append(_t(lang,
+            "  • Aktualizacja aplikacji — sprawdź w Ustawienia → Aplikacje",
+            "  • App update — check Settings → Apps for recent updates"))
+        lines.append(_t(lang,
+            "  • Nowa usługa w tle odciągająca CPU/RAM",
+            "  • New background service consuming CPU/RAM"))
+        lines.append(_t(lang,
+            "  • Pełny dysk — < 10 GB wolne spowalnia wszystko",
+            "  • Full disk — < 10 GB free slows everything down"))
+        lines.append(_t(lang,
+            "  • Problem z temperaturą — CPU/GPU throttluje pod obciążeniem",
+            "  • Thermal issue — CPU/GPU throttling under load"))
+        lines.append(_t(lang,
+            "  💬 Sprawdź 'co się zmieniło od wczoraj' po konkretne zmiany procesów",
+            "  💬 Try 'what changed since yesterday' for specific process changes"))
+        return lines
+
+    # ── Startup slowdown ──────────────────────────────────────────────────────
+
+    def _resp_startup_slowdown(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Enhanced startup analysis — ranks startup entries by likely boot impact,
+        measures current startup program count and gives actionable prioritization.
+        """
+        import winreg
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Co zwalnia uruchamianie komputera:",
+            f"{self.PREFIX} What slows down your PC startup:")]
+
+        _HIGH_IMPACT = {
+            "chrome", "opera", "operagx", "brave", "firefox", "edge",
+            "epicgameslauncher", "steam", "battlenet", "ubisoft", "gog",
+            "spotify", "discord", "discordptb", "onedrive", "dropbox",
+            "teamviewer", "anydesk",
+        }
+        _MED_IMPACT = {
+            "teams", "zoom", "slack", "telegram", "signal", "skype",
+            "googledrive", "box", "mega",
+        }
+
+        entries: list[tuple[str, str, int]] = []  # (name, exe, impact 3/2/1)
+        try:
+            reg_paths = [
+                (winreg.HKEY_CURRENT_USER,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+                (winreg.HKEY_LOCAL_MACHINE,
+                 r"Software\Microsoft\Windows\CurrentVersion\Run"),
+            ]
+            seen: set[str] = set()
+            for hive, path in reg_paths:
+                try:
+                    key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+                    i = 0
+                    while True:
+                        try:
+                            name, val, _ = winreg.EnumValue(key, i)
+                            slug = name.lower().replace(" ", "").replace("-", "")
+                            if slug not in seen:
+                                seen.add(slug)
+                                exe  = val.lower()
+                                slug2 = slug + exe
+                                impact = 1
+                                if any(k in slug2 for k in _HIGH_IMPACT):
+                                    impact = 3
+                                elif any(k in slug2 for k in _MED_IMPACT):
+                                    impact = 2
+                                entries.append((name, val[:60], impact))
+                            i += 1
+                        except OSError:
+                            break
+                    winreg.CloseKey(key)
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        if not entries:
+            return self._no_data("startup_slowdown", lang,
+                _t(lang, "brak dostępu do rejestru Run", "no registry Run access"))
+
+        # Sort by impact descending
+        entries.sort(key=lambda x: x[2], reverse=True)
+        total = len(entries)
+
+        verdict = ""
+        if total <= 4:
+            verdict = _t(lang, "✓ Bardzo czysty autostart.", "✓ Very clean startup.")
+        elif total <= 8:
+            verdict = _t(lang, "! Umiarkowany — można skrócić czas boot.", "! Moderate — boot time can be reduced.")
+        else:
+            verdict = _t(lang, "⚠ Dużo wpisów — boot jest wyraźnie wolniejszy.", "⚠ Many entries — boot is noticeably slower.")
+
+        lines.append(f"  {verdict}  ({total} wpisów / {total} entries)")
+        lines.append(_t(lang, "  Największy wpływ (sugeruj wyłączyć):", "  Highest impact (suggest disabling):"))
+
+        for name, exe, impact in entries[:6]:
+            icon = "🔴" if impact == 3 else ("🟡" if impact == 2 else "  ")
+            lines.append(f"  {icon} {name[:40]}")
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💬 Zarządzaj wpisami  [→ Startup Manager]",
+            "  💬 Manage entries  [→ Startup Manager]"))
+        lines.append(_followup("startup", lang))
+        return lines
+
+    # ── Temperature comparison (time-travel) ──────────────────────────────────
+
+    def _resp_temp_comparison(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Time-Travel: compares current temps to 7-day and 30-day historical averages.
+        Answers "is my PC hotter than usual lately?"
+        """
+        lines = [_t(lang,
+            f"{self.PREFIX} Porównanie temperatur — czy jest goręcej niż zwykle?",
+            f"{self.PREFIX} Temperature comparison — running hotter than usual?")]
+
+        cpu_7d  = self._get_historical_comparison("cpu_temp", 7,  lang)
+        cpu_30d = self._get_historical_comparison("cpu_temp", 30, lang)
+        gpu_7d  = self._get_historical_comparison("gpu_temp", 7,  lang)
+
+        has_data = any([cpu_7d, cpu_30d, gpu_7d])
+        if not has_data:
+            lines.extend(self._no_data("temp_comparison", lang,
+                _t(lang, "brak danych z metrics_store", "no metrics_store temperature history")))
+            lines.append(_t(lang,
+                "  PC Workman zbiera dane co 5 min — wróć za kilka dni.",
+                "  PC Workman collects data every 5 min — check back in a few days."))
+            return lines
+
+        if cpu_7d:
+            lines.append(_t(lang, "  CPU temp vs 7 dni:", "  CPU temp vs 7 days:"))
+            lines.append(cpu_7d)
+        if cpu_30d:
+            lines.append(_t(lang, "  CPU temp vs 30 dni:", "  CPU temp vs 30 days:"))
+            lines.append(cpu_30d)
+        if gpu_7d:
+            lines.append(_t(lang, "  GPU temp vs 7 dni:", "  GPU temp vs 7 days:"))
+            lines.append(gpu_7d)
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  Jeśli temperatury są wyraźnie wyższe niż zwykle:",
+            "  If temperatures are notably higher than normal:"))
+        lines.append(_t(lang,
+            "  • Wyczyść chłodnik ze kurzu (sprężone powietrze)",
+            "  • Clean heatsink of dust (compressed air)"))
+        lines.append(_t(lang,
+            "  • Sprawdź plan zasilania — High Performance grzeje bardziej",
+            "  • Check power plan — High Performance runs hotter"))
+        lines.append(_t(lang,
+            "  • Sprawdź czy pasta termoprzewodząca nie wymaga wymiany (>3-4 lata)",
+            "  • Check if thermal paste needs replacing (>3–4 years old)"))
+        lines.append(_t(lang,
+            "  💬 Wpisz 'temperatury' po aktualny live raport",
+            "  💬 Type 'temperatures' for current live report"))
+        return lines
+
+    # ── Crash / freeze context ────────────────────────────────────────────────
+
+    def _resp_crash_context(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Provides context about what was likely happening before the last freeze.
+        Uses session_memory events + trends + last known snapshot.
+        """
+        from hck_gpt.memory.session_memory  import session_memory
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+
+        snap     = system_context.snapshot()
+        patterns = user_knowledge.get_all_patterns()
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Analiza kontekstu przed ostatnim freezem:",
+            f"{self.PREFIX} Context analysis before the last freeze:")]
+
+        # Session events
+        recent_evts = session_memory.recent_events(n=20)
+        freeze_hint = None
+        for evt in reversed(recent_evts):
+            if evt.event_type in ("cpu_spike", "high_temp", "throttle", "high_ram"):
+                freeze_hint = evt
+                break
+
+        if freeze_hint:
+            age = freeze_hint.age_minutes()
+            lines.append(_t(lang,
+                f"  Ostatnie zdarzenie: {freeze_hint.event_type} — {age:.0f} min temu",
+                f"  Last event: {freeze_hint.event_type} — {age:.0f} min ago"))
+            if freeze_hint.detail:
+                lines.append(f"  Szczegóły: {freeze_hint.detail}")
+        else:
+            lines.append(_t(lang,
+                "  Brak nagranych zdarzeń w tej sesji przed pytaniem.",
+                "  No events recorded in this session before the query."))
+
+        # CPU/RAM at freeze time (current as approximation)
+        cpu = float(snap.get("cpu_pct", 0) or 0)
+        ram = float(snap.get("ram_pct", 0) or 0)
+        lines.append(_t(lang,
+            f"  Stan teraz: CPU {cpu:.0f}%  RAM {ram:.0f}%",
+            f"  Current state: CPU {cpu:.0f}%  RAM {ram:.0f}%"))
+
+        # Temperature context
+        temps = snap.get("temperatures", [])
+        if temps:
+            max_temp = max(t for _, t in temps)
+            if max_temp > 80:
+                lines.append(_t(lang,
+                    f"  ⚠ Temperatura teraz: {max_temp:.0f}°C — przegrzanie jest częstą przyczyną freezów.",
+                    f"  ⚠ Temperature now: {max_temp:.0f}°C — overheating is a frequent freeze cause."))
+
+        # Historical crash patterns from metrics
+        cpu_temp_hist = self._get_historical_comparison("cpu_temp", 7, lang)
+        if cpu_temp_hist:
+            lines.append(_t(lang, "  CPU temp trend 7 dni:", "  CPU temp trend 7 days:"))
+            lines.append(cpu_temp_hist)
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  Typowe przyczyny freezów/crashów:",
+            "  Common causes of freezes/crashes:"))
+        lines.append(_t(lang,
+            "  🌡 Przegrzanie CPU/GPU — sprawdź temperatury i kurz",
+            "  🌡 CPU/GPU overheating — check temps and dust"))
+        lines.append(_t(lang,
+            "  💾 RAM — uszkodzony moduł lub przeciążony pagefile (niski wolny RAM)",
+            "  💾 RAM — faulty module or overloaded pagefile (low free RAM)"))
+        lines.append(_t(lang,
+            "  ⚡ Zasilanie — PSU zbyt słabe dla obciążenia, szczególnie przy graniu",
+            "  ⚡ PSU — underpowered for load, especially during gaming"))
+        lines.append(_t(lang,
+            "  🔄 Sterowniki GPU — niestabilne wersje czasem powodują crash",
+            "  🔄 GPU driver — unstable versions can cause crashes"))
+        lines.append(_t(lang,
+            "  💬 Sprawdź Windows Event Viewer: Win+R → eventvwr → System Logs",
+            "  💬 Check Windows Event Viewer: Win+R → eventvwr → System Logs"))
+        return lines
+
+    # ── Game hardware stress ───────────────────────────────────────────────────
+
+    def _resp_game_hardware_stress(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Looks at current running game processes and compares CPU/GPU load.
+        Also uses historical metrics if available.
+        """
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+
+        snap    = system_context.snapshot()
+        hw      = user_knowledge.get_all_hardware()
+
+        _KNOWN_GAMES = {
+            "csgo", "cs2", "valorant", "fortnite", "minecraft",
+            "leagueoflegends", "dota2", "rocketleague", "cyberpunk2077",
+            "witcher3", "apex_legends", "r5apex", "cod", "warzone",
+            "overwatch", "destiny2", "pubg", "elden_ring", "gta5",
+            "ac_valhalla", "halo", "battlefield", "bf2042", "tarkov",
+        }
+
+        # Find running game processes
+        running_games: list[tuple[str, float, float]] = []
+        try:
+            import psutil
+            for proc in psutil.process_iter(["name", "cpu_percent", "memory_percent"]):
+                try:
+                    nm = (proc.info.get("name") or "").lower().replace(".exe", "").replace(" ", "").replace("-", "")
+                    cpu_p = proc.info.get("cpu_percent") or 0
+                    ram_p = proc.info.get("memory_percent") or 0
+                    if any(g in nm for g in _KNOWN_GAMES):
+                        running_games.append((proc.info["name"], cpu_p, ram_p))
+                except Exception:
+                    continue
+        except Exception:
+            pass
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Analiza obciążenia hardware podczas grania:",
+            f"{self.PREFIX} Game hardware stress analysis:")]
+
+        if running_games:
+            lines.append(_t(lang,
+                "  Aktywne gry teraz:", "  Active games right now:"))
+            for name, cpu_p, ram_p in running_games[:4]:
+                lines.append(f"  🎮 {name[:30]:<30}  CPU {cpu_p:.1f}%  RAM {ram_p:.1f}%")
+        else:
+            lines.append(_t(lang,
+                "  Żadna gra nie jest teraz aktywna.",
+                "  No game currently active."))
+
+        # Overall system load right now
+        cpu_now = float(snap.get("cpu_pct", 0) or 0)
+        gpu_now_str = ""
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _ls
+            ls = _ls()
+            gpu_load = ls.get("gpu_load", -1)
+            if gpu_load >= 0:
+                gpu_now_str = f"  GPU: {gpu_load:.0f}%"
+        except Exception:
+            pass
+
+        lines.append(f"  CPU teraz: {cpu_now:.0f}%{gpu_now_str}" if lang == "pl"
+                     else f"  CPU now: {cpu_now:.0f}%{gpu_now_str}")
+
+        # Historical GPU load peak (which session pushed it hardest)
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            summary = metrics_store.daily_summary(days=14)
+            if summary:
+                # Find day with max GPU load
+                peak_day = max(summary, key=lambda r: r.get("gpu_max") or 0)
+                gpu_peak = peak_day.get("gpu_max")
+                cpu_peak = peak_day.get("cpu_max")
+                if gpu_peak and gpu_peak > 0:
+                    lines.append("")
+                    lines.append(_t(lang,
+                        f"  Historyczny szczyt GPU (14 dni): {gpu_peak:.0f}% obciążenia ({peak_day['date_str']})",
+                        f"  Historical GPU peak (14 days): {gpu_peak:.0f}% load ({peak_day['date_str']})"))
+                    if cpu_peak:
+                        lines.append(_t(lang,
+                            f"  Przy tym CPU {cpu_peak:.0f}% — prawdopodobnie ciężka sesja gamingowa.",
+                            f"  Alongside CPU {cpu_peak:.0f}% — likely a heavy gaming session."))
+        except Exception:
+            pass
+
+        # Hardware capacity context
+        if hw.get("gpu_model"):
+            lines.append("")
+            lines.append(_t(lang,
+                f"  Twoja karta GPU: {hw['gpu_model']}",
+                f"  Your GPU: {hw['gpu_model']}"))
+        if hw.get("cpu_model"):
+            lines.append(_t(lang,
+                f"  Twój CPU: {hw['cpu_model']}",
+                f"  Your CPU: {hw['cpu_model']}"))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💬 Wpisz 'temperatury' by sprawdzić czy sprzęt throttluje podczas grania",
+            "  💬 Type 'temperatures' to check if hardware throttles during gaming"))
+        return lines
+
+    # ── Battery drain rate ─────────────────────────────────────────────────────
+
+    def _resp_battery_drain_rate(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """Enhanced battery response — shows drain rate estimate during gaming vs idle."""
+        try:
+            import psutil
+            bat = psutil.sensors_battery()
+        except Exception:
+            bat = None
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Zużycie baterii:",
+            f"{self.PREFIX} Battery drain:")]
+
+        if bat is None:
+            lines.append(_t(lang,
+                "  Brak baterii (komputer stacjonarny lub brak czujnika).",
+                "  No battery (desktop PC or no sensor available)."))
+            lines.append(_t(lang,
+                "  Pytanie o 'pobór prądu' jest bardziej odpowiednie dla laptopów.",
+                "  'Power consumption' question is more relevant for laptops."))
+        else:
+            pct     = bat.percent
+            plugged = bat.power_plugged
+            secs    = bat.secsleft
+            time_str = ""
+            if secs and secs > 0 and not plugged:
+                h, m = divmod(secs // 60, 60)
+                time_str = (f"  ~{h}h {m}min pozostało" if lang == "pl"
+                            else f"  ~{h}h {m}min remaining")
+            status = _t(lang,
+                "ładowanie" if plugged else "na baterii",
+                "charging"  if plugged else "on battery")
+            lines.append(f"  {pct:.0f}%  [{status}]{time_str}")
+
+        # Current CPU load as proxy for power draw
+        try:
+            import psutil
+            cpu = psutil.cpu_percent(interval=None)
+            ram = psutil.virtual_memory().percent
+            lines.append("")
+            lines.append(_t(lang,
+                f"  CPU teraz: {cpu:.0f}%  RAM: {ram:.0f}%  — to główne czynniki poboru prądu",
+                f"  CPU now: {cpu:.0f}%  RAM: {ram:.0f}%  — main factors in power draw"))
+
+            if cpu > 70:
+                lines.append(_t(lang,
+                    "  🔴 Wysokie CPU = wysoki pobór — bateria rozładowuje się szybko",
+                    "  🔴 High CPU = high draw — battery draining fast"))
+            elif cpu > 40:
+                lines.append(_t(lang,
+                    "  🟡 Umiarkowane CPU — bateria rozładowuje się w normalnym tempie",
+                    "  🟡 Moderate CPU — battery draining at normal pace"))
+            else:
+                lines.append(_t(lang,
+                    "  ✓ Niskie CPU — wolne rozładowywanie baterii",
+                    "  ✓ Low CPU — slow battery drain"))
+        except Exception:
+            pass
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  Szacowane zużycie baterii:",
+            "  Estimated battery usage:"))
+        lines.append(_t(lang,
+            "  • Gaming:     ~20–35 % / godz  (GPU + CPU pod pełnym ładunkiem)",
+            "  • Gaming:     ~20–35% / hour   (GPU + CPU under full load)"))
+        lines.append(_t(lang,
+            "  • Praca:      ~8–15 % / godz   (przeglądarka, dokumenty)",
+            "  • Work:       ~8–15% / hour    (browser, documents)"))
+        lines.append(_t(lang,
+            "  • Jałowy:     ~3–6 % / godz    (bezczynność, ekran wygaszony)",
+            "  • Idle:       ~3–6% / hour     (idle, screen off)"))
+        lines.append(_t(lang,
+            "  💡 Plan zasilania Balanced = lepsza bateria niż High Performance",
+            "  💡 Balanced power plan saves more battery than High Performance"))
+        return lines
+
+    # ── Power after restart ────────────────────────────────────────────────────
+
+    def _resp_power_after_restart(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Shows which processes have used the most CPU since session start,
+        as a proxy for 'who used the most power since restart'.
+        """
+        from hck_gpt.memory.session_memory import session_memory
+
+        session_dur = session_memory.session_duration_str()
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Zużycie prądu od startu systemu (szacowane przez CPU):",
+            f"{self.PREFIX} Power usage since restart (estimated via CPU):")]
+        lines.append(_t(lang,
+            f"  Czas sesji PC Workman: {session_dur}",
+            f"  PC Workman session time: {session_dur}"))
+        lines.append("")
+
+        try:
+            import psutil
+            # cumulative CPU times since boot (more accurate for power history)
+            procs_cpu: list[tuple[str, float]] = []
+            for proc in psutil.process_iter(["name", "cpu_times"]):
+                try:
+                    ct = proc.info.get("cpu_times")
+                    if ct:
+                        total_s = getattr(ct, "user", 0) + getattr(ct, "system", 0)
+                        if total_s > 1:
+                            procs_cpu.append((proc.info["name"] or "?", total_s))
+                except Exception:
+                    continue
+            procs_cpu.sort(key=lambda x: x[1], reverse=True)
+
+            if procs_cpu:
+                lines.append(_t(lang,
+                    "  Procesy z największym łącznym czasem CPU od uruchomienia:",
+                    "  Processes with most cumulative CPU time since boot:"))
+                for name, secs in procs_cpu[:7]:
+                    mins = secs / 60
+                    lines.append(f"  — {name[:30]:<30}  {mins:.0f} min CPU time")
+            else:
+                lines.append(_t(lang,
+                    "  Brak danych o CPU times — prawdopodobnie brak uprawnień.",
+                    "  No CPU times data — likely insufficient permissions."))
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie mogę pobrać danych o procesach.",
+                "  Cannot retrieve process data."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Więcej czasu CPU = więcej prądu zużytego.",
+            "  💡 More CPU time = more power consumed."))
+        lines.append(_t(lang,
+            "  Dla dokładniejszego pomiaru (laptopy): Start → powercfg /batteryreport",
+            "  For more precise measurement (laptops): Start → powercfg /batteryreport"))
+        lines.append(_followup("process", lang))
+        return lines
+
 
 # ── Singleton ─────────────────────────────────────────────────────────────────
 response_builder = ResponseBuilder()
