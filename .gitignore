@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# IDE / editors
+.vscode/
+.idea/
+
+# Build / packaging
+_internal/
+build/
+dist/
+*.egg-info/
+
+# App generated data
+data/logs/
+data/cache/
+settings/user_prefs.json
+
+# User-generated export files (created by UI actions, not source)
+fan_settings_ultimate.json
+settings/fan_settings_ultimate.json
+pc_workman_report_*.txt
+
+# PyInstaller build folders (numeric build dirs like 1/)
+1/
+2/
+3/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fonts (large binaries — place manually)
+data/fonts/*.ttf
+data/fonts/*.otf
+
+# Claude session data
+.claude/
+
+# User-specific runtime settings
+settings/turbo_services.json
+
+# EXE binary (distributed via Releases, not tracked in source)
+*.exe
