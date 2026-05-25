@@ -1236,9 +1236,11 @@ class FanDashboardUltimate:
             "options": self.options,
             "sliders": {name: slider.value for name, slider in self.sliders.items()}
         }
-        with open("fan_settings_ultimate.json", "w") as f:
+        export_path = os.path.join("settings", "fan_settings_ultimate.json")
+        os.makedirs("settings", exist_ok=True)
+        with open(export_path, "w") as f:
             json.dump(data, f, indent=2)
-        messagebox.showinfo("Export", "📤 All settings exported to fan_settings_ultimate.json")
+        messagebox.showinfo("Export", f"📤 Settings exported to {export_path}")
 
     def _reset(self):
         """Reset to defaults"""
