@@ -1044,5 +1044,1505 @@
     "safety": "suspicious",
     "typical_cpu": "30-90%",
     "typical_ram": "100-300MB"
+  },
+
+  "system idle process": {
+    "name": "System Idle Process",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Pseudo-process representing unused CPU time. High % = CPU is free and healthy. Never a problem.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-99% (inverse of real load)",
+    "typical_ram": "0MB"
+  },
+  "memcompression": {
+    "name": "Memory Compression",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Compresses rarely-used RAM pages to free physical memory. High usage indicates memory pressure.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "varies (compressed pages)"
+  },
+  "gameinputsvc.exe": {
+    "name": "Game Input Service",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Xbox Game Input API service. Handles controller and gamepad input for PC games.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "werfault.exe": {
+    "name": "Windows Error Reporting",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Collects crash reports and sends diagnostics to Microsoft. CPU spike occurs briefly after app crashes.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-30% (briefly after crash)",
+    "typical_ram": "20-100MB"
+  },
+  "compattelrunner.exe": {
+    "name": "Microsoft Compatibility Telemetry",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Periodically collects and sends compatibility telemetry to Microsoft. Known to cause unexpected CPU/disk spikes.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30% (periodic)",
+    "typical_ram": "30-150MB"
+  },
+  "backgroundtaskhost.exe": {
+    "name": "Background Task Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts background tasks from UWP apps and Windows services. Multiple instances are normal.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-80MB"
+  },
+  "settingssynchost.exe": {
+    "name": "Settings Sync Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Syncs Windows settings and preferences across devices via Microsoft account. Runs periodically.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-40MB"
+  },
+  "ctfmon.exe": {
+    "name": "CTF Loader",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages text input methods and handwriting/speech recognition. Required for IME (input method editors).",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-30MB"
+  },
+  "searchhost.exe": {
+    "name": "Windows Search Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Core Windows Search indexing host (Win11). Replaces SearchIndexer.exe. CPU spikes during indexing.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-25% (spikes during indexing)",
+    "typical_ram": "50-300MB"
+  },
+  "searchapp.exe": {
+    "name": "Windows Search App",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "UWP process rendering the taskbar search interface. Suspends when search is not in use.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "50-200MB"
+  },
+  "securityhealthsystray.exe": {
+    "name": "Windows Security Tray",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "System tray icon for Windows Security Center. Monitors AV, firewall, and update status.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-50MB"
+  },
+  "usocoreworker.exe": {
+    "name": "Update Session Orchestrator Worker",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Coordinates Windows Update download and install sessions. CPU/disk spike while updates download.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40% (during updates)",
+    "typical_ram": "30-200MB"
+  },
+  "wuauclt.exe": {
+    "name": "Windows Update Client",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Legacy Windows Update client. Mostly replaced by USOCoreWorker in Win10/11 but can still appear.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "20-100MB"
+  },
+  "tiworker.exe": {
+    "name": "Windows Modules Installer Worker",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Installs and removes Windows features and updates. High CPU/disk during updates is normal and temporary.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-60% (during updates)",
+    "typical_ram": "50-400MB"
+  },
+  "sihclient.exe": {
+    "name": "Service Initiated Healing Client",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Detects and repairs broken Windows Update components. Runs occasionally in background.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "20-80MB"
+  },
+  "mobsync.exe": {
+    "name": "Microsoft Sync Center",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Synchronizes files with offline network shares. Rarely needed in home/gaming environments.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-60MB"
+  },
+  "ntoskrnl.exe": {
+    "name": "NT OS Kernel",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows kernel and process scheduler. Always present. High CPU here means kernel-level activity (drivers, DPCs, interrupts).",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-20%",
+    "typical_ram": "50-500MB (kernel pool)"
+  },
+  "textinputhost.exe": {
+    "name": "Text Input Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts the touch keyboard and handwriting panel in Windows 10/11. Lightweight when not in use.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "startmenuexperiencehost.exe": {
+    "name": "Start Menu Experience Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Renders the Windows 10/11 Start menu as a separate UWP process. Restarts automatically if it crashes.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "30-120MB"
+  },
+  "shellexperiencehost.exe": {
+    "name": "Windows Shell Experience Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts UWP shell elements: Action Center, system clock, taskbar transparency effects.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-8%",
+    "typical_ram": "30-120MB"
+  },
+  "lockapp.exe": {
+    "name": "Lock Screen App",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Renders the Windows lock screen. Automatically suspended when PC is unlocked.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-80MB"
+  },
+  "wsappx.exe": {
+    "name": "Windows Store App Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Background host for Microsoft Store (ClipSVC + AppXSvc). Disk/CPU spikes during app installations.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "0-30% (during installs)",
+    "typical_ram": "20-150MB"
+  },
+  "lsm.exe": {
+    "name": "Local Session Manager",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages user sessions and Remote Desktop connections. Critical system process; always tiny footprint.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-20MB"
+  },
+  "w32tm.exe": {
+    "name": "Windows Time Service",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Synchronizes system clock with NTP time servers. Runs periodically; near-zero normal footprint.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-20MB"
+  },
+  "wlanext.exe": {
+    "name": "WLAN Extensibility Module",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts third-party Wi-Fi adapter driver extensions under WLAN AutoConfig service.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-30MB"
+  },
+  "audiodg.exe": {
+    "name": "Windows Audio Device Graph",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Handles audio processing and software effects pipeline. High CPU can indicate a bad audio driver or heavy effect chain.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-15%",
+    "typical_ram": "10-80MB"
+  },
+  "fontdrvhost.exe": {
+    "name": "Font Driver Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Sandboxed process for font rendering. Two instances (System + User) are always normal.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-30MB"
+  },
+  "sihost.exe": {
+    "name": "Shell Infrastructure Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages background shell elements including wallpaper and taskbar features. Required by Explorer.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-40MB"
+  },
+  "taskhostw.exe": {
+    "name": "Task Host Window",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts scheduled tasks and COM objects at logon and logoff. Multiple instances are normal.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "5-50MB"
+  },
+  "smartscreen.exe": {
+    "name": "Windows SmartScreen",
+    "vendor": "Microsoft Corporation",
+    "category": "security",
+    "description": "Checks downloaded files and URLs against Microsoft reputation database. Brief spike when opening new files.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-60MB"
+  },
+  "conhost.exe": {
+    "name": "Console Window Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Renders console windows for CMD, PowerShell, and CLI tools. One instance per open console.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-30MB"
+  },
+  "msiexec.exe": {
+    "name": "Windows Installer",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Runs .msi installer packages. Should only appear during software installations. Impersonation by malware is possible.",
+    "power_usage": "medium",
+    "safety": "caution",
+    "typical_cpu": "5-50% (during install)",
+    "typical_ram": "20-200MB"
+  },
+  "dllhost.exe": {
+    "name": "COM Surrogate",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts COM objects for Explorer (thumbnail generation, codec previews). Multiple instances are normal. Can be spoofed by malware.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "0-20%",
+    "typical_ram": "5-100MB"
+  },
+  "wsl.exe": {
+    "name": "Windows Subsystem for Linux",
+    "vendor": "Microsoft Corporation",
+    "category": "virtualization",
+    "description": "Entry point for WSL Linux environment. Launches Linux distro processes inside a lightweight VM.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "100-2000MB"
+  },
+  "spoolsv.exe": {
+    "name": "Print Spooler",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Manages print job queue and printer communication. Persistent high CPU without printing may indicate malware.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "0-15%",
+    "typical_ram": "10-80MB"
+  },
+
+  "nvtelemetrycontainer.exe": {
+    "name": "NVIDIA Telemetry Container",
+    "vendor": "NVIDIA Corporation",
+    "category": "utility",
+    "description": "Collects NVIDIA driver usage telemetry. Not essential; can be disabled via Services without side effects.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-50MB"
+  },
+  "nvwmi64.exe": {
+    "name": "NVIDIA WMI Provider",
+    "vendor": "NVIDIA Corporation",
+    "category": "utility",
+    "description": "Exposes NVIDIA GPU data via Windows WMI interface. Used by monitoring and reporting tools.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-40MB"
+  },
+  "amdrsserv.exe": {
+    "name": "AMD Radeon Settings Service",
+    "vendor": "Advanced Micro Devices",
+    "category": "utility",
+    "description": "Background service for AMD Radeon Software suite. Manages driver features, overlay, and notifications.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-120MB"
+  },
+  "amdow.exe": {
+    "name": "AMD Radeon Overlay Worker",
+    "vendor": "Advanced Micro Devices",
+    "category": "utility",
+    "description": "AMD in-game overlay worker process. Displays FPS counter and performance metrics during gameplay.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "radeoninstaller.exe": {
+    "name": "AMD Radeon Installer",
+    "vendor": "Advanced Micro Devices",
+    "category": "utility",
+    "description": "AMD driver and software installer. Should only appear during driver updates.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40% (during install)",
+    "typical_ram": "50-300MB"
+  },
+  "igfxem.exe": {
+    "name": "Intel Graphics Module",
+    "vendor": "Intel Corporation",
+    "category": "utility",
+    "description": "Intel integrated GPU event monitor. Handles hotkeys and display switching for Intel graphics.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-30MB"
+  },
+  "rtkaudioservice64.exe": {
+    "name": "Realtek Audio Service",
+    "vendor": "Realtek Semiconductor",
+    "category": "utility",
+    "description": "Realtek HD Audio background service. Manages audio hardware detection and driver events.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-50MB"
+  },
+  "rtkngui64.exe": {
+    "name": "Realtek Audio Manager",
+    "vendor": "Realtek Semiconductor",
+    "category": "utility",
+    "description": "Realtek HD Audio Manager UI for speaker, headphone, and microphone configuration.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+
+  "ksp_x64.exe": {
+    "name": "Kerbal Space Program",
+    "vendor": "Squad / Private Division",
+    "category": "gaming",
+    "description": "Space flight simulation. Physics engine is single-threaded — CPU pegs one core with large vessels.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "1000-8000MB"
+  },
+  "cs2.exe": {
+    "name": "Counter-Strike 2",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "Tactical FPS on Source 2 engine. GPU-heavy; benefits from high-frequency RAM and fast single-core CPU.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4000-8000MB"
+  },
+  "eldenring.exe": {
+    "name": "Elden Ring",
+    "vendor": "Bandai Namco / FromSoftware",
+    "category": "gaming",
+    "description": "Action RPG. GPU-intensive with poor multi-core CPU scaling. Known for shader compilation stutters.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4000-8000MB"
+  },
+  "cyberpunk2077.exe": {
+    "name": "Cyberpunk 2077",
+    "vendor": "CD Projekt RED",
+    "category": "gaming",
+    "description": "Open-world RPG. Heavy GPU and CPU demand. Ray tracing and Path Tracing can saturate high-end GPUs fully.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-90%",
+    "typical_ram": "8000-16000MB"
+  },
+  "witcher3.exe": {
+    "name": "The Witcher 3",
+    "vendor": "CD Projekt RED",
+    "category": "gaming",
+    "description": "Open-world RPG. Next-Gen update adds ray tracing. Moderately CPU-heavy; scales well with GPU.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "4000-10000MB"
+  },
+  "rocketleague.exe": {
+    "name": "Rocket League",
+    "vendor": "Psyonix / Epic Games",
+    "category": "gaming",
+    "description": "Vehicular soccer game. Good optimization; runs on mid-range hardware. Requires Epic Games.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "2000-5000MB"
+  },
+  "r5apex.exe": {
+    "name": "Apex Legends",
+    "vendor": "Respawn Entertainment / EA",
+    "category": "gaming",
+    "description": "Battle royale FPS on Source engine. CPU-heavy; sensitive to core count and clock frequency.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-80%",
+    "typical_ram": "4000-8000MB"
+  },
+  "destiny2.exe": {
+    "name": "Destiny 2",
+    "vendor": "Bungie",
+    "category": "gaming",
+    "description": "Online action-RPG FPS. GPU and CPU intensive. Requires persistent internet connection.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "4000-8000MB"
+  },
+  "overwatch.exe": {
+    "name": "Overwatch 2",
+    "vendor": "Blizzard Entertainment",
+    "category": "gaming",
+    "description": "Team hero shooter. Well-optimized for its visuals. Runs through Battle.net launcher.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "3000-6000MB"
+  },
+  "pubg.exe": {
+    "name": "PUBG: Battlegrounds",
+    "vendor": "Krafton",
+    "category": "gaming",
+    "description": "Battle royale on Unreal Engine. Historically CPU-heavy. BattlEye anti-cheat runs alongside.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-80%",
+    "typical_ram": "6000-12000MB"
+  },
+  "dota2.exe": {
+    "name": "Dota 2",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "MOBA on Source 2 engine. Scalable performance; playable on low-end hardware at low settings.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "2000-6000MB"
+  },
+  "escapefromtarkov.exe": {
+    "name": "Escape from Tarkov",
+    "vendor": "Battlestate Games",
+    "category": "gaming",
+    "description": "Hardcore tactical shooter. Known for extremely high RAM and CPU usage. Generally poor optimization.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "50-100%",
+    "typical_ram": "8000-16000MB"
+  },
+  "rainbowsix.exe": {
+    "name": "Rainbow Six Siege",
+    "vendor": "Ubisoft",
+    "category": "gaming",
+    "description": "Tactical 5v5 FPS. Well-optimized, runs on a wide range of hardware with solid scaling.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "3000-6000MB"
+  },
+  "starfield.exe": {
+    "name": "Starfield",
+    "vendor": "Bethesda Game Studios",
+    "category": "gaming",
+    "description": "Space RPG on Creation Engine 2. Very CPU-heavy; strongly prefers high single-core clock speeds.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "50-100%",
+    "typical_ram": "8000-14000MB"
+  },
+  "hogwartslegacy.exe": {
+    "name": "Hogwarts Legacy",
+    "vendor": "Avalanche Software / WB Games",
+    "category": "gaming",
+    "description": "Open-world RPG on Unreal Engine 4. Heavy GPU load; DX12 stutters on first shader compilation run.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-80%",
+    "typical_ram": "8000-14000MB"
+  },
+  "warframe.exe": {
+    "name": "Warframe",
+    "vendor": "Digital Extremes",
+    "category": "gaming",
+    "description": "Free-to-play action RPG shooter. Decent optimization; shader compilation causes initial stutters.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "3000-7000MB"
+  },
+  "pathofexile.exe": {
+    "name": "Path of Exile",
+    "vendor": "Grinding Gear Games",
+    "category": "gaming",
+    "description": "Action RPG. Heavy RAM usage with large on-screen effects; known for memory leaks during long sessions.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-80%",
+    "typical_ram": "4000-10000MB"
+  },
+  "diablo4.exe": {
+    "name": "Diablo IV",
+    "vendor": "Blizzard Entertainment",
+    "category": "gaming",
+    "description": "Online action RPG. GPU and RAM intensive. Requires Battle.net and active internet.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "6000-12000MB"
+  },
+  "wow.exe": {
+    "name": "World of Warcraft",
+    "vendor": "Blizzard Entertainment",
+    "category": "gaming",
+    "description": "MMORPG. Scales well across hardware. Crowded raid environments spike CPU significantly.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-70%",
+    "typical_ram": "3000-8000MB"
+  },
+  "baldursgate3.exe": {
+    "name": "Baldur's Gate 3",
+    "vendor": "Larian Studios",
+    "category": "gaming",
+    "description": "Turn-based RPG on Divinity 4.0 engine. Very GPU and RAM heavy; Act 3 is especially demanding.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-80%",
+    "typical_ram": "8000-16000MB"
+  },
+  "minecraft.exe": {
+    "name": "Minecraft",
+    "vendor": "Mojang Studios / Microsoft",
+    "category": "gaming",
+    "description": "Sandbox block game. Java Edition is CPU-heavy; Bedrock is more optimized. Chunk loading spikes CPU.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-80%",
+    "typical_ram": "2000-8000MB"
+  },
+  "valheim.exe": {
+    "name": "Valheim",
+    "vendor": "Iron Gate AB",
+    "category": "gaming",
+    "description": "Viking survival sandbox. Hard single-threaded CPU bottleneck. World generation causes significant spikes.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "40-90%",
+    "typical_ram": "2000-5000MB"
+  },
+  "stardewvalley.exe": {
+    "name": "Stardew Valley",
+    "vendor": "ConcernedApe",
+    "category": "gaming",
+    "description": "Pixel-art farming RPG. Extremely lightweight. Rarely causes any performance concerns.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "200-600MB"
+  },
+  "terraria.exe": {
+    "name": "Terraria",
+    "vendor": "Re-Logic",
+    "category": "gaming",
+    "description": "2D action sandbox game. Very lightweight. Excellent choice for low-end hardware.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "2-20%",
+    "typical_ram": "200-600MB"
+  },
+  "acvalhalla.exe": {
+    "name": "Assassin's Creed Valhalla",
+    "vendor": "Ubisoft",
+    "category": "gaming",
+    "description": "Open-world action RPG. Heavy GPU and CPU demand. Requires Ubisoft Connect launcher.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-80%",
+    "typical_ram": "6000-12000MB"
+  },
+
+  "devenv.exe": {
+    "name": "Visual Studio IDE",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Full Visual Studio IDE. Very resource-heavy; solution loading and IntelliSense spike CPU and I/O.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-80%",
+    "typical_ram": "500-4000MB"
+  },
+  "pycharm64.exe": {
+    "name": "PyCharm",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": "Python IDE on IntelliJ platform. JVM-based; high memory use. Indexing spikes CPU on project open.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "400-2000MB"
+  },
+  "idea64.exe": {
+    "name": "IntelliJ IDEA",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": "Java/Kotlin/Groovy IDE. JVM-based; high RAM. Project indexing and Gradle imports are CPU-intensive.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-60%",
+    "typical_ram": "500-3000MB"
+  },
+  "rider64.exe": {
+    "name": "JetBrains Rider",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": ".NET/C# IDE combining IntelliJ and ReSharper. Strong alternative to Visual Studio.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-60%",
+    "typical_ram": "400-2000MB"
+  },
+  "clion64.exe": {
+    "name": "CLion",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": "C/C++ IDE with clangd backend. Indexing large codebases causes heavy CPU and I/O usage.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-70%",
+    "typical_ram": "400-2000MB"
+  },
+  "webstorm64.exe": {
+    "name": "WebStorm",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": "JavaScript/TypeScript IDE. node_modules indexing causes heavy I/O on project startup.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "400-2000MB"
+  },
+  "cursor.exe": {
+    "name": "Cursor IDE",
+    "vendor": "Anysphere Inc.",
+    "category": "development",
+    "description": "AI-powered code editor built on VS Code. Integrates LLM features inline. Similar resources to VS Code.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-30%",
+    "typical_ram": "300-1500MB"
+  },
+  "sublime_text.exe": {
+    "name": "Sublime Text",
+    "vendor": "Sublime HQ Pty Ltd",
+    "category": "development",
+    "description": "Lightweight code editor. Instant startup and smooth editing even on very large files.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "50-300MB"
+  },
+  "postman.exe": {
+    "name": "Postman",
+    "vendor": "Postman Inc.",
+    "category": "development",
+    "description": "API testing and development platform. Electron-based; memory grows with large collections open.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-30%",
+    "typical_ram": "300-1200MB"
+  },
+  "dbeaver.exe": {
+    "name": "DBeaver",
+    "vendor": "DBeaver Corporation",
+    "category": "development",
+    "description": "Universal database GUI. Java-based; RAM grows with open connections and large result sets.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-40%",
+    "typical_ram": "200-1500MB"
+  },
+  "fork.exe": {
+    "name": "Fork Git Client",
+    "vendor": "Dan & Tanya",
+    "category": "development",
+    "description": "Fast, native Git GUI for Windows. Very low resource footprint compared to Electron alternatives.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "80-400MB"
+  },
+  "gitkraken.exe": {
+    "name": "GitKraken",
+    "vendor": "Axosoft LLC",
+    "category": "development",
+    "description": "Feature-rich Git GUI client. Electron-based; heavier than native alternatives.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-25%",
+    "typical_ram": "300-800MB"
+  },
+  "dotnet.exe": {
+    "name": ".NET Runtime Host",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Hosts .NET Core / .NET 5+ applications. Resource usage depends entirely on the application it runs.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-80%",
+    "typical_ram": "50-2000MB"
+  },
+  "msbuild.exe": {
+    "name": "MSBuild",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Microsoft build engine for .NET and C++ projects. CPU-heavy during compilation; exits when done.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-100% (during build)",
+    "typical_ram": "100-2000MB"
+  },
+  "windbg.exe": {
+    "name": "WinDbg",
+    "vendor": "Microsoft Corporation",
+    "category": "development",
+    "description": "Windows kernel and user-mode debugger. CPU spikes when loading symbols or analyzing crash dumps.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-60%",
+    "typical_ram": "100-1000MB"
+  },
+
+  "acrobat.exe": {
+    "name": "Adobe Acrobat",
+    "vendor": "Adobe Inc.",
+    "category": "productivity",
+    "description": "Full Adobe Acrobat PDF editor. Heavy initial load; background ARM updater runs periodically.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "200-800MB"
+  },
+  "acrord32.exe": {
+    "name": "Adobe Acrobat Reader",
+    "vendor": "Adobe Inc.",
+    "category": "productivity",
+    "description": "Free PDF reader. Lighter than full Acrobat. Background Adobe Update Manager runs silently.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "2-20%",
+    "typical_ram": "100-400MB"
+  },
+  "soffice.bin": {
+    "name": "LibreOffice",
+    "vendor": "The Document Foundation",
+    "category": "productivity",
+    "description": "Core LibreOffice process shared by Writer, Calc, and Impress. Free, open-source MS Office alternative.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "200-800MB"
+  },
+  "figma.exe": {
+    "name": "Figma Desktop",
+    "vendor": "Figma Inc.",
+    "category": "productivity",
+    "description": "UI/UX design tool desktop app. Electron-based; large files with many frames consume significant RAM.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "300-2000MB"
+  },
+  "resolve.exe": {
+    "name": "DaVinci Resolve",
+    "vendor": "Blackmagic Design",
+    "category": "media",
+    "description": "Professional video editor and color grader. GPU-accelerated; VRAM usage hits 8GB+ on 4K projects.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-80%",
+    "typical_ram": "2000-16000MB"
+  },
+  "afterfx.exe": {
+    "name": "Adobe After Effects",
+    "vendor": "Adobe Inc.",
+    "category": "media",
+    "description": "Motion graphics and compositing. RAM cache fills very fast; rendering saturates CPU and GPU.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-100%",
+    "typical_ram": "2000-16000MB"
+  },
+  "premiere.exe": {
+    "name": "Adobe Premiere Pro",
+    "vendor": "Adobe Inc.",
+    "category": "media",
+    "description": "Professional video editor. GPU-accelerated effects and encoding. Export jobs sustain 100% CPU for extended periods.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-100%",
+    "typical_ram": "2000-12000MB"
+  },
+  "blender.exe": {
+    "name": "Blender",
+    "vendor": "Blender Foundation",
+    "category": "media",
+    "description": "3D modeling, animation, and rendering suite. CPU and GPU rendering can max out all system resources.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-100%",
+    "typical_ram": "500-16000MB"
+  },
+  "gimp-2.10.exe": {
+    "name": "GIMP",
+    "vendor": "GNOME / GIMP Team",
+    "category": "productivity",
+    "description": "Open-source image editor. Moderate resource use; large images or heavy filters spike CPU.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-60%",
+    "typical_ram": "200-2000MB"
+  },
+  "inkscape.exe": {
+    "name": "Inkscape",
+    "vendor": "Inkscape Project",
+    "category": "productivity",
+    "description": "Open-source vector graphics editor. Lightweight on idle; complex SVG rendering can spike CPU.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "2-40%",
+    "typical_ram": "100-600MB"
+  },
+  "audacity.exe": {
+    "name": "Audacity",
+    "vendor": "Muse Group",
+    "category": "media",
+    "description": "Open-source audio editor. Processing effects on long tracks can be CPU-heavy.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-60%",
+    "typical_ram": "100-800MB"
+  },
+  "handbrake.exe": {
+    "name": "HandBrake",
+    "vendor": "HandBrake Team",
+    "category": "media",
+    "description": "Video transcoder. Encoding maxes out CPU (all cores). GPU acceleration via NVENC or QuickSync reduces load.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "80-100% (during encode)",
+    "typical_ram": "200-2000MB"
+  },
+
+  "galaxyclient.exe": {
+    "name": "GOG Galaxy Client",
+    "vendor": "CD Projekt",
+    "category": "gaming",
+    "description": "GOG DRM-free game store and launcher. Lightweight; can integrate other launcher libraries.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "100-400MB"
+  },
+  "upc.exe": {
+    "name": "Ubisoft Connect",
+    "vendor": "Ubisoft",
+    "category": "gaming",
+    "description": "Ubisoft game launcher and store. Required for all Ubisoft titles. Background overlay adds minor overhead.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "150-500MB"
+  },
+  "eadesktop.exe": {
+    "name": "EA App",
+    "vendor": "Electronic Arts",
+    "category": "gaming",
+    "description": "EA's game launcher replacing Origin. Required for EA titles. Electron-based with moderate overhead.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-20%",
+    "typical_ram": "200-600MB"
+  },
+  "eabackgroundservice.exe": {
+    "name": "EA Background Service",
+    "vendor": "Electronic Arts",
+    "category": "gaming",
+    "description": "EA App background service running at startup. Handles game entitlements and update checks.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "50-200MB"
+  },
+  "rockstarservice.exe": {
+    "name": "Rockstar Games Service",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Background service for Rockstar Games Launcher. Required to run GTA V and Red Dead Redemption 2 on PC.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "50-200MB"
+  },
+  "gamingservices.exe": {
+    "name": "Xbox Gaming Services",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Xbox / PC Game Pass delivery service. Required for installing and running Game Pass titles.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "30-150MB"
+  },
+  "xblgamesave.exe": {
+    "name": "Xbox Game Save",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Syncs Xbox Live cloud game saves for Windows games linked to an Xbox account.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-50MB"
+  },
+  "playnite.exe": {
+    "name": "Playnite",
+    "vendor": "Josef Richter (Open Source)",
+    "category": "gaming",
+    "description": "Open-source unified game library manager. Integrates Steam, GOG, Epic, Itch, and more.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "100-400MB"
+  },
+  "overwolf.exe": {
+    "name": "Overwolf",
+    "vendor": "Overwolf Ltd.",
+    "category": "gaming",
+    "description": "In-game overlay platform hosting apps like CurseForge and Outplayed. Adds noticeable in-game overhead.",
+    "power_usage": "medium",
+    "safety": "caution",
+    "typical_cpu": "2-15%",
+    "typical_ram": "200-600MB"
+  },
+  "gamebar.exe": {
+    "name": "Xbox Game Bar",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Windows in-game overlay (Win+G). Provides FPS counter, screenshots, and clip recording via GameDVR.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "50-200MB"
+  },
+  "gamebarftserver.exe": {
+    "name": "Game Bar Presence Writer",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Background component for Xbox Game Bar game detection. Runs even when overlay is closed.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-50MB"
+  },
+  "battleye.exe": {
+    "name": "BattlEye Anti-Cheat",
+    "vendor": "BattlEye Innovations",
+    "category": "security",
+    "description": "Kernel-level anti-cheat used by PUBG, Rainbow Six, DayZ, and others. Requires administrator rights.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-60MB"
+  },
+  "easyanticheat.exe": {
+    "name": "Easy Anti-Cheat",
+    "vendor": "Epic Games",
+    "category": "security",
+    "description": "Anti-cheat service used in Apex Legends, Fortnite, EFT, and many others. Kernel-level driver.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-60MB"
+  },
+  "faceit.exe": {
+    "name": "FACEIT Anti-Cheat",
+    "vendor": "FACEIT Ltd.",
+    "category": "security",
+    "description": "Kernel-level anti-cheat for FACEIT competitive platform. Must run to join FACEIT-ranked matches.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+
+  "avguard.exe": {
+    "name": "Avira Protection Guard",
+    "vendor": "Avira Operations GmbH",
+    "category": "security",
+    "description": "Avira antivirus real-time file protection service. Scans file access events continuously.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-30%",
+    "typical_ram": "100-400MB"
+  },
+  "avastui.exe": {
+    "name": "Avast Antivirus UI",
+    "vendor": "Avast Software",
+    "category": "security",
+    "description": "Avast user interface process. Background guard service (AvastSvc.exe) runs independently.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-25%",
+    "typical_ram": "100-350MB"
+  },
+  "mbamtray.exe": {
+    "name": "Malwarebytes Tray",
+    "vendor": "Malwarebytes Corporation",
+    "category": "security",
+    "description": "Malwarebytes system tray notification icon. Lightweight UI component for the MBAMService.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "bdservicehost.exe": {
+    "name": "Bitdefender Service Host",
+    "vendor": "Bitdefender",
+    "category": "security",
+    "description": "Core Bitdefender endpoint protection service. Real-time scanning causes brief CPU spikes on file access.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-30%",
+    "typical_ram": "100-500MB"
+  },
+  "ekrn.exe": {
+    "name": "ESET Kernel Service",
+    "vendor": "ESET spol. s r.o.",
+    "category": "security",
+    "description": "ESET NOD32/Internet Security core engine. Generally lighter on resources than comparable AV products.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "80-300MB"
+  },
+  "sentinelagent.exe": {
+    "name": "SentinelOne Agent",
+    "vendor": "SentinelOne",
+    "category": "security",
+    "description": "Enterprise EDR security agent. Common in corporate environments. Uses behavioral AI threat detection.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-25%",
+    "typical_ram": "150-600MB"
+  },
+  "mbamservice.exe": {
+    "name": "Malwarebytes Service",
+    "vendor": "Malwarebytes Corporation",
+    "category": "security",
+    "description": "Core Malwarebytes background protection engine running alongside primary AV software.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "80-300MB"
+  },
+  "mpcmdrun.exe": {
+    "name": "Windows Defender CLI",
+    "vendor": "Microsoft Corporation",
+    "category": "security",
+    "description": "Command-line scanner for Windows Defender. Used by scheduled scans and automation scripts.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-50% (during scan)",
+    "typical_ram": "50-300MB"
+  },
+
+  "googledrivefs.exe": {
+    "name": "Google Drive File Stream",
+    "vendor": "Google LLC",
+    "category": "cloud",
+    "description": "Google Drive desktop sync client. Streams files on-demand; syncing causes temporary I/O and CPU spikes.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "100-400MB"
+  },
+  "megasync.exe": {
+    "name": "MEGAsync",
+    "vendor": "Mega Limited",
+    "category": "cloud",
+    "description": "MEGA cloud storage sync client with end-to-end encryption. Large syncs drive significant I/O.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "80-300MB"
+  },
+  "filezilla.exe": {
+    "name": "FileZilla",
+    "vendor": "Tim Kosse (Open Source)",
+    "category": "network",
+    "description": "Open-source FTP/SFTP/FTPS client. Active file transfers saturate upload/download bandwidth.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "50-200MB"
+  },
+  "winscp.exe": {
+    "name": "WinSCP",
+    "vendor": "Martin Prikryl (Open Source)",
+    "category": "network",
+    "description": "SFTP, SCP, and FTP client for Windows. Standard tool for secure file transfers to Linux servers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "30-150MB"
+  },
+  "putty.exe": {
+    "name": "PuTTY",
+    "vendor": "Simon Tatham (Open Source)",
+    "category": "network",
+    "description": "SSH and Telnet client. Extremely lightweight. Industry standard for remote server terminal access.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-30MB"
+  },
+  "tailscale.exe": {
+    "name": "Tailscale",
+    "vendor": "Tailscale Inc.",
+    "category": "network",
+    "description": "WireGuard-based zero-config mesh VPN. Extremely low overhead; creates private network between devices.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "30-150MB"
+  },
+  "nordvpn.exe": {
+    "name": "NordVPN",
+    "vendor": "Nord Security",
+    "category": "network",
+    "description": "Commercial VPN client. Active tunneling increases latency; kill switch runs as persistent background service.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "100-350MB"
+  },
+  "openvpn.exe": {
+    "name": "OpenVPN",
+    "vendor": "OpenVPN Inc. / Open Source",
+    "category": "network",
+    "description": "Open-source VPN daemon. Backend for many corporate VPNs and self-hosted setups.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "20-100MB"
+  },
+  "proxifier.exe": {
+    "name": "Proxifier",
+    "vendor": "Initex Software",
+    "category": "network",
+    "description": "Routes TCP connections through proxy servers system-wide. Used for SOCKS5/HTTP tunneling.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "1-10%",
+    "typical_ram": "20-100MB"
+  },
+  "wireguard.exe": {
+    "name": "WireGuard",
+    "vendor": "WireGuard LLC / Open Source",
+    "category": "network",
+    "description": "Modern kernel-level VPN implementation. Significantly lower overhead than OpenVPN or IPSec.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-60MB"
+  },
+
+  "icue.exe": {
+    "name": "Corsair iCUE",
+    "vendor": "Corsair Gaming Inc.",
+    "category": "utility",
+    "description": "RGB lighting and peripheral management for Corsair devices. Known CPU overhead with many connected devices.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "150-500MB"
+  },
+  "lghub.exe": {
+    "name": "Logitech G HUB",
+    "vendor": "Logitech International",
+    "category": "utility",
+    "description": "Logitech peripheral and RGB management app. Electron-based; heavier than older Logitech Gaming Software.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-10%",
+    "typical_ram": "200-600MB"
+  },
+  "synapse3.exe": {
+    "name": "Razer Synapse 3",
+    "vendor": "Razer Inc.",
+    "category": "utility",
+    "description": "Razer device manager, macro configurator, and RGB control. Background service persists when UI closes.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "150-500MB"
+  },
+  "steelseriesgg.exe": {
+    "name": "SteelSeries GG",
+    "vendor": "SteelSeries",
+    "category": "utility",
+    "description": "SteelSeries device and RGB management software. Electron-based replacement for SteelSeries Engine.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "150-500MB"
+  },
+  "armourychrate.exe": {
+    "name": "ASUS Armoury Crate",
+    "vendor": "ASUSTeK Computer Inc.",
+    "category": "utility",
+    "description": "ASUS system control software for ROG and TUF devices. Manages RGB, fan curves, and performance profiles.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "200-700MB"
+  },
+  "msicenterclient.exe": {
+    "name": "MSI Center",
+    "vendor": "Micro-Star International",
+    "category": "utility",
+    "description": "MSI hardware management software for fan control, RGB, and performance profiles on MSI systems.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "100-400MB"
+  },
+
+  "hwinfo64.exe": {
+    "name": "HWiNFO64",
+    "vendor": "REALiX",
+    "category": "utility",
+    "description": "Comprehensive hardware monitoring tool. Reads all sensor data; commonly used as an overlay data source.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "50-200MB"
+  },
+  "cpuz.exe": {
+    "name": "CPU-Z",
+    "vendor": "CPUID",
+    "category": "utility",
+    "description": "CPU, RAM, and motherboard diagnostic tool. Lightweight; reads hardware configuration without stress testing.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-50MB"
+  },
+  "gpuz.exe": {
+    "name": "GPU-Z",
+    "vendor": "TechPowerUp",
+    "category": "utility",
+    "description": "GPU diagnostic and real-time monitoring tool. Reads VRAM, clocks, temperature, and power from GPU.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-60MB"
+  },
+  "msiafterburner.exe": {
+    "name": "MSI Afterburner",
+    "vendor": "Micro-Star International / RivaTuner",
+    "category": "utility",
+    "description": "GPU overclocking and monitoring tool for all GPU brands. Pairs with RTSS for in-game overlay.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-100MB"
+  },
+  "rivatunerstatisticsserver.exe": {
+    "name": "RivaTuner Statistics Server",
+    "vendor": "Unwinder / Guru3D",
+    "category": "utility",
+    "description": "Frame rate limiter and in-game OSD rendering backend. Required by MSI Afterburner overlay.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "aida64.exe": {
+    "name": "AIDA64",
+    "vendor": "FinalWire Ltd.",
+    "category": "utility",
+    "description": "System diagnostics, sensor monitoring, and stability stress-testing tool. Burn-in tests max all hardware.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-100% (mode dependent)",
+    "typical_ram": "50-300MB"
+  },
+  "crystaldiskmark.exe": {
+    "name": "CrystalDiskMark",
+    "vendor": "hiyohiyo",
+    "category": "utility",
+    "description": "Drive speed benchmark tool. Maxes out drive I/O during testing; near-zero resource use otherwise.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "5-50% (during benchmark)",
+    "typical_ram": "20-100MB"
+  },
+  "crystaldiskinfo.exe": {
+    "name": "CrystalDiskInfo",
+    "vendor": "hiyohiyo",
+    "category": "utility",
+    "description": "Reads S.M.A.R.T. health data from HDDs and SSDs. Can run in system tray for temperature monitoring.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "10-50MB"
+  },
+  "furmark.exe": {
+    "name": "FurMark GPU Stress Test",
+    "vendor": "Geeks3D",
+    "category": "utility",
+    "description": "Maximizes GPU to 100% load for stability and thermal testing. Not for regular use — extreme heat generator.",
+    "power_usage": "very_high",
+    "safety": "caution",
+    "typical_cpu": "5-30%",
+    "typical_ram": "200-500MB"
+  },
+  "prime95.exe": {
+    "name": "Prime95",
+    "vendor": "GIMPS",
+    "category": "utility",
+    "description": "CPU stress tester for stability and overclock validation. Torture test maxes all CPU cores indefinitely.",
+    "power_usage": "very_high",
+    "safety": "caution",
+    "typical_cpu": "100%",
+    "typical_ram": "100-500MB"
+  },
+  "glasswire.exe": {
+    "name": "GlassWire",
+    "vendor": "SecureMix LLC",
+    "category": "network",
+    "description": "Network monitor and firewall UI. Tracks per-app bandwidth usage and alerts on new outbound connections.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "100-350MB"
+  },
+  "wireshark.exe": {
+    "name": "Wireshark",
+    "vendor": "Wireshark Foundation",
+    "category": "network",
+    "description": "Network packet analyzer and protocol decoder. Capturing on a busy interface can spike CPU and disk.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-50% (during capture)",
+    "typical_ram": "200-2000MB"
+  },
+  "everything.exe": {
+    "name": "Everything Search",
+    "vendor": "voidtools",
+    "category": "utility",
+    "description": "Instant file search using NTFS MFT indexing. Finds any file in milliseconds; extremely lightweight.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-100MB"
+  },
+  "7zfm.exe": {
+    "name": "7-Zip File Manager",
+    "vendor": "Igor Pavlov (Open Source)",
+    "category": "utility",
+    "description": "Open-source file archiver. Compression can peg CPU; ultra preset runs mostly single-threaded.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "10-100% (during compress)",
+    "typical_ram": "20-300MB"
+  },
+  "logioptionsplus.exe": {
+    "name": "Logi Options+",
+    "vendor": "Logitech International",
+    "category": "utility",
+    "description": "Modern Logitech device configuration app (replaces Options). Electron-based; manages MX series devices.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "150-500MB"
+  },
+  "openrgb.exe": {
+    "name": "OpenRGB",
+    "vendor": "OpenRGB Project (Open Source)",
+    "category": "utility",
+    "description": "Open-source RGB lighting control supporting 300+ devices across all brands. Lightweight alternative to vendor apps.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-150MB"
   }
 }
