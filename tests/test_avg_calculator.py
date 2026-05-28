@@ -1,5 +1,5 @@
 """tests.test_avg_calculator
-Tests for hck_stats_engine.avg_calculator — CSV-based daily aggregation.
+Tests for hck_stats_engine.avg_calculator - CSV-based daily aggregation.
 """
 import os
 import csv

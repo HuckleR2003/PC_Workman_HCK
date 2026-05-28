@@ -1,5 +1,5 @@
 """tests.test_analyzer
-Tests for core.analyzer — averaging, spike detection.
+Tests for core.analyzer - averaging, spike detection.
 Logger is mocked via COMPONENTS so no real data is needed.
 """
 import time

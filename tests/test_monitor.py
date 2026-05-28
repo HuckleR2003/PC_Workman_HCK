@@ -1,5 +1,5 @@
 """tests.test_monitor
-Tests for core.monitor — snapshot collection, process listing, background thread.
+Tests for core.monitor - snapshot collection, process listing, background thread.
 psutil is mocked so tests run without live system data.
 """
 import time
