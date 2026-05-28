@@ -2,8 +2,8 @@
 """
 Centralne rozwiązanie ścieżek dla trybów: dev, onedir EXE, onefile EXE.
 
-APP_DIR    — katalog z EXE (trwały zapis: logi, DB, prefs, cache)
-BUNDLE_DIR — katalog z bundlowanymi zasobami read-only (ikony, JSON, assets)
+APP_DIR    - katalog z EXE (trwały zapis: logi, DB, prefs, cache)
+BUNDLE_DIR - katalog z bundlowanymi zasobami read-only (ikony, JSON, assets)
 
 Dev / onedir:  oba = katalog główny projektu
 Onefile EXE:   APP_DIR  = os.path.dirname(sys.executable)   (obok .exe)
@@ -18,7 +18,7 @@ def _app_dir() -> str:
     """Katalog zawierający uruchomiony plik .exe (lub projekt w trybie dev)."""
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
-    # dev: dwa poziomy wyżej niż utils/paths.py → root projektu
+    # dev: dwa poziomy wyżej niż utils/paths.py -> root projektu
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

@@ -2,7 +2,7 @@ import os
 import ctypes
 
 _FONT_DIR = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "..", "assets", "fonts")
+    os.path.join(os.path.dirname(__file__), "..", "data", "fonts")
 )
 
 UI   = "Segoe UI"
