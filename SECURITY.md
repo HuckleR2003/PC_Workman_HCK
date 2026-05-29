@@ -48,7 +48,7 @@ If signature verification fails, do not run the executable. Report the issue imm
 **Started:** v1.6.3  
 **Frequency:** Every new .exe release  
 **Current Status:** 0/70 clean  
-**Last Scanned:** v1.6.4 (January 24, 2026)
+**Last Scanned:** v1.7.6 (May 29, 2026)
 
 Before publishing any executable, it is uploaded to VirusTotal and verified against 70+ antivirus engines. Users can verify this independently at [virustotal.com](https://www.virustotal.com).
 
@@ -84,7 +84,8 @@ Only the latest stable version receives active security support.
 
 | Version | Supported | Security Updates | Notes |
 |---------|-----------|------------------|-------|
-| 1.7.x (latest) | Yes | Immediate | Active development branch | New score at VirusTotal (0/61) |
+| 1.7.6 (latest) | Yes | Best | Active development branch | score at VirusTotal (0/61) |
+| 1.7.2 | Yes | Immediate | Active development branch | New score at VirusTotal (0/61) |
 | 1.6.x | Yes | Immediate | Active development branch |
 | 1.5.x | Limited | Critical only | Upgrade recommended |
 | < 1.5 | No | None | End of life |
@@ -431,8 +432,8 @@ Marcin Firmuga
 
 ## Policy Updates
 
-**Last Updated:** January 24, 2026  
-**Version:** 1.0
+**Last Updated:** May 29, 2026  
+**Version:** 1.3
 
 Changes to this security policy are tracked in git commit history. Significant changes will be announced in release notes and project communications.
 
