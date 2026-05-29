@@ -9,6 +9,15 @@ from tkinter import font as tkfont
 import threading
 import time
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 try:
     import psutil
 except ImportError:
@@ -74,8 +83,8 @@ class OverlayWidget:
         stats_frame.pack(expand=True, fill="both", padx=8, pady=8)
 
         # Font for labels
-        label_font = tkfont.Font(family="Segoe UI", size=9, weight="normal")
-        value_font = tkfont.Font(family="Segoe UI", size=9, weight="bold")
+        label_font = tkfont.Font(family=_BODY, size=9, weight="normal")
+        value_font = tkfont.Font(family=_BODY, size=9, weight="bold")
 
         # CPU
         cpu_frame = tk.Frame(stats_frame, bg="#1a1d29")
@@ -108,7 +117,7 @@ class OverlayWidget:
         self.gpu_label.pack(side="left", padx=2)
 
         # Close button (small X in top-right)
-        close_btn = tk.Label(self.container, text="✕", font=("Segoe UI", 10),
+        close_btn = tk.Label(self.container, text="✕", font=(_BODY, 10),
                            bg="#1a1d29", fg="#64748b", cursor="hand2",
                            padx=5, pady=2)
         close_btn.place(relx=1.0, x=-5, y=2, anchor="ne")
@@ -117,7 +126,7 @@ class OverlayWidget:
         close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#64748b"))
 
         # Minimize button (small dash)
-        minimize_btn = tk.Label(self.container, text="—", font=("Segoe UI", 8),
+        minimize_btn = tk.Label(self.container, text="-", font=(_BODY, 8),
                               bg="#1a1d29", fg="#64748b", cursor="hand2",
                               padx=5, pady=2)
         minimize_btn.place(relx=1.0, x=-25, y=2, anchor="ne")
