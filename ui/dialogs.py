@@ -6,6 +6,15 @@ Modern About pages with card-based design.
 import tkinter as tk
 from ui.theme import THEME
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 def create_about_page(parent):
     """Create modern About page with card layout"""
     frame = tk.Frame(parent, bg=THEME["bg_main"])
@@ -19,7 +28,7 @@ def create_about_page(parent):
     title_frame.pack(pady=(0, 30))
 
     title = tk.Label(title_frame, text="About",
-                     font=("Consolas", 24, "bold"),
+                     font=(_MONO, 24, "bold"),
                      bg=THEME["bg_main"],
                      fg=THEME["accent"])
     title.pack()
@@ -31,21 +40,21 @@ def create_about_page(parent):
 
     # App name with gradient-like effect (using accent color)
     app_name = tk.Label(card, text="PC Workman",
-                       font=("Consolas", 20, "bold"),
+                       font=(_MONO, 20, "bold"),
                        bg=THEME["bg_panel"],
                        fg=THEME["accent"])
     app_name.pack(pady=(30, 5))
 
     # Subtitle
     subtitle = tk.Label(card, text="HCK_Labs",
-                       font=("Consolas", 12),
+                       font=(_MONO, 12),
                        bg=THEME["bg_panel"],
                        fg=THEME["muted"])
     subtitle.pack(pady=(0, 25))
 
     # Description
     desc = tk.Label(card, text="AI-ready system monitor prototype",
-                   font=("Consolas", 11),
+                   font=(_MONO, 11),
                    bg=THEME["bg_panel"],
                    fg=THEME["text"])
     desc.pack(pady=(0, 8))
@@ -56,7 +65,7 @@ def create_about_page(parent):
     version_frame.pack(pady=(15, 10))
 
     version = tk.Label(version_frame, text="v1.0.7 (Guardian UI)",
-                      font=("Consolas", 10, "bold"),
+                      font=(_MONO, 10, "bold"),
                       bg="#1a1d21",
                       fg=THEME["accent"],
                       padx=15, pady=5)
@@ -64,7 +73,7 @@ def create_about_page(parent):
 
     # Footer info
     footer = tk.Label(card, text="Monitoring • Analysis • Intelligence",
-                     font=("Consolas", 9),
+                     font=(_MONO, 9),
                      bg=THEME["bg_panel"],
                      fg=THEME["muted"])
     footer.pack(pady=(20, 30))
@@ -84,7 +93,7 @@ def create_about_ai_page(parent):
     title_frame.pack(pady=(0, 25))
 
     title = tk.Label(title_frame, text="AI Assistant",
-                     font=("Consolas", 24, "bold"),
+                     font=(_MONO, 24, "bold"),
                      bg=THEME["bg_main"],
                      fg=THEME["accent2"])
     title.pack()
@@ -96,7 +105,7 @@ def create_about_ai_page(parent):
 
     # AI Icon/Name
     ai_name = tk.Label(card, text="🧠 hck_GPT",
-                      font=("Consolas", 18, "bold"),
+                      font=(_MONO, 18, "bold"),
                       bg=THEME["bg_panel"],
                       fg=THEME["accent2"])
     ai_name.pack(pady=(25, 5))
@@ -107,7 +116,7 @@ def create_about_ai_page(parent):
     status_frame.pack(pady=(10, 20))
 
     status = tk.Label(status_frame, text="● IN DEVELOPMENT",
-                     font=("Consolas", 9, "bold"),
+                     font=(_MONO, 9, "bold"),
                      bg="#0a1f1a",
                      fg="#00ffc8",
                      padx=12, pady=4)
@@ -115,7 +124,7 @@ def create_about_ai_page(parent):
 
     # Description
     desc_title = tk.Label(card, text="Local AI Assistant",
-                         font=("Consolas", 11, "bold"),
+                         font=(_MONO, 11, "bold"),
                          bg=THEME["bg_panel"],
                          fg=THEME["text"])
     desc_title.pack(pady=(10, 8))
@@ -133,7 +142,7 @@ def create_about_ai_page(parent):
 
     for feature in features:
         feat_lbl = tk.Label(features_frame, text=feature,
-                           font=("Consolas", 10),
+                           font=(_MONO, 10),
                            bg=THEME["bg_panel"],
                            fg=THEME["muted"],
                            anchor="w")
@@ -141,7 +150,7 @@ def create_about_ai_page(parent):
 
     # Coming soon note
     note = tk.Label(card, text="Coming in next releases",
-                   font=("Consolas", 9, "italic"),
+                   font=(_MONO, 9, "italic"),
                    bg=THEME["bg_panel"],
                    fg=THEME["muted"])
     note.pack(pady=(15, 25))

@@ -1,6 +1,12 @@
 # ui/theme.py
 # Afterburner Neon theme for PC_Workman_HCK UI (v1.0.7 Guardian UI)
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+
 THEME = {
     # Window
     "win_width": 750,
@@ -19,17 +25,17 @@ THEME = {
     "muted": "#91a1ab",
     # Sizes and fonts
     "panel_radius": 8,
-    "font_family": "Consolas",
-    "font_small": ("Consolas", 9),
-    "font_base": ("Consolas", 11),
-    "font_large": ("Consolas", 13, "bold"),
+    "font_family": _MONOF,
+    "font_small": (_MONOF, 9),
+    "font_base": (_MONOF, 11),
+    "font_large": (_MONOF, 13, "bold"),
     # Sidebar dimensions (collapsed/expanded)
     "sidebar_collapsed": 24,
     "sidebar_expanded": 120,
     # Animation
     "sidebar_anim_step": 8,
     "sidebar_anim_delay": 12,  # ms between steps
-    "font_family": "Inter"
+    "font_family": _UIF
 }
 
 # LED gradient maps for CPU/GPU/RAM

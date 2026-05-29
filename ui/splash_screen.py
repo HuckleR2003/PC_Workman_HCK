@@ -13,6 +13,15 @@ except ImportError:
     Image = None
     ImageTk = None
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class SplashScreen:
     """Animated splash screen with fade-in and fade-out effects"""
@@ -77,7 +86,7 @@ class SplashScreen:
             tk.Label(
                 self.root,
                 text="HCK_Labs",
-                font=("Segoe UI", 48, "bold"),
+                font=(_BODY, 48, "bold"),
                 bg="#0a0e27",
                 fg="#8b5cf6"
             ).pack(expand=True)
@@ -114,7 +123,7 @@ class SplashScreen:
             tk.Label(
                 self.root,
                 text="HCK_Labs",
-                font=("Segoe UI", 48, "bold"),
+                font=(_BODY, 48, "bold"),
                 bg="#0a0e27",
                 fg="#8b5cf6"
             ).pack(expand=True)
