@@ -9,6 +9,15 @@ from tkinter import ttk, messagebox
 from ui.theme import THEME
 from core.process_definitions import get_process_definition
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class AllStatsPage:
     """Professional All Stats page with process definitions"""
@@ -31,7 +40,7 @@ class AllStatsPage:
         title = tk.Label(
             self.frame,
             text="All-Time Statistics",
-            font=("Segoe UI", 16, "bold"),
+            font=(_BODY, 16, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"],
             anchor="w"
@@ -41,7 +50,7 @@ class AllStatsPage:
         subtitle = tk.Label(
             self.frame,
             text="Lifetime resource usage since first use",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=THEME["bg_main"],
             fg=THEME["muted"],
             anchor="w"
@@ -84,7 +93,7 @@ class AllStatsPage:
         runtime_lbl = tk.Label(
             stats_frame,
             text="Total Monitoring Time:",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=THEME["bg_panel"],
             fg=THEME["text"],
             anchor="w"
@@ -94,7 +103,7 @@ class AllStatsPage:
         self.runtime_value = tk.Label(
             stats_frame,
             text="0h 0m",
-            font=("Segoe UI", 12, "bold"),
+            font=(_BODY, 12, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["accent"],
             anchor="w"
@@ -105,7 +114,7 @@ class AllStatsPage:
         procs_lbl = tk.Label(
             stats_frame,
             text="Processes Tracked:",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=THEME["bg_panel"],
             fg=THEME["text"],
             anchor="w"
@@ -115,7 +124,7 @@ class AllStatsPage:
         self.procs_value = tk.Label(
             stats_frame,
             text="0",
-            font=("Segoe UI", 12, "bold"),
+            font=(_BODY, 12, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["accent"],
             anchor="w"
@@ -127,7 +136,7 @@ class AllStatsPage:
         header = tk.Label(
             parent,
             text="TOP Resource Consumers (All Time)",
-            font=("Segoe UI", 11, "bold"),
+            font=(_BODY, 11, "bold"),
             bg=THEME["accent2"],
             fg=THEME["bg_panel"],
             anchor="w"
@@ -147,7 +156,7 @@ class AllStatsPage:
             list_frame,
             bg=THEME["bg_panel"],
             fg=THEME["text"],
-            font=("Consolas", 9),
+            font=(_MONO, 9),
             bd=0,
             selectmode="single",
             highlightthickness=0,
@@ -165,7 +174,7 @@ class AllStatsPage:
         header = tk.Label(
             parent,
             text="Process Information",
-            font=("Segoe UI", 11, "bold"),
+            font=(_BODY, 11, "bold"),
             bg=THEME["accent"],
             fg=THEME["bg_panel"],
             anchor="w"
@@ -180,7 +189,7 @@ class AllStatsPage:
             details_frame,
             bg=THEME["bg_panel"],
             fg=THEME["text"],
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bd=0,
             wrap="word",
             state="disabled"
@@ -188,17 +197,17 @@ class AllStatsPage:
         self.details_text.pack(fill="both", expand=True)
 
         # Configure tags
-        self.details_text.tag_config("title", foreground=THEME["text"], font=("Segoe UI", 11, "bold"))
-        self.details_text.tag_config("header", foreground=THEME["accent"], font=("Segoe UI", 9, "bold"))
-        self.details_text.tag_config("normal", foreground=THEME["text"], font=("Segoe UI", 9))
-        self.details_text.tag_config("warning", foreground="#FF6B35", font=("Segoe UI", 9, "bold"))
-        self.details_text.tag_config("muted", foreground=THEME["muted"], font=("Segoe UI", 8))
+        self.details_text.tag_config("title", foreground=THEME["text"], font=(_BODY, 11, "bold"))
+        self.details_text.tag_config("header", foreground=THEME["accent"], font=(_BODY, 9, "bold"))
+        self.details_text.tag_config("normal", foreground=THEME["text"], font=(_BODY, 9))
+        self.details_text.tag_config("warning", foreground="#FF6B35", font=(_BODY, 9, "bold"))
+        self.details_text.tag_config("muted", foreground=THEME["muted"], font=(_BODY, 8))
 
         # "More about this process" button
         self.more_btn = tk.Button(
             parent,
             text="More About This Process",
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg=THEME["accent"],
             fg=THEME["bg_panel"],
             relief="flat",
@@ -285,7 +294,7 @@ class AllStatsPage:
         title = tk.Label(
             popup,
             text=definition['full_name'],
-            font=("Segoe UI", 14, "bold"),
+            font=(_BODY, 14, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"]
         )
@@ -294,7 +303,7 @@ class AllStatsPage:
         subtitle = tk.Label(
             popup,
             text=self.selected_process,
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=THEME["bg_main"],
             fg=THEME["muted"]
         )
@@ -309,7 +318,7 @@ class AllStatsPage:
             content,
             bg=THEME["bg_panel"],
             fg=THEME["text"],
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bd=0,
             wrap="word",
             padx=15,
@@ -326,15 +335,15 @@ class AllStatsPage:
             text.insert("end", f"WARNING:\n{definition['warning']}\n\n", "warning")
         text.insert("end", f"\nDeveloper: {definition['developer']}")
 
-        text.tag_config("bold", font=("Segoe UI", 9, "bold"))
-        text.tag_config("warning", foreground="#FF6B35", font=("Segoe UI", 9, "bold"))
+        text.tag_config("bold", font=(_BODY, 9, "bold"))
+        text.tag_config("warning", foreground="#FF6B35", font=(_BODY, 9, "bold"))
         text.config(state="disabled")
 
         # Close button
         close_btn = tk.Button(
             popup,
             text="Close",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=THEME["accent"],
             fg=THEME["bg_panel"],
             relief="flat",

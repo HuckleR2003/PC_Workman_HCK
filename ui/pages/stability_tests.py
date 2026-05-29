@@ -9,6 +9,14 @@ import time
 import threading
 from datetime import datetime
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BG = "#0a0e14"
@@ -25,10 +33,10 @@ def build_stability_tests_page(self, parent):
     header.pack_propagate(False)
 
     tk.Label(header, text="PC Workman Stability Tests",
-             font=("Segoe UI", 10, "bold"), bg="#10b981", fg="#000000",
+             font=(_BODY, 10, "bold"), bg="#10b981", fg="#000000",
              padx=10).pack(side="left", pady=4)
 
-    back_btn = tk.Label(header, text="Back", font=("Segoe UI", 8, "bold"),
+    back_btn = tk.Label(header, text="Back", font=(_BODY, 8, "bold"),
                         bg="#065f46", fg="#ffffff", padx=8, cursor="hand2")
     back_btn.pack(side="right", padx=10, pady=4)
     back_btn.bind("<Button-1>", lambda e: _go_back(self, parent))
@@ -63,7 +71,7 @@ def _build_file_integrity_panel(parent):
 
     hdr = tk.Frame(panel, bg="#1e293b")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="FILE INTEGRITY CHECK", font=("Consolas", 8, "bold"),
+    tk.Label(hdr, text="FILE INTEGRITY CHECK", font=(_MONO, 8, "bold"),
              bg="#1e293b", fg="#10b981", padx=8, pady=4).pack(side="left")
 
     files_to_check = [
@@ -94,17 +102,17 @@ def _build_file_integrity_panel(parent):
         status_color = "#10b981" if exists else "#ef4444"
         status_text = "OK" if exists else "MISSING"
 
-        tk.Label(row, text=status_text, font=("Consolas", 6, "bold"),
+        tk.Label(row, text=status_text, font=(_MONO, 6, "bold"),
                  bg=status_color, fg="#000000", width=7, padx=2).pack(side="left", padx=(0, 4))
 
         name_short = filepath.replace("\\", "/")
-        tk.Label(row, text=name_short, font=("Consolas", 6),
+        tk.Label(row, text=name_short, font=(_MONO, 6),
                  bg=PANEL, fg="#94a3b8", anchor="w").pack(side="left")
 
         if exists:
             size = os.path.getsize(full_path)
             size_str = f"{size:,}B" if size < 10000 else f"{size//1024}KB"
-            tk.Label(row, text=size_str, font=("Consolas", 6),
+            tk.Label(row, text=size_str, font=(_MONO, 6),
                      bg=PANEL, fg="#475569").pack(side="right", padx=4)
 
 
@@ -115,10 +123,10 @@ def _build_log_viewer_panel(parent):
 
     hdr = tk.Frame(panel, bg="#1e293b")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="VIEW LOGS", font=("Consolas", 8, "bold"),
+    tk.Label(hdr, text="VIEW LOGS", font=(_MONO, 8, "bold"),
              bg="#1e293b", fg="#f59e0b", padx=8, pady=4).pack(side="left")
 
-    log_text = tk.Text(panel, bg="#050810", fg="#94a3b8", font=("Consolas", 7),
+    log_text = tk.Text(panel, bg="#050810", fg="#94a3b8", font=(_MONO, 7),
                        bd=0, wrap="word", height=8, state="disabled",
                        insertbackground="#ffffff", selectbackground="#1e3a5f")
     log_text.pack(fill="both", expand=True, padx=4, pady=4)
@@ -138,7 +146,7 @@ def _build_log_viewer_panel(parent):
         ("Raw CSV", load_raw_log, "#1e293b"),
         ("Minute AVG", load_minute_log, "#1e293b"),
     ]:
-        btn = tk.Label(btn_frame, text=text, font=("Consolas", 7, "bold"),
+        btn = tk.Label(btn_frame, text=text, font=(_MONO, 7, "bold"),
                        bg=color, fg="#94a3b8", padx=8, pady=2, cursor="hand2")
         btn.pack(side="left", padx=2)
         btn.bind("<Button-1>", lambda e, c=cmd: c())
@@ -179,7 +187,7 @@ def _build_engine_status_panel(parent):
 
     hdr = tk.Frame(panel, bg="#1e293b")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="HCK STATS ENGINE STATUS", font=("Consolas", 8, "bold"),
+    tk.Label(hdr, text="HCK STATS ENGINE STATUS", font=(_MONO, 8, "bold"),
              bg="#1e293b", fg="#3b82f6", padx=8, pady=4).pack(side="left")
 
     container = tk.Frame(panel, bg=PANEL)
@@ -264,10 +272,10 @@ def _build_engine_status_panel(parent):
 
     if errors:
         tk.Frame(container, bg=BORDER, height=1).pack(fill="x", pady=3)
-        tk.Label(container, text="ERRORS:", font=("Consolas", 7, "bold"),
+        tk.Label(container, text="ERRORS:", font=(_MONO, 7, "bold"),
                  bg=PANEL, fg="#ef4444", anchor="w").pack(fill="x")
         for err in errors[:3]:
-            tk.Label(container, text=err[:60], font=("Consolas", 6),
+            tk.Label(container, text=err[:60], font=(_MONO, 6),
                      bg=PANEL, fg="#ef4444", anchor="w", wraplength=250).pack(fill="x")
 
 
@@ -275,7 +283,7 @@ def _status_row(parent, label, value, value_color):
     row = tk.Frame(parent, bg=PANEL)
     row.pack(fill="x", pady=0)
 
-    tk.Label(row, text=label, font=("Consolas", 7),
+    tk.Label(row, text=label, font=(_MONO, 7),
              bg=PANEL, fg="#64748b", anchor="w", width=16).pack(side="left")
-    tk.Label(row, text=value, font=("Consolas", 7, "bold"),
+    tk.Label(row, text=value, font=(_MONO, 7, "bold"),
              bg=PANEL, fg=value_color, anchor="e").pack(side="right")
