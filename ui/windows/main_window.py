@@ -39,6 +39,15 @@ except ImportError:
     print("[ERROR] matplotlib not installed. Install with: pip install matplotlib")
     FigureCanvasTkAgg = None
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 def clamp(v, a=0, b=100):
     return max(a, min(b, v))
@@ -220,7 +229,7 @@ class MainWindow:
         # Bottom brand bar
         brand = tk.Frame(self.root, bg="#081018", height=5)
         brand.place(x=0, y=THEME["win_height"]-5, width=THEME["win_width"])
-        btxt = tk.Label(brand, text='Marcin "HCK" Firmuga', fg=THEME["muted"], bg="#081018", font=("Consolas", 9))
+        btxt = tk.Label(brand, text='Marcin "HCK" Firmuga', fg=THEME["muted"], bg="#081018", font=(_MONO, 9))
         btxt.pack(side="left", padx=8)
 
         # Position lock indicator
@@ -229,7 +238,7 @@ class MainWindow:
             text="📍 Locked" if self.position_locked else "🔓 Unlocked",
             fg=THEME["accent"],
             bg="#081018",
-            font=("Consolas", 8),
+            font=(_MONO, 8),
             cursor="hand2"
         )
         self.lock_indicator.pack(side="right", padx=8)
@@ -242,8 +251,8 @@ class MainWindow:
                     parent=self.content,
                     width=THEME["win_width"] - THEME["sidebar_expanded"] - 4
                 )
-                # Wire nav links — Virtual Memory already pre-registered in panel
-                # (Optimization/Startup require expanded window — not available here)
+                # Wire nav links - Virtual Memory already pre-registered in panel
+                # (Optimization/Startup require expanded window - not available here)
             except Exception as e:
                 print(f"[WARNING] Failed to initialize GPT Panel: {e}")
                 self.gpt = None
@@ -267,75 +276,92 @@ class MainWindow:
             self.root.resizable(True, True)
 
     def _build_sidebar_contents(self):
-        # Modern dot
+        _SB   = THEME["bg_sidebar"]
+        _ACC  = THEME["accent"]
+        _MUT  = THEME["muted"]
+
+        # ── Logo / collapse handle ──
         self.dot = tk.Label(
-            self.sidebar,
-            text="⋮",
-            font=(THEME["font_family"], 20),
-            fg=THEME["accent"],
-            bg=THEME["bg_sidebar"],
-            cursor="hand2"
+            self.sidebar, text="◈",
+            font=(_BODY, 14), fg=_ACC, bg=_SB, cursor="hand2"
         )
-        self.dot.place(x=6, y=8)
+        self.dot.place(x=4, y=8, width=16, height=16)
 
-        # Menu frame
-        self.menu_frame = tk.Frame(self.sidebar, bg=THEME["bg_sidebar"])
-        self.menu_frame.place(x=6, y=48, width=108)
+        # ── Menu frame (shown when expanded) ──
+        self.menu_frame = tk.Frame(self.sidebar, bg=_SB)
+        self.menu_frame.place(x=0, y=40, width=120)
 
-        # Menu items
-        menu_items = [
-            ("◉", "Dashboard", lambda: self.show_page("dashboard"), "dashboard"),
-            ("📊", "Day Stats", lambda: self.show_page("day_stats"), "day_stats"),
-            ("📈", "All Stats", lambda: self.show_page("all_stats"), "all_stats"),
-            ("ℹ", "About", lambda: self.show_page("about"), "about"),
-            ("🤖", "AI", lambda: self.show_page("about_ai"), "about_ai")
+        # nav items - (icon_char, label, page_id)
+        nav_items = [
+            ("▣",  "Dashboard",  "dashboard"),
+            ("◑",  "Day Stats",  "day_stats"),
+            ("◔",  "All Stats",  "all_stats"),
+            ("◇",  "About",      "about"),
+            ("◎",  "AI",         "about_ai"),
         ]
+        # Settings pinned at bottom of nav list
+        nav_items.append(("⚙", "Settings", "settings"))
 
         self.menu_labels = []
-        for idx, (icon, text, cb, page_id) in enumerate(menu_items):
-            item_frame = tk.Frame(self.menu_frame, bg=THEME["bg_sidebar"], cursor="hand2")
-            item_frame.pack(anchor="w", pady=(0 if idx==0 else 4), fill="x")
 
-            lbl = tk.Label(
-                item_frame,
-                text=f"{icon} {text}",
-                font=("Consolas", 10),
-                fg=THEME["muted"],
-                bg=THEME["bg_sidebar"],
-                cursor="hand2",
-                anchor="w",
-                padx=4, pady=4
+        for idx, (icon, label, page_id) in enumerate(nav_items):
+            is_settings = page_id == "settings"
+
+            # Thin accent line above Settings
+            if is_settings:
+                sep = tk.Frame(self.menu_frame, bg="#1a2535", height=1)
+                sep.pack(fill="x", padx=8, pady=(6, 2))
+
+            item_frame = tk.Frame(self.menu_frame, bg=_SB, cursor="hand2", height=30)
+            item_frame.pack(fill="x", pady=(0, 1))
+            item_frame.pack_propagate(False)
+
+            # Accent indicator bar (left edge, shown for active item)
+            indicator = tk.Frame(item_frame, bg=_SB, width=3)
+            indicator.pack(side="left", fill="y")
+
+            icon_lbl = tk.Label(
+                item_frame, text=icon,
+                font=(_BODY, 10), fg=_MUT, bg=_SB,
+                width=2, anchor="center"
             )
-            lbl.pack(fill="x")
+            icon_lbl.pack(side="left", padx=(2, 0))
 
-            self.menu_labels.append((lbl, page_id, item_frame))
+            text_lbl = tk.Label(
+                item_frame, text=label,
+                font=(_BODY, 9), fg=_MUT, bg=_SB, anchor="w"
+            )
+            text_lbl.pack(side="left", padx=4, fill="y")
 
-            if cb:
-                def make_handler(callback):
-                    def handler(e=None):
-                        callback()
-                        self._update_active_menu_item()
-                    return handler
+            self.menu_labels.append((text_lbl, page_id, item_frame, icon_lbl, indicator))
 
-                handler = make_handler(cb)
-                lbl.bind("<Button-1>", handler)
-                item_frame.bind("<Button-1>", handler)
+            def _make_handler(pid, ind, ilbl, tlbl):
+                def handler(e=None):
+                    self.show_page(pid)
+                    self._update_active_menu_item()
+                return handler
 
-                # Hover effects
-                def make_hover(label):
-                    def enter(e):
-                        if label.cget("fg") != THEME["accent"]:
-                            label.config(fg=THEME["accent2"])
-                    def leave(e):
-                        if label.cget("fg") != THEME["accent"]:
-                            label.config(fg=THEME["muted"])
-                    return enter, leave
+            h = _make_handler(page_id, indicator, icon_lbl, text_lbl)
+            for w in (item_frame, icon_lbl, text_lbl):
+                w.bind("<Button-1>", h)
 
-                enter_h, leave_h = make_hover(lbl)
-                lbl.bind("<Enter>", enter_h)
-                lbl.bind("<Leave>", leave_h)
+            def _make_hover(ilbl, tlbl, ind, pid):
+                def enter(e):
+                    if ilbl.cget("fg") != _ACC:
+                        ilbl.config(fg=_ACC)
+                        tlbl.config(fg=_ACC)
+                def leave(e):
+                    if self.current_page != pid:
+                        ilbl.config(fg=_MUT)
+                        tlbl.config(fg=_MUT)
+                return enter, leave
 
-        # Hover bindings for sidebar
+            en, le = _make_hover(icon_lbl, text_lbl, indicator, page_id)
+            for w in (item_frame, icon_lbl, text_lbl):
+                w.bind("<Enter>", en)
+                w.bind("<Leave>", le)
+
+        # Hover bindings for sidebar expand/collapse
         self.sidebar.bind("<Enter>", lambda e: self._expand_sidebar())
         self.sidebar.bind("<Leave>", lambda e: self._collapse_sidebar_delayed())
 
@@ -379,19 +405,28 @@ class MainWindow:
         self.pages["about"] = dialogs.create_about_page(self.content)
         self.pages["about_ai"] = dialogs.create_about_ai_page(self.content)
 
+        # Settings page
+        try:
+            from ui.pages.settings_page import SettingsPage
+            settings_page = SettingsPage(self.content, app=self)
+            self.pages["settings"] = settings_page.frame
+        except Exception as e:
+            print(f"[UI] Failed to load Settings page: {e}")
+            self.pages["settings"] = tk.Frame(self.content, bg=THEME["bg_main"])
+
         self.current_page = None
 
     def _build_optimization_page(self, parent):
         """Build Optimization Options page"""
         # Page header
         header = tk.Label(parent, text="⚡ OPTIMIZATION OPTIONS",
-                         font=("Segoe UI", 16, "bold"), bg=THEME["bg_main"],
+                         font=(_BODY, 16, "bold"), bg=THEME["bg_main"],
                          fg="#10b981", anchor="w", padx=20, pady=15)
         header.pack(fill="x")
 
         # Back button
-        back_btn = tk.Label(parent, text="← Back to Dashboard",
-                           font=("Segoe UI", 10), bg=THEME["bg_panel"],
+        back_btn = tk.Label(parent, text="<- Back to Dashboard",
+                           font=(_BODY, 10), bg=THEME["bg_panel"],
                            fg=THEME["accent"], cursor="hand2", padx=15, pady=8)
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
         back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
@@ -405,7 +440,7 @@ class MainWindow:
         services_frame.pack(fill="x", pady=10)
 
         services_header = tk.Label(services_frame, text="Windows Services Management",
-                                   font=("Segoe UI", 12, "bold"), bg=THEME["accent"],
+                                   font=(_BODY, 12, "bold"), bg=THEME["accent"],
                                    fg=THEME["bg_panel"], anchor="w", padx=10, pady=8)
         services_header.pack(fill="x")
 
@@ -415,7 +450,7 @@ class MainWindow:
         # Services counter display
         self.opt_page_services_label = tk.Label(services_content,
                                                text="Loading services count...",
-                                               font=("Segoe UI", 10), bg=THEME["bg_panel"],
+                                               font=(_BODY, 10), bg=THEME["bg_panel"],
                                                fg=THEME["text"])
         self.opt_page_services_label.pack(anchor="w", pady=5)
 
@@ -425,7 +460,7 @@ class MainWindow:
 
         # Open Services Wizard button
         wizard_btn = tk.Label(btn_frame, text="🧙 Open Services Wizard",
-                             font=("Segoe UI", 10, "bold"), bg=THEME["accent2"],
+                             font=(_BODY, 10, "bold"), bg=THEME["accent2"],
                              fg=THEME["text"], cursor="hand2", relief="raised",
                              padx=15, pady=10)
         wizard_btn.pack(side="left", padx=5)
@@ -433,7 +468,7 @@ class MainWindow:
 
         # Quick disable button
         quick_btn = tk.Label(btn_frame, text="⚡ Quick Disable Unnecessary",
-                            font=("Segoe UI", 10, "bold"), bg="#10b981",
+                            font=(_BODY, 10, "bold"), bg="#10b981",
                             fg=THEME["bg_panel"], cursor="hand2", relief="raised",
                             padx=15, pady=10)
         quick_btn.pack(side="left", padx=5)
@@ -444,7 +479,7 @@ class MainWindow:
         proc_frame.pack(fill="x", pady=10)
 
         proc_header = tk.Label(proc_frame, text="Background Process Optimization",
-                              font=("Segoe UI", 12, "bold"), bg=THEME["accent"],
+                              font=(_BODY, 12, "bold"), bg=THEME["accent"],
                               fg=THEME["bg_panel"], anchor="w", padx=10, pady=8)
         proc_header.pack(fill="x")
 
@@ -463,22 +498,22 @@ class MainWindow:
             opt_row = tk.Frame(proc_content, bg=THEME["bg_panel"])
             opt_row.pack(fill="x", pady=5)
 
-            tk.Label(opt_row, text=title, font=("Segoe UI", 10, "bold"),
+            tk.Label(opt_row, text=title, font=(_BODY, 10, "bold"),
                     bg=THEME["bg_panel"], fg=THEME["text"], anchor="w").pack(side="left")
-            tk.Label(opt_row, text=f"  — {desc}", font=("Segoe UI", 8),
+            tk.Label(opt_row, text=f"  - {desc}", font=(_BODY, 8),
                     bg=THEME["bg_panel"], fg=THEME["muted"], anchor="w").pack(side="left")
 
     def _build_yourpc_page(self, parent):
         """Build YOUR PC - Personal data page with REAL hardware monitoring"""
         # Page header
         header = tk.Label(parent, text="💻 YOUR PC - Personal Data",
-                         font=("Segoe UI", 16, "bold"), bg=THEME["bg_main"],
+                         font=(_BODY, 16, "bold"), bg=THEME["bg_main"],
                          fg="#3b82f6", anchor="w", padx=20, pady=15)
         header.pack(fill="x")
 
         # Back button
-        back_btn = tk.Label(parent, text="← Back to Dashboard",
-                           font=("Segoe UI", 10), bg=THEME["bg_panel"],
+        back_btn = tk.Label(parent, text="<- Back to Dashboard",
+                           font=(_BODY, 10), bg=THEME["bg_panel"],
                            fg=THEME["accent"], cursor="hand2", padx=15, pady=8)
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
         back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
@@ -512,13 +547,13 @@ class MainWindow:
 
         # Component header
         header = tk.Label(panel, text=f"{component['icon']} {component['name']}",
-                         font=("Segoe UI", 9, "bold"), bg=component["color"],
+                         font=(_BODY, 9, "bold"), bg=component["color"],
                          fg=THEME["bg_panel"], anchor="center", pady=3)
         header.pack(fill="x")
 
         # Component name label (will show real hardware name)
         name_label = tk.Label(panel, text="Loading...",
-                             font=("Segoe UI", 7), bg=THEME["bg_panel"],
+                             font=(_BODY, 7), bg=THEME["bg_panel"],
                              fg=THEME["muted"], wraplength=120)
         name_label.pack(pady=(3, 0))
 
@@ -529,7 +564,7 @@ class MainWindow:
 
         # Usage percentage display
         usage_label = tk.Label(chart_frame, text="0%",
-                font=("Consolas", 16, "bold"), bg="#1a1d24", fg=component["color"])
+                font=(_MONO, 16, "bold"), bg="#1a1d24", fg=component["color"])
         usage_label.pack(expand=True)
 
         # Temperature bar
@@ -537,7 +572,7 @@ class MainWindow:
         temp_frame.pack(fill="x", padx=6, pady=3)
 
         tk.Label(temp_frame, text="🌡️",
-                font=("Segoe UI", 7), bg=THEME["bg_panel"],
+                font=(_BODY, 7), bg=THEME["bg_panel"],
                 fg=THEME["text"]).pack(side="left")
 
         temp_bar_bg = tk.Frame(temp_frame, bg="#1a1d24", height=5, width=60)
@@ -550,19 +585,19 @@ class MainWindow:
 
         # Temperature value
         temp_label = tk.Label(temp_frame, text="--°C",
-                font=("Segoe UI", 7), bg=THEME["bg_panel"],
+                font=(_BODY, 7), bg=THEME["bg_panel"],
                 fg=component["color"])
         temp_label.pack(side="left", padx=2)
 
         # Status line 1: Component health
         status1 = tk.Label(panel, text="⚙️ System status: stable",
-                          font=("Segoe UI", 6), bg=THEME["bg_panel"],
+                          font=(_BODY, 6), bg=THEME["bg_panel"],
                           fg="#10b981", anchor="w")
         status1.pack(fill="x", padx=6, pady=(2, 0))
 
         # Status line 2: Load status
         status2 = tk.Label(panel, text="📊 Normal activity",
-                          font=("Segoe UI", 6), bg=THEME["bg_panel"],
+                          font=(_BODY, 6), bg=THEME["bg_panel"],
                           fg="#fbbf24", anchor="w")
         status2.pack(fill="x", padx=6, pady=(0, 4))
 
@@ -702,18 +737,70 @@ class MainWindow:
         self._build_top_bars(parent)
         self._build_center_area(parent)
 
+    def _build_metric_card(self, parent, label: str, color: str, relx: float):
+        """Build a compact metric card (label + big %, progress bar, accent strip)."""
+        card = tk.Frame(parent, bg="#0e1218")
+        card.place(relx=relx, rely=0, relwidth=0.333, relheight=1.0)
+
+        # Top accent strip (2 px)
+        strip = tk.Frame(card, bg=color, height=2)
+        strip.pack(fill="x")
+
+        # Body
+        body = tk.Frame(card, bg="#0e1218")
+        body.pack(fill="both", expand=True, padx=8)
+
+        # Label row (left: name, right: secondary info)
+        label_row = tk.Frame(body, bg="#0e1218")
+        label_row.pack(fill="x", pady=(4, 0))
+
+        name_lbl = tk.Label(
+            label_row, text=label,
+            font=(_BODY, 8, "bold"),
+            bg="#0e1218", fg=color, anchor="w"
+        )
+        name_lbl.pack(side="left")
+
+        # Big number (right-aligned in body)
+        pct_lbl = tk.Label(
+            body, text="--",
+            font=(_BODY, 18, "bold"),
+            bg="#0e1218", fg=THEME["text"], anchor="e"
+        )
+        pct_lbl.pack(fill="x")
+
+        # Mini progress bar
+        bar_bg = tk.Frame(body, bg="#1a1f28", height=3)
+        bar_bg.pack(fill="x", pady=(0, 4))
+        bar_bg.pack_propagate(False)
+
+        bar_fill = tk.Frame(bar_bg, bg=color, height=3)
+        bar_fill.place(x=0, y=0, relwidth=0.0, relheight=1.0)
+
+        return {"pct_lbl": pct_lbl, "bar_fill": bar_fill, "color": color}
+
     def _build_top_bars(self, parent):
         top_frame = tk.Frame(parent, bg=THEME["bg_main"])
-        top_frame.place(x=8, y=8, width=THEME["win_width"] - THEME["sidebar_expanded"] - 16, height=60)
+        top_frame.place(x=8, y=6, width=THEME["win_width"] - THEME["sidebar_expanded"] - 16, height=64)
 
-        # LED bars
-        self.cpu_led = LEDSegmentBar(top_frame, "CPU", LED_CPU_MAP, segments=18, height=18)
-        self.gpu_led = LEDSegmentBar(top_frame, "GPU", LED_GPU_MAP, segments=18, height=18)
-        self.ram_led = LEDSegmentBar(top_frame, "RAM", LED_RAM_MAP, segments=18, height=18)
+        # Thin outer border
+        outer = tk.Frame(top_frame, bg="#141820")
+        outer.place(relx=0, rely=0, relwidth=1.0, relheight=1.0)
 
-        self.cpu_led.frame.place(relx=0, rely=0, relwidth=0.33, height=60)
-        self.gpu_led.frame.place(relx=0.33, rely=0, relwidth=0.33, height=60)
-        self.ram_led.frame.place(relx=0.66, rely=0, relwidth=0.34, height=60)
+        inner = tk.Frame(outer, bg=THEME["bg_main"])
+        inner.place(x=1, y=1, relwidth=1.0, relheight=1.0, width=-2, height=-2)
+
+        self._metric_cards = {
+            "cpu": self._build_metric_card(inner, "CPU", THEME["cpu"],  0.0),
+            "gpu": self._build_metric_card(inner, "GPU", THEME["gpu"],  0.333),
+            "ram": self._build_metric_card(inner, "RAM", THEME["ram"],  0.666),
+        }
+
+        # Vertical dividers between cards
+        for rx in (0.333, 0.666):
+            tk.Frame(inner, bg="#141820", width=1).place(
+                relx=rx, rely=0, width=1, relheight=1.0
+            )
 
     def _build_center_area(self, parent):
         content_w = THEME["win_width"] - THEME["sidebar_expanded"] - 26
@@ -744,7 +831,7 @@ class MainWindow:
         header = tk.Label(
             self.top5_frame,
             text="TOP 5 - User Processes",
-            font=("Segoe UI", 9, "bold"),
+            font=(_BODY, 9, "bold"),
             bg=THEME["accent"],
             fg=THEME["bg_panel"],
             anchor="w",
@@ -777,7 +864,7 @@ class MainWindow:
         tk.Label(
             expanded_content,
             text="◱ EXPANDED VIEW",
-            font=("Segoe UI", 8, "bold"),
+            font=(_BODY, 8, "bold"),
             bg="#6366f1",
             fg="white"
         ).pack(expand=True)
@@ -797,18 +884,18 @@ class MainWindow:
         opt_left = tk.Frame(opt_content, bg="#0ea56a")
         opt_left.pack(side="left", padx=12, fill="y", expand=True)
 
-        tk.Label(opt_left, text="⚡", font=("Segoe UI", 18),
+        tk.Label(opt_left, text="⚡", font=(_BODY, 18),
                 bg="#0ea56a", fg="white").pack(side="left", padx=(0, 8))
 
         opt_text_frame = tk.Frame(opt_left, bg="#0ea56a")
         opt_text_frame.pack(side="left", fill="y")
 
         tk.Label(opt_text_frame, text="Optimization",
-                font=("Segoe UI", 10, "bold"), bg="#0ea56a",
+                font=(_BODY, 10, "bold"), bg="#0ea56a",
                 fg="white", anchor="w").pack(anchor="w")
 
         self.opt_services_label = tk.Label(opt_text_frame, text="Loading...",
-                                          font=("Segoe UI", 7), bg="#0ea56a",
+                                          font=(_BODY, 7), bg="#0ea56a",
                                           fg="#c5f7e6", anchor="w")
         self.opt_services_label.pack(anchor="w")
 
@@ -827,18 +914,18 @@ class MainWindow:
         pc_left = tk.Frame(pc_content, bg="#2563eb")
         pc_left.pack(side="left", padx=12, fill="y", expand=True)
 
-        tk.Label(pc_left, text="💻", font=("Segoe UI", 18),
+        tk.Label(pc_left, text="💻", font=(_BODY, 18),
                 bg="#2563eb", fg="white").pack(side="left", padx=(0, 8))
 
         pc_text_frame = tk.Frame(pc_left, bg="#2563eb")
         pc_text_frame.pack(side="left", fill="y")
 
         tk.Label(pc_text_frame, text="Your PC",
-                font=("Segoe UI", 10, "bold"), bg="#2563eb",
+                font=(_BODY, 10, "bold"), bg="#2563eb",
                 fg="white", anchor="w").pack(anchor="w")
 
         tk.Label(pc_text_frame, text="Hardware health",
-                font=("Segoe UI", 7), bg="#2563eb",
+                font=(_BODY, 7), bg="#2563eb",
                 fg="#bfdbfe", anchor="w").pack(anchor="w")
 
         # Click handler
@@ -856,7 +943,7 @@ class MainWindow:
         dv_header = tk.Label(
             self.right_panel,
             text="Data View",
-            font=("Consolas", 11, "bold"),
+            font=(_MONO, 11, "bold"),
             bg="#000000",
             fg=THEME["text"]
         )
@@ -876,7 +963,7 @@ class MainWindow:
             btn = tk.Label(
                 self.right_panel,
                 text=mode_label,
-                font=("Consolas", 10, "bold"),
+                font=(_MONO, 10, "bold"),
                 bg=THEME["bg_panel"],
                 fg=THEME["muted"],
                 cursor="hand2",
@@ -896,7 +983,7 @@ class MainWindow:
         sys_header = tk.Label(
             self.right_panel,
             text="TOP 5 - System Processes",
-            font=("Segoe UI", 9, "bold"),
+            font=(_BODY, 9, "bold"),
             bg=THEME["accent2"],
             fg=THEME["bg_panel"],
             anchor="w",
@@ -1050,7 +1137,10 @@ class MainWindow:
             self.pages[self.current_page].place_forget()
 
         if page_name in self.pages:
-            self.pages[page_name].place(x=0, y=0, relwidth=1, relheight=1)
+            frame = self.pages[page_name]
+            frame.place(x=0, y=0, relwidth=1, relheight=1)
+            frame.lift()          # ensure above GPT panel overlay
+            frame.update_idletasks()
             self.current_page = page_name
             self._update_active_menu_item()
 
@@ -1062,13 +1152,22 @@ class MainWindow:
 
     def _update_active_menu_item(self):
         """Highlight active menu item"""
-        for lbl, page_id, frame in self.menu_labels:
-            if page_id == self.current_page:
-                lbl.config(fg=THEME["accent"], font=("Consolas", 10, "bold"))
-                frame.config(bg="#0d1820")
+        _ACC = THEME["accent"]
+        _MUT = THEME["muted"]
+        _SB  = THEME["bg_sidebar"]
+        for entry in self.menu_labels:
+            text_lbl, page_id, frame, icon_lbl, indicator = entry
+            is_active = page_id == self.current_page
+            if is_active:
+                text_lbl.config(fg=_ACC, font=(_BODY, 9, "bold"))
+                icon_lbl.config(fg=_ACC)
+                indicator.config(bg=_ACC)
+                frame.config(bg="#0b1520")
             else:
-                lbl.config(fg=THEME["muted"], font=("Consolas", 10))
-                frame.config(bg=THEME["bg_sidebar"])
+                text_lbl.config(fg=_MUT, font=(_BODY, 9))
+                icon_lbl.config(fg=_MUT)
+                indicator.config(bg=_SB)
+                frame.config(bg=_SB)
 
     def _get_live_sample(self):
         """Get latest system sample"""
@@ -1195,7 +1294,7 @@ class MainWindow:
             name_lbl = tk.Label(
                 row,
                 text=f"{i}. {display_name[:18]}",
-                font=("Segoe UI", 8),
+                font=(_BODY, 8),
                 bg=row_bg,
                 fg=THEME["text"],
                 anchor="w"
@@ -1210,7 +1309,7 @@ class MainWindow:
             cpu_container = tk.Frame(bars_frame, bg=row_bg)
             cpu_container.pack(side="left", padx=2)
 
-            cpu_lbl = tk.Label(cpu_container, text="CPU", font=("Segoe UI", 6),
+            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 6),
                               bg=row_bg, fg="#6b7280", width=3)
             cpu_lbl.pack(side="left", padx=(0,2))
 
@@ -1220,7 +1319,7 @@ class MainWindow:
             ram_container = tk.Frame(bars_frame, bg=row_bg)
             ram_container.pack(side="left", padx=2)
 
-            ram_lbl = tk.Label(ram_container, text="RAM", font=("Segoe UI", 6),
+            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 6),
                               bg=row_bg, fg="#6b7280", width=3)
             ram_lbl.pack(side="left", padx=(0,2))
 
@@ -1247,7 +1346,7 @@ class MainWindow:
         val_lbl = tk.Label(
             parent,
             text=text,
-            font=("Segoe UI", 7),
+            font=(_BODY, 7),
             bg=bg,
             fg=color,
             width=5,
@@ -1288,7 +1387,7 @@ class MainWindow:
             name_lbl = tk.Label(
                 row,
                 text=f"{i}. {display_name[:16]}",
-                font=("Segoe UI", 8),
+                font=(_BODY, 8),
                 bg=row_bg,
                 fg=THEME["text"],
                 anchor="w"
@@ -1303,7 +1402,7 @@ class MainWindow:
             cpu_container = tk.Frame(bars_frame, bg=row_bg)
             cpu_container.pack(side="left", padx=2)
 
-            cpu_lbl = tk.Label(cpu_container, text="CPU", font=("Segoe UI", 6),
+            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 6),
                               bg=row_bg, fg="#6b7280", width=3)
             cpu_lbl.pack(side="left", padx=(0,2))
 
@@ -1313,7 +1412,7 @@ class MainWindow:
             ram_container = tk.Frame(bars_frame, bg=row_bg)
             ram_container.pack(side="left", padx=2)
 
-            ram_lbl = tk.Label(ram_container, text="RAM", font=("Segoe UI", 6),
+            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 6),
                               bg=row_bg, fg="#6b7280", width=3)
             ram_lbl.pack(side="left", padx=(0,2))
 
@@ -1360,14 +1459,21 @@ class MainWindow:
             self.opt_services_label.config(text="Services active: --/--")
 
     def _update_led_bars(self, sample):
-        """Update LED bars"""
-        cpu = sample.get("cpu_percent", 0.0)
-        gpu = sample.get("gpu_percent", 0.0)
-        ram = sample.get("ram_percent", 0.0)
-
-        self.cpu_led.update(cpu)
-        self.gpu_led.update(gpu)
-        self.ram_led.update(ram)
+        """Update metric cards (replaces old LED bars)."""
+        values = {
+            "cpu": sample.get("cpu_percent", 0.0),
+            "gpu": sample.get("gpu_percent", 0.0),
+            "ram": sample.get("ram_percent", 0.0),
+        }
+        if not hasattr(self, "_metric_cards"):
+            return
+        for key, pct in values.items():
+            card = self._metric_cards.get(key)
+            if not card:
+                continue
+            pct_clamped = max(0.0, min(100.0, pct))
+            card["pct_lbl"].config(text=f"{pct_clamped:.0f}%")
+            card["bar_fill"].place(relwidth=pct_clamped / 100.0)
 
     def _populate_process_list(self, list_widget, processes, list_type):
         """

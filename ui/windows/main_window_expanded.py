@@ -30,6 +30,17 @@ from ui.components.led_bars import LEDSegmentBar, AnimatedBar
 from ui.components.sidebar_nav import SidebarNav
 from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_stats_page
 
+# Centralized i18n - initialize active language from saved settings at import time
+try:
+    from utils.i18n import t as _t, set_lang as _i18n_set_lang, register_on_change as _i18n_register
+    _HAS_I18N_MW = True
+except ImportError:
+    _HAS_I18N_MW = False
+    def _t(key: str, **kwargs) -> str:
+        return key.split(".")[-1].replace("_", " ").title()
+    def _i18n_set_lang(code: str) -> None: pass
+    def _i18n_register(fn) -> None: pass
+
 # YOUR PC page helper
 from ui.components.yourpc_page import build_yourpc_page
 
@@ -72,6 +83,15 @@ try:
 except ImportError:
     HAS_MATPLOTLIB = False
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class ExpandedMainWindow:
     """
@@ -103,7 +123,7 @@ class ExpandedMainWindow:
         # View switching system
         self.current_view = "dashboard"
 
-        # ── Persistent LIVE chart buffer — survives view switches ─────────────
+        # ── Persistent LIVE chart buffer - survives view switches ─────────────
         # DO NOT reset in _build_dashboard_view(); data accumulates here forever.
         self.chart_data = {"cpu": [], "ram": [], "gpu": []}
         self.chart_max_samples = 100
@@ -127,7 +147,7 @@ class ExpandedMainWindow:
         self.nav_icons_hover = {}
         self._load_navigation_icons()
 
-        # Handle window close (X button) → minimize to tray
+        # Handle window close (X button) -> minimize to tray
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         # Center window on screen
@@ -140,6 +160,9 @@ class ExpandedMainWindow:
         self._running = True
         self._update_counter = 0
         self.root.after(100, self._update_loop)  # Start after 100ms
+
+        # ── Startup + App-install watcher ─────────────────────────────────────
+        self._start_system_watchers()
 
     def _load_navigation_icons(self):
         """Load PNG icons for navigation buttons with glow effect"""
@@ -205,6 +228,22 @@ class ExpandedMainWindow:
         )
         self.sidebar.pack(side="left", fill="y")
 
+        # Apply saved settings immediately (language + auto-hide)
+        try:
+            import json, os as _os
+            _sf = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
+                                "settings", "app_settings.json")
+            with open(_sf, "r", encoding="utf-8") as _f:
+                _s = json.load(_f)
+            # Initialize i18n language BEFORE sidebar is fully built
+            _saved_lang = _s.get("language", "en")
+            if _saved_lang != "en":
+                _i18n_set_lang(_saved_lang)
+            if _s.get("sidebar_auto_hide", False):
+                self.sidebar.set_auto_hide(True)
+        except Exception:
+            pass
+
         # RIGHT CONTENT AREA
         self.content_area = tk.Frame(self.main_container, bg=THEME["bg_main"])
         self.content_area.pack(side="left", fill="both", expand=True)
@@ -215,6 +254,9 @@ class ExpandedMainWindow:
 
         # Build dashboard view (default)
         self._build_dashboard_view()
+
+        # Register live-refresh callback for language changes
+        _i18n_register(self._on_lang_changed)
 
     def _build_dashboard_view(self):
         """Build the main dashboard view"""
@@ -288,8 +330,8 @@ class ExpandedMainWindow:
         # Back button
         back_btn = tk.Label(
             header,
-            text="← Dashboard",
-            font=("Segoe UI Semibold", 10),
+            text=f"<- {_t('nav.back_dashboard')}",
+            font=(_HDR, 10),
             bg="#0a0e14",
             fg="#8b5cf6",
             cursor="hand2",
@@ -317,7 +359,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text=title,
-            font=("Segoe UI Semibold", 16, "bold"),
+            font=(_HDR, 16, "bold"),
             bg="#0a0e14",
             fg="#ffffff"
         ).pack(side="left", padx=(20, 10), pady=15)
@@ -326,7 +368,7 @@ class ExpandedMainWindow:
             tk.Label(
                 header,
                 text=subtitle,
-                font=("Segoe UI", 10),
+                font=(_BODY, 10),
                 bg="#0a0e14",
                 fg="#6b7280"
             ).pack(side="left", pady=15)
@@ -370,7 +412,7 @@ class ExpandedMainWindow:
             tk.Label(
                 content,
                 text="Fan Dashboard loading...",
-                font=("Segoe UI", 12),
+                font=(_BODY, 12),
                 bg="#0f1117",
                 fg="#6b7280"
             ).pack(pady=50)
@@ -381,7 +423,7 @@ class ExpandedMainWindow:
         build_monitoring_alerts_page(self, self.content_area)
 
     def _build_first_setup_view(self):
-        """Build First Setup & Drivers page — driver health, startup, checklist."""
+        """Build First Setup & Drivers page - driver health, startup, checklist."""
         from ui.pages.first_setup_drivers import build_first_setup_page
         build_first_setup_page(self, self.content_area)
 
@@ -393,7 +435,7 @@ class ExpandedMainWindow:
         except Exception as e:
             import traceback
             err = tk.Label(self.content_area, text=f"Failed to load page:\n{e}",
-                           font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                           font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
                            justify="left", padx=20, pady=20)
             err.pack(anchor="nw")
             traceback.print_exc()
@@ -407,7 +449,7 @@ class ExpandedMainWindow:
         except Exception as e:
             import traceback
             tk.Label(self.content_area, text=f"Failed to load Startup Manager:\n{e}",
-                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                     font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
                      justify="left", padx=20, pady=20).pack(anchor="nw")
             traceback.print_exc()
 
@@ -420,7 +462,7 @@ class ExpandedMainWindow:
         except Exception as e:
             import traceback
             tk.Label(self.content_area, text=f"Failed to load Services Manager:\n{e}",
-                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444",
+                     font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
                      justify="left", padx=20, pady=20).pack(anchor="nw")
             traceback.print_exc()
 
@@ -527,7 +569,7 @@ class ExpandedMainWindow:
                 expanded_h=298,
                 max_h=438
             )
-            # Wire clickable nav links — [→ Optimization] / [→ Startup Manager]
+            # Wire clickable nav links - [-> Optimization] / [-> Startup Manager]
             try:
                 self.gpt_panel.register_nav_callback(
                     "Optimization",
@@ -546,7 +588,7 @@ class ExpandedMainWindow:
             banner.pack(fill="x", side="bottom")
             banner.pack_propagate(False)
             tk.Label(banner, text="hck_GPT - Your PC master!",
-                     font=("Segoe UI", 9, "bold"), bg="#8b5cf6", fg="#ffffff"
+                     font=(_BODY, 9, "bold"), bg="#8b5cf6", fg="#ffffff"
                      ).pack(side="left", padx=15, pady=5)
 
     def _build_header(self):
@@ -572,12 +614,13 @@ class ExpandedMainWindow:
         # Subtitle
         subtitle = tk.Label(
             left_frame,
-            text="Your PC Masterdude",
+            text=_t("dashboard.subtitle"),
             font=("Segoe UI Semilight", 13),  # Semilight for elegance!
             bg="#0a0e27",
             fg="#6366f1"
         )
         subtitle.pack(side="left", padx=(10, 0), pady=15)
+        self._header_subtitle_lbl = subtitle  # kept for live i18n refresh
 
         # Right side - Mini Monitor + Mode switcher
         right_frame = tk.Frame(header, bg="#0a0e27")
@@ -586,8 +629,8 @@ class ExpandedMainWindow:
         # Minimal mode button
         mode_btn = tk.Label(
             right_frame,
-            text="⚡ Minimal Mode",
-            font=("Segoe UI Semibold", 10, "bold"),  # Semibold for modern punch!
+            text=_t("dashboard.minimal_mode"),
+            font=(_HDR, 10, "bold"),  # Semibold for modern punch!
             bg="#1e293b",
             fg="#94a3b8",
             cursor="hand2",
@@ -596,6 +639,7 @@ class ExpandedMainWindow:
         )
         mode_btn.pack(side="right", pady=12)
         mode_btn.bind("<Button-1>", lambda e: self._switch_to_minimal())
+        self._mode_btn = mode_btn  # kept for live i18n refresh
 
         # Hover effect
         def on_enter(e):
@@ -618,16 +662,16 @@ class ExpandedMainWindow:
         left_nav.pack_propagate(False)
         self.guide_left_nav = left_nav   # used by LiveGuide spotlight
 
-        # Navigation buttons (left) — no section label, max space for buttons
+        # Navigation buttons (left) - no section label, max space for buttons
         nav_buttons_left = [
-            ("💻 My PC", "#3b82f6", "— Central"),
-            ("📡 Monitoring", "#8b5cf6", "Centrum"),
-            ("📊 AllMonitor", "#f97316", "see all min,max data"),
-            ("⚡ Optimization", "#10b981", ""),
+            (_t("dashboard.nav_my_pc"),        "#3b82f6", _t("dashboard.nav_sub_central"),    "your_pc"),
+            (_t("dashboard.nav_monitoring"),   "#8b5cf6", _t("dashboard.nav_sub_monitoring"), "sensors"),
+            (_t("dashboard.nav_allmonitor"),   "#f97316", _t("dashboard.nav_sub_allmonitor"), "live_graphs"),
+            (_t("dashboard.nav_optimization"), "#10b981", "",                                 "optimization"),
         ]
 
-        for text, color, subtitle in nav_buttons_left:
-            self._create_nav_button(left_nav, text, color, subtitle, pady=2)
+        for text, color, subtitle, pid in nav_buttons_left:
+            self._create_nav_button(left_nav, text, color, subtitle, pady=2, page_id=pid)
 
         # CENTER - SESSION AVERAGE BARS
         center = tk.Frame(middle, bg=THEME["bg_main"])
@@ -637,8 +681,8 @@ class ExpandedMainWindow:
         # Title - MINIMAL SPACING
         tk.Label(
             center,
-            text="SESSION AVERAGES",
-            font=("Segoe UI", 9, "bold"),
+            text=_t("dashboard.session_averages"),
+            font=(_BODY, 9, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"]
         ).pack(pady=(2, 5))
@@ -661,31 +705,21 @@ class ExpandedMainWindow:
         right_nav.pack_propagate(False)
         self.guide_right_nav = right_nav   # used by LiveGuide spotlight
 
-        # Navigation buttons (right) — no section label
+        # Navigation buttons (right) - no section label
         nav_buttons_right = [
-            ("🌀 FAN Dashboard", "#8b5cf6", "— Central"),
-            ("🚀 HCK_Labs", "#f59e0b", ""),
-            ("📖 Guide", "#06b6d4", ""),
+            (_t("dashboard.nav_fan_dashboard"), "#8b5cf6", _t("dashboard.nav_sub_fan"),     "fan_control"),
+            (_t("dashboard.nav_hck_labs"),      "#f59e0b", "",                              "hck_labs"),
+            (_t("dashboard.nav_guide"),         "#06b6d4", "",                              "guide"),
         ]
 
-        for text, color, subtitle in nav_buttons_right:
-            self._create_nav_button(right_nav, text, color, subtitle, pady=2)
+        for text, color, subtitle, pid in nav_buttons_right:
+            self._create_nav_button(right_nav, text, color, subtitle, pady=2, page_id=pid)
 
-    def _create_nav_button(self, parent, text, color, subtitle="", pady=4):
+    def _create_nav_button(self, parent, text, color, subtitle="", pady=4, page_id=None):
         """Dark gradient nav button: deep navy bg, bordeaux L-corner brackets, bold text."""
         btn_container = tk.Frame(parent, bg=THEME["bg_panel"])
         btn_container.pack(fill="x", padx=6, pady=pady)
 
-        page_map = {
-            "💻 My PC":         "your_pc",
-            "📡 Monitoring":    "sensors",
-            "📊 AllMonitor":    "live_graphs",
-            "⚡ Optimization":  "optimization",
-            "🌀 FAN Dashboard": "fan_control",
-            "🚀 HCK_Labs":      "hck_labs",
-            "📖 Guide":         "guide",
-        }
-        page_id    = page_map.get(text)
         clean_text = text.split(" ", 1)[-1] if " " in text else text
 
         # Accent color parsed to RGB for glow effect
@@ -715,7 +749,7 @@ class ExpandedMainWindow:
             # ── Background gradient ───────────────────────────────────────────
             # Normal: very dark navy  |  Hover: dark accent colour bleeds in
             STRIP = 3
-            # base dark colours (left → right endpoints)
+            # base dark colours (left -> right endpoints)
             base0 = (0x08, 0x0b, 0x18)
             base1 = (0x10, 0x16, 0x26)
             # target hover colours: darkened accent (≈30% of accent, rest black)
@@ -725,11 +759,11 @@ class ExpandedMainWindow:
 
             for x in range(0, w, STRIP):
                 t  = x / w
-                # interpolate base left→right
+                # interpolate base left->right
                 br = int(base0[0] + (base1[0] - base0[0]) * t)
                 bg_ = int(base0[1] + (base1[1] - base0[1]) * t)
                 bb = int(base0[2] + (base1[2] - base0[2]) * t)
-                # interpolate hover left→right
+                # interpolate hover left->right
                 hr_ = int(hov0[0] + (hov1[0] - hov0[0]) * t)
                 hg_ = int(hov0[1] + (hov1[1] - hov0[1]) * t)
                 hb_ = int(hov0[2] + (hov1[2] - hov0[2]) * t)
@@ -764,7 +798,7 @@ class ExpandedMainWindow:
                 canvas.create_line(xp, 0, xp, h,
                                    fill=f"#{r2:02x}{g2:02x}{b2:02x}")
 
-            # ── Bottom accent line: bordeaux→crimson, right 55% of button ────
+            # ── Bottom accent line: bordeaux->crimson, right 55% of button ────
             lx0 = int(w * 0.45)
             lw  = w - lx0
             for x in range(lx0, w):
@@ -786,7 +820,7 @@ class ExpandedMainWindow:
             canvas.create_rectangle(w - 5 - BW, h - 2 - CL, w - 5, h - 2, fill=bl, outline="")
             canvas.create_rectangle(w - 5 - CL, h - 2 - BW, w - 5, h - 2, fill=bl, outline="")
 
-            # ── Text — vertically centred with room to breathe ────────────────
+            # ── Text - vertically centred with room to breathe ────────────────
             tx = ICON_W + 14
             if subtitle:
                 # main text at 38% height, subtitle at 68%
@@ -806,7 +840,7 @@ class ExpandedMainWindow:
 
             if subtitle:
                 canvas.create_text(tx, ty_sub, text=subtitle,
-                                   font=("Segoe UI", 8),
+                                   font=(_BODY, 8),
                                    fill="#8490a8", anchor="w")
 
         def _draw_once():
@@ -831,7 +865,7 @@ class ExpandedMainWindow:
         lbl = tk.Label(
             row,
             text=label,
-            font=("Segoe UI", 8, "bold"),
+            font=(_BODY, 8, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"],
             width=4,
@@ -845,7 +879,7 @@ class ExpandedMainWindow:
         val_lbl = tk.Label(
             row,
             text="0%",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg=THEME["bg_main"],
             fg=color_start,
             width=4,
@@ -919,7 +953,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text=hw_type,
-            font=("Segoe UI", 7, "bold"),
+            font=(_BODY, 7, "bold"),
             bg=THEME["bg_panel"],
             fg=color,
             anchor="w"
@@ -928,7 +962,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text=model[:20],  # Shorter model name
-            font=("Segoe UI", 6),
+            font=(_BODY, 6),
             bg=THEME["bg_panel"],
             fg=THEME["muted"],
             anchor="w"
@@ -949,7 +983,7 @@ class ExpandedMainWindow:
         tk.Label(
             temp_frame,
             text="TEMP",
-            font=("Segoe UI", 5),
+            font=(_BODY, 5),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
         ).pack(side="left")
@@ -964,7 +998,7 @@ class ExpandedMainWindow:
         temp_label = tk.Label(
             temp_frame,
             text="0°C",
-            font=("Consolas", 6),
+            font=(_MONO, 6),
             bg=THEME["bg_panel"],
             fg=color,
             width=3
@@ -974,8 +1008,8 @@ class ExpandedMainWindow:
         # Health status - smaller font
         health_label = tk.Label(
             inner,
-            text="✓ All good",
-            font=("Segoe UI", 6),
+            text=_t("dashboard.status_all_good"),
+            font=(_BODY, 6),
             bg=THEME["bg_panel"],
             fg="#10b981",
             anchor="w"
@@ -985,8 +1019,8 @@ class ExpandedMainWindow:
         # Load status - smaller font
         load_label = tk.Label(
             inner,
-            text="No activity",
-            font=("Segoe UI", 6),
+            text=_t("dashboard.no_activity"),
+            font=(_BODY, 6),
             bg=THEME["bg_panel"],
             fg=THEME["muted"],
             anchor="w"
@@ -1023,8 +1057,8 @@ class ExpandedMainWindow:
 
         tk.Label(
             left_panel,
-            text="TOP 5 USER PROCESSES",
-            font=("Segoe UI", 8, "bold"),
+            text=_t("dashboard.top5_user_proc"),
+            font=(_BODY, 8, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
         ).pack(pady=(8, 5))
@@ -1063,7 +1097,7 @@ class ExpandedMainWindow:
         # Trigger chart draw once canvas actually has dimensions
         self.realtime_canvas.bind('<Configure>', self._on_chart_configure)
 
-        # chart_data / chart_max_samples persist from __init__ — do NOT reset here.
+        # chart_data / chart_max_samples persist from __init__ - do NOT reset here.
         # The LIVE buffer survives view switches so the chart never starts blank.
         self._chart_after_id = None   # reset so _schedule_chart_update works on new canvas
 
@@ -1075,19 +1109,21 @@ class ExpandedMainWindow:
         metrics_frame.pack(fill="x")
         metrics_frame.pack_propagate(False)
 
-        tk.Label(
+        _cur_lbl = tk.Label(
             metrics_frame,
-            text="CURRENT USAGE:",
-            font=("Segoe UI", 7, "bold"),
+            text=_t("dashboard.current_usage_label"),
+            font=(_BODY, 7, "bold"),
             bg="#1a1d24",
             fg="#6b7280"
-        ).pack(side="left", padx=(10, 15))
+        )
+        _cur_lbl.pack(side="left", padx=(10, 15))
+        self._current_usage_lbl = _cur_lbl  # kept for live i18n refresh
 
         # CPU metric
         self.live_cpu_label = tk.Label(
             metrics_frame,
             text="CPU: 0%",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg="#1a1d24",
             fg="#3b82f6"
         )
@@ -1097,7 +1133,7 @@ class ExpandedMainWindow:
         self.live_gpu_label = tk.Label(
             metrics_frame,
             text="GPU: 0%",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg="#1a1d24",
             fg="#10b981"
         )
@@ -1107,13 +1143,13 @@ class ExpandedMainWindow:
         self.live_ram_label = tk.Label(
             metrics_frame,
             text="RAM: 0%",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg="#1a1d24",
             fg="#fbbf24"
         )
         self.live_ram_label.pack(side="left", padx=8)
 
-        # Time filter buttons (chart_filter persists from __init__ — not reset on view switch)
+        # Time filter buttons (chart_filter persists from __init__ - not reset on view switch)
 
         # Separator (visual space)
         tk.Frame(metrics_frame, bg="#1a1d24", width=2).pack(side="left", padx=10)
@@ -1125,7 +1161,7 @@ class ExpandedMainWindow:
         # Create filter buttons - real-time + historical from SQLite
         filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
         self.filter_buttons = {}
-        # Historical data cache — reset on dashboard rebuild (new canvas, reload needed)
+        # Historical data cache - reset on dashboard rebuild (new canvas, reload needed)
         self._historical_chart_data = None
 
         for idx, filter_name in enumerate(filter_options):
@@ -1133,7 +1169,7 @@ class ExpandedMainWindow:
             btn = tk.Label(
                 filter_btns,
                 text=filter_name,
-                font=("Segoe UI", 6, "bold"),
+                font=(_BODY, 6, "bold"),
                 bg="#2563eb" if _active else "#000000",
                 fg="#ffffff"  if _active else "#6b7280",
                 cursor="hand2",
@@ -1157,7 +1193,7 @@ class ExpandedMainWindow:
                         self._load_historical_chart_data(f_name)
                     else:
                         self._historical_chart_data = None
-                    # Immediate redraw — don't wait for 2s timer
+                    # Immediate redraw - don't wait for 2s timer
                     self._schedule_chart_update(50)
                 return on_click
 
@@ -1188,8 +1224,8 @@ class ExpandedMainWindow:
 
         tk.Label(
             right_panel,
-            text="TOP 5 SYSTEM PROCESSES",
-            font=("Segoe UI", 8, "bold"),
+            text=_t("dashboard.top5_sys_proc"),
+            font=(_BODY, 8, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
         ).pack(pady=(8, 5))
@@ -1200,7 +1236,7 @@ class ExpandedMainWindow:
         self.expanded_sys_widgets = []
 
     def _build_feature_buttons(self, parent):
-        """Build feature buttons — Turbo Boost & More Optimization Tools."""
+        """Build feature buttons - Turbo Boost & More Optimization Tools."""
         buttons_container = tk.Frame(parent, bg=THEME["bg_main"])
         buttons_container.pack(fill="x", pady=(8, 0))
 
@@ -1208,12 +1244,12 @@ class ExpandedMainWindow:
         buttons_row = tk.Frame(buttons_container, bg=THEME["bg_main"])
         buttons_row.pack(fill="x", padx=5)
 
-        # Left: Turbo Boost — COMING SOON (greyed out)
+        # Left: Turbo Boost - COMING SOON (greyed out)
         turbo_btn = tk.Frame(buttons_row, bg="#2a2d35")
         turbo_btn.pack(side="left", fill="both", expand=True, padx=(0, 3))
 
         turbo_content = tk.Frame(turbo_btn, bg="#1e2028")
-        turbo_content.pack(fill="both", expand=True, padx=2, pady=2)
+        turbo_content.pack(fill="x", padx=2, pady=2)
 
         turbo_header = tk.Frame(turbo_content, bg="#2a2d35")
         turbo_header.pack(fill="x", padx=8, pady=(6, 4))
@@ -1221,7 +1257,7 @@ class ExpandedMainWindow:
         tk.Label(
             turbo_header,
             text="Turbo Boost:",
-            font=("Segoe UI", 11, "bold"),
+            font=(_BODY, 11, "bold"),
             bg="#2a2d35",
             fg="#6b7280",
             padx=6, pady=2
@@ -1230,7 +1266,7 @@ class ExpandedMainWindow:
         tk.Label(
             turbo_header,
             text="OFF",
-            font=("Segoe UI", 11, "bold"),
+            font=(_BODY, 11, "bold"),
             bg="#2a2d35",
             fg="#4b5563",
             padx=4, pady=2
@@ -1246,7 +1282,7 @@ class ExpandedMainWindow:
         tk.Label(
             turbo_actions,
             text="Configure",
-            font=("Segoe UI", 7, "bold"),
+            font=(_BODY, 7, "bold"),
             bg="#374151", fg="#6b7280",
             padx=8, pady=3
         ).pack(side="left")
@@ -1254,7 +1290,7 @@ class ExpandedMainWindow:
         tk.Label(
             turbo_actions,
             text="Launch",
-            font=("Segoe UI", 7, "bold"),
+            font=(_BODY, 7, "bold"),
             bg="#374151", fg="#6b7280",
             padx=10, pady=3
         ).pack(side="right")
@@ -1263,7 +1299,7 @@ class ExpandedMainWindow:
         _tip = tk.Label(
             self.root,
             text="Coming soon…\nCheck Optimization Center for features",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg="#1c1f27", fg="#94a3b8",
             padx=10, pady=8,
             justify="center",
@@ -1285,69 +1321,78 @@ class ExpandedMainWindow:
             w.bind("<Enter>", _show_tip, add="+")
             w.bind("<Leave>", _hide_tip, add="+")
 
-        # === RIGHT: OPTIMIZATION CENTER (subtle link-style) ===
-        _OC_BG   = "#0c1018"
-        _OC_BD   = "#1a2235"
-        _OC_TEXT = "#3d5070"
-        _OC_HOV  = "#5a7499"
+        # === RIGHT: OPTIMIZATION CENTER ===
+        _OC_BG    = "#0c1018"
+        _OC_BD    = "#1c2840"    # slightly richer border
+        _OC_BD_H  = "#2e4878"    # hover border (brighter blue)
+        _OC_TEXT  = "#4a7ab5"    # visible but subtle blue
+        _OC_HOV   = "#7ab0e8"    # nice hover blue
+        _OC_ICON  = "#2d5080"    # icon color
+        _OC_SUB   = "#2a4a6a"    # subtitle color
+        _OC_PATH  = "#1e3550"    # path color
 
-        optim_btn = tk.Frame(buttons_row,
-                             bg=_OC_BD, cursor="hand2")
+        optim_btn = tk.Frame(buttons_row, bg=_OC_BD, cursor="hand2")
         optim_btn.pack(side="right", fill="both", expand=True, padx=(3, 0))
 
         optim_content = tk.Frame(optim_btn, bg=_OC_BG)
-        optim_content.pack(fill="both", expand=True, padx=1, pady=1)
+        optim_content.pack(fill="x", padx=1, pady=1)
 
-        # Thin top accent — dark violet
-        tk.Frame(optim_content, bg="#2a1f4a", height=2).pack(fill="x")
+        # Top accent bar - medium violet-blue
+        tk.Frame(optim_content, bg="#2e4878", height=2).pack(fill="x")
 
         optim_inner = tk.Frame(optim_content, bg=_OC_BG)
-        optim_inner.pack(fill="both", expand=True, padx=10, pady=6)
+        optim_inner.pack(fill="x", padx=10, pady=(6, 8))
 
-        # Icon + label row
+        # Icon + label row (20% bigger font: 9 -> 11)
         hdr_row = tk.Frame(optim_inner, bg=_OC_BG)
         hdr_row.pack(anchor="w")
-        tk.Label(hdr_row, text="⚡", font=("Segoe UI", 9),
-                 bg=_OC_BG, fg="#2a3a5a").pack(side="left", padx=(0, 5))
+        tk.Label(hdr_row, text="⚡", font=(_BODY, 11),
+                 bg=_OC_BG, fg=_OC_ICON).pack(side="left", padx=(0, 5))
         optim_title = tk.Label(
             hdr_row,
-            text="Optimization Center",
-            font=("Segoe UI Semibold", 9),
+            text=_t("dashboard.opt_center_label"),
+            font=(_HDR, 11),   # 22% bigger than original 9
             bg=_OC_BG, fg=_OC_TEXT, cursor="hand2",
         )
         optim_title.pack(side="left")
 
-        # Subtitle
+        # Path subtitle
         tk.Label(
             optim_inner,
-            text="Hardware & Health  →  My PC",
-            font=("Segoe UI", 7),
-            bg=_OC_BG, fg="#242e40",
+            text=f"Hardware & Health  ->  {_t('nav.my_pc')}",
+            font=(_BODY, 7),
+            bg=_OC_BG, fg=_OC_PATH,
         ).pack(anchor="w", pady=(1, 0))
 
+        # "Everything about optimizing" tagline
+        tk.Label(
+            optim_inner,
+            text=_t("dashboard.opt_center_sub"),
+            font=(_BODY, 7, "italic"),
+            bg=_OC_BG, fg=_OC_SUB,
+        ).pack(anchor="w", pady=(2, 0))
+
         # Thin bottom separator
-        tk.Frame(optim_content, bg=_OC_BD, height=1).pack(fill="x", side="bottom")
+        tk.Frame(optim_content, bg=_OC_BD, height=1).pack(fill="x")
 
-        # Active tools counter (kept for reference)
-        self.tools_label = tk.Label(optim_inner, text="",
-                                    font=("Segoe UI", 6),
-                                    bg=_OC_BG, fg="#1e2a3a")
-        self.tools_label.pack(anchor="w")
-        self.tools_count_label = tk.Label(optim_inner, text="",
-                                          font=("Segoe UI", 6),
-                                          bg=_OC_BG, fg="#1e2a3a")
-        self.tools_count_label.pack()
+        # Keep attribute refs for compatibility (zero-size)
+        self.tools_label       = tk.Label(optim_inner, text="", height=0,
+                                          font=(_BODY, 1), bg=_OC_BG, fg=_OC_BG)
+        self.tools_count_label = tk.Label(optim_inner, text="", height=0,
+                                          font=(_BODY, 1), bg=_OC_BG, fg=_OC_BG)
 
-        # Navigation → My PC (Hardware & Health)
+        # Navigation -> My PC (Hardware & Health)
         def _go_hardware(e=None):
             self._switch_to_page("your_pc")
 
         def _oc_enter(e):
             optim_title.config(fg=_OC_HOV)
-            optim_btn.config(bg="#253550")
+            optim_btn.config(bg=_OC_BD_H)
+            optim_content.config(bg="#0f1825")
         def _oc_leave(e):
             optim_title.config(fg=_OC_TEXT)
             optim_btn.config(bg=_OC_BD)
+            optim_content.config(bg=_OC_BG)
 
         for w in (optim_btn, optim_content, optim_inner, hdr_row, optim_title):
             w.bind("<Button-1>", _go_hardware, add="+")
@@ -1409,7 +1454,7 @@ class ExpandedMainWindow:
         # Thin accent line at top
         tk.Frame(panel, bg="#8b5cf6", height=1).pack(fill="x")
 
-        # Text display area — fills entire panel
+        # Text display area - fills entire panel
         text_area = tk.Frame(panel, bg="#0f1117")
         text_area.pack(fill="both", expand=True, padx=4, pady=2)
 
@@ -1420,7 +1465,7 @@ class ExpandedMainWindow:
         self.ai_text_label = tk.Label(
             self.ai_text_container,
             text="",
-            font=("Consolas", 8),
+            font=(_MONO, 8),
             bg="#0f1117",
             fg="#a78bfa",
             wraplength=200,
@@ -1433,15 +1478,15 @@ class ExpandedMainWindow:
         self.ai_cursor = tk.Label(
             self.ai_text_container,
             text="|",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg="#0f1117",
             fg="#a78bfa"
         )
         self.ai_cursor.pack(side="left", anchor="n")
 
-        # Messages — shorter, punchier
+        # Messages - shorter, punchier
         self.ai_messages = [
-            "PC Workman — by Marcin 'HCK' Firmuga",
+            "PC Workman - by Marcin 'HCK' Firmuga",
             "16 optimization tools, one-click setup.",
             "Built with heart from the Netherlands.",
             "Your PC, Smarter. Always watching.",
@@ -1524,7 +1569,7 @@ class ExpandedMainWindow:
 
 
     def _render_expanded_user_processes(self, procs):
-        """Render TOP 5 user processes — 2-line rows with animated bars."""
+        """Render TOP 5 user processes - 2-line rows with animated bars."""
         if not hasattr(self, 'expanded_user_container'):
             return
         try:
@@ -1545,17 +1590,17 @@ class ExpandedMainWindow:
                 row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
 
-                # Line 1 — process name
+                # Line 1 - process name
                 top_line = tk.Frame(row, bg=row_bg)
                 top_line.pack(fill="x", padx=6, pady=(4, 0))
 
                 name_lbl = tk.Label(
-                    top_line, text="", font=("Segoe UI", 7, "bold"),
+                    top_line, text="", font=(_BODY, 7, "bold"),
                     bg=row_bg, fg=THEME["text"], anchor="w"
                 )
                 name_lbl.pack(side="left")
 
-                # Line 2 — CPU + RAM bars
+                # Line 2 - CPU + RAM bars
                 bars_line = tk.Frame(row, bg=row_bg)
                 bars_line.pack(fill="x", padx=6, pady=(2, 4))
 
@@ -1563,13 +1608,13 @@ class ExpandedMainWindow:
                 cpu_half = tk.Frame(bars_line, bg=row_bg)
                 cpu_half.pack(side="left", fill="x", expand=True)
 
-                tk.Label(cpu_half, text="CPU", font=("Segoe UI", 6, "bold"),
+                tk.Label(cpu_half, text="CPU", font=(_BODY, 6, "bold"),
                          bg=row_bg, fg="#3b82f6").pack(side="left")
 
                 cpu_bar = AnimatedBar(cpu_half, "#3b82f6", bg_color="#0d1117", height=5)
                 cpu_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
 
-                cpu_val = tk.Label(cpu_half, text="0%", font=("Consolas", 6),
+                cpu_val = tk.Label(cpu_half, text="0%", font=(_MONO, 6),
                                    bg=row_bg, fg="#3b82f6", width=3, anchor="e")
                 cpu_val.pack(side="left")
 
@@ -1581,13 +1626,13 @@ class ExpandedMainWindow:
                 ram_half = tk.Frame(bars_line, bg=row_bg)
                 ram_half.pack(side="left", fill="x", expand=True)
 
-                tk.Label(ram_half, text="RAM", font=("Segoe UI", 6, "bold"),
+                tk.Label(ram_half, text="RAM", font=(_BODY, 6, "bold"),
                          bg=row_bg, fg="#fbbf24").pack(side="left")
 
                 ram_bar = AnimatedBar(ram_half, "#fbbf24", bg_color="#0d1117", height=5)
                 ram_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
 
-                ram_val = tk.Label(ram_half, text="0%", font=("Consolas", 6),
+                ram_val = tk.Label(ram_half, text="0%", font=(_MONO, 6),
                                    bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
@@ -1638,7 +1683,7 @@ class ExpandedMainWindow:
                 widget_data["ram_val"].config(text="")
 
     def _render_expanded_system_processes(self, procs):
-        """Render TOP 5 system processes — reuse widgets instead of destroy/recreate"""
+        """Render TOP 5 system processes - reuse widgets instead of destroy/recreate"""
         if not hasattr(self, 'expanded_sys_container'):
             return
         try:
@@ -1659,17 +1704,17 @@ class ExpandedMainWindow:
                 row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
 
-                # Line 1 — process name
+                # Line 1 - process name
                 top_line = tk.Frame(row, bg=row_bg)
                 top_line.pack(fill="x", padx=6, pady=(4, 0))
 
                 name_lbl = tk.Label(
-                    top_line, text="", font=("Segoe UI", 7, "bold"),
+                    top_line, text="", font=(_BODY, 7, "bold"),
                     bg=row_bg, fg=THEME["text"], anchor="w"
                 )
                 name_lbl.pack(side="left")
 
-                # Line 2 — CPU + RAM bars
+                # Line 2 - CPU + RAM bars
                 bars_line = tk.Frame(row, bg=row_bg)
                 bars_line.pack(fill="x", padx=6, pady=(2, 4))
 
@@ -1677,13 +1722,13 @@ class ExpandedMainWindow:
                 cpu_half = tk.Frame(bars_line, bg=row_bg)
                 cpu_half.pack(side="left", fill="x", expand=True)
 
-                tk.Label(cpu_half, text="CPU", font=("Segoe UI", 6, "bold"),
+                tk.Label(cpu_half, text="CPU", font=(_BODY, 6, "bold"),
                          bg=row_bg, fg="#3b82f6").pack(side="left")
 
                 cpu_bar = AnimatedBar(cpu_half, "#3b82f6", bg_color="#0d1117", height=5)
                 cpu_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
 
-                cpu_val = tk.Label(cpu_half, text="0%", font=("Consolas", 6),
+                cpu_val = tk.Label(cpu_half, text="0%", font=(_MONO, 6),
                                    bg=row_bg, fg="#3b82f6", width=3, anchor="e")
                 cpu_val.pack(side="left")
 
@@ -1695,13 +1740,13 @@ class ExpandedMainWindow:
                 ram_half = tk.Frame(bars_line, bg=row_bg)
                 ram_half.pack(side="left", fill="x", expand=True)
 
-                tk.Label(ram_half, text="RAM", font=("Segoe UI", 6, "bold"),
+                tk.Label(ram_half, text="RAM", font=(_BODY, 6, "bold"),
                          bg=row_bg, fg="#fbbf24").pack(side="left")
 
                 ram_bar = AnimatedBar(ram_half, "#fbbf24", bg_color="#0d1117", height=5)
                 ram_bar.bg_frame.pack(side="left", fill="x", expand=True, padx=(3, 2))
 
-                ram_val = tk.Label(ram_half, text="0%", font=("Consolas", 6),
+                ram_val = tk.Label(ram_half, text="0%", font=(_MONO, 6),
                                    bg=row_bg, fg="#fbbf24", width=3, anchor="e")
                 ram_val.pack(side="left")
 
@@ -1766,7 +1811,7 @@ class ExpandedMainWindow:
         val_lbl = tk.Label(
             parent,
             text=text,
-            font=("Consolas", 6),
+            font=(_MONO, 6),
             bg=bg,
             fg=color,
             width=4,
@@ -1817,7 +1862,7 @@ class ExpandedMainWindow:
             self.tray_manager = None
 
     def _on_closing(self):
-        """Handle window close (X button) → Minimize to tray (NOT EXIT!)"""
+        """Handle window close (X button) -> Minimize to tray (NOT EXIT!)"""
         print("[ExpandedMode] Minimizing to tray (X clicked) - Program stays running!")
 
         # Show background notification
@@ -1827,7 +1872,7 @@ class ExpandedMainWindow:
                 "_________________________\n\n"
                 "HCK_Labs\n"
                 "_________________________\n\n"
-                "Right-click tray icon → Exit to close"
+                "Right-click tray icon -> Exit to close"
             )
             ToastNotification.show(
                 "PC_Workman Background Mode",
@@ -1840,7 +1885,7 @@ class ExpandedMainWindow:
         print("[ExpandedMode] Window hidden - running in background!")
 
     def _restore_from_tray(self):
-        """Restore window from system tray → Expanded Mode"""
+        """Restore window from system tray -> Expanded Mode"""
         print("[ExpandedMode] Restoring from tray")
         self.root.deiconify()
         self.root.lift()
@@ -1862,6 +1907,19 @@ class ExpandedMainWindow:
                 self.root.destroy()
             except:
                 pass
+
+    def _on_lang_changed(self) -> None:
+        """Called by i18n.set_lang() - refresh live dashboard labels immediately."""
+        _safe = lambda w, **kw: (w.config(**kw) if w.winfo_exists() else None)
+        try:
+            if hasattr(self, "_mode_btn"):
+                _safe(self._mode_btn, text=_t("dashboard.minimal_mode"))
+            if hasattr(self, "_header_subtitle_lbl"):
+                _safe(self._header_subtitle_lbl, text=_t("dashboard.subtitle"))
+            if hasattr(self, "_current_usage_lbl"):
+                _safe(self._current_usage_lbl, text=_t("dashboard.current_usage_label"))
+        except Exception as exc:
+            print(f"[i18n] dashboard live-refresh error: {exc}")
 
     def _switch_to_minimal(self):
         """Switch to minimal mode (⚡ Minimal Mode button)"""
@@ -1887,7 +1945,7 @@ class ExpandedMainWindow:
         return self._total_ram_mb_cache
 
     def _update_loop(self):
-        """Update loop — 1s cadence, lightweight label updates only."""
+        """Update loop - 1s cadence, lightweight label updates only."""
         if not self._running:
             return
 
@@ -1946,7 +2004,7 @@ class ExpandedMainWindow:
             import traceback
             traceback.print_exc()
 
-        # 1-second cadence (was 300ms — main lag source)
+        # 1-second cadence (was 300ms - main lag source)
         if self._running:
             self.root.after(1000, self._update_loop)
 
@@ -2104,7 +2162,7 @@ class ExpandedMainWindow:
                 canvas.create_text(
                     width // 2, height // 2,
                     text="Collecting data...",
-                    fill="#2a2d34", font=("Segoe UI", 9), tags="placeholder"
+                    fill="#2a2d34", font=(_BODY, 9), tags="placeholder"
                 )
                 self._schedule_chart_update(500)
                 return
@@ -2137,7 +2195,7 @@ class ExpandedMainWindow:
                     self._chart_items['gpu'].append(gid)
                 self._chart_last_num = num
 
-            # Update bar positions — animate newest bar when a new sample arrived
+            # Update bar positions - animate newest bar when a new sample arrived
             last = num - 1
             update_range = range(num) if not _new_bar_added else range(num - 1)
             for i in update_range:
@@ -2183,7 +2241,7 @@ class ExpandedMainWindow:
         self._tick_bar_grow_anim()
 
     def _tick_bar_grow_anim(self):
-        """Animation tick — runs at ~60 fps until the bar reaches full height."""
+        """Animation tick - runs at ~60 fps until the bar reaches full height."""
         import time as _time
         s = getattr(self, '_bar_anim', None)
         if not s:
@@ -2263,21 +2321,21 @@ class ExpandedMainWindow:
         card["temp_label"].config(text=f"{temp:.0f}°C")
         card["temp_bar"].place(relwidth=min(temp / 100, 1.0))
 
-        # Update health status - SHORTER TEXTS
+        # Update health status
         if value < 85:
-            card["health_label"].config(text="✓ All good", fg="#10b981")
+            card["health_label"].config(text=_t("dashboard.status_all_good"),    fg="#10b981")
         else:
-            card["health_label"].config(text="⚠ Inspekcja", fg="#f59e0b")
+            card["health_label"].config(text=_t("dashboard.status_needs_check"), fg="#f59e0b")
 
-        # Update load status - SHORTER TEXTS
+        # Update load status
         if value < 10:
-            card["load_label"].config(text="No activity", fg=THEME["muted"])
+            card["load_label"].config(text=_t("dashboard.no_activity"),    fg=THEME["muted"])
         elif value < 50:
-            card["load_label"].config(text="Standard", fg="#3b82f6")
+            card["load_label"].config(text=_t("dashboard.status_standard"), fg="#3b82f6")
         elif value < 80:
-            card["load_label"].config(text="Nadmierne", fg="#f59e0b")
+            card["load_label"].config(text=_t("dashboard.status_heavy"),    fg="#f59e0b")
         else:
-            card["load_label"].config(text="Maksymalne", fg="#ef4444")
+            card["load_label"].config(text=_t("dashboard.status_max"),      fg="#ef4444")
 
     def _draw_sparkline(self, canvas, data, color):
         """Draw mini sparkline chart"""
@@ -2462,7 +2520,7 @@ class ExpandedMainWindow:
         close_btn = tk.Label(
             header,
             text="✕",
-            font=("Segoe UI", 18, "bold"),
+            font=(_BODY, 18, "bold"),
             bg="#1a1d24",
             fg="#64748b",
             cursor="hand2",
@@ -2482,8 +2540,8 @@ class ExpandedMainWindow:
         # Dashboard Back! button (LEFT of X)
         back_btn = tk.Label(
             header,
-            text="⬅ Dashboard",
-            font=("Segoe UI", 9, "bold"),
+            text=f"⬅ {_t('nav.back_dashboard')}",
+            font=(_BODY, 9, "bold"),
             bg="#1a1d24",
             fg="#64748b",
             cursor="hand2",
@@ -2500,25 +2558,26 @@ class ExpandedMainWindow:
         back_btn.bind("<Enter>", on_enter_back)
         back_btn.bind("<Leave>", on_leave_back)
 
-        # Title
+        # Title (i18n-aware)
         title_map = {
-            "your_pc": "💻 My PC - Hardware & Health",
-            "sensors": "📡 MONITORING — Centrum",
-            "live_graphs": "💻 My PC - Hardware & Health",
-            "optimization": "⚡ System Optimization",
-            "statistics": "📊 Detailed Statistics",
-            "fan_control": "🌀 Fan Dashboard",
-            "fans_hardware": "❊ FANS - Hardware Info",
-            "fans_usage_stats": "📊 Usage Statistics",
-            "hck_labs": "🚀 HCK Labs",
-            "guide": "📖 Program Guide"
+            "your_pc":          f"💻 {_t('nav.my_pc')} - {_t('my_pc.central_title')}",
+            "sensors":          f"📡 {_t('nav.monitoring')} - {_t('monitoring.alerts_title')}",
+            "live_graphs":      f"💻 {_t('nav.my_pc')} - {_t('my_pc.central_title')}",
+            "optimization":     f"⚡ {_t('optimization.page_title')}",
+            "statistics":       f"📊 {_t('statistics.page_title')}",
+            "fan_control":      f"🌀 {_t('fan_control.page_title')}",
+            "fans_hardware":    f"❊ {_t('nav.fan_control_hardware')}",
+            "fans_usage_stats": f"📊 {_t('nav.fan_control_usage')}",
+            "hck_labs":         "🚀 HCK Labs",
+            "guide":            f"📖 {_t('guide.title')}",
+            "settings":         f"⚙ {_t('nav.settings')}",
         }
 
         title_text = title_map.get(page_id, "Page")
         title = tk.Label(
             header,
             text=title_text,
-            font=("Segoe UI", 14, "bold"),
+            font=(_BODY, 14, "bold"),
             bg="#1a1d24",
             fg="#ffffff",
             anchor="w"
@@ -2551,23 +2610,36 @@ class ExpandedMainWindow:
             self._build_hcklabs_page(content_frame)
         elif page_id == "guide":
             self._build_guide_page(content_frame)
+        elif page_id == "settings":
+            try:
+                from ui.pages.settings_page import SettingsPage
+                # show_header=False: overlay already shows "⚙ Settings" in its own header
+                sp = SettingsPage(content_frame, show_header=False, app=self)
+                sp.frame.pack(fill="both", expand=True)
+            except Exception as _se:
+                import traceback
+                tk.Label(content_frame,
+                         text=f"Settings error:\n{_se}",
+                         font=(_BODY, 10), bg="#0f1117", fg="#ef4444",
+                         justify="left", padx=20, pady=20).pack(anchor="nw")
+                traceback.print_exc()
 
     # ========== PAGE BUILDERS ==========
 
     def _build_monitoring_sensors_page(self, parent):
-        """MONITORING — Centrum: loads Monitoring & Alerts page"""
+        """MONITORING - Centrum: loads Monitoring & Alerts page"""
         try:
             from ui.pages.monitoring_alerts import build_monitoring_alerts_page
             build_monitoring_alerts_page(self, parent)
         except Exception as e:
             import traceback
             tk.Label(parent, text=f"Monitoring page error:\n{e}",
-                     font=("Segoe UI", 10), bg="#0f1117", fg="#ef4444",
+                     font=(_BODY, 10), bg="#0f1117", fg="#ef4444",
                      justify="left").pack(anchor="nw", padx=20, pady=20)
             traceback.print_exc()
 
     def _build_live_graphs_page(self, parent):
-        """AllMonitor — opens My PC overlay then immediately shows HW table popup"""
+        """DeepMonitor - opens My PC overlay then immediately shows HW table popup"""
         # Close current overlay, open your_pc, then trigger table popup
         self._close_overlay()
         self._show_overlay("your_pc")
@@ -2679,7 +2751,7 @@ class ExpandedMainWindow:
             title_lbl = tk.Label(
                 header,
                 text=rec["title"],
-                font=("Segoe UI", 12, "bold"),
+                font=(_BODY, 12, "bold"),
                 bg=color,
                 fg="#ffffff"
             )
@@ -2693,7 +2765,7 @@ class ExpandedMainWindow:
                 bullet = tk.Label(
                     tip_frame,
                     text="•",
-                    font=("Segoe UI", 12, "bold"),
+                    font=(_BODY, 12, "bold"),
                     bg="#1a1d24",
                     fg=color
                 )
@@ -2702,7 +2774,7 @@ class ExpandedMainWindow:
                 tip_lbl = tk.Label(
                     tip_frame,
                     text=tip,
-                    font=("Segoe UI", 10),
+                    font=(_BODY, 10),
                     bg="#1a1d24",
                     fg="#94a3b8",
                     anchor="w",
@@ -2719,14 +2791,14 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text="📊 STATISTICS\n\nDetailed stats coming soon...",
-            font=("Segoe UI", 12),
+            font=(_BODY, 12),
             bg="#0f1117",
             fg="#64748b",
             justify="center"
         ).pack(expand=True)
 
     def _build_hcklabs_page(self, parent):
-        """HCK Labs — minimalist blog style"""
+        """HCK Labs - minimalist blog style"""
         BG      = "#080b10"
         CARD    = "#0e1118"
         BORDER  = "#181d2e"
@@ -2762,14 +2834,14 @@ class ExpandedMainWindow:
         tk.Label(hero_inner, text="HCK_Labs", font=("Segoe UI Light", 30),
                  bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
         tk.Label(hero_inner, text="Engineering · Monitoring · Intelligence",
-                 font=("Segoe UI", 11), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 14))
+                 font=(_BODY, 11), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 14))
 
         # Quick action row
         btn_row = tk.Frame(hero_inner, bg=CARD)
         btn_row.pack(anchor="w")
 
         def _make_hero_btn(p, label, color, cmd):
-            b = tk.Label(p, text=label, font=("Segoe UI Semibold", 9, "bold"),
+            b = tk.Label(p, text=label, font=(_HDR, 9, "bold"),
                          bg=color, fg="#000000" if color in (AMBER, EMERALD) else "#ffffff",
                          padx=16, pady=7, cursor="hand2")
             b.pack(side="left", padx=(0, 10))
@@ -2787,10 +2859,10 @@ class ExpandedMainWindow:
         def _section(title, subtitle=None):
             wrap = tk.Frame(sf, bg=BG)
             wrap.pack(fill="x", padx=24, pady=(22, 0))
-            tk.Label(wrap, text=title, font=("Segoe UI Semibold", 13, "bold"),
+            tk.Label(wrap, text=title, font=(_HDR, 13, "bold"),
                      bg=BG, fg=TEXT, anchor="w").pack(anchor="w")
             if subtitle:
-                tk.Label(wrap, text=subtitle, font=("Segoe UI", 9),
+                tk.Label(wrap, text=subtitle, font=(_BODY, 9),
                          bg=BG, fg=MUTED, anchor="w").pack(anchor="w", pady=(1, 0))
             tk.Frame(wrap, bg=BORDER, height=1).pack(fill="x", pady=(8, 0))
             return wrap
@@ -2801,30 +2873,30 @@ class ExpandedMainWindow:
             tk.Frame(frame, bg=accent, height=3).pack(fill="x")
             inner = tk.Frame(frame, bg=CARD)
             inner.pack(fill="both", expand=True, padx=14, pady=12)
-            tk.Label(inner, text=title, font=("Segoe UI Semibold", 10, "bold"),
+            tk.Label(inner, text=title, font=(_HDR, 10, "bold"),
                      bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
-            tk.Label(inner, text=body, font=("Segoe UI", 9), bg=CARD, fg=DIM,
+            tk.Label(inner, text=body, font=(_BODY, 9), bg=CARD, fg=DIM,
                      anchor="w", justify="left", wraplength=280).pack(anchor="w", pady=(4, 0))
 
         _section("About", "What PC_Workman is and why it exists")
         about_row = tk.Frame(sf, bg=BG)
         about_row.pack(fill="x", padx=24)
         _card(about_row, BLUE, "Mission",
-              "Make system monitoring accessible, beautiful, and intelligent for everyone — not just power users.")
+              "Make system monitoring accessible, beautiful, and intelligent for everyone - not just power users.")
         _card(about_row, VIOLET, "Inspiration",
               "Designed with learnings from Tesla UI, Apple macOS, and MSI Afterburner. Calm, dense, and fast.")
         _card(about_row, EMERALD, "Philosophy",
-              "Local-first. No cloud. No telemetry. Everything runs on your machine — configure once, runs forever.")
+              "Local-first. No cloud. No telemetry. Everything runs on your machine - configure once, runs forever.")
 
         # ── FEATURES GRID ───────────────────────────────────────────────────
         _section("What makes it different")
         features = [
-            (AMBER,   "Dual-Mode",        "Minimal widget + full control center — switch instantly"),
-            (VIOLET,  "HCK_GPT",          "Local AI insights, habit tracking, anomaly alerts — no API key"),
-            (BLUE,    "Stats Engine v2",   "SQLite pipeline: minute → hourly → daily → monthly retention"),
-            (EMERALD, "Auto Optimization", "RAM flush, DNS cache, temp files, process priority — automated & silent"),
+            (AMBER,   "Dual-Mode",        "Minimal widget + full control center - switch instantly"),
+            (VIOLET,  "HCK_GPT",          "Local AI insights, habit tracking, anomaly alerts - no API key"),
+            (BLUE,    "Stats Engine v2",   "SQLite pipeline: minute -> hourly -> daily -> monthly retention"),
+            (EMERALD, "Auto Optimization", "RAM flush, DNS cache, temp files, process priority - automated & silent"),
             ("#ef4444","Time-Travel Stats","Click any historical point to see what was running then"),
-            (DIM,     "Universal HW",      "All CPUs, all GPUs, all configs — no driver dependencies"),
+            (DIM,     "Universal HW",      "All CPUs, all GPUs, all configs - no driver dependencies"),
         ]
         grid_outer = tk.Frame(sf, bg=BG)
         grid_outer.pack(fill="x", padx=24)
@@ -2850,9 +2922,9 @@ class ExpandedMainWindow:
             bg_row = CARD if i % 2 == 0 else "#0a0d13"
             r = tk.Frame(comp_wrap, bg=bg_row)
             r.pack(fill="x")
-            tk.Label(r, text=vs, font=("Segoe UI Semibold", 9, "bold"),
+            tk.Label(r, text=vs, font=(_HDR, 9, "bold"),
                      bg=bg_row, fg=BLUE, width=24, anchor="w").pack(side="left", padx=16, pady=8)
-            tk.Label(r, text="→  " + advantage, font=("Segoe UI", 9),
+            tk.Label(r, text="->  " + advantage, font=(_BODY, 9),
                      bg=bg_row, fg=DIM).pack(side="left", padx=4, pady=8)
 
         # ── VERSION FOOTER ───────────────────────────────────────────────────
@@ -2861,16 +2933,16 @@ class ExpandedMainWindow:
         footer.pack(fill="x", padx=24, pady=(8, 32))
         pairs = [
             ("Version", "PC_Workman HCK 1.7.2"),
-            ("Engine", "Stats Engine v2 — SQLite WAL"),
+            ("Engine", "Stats Engine v2 - SQLite WAL"),
             ("Runtime", "Python 3.9+ / tkinter"),
-            ("License", "MIT — HCK_Labs"),
+            ("License", "MIT - HCK_Labs"),
         ]
         for label, val in pairs:
             r = tk.Frame(footer, bg=CARD)
             r.pack(fill="x", padx=16, pady=3)
-            tk.Label(r, text=label, font=("Segoe UI", 9), bg=CARD,
+            tk.Label(r, text=label, font=(_BODY, 9), bg=CARD,
                      fg=MUTED, width=12, anchor="w").pack(side="left")
-            tk.Label(r, text=val, font=("Segoe UI Semibold", 9), bg=CARD,
+            tk.Label(r, text=val, font=(_HDR, 9), bg=CARD,
                      fg=TEXT).pack(side="left", padx=8)
         tk.Frame(footer, bg=BG, height=8).pack(fill="x")
 
@@ -2939,7 +3011,7 @@ class ExpandedMainWindow:
         canvas.create_text(
             canvas_width // 2, 15,
             text="🖥️ PC COMPONENTS OVERVIEW",
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             fill="#64748b"
         )
 
@@ -3036,7 +3108,7 @@ class ExpandedMainWindow:
             canvas.create_text(
                 comp["x"], comp["y"],
                 text=comp["name"],
-                font=("Segoe UI", 7, "bold"),
+                font=(_BODY, 7, "bold"),
                 fill=comp["color"]
             )
 
@@ -3061,7 +3133,7 @@ class ExpandedMainWindow:
             canvas.create_text(
                 fan["x"], fan["y"],
                 text=fan["label"],
-                font=("Consolas", 6),
+                font=(_MONO, 6),
                 fill="#8b5cf6"
             )
 
@@ -3197,7 +3269,7 @@ class ExpandedMainWindow:
             box_x + box_width // 2,
             box_y + 10,
             text=f"{comp['name']}:",
-            font=("Segoe UI", 7, "bold"),
+            font=(_BODY, 7, "bold"),
             fill=comp["color"]
         )
 
@@ -3206,7 +3278,7 @@ class ExpandedMainWindow:
             box_x + box_width // 2,
             box_y + 24,
             text=comp["model"][:25],
-            font=("Consolas", 6),
+            font=(_MONO, 6),
             fill="#e2e8f0"
         )
 
@@ -3216,7 +3288,7 @@ class ExpandedMainWindow:
             box_x + box_width // 2,
             box_y + 36,
             text=f"🌡️ {comp['temp']:.1f}°C",
-            font=("Consolas", 6),
+            font=(_MONO, 6),
             fill=temp_color
         )
 
@@ -3234,7 +3306,7 @@ class ExpandedMainWindow:
         info_text = canvas.create_text(
             info_btn_x, info_btn_y,
             text="i",
-            font=("Segoe UI", 8, "bold"),
+            font=(_BODY, 8, "bold"),
             fill="#ffffff"
         )
 
@@ -3272,7 +3344,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text=f"{comp['name']} - Detailed Information",
-            font=("Segoe UI", 12, "bold"),
+            font=(_BODY, 12, "bold"),
             bg=comp["color"],
             fg="#ffffff"
         ).pack(pady=15)
@@ -3296,7 +3368,7 @@ class ExpandedMainWindow:
             tk.Label(
                 row,
                 text=label,
-                font=("Segoe UI", 9, "bold"),
+                font=(_BODY, 9, "bold"),
                 bg="#0f1117",
                 fg="#94a3b8",
                 width=18,
@@ -3306,7 +3378,7 @@ class ExpandedMainWindow:
             tk.Label(
                 row,
                 text=value,
-                font=("Consolas", 9),
+                font=(_MONO, 9),
                 bg="#0f1117",
                 fg="#e2e8f0",
                 anchor="w"
@@ -3316,7 +3388,7 @@ class ExpandedMainWindow:
         close_btn = tk.Label(
             popup,
             text="✕ Close",
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg="#1e293b",
             fg="#94a3b8",
             cursor="hand2",
@@ -3356,7 +3428,7 @@ class ExpandedMainWindow:
         tk.Label(
             graph_frame,
             text="REAL-TIME FAN USAGE",
-            font=("Segoe UI", 9, "bold"),
+            font=(_BODY, 9, "bold"),
             bg="#1a1d24",
             fg="#8b5cf6"
         ).pack(pady=(10, 5))
@@ -3405,7 +3477,7 @@ class ExpandedMainWindow:
         graph_canvas.create_text(
             bar_x + bar_width // 2, bar_y + bar_height // 2,
             text=f"{cpu_usage:.1f}%",
-            font=("Segoe UI", 16, "bold"),
+            font=(_BODY, 16, "bold"),
             fill="#ffffff"
         )
 
@@ -3413,7 +3485,7 @@ class ExpandedMainWindow:
         tk.Label(
             graph_frame,
             text="Current CPU Load (Fan responds to temperature)",
-            font=("Segoe UI", 7),
+            font=(_BODY, 7),
             bg="#1a1d24",
             fg="#94a3b8"
         ).pack(pady=(0, 10))
@@ -3485,7 +3557,7 @@ class ExpandedMainWindow:
         save_btn = tk.Label(
             scrollable,
             text="💾 Save Changes",
-            font=("Segoe UI", 11, "bold"),
+            font=(_BODY, 11, "bold"),
             bg="#8b5cf6",
             fg="#ffffff",
             cursor="hand2",
@@ -3519,7 +3591,7 @@ class ExpandedMainWindow:
         tk.Label(
             card,
             text=option["title"],
-            font=("Segoe UI", 9, "bold"),
+            font=(_BODY, 9, "bold"),
             bg="#1a1d24",
             fg="#ffffff",
             anchor="w"
@@ -3529,7 +3601,7 @@ class ExpandedMainWindow:
         tk.Label(
             card,
             text=option["description"],
-            font=("Segoe UI", 7),
+            font=(_BODY, 7),
             bg="#1a1d24",
             fg="#94a3b8",
             anchor="w"
@@ -3547,7 +3619,7 @@ class ExpandedMainWindow:
             choice_btn = tk.Label(
                 choices_frame,
                 text=choice,
-                font=("Segoe UI", 7, "bold"),
+                font=(_BODY, 7, "bold"),
                 bg=btn_bg,
                 fg=btn_fg,
                 cursor="hand2",
@@ -3590,7 +3662,7 @@ class ExpandedMainWindow:
         tk.Label(
             card,
             text=option["title"],
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg="#1a1d24",
             fg="#ffffff",
             anchor="w"
@@ -3600,7 +3672,7 @@ class ExpandedMainWindow:
         tk.Label(
             card,
             text=option["description"],
-            font=("Segoe UI", 8),
+            font=(_BODY, 8),
             bg="#1a1d24",
             fg="#94a3b8",
             anchor="w"
@@ -3618,7 +3690,7 @@ class ExpandedMainWindow:
             choice_btn = tk.Label(
                 choices_frame,
                 text=choice,
-                font=("Segoe UI", 8, "bold"),
+                font=(_BODY, 8, "bold"),
                 bg=btn_bg,
                 fg=btn_fg,
                 cursor="hand2",
@@ -3659,7 +3731,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=label,
-            font=("Segoe UI", 9, "bold"),
+            font=(_BODY, 9, "bold"),
             bg="#1a1d24",
             fg="#ffffff"
         ).pack(pady=(8, 3))
@@ -3709,7 +3781,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=status_text,
-            font=("Segoe UI", 7),
+            font=(_BODY, 7),
             bg="#1a1d24",
             fg=status_color
         ).pack()
@@ -3721,7 +3793,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=f"{rpm} RPM",
-            font=("Consolas", 8, "bold"),
+            font=(_MONO, 8, "bold"),
             bg="#1a1d24",
             fg="#fbbf24"
         ).pack()
@@ -3729,7 +3801,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=f"{percent:.0f}%",
-            font=("Consolas", 7),
+            font=(_MONO, 7),
             bg="#1a1d24",
             fg="#fbbf24"
         ).pack(pady=(0, 5))
@@ -3749,7 +3821,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=f"{temp:.1f}°C",
-            font=("Consolas", 9, "bold"),
+            font=(_MONO, 9, "bold"),
             bg="#1a1d24",
             fg=temp_color
         ).pack(pady=(0, 8))
@@ -3760,7 +3832,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=label,
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg="#1a1d24",
             fg="#ffffff"
         ).pack(pady=(10, 5))
@@ -3810,7 +3882,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=status_text,
-            font=("Segoe UI", 8),
+            font=(_BODY, 8),
             bg="#1a1d24",
             fg=status_color
         ).pack()
@@ -3822,7 +3894,7 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=f"Current Speed: {rpm} RPM / {percent:.0f}%",
-            font=("Consolas", 9, "bold"),
+            font=(_MONO, 9, "bold"),
             bg="#1a1d24",
             fg="#fbbf24"
         ).pack(pady=(0, 10))
@@ -3842,25 +3914,28 @@ class ExpandedMainWindow:
         tk.Label(
             parent,
             text=f"TEMP: {temp:.1f}°C",
-            font=("Consolas", 11, "bold"),
+            font=(_MONO, 11, "bold"),
             bg="#1a1d24",
             fg=temp_color
         ).pack()
 
     def _build_guide_page(self, parent):
-        """Guide — full-width minimalist blog with live-guide button placeholder"""
-        BG      = "#080b10"
-        CARD    = "#0e1118"
-        BORDER  = "#181d2e"
+        """Guide - modern dark blog layout with command chips and changelog strip."""
+        BG      = "#060911"
+        CARD    = "#0c0f1a"
+        CARD2   = "#0f1320"
+        BORDER  = "#161c2e"
         TEXT    = "#e2e8f0"
         MUTED   = "#475569"
-        DIM     = "#94a3b8"
+        DIM     = "#8b9ab5"
         VIOLET  = "#8b5cf6"
         BLUE    = "#3b82f6"
         EMERALD = "#10b981"
         AMBER   = "#f59e0b"
+        ROSE    = "#f43f5e"
+        SLATE   = "#64748b"
 
-        # ── scrollable ────────────────────────────────────────────────────────────
+        # ── scrollable canvas ─────────────────────────────────────────────────────
         cv = tk.Canvas(parent, bg=BG, highlightthickness=0)
         sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview,
                           bg=BG, troughcolor=BG, width=5)
@@ -3869,135 +3944,254 @@ class ExpandedMainWindow:
         win_id = cv.create_window((0, 0), window=sf, anchor="nw")
         cv.configure(yscrollcommand=sb.set)
         cv.bind("<Configure>", lambda e: cv.itemconfig(win_id, width=e.width))
-        cv.bind_all("<MouseWheel>", lambda e: cv.yview_scroll(int(-1*(e.delta/120)), "units"), add="+")
+        cv.bind_all("<MouseWheel>",
+                    lambda e: cv.yview_scroll(int(-1 * (e.delta / 120)), "units"), add="+")
         sb.pack(side="right", fill="y")
         cv.pack(side="left", fill="both", expand=True)
 
-        # ── HERO ─────────────────────────────────────────────────────────────────
+        # ── HERO ──────────────────────────────────────────────────────────────────
         hero = tk.Frame(sf, bg=CARD)
         hero.pack(fill="x")
-        tk.Frame(hero, bg=VIOLET, height=3).pack(fill="x")
 
-        hero_inner = tk.Frame(hero, bg=CARD)
-        hero_inner.pack(fill="x", padx=32, pady=(24, 20))
+        # 3-colour gradient bar (violet -> blue)
+        grad_bar = tk.Frame(hero, bg=CARD)
+        grad_bar.pack(fill="x")
+        for col in ("#7c3aed", "#6d28d9", "#4f46e5", "#3b82f6"):
+            tk.Frame(grad_bar, bg=col, height=3, width=1).pack(
+                side="left", fill="y", expand=True)
 
-        left_hero = tk.Frame(hero_inner, bg=CARD)
-        left_hero.pack(side="left", fill="both", expand=True)
+        hero_body = tk.Frame(hero, bg=CARD)
+        hero_body.pack(fill="x", padx=36, pady=(22, 20))
 
-        tk.Label(left_hero, text="Program Guide",
-                 font=("Segoe UI Light", 28), bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
-        tk.Label(left_hero, text="Everything you need to get the most out of PC_Workman",
-                 font=("Segoe UI", 10), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(3, 0))
+        left_h = tk.Frame(hero_body, bg=CARD)
+        left_h.pack(side="left", fill="both", expand=True)
 
-        # Live Guide button (right side of hero) — placeholder for future interactive tour
-        live_btn = tk.Label(hero_inner,
+        # Version badge
+        badge_row = tk.Frame(left_h, bg=CARD)
+        badge_row.pack(anchor="w")
+        tk.Label(badge_row, text=" v1.7 ", font=(_BODY, 8, "bold"),
+                 bg="#1e1b4b", fg="#818cf8", padx=6, pady=2).pack(side="left")
+        tk.Label(badge_row, text="  HCK_Labs",
+                 font=(_BODY, 8), bg=CARD, fg=MUTED).pack(side="left")
+
+        tk.Label(left_h, text="Program Guide",
+                 font=(_BODY, 28), bg=CARD, fg=TEXT, anchor="w").pack(anchor="w", pady=(6, 0))
+        tk.Label(left_h,
+                 text="Everything you need to master PC_Workman - from live charts to AI commands.",
+                 font=(_BODY, 10), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(4, 0))
+
+        # Live Guide button (right, prominent)
+        right_h = tk.Frame(hero_body, bg=CARD)
+        right_h.pack(side="right", anchor="center")
+
+        live_btn = tk.Label(right_h,
                             text="▶  Guide on program LIVE",
-                            font=("Segoe UI Semibold", 10, "bold"),
+                            font=(_BODY, 11, "bold"),
                             bg=VIOLET, fg="#ffffff",
-                            padx=18, pady=10, cursor="hand2")
-        live_btn.pack(side="right", padx=(0, 0), anchor="center")
+                            padx=22, pady=12, cursor="hand2")
+        live_btn.pack()
+        tk.Label(right_h, text="Interaktywny przewodnik krok po kroku",
+                 font=(_BODY, 8), bg=CARD, fg=MUTED).pack(pady=(4, 0))
 
         def _live_guide_click(e=None):
-            # Close guide overlay so dashboard is visible, then launch
             self._close_overlay()
             self.root.after(280, self._start_live_guide)
 
         live_btn.bind("<Button-1>", _live_guide_click)
-        live_btn.bind("<Enter>", lambda e: live_btn.config(bg="#7c3aed"))
-        live_btn.bind("<Leave>", lambda e: live_btn.config(bg=VIOLET))
+        live_btn.bind("<Enter>",    lambda e: live_btn.config(bg="#7c3aed"))
+        live_btn.bind("<Leave>",    lambda e: live_btn.config(bg=VIOLET))
 
         tk.Frame(hero, bg=BORDER, height=1).pack(fill="x")
 
-        # ── SECTION HELPER ────────────────────────────────────────────────────────
-        def _section_hdr(icon, title, subtitle, accent):
+        # ── What's new strip ──────────────────────────────────────────────────────
+        news_strip = tk.Frame(sf, bg="#0a0e1a")
+        news_strip.pack(fill="x")
+        tk.Frame(news_strip, bg=EMERALD, height=2).pack(fill="x")
+        news_inner = tk.Frame(news_strip, bg="#0a0e1a")
+        news_inner.pack(fill="x", padx=36, pady=10)
+
+        tk.Label(news_inner, text="✦  What's new in v1.7",
+                 font=(_BODY, 9, "bold"), bg="#0a0e1a", fg=EMERALD).pack(side="left")
+
+        changes = [
+            ("hck_GPT proactive alerts", VIOLET),
+            ("12 new AI intents", BLUE),
+            ("Session budget (3/30 min)", EMERALD),
+            ("Paper-plane send button", AMBER),
+        ]
+        for txt, col in changes:
+            tk.Label(news_inner, text=f"  ·  {txt}",
+                     font=(_BODY, 9), bg="#0a0e1a", fg=col).pack(side="left")
+
+        tk.Frame(news_strip, bg=BORDER, height=1).pack(fill="x")
+
+        # ── Local helpers ─────────────────────────────────────────────────────────
+        def _gap(h=32):
+            tk.Frame(sf, bg=BG, height=h).pack()
+
+        def _section_hdr(icon, title, subtitle, accent, tag=None):
+            """Full-width section header card."""
+            _gap(0)
             wrap = tk.Frame(sf, bg=BG)
-            wrap.pack(fill="x", padx=0, pady=(0, 0))
-            bar = tk.Frame(wrap, bg=accent, height=2)
-            bar.pack(fill="x")
+            wrap.pack(fill="x")
+            tk.Frame(wrap, bg=accent, height=2).pack(fill="x")
             inner = tk.Frame(wrap, bg=CARD)
-            inner.pack(fill="x", padx=28, pady=14)
-            tk.Label(inner, text=f"{icon}  {title}",
-                     font=("Segoe UI Semibold", 13, "bold"),
-                     bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
+            inner.pack(fill="x", padx=0)
+
+            row = tk.Frame(inner, bg=CARD)
+            row.pack(fill="x", padx=32, pady=16)
+
+            left_s = tk.Frame(row, bg=CARD)
+            left_s.pack(side="left", fill="both", expand=True)
+
+            title_row = tk.Frame(left_s, bg=CARD)
+            title_row.pack(anchor="w")
+            tk.Label(title_row, text=f"{icon}  {title}",
+                     font=(_BODY, 15, "bold"),
+                     bg=CARD, fg=TEXT, anchor="w").pack(side="left")
+            if tag:
+                tk.Label(title_row, text=f"  {tag}",
+                         font=(_BODY, 8, "bold"),
+                         bg=accent, fg="#ffffff",
+                         padx=6, pady=2).pack(side="left", padx=(10, 0), anchor="center")
+
             if subtitle:
-                tk.Label(inner, text=subtitle, font=("Segoe UI", 9),
-                         bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(1, 0))
+                tk.Label(left_s, text=subtitle,
+                         font=(_BODY, 10), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 0))
             return wrap
 
         def _article(bullets, accent=DIM):
+            """Bulleted article block."""
             body = tk.Frame(sf, bg=BG)
-            body.pack(fill="x", padx=28, pady=(4, 18))
+            body.pack(fill="x", padx=32, pady=(8, 0))
             for bullet in bullets:
                 row = tk.Frame(body, bg=BG)
-                row.pack(fill="x", pady=3)
-                tk.Frame(row, bg=accent, width=3).pack(side="left", fill="y", padx=(0, 10))
-                tk.Label(row, text=bullet, font=("Segoe UI", 10),
-                         bg=BG, fg=DIM, anchor="w", justify="left", wraplength=820).pack(anchor="w", pady=4)
+                row.pack(fill="x", pady=4)
+                tk.Frame(row, bg=accent, width=3).pack(side="left", fill="y", padx=(0, 12))
+                tk.Label(row, text=bullet,
+                         font=(_BODY, 11), bg=BG, fg=DIM,
+                         anchor="w", justify="left", wraplength=800).pack(anchor="w", pady=5)
 
-        # ── ARTICLES ──────────────────────────────────────────────────────────────
-        _section_hdr("✨", "Core Monitoring", "What runs under the hood", BLUE)
+        def _chip_row(label, chips, bg_chips, fg_chips="#ffffff"):
+            """Row of command example chips."""
+            row = tk.Frame(sf, bg=BG)
+            row.pack(fill="x", padx=32, pady=(6, 0))
+            tk.Label(row, text=label,
+                     font=(_BODY, 9), bg=BG, fg=MUTED).pack(side="left", padx=(0, 12))
+            for chip_text in chips:
+                tk.Label(row, text=chip_text,
+                         font=(_BODY, 9, "bold"),
+                         bg=bg_chips, fg=fg_chips,
+                         padx=10, pady=3).pack(side="left", padx=(0, 6))
+
+        # ── SECTION 1 - Core Monitoring ───────────────────────────────────────────
+        _section_hdr("📊", "Core Monitoring", "What runs under the hood, 24/7", BLUE)
         _article([
-            "Real-time CPU, GPU, RAM tracking — updates every second, background-threaded so the UI never freezes.",
-            "Session averages shown on the dashboard give you a quick health baseline without digging into charts.",
-            "Stats Engine v2 stores minute-by-minute data in SQLite — browse 1D / 3D / 1W / 1M history in Monitoring.",
-            "All data lives on your machine. No cloud, no telemetry, no accounts.",
+            "Real-time CPU, GPU, RAM tracking - updates every second in a background thread so the UI stays buttery smooth.",
+            "Session averages on the dashboard give an instant health baseline - no digging into charts needed.",
+            "Stats Engine v2 stores minute-by-minute data in SQLite - browse 1H / 4H / 1D / 1W / 1M history in Monitoring.",
+            "All data lives on your machine. Zero cloud, zero telemetry, zero accounts.",
         ], BLUE)
+        _gap(32)
 
-        _section_hdr("🤖", "HCK_GPT Assistant", "Your local AI companion — no internet needed", EMERALD)
+        # ── SECTION 2 - hck_GPT ───────────────────────────────────────────────────
+        _section_hdr("🤖", "HCK_GPT Assistant",
+                     "Local AI companion - no internet, no API key", EMERALD, tag="AI")
         _article([
-            "Type 'stats', 'alerts', 'insights', or 'teaser' in the chat to get personalized system summaries.",
-            "HCK_GPT learns your usage patterns (games, dev tools, browsers) and adapts its messages over time.",
-            "Today Report shows a session chart, top processes, alert status, and uptime — one click in the chat panel.",
-            "Everything runs locally — no API key, no data sent anywhere.",
+            "Understands natural language - ask about CPU temps, RAM, gaming mode, or overnight performance in plain Polish or English.",
+            "Proactive alerts: up to 3 unsolicited tips per 30 minutes - idle tips, process spikes, morning briefings.",
+            "Today Report: one command gives you a session chart, top processes, alert status, and uptime.",
+            "Everything runs locally - nothing is sent to any server, ever.",
         ], EMERALD)
+        _chip_row("Example commands:",
+                  ["stats", "temperatura", "podaj wyniki", "game ready", "flush RAM",
+                   "morning brief", "zabij chrome"],
+                  "#0d2e1f", "#34d399")
+        _gap(32)
 
-        _section_hdr("⚡", "Optimization & Automation", "Set it once, forget about it", AMBER)
+        # ── SECTION 3 - Optimization ──────────────────────────────────────────────
+        _section_hdr("⚡", "Optimization & Automation",
+                     "Set it once, let it run", AMBER)
         _article([
-            "AUTO RAM Flush monitors memory every 10 seconds. If usage stays above threshold for 30s, it flushes automatically.",
-            "TURBO BOOST runs all Quick Actions at once — power plan, DNS, temp files, process priority.",
-            "Settings persist across restarts — your AUTO toggle state is saved in settings/user_prefs.json.",
-            "Optimization Center shows 1/14 active features — more coming with each release.",
+            "AUTO RAM Flush watches memory every 10 s - if usage stays above threshold for 30 s it flushes without interrupting you.",
+            "TURBO BOOST fires all Quick Actions at once: High Performance power plan, DNS flush, temp files, process priority.",
+            "Settings persist across restarts - your toggle states live in settings/app_settings.json.",
+            "Process Guard suspends background hogs when idle threshold is reached, restores them on close.",
         ], AMBER)
+        _gap(32)
 
-        _section_hdr("📊", "AllMonitor & Graphs", "Full picture of your hardware", VIOLET)
+        # ── SECTION 4 - DeepMonitor ───────────────────────────────────────────────
+        _section_hdr("🗠", "DeepMonitor & Graphs",
+                     "Full picture of your hardware at a glance", VIOLET)
         _article([
-            "AllMonitor page shows live scrolling graphs for CPU, GPU, RAM — updated every 200ms.",
-            "Hardware & Health Table (OPEN TABLE button) shows every sensor: temps, voltages, fan speeds.",
-            "Monitoring — Centrum page shows time-travel statistics with spike detection and hover tooltips.",
-            "Fan Dashboard controls cooling profiles and shows fan curve visualizations.",
+            "DeepMonitor page shows live scrolling waveforms for CPU, GPU, RAM - refreshed every 200 ms.",
+            "Hardware & Health Table (OPEN TABLE button) exposes every sensor: temps, voltages, fan speeds.",
+            "Monitoring - Centrum page shows time-travel statistics with spike detection and hover tooltips.",
+            "Fan Dashboard controls cooling profiles and visualises fan curves in real time.",
         ], VIOLET)
+        _gap(32)
 
-        _section_hdr("🛡️", "Privacy & Safety", "Your PC, your data, your rules", "#64748b")
+        # ── SECTION 5 - Privacy ───────────────────────────────────────────────────
+        _section_hdr("🛡️", "Privacy & Safety",
+                     "Your PC, your data, your rules", SLATE)
         _article([
-            "PC_Workman is 100% offline. Nothing is transmitted, collected, or uploaded.",
-            "Every feature can be disabled individually — monitoring only, optimization only, or everything.",
-            "Optimization actions are safe: RAM flush uses Windows APIs, no registry edits without confirmation.",
-            "Logs stored in data/logs/ — delete anytime, program recreates them on next launch.",
-        ], "#64748b")
+            "PC_Workman is 100 % offline. Nothing is transmitted, collected, or uploaded - ever.",
+            "Every feature can be disabled individually: monitoring-only, optimisation-only, or everything.",
+            "Optimisation actions are safe - RAM flush uses Windows APIs; no registry edits without confirmation.",
+            "Logs in data/logs/ can be deleted any time; the app recreates them on next launch.",
+        ], SLATE)
 
-        # ── PRO TIPS ROW ─────────────────────────────────────────────────────────
+        _gap(32)
+
+        # ── QUICK TIPS - 3-column grid ────────────────────────────────────────────
         tips_hdr = tk.Frame(sf, bg=BG)
-        tips_hdr.pack(fill="x", padx=28, pady=(8, 4))
-        tk.Label(tips_hdr, text="💡  Quick Tips", font=("Segoe UI Semibold", 11, "bold"),
-                 bg=BG, fg=AMBER).pack(anchor="w")
-        tk.Frame(tips_hdr, bg=BORDER, height=1).pack(fill="x", pady=(4, 0))
+        tips_hdr.pack(fill="x", padx=32, pady=(0, 10))
+        tk.Label(tips_hdr, text="💡  Quick Tips",
+                 font=(_BODY, 13, "bold"), bg=BG, fg=AMBER).pack(side="left")
+        tk.Frame(tips_hdr, bg=BORDER, height=1).pack(
+            side="left", fill="x", expand=True, padx=(14, 0), pady=3)
 
         tips = [
-            ("Floating Monitor", "Launch the always-on-top overlay from the dashboard — stays above all windows."),
-            ("Tray Icon", "3-bar icon in system tray shows CPU/GPU/RAM at a glance — right-click for quick actions."),
-            ("Minimal Mode", "Switch to compact mode for passive monitoring while you work or game."),
-            ("Mouse Wheel", "Scroll anywhere inside panels — all pages support mousewheel navigation."),
+            (VIOLET, "Floating Monitor",
+             "Launch the always-on-top overlay from the dashboard - it floats above every window."),
+            (BLUE, "Tray Icon",
+             "The 3-bar system-tray icon shows CPU/GPU/RAM instantly - right-click for quick actions."),
+            (EMERALD, "Chat Shortcuts",
+             "Type 'stats', 'temp', or 'game ready' in hck_GPT for instant system snapshots."),
+            (AMBER, "Mouse Wheel",
+             "Scroll anywhere in any panel - all pages support mousewheel navigation."),
+            (ROSE, "Keyboard Esc",
+             "Press Esc in any overlay (Live Guide, pop-ups) to dismiss it instantly."),
+            (SLATE, "Minimal Mode",
+             "Compact sidebar collapses to an icon rail after 3 s of inactivity - maximises screen space."),
         ]
-        tips_row = tk.Frame(sf, bg=BG)
-        tips_row.pack(fill="x", padx=28, pady=(0, 32))
-        for tip_title, tip_body in tips:
-            tip_card = tk.Frame(tips_row, bg=CARD)
-            tip_card.pack(side="left", fill="both", expand=True, padx=(0, 8))
-            tk.Frame(tip_card, bg=AMBER, height=2).pack(fill="x")
-            tk.Label(tip_card, text=tip_title, font=("Segoe UI Semibold", 9, "bold"),
-                     bg=CARD, fg=TEXT).pack(anchor="w", padx=12, pady=(10, 2))
-            tk.Label(tip_card, text=tip_body, font=("Segoe UI", 9), bg=CARD, fg=DIM,
-                     wraplength=180, justify="left").pack(anchor="w", padx=12, pady=(0, 10))
+
+        tips_grid = tk.Frame(sf, bg=BG)
+        tips_grid.pack(fill="x", padx=32, pady=(0, 8))
+        tips_grid.columnconfigure(0, weight=1, uniform="tip")
+        tips_grid.columnconfigure(1, weight=1, uniform="tip")
+        tips_grid.columnconfigure(2, weight=1, uniform="tip")
+
+        for idx, (accent, tip_title, tip_body) in enumerate(tips):
+            col = idx % 3
+            row_idx = idx // 3
+
+            tip_outer = tk.Frame(tips_grid, bg=BORDER)
+            tip_outer.grid(row=row_idx, column=col, sticky="nsew",
+                           padx=(0, 6) if col < 2 else 0,
+                           pady=(0, 8))
+            tip_inner = tk.Frame(tip_outer, bg=CARD2)
+            tip_inner.pack(fill="both", expand=True, padx=1, pady=1)
+
+            tk.Frame(tip_inner, bg=accent, height=2).pack(fill="x")
+            tk.Label(tip_inner, text=tip_title,
+                     font=(_BODY, 10, "bold"),
+                     bg=CARD2, fg=TEXT).pack(anchor="w", padx=14, pady=(10, 3))
+            tk.Label(tip_inner, text=tip_body,
+                     font=(_BODY, 9), bg=CARD2, fg=DIM,
+                     wraplength=220, justify="left").pack(anchor="w", padx=14, pady=(0, 12))
+
+        _gap(40)
 
     # ========== OVERLAY WIDGET ==========
 
@@ -4044,7 +4238,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text="🔧 Service Setup Wizard",
-            font=("Segoe UI", 14, "bold"),
+            font=(_BODY, 14, "bold"),
             bg="#8b5cf6",
             fg="#ffffff"
         ).pack(pady=15)
@@ -4069,7 +4263,7 @@ class ExpandedMainWindow:
                 text_frame,
                 bg="#1a1d24",
                 fg="#ffffff",
-                font=("Consolas", 10),
+                font=(_MONO, 10),
                 wrap="word",
                 yscrollcommand=scrollbar.set
             )
@@ -4090,7 +4284,7 @@ class ExpandedMainWindow:
                 entry_frame,
                 bg="#1a1d24",
                 fg="#ffffff",
-                font=("Consolas", 11),
+                font=(_MONO, 11),
                 insertbackground="#8b5cf6"
             )
             entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
@@ -4114,7 +4308,7 @@ class ExpandedMainWindow:
                 text="Send",
                 bg="#8b5cf6",
                 fg="#ffffff",
-                font=("Segoe UI", 10, "bold"),
+                font=(_BODY, 10, "bold"),
                 bd=0,
                 padx=15,
                 command=send_message
@@ -4125,7 +4319,7 @@ class ExpandedMainWindow:
             tk.Label(
                 content,
                 text="Service Setup not available\n\nChat handler module not found.",
-                font=("Segoe UI", 12),
+                font=(_BODY, 12),
                 bg="#0f1117",
                 fg="#ef4444",
                 justify="center"
@@ -4137,7 +4331,7 @@ class ExpandedMainWindow:
             text="Close",
             bg="#374151",
             fg="#ffffff",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bd=0,
             padx=20,
             pady=8,
@@ -4201,7 +4395,7 @@ class ExpandedMainWindow:
         tk.Label(
             header,
             text="🔄 Check for Updates",
-            font=("Segoe UI", 14, "bold"),
+            font=(_BODY, 14, "bold"),
             bg="#10b981",
             fg="#ffffff"
         ).pack(pady=15)
@@ -4214,7 +4408,7 @@ class ExpandedMainWindow:
         tk.Label(
             content,
             text="Hey!",
-            font=("Segoe UI", 16, "bold"),
+            font=(_BODY, 16, "bold"),
             bg="#0f1117",
             fg="#ffffff"
         ).pack(anchor="w", pady=(0, 15))
@@ -4226,7 +4420,7 @@ class ExpandedMainWindow:
         tk.Label(
             version_frame,
             text="Your version: ",
-            font=("Segoe UI", 12),
+            font=(_BODY, 12),
             bg="#0f1117",
             fg="#cbd5e1"
         ).pack(side="left")
@@ -4234,7 +4428,7 @@ class ExpandedMainWindow:
         tk.Label(
             version_frame,
             text="v1.7.1",
-            font=("Segoe UI", 12, "bold"),
+            font=(_BODY, 12, "bold"),
             bg="#0f1117",
             fg="#10b981"
         ).pack(side="left")
@@ -4242,7 +4436,7 @@ class ExpandedMainWindow:
         tk.Label(
             version_frame,
             text=" - 10.04.2026",
-            font=("Segoe UI", 12),
+            font=(_BODY, 12),
             bg="#0f1117",
             fg="#64748b"
         ).pack(side="left")
@@ -4251,7 +4445,7 @@ class ExpandedMainWindow:
         tk.Label(
             content,
             text="\nI would really like to tell you if there's a new update!\nBut I'm limited ;)",
-            font=("Segoe UI", 11),
+            font=(_BODY, 11),
             bg="#0f1117",
             fg="#94a3b8",
             justify="left"
@@ -4260,7 +4454,7 @@ class ExpandedMainWindow:
         tk.Label(
             content,
             text="Please check here if your version is up to date!",
-            font=("Segoe UI", 11),
+            font=(_BODY, 11),
             bg="#0f1117",
             fg="#cbd5e1"
         ).pack(anchor="w", pady=(5, 15))
@@ -4273,7 +4467,7 @@ class ExpandedMainWindow:
         github_btn = tk.Button(
             content,
             text="🔗 CHECK UPDATE ON GITHUB",
-            font=("Segoe UI Semibold", 11, "bold"),
+            font=(_HDR, 11, "bold"),
             bg="#3b82f6",
             fg="#ffffff",
             activebackground="#2563eb",
@@ -4292,13 +4486,74 @@ class ExpandedMainWindow:
             text="Close",
             bg="#374151",
             fg="#ffffff",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bd=0,
             padx=20,
             pady=8,
             command=dialog.destroy
         )
         close_btn.pack(pady=15)
+
+    # ========== STARTUP / APP-INSTALL WATCHER ==========
+
+    def _start_system_watchers(self) -> None:
+        """
+        Launch the StartupWatcher background thread.
+        Callbacks are marshalled onto the main tkinter thread via root.after(0,…).
+        """
+        try:
+            from core.startup_watcher import get_watcher
+            watcher = get_watcher()
+            watcher.register_startup_cb(self._on_new_startup_entry)
+            watcher.register_app_cb(self._on_new_app_installed)
+            watcher.start()
+            print("[SystemWatcher] Startup + app-install watcher started.")
+        except Exception as exc:
+            print(f"[SystemWatcher] Failed to start: {exc}")
+
+    def _on_new_startup_entry(self, name: str, exe: str, hive: str) -> None:
+        """Called from watcher thread - marshal to main thread."""
+        def _show():
+            try:
+                import json, os as _os
+                _sf = _os.path.join(
+                    _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
+                    "settings", "app_settings.json",
+                )
+                with open(_sf, encoding="utf-8") as _f:
+                    lang = json.load(_f).get("language", "en")
+            except Exception:
+                lang = "en"
+            from ui.components.system_toast import show_startup_toast
+
+            def _go_startup():
+                self.current_view = None
+                self._switch_to_page("startup_manager")
+                if hasattr(self, "sidebar"):
+                    self.sidebar.set_active_page("startup_manager")
+
+            show_startup_toast(
+                self.root, name, exe, hive,
+                on_manage=_go_startup, lang=lang,
+            )
+        self.root.after(0, _show)
+
+    def _on_new_app_installed(self, display_name: str, exe_path: str) -> None:
+        """Called from watcher thread - marshal to main thread."""
+        def _show():
+            try:
+                import json, os as _os
+                _sf = _os.path.join(
+                    _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
+                    "settings", "app_settings.json",
+                )
+                with open(_sf, encoding="utf-8") as _f:
+                    lang = json.load(_f).get("language", "en")
+            except Exception:
+                lang = "en"
+            from ui.components.system_toast import show_app_install_toast
+            show_app_install_toast(self.root, display_name, exe_path, lang=lang)
+        self.root.after(0, _show)
 
     # ========== MAIN LOOP ==========
 
@@ -4331,26 +4586,13 @@ def _open_hw_table_popup(anchor):
         ProInfoTable = None
 
     popup = tk.Toplevel(anchor)
-    popup.title("Hardware & Health")
-    popup.configure(bg="#0a0e14")
+    popup.title("DeepMonitor - PC Workman")
+    popup.configure(bg="#07090f")
     popup.attributes("-topmost", True)
     popup.resizable(True, True)
 
-    # Header
-    hdr = tk.Frame(popup, bg="#111827")
-    hdr.pack(fill="x")
-    tk.Label(hdr, text="Hardware & Health Table",
-             font=("Segoe UI Semibold", 11), bg="#111827",
-             fg="#ffffff", pady=8).pack(side="left", padx=14)
-    x_btn = tk.Label(hdr, text="✕", font=("Segoe UI", 12, "bold"),
-                     bg="#111827", fg="#64748b", padx=12, cursor="hand2")
-    x_btn.pack(side="right", pady=5)
-    x_btn.bind("<Button-1>", lambda e: popup.destroy())
-    x_btn.bind("<Enter>", lambda e: x_btn.config(fg="#ef4444"))
-    x_btn.bind("<Leave>", lambda e: x_btn.config(fg="#64748b"))
-
-    content = tk.Frame(popup, bg="#0a0e14")
-    content.pack(fill="both", expand=True, padx=4, pady=4)
+    content = tk.Frame(popup, bg="#07090f")
+    content.pack(fill="both", expand=True)
 
     if ProInfoTable:
         try:
@@ -4358,14 +4600,14 @@ def _open_hw_table_popup(anchor):
             table.pack(fill="both", expand=True)
         except Exception as e:
             tk.Label(content, text=f"Error loading table: {e}",
-                     font=("Segoe UI", 10), bg="#0a0e14", fg="#ef4444").pack(pady=50)
+                     font=(_BODY, 10), bg="#07090f", fg="#ef4444").pack(pady=50)
     else:
         tk.Label(content, text="Hardware table not available",
-                 font=("Segoe UI", 10), bg="#0a0e14", fg="#6b7280").pack(pady=50)
+                 font=(_BODY, 10), bg="#07090f", fg="#6b7280").pack(pady=50)
 
-    # Center on screen
+    # Center on screen - wider for 4 columns
     popup.update_idletasks()
-    w, h = 520, 640
+    w, h = 660, 760
     sw = popup.winfo_screenwidth()
     sh = popup.winfo_screenheight()
     popup.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
@@ -4398,7 +4640,7 @@ def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
     def Arc(x0, y0, x1, y1, **kw):
         canvas.create_arc(cx+x0, cy+y0, cx+x1, cy+y1, **kw)
 
-    # ── MY PC — monitor + stand ───────────────────────────────────────────────
+    # ── MY PC - monitor + stand ───────────────────────────────────────────────
     if page_id == "your_pc":
         R(-11, -10,  11,  5)                    # bezel
         R( -9,  -8,   9,  3, fill=DK)           # screen glass
@@ -4406,24 +4648,24 @@ def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
         R( -6,   8,   6, 11)                    # base
         O(  7,   0,   9,  2, fill="#10b981")    # power LED green
 
-    # ── MONITORING — big exclamation mark ────────────────────────────────────
+    # ── MONITORING - big exclamation mark ────────────────────────────────────
     elif page_id == "sensors":
         R(-2, -12,  2,  4, fill=A)             # stem (tall)
         O(-3,   6,  3, 12, fill=A)             # dot (round)
 
-    # ── ALLMONITOR — bar chart ────────────────────────────────────────────────
+    # ── DEEPMONITOR - bar chart ───────────────────────────────────────────────
     elif page_id == "live_graphs":
         R(-11,  3, -5, 10)                      # short bar
         R( -3, -3,  3, 10)                      # medium bar
         R(  5, -9, 11, 10)                      # tall bar
         R(-13,  9, 13, 12)                      # baseline
 
-    # ── OPTIMIZATION — lightning bolt ─────────────────────────────────────────
+    # ── OPTIMIZATION - lightning bolt ─────────────────────────────────────────
     elif page_id == "optimization":
         P((4,-12), (-2,-1), (3,-1), (-4,12), (-5,12),
           (1, 1), (-4,  1), (2,-12))
 
-    # ── FAN DASHBOARD — monitor icon (same as My PC), purple tint ────────────
+    # ── FAN DASHBOARD - monitor icon (same as My PC), purple tint ────────────
     elif page_id == "fan_control":
         R(-11, -10,  11,  5)                    # bezel
         R( -9,  -8,   9,  3, fill=DK)           # screen glass
@@ -4431,7 +4673,7 @@ def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
         R( -6,   8,   6, 11)                    # base
         O(  7,   0,   9,  2, fill="#a78bfa")    # purple LED
 
-    # ── HCK_LABS — globe icon ─────────────────────────────────────────────────
+    # ── HCK_LABS - globe icon ─────────────────────────────────────────────────
     elif page_id == "hck_labs":
         O(-11, -11, 11, 11)                                                    # outer sphere
         O( -5, -11,  5, 11)                                                    # central meridian oval
@@ -4439,7 +4681,7 @@ def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
         canvas.create_line(cx- 9, cy-5, cx+ 9, cy-5, fill=accent, width=1.0)  # N parallel
         canvas.create_line(cx- 9, cy+5, cx+ 9, cy+5, fill=accent, width=1.0)  # S parallel
 
-    # ── GUIDE — open book ─────────────────────────────────────────────────────
+    # ── GUIDE - open book ─────────────────────────────────────────────────────
     elif page_id == "guide":
         P((-1,-9), (-11,-7), (-11,8), (-1,7))          # left page
         P(( 1,-9), ( 11,-7), ( 11,8), ( 1,7))          # right page
@@ -4458,7 +4700,7 @@ def _launch_hw_table_window(parent):
 
 
 def _launch_hw_table_window_root(root):
-    """Called via root.after() — uses root as anchor."""
+    """Called via root.after() - uses root as anchor."""
     _open_hw_table_popup(root)
 
     # Size and position after content loads
