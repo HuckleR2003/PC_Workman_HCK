@@ -15,6 +15,16 @@ except ImportError:
     ImageTk = None
 
 from ui.theme import THEME
+from utils.i18n import t, register_on_change, unregister_on_change
+
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
 
 
 class SidebarNav:
@@ -54,6 +64,12 @@ class SidebarNav:
         self.item_widgets = {}  # Widget references
         self.logo_image = None  # Logo image reference
 
+        # Auto-hide state
+        self._auto_hide       = False
+        self._auto_hide_delay = 3000   # ms before collapsing
+        self._collapse_timer  = None
+        self._collapsed       = False
+
         # Main sidebar frame
         self.frame = tk.Frame(
             parent,
@@ -68,6 +84,9 @@ class SidebarNav:
         self._build_navigation()
         self._build_bottom_section()
 
+        # Register for live language changes
+        register_on_change(self.rebuild_nav)
+
     def _build_logo(self):
         """Build top logo section."""
         logo_frame = tk.Frame(self.frame, bg=self.COLORS["bg"], height=60, cursor="hand2")
@@ -80,7 +99,7 @@ class SidebarNav:
         icon_lbl = tk.Label(
             logo_container,
             text="◈",
-            font=("Segoe UI", 18),
+            font=(_BODY, 18),
             bg=self.COLORS["bg"],
             fg=self.COLORS["accent"],
             cursor="hand2"
@@ -100,7 +119,7 @@ class SidebarNav:
         labs_lbl = tk.Label(
             logo_container,
             text="_Labs",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             cursor="hand2"
@@ -120,81 +139,82 @@ class SidebarNav:
         sep = tk.Frame(self.frame, bg=self.COLORS["separator"], height=1)
         sep.pack(fill="x", padx=12, pady=(0, 10))
 
+    def _nav_structure(self) -> list:
+        """Return the navigation tree using translated labels."""
+        return [
+            {
+                "id": "dashboard",
+                "label": t("nav.dashboard"),
+                "icon": "⌂",
+                "subitems": None
+            },
+            {
+                "id": "monitoring_alerts",
+                "label": t("nav.monitoring"),
+                "icon": "⚠",
+                "subitems": [
+                    ("temperature", t("nav.monitoring_temperature")),
+                    ("voltage",     t("nav.monitoring_voltage")),
+                    ("alerts",      t("nav.monitoring_alerts")),
+                ]
+            },
+            {
+                "id": "my_pc",
+                "label": t("nav.my_pc"),
+                "icon": "▣",
+                "subitems": [
+                    ("central",    t("nav.my_pc_central")),
+                    ("efficiency", t("nav.my_pc_efficiency")),
+                    ("sensors",    t("nav.my_pc_sensors")),
+                    ("health",     t("nav.my_pc_health")),
+                ]
+            },
+            {
+                "id": "first_setup",
+                "label": t("nav.setup"),
+                "icon": "⚙",
+                "subitems": None
+            },
+            {
+                "id": "fan_control",
+                "label": t("nav.fan_control"),
+                "icon": "❊",
+                "subitems": [
+                    ("fan_dashboard",    t("nav.fan_control_dashboard")),
+                    ("fans_hardware",    t("nav.fan_control_hardware")),
+                    ("usage_statistics", t("nav.fan_control_usage")),
+                ]
+            },
+            {
+                "id": "optimization",
+                "label": t("nav.optimization"),
+                "icon": "⚡",
+                "subitems": [
+                    ("services", t("nav.optimization_services")),
+                    ("startup",  t("nav.optimization_startup")),
+                    ("wizard",   t("nav.optimization_wizard")),
+                ]
+            },
+            {
+                "id": "statistics",
+                "label": t("nav.statistics"),
+                "icon": "▤",
+                "subitems": [
+                    ("stats_today",   t("nav.statistics_today")),
+                    ("stats_weekly",  t("nav.statistics_weekly")),
+                    ("stats_monthly", t("nav.statistics_monthly")),
+                ]
+            },
+        ]
+
     def _build_navigation(self):
         """Build main navigation."""
         # Navigation container
         self.nav_container = tk.Frame(self.frame, bg=self.COLORS["bg"])
         self.nav_container.pack(fill="both", expand=True, padx=0)
 
-        # Navigation structure definition
-        nav_structure = [
-            {
-                "id": "dashboard",
-                "label": "Dashboard",
-                "icon": "⌂",
-                "subitems": None
-            },
-            {
-                "id": "monitoring_alerts",
-                "label": "MONITORING & ALERTS",
-                "icon": "⚠",
-                "subitems": [
-                    ("temperature", "Temperature"),
-                    ("voltage", "Voltage"),
-                    ("alerts", "Center & Alerts"),
-                ]
-            },
-            {
-                "id": "my_pc",
-                "label": "My PC",
-                "icon": "▣",
-                "subitems": [
-                    ("central", "Central"),
-                    ("efficiency", "Efficiency"),
-                    ("sensors", "Sensors"),
-                    ("health", "Health"),
-                ]
-            },
-            {
-                "id": "first_setup",
-                "label": "Setup & Drivers",
-                "icon": "⚙",
-                "subitems": None
-            },
-            {
-                "id": "fan_control",
-                "label": "Fan Control",
-                "icon": "❊",
-                "subitems": [
-                    ("fan_dashboard", "Dashboard"),
-                    ("fans_hardware", "FANS - Hardware Info"),
-                    ("usage_statistics", "Usage Statistics"),
-                ]
-            },
-            {
-                "id": "optimization",
-                "label": "Optimization",
-                "icon": "⚡",
-                "subitems": [
-                    ("services", "Services"),
-                    ("startup", "Startup"),
-                    ("wizard", "Wizard"),
-                ]
-            },
-            {
-                "id": "statistics",
-                "label": "Statistics",
-                "icon": "▤",
-                "subitems": [
-                    ("stats_today", "Today"),
-                    ("stats_weekly", "Weekly"),
-                    ("stats_monthly", "Monthly"),
-                ]
-            },
-        ]
-
         # Build navigation items
-        for item in nav_structure:
+        for item in self._nav_structure():
             self._create_nav_item(item)
 
     def _create_nav_item(self, item):
@@ -218,7 +238,7 @@ class SidebarNav:
         icon_label = tk.Label(
             inner,
             text=item["icon"],
-            font=("Segoe UI", 11),
+            font=(_BODY, 11),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             width=2
@@ -229,7 +249,7 @@ class SidebarNav:
         text_label = tk.Label(
             inner,
             text=item["label"],
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             anchor="w"
@@ -242,7 +262,7 @@ class SidebarNav:
             arrow_label = tk.Label(
                 inner,
                 text="›",
-                font=("Segoe UI", 12),
+                font=(_BODY, 12),
                 bg=self.COLORS["bg"],
                 fg=self.COLORS["text"]
             )
@@ -303,7 +323,7 @@ class SidebarNav:
         text_label = tk.Label(
             inner,
             text=label,
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             anchor="w"
@@ -484,10 +504,10 @@ class SidebarNav:
         bottom.pack(fill="x", side="bottom", pady=(0, 15))
 
         # Settings
-        self._create_bottom_item(bottom, "settings", "⚙", "Settings")
+        self._create_bottom_item(bottom, "settings", "⚙", t("nav.settings"))
 
         # Pinned
-        self._create_bottom_item(bottom, "pinned", "📌", "Pinned")
+        self._create_bottom_item(bottom, "pinned", "📌", t("nav.pinned"))
 
     def _create_bottom_item(self, parent, item_id, icon, label):
         """Create an item in bottom section."""
@@ -500,7 +520,7 @@ class SidebarNav:
         icon_label = tk.Label(
             inner,
             text=icon,
-            font=("Segoe UI", 11),
+            font=(_BODY, 11),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             width=2
@@ -510,7 +530,7 @@ class SidebarNav:
         text_label = tk.Label(
             inner,
             text=label,
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             anchor="w"
@@ -541,6 +561,47 @@ class SidebarNav:
             widget.bind("<Enter>", on_enter)
             widget.bind("<Leave>", on_leave)
 
+    def rebuild_nav(self) -> None:
+        """
+        Destroy and recreate the navigation container with translated labels.
+        Called automatically when the active language changes.
+        Also rebuilds the bottom section so Settings / Pinned labels update.
+        """
+        # ── Rebuild main nav ───────────────────────────────────────────────────
+        if hasattr(self, "nav_container") and self.nav_container.winfo_exists():
+            self.nav_container.destroy()
+        self.item_widgets.clear()
+        self._build_navigation()
+
+        # ── Rebuild bottom section ─────────────────────────────────────────────
+        # The bottom frame is identified by the last two pack slaves with
+        # side="bottom".  Simplest approach: find and destroy both the separator
+        # and the bottom container, then rebuild.
+        slaves = self.frame.pack_slaves()
+        # Collect bottom-packed slaves (separator + bottom container)
+        for slave in slaves:
+            pack_info = slave.pack_info()
+            if pack_info.get("side") == "bottom":
+                slave.destroy()
+        self._build_bottom_section()
+
+        # Restore active state (subitems_frame visibility included)
+        if self.active_item:
+            # Re-expand parent category if a subitem was active
+            if "." in self.active_item:
+                parent_id = self.active_item.split(".")[0]
+                if parent_id in self.expanded_categories:
+                    self._expand_category(parent_id)
+            self._set_active(self.active_item)
+
+    def destroy(self) -> None:
+        """Clean up language-change callback registration."""
+        unregister_on_change(self.rebuild_nav)
+        try:
+            self.frame.destroy()
+        except Exception:
+            pass
+
     def pack(self, **kwargs):
         """Pack sidebar widget."""
         self.frame.pack(**kwargs)
@@ -563,3 +624,71 @@ class SidebarNav:
             self._set_active(full_id)
         else:
             self._set_active(page_id)
+
+    # ── Auto-hide sidebar ─────────────────────────────────────────────────────
+
+    def set_auto_hide(self, enabled: bool, delay_ms: int = 3000) -> None:
+        """
+        Enable / disable mouse-leave auto-collapse.
+        When enabled the sidebar collapses to a 48 px icon rail after
+        `delay_ms` ms of the cursor being outside the sidebar frame.
+        On cursor re-entry the sidebar expands immediately.
+        """
+        self._auto_hide       = enabled
+        self._auto_hide_delay = delay_ms
+
+        if enabled:
+            self.frame.bind("<Leave>", self._on_sidebar_leave)
+            self.frame.bind("<Enter>", self._on_sidebar_enter)
+        else:
+            self.frame.unbind("<Leave>")
+            self.frame.unbind("<Enter>")
+            self._cancel_auto_collapse()
+            if self._collapsed:
+                self._expand_sidebar()
+
+    def _on_sidebar_leave(self, event) -> None:
+        """Fires when pointer leaves the sidebar frame or any child widget."""
+        # Verify the cursor actually left the sidebar bounding box
+        sx = self.frame.winfo_rootx()
+        sy = self.frame.winfo_rooty()
+        sw = self.frame.winfo_width()
+        sh = self.frame.winfo_height()
+        if sx <= event.x_root <= sx + sw and sy <= event.y_root <= sy + sh:
+            return  # still inside - child widget boundary noise
+        self._cancel_auto_collapse()
+        self._collapse_timer = self.frame.after(
+            self._auto_hide_delay, self._collapse_sidebar
+        )
+
+    def _on_sidebar_enter(self, event) -> None:
+        """Fires when pointer enters the sidebar - cancel pending collapse and expand."""
+        self._cancel_auto_collapse()
+        if self._collapsed:
+            self._expand_sidebar()
+
+    def _cancel_auto_collapse(self) -> None:
+        if self._collapse_timer is not None:
+            try:
+                self.frame.after_cancel(self._collapse_timer)
+            except Exception:
+                pass
+            self._collapse_timer = None
+
+    def _collapse_sidebar(self) -> None:
+        """Shrink sidebar to icon-rail width (48 px)."""
+        if not self._auto_hide:
+            return
+        self._collapsed = True
+        try:
+            self.frame.config(width=48)
+        except Exception:
+            pass
+
+    def _expand_sidebar(self) -> None:
+        """Restore sidebar to full width."""
+        self._collapsed = False
+        try:
+            self.frame.config(width=self.width)
+        except Exception:
+            pass

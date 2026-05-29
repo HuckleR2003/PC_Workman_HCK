@@ -7,6 +7,15 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, Any, Callable, Optional
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class SensorTreeView:
     """
@@ -92,7 +101,7 @@ class SensorTreeView:
         icon_label = tk.Label(
             header_content,
             text="▼",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg="#1a1d24",
             fg="#8b5cf6"
         )
@@ -170,7 +179,7 @@ class SensorTreeView:
         name_label = tk.Label(
             row,
             text=sensor_name + ":",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg="#0f1117",
             fg="#cbd5e1",
             anchor="w",
@@ -183,12 +192,41 @@ class SensorTreeView:
         value_label = tk.Label(
             row,
             text=sensor_data['value'],
-            font=("Consolas", 9, "bold"),
+            font=(_MONO, 9, "bold"),
             bg="#0f1117",
             fg=color,
-            anchor="w"
+            anchor="w",
+            width=20
         )
         value_label.pack(side="left", padx=(10, 0))
+
+        # Max column (packed right -> appears further left than min)
+        max_val_label = tk.Label(
+            row,
+            text=sensor_data.get('max', '-'),
+            font=(_MONO, 8),
+            bg="#0f1117",
+            fg="#374151",
+            anchor="e",
+            width=9
+        )
+        max_val_label.pack(side="right", padx=(0, 8))
+        max_hdr = tk.Label(row, text="max:", font=(_BODY, 7), bg="#0f1117", fg="#1f2937", width=4)
+        max_hdr.pack(side="right")
+
+        # Min column
+        min_val_label = tk.Label(
+            row,
+            text=sensor_data.get('min', '-'),
+            font=(_MONO, 8),
+            bg="#0f1117",
+            fg="#374151",
+            anchor="e",
+            width=9
+        )
+        min_val_label.pack(side="right", padx=(0, 2))
+        min_hdr = tk.Label(row, text="min:", font=(_BODY, 7), bg="#0f1117", fg="#1f2937", width=4)
+        min_hdr.pack(side="right", padx=(12, 0))
 
         # Right-click menu
         if self.on_sensor_right_click:
@@ -198,17 +236,15 @@ class SensorTreeView:
             row.bind("<Button-3>", on_right_click)
 
         # Hover effect
+        _hover_widgets = [row, bullet, name_label, value_label, min_hdr, min_val_label, max_hdr, max_val_label]
+
         def on_enter(e):
-            row.config(bg="#1a1d24")
-            bullet.config(bg="#1a1d24")
-            name_label.config(bg="#1a1d24")
-            value_label.config(bg="#1a1d24")
+            for w in _hover_widgets:
+                w.config(bg="#1a1d24")
 
         def on_leave(e):
-            row.config(bg="#0f1117")
-            bullet.config(bg="#0f1117")
-            name_label.config(bg="#0f1117")
-            value_label.config(bg="#0f1117")
+            for w in _hover_widgets:
+                w.config(bg="#0f1117")
 
         row.bind("<Enter>", on_enter)
         row.bind("<Leave>", on_leave)
@@ -216,6 +252,8 @@ class SensorTreeView:
         return {
             'row': row,
             'value_label': value_label,
+            'min_val_label': min_val_label,
+            'max_val_label': max_val_label,
             'color': color
         }
 
@@ -296,8 +334,8 @@ def create_sensor_tree_page(parent, hardware_sensors, on_sensor_right_click=None
     # Info text
     info = tk.Label(
         header,
-        text="Right-click sensor → Add to Dashboard / System Tray",
-        font=("Segoe UI", 8),
+        text="Right-click sensor -> Add to Dashboard / System Tray",
+        font=(_BODY, 8),
         bg="#1a1d24",
         fg="#64748b"
     )
@@ -327,7 +365,7 @@ if __name__ == "__main__":
     sensors = HardwareSensors()
 
     def on_right_click(category, sensor_name, sensor_data):
-        print(f"Right-clicked: {category} → {sensor_name} = {sensor_data['value']}")
+        print(f"Right-clicked: {category} -> {sensor_name} = {sensor_data['value']}")
 
     tree = create_sensor_tree_page(root, sensors, on_right_click)
 

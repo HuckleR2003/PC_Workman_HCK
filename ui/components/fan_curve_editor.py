@@ -8,6 +8,15 @@ from typing import List, Tuple, Optional, Dict, Callable
 import json
 import os
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class FanCurvePoint:
     """Single point on fan curve"""
@@ -126,7 +135,7 @@ class FanCurveEditor:
         self.info_label = tk.Label(
             self.container,
             text="💡 Drag points to adjust curve | Click to add points | Right-click to remove",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg="#1a1d24",
             fg="#64748b"
         )
@@ -136,7 +145,7 @@ class FanCurveEditor:
         self.point_info = tk.Label(
             self.container,
             text="",
-            font=("Consolas", 10, "bold"),
+            font=(_MONO, 10, "bold"),
             bg="#1a1d24",
             fg="#8b5cf6"
         )
@@ -174,7 +183,7 @@ class FanCurveEditor:
                     x, self.padding + self.graph_height + 15,
                     text=f"{temp}°C",
                     fill="#64748b",
-                    font=("Consolas", 9)
+                    font=(_MONO, 9)
                 )
 
         # Horizontal lines (fan speed)
@@ -194,7 +203,7 @@ class FanCurveEditor:
                     self.padding - 20, y,
                     text=f"{speed}%",
                     fill="#64748b",
-                    font=("Consolas", 9)
+                    font=(_MONO, 9)
                 )
 
         # Axis labels
@@ -202,14 +211,14 @@ class FanCurveEditor:
             self.width // 2, self.padding + self.graph_height + 40,
             text="Temperature (°C)",
             fill="#ffffff",
-            font=("Segoe UI", 10, "bold")
+            font=(_BODY, 10, "bold")
         )
 
         self.canvas.create_text(
             15, self.height // 2,
             text="Fan Speed (%)",
             fill="#ffffff",
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             angle=90
         )
 
@@ -279,7 +288,7 @@ class FanCurveEditor:
                 x, y - self.point_radius - 15,
                 text=f"{point.temp}°C\n{point.speed}%",
                 fill="#a855f7",
-                font=("Consolas", 8, "bold"),
+                font=(_MONO, 8, "bold"),
                 tags=f"point_{i}_label"
             )
 
@@ -328,7 +337,7 @@ class FanCurveEditor:
 
         # Update point info
         self.point_info.config(
-            text=f"Point {self.dragging_point + 1}: {int(temp)}°C → {int(speed)}%"
+            text=f"Point {self.dragging_point + 1}: {int(temp)}°C -> {int(speed)}%"
         )
 
         # Redraw
@@ -456,7 +465,7 @@ def create_fan_curve_page(parent, on_curve_change=None):
     tk.Label(
         warning_inner,
         text="⚠️ EXPERIMENTAL: Fan control requires admin rights and compatible hardware",
-        font=("Segoe UI", 8),
+        font=(_BODY, 8),
         bg="#451a03",
         fg="#fb923c",
         anchor="w"

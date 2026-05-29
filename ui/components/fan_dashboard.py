@@ -8,6 +8,15 @@ from typing import List, Tuple, Optional, Dict, Callable
 import json
 import os
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 try:
     import psutil
 except ImportError:
@@ -159,20 +168,20 @@ class CompactFanCurveGraph(tk.Canvas):
         for i in range(0, 101, 25):
             y = margin_top + graph_height * (1 - i / 100)
             self.create_text(margin_left - 10, y, text=f"{i}%",
-                           fill="#64748b", font=("Segoe UI", 7), anchor="e")
+                           fill="#64748b", font=(_BODY, 7), anchor="e")
 
         # X-axis labels (0°, 20°, 40°, 60°, 80°, 100°)
         for temp in range(0, 101, 20):
             x = margin_left + graph_width * (temp / 100)
             self.create_text(x, margin_top + graph_height + 10, text=f"{temp}°",
-                           fill="#64748b", font=("Segoe UI", 7), anchor="n")
+                           fill="#64748b", font=(_BODY, 7), anchor="n")
 
         # Top right label (current temp/speed indicator)
         if self.points:
             last_point = self.points[-1]
             self.create_text(self.width - 10, 10,
-                           text=f"{int(last_point.temp)}°C → {int(last_point.speed)}%",
-                           fill="#a855f7", font=("Segoe UI", 9, "bold"), anchor="ne")
+                           text=f"{int(last_point.temp)}°C -> {int(last_point.speed)}%",
+                           fill="#a855f7", font=(_BODY, 9, "bold"), anchor="ne")
 
     def _on_click(self, event):
         """Handle click"""
@@ -226,7 +235,7 @@ class CompactFanCurveGraph(tk.Canvas):
 
 
 # ============================================================
-# VERTICAL GRADIENT SLIDER (Heat Metaphor: Green→Red)
+# VERTICAL GRADIENT SLIDER (Heat Metaphor: Green->Red)
 # ============================================================
 
 class VerticalGradientSlider(tk.Canvas):
@@ -266,12 +275,12 @@ class VerticalGradientSlider(tk.Canvas):
         """Draw vertical slider with gradient"""
         self.delete("all")
 
-        # Gradient background (Green bottom → Red top)
+        # Gradient background (Green bottom -> Red top)
         for i in range(self.slider_height):
             # Ratio: 0 (bottom/green) to 1 (top/red)
             ratio = i / self.slider_height
 
-            # Gradient: green (#10b981) → yellow (#fbbf24) → red (#ef4444)
+            # Gradient: green (#10b981) -> yellow (#fbbf24) -> red (#ef4444)
             if ratio < 0.5:
                 # Green to Yellow
                 r = int(16 + (251 - 16) * (ratio * 2))
@@ -325,14 +334,14 @@ class VerticalGradientSlider(tk.Canvas):
         self.create_text(
             30, 5,
             text=self.label, fill="#94a3b8",
-            font=("Segoe UI", 7, "bold"), anchor="n"
+            font=(_BODY, 7, "bold"), anchor="n"
         )
 
         # Value (bottom)
         self.create_text(
             30, self.slider_y + self.slider_height + 10,
             text=f"{self.value}{self.unit}",
-            fill="#ffffff", font=("Segoe UI", 9, "bold"), anchor="n"
+            fill="#ffffff", font=(_BODY, 9, "bold"), anchor="n"
         )
 
     def _on_click(self, event):
@@ -420,7 +429,7 @@ class TrapezoidalProfileButton(tk.Canvas):
             # Draw gradient lines ONLY within trapezoid bounds
             for i in range(width):
                 ratio = i / width
-                # Gradient: dark red → bright red
+                # Gradient: dark red -> bright red
                 r = int(139 + (239 - 139) * ratio)
                 g = int(0 + (68 - 0) * ratio)
                 b = int(0 + (68 - 0) * ratio)
@@ -456,7 +465,7 @@ class TrapezoidalProfileButton(tk.Canvas):
         self.create_text(
             width // 2, height // 2,
             text=self.label.upper(),
-            font=("Segoe UI", 8, "bold"),
+            font=(_BODY, 8, "bold"),
             fill=text_color,
             anchor="center"
         )
@@ -481,7 +490,7 @@ class TrapezoidalProfileButton(tk.Canvas):
             self.create_text(
                 width // 2, height // 2,
                 text=self.label.upper(),
-                font=("Segoe UI", 8, "bold"),
+                font=(_BODY, 8, "bold"),
                 fill="#94a3b8",
                 anchor="center"
             )
@@ -516,7 +525,7 @@ class AdvancedCoolingPanel(tk.Frame):
         self.on_option_change = on_option_change
 
         # Header
-        tk.Label(self, text="⚙️ ADVANCED COOLING", font=("Segoe UI", 9, "bold"),
+        tk.Label(self, text="⚙️ ADVANCED COOLING", font=(_BODY, 9, "bold"),
                 bg="#1a1d24", fg="#8b5cf6").pack(pady=(10, 5))
 
         self._build_controls()
@@ -542,11 +551,11 @@ class AdvancedCoolingPanel(tk.Frame):
         tk.Frame(self, bg="#334155", height=2).pack(fill="x", padx=10, pady=10)
 
         # Fan Health Status
-        tk.Label(self, text="🔧 FAN HEALTH", font=("Segoe UI", 8, "bold"),
+        tk.Label(self, text="🔧 FAN HEALTH", font=(_BODY, 8, "bold"),
                 bg="#1a1d24", fg="#94a3b8").pack(pady=5)
 
         self.health_text = tk.Label(self, text="✅ All fans OK\n⚡ PWM Active\n🌡️ Temp: 55°C",
-                                   font=("Segoe UI", 7), bg="#1a1d24", fg="#10b981",
+                                   font=(_BODY, 7), bg="#1a1d24", fg="#10b981",
                                    justify="left", wraplength=180)
         self.health_text.pack(padx=10, pady=5)
 
@@ -556,13 +565,13 @@ class AdvancedCoolingPanel(tk.Frame):
         frame.pack(fill="x", padx=10, pady=5)
 
         # Label
-        tk.Label(frame, text=label, font=("Segoe UI", 7, "bold"),
+        tk.Label(frame, text=label, font=(_BODY, 7, "bold"),
                 bg="#1a1d24", fg="#94a3b8").pack(anchor="w")
 
         # Dropdown
         var = tk.StringVar(value=default)
         dropdown = ttk.Combobox(frame, textvariable=var, values=options,
-                               state="readonly", width=18, font=("Segoe UI", 7))
+                               state="readonly", width=18, font=(_BODY, 7))
         dropdown.pack(fill="x", pady=(2, 0))
         dropdown.bind("<<ComboboxSelected>>",
                      lambda e: self.on_option_change(label, var.get()))
@@ -613,11 +622,11 @@ class SaveProfileDialog:
         header.pack(fill="x")
         header.pack_propagate(False)
 
-        tk.Label(header, text="Save Fan Curve Profile", font=("Segoe UI", 11, "bold"),
+        tk.Label(header, text="Save Fan Curve Profile", font=(_BODY, 11, "bold"),
                 bg="#1a1d24", fg="#ffffff").pack(side="left", padx=15, pady=8)
 
         # Close button
-        close_btn = tk.Label(header, text="✖", font=("Segoe UI", 10, "bold"),
+        close_btn = tk.Label(header, text="✖", font=(_BODY, 10, "bold"),
                             bg="#1a1d24", fg="#64748b", cursor="hand2", padx=8)
         close_btn.pack(side="right", padx=8)
         close_btn.bind("<Button-1>", lambda e: self.dialog.destroy())
@@ -629,14 +638,14 @@ class SaveProfileDialog:
         content.pack(fill="both", expand=True, padx=20, pady=15)
 
         # Section 1: Save to Profile Slot
-        tk.Label(content, text="Save current curve to:", font=("Segoe UI", 9, "bold"),
+        tk.Label(content, text="Save current curve to:", font=(_BODY, 9, "bold"),
                 bg="#0f1117", fg="#94a3b8").pack(anchor="w", pady=(0, 8))
 
         profile_btns = tk.Frame(content, bg="#0f1117")
         profile_btns.pack(fill="x", pady=(0, 20))
 
         for slot in ["P1", "P2"]:
-            btn = tk.Label(profile_btns, text=f"Profile {slot}", font=("Segoe UI", 10, "bold"),
+            btn = tk.Label(profile_btns, text=f"Profile {slot}", font=(_BODY, 10, "bold"),
                           bg="#8b5cf6", fg="#ffffff", cursor="hand2", pady=10)
             btn.pack(side="left", fill="x", expand=True, padx=3)
             btn.bind("<Button-1>", lambda e, s=slot: self._save_to_slot(s))
@@ -650,10 +659,10 @@ class SaveProfileDialog:
         tk.Frame(content, bg="#334155", height=1).pack(fill="x", pady=(0, 15))
 
         # Section 2: Load Configuration File
-        tk.Label(content, text="Load configuration:", font=("Segoe UI", 9, "bold"),
+        tk.Label(content, text="Load configuration:", font=(_BODY, 9, "bold"),
                 bg="#0f1117", fg="#94a3b8").pack(anchor="w", pady=(0, 8))
 
-        load_btn = tk.Label(content, text="📁 Load from File", font=("Segoe UI", 10, "bold"),
+        load_btn = tk.Label(content, text="📁 Load from File", font=(_BODY, 10, "bold"),
                            bg="#06b6d4", fg="#ffffff", cursor="hand2", pady=10)
         load_btn.pack(fill="x")
         load_btn.bind("<Button-1>", lambda e: self._load_from_file())
@@ -718,7 +727,7 @@ class SaveProfileDialog:
 class FanDashboardUltimate:
     """
     ULTIMATE Fan Dashboard
-    - LEFT: Vertical gradient sliders (green bottom → red top)
+    - LEFT: Vertical gradient sliders (green bottom -> red top)
     - TOP: Color-coded profile buttons
     - CENTER: Interactive fan curve graph
     - RIGHT: Advanced cooling controls (PWM/DC, Multi-fan sync, 0dB mode)
@@ -772,7 +781,7 @@ class FanDashboardUltimate:
         label_frame = tk.Frame(section, bg="#0f1117")
         label_frame.pack(side="left", padx=10, pady=(5, 0))
 
-        profiles_lbl = tk.Label(label_frame, text="PROFILES", font=("Segoe UI", 9, "bold"),
+        profiles_lbl = tk.Label(label_frame, text="PROFILES", font=(_BODY, 9, "bold"),
                                bg="#0f1117", fg="#ffffff")
         profiles_lbl.pack()
 
@@ -817,11 +826,11 @@ class FanDashboardUltimate:
         arrow_section.pack_propagate(False)
 
         # Arrow symbol
-        tk.Label(arrow_section, text="→", font=("Segoe UI", 10, "bold"),
+        tk.Label(arrow_section, text="->", font=(_BODY, 10, "bold"),
                 bg="#ef4444", fg="#ffffff").pack(expand=True)
 
         # Right: Button text
-        tk.Label(btn, text=text, font=("Segoe UI", 8, "bold"),
+        tk.Label(btn, text=text, font=(_BODY, 8, "bold"),
                 bg=bg_color, fg="#ffffff", pady=8, padx=10, anchor="w").pack(side="left", fill="x", expand=True)
 
     def _build_left_panel(self, parent):
@@ -879,11 +888,11 @@ class FanDashboardUltimate:
         buttons_row = tk.Frame(sliders_section, bg="#0a0e27")
         buttons_row.pack(fill="x", pady=(10, 0))
 
-        apply_btn = tk.Label(buttons_row, text="APPLY", font=("Segoe UI", 7, "bold"),
+        apply_btn = tk.Label(buttons_row, text="APPLY", font=(_BODY, 7, "bold"),
                             bg="#047857", fg="#ffffff", cursor="hand2", pady=4)
         apply_btn.pack(side="left", fill="x", expand=True, padx=(0, 3))
 
-        default_btn = tk.Label(buttons_row, text="DEFAULT", font=("Segoe UI", 7, "bold"),
+        default_btn = tk.Label(buttons_row, text="DEFAULT", font=(_BODY, 7, "bold"),
                               bg="#374151", fg="#ffffff", cursor="hand2", pady=4)
         default_btn.pack(side="left", fill="x", expand=True, padx=(3, 0))
 
@@ -898,7 +907,7 @@ class FanDashboardUltimate:
 
         # HEADER: Fan name (highlighted background, full width)
         header_bg = "#374151" if rpm > 0 else "#1f2937"
-        tk.Label(card, text=name, font=("Segoe UI", 8, "bold"),
+        tk.Label(card, text=name, font=(_BODY, 8, "bold"),
                 bg=header_bg, fg="#e5e7eb", pady=2).pack(fill="x")
 
         # CONTENT ROW: Left (status + model) | Right (RPM circle)
@@ -912,11 +921,11 @@ class FanDashboardUltimate:
         # Status: Connected / Not available
         status_color = "#10b981" if rpm > 0 else "#6b7280"
         status_text = "Connected" if rpm > 0 else "Not available"
-        tk.Label(left_info, text=status_text, font=("Segoe UI", 7),
+        tk.Label(left_info, text=status_text, font=(_BODY, 7),
                 bg="#1a1d24", fg=status_color, anchor="w").pack(fill="x")
 
         # Model (under status)
-        tk.Label(left_info, text=model, font=("Segoe UI", 6),
+        tk.Label(left_info, text=model, font=(_BODY, 6),
                 bg="#1a1d24", fg="#9ca3af", anchor="w").pack(fill="x")
 
         # RIGHT SIDE: RPM Circle
@@ -935,7 +944,7 @@ class FanDashboardUltimate:
                              outline="#ef4444", width=3, style="arc")
 
         # RPM value in center
-        canvas.create_text(20, 20, text=str(rpm), font=("Segoe UI", 8, "bold"), fill="#ffffff")
+        canvas.create_text(20, 20, text=str(rpm), font=(_BODY, 8, "bold"), fill="#ffffff")
 
     def _create_modern_slider(self, parent, label, min_val, max_val, default, unit):
         """Create modern horizontal slider (red track)"""
@@ -943,7 +952,7 @@ class FanDashboardUltimate:
         container.pack(fill="x", pady=5)
 
         # Label (left)
-        tk.Label(container, text=label, font=("Segoe UI", 7, "bold"),
+        tk.Label(container, text=label, font=(_BODY, 7, "bold"),
                 bg="#0a0e27", fg="#94a3b8").pack(anchor="w", pady=(0, 3))
 
         # Slider + value display row
@@ -971,7 +980,7 @@ class FanDashboardUltimate:
         value_box.pack_propagate(False)
 
         value_label = tk.Label(value_box, text=f"{default} {unit}",
-                              font=("Segoe UI", 7, "bold"), bg="#374151", fg="#ffffff")
+                              font=(_BODY, 7, "bold"), bg="#374151", fg="#ffffff")
         value_label.pack(expand=True)
 
     def _build_center_panel(self, parent):
@@ -988,7 +997,7 @@ class FanDashboardUltimate:
         header_bar.pack(fill="x", pady=(0, 3))  # 3px spacing to graph
         header_bar.pack_propagate(False)
 
-        tk.Label(header_bar, text="FAN CURVE - Setup", font=("Segoe UI", 10, "bold"),
+        tk.Label(header_bar, text="FAN CURVE - Setup", font=(_BODY, 10, "bold"),
                 bg="#1a1d24", fg="#ffffff").pack(side="left", padx=15, pady=5)
 
         # Graph (very close to header - 3px spacing)
@@ -1018,7 +1027,7 @@ class FanDashboardUltimate:
 
         # Container with exact spacing between buttons (like screenshot)
         for i, (text, callback, color) in enumerate(buttons):
-            btn = tk.Label(section, text=text, font=("Segoe UI", 9, "bold"),
+            btn = tk.Label(section, text=text, font=(_BODY, 9, "bold"),
                           bg=color, fg="#ffffff", cursor="hand2", padx=20, pady=8)
             btn.pack(side="left", padx=3 if i > 0 else 0, expand=True, fill="both")
             btn.bind("<Button-1>", lambda e, cb=callback: cb())
@@ -1092,12 +1101,12 @@ class FanDashboardUltimate:
                             # Draw black outline for better visibility
                             for dx, dy in [(-1,-1), (-1,1), (1,-1), (1,1)]:
                                 canvas.create_text(40+dx, 40+dy, text=f"{temp}°C",
-                                                 font=("Segoe UI", 14, "bold"),
+                                                 font=(_BODY, 14, "bold"),
                                                  fill="#000000", tags="temp_outline")
 
                             # White text on top
                             canvas.create_text(40, 40, text=f"{temp}°C",
-                                             font=("Segoe UI", 14, "bold"),
+                                             font=(_BODY, 14, "bold"),
                                              fill="#ffffff", tags="temp_text")
 
                 except Exception as e:
@@ -1109,7 +1118,7 @@ class FanDashboardUltimate:
                 self._create_fallback_icon(icon_frame, label, temp)
 
             # Label below icon
-            tk.Label(icon_frame, text=label, font=("Segoe UI", 8, "bold"),
+            tk.Label(icon_frame, text=label, font=(_BODY, 8, "bold"),
                     bg="#0a0e27", fg="#8b5cf6").pack(pady=(3, 0))
 
         # Start fan animation
@@ -1129,7 +1138,7 @@ class FanDashboardUltimate:
 
         if temp:
             canvas.create_text(40, 40, text=f"{temp}°C",
-                             font=("Segoe UI", 12, "bold"), fill="#ffffff")
+                             font=(_BODY, 12, "bold"), fill="#ffffff")
 
     def _animate_fan(self):
         """Animate fan rotation (optimized for performance)"""

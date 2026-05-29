@@ -8,6 +8,15 @@ import tkinter as tk
 from ui.theme import THEME
 from core.process_definitions import get_process_definition
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class ProcessTooltip:
     """
@@ -73,7 +82,7 @@ class ProcessTooltip:
             frame,
             bg=THEME["bg_panel"],
             fg=THEME["text"],
-            font=("Segoe UI", 8),
+            font=(_BODY, 8),
             bd=0,
             wrap="word",
             padx=10,
@@ -95,11 +104,11 @@ class ProcessTooltip:
         content.insert("end", f"Developer: {definition['developer']}", "muted")
 
         # Configure tags
-        content.tag_config("title", font=("Segoe UI", 9, "bold"), foreground=THEME["text"])
-        content.tag_config("subtitle", font=("Consolas", 7), foreground=THEME["muted"])
-        content.tag_config("bold", font=("Segoe UI", 8, "bold"))
-        content.tag_config("warning", foreground="#FF6B35", font=("Segoe UI", 8, "bold"))
-        content.tag_config("muted", foreground=THEME["muted"], font=("Segoe UI", 7))
+        content.tag_config("title", font=(_BODY, 9, "bold"), foreground=THEME["text"])
+        content.tag_config("subtitle", font=(_MONO, 7), foreground=THEME["muted"])
+        content.tag_config("bold", font=(_BODY, 8, "bold"))
+        content.tag_config("warning", foreground="#FF6B35", font=(_BODY, 8, "bold"))
+        content.tag_config("muted", foreground=THEME["muted"], font=(_BODY, 7))
 
         content.config(state="disabled")
 

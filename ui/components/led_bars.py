@@ -2,11 +2,20 @@
 """
 LED-style segment bars for CPU/GPU/RAM usage.
 Scalable, color-mapped, neon-styled segments like MSI Afterburner.
-Also provides AnimatedBar — a smooth ease-out progress bar usable anywhere.
+Also provides AnimatedBar - a smooth ease-out progress bar usable anywhere.
 """
 
 import tkinter as tk
 from ui.theme import THEME
+
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
 
 
 class AnimatedBar:
@@ -73,7 +82,7 @@ class LEDSegmentBar:
         
         # Label
         self.lbl = tk.Label(self.frame, text=label,
-                            font=("Consolas", 9, "bold"),
+                            font=(_MONO, 9, "bold"),
                             fg=THEME["muted"], bg=THEME["bg_panel"])
         self.lbl.pack(anchor="w", padx=6, pady=(2,0))
         

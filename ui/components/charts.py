@@ -14,6 +14,15 @@ from matplotlib import ticker as mticker
 from matplotlib.lines import Line2D
 from ui.theme import THEME
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 
 class EnhancedMainChart:
     """Interactive chart with click event support"""

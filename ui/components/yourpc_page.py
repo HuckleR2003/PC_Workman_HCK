@@ -6,8 +6,17 @@ import tkinter as tk
 import os
 import time
 
+# i18n - graceful fallback if utils not on path
+try:
+    from utils.i18n import t as _t
+except ImportError:
+    def _t(key: str, **kwargs) -> str:
+        # bare fallback: return last segment of key
+        base = key.split(".")[-1].replace("_", " ").upper()
+        return base.format(**kwargs) if kwargs else base
+
 # ── Typography ────────────────────────────────────────────────────────────────
-# Inter (loaded at startup via utils.fonts.load) → falls back to Segoe UI.
+# Inter (loaded at startup via utils.fonts.load) -> falls back to Segoe UI.
 # Segoe UI Semibold used for all headings.
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
@@ -53,7 +62,7 @@ class InfoTooltip:
         frame = tk.Frame(self.tip, bg="#1a1a2e", bd=1, relief="solid")
         frame.pack()
         for line in self.lines:
-            tk.Label(frame, text=line, font=("Segoe UI", 7), bg="#1a1a2e",
+            tk.Label(frame, text=line, font=(_BODY, 7), bg="#1a1a2e",
                     fg="#e0e0e0", padx=6, pady=1).pack(anchor="w")
 
     def hide(self, e=None):
@@ -74,17 +83,35 @@ def build_yourpc_page(self, parent):
     nav_bar.pack(fill="x")
     nav_bar.pack_propagate(False)
 
-    # Page title — left edge, bold modern
-    tk.Label(nav_bar, text="MY PC", font=("Inter", 8, "bold"),
+    # Page title - left edge, bold modern
+    tk.Label(nav_bar, text=_t("my_pc.page_title"), font=(_BODY, 8, "bold"),
              bg="#0f1117", fg="#3b82f6", padx=10).pack(side="left", fill="y")
     tk.Frame(nav_bar, bg="#1f2937", width=1).pack(side="left", fill="y", pady=5)
 
     tabs_frame = tk.Frame(nav_bar, bg="#0f1117")
     tabs_frame.pack(side="left", fill="y")
 
-    for text, tab_id in [("Central", "central"), ("Efficiency", "efficiency"),
-                          ("Health", "health"), ("Components", "components"), ("Startup", "startup")]:
+    for text, tab_id in [
+        (_t("my_pc.central_title"),    "central"),
+        (_t("my_pc.efficiency_title"), "efficiency"),
+        (_t("my_pc.health_title"),     "health"),
+        (_t("my_pc.components_title"), "components"),
+        (_t("my_pc.startup_title"),    "startup"),
+        (_t("my_pc.map_title"),        "map"),
+    ]:
         _create_tab(self, tabs_frame, text, tab_id)
+
+    # Small "PC" superscript next to MAP tab
+    try:
+        map_tab = self.yourpc_tabs["map"]
+        pc_badge = tk.Label(tabs_frame, text=" PC",
+                            font=(_BODY, 5, "bold"),
+                            bg="#0f1117", fg="#3b82f6",
+                            pady=0)
+        pc_badge.pack(side="left", pady=(0, 8))
+        pc_badge.bind("<Button-1>", lambda e: _show_tab(self, "map"))
+    except Exception:
+        pass
 
     self.yourpc_content_frame = tk.Frame(main, bg="#0a0e14")
     self.yourpc_content_frame.pack(fill="both", expand=True)
@@ -93,7 +120,7 @@ def build_yourpc_page(self, parent):
 
 
 def _create_tab(self, parent, text, tab_id):
-    tab = tk.Label(parent, text=text.upper(), font=("Inter", 7, "bold"),
+    tab = tk.Label(parent, text=text.upper(), font=(_BODY, 7, "bold"),
                    bg="#0f1117", fg="#6b7280", padx=10, pady=4, cursor="hand2")
     tab.pack(side="left")
     self.yourpc_tabs[tab_id] = tab
@@ -122,9 +149,12 @@ def _show_tab(self, tab_id):
         _build_efficiency(self, self.yourpc_content_frame)
     elif tab_id == "startup":
         _build_startup(self, self.yourpc_content_frame)
+    elif tab_id == "map":
+        _build_map(self, self.yourpc_content_frame)
     else:
-        tk.Label(self.yourpc_content_frame, text=f"{tab_id.upper()} - Coming Soon",
-                font=("Segoe UI", 12), bg="#0a0e14", fg="#6b7280").pack(pady=50)
+        tk.Label(self.yourpc_content_frame,
+                text=_t("my_pc.coming_soon_tab", tab=tab_id.upper()),
+                font=(_BODY, 12), bg="#0a0e14", fg="#6b7280").pack(pady=50)
 
 
 def _build_central(self, parent):
@@ -134,7 +164,7 @@ def _build_central(self, parent):
     left = tk.Frame(container, bg="#0a0e14")
     left.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
-    tk.Label(left, text="QUICK ACTIONS", font=("Segoe UI", 6, "bold"),
+    tk.Label(left, text=_t("my_pc.quick_actions"), font=(_BODY, 6, "bold"),
              bg="#0a0e14", fg="#4b5563").pack(anchor="w", pady=(0, 3))
 
     def _nav_to(page_id, subpage_id=None):
@@ -151,11 +181,11 @@ def _build_central(self, parent):
     r1_right = tk.Frame(row1, bg="#0a0e14")
     r1_right.pack(side="left", fill="both", expand=True, padx=(1, 0))
 
-    _create_action_btn(r1_left, "\U0001f4cb", "Health Report", "#3b82f6", None,
-                       ["Advanced PC health report.", "Component history in one place."],
+    _create_action_btn(r1_left, "\U0001f4cb", _t("my_pc.health_report"), "#3b82f6", None,
+                       _t("my_pc.tooltip_health_report"),
                        lambda: _nav_to("my_pc", "health"))
-    _create_action_btn(r1_right, "\U0001f5d1\ufe0f", "Cleanup", "#ef4444", None,
-                       ["Cleanup tools.", "Combined power in one place!"],
+    _create_action_btn(r1_right, "\U0001f5d1\ufe0f", _t("my_pc.cleanup"), "#ef4444", None,
+                       _t("my_pc.tooltip_cleanup"),
                        lambda: _nav_to("optimization", "services"))
 
     # Row 1.5: System utilities (3 across)
@@ -163,11 +193,11 @@ def _build_central(self, parent):
     row_sys = tk.Frame(left, bg="#0a0e14")
     row_sys.pack(fill="x", pady=(2, 0))
     for _ico, _title, _color, _cmd in [
-        ("⚙️", "Device Manager", "#6b7280",
+        ("⚙️", _t("my_pc.device_manager"), "#6b7280",
          lambda: _sp.Popen(["devmgmt.msc"], shell=True)),
-        ("📊", "Task Manager",   "#6b7280",
+        ("📊", _t("my_pc.task_manager"),   "#6b7280",
          lambda: _sp.Popen(["taskmgr"])),
-        ("💾", "Export Report",  "#6b7280",
+        ("💾", _t("my_pc.export_report"),  "#6b7280",
          lambda: _export_health_report()),
     ]:
         _col_f = tk.Frame(row_sys, bg="#0a0e14")
@@ -176,14 +206,14 @@ def _build_central(self, parent):
 
     # Row 2: LARGE - STATS & ALERTS (yellow gradient)
     _create_large_gradient_btn(
-        left, "\u26a0", "STATS & ALERTS",
+        left, "\u26a0", _t("my_pc.stats_alerts"),
         (184, 134, 11), (251, 191, 36),
         lambda: _nav_to("monitoring_alerts", "alerts"),
-        badge_text="NO ALERTS", badge_bg="#166534",
-        tooltip=["Monthly statistics overview.", "Watch temp & voltage spikes."]
+        badge_text=_t("my_pc.no_alerts"), badge_bg="#166534",
+        tooltip=_t("my_pc.tooltip_stats"),
     )
 
-    # Row 3: MULTI-SECTION — Optimization Center / Startup Manager / Services Manager
+    # Row 3: MULTI-SECTION - Optimization Center / Startup Manager / Services Manager
     _create_optimization_hub(
         left,
         on_center=lambda: _nav_to("optimization"),
@@ -199,16 +229,19 @@ def _build_central(self, parent):
         _total = len(_CHECKLIST)
         _badge_txt = f"{_done}/{_total} done"
         _badge_bg  = "#166534" if _done == _total else "#1e3a5f" if _done > 0 else "#6b1212"
-        _sub_txt   = "All checks passed ✓" if _done == _total else f"{_total - _done} items pending"
+        _sub_txt   = (_t("my_pc.checks_passed") if _done == _total
+                      else _t("my_pc.items_pending", n=_total - _done))
     except Exception:
-        _badge_txt, _badge_bg, _sub_txt = "Check", "#1e3a5f", "Driver health & startup control"
+        _badge_txt = _t("common.ok")
+        _badge_bg  = "#1e3a5f"
+        _sub_txt   = _t("my_pc.driver_health")
     _create_large_gradient_btn(
-        left, "\U0001f680", "First Setup & Drivers",
+        left, "\U0001f680", _t("my_pc.first_setup"),
         (239, 68, 68), (107, 33, 168),
         lambda: _nav_to("first_setup"),
         badge_text=_badge_txt, badge_bg=_badge_bg,
         sub_text=_sub_txt,
-        tooltip=["Driver health  ·  Startup control", "Registry-based scan  ·  No admin needed"]
+        tooltip=_t("my_pc.tooltip_setup"),
     )
 
     # ── Separator before bottom items ─────────────────────────────────────────
@@ -223,12 +256,12 @@ def _build_central(self, parent):
     right_col = tk.Frame(bottom_row, bg="#0a0e14")
     right_col.pack(side="left", fill="both", expand=True, padx=(1, 0))
 
-    _create_action_btn(left_col, "\U0001f6e1", "Stability Tests", "#10b981", None,
-                       ["PC Workman internal diagnostics.", "File integrity, engine status, logs."],
+    _create_action_btn(left_col, "\U0001f6e1", _t("my_pc.stability_tests"), "#10b981", None,
+                       _t("my_pc.tooltip_stability"),
                        lambda: _open_stability_tests(self))
 
-    _create_action_btn(right_col, "\U0001f464", "Your Account", "#8b5cf6", None,
-                       ["Account details and preferences.", "Manage your PC Workman profile."],
+    _create_action_btn(right_col, "\U0001f464", _t("my_pc.your_account"), "#8b5cf6", None,
+                       _t("my_pc.tooltip_account"),
                        None)
 
     # ── SESSION bar ───────────────────────────────────────────────────────────
@@ -236,16 +269,16 @@ def _build_central(self, parent):
         import psutil as _psu_ses, time as _t_ses
         _sec = int(_t_ses.time() - _psu_ses.boot_time())
         _h, _m = _sec // 3600, (_sec % 3600) // 60
-        _ses_txt = f"SESSION:  {_h}h {_m}m"
+        _ses_txt = _t("my_pc.session_label", h=_h, m=_m)
     except Exception:
-        _ses_txt = "SESSION:  N/A"
+        _ses_txt = _t("my_pc.session_na")
 
     ses_bar = tk.Frame(left, bg="#1e3a5f", height=20)
     ses_bar.pack(fill="x", pady=(3, 0))
     ses_bar.pack_propagate(False)
-    tk.Label(ses_bar, text=_ses_txt, font=("Inter", 7, "bold"),
+    tk.Label(ses_bar, text=_ses_txt, font=(_BODY, 7, "bold"),
              bg="#1e3a5f", fg="#93c5fd").pack(side="left", padx=10, fill="y")
-    tk.Label(ses_bar, text="● LIVE", font=("Inter", 6),
+    tk.Label(ses_bar, text=_t("my_pc.live_badge"), font=(_BODY, 6),
              bg="#1e3a5f", fg="#60a5fa").pack(side="right", padx=8, fill="y")
 
     right = tk.Frame(container, bg="#0a0e27", width=408)
@@ -316,9 +349,9 @@ def _get_services_metrics():
 def _create_optimization_hub(parent, on_center=None, on_startup=None, on_services=None):
     """
     Multi-section Optimization banner.
-    Left (~58%): Optimization Center  →  on_center()
-    Right-top:   Startup Manager      →  on_startup()
-    Right-bottom: Services Manager    →  on_services()
+    Left (~58%): Optimization Center  ->  on_center()
+    Right-top:   Startup Manager      ->  on_startup()
+    Right-bottom: Services Manager    ->  on_services()
     Uses a single canvas with zone-based hover/click detection.
     """
     BORDER_COLOR = "#2a2d34"
@@ -342,56 +375,59 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
         sp = int(w * 0.57)   # left/right split column
         hh = h // 2          # horizontal mid for right pane
 
-        # ── Left: Optimization Center (amber → dark red) ─────────────────
+        # ── Left: Optimization Center (amber -> dark red) ─────────────────
         for x in range(0, sp, 2):
             t = x / max(sp - 1, 1)
             r, g, b = _lerp_color((139, 105, 20), (127, 29, 29), t)
             col = f"#{min(255,int(r*bc)):02x}{min(255,int(g*bc)):02x}{min(255,int(b*bc)):02x}"
             canvas.create_rectangle(x, 0, x + 2, h, fill=col, outline=col)
         canvas.create_text(14, h // 2 - 12, text="⚡",
-                           font=("Segoe UI", 13), fill="#ffffff", anchor="w")
-        canvas.create_text(38, h // 2 - 14, text="Optimization Center",
-                           font=("Segoe UI", 10, "bold"), fill="#ffffff", anchor="w")
+                           font=(_BODY, 13), fill="#ffffff", anchor="w")
+        canvas.create_text(38, h // 2 - 14, text=_t("my_pc.opt_center"),
+                           font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
         canvas.create_text(38, h // 2,
-                           text="TURBO BOOST  ·  RAM Flush  ·  TEMP clean",
-                           font=("Segoe UI", 6), fill="#e5c47a", anchor="w")
+                           text=_t("my_pc.turbo_row"),
+                           font=(_BODY, 6), fill="#e5c47a", anchor="w")
         canvas.create_text(38, h // 2 + 12,
-                           text="Automated performance & cleanup",
-                           font=("Segoe UI", 6), fill="#a38a4a", anchor="w")
+                           text=_t("my_pc.automated_cleanup"),
+                           font=(_BODY, 6), fill="#a38a4a", anchor="w")
 
         # ── Vertical divider ─────────────────────────────────────────────
         canvas.create_rectangle(sp, 0, sp + 2, h, fill="#0d0f15", outline="")
 
-        # ── Right-top: Startup Manager (dark navy → blue) ─────────────
+        # ── Right-top: Startup Manager (dark navy -> blue) ─────────────
         for x in range(sp + 2, w, 2):
             t = (x - sp - 2) / max(w - sp - 3, 1)
             r, g, b = _lerp_color((15, 40, 90), (37, 99, 235), t)
             col = f"#{min(255,int(r*bs)):02x}{min(255,int(g*bs)):02x}{min(255,int(b*bs)):02x}"
             canvas.create_rectangle(x, 0, x + 2, hh - 1, fill=col, outline=col)
-        canvas.create_text(sp + 12, hh // 2 - 6, text="🚀 Startup Manager",
-                           font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
+        canvas.create_text(sp + 12, hh // 2 - 6,
+                           text="🚀 " + _t("startup_manager.page_title"),
+                           font=(_BODY, 8, "bold"), fill="#ffffff", anchor="w")
         n_su = _state["su"]
-        su_txt = f"{n_su} startup entries detected" if n_su else "Scanning..."
+        su_txt = (_t("my_pc.startup_entries", n=n_su) if n_su
+                  else _t("my_pc.scanning"))
         canvas.create_text(sp + 12, hh // 2 + 6, text=su_txt,
-                           font=("Segoe UI", 6), fill="#93c5fd", anchor="w")
+                           font=(_BODY, 6), fill="#93c5fd", anchor="w")
 
         # ── Horizontal divider ────────────────────────────────────────────
         canvas.create_rectangle(sp + 2, hh - 1, w, hh + 1,
                                 fill="#0d0f15", outline="")
 
-        # ── Right-bottom: Services Manager (dark green → emerald) ──────
+        # ── Right-bottom: Services Manager (dark green -> emerald) ──────
         for x in range(sp + 2, w, 2):
             t = (x - sp - 2) / max(w - sp - 3, 1)
             r, g, b = _lerp_color((5, 40, 30), (16, 185, 129), t)
             col = f"#{min(255,int(r*bsv)):02x}{min(255,int(g*bsv)):02x}{min(255,int(b*bsv)):02x}"
             canvas.create_rectangle(x, hh + 1, x + 2, h, fill=col, outline=col)
         canvas.create_text(sp + 12, hh + (h - hh) // 2 - 6,
-                           text="⚙ Services Manager",
-                           font=("Segoe UI", 8, "bold"), fill="#ffffff", anchor="w")
+                           text="⚙ " + _t("my_pc.services_manager"),
+                           font=(_BODY, 8, "bold"), fill="#ffffff", anchor="w")
         n_svc = _state["svc"]
-        svc_txt = (f"{n_svc} potentially unnecessary" if n_svc else "Scanning...")
+        svc_txt = (_t("my_pc.unnecessary_services", n=n_svc) if n_svc
+                   else _t("my_pc.scanning"))
         canvas.create_text(sp + 12, hh + (h - hh) // 2 + 6, text=svc_txt,
-                           font=("Segoe UI", 6), fill="#6ee7b7", anchor="w")
+                           font=(_BODY, 6), fill="#6ee7b7", anchor="w")
 
     def _zone(x, y):
         w = canvas.winfo_width() or 400
@@ -419,7 +455,7 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
         elif z == "services" and on_services: on_services()
     canvas.bind("<Button-1>", _click)
 
-    # Background scan — fills metrics without blocking UI
+    # Background scan - fills metrics without blocking UI
     def _scan_bg():
         import threading
         def _do():
@@ -449,18 +485,18 @@ def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, com
     btn = tk.Frame(row, bg="#1a1d24", cursor="hand2")
     btn.pack(side="left", fill="both", expand=True)
 
-    icon_lbl = tk.Label(btn, text=icon, font=("Segoe UI", 8), bg="#1a1d24", fg=color)
+    icon_lbl = tk.Label(btn, text=icon, font=(_BODY, 8), bg="#1a1d24", fg=color)
     icon_lbl.pack(side="left", padx=(5, 3))
 
-    title_lbl = tk.Label(btn, text=title, font=("Segoe UI", 8, "bold"), bg="#1a1d24", fg="#e5e7eb")
+    title_lbl = tk.Label(btn, text=title, font=(_BODY, 8, "bold"), bg="#1a1d24", fg="#e5e7eb")
     title_lbl.pack(side="left")
 
     if badge:
-        badge_lbl = tk.Label(btn, text=badge, font=("Segoe UI", 6, "bold"),
+        badge_lbl = tk.Label(btn, text=badge, font=(_BODY, 6, "bold"),
                             bg="#166534", fg="#ffffff", padx=4)
         badge_lbl.pack(side="left", padx=(5, 0))
 
-    info_btn = tk.Label(row, text="i", font=("Segoe UI", 7, "bold"),
+    info_btn = tk.Label(row, text="i", font=(_BODY, 7, "bold"),
                         bg="#0a0a0a", fg="#6b7280", width=2, cursor="hand2")
     info_btn.pack(side="right", fill="y")
 
@@ -535,12 +571,12 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
         # Icon + title (left side)
         canvas.create_text(
             12, HEIGHT // 2,
-            text=icon, font=("Segoe UI", 11),
+            text=icon, font=(_BODY, 11),
             fill="#ffffff", anchor="w", tags="content"
         )
         canvas.create_text(
             32, HEIGHT // 2,
-            text=title, font=("Segoe UI", 10, "bold"),
+            text=title, font=(_BODY, 10, "bold"),
             fill="#ffffff", anchor="w", tags="content"
         )
 
@@ -559,13 +595,13 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
             )
             canvas.create_text(
                 bx - text_w // 2, HEIGHT // 2 - (3 if sub_text else 0),
-                text=badge_text, font=("Segoe UI", 6, "bold"),
+                text=badge_text, font=(_BODY, 6, "bold"),
                 fill="#ffffff", tags="content"
             )
             if sub_text:
                 canvas.create_text(
                     bx - text_w // 2, HEIGHT // 2 + 12,
-                    text=sub_text, font=("Segoe UI", 5),
+                    text=sub_text, font=(_BODY, 5),
                     fill="#9ca3af", tags="content"
                 )
 
@@ -591,7 +627,7 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
         canvas.bind("<Button-1>", lambda e: command())
 
     # Info button on the right edge
-    info_btn = tk.Label(outer, text="i", font=("Segoe UI", 7, "bold"),
+    info_btn = tk.Label(outer, text="i", font=(_BODY, 7, "bold"),
                         bg="#0a0a0a", fg="#6b7280", width=2, cursor="hand2")
     info_btn.place(relx=1.0, rely=0.0, anchor="ne", relheight=1.0)
 
@@ -603,7 +639,7 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Hey USER — Live Sensor Panel  (knowledge base + refresh engine)
+# Hey USER - Live Sensor Panel  (knowledge base + refresh engine)
 # Color key:  light-blue = cold/low · white = normal · amber = warm · red = crit
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -736,13 +772,13 @@ def _match_gpu(name: str) -> dict:
 
 # ── Colour constants ──────────────────────────────────────────────────────────
 _CN  = "#e2e8f0"   # normal / white
-_CLB = "#7dd3fc"   # light-blue — cold or below nominal
-_CWN = "#fbbf24"   # amber      — warning
-_CCR = "#ef4444"   # red        — critical
-_CNA = "#475569"   # slate-gray — no data
-_COK = "#10b981"   # green      — OK badge
-_CYL = "#f59e0b"   # yellow     — WARN badge
-_CBL = "#38bdf8"   # sky-blue   — COLD/LOW badge
+_CLB = "#7dd3fc"   # light-blue - cold or below nominal
+_CWN = "#fbbf24"   # amber      - warning
+_CCR = "#ef4444"   # red        - critical
+_CNA = "#475569"   # slate-gray - no data
+_COK = "#10b981"   # green      - OK badge
+_CYL = "#f59e0b"   # yellow     - WARN badge
+_CBL = "#38bdf8"   # sky-blue   - COLD/LOW badge
 
 # ── Colour logic ──────────────────────────────────────────────────────────────
 def _ct(temp: float, tj: int) -> str:
@@ -903,7 +939,7 @@ def _build_hey_user_table(self, parent):
     BG2 = "#0f1420"
     DIV = "#1e2538"
 
-    # Live sensor bridge (optional — graceful if import fails)
+    # Live sensor bridge (optional - graceful if import fails)
     try:
         from hck_gpt.data import live_sensors as _ls
         _HAS_LS = True
@@ -950,8 +986,8 @@ def _build_hey_user_table(self, parent):
     # "Show Full Table" button
     btn_f = tk.Frame(parent, bg=BG)
     btn_f.pack(side="bottom", fill="x", padx=5, pady=5)
-    more = tk.Label(btn_f, text="Show Full Table",
-                    font=("Segoe UI", 8, "bold"),
+    more = tk.Label(btn_f, text=_t("my_pc.show_full_table"),
+                    font=(_BODY, 8, "bold"),
                     bg="#374151", fg="#ffffff", pady=6, cursor="hand2")
     more.pack(fill="x")
     more.bind("<Enter>",    lambda e: more.config(bg="#4b5563"))
@@ -981,17 +1017,17 @@ def _build_hey_user_table(self, parent):
         hdr_cv.create_image(0, 0, image=photo, anchor="nw")
         hdr_cv.image = photo
         hdr_cv.create_text(175, 12, text="Hey - USER",
-                           font=("Segoe UI", 9, "bold"), fill="#ffffff", anchor="center")
+                           font=(_BODY, 9, "bold"), fill="#ffffff", anchor="center")
         hdr_cv.create_text(525, 12, text=computer_name,
-                           font=("Segoe UI", 9, "bold"), fill="#ffffff", anchor="center")
+                           font=(_BODY, 9, "bold"), fill="#ffffff", anchor="center")
     except Exception:
         hdr = tk.Frame(body, bg="#1e3a5f")
         hdr.pack(fill="x")
         tk.Label(hdr, text="Hey - USER",
-                 font=("Segoe UI Semibold", 10),
+                 font=(_HDR, 10),
                  bg="#1e3a5f", fg="#ffffff", pady=6).pack(side="left", padx=10)
         tk.Label(hdr, text=computer_name,
-                 font=("Segoe UI Semibold", 10),
+                 font=(_HDR, 10),
                  bg="#1e3a5f", fg="#ffffff", pady=6).pack(side="right", padx=10)
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -1005,20 +1041,20 @@ def _build_hey_user_table(self, parent):
         title_bar.pack(fill="x")
         title_bar.pack_propagate(False)
         tk.Label(title_bar, text=title,
-                 font=("Segoe UI Semibold", 6),
+                 font=(_HDR, 6),
                  bg="#1c2238", fg="#b8b0bc").pack(side="left", padx=5)
         bdg = tk.Label(title_bar, text="OK",
-                       font=("Segoe UI", 6, "bold"),
+                       font=(_BODY, 6, "bold"),
                        bg=_COK, fg="#ffffff", padx=10, pady=1)
         bdg.pack(side="right", padx=2)
 
         hdr = tk.Frame(parent_frame, bg="#080b18")
         hdr.pack(fill="x")
         tk.Label(hdr, text="", width=10, bg="#080b18",
-                 font=("Segoe UI", 5)).pack(side="left")
-        for col in ["CURRENT", "MIN", "MAX"]:
+                 font=(_BODY, 5)).pack(side="left")
+        for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
             tk.Label(hdr, text=col, width=7, bg="#080b18",
-                     fg="#3d4e6b", font=("Segoe UI", 5, "bold")).pack(side="left", padx=1)
+                     fg="#3d4e6b", font=(_BODY, 5, "bold")).pack(side="left", padx=1)
 
         container = tk.Frame(parent_frame, bg="#0f1117")
         container.pack(fill="x")
@@ -1028,15 +1064,15 @@ def _build_hey_user_table(self, parent):
             row = tk.Frame(container, bg="#0f1117")
             row.pack(fill="x")
             tk.Label(row, text=lbl_txt,
-                     font=("Segoe UI", 6), bg="#0f1117", fg="#6a7a94",
+                     font=(_BODY, 6), bg="#0f1117", fg="#6a7a94",
                      anchor="w", width=10).pack(side="left", padx=1)
-            cur_l = tk.Label(row, text="--", font=("Segoe UI", 6, "bold"),
+            cur_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             cur_l.pack(side="left", padx=1)
-            min_l = tk.Label(row, text="--", font=("Segoe UI", 6, "bold"),
+            min_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             min_l.pack(side="left", padx=1)
-            max_l = tk.Label(row, text="--", font=("Segoe UI", 6, "bold"),
+            max_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             max_l.pack(side="left", padx=1)
             cells.append((key, cur_l, min_l, max_l))
@@ -1054,9 +1090,9 @@ def _build_hey_user_table(self, parent):
                          (_CWN if col_fn(hi) == _CWN else _CNA)))
 
     # ═════════════════════════════════════════════════════════════════════════
-    # SECTION 1 — MOTHERBOARD
+    # SECTION 1 - MOTHERBOARD
     # ═════════════════════════════════════════════════════════════════════════
-    _build_trapezoid_header(body, "MOTHERBOARD", "#3b82f6")
+    _build_trapezoid_header(body, _t("my_pc.section_motherboard"), "#3b82f6")
 
     mb_outer = tk.Frame(body, bg="#1a1d24",
                         highlightbackground="#3b82f6", highlightthickness=2)
@@ -1068,7 +1104,7 @@ def _build_hey_user_table(self, parent):
     mb_r.pack(side="left", fill="both", expand=True, padx=1, pady=1)
 
     # Voltage sub-table
-    volt_bdg, volt_cells = _live_table(mb_l, "VOLTAGE", [
+    volt_bdg, volt_cells = _live_table(mb_l, _t("my_pc.section_voltage"), [
         ("+12V",  "+12V"), ("+5V", "+5V"), ("+3.3V", "+3.3V"), ("DDR", "DDR4/5"),
     ])
     _volt_ref = {"+12V": (11.40, 12.60), "+5V": (4.75, 5.25),
@@ -1081,8 +1117,8 @@ def _build_hey_user_table(self, parent):
         min_l.config(text=f"{lo_r:.2f}V" if lo_r else "--", fg="#2a3650")
         max_l.config(text=f"{hi_r:.2f}V" if hi_r else "--", fg="#2a3650")
 
-    # Temperature sub-table — probed via LHM/OHM if running
-    mb_t_bdg, mb_t_cells = _live_table(mb_r, "TEMPERATURE", [
+    # Temperature sub-table - probed via LHM/OHM if running
+    mb_t_bdg, mb_t_cells = _live_table(mb_r, _t("my_pc.section_temperature"), [
         ("mb_sys",  "SYS"),
         ("mb_vrm",  "VRM"),
     ])
@@ -1092,7 +1128,7 @@ def _build_hey_user_table(self, parent):
     _build_disk_fans_strip(body)
 
     # ═════════════════════════════════════════════════════════════════════════
-    # SECTION 2 — CPU
+    # SECTION 2 - CPU
     # ═════════════════════════════════════════════════════════════════════════
     _cpu_short = _cpu_name[:28] if len(_cpu_name) > 28 else _cpu_name
     _build_trapezoid_header(body, f"CPU  {_cpu_short}", "#3b82f6")
@@ -1110,13 +1146,13 @@ def _build_hey_user_table(self, parent):
     cpu_tr = tk.Frame(cpu_top, bg="#1a1d24")
     cpu_tr.pack(side="left", fill="both", expand=True)
 
-    cpu_t_bdg, cpu_t_cells = _live_table(cpu_tl, "TEMPERATURE (est.)", [
+    cpu_t_bdg, cpu_t_cells = _live_table(cpu_tl, _t("my_pc.section_temp_est"), [
         ("cpu_pkg", "Package"),
         ("cpu_c0",  "Core #0"),
         ("cpu_c1",  "Core #1"),
         ("cpu_c2",  "Core #2"),
     ])
-    cpu_clk_bdg, cpu_clk_cells = _live_table(cpu_tr, "CLOCKS", [
+    cpu_clk_bdg, cpu_clk_cells = _live_table(cpu_tr, _t("my_pc.section_clocks"), [
         ("cpu_cur",   "Current"),
         ("cpu_boost", "Boost"),
         ("cpu_load",  "Load %"),
@@ -1129,17 +1165,17 @@ def _build_hey_user_table(self, parent):
     cpu_br = tk.Frame(cpu_bot, bg="#1a1d24")
     cpu_br.pack(side="left", fill="both", expand=True)
 
-    cpu_pwr_bdg, cpu_pwr_cells = _live_table(cpu_bl, "POWER (est.)", [
+    cpu_pwr_bdg, cpu_pwr_cells = _live_table(cpu_bl, _t("my_pc.section_power_est"), [
         ("cpu_pwr", "Package W"),
         ("cpu_pl2", "PL2 limit"),
     ])
-    cpu_use_bdg, cpu_use_cells = _live_table(cpu_br, "USAGE / CORES", [
+    cpu_use_bdg, cpu_use_cells = _live_table(cpu_br, _t("my_pc.section_usage_cores"), [
         ("cpu_pct",  "Total %"),
         ("cpu_cphy", "Phys cores"),
     ])
 
     # ═════════════════════════════════════════════════════════════════════════
-    # SECTION 3 — GPU
+    # SECTION 3 - GPU
     # ═════════════════════════════════════════════════════════════════════════
     _gpu_label = (_gpu_name[:28] if _gpu_name else "Not detected")
     _build_trapezoid_header(body, f"GPU  {_gpu_label}", "#7c3aed")
@@ -1156,10 +1192,10 @@ def _build_hey_user_table(self, parent):
     gpu_tr = tk.Frame(gpu_top, bg="#1a1d24")
     gpu_tr.pack(side="left", fill="both", expand=True)
 
-    gpu_t_bdg, gpu_t_cells = _live_table(gpu_tl, "TEMPERATURE", [
+    gpu_t_bdg, gpu_t_cells = _live_table(gpu_tl, _t("my_pc.section_temperature"), [
         ("gpu_temp", "Core"),
     ])
-    gpu_u_bdg, gpu_u_cells = _live_table(gpu_tr, "USAGE", [
+    gpu_u_bdg, gpu_u_cells = _live_table(gpu_tr, _t("my_pc.section_usage"), [
         ("gpu_load",  "GPU %"),
         ("gpu_mem_p", "VRAM %"),
     ])
@@ -1171,19 +1207,19 @@ def _build_hey_user_table(self, parent):
     gpu_br = tk.Frame(gpu_bot, bg="#1a1d24")
     gpu_br.pack(side="left", fill="both", expand=True)
 
-    gpu_pwr_bdg, gpu_pwr_cells = _live_table(gpu_bl, "POWER", [
+    gpu_pwr_bdg, gpu_pwr_cells = _live_table(gpu_bl, _t("my_pc.section_power"), [
         ("gpu_w",   "Draw W"),
         ("gpu_tdp", "TDP W"),
     ])
-    gpu_clk_bdg, gpu_clk_cells = _live_table(gpu_br, "CLOCKS", [
+    gpu_clk_bdg, gpu_clk_cells = _live_table(gpu_br, _t("my_pc.section_clocks"), [
         ("gpu_gr",  "Core MHz"),
         ("gpu_mem", "Mem  MHz"),
     ])
 
     # ═════════════════════════════════════════════════════════════════════════
-    # SECTION 4 — DISK  (full-width grid layout, single Overload threshold)
+    # SECTION 4 - DISK  (full-width grid layout, single Overload threshold)
     # ═════════════════════════════════════════════════════════════════════════
-    _build_trapezoid_header(body, "DISK", "#0d9488")
+    _build_trapezoid_header(body, _t("my_pc.section_disk"), "#0d9488")
 
     disk_outer = tk.Frame(body, bg="#1a1d24",
                           highlightbackground="#0d9488", highlightthickness=2)
@@ -1198,9 +1234,12 @@ def _build_hey_user_table(self, parent):
     disk_hdr.columnconfigure(3, weight=3)   # Total
     disk_hdr.columnconfigure(4, weight=2)   # %
     disk_hdr.columnconfigure(5, weight=3)   # Status
-    for col_i, txt in enumerate(["Drive", "Used GB", "Free GB", "Total", "%", "Status"]):
+    for col_i, txt in enumerate([
+        _t("my_pc.disk_drive"), _t("my_pc.disk_used"), _t("my_pc.disk_free"),
+        _t("my_pc.disk_total"), _t("my_pc.disk_pct"), _t("my_pc.disk_status"),
+    ]):
         tk.Label(disk_hdr, text=txt, bg="#080b18",
-                 fg="#3d4e6b", font=("Segoe UI Semibold", 5),
+                 fg="#3d4e6b", font=(_HDR, 5),
                  anchor="center").grid(row=0, column=col_i, sticky="ew", padx=1, pady=1)
 
     # Fetch disk models once
@@ -1222,7 +1261,7 @@ def _build_hey_user_table(self, parent):
     except Exception:
         pass
 
-    # Build one row per partition — full-width grid, live label refs
+    # Build one row per partition - full-width grid, live label refs
     disk_rows: list = []
     if psutil:
         for _pidx, _part in enumerate(psutil.disk_partitions()):
@@ -1232,7 +1271,7 @@ def _build_hey_user_table(self, parent):
                 continue
             _letter = _part.device.rstrip("\\")
             _pct    = _u.percent
-            # Single threshold: 88% → Overload (orange)
+            # Single threshold: 88% -> Overload (orange)
             _pc  = "#f59e0b" if _pct >= 88 else "#10b981"
             _bt  = "Overload" if _pct >= 88 else "OK"
             _bb  = "#f59e0b" if _pct >= 88 else "#10b981"
@@ -1247,26 +1286,26 @@ def _build_hey_user_table(self, parent):
             _row.columnconfigure(5, weight=3)
 
             tk.Label(_row, text=_letter, bg="#0a0d1a", fg="#8896a8",
-                     font=("Segoe UI", 6), anchor="center").grid(
+                     font=(_BODY, 6), anchor="center").grid(
                 row=0, column=0, sticky="ew", padx=1, pady=1)
             _used_l = tk.Label(_row, text=f"{_u.used/1e9:.1f}",
                                bg="#080b18", fg=_CN,
-                               font=("Segoe UI", 6, "bold"), anchor="center")
+                               font=(_BODY, 6, "bold"), anchor="center")
             _used_l.grid(row=0, column=1, sticky="ew", padx=1)
             _free_l = tk.Label(_row, text=f"{_u.free/1e9:.1f}",
                                bg="#080b18", fg=_CN,
-                               font=("Segoe UI", 6, "bold"), anchor="center")
+                               font=(_BODY, 6, "bold"), anchor="center")
             _free_l.grid(row=0, column=2, sticky="ew", padx=1)
             _tot_l  = tk.Label(_row, text=f"{_u.total/1e9:.1f}",
                                bg="#080b18", fg=_CNA,
-                               font=("Segoe UI", 6), anchor="center")
+                               font=(_BODY, 6), anchor="center")
             _tot_l.grid(row=0, column=3, sticky="ew", padx=1)
             _pct_l  = tk.Label(_row, text=f"{_pct:.0f}%",
                                bg="#080b18", fg=_pc,
-                               font=("Segoe UI", 6, "bold"), anchor="center")
+                               font=(_BODY, 6, "bold"), anchor="center")
             _pct_l.grid(row=0, column=4, sticky="ew", padx=1)
             _bdg_l  = tk.Label(_row, text=_bt,
-                               font=("Segoe UI", 5, "bold"),
+                               font=(_BODY, 5, "bold"),
                                bg=_bb, fg="#ffffff", anchor="center")
             _bdg_l.grid(row=0, column=5, sticky="ew", padx=2, pady=1)
             disk_rows.append((_letter, _used_l, _free_l, _tot_l, _pct_l, _bdg_l))
@@ -1303,7 +1342,7 @@ def _build_hey_user_table(self, parent):
             col_t  = lambda v: _ct(v, tj)
             col_w  = lambda v: _cw(v, pl2)
 
-            # Temperature rows — package + 3 cores (same estimate; no per-core sensor)
+            # Temperature rows - package + 3 cores (same estimate; no per-core sensor)
             for key, cur_l, min_l, max_l in cpu_t_cells:
                 _upd(key, cur_l, min_l, max_l, cpu_t, fmt_c, col_t)
             bt, bb = _badge_t(cpu_t, tj)
@@ -1563,7 +1602,7 @@ def _build_trapezoid_header(parent, text, color):
             return
         skew = 10
         # Per-pixel horizontal gradient inside trapezoid
-        # top: deep bordeaux #3c1022  →  bottom: dark steel #192034
+        # top: deep bordeaux #3c1022  ->  bottom: dark steel #192034
         r1, g1, b1 = 0x3c, 0x10, 0x22
         r2, g2, b2 = 0x19, 0x20, 0x34
         for y in range(h):
@@ -1579,7 +1618,7 @@ def _build_trapezoid_header(parent, text, color):
         canvas.create_line(0, h, skew, 0, fill=color, width=1)
         canvas.create_line(w - skew, 0, w, h, fill=color, width=1)
         canvas.create_text(w // 2, h // 2 + 1, text=text,
-                           fill="#ddd0d4", font=("Segoe UI Semibold", 8),
+                           fill="#ddd0d4", font=(_HDR, 8),
                            anchor="center")
 
     canvas.bind("<Configure>", _draw)
@@ -1591,18 +1630,18 @@ def _build_mini_data_table(parent, title, rows):
     title_bar = tk.Frame(parent, bg="#fbbf24", height=12)
     title_bar.pack(fill="x")
     title_bar.pack_propagate(False)
-    tk.Label(title_bar, text=title, font=("Segoe UI", 6, "bold"),
+    tk.Label(title_bar, text=title, font=(_BODY, 6, "bold"),
              bg="#fbbf24", fg="#000000").pack(side="left", padx=5)
-    tk.Label(title_bar, text="OK", font=("Segoe UI", 6, "bold"),
+    tk.Label(title_bar, text="OK", font=(_BODY, 6, "bold"),
              bg="#10b981", fg="#ffffff", padx=12, pady=1).pack(side="right", padx=2)
 
     # Column headers
     hdr_bar = tk.Frame(parent, bg="#000000")
     hdr_bar.pack(fill="x")
-    tk.Label(hdr_bar, text="", width=10, bg="#000000", font=("Segoe UI", 5)).pack(side="left")
-    for col in ["CURRENT", "MIN", "MAX"]:
+    tk.Label(hdr_bar, text="", width=10, bg="#000000", font=(_BODY, 5)).pack(side="left")
+    for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
         tk.Label(hdr_bar, text=col, width=7, bg="#000000", fg="#64748b",
-                 font=("Segoe UI", 5, "bold")).pack(side="left", padx=1)
+                 font=(_BODY, 5, "bold")).pack(side="left", padx=1)
 
     # Data rows
     container = tk.Frame(parent, bg="#0f1117")
@@ -1614,11 +1653,11 @@ def _build_mini_data_table(parent, title, rows):
         label = row_data[0]
         vals = row_data[1:]
 
-        tk.Label(row, text=label, font=("Segoe UI", 6), bg="#0f1117", fg="#94a3b8",
+        tk.Label(row, text=label, font=(_BODY, 6), bg="#0f1117", fg="#94a3b8",
                  anchor="w", width=10).pack(side="left", padx=1)
 
         for val in vals:
-            tk.Label(row, text=val, font=("Segoe UI", 6, "bold"),
+            tk.Label(row, text=val, font=(_BODY, 6, "bold"),
                      bg="#000000", fg="#ffffff", width=7).pack(side="left", padx=1)
 
 
@@ -1632,9 +1671,9 @@ def _build_disk_fans_strip(parent):
     space = tk.Frame(strip_frame, bg="#000000", height=16)
     space.pack(fill="x", pady=(1, 0))
     space.pack_propagate(False)
-    tk.Label(space, text="SPACE", font=("Segoe UI", 6, "bold"),
+    tk.Label(space, text=_t("my_pc.section_space"), font=(_BODY, 6, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(space, text="|", font=("Segoe UI", 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
+    tk.Label(space, text="|", font=(_BODY, 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
 
     if psutil:
         try:
@@ -1643,7 +1682,7 @@ def _build_disk_fans_strip(parent):
                     usage = psutil.disk_usage(part.mountpoint)
                     pct = int(usage.percent)
                     color = "#ef4444" if pct > 90 else "#f59e0b" if pct > 75 else "#10b981"
-                    tk.Label(space, text=f"{part.device[0]}:/ {pct}%", font=("Segoe UI", 6, "bold"),
+                    tk.Label(space, text=f"{part.device[0]}:/ {pct}%", font=(_BODY, 6, "bold"),
                              bg="#000000", fg=color).pack(side="left", padx=5)
                 except Exception:
                     pass
@@ -1654,12 +1693,12 @@ def _build_disk_fans_strip(parent):
     fans = tk.Frame(strip_frame, bg="#000000", height=16)
     fans.pack(fill="x", pady=(1, 1))
     fans.pack_propagate(False)
-    tk.Label(fans, text="BODY FANS", font=("Segoe UI", 6, "bold"),
+    tk.Label(fans, text=_t("my_pc.section_fans"), font=(_BODY, 6, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(fans, text="|", font=("Segoe UI", 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
-    tk.Label(fans, text="CPU 560 RPM", font=("Segoe UI", 6),
+    tk.Label(fans, text="|", font=(_BODY, 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
+    tk.Label(fans, text="CPU 560 RPM", font=(_BODY, 6),
              bg="#000000", fg="#ffffff").pack(side="left", padx=6)
-    tk.Label(fans, text="BODYFAN 990 RPM", font=("Segoe UI", 6),
+    tk.Label(fans, text="BODYFAN 990 RPM", font=(_BODY, 6),
              bg="#000000", fg="#ffffff").pack(side="left", padx=6)
 
 
@@ -1725,10 +1764,10 @@ def _show_full_table_popup(self, parent):
 
     header = tk.Frame(popup, bg="#1e3a5f")
     header.pack(fill="x")
-    tk.Label(header, text="Full Hardware Table", font=("Segoe UI Semibold", 11),
+    tk.Label(header, text=_t("my_pc.full_hw_table"), font=(_HDR, 11),
              bg="#1e3a5f", fg="#ffffff", pady=8).pack(side="left", padx=10)
 
-    close_btn = tk.Label(header, text="X", font=("Segoe UI", 12, "bold"),
+    close_btn = tk.Label(header, text="X", font=(_BODY, 12, "bold"),
                          bg="#1e3a5f", fg="#ffffff", padx=10, cursor="hand2")
     close_btn.pack(side="right", pady=5)
     close_btn.bind("<Button-1>", lambda e: popup.destroy())
@@ -1743,11 +1782,11 @@ def _show_full_table_popup(self, parent):
             table = ProInfoTable(content)
             table.pack(fill="both", expand=True)
         except Exception as e:
-            tk.Label(content, text=f"Error: {e}", font=("Segoe UI", 10),
+            tk.Label(content, text=f"Error: {e}", font=(_BODY, 10),
                     bg="#0a0e27", fg="#ef4444").pack(pady=50)
     else:
-        tk.Label(content, text="PRO INFO TABLE not available",
-                font=("Segoe UI", 10), bg="#0a0e27", fg="#6b7280").pack(pady=50)
+        tk.Label(content, text=_t("my_pc.hw_table_unavailable"),
+                font=(_BODY, 10), bg="#0a0e27", fg="#6b7280").pack(pady=50)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1785,7 +1824,7 @@ def _sec_hdr(parent, text):
     """Section divider with bold Inter heading."""
     row = tk.Frame(parent, bg="#0a0e14")
     row.pack(fill="x", padx=8, pady=(7, 2))
-    tk.Label(row, text=text, font=("Inter", 7, "bold"),
+    tk.Label(row, text=text, font=(_BODY, 7, "bold"),
              bg="#0a0e14", fg="#64748b", letterSpacing=1).pack(side="left")
     tk.Frame(row, bg="#1e2535", height=1).pack(side="left", fill="x", expand=True, padx=8)
 
@@ -1794,9 +1833,9 @@ def _spec_row(parent, label, value, value_color="#e2e8f0", bg="#1a1d24"):
     """Single key-value row inside a card."""
     row = tk.Frame(parent, bg=bg)
     row.pack(fill="x", padx=6, pady=0)
-    tk.Label(row, text=label, font=("Segoe UI", 7), bg=bg,
+    tk.Label(row, text=label, font=(_BODY, 7), bg=bg,
              fg="#6b7280", anchor="w", width=16).pack(side="left")
-    tk.Label(row, text=value, font=("Segoe UI", 7, "bold"), bg=bg,
+    tk.Label(row, text=value, font=(_BODY, 7, "bold"), bg=bg,
              fg=value_color, anchor="w").pack(side="left")
 
 
@@ -1811,7 +1850,7 @@ def _card(parent, title, icon, accent="#3b82f6", width=None):
     hdr = tk.Frame(outer, bg=accent, height=18)
     hdr.pack(fill="x")
     hdr.pack_propagate(False)
-    tk.Label(hdr, text=f"{icon} {title}", font=("Segoe UI", 7, "bold"),
+    tk.Label(hdr, text=f"{icon} {title}", font=(_BODY, 7, "bold"),
              bg=accent, fg="#ffffff", padx=6).pack(side="left", fill="y")
 
     inner = tk.Frame(outer, bg="#1a1d24")
@@ -1824,13 +1863,13 @@ def _card(parent, title, icon, accent="#3b82f6", width=None):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _build_health(self, parent):
-    """Health tab — live component health overview, uptime, recent events."""
+    """Health tab - live component health overview, uptime, recent events."""
     BG = "#0a0e14"
     sf, _ = _make_scroll_frame(parent)
     refs = {}
 
     # ── Row 1: 4 metric cards ─────────────────────────────
-    _sec_hdr(sf, "COMPONENT STATUS")
+    _sec_hdr(sf, _t("my_pc.section_component_status"))
     cards_row = tk.Frame(sf, bg=BG)
     cards_row.pack(fill="x", padx=8, pady=2)
 
@@ -1844,20 +1883,20 @@ def _build_health(self, parent):
         col = tk.Frame(cards_row, bg="#1a1d24",
                        highlightbackground="#2a2d34", highlightthickness=1)
         col.pack(side="left", fill="both", expand=True, padx=2)
-        tk.Label(col, text=icon, font=("Segoe UI", 13), bg="#1a1d24",
+        tk.Label(col, text=icon, font=(_BODY, 13), bg="#1a1d24",
                  fg="#94a3b8").pack(pady=(5, 0))
-        tk.Label(col, text=label, font=("Segoe UI", 6, "bold"),
+        tk.Label(col, text=label, font=(_BODY, 6, "bold"),
                  bg="#1a1d24", fg="#4b5563").pack()
-        val_lbl = tk.Label(col, text="—", font=("Segoe UI", 13, "bold"),
+        val_lbl = tk.Label(col, text="-", font=(_BODY, 13, "bold"),
                            bg="#1a1d24", fg="#10b981")
         val_lbl.pack(pady=(1, 0))
-        status_lbl = tk.Label(col, text=" ", font=("Segoe UI", 6),
+        status_lbl = tk.Label(col, text=" ", font=(_BODY, 6),
                                bg="#1a1d24", fg="#6b7280", pady=3)
         status_lbl.pack()
         refs[key] = (val_lbl, status_lbl)
 
     # ── Row 2: Health score gauge + uptime panel ───────────
-    _sec_hdr(sf, "HEALTH SCORE  ·  UPTIME")
+    _sec_hdr(sf, _t("my_pc.section_health_uptime"))
     mid_row = tk.Frame(sf, bg=BG)
     mid_row.pack(fill="x", padx=8, pady=2)
 
@@ -1866,15 +1905,15 @@ def _build_health(self, parent):
                            highlightbackground="#2a2d34", highlightthickness=1)
     gauge_outer.pack(side="left", fill="y", padx=(0, 4))
     gauge_outer.pack_propagate(False)
-    tk.Label(gauge_outer, text="HEALTH SCORE", font=("Segoe UI", 6, "bold"),
+    tk.Label(gauge_outer, text="HEALTH SCORE", font=(_BODY, 6, "bold"),
              bg="#1a1d24", fg="#4b5563").pack(pady=(4, 0))
     score_canvas = tk.Canvas(gauge_outer, width=80, height=46,
                              bg="#1a1d24", highlightthickness=0)
     score_canvas.pack()
-    score_lbl = tk.Label(gauge_outer, text="—", font=("Segoe UI", 14, "bold"),
+    score_lbl = tk.Label(gauge_outer, text="-", font=(_BODY, 14, "bold"),
                          bg="#1a1d24", fg="#10b981")
     score_lbl.pack()
-    score_sub = tk.Label(gauge_outer, text=" ", font=("Segoe UI", 6),
+    score_sub = tk.Label(gauge_outer, text=" ", font=(_BODY, 6),
                          bg="#1a1d24", fg="#6b7280", pady=3)
     score_sub.pack()
     refs["score_canvas"] = score_canvas
@@ -1888,14 +1927,17 @@ def _build_health(self, parent):
     up_card = tk.Frame(right_col, bg="#1a1d24",
                        highlightbackground="#2a2d34", highlightthickness=1)
     up_card.pack(fill="x", pady=(0, 3))
-    tk.Label(up_card, text="UPTIME", font=("Segoe UI", 6, "bold"),
+    tk.Label(up_card, text=_t("my_pc.uptime"), font=(_BODY, 6, "bold"),
              bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
-    for key, label in [("session_up", "Session"), ("lifetime_up", "Lifetime (all-time)")]:
+    for key, label in [
+        ("session_up",  _t("my_pc.uptime_session")),
+        ("lifetime_up", _t("my_pc.uptime_lifetime")),
+    ]:
         row = tk.Frame(up_card, bg="#1a1d24")
         row.pack(fill="x", padx=8, pady=1)
-        tk.Label(row, text=label, font=("Segoe UI", 7), bg="#1a1d24",
+        tk.Label(row, text=label, font=(_BODY, 7), bg="#1a1d24",
                  fg="#6b7280", width=18, anchor="w").pack(side="left")
-        lbl = tk.Label(row, text="—", font=("Segoe UI", 7, "bold"),
+        lbl = tk.Label(row, text="-", font=(_BODY, 7, "bold"),
                        bg="#1a1d24", fg="#94a3b8")
         lbl.pack(side="left")
         refs[key] = lbl
@@ -1905,34 +1947,37 @@ def _build_health(self, parent):
     alerts_card = tk.Frame(right_col, bg="#1a1d24",
                            highlightbackground="#2a2d34", highlightthickness=1)
     alerts_card.pack(fill="x")
-    tk.Label(alerts_card, text="ALERTS (last 24h)", font=("Segoe UI", 6, "bold"),
+    tk.Label(alerts_card, text=_t("my_pc.alerts_24h"), font=(_BODY, 6, "bold"),
              bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
     alerts_row = tk.Frame(alerts_card, bg="#1a1d24")
     alerts_row.pack(fill="x", padx=8, pady=(0, 4))
     for key, label, color in [
-        ("alerts_critical", "Critical", "#ef4444"),
-        ("alerts_warning",  "Warning",  "#f59e0b"),
-        ("alerts_info",     "Info",     "#6b7280"),
+        ("alerts_critical", _t("my_pc.alert_critical"), "#ef4444"),
+        ("alerts_warning",  _t("my_pc.alert_warning"),  "#f59e0b"),
+        ("alerts_info",     _t("my_pc.alert_info"),     "#6b7280"),
     ]:
         col_f = tk.Frame(alerts_row, bg="#1a1d24")
         col_f.pack(side="left", padx=8)
-        cnt_lbl = tk.Label(col_f, text="—", font=("Segoe UI", 13, "bold"),
+        cnt_lbl = tk.Label(col_f, text="-", font=(_BODY, 13, "bold"),
                            bg="#1a1d24", fg=color)
         cnt_lbl.pack()
-        tk.Label(col_f, text=label, font=("Segoe UI", 6), bg="#1a1d24",
+        tk.Label(col_f, text=label, font=(_BODY, 6), bg="#1a1d24",
                  fg="#6b7280").pack()
         refs[key] = cnt_lbl
 
     # ── Row 3: Recent events table ─────────────────────────
-    _sec_hdr(sf, "RECENT EVENTS")
+    _sec_hdr(sf, _t("my_pc.section_recent_events"))
     events_outer = tk.Frame(sf, bg="#0f1117",
                             highlightbackground="#2a2d34", highlightthickness=1)
     events_outer.pack(fill="x", padx=8, pady=2)
 
     hdr_bar = tk.Frame(events_outer, bg="#111827")
     hdr_bar.pack(fill="x")
-    for col_txt, col_w in [("TIME", 10), ("SEV", 8), ("METRIC", 10), ("DESCRIPTION", 36)]:
-        tk.Label(hdr_bar, text=col_txt, font=("Segoe UI", 6, "bold"),
+    for col_txt, col_w in [
+        (_t("my_pc.events_col_time"), 10), (_t("my_pc.events_col_sev"), 8),
+        (_t("my_pc.events_col_metric"), 10), (_t("my_pc.events_col_desc"), 36),
+    ]:
+        tk.Label(hdr_bar, text=col_txt, font=(_BODY, 6, "bold"),
                  bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=2)
 
     refs["events_outer"] = events_outer
@@ -2131,7 +2176,7 @@ def _populate_events_table(parent):
         pass
 
     if not events:
-        tk.Label(parent, text="No events recorded yet.", font=("Segoe UI", 7),
+        tk.Label(parent, text=_t("my_pc.no_events"), font=(_BODY, 7),
                  bg="#0f1117", fg="#4b5563", pady=6).pack()
         return
 
@@ -2146,7 +2191,7 @@ def _populate_events_table(parent):
             (ev["metric"][:10], 10, "#94a3b8"),
             (ev["description"][:46], 36, "#64748b"),
         ]:
-            tk.Label(row, text=text, font=("Segoe UI", 6), bg="#0f1117",
+            tk.Label(row, text=text, font=(_BODY, 6), bg="#0f1117",
                      fg=fg, width=w, anchor="w").pack(side="left", padx=2)
 
 
@@ -2155,12 +2200,12 @@ def _populate_events_table(parent):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _build_components(self, parent):
-    """Components tab — detailed hardware specs via hardware_detector."""
+    """Components tab - detailed hardware specs via hardware_detector."""
     BG = "#0a0e14"
     sf, _ = _make_scroll_frame(parent)
 
     # Loading state
-    loading_lbl = tk.Label(sf, text="Scanning hardware…", font=("Segoe UI", 9),
+    loading_lbl = tk.Label(sf, text=_t("my_pc.scanning_hardware"), font=(_BODY, 9),
                            bg=BG, fg="#4b5563")
     loading_lbl.pack(pady=20)
 
@@ -2283,9 +2328,9 @@ def _pct_color_str(pct: float) -> str:
 # EFFICIENCY TAB
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Session state — persists for the app lifetime
-_CORE_SESSION: dict = {}   # core_idx → {"min": f, "max": f, "sum": f, "cnt": i}
-_PROC_SESSION: dict = {}   # proc_name → {cpu_sum, cpu_cnt, ram_sum, ram_cnt,
+# Session state - persists for the app lifetime
+_CORE_SESSION: dict = {}   # core_idx -> {"min": f, "max": f, "sum": f, "cnt": i}
+_PROC_SESSION: dict = {}   # proc_name -> {cpu_sum, cpu_cnt, ram_sum, ram_cnt,
                            #               t1, t3, t5, t1r, t3r, t5r}
 
 
@@ -2293,7 +2338,7 @@ def _eff_sec_hdr(parent, text, accent="#3b82f6"):
     """Styled section header for the Efficiency tab."""
     row = tk.Frame(parent, bg="#090c12")
     row.pack(fill="x", pady=(10, 3))
-    tk.Label(row, text=text, font=("Segoe UI", 8, "bold"),
+    tk.Label(row, text=text, font=(_BODY, 8, "bold"),
              bg="#090c12", fg=accent, padx=2).pack(side="left")
     tk.Frame(row, bg=accent, height=1).pack(
         side="left", fill="x", expand=True, padx=(6, 0))
@@ -2310,7 +2355,7 @@ def _fmt_rank_dur(label, seconds):
 
 
 def _build_efficiency(self, parent):
-    """Efficiency tab — cores usage grid, side-by-side top consumers, power plan."""
+    """Efficiency tab - cores usage grid, side-by-side top consumers, power plan."""
     sf, _ = _make_scroll_frame(parent)
     refs = {}
 
@@ -2322,9 +2367,9 @@ def _build_efficiency(self, parent):
 
     freq_top = tk.Frame(freq_frame, bg="#0d1219")
     freq_top.pack(fill="x", padx=8, pady=(6, 2))
-    tk.Label(freq_top, text="CURRENT CLOCK", font=("Segoe UI", 7, "bold"),
+    tk.Label(freq_top, text="CURRENT CLOCK", font=(_BODY, 7, "bold"),
              bg="#0d1219", fg="#374151").pack(side="left")
-    freq_lbl = tk.Label(freq_top, text="— MHz", font=("Segoe UI", 8, "bold"),
+    freq_lbl = tk.Label(freq_top, text="- MHz", font=(_BODY, 8, "bold"),
                         bg="#0d1219", fg="#93c5fd")
     freq_lbl.pack(side="right")
     freq_bar_canvas = tk.Canvas(freq_frame, height=10, bg="#0d1219",
@@ -2340,7 +2385,7 @@ def _build_efficiency(self, parent):
     cores_outer.pack(fill="x", padx=8, pady=(0, 4))
 
     import psutil as _psu_init
-    # logical=False → physical cores only (e.g. 6, not 12 with HT)
+    # logical=False -> physical cores only (e.g. 6, not 12 with HT)
     core_count = _psu_init.cpu_count(logical=False) or _psu_init.cpu_count(logical=True) or 1
     cols = 4 if core_count >= 8 else (3 if core_count >= 5 else 2)
 
@@ -2359,9 +2404,9 @@ def _build_efficiency(self, parent):
         # Header: core label + current %
         ch = tk.Frame(card, bg="#0d1520")
         ch.pack(fill="x")
-        tk.Label(ch, text=f"C{i}", font=("Segoe UI", 7, "bold"),
+        tk.Label(ch, text=f"C{i}", font=(_BODY, 7, "bold"),
                  bg="#0d1520", fg="#818cf8", padx=5, pady=2).pack(side="left")
-        vl = tk.Label(ch, text="—%", font=("Segoe UI", 8, "bold"),
+        vl = tk.Label(ch, text="-%", font=(_BODY, 8, "bold"),
                       bg="#0d1520", fg="#e2e8f0", padx=4, pady=2)
         vl.pack(side="right")
 
@@ -2372,13 +2417,13 @@ def _build_efficiency(self, parent):
         # Stats row: ↓min  ↑max  ~avg
         sr = tk.Frame(card, bg="#111827")
         sr.pack(fill="x", padx=4, pady=(0, 4))
-        mn = tk.Label(sr, text="↓ —", font=("Consolas", 6),
+        mn = tk.Label(sr, text="↓ -", font=(_MONO, 6),
                       bg="#111827", fg="#374151")
         mn.pack(side="left")
-        mx = tk.Label(sr, text="↑ —", font=("Consolas", 6),
+        mx = tk.Label(sr, text="↑ -", font=(_MONO, 6),
                       bg="#111827", fg="#374151")
         mx.pack(side="left", padx=(4, 0))
-        av = tk.Label(sr, text="~ —", font=("Consolas", 6, "bold"),
+        av = tk.Label(sr, text="~ -", font=(_MONO, 6, "bold"),
                       bg="#111827", fg="#a5b4fc")
         av.pack(side="right")
 
@@ -2387,7 +2432,7 @@ def _build_efficiency(self, parent):
     refs["core_widgets"] = core_widgets
     refs["core_count"] = core_count
 
-    # ── Top consumers — side by side ───────────────────────────────────────
+    # ── Top consumers - side by side ───────────────────────────────────────
     consumers_row = tk.Frame(sf, bg="#090c12")
     consumers_row.pack(fill="x", padx=8, pady=(4, 4))
 
@@ -2419,7 +2464,7 @@ def _build_efficiency(self, parent):
                          highlightbackground="#2a1f0a", highlightthickness=1)
     pwr_frame.pack(fill="x", padx=8, pady=(0, 10))
     pwr_lbl = tk.Label(pwr_frame, text="Detecting…",
-                       font=("Segoe UI", 9, "bold"),
+                       font=(_BODY, 9, "bold"),
                        bg="#0d1219", fg="#fbbf24", pady=8, padx=10)
     pwr_lbl.pack(anchor="w")
     refs["pwr_lbl"] = pwr_lbl
@@ -2602,9 +2647,9 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
     # Column header
     hdr = tk.Frame(parent, bg=HDR)
     hdr.pack(fill="x")
-    tk.Label(hdr, text="  PROCESS", font=("Segoe UI", 6, "bold"),
+    tk.Label(hdr, text="  PROCESS", font=(_BODY, 6, "bold"),
              bg=HDR, fg="#374151", anchor="w").pack(side="left", padx=2, pady=2)
-    tk.Label(hdr, text="NOW   AVG", font=("Consolas", 6, "bold"),
+    tk.Label(hdr, text="NOW   AVG", font=(_MONO, 6, "bold"),
              bg=HDR, fg="#374151", anchor="e").pack(side="right", padx=6, pady=2)
 
     rank_colors = ["#f59e0b", "#94a3b8", "#78716c", "#4b5563", "#374151", "#2d3748"]
@@ -2644,12 +2689,12 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
 
         # Rank number
         rc = rank_colors[min(rank, len(rank_colors) - 1)]
-        tk.Label(row, text=f"{rank + 1}", font=("Consolas", 7, "bold"),
+        tk.Label(row, text=f"{rank + 1}", font=(_MONO, 7, "bold"),
                  bg=BG, fg=rc, width=2, anchor="center",
                  pady=2).pack(side="left", padx=(3, 0))
 
         # Process name
-        tk.Label(row, text=name_s, font=("Segoe UI", 7),
+        tk.Label(row, text=name_s, font=(_BODY, 7),
                  bg=BG, fg="#94a3b8", anchor="w").pack(
             side="left", padx=(2, 2), fill="x", expand=True)
 
@@ -2657,14 +2702,14 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
         right = tk.Frame(row, bg=BG)
         right.pack(side="right", padx=3)
 
-        tk.Label(right, text=f"{val:.1f}%", font=("Consolas", 7, "bold"),
+        tk.Label(right, text=f"{val:.1f}%", font=(_MONO, 7, "bold"),
                  bg=BG, fg="#e2e8f0", width=5, anchor="e").pack(side="left")
-        tk.Label(right, text=f"{avg:.1f}%", font=("Consolas", 7),
+        tk.Label(right, text=f"{avg:.1f}%", font=(_MONO, 7),
                  bg=BG, fg="#4b5563", width=5, anchor="e").pack(side="left", padx=(1, 0))
 
         # Rank duration (if available)
         if rank_badge:
-            tk.Label(right, text=rank_badge, font=("Segoe UI", 6),
+            tk.Label(right, text=rank_badge, font=(_BODY, 6),
                      bg=BG, fg="#374151").pack(side="left", padx=(3, 0))
 
         # Thin usage bar below the row
@@ -2681,11 +2726,11 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _build_startup(self, parent):
-    """Startup tab — read-only registry startup program list."""
+    """Startup tab - read-only registry startup program list."""
     BG = "#0a0e14"
     sf, _ = _make_scroll_frame(parent)
 
-    loading_lbl = tk.Label(sf, text="Reading startup entries…", font=("Segoe UI", 8),
+    loading_lbl = tk.Label(sf, text=_t("my_pc.reading_startup"), font=(_BODY, 8),
                            bg=BG, fg="#4b5563", pady=10)
     loading_lbl.pack()
 
@@ -2748,18 +2793,18 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     badge_row = tk.Frame(sf, bg=BG)
     badge_row.pack(fill="x", padx=8, pady=(4, 2))
     tk.Label(badge_row, text=f"{count} startup items found",
-             font=("Segoe UI", 9, "bold"), bg=BG, fg=color).pack(side="left")
+             font=(_BODY, 9, "bold"), bg=BG, fg=color).pack(side="left")
 
     if count > 8:
         hint = "   High startup count may slow boot time."
-        tk.Label(badge_row, text=hint, font=("Segoe UI", 7), bg=BG,
+        tk.Label(badge_row, text=hint, font=(_BODY, 7), bg=BG,
                  fg="#6b7280").pack(side="left")
 
     # Table header
     hdr = tk.Frame(sf, bg="#111827")
     hdr.pack(fill="x", padx=8)
     for col_txt, col_w in [("NAME", 22), ("SOURCE", 6), ("COMMAND", 40)]:
-        tk.Label(hdr, text=col_txt, font=("Segoe UI", 6, "bold"),
+        tk.Label(hdr, text=col_txt, font=(_BODY, 6, "bold"),
                  bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=3)
 
     # Rows
@@ -2768,8 +2813,8 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     table.pack(fill="x", padx=8, pady=(0, 4))
 
     if not entries:
-        tk.Label(table, text="No startup items found in registry.",
-                 font=("Segoe UI", 7), bg="#0f1117", fg="#4b5563", pady=8).pack()
+        tk.Label(table, text=_t("my_pc.no_startup_items"),
+                 font=(_BODY, 7), bg="#0f1117", fg="#4b5563", pady=8).pack()
     else:
         for i, e in enumerate(entries):
             row_bg = "#0f1117" if i % 2 == 0 else "#111827"
@@ -2781,13 +2826,13 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
                 (e["source"], 6, src_col),
                 (e["command"][:40], 40, "#6b7280"),
             ]:
-                tk.Label(row, text=text, font=("Segoe UI", 7), bg=row_bg,
+                tk.Label(row, text=text, font=(_BODY, 7), bg=row_bg,
                          fg=fg, width=w, anchor="w").pack(side="left", padx=3, pady=1)
 
     # "Manage in Setup & Drivers" button
     tk.Frame(sf, bg=BG, height=4).pack()
-    manage_btn = tk.Label(sf, text="Manage startup in  Setup & Drivers →",
-                          font=("Segoe UI", 8, "bold"), bg="#1e3a5f",
+    manage_btn = tk.Label(sf, text=_t("my_pc.manage_startup_hint"),
+                          font=(_BODY, 8, "bold"), bg="#1e3a5f",
                           fg="#93c5fd", cursor="hand2", pady=6)
     manage_btn.pack(fill="x", padx=8, pady=2)
 
@@ -2803,3 +2848,16 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     manage_btn.bind("<Button-1>", lambda e: _goto_setup())
     manage_btn.bind("<Enter>", lambda e: manage_btn.config(bg="#1d4ed8"))
     manage_btn.bind("<Leave>", lambda e: manage_btn.config(bg="#1e3a5f"))
+
+
+# ── MAP OF COMPONENTS tab ─────────────────────────────────────────────────────
+def _build_map(self, parent):
+    """MAP tab - 2.5D isometric hardware visualization."""
+    try:
+        from ui.components.pc_map import create_pc_map_page
+        create_pc_map_page(parent)
+    except Exception as ex:
+        tk.Label(parent,
+                 text=f"MAP OF COMPONENTS\n\nCould not load: {ex}",
+                 font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
+                 justify="center").pack(expand=True, pady=60)
