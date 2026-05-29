@@ -7,7 +7,16 @@ Professional statistics page showing daily system usage
 import tkinter as tk
 from tkinter import ttk
 from ui.theme import THEME
-from ui.process_tooltip import ProcessTooltip
+
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+from ui.components.process_tooltip import ProcessTooltip
 import time
 from datetime import datetime, timedelta
 
@@ -39,7 +48,7 @@ class DayStatsPage:
         title = tk.Label(
             self.frame,
             text="Daily Statistics",
-            font=("Segoe UI", 16, "bold"),
+            font=(_BODY, 16, "bold"),
             bg=THEME["bg_main"],
             fg=THEME["text"],
             anchor="w"
@@ -49,7 +58,7 @@ class DayStatsPage:
         subtitle = tk.Label(
             self.frame,
             text="System resource usage for today",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=THEME["bg_main"],
             fg=THEME["muted"],
             anchor="w"
@@ -164,7 +173,7 @@ class DayStatsPage:
         title_lbl = tk.Label(
             title_frame,
             text=title,
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=THEME["bg_panel"],
             fg=THEME["muted"],
             anchor="w"
@@ -175,7 +184,7 @@ class DayStatsPage:
         value_lbl = tk.Label(
             title_frame,
             text=value,
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["accent"],
             anchor="e"
@@ -230,7 +239,7 @@ class DayStatsPage:
         header = tk.Label(
             parent,
             text="TOP Resource Consumers Today",
-            font=("Segoe UI", 10, "bold"),
+            font=(_BODY, 10, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["text"],
             anchor="w"
@@ -416,7 +425,7 @@ class DayStatsPage:
                 info = tk.Label(
                     row,
                     text=f"{status} {i}. {icon}{name[:14]:14s} {sparkline} CPU:{avg_cpu:4.1f}%",
-                    font=("Consolas", 8),
+                    font=(_MONO, 8),
                     bg=THEME["bg_panel"],
                     fg=THEME["text"],
                     anchor="w"
@@ -427,7 +436,7 @@ class DayStatsPage:
                 btn = tk.Label(
                     row,
                     text="ℹ",
-                    font=("Consolas", 9, "bold"),
+                    font=(_MONO, 9, "bold"),
                     bg="#0a0c0e",
                     fg="#FFB84D",
                     cursor="hand2",
