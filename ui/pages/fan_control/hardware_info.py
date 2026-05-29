@@ -8,6 +8,15 @@ import tkinter as tk
 from tkinter import ttk
 import random
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 try:
     from PIL import Image, ImageTk, ImageDraw
 except ImportError:
@@ -76,7 +85,7 @@ class FansHardwarePage:
         tk.Label(
             header,
             text="Real-time fan monitoring",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text_muted"]
         ).pack(side="left", padx=(15, 0))
@@ -175,7 +184,7 @@ class FansHardwarePage:
         rpm_label = tk.Label(
             info_frame,
             text=f"{self.fan_data[fan_id]['rpm']} RPM",
-            font=("Consolas", 18, "bold"),
+            font=(_MONO, 18, "bold"),
             bg=self.COLORS["card_bg"],
             fg=accent_color
         )
@@ -187,7 +196,7 @@ class FansHardwarePage:
         pct_label = tk.Label(
             info_frame,
             text=f"{pct}% of max",
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=self.COLORS["card_bg"],
             fg=self.COLORS["text_muted"]
         )
@@ -225,7 +234,7 @@ class FansHardwarePage:
         tk.Label(
             inner,
             text=title,
-            font=("Segoe UI", 8),
+            font=(_BODY, 8),
             bg=self.COLORS["card_bg"],
             fg=self.COLORS["text"]
         ).pack()
@@ -236,7 +245,7 @@ class FansHardwarePage:
         rpm_label = tk.Label(
             inner,
             text=rpm_text,
-            font=("Consolas", 10, "bold"),
+            font=(_MONO, 10, "bold"),
             bg=self.COLORS["card_bg"],
             fg=self.COLORS["accent_purple"] if rpm > 0 else self.COLORS["text_muted"]
         )
@@ -290,7 +299,7 @@ class FansHardwarePage:
             canvas.create_text(
                 cx, cy - 5,
                 text=pct_text,
-                font=("Consolas", 11, "bold"),
+                font=(_MONO, 11, "bold"),
                 fill=color
             )
 
@@ -348,7 +357,7 @@ class FansHardwarePage:
         tk.Label(
             row,
             text=label,
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text_muted"],
             width=12,

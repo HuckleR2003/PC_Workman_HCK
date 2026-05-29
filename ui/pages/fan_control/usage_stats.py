@@ -10,6 +10,15 @@ import random
 import time
 from collections import deque
 
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
+
 try:
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
     from matplotlib.figure import Figure
@@ -95,7 +104,7 @@ class FansUsageStatsPage:
         tk.Label(
             header,
             text="Fan intensity over time",
-            font=("Segoe UI", 10),
+            font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text_muted"]
         ).pack(side="left", padx=(15, 0))
@@ -174,7 +183,7 @@ class FansUsageStatsPage:
         self.range_description = tk.Label(
             selector_frame,
             text=self.TIME_RANGES[self.current_range]["description"],
-            font=("Segoe UI", 9),
+            font=(_BODY, 9),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text_muted"]
         )
@@ -226,7 +235,7 @@ class FansUsageStatsPage:
         rpm_label = tk.Label(
             header,
             text=f"{current_rpm} RPM",
-            font=("Consolas", 11, "bold"),
+            font=(_MONO, 11, "bold"),
             bg=self.COLORS["card_bg"],
             fg=color
         )
@@ -267,7 +276,7 @@ class FansUsageStatsPage:
             tk.Label(
                 card,
                 text="(Matplotlib required for charts)",
-                font=("Segoe UI", 9),
+                font=(_BODY, 9),
                 bg=self.COLORS["card_bg"],
                 fg=self.COLORS["text_muted"]
             ).pack(pady=20)
