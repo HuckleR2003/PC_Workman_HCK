@@ -1,7 +1,15 @@
 """
 MONITORING & ALERTS - Time-Travel Statistics Center
-Temperature & Voltage monitoring with historical charts, spike detection,
-and adaptive learning patterns.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Innovations in this redesign:
+  1. Adaptive Baseline Band      - learned mean ±σ shaded on every chart
+  2. Anomaly Decay Visualisation - spike highlights fade as pattern becomes "normal"
+  3. Health Rings                - 3 concentric arc gauges (thermal / memory / load)
+  4. 30-Day Anomaly Calendar     - clickable heatmap, anomaly density per day
+  5. Alert Timeline Strip        - thin horizontal event strip below each chart
+  6. Session Overview Bar        - 5 live metric cards at the top
+  7. Contextual Tooltips         - "XX°C (Y % above usual for this time)"
 """
 
 import tkinter as tk
@@ -9,81 +17,155 @@ import time
 import math
 from datetime import datetime, timedelta
 
-BG = "#0a0e14"
-PANEL = "#111827"
-BORDER = "#1f2937"
-ACCENT = "#f59e0b"
-TEXT = "#e5e7eb"
-MUTED = "#6b7280"
+# ── Font system ────────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
 
+# ── Palette ────────────────────────────────────────────────────────────────────
+BG      = "#060911"
+PANEL   = "#0c1018"
+PANEL2  = "#10151e"
+BORDER  = "#1a2030"
+TEXT    = "#e2e8f0"
+MUTED   = "#6b7280"
+DIM     = "#374151"
+
+TEMP_C  = "#f59e0b"    # amber  - temperature
+LOAD_C  = "#3b82f6"    # blue   - CPU load
+RAM_C   = "#10b981"    # emerald - RAM
+GPU_C   = "#f97316"    # orange - GPU
+VOLT_C  = "#8b5cf6"    # violet - voltage / multi
+CAL_C   = "#7c3aed"    # purple - calendar
+ALERT_C = "#ef4444"    # red    - alerts
+OK_C    = "#22c55e"    # green  - healthy
+WARN_C  = "#f59e0b"    # amber  - warning
+CRIT_C  = "#ef4444"    # red    - critical
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entry point
+# ──────────────────────────────────────────────────────────────────────────────
 
 def build_monitoring_alerts_page(self, parent):
-    """Build the full Monitoring & Alerts page"""
     main = tk.Frame(parent, bg=BG)
     main.pack(fill="both", expand=True)
 
-    # Scrollable container
     canvas = tk.Canvas(main, bg=BG, highlightthickness=0)
-    scrollbar = tk.Scrollbar(main, orient="vertical", command=canvas.yview,
-                             bg="#000000", troughcolor=BG, width=8)
-    scrollable = tk.Frame(canvas, bg=BG)
+    sb = tk.Scrollbar(main, orient="vertical", command=canvas.yview,
+                      bg=BG, troughcolor=BG, width=5)
+    sf = tk.Frame(canvas, bg=BG)
+    sf.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    win_id = canvas.create_window((0, 0), window=sf, anchor="nw")
+    canvas.configure(yscrollcommand=sb.set)
+    canvas.bind("<Configure>", lambda e: canvas.itemconfig(win_id, width=e.width))
 
-    scrollable.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.create_window((0, 0), window=scrollable, anchor="nw")
-    canvas.configure(yscrollcommand=scrollbar.set)
-
-    def _on_mousewheel(event):
+    def _wheel(event):
         try:
             if canvas.winfo_exists():
                 canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         except Exception:
             pass
-    canvas.bind_all("<MouseWheel>", _on_mousewheel, add="+")
+    canvas.bind_all("<MouseWheel>", _wheel, add="+")
 
     canvas.pack(side="left", fill="both", expand=True)
-    scrollbar.pack(side="right", fill="y")
+    sb.pack(side="right", fill="y")
 
-    # Page header
-    _build_page_header(scrollable)
+    # ── Header (contains HEALTH + ANOMALIES badges) ───────────────────────────
+    rings_cv, score_ref, health_lbl, anom_lbl = _build_page_header(sf)
 
-    # Temperature Monitor section
-    temp_section = _build_temperature_section(scrollable)
+    # ── Temperature section ───────────────────────────────────────────────────
+    temp_sec = _build_temperature_section(sf)
 
-    # Voltage Monitor section
-    volt_section = _build_voltage_section(scrollable)
+    # ── Voltage / Load section ────────────────────────────────────────────────
+    load_sec = _build_load_section(sf)
 
-    # Events / Alerts log
-    _build_alerts_log(scrollable)
+    # ── 30-day Anomaly Calendar ───────────────────────────────────────────────
+    _build_anomaly_calendar(sf)
 
-    # Start auto-refresh
-    _start_data_refresh(parent, temp_section, volt_section)
+    # ── Events log ────────────────────────────────────────────────────────────
+    _build_alerts_log(sf)
 
+    # ── Auto-refresh ─────────────────────────────────────────────────────────
+    _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl, temp_sec, load_sec)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 1. PAGE HEADER - with health rings
+# ──────────────────────────────────────────────────────────────────────────────
 
 def _build_page_header(parent):
-    """Page header with status indicator"""
-    header = tk.Frame(parent, bg=PANEL)
-    header.pack(fill="x", padx=15, pady=(10, 8))
+    hdr = tk.Frame(parent, bg=PANEL)
+    hdr.pack(fill="x")
+    tk.Frame(hdr, bg=TEMP_C, height=2).pack(fill="x")
 
-    inner = tk.Frame(header, bg=PANEL)
-    inner.pack(fill="x", padx=15, pady=12)
+    body = tk.Frame(hdr, bg=PANEL)
+    body.pack(fill="x", padx=20, pady=12)
 
-    tk.Label(inner, text="⚠", font=("Segoe UI", 20), bg=PANEL,
-             fg=ACCENT).pack(side="left")
+    # Pack RIGHT items first so left block fills remaining space correctly
 
-    title_frame = tk.Frame(inner, bg=PANEL)
-    title_frame.pack(side="left", padx=(12, 0))
+    # ── Far right: health rings ───────────────────────────────────────────────
+    rings_size = 80
+    rings_cv = tk.Canvas(body, width=rings_size, height=rings_size,
+                         bg=PANEL, highlightthickness=0)
+    rings_cv.pack(side="right", padx=(0, 10))
+    score_ref = [90]
+    _draw_health_rings(rings_cv, rings_size, 90, 70, 55)
 
-    tk.Label(title_frame, text="Monitoring & Alerts", font=("Segoe UI Semibold", 13),
-             bg=PANEL, fg=TEXT).pack(anchor="w")
-    tk.Label(title_frame, text="Time-Travel Statistics Center",
-             font=("Segoe UI", 8), bg=PANEL, fg=MUTED).pack(anchor="w")
+    # ── Legend (left of rings) ────────────────────────────────────────────────
+    leg = tk.Frame(body, bg=PANEL)
+    leg.pack(side="right", padx=(0, 14), anchor="center")
+    for label, col in [("Thermal", TEMP_C), ("Memory", RAM_C), ("Load", LOAD_C)]:
+        r = tk.Frame(leg, bg=PANEL)
+        r.pack(anchor="e")
+        tk.Label(r, text="━", font=(_MONO, 8),
+                 bg=PANEL, fg=col).pack(side="left")
+        tk.Label(r, text=f" {label}", font=(_BODY, 8),
+                 bg=PANEL, fg=MUTED).pack(side="left")
 
-    # Right side status
-    status_frame = tk.Frame(inner, bg=PANEL)
-    status_frame.pack(side="right")
+    # ── Centre: HEALTH + ANOMALIES mini badges (stacked vertically) ──────────
+    mid = tk.Frame(body, bg=PANEL)
+    mid.pack(side="right", padx=(0, 22), anchor="center")
 
-    # Engine status
-    engine_ok = False
+    # HEALTH badge
+    h_out = tk.Frame(mid, bg=BORDER)
+    h_out.pack(fill="x", pady=(0, 5))
+    h_in = tk.Frame(h_out, bg="#081a0a")
+    h_in.pack(padx=1, pady=1)
+    tk.Label(h_in, text="HEALTH", font=(_MONO, 7, "bold"),
+             bg="#081a0a", fg=DIM).pack(anchor="w", padx=8, pady=(4, 0))
+    health_lbl = tk.Label(h_in, text="--", font=(_MONO, 13, "bold"),
+                          bg="#081a0a", fg=OK_C)
+    health_lbl.pack(anchor="w", padx=8, pady=(0, 4))
+
+    # ANOMALIES badge
+    a_out = tk.Frame(mid, bg=BORDER)
+    a_out.pack(fill="x")
+    a_in = tk.Frame(a_out, bg="#0f0820")
+    a_in.pack(padx=1, pady=1)
+    tk.Label(a_in, text="ANOMALIES", font=(_MONO, 7, "bold"),
+             bg="#0f0820", fg=DIM).pack(anchor="w", padx=8, pady=(4, 0))
+    anom_lbl = tk.Label(a_in, text="0", font=(_MONO, 13, "bold"),
+                        bg="#0f0820", fg=VOLT_C)
+    anom_lbl.pack(anchor="w", padx=8, pady=(0, 4))
+
+    # ── Left: title + status (fills remaining space) ─────────────────────────
+    left = tk.Frame(body, bg=PANEL)
+    left.pack(side="left", fill="both", expand=True)
+
+    top_row = tk.Frame(left, bg=PANEL)
+    top_row.pack(anchor="w")
+    tk.Label(top_row, text="◈", font=(_BODY, 14),
+             bg=PANEL, fg=TEMP_C).pack(side="left")
+    tk.Label(top_row, text="  MONITORING & ALERTS",
+             font=(_MONO, 12, "bold"),
+             bg=PANEL, fg=TEXT).pack(side="left")
+
+    engine_ok    = False
     record_count = 0
     try:
         from hck_stats_engine.db_manager import db_manager
@@ -91,259 +173,386 @@ def _build_page_header(parent):
         if engine_ok:
             conn = db_manager.get_connection()
             if conn:
-                record_count = conn.execute("SELECT COUNT(*) FROM minute_stats").fetchone()[0]
+                record_count = conn.execute(
+                    "SELECT COUNT(*) FROM minute_stats").fetchone()[0]
     except Exception:
         pass
 
-    status_text = "● ACTIVE" if engine_ok else "● OFFLINE"
-    status_color = "#10b981" if engine_ok else "#ef4444"
-    tk.Label(status_frame, text=status_text, font=("Consolas", 8, "bold"),
-             bg=PANEL, fg=status_color).pack(anchor="e")
+    status_col = OK_C if engine_ok else CRIT_C
+    status_txt = "● ACTIVE" if engine_ok else "● OFFLINE"
+    tk.Label(left, text=status_txt, font=(_MONO, 8, "bold"),
+             bg=PANEL, fg=status_col).pack(anchor="w", pady=(4, 0))
+    if record_count:
+        tk.Label(left,
+                 text=f"Time-Travel Statistics Center  ·  {record_count:,} data points",
+                 font=(_BODY, 8), bg=PANEL, fg=MUTED).pack(anchor="w")
 
-    if record_count > 0:
-        tk.Label(status_frame, text=f"{record_count:,} data points",
-                 font=("Consolas", 7), bg=PANEL, fg=MUTED).pack(anchor="e")
+    tk.Frame(parent, bg=BORDER, height=1).pack(fill="x")
+    return rings_cv, score_ref, health_lbl, anom_lbl
 
+
+def _draw_health_rings(canvas, size, thermal, memory, load):
+    """Three concentric arc gauges drawn outer-to-inner."""
+    canvas.delete("all")
+    cx = cy = size // 2
+
+    rings = [
+        (thermal, TEMP_C,  cx - 6,  8),   # outer - thermal
+        (memory,  RAM_C,   cx - 14, 8),   # mid   - memory
+        (load,    LOAD_C,  cx - 22, 8),   # inner - load
+    ]
+
+    for score, col, r, thick in rings:
+        # Background arc (muted rail)
+        canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
+                          start=225, extent=-270,
+                          outline=DIM, width=thick, style="arc")
+        # Score arc
+        ext    = -(270 * max(0, min(100, score)) / 100)
+        s_col  = OK_C if score >= 80 else WARN_C if score >= 55 else CRIT_C
+        canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
+                          start=225, extent=ext,
+                          outline=s_col, width=thick, style="arc")
+
+    # Centre score text
+    avg_score = int((thermal + memory + load) / 3)
+    s_col = OK_C if avg_score >= 80 else WARN_C if avg_score >= 55 else CRIT_C
+    canvas.create_text(cx, cy - 4, text=str(avg_score),
+                       font=(_MONO, 14, "bold"), fill=s_col)
+    canvas.create_text(cx, cy + 10, text="SCORE",
+                       font=(_MONO, 5), fill=DIM)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 2. SESSION OVERVIEW BAR
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _build_session_overview(parent):
+    row = tk.Frame(parent, bg=BG)
+    row.pack(fill="x", padx=15, pady=(10, 4))
+
+    cards_spec = [
+        ("CPU TEMP", "--",  TEMP_C, "ov_cpu_temp"),
+        ("RAM",      "--",  RAM_C,  "ov_ram"),
+        ("GPU TEMP", "--",  GPU_C,  "ov_gpu_temp"),
+        ("HEALTH",   "--",  OK_C,   "ov_health"),
+        ("ANOMALIES","0",   VOLT_C, "ov_anomalies"),
+    ]
+
+    for title, val, col, key in cards_spec:
+        outer = tk.Frame(row, bg=BORDER)
+        outer.pack(side="left", fill="both", expand=True, padx=(0, 4))
+        card = tk.Frame(outer, bg=PANEL)
+        card.pack(fill="both", expand=True, padx=1, pady=1)
+        tk.Frame(card, bg=col, height=2).pack(fill="x")
+        body = tk.Frame(card, bg=PANEL)
+        body.pack(fill="x", padx=8, pady=6)
+        tk.Label(body, text=title, font=(_MONO, 6, "bold"),
+                 bg=PANEL, fg=DIM).pack(anchor="w")
+        lbl = tk.Label(body, text=val, font=(_MONO, 13, "bold"),
+                       bg=PANEL, fg=col)
+        lbl.pack(anchor="w")
+        setattr(row, key, lbl)
+
+    return row
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 3. TEMPERATURE SECTION
+# ──────────────────────────────────────────────────────────────────────────────
 
 def _build_temperature_section(parent):
-    """Temperature monitoring section with chart and stats"""
-    section = tk.Frame(parent, bg=PANEL, highlightthickness=1,
-                       highlightbackground=BORDER)
-    section.pack(fill="x", padx=15, pady=(0, 8))
+    section = _make_section(parent)
 
-    # Section header
-    hdr = tk.Frame(section, bg="#1a1500")
+    # Header
+    hdr = tk.Frame(section, bg="#1a1200")
     hdr.pack(fill="x")
+    tk.Frame(hdr, bg=TEMP_C, height=2).pack(fill="x")
+    hdr_body = tk.Frame(hdr, bg="#1a1200")
+    hdr_body.pack(fill="x", padx=10, pady=5)
+    tk.Label(hdr_body, text="🌡  TEMPERATURE MONITOR",
+             font=(_MONO, 9, "bold"),
+             bg="#1a1200", fg=TEMP_C).pack(side="left")
 
-    tk.Label(hdr, text="🌡️ TEMPERATURE MONITOR", font=("Consolas", 9, "bold"),
-             bg="#1a1500", fg="#f59e0b", padx=10, pady=6).pack(side="left")
+    # Workload badge (updated by refresh)
+    workload_lbl = tk.Label(hdr_body, text="Workload: detecting…",
+                            font=(_MONO, 7), bg="#1a1200", fg=MUTED)
+    workload_lbl.pack(side="left", padx=(14, 0))
 
-    # Time scale buttons
-    btn_frame = tk.Frame(hdr, bg="#1a1500")
-    btn_frame.pack(side="right", padx=10, pady=4)
+    # Scale buttons
+    scale_frame, scale_var = _build_scale_buttons(
+        hdr_body, color=TEMP_C,
+        callback=lambda s: _refresh_temp(section))
+    section._temp_scale = scale_var
 
-    section._time_scale = "1D"
-    scale_btns = {}
-
-    for scale in ["1D", "3D", "1W", "1M"]:
-        btn = tk.Label(btn_frame, text=scale, font=("Consolas", 7, "bold"),
-                       bg="#0a0c10" if scale != "1D" else "#f59e0b",
-                       fg="#6b7280" if scale != "1D" else "#000000",
-                       padx=6, pady=2, cursor="hand2")
-        btn.pack(side="left", padx=1)
-        scale_btns[scale] = btn
-
-        def _on_scale(e, s=scale):
-            section._time_scale = s
-            for k, b in scale_btns.items():
-                if k == s:
-                    b.config(bg="#f59e0b", fg="#000000")
-                else:
-                    b.config(bg="#0a0c10", fg="#6b7280")
-            _refresh_temp_chart(section)
-
-        btn.bind("<Button-1>", _on_scale)
-
-    # Content area (chart + stats side by side)
+    # Content
     content = tk.Frame(section, bg=PANEL)
     content.pack(fill="x", padx=8, pady=6)
 
-    # Chart (left - 65% width)
-    chart_frame = tk.Frame(content, bg="#080a0e")
+    chart_frame = tk.Frame(content, bg="#050809")
     chart_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
 
-    chart_canvas = tk.Canvas(chart_frame, bg="#080a0e", height=130,
-                             highlightthickness=0)
-    chart_canvas.pack(fill="x", padx=2, pady=2)
-    section._chart_canvas = chart_canvas
-    section._chart_data = []
+    chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
+    chart_cv.pack(fill="x", padx=2, pady=2)
+    section._chart_canvas = chart_cv
+    section._chart_data    = []
 
-    # Tooltip label (hidden by default)
-    tooltip_lbl = tk.Label(chart_frame, text="", font=("Consolas", 7),
-                           bg="#1e293b", fg="#ffffff", padx=4, pady=2)
-    section._tooltip = tooltip_lbl
+    # Alert timeline strip
+    tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
+    tl_cv.pack(fill="x")
+    section._timeline_cv = tl_cv
 
-    # Stats panel (right - 35% width)
-    stats_frame = tk.Frame(content, bg="#0d1117", width=160)
-    stats_frame.pack(side="right", fill="y")
-    stats_frame.pack_propagate(False)
+    # Stats panel
+    stats_f = tk.Frame(content, bg=PANEL2, width=165)
+    stats_f.pack(side="right", fill="y")
+    stats_f.pack_propagate(False)
+    section._stats_frame = stats_f
+    _build_temp_stats(stats_f)
 
-    section._stats_frame = stats_frame
-    _build_temp_stats(stats_frame)
-
-    # Learning status bar
+    # Learn bar
     learn_bar = tk.Frame(section, bg=PANEL)
     learn_bar.pack(fill="x", padx=8, pady=(0, 6))
-
-    # Gradient label (yellow → green)
-    learn_icon = tk.Label(learn_bar, text="🧠", font=("Segoe UI", 8),
-                          bg=PANEL)
-    learn_icon.pack(side="left")
-
-    tk.Label(learn_bar, text="PC Workman learns your device temperature patterns",
-             font=("Segoe UI", 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
-
-    # Status badge
-    status_badge = tk.Label(learn_bar, text="No regular problems",
-                            font=("Consolas", 7, "bold"), bg="#0d2818", fg="#4ade80",
-                            padx=8, pady=1)
-    status_badge.pack(side="right")
-    section._temp_status_badge = status_badge
+    tk.Label(learn_bar, text="🧠", font=(_BODY, 8), bg=PANEL).pack(side="left")
+    tk.Label(learn_bar, text="Adapts to your device's temperature patterns over time",
+             font=(_BODY, 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
+    badge = tk.Label(learn_bar, text="No regular problems",
+                     font=(_MONO, 7, "bold"),
+                     bg="#0d2818", fg="#4ade80", padx=8, pady=1)
+    badge.pack(side="right")
+    section._temp_badge  = badge
+    section._workload_lbl = workload_lbl
 
     return section
 
 
 def _build_temp_stats(parent):
-    """Build temperature statistics panel"""
-    tk.Label(parent, text="STATISTICS", font=("Consolas", 7, "bold"),
-             bg="#0d1117", fg="#f59e0b", pady=3).pack(fill="x")
+    tk.Label(parent, text="STATISTICS",
+             font=(_MONO, 8, "bold"),
+             bg=PANEL2, fg=TEMP_C, pady=5).pack(fill="x")
 
     stats = [
-        ("Today AVG", "--", "#e5e7eb", "temp_today_avg"),
-        ("Lifetime AVG", "--", "#94a3b8", "temp_lifetime_avg"),
-        ("Max Safe", "85°C", "#ef4444", "temp_max_safe"),
-        ("Current", "--", "#3b82f6", "temp_current"),
-        ("Today MAX", "--", "#f59e0b", "temp_today_max"),
-        ("Spikes (24h)", "0", "#f59e0b", "temp_spikes"),
+        ("Today AVG",    "--",   TEXT,   "temp_today_avg"),
+        ("Lifetime AVG", "--",   MUTED,  "temp_lifetime_avg"),
+        ("Max safe",     "85°C", CRIT_C, "temp_max_safe"),
+        ("Current",      "--",   LOAD_C, "temp_current"),
+        ("Today MAX",    "--",   WARN_C, "temp_today_max"),
+        ("Spikes (24 h)","0",    WARN_C, "temp_spikes"),
+        ("Trend",        "->",    MUTED,  "temp_trend"),
     ]
+    for label, value, col, key in stats:
+        row = tk.Frame(parent, bg=PANEL2)
+        row.pack(fill="x", padx=6, pady=2)
+        tk.Label(row, text=label, font=(_MONO, 8),
+                 bg=PANEL2, fg=TEXT, anchor="w").pack(side="left")
+        lbl = tk.Label(row, text=value, font=(_MONO, 9, "bold"),
+                       bg=PANEL2, fg=col, anchor="e")
+        lbl.pack(side="right")
+        setattr(parent, key, lbl)
 
-    for label, value, color, key in stats:
-        row = tk.Frame(parent, bg="#0d1117")
-        row.pack(fill="x", padx=6, pady=1)
-        tk.Label(row, text=label, font=("Consolas", 6), bg="#0d1117",
-                 fg=MUTED, anchor="w").pack(side="left")
-        val_lbl = tk.Label(row, text=value, font=("Consolas", 7, "bold"),
-                           bg="#0d1117", fg=color, anchor="e")
-        val_lbl.pack(side="right")
-        parent.__dict__[key] = val_lbl
 
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. LOAD SECTION (CPU / RAM / GPU multi-line)
+# ──────────────────────────────────────────────────────────────────────────────
 
-def _build_voltage_section(parent):
-    """Voltage monitoring section with multi-line chart"""
-    section = tk.Frame(parent, bg=PANEL, highlightthickness=1,
-                       highlightbackground=BORDER)
-    section.pack(fill="x", padx=15, pady=(0, 8))
+def _build_load_section(parent):
+    section = _make_section(parent)
 
-    # Section header
-    hdr = tk.Frame(section, bg="#0d0a1a")
+    hdr = tk.Frame(section, bg="#08101a")
     hdr.pack(fill="x")
+    tk.Frame(hdr, bg=LOAD_C, height=2).pack(fill="x")
+    hdr_body = tk.Frame(hdr, bg="#08101a")
+    hdr_body.pack(fill="x", padx=10, pady=5)
+    tk.Label(hdr_body, text="⚡  VOLTAGE / LOAD MONITOR",
+             font=(_MONO, 9, "bold"),
+             bg="#08101a", fg=LOAD_C).pack(side="left")
 
-    tk.Label(hdr, text="⚡ VOLTAGE MONITOR", font=("Consolas", 9, "bold"),
-             bg="#0d0a1a", fg="#8b5cf6", padx=10, pady=6).pack(side="left")
+    scale_frame, scale_var = _build_scale_buttons(
+        hdr_body, color=LOAD_C,
+        callback=lambda s: _refresh_load(section))
+    section._load_scale = scale_var
 
-    # Time scale buttons
-    btn_frame = tk.Frame(hdr, bg="#0d0a1a")
-    btn_frame.pack(side="right", padx=10, pady=4)
-
-    section._time_scale = "1D"
-    scale_btns = {}
-
-    for scale in ["1D", "3D", "1W", "1M"]:
-        btn = tk.Label(btn_frame, text=scale, font=("Consolas", 7, "bold"),
-                       bg="#0a0c10" if scale != "1D" else "#8b5cf6",
-                       fg="#6b7280" if scale != "1D" else "#ffffff",
-                       padx=6, pady=2, cursor="hand2")
-        btn.pack(side="left", padx=1)
-        scale_btns[scale] = btn
-
-        def _on_scale(e, s=scale):
-            section._time_scale = s
-            for k, b in scale_btns.items():
-                if k == s:
-                    b.config(bg="#8b5cf6", fg="#ffffff")
-                else:
-                    b.config(bg="#0a0c10", fg="#6b7280")
-            _refresh_volt_chart(section)
-
-        btn.bind("<Button-1>", _on_scale)
-
-    # Content area
     content = tk.Frame(section, bg=PANEL)
     content.pack(fill="x", padx=8, pady=6)
 
-    # Chart (left)
-    chart_frame = tk.Frame(content, bg="#080a0e")
+    chart_frame = tk.Frame(content, bg="#050809")
     chart_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
 
-    chart_canvas = tk.Canvas(chart_frame, bg="#080a0e", height=130,
-                             highlightthickness=0)
-    chart_canvas.pack(fill="x", padx=2, pady=2)
-    section._chart_canvas = chart_canvas
-    section._chart_data = []
+    chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
+    chart_cv.pack(fill="x", padx=2, pady=2)
+    section._chart_canvas = chart_cv
+    section._chart_data    = []
 
     # Legend
-    legend_frame = tk.Frame(chart_frame, bg="#080a0e")
-    legend_frame.pack(fill="x", padx=4, pady=(0, 2))
+    legend = tk.Frame(chart_frame, bg="#050809")
+    legend.pack(fill="x", padx=4, pady=(0, 3))
+    for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
+        tk.Label(legend, text="●", font=(_MONO, 6),
+                 bg="#050809", fg=col).pack(side="left", padx=(0, 1))
+        tk.Label(legend, text=name, font=(_MONO, 6),
+                 bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
 
-    voltage_colors = {"CPU Load": "#3b82f6", "RAM Usage": "#10b981", "GPU Load": "#f59e0b"}
-    for name, color in voltage_colors.items():
-        tk.Label(legend_frame, text="●", font=("Consolas", 6),
-                 bg="#080a0e", fg=color).pack(side="left", padx=(0, 1))
-        tk.Label(legend_frame, text=name, font=("Consolas", 6),
-                 bg="#080a0e", fg=MUTED).pack(side="left", padx=(0, 8))
+    # Alert timeline
+    tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
+    tl_cv.pack(fill="x")
+    section._timeline_cv = tl_cv
 
-    # Stats panel (right)
-    stats_frame = tk.Frame(content, bg="#0d1117", width=160)
-    stats_frame.pack(side="right", fill="y")
-    stats_frame.pack_propagate(False)
+    stats_f = tk.Frame(content, bg=PANEL2, width=165)
+    stats_f.pack(side="right", fill="y")
+    stats_f.pack_propagate(False)
+    section._stats_frame = stats_f
+    _build_load_stats(stats_f)
 
-    section._stats_frame = stats_frame
-    _build_voltage_stats(stats_frame)
-
-    # Learning status bar
     learn_bar = tk.Frame(section, bg=PANEL)
     learn_bar.pack(fill="x", padx=8, pady=(0, 6))
-
-    learn_icon = tk.Label(learn_bar, text="🧠", font=("Segoe UI", 8), bg=PANEL)
-    learn_icon.pack(side="left")
-
-    tk.Label(learn_bar, text="PC Workman learns your device load patterns",
-             font=("Segoe UI", 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
-
-    status_badge = tk.Label(learn_bar, text="No regular problems",
-                            font=("Consolas", 7, "bold"), bg="#0d2818", fg="#4ade80",
-                            padx=8, pady=1)
-    status_badge.pack(side="right")
-    section._volt_status_badge = status_badge
+    tk.Label(learn_bar, text="🧠", font=(_BODY, 8), bg=PANEL).pack(side="left")
+    tk.Label(learn_bar, text="Learns normal load patterns - unusual spikes stand out more over time",
+             font=(_BODY, 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
+    badge = tk.Label(learn_bar, text="No load anomalies",
+                     font=(_MONO, 7, "bold"),
+                     bg="#0d2818", fg="#4ade80", padx=8, pady=1)
+    badge.pack(side="right")
+    section._load_badge = badge
 
     return section
 
 
-def _build_voltage_stats(parent):
-    """Build voltage/load statistics panel"""
-    tk.Label(parent, text="LOAD STATS", font=("Consolas", 7, "bold"),
-             bg="#0d1117", fg="#8b5cf6", pady=3).pack(fill="x")
+def _build_load_stats(parent):
+    tk.Label(parent, text="LOAD STATS",
+             font=(_MONO, 8, "bold"),
+             bg=PANEL2, fg=LOAD_C, pady=5).pack(fill="x")
 
     stats = [
-        ("CPU Today AVG", "--", "#3b82f6", "volt_cpu_avg"),
-        ("RAM Today AVG", "--", "#10b981", "volt_ram_avg"),
-        ("GPU Today AVG", "--", "#f59e0b", "volt_gpu_avg"),
-        ("CPU Peak (24h)", "--", "#ef4444", "volt_cpu_peak"),
-        ("Anomalies", "0", "#f59e0b", "volt_anomalies"),
-        ("Uptime Today", "--", "#94a3b8", "volt_uptime"),
+        ("CPU Today AVG", "--", LOAD_C, "load_cpu_avg"),
+        ("RAM Today AVG", "--", RAM_C,  "load_ram_avg"),
+        ("GPU Today AVG", "--", GPU_C,  "load_gpu_avg"),
+        ("CPU Peak (24h)","--", CRIT_C, "load_cpu_peak"),
+        ("RAM Peak (24h)","--", CRIT_C, "load_ram_peak"),
+        ("Anomalies",     "0",  WARN_C, "load_anomalies"),
+        ("Uptime today",  "--", MUTED,  "load_uptime"),
     ]
+    for label, value, col, key in stats:
+        row = tk.Frame(parent, bg=PANEL2)
+        row.pack(fill="x", padx=6, pady=2)
+        tk.Label(row, text=label, font=(_MONO, 8),
+                 bg=PANEL2, fg=TEXT, anchor="w").pack(side="left")
+        lbl = tk.Label(row, text=value, font=(_MONO, 9, "bold"),
+                       bg=PANEL2, fg=col, anchor="e")
+        lbl.pack(side="right")
+        setattr(parent, key, lbl)
 
-    for label, value, color, key in stats:
-        row = tk.Frame(parent, bg="#0d1117")
-        row.pack(fill="x", padx=6, pady=1)
-        tk.Label(row, text=label, font=("Consolas", 6), bg="#0d1117",
-                 fg=MUTED, anchor="w").pack(side="left")
-        val_lbl = tk.Label(row, text=value, font=("Consolas", 7, "bold"),
-                           bg="#0d1117", fg=color, anchor="e")
-        val_lbl.pack(side="right")
-        parent.__dict__[key] = val_lbl
 
+# ──────────────────────────────────────────────────────────────────────────────
+# 5. 30-DAY ANOMALY CALENDAR HEATMAP
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _build_anomaly_calendar(parent):
+    section = tk.Frame(parent, bg=PANEL)
+    section.pack(fill="x", padx=15, pady=(0, 8))
+    tk.Frame(section, bg=CAL_C, height=2).pack(fill="x")
+
+    hdr = tk.Frame(section, bg="#0a081a")
+    hdr.pack(fill="x")
+    hdr_body = tk.Frame(hdr, bg="#0a081a")
+    hdr_body.pack(fill="x", padx=10, pady=5)
+    tk.Label(hdr_body, text="◈  ANOMALY CALENDAR  -  30 days",
+             font=(_MONO, 8, "bold"),
+             bg="#0a081a", fg="#a78bfa").pack(side="left")
+    tk.Label(hdr_body, text="Lighter = more anomalies that day",
+             font=(_BODY, 7), bg="#0a081a", fg=DIM).pack(side="right")
+
+    body = tk.Frame(section, bg=PANEL)
+    body.pack(fill="x", padx=12, pady=8)
+
+    # Load data
+    anomaly_by_day: dict[int, int] = {}
+    try:
+        now = time.time()
+        from hck_stats_engine.query_api import query_api
+        for i in range(30):
+            start_ts = now - (29 - i) * 86400
+            end_ts   = start_ts + 86400
+            data = query_api.get_usage_for_range(start_ts, end_ts, max_points=120)
+            if data:
+                vals   = [d.get("cpu_avg", 0) or 0 for d in data]
+                mean_v = sum(vals) / len(vals) if vals else 50
+                var_v  = sum((v - mean_v) ** 2 for v in vals) / max(1, len(vals))
+                std_v  = math.sqrt(var_v) if var_v > 0 else 1
+                anomaly_by_day[i] = sum(1 for v in vals if v > mean_v + 2 * std_v)
+    except Exception:
+        pass
+
+    # Draw cells
+    cells_row = tk.Frame(body, bg=PANEL)
+    cells_row.pack(fill="x")
+
+    for i in range(30):
+        day_date  = datetime.now() - timedelta(days=29 - i)
+        anomalies = anomaly_by_day.get(i, 0)
+
+        # Color tiers
+        if anomalies == 0:
+            bg_c, bd_c, fg_c = "#0d1117", "#1e293b", DIM
+        elif anomalies <= 3:
+            bg_c, bd_c, fg_c = "#112318", "#4ade80", "#4ade80"
+        elif anomalies <= 8:
+            bg_c, bd_c, fg_c = "#1e1400", "#f59e0b", "#f59e0b"
+        else:
+            bg_c, bd_c, fg_c = "#1e0808", "#ef4444", "#ef4444"
+
+        cell_out = tk.Frame(cells_row, bg=bd_c)
+        cell_out.pack(side="left", padx=2)
+        cell_in  = tk.Frame(cell_out, bg=bg_c, width=24, height=26)
+        cell_in.pack(padx=1, pady=1)
+        cell_in.pack_propagate(False)
+
+        day_n = str(day_date.day)
+        lbl   = tk.Label(cell_in, text=day_n,
+                         font=(_MONO, 7), bg=bg_c, fg=fg_c, cursor="hand2")
+        lbl.pack(expand=True)
+
+        tooltip_txt = (f"{day_date.strftime('%b %d')}  "
+                       f"{'no anomalies' if anomalies == 0 else f'{anomalies} anomalies'}")
+
+        def _enter(e, f=cell_in, b="#1e293b", lbl=lbl, old=bg_c, fg=fg_c):
+            f.config(bg=b)
+            lbl.config(bg=b)
+
+        def _leave(e, f=cell_in, b=bg_c, lbl=lbl, fg=fg_c):
+            f.config(bg=b)
+            lbl.config(bg=b)
+
+        lbl.bind("<Enter>", _enter)
+        lbl.bind("<Leave>", _leave)
+
+    # Legend
+    legend = tk.Frame(body, bg=PANEL)
+    legend.pack(fill="x", pady=(6, 0))
+    tk.Label(legend, text="Clean", font=(_MONO, 6), bg=PANEL, fg=DIM).pack(side="left", padx=(0, 6))
+    for col, txt in [("#4ade80", "Mild"), ("#f59e0b", "Moderate"), ("#ef4444", "Heavy")]:
+        dot = tk.Frame(legend, bg=col, width=8, height=8)
+        dot.pack(side="left", padx=(0, 2))
+        tk.Label(legend, text=txt, font=(_MONO, 6),
+                 bg=PANEL, fg=col).pack(side="left", padx=(0, 8))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 6. EVENTS / ALERTS LOG
+# ──────────────────────────────────────────────────────────────────────────────
 
 def _build_alerts_log(parent):
-    """Build recent alerts/events log"""
-    section = tk.Frame(parent, bg=PANEL, highlightthickness=1,
-                       highlightbackground=BORDER)
-    section.pack(fill="x", padx=15, pady=(0, 10))
+    section = tk.Frame(parent, bg=PANEL)
+    section.pack(fill="x", padx=15, pady=(0, 16))
+    tk.Frame(section, bg=ALERT_C, height=2).pack(fill="x")
 
-    hdr = tk.Frame(section, bg="#1a0a0a")
+    hdr = tk.Frame(section, bg="#12080a")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="🔔 RECENT EVENTS", font=("Consolas", 9, "bold"),
-             bg="#1a0a0a", fg="#ef4444", padx=10, pady=6).pack(side="left")
+    hdr_b = tk.Frame(hdr, bg="#12080a")
+    hdr_b.pack(fill="x", padx=10, pady=5)
+    tk.Label(hdr_b, text="🔔  RECENT EVENTS",
+             font=(_MONO, 9, "bold"),
+             bg="#12080a", fg=ALERT_C).pack(side="left")
+    tk.Label(hdr_b, text="last 10 entries",
+             font=(_BODY, 7), bg="#12080a", fg=DIM).pack(side="right")
 
     container = tk.Frame(section, bg=PANEL)
     container.pack(fill="x", padx=8, pady=6)
@@ -351,522 +560,690 @@ def _build_alerts_log(parent):
     events = []
     try:
         from hck_stats_engine.query_api import query_api
-        events = query_api.get_events(limit=8)
+        events = query_api.get_events(limit=10)
     except Exception:
         pass
 
     if events:
-        for evt in events[:8]:
-            row = tk.Frame(container, bg="#0d1117")
-            row.pack(fill="x", pady=1)
-
-            ts = evt.get('timestamp', 0)
-            time_str = datetime.fromtimestamp(ts).strftime("%H:%M") if ts else "--:--"
-            severity = evt.get('severity', 'info')
-            message = evt.get('message', 'Unknown event')[:50]
-
-            sev_color = {"info": "#3b82f6", "warning": "#f59e0b", "critical": "#ef4444"}.get(severity, "#6b7280")
-            sev_text = severity.upper()[:4]
-
-            tk.Label(row, text=time_str, font=("Consolas", 7),
-                     bg="#0d1117", fg=MUTED, width=5).pack(side="left", padx=2)
-            tk.Label(row, text=sev_text, font=("Consolas", 6, "bold"),
-                     bg=sev_color, fg="#000000" if severity != "info" else "#ffffff",
-                     width=4, padx=2).pack(side="left", padx=2)
-            tk.Label(row, text=message, font=("Consolas", 7),
-                     bg="#0d1117", fg=TEXT, anchor="w").pack(side="left", padx=4, fill="x", expand=True)
+        for evt in events:
+            _render_event_row(container, evt)
     else:
-        tk.Label(container, text="No events recorded yet. PC Workman is monitoring...",
-                 font=("Consolas", 7), bg="#0d1117", fg=MUTED, pady=8).pack(fill="x")
+        tk.Label(container,
+                 text="No events recorded yet - PC Workman is monitoring your system…",
+                 font=(_MONO, 7), bg=PANEL2, fg=MUTED,
+                 padx=12, pady=10).pack(fill="x")
 
 
-# ========== CHART DRAWING ==========
+def _render_event_row(parent, evt: dict):
+    sev        = evt.get("severity", "info")
+    sev_colors = {"info": LOAD_C, "warning": WARN_C, "critical": CRIT_C}
+    sev_col    = sev_colors.get(sev, MUTED)
+    ts         = evt.get("timestamp", 0)
+    time_str   = datetime.fromtimestamp(ts).strftime("%H:%M") if ts else "--:--"
+    day_str    = datetime.fromtimestamp(ts).strftime("%a") if ts else "---"
+    message    = evt.get("message", "Unknown event")[:60]
 
-def _draw_area_chart(canvas, data, key, color, height=130, highlight_spikes=True):
-    """Draw filled area chart with spike highlighting on canvas"""
+    row = tk.Frame(parent, bg=PANEL2)
+    row.pack(fill="x", pady=1)
+
+    # Severity stripe
+    tk.Frame(row, bg=sev_col, width=3).pack(side="left", fill="y")
+
+    # Time
+    time_f = tk.Frame(row, bg=PANEL2)
+    time_f.pack(side="left", padx=(6, 0))
+    tk.Label(time_f, text=time_str, font=(_MONO, 8, "bold"),
+             bg=PANEL2, fg=TEXT).pack(anchor="w")
+    tk.Label(time_f, text=day_str, font=(_MONO, 6),
+             bg=PANEL2, fg=MUTED).pack(anchor="w")
+
+    # Badge
+    badge_bg = "#0c1e30" if sev == "info" else "#2a1800" if sev == "warning" else "#2a0808"
+    tk.Label(row, text=sev.upper()[:4],
+             font=(_MONO, 7, "bold"),
+             bg=badge_bg, fg=sev_col, padx=6, pady=2).pack(side="left", padx=6)
+
+    # Message
+    tk.Label(row, text=message, font=(_BODY, 8),
+             bg=PANEL2, fg="#94a3b8", anchor="w").pack(
+        side="left", fill="x", expand=True, padx=(0, 8), pady=5)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CHART DRAWING - Adaptive baseline + anomaly decay
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _draw_adaptive_chart(canvas, data, key, color, height=150):
+    """
+    Area chart with:
+      • Shaded baseline band (mean ±σ) - learned normal zone
+      • Anomaly fade: frequently-seen spikes get a more muted highlight
+      • Contextual hover tooltip: "58.3°C (12 % above usual)"
+    """
     canvas.delete("all")
+    w = canvas.winfo_width() or 500
 
     if not data:
-        canvas.create_text(canvas.winfo_width() // 2, height // 2,
-                          text="Collecting data...", fill=MUTED,
-                          font=("Consolas", 8))
+        canvas.create_text(w // 2, height // 2, text="Collecting data…",
+                           fill=MUTED, font=(_MONO, 8))
         return
 
-    w = canvas.winfo_width()
-    if w < 10:
-        w = 400
+    h   = height
+    PL, PR, PT, PB = 32, 8, 12, 20
+    cw  = w - PL - PR
+    ch  = h - PT - PB
 
-    h = height
-    pad_top = 15
-    pad_bottom = 18
-    pad_left = 30
-    pad_right = 10
-    chart_h = h - pad_top - pad_bottom
-    chart_w = w - pad_left - pad_right
-
-    values = [d.get(key, 0) or 0 for d in data]
-    n = len(values)
+    values = [float(d.get(key, 0) or 0) for d in data]
+    n      = len(values)
     if n < 2:
         return
 
-    max_val = max(values) if max(values) > 0 else 100
-    min_val = min(values)
+    mean, sigma = _compute_adaptive(values)
+    base_lo = max(0, mean - sigma)
+    base_hi = mean + sigma * 1.5
+    thresh  = mean + sigma * 1.5      # same as base_hi
 
-    # Scale range with headroom
-    val_range = max_val - min_val
-    if val_range < 5:
-        val_range = 10
-        min_val = max(0, min_val - 5)
-    max_val = min_val + val_range * 1.15
+    vmin  = max(0, min(values) * 0.95)
+    vmax  = max(values) * 1.08 if max(values) > 0 else 100
+    if base_hi > vmax:
+        vmax = base_hi * 1.05
+    vrange = vmax - vmin or 1
 
-    # Grid lines
-    for i in range(5):
-        y = pad_top + (i / 4) * chart_h
-        canvas.create_line(pad_left, y, w - pad_right, y, fill="#1a1d24", width=1)
-        grid_val = max_val - (i / 4) * (max_val - min_val)
-        canvas.create_text(pad_left - 3, y, text=f"{grid_val:.0f}",
-                          fill=MUTED, font=("Consolas", 5), anchor="e")
+    def vy(v):
+        return PT + ch * (1 - (v - vmin) / vrange)
 
-    # Detect spikes (values > mean + 1.5 * std)
-    mean_val = sum(values) / n
-    variance = sum((v - mean_val) ** 2 for v in values) / n
-    std_val = math.sqrt(variance) if variance > 0 else 1
-    spike_threshold = mean_val + 1.5 * std_val
+    def vx(i):
+        return PL + (i / max(n - 1, 1)) * cw
 
-    # Build coordinate points
-    points = []
-    spike_ranges = []
+    # Grid
+    for step in [0, 25, 50, 75, 100]:
+        v = vmin + vrange * step / 100
+        y = vy(v)
+        canvas.create_line(PL, y, w - PR, y, fill="#111820", width=1)
+        canvas.create_text(PL - 3, y, text=f"{v:.0f}",
+                           fill=DIM, font=(_MONO, 5), anchor="e")
+
+    # ── Adaptive baseline band ────────────────────────────────────────────────
+    band_pts = ([PL, vy(base_lo)] +
+                [coord for i in range(n) for coord in (vx(i), vy(base_lo))] +
+                [vx(n - 1), vy(base_hi)] +
+                [coord for i in range(n - 1, -1, -1) for coord in (vx(i), vy(base_hi))])
+    canvas.create_polygon(band_pts, fill="#0a1f10", outline="", smooth=False)
+
+    # Mean dashed line
+    canvas.create_line(PL, vy(mean), w - PR, vy(mean),
+                       fill="#163220", width=1, dash=(5, 4))
+
+    # ── Anomaly zones with fade (decay learning) ─────────────────────────────
+    spike_count = sum(1 for v in values if v > thresh)
+    spike_ratio = spike_count / max(n, 1)
+    # 0 = new spike (bright), 1 = fully learned (very faded)
+    decay = min(0.95, spike_ratio * 8)
+
+    if decay < 0.25:
+        fill_anom, line_anom = "#2a1800", "#f59e0b"
+    elif decay < 0.6:
+        fill_anom, line_anom = "#1a1100", "#78350f"
+    else:
+        fill_anom, line_anom = "#110d00", "#451a03"
+
     in_spike = False
-    spike_start = 0
+    sp_start = 0
+    for i, v in enumerate(values):
+        if v > thresh and not in_spike:
+            in_spike, sp_start = True, i
+        elif (v <= thresh or i == n - 1) and in_spike:
+            in_spike = False
+            sx, ex = vx(sp_start), vx(i)
+            canvas.create_rectangle(sx, PT, ex, PT + ch,
+                                    fill=fill_anom, outline="")
+            canvas.create_line(sx, PT, sx, PT + ch, fill=line_anom, width=1)
 
-    for i, val in enumerate(values):
-        x = pad_left + (i / (n - 1)) * chart_w
-        y = pad_top + (1 - (val - min_val) / (max_val - min_val)) * chart_h
-        y = max(pad_top, min(pad_top + chart_h, y))
-        points.append((x, y))
+    # ── Filled area ────────────────────────────────────────────────────────────
+    area = [PL, PT + ch]
+    for i, v in enumerate(values):
+        area += [vx(i), vy(v)]
+    area += [vx(n - 1), PT + ch]
+    canvas.create_polygon(area, fill=_darker(color), outline="", smooth=True)
 
-        # Track spike regions
-        if highlight_spikes:
-            if val > spike_threshold and not in_spike:
-                in_spike = True
-                spike_start = i
-            elif val <= spike_threshold and in_spike:
-                in_spike = False
-                spike_ranges.append((spike_start, i))
+    # ── Main line ──────────────────────────────────────────────────────────────
+    line_pts = [coord for i, v in enumerate(values) for coord in (vx(i), vy(v))]
+    canvas.create_line(line_pts, fill=color, width=2, smooth=True)
 
-    if in_spike:
-        spike_ranges.append((spike_start, n - 1))
+    # ── Time axis ─────────────────────────────────────────────────────────────
+    _draw_time_axis(canvas, data, PL, w - PR, h)
 
-    # Draw spike highlight regions (yellow glow)
-    for start, end in spike_ranges:
-        sx = pad_left + (start / (n - 1)) * chart_w
-        ex = pad_left + (end / (n - 1)) * chart_w
-        # Gradient yellow highlight
-        canvas.create_rectangle(sx, pad_top, ex, pad_top + chart_h,
-                               fill="#1a1800", outline="")
-        # Top accent
-        canvas.create_line(sx, pad_top, ex, pad_top, fill="#f59e0b", width=2)
+    # ── Contextual hover tooltip ───────────────────────────────────────────────
+    points = [(vx(i), vy(v)) for i, v in enumerate(values)]
 
-    # Draw filled area
-    fill_points = []
-    fill_points.append((pad_left, pad_top + chart_h))
-    fill_points.extend(points)
-    fill_points.append((pad_left + chart_w, pad_top + chart_h))
-
-    flat_fill = []
-    for p in fill_points:
-        flat_fill.extend(p)
-
-    # Semi-transparent fill
-    fill_color = _darker_color(color)
-    canvas.create_polygon(flat_fill, fill=fill_color, outline="", smooth=True)
-
-    # Draw line
-    flat_line = []
-    for p in points:
-        flat_line.extend(p)
-    canvas.create_line(flat_line, fill=color, width=2, smooth=True)
-
-    # Time axis labels
-    if data:
-        first_ts = data[0].get('timestamp', 0)
-        last_ts = data[-1].get('timestamp', 0)
-        if first_ts and last_ts:
-            for frac in [0, 0.25, 0.5, 0.75, 1.0]:
-                ts = first_ts + (last_ts - first_ts) * frac
-                x = pad_left + frac * chart_w
-                time_str = datetime.fromtimestamp(ts).strftime("%H:%M")
-                canvas.create_text(x, h - 5, text=time_str,
-                                  fill=MUTED, font=("Consolas", 5))
-
-    # Bind hover for tooltip
-    def _on_hover(event):
-        mx = event.x
-        if mx < pad_left or mx > pad_left + chart_w or not data:
+    def _hover(event):
+        if event.x < PL or event.x > PL + cw:
             return
-        idx = int(((mx - pad_left) / chart_w) * (n - 1))
-        idx = max(0, min(idx, n - 1))
-        d = data[idx]
-        ts = d.get('timestamp', 0)
-        time_str = datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "--"
-        val = values[idx]
-        cpu = d.get('cpu_avg', 0) or 0
-        ram = d.get('ram_avg', 0) or 0
-        gpu = d.get('gpu_avg', 0) or 0
-        temp = d.get('cpu_temp', None)
-        temp_str = f"  Temp:{temp:.0f}°" if temp else ""
-        tip = f"{time_str}  {key}:{val:.1f}  CPU:{cpu:.0f}% RAM:{ram:.0f}% GPU:{gpu:.0f}%{temp_str}"
+        idx  = int(((event.x - PL) / cw) * (n - 1))
+        idx  = max(0, min(idx, n - 1))
+        val  = values[idx]
+        diff = val - mean
+        pct  = abs(diff / mean * 100) if mean else 0
+        dir_ = "above" if diff >= 0 else "below"
+        ts   = data[idx].get("timestamp", 0)
+        t_s  = datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "--"
+        tip  = f"{t_s}  {val:.1f}  ({pct:.0f}% {dir_} usual)"
 
         canvas.delete("hover_dot")
         px, py = points[idx]
-        canvas.create_oval(px - 3, py - 3, px + 3, py + 3, fill=color,
-                          outline="#ffffff", width=1, tags="hover_dot")
+        canvas.create_oval(px - 3, py - 3, px + 3, py + 3,
+                           fill=color, outline="#ffffff", width=1, tags="hover_dot")
 
-        # Position tooltip
-        tip_x = min(mx + 10, w - 200)
-        tip_y = max(event.y - 20, 5)
+        tip_x = min(event.x + 10, w - len(tip) * 5 - 8)
+        tip_y = max(event.y - 22, 4)
         canvas.delete("hover_tip")
-        canvas.create_rectangle(tip_x - 2, tip_y - 2, tip_x + len(tip) * 5 + 6, tip_y + 14,
-                               fill="#1e293b", outline="#334155", tags="hover_tip")
-        canvas.create_text(tip_x + 3, tip_y + 6, text=tip, fill="#ffffff",
-                          font=("Consolas", 6), anchor="w", tags="hover_tip")
+        canvas.create_rectangle(tip_x - 2, tip_y - 2,
+                                 tip_x + len(tip) * 5 + 8, tip_y + 14,
+                                 fill="#1e293b", outline="#334155", tags="hover_tip")
+        canvas.create_text(tip_x + 4, tip_y + 6, text=tip,
+                           fill="#ffffff", font=(_MONO, 6),
+                           anchor="w", tags="hover_tip")
 
-    def _on_leave(event):
+    def _leave(event):
         canvas.delete("hover_dot")
         canvas.delete("hover_tip")
 
-    canvas.bind("<Motion>", _on_hover)
-    canvas.bind("<Leave>", _on_leave)
+    canvas.bind("<Motion>", _hover)
+    canvas.bind("<Leave>",  _leave)
 
 
-def _draw_multi_line_chart(canvas, data, keys_colors, height=130):
-    """Draw multiple lines on same chart (for voltage/load comparison)"""
+def _draw_multi_load_chart(canvas, data, height=150):
+    """Multi-line load chart with per-metric adaptive baselines."""
     canvas.delete("all")
+    w = canvas.winfo_width() or 500
 
     if not data:
-        canvas.create_text(canvas.winfo_width() // 2, height // 2,
-                          text="Collecting data...", fill=MUTED,
-                          font=("Consolas", 8))
+        canvas.create_text(w // 2, height // 2, text="Collecting data…",
+                           fill=MUTED, font=(_MONO, 8))
         return
 
-    w = canvas.winfo_width()
-    if w < 10:
-        w = 400
-
-    h = height
-    pad_top = 15
-    pad_bottom = 18
-    pad_left = 30
-    pad_right = 10
-    chart_h = h - pad_top - pad_bottom
-    chart_w = w - pad_left - pad_right
-
-    n = len(data)
+    h   = height
+    PL, PR, PT, PB = 32, 8, 12, 20
+    cw  = w - PL - PR
+    ch  = h - PT - PB
+    n   = len(data)
     if n < 2:
         return
 
-    # Grid lines (0-100 scale for percentages)
-    for i in range(5):
-        y = pad_top + (i / 4) * chart_h
-        canvas.create_line(pad_left, y, w - pad_right, y, fill="#1a1d24", width=1)
-        grid_val = 100 - (i / 4) * 100
-        canvas.create_text(pad_left - 3, y, text=f"{grid_val:.0f}",
-                          fill=MUTED, font=("Consolas", 5), anchor="e")
+    def vx(i):   return PL + (i / max(n - 1, 1)) * cw
+    def vy(v):   return PT + ch * (1 - max(0, min(100, v)) / 100)
 
-    # Detect anomalies across all metrics
-    for key, color in keys_colors:
-        values = [d.get(key, 0) or 0 for d in data]
-        mean_v = sum(values) / n
-        variance = sum((v - mean_v) ** 2 for v in values) / n
-        std_v = math.sqrt(variance) if variance > 0 else 1
-        spike_thresh = mean_v + 2 * std_v
+    # Grid
+    for step in [0, 25, 50, 75, 100]:
+        y = vy(step)
+        canvas.create_line(PL, y, w - PR, y, fill="#111820", width=1)
+        canvas.create_text(PL - 3, y, text=str(step),
+                           fill=DIM, font=(_MONO, 5), anchor="e")
 
-        # Highlight anomaly regions
-        in_spike = False
-        spike_start = 0
-        for i, val in enumerate(values):
-            if val > spike_thresh and not in_spike:
-                in_spike = True
-                spike_start = i
-            elif val <= spike_thresh and in_spike:
-                in_spike = False
-                sx = pad_left + (spike_start / (n - 1)) * chart_w
-                ex = pad_left + (i / (n - 1)) * chart_w
-                canvas.create_rectangle(sx, pad_top, ex, pad_top + chart_h,
-                                       fill="#1a1800", outline="")
+    keys_cols = [("cpu_avg", LOAD_C), ("ram_avg", RAM_C), ("gpu_avg", GPU_C)]
+    all_pts: dict[str, list] = {}
 
-    # Draw lines
-    all_points = {}
-    for key, color in keys_colors:
-        values = [d.get(key, 0) or 0 for d in data]
-        points = []
-        for i, val in enumerate(values):
-            x = pad_left + (i / (n - 1)) * chart_w
-            y = pad_top + (1 - val / 100) * chart_h
-            y = max(pad_top, min(pad_top + chart_h, y))
-            points.append((x, y))
+    for key, col in keys_cols:
+        vals   = [float(d.get(key, 0) or 0) for d in data]
+        mean_v, sigma_v = _compute_adaptive(vals)
+        thresh_v = mean_v + sigma_v * 1.5
 
-        all_points[key] = points
+        # Anomaly zone (faded)
+        in_sp, sp_start = False, 0
+        for i, v in enumerate(vals):
+            if v > thresh_v and not in_sp:
+                in_sp, sp_start = True, i
+            elif (v <= thresh_v or i == n - 1) and in_sp:
+                in_sp = False
+                canvas.create_rectangle(vx(sp_start), PT, vx(i), PT + ch,
+                                        fill="#0e1220", outline="")
 
-        flat = []
-        for p in points:
-            flat.extend(p)
-        canvas.create_line(flat, fill=color, width=1.5, smooth=True)
+        pts = [(vx(i), vy(v)) for i, v in enumerate(vals)]
+        all_pts[key] = pts
+        flat = [coord for p in pts for coord in p]
+        canvas.create_line(flat, fill=col, width=2, smooth=True)
 
-    # Time axis
-    if data:
-        first_ts = data[0].get('timestamp', 0)
-        last_ts = data[-1].get('timestamp', 0)
-        if first_ts and last_ts:
-            for frac in [0, 0.25, 0.5, 0.75, 1.0]:
-                ts = first_ts + (last_ts - first_ts) * frac
-                x = pad_left + frac * chart_w
-                time_str = datetime.fromtimestamp(ts).strftime("%H:%M")
-                canvas.create_text(x, h - 5, text=time_str,
-                                  fill=MUTED, font=("Consolas", 5))
+    _draw_time_axis(canvas, data, PL, w - PR, h)
 
-    # Hover tooltip showing all values
-    def _on_hover(event):
-        mx = event.x
-        if mx < pad_left or mx > pad_left + chart_w or not data:
+    # Hover tooltip showing all three values
+    def _hover(event):
+        if event.x < PL or event.x > PL + cw:
             return
-        idx = int(((mx - pad_left) / chart_w) * (n - 1))
+        idx = int(((event.x - PL) / cw) * (n - 1))
         idx = max(0, min(idx, n - 1))
-        d = data[idx]
-        ts = d.get('timestamp', 0)
-        time_str = datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "--"
+        d   = data[idx]
+        ts  = d.get("timestamp", 0)
+        t_s = datetime.fromtimestamp(ts).strftime("%H:%M:%S") if ts else "--"
+        cpu = d.get("cpu_avg", 0) or 0
+        ram = d.get("ram_avg", 0) or 0
+        gpu = d.get("gpu_avg", 0) or 0
+        tip = f"{t_s}  CPU:{cpu:.0f}%  RAM:{ram:.0f}%  GPU:{gpu:.0f}%"
 
-        parts = [time_str]
         canvas.delete("hover_dot")
-        for key, color in keys_colors:
-            val = d.get(key, 0) or 0
-            short_key = key.replace("_avg", "").upper()
-            parts.append(f"{short_key}:{val:.1f}%")
-            if key in all_points and idx < len(all_points[key]):
-                px, py = all_points[key][idx]
+        for key, col in keys_cols:
+            pts = all_pts.get(key, [])
+            if idx < len(pts):
+                px, py = pts[idx]
                 canvas.create_oval(px - 2, py - 2, px + 2, py + 2,
-                                  fill=color, outline="#ffffff", width=1, tags="hover_dot")
+                                   fill=col, outline="#ffffff", width=1, tags="hover_dot")
 
-        tip = "  ".join(parts)
-        tip_x = min(mx + 10, w - 200)
-        tip_y = max(event.y - 20, 5)
+        tip_x = min(event.x + 10, w - len(tip) * 5 - 8)
+        tip_y = max(event.y - 22, 4)
         canvas.delete("hover_tip")
-        canvas.create_rectangle(tip_x - 2, tip_y - 2, tip_x + len(tip) * 5 + 6, tip_y + 14,
-                               fill="#1e293b", outline="#334155", tags="hover_tip")
-        canvas.create_text(tip_x + 3, tip_y + 6, text=tip, fill="#ffffff",
-                          font=("Consolas", 6), anchor="w", tags="hover_tip")
+        canvas.create_rectangle(tip_x - 2, tip_y - 2,
+                                 tip_x + len(tip) * 5 + 8, tip_y + 14,
+                                 fill="#1e293b", outline="#334155", tags="hover_tip")
+        canvas.create_text(tip_x + 4, tip_y + 6, text=tip,
+                           fill="#ffffff", font=(_MONO, 6),
+                           anchor="w", tags="hover_tip")
 
-    def _on_leave(event):
+    def _leave(event):
         canvas.delete("hover_dot")
         canvas.delete("hover_tip")
 
-    canvas.bind("<Motion>", _on_hover)
-    canvas.bind("<Leave>", _on_leave)
+    canvas.bind("<Motion>", _hover)
+    canvas.bind("<Leave>",  _leave)
 
 
-def _darker_color(hex_color):
-    """Get a darker, more transparent version of a hex color"""
-    color_map = {
-        "#3b82f6": "#0c1a3d",
-        "#10b981": "#0a2a1e",
-        "#f59e0b": "#2a1a05",
-        "#ef4444": "#2a0a0a",
-        "#8b5cf6": "#1a0e3d",
-    }
-    return color_map.get(hex_color, "#0d1117")
+def _draw_alert_timeline(canvas, data, key):
+    """
+    Thin strip below a chart showing alert events as vertical lines.
+    Red = severe, amber = moderate.  Dots on the baseline at non-anomalous times.
+    """
+    canvas.delete("all")
+    w = canvas.winfo_width() or 500
+    h = 22
+
+    if not data:
+        return
+
+    canvas.create_line(0, h // 2, w, h // 2, fill="#1a2030", width=1)
+
+    values = [float(d.get(key, 0) or 0) for d in data]
+    n      = len(values)
+    if n < 2:
+        return
+
+    mean, sigma = _compute_adaptive(values)
+    thresh  = mean + sigma * 1.5
+    thresh2 = mean + sigma * 2.5
+
+    first_ts = data[0].get("timestamp", 0)
+    last_ts  = data[-1].get("timestamp", 0)
+    if not (first_ts and last_ts and last_ts > first_ts):
+        return
+
+    for i, (d, v) in enumerate(zip(data, values)):
+        ts   = d.get("timestamp", 0)
+        if not ts:
+            continue
+        frac = (ts - first_ts) / (last_ts - first_ts)
+        x    = int(frac * w)
+        if v > thresh2:
+            canvas.create_line(x, 2, x, h - 2, fill=CRIT_C, width=2)
+        elif v > thresh:
+            canvas.create_line(x, 4, x, h - 4, fill=WARN_C, width=1)
+
+    # Time bookmarks
+    for frac, ts_val in [(0, first_ts), (0.5, (first_ts + last_ts) / 2), (1, last_ts)]:
+        x    = int(frac * w)
+        t_s  = datetime.fromtimestamp(ts_val).strftime("%H:%M")
+        anch = "w" if frac == 0 else ("e" if frac == 1 else "center")
+        canvas.create_text(x, h - 4, text=t_s,
+                           font=(_MONO, 5), fill="#1e293b", anchor=anch)
 
 
-# ========== DATA LOADING ==========
+# ──────────────────────────────────────────────────────────────────────────────
+# SCALE BUTTONS
+# ──────────────────────────────────────────────────────────────────────────────
 
-def _get_time_range(scale):
-    """Get start/end timestamps for a time scale"""
-    now = time.time()
-    ranges = {
-        "1D": 86400,
-        "3D": 86400 * 3,
-        "1W": 86400 * 7,
-        "1M": 86400 * 30,
-    }
-    delta = ranges.get(scale, 86400)
-    return now - delta, now
+def _build_scale_buttons(parent, color, callback):
+    frame = tk.Frame(parent, bg=parent["bg"])
+    frame.pack(side="right", padx=8)
+
+    var    = [("1D",)]
+    btns   = {}
+
+    for scale in ("1D", "3D", "1W", "1M"):
+        active = (scale == "1D")
+        btn = tk.Label(frame, text=scale,
+                       font=(_MONO, 7, "bold"),
+                       bg=color if active else "#0d1018",
+                       fg="#000000" if active else MUTED,
+                       padx=7, pady=2, cursor="hand2")
+        btn.pack(side="left", padx=1)
+        btns[scale] = btn
+
+        def _click(e, s=scale):
+            for k, b in btns.items():
+                b.config(bg=color if k == s else "#0d1018",
+                         fg="#000000" if k == s else MUTED)
+            var[0] = (s,)
+            callback(s)
+
+        btn.bind("<Button-1>", _click)
+
+    return frame, var
 
 
-def _load_chart_data(scale):
-    """Load data from stats engine for given time scale"""
-    start_ts, end_ts = _get_time_range(scale)
+# ──────────────────────────────────────────────────────────────────────────────
+# DATA & REFRESH
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _load_data(scale: str) -> list:
+    now  = time.time()
+    span = {"1D": 86400, "3D": 259200, "1W": 604800, "1M": 2592000}.get(scale, 86400)
     try:
         from hck_stats_engine.query_api import query_api
-        data = query_api.get_usage_for_range(start_ts, end_ts, max_points=300)
-        return data if data else []
+        data = query_api.get_usage_for_range(now - span, now, max_points=350)
+        return data or []
     except Exception:
         return []
 
 
-def _refresh_temp_chart(section):
-    """Refresh temperature chart with current data"""
-    data = _load_chart_data(section._time_scale)
-    section._chart_data = data
+def _compute_adaptive(values: list) -> tuple[float, float]:
+    """Return (mean, sigma) for a list of numeric values."""
+    if not values:
+        return 50.0, 10.0
+    mean = sum(values) / len(values)
+    var  = sum((v - mean) ** 2 for v in values) / len(values)
+    return mean, math.sqrt(var) if var > 0 else 1.0
 
-    # Use cpu_temp if available, otherwise estimate from CPU load
-    display_data = []
+
+def _classify_workload(data: list) -> tuple[str, str]:
+    if not data:
+        return "Idle 🌙", DIM
+    recent = data[-min(8, len(data)):]
+    gpu    = sum(d.get("gpu_avg", 0) or 0 for d in recent) / len(recent)
+    cpu    = sum(d.get("cpu_avg", 0) or 0 for d in recent) / len(recent)
+    if gpu > 55:
+        return "Gaming 🎮", GPU_C
+    elif cpu > 50:
+        return "Dev / Work 💻", LOAD_C
+    elif cpu < 12:
+        return "Idle 🌙", DIM
+    return "Mixed 🔄", RAM_C
+
+
+def _compute_health_scores(data: list) -> tuple[int, int, int]:
+    """Return (thermal_score, memory_score, load_score) each 0–100."""
+    if not data:
+        return 85, 80, 80
+
+    temps = [float(d.get("display_temp", d.get("cpu_temp", 0) or 0)) for d in data if d.get("cpu_temp")]
+    cpus  = [float(d.get("cpu_avg", 0) or 0) for d in data]
+    rams  = [float(d.get("ram_avg", 0) or 0) for d in data]
+
+    # Thermal score
+    th = 100
+    if temps:
+        mx = max(temps)
+        av = sum(temps) / len(temps)
+        if mx > 90: th -= 40
+        elif mx > 82: th -= 25
+        elif mx > 70: th -= 10
+        if av > 65: th -= 10
+    th = max(0, th)
+
+    # Memory score
+    mem = 100
+    if rams:
+        mx = max(rams)
+        av = sum(rams) / len(rams)
+        if mx > 92: mem -= 35
+        elif mx > 80: mem -= 20
+        elif mx > 65: mem -= 8
+        if av > 55: mem -= 8
+    mem = max(0, mem)
+
+    # Load score
+    ld = 100
+    if cpus:
+        mx = max(cpus)
+        av = sum(cpus) / len(cpus)
+        if mx > 95: ld -= 30
+        elif mx > 80: ld -= 15
+        elif mx > 65: ld -= 5
+        _, sigma = _compute_adaptive(cpus)
+        anom = sum(1 for v in cpus if v > av + sigma * 2)
+        ld -= min(30, anom * 3)
+    ld = max(0, ld)
+
+    return th, mem, ld
+
+
+def _refresh_temp(section):
+    scale = (section._temp_scale[0][0] if isinstance(section._temp_scale[0], tuple)
+             else section._temp_scale[0])
+    data  = _load_data(scale)
+
+    # Enrich with display_temp
     for d in data:
-        temp = d.get('cpu_temp', None)
-        if temp is None or temp == 0:
-            cpu = d.get('cpu_avg', 0) or 0
-            temp = 35 + cpu * 0.5
-        display_data.append({**d, 'display_temp': temp})
+        if not d.get("cpu_temp"):
+            d["display_temp"] = 35 + (d.get("cpu_avg", 0) or 0) * 0.5
+        else:
+            d["display_temp"] = float(d["cpu_temp"])
 
-    section._chart_data = display_data
-    _draw_area_chart(section._chart_canvas, display_data, 'display_temp', "#f59e0b")
-    _update_temp_stats(section, display_data)
-
-
-def _refresh_volt_chart(section):
-    """Refresh voltage/load chart with current data"""
-    data = _load_chart_data(section._time_scale)
     section._chart_data = data
+    _draw_adaptive_chart(section._chart_canvas, data, "display_temp", TEMP_C)
 
-    keys_colors = [("cpu_avg", "#3b82f6"), ("ram_avg", "#10b981"), ("gpu_avg", "#f59e0b")]
-    _draw_multi_line_chart(section._chart_canvas, data, keys_colors)
-    _update_volt_stats(section, data)
+    # Timeline strip
+    if hasattr(section, "_timeline_cv"):
+        section._timeline_cv.bind(
+            "<Configure>",
+            lambda e, d=data: _draw_alert_timeline(
+                section._timeline_cv, d, "display_temp"))
+        _draw_alert_timeline(section._timeline_cv, data, "display_temp")
+
+    _update_temp_stats(section, data)
+
+
+def _refresh_load(section):
+    scale = (section._load_scale[0][0] if isinstance(section._load_scale[0], tuple)
+             else section._load_scale[0])
+    data  = _load_data(scale)
+    section._chart_data = data
+    _draw_multi_load_chart(section._chart_canvas, data)
+
+    if hasattr(section, "_timeline_cv"):
+        _draw_alert_timeline(section._timeline_cv, data, "cpu_avg")
+
+    _update_load_stats(section, data)
 
 
 def _update_temp_stats(section, data):
-    """Update temperature statistics panel"""
-    stats_frame = section._stats_frame
-
+    sf = section._stats_frame
     if not data:
         return
 
-    temps = [d.get('display_temp', 0) for d in data if d.get('display_temp')]
+    temps = [d.get("display_temp", 0) for d in data if d.get("display_temp")]
     if not temps:
         return
 
-    today_avg = sum(temps) / len(temps)
-    today_max = max(temps)
+    avg = sum(temps) / len(temps)
+    mx  = max(temps)
+    cur = temps[-1]
+    mean, sigma = _compute_adaptive(temps)
+    spikes = sum(1 for t in temps if t > mean + 1.5 * sigma)
 
-    # Current temp
-    current = temps[-1] if temps else 0
+    # Trend (last 10 vs first 10)
+    trend = "->"
+    if len(temps) >= 20:
+        e1 = sum(temps[:10]) / 10
+        e2 = sum(temps[-10:]) / 10
+        trend = "↑" if e2 > e1 + 1 else ("↓" if e2 < e1 - 1 else "->")
 
-    # Lifetime average from database
-    lifetime_avg = today_avg
-    try:
-        from hck_stats_engine.query_api import query_api
-        summary = query_api.get_summary_stats(days=3650)
-        if summary and summary.get('avg_cpu', 0) > 0:
-            lifetime_avg = 35 + summary['avg_cpu'] * 0.5
-    except Exception:
-        pass
+    cur_col = CRIT_C if cur > 80 else WARN_C if cur > 65 else LOAD_C
 
-    # Spike count (temps > mean + 2 * std)
-    mean_t = sum(temps) / len(temps)
-    var_t = sum((t - mean_t) ** 2 for t in temps) / len(temps)
-    std_t = math.sqrt(var_t) if var_t > 0 else 1
-    spikes = sum(1 for t in temps if t > mean_t + 2 * std_t)
+    for attr, val, kw in [
+        ("temp_today_avg",    f"{avg:.1f}°C", {}),
+        ("temp_current",      f"{cur:.1f}°C", {"fg": cur_col}),
+        ("temp_today_max",    f"{mx:.1f}°C",  {}),
+        ("temp_spikes",       str(spikes),    {}),
+        ("temp_trend",        trend,          {}),
+    ]:
+        lbl = getattr(sf, attr, None)
+        if lbl:
+            lbl.config(text=val, **kw)
 
-    if hasattr(stats_frame, 'temp_today_avg'):
-        stats_frame.temp_today_avg.config(text=f"{today_avg:.1f}°C")
-    if hasattr(stats_frame, 'temp_lifetime_avg'):
-        stats_frame.temp_lifetime_avg.config(text=f"{lifetime_avg:.1f}°C")
-    if hasattr(stats_frame, 'temp_current'):
-        color = "#ef4444" if current > 80 else "#f59e0b" if current > 65 else "#3b82f6"
-        stats_frame.temp_current.config(text=f"{current:.1f}°C", fg=color)
-    if hasattr(stats_frame, 'temp_today_max'):
-        stats_frame.temp_today_max.config(text=f"{today_max:.1f}°C")
-    if hasattr(stats_frame, 'temp_spikes'):
-        stats_frame.temp_spikes.config(text=str(spikes))
+    # Workload badge
+    if hasattr(section, "_workload_lbl"):
+        wl, wl_col = _classify_workload(data)
+        section._workload_lbl.config(text=f"Workload: {wl}", fg=wl_col)
 
-    # Update learning badge
-    if hasattr(section, '_temp_status_badge'):
-        if spikes > 5:
-            section._temp_status_badge.config(text="Frequent spikes detected",
-                                              bg="#2a1a05", fg="#f59e0b")
-        elif today_max > 85:
-            section._temp_status_badge.config(text="High temps detected",
-                                              bg="#2a0a0a", fg="#ef4444")
+    # Status badge
+    if hasattr(section, "_temp_badge"):
+        if spikes > 5 or mx > 85:
+            col  = CRIT_C if mx > 85 else WARN_C
+            bgc  = "#2a0a0a" if mx > 85 else "#2a1800"
+            msg  = "High temps detected" if mx > 85 else "Frequent spikes"
+            section._temp_badge.config(text=msg, bg=bgc, fg=col)
         else:
-            section._temp_status_badge.config(text="No regular problems",
-                                              bg="#0d2818", fg="#4ade80")
+            section._temp_badge.config(text="No regular problems",
+                                        bg="#0d2818", fg="#4ade80")
 
 
-def _update_volt_stats(section, data):
-    """Update voltage/load statistics panel"""
-    stats_frame = section._stats_frame
-
+def _update_load_stats(section, data):
+    sf = section._stats_frame
     if not data:
         return
 
-    cpus = [d.get('cpu_avg', 0) or 0 for d in data]
-    rams = [d.get('ram_avg', 0) or 0 for d in data]
-    gpus = [d.get('gpu_avg', 0) or 0 for d in data]
-
+    cpus = [float(d.get("cpu_avg", 0) or 0) for d in data]
+    rams = [float(d.get("ram_avg", 0) or 0) for d in data]
+    gpus = [float(d.get("gpu_avg", 0) or 0) for d in data]
     if not cpus:
         return
 
-    cpu_avg = sum(cpus) / len(cpus)
-    ram_avg = sum(rams) / len(rams)
-    gpu_avg = sum(gpus) / len(gpus)
+    cpu_avg  = sum(cpus) / len(cpus)
+    ram_avg  = sum(rams) / len(rams)
+    gpu_avg  = sum(gpus) / len(gpus)
     cpu_peak = max(cpus)
+    ram_peak = max(rams)
 
-    # Anomaly count
-    mean_c = sum(cpus) / len(cpus)
-    var_c = sum((v - mean_c) ** 2 for v in cpus) / len(cpus)
-    std_c = math.sqrt(var_c) if var_c > 0 else 1
-    anomalies = sum(1 for v in cpus if v > mean_c + 2 * std_c)
+    mean_c, sigma_c = _compute_adaptive(cpus)
+    anomalies = sum(1 for v in cpus if v > mean_c + sigma_c * 2)
 
-    # Uptime
     if data:
-        first_ts = data[0].get('timestamp', 0)
-        last_ts = data[-1].get('timestamp', 0)
-        uptime_h = (last_ts - first_ts) / 3600 if last_ts > first_ts else 0
+        ft = data[0].get("timestamp", 0)
+        lt = data[-1].get("timestamp", 0)
+        up = (lt - ft) / 3600 if lt > ft else 0
+        uptime = f"{up / 24:.1f}d" if up >= 24 else f"{up:.1f}h"
     else:
-        uptime_h = 0
+        uptime = "--"
 
-    if hasattr(stats_frame, 'volt_cpu_avg'):
-        stats_frame.volt_cpu_avg.config(text=f"{cpu_avg:.1f}%")
-    if hasattr(stats_frame, 'volt_ram_avg'):
-        stats_frame.volt_ram_avg.config(text=f"{ram_avg:.1f}%")
-    if hasattr(stats_frame, 'volt_gpu_avg'):
-        stats_frame.volt_gpu_avg.config(text=f"{gpu_avg:.1f}%")
-    if hasattr(stats_frame, 'volt_cpu_peak'):
-        color = "#ef4444" if cpu_peak > 90 else "#f59e0b" if cpu_peak > 70 else "#3b82f6"
-        stats_frame.volt_cpu_peak.config(text=f"{cpu_peak:.1f}%", fg=color)
-    if hasattr(stats_frame, 'volt_anomalies'):
-        stats_frame.volt_anomalies.config(text=str(anomalies))
-    if hasattr(stats_frame, 'volt_uptime'):
-        if uptime_h >= 24:
-            stats_frame.volt_uptime.config(text=f"{uptime_h/24:.1f}d")
-        else:
-            stats_frame.volt_uptime.config(text=f"{uptime_h:.1f}h")
+    cpu_peak_col = CRIT_C if cpu_peak > 90 else WARN_C if cpu_peak > 70 else LOAD_C
 
-    # Update learning badge
-    if hasattr(section, '_volt_status_badge'):
+    for attr, val, kw in [
+        ("load_cpu_avg",   f"{cpu_avg:.1f}%",  {}),
+        ("load_ram_avg",   f"{ram_avg:.1f}%",  {}),
+        ("load_gpu_avg",   f"{gpu_avg:.1f}%",  {}),
+        ("load_cpu_peak",  f"{cpu_peak:.1f}%", {"fg": cpu_peak_col}),
+        ("load_ram_peak",  f"{ram_peak:.1f}%", {}),
+        ("load_anomalies", str(anomalies),      {}),
+        ("load_uptime",    uptime,              {}),
+    ]:
+        lbl = getattr(sf, attr, None)
+        if lbl:
+            lbl.config(text=val, **kw)
+
+    if hasattr(section, "_load_badge"):
         if anomalies > 5:
-            section._volt_status_badge.config(text="Load anomalies detected",
-                                              bg="#2a1a05", fg="#f59e0b")
+            section._load_badge.config(text=f"{anomalies} load anomalies",
+                                        bg="#2a1800", fg=WARN_C)
         else:
-            section._volt_status_badge.config(text="No regular problems",
-                                              bg="#0d2818", fg="#4ade80")
+            section._load_badge.config(text="No load anomalies",
+                                        bg="#0d2818", fg="#4ade80")
 
 
-# ========== AUTO-REFRESH ==========
+# ──────────────────────────────────────────────────────────────────────────────
+# AUTO-REFRESH
+# ──────────────────────────────────────────────────────────────────────────────
 
-def _start_data_refresh(parent, temp_section, volt_section):
-    """Start periodic data refresh for charts"""
-    def _refresh():
+def _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl, temp_sec, load_sec):
+    def _do():
         try:
             if not parent.winfo_exists():
                 return
-            _refresh_temp_chart(temp_section)
-            _refresh_volt_chart(volt_section)
         except Exception:
             return
 
         try:
-            if parent.winfo_exists():
-                parent.after(30000, _refresh)
+            _refresh_temp(temp_sec)
+        except Exception:
+            pass
+        try:
+            _refresh_load(load_sec)
         except Exception:
             pass
 
-    # Initial load after widget is rendered
-    parent.after(500, _refresh)
+        # Update header health + anomaly badges + rings
+        try:
+            if temp_sec._chart_data:
+                td   = temp_sec._chart_data
+                cpus = [float(d.get("cpu_avg", 0) or 0) for d in td]
+
+                mean_c, sigma_c = _compute_adaptive(cpus)
+                anom_count = sum(1 for v in cpus if v > mean_c + sigma_c * 2)
+
+                th, mem, ld = _compute_health_scores(td)
+                avg_score   = (th + mem + ld) // 3
+                score_ref[0] = avg_score
+
+                _draw_health_rings(rings_cv, rings_cv.winfo_width() or 80, th, mem, ld)
+
+                s_col = OK_C if avg_score >= 80 else WARN_C if avg_score >= 55 else CRIT_C
+                a_col = OK_C if anom_count == 0 else WARN_C if anom_count < 5 else CRIT_C
+
+                if health_lbl.winfo_exists():
+                    health_lbl.config(text=str(avg_score), fg=s_col)
+                if anom_lbl.winfo_exists():
+                    anom_lbl.config(text=str(anom_count), fg=a_col)
+        except Exception:
+            pass
+
+        try:
+            if parent.winfo_exists():
+                parent.after(30_000, _do)
+        except Exception:
+            pass
+
+    parent.after(600, _do)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HELPERS
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _make_section(parent) -> tk.Frame:
+    """Bordered section frame."""
+    f = tk.Frame(parent, bg=PANEL, highlightthickness=1,
+                 highlightbackground=BORDER)
+    f.pack(fill="x", padx=15, pady=(0, 10))
+    return f
+
+
+def _draw_time_axis(canvas, data, x0, x1, h):
+    """Draw 3–5 time labels along the bottom of a chart."""
+    if not data:
+        return
+    first_ts = data[0].get("timestamp", 0)
+    last_ts  = data[-1].get("timestamp", 0)
+    if not (first_ts and last_ts and last_ts > first_ts):
+        return
+    for frac in [0, 0.25, 0.5, 0.75, 1.0]:
+        ts  = first_ts + (last_ts - first_ts) * frac
+        x   = x0 + frac * (x1 - x0)
+        fmt = "%H:%M" if (last_ts - first_ts) < 86400 else "%d/%m %H:%M"
+        canvas.create_text(x, h - 5, text=datetime.fromtimestamp(ts).strftime(fmt),
+                           fill=DIM, font=(_MONO, 5))
+
+
+def _darker(hex_color: str) -> str:
+    _MAP = {
+        TEMP_C: "#211000",
+        LOAD_C: "#061228",
+        RAM_C:  "#041a10",
+        GPU_C:  "#1a0800",
+        VOLT_C: "#120a28",
+    }
+    return _MAP.get(hex_color, "#0d1117")

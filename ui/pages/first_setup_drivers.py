@@ -2,7 +2,7 @@
 """
 FIRST SETUP & DRIVERS
 Real-time driver health, system readiness score, startup manager, setup checklist.
-Data sourced from Windows registry — no admin rights required for reads.
+Data sourced from Windows registry - no admin rights required for reads.
 """
 
 import tkinter as tk
@@ -25,6 +25,15 @@ try:
     _HAS_WINREG = True
 except ImportError:
     _HAS_WINREG = False
+
+# ─── Font system ──────────────────────────────────────────────────────────────
+try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+_HDR  = "Segoe UI Semibold"
+_BODY = _UIF
+_MONO = _MONOF
 
 # ─── Palette ──────────────────────────────────────────────────────────────────
 BG     = "#0a0e14"
@@ -108,7 +117,7 @@ def _score_grade(score):
 
 
 def _fmt_date(date_str):
-    """MM-DD-YYYY → 'Jan 2025'."""
+    """MM-DD-YYYY -> 'Jan 2025'."""
     try:
         parts = date_str.replace("/", "-").split("-")
         if len(parts) == 3 and len(parts[2]) == 4:
@@ -259,7 +268,7 @@ def build_first_setup_page(win_self, parent):
     main = tk.Frame(parent, bg=BG)
     main.pack(fill="both", expand=True)
 
-    # Scrollable canvas — width bound to canvas so content always fills
+    # Scrollable canvas - width bound to canvas so content always fills
     wrap  = tk.Canvas(main, bg=BG, highlightthickness=0)
     vsb   = tk.Scrollbar(main, orient="vertical", command=wrap.yview,
                          bg="#000000", troughcolor=BG, width=8, bd=0)
@@ -381,23 +390,23 @@ def _build_header(parent, refs):
 
     left = tk.Frame(inner, bg="#0b1220")
     left.pack(side="left", fill="y")
-    tk.Label(left, text="⚙", font=("Segoe UI", 14), bg="#0b1220",
+    tk.Label(left, text="⚙", font=(_BODY, 14), bg="#0b1220",
              fg=BLUE).pack(side="left", pady=10)
     tk.Label(left, text="  FIRST SETUP & DRIVERS",
-             font=("Consolas", 10, "bold"), bg="#0b1220", fg=TEXT).pack(side="left")
+             font=(_MONO, 10, "bold"), bg="#0b1220", fg=TEXT).pack(side="left")
     tk.Label(left, text="   ·   system readiness  ·  driver health  ·  startup control",
-             font=("Consolas", 7), bg="#0b1220", fg=MUTED).pack(side="left")
+             font=(_MONO, 7), bg="#0b1220", fg=MUTED).pack(side="left")
 
     right = tk.Frame(inner, bg="#0b1220")
     right.pack(side="right", fill="y")
 
-    dot = tk.Label(right, text="● Scanning…", font=("Consolas", 7),
+    dot = tk.Label(right, text="● Scanning…", font=(_MONO, 7),
                    bg="#0b1220", fg=AMBER)
     dot.pack(side="right", padx=(8, 0), pady=14)
     refs["header_dot"] = dot
 
     def _make_btn(label, bg_, cmd):
-        b = tk.Label(right, text=label, font=("Consolas", 8, "bold"),
+        b = tk.Label(right, text=label, font=(_MONO, 8, "bold"),
                      bg=bg_, fg="#ffffff", padx=10, pady=6, cursor="hand2")
         b.pack(side="right", padx=(5, 0), pady=8)
         b.bind("<Button-1>", lambda e: cmd())
@@ -441,7 +450,7 @@ def _build_hero(parent, refs):
     _draw_arc(gc, None)
     refs["gauge"] = gc
 
-    grade_lbl = tk.Label(gf, text="SCANNING", font=("Consolas", 8, "bold"),
+    grade_lbl = tk.Label(gf, text="SCANNING", font=(_MONO, 8, "bold"),
                          bg=PANEL, fg=MUTED)
     grade_lbl.pack()
     refs["grade_lbl"] = grade_lbl
@@ -455,9 +464,9 @@ def _build_hero(parent, refs):
     line1 = tk.Frame(info, bg=PANEL)
     line1.pack(fill="x")
     win_lbl = tk.Label(line1, text="Scanning system…",
-                       font=("Segoe UI Semibold", 11), bg=PANEL, fg=TEXT)
+                       font=(_HDR, 11), bg=PANEL, fg=TEXT)
     win_lbl.pack(side="left")
-    build_badge = tk.Label(line1, text="", font=("Consolas", 7, "bold"),
+    build_badge = tk.Label(line1, text="", font=(_MONO, 7, "bold"),
                            bg="#1e3a5f", fg="#93c5fd", padx=7, pady=2)
     build_badge.pack(side="left", padx=(8, 0))
     refs["win_lbl"]     = win_lbl
@@ -473,17 +482,17 @@ def _build_hero(parent, refs):
     ]):
         f = tk.Frame(stats, bg=PANEL)
         f.grid(row=0, column=col, sticky="w", padx=(0, 28))
-        tk.Label(f, text=lbl, font=("Consolas", 6), bg=PANEL, fg=MUTED).pack(anchor="w")
-        v = tk.Label(f, text="—", font=("Consolas", 8, "bold"), bg=PANEL, fg=TEXT)
+        tk.Label(f, text=lbl, font=(_MONO, 6), bg=PANEL, fg=MUTED).pack(anchor="w")
+        v = tk.Label(f, text="-", font=(_MONO, 8, "bold"), bg=PANEL, fg=TEXT)
         v.pack(anchor="w")
         refs[key] = v
 
     bar_f = tk.Frame(info, bg=PANEL)
     bar_f.pack(fill="x", pady=(8, 0))
-    scan_dot = tk.Label(bar_f, text="●", font=("Consolas", 9), bg=PANEL, fg=AMBER)
+    scan_dot = tk.Label(bar_f, text="●", font=(_MONO, 9), bg=PANEL, fg=AMBER)
     scan_dot.pack(side="left")
     scan_msg = tk.Label(bar_f, text="  Scanning registry for driver information…",
-                        font=("Consolas", 7), bg=PANEL, fg=MUTED)
+                        font=(_MONO, 7), bg=PANEL, fg=MUTED)
     scan_msg.pack(side="left")
     refs["scan_dot"] = scan_dot
     refs["scan_msg"] = scan_msg
@@ -497,9 +506,9 @@ def _build_driver_section(parent, refs):
 
     hdr = tk.Frame(sec, bg="#091628")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="  DRIVER HEALTH", font=("Consolas", 9, "bold"),
+    tk.Label(hdr, text="  DRIVER HEALTH", font=(_MONO, 9, "bold"),
              bg="#091628", fg=BLUE, pady=5).pack(side="left")
-    summ = tk.Label(hdr, text="scanning…", font=("Consolas", 7),
+    summ = tk.Label(hdr, text="scanning…", font=(_MONO, 7),
                     bg="#091628", fg=MUTED)
     summ.pack(side="right", padx=12)
     refs["drv_summary"] = summ
@@ -533,11 +542,11 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     cf = tk.Frame(row, bg=PANEL2, width=84)
     cf.pack(side="left", fill="y")
     cf.pack_propagate(False)
-    tk.Label(cf, text=icon, font=("Segoe UI", 10), bg=PANEL2, fg=accent
+    tk.Label(cf, text=icon, font=(_BODY, 10), bg=PANEL2, fg=accent
              ).pack(pady=(7, 0))
-    tk.Label(cf, text=category, font=("Consolas", 7, "bold"), bg=PANEL2, fg=accent
+    tk.Label(cf, text=category, font=(_MONO, 7, "bold"), bg=PANEL2, fg=accent
              ).pack()
-    tk.Label(cf, text=subcategory, font=("Consolas", 5), bg=PANEL2, fg=MUTED
+    tk.Label(cf, text=subcategory, font=(_MONO, 5), bg=PANEL2, fg=MUTED
              ).pack(pady=(0, 7))
 
     tk.Frame(row, bg=BORDER, width=1).pack(side="left", fill="y", pady=4)
@@ -546,14 +555,14 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     inf.pack(side="left", fill="both", expand=True, padx=(10, 0))
 
     name_lbl = tk.Label(inf, text="Scanning…",
-                        font=("Segoe UI Semibold", 9), bg=PANEL2, fg=TEXT, anchor="w")
+                        font=(_HDR, 9), bg=PANEL2, fg=TEXT, anchor="w")
     name_lbl.pack(anchor="w", pady=(8, 2))
 
     meta = tk.Frame(inf, bg=PANEL2)
     meta.pack(anchor="w")
-    ver_lbl  = tk.Label(meta, text="", font=("Consolas", 7), bg=PANEL2, fg=MUTED)
+    ver_lbl  = tk.Label(meta, text="", font=(_MONO, 7), bg=PANEL2, fg=MUTED)
     ver_lbl.pack(side="left")
-    date_lbl = tk.Label(meta, text="", font=("Consolas", 7), bg=PANEL2, fg=MUTED)
+    date_lbl = tk.Label(meta, text="", font=(_MONO, 7), bg=PANEL2, fg=MUTED)
     date_lbl.pack(side="left", padx=(12, 0))
 
     # Age freshness bar
@@ -567,7 +576,7 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     rf.pack(side="right", fill="y", padx=10)
     rf.pack_propagate(False)
 
-    badge = tk.Label(rf, text="SCANNING", font=("Consolas", 7, "bold"),
+    badge = tk.Label(rf, text="SCANNING", font=(_MONO, 7, "bold"),
                      bg="#1f2937", fg=MUTED, padx=8, pady=3)
     badge.pack(pady=(10, 4))
 
@@ -576,7 +585,7 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
         except Exception: pass
 
     action = tk.Label(rf, text="⟶ Device Manager",
-                      font=("Consolas", 6), bg=PANEL2, fg="#4b5563",
+                      font=(_MONO, 6), bg=PANEL2, fg="#4b5563",
                       cursor="hand2")
     action.pack()
     action.bind("<Button-1>", _open_dm)
@@ -615,7 +624,7 @@ def _build_bottom_row(parent, refs):
 
     hdr_l = tk.Frame(left, bg="#1a0d2e")
     hdr_l.pack(fill="x")
-    tk.Label(hdr_l, text="  QUICK ACTIONS", font=("Consolas", 9, "bold"),
+    tk.Label(hdr_l, text="  QUICK ACTIONS", font=(_MONO, 9, "bold"),
              bg="#1a0d2e", fg=PURPLE, pady=4).pack(side="left")
 
     ACTIONS = [
@@ -639,7 +648,7 @@ def _build_bottom_row(parent, refs):
             except Exception:
                 pass
 
-        btn = tk.Label(grid, text=label, font=("Consolas", 8, "bold"),
+        btn = tk.Label(grid, text=label, font=(_MONO, 8, "bold"),
                        bg=bg_, fg=TEXT, anchor="w", padx=10, pady=7, cursor="hand2")
         btn.grid(row=r, column=c, padx=3, pady=2, sticky="ew")
         grid.columnconfigure(c, weight=1)
@@ -650,7 +659,7 @@ def _build_bottom_row(parent, refs):
     foot_l = tk.Frame(left, bg=PANEL)
     foot_l.pack(fill="x", padx=8, pady=(0, 6))
     tk.Label(foot_l, text="⟶ More tools in Optimization tab",
-             font=("Consolas", 7), bg=PANEL, fg="#4b5563").pack(side="right")
+             font=(_MONO, 7), bg=PANEL, fg="#4b5563").pack(side="right")
 
     # Startup Programs
     right = tk.Frame(wrap, bg=PANEL, highlightthickness=1,
@@ -659,9 +668,9 @@ def _build_bottom_row(parent, refs):
 
     hdr_r = tk.Frame(right, bg="#0d1a12")
     hdr_r.pack(fill="x")
-    tk.Label(hdr_r, text="  STARTUP PROGRAMS", font=("Consolas", 9, "bold"),
+    tk.Label(hdr_r, text="  STARTUP PROGRAMS", font=(_MONO, 9, "bold"),
              bg="#0d1a12", fg=GREEN, pady=4).pack(side="left")
-    cnt_lbl = tk.Label(hdr_r, text="scanning…", font=("Consolas", 7),
+    cnt_lbl = tk.Label(hdr_r, text="scanning…", font=(_MONO, 7),
                        bg="#0d1a12", fg=MUTED)
     cnt_lbl.pack(side="right", padx=10)
     refs["startup_cnt"] = cnt_lbl
@@ -674,12 +683,12 @@ def _build_bottom_row(parent, refs):
         rf = tk.Frame(su_body, bg=PANEL2, highlightthickness=1,
                       highlightbackground=BORDER)
         rf.pack(fill="x", pady=1)
-        dot = tk.Label(rf, text="●", font=("Consolas", 8), bg=PANEL2, fg="#374151")
+        dot = tk.Label(rf, text="●", font=(_MONO, 8), bg=PANEL2, fg="#374151")
         dot.pack(side="left", padx=(6, 4), pady=3)
-        n_l = tk.Label(rf, text="—", font=("Consolas", 8), bg=PANEL2,
+        n_l = tk.Label(rf, text="-", font=(_MONO, 8), bg=PANEL2,
                        fg=MUTED, anchor="w")
         n_l.pack(side="left", fill="x", expand=True)
-        src = tk.Label(rf, text="", font=("Consolas", 6), bg=PANEL2, fg="#374151")
+        src = tk.Label(rf, text="", font=(_MONO, 6), bg=PANEL2, fg="#374151")
         src.pack(side="right", padx=(0, 8))
         rf.pack_forget()
         rows.append({"frame": rf, "dot": dot, "name": n_l, "src": src})
@@ -693,7 +702,7 @@ def _build_bottom_row(parent, refs):
         except Exception: pass
 
     lnk2 = tk.Label(foot_r, text="⟶ Open Startup Settings",
-                    font=("Consolas", 7), bg=PANEL, fg="#4b5563", cursor="hand2")
+                    font=(_MONO, 7), bg=PANEL, fg="#4b5563", cursor="hand2")
     lnk2.pack(side="right")
     lnk2.bind("<Button-1>", lambda e: _open_startup())
     lnk2.bind("<Enter>", lambda e: lnk2.config(fg=GREEN))
@@ -708,10 +717,10 @@ def _build_checklist(parent):
 
     hdr = tk.Frame(sec, bg="#1a1200")
     hdr.pack(fill="x")
-    tk.Label(hdr, text="  SETUP CHECKLIST", font=("Consolas", 9, "bold"),
+    tk.Label(hdr, text="  SETUP CHECKLIST", font=(_MONO, 9, "bold"),
              bg="#1a1200", fg=AMBER, pady=5).pack(side="left")
-    tk.Label(hdr, text="  Click any item to mark as done — saved automatically",
-             font=("Consolas", 7), bg="#1a1200", fg=MUTED).pack(side="left")
+    tk.Label(hdr, text="  Click any item to mark as done - saved automatically",
+             font=(_MONO, 7), bg="#1a1200", fg=MUTED).pack(side="left")
 
     state = _load_checklist()
     done_count = sum(1 for k, _ in _CHECKLIST if state.get(k, False))
@@ -740,11 +749,11 @@ def _build_checklist(parent):
         grid.columnconfigure(c, weight=1)
 
         ck = tk.Label(item, text="✓" if done else "○",
-                      font=("Consolas", 11, "bold"), bg=PANEL2,
+                      font=(_MONO, 11, "bold"), bg=PANEL2,
                       fg=GREEN if done else "#374151")
         ck.pack(side="left", padx=(8, 6), pady=6)
 
-        txt = tk.Label(item, text=label, font=("Consolas", 8), bg=PANEL2,
+        txt = tk.Label(item, text=label, font=(_MONO, 8), bg=PANEL2,
                        fg=TEXT if done else MUTED, anchor="w")
         txt.pack(side="left", fill="x", expand=True, pady=6)
 
@@ -871,9 +880,9 @@ def _draw_arc(canvas, score):
                           start=225, extent=extent,
                           style="arc", outline=col, width=7)
         canvas.create_text(cx, cy - 3, text=str(score),
-                           font=("Consolas", 18, "bold"), fill=col, anchor="center")
+                           font=(_MONO, 18, "bold"), fill=col, anchor="center")
         canvas.create_text(cx, cy + 17, text="/100",
-                           font=("Consolas", 7), fill=MUTED, anchor="center")
+                           font=(_MONO, 7), fill=MUTED, anchor="center")
     else:
-        canvas.create_text(cx, cy, text="—",
-                           font=("Consolas", 18, "bold"), fill=MUTED, anchor="center")
+        canvas.create_text(cx, cy, text="-",
+                           font=(_MONO, 18, "bold"), fill=MUTED, anchor="center")
