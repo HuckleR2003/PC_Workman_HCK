@@ -42,8 +42,8 @@ LIVE: dict = {
     "mb_volt_33v": -1.0,
     "mb_temp_sys": -1.0,
     "mb_temp_vrm": -1.0,
-    "mb_source":   "",     # "" | "ohm" | "lhm" — which daemon provided the data
-    # Disk — keyed by mount point (e.g. "C:\\")
+    "mb_source":   "",     # "" | "ohm" | "lhm" - which daemon provided the data
+    # Disk - keyed by mount point (e.g. "C:\\")
     # Each value: {"used_gb": float, "free_gb": float, "total_gb": float, "pct": float}
     "disks": {},
     # Session extremes (populated externally by _track_sensor in Hey-USER)

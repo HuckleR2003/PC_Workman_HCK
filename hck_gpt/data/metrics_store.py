@@ -5,7 +5,7 @@ Persistent storage for DeepMonitor sensor snapshots.
 
 Extends the existing hck_stats.db (hck_stats_engine) with a new table
 `deepmonitor_snapshots` that captures GPU temps, MB temps/voltages, disk
-usage, swap and power estimates — data the main stats engine doesn't store.
+usage, swap and power estimates - data the main stats engine doesn't store.
 
 Background thread saves a snapshot every SNAPSHOT_INTERVAL seconds.
 On startup, loads historical min/max back into live_sensors.LIVE so
@@ -251,7 +251,7 @@ class MetricsStore:
                 "_hist_rows_7d":    row["n"],
             })
             log.info(
-                "metrics_store: loaded 7-day baselines (%d rows) — "
+                "metrics_store: loaded 7-day baselines (%d rows) - "
                 "CPU avg=%.0f%% RAM avg=%.0f%%",
                 row["n"], row["cpu_av"] or 0, row["ram_av"] or 0,
             )
@@ -319,7 +319,7 @@ class MetricsStore:
 
     def last_session_extremes(self) -> dict:
         """
-        Return min/max/avg for the last 24 h — useful for 'compare with yesterday' logic.
+        Return min/max/avg for the last 24 h - useful for 'compare with yesterday' logic.
         Returns empty dict if no data.
         """
         rows = self.daily_summary(days=2)
