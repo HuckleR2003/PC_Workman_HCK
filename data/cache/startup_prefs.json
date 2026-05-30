@@ -1,0 +1,26 @@
+{
+  "HKCU:electron.app.notion": {
+    "status": "disabled"
+  },
+  "HKCU:faceit": {
+    "status": "disabled"
+  },
+  "HKCU:advanced systemcare": {
+    "status": "disabled"
+  },
+  "HKLM32:radminvpn": {
+    "status": "disabled"
+  },
+  "HKLM32:sunjavaupdatesched": {
+    "status": "disabled"
+  },
+  "HKCU:af_counter_2139460": {
+    "status": "disabled"
+  },
+  "HKCU:af_uuid_2139460": {
+    "status": "disabled"
+  },
+  "HKCU:opera gx stable": {
+    "status": "disabled"
+  }
+}
