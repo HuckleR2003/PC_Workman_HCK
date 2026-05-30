@@ -1,6 +1,251 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.6] - 2026-05-29
+
+### DeepMonitor — complete rewrite
+
+**`ui/components/pro_info_table.py`** rewritten as `DeepMonitorTable` (alias `ProInfoTable` kept):
+- `ttk.Treeview` with 4 aligned columns (Sensor / Value / Min / Max) — no more misaligned labels
+- Temperature rows: blue-night background tint; Utilization rows: indigo tint; per-row color intensifies with heat
+- Sub-section headers color-coded by type (CPU temp = steel-blue, GPU = violet, Memory = slate-blue, Clocks = teal)
+- Action bar: Save Data (filedialog → .txt / .csv), Pause (amber when active), Reset mins/maxes
+- Popup: header bar removed, title `"DeepMonitor - PC Workman"`, size 660×760
+
+### MAP OF COMPONENTS — new feature
+
+New file **`ui/components/pc_map.py`**:
+- `PCMapView(tk.Frame)` renders a 2.5D isometric PC scene via Pillow at 2× SSAA (1360×1080 → LANCZOS → 680×540)
+- Desktop PC mode: case frame, motherboard PCB, CPU + heatsink fins + heatpipes, GPU with fans, RAM sticks (×2/4), SSD, PSU, case fans, cable bundle, LED strip
+- Laptop mode: open chassis with horizontal mobo, dual fans, GPU, RAM, M.2 SSD, battery, hinged screen, keyboard grid, trackpad
+- Live data: CPU%/temp, GPU temp, RAM%, disk% sourced from psutil + `get_cpu_temp/get_gpu_temp`
+- Component colors shift green → amber → red based on heat; hot components pulse via sine-wave animation
+- Glow ring under CPU when temp >75°C (GaussianBlur alpha composite)
+- Floating labels with connecting lines; live values (e.g. "CPU 34% 52°C")
+- Hover bounding-box detection → Toplevel tooltip with component details
+- Status bar: CPU%/temp GPU/temp RAM% Disk%
+- Wired into My PC as new "MAP" tab (PL: "MAPA", with " PC" superscript badge)
+- Data refresh thread every 3s (background, non-blocking)
+
+### hck_GPT — critical bug fix
+
+- **`panel.py`**: `lang` variable undefined in `_welcome()` caused `NameError` on every startup — propagated to `_build_hckgpt_banner()` except block, which showed the `bg="#8b5cf6"` (violet) fallback bar at the bottom of the window. Fixed: `lang = self._ui_lang` added at top of `_welcome()`.
+
+### hck_GPT — Wave 2 community intents (6 new)
+
+Built from community feedback (GitHub Discussions / LinkedIn). All intents have PL+EN patterns, real hardware data, and no hallucination fallback.
+
+- `game_can_run` — checks 20-game `_GAME_DB` for RAM/VRAM/disk requirements vs installed hardware
+- `gaming_ram_usage` — live game process RAM (psutil) + session peak + 7-day comparison
+- `daily_ram_usage` — live psutil + 7-day `metrics_store` trend; verdict: very high / high / moderate / low
+- `battery_estimate` — `psutil.sensors_battery()` + activity-based drain rate (gaming 22-35%/h, work 8-15%/h, idle 3-6%/h)
+- `upgrade_feasibility` — WMI slot count + current sticks + disk partitions; reports free slots, max RAM, disk free space
+- `top_resource_hog` — TOP 5 by RSS memory + TOP 5 by cumulative disk I/O; auto-detects if user asked for RAM or disk
+
+**Vocabulary:** 76 -> **82 intents** total (68 rule handlers in builder.py)
+
+### hck_GPT — conversation flow
+
+New routing steps in `chat_handler.py` (before the AI parser):
+- Step 3.5: greeting detection — "cześć", "hej", "hi", "hello" → warm live-data response with CPU%/RAM%
+- Step 3.6: thanks detection — "dzięki", "thanks", "thx" → friendly acknowledgment (4 PL + 4 EN variants)
+- Step 3.7: "more info" — "więcej", "tell me more", "rozwiń" → re-runs last intent with refreshed data
+- Step 3.8: "what should I do" — "co zrobić", "jak naprawić" → context-aware routing based on last topic + recent events
+- `_default_response` now: retries hybrid engine at confidence 0.18, detects `.exe` names → routes to `process_identity`, varies fallback text (4 PL + 4 EN phrases), shows last conversation topic
+- Fixed duplicate `"bateria"`/`"battery"` keys in `_QUICK_ALIASES` (both silently resolved to `battery_estimate` only; `battery_drain_rate` was unreachable)
+
+New `builder.py` handlers: `_resp_greeting`, `_resp_thanks`, `_resp_health_check` (rewritten — score 0-100, live CPU/GPU temps, issues list, delta vs typical, verdict badge)
+
+Small talk pool: 5 → 11 variants PL, 5 → 11 EN.
+
+### hck_GPT — proactive monitor — DeepMonitor integration
+
+**`proactive_monitor.py`** new `_check_deepmonitor()` (runs every 3 main cycles ≈ 2 min 15s):
+- CPU temp: warn >80°C, critical >90°C (2 consecutive readings, hysteresis)
+- GPU temp: warn >82°C, critical >92°C
+- Severe throttle: alert when CPU freq <55% of max (separate from normal throttle)
+- Multi-drive disk: scans ALL mounted drives (not just C:), alerts any <8 GB free
+- Sensor health insight: positive "all clear" message after an issue resolves
+- 8 new message pools (PL + EN) for the above events
+
+Banner status text now includes live temperatures: `CPU 34%  RAM 62%  CPU 52°C  GPU 68°C  - OK`
+
+Polish idle tips pool: 11 → 24 entries.
+
+### hck_GPT — system context temperature fix
+
+**`hck_gpt/context/system_context.py`** `snapshot()` now fetches `cpu_temp` and `gpu_temp` via `core.hardware_sensors.get_cpu_temp/get_gpu_temp` (LibreHardwareMonitor-backed). Previously only used `psutil.sensors_temperatures()` which returns nothing on Windows — meaning all temperature-based proactive alerts and LLM context were silently broken.
+
+`build_prompt_context()` now includes `cpu_temp` inline with CPU line and a `GPU temp: XX°C` line.
+
+Ollama system prompt: added `[Recent Conversation]` section (last 3 exchanges), 3 new rules (context continuity, frustration acknowledgment, personality).
+
+### hck_GPT — Language sync
+
+- `panel.py`: `_ui_lang` now initialized from `i18n.get_lang()` instead of hardcoded `"en"`
+- `panel.py`: `_on_i18n_lang_changed()` callback registered via `i18n.register_on_change()` — when Settings page switches language, hck_GPT panel updates language and refreshes welcome screen
+- `panel.py`: `_welcome()` and `_add_startup_quip()` now bilingual (PL/EN)
+- `panel.py`: Polish language option `"⚠ not stable"` badge removed
+- `panel.py`: language popup `_select()` calls `i18n.set_lang()` to propagate change globally
+
+### Process library
+
+- **`data/process_library.json`**: 241 → **373 entries** (+82 common processes, +50 games)
+- New processes: Signal, Viber, Webex, Bitwarden, KeePassXC, VeraCrypt, Mullvad/ProtonVPN, MPV, PotPlayer, Kodi, foobar2000, AutoHotkey, ShareX, PowerToys, WizTree, Krita, Godot 3/4, Unreal Editor, Obsidian, REAPER, FL Studio, HeidiSQL, RustDesk, Parsec, latencymon, kubectl, kubectl, qBittorrent, Duplicati, WinGet, Rufus, Chocolatey, and more
+- New games: RDR2, Horizon ZD/FW, Helldivers 2, Palworld, Satisfactory, Rust, DayZ, Sons of the Forest, Factorio, Cities 1/2, CK3, EU4, HoI4, Stellaris, Victoria 3, TW Warhammer 3, MHW/MHR, RE4/RE8, DMC5, Dark Souls 3, Sekiro, DBD, Hunt Showdown, Phasmophobia, Alan Wake 2, and more
+
+- **`core/process_definitions.py`**: +25 rich entries with `full_name`, `category`, `description`, `purpose`, `normal_behavior`, `warning`, `developer` fields: Brave, Vivaldi, Slack, Zoom, Telegram, WhatsApp, Skype, Signal, Windows Defender, Malwarebytes, Bitwarden, Python, Node.js, Git, Godot 3/4, Unreal Editor, VLC, OBS, GIMP, Krita, Blender, Premiere, DaVinci Resolve, and others
+
+### import_core.py — startup registry
+
+- Every registered component now gets a sequential `seq` number (auto-incrementing, thread-safe)
+- `list_components()` now shows `[01] core.logger  [ok]` — sorted by registration order
+- `STARTUP_MANIFEST` — list of 20 expected components with intended startup order
+- `verify_startup()` — checks registered components vs manifest; returns `{ok, missing, extra, report}` with tick/cross table
+- 5 previously unregistered components now register themselves: `hck_gpt.proactive_monitor`, `hck_stats_engine.db_manager`, `hck_stats_engine.aggregator`, `hck_stats_engine.query_api`, `core.startup_watcher`
+
+### Dashboard UI fixes
+
+- **Turbo Boost** frame height: `fill="both", expand=True` on inner frame caused it to stretch vertically — changed to `fill="x"`
+- **Optimization Center** excess space: two empty placeholder labels (`tools_label`, `tools_count_label`) removed; `expand=True` removed from content frames
+- Both fixes applied to `_build_feature_buttons()` in `main_window_expanded.py`
+
+### Welcome Toast
+
+**`ui/components/system_toast.py`** — new `show_welcome_toast(root, delay_ms=1800)`:
+- Slides in from bottom-right 1.8 s after UI is ready
+- Auto-detects Windows system language via `GetUserDefaultUILanguage` LCID + `locale` fallback
+- Polish: *"Hej! Dziękujemy, że korzystasz z PC Workmana :)"* / English: *"Hey! Thanks for using PC Workman :)"*
+- Body text explains the startup monitoring and proactive alerts in user's language
+- Version badge: `v1.7.6 · 29.05.2026`
+- Violet/indigo colour scheme with hand-drawn PC/WK canvas badge icon
+- Wired into `startup.py` right after UI creation
+
+### MAP OF COMPONENTS — display fix
+
+**`ui/components/pc_map.py`**:
+- Added vertical scrollbar to canvas wrapper — scene no longer clips at bottom of smaller tabs
+- Mouse-wheel scroll support on canvas
+- Desktop PC origin `_OY` raised by 40 px (`_CH - 75` -> `_CH - 115`): most of scene visible without scrolling
+- Laptop origin `_LOY` raised by 40 px (`_CH - 90` -> `_CH - 130`) to match
+
+### hck_GPT — HOT alert strip (anti-spam system alerts)
+
+**`hck_gpt/panel.py`** — new dark-red `HOT` strip above the `TIP` strip:
+- Crimson badge `HOT` + message text; visually connects to TIP section
+- Monitors RAM / CPU / GPU temp every 8 s via `_hot_monitor_tick()`
+- **Anti-spam logic**: strip appears once when threshold is crossed, stays silently until metrics return to normal — no repeated pop-ins while condition holds
+- Thresholds: RAM ≥ 85 % warn / ≥ 92 % critical; CPU ≥ 88 % warn / ≥ 95 % critical; GPU temp ≥ 90 °C critical
+- Messages bilingual PL/EN matching `_ui_lang`
+- First check 12 s after startup (app settle time); cleared via `_clear_hot()` when all metrics normal
+- Widget packed `before=_tip_strip` (or before input if no tip) — always below HOT, above entry
+
+### Font system — 100% UI coverage
+
+**`utils/fonts.py`** already defined `UI` and `MONO` (Inter/Segoe UI + Consolas). Previously ~50% of the UI used it.
+
+All remaining files now import the font system and use `_HDR` / `_BODY` / `_MONO` aliases:
+
+- **`ui/windows/main_window_expanded.py`** — 140 hardcoded font strings replaced (largest file)
+- **`ui/windows/main_window.py`** — 45 strings replaced
+- **`ui/pages/monitoring_alerts.py`** — 52 strings replaced
+- **`ui/pages/first_setup_drivers.py`** — 38 strings replaced
+- **`ui/pages/optimization_services.py`** — `_F`/`_M` aliases upgraded to full system + `_HDR` added
+- **`ui/pages/services_manager.py`** — `_F`/`_M` aliases upgraded to full system
+- **`ui/pages/startup_manager.py`** — `_F`/`_M` aliases upgraded to full system
+- **`ui/pages/settings_page.py`** — 40 strings replaced
+- **`ui/pages/stability_tests.py`** — 14 strings replaced
+- **`ui/pages/page_all_stats.py`** — 22 strings replaced
+- **`ui/pages/page_day_stats.py`** — 7 strings replaced
+- **`ui/pages/fan_control/hardware_info.py`** — font system added
+- **`ui/pages/fan_control/usage_stats.py`** — font system added
+- **`ui/components/fan_dashboard.py`** — 35 strings replaced
+- **`ui/components/pc_map.py`** — font system added (new 1.7.6 file)
+- **`ui/components/pro_info_table.py`** — font system added (DeepMonitor)
+- **`ui/components/yourpc_page.py`** — remaining hardcoded strings replaced (had partial coverage)
+- **`ui/components/fan_curve_editor.py`** — font system added
+- **`ui/components/hardware_graphs.py`** — font system added
+- **`ui/components/sensor_kb.py`** — font system added
+- **`ui/components/sensor_tree.py`** — font system added
+- **`ui/components/sidebar_nav.py`** — font system added
+- **`ui/components/system_toast.py`** — font system added
+- **`ui/components/led_bars.py`** — font system added
+- **`ui/components/charts.py`** — font system added
+- **`ui/components/process_tooltip.py`** — font system added
+- **`ui/guide/live_guide.py`** — remaining strings replaced
+- **`ui/overlay_widget.py`** — font system added
+- **`ui/overlay_mini_monitor.py`** — `_F_*` font constants migrated to `_BODY`/`_HDR` variables
+- **`ui/dialogs.py`** — font system added
+- **`ui/splash_screen.py`** — font system added
+- **`ui/theme.py`** — `font_family`/`font_small`/`font_base`/`font_large` now use `_UIF`/`_MONOF` variables
+
+Result: zero hardcoded `"Segoe UI"` / `"Consolas"` strings in the UI layer (intentional weight variants `Segoe UI Light`, `Segoe UI Black`, `Segoe UI Semilight` preserved where used as design choices).
+
+### Code quality
+
+- Replaced all em-dashes `—` with `-` and arrows `->` / `<-` across 58 Python files (1,135 em-dashes, 367 right arrows, 44 left arrows)
+- Archived `PC_Workman HCK.exe` (v1.7.5) to `build/archive_v175/`
+
+---
+
+## [1.7.5] - 2026-05-25
+
+### hck_GPT — 13 new intents (community requests)
+
+Built from 28 real responses collected on GitHub Discussions and LinkedIn.
+
+**New intents added to `vocabulary.py` / `hybrid_engine.py` / `builder.py`:**
+- `fan_noise_history` — fan speed trend over time, spike detection
+- `driver_status` — installed driver ages from Windows registry
+- `gaming_vs_work_time` — session split: gaming vs productivity
+- `process_identity` — identify unknown process (lookup + safety rating)
+- `stale_apps` — apps open but idle for 30+ min
+- `fps_degradation` — FPS drop over session with thermal/CPU correlation
+- `app_behavior_change` — detect if an app behaves differently than usual
+- `startup_slowdown` — boot time trend across sessions
+- `temp_comparison` — today's temps vs N-day average
+- `crash_context` — what was running at the last crash
+- `game_hardware_stress` — hardware load profile during gaming sessions
+- `battery_drain_rate` — battery % loss rate, drain source identification
+- `power_after_restart` — power draw comparison before/after restart
+
+**Vocabulary:** 63 → **76 intents** total
+
+### hck_GPT — 4 MEGA features
+
+**Context Time-Windowing** (`hybrid_engine.py`)
+- `_CONTEXT_WINDOWS` dict — 21 intents mapped to history windows (5 min → 7 days)
+- `build_llm_context_windowed()` in `system_context.py` — context scoped to the intent's window; narrow windows strip stale patterns, wide windows append daily metric history
+
+**Fallback / No-AI-Slop** (`builder.py`)
+- `_no_data(intent, lang, what_missing)` — structured "data unavailable" response instead of hallucinating; wired into `stale_apps`, `startup_slowdown`, `gaming_vs_work_time`, `temp_comparison`
+
+**Time-Travel Debugging** (`builder.py`)
+- `_get_historical_comparison(metric, days, lang)` — compares live sensor value to N-day historical average from `metrics_store.daily_summary()`
+- `_METRIC_COL_MAP` — maps user-facing metric names to correct SQL column aliases
+
+**Micro-Benchmarking** (`builder.py`)
+- `_trigger_micro_benchmark(bench_type)` — background thread; `cpu_single` (1M sqrt ops) or `disk_seq` (32 MB write+read); results stored in `session_memory` under `micro_bench`
+
+### hck_GPT — session memory additions (`session_memory.py`)
+- `get_events_for_window(within_minutes)` — filtered event list for time-windowed context
+- `get_spike_context(within_minutes)` — structured spike summary string
+- `get_time_windowed_context(intent, lang)` — intent-aware windowed context builder
+
+### hck_GPT — chat handler (`chat_handler.py`)
+- 20 new quick aliases (sterowniki, wentylatory, bateria, crash, degradacja fps, etc.)
+- `_show_help()` rebuilt with 3 new sections: Time-Travel Diagnostyka, Identyfikacja i bezpieczeństwo, Nawyki i użytkowanie
+
+### Process Library (`data/process_library.json`)
+- **104 → 241 entries** (+137 processes)
+- New coverage: games (CS2, Elden Ring, Cyberpunk, Tarkov, BG3, KSP, Valheim…), dev tools (PyCharm, IntelliJ, Rider, Cursor, DBeaver…), RGB/peripherals (iCUE, Synapse, Armoury Crate, OpenRGB…), diagnostics (HWiNFO64, GPU-Z, Prime95, FurMark…), VPN/network (WireGuard, Tailscale, NordVPN…), security (BattlEye, EAC, FACEIT, ESET, Bitdefender…), Windows system processes (ntoskrnl, tiworker, audiodg, wsappx, ctfmon…)
+
+### Fixes
+- `fan_dashboard.py` — fan settings export now writes to `settings/` instead of project root
+- Added `.gitignore` with proper rules for build folders, user exports, and runtime reports
+
+---
+
 ## [1.7.4] - 2026-05-14
 
 ### Optimization Center — Full Redesign
@@ -276,7 +521,7 @@ _All notable changes are documented here._
 
 ### Font System
 - New `utils/fonts.py` — loads Inter font family via Windows GDI32 (`AddFontResourceW`)
-- Falls back to Segoe UI if `assets/fonts/InterVariable.ttf` not present
+- Falls back to Segoe UI if `data/fonts/InterVariable.ttf` not present
 - Font loaded once at startup, available to all tkinter widgets by name
 
 ### Repository Cleanup (pre-release)

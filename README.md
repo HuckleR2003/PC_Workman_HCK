@@ -1,27 +1,36 @@
-# PC_Workman 1.7.4
+# PC Workman HCK
 
-**Real-time PC monitoring + AI diagnostics.**
-![Status](https://img.shields.io/badge/Status-Active%20Development-green)
-![Version](https://img.shields.io/badge/Version-1.7.4-blue)
-![Python](https://img.shields.io/badge/Python-3.9+-brightgreen) 
-![License](https://img.shields.io/badge/License-MIT-blue)
--
-## Overview
-PC_Workman is a real-time system monitoring tool built in Python. It combines live performance diagnostics, AI-assisted analysis, and a modular architecture designed for intelligent system optimization.
+> **Your PC finally has someone who speaks its language.**
 
-**What it does:**
-- Real-time CPU, GPU, RAM, and network monitoring
-- Process intelligence (identifies what's consuming resources)
-- AI-powered diagnostics via hck_GPT integration
-- Historical trend analysis (see patterns over time)
-- Gaming analytics with bottleneck detection
+![Version](https://img.shields.io/badge/Version-1.7.6-7c3aed?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
+![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%2B-0ea5e9?style=flat-square)
 
-**Why it's different:**
-- Traditional tools show "CPU: 87%" → PC_Workman explains *why*
-- Time-travel diagnostics → click any historical point to see what was running
-- Voltage spike detection → unique feature nobody else has
-- Built for understanding, not just watching
--
+---
+
+Most monitoring tools give you numbers. PC Workman gives you **answers**.
+
+Ask *"why is my PC slow right now?"* — and get a real explanation, not just a percentage.  
+Ask *"is cs2.exe a virus?"* — get an instant process identity check.  
+Ask *"which game pushes my hardware the hardest?"* — get a thermal signature breakdown.
+
+**82 AI intents. 100% offline. No API key. No cloud. Just your PC talking to you.**
+
+---
+
+## What makes it different
+
+| Traditional tools | PC Workman HCK |
+|---|---|
+| `CPU: 87%` | *"CPU at 87% — Chrome and Electron processes, consider closing Discord"* |
+| Static charts | Time-travel: click any point in history to see what was running |
+| No context | Remembers patterns, compares today vs your 7-day average |
+| Manual checks | Proactive alerts: RAM spike? Fan noise? Crash context? Auto-detected |
+| English only | Polish + English, auto-detected per message |
+
+---
 ## Quick Start
 
 ### Windows Users (Easiest)
@@ -53,23 +62,31 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Historical data logging (daily, weekly, monthly)
 
 ### Intelligence (hck_GPT)
-- Local insights engine — habit tracking, anomaly awareness, personalized teasers
-- "Today Report" with usage chart, top processes, and alert status
-- 7-day recurring pattern detection (games, browsers, dev tools)
-- Spike/anomaly reporting from Stats Engine events
-- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions
-- **Bilingual**: all responses in Polish and English, auto-detected per message
-- **Proactive monitor**: background alerts for CPU spikes, RAM pressure, throttling, low disk, long uptime
-- Session memory with CPU/RAM trend tracking, conversation context for LLM, and session data store (cross-response referencing)
-- SQLite user knowledge base (hardware profile, usage patterns, facts) at `AppData/Local/`
-- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed/part number, primary disk model)
-- `_resp_help` covers all 37 intents across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk)
-- `_followup()` pool system: 8 keys, every handler ends with a contextual next-question hint
-- `_resp_optimization` uses live CPU/RAM snapshot + hardware-profile flags (HDD, low RAM, core count)
-- Chat panel nav links: clickable `[→ Page]` tokens route directly to app pages from AI responses
-- Gaming analytics with FPS tracking
-- Bottleneck detection (CPU vs GPU limited)
-- Safe system optimization with rollback
+- **82 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade
+- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions — 100% offline, no API key needed
+- **Bilingual**: Polish and English, auto-detected per message
+- **Session memory**: conversation context, CPU/RAM trend buffers, cross-response data store
+- **Proactive monitor with DeepMonitor integration**: background daemon watches CPU/GPU temps, RAM, throttle, disk on all drives; pushes alerts automatically; banner shows live temps
+- **Conversation flow**: greeting, thanks, "more info", "what should I do" all handled naturally with context-aware routing
+- Local insights engine — habit tracking, anomaly awareness, teasers from Stats Engine
+- SQLite user knowledge base (hardware profile, usage patterns) at `AppData/Local/`
+- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed, disk model)
+- Chat panel nav links: clickable `[→ Page]` tokens route directly to app pages
+- `_followup()` pool system: 8 keys, every response ends with a contextual next-question hint
+
+### DeepMonitor *(new in 1.7.6)*
+- `ttk.Treeview` sensor table with 4 aligned columns (Sensor / Value / Min / Max)
+- Type-specific row background tints: temperature = blue-night, utilization = indigo
+- Action bar: Save Data (.txt/.csv), Pause, Reset min/max
+- Sub-section headers color-coded by metric type
+
+### MAP OF COMPONENTS *(new in 1.7.6)*
+- 2.5D isometric view of your PC rendered via Pillow (2× SSAA, LANCZOS downscale)
+- Desktop PC mode: case, mobo, CPU + heatsink, GPU, RAM, SSD, PSU, fans, cables
+- Laptop mode: open chassis with mobo, fans, GPU, battery, screen, keyboard
+- Components color-shift green → amber → red based on live heat/load; hot components pulse
+- Hover over any component for a tooltip with live stats
+- Auto-refresh every 3 seconds via background thread
 
 ### Live Guide *(new in 1.7.2)*
 - Interactive 3-step spotlight overlay (`ui/guide/live_guide.py`) launched from Guide page
@@ -145,7 +162,55 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.4] - `2026-05-14` - CURRENT
+## What's New [1.7.6] - `2026-05-29` - CURRENT
+
+### DeepMonitor *(new in 1.7.6)*
+- `ttk.Treeview` sensor table with 4 aligned columns (Sensor / Value / Min / Max)
+- Type-specific row background tints: temperature = blue-night, utilization = indigo
+- Action bar: Save Data (.txt/.csv), Pause, Reset min/max
+- Sub-section headers color-coded by metric type
+
+### MAP OF COMPONENTS *(new in 1.7.6)*
+- 2.5D isometric view of your PC rendered via Pillow (2x SSAA, LANCZOS downscale)
+- Desktop PC mode: case, mobo, CPU + heatsink, GPU, RAM, SSD, PSU, fans, cables
+- Laptop mode: open chassis with mobo, fans, GPU, battery, screen, keyboard
+- Components color-shift green -> amber -> red based on live heat/load; hot components pulse
+- Hover over any component for a tooltip with live stats
+- Auto-refresh every 3 seconds via background thread
+
+### hck_GPT Wave 2 *(new in 1.7.6)*
+- 6 new intents: `game_can_run`, `gaming_ram_usage`, `daily_ram_usage`, `battery_estimate`, `upgrade_feasibility`, `top_resource_hog`
+- Conversation flow: greeting/thanks/more-info/what-should-I-do routing
+- **82 intents** total (up from 76)
+- Language sync: panel language now follows Settings page in real-time
+
+### Font System - 100% Coverage *(new in 1.7.6)*
+- All UI files now use the shared `_HDR` / `_BODY` / `_MONO` system from `utils/fonts.py`
+- Inter font (if available) applied consistently across all 30+ UI files
+- Zero hardcoded `"Segoe UI"` / `"Consolas"` strings remaining in UI layer
+
+### Process Library *(new in 1.7.6)*
+- **241 -> 373 entries** (+132 entries: Signal, Viber, Bitwarden, Godot 3/4, Unreal Editor, RDR2, Horizon ZD/FW, Helldivers 2, and many more)
+
+---
+
+## What's New [1.7.5] - `2026-05-25` *(previous)*
+
+### hck_GPT — 13 new intents + 4 MEGA features
+Built from 28 real community requests (GitHub Discussions + LinkedIn).
+
+- **13 new intents**: fan noise history, driver status, gaming vs work time, process identity, stale apps, FPS degradation, app behavior change, startup slowdown, temp comparison, crash context, game hardware stress, battery drain rate, power after restart — **63 → 76 intents total**
+- **Context Time-Windowing**: each intent gets a history window (5 min → 7 days); LLM context is scoped to what's actually relevant for that question
+- **No-AI-Slop fallback**: when data is missing, the AI says so instead of making things up
+- **Time-Travel Debugging**: compare any live metric to its N-day historical average
+- **Micro-Benchmarking**: background cpu/disk benchmarks triggered on demand, stored in session memory
+
+### Process Library
+- **104 → 241 entries** — games (CS2, Elden Ring, Cyberpunk, BG3, KSP…), dev tools (JetBrains suite, Cursor, DBeaver…), RGB software, diagnostics, VPN/network, Windows system processes
+
+---
+
+## What's New [1.7.4] - `2026-05-14` *(previous)*
 
 ### Optimization Center — Full Redesign
 - Feature grid rebuilt as 2-column expandable card layout — each card has an inline info panel, no separate overlay
@@ -526,7 +591,9 @@ Click any process to see more details.
 | v1.7.1 | Released | Stats Engine v2, Time-Travel, Monitoring |
 | v1.7.2 | Released | Startup/Services Manager, Optimization Hub, hck_GPT AI layer, Hybrid Engine (Ollama), bilingual, EXE build |
 | v1.7.3 | Released | Live Guide, hck_GPT AI quality (followups, help rewrite, optimization live), session data store, WMI scan, nav links |
-| **v1.7.4** | **Current** | **Optimization Center redesign (2-col grid, expandable cards, Turbo PP creation, Weekly Report, LIVE NOW), dashboard button restyle** |
+| v1.7.4 | Released | Optimization Center redesign (2-col grid, expandable cards, Turbo PP creation, Weekly Report, LIVE NOW), dashboard button restyle |
+| v1.7.5 | Released | hck_GPT 13 new intents (community requests), 4 MEGA features (Time-Windowing, No-AI-Slop, Time-Travel Debug, Micro-Bench), process library 104->241 |
+| **v1.7.6** | **Current** | **DeepMonitor rewrite (Treeview), MAP OF COMPONENTS (2.5D isometric), hck_GPT Wave 2 (6 intents, 82 total), font system 100% coverage** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
