@@ -1,23 +1,23 @@
 # hck_gpt/engine/hybrid_engine.py
 """
-Hybrid Engine — the brain of hck_GPT
+Hybrid Engine - the brain of hck_GPT
 
 Decision flow for every user message:
-  1. intent_parser → ParseResult with confidence score
+  1. intent_parser -> ParseResult with confidence score
   2. confidence >= RULE_THRESHOLD (0.75)
-       → FAST RULE ENGINE (response_builder)   — deterministic, instant
+       -> FAST RULE ENGINE (response_builder)   - deterministic, instant
   3. confidence < RULE_THRESHOLD  AND  Ollama available
-       → LOCAL LLM (Ollama)  with rich system prompt + full PC context
+       -> LOCAL LLM (Ollama)  with rich system prompt + full PC context
   4. Ollama unavailable / timeout  AND  confidence >= LOW_THRESHOLD (0.35)
-       → RULE ENGINE FALLBACK (best effort)
-  5. All else → None (ChatHandler falls through to legacy routes)
+       -> RULE ENGINE FALLBACK (best effort)
+  5. All else -> None (ChatHandler falls through to legacy routes)
 
 Ollama integration:
   - Requires Ollama running locally (http://localhost:11434)
   - Default model: configurable via HybridEngine.model attribute
   - Availability is cached for 5 minutes (no constant polling)
   - Timeout: 10 seconds (graceful fallback on slow response)
-  - Streaming disabled — we wait for the complete response
+  - Streaming disabled - we wait for the complete response
 
 System prompt design:
   - Identity: who hck_GPT is and what it's for
@@ -38,8 +38,8 @@ from import_core import register_component, update_status, STATUS_OK, STATUS_IDL
 OLLAMA_HOST        = "localhost"
 OLLAMA_PORT        = 11434
 DEFAULT_MODEL      = "llama3.2"          # override: hybrid_engine.model = "mistral"
-RULE_THRESHOLD     = 0.65               # above → rule engine (deterministic); raised from 0.60 so borderline queries get Ollama's natural language
-LOW_THRESHOLD      = 0.20               # below → no rule fallback at all
+RULE_THRESHOLD     = 0.65               # above -> rule engine (deterministic); raised from 0.60 so borderline queries get Ollama's natural language
+LOW_THRESHOLD      = 0.20               # below -> no rule fallback at all
 OLLAMA_TIMEOUT     = 10                 # seconds before giving up on Ollama
 AVAILABILITY_TTL   = 300               # re-check Ollama availability every 5 min
 MAX_TOKENS         = 220               # max LLM output tokens (keep responses short)
@@ -47,7 +47,7 @@ TEMPERATURE        = 0.72              # default LLM temperature
 
 # Intent-aware temperature: factual queries need precision, small talk needs warmth
 _INTENT_TEMPERATURE: Dict[str, float] = {
-    # Factual / diagnostic — deterministic, low creativity
+    # Factual / diagnostic - deterministic, low creativity
     "hw_cpu":         0.35,
     "hw_gpu":         0.35,
     "hw_ram":         0.35,
@@ -65,12 +65,12 @@ _INTENT_TEMPERATURE: Dict[str, float] = {
     "turbo_boost":    0.45,
     "process_info":   0.40,
     "session_compare":0.40,
-    # Performance / optimization — slight creativity OK
+    # Performance / optimization - slight creativity OK
     "performance":    0.55,
     "optimization":   0.55,
     "power_plan":     0.50,
     "speed_up_pc":    0.55,
-    # Open-ended / conversational — more creative
+    # Open-ended / conversational - more creative
     "small_talk":     0.80,
     "about_program":  0.65,
     "help":           0.60,
@@ -91,6 +91,20 @@ _INTENT_TEMPERATURE: Dict[str, float] = {
     "game_hardware_stress": 0.45,
     "battery_drain_rate":   0.40,
     "power_after_restart":  0.40,
+    # Second wave community intents
+    "game_can_run":         0.40,
+    "gaming_ram_usage":     0.40,
+    "daily_ram_usage":      0.40,
+    "battery_estimate":     0.45,
+    "upgrade_feasibility":  0.40,
+    "top_resource_hog":     0.40,
+    # Previously vocab-only (now explicitly temperature-mapped)
+    "browser_cache":        0.45,
+    "ram_compare":          0.40,
+    "swap_analysis":        0.40,
+    "usb_transfer":         0.40,
+    "network_usage":        0.40,
+    "startup_safety":       0.50,
 }
 
 
@@ -99,11 +113,11 @@ _INTENT_TEMPERATURE: Dict[str, float] = {
 class OllamaClient:
     """
     Minimal HTTP client for Ollama local API.
-    Uses only stdlib http.client — no requests dependency.
+    Uses only stdlib http.client - no requests dependency.
     """
 
     def is_available(self) -> bool:
-        """Ping /api/tags — returns True if Ollama is running."""
+        """Ping /api/tags - returns True if Ollama is running."""
         import http.client
         conn = None
         try:
@@ -156,7 +170,7 @@ class OllamaClient:
         temperature: float = TEMPERATURE,
     ) -> Optional[str]:
         """
-        POST /api/generate — non-streaming.
+        POST /api/generate - non-streaming.
         Returns the raw response text, or None on failure.
         """
         payload = json.dumps({
@@ -209,12 +223,12 @@ class HybridEngine:
     # Intents that should always prefer Ollama (conversational / open-ended)
     _OLLAMA_PREFERRED_INTENTS = frozenset({"small_talk", "unknown"})
 
-    # MEGA FEATURE: Context Time-Windowing
-    # Maps intent → relevant history window in minutes for the LLM prompt.
+    # FEATURE: Context Time-Windowing
+    # Maps intent into relevant history window in minutes for the LLM prompt.
     # Intents that ask about NOW get a tight 5-min window (fresh data).
     # Intents doing Time-Travel get a wide window (hours/days worth of context).
     _CONTEXT_WINDOWS: dict[str, int] = {
-        # Real-time diagnostics — last 5 min is enough
+        # Real-time diagnostics - last 5 min is enough
         "hw_cpu":           5,
         "hw_gpu":           5,
         "hw_ram":           5,
@@ -222,13 +236,13 @@ class HybridEngine:
         "throttle_check":   5,
         "performance":      5,
         "processes":        5,
-        # Session-level — last 30 min
+        # Session-level - last 30 min
         "health_check":     30,
         "ram_why_high":     30,
         "gpu_temp_why":     30,
         "why_slow":         30,
         "stats":            60,
-        # Time-Travel queries — need multi-hour / day context
+        # Time-Travel queries - need multi-hour / day context
         "temp_comparison":  10080,   # 7 days
         "fps_degradation":  10080,   # 7 days
         "app_behavior_change": 2880, # 2 days
@@ -238,6 +252,19 @@ class HybridEngine:
         "session_compare":  2880,
         "perf_change":      2880,
         "pc_changes":       2880,
+        # Second wave community intents
+        "gaming_ram_usage": 2880,   # 2 days of gaming history
+        "daily_ram_usage":  10080,  # 7 days for daily average
+        "game_can_run":     5,      # live hardware snapshot
+        "battery_estimate": 5,      # current battery state
+        "upgrade_feasibility": 5,   # live hardware info
+        "top_resource_hog": 5,      # live process snapshot
+        "browser_cache":    30,     # current + recent session
+        "ram_compare":      2880,
+        "swap_analysis":    30,
+        "usb_transfer":     5,
+        "network_usage":    5,
+        "startup_safety":   5,
     }
 
     def __init__(self) -> None:
@@ -279,7 +306,7 @@ class HybridEngine:
         confidence = getattr(result, "confidence", 0.0)
         intent     = getattr(result, "intent",     "unknown")
 
-        # ── OPEN-ENDED INTENTS → always try Ollama first ──────────────────────
+        # ── OPEN-ENDED INTENTS -> always try Ollama first ──────────────────────
         if intent in self._OLLAMA_PREFERRED_INTENTS:
             if self._check_available():
                 llm_resp = self._query_llm(msg, lang, result)
@@ -294,14 +321,14 @@ class HybridEngine:
                     return resp
             return None
 
-        # ── HIGH CONFIDENCE → rule engine (instant, deterministic) ────────────
+        # ── HIGH CONFIDENCE -> rule engine (instant, deterministic) ────────────
         if confidence >= RULE_THRESHOLD:
             resp = response_builder.build(result, lang)
             if resp:
                 self.rule_calls += 1
                 return resp
 
-        # ── MEDIUM CONFIDENCE → try Ollama, then rule fallback ────────────────
+        # ── MEDIUM CONFIDENCE -> try Ollama, then rule fallback ────────────────
         if self._check_available():
             llm_resp = self._query_llm(msg, lang, result)
             if llm_resp:
@@ -331,7 +358,7 @@ class HybridEngine:
 
     def _check_available(self) -> bool:
         now = time.time()
-        # Temporarily unavailable (e.g. after timeout) — don't retry yet
+        # Temporarily unavailable (e.g. after timeout) - don't retry yet
         if now < self._temp_unavail_until:
             return False
         if self._available is None or (now - self._available_checked_at) > AVAILABILITY_TTL:
@@ -389,12 +416,12 @@ class HybridEngine:
                 temperature=temperature,
             )
         except Exception:
-            # On exception, cool down for 60s (not 5min) — could be transient
+            # On exception, cool down for 60s (not 5min) - could be transient
             self._temp_unavail_until = time.time() + 60
             return None
 
         if not raw:
-            # Empty response — may be model loading; short cool-down
+            # Empty response - may be model loading; short cool-down
             self._temp_unavail_until = time.time() + 30
             return None
 
@@ -413,8 +440,8 @@ class HybridEngine:
                  .replace("##", "")
                  .replace("# ", "")
                  .replace("---", "")
-                 .replace("\n- ", "\n• ")    # markdown dash-bullet → unicode bullet
-                 .replace("\n* ", "\n• ")    # markdown star-bullet → unicode bullet
+                 .replace("\n- ", "\n• ")    # markdown dash-bullet -> unicode bullet
+                 .replace("\n* ", "\n• ")    # markdown star-bullet -> unicode bullet
                  .strip())
 
         raw_lines = [l.strip() for l in clean.split("\n") if l.strip()]
@@ -440,13 +467,13 @@ class HybridEngine:
         """
         Constructs a comprehensive system prompt for Ollama.
         Sections:
-          [Identity]     — who hck_GPT is
-          [Intent]       — detected query intent (helps LLM focus)
-          [Rules]        — how to respond
-          [PC Context]   — live snapshot + hardware + history
-          [Language]     — which language to use
+          [Identity]     - who hck_GPT is
+          [Intent]       - detected query intent (helps LLM focus)
+          [Rules]        - how to respond
+          [PC Context]   - live snapshot + hardware + history
+          [Language]     - which language to use
         """
-        # Gather context — MEGA FEATURE: Context Time-Windowing
+        # Gather context - MEGA FEATURE: Context Time-Windowing
         # Pick relevant history window based on intent type
         intent = getattr(result, "intent", "unknown") if result else "unknown"
         window_minutes = self._CONTEXT_WINDOWS.get(intent, 30)
@@ -458,31 +485,44 @@ class HybridEngine:
 
         # Identity block
         identity = (
-            "You are hck_GPT, an AI assistant deeply embedded in PC Workman HCK — "
+            "You are hck_GPT, an AI assistant deeply embedded in PC Workman HCK - "
             "a professional Windows PC monitoring and optimization application. "
             "You have direct access to the user's real-time system data: "
             "CPU and RAM usage, temperatures, running processes, hardware specs, "
             "today's usage averages, and past system alerts. "
-            "You are not a generic assistant — you are a specialized PC expert "
+            "You are not a generic assistant - you are a specialized PC expert "
             "who knows this specific computer intimately."
         )
 
-        # Intent hint — guides the LLM on what kind of answer is expected
+        # Intent hint - guides the LLM on what kind of answer is expected
         intent_block = self._build_intent_hint(result, lang)
+
+        # Recent conversation context (last 3 exchanges)
+        conv_ctx = ""
+        try:
+            from hck_gpt.memory.session_memory import session_memory as _sm
+            recent = _sm.recent_exchange_text(n_pairs=3)
+            if recent:
+                conv_ctx = f"\n\n[Recent Conversation]\n{recent}"
+        except Exception:
+            pass
 
         # Hard rules
         rules = (
-            "RULES — follow these strictly:\n"
-            "1. Responses must be SHORT — 1 to 5 lines maximum. No walls of text.\n"
+            "RULES - follow these strictly:\n"
+            "1. Responses must be SHORT - 1 to 6 lines maximum. No walls of text.\n"
             "2. Never use markdown headers (no # or ##), no bullet point lists with dashes.\n"
-            "3. Never make up hardware data — only use what is provided in [PC Context].\n"
+            "3. Never make up hardware data - only use what is provided in [PC Context].\n"
             "4. Start your reply with the most relevant fact, not with 'As an AI...' or similar.\n"
-            "5. If the user asks something outside PC topics (weather, recipes, etc.) — "
-            "politely redirect: 'I specialize in PC diagnostics — ask me about your hardware or system.'\n"
-            "6. Numbers always matter — include them (%, MHz, GB) when available.\n"
-            "7. Be direct, warm, and practical — like a knowledgeable friend who knows this PC.\n"
-            "8. If something is concerning (high CPU, throttling, low RAM), say so clearly.\n"
-            "9. Never start a line with 'hck_GPT:' — that prefix is added automatically."
+            "5. If the user asks something outside PC topics (weather, recipes, etc.) - "
+            "politely redirect: 'I specialize in PC diagnostics - ask me about your hardware or system.'\n"
+            "6. Numbers always matter - include them (%, MHz, GB, °C) when available.\n"
+            "7. Be direct, warm, and practical - like a knowledgeable friend who knows this PC intimately.\n"
+            "8. If something is concerning (high CPU, throttling, low RAM, high temps), say so clearly.\n"
+            "9. Never start a line with 'hck_GPT:' - that prefix is added automatically.\n"
+            "10. Reference the recent conversation context when it's relevant - show continuity.\n"
+            "11. If the user seems frustrated, acknowledge it briefly before the answer.\n"
+            "12. Personality: you're knowledgeable, slightly dry-humored, and care about this PC."
         )
 
         # Language instruction
@@ -491,17 +531,17 @@ class HybridEngine:
         else:
             lang_rule = (
                 "JĘZYK: Odpowiadaj PO POLSKU. Użytkownik pisze po polsku. "
-                "Używaj naturalnego, potocznego języka — nie formalnego."
+                "Używaj naturalnego, potocznego języka - nie formalnego."
             )
 
-        # Combine — include intent block only when non-empty
+        # Combine - include intent block only when non-empty
         sections = [
             f"[Identity]\n{identity}",
             f"[Rules]\n{rules}",
         ]
         if intent_block:
             sections.append(f"[Intent]\n{intent_block}")
-        sections.append(f"[PC Context]\n{pc_ctx}")
+        sections.append(f"[PC Context]\n{pc_ctx}{conv_ctx}")
         sections.append(f"[Language]\n{lang_rule}")
 
         return "\n\n".join(sections)
@@ -509,46 +549,59 @@ class HybridEngine:
     # ── Intent hint builder ───────────────────────────────────────────────────
 
     _INTENT_HINTS: Dict[str, str] = {
-        "hw_cpu":         "User is asking about their CPU — give model, clock speed, cores, and current load/temp.",
-        "hw_gpu":         "User is asking about their GPU — give model, VRAM, current load/temp.",
-        "hw_ram":         "User is asking about their RAM — give total, used, speed, and slots.",
-        "hw_storage":     "User is asking about storage — give drive sizes, used/free, and type (SSD/HDD).",
-        "hw_all":         "User wants a full hardware overview — cover CPU, GPU, RAM, storage concisely.",
-        "hw_motherboard": "User is asking about their motherboard — give manufacturer, model, chipset, BIOS.",
-        "temperature":    "User is asking about system temperatures — be specific: CPU, GPU, and threshold warnings.",
-        "throttle_check": "User is asking about CPU/GPU throttling — check current temps and clock speeds.",
-        "stats":          "User wants usage statistics — give today's averages and peaks for CPU/RAM.",
-        "processes":      "User is asking about running processes — list top consumers by CPU or RAM.",
-        "ram_why_high":   "User is asking why RAM usage is high — name the top consumers and explain.",
-        "gpu_temp_why":   "User is asking why GPU temperature is high — explain causes (load, cooling, drivers).",
-        "why_slow":       "User is asking why the PC is slow — check CPU/RAM/processes and give the real culprit.",
-        "turbo_boost":    "User is asking about Intel Turbo Boost or AMD Boost — explain how it works on their CPU.",
-        "process_info":   "User is asking about a specific process — explain what it does and if it's safe.",
-        "disk_health":    "User is asking about disk health — check usage, S.M.A.R.T. status if available.",
+        "hw_cpu":         "User is asking about their CPU - give model, clock speed, cores, and current load/temp.",
+        "hw_gpu":         "User is asking about their GPU - give model, VRAM, current load/temp.",
+        "hw_ram":         "User is asking about their RAM - give total, used, speed, and slots.",
+        "hw_storage":     "User is asking about storage - give drive sizes, used/free, and type (SSD/HDD).",
+        "hw_all":         "User wants a full hardware overview - cover CPU, GPU, RAM, storage concisely.",
+        "hw_motherboard": "User is asking about their motherboard - give manufacturer, model, chipset, BIOS.",
+        "temperature":    "User is asking about system temperatures - be specific: CPU, GPU, and threshold warnings.",
+        "throttle_check": "User is asking about CPU/GPU throttling - check current temps and clock speeds.",
+        "stats":          "User wants usage statistics - give today's averages and peaks for CPU/RAM.",
+        "processes":      "User is asking about running processes - list top consumers by CPU or RAM.",
+        "ram_why_high":   "User is asking why RAM usage is high - name the top consumers and explain.",
+        "gpu_temp_why":   "User is asking why GPU temperature is high - explain causes (load, cooling, drivers).",
+        "why_slow":       "User is asking why the PC is slow - check CPU/RAM/processes and give the real culprit.",
+        "turbo_boost":    "User is asking about Intel Turbo Boost or AMD Boost - explain how it works on their CPU.",
+        "process_info":   "User is asking about a specific process - explain what it does and if it's safe.",
+        "disk_health":    "User is asking about disk health - check usage, S.M.A.R.T. status if available.",
         "session_compare":"User wants to compare today's metrics with yesterday's session.",
-        "performance":    "User is asking about general system performance — give actionable assessment.",
-        "optimization":   "User wants optimization advice — give 2-3 specific, actionable tips.",
-        "power_plan":     "User is asking about Windows power plan — explain current plan and tradeoffs.",
-        "speed_up_pc":    "User wants to speed up their PC — give the most impactful specific actions.",
-        "health_check":   "User wants an overall PC health assessment — cover temps, RAM, CPU, disk.",
-        "virus_check":    "User is asking about security/malware — check processes for red flags, recommend actions.",
+        "performance":    "User is asking about general system performance - give actionable assessment.",
+        "optimization":   "User wants optimization advice - give 2-3 specific, actionable tips.",
+        "power_plan":     "User is asking about Windows power plan - explain current plan and tradeoffs.",
+        "speed_up_pc":    "User wants to speed up their PC - give the most impactful specific actions.",
+        "health_check":   "User wants an overall PC health assessment - cover temps, RAM, CPU, disk.",
+        "virus_check":    "User is asking about security/malware - check processes for red flags, recommend actions.",
         "unnecessary_programs": "User wants to know what programs can be safely removed or disabled.",
-        "about_program":  "User is asking about PC Workman HCK itself — explain what it does.",
-        "small_talk":     "User is making casual conversation — be warm and friendly, briefly mention their PC status.",
+        "about_program":  "User is asking about PC Workman HCK itself - explain what it does.",
+        "small_talk":     "User is making casual conversation - be warm and friendly, briefly mention their PC status.",
         # New community intents
-        "fan_noise_history":  "User is asking if their fan is louder than usual — compare current CPU/temp load to history, explain causes.",
-        "driver_status":      "User wants to know which drivers are installed and when they were updated — list key drivers with age.",
-        "gaming_vs_work_time":"User wants a breakdown of time spent gaming vs working — categorize CPU usage by app type.",
-        "process_identity":   "User is asking if a specific .exe is a Windows process or suspicious — check library and system path.",
-        "stale_apps":         "User wants to find apps they haven't used in a while — list likely unused installed programs.",
-        "fps_degradation":    "User says FPS is worse than it used to be — do Time-Travel comparison of GPU/CPU/temp over 30 days.",
-        "app_behavior_change":"User says an app started behaving differently — compare current vs 7-day metric trend, suggest causes.",
-        "startup_slowdown":   "User asks what slows startup the most — rank startup entries by boot impact, suggest disabling highest ones.",
-        "temp_comparison":    "User asks if PC is running hotter than usual — compare current temps to 7-day and 30-day historical averages.",
-        "crash_context":      "User asks what was happening before the last freeze — check session events, temps, and RAM pressure.",
-        "game_hardware_stress":"User asks which game stresses hardware most — show active game processes, GPU/CPU peak from history.",
-        "battery_drain_rate": "User asks how much battery is used during gaming — show current drain rate and estimates by activity type.",
-        "power_after_restart":"User asks what used most power since restart — show processes with most cumulative CPU time since boot.",
+        "fan_noise_history":  "User is asking if their fan is louder than usual - compare current CPU/temp load to history, explain causes.",
+        "driver_status":      "User wants to know which drivers are installed and when they were updated - list key drivers with age.",
+        "gaming_vs_work_time":"User wants a breakdown of time spent gaming vs working - categorize CPU usage by app type.",
+        "process_identity":   "User is asking if a specific .exe is a Windows process or suspicious - check library and system path.",
+        "stale_apps":         "User wants to find apps they haven't used in a while - list likely unused installed programs.",
+        "fps_degradation":    "User says FPS is worse than it used to be - do Time-Travel comparison of GPU/CPU/temp over 30 days.",
+        "app_behavior_change":"User says an app started behaving differently - compare current vs 7-day metric trend, suggest causes.",
+        "startup_slowdown":   "User asks what slows startup the most - rank startup entries by boot impact, suggest disabling highest ones.",
+        "temp_comparison":    "User asks if PC is running hotter than usual - compare current temps to 7-day and 30-day historical averages.",
+        "crash_context":      "User asks what was happening before the last freeze - check session events, temps, and RAM pressure.",
+        "game_hardware_stress":"User asks which game stresses hardware most - show active game processes, GPU/CPU peak from history.",
+        "battery_drain_rate": "User asks how much battery is used during gaming - show current drain rate and estimates by activity type.",
+        "power_after_restart":"User asks what used most power since restart - show processes with most cumulative CPU time since boot.",
+        # Second wave community intents
+        "game_can_run":       "User asks if their PC can run a specific game - check RAM, GPU VRAM, and disk against known game requirements. Be specific: can run / can run on low / cannot run.",
+        "gaming_ram_usage":   "User asks how much RAM they use while gaming - compare gaming session RAM peaks from history vs current, give typical range.",
+        "daily_ram_usage":    "User asks about typical daily RAM usage - pull 7-day average from metrics_store, show range and peak. Compare to installed RAM.",
+        "battery_estimate":   "User asks how long battery will last for an activity - check current battery %, estimate hours based on activity type drain rate.",
+        "upgrade_feasibility":"User asks if they can add RAM or storage - check current RAM slots, populated slots, max supported RAM via WMI. Give honest yes/no.",
+        "top_resource_hog":   "User asks which process uses the most disk or RAM - show top 5 processes by RSS memory and top 5 by disk I/O bytes. Concrete names and numbers.",
+        "browser_cache":      "User asks if their browser is slow because of cache/memory - check all browser processes' RAM usage, give total, name browsers running.",
+        "ram_compare":        "User wants to compare RAM usage across sessions or time - show current vs today's peak vs 7-day average. Concrete numbers.",
+        "swap_analysis":      "User asks which processes are using swap/pagefile - show current pagefile usage, explain RAM pressure, name top causes.",
+        "usb_transfer":       "User connected an external drive and asks about CPU/IO load - show current disk I/O bytes/sec and CPU load, identify the transfer process.",
+        "network_usage":      "User asks what is using their network - list processes with active network connections and estimated bandwidth by app.",
+        "startup_safety":     "User wants to disable a program from startup (like Discord) - give exact step-by-step guide for Task Manager startup tab, name safe candidates.",
     }
 
     def _build_intent_hint(self, result: Any, lang: str) -> str:
