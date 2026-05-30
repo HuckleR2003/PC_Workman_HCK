@@ -1,6 +1,6 @@
 """
 HCK Stats Engine v2 - Aggregation Pipeline
-minute → hour → day → week → month with automatic boundary detection and pruning
+minute -> hour -> day -> week -> month with automatic boundary detection and pruning
 """
 
 import time
@@ -15,11 +15,13 @@ from hck_stats_engine.constants import (
     LOGS_DIR
 )
 from hck_stats_engine.db_manager import db_manager
+from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
 
 
 class StatsAggregator:
     def __init__(self):
         self._last_hour_boundary = 0
+        register_component("hck_stats_engine.aggregator", self, STATUS_OK)
         self._last_day_boundary = 0
         self._last_pruning = 0
         self._process_aggregator = None
