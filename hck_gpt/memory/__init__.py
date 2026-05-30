@@ -1,4 +1,4 @@
-# hck_gpt/memory — session + persistent user knowledge
+# hck_gpt/memory - session + persistent user knowledge
 from .session_memory import session_memory
 from .user_knowledge import user_knowledge
 

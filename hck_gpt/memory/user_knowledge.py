@@ -1,6 +1,6 @@
 # hck_gpt/memory/user_knowledge.py
 """
-User Knowledge Base — SQLite-backed persistent store.
+User Knowledge Base - SQLite-backed persistent store.
 
 Tracks across ALL sessions:
   - hardware_profile  : CPU model, GPU, RAM, motherboard, OS, storage
@@ -59,6 +59,16 @@ CREATE TABLE IF NOT EXISTS conversation_log (
 );
 
 CREATE INDEX IF NOT EXISTS idx_conv_ts ON conversation_log(timestamp);
+
+CREATE TABLE IF NOT EXISTS insights_log (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp REAL    NOT NULL,
+    category  TEXT    NOT NULL,
+    insight   TEXT    NOT NULL,
+    data      TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_insights_ts ON insights_log(timestamp);
 """
 
 
@@ -205,16 +215,65 @@ class UserKnowledge:
 
     # ── Full reset ────────────────────────────────────────────────────────────
 
+    # ── Insights log ──────────────────────────────────────────────────────────
+
+    def log_insight(self, category: str, insight: str,
+                    data: Optional[Any] = None) -> None:
+        """Save an AI-discovered pattern or recommendation."""
+        with self._conn() as cx:
+            cx.execute(
+                "INSERT INTO insights_log (timestamp, category, insight, data) "
+                "VALUES (?, ?, ?, ?)",
+                (time.time(), category, insight,
+                 json.dumps(data) if data is not None else None)
+            )
+
+    def get_recent_insights(self, n: int = 10,
+                            category: Optional[str] = None) -> List[Tuple[str, str, float]]:
+        """Return list of (category, insight, timestamp) newest-first."""
+        with self._conn() as cx:
+            if category:
+                rows = cx.execute(
+                    "SELECT category, insight, timestamp FROM insights_log "
+                    "WHERE category = ? ORDER BY timestamp DESC LIMIT ?",
+                    (category, n)
+                ).fetchall()
+            else:
+                rows = cx.execute(
+                    "SELECT category, insight, timestamp FROM insights_log "
+                    "ORDER BY timestamp DESC LIMIT ?", (n,)
+                ).fetchall()
+        return [(r["category"], r["insight"], r["timestamp"]) for r in rows]
+
+    def insight_seen_recently(self, keyword: str, hours: float = 24) -> bool:
+        """True if an insight containing keyword was logged within the last N hours."""
+        cutoff = time.time() - hours * 3600
+        with self._conn() as cx:
+            row = cx.execute(
+                "SELECT COUNT(*) AS cnt FROM insights_log "
+                "WHERE timestamp > ? AND insight LIKE ?",
+                (cutoff, f"%{keyword}%")
+            ).fetchone()
+        return bool(row and row["cnt"] > 0)
+
+    def prune_old_insights(self, keep_days: int = 90) -> None:
+        cutoff = time.time() - keep_days * 86400
+        with self._conn() as cx:
+            cx.execute("DELETE FROM insights_log WHERE timestamp < ?", (cutoff,))
+
+    # ── Full reset ────────────────────────────────────────────────────────────
+
     def reset_all(self) -> None:
         """
         Delete every row in all four tables and VACUUM the file.
-        Schema is preserved — tables still exist after the call.
+        Schema is preserved - tables still exist after the call.
         """
         with self._conn() as cx:
             cx.execute("DELETE FROM hardware_profile")
             cx.execute("DELETE FROM usage_patterns")
             cx.execute("DELETE FROM user_facts")
             cx.execute("DELETE FROM conversation_log")
+            cx.execute("DELETE FROM insights_log")
         # VACUUM outside the transaction (WAL mode requires it)
         conn = self._conn()
         try:
@@ -263,7 +322,7 @@ class UserKnowledge:
             for k, v in list(patterns.items())[:5]:
                 lines.append(f"  {k}: {v}")
 
-        return "\n".join(lines) if lines else "(knowledge base empty — run a hardware scan)"
+        return "\n".join(lines) if lines else "(knowledge base empty - run a hardware scan)"
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────

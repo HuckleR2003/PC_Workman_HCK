@@ -1,6 +1,6 @@
 # hck_gpt/memory/session_memory.py
 """
-Session Memory — in-RAM state for the current app session.
+Session Memory - in-RAM state for the current app session.
 
 Tracks:
   - Message history (last 50 exchanges)
@@ -8,9 +8,9 @@ Tracks:
   - Last known live PC snapshot
   - Conversation topic stack (for contextual follow-up)
   - CPU/RAM trend buffer (rising / stable / falling)
-  - Auto conversation summary (every 6 messages — used by Hybrid Engine)
+  - Auto conversation summary (every 6 messages - used by Hybrid Engine)
 
-Not persisted to disk — cleared on every app restart.
+Not persisted to disk - cleared on every app restart.
 For persistent knowledge see user_knowledge.py
 """
 from __future__ import annotations
@@ -66,7 +66,7 @@ class SessionMemory:
         # Last snapshot from SystemContext.snapshot()
         self.live_snapshot: Dict[str, Any] = {}
 
-        # Conversation topic stack — top = current subject
+        # Conversation topic stack - top = current subject
         self._topic_stack: List[str] = []
 
         # Flags / counters used by the response builder
@@ -82,7 +82,7 @@ class SessionMemory:
         # ── Session data store ────────────────────────────────────────────────
         # Stores key values actually reported in responses this session.
         # Allows later responses to reference what was shown earlier.
-        # Structure:  intent_name → {recorded_at: float, key: value, ...}
+        # Structure:  intent_name -> {recorded_at: float, key: value, ...}
         self._session_data: Dict[str, Any] = {}
 
         # ── Last proactive message store ──────────────────────────────────────
@@ -98,7 +98,7 @@ class SessionMemory:
     # ── Messages ──────────────────────────────────────────────────────────────
 
     def add_message(self, role: str, text: str) -> None:
-        # Sanitize text — strip null bytes that could cause downstream issues
+        # Sanitize text - strip null bytes that could cause downstream issues
         safe_text = (text or "").replace("\x00", "").strip()
         self._messages.append(Message(role=role, text=safe_text))
         # Auto-summarize every SUMMARY_EVERY user messages
@@ -274,9 +274,9 @@ class SessionMemory:
 
     def _auto_summarize(self) -> None:
         """
-        Simple extractive summarizer — no LLM needed.
+        Simple extractive summarizer - no LLM needed.
         Collects user messages + known topics, writes a short summary sentence.
-        Always safe to call — all exceptions are swallowed.
+        Always safe to call - all exceptions are swallowed.
         """
         try:
             self._auto_summarize_impl()
@@ -284,7 +284,7 @@ class SessionMemory:
             pass
 
     def _auto_summarize_impl(self) -> None:
-        """Internal summarizer logic — called inside try/except."""
+        """Internal summarizer logic - called inside try/except."""
         recent = [m for m in list(self._messages)[-12:] if m.role == "user"]
         if not recent:
             return
@@ -318,6 +318,19 @@ class SessionMemory:
             "game_hardware_stress": "game hardware stress",
             "battery_drain_rate":   "battery drain rate",
             "power_after_restart":  "power usage since restart",
+            # Wave 2 community intents
+            "game_can_run":         "game requirements check",
+            "gaming_ram_usage":     "gaming RAM usage",
+            "daily_ram_usage":      "daily RAM usage",
+            "battery_estimate":     "battery life estimate",
+            "upgrade_feasibility":  "hardware upgrade feasibility",
+            "top_resource_hog":     "top resource consumer",
+            "browser_cache":        "browser cache / memory",
+            "ram_compare":          "RAM usage comparison",
+            "swap_analysis":        "swap / pagefile analysis",
+            "usb_transfer":         "USB / external drive transfer",
+            "network_usage":        "network usage by process",
+            "startup_safety":       "startup program management",
         }
         topics_seen = []
         for t in self._topic_stack:
@@ -332,7 +345,7 @@ class SessionMemory:
                 f"User has been asking about: {', '.join(topics_seen[:4])}."
             )
         else:
-            # fallback — take first 120 chars of combined messages
+            # fallback - take first 120 chars of combined messages
             excerpt = texts[:120].strip()
             self.conversation_summary = f"Recent questions: {excerpt}..."
 
