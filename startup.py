@@ -1,19 +1,22 @@
 """
 startup.py
-Entry point for PC Workman HCK - from v1.0.1 to v1.7.1 - Now program have .exe!
+Entry point for PC Workman HCK v1.7.2
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
+
+APP_VERSION   = "1.7.2"
+HELPER_VERSION = "1.6.3"
 
 # ============================================
 # IMMEDIATE CONSOLE OUTPUT - Shows before any imports
 # ============================================
 print("=" * 70)
-print("  PC Workman v1.7.1 - This console will close if program runs correctly")
+print(f"  PC Workman v{APP_VERSION} - This console will close if program runs correctly")
 print("  Attach this information when reporting errors/issues")
 print("=" * 70)
 print()
 print("=" * 37)
-print("  DIAGNOSTIC CONSOLE HELPER v1.7.1  ")
+print(f"  DIAGNOSTIC CONSOLE HELPER v{HELPER_VERSION}  ")
 print("=" * 37)
 print()
 print("[~] Initializing Python environment...")
@@ -28,7 +31,7 @@ print("[+] Python environment ready")
 print("[~] Loading core systems...")
 
 # ============================================
-# DIAGNOSTIC CONSOLE HELPER v1.7.1
+# DIAGNOSTIC CONSOLE HELPER
 # ============================================
 def get_console_window():
     """Get handle to console window"""
@@ -77,7 +80,7 @@ try:
     if _n:
         print(f"[+] Inter font loaded ({_n} files)")
     else:
-        print("[~] Inter not found — using Segoe UI  (place Inter*.ttf in assets/fonts/ to upgrade)")
+        print("[~] Inter not found - using Segoe UI  (place Inter*.ttf in data/fonts/ to upgrade)")
 except Exception:
     pass
 
@@ -139,6 +142,22 @@ def run_demo():
             log("Stats Engine v2 loaded - DB NOT ready (will retry)", "WARN")
     except Exception as e:
         log(f"Stats Engine v2 FAILED: {e}", "ERROR")
+
+    # --- Step 3c: ML Intent Classifier - background train / load ---
+    try:
+        from hck_gpt.intents.ml_classifier import ml_classifier
+        ml_classifier.load_or_train(background=True)
+        log("ML intent classifier: background train/load started", "OK")
+    except Exception as e:
+        log(f"ML classifier skipped: {e}", "WARN")
+
+    # --- Step 3d: DeepMonitor persistent metrics store ---
+    try:
+        from hck_gpt.data.metrics_store import metrics_store as _dm_store
+        _dm_store.start()
+        log("DeepMonitor metrics store started (snapshot every 5 min)", "OK")
+    except Exception as e:
+        log(f"DeepMonitor metrics store skipped: {e}", "WARN")
 
     # --- Step 4: Load UI modules ---
     log("Loading UI...", "LOAD")
@@ -282,6 +301,13 @@ def run_demo():
             )
             mode_mgr.current_mode = "expanded"
 
+            # Welcome toast (shows 1.8 s after UI is ready)
+            try:
+                from ui.components.system_toast import show_welcome_toast
+                show_welcome_toast(mode_mgr.expanded_window.root, delay_ms=1800)
+            except Exception:
+                pass
+
             log("UI ready - hiding console", "OK")
             print()
             print("-" * 40)
@@ -343,5 +369,36 @@ def run_demo():
         pass
 
 
+def _acquire_single_instance_lock():
+    """
+    Prevent duplicate instances on Windows using a named mutex.
+    Returns the mutex handle (must be kept alive) or None if already running.
+    """
+    if sys.platform != "win32":
+        return True   # skip on non-Windows
+    try:
+        import ctypes
+        _MUTEX_NAME = "Global\\PC_Workman_HCK_SingleInstance"
+        handle = ctypes.windll.kernel32.CreateMutexW(None, True, _MUTEX_NAME)
+        err    = ctypes.windll.kernel32.GetLastError()
+        if err == 183:   # ERROR_ALREADY_EXISTS
+            # Bring existing window to front
+            try:
+                hwnd = ctypes.windll.user32.FindWindowW(None, "PC Workman HCK  v1.7.6")
+                if hwnd:
+                    ctypes.windll.user32.ShowWindow(hwnd, 9)   # SW_RESTORE
+                    ctypes.windll.user32.SetForegroundWindow(hwnd)
+            except Exception:
+                pass
+            return None   # signal: abort launch
+        return handle     # keep alive for the duration of the process
+    except Exception:
+        return True       # if mutex check fails, allow launch
+
+
 if __name__ == "__main__":
+    _mutex = _acquire_single_instance_lock()
+    if _mutex is None:
+        print("[!] PC Workman is already running - bringing existing window to front.")
+        sys.exit(0)
     run_demo()
