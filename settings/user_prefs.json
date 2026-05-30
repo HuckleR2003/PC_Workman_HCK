@@ -1,0 +1,11 @@
+{
+  "online": false,
+  "theme": "dark",
+  "show_eastereggs": true,
+  "optimization": {
+    "ram_auto": true,
+    "ram_threshold": 75,
+    "tpp_auto": true,
+    "tpp_on_turbo": true
+  }
+}
