@@ -9,9 +9,9 @@ Assembles a unified snapshot of the current PC state by pulling from:
   - session_memory   (events, trends, conversation context)
 
 Provides:
-  snapshot()            → structured dict of current PC state
-  build_prompt_context()→ compact string (legacy, used by ResponseBuilder)
-  build_llm_context()   → rich multi-section string for Ollama system prompt
+  snapshot()            -> structured dict of current PC state
+  build_prompt_context()-> compact string (legacy, used by ResponseBuilder)
+  build_llm_context()   -> rich multi-section string for Ollama system prompt
 """
 from __future__ import annotations
 
@@ -22,13 +22,13 @@ from typing import Any, Dict, List, Optional, Tuple
 class SystemContext:
     """
     Single source of truth for current PC state.
-    snapshot()         — fresh metrics dict
-    build_llm_context()— rich narrative string for LLM system prompt
+    snapshot()         - fresh metrics dict
+    build_llm_context()- rich narrative string for LLM system prompt
     """
 
-    # Internal trend push interval (seconds) — push to session_memory no more than once per 30s
+    # Internal trend push interval (seconds) - push to session_memory no more than once per 30s
     _TREND_PUSH_INTERVAL  = 30.0
-    # LLM context cache — rebuild at most every 5 s to avoid hammering psutil + SQLite
+    # LLM context cache - rebuild at most every 5 s to avoid hammering psutil + SQLite
     # on rapid Ollama calls (e.g. user sends multiple messages quickly)
     _LLM_CONTEXT_CACHE_TTL = 5.0
 
@@ -43,7 +43,7 @@ class SystemContext:
     def snapshot(self) -> Dict[str, Any]:
         """
         Returns a dict with current PC metrics + stored hardware profile.
-        Keys present depend on what's available — always check before using.
+        Keys present depend on what's available - always check before using.
         """
         ctx: Dict[str, Any] = {}
 
@@ -66,7 +66,7 @@ class SystemContext:
             ctx["cpu_cores_physical"]  = psutil.cpu_count(logical=False)
             ctx["cpu_cores_logical"]   = psutil.cpu_count(logical=True)
 
-            # Disk — Windows-safe: prefer SystemDrive env var
+            # Disk - Windows-safe: prefer SystemDrive env var
             try:
                 import os as _os
                 _sysdrive = _os.environ.get("SystemDrive", "C:") + "\\"
@@ -83,7 +83,7 @@ class SystemContext:
                 ctx["cpu_throttle_ratio"] = round(ratio, 2)
                 ctx["cpu_throttled"]      = ratio < 0.60
 
-            # Top 3 processes by CPU — capped iteration, skip zombies safely
+            # Top 3 processes by CPU - capped iteration, skip zombies safely
             try:
                 raw_procs = []
                 for p in psutil.process_iter(["name", "cpu_percent", "memory_info"]):
@@ -126,6 +126,35 @@ class SystemContext:
             except Exception:
                 ctx["temperatures"] = []
 
+        except Exception:
+            pass
+
+        # ── Hardware-sensor temperatures (LibreHardwareMonitor via core) ───────
+        # psutil.sensors_temperatures() is usually empty on Windows.
+        # core.hardware_sensors has a proper driver-backed implementation.
+        try:
+            from core.hardware_sensors import get_cpu_temp, get_gpu_temp
+            cpu_t = get_cpu_temp()
+            gpu_t = get_gpu_temp()
+            if cpu_t:
+                ctx["cpu_temp"] = round(float(cpu_t), 1)
+                # Enrich or replace the psutil temperatures list so the
+                # LLM context always shows at least CPU/GPU readings.
+                existing = ctx.get("temperatures", [])
+                has_cpu_entry = any("cpu" in lbl.lower() or "package" in lbl.lower()
+                                    for lbl, _ in existing)
+                if not has_cpu_entry:
+                    ctx.setdefault("temperatures", []).insert(
+                        0, ("CPU Package", round(float(cpu_t), 1))
+                    )
+            if gpu_t:
+                ctx["gpu_temp"] = round(float(gpu_t), 1)
+                existing = ctx.get("temperatures", [])
+                has_gpu_entry = any("gpu" in lbl.lower() for lbl, _ in existing)
+                if not has_gpu_entry:
+                    ctx.setdefault("temperatures", []).append(
+                        ("GPU Core", round(float(gpu_t), 1))
+                    )
         except Exception:
             pass
 
@@ -189,9 +218,10 @@ class SystemContext:
         lines = ["[PC State]"]
 
         if "cpu_pct" in snap:
-            mhz = f" @ {snap['cpu_mhz']} MHz" if snap.get("cpu_mhz") else ""
-            thr = "  ⚠ throttled" if snap.get("cpu_throttled") else ""
-            lines.append(f"CPU: {snap['cpu_pct']:.0f}%{mhz}{thr}")
+            mhz  = f" @ {snap['cpu_mhz']} MHz" if snap.get("cpu_mhz") else ""
+            thr  = "  ⚠ throttled"              if snap.get("cpu_throttled") else ""
+            temp = f"  {snap['cpu_temp']}°C"    if snap.get("cpu_temp") else ""
+            lines.append(f"CPU: {snap['cpu_pct']:.0f}%{mhz}{temp}{thr}")
 
         if "ram_pct" in snap:
             lines.append(
@@ -200,9 +230,12 @@ class SystemContext:
                 f" / {snap.get('ram_total_gb','?')} GB)"
             )
 
+        if snap.get("gpu_temp") is not None:
+            lines.append(f"GPU temp: {snap['gpu_temp']}°C")
+
         if snap.get("cpu_avg_today") is not None:
             lines.append(
-                f"Today avg — CPU: {snap['cpu_avg_today']}%"
+                f"Today avg - CPU: {snap['cpu_avg_today']}%"
                 + (f"  RAM: {snap['ram_avg_today']}%"
                    if snap.get("ram_avg_today") else "")
             )
@@ -230,7 +263,7 @@ class SystemContext:
 
         return "\n".join(lines)
 
-    # ── Rich LLM context (used by Hybrid Engine → Ollama) ─────────────────────
+    # ── Rich LLM context (used by Hybrid Engine -> Ollama) ─────────────────────
 
     def build_llm_context(self, lang: str = "pl") -> str:
         """
@@ -268,10 +301,10 @@ class SystemContext:
             # Base context is always live (unchanged)
             base = self._build_llm_context_impl(lang)
 
-            # For narrow windows (<= 30 min) — strip old "Today's Averages" section
+            # For narrow windows (<= 30 min) - strip old "Today's Averages" section
             # to avoid noise; the live snapshot is sufficient.
             if window_minutes <= 30:
-                # Already fresh enough — return base minus heavy history sections
+                # Already fresh enough - return base minus heavy history sections
                 lines = base.split("\n\n")
                 filtered = [
                     sec for sec in lines
@@ -280,7 +313,7 @@ class SystemContext:
                 ]
                 return "\n\n".join(filtered)
 
-            # For wide windows — append historical trend from metrics_store
+            # For wide windows - append historical trend from metrics_store
             parts = [base]
             try:
                 from hck_gpt.data.metrics_store import metrics_store
@@ -313,7 +346,7 @@ class SystemContext:
             return self.build_llm_context(lang)
 
     def _build_llm_context_impl(self, lang: str = "pl") -> str:
-        """Internal — builds the full context string. Called by build_llm_context()."""
+        """Internal - builds the full context string. Called by build_llm_context()."""
         snap   = self.snapshot()
         parts: List[str] = []
 
@@ -329,7 +362,7 @@ class SystemContext:
             throttle = ""
             if snap.get("cpu_throttled"):
                 ratio = snap.get("cpu_throttle_ratio", 0) * 100
-                throttle = f"  [THROTTLED — {ratio:.0f}% power]"
+                throttle = f"  [THROTTLED - {ratio:.0f}% power]"
             mhz_str = f" @ {cpu_mhz} MHz" if cpu_mhz else ""
             max_str = f" / max {cpu_max} MHz" if cpu_max else ""
             live_lines.append(f"CPU: {cpu_pct:.0f}%{mhz_str}{max_str}{throttle}")
@@ -460,13 +493,13 @@ class SystemContext:
             delta_lines: List[str] = []
             if today_cpu is not None and typ_cpu is not None:
                 diff = float(today_cpu) - float(typ_cpu)
-                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "->")
                 sign  = "+" if diff >= 0 else ""
                 delta_lines.append(
                     f"CPU today {today_cpu}% vs typical {typ_cpu}%  {arrow} ({sign}{diff:.0f}%)")
             if today_ram is not None and typ_ram is not None:
                 diff = float(today_ram) - float(typ_ram)
-                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+                arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "->")
                 sign  = "+" if diff >= 0 else ""
                 delta_lines.append(
                     f"RAM today {today_ram}% vs typical {typ_ram}%  {arrow} ({sign}{diff:.0f}%)")

@@ -7,7 +7,7 @@ Populates UserKnowledge DB with: CPU model/cores/boost, GPU model/VRAM,
 RAM size/speed, Motherboard, Storage summary, OS version.
 
 Designed to run in a background thread at startup so the UI
-doesn't block. Safe to call multiple times — skipped if data is fresh.
+doesn't block. Safe to call multiple times - skipped if data is fresh.
 
 WMI is used for model names (Windows only).
 psutil covers everything else.
@@ -121,7 +121,7 @@ def _scan_wmi(uk) -> None:
                 break
 
     except Exception:
-        # WMI unavailable or failed — silently skip
+        # WMI unavailable or failed - silently skip
         pass
 
 
@@ -184,7 +184,7 @@ def update_usage_patterns(force: bool = False) -> None:
         pass
 
 
-# ── Pattern detection → insights_log (runs at most once per 24 h) ─────────────
+# ── Pattern detection -> insights_log (runs at most once per 24 h) ─────────────
 
 def detect_and_log_patterns() -> None:
     """
@@ -205,23 +205,23 @@ def detect_and_log_patterns() -> None:
         cpu7 = float(summary.get("cpu_avg") or 0)
         ram7 = float(summary.get("ram_avg") or 0)
 
-        # Pattern A — chronically high CPU
+        # Pattern A - chronically high CPU
         if cpu7 > 70 and not user_knowledge.insight_seen_recently("high_cpu_pattern", hours=48):
             user_knowledge.log_insight(
                 "performance",
-                f"high_cpu_pattern: 7-day CPU avg {cpu7:.0f}% — system under sustained high load",
+                f"high_cpu_pattern: 7-day CPU avg {cpu7:.0f}% - system under sustained high load",
                 {"cpu_avg_7d": round(cpu7, 1)},
             )
 
-        # Pattern B — chronically high RAM
+        # Pattern B - chronically high RAM
         if ram7 > 78 and not user_knowledge.insight_seen_recently("high_ram_pattern", hours=48):
             user_knowledge.log_insight(
                 "memory",
-                f"high_ram_pattern: 7-day RAM avg {ram7:.0f}% — RAM under sustained pressure",
+                f"high_ram_pattern: 7-day RAM avg {ram7:.0f}% - RAM under sustained pressure",
                 {"ram_avg_7d": round(ram7, 1)},
             )
 
-        # Pattern C — top app this week
+        # Pattern C - top app this week
         top_app = user_knowledge.get_pattern("top_app_week")
         if top_app:
             key = f"top_app_{top_app[:20]}"
@@ -232,7 +232,7 @@ def detect_and_log_patterns() -> None:
                     {"app": top_app},
                 )
 
-        # Pattern D — week-over-week CPU trend
+        # Pattern D - week-over-week CPU trend
         try:
             prev = query_api.get_summary_stats(days=14)
             if prev and summary:
@@ -244,7 +244,7 @@ def detect_and_log_patterns() -> None:
                         user_knowledge.log_insight(
                             "trend",
                             f"week_trend: CPU avg {direction} by {abs(delta):.0f}% "
-                            f"vs previous week ({cpu_prev:.0f}% → {cpu7:.0f}%)",
+                            f"vs previous week ({cpu_prev:.0f}% -> {cpu7:.0f}%)",
                             {"delta": round(delta, 1),
                              "this_week": round(cpu7, 1),
                              "prev_week": round(cpu_prev, 1)},
