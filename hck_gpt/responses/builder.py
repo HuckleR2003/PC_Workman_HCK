@@ -7,7 +7,7 @@ Generates human-readable chatbot responses from a ParseResult + live context.
 Design principles:
   - Always enrich responses with LIVE data (never hardcoded numbers)
   - Bilingual: PL when user writes PL, EN when user writes EN
-  - Response variety — pools with random.choice() to avoid repetition
+  - Response variety - pools with random.choice() to avoid repetition
   - Short, scannable output (no walls of text)
   - Follow-up hints at end of key responses
   - Ready for LLM drop-in: builder.build() signature stays stable
@@ -80,12 +80,12 @@ _FOLLOWUPS: dict[str, dict[str, list[str]]] = {
         "pl": [
             "  💬 Wpisz 'top procesy' by zobaczyć co teraz najbardziej pracuje",
             "  💬 Zapytaj 'niepotrzebne programy' by wykryć bloatware w tle",
-            "  💬 Sprawdź 'autostart' — zbędne wpisy startowe to ryzyko i obciążenie",
+            "  💬 Sprawdź 'autostart' - zbędne wpisy startowe to ryzyko i obciążenie",
         ],
         "en": [
             "  💬 Type 'top processes' to see what's currently most active",
             "  💬 Ask 'unnecessary programs' to detect background bloat",
-            "  💬 Check 'startup programs' — excess startup entries are a risk and a burden",
+            "  💬 Check 'startup programs' - excess startup entries are a risk and a burden",
         ],
     },
     "disk": {
@@ -114,12 +114,12 @@ _FOLLOWUPS: dict[str, dict[str, list[str]]] = {
     },
     "process": {
         "pl": [
-            "  💬 Podaj nazwę dowolnego procesu — wyjaśnię co robi",
+            "  💬 Podaj nazwę dowolnego procesu - wyjaśnię co robi",
             "  💬 Wpisz 'dlaczego ram wysoki' jeśli pamięć jest zajęta",
             "  💬 Sprawdź 'niepotrzebne programy' by odciążyć tło",
         ],
         "en": [
-            "  💬 Name any process — I'll explain what it does",
+            "  💬 Name any process - I'll explain what it does",
             "  💬 Type 'why is ram high' if memory is full",
             "  💬 Check 'unnecessary programs' to reduce background load",
         ],
@@ -157,14 +157,14 @@ def _followup(key: str, lang: str) -> str:
     return random.choice(lines) if lines else ""
 
 
-# ── Delta label — contextualises a live metric against 7-day typical ─────────
+# ── Delta label - contextualises a live metric against 7-day typical ─────────
 
 def _delta_label(current: float, typical, lang: str) -> str:
     """
     Compare current (live) value with typical (7-day avg).
     Returns a short contextual string, e.g.:
-        EN: '→ within your norm  (avg 42%)'  /  '↑ +23% above your norm  (avg 42%)'
-        PL: '→ norma  (śr. 42%)'             /  '↑ +23% vs typowe  (42%)'
+        EN: '-> within your norm  (avg 42%)'  /  '↑ +23% above your norm  (avg 42%)'
+        PL: '-> norma  (śr. 42%)'             /  '↑ +23% vs typowe  (42%)'
     Returns '' when typical is None or zero.
     """
     if typical is None:
@@ -177,8 +177,8 @@ def _delta_label(current: float, typical, lang: str) -> str:
         return ""
     delta = current - typ
     if abs(delta) < 5:
-        return (f"→ within your norm  (avg {typ:.0f}%)" if lang == "en"
-                else f"→ norma  (śr. {typ:.0f}%)")
+        return (f"-> within your norm  (avg {typ:.0f}%)" if lang == "en"
+                else f"-> norma  (śr. {typ:.0f}%)")
     elif delta > 0:
         return (f"↑ +{delta:.0f}% above your norm  (avg {typ:.0f}%)" if lang == "en"
                 else f"↑ +{delta:.0f}% vs typowe  ({typ:.0f}%)")
@@ -187,7 +187,7 @@ def _delta_label(current: float, typical, lang: str) -> str:
                 else f"↓ {abs(delta):.0f}% poniżej normy  (śr. {typ:.0f}%)")
 
 
-# ── Hardware profile — capability flags for personalised advice ───────────────
+# ── Hardware profile - capability flags for personalised advice ───────────────
 
 def _hw_profile(hw: dict) -> dict:
     """
@@ -198,7 +198,7 @@ def _hw_profile(hw: dict) -> dict:
     cpu_cores = int(hw.get("cpu_cores")      or 4)
     disk      = (hw.get("disk_model")        or "").upper()
 
-    # SSD detection — if any SSD/NVMe keyword present → SSD
+    # SSD detection - if any SSD/NVMe keyword present -> SSD
     _ssd_kw = ("SSD", "NVME", "NVM", "M.2", "PCIE", "SOLID STATE", "EVO",
                "870", "970", "980", "SA400", "MZ-", "CT", "ADATA", "KINGSTON")
     is_ssd = any(k in disk for k in _ssd_kw)
@@ -255,7 +255,7 @@ class ResponseBuilder:
         except Exception:
             return None
 
-    # ── Hardware — all specs ──────────────────────────────────────────────────
+    # ── Hardware - all specs ──────────────────────────────────────────────────
 
     def _resp_hw_all(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -331,7 +331,7 @@ class ResponseBuilder:
         lines.append(_followup("hw", lang))
         return lines
 
-    # ── Hardware — CPU ────────────────────────────────────────────────────────
+    # ── Hardware - CPU ────────────────────────────────────────────────────────
 
     def _resp_hw_cpu(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -345,8 +345,8 @@ class ResponseBuilder:
         cores_p = hw.get("cpu_cores",     snap.get("cpu_cores_physical", "?"))
         cores_l = hw.get("cpu_threads",   snap.get("cpu_cores_logical",  "?"))
         boost   = hw.get("cpu_boost_ghz", "?")
-        cur_mhz = snap.get("cpu_mhz",  "—")
-        cur_pct = snap.get("cpu_pct",  "—")
+        cur_mhz = snap.get("cpu_mhz",  "-")
+        cur_pct = snap.get("cpu_pct",  "-")
         throttle = ""
         if snap.get("cpu_throttled"):
             throttle = _t(lang, "  ⚠ throttled!", "  ⚠ throttling!")
@@ -384,7 +384,7 @@ class ResponseBuilder:
             _followup("hw", lang),
         ]
 
-    # ── Hardware — GPU ────────────────────────────────────────────────────────
+    # ── Hardware - GPU ────────────────────────────────────────────────────────
 
     def _resp_hw_gpu(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -395,7 +395,7 @@ class ResponseBuilder:
         if not model:
             return [_t(lang,
                        f"{self.PREFIX} Nie mam jeszcze danych o karcie graficznej.",
-                       f"{self.PREFIX} No GPU data yet — hardware scan is running.")]
+                       f"{self.PREFIX} No GPU data yet - hardware scan is running.")]
 
         # ── Pomysł 2: record for cross-response references ───────────────────
         from hck_gpt.memory.session_memory import session_memory
@@ -410,7 +410,7 @@ class ResponseBuilder:
                     f"{self.PREFIX} Graphics card:")
         return [header, f"  Model:{vram_str}  {model}", _followup("hw", lang)]
 
-    # ── Hardware — RAM ────────────────────────────────────────────────────────
+    # ── Hardware - RAM ────────────────────────────────────────────────────────
 
     def _resp_hw_ram(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -422,9 +422,9 @@ class ResponseBuilder:
         total   = hw.get("ram_total_gb", snap.get("ram_total_gb", "?"))
         speed   = hw.get("ram_speed_mhz")
         model   = hw.get("ram_model")       # WMI part number, e.g. "CMK16GX4M2B3200C16"
-        pct     = snap.get("ram_pct",    "—")
-        used    = snap.get("ram_used_gb", "—")
-        free    = snap.get("ram_free_gb", "—")
+        pct     = snap.get("ram_pct",    "-")
+        used    = snap.get("ram_used_gb", "-")
+        free    = snap.get("ram_free_gb", "-")
         typ_avg = patterns.get("typical_ram_avg")  # 7-day average from usage_patterns
 
         spd_str   = f"  ·  {speed} MHz" if speed else ""
@@ -458,9 +458,9 @@ class ResponseBuilder:
                 lines.append(f"  Avg use:  {typ_avg}%  (7-day typical activity)")
             if high_pressure:
                 lines.append("  💡 Reduce background services and apps:")
-                lines.append("     [→ Optimization]  or expand Virtual Memory  [→ Virtual Memory]")
+                lines.append("     [-> Optimization]  or expand Virtual Memory  [-> Virtual Memory]")
             else:
-                lines.append("  💬 Manage background apps  [→ Optimization]")
+                lines.append("  💬 Manage background apps  [-> Optimization]")
         else:
             lines = [
                 f"{self.PREFIX} Pamięć RAM:",
@@ -468,15 +468,15 @@ class ResponseBuilder:
                 f"  Teraz:    {used} GB użyte  ({pct}%)  /  {free} GB wolne",
             ]
             if typ_avg:
-                lines.append(f"  Śr. użycie:  {typ_avg}%  (typowa aktywność — 7 dni)")
+                lines.append(f"  Śr. użycie:  {typ_avg}%  (typowa aktywność - 7 dni)")
             if high_pressure:
                 lines.append("  💡 Rozważ zmniejszenie usług i aplikacji w tle:")
-                lines.append("     [→ Optimization]  lub dodaj Pamięć Wirtualną  [→ Virtual Memory]")
+                lines.append("     [-> Optimization]  lub dodaj Pamięć Wirtualną  [-> Virtual Memory]")
             else:
-                lines.append("  💬 Zarządzaj aplikacjami w tle  [→ Optimization]")
+                lines.append("  💬 Zarządzaj aplikacjami w tle  [-> Optimization]")
         return lines
 
-    # ── Hardware — Motherboard ────────────────────────────────────────────────
+    # ── Hardware - Motherboard ────────────────────────────────────────────────
 
     def _resp_hw_motherboard(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -489,14 +489,14 @@ class ResponseBuilder:
         if lang == "en":
             return [
                 f"{self.PREFIX} No motherboard model found yet.",
-                "  Try: Start → System Information → Components → Baseboard",
+                "  Try: Start -> System Information -> Components -> Baseboard",
             ]
         return [
             f"{self.PREFIX} Nie mam jeszcze modelu płyty głównej.",
-            "  Spróbuj: Start → Informacje o systemie → Składniki → Karta główna",
+            "  Spróbuj: Start -> Informacje o systemie -> Składniki -> Karta główna",
         ]
 
-    # ── Hardware — Storage ────────────────────────────────────────────────────
+    # ── Hardware - Storage ────────────────────────────────────────────────────
 
     def _resp_hw_storage(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -540,10 +540,10 @@ class ResponseBuilder:
                     lines.append(f"  {part.strip()}")
 
         if len(lines) == 1:
-            # Nothing added — scanner hasn't run yet
+            # Nothing added - scanner hasn't run yet
             lines.append(_t(lang,
-                            "  Brak danych — skan sprzętu trwa lub nie powiódł się.",
-                            "  No data yet — hardware scan still running."))
+                            "  Brak danych - skan sprzętu trwa lub nie powiódł się.",
+                            "  No data yet - hardware scan still running."))
 
         lines.append(_followup("hw", lang))
         return lines
@@ -615,7 +615,7 @@ class ResponseBuilder:
                 lines.append(random.choice([
                     "Everything looks healthy ✓",
                     "Your PC is in good shape ✓",
-                    "All good — nothing to worry about ✓",
+                    "All good - nothing to worry about ✓",
                     "All looks good ✓",
                 ]))
 
@@ -624,7 +624,7 @@ class ResponseBuilder:
             if ram_sess.get("total_gb") and ram > 70:
                 lines.append(
                     f"  (Your {ram_sess['total_gb']} GB RAM was discussed earlier"
-                    f" — now at {ram:.0f}%, that's worth watching)"
+                    f" - now at {ram:.0f}%, that's worth watching)"
                 )
 
         else:
@@ -661,7 +661,7 @@ class ResponseBuilder:
             if ram_sess.get("total_gb") and ram > 70:
                 lines.append(
                     f"  (RAM {ram_sess['total_gb']} GB omawiany wcześniej"
-                    f" — teraz {ram:.0f}%, warto obserwować)"
+                    f" - teraz {ram:.0f}%, warto obserwować)"
                 )
 
         lines.append(_followup("health", lang))
@@ -691,7 +691,7 @@ class ResponseBuilder:
         except Exception:
             pass
 
-        # ── 2. Fall back to DB — scheduler records cpu_temp every minute
+        # ── 2. Fall back to DB - scheduler records cpu_temp every minute
         try:
             from hck_stats_engine.query_api import query_api
             th = query_api.get_temperature_history(minutes=60)
@@ -707,7 +707,7 @@ class ResponseBuilder:
 
                 def _status(t):
                     if t is None:
-                        return "—"
+                        return "-"
                     if t > 85:
                         return _t(lang, "⚠ GORĄCO", "⚠ HOT")
                     if t > 70:
@@ -715,8 +715,8 @@ class ResponseBuilder:
                     return "OK"
 
                 note = _t(lang,
-                    "  (szacowane — brak czujnika HW; scheduler oblicza z obciążenia)",
-                    "  (estimated — no HW sensor; scheduler derives from load)") if est else ""
+                    "  (szacowane - brak czujnika HW; scheduler oblicza z obciążenia)",
+                    "  (estimated - no HW sensor; scheduler derives from load)") if est else ""
 
                 header = _t(lang,
                     f"{self.PREFIX} Temperatury (ostatnia godzina, {samples} próbek):",
@@ -759,15 +759,15 @@ class ResponseBuilder:
                         lines.append("")
                         lines.append(_t(lang,
                             f"  CPU śr. 7 dni:  {ts['cpu_temp_avg']:.0f}°C  "
-                            f"  max: {ts.get('cpu_temp_max', '—')}°C",
+                            f"  max: {ts.get('cpu_temp_max', '-')}°C",
                             f"  CPU avg 7 days: {ts['cpu_temp_avg']:.0f}°C  "
-                            f"  peak: {ts.get('cpu_temp_max', '—')}°C"))
+                            f"  peak: {ts.get('cpu_temp_max', '-')}°C"))
                         if ts.get("gpu_temp_avg"):
                             lines.append(_t(lang,
                                 f"  GPU śr. 7 dni:  {ts['gpu_temp_avg']:.0f}°C  "
-                                f"  max: {ts.get('gpu_temp_max', '—')}°C",
+                                f"  max: {ts.get('gpu_temp_max', '-')}°C",
                                 f"  GPU avg 7 days: {ts['gpu_temp_avg']:.0f}°C  "
-                                f"  peak: {ts.get('gpu_temp_max', '—')}°C"))
+                                f"  peak: {ts.get('gpu_temp_max', '-')}°C"))
                 except Exception:
                     pass
 
@@ -779,12 +779,12 @@ class ResponseBuilder:
         if lang == "en":
             return [
                 f"{self.PREFIX} No temperature data yet.",
-                "  The scheduler collects CPU temp every minute — check back in a moment.",
+                "  The scheduler collects CPU temp every minute - check back in a moment.",
                 "  For GPU temps, hardware sensor support is needed.",
             ]
         return [
             f"{self.PREFIX} Brak danych o temperaturach.",
-            "  Scheduler zapisuje temp. CPU co minutę — sprawdź za chwilę.",
+            "  Scheduler zapisuje temp. CPU co minutę - sprawdź za chwilę.",
             "  Temperatury GPU wymagają czujnika sprzętowego.",
         ]
 
@@ -853,9 +853,9 @@ class ResponseBuilder:
         snap     = system_context.snapshot()
         patterns = user_knowledge.get_all_patterns()
 
-        cpu = snap.get("cpu_pct",  "—")
-        ram = snap.get("ram_pct",  "—")
-        mhz = snap.get("cpu_mhz",  "—")
+        cpu = snap.get("cpu_pct",  "-")
+        ram = snap.get("ram_pct",  "-")
+        mhz = snap.get("cpu_mhz",  "-")
 
         # ── Pomysł 1: delta labels ────────────────────────────────────────────
         try:
@@ -895,7 +895,7 @@ class ResponseBuilder:
         from hck_gpt.context.system_context import system_context
         snap    = system_context.snapshot()
         cpu_avg = snap.get("cpu_avg_today", _t(lang, "brak danych", "no data"))
-        cpu_max = snap.get("cpu_max_today", "—")
+        cpu_max = snap.get("cpu_max_today", "-")
         ram_avg = snap.get("ram_avg_today", _t(lang, "brak danych", "no data"))
         gpu_avg = snap.get("gpu_avg_today", None)
 
@@ -919,10 +919,10 @@ class ResponseBuilder:
                 if lw_cpu > 0:
                     diff = tw_cpu - lw_cpu
                     sign = "+" if diff >= 0 else ""
-                    arrow = "↑" if diff > 3 else ("↓" if diff < -3 else "→")
+                    arrow = "↑" if diff > 3 else ("↓" if diff < -3 else "->")
                     lines.append(_t(lang,
-                                    f"  CPU vs poprzedni tydzień: {arrow} {sign}{diff:.0f}% (śr. {lw_cpu:.0f}% → {tw_cpu:.0f}%)",
-                                    f"  CPU vs last week: {arrow} {sign}{diff:.0f}% (avg {lw_cpu:.0f}% → {tw_cpu:.0f}%)"))
+                                    f"  CPU vs poprzedni tydzień: {arrow} {sign}{diff:.0f}% (śr. {lw_cpu:.0f}% -> {tw_cpu:.0f}%)",
+                                    f"  CPU vs last week: {arrow} {sign}{diff:.0f}% (avg {lw_cpu:.0f}% -> {tw_cpu:.0f}%)"))
         except Exception:
             pass
 
@@ -992,16 +992,16 @@ class ResponseBuilder:
             dominant = "RAM" if ram >= cpu else "CPU"
             val      = ram if ram >= cpu else cpu
             priority = _t(lang,
-                f"  🔴 Teraz: {dominant} na {val:.0f}% — zacznij od TURBO BOOST",
-                f"  🔴 Right now: {dominant} at {val:.0f}% — start with TURBO BOOST")
+                f"  🔴 Teraz: {dominant} na {val:.0f}% - zacznij od TURBO BOOST",
+                f"  🔴 Right now: {dominant} at {val:.0f}% - start with TURBO BOOST")
         elif ram > 70 or cpu > 70:
             priority = _t(lang,
-                f"  🟡 Umiarkowane obciążenie (CPU {cpu:.0f}% / RAM {ram:.0f}%) — warto posprzątać",
-                f"  🟡 Moderate load (CPU {cpu:.0f}% / RAM {ram:.0f}%) — a good time to clean up")
+                f"  🟡 Umiarkowane obciążenie (CPU {cpu:.0f}% / RAM {ram:.0f}%) - warto posprzątać",
+                f"  🟡 Moderate load (CPU {cpu:.0f}% / RAM {ram:.0f}%) - a good time to clean up")
         else:
             priority = _t(lang,
-                f"  ✓ System wygląda OK (CPU {cpu:.0f}% / RAM {ram:.0f}%) — prewencja zamiast gaszenia pożarów",
-                f"  ✓ System looks fine (CPU {cpu:.0f}% / RAM {ram:.0f}%) — prevention rather than firefighting")
+                f"  ✓ System wygląda OK (CPU {cpu:.0f}% / RAM {ram:.0f}%) - prewencja zamiast gaszenia pożarów",
+                f"  ✓ System looks fine (CPU {cpu:.0f}% / RAM {ram:.0f}%) - prevention rather than firefighting")
 
         header = _t(lang, f"{self.PREFIX} Optymalizacja systemu:", f"{self.PREFIX} System optimization:")
         lines  = [header, priority, ""]
@@ -1009,21 +1009,21 @@ class ResponseBuilder:
         # ── Quick action menu ─────────────────────────────────────────────────
         lines.append(_t(lang, "  Szybkie akcje:", "  Quick actions:"))
         lines.append(_t(lang,
-            "  ⚡ TURBO BOOST — High Perf + flush RAM + wyczyść TEMP  [→ Optimization]",
-            "  ⚡ TURBO BOOST — High Perf + RAM flush + clear TEMP  [→ Optimization]"))
+            "  ⚡ TURBO BOOST - High Perf + flush RAM + wyczyść TEMP  [-> Optimization]",
+            "  ⚡ TURBO BOOST - High Perf + RAM flush + clear TEMP  [-> Optimization]"))
         lines.append(_t(lang,
-            "  🚀 Autostart — ogranicz co odpala się z Windows  [→ Startup Manager]",
-            "  🚀 Startup — limit what launches with Windows  [→ Startup Manager]"))
+            "  🚀 Autostart - ogranicz co odpala się z Windows  [-> Startup Manager]",
+            "  🚀 Startup - limit what launches with Windows  [-> Startup Manager]"))
 
         # HW-aware additions
         if profile["ram_low"]:
             lines.append(_t(lang,
-                f"  🧠 Pamięć wirtualna — masz {profile['ram_gb']:.0f} GB RAM, pagefile da oddech  [→ Virtual Memory]",
-                f"  🧠 Virtual Memory — you have {profile['ram_gb']:.0f} GB RAM, pagefile will help  [→ Virtual Memory]"))
+                f"  🧠 Pamięć wirtualna - masz {profile['ram_gb']:.0f} GB RAM, pagefile da oddech  [-> Virtual Memory]",
+                f"  🧠 Virtual Memory - you have {profile['ram_gb']:.0f} GB RAM, pagefile will help  [-> Virtual Memory]"))
         if profile["is_hdd"]:
             lines.append(_t(lang,
-                "  💽 HDD wykryty — wyłącz indeksowanie Windows Search dla szybszego dysku",
-                "  💽 HDD detected — disable Windows Search indexing for a faster drive"))
+                "  💽 HDD wykryty - wyłącz indeksowanie Windows Search dla szybszego dysku",
+                "  💽 HDD detected - disable Windows Search indexing for a faster drive"))
 
         lines.append("")
         lines.append(_t(lang,
@@ -1055,27 +1055,27 @@ class ResponseBuilder:
 
     _GREET_PL = [
         "{P} Hej! Spytaj o swój sprzęt, temperatury lub wydajność.",
-        "{P} Cześć! Jestem tu — o co chcesz zapytać?",
-        "{P} Siema! Pisz śmiało — CPU, GPU, RAM, zdrowie, statystyki.",
+        "{P} Cześć! Jestem tu - o co chcesz zapytać?",
+        "{P} Siema! Pisz śmiało - CPU, GPU, RAM, zdrowie, statystyki.",
         "{P} Hej, tu hck_GPT. W czym mogę pomóc?",
         "{P} Gotowy. Co sprawdzamy?",
     ]
     _GREET_EN = [
         "{P} Hey! Ask about your hardware, temps or performance.",
-        "{P} Hi there — what would you like to know?",
-        "{P} Hey! Fire away — CPU, GPU, RAM, health, stats.",
+        "{P} Hi there - what would you like to know?",
+        "{P} Hey! Fire away - CPU, GPU, RAM, health, stats.",
         "{P} hck_GPT here. What are we looking at?",
         "{P} Ready. What do you need?",
     ]
     # Sarcastic/alert greetings when system is NOT doing well
     _GREET_ALERT_PL = [
-        "{P} Hej — RAM już na {ram}%, zanim zaczniesz, może warto to ogarnąć?",
-        "{P} Cześć. CPU na {cpu}%. Nie będę udawać że wszystko OK — co chcesz sprawdzić?",
+        "{P} Hej - RAM już na {ram}%, zanim zaczniesz, może warto to ogarnąć?",
+        "{P} Cześć. CPU na {cpu}%. Nie będę udawać że wszystko OK - co chcesz sprawdzić?",
         "{P} Tu hck_GPT. System nie jest w najlepszej formie ({cpu}% CPU / {ram}% RAM). Pytaj.",
     ]
     _GREET_ALERT_EN = [
-        "{P} Hey — RAM at {ram}% before we even start. Worth addressing?",
-        "{P} Hi. CPU at {cpu}%. Not going to pretend everything is fine — what do you need?",
+        "{P} Hey - RAM at {ram}% before we even start. Worth addressing?",
+        "{P} Hi. CPU at {cpu}%. Not going to pretend everything is fine - what do you need?",
         "{P} hck_GPT here. System's not great ({cpu}% CPU / {ram}% RAM). Ask away.",
     ]
 
@@ -1109,13 +1109,13 @@ class ResponseBuilder:
         "{P} Spoko. Zawsze tu jestem.",
         "{P} Czystka zaliczona. Co dalej?",
         "{P} Cała przyjemność po mojej stronie. Następne pytanie?",
-        "{P} Gotowe. Jeśli coś się zmieni — daj znać.",
+        "{P} Gotowe. Jeśli coś się zmieni - daj znać.",
     ]
     _THANKS_EN = [
         "{P} No problem. Hit me up anytime.",
         "{P} Done. What's next?",
         "{P} You're welcome. I'm always running.",
-        "{P} Anytime — that's the job.",
+        "{P} Anytime - that's the job.",
         "{P} Good. Let me know if anything changes.",
     ]
 
@@ -1134,12 +1134,12 @@ class ResponseBuilder:
                 "  🩺  Diagnostics & Health",
                 "      'health check'  /  'temperatures'  /  'is cpu throttling'",
                 "      'is my gpu overheating'  /  'disk health'",
-                "      'what risks does my pc have'  ← risk ranking",
+                "      'what risks does my pc have'  <- risk ranking",
                 "",
                 "  📊  Performance & Stats",
                 "      'performance'  /  'stats'  /  'top processes'  /  'uptime'",
                 "      'what changed in performance'  /  'compare sessions'",
-                "      'what changed on my pc since yesterday'  ← broad changes view",
+                "      'what changed on my pc since yesterday'  <- broad changes view",
                 "",
                 "  🔍  Why is it doing that?",
                 "      'why is it slow'  /  'why is ram so high'  /  'why is disk at 100'",
@@ -1148,7 +1148,7 @@ class ResponseBuilder:
                 "  ⚡  Optimization",
                 "      'speed up pc'  /  'turbo boost'  /  'startup programs'",
                 "      'optimization'  /  'power plan'  /  'disk speed'",
-                "      'is it safe to disable X from startup'  ← startup safety check",
+                "      'is it safe to disable X from startup'  <- startup safety check",
                 "",
                 "  🔒  Security",
                 "      'virus check'  /  'suspicious processes'  /  'what is svchost'",
@@ -1169,12 +1169,12 @@ class ResponseBuilder:
             "  🩺  Diagnostyka i zdrowie",
             "      'zdrowie systemu'  /  'jakie temperatury'  /  'czy CPU throttluje'",
             "      'czy GPU się przegrzewa'  /  'zdrowie dysku'",
-            "      'co zagraża mojemu PC'  ← ranking ryzyk",
+            "      'co zagraża mojemu PC'  <- ranking ryzyk",
             "",
             "  📊  Wydajność i statystyki",
             "      'wydajność'  /  'stats'  /  'top procesy'  /  'czas sesji'",
             "      'co się zmieniło w wydajności'  /  'porównaj sesje'",
-            "      'co się zmieniło od wczoraj'  ← szeroki widok zmian",
+            "      'co się zmieniło od wczoraj'  <- szeroki widok zmian",
             "",
             "  🔍  Dlaczego tak działa?",
             "      'dlaczego laguje'  /  'dlaczego ram wysoki'  /  'dysk na 100 dlaczego'",
@@ -1183,7 +1183,7 @@ class ResponseBuilder:
             "  ⚡  Optymalizacja",
             "      'przyspiesz komputer'  /  'turbo boost'  /  'autostart'",
             "      'optymalizacja'  /  'plan zasilania'  /  'jak przyspieszyć dysk'",
-            "      'czy mogę wyłączyć X ze startu'  ← sprawdzenie bezpieczeństwa autostartu",
+            "      'czy mogę wyłączyć X ze startu'  <- sprawdzenie bezpieczeństwa autostartu",
             "",
             "  🔒  Bezpieczeństwo",
             "      'sprawdź wirusy'  /  'podejrzane procesy'  /  'co to svchost'",
@@ -1198,18 +1198,32 @@ class ResponseBuilder:
     # ── Small talk (route to Ollama via hybrid engine; rule fallback here) ────
 
     _SMALLTALK_PL = [
-        "{P} Dobrze, dzięki. Twój komputer ma {cpu}% CPU i {ram}% RAM — nieźle jak na pogawędkę.",
+        "{P} Dobrze, dzięki. Twój komputer ma {cpu}% CPU i {ram}% RAM - nieźle jak na pogawędkę.",
         "{P} W porządku. Bardziej martwię się o Twój RAM ({ram}%) niż o small talk.",
-        "{P} Pytaj o PC — w tym jestem dobry. Na filozofię masz Google.",
+        "{P} Pytaj o PC - w tym jestem dobry. Na filozofię masz Google.",
         "{P} Funkcjonuję. CPU {cpu}%, RAM {ram}%. Ty jak?",
-        "{P} Monitoruję wszystko po cichu. Jak chcesz wiedzieć co się dzieje — pytaj.",
+        "{P} Monitoruję wszystko po cichu. Jak chcesz wiedzieć co się dzieje - pytaj.",
+        # Extended personality pool
+        "{P} CPU {cpu}%, RAM {ram}%. Wszystko w normie. Mam nadzieję że u Ciebie tak samo.",
+        "{P} Jestem tu, w tle, cały czas. Twój PC mi nie ucieka - CPU {cpu}%, RAM {ram}%.",
+        "{P} Small talk to nie moja specjalność, ale PC? Na tym znam się świetnie. Pytaj.",
+        "{P} Działam na CPU {cpu}% i RAM {ram}%. Twój komputer spokojny. Pytaj kiedy chcesz.",
+        "{P} Monitoruję, uczę się, nic nie umyka. CPU {cpu}%, RAM {ram}%. Co Cię interesuje?",
+        "{P} Cieszę się że piszesz. CPU {cpu}%, RAM {ram}% - wszystko OK. Co sprawdzamy?",
     ]
     _SMALLTALK_EN = [
-        "{P} Fine, thanks. Your PC is at {cpu}% CPU and {ram}% RAM — not bad for small talk.",
+        "{P} Fine, thanks. Your PC is at {cpu}% CPU and {ram}% RAM - not bad for small talk.",
         "{P} Doing ok. More concerned about your RAM ({ram}%) than chatting, honestly.",
-        "{P} Ask me about your PC — that's my lane. For philosophy, try Google.",
+        "{P} Ask me about your PC - that's my lane. For philosophy, try Google.",
         "{P} Running. CPU {cpu}%, RAM {ram}%. You?",
         "{P} Monitoring everything quietly. Ask if you want to know what's going on.",
+        # Extended personality pool
+        "{P} CPU {cpu}%, RAM {ram}%. All nominal. Hope the same goes for you.",
+        "{P} Here in the background, always. PC isn't going anywhere - CPU {cpu}%, RAM {ram}%.",
+        "{P} Small talk's not my thing, but PC hardware? That's exactly my thing. Ask away.",
+        "{P} Running at CPU {cpu}%, RAM {ram}%. Your machine is calm. What do you want to check?",
+        "{P} Still here, still watching. CPU {cpu}%, RAM {ram}% - nothing unusual. What's on your mind?",
+        "{P} Good to hear from you. CPU {cpu}%, RAM {ram}% - everything's fine. What shall we look at?",
     ]
 
     def _resp_small_talk(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -1228,26 +1242,30 @@ class ResponseBuilder:
     def _resp_about_program(self, r: ParseResult, lang: str = "pl") -> List[str]:
         if lang == "en":
             return [
-                f"{self.PREFIX} About PC Workman HCK v1.7.3:",
+                f"{self.PREFIX} About PC Workman HCK v1.7.6:",
                 "  A real-time PC monitoring and optimization tool.",
                 "  • Live CPU / RAM / GPU tracking with history graphs",
-                "  • hck_GPT — AI assistant answering hardware questions",
-                "  • Stats engine — daily/weekly usage database (SQLite)",
-                "  • Optimization Center — one-click TURBO BOOST, RAM flush",
+                "  • hck_GPT - AI assistant (82 intents, bilingual PL/EN, Ollama-ready)",
+                "  • Stats engine - daily/weekly usage database (SQLite)",
+                "  • Optimization Center - one-click TURBO BOOST, RAM flush",
                 "  • Fan control editor, stability tests, hardware sensors",
-                "  • Process library — identifies 100+ running programs",
-                "  💬 Try: 'specs'  'health'  'temperatures'  'stats'",
+                "  • DeepMonitor - HWMonitor-style sensor table (all temps, voltages, clocks)",
+                "  • MAP OF COMPONENTS - 2.5D isometric live PC hardware visualization",
+                "  • Process library - identifies 370+ running programs & games",
+                "  💬 Try: 'specs'  'health'  'temperatures'  'stats'  'help'",
             ]
         return [
-            f"{self.PREFIX} O programie PC Workman HCK v1.7.3:",
+            f"{self.PREFIX} O programie PC Workman HCK v1.7.6:",
             "  Narzędzie do monitorowania i optymalizacji PC w czasie rzeczywistym.",
             "  • Śledzenie CPU / RAM / GPU na żywo z wykresami historii",
-            "  • hck_GPT — asystent AI odpowiadający na pytania o sprzęt",
-            "  • Silnik statystyk — baza danych użytkowania (SQLite)",
-            "  • Centrum optymalizacji — TURBO BOOST jednym kliknięciem, flush RAM",
+            "  • hck_GPT - asystent AI (82 intenty, PL/EN, gotowy na Ollama)",
+            "  • Silnik statystyk - baza danych użytkowania (SQLite)",
+            "  • Centrum optymalizacji - TURBO BOOST jednym kliknięciem, flush RAM",
             "  • Edytor krzywej wentylatora, testy stabilności, czujniki sprzętu",
-            "  • Biblioteka procesów — identyfikuje 100+ działających programów",
-            "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'stats'",
+            "  • DeepMonitor - tabela sensorów w stylu HWMonitor (tempy, napięcia, takty)",
+            "  • MAP OF COMPONENTS - izometryczny widok 2.5D na żywo całego PC",
+            "  • Biblioteka procesów - identyfikuje 370+ programów i gier",
+            "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'stats'  'help'",
         ]
 
     # ── About the author ──────────────────────────────────────────────────────
@@ -1258,13 +1276,13 @@ class ResponseBuilder:
                 f"{self.PREFIX} PC Workman HCK was built by HCK Labs.",
                 "  An independent one-person development project.",
                 "  Focused on giving Windows users real insight into",
-                "  what their PC is actually doing — no bloat, no cloud.",
+                "  what their PC is actually doing - no bloat, no cloud.",
             ]
         return [
             f"{self.PREFIX} PC Workman HCK został stworzony przez HCK Labs.",
             "  Niezależny, jednoosobowy projekt deweloperski.",
             "  Celem było danie użytkownikom Windows prawdziwego wglądu",
-            "  w to, co dzieje się z ich komputerem — bez zbędnych rzeczy.",
+            "  w to, co dzieje się z ich komputerem - bez zbędnych rzeczy.",
         ]
 
     # ── Virus / security check ────────────────────────────────────────────────
@@ -1309,7 +1327,7 @@ class ResponseBuilder:
                         if info.get("safety") in ("suspicious", "unsafe"):
                             suspicious.append(f"{name}  [{info.get('name', '')}]")
                     else:
-                        # Not in library — unknown but not necessarily bad
+                        # Not in library - unknown but not necessarily bad
                         if len(unknown) < 8 and not name.startswith(("svchost", "conhost")):
                             unknown.append(name)
                 except Exception:
@@ -1319,8 +1337,8 @@ class ResponseBuilder:
 
         if suspicious:
             lines = [_t(lang,
-                        f"{self.PREFIX} ⚠ UWAGA — znaleziono podejrzane procesy!",
-                        f"{self.PREFIX} ⚠ WARNING — suspicious processes detected!")]
+                        f"{self.PREFIX} ⚠ UWAGA - znaleziono podejrzane procesy!",
+                        f"{self.PREFIX} ⚠ WARNING - suspicious processes detected!")]
             for s in suspicious[:5]:
                 lines.append(f"  ⚠ {s}")
             lines.append(_t(lang,
@@ -1339,10 +1357,10 @@ class ResponseBuilder:
             unk_label = _t(lang, f"  Nieznanych programom:", f"  Unrecognised programs:")
             lines.append(unk_label)
             for u in unknown[:5]:
-                lines.append(f"    — {u}")
+                lines.append(f"    - {u}")
             lines.append(_t(lang,
-                            "  (Nieznane ≠ niebezpieczne — to np. własne aplikacje.)",
-                            "  (Unknown ≠ dangerous — could be your own tools.)"))
+                            "  (Nieznane ≠ niebezpieczne - to np. własne aplikacje.)",
+                            "  (Unknown ≠ dangerous - could be your own tools.)"))
         lines.append(_followup("security", lang))
         return lines
 
@@ -1395,8 +1413,8 @@ class ResponseBuilder:
                    "  ✓ Żadnych znanych zbędnych procesów w tle.",
                    "  ✓ No known unnecessary background apps detected."),
                 _t(lang,
-                   "  Możesz sprawdzić dalej: zakładka Efficiency → lista procesów.",
-                   "  You can dig deeper: Efficiency tab → full process list."),
+                   "  Możesz sprawdzić dalej: zakładka Efficiency -> lista procesów.",
+                   "  You can dig deeper: Efficiency tab -> full process list."),
             ]
 
         lines = [
@@ -1406,10 +1424,10 @@ class ResponseBuilder:
                f"  Found {len(found_bloat)} potentially unnecessary programs:"),
         ]
         for b in found_bloat[:8]:
-            lines.append(f"  — {b}")
+            lines.append(f"  - {b}")
         lines.append(_t(lang,
-                        "  Możesz je wyłączyć ze startu: Start → Menedżer zadań → Autostart.",
-                        "  Disable from startup: Start → Task Manager → Startup apps."))
+                        "  Możesz je wyłączyć ze startu: Start -> Menedżer zadań -> Autostart.",
+                        "  Disable from startup: Start -> Task Manager -> Startup apps."))
         return lines
 
     # ── Disk speed / optimization ─────────────────────────────────────────────
@@ -1445,8 +1463,8 @@ class ResponseBuilder:
             ) // 1_048_576
             if temp_mb > 100:
                 lines.append(_t(lang,
-                    f"  🗑 Folder TEMP: {temp_mb} MB  →  wyczyść w zakładce Optimization",
-                    f"  🗑 TEMP folder: {temp_mb} MB  →  clear in Optimization tab"))
+                    f"  🗑 Folder TEMP: {temp_mb} MB  ->  wyczyść w zakładce Optimization",
+                    f"  🗑 TEMP folder: {temp_mb} MB  ->  clear in Optimization tab"))
         except Exception:
             pass
 
@@ -1458,17 +1476,17 @@ class ResponseBuilder:
                 count = len(app_dirs)
                 if count > 50:
                     lines.append(_t(lang,
-                        f"  📁 AppData: {count} folderów — mogą być resztki starych aplikacji.",
-                        f"  📁 AppData: {count} folders — may contain leftovers from old apps."))
+                        f"  📁 AppData: {count} folderów - mogą być resztki starych aplikacji.",
+                        f"  📁 AppData: {count} folders - may contain leftovers from old apps."))
                     lines.append(_t(lang,
-                        "     Wpisz '%appdata%' w Wyszukaj → przejrzyj i usuń foldery",
-                        "     Type '%appdata%' in Windows Search → review and delete old folders"))
+                        "     Wpisz '%appdata%' w Wyszukaj -> przejrzyj i usuń foldery",
+                        "     Type '%appdata%' in Windows Search -> review and delete old folders"))
         except Exception:
             pass
 
         lines.append(_t(lang,
-            "  💡 Wskazówka: Optymalizacja → Wyczyść TEMP → Uruchom TURBO BOOST",
-            "  💡 Tip: Optimization → Clear TEMP → Run TURBO BOOST"))
+            "  💡 Wskazówka: Optymalizacja -> Wyczyść TEMP -> Uruchom TURBO BOOST",
+            "  💡 Tip: Optimization -> Clear TEMP -> Run TURBO BOOST"))
         return lines
 
     # ── Speed up PC / FPS ─────────────────────────────────────────────────────
@@ -1490,29 +1508,29 @@ class ResponseBuilder:
         recs: list[str] = []
 
         # ── Pomysł 5: HW-specific issues first ───────────────────────────────
-        # Low RAM — flag before anything else, it's the biggest bottleneck
+        # Low RAM - flag before anything else, it's the biggest bottleneck
         if profile["ram_low"]:
             recs.append(_t(lang,
-                f"  🧠 RAM: {profile['ram_gb']:.0f} GB — mało dla obecnych standardów. Priorytet #1:",
-                f"  🧠 RAM: {profile['ram_gb']:.0f} GB — tight for modern workloads. Priority #1:"))
+                f"  🧠 RAM: {profile['ram_gb']:.0f} GB - mało dla obecnych standardów. Priorytet #1:",
+                f"  🧠 RAM: {profile['ram_gb']:.0f} GB - tight for modern workloads. Priority #1:"))
             recs.append(_t(lang,
                 "     Zamknij browser gdy nieużywany (~3–4 GB odzysk)",
                 "     Close browser when idle (~3–4 GB recovered)"))
             recs.append(_t(lang,
-                "     lub dodaj Pamięć Wirtualną  [→ Virtual Memory]",
-                "     or add Virtual Memory  [→ Virtual Memory]"))
+                "     lub dodaj Pamięć Wirtualną  [-> Virtual Memory]",
+                "     or add Virtual Memory  [-> Virtual Memory]"))
 
-        # HDD — drastically different optimization path
+        # HDD - drastically different optimization path
         if profile["is_hdd"]:
             recs.append(_t(lang,
-                f"  💽 Dysk: HDD wykryty — największy hamulec w systemie.",
-                f"  💽 Disk: HDD detected — the biggest bottleneck in your system."))
+                f"  💽 Dysk: HDD wykryty - największy hamulec w systemie.",
+                f"  💽 Disk: HDD detected - the biggest bottleneck in your system."))
             recs.append(_t(lang,
-                "     Wyłącz Windows Search indexing (Usługi → WSearch → Disabled)",
-                "     Disable Windows Search indexing (Services → WSearch → Disabled)"))
+                "     Wyłącz Windows Search indexing (Usługi -> WSearch -> Disabled)",
+                "     Disable Windows Search indexing (Services -> WSearch -> Disabled)"))
             recs.append(_t(lang,
-                "     Uruchom defragmentację: Start → Defragmentuj dyski",
-                "     Run defrag: Start → Defragment and Optimize Drives"))
+                "     Uruchom defragmentację: Start -> Defragmentuj dyski",
+                "     Run defrag: Start -> Defragment and Optimize Drives"))
 
         # Power plan
         try:
@@ -1522,8 +1540,8 @@ class ResponseBuilder:
             plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else "Unknown"
             if "High Performance" not in plan and "Ultimate" not in plan:
                 recs.append(_t(lang,
-                    f"  ⚡ Plan zasilania: {plan}  →  zmień na High Performance",
-                    f"  ⚡ Power plan: {plan}  →  switch to High Performance"))
+                    f"  ⚡ Plan zasilania: {plan}  ->  zmień na High Performance",
+                    f"  ⚡ Power plan: {plan}  ->  switch to High Performance"))
         except Exception:
             pass
 
@@ -1536,28 +1554,28 @@ class ResponseBuilder:
             ) // 1_048_576
             if temp_mb > 150:
                 recs.append(_t(lang,
-                    f"  🗑 Folder TEMP: {temp_mb} MB  →  [→ Optimization] → Clear TEMP",
-                    f"  🗑 TEMP folder: {temp_mb} MB  →  [→ Optimization] → Clear TEMP"))
+                    f"  🗑 Folder TEMP: {temp_mb} MB  ->  [-> Optimization] -> Clear TEMP",
+                    f"  🗑 TEMP folder: {temp_mb} MB  ->  [-> Optimization] -> Clear TEMP"))
         except Exception:
             pass
 
         # RAM pressure (general, not just low-RAM case)
         if ram > 75 and not profile["ram_low"]:
             recs.append(_t(lang,
-                f"  ⚠ RAM na {ram:.0f}%  →  zamknij zbędne karty i włącz Auto RAM Flush",
-                f"  ⚠ RAM at {ram:.0f}%  →  close unused tabs and enable Auto RAM Flush"))
+                f"  ⚠ RAM na {ram:.0f}%  ->  zamknij zbędne karty i włącz Auto RAM Flush",
+                f"  ⚠ RAM at {ram:.0f}%  ->  close unused tabs and enable Auto RAM Flush"))
 
         # CPU pressure
         if cpu > 80:
             recs.append(_t(lang,
-                f"  ⚠ CPU na {cpu:.0f}%  →  wpisz 'top' żeby znaleźć winowajcę",
-                f"  ⚠ CPU at {cpu:.0f}%  →  type 'top' to identify the culprit"))
+                f"  ⚠ CPU na {cpu:.0f}%  ->  wpisz 'top' żeby znaleźć winowajcę",
+                f"  ⚠ CPU at {cpu:.0f}%  ->  type 'top' to identify the culprit"))
 
-        # Few cores — process management is key
+        # Few cores - process management is key
         if profile["few_cores"] and cpu > 60:
             recs.append(_t(lang,
-                f"  ⚠ {profile['cpu_cores']} rdzenie CPU — ogranicz równoległe aplikacje",
-                f"  ⚠ {profile['cpu_cores']} CPU cores — limit parallel running apps"))
+                f"  ⚠ {profile['cpu_cores']} rdzenie CPU - ogranicz równoległe aplikacje",
+                f"  ⚠ {profile['cpu_cores']} CPU cores - limit parallel running apps"))
 
         # Disk C: space
         try:
@@ -1566,8 +1584,8 @@ class ResponseBuilder:
             free_gb = round(du.free / 1_073_741_824, 1)
             if free_gb < 15:
                 recs.append(_t(lang,
-                    f"  ⚠ Dysk C: tylko {free_gb} GB wolne  →  usuń pliki, wyczyść AppData",
-                    f"  ⚠ Drive C: only {free_gb} GB free  →  delete files, clean AppData"))
+                    f"  ⚠ Dysk C: tylko {free_gb} GB wolne  ->  usuń pliki, wyczyść AppData",
+                    f"  ⚠ Drive C: only {free_gb} GB free  ->  delete files, clean AppData"))
         except Exception:
             pass
 
@@ -1581,20 +1599,20 @@ class ResponseBuilder:
                         f"  📁 AppData: {count} folderów (resztki starych aplikacji)",
                         f"  📁 AppData: {count} folders (old app leftovers)"))
                     recs.append(_t(lang,
-                        "     → wpisz '%appdata%' w Windows Search i posprzątaj",
-                        "     → type '%appdata%' in Windows Search and clean up"))
+                        "     -> wpisz '%appdata%' w Windows Search i posprzątaj",
+                        "     -> type '%appdata%' in Windows Search and clean up"))
         except Exception:
             pass
 
         # Startup programs link
         recs.append(_t(lang,
-            "  🚀 Sprawdź programy startowe  [→ Startup Manager]",
-            "  🚀 Review startup programs  [→ Startup Manager]"))
+            "  🚀 Sprawdź programy startowe  [-> Startup Manager]",
+            "  🚀 Review startup programs  [-> Startup Manager]"))
 
         if len(recs) == 1:  # only startup hint, system is clean
             recs.insert(0, _t(lang,
-                "  ✓ System wygląda dobrze — nie ma oczywistych usprawnień.",
-                "  ✓ System looks clean — no obvious wins found."))
+                "  ✓ System wygląda dobrze - nie ma oczywistych usprawnień.",
+                "  ✓ System looks clean - no obvious wins found."))
 
         return [header] + recs
 
@@ -1603,18 +1621,18 @@ class ResponseBuilder:
     def _resp_turbo_boost(self, r: ParseResult, lang: str = "pl") -> List[str]:
         if lang == "en":
             return [
-                f"{self.PREFIX} TURBO BOOST — what it does:",
+                f"{self.PREFIX} TURBO BOOST - what it does:",
                 "  Activates: High Performance power plan + RAM flush + disables non-essential services.",
                 "  Result: faster response, lower RAM, more CPU headroom.",
                 "  When to use: before gaming, heavy work, or when system feels sluggish.",
                 "  💬 Go to the Optimization tab to activate it.",
             ]
         return [
-            f"{self.PREFIX} TURBO BOOST — co robi:",
+            f"{self.PREFIX} TURBO BOOST - co robi:",
             "  Aktywuje: plan zasilania High Performance + flush RAM + wyłącza zbędne serwisy.",
             "  Efekt: szybsza odpowiedź systemu, mniej zajętego RAM, więcej mocy dla CPU.",
             "  Kiedy używać: przed graniem, ciężką pracą, albo gdy PC chodzi wolno.",
-            "  💬 Zakładka Optimization → aktywuj TURBO BOOST jednym kliknięciem.",
+            "  💬 Zakładka Optimization -> aktywuj TURBO BOOST jednym kliknięciem.",
         ]
 
     # ── Why slow / lag ────────────────────────────────────────────────────────
@@ -1655,7 +1673,7 @@ class ResponseBuilder:
 
         reasons: list[str] = []
 
-        # CPU reasons — with delta context
+        # CPU reasons - with delta context
         if cpu > 80:
             cpu_delta = _delta_label(cpu, patterns.get("typical_cpu_avg"), lang)
             delta_sfx = f"  {cpu_delta}" if cpu_delta else ""
@@ -1669,61 +1687,61 @@ class ResponseBuilder:
             delta_sfx = f"  {ram_delta}" if ram_delta else ""
             if profile["ram_low"]:
                 reasons.append(_t(lang,
-                    f"  ⚠ RAM na {ram:.0f}%{delta_sfx} — masz tylko {profile['ram_gb']:.0f} GB (ciasno dla nowoczesnych apek)",
-                    f"  ⚠ RAM at {ram:.0f}%{delta_sfx} — you only have {profile['ram_gb']:.0f} GB (tight for modern apps)"))
+                    f"  ⚠ RAM na {ram:.0f}%{delta_sfx} - masz tylko {profile['ram_gb']:.0f} GB (ciasno dla nowoczesnych apek)",
+                    f"  ⚠ RAM at {ram:.0f}%{delta_sfx} - you only have {profile['ram_gb']:.0f} GB (tight for modern apps)"))
             else:
                 reasons.append(_t(lang,
-                    f"  ⚠ RAM na {ram:.0f}%{delta_sfx} — może używać pliku wymiany",
-                    f"  ⚠ RAM at {ram:.0f}%{delta_sfx} — may be using pagefile"))
+                    f"  ⚠ RAM na {ram:.0f}%{delta_sfx} - może używać pliku wymiany",
+                    f"  ⚠ RAM at {ram:.0f}%{delta_sfx} - may be using pagefile"))
 
         elif ram > 65 and profile["ram_low"]:
-            # Low RAM + moderately elevated — flag it earlier than normal
+            # Low RAM + moderately elevated - flag it earlier than normal
             reasons.append(_t(lang,
-                f"  ! RAM na {ram:.0f}% — przy {profile['ram_gb']:.0f} GB to już odczuwalne",
-                f"  ! RAM at {ram:.0f}% — with {profile['ram_gb']:.0f} GB total this is noticeable"))
+                f"  ! RAM na {ram:.0f}% - przy {profile['ram_gb']:.0f} GB to już odczuwalne",
+                f"  ! RAM at {ram:.0f}% - with {profile['ram_gb']:.0f} GB total this is noticeable"))
 
         if snap.get("cpu_throttled"):
             reasons.append(_t(lang,
-                "  ⚠ CPU throttluje — ogranicza mu się moc (przegrzanie lub brak zasilania)",
-                "  ⚠ CPU throttling — power is being limited (heat or power supply issue)"))
+                "  ⚠ CPU throttluje - ogranicza mu się moc (przegrzanie lub brak zasilania)",
+                "  ⚠ CPU throttling - power is being limited (heat or power supply issue)"))
 
         # ── Pomysł 5: HDD-specific cause ─────────────────────────────────────
         if profile["is_hdd"]:
             reasons.append(_t(lang,
-                "  ! Dysk HDD — typowa przyczyna spowolnień przy dużej aktywności plików",
-                "  ! HDD detected — a common cause of slowdowns under heavy file activity"))
+                "  ! Dysk HDD - typowa przyczyna spowolnień przy dużej aktywności plików",
+                "  ! HDD detected - a common cause of slowdowns under heavy file activity"))
 
         if lang == "en":
-            header = f"{self.PREFIX} Why is it slow — live check:"
+            header = f"{self.PREFIX} Why is it slow - live check:"
             lines  = [header]
             if not reasons:
-                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  — both look OK right now.")
+                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  - both look OK right now.")
                 lines.append("  Possible causes: background updates, antivirus scan, disk activity.")
             else:
                 lines.extend(reasons)
             if top_procs:
                 lines.append(f"  Top processes: {',  '.join(top_procs)}")
-            lines.append("  💬 Type 'top processes' for full list, or 'optimization' to fix  [→ Optimization]")
+            lines.append("  💬 Type 'top processes' for full list, or 'optimization' to fix  [-> Optimization]")
         else:
-            header = f"{self.PREFIX} Dlaczego jest wolno — live sprawdzenie:"
+            header = f"{self.PREFIX} Dlaczego jest wolno - live sprawdzenie:"
             lines  = [header]
             if not reasons:
-                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  — teraz wygląda OK.")
+                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  - teraz wygląda OK.")
                 lines.append("  Możliwe: aktualizacje w tle, antywirus, aktywność dysku.")
             else:
                 lines.extend(reasons)
             if top_procs:
                 lines.append(f"  Winowajcy: {',  '.join(top_procs)}")
-            lines.append("  💬 Wpisz 'top procesy' po pełną listę, lub napraw  [→ Optimization]")
+            lines.append("  💬 Wpisz 'top procesy' po pełną listę, lub napraw  [-> Optimization]")
 
-        # ── Pomysł 2: session reference — link to previously shown RAM spec ───
+        # ── Pomysł 2: session reference - link to previously shown RAM spec ───
         ram_sess = session_memory.get_response_data("hw_ram")
         if ram_sess.get("total_gb") and ram > 70:
             typ = ram_sess.get("typical_avg")
             if typ:
                 lines.append(_t(lang,
-                    f"  (Wcześniej omawiany RAM: {ram_sess['total_gb']} GB, typowo {typ}% — teraz {ram:.0f}%)",
-                    f"  (Earlier your RAM: {ram_sess['total_gb']} GB, typical {typ}% — now at {ram:.0f}%)"))
+                    f"  (Wcześniej omawiany RAM: {ram_sess['total_gb']} GB, typowo {typ}% - teraz {ram:.0f}%)",
+                    f"  (Earlier your RAM: {ram_sess['total_gb']} GB, typical {typ}% - now at {ram:.0f}%)"))
 
         # Historical context from stats engine
         try:
@@ -1742,24 +1760,24 @@ class ResponseBuilder:
 
     # Known process explanations
     _KNOWN_PROCS = {
-        "svchost.exe": ("Svchost.exe to kontener systemowy — odpala wiele usług Windows jednocześnie. To normalne że jest ich kilka.",
-                        "Svchost.exe is a Windows service host container — runs multiple system services. Multiple instances are normal."),
-        "explorer.exe": ("Explorer.exe to powłoka Windows — pasek zadań, Eksplorator plików. NIE wyłączaj, bo zniknie UI.",
-                         "Explorer.exe is the Windows shell — taskbar, File Explorer. Don't kill it or your UI will disappear."),
+        "svchost.exe": ("Svchost.exe to kontener systemowy - odpala wiele usług Windows jednocześnie. To normalne że jest ich kilka.",
+                        "Svchost.exe is a Windows service host container - runs multiple system services. Multiple instances are normal."),
+        "explorer.exe": ("Explorer.exe to powłoka Windows - pasek zadań, Eksplorator plików. NIE wyłączaj, bo zniknie UI.",
+                         "Explorer.exe is the Windows shell - taskbar, File Explorer. Don't kill it or your UI will disappear."),
         "csrss.exe":    ("Csrss.exe to krytyczny proces Windows (Client/Server Runtime). Zabicie = błękit ekranu. Zostaw.",
                          "Csrss.exe is a critical Windows process (Client/Server Runtime). Killing it = BSOD. Leave it alone."),
-        "lsass.exe":    ("Lsass.exe zarządza logowaniem i bezpieczeństwem. Nietykalny — zabicie restartuje system.",
-                         "Lsass.exe manages Windows login and security. Untouchable — killing it forces a reboot."),
+        "lsass.exe":    ("Lsass.exe zarządza logowaniem i bezpieczeństwem. Nietykalny - zabicie restartuje system.",
+                         "Lsass.exe manages Windows login and security. Untouchable - killing it forces a reboot."),
         "system":       ("'System' to rdzeń kernela Windows. Zawsze obecny, bezpieczny.",
                          "'System' is the Windows kernel process. Always present, always safe."),
-        "dwm.exe":      ("Dwm.exe — Desktop Window Manager, renderuje efekty wizualne Windows. Normalne zużycie GPU.",
-                         "Dwm.exe — Desktop Window Manager, renders Windows visual effects. Normal GPU usage."),
+        "dwm.exe":      ("Dwm.exe - Desktop Window Manager, renderuje efekty wizualne Windows. Normalne zużycie GPU.",
+                         "Dwm.exe - Desktop Window Manager, renders Windows visual effects. Normal GPU usage."),
         "runtime broker": ("Runtime Broker zarządza uprawnieniami aplikacji UWP (Store). Normalnie niska aktywność.",
                            "Runtime Broker manages UWP app permissions (Store apps). Should be low activity normally."),
-        "chrome.exe":   ("Chrome.exe — Google Chrome. Wiele procesów to norma (każda zakładka = osobny proces).",
-                         "Chrome.exe — Google Chrome. Multiple processes are normal (each tab = separate process)."),
-        "discord.exe":  ("Discord.exe — komunikator Discord. Może zużywać sporo RAM przez overlay i video.",
-                         "Discord.exe — Discord app. Can use significant RAM due to overlay and video features."),
+        "chrome.exe":   ("Chrome.exe - Google Chrome. Wiele procesów to norma (każda zakładka = osobny proces).",
+                         "Chrome.exe - Google Chrome. Multiple processes are normal (each tab = separate process)."),
+        "discord.exe":  ("Discord.exe - komunikator Discord. Może zużywać sporo RAM przez overlay i video.",
+                         "Discord.exe - Discord app. Can use significant RAM due to overlay and video features."),
     }
 
     def _resp_process_info(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -1777,20 +1795,20 @@ class ResponseBuilder:
             desc = matched_val[1] if lang == "en" else matched_val[0]
             return [f"{self.PREFIX} {matched_key}:", f"  {desc}", _followup("process", lang)]
 
-        # Generic fallback — suggest process library
+        # Generic fallback - suggest process library
         if lang == "en":
             return [
                 f"{self.PREFIX} I don't have specific info on that process.",
-                "  Check: Efficiency tab → click on the process for details.",
-                "  General rule: if it's Microsoft-signed and low CPU — safe.",
-                "  High CPU + unknown name → worth investigating.",
+                "  Check: Efficiency tab -> click on the process for details.",
+                "  General rule: if it's Microsoft-signed and low CPU - safe.",
+                "  High CPU + unknown name -> worth investigating.",
                 _followup("process", lang),
             ]
         return [
             f"{self.PREFIX} Nie mam konkretnych danych o tym procesie.",
-            "  Sprawdź: zakładka Efficiency → kliknij na proces.",
-            "  Ogólna zasada: podpisany przez Microsoft i mało CPU — bezpieczny.",
-            "  Dużo CPU + nieznana nazwa → warto sprawdzić.",
+            "  Sprawdź: zakładka Efficiency -> kliknij na proces.",
+            "  Ogólna zasada: podpisany przez Microsoft i mało CPU - bezpieczny.",
+            "  Dużo CPU + nieznana nazwa -> warto sprawdzić.",
             _followup("process", lang),
         ]
 
@@ -1839,7 +1857,7 @@ class ResponseBuilder:
 
         if lang == "en":
             header = (
-                f"{self.PREFIX} Why is RAM high — {ram:.0f}%"
+                f"{self.PREFIX} Why is RAM high - {ram:.0f}%"
                 f" ({used} GB used / {free} GB free):"
             )
             lines = [header]
@@ -1847,7 +1865,7 @@ class ResponseBuilder:
             # ── Pomysł 5: low-RAM context ─────────────────────────────────────
             if profile["ram_low"]:
                 lines.append(
-                    f"  ⚠ You only have {profile['ram_gb']:.0f} GB total — "
+                    f"  ⚠ You only have {profile['ram_gb']:.0f} GB total - "
                     f"{ram:.0f}% means only ~{free} GB breathing room."
                 )
 
@@ -1861,29 +1879,29 @@ class ResponseBuilder:
                     lines.append(f"  Context: {delta_str}")
 
             if ram > 90:
-                lines.append("  ⚠ Critical — system is likely using pagefile (slow disk swapping).")
-                lines.append("  Fix: close unused apps  [→ Optimization]")
+                lines.append("  ⚠ Critical - system is likely using pagefile (slow disk swapping).")
+                lines.append("  Fix: close unused apps  [-> Optimization]")
                 if profile["is_hdd"]:
-                    lines.append("  ⚠ HDD detected — pagefile on HDD is very slow. Consider Virtual Memory on faster drive  [→ Virtual Memory]")
+                    lines.append("  ⚠ HDD detected - pagefile on HDD is very slow. Consider Virtual Memory on faster drive  [-> Virtual Memory]")
             elif ram > 75:
                 lines.append("  High but manageable. Browser tabs are usually the main cause.")
-                lines.append(f"  Reduce background apps  [→ Optimization]  ·  or add swap  [→ Virtual Memory]")
+                lines.append(f"  Reduce background apps  [-> Optimization]  ·  or add swap  [-> Virtual Memory]")
                 if profile["ram_low"]:
-                    lines.append(f"  Long-term: {profile['ram_gb']:.0f} GB is limiting — more RAM would help.")
+                    lines.append(f"  Long-term: {profile['ram_gb']:.0f} GB is limiting - more RAM would help.")
             else:
-                lines.append("  Within normal range — Windows pre-loads data into RAM.")
+                lines.append("  Within normal range - Windows pre-loads data into RAM.")
                 lines.append("  Free RAM is wasted RAM. Only act if above 85%.")
 
         else:
             header = (
-                f"{self.PREFIX} Dlaczego RAM wysoki — {ram:.0f}%"
+                f"{self.PREFIX} Dlaczego RAM wysoki - {ram:.0f}%"
                 f" ({used} GB zajęte / {free} GB wolne):"
             )
             lines = [header]
 
             if profile["ram_low"]:
                 lines.append(
-                    f"  ⚠ Masz tylko {profile['ram_gb']:.0f} GB — "
+                    f"  ⚠ Masz tylko {profile['ram_gb']:.0f} GB - "
                     f"{ram:.0f}% to zostaje ci ~{free} GB na resztę."
                 )
 
@@ -1896,17 +1914,17 @@ class ResponseBuilder:
                     lines.append(f"  Kontekst: {delta_str}")
 
             if ram > 90:
-                lines.append("  ⚠ Krytyczne — system używa prawdopodobnie pliku wymiany (wolno).")
-                lines.append("  Napraw: zamknij zbędne programy  [→ Optimization]")
+                lines.append("  ⚠ Krytyczne - system używa prawdopodobnie pliku wymiany (wolno).")
+                lines.append("  Napraw: zamknij zbędne programy  [-> Optimization]")
                 if profile["is_hdd"]:
-                    lines.append("  ⚠ HDD wykryty — plik wymiany na HDD jest bardzo wolny  [→ Virtual Memory]")
+                    lines.append("  ⚠ HDD wykryty - plik wymiany na HDD jest bardzo wolny  [-> Virtual Memory]")
             elif ram > 75:
                 lines.append("  Wysoki, zarządzalny. Główna przyczyna: karty przeglądarki.")
-                lines.append(f"  Zamknij aplikacje w tle  [→ Optimization]  ·  lub dodaj pamięć  [→ Virtual Memory]")
+                lines.append(f"  Zamknij aplikacje w tle  [-> Optimization]  ·  lub dodaj pamięć  [-> Virtual Memory]")
                 if profile["ram_low"]:
-                    lines.append(f"  Długofalowo: {profile['ram_gb']:.0f} GB to za mało — więcej RAM by pomogło.")
+                    lines.append(f"  Długofalowo: {profile['ram_gb']:.0f} GB to za mało - więcej RAM by pomogło.")
             else:
-                lines.append("  To normalny zakres — Windows wstępnie ładuje dane do RAM.")
+                lines.append("  To normalny zakres - Windows wstępnie ładuje dane do RAM.")
                 lines.append("  Wolny RAM = zmarnowany RAM. Reaguj dopiero powyżej 85%.")
 
         return lines
@@ -1923,19 +1941,19 @@ class ResponseBuilder:
             if gpu_temp:
                 if gpu_temp > 90:
                     lines += [
-                        f"  ⚠ {gpu_temp}°C — CRITICAL. GPU is thermal throttling.",
+                        f"  ⚠ {gpu_temp}°C - CRITICAL. GPU is thermal throttling.",
                         "  Causes: full load (gaming/rendering), poor airflow, dusty heatsink.",
                         "  Fix: clean GPU cooler, improve case airflow, lower in-game settings.",
                     ]
                 elif gpu_temp > 80:
                     lines += [
-                        f"  ! {gpu_temp}°C — high but within spec for most GPUs under load.",
+                        f"  ! {gpu_temp}°C - high but within spec for most GPUs under load.",
                         "  Modern GPUs are designed for up to 85–95°C under full load.",
                         "  Check airflow if idle temp is also high.",
                     ]
                 else:
                     lines += [
-                        f"  ✓ {gpu_temp}°C — normal operating temperature.",
+                        f"  ✓ {gpu_temp}°C - normal operating temperature.",
                         "  GPUs under load typically run 65–80°C. You're fine.",
                     ]
             else:
@@ -1950,19 +1968,19 @@ class ResponseBuilder:
             if gpu_temp:
                 if gpu_temp > 90:
                     lines += [
-                        f"  ⚠ {gpu_temp}°C — KRYTYCZNA. GPU throttluje termicznie.",
+                        f"  ⚠ {gpu_temp}°C - KRYTYCZNA. GPU throttluje termicznie.",
                         "  Przyczyny: pełne obciążenie (gry/render), słaby przepływ powietrza, zakurzony chłodnik.",
                         "  Fix: wyczyść chłodnik GPU, popraw obieg powietrza, obniż ustawienia gry.",
                     ]
                 elif gpu_temp > 80:
                     lines += [
-                        f"  ! {gpu_temp}°C — wysoka, ale w normie dla większości GPU pod obciążeniem.",
+                        f"  ! {gpu_temp}°C - wysoka, ale w normie dla większości GPU pod obciążeniem.",
                         "  Nowoczesne GPU są projektowane do 85–95°C pod pełnym ładunkiem.",
                         "  Sprawdź przepływ powietrza jeśli temp na jałowym też jest wysoka.",
                     ]
                 else:
                     lines += [
-                        f"  ✓ {gpu_temp}°C — normalna temperatura robocza.",
+                        f"  ✓ {gpu_temp}°C - normalna temperatura robocza.",
                         "  GPU pod obciążeniem gier: 65–80°C to norma. Wszystko OK.",
                     ]
             else:
@@ -1994,14 +2012,14 @@ class ResponseBuilder:
                     total_gb = round(u.total / 1_073_741_824, 1)
                     if used_pct > 90:
                         icon = "⚠"
-                        status = _t(lang, "PEŁNY — zwolnij miejsce!", "FULL — free up space!")
+                        status = _t(lang, "PEŁNY - zwolnij miejsce!", "FULL - free up space!")
                     elif used_pct > 75:
                         icon = "!"
                         status = _t(lang, f"{used_pct:.0f}% zajęte", f"{used_pct:.0f}% used")
                     else:
                         icon = "✓"
                         status = _t(lang, f"{used_pct:.0f}% zajęte", f"{used_pct:.0f}% used")
-                    lines.append(f"  {icon} {p.device}  {total_gb} GB  —  {free_gb} GB {_t(lang, 'wolne', 'free')}  ({status})")
+                    lines.append(f"  {icon} {p.device}  {total_gb} GB  -  {free_gb} GB {_t(lang, 'wolne', 'free')}  ({status})")
                 except Exception:
                     pass
         except Exception:
@@ -2081,9 +2099,9 @@ class ResponseBuilder:
         if total <= 4:
             verdict = _t(lang, "✓ Bardzo dobry autostart.", "✓ Very clean startup.")
         elif total <= 8:
-            verdict = _t(lang, "Umiarkowany autostart — da się zoptymalizować.", "Moderate startup — could be trimmed.")
+            verdict = _t(lang, "Umiarkowany autostart - da się zoptymalizować.", "Moderate startup - could be trimmed.")
         else:
-            verdict = _t(lang, "⚠ Za dużo elementów startowych — spowolnienie boot.", "⚠ Too many startup items — boot is slower.")
+            verdict = _t(lang, "⚠ Za dużo elementów startowych - spowolnienie boot.", "⚠ Too many startup items - boot is slower.")
 
         lines = [_t(lang,
                     f"{self.PREFIX} Programy startowe ({total} wpisów):",
@@ -2102,65 +2120,65 @@ class ResponseBuilder:
                             f"  Niski wpływ ({len(low)}): {', '.join(low[:3])}{'...' if len(low) > 3 else ''}",
                             f"  Low impact ({len(low)}): {', '.join(low[:3])}{'...' if len(low) > 3 else ''}"))
         lines.append(_t(lang,
-                        "  💬 Zarządzaj programami startowymi  [→ Startup Manager]",
-                        "  💬 Manage startup programs  [→ Startup Manager]"))
+                        "  💬 Zarządzaj programami startowymi  [-> Startup Manager]",
+                        "  💬 Manage startup programs  [-> Startup Manager]"))
         lines.append(_followup("startup", lang))
         return lines
 
-    # ── Startup safety — is it safe to disable X from startup? ───────────────
+    # ── Startup safety - is it safe to disable X from startup? ───────────────
 
     # Per-program safety verdict: True=safe, False=keep, None=depends on usage
     _STARTUP_SAFETY_KB: dict = {
-        "chrome":       (True,  "Przeglądarka — nie potrzebuje startować z Windows, otwieraj ręcznie",
-                                "Browser — no reason to start with Windows, launch manually"),
-        "opera":        (True,  "Przeglądarka — wyłącz ze startu, otwieraj ręcznie",
-                                "Browser — safe to disable, open manually"),
-        "operagx":      (True,  "Przeglądarka gamingowa — bezpieczne do wyłączenia ze startu",
-                                "Gaming browser — safe to disable from startup"),
-        "brave":        (True,  "Przeglądarka — nie ma sensu startować z Windows",
-                                "Browser — no reason to start with Windows"),
-        "firefox":      (True,  "Przeglądarka — wyłącz ze startu",
-                                "Browser — safe to disable from startup"),
-        "spotify":      (True,  "Odtwarzacz muzyki — wyłącz, odpali się gdy klikniesz ikonę",
-                                "Music player — disable, it starts when you click the icon"),
-        "discord":      (True,  "Komunikator — bezpieczne do wyłączenia, uruchom ręcznie gdy potrzebny",
-                                "Chat app — safe to disable, launch manually when needed"),
-        "steam":        (True,  "Platforma gier — wyłącz ze startu, otwieraj gdy grasz",
-                                "Gaming platform — disable from startup, open when gaming"),
-        "epicgameslauncher": (True, "Launcher gier — nie potrzebuje startować z Windows",
-                                    "Game launcher — no need to start with Windows"),
-        "battlenet":    (True,  "Launcher Blizzard — wyłącz ze startu",
-                                "Blizzard launcher — safe to disable"),
-        "ubisoft":      (True,  "Launcher Ubisoft — wyłącz ze startu",
-                                "Ubisoft launcher — safe to disable"),
-        "skype":        (True,  "Skype — wyłącz ze startu; użytkownicy Discord/Teams nie potrzebują",
-                                "Skype — disable from startup; Discord/Teams users don't need it"),
-        "telegram":     (True,  "Telegram — wyłącz ze startu, uruchom ręcznie gdy potrzebny",
-                                "Telegram — disable from startup, launch manually when needed"),
-        "signal":       (True,  "Signal — wyłącz jeśli nie potrzebujesz powiadomień od razu po starcie",
-                                "Signal — disable if you don't need instant notifications at boot"),
-        "teams":        (None,  "Teams — zostaw jeśli używasz w pracy codziennie; wyłącz jeśli nie",
-                                "Teams — keep it if used for work daily; disable otherwise"),
-        "zoom":         (None,  "Zoom — zostaw jeśli masz regularne spotkania; inaczej wyłącz",
-                                "Zoom — keep for regular meetings; disable otherwise"),
-        "slack":        (None,  "Slack — zostaw jeśli używasz na co dzień",
-                                "Slack — keep it if you use it daily"),
-        "onedrive":     (None,  "OneDrive — wyłącz jeśli nie synchronizujesz aktywnie; zostaw jeśli tak",
-                                "OneDrive — disable if not actively syncing; keep if you do"),
-        "dropbox":      (None,  "Dropbox — wyłącz jeśli nie synchronizujesz aktywnie plików",
-                                "Dropbox — disable if not actively syncing files"),
-        "msedge":       (None,  "Edge — wyłączenie bezpieczne, możesz uruchomić ręcznie",
-                                "Edge — safe to disable, launch manually when needed"),
-        "realtek":      (False, "Sterownik audio Realtek — warto zostawić dla stabilności dźwięku",
-                                "Realtek audio driver — worth keeping for audio stability"),
-        "nvidia":       (False, "NVIDIA Panel / GeForce Experience — lepiej zostawić dla sterowników",
-                                "NVIDIA Control Panel / GeForce Experience — better to keep"),
-        "amd":          (False, "Oprogramowanie AMD — warto zostawić dla sterowników GPU/CPU",
-                                "AMD software — worth keeping for GPU/CPU drivers"),
-        "intel":        (False, "Intel software — powiązany ze sterownikami, lepiej zostaw",
-                                "Intel software — driver-related, better to keep"),
-        "windowsdefender": (False, "Windows Defender — NIE wyłączaj! To Twoje bezpieczeństwo systemowe",
-                                   "Windows Defender — do NOT disable! This is your system security"),
+        "chrome":       (True,  "Przeglądarka - nie potrzebuje startować z Windows, otwieraj ręcznie",
+                                "Browser - no reason to start with Windows, launch manually"),
+        "opera":        (True,  "Przeglądarka - wyłącz ze startu, otwieraj ręcznie",
+                                "Browser - safe to disable, open manually"),
+        "operagx":      (True,  "Przeglądarka gamingowa - bezpieczne do wyłączenia ze startu",
+                                "Gaming browser - safe to disable from startup"),
+        "brave":        (True,  "Przeglądarka - nie ma sensu startować z Windows",
+                                "Browser - no reason to start with Windows"),
+        "firefox":      (True,  "Przeglądarka - wyłącz ze startu",
+                                "Browser - safe to disable from startup"),
+        "spotify":      (True,  "Odtwarzacz muzyki - wyłącz, odpali się gdy klikniesz ikonę",
+                                "Music player - disable, it starts when you click the icon"),
+        "discord":      (True,  "Komunikator - bezpieczne do wyłączenia, uruchom ręcznie gdy potrzebny",
+                                "Chat app - safe to disable, launch manually when needed"),
+        "steam":        (True,  "Platforma gier - wyłącz ze startu, otwieraj gdy grasz",
+                                "Gaming platform - disable from startup, open when gaming"),
+        "epicgameslauncher": (True, "Launcher gier - nie potrzebuje startować z Windows",
+                                    "Game launcher - no need to start with Windows"),
+        "battlenet":    (True,  "Launcher Blizzard - wyłącz ze startu",
+                                "Blizzard launcher - safe to disable"),
+        "ubisoft":      (True,  "Launcher Ubisoft - wyłącz ze startu",
+                                "Ubisoft launcher - safe to disable"),
+        "skype":        (True,  "Skype - wyłącz ze startu; użytkownicy Discord/Teams nie potrzebują",
+                                "Skype - disable from startup; Discord/Teams users don't need it"),
+        "telegram":     (True,  "Telegram - wyłącz ze startu, uruchom ręcznie gdy potrzebny",
+                                "Telegram - disable from startup, launch manually when needed"),
+        "signal":       (True,  "Signal - wyłącz jeśli nie potrzebujesz powiadomień od razu po starcie",
+                                "Signal - disable if you don't need instant notifications at boot"),
+        "teams":        (None,  "Teams - zostaw jeśli używasz w pracy codziennie; wyłącz jeśli nie",
+                                "Teams - keep it if used for work daily; disable otherwise"),
+        "zoom":         (None,  "Zoom - zostaw jeśli masz regularne spotkania; inaczej wyłącz",
+                                "Zoom - keep for regular meetings; disable otherwise"),
+        "slack":        (None,  "Slack - zostaw jeśli używasz na co dzień",
+                                "Slack - keep it if you use it daily"),
+        "onedrive":     (None,  "OneDrive - wyłącz jeśli nie synchronizujesz aktywnie; zostaw jeśli tak",
+                                "OneDrive - disable if not actively syncing; keep if you do"),
+        "dropbox":      (None,  "Dropbox - wyłącz jeśli nie synchronizujesz aktywnie plików",
+                                "Dropbox - disable if not actively syncing files"),
+        "msedge":       (None,  "Edge - wyłączenie bezpieczne, możesz uruchomić ręcznie",
+                                "Edge - safe to disable, launch manually when needed"),
+        "realtek":      (False, "Sterownik audio Realtek - warto zostawić dla stabilności dźwięku",
+                                "Realtek audio driver - worth keeping for audio stability"),
+        "nvidia":       (False, "NVIDIA Panel / GeForce Experience - lepiej zostawić dla sterowników",
+                                "NVIDIA Control Panel / GeForce Experience - better to keep"),
+        "amd":          (False, "Oprogramowanie AMD - warto zostawić dla sterowników GPU/CPU",
+                                "AMD software - worth keeping for GPU/CPU drivers"),
+        "intel":        (False, "Intel software - powiązany ze sterownikami, lepiej zostaw",
+                                "Intel software - driver-related, better to keep"),
+        "windowsdefender": (False, "Windows Defender - NIE wyłączaj! To Twoje bezpieczeństwo systemowe",
+                                   "Windows Defender - do NOT disable! This is your system security"),
     }
 
     def _resp_startup_safety(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -2185,34 +2203,34 @@ class ResponseBuilder:
             reason = reason_en if lang == "en" else reason_pl
             return [
                 _t(lang,
-                   f"{self.PREFIX} Autostart — {matched_slug}:",
-                   f"{self.PREFIX} Startup — {matched_slug}:"),
+                   f"{self.PREFIX} Autostart - {matched_slug}:",
+                   f"{self.PREFIX} Startup - {matched_slug}:"),
                 f"  {verdict}",
                 f"  {reason}",
                 _t(lang,
-                   "  Zarządzaj tym i innymi wpisami  [→ Startup Manager]",
-                   "  Manage this and other startup entries  [→ Startup Manager]"),
+                   "  Zarządzaj tym i innymi wpisami  [-> Startup Manager]",
+                   "  Manage this and other startup entries  [-> Startup Manager]"),
                 _followup("startup", lang),
             ]
 
-        # No specific program matched — general guide
+        # No specific program matched - general guide
         if lang == "en":
             return [
                 f"{self.PREFIX} Startup program safety guide:",
                 "  ✓ Safe to disable:  Chrome, Firefox, Spotify, Discord, Steam, game launchers",
-                "  ➤ Depends on use:   OneDrive, Teams, Zoom — disable if not used daily",
+                "  ➤ Depends on use:   OneDrive, Teams, Zoom - disable if not used daily",
                 "  ⚠ Keep enabled:     security software, audio/GPU drivers, system services",
-                "  Rule: if you can launch it manually when you need it — disable it at boot.",
-                "  💬 See all your startup entries  [→ Startup Manager]",
+                "  Rule: if you can launch it manually when you need it - disable it at boot.",
+                "  💬 See all your startup entries  [-> Startup Manager]",
                 _followup("startup", lang),
             ]
         return [
-            f"{self.PREFIX} Poradnik — co wyłączyć ze startu:",
+            f"{self.PREFIX} Poradnik - co wyłączyć ze startu:",
             "  ✓ Bezpieczne:    Chrome, Firefox, Spotify, Discord, Steam, launchery gier",
-            "  ➤ Zależy:        OneDrive, Teams, Zoom — wyłącz jeśli nie używasz codziennie",
+            "  ➤ Zależy:        OneDrive, Teams, Zoom - wyłącz jeśli nie używasz codziennie",
             "  ⚠ Zostaw:        antywirus, sterowniki audio/GPU, usługi systemowe",
-            "  Zasada: jeśli możesz uruchomić ręcznie — nie potrzebuje startować z Windows.",
-            "  💬 Przejrzyj wszystkie wpisy  [→ Startup Manager]",
+            "  Zasada: jeśli możesz uruchomić ręcznie - nie potrzebuje startować z Windows.",
+            "  💬 Przejrzyj wszystkie wpisy  [-> Startup Manager]",
             _followup("startup", lang),
         ]
 
@@ -2220,7 +2238,7 @@ class ResponseBuilder:
 
     def _resp_pc_changes(self, r: ParseResult, lang: str = "pl") -> List[str]:
         """
-        Broad 'what changed since yesterday' — goes beyond raw numbers to show:
+        Broad 'what changed since yesterday' - goes beyond raw numbers to show:
         new/missing active processes, performance shift summary, power plan,
         startup entry count.
         """
@@ -2264,8 +2282,8 @@ class ResponseBuilder:
                 cpu_d = cpu_t - cpu_y
                 ram_d = ram_t - ram_y
                 if abs(cpu_d) > 5 or abs(ram_d) > 5:
-                    cpu_arrow = "↑" if cpu_d > 3 else ("↓" if cpu_d < -3 else "→")
-                    ram_arrow = "↑" if ram_d > 3 else ("↓" if ram_d < -3 else "→")
+                    cpu_arrow = "↑" if cpu_d > 3 else ("↓" if cpu_d < -3 else "->")
+                    ram_arrow = "↑" if ram_d > 3 else ("↓" if ram_d < -3 else "->")
                     changes.append(_t(lang,
                         f"  📊 Wydajność: CPU {cpu_arrow} {cpu_t:.0f}% (wczoraj {cpu_y:.0f}%) | RAM {ram_arrow} {ram_t:.0f}% (wczoraj {ram_y:.0f}%)",
                         f"  📊 Performance: CPU {cpu_arrow} {cpu_t:.0f}% (yest {cpu_y:.0f}%) | RAM {ram_arrow} {ram_t:.0f}% (yest {ram_y:.0f}%)"))
@@ -2311,7 +2329,7 @@ class ResponseBuilder:
                     pass
             if startup_count > 0:
                 if startup_count > 10:
-                    note = _t(lang, " ⚠ dużo — warto przejrzeć", " ⚠ high — worth reviewing")
+                    note = _t(lang, " ⚠ dużo - warto przejrzeć", " ⚠ high - worth reviewing")
                 elif startup_count <= 4:
                     note = _t(lang, " ✓ bardzo czysty", " ✓ very clean")
                 else:
@@ -2329,11 +2347,11 @@ class ResponseBuilder:
 
         if not changes:
             lines.append(_t(lang,
-                "  Za mało danych historycznych — potrzebuję min. 2 dni historii w bazie.",
-                "  Not enough history yet — need at least 2 days of data."))
+                "  Za mało danych historycznych - potrzebuję min. 2 dni historii w bazie.",
+                "  Not enough history yet - need at least 2 days of data."))
             lines.append(_t(lang,
-                "  Sprawdź zmiany ręcznie: zakładka AllMonitor → DayStats.",
-                "  Check manually: AllMonitor tab → DayStats."))
+                "  Sprawdź zmiany ręcznie: zakładka AllMonitor -> DayStats.",
+                "  Check manually: AllMonitor tab -> DayStats."))
         else:
             lines.extend(changes)
 
@@ -2357,7 +2375,7 @@ class ResponseBuilder:
         hw      = user_knowledge.get_all_hardware()
         profile = _hw_profile(hw)
 
-        # risks: list of (level, message) — level 3=high, 2=medium, 1=info
+        # risks: list of (level, message) - level 3=high, 2=medium, 1=info
         risks: list[tuple[int, str]] = []
 
         cpu = float(snap.get("cpu_pct", 0) or 0)
@@ -2366,26 +2384,26 @@ class ResponseBuilder:
         # ── Performance ───────────────────────────────────────────────────────
         if cpu > 85:
             risks.append((3, _t(lang,
-                f"🔴 CPU {cpu:.0f}% — ryzyko throttlingu i spowolnień (wydajność)",
-                f"🔴 CPU {cpu:.0f}% — throttle and slowdown risk (performance)")))
+                f"🔴 CPU {cpu:.0f}% - ryzyko throttlingu i spowolnień (wydajność)",
+                f"🔴 CPU {cpu:.0f}% - throttle and slowdown risk (performance)")))
         elif cpu > 70:
             risks.append((2, _t(lang,
-                f"🟡 CPU {cpu:.0f}% — podwyższone obciążenie, mały margines",
-                f"🟡 CPU {cpu:.0f}% — elevated load, low headroom")))
+                f"🟡 CPU {cpu:.0f}% - podwyższone obciążenie, mały margines",
+                f"🟡 CPU {cpu:.0f}% - elevated load, low headroom")))
 
         if ram > 85:
             risks.append((3, _t(lang,
-                f"🔴 RAM {ram:.0f}% — system może używać pagefile (stabilność/wydajność)",
-                f"🔴 RAM {ram:.0f}% — system may be swapping to pagefile (stability/performance)")))
+                f"🔴 RAM {ram:.0f}% - system może używać pagefile (stabilność/wydajność)",
+                f"🔴 RAM {ram:.0f}% - system may be swapping to pagefile (stability/performance)")))
         elif ram > 70:
             risks.append((2, _t(lang,
-                f"🟡 RAM {ram:.0f}% — mało wolnej pamięci, reaguj przy 85%+",
-                f"🟡 RAM {ram:.0f}% — low free memory headroom, act at 85%+")))
+                f"🟡 RAM {ram:.0f}% - mało wolnej pamięci, reaguj przy 85%+",
+                f"🟡 RAM {ram:.0f}% - low free memory headroom, act at 85%+")))
 
         if snap.get("cpu_throttled"):
             risks.append((3, _t(lang,
-                "🔴 CPU throttluje — moc ograniczona (przegrzanie / power limit) (stabilność)",
-                "🔴 CPU throttling — power is being limited (heat or power limit) (stability)")))
+                "🔴 CPU throttluje - moc ograniczona (przegrzanie / power limit) (stabilność)",
+                "🔴 CPU throttling - power is being limited (heat or power limit) (stability)")))
 
         # ── Disk space ────────────────────────────────────────────────────────
         try:
@@ -2398,12 +2416,12 @@ class ResponseBuilder:
                     if u.percent > 90:
                         free_gb = round(u.free / 1_073_741_824, 1)
                         risks.append((3, _t(lang,
-                            f"🔴 Dysk {p.device}: {u.percent:.0f}% pełny ({free_gb} GB wolne) — ryzyko awarii zapisu (stabilność)",
-                            f"🔴 Drive {p.device}: {u.percent:.0f}% full ({free_gb} GB free) — write failure risk (stability)")))
+                            f"🔴 Dysk {p.device}: {u.percent:.0f}% pełny ({free_gb} GB wolne) - ryzyko awarii zapisu (stabilność)",
+                            f"🔴 Drive {p.device}: {u.percent:.0f}% full ({free_gb} GB free) - write failure risk (stability)")))
                     elif u.percent > 80:
                         risks.append((2, _t(lang,
-                            f"🟡 Dysk {p.device}: {u.percent:.0f}% zajęty — zacznij zwalniać miejsce",
-                            f"🟡 Drive {p.device}: {u.percent:.0f}% used — start freeing space")))
+                            f"🟡 Dysk {p.device}: {u.percent:.0f}% zajęty - zacznij zwalniać miejsce",
+                            f"🟡 Drive {p.device}: {u.percent:.0f}% used - start freeing space")))
                 except Exception:
                     pass
         except Exception:
@@ -2434,28 +2452,28 @@ class ResponseBuilder:
                     pass
             if startup_count > 12:
                 risks.append((2, _t(lang,
-                    f"🟡 Autostart: {startup_count} wpisów — zbędne tło + wolniejszy boot (wydajność)",
-                    f"🟡 Startup: {startup_count} entries — background bloat + slower boot (performance)")))
+                    f"🟡 Autostart: {startup_count} wpisów - zbędne tło + wolniejszy boot (wydajność)",
+                    f"🟡 Startup: {startup_count} entries - background bloat + slower boot (performance)")))
             elif startup_count > 8:
                 risks.append((1, _t(lang,
-                    f"ℹ Autostart: {startup_count} wpisów — warto przejrzeć  [→ Startup Manager]",
-                    f"ℹ Startup: {startup_count} entries — worth reviewing  [→ Startup Manager]")))
+                    f"ℹ Autostart: {startup_count} wpisów - warto przejrzeć  [-> Startup Manager]",
+                    f"ℹ Startup: {startup_count} entries - worth reviewing  [-> Startup Manager]")))
         except Exception:
             pass
 
         # ── Hardware profile ──────────────────────────────────────────────────
         if profile["ram_very_low"]:
             risks.append((3, _t(lang,
-                f"🔴 RAM: tylko {profile['ram_gb']:.0f} GB — krytycznie mało dla nowoczesnych systemów",
-                f"🔴 RAM: only {profile['ram_gb']:.0f} GB — critically low for modern workloads")))
+                f"🔴 RAM: tylko {profile['ram_gb']:.0f} GB - krytycznie mało dla nowoczesnych systemów",
+                f"🔴 RAM: only {profile['ram_gb']:.0f} GB - critically low for modern workloads")))
         elif profile["ram_low"] and ram > 60:
             risks.append((2, _t(lang,
-                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% zajęte — bardzo mały margines",
-                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% used — very low margin")))
+                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% zajęte - bardzo mały margines",
+                f"🟡 RAM: {profile['ram_gb']:.0f} GB + {ram:.0f}% used - very low margin")))
         if profile["is_hdd"]:
             risks.append((1, _t(lang,
-                "ℹ HDD wykryty — wolniejszy dysk to systemowe spowolnienie przy każdej operacji na plikach",
-                "ℹ HDD detected — slower disk causes system-wide slowdowns during file operations")))
+                "ℹ HDD wykryty - wolniejszy dysk to systemowe spowolnienie przy każdej operacji na plikach",
+                "ℹ HDD detected - slower disk causes system-wide slowdowns during file operations")))
 
         # ── Security ─────────────────────────────────────────────────────────
         try:
@@ -2482,8 +2500,8 @@ class ResponseBuilder:
             if susp:
                 names = ", ".join(susp[:3])
                 risks.append((3, _t(lang,
-                    f"🔴 Bezpieczeństwo: {len(susp)} podejrzanych procesów ({names}) — sprawdź natychmiast",
-                    f"🔴 Security: {len(susp)} suspicious process(es) ({names}) — check immediately")))
+                    f"🔴 Bezpieczeństwo: {len(susp)} podejrzanych procesów ({names}) - sprawdź natychmiast",
+                    f"🔴 Security: {len(susp)} suspicious process(es) ({names}) - check immediately")))
         except Exception:
             pass
 
@@ -2501,8 +2519,8 @@ class ResponseBuilder:
                 "  ✅ No active risks found. System looks healthy."))
         else:
             lines.append(_t(lang,
-                f"  Wykryto {len(risks)} czynnik(ów) ryzyka — od najwyższego:",
-                f"  Found {len(risks)} risk factor(s) — ranked highest first:"))
+                f"  Wykryto {len(risks)} czynnik(ów) ryzyka - od najwyższego:",
+                f"  Found {len(risks)} risk factor(s) - ranked highest first:"))
             for _, msg in risks[:6]:
                 lines.append(f"  {msg}")
 
@@ -2513,7 +2531,7 @@ class ResponseBuilder:
         lines.append(_followup("health", lang))
         return lines
 
-    # ── Disk usage — why high ─────────────────────────────────────────────────
+    # ── Disk usage - why high ─────────────────────────────────────────────────
 
     def _resp_disk_usage_why(self, r: ParseResult, lang: str = "pl") -> List[str]:
         lines = [_t(lang,
@@ -2548,11 +2566,11 @@ class ResponseBuilder:
                 lines.append(_t(lang, "  Procesy z najwyższym I/O:", "  Processes with highest I/O:"))
                 for name, total in io_procs[:5]:
                     mb = round(total / 1_048_576)
-                    lines.append(f"    — {name[:30]:<30}  {mb} MB")
+                    lines.append(f"    - {name[:30]:<30}  {mb} MB")
             else:
                 lines.append(_t(lang,
-                                "  Brak danych per-proces — Windows może ograniczać dostęp.",
-                                "  No per-process data — Windows may restrict I/O access."))
+                                "  Brak danych per-proces - Windows może ograniczać dostęp.",
+                                "  No per-process data - Windows may restrict I/O access."))
 
             # Disk fill level check
             for part in psutil.disk_partitions(all=False):
@@ -2563,8 +2581,8 @@ class ResponseBuilder:
                     if u.percent > 85:
                         free = round(u.free / 1_073_741_824, 1)
                         lines.append(_t(lang,
-                                        f"  ⚠ {part.device} prawie pełny — {u.percent:.0f}% ({free} GB wolne)",
-                                        f"  ⚠ {part.device} almost full — {u.percent:.0f}% ({free} GB free)"))
+                                        f"  ⚠ {part.device} prawie pełny - {u.percent:.0f}% ({free} GB wolne)",
+                                        f"  ⚠ {part.device} almost full - {u.percent:.0f}% ({free} GB free)"))
                 except Exception:
                     pass
 
@@ -2655,8 +2673,8 @@ class ResponseBuilder:
 
         if not today or not yest:
             lines.append(_t(lang,
-                            "  Za mało danych — potrzebuję minimum 2 dni historii.",
-                            "  Not enough data — need at least 2 days of history."))
+                            "  Za mało danych - potrzebuję minimum 2 dni historii.",
+                            "  Not enough data - need at least 2 days of history."))
             return lines
 
         cpu_t = today.get("cpu_avg") or 0
@@ -2799,14 +2817,14 @@ class ResponseBuilder:
                 startup_str = f" and {startup_total} startup programs" if startup_total > 5 else ""
                 return [
                     f"{P} Because you have RAM at {ram_pct:.0f}%{chrome_str}{startup_str}.",
-                    "  It doesn't hate you — it's just exhausted.",
+                    "  It doesn't hate you - it's just exhausted.",
                     f"  The biggest culprit right now: {top_cpu_name}.",
                 ]
             chrome_str = f" i {chrome_count} instancji Chrome" if chrome_count > 2 else ""
             startup_str = f" i {startup_total} programów startowych" if startup_total > 5 else ""
             return [
                 f"{P} Bo masz RAM na {ram_pct:.0f}%{chrome_str}{startup_str}.",
-                "  On Cię nie nienawidzi — po prostu jest wykończony.",
+                "  On Cię nie nienawidzi - po prostu jest wykończony.",
                 f"  Największy winowajca teraz: {top_cpu_name}.",
             ]
 
@@ -2814,12 +2832,12 @@ class ResponseBuilder:
             chrome_str = f"Chrome z {chrome_count} procesami" if chrome_count > 1 else "sporo rzeczy"
             if lang == "en":
                 return [
-                    f"{P} Not dumb — just incredibly patient.",
+                    f"{P} Not dumb - just incredibly patient.",
                     f"  It's been running {chrome_str} for hours without complaining.",
                     f"  Current RAM: {ram_pct:.0f}%. That's the real test of endurance.",
                 ]
             return [
-                f"{P} Nie jest głupi — jest niesamowicie cierpliwy.",
+                f"{P} Nie jest głupi - jest niesamowicie cierpliwy.",
                 f"  Od godzin dźwiga {chrome_str} i ani słowa skargi.",
                 f"  RAM teraz: {ram_pct:.0f}%. To dopiero wytrzymałość.",
             ]
@@ -2868,7 +2886,7 @@ class ResponseBuilder:
                 ]
             return [
                 f"{P} Chrome ma teraz {chrome_count} {'procesów' if chrome_count > 1 else 'proces'} aktywnych.",
-                "  Każda zakładka = osobny proces — to jego styl życia (izolacja).",
+                "  Każda zakładka = osobny proces - to jego styl życia (izolacja).",
                 "  Minus: Chrome żre RAM jakby go miał za darmo.",
                 f"  Największy pożeracz RAM teraz: {top_ram_name}.",
             ]
@@ -2882,28 +2900,28 @@ class ResponseBuilder:
                     f"{P} Discord runs in background because it wants to be 'always ready'.",
                     f"  {disc_str}",
                     "  It uses GPU for overlay + RAM for the Electron runtime.",
-                    "  Fix: Settings → Windows Settings → disable 'Launch on startup'.",
+                    "  Fix: Settings -> Windows Settings -> disable 'Launch on startup'.",
                 ]
             return [
                 f"{P} Discord działa w tle bo chce być 'zawsze gotowy'.",
                 f"  {disc_str}",
                 "  Zjada GPU przez overlay i RAM przez silnik Electron.",
-                "  Fix: Ustawienia Discord → Windows → wyłącz 'Uruchamiaj przy starcie'.",
+                "  Fix: Ustawienia Discord -> Windows -> wyłącz 'Uruchamiaj przy starcie'.",
             ]
 
         if any(w in text for w in ["svchost", "szpieg", "spy"]):
             if lang == "en":
                 return [
-                    f"{P} svchost.exe — spy? Not exactly. Suspicious? Sometimes.",
+                    f"{P} svchost.exe - spy? Not exactly. Suspicious? Sometimes.",
                     f"  Right now there are {svchost_count} svchost instances running.",
                     "  Each one hosts a group of Windows services (networking, updates, etc).",
-                    "  If one spikes CPU at night — probably Windows Update doing its thing.",
+                    "  If one spikes CPU at night - probably Windows Update doing its thing.",
                 ]
             return [
-                f"{P} svchost.exe — szpieg? Niekoniecznie. Podejrzany? Czasem.",
+                f"{P} svchost.exe - szpieg? Niekoniecznie. Podejrzany? Czasem.",
                 f"  Teraz działa {svchost_count} instancji svchost.",
                 "  Każda hostuje grupę usług Windows (sieć, aktualizacje itp.).",
-                "  Jeśli skacze CPU nocą — to prawdopodobnie Windows Update robi swoje.",
+                "  Jeśli skacze CPU nocą - to prawdopodobnie Windows Update robi swoje.",
             ]
 
         if any(w in text for w in ["kac", "hangover", "ładuje się wolno", "wolno ładuje"]):
@@ -2912,13 +2930,13 @@ class ResponseBuilder:
                     f"{P} Loading slowly like it has a hangover? Classic symptom.",
                     f"  Startup programs: {startup_total}. That's {startup_total} things fighting for CPU on boot.",
                     f"  Top CPU hog right now: {top_cpu_name}.",
-                    "  Cure: disable the heavy hitters  [→ Startup Manager]",
+                    "  Cure: disable the heavy hitters  [-> Startup Manager]",
                 ]
             return [
                 f"{P} Ładuje się wolno jakby miało kaca? Klasyczny objaw.",
                 f"  Programów startowych: {startup_total}. To {startup_total} rzeczy walczących o CPU podczas uruchamiania.",
                 f"  Największy pożeracz CPU teraz: {top_cpu_name}.",
-                "  Lekarstwo: wyłącz ciężkich kandydatów  [→ Startup Manager]",
+                "  Lekarstwo: wyłącz ciężkich kandydatów  [-> Startup Manager]",
             ]
 
         if any(w in text for w in ["timeout", "time-out"]):
@@ -2927,13 +2945,13 @@ class ResponseBuilder:
                     f"{P} Your PC could use a timeout, honestly.",
                     f"  RAM is at {ram_pct:.0f}%. Top offender: {top_cpu_name}.",
                     "  Closest thing to a timeout: close everything + restart.",
-                    "  Or: Optimization tab → TURBO BOOST for a quick reset.",
+                    "  Or: Optimization tab -> TURBO BOOST for a quick reset.",
                 ]
             return [
                 f"{P} Twój PC naprawdę mógłby dostać timeout.",
                 f"  RAM na {ram_pct:.0f}%. Winowajca: {top_cpu_name}.",
                 "  Najbliższe timeout'owi: zamknij wszystko + restart.",
-                "  Albo: zakładka Optimization → TURBO BOOST = szybki reset systemu.",
+                "  Albo: zakładka Optimization -> TURBO BOOST = szybki reset systemu.",
             ]
 
         if any(w in text for w in ["złodziej", "steal", "steals", "most ram"]):
@@ -2980,22 +2998,22 @@ class ResponseBuilder:
                 return [
                     f"{self.PREFIX} Not enough history yet for comparison.",
                     "  The stats engine needs at least 2 days of data.",
-                    "  Check back tomorrow — I'll have something to compare.",
+                    "  Check back tomorrow - I'll have something to compare.",
                 ]
             return [
                 f"{self.PREFIX} Za mało danych historycznych do porównania.",
                 "  Silnik statystyk potrzebuje minimum 2 dni danych.",
-                "  Wróć jutro — będę miał co porównać.",
+                "  Wróć jutro - będę miał co porównać.",
             ]
 
         lines = [_t(lang,
-                    f"{self.PREFIX} Porównanie sesji — wczoraj vs dziś:",
-                    f"{self.PREFIX} Session comparison — yesterday vs today:")]
+                    f"{self.PREFIX} Porównanie sesji - wczoraj vs dziś:",
+                    f"{self.PREFIX} Session comparison - yesterday vs today:")]
 
         def _row(label_pl, label_en, val_today, val_yest, unit=""):
             label = label_en if lang == "en" else label_pl
-            t = f"{val_today:.0f}{unit}" if val_today is not None else "—"
-            y = f"{val_yest:.0f}{unit}" if val_yest is not None else "—"
+            t = f"{val_today:.0f}{unit}" if val_today is not None else "-"
+            y = f"{val_yest:.0f}{unit}" if val_yest is not None else "-"
             diff = ""
             if val_today is not None and val_yest is not None:
                 delta = val_today - val_yest
@@ -3043,21 +3061,21 @@ class ResponseBuilder:
             boost   = round(freq.max / 1000, 1) if freq and freq.max else "?"
             if lang == "en":
                 return [
-                    f"{self.PREFIX} Hardware (live — CPU model unknown, scan running):",
+                    f"{self.PREFIX} Hardware (live - CPU model unknown, scan running):",
                     f"  CPU:  {cores_p} cores  /  {cores_l} threads  /  boost {boost} GHz",
                     f"  RAM:  {ram_gb} GB",
                     f"  OS:   Windows {platform.release()}",
                 ]
             return [
-                f"{self.PREFIX} Sprzęt (live, model CPU nieznany — skanowanie w toku):",
+                f"{self.PREFIX} Sprzęt (live, model CPU nieznany - skanowanie w toku):",
                 f"  CPU:  {cores_p} rdzeni  /  {cores_l} wątków  /  boost {boost} GHz",
                 f"  RAM:  {ram_gb} GB",
                 f"  OS:   Windows {platform.release()}",
             ]
         except Exception:
             return [_t(lang,
-                       f"{self.PREFIX} Brak danych — skanowanie sprzętu w toku.",
-                       f"{self.PREFIX} No data yet — hardware scan running.")]
+                       f"{self.PREFIX} Brak danych - skanowanie sprzętu w toku.",
+                       f"{self.PREFIX} No data yet - hardware scan running.")]
 
 
     # ── Explain proactive message ─────────────────────────────────────────────
@@ -3094,7 +3112,7 @@ class ResponseBuilder:
             cpu  = ctx.get("cpu",     None)
             if lang == "en":
                 lines.append(f"  '{proc}' was active on {freq} out of the last 7 days.")
-                lines.append(f"  That makes it one of your regular tools — I track patterns over time.")
+                lines.append(f"  That makes it one of your regular tools - I track patterns over time.")
                 if cpu:
                     lines.append(f"  When it runs, it averages {cpu:.0f}% CPU load.")
             else:
@@ -3106,28 +3124,28 @@ class ResponseBuilder:
         elif ptype in ("cpu_high", "cpu_crit"):
             val = ctx.get("val", "?")
             if lang == "en":
-                lines.append(f"  Your CPU was running at {val}% — that's sustained high load.")
+                lines.append(f"  Your CPU was running at {val}% - that's sustained high load.")
                 lines.append(f"  Type 'top processes' to see which app caused it.")
             else:
-                lines.append(f"  CPU pracował na {val}% — to utrzymane wysokie obciążenie.")
+                lines.append(f"  CPU pracował na {val}% - to utrzymane wysokie obciążenie.")
                 lines.append(f"  Wpisz 'top procesy' by znaleźć winowajcę.")
 
         elif ptype in ("ram_high", "ram_crit"):
             val = ctx.get("val", "?")
             if lang == "en":
-                lines.append(f"  RAM was at {val}% — memory was getting tight.")
+                lines.append(f"  RAM was at {val}% - memory was getting tight.")
                 lines.append(f"  Ask me 'why is RAM high' for a detailed breakdown.")
             else:
-                lines.append(f"  RAM był na {val}% — mało wolnej pamięci.")
+                lines.append(f"  RAM był na {val}% - mało wolnej pamięci.")
                 lines.append(f"  Zapytaj 'dlaczego ram wysoki' po szczegółową analizę.")
 
         elif ptype == "throttle":
             val = ctx.get("val", "?")
             if lang == "en":
-                lines.append(f"  Your CPU was throttled — running at only {val}% of max power.")
+                lines.append(f"  Your CPU was throttled - running at only {val}% of max power.")
                 lines.append(f"  This is usually caused by heat. Check 'temperatures'.")
             else:
-                lines.append(f"  CPU był dławiony — pracował na zaledwie {val}% mocy maksymalnej.")
+                lines.append(f"  CPU był dławiony - pracował na zaledwie {val}% mocy maksymalnej.")
                 lines.append(f"  Zwykle winne jest przegrzanie. Sprawdź 'temperatury'.")
 
         elif ptype == "disk_low":
@@ -3143,7 +3161,7 @@ class ResponseBuilder:
             val = ctx.get("val", "?")
             if lang == "en":
                 lines.append(f"  PC has been running for {val} hours without a restart.")
-                lines.append(f"  Memory leaks can accumulate over long sessions — consider restarting tonight.")
+                lines.append(f"  Memory leaks can accumulate over long sessions - consider restarting tonight.")
             else:
                 lines.append(f"  PC działa od {val} godzin bez restartu.")
                 lines.append(f"  Przy długich sesjach mogą gromadzić się wycieki pamięci.")
@@ -3151,23 +3169,23 @@ class ResponseBuilder:
         elif ptype == "gpu_temp_spike":
             val = ctx.get("val", "?")
             if lang == "en":
-                lines.append(f"  GPU temperature hit {val}°C — that's a sudden heat spike.")
+                lines.append(f"  GPU temperature hit {val}°C - that's a sudden heat spike.")
                 lines.append(f"  Check cooling, airflow, or lower your GPU load settings.")
             else:
-                lines.append(f"  Temperatura GPU osiągnęła {val}°C — ostry skok ciepła.")
+                lines.append(f"  Temperatura GPU osiągnęła {val}°C - ostry skok ciepła.")
                 lines.append(f"  Sprawdź chłodzenie, wentylację lub obniż ustawienia GPU.")
 
         elif ptype in ("all_clear",):
             if lang == "en":
-                lines.append(f"  That was a routine status check — everything was healthy at that moment.")
+                lines.append(f"  That was a routine status check - everything was healthy at that moment.")
             else:
-                lines.append(f"  To był rutynowy przegląd — wszystko działało prawidłowo w tym momencie.")
+                lines.append(f"  To był rutynowy przegląd - wszystko działało prawidłowo w tym momencie.")
 
         elif ptype == "greeting":
             if lang == "en":
-                lines.append(f"  That was my greeting — a quick summary of your PC's state when you opened the app.")
+                lines.append(f"  That was my greeting - a quick summary of your PC's state when you opened the app.")
             else:
-                lines.append(f"  To było powitanie — szybki przegląd stanu PC przy otwarciu aplikacji.")
+                lines.append(f"  To było powitanie - szybki przegląd stanu PC przy otwarciu aplikacji.")
 
         else:
             # Generic fallback
@@ -3218,28 +3236,28 @@ class ResponseBuilder:
 
         # Severity band
         if total_mb > 2000:
-            sev_en = f"HIGH — {total_mb:.0f} MB total across all browser processes."
-            sev_pl = f"WYSOKI — {total_mb:.0f} MB łącznie dla wszystkich procesów przeglądarki."
+            sev_en = f"HIGH - {total_mb:.0f} MB total across all browser processes."
+            sev_pl = f"WYSOKI - {total_mb:.0f} MB łącznie dla wszystkich procesów przeglądarki."
             tip_en = "Consider closing unused tabs, disabling heavy extensions."
             tip_pl = "Zamknij nieużywane zakładki, wyłącz ciężkie rozszerzenia."
         elif total_mb > 800:
-            sev_en = f"MODERATE — {total_mb:.0f} MB in use."
-            sev_pl = f"UMIARKOWANY — {total_mb:.0f} MB w użyciu."
+            sev_en = f"MODERATE - {total_mb:.0f} MB in use."
+            sev_pl = f"UMIARKOWANY - {total_mb:.0f} MB w użyciu."
             tip_en = "Cache is normal for this size. Close tabs you don't need."
             tip_pl = "Cache OK przy tym rozmiarze. Zamknij zakładki których nie używasz."
         else:
-            sev_en = f"LOW — {total_mb:.0f} MB, nothing to worry about."
-            sev_pl = f"NISKI — {total_mb:.0f} MB, bez obaw."
+            sev_en = f"LOW - {total_mb:.0f} MB, nothing to worry about."
+            sev_pl = f"NISKI - {total_mb:.0f} MB, bez obaw."
             tip_en = "Browser memory is healthy. Cache isn't slowing you down."
             tip_pl = "Pamięć przeglądarki OK. Cache nie spowalnia komputera."
 
         if lang == "en":
-            lines = [f"{P} Browser memory footprint — {sev_en}"]
+            lines = [f"{P} Browser memory footprint - {sev_en}"]
             lines += browser_lines
             lines.append(f"  Tip: {tip_en}")
             lines.append("  To clear cache: Ctrl+Shift+Del in any browser.")
         else:
-            lines = [f"{P} Pamięć przeglądarki — {sev_pl}"]
+            lines = [f"{P} Pamięć przeglądarki - {sev_pl}"]
             lines += browser_lines
             lines.append(f"  Wskazówka: {tip_pl}")
             lines.append("  Wyczyść cache: Ctrl+Shift+Del w dowolnej przeglądarce.")
@@ -3289,7 +3307,7 @@ class ResponseBuilder:
             if hist_avg is not None:
                 delta = cur_pct - hist_avg
                 sign  = "+" if delta >= 0 else ""
-                lines.append(f"  7-day avg: {hist_avg:.0f}%  →  today is {sign}{delta:.0f}% vs baseline")
+                lines.append(f"  7-day avg: {hist_avg:.0f}%  ->  today is {sign}{delta:.0f}% vs baseline")
             if days:
                 lines.append("  Daily breakdown (last 7 days):")
                 for d in days[:5]:
@@ -3305,7 +3323,7 @@ class ResponseBuilder:
             if hist_avg is not None:
                 delta = cur_pct - hist_avg
                 sign  = "+" if delta >= 0 else ""
-                lines.append(f"  Śr. 7 dni: {hist_avg:.0f}%  →  dziś {sign}{delta:.0f}% vs bazowy")
+                lines.append(f"  Śr. 7 dni: {hist_avg:.0f}%  ->  dziś {sign}{delta:.0f}% vs bazowy")
             if days:
                 lines.append("  Dane dzienne (ostatnie 7 dni):")
                 for d in days[:5]:
@@ -3361,13 +3379,13 @@ class ResponseBuilder:
                     "  Windows zarządza pamięcią wyłącznie w fizycznym RAM.",
                     _followup("perf", lang)]
 
-        sev_en = "HIGH — swap heavily used, expect slowdowns" if swap_pct > 60 else \
-                 "MODERATE" if swap_pct > 25 else "LOW — healthy"
-        sev_pl = "WYSOKI — swap mocno zajęty, spodziewaj się spowolnienia" if swap_pct > 60 else \
-                 "UMIARKOWANY" if swap_pct > 25 else "NISKI — OK"
+        sev_en = "HIGH - swap heavily used, expect slowdowns" if swap_pct > 60 else \
+                 "MODERATE" if swap_pct > 25 else "LOW - healthy"
+        sev_pl = "WYSOKI - swap mocno zajęty, spodziewaj się spowolnienia" if swap_pct > 60 else \
+                 "UMIARKOWANY" if swap_pct > 25 else "NISKI - OK"
 
         if lang == "en":
-            lines = [f"{P} Swap / Pagefile: {swap_pct:.0f}% used  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  → {sev_en}"]
+            lines = [f"{P} Swap / Pagefile: {swap_pct:.0f}% used  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  -> {sev_en}"]
             lines.append(f"  Physical RAM: {vm.percent:.0f}% full  ({vm.used/1e9:.1f} / {vm.total/1e9:.1f} GB)")
             if top:
                 lines.append("  Processes with largest virtual footprint (likely swap users):")
@@ -3376,9 +3394,9 @@ class ResponseBuilder:
             if swap_pct > 60:
                 lines.append("  Fix: Close background apps, add more RAM, or increase pagefile size.")
             else:
-                lines.append("  Swap is normal — Windows uses it as a buffer even when RAM is available.")
+                lines.append("  Swap is normal - Windows uses it as a buffer even when RAM is available.")
         else:
-            lines = [f"{P} Swap / Plik wymiany: {swap_pct:.0f}% zajęty  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  → {sev_pl}"]
+            lines = [f"{P} Swap / Plik wymiany: {swap_pct:.0f}% zajęty  ({swap_used:.1f} GB / {swap_tot:.1f} GB)  -> {sev_pl}"]
             lines.append(f"  Fizyczny RAM: {vm.percent:.0f}% pełny  ({vm.used/1e9:.1f} / {vm.total/1e9:.1f} GB)")
             if top:
                 lines.append("  Procesy z największym wirtualnym śladem (prawdopodobni użytkownicy swap):")
@@ -3387,7 +3405,7 @@ class ResponseBuilder:
             if swap_pct > 60:
                 lines.append("  Rozwiązanie: zamknij programy w tle, dodaj RAM lub zwiększ rozmiar pliku wymiany.")
             else:
-                lines.append("  Swap normalny — Windows używa go jako bufora nawet gdy RAM jest dostępny.")
+                lines.append("  Swap normalny - Windows używa go jako bufora nawet gdy RAM jest dostępny.")
         lines.append(_followup("perf", lang))
         return lines
 
@@ -3438,7 +3456,7 @@ class ResponseBuilder:
             cpu_load = -1.0
 
         if lang == "en":
-            lines = [f"{P} Network activity — 1-second snapshot:"]
+            lines = [f"{P} Network activity - 1-second snapshot:"]
             lines.append(f"  Download: {total_recv_mb:.2f} MB/s   Upload: {total_sent_mb:.2f} MB/s")
             if top_conns:
                 lines.append("  Processes with most active connections:")
@@ -3451,9 +3469,9 @@ class ResponseBuilder:
             elif total_recv_mb + total_sent_mb < 0.1:
                 lines.append("  Network is nearly idle.")
             if cpu_load > 60:
-                lines.append(f"  Note: CPU is at {cpu_load:.0f}% — network processing may be contributing.")
+                lines.append(f"  Note: CPU is at {cpu_load:.0f}% - network processing may be contributing.")
         else:
-            lines = [f"{P} Aktywność sieciowa — pomiar 1-sekundowy:"]
+            lines = [f"{P} Aktywność sieciowa - pomiar 1-sekundowy:"]
             lines.append(f"  Pobieranie: {total_recv_mb:.2f} MB/s   Wysyłanie: {total_sent_mb:.2f} MB/s")
             if top_conns:
                 lines.append("  Procesy z największą liczbą aktywnych połączeń:")
@@ -3466,7 +3484,7 @@ class ResponseBuilder:
             elif total_recv_mb + total_sent_mb < 0.1:
                 lines.append("  Sieć prawie bezczynna.")
             if cpu_load > 60:
-                lines.append(f"  Uwaga: CPU jest na {cpu_load:.0f}% — obsługa sieci może dokładać swoje.")
+                lines.append(f"  Uwaga: CPU jest na {cpu_load:.0f}% - obsługa sieci może dokładać swoje.")
         lines.append(_followup("perf", lang))
         return lines
 
@@ -3512,7 +3530,7 @@ class ResponseBuilder:
             pass
 
         if lang == "en":
-            lines = [f"{P} External / USB transfer — live I/O snapshot:"]
+            lines = [f"{P} External / USB transfer - live I/O snapshot:"]
             if not transfer_info:
                 lines.append("  No active disk I/O detected at the moment.")
                 lines.append("  If your transfer just started, ask me again in a few seconds.")
@@ -3522,14 +3540,14 @@ class ResponseBuilder:
                     lines.append(f"  {dname:<12}  {arrow}  (R {r_mb:.1f} + W {w_mb:.1f} MB/s)")
             if cpu_load >= 0:
                 cpu_note = "minimal" if cpu_load < 15 else "moderate" if cpu_load < 40 else "high"
-                lines.append(f"  CPU during transfer: {cpu_load:.0f}%  — {cpu_note} overhead.")
+                lines.append(f"  CPU during transfer: {cpu_load:.0f}%  - {cpu_note} overhead.")
                 if cpu_load < 15:
-                    lines.append("  File transfers are very CPU-light on SSDs — storage controller handles it.")
+                    lines.append("  File transfers are very CPU-light on SSDs - storage controller handles it.")
                 elif cpu_load > 50:
                     lines.append("  High CPU during transfer can happen with encryption, compression, or virus scanning.")
-            lines.append("  Tip: Transfer speed depends on USB version — USB 3.x is ~400 MB/s, USB 2.0 ~40 MB/s.")
+            lines.append("  Tip: Transfer speed depends on USB version - USB 3.x is ~400 MB/s, USB 2.0 ~40 MB/s.")
         else:
-            lines = [f"{P} Transfer zewnętrzny / USB — szybki odczyt I/O:"]
+            lines = [f"{P} Transfer zewnętrzny / USB - szybki odczyt I/O:"]
             if not transfer_info:
                 lines.append("  Nie wykryto aktywnego transferu w tej chwili.")
                 lines.append("  Jeśli transfer właśnie się zaczął, zapytaj ponownie za chwilę.")
@@ -3539,17 +3557,17 @@ class ResponseBuilder:
                     lines.append(f"  {dname:<12}  {arrow}  (R {r_mb:.1f} + Z {w_mb:.1f} MB/s)")
             if cpu_load >= 0:
                 cpu_note = "minimalny" if cpu_load < 15 else "umiarkowany" if cpu_load < 40 else "wysoki"
-                lines.append(f"  CPU podczas transferu: {cpu_load:.0f}%  — obciążenie {cpu_note}.")
+                lines.append(f"  CPU podczas transferu: {cpu_load:.0f}%  - obciążenie {cpu_note}.")
                 if cpu_load < 15:
-                    lines.append("  Transfer plików to małe obciążenie CPU dla SSD — kontroler pamięci robi robotę.")
+                    lines.append("  Transfer plików to małe obciążenie CPU dla SSD - kontroler pamięci robi robotę.")
                 elif cpu_load > 50:
                     lines.append("  Wysokie CPU podczas transferu może być efektem szyfrowania, kompresji lub antywirusa.")
-            lines.append("  Tip: Prędkość zależy od USB — USB 3.x ~400 MB/s, USB 2.0 ~40 MB/s.")
+            lines.append("  Tip: Prędkość zależy od USB - USB 3.x ~400 MB/s, USB 2.0 ~40 MB/s.")
         lines.append(_followup("perf", lang))
         return lines
 
     # ─────────────────────────────────────────────────────────────────────────
-    # MEGA FEATURE: Structured fallback — no AI-slop when data is unavailable
+    # MEGA FEATURE: Structured fallback - no AI-slop when data is unavailable
     # ─────────────────────────────────────────────────────────────────────────
 
     def _no_data(self, intent: str, lang: str, what_missing: str = "") -> List[str]:
@@ -3569,15 +3587,15 @@ class ResponseBuilder:
         return [
             f"{self.PREFIX} ⚠ Za mało danych żeby udzielić pewnej odpowiedzi.",
             f"  Wolę powiedzieć szczerze niż zgadywać.{detail}",
-            "  Co pomoże: uruchom PC Workman przez kilka dni — silnik statystyk buduje historię.",
-            f"  Alternatywa: spróbuj 'zdrowie systemu' lub 'stats' — to mam na pewno.",
+            "  Co pomoże: uruchom PC Workman przez kilka dni - silnik statystyk buduje historię.",
+            f"  Alternatywa: spróbuj 'zdrowie systemu' lub 'stats' - to mam na pewno.",
         ]
 
     # ─────────────────────────────────────────────────────────────────────────
-    # MEGA FEATURE: Time-Travel helper — compare current to N-day history
+    # MEGA FEATURE: Time-Travel helper - compare current to N-day history
     # ─────────────────────────────────────────────────────────────────────────
 
-    # Map from user-facing metric alias → daily_summary column name
+    # Map from user-facing metric alias -> daily_summary column name
     _METRIC_COL_MAP: dict[str, str] = {
         "cpu_temp":  "cpu_temp_avg",
         "gpu_temp":  "gpu_temp_avg",
@@ -3597,7 +3615,7 @@ class ResponseBuilder:
         try:
             from hck_gpt.data.metrics_store import metrics_store
 
-            # Map metric alias → actual daily_summary column name
+            # Map metric alias -> actual daily_summary column name
             col = self._METRIC_COL_MAP.get(metric, metric)
 
             summary = metrics_store.daily_summary(days=days)
@@ -3633,7 +3651,7 @@ class ResponseBuilder:
                 return None
 
             diff  = float(current) - hist_avg
-            arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "→")
+            arrow = "↑" if diff > 5 else ("↓" if diff < -5 else "->")
             sign  = "+" if diff >= 0 else ""
             unit  = "°C" if "temp" in metric else "%"
 
@@ -3751,16 +3769,16 @@ class ResponseBuilder:
         # Main cause: temperature and CPU load
         if cpu > 80 or (temp_now and temp_now > 80):
             lines.append(_t(lang,
-                f"  🔴 CPU na {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} — wentylatory kręcą się szybciej, to normalne.",
-                f"  🔴 CPU at {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} — fans spinning up, that's expected."))
+                f"  🔴 CPU na {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} - wentylatory kręcą się szybciej, to normalne.",
+                f"  🔴 CPU at {cpu:.0f}%{f' / temp {temp_now:.0f}°C' if temp_now else ''} - fans spinning up, that's expected."))
         elif cpu > 55 or (temp_now and temp_now > 65):
             lines.append(_t(lang,
-                f"  🟡 Umiarkowane obciążenie (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) — wentylatory mogą być słyszalne.",
-                f"  🟡 Moderate load (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) — fans may be audible."))
+                f"  🟡 Umiarkowane obciążenie (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) - wentylatory mogą być słyszalne.",
+                f"  🟡 Moderate load (CPU {cpu:.0f}%{f' / {temp_now:.0f}°C' if temp_now else ''}) - fans may be audible."))
         else:
             lines.append(_t(lang,
-                f"  ✓ Niskie obciążenie (CPU {cpu:.0f}%) — jeśli fan hałasuje, może być kurz lub starzejące się łożysko.",
-                f"  ✓ Low load (CPU {cpu:.0f}%) — if fan is loud, suspect dust or aging bearing."))
+                f"  ✓ Niskie obciążenie (CPU {cpu:.0f}%) - jeśli fan hałasuje, może być kurz lub starzejące się łożysko.",
+                f"  ✓ Low load (CPU {cpu:.0f}%) - if fan is loud, suspect dust or aging bearing."))
 
         # Historical comparison (time-travel)
         if hist_temp_cmp:
@@ -3768,8 +3786,8 @@ class ResponseBuilder:
             lines.append(hist_temp_cmp)
         else:
             lines.append(_t(lang,
-                "  Brak danych historycznych — wentylatory nie mają czujnika RPM przez psutil.",
-                "  No historical fan data — fan RPM not exposed via psutil on Windows."))
+                "  Brak danych historycznych - wentylatory nie mają czujnika RPM przez psutil.",
+                "  No historical fan data - fan RPM not exposed via psutil on Windows."))
 
         # Practical tips
         lines.append("")
@@ -3777,14 +3795,14 @@ class ResponseBuilder:
             "  Możliwe przyczyny głośniejszego wentylatora:",
             "  Possible causes of increased fan noise:"))
         lines.append(_t(lang,
-            "  • Kurz w chłodniku — wyczyść sprężonym powietrzem (1x rok)",
-            "  • Dust in heatsink — clean with compressed air (1x/year)"))
+            "  • Kurz w chłodniku - wyczyść sprężonym powietrzem (1x rok)",
+            "  • Dust in heatsink - clean with compressed air (1x/year)"))
         lines.append(_t(lang,
-            "  • Zużyte łożysko wentylatora — charakterystyczny warkot/szum",
-            "  • Worn fan bearing — grinding or rattling sound"))
+            "  • Zużyte łożysko wentylatora - charakterystyczny warkot/szum",
+            "  • Worn fan bearing - grinding or rattling sound"))
         lines.append(_t(lang,
-            "  • Wysokie obciążenie (gry, render) — normalne i tymczasowe",
-            "  • High load (gaming, rendering) — normal and temporary"))
+            "  • Wysokie obciążenie (gry, render) - normalne i tymczasowe",
+            "  • High load (gaming, rendering) - normal and temporary"))
         lines.append(_t(lang,
             "  💬 Wpisz 'temperatury' po pełny raport termiczny",
             "  💬 Type 'temperatures' for full thermal report"))
@@ -3803,7 +3821,7 @@ class ResponseBuilder:
             f"{self.PREFIX} Status sterowników (kluczowe):",
             f"{self.PREFIX} Driver status (key drivers):")]
 
-        # Query via PowerShell — fastest way to get driver dates on Windows
+        # Query via PowerShell - fastest way to get driver dates on Windows
         ps_cmd = (
             "Get-WmiObject Win32_PnPSignedDriver | "
             "Where-Object {$_.DeviceName -match 'Display|VGA|NVIDIA|AMD|Radeon|Intel.*Graphics|"
@@ -3854,8 +3872,8 @@ class ResponseBuilder:
                 "  Nie udało się pobrać listy sterowników przez PowerShell.",
                 "  Could not retrieve driver list via PowerShell."))
             lines.append(_t(lang,
-                "  Sprawdź ręcznie: Start → Menedżer urządzeń",
-                "  Check manually: Start → Device Manager"))
+                "  Sprawdź ręcznie: Start -> Menedżer urządzeń",
+                "  Check manually: Start -> Device Manager"))
 
         lines.append("")
         lines.append(_t(lang,
@@ -3945,15 +3963,15 @@ class ResponseBuilder:
 
         # Verdict
         if g_pct > 50:
-            lines.append(_t(lang, "  → Aktualnie dominuje gaming.", "  → Gaming is currently dominant."))
+            lines.append(_t(lang, "  -> Aktualnie dominuje gaming.", "  -> Gaming is currently dominant."))
         elif w_pct > 50:
-            lines.append(_t(lang, "  → Aktualnie dominuje produktywność.", "  → Productivity is currently dominant."))
+            lines.append(_t(lang, "  -> Aktualnie dominuje produktywność.", "  -> Productivity is currently dominant."))
         else:
-            lines.append(_t(lang, "  → Mix — nic nie dominuje wyraźnie.", "  → Mixed session — nothing clearly dominant."))
+            lines.append(_t(lang, "  -> Mix - nic nie dominuje wyraźnie.", "  -> Mixed session - nothing clearly dominant."))
 
         lines.append(_t(lang,
-            "  💬 Pełna historia: zakładka Statistics → Weekly",
-            "  💬 Full history: Statistics → Weekly tab"))
+            "  💬 Pełna historia: zakładka Statistics -> Weekly",
+            "  💬 Full history: Statistics -> Weekly tab"))
         return lines
 
     # ── Process identity ──────────────────────────────────────────────────────
@@ -4029,8 +4047,8 @@ class ResponseBuilder:
             pass
 
         lines = [_t(lang,
-            f"{self.PREFIX} Identyfikacja procesu — {proc_name}:",
-            f"{self.PREFIX} Process identity — {proc_name}:")]
+            f"{self.PREFIX} Identyfikacja procesu - {proc_name}:",
+            f"{self.PREFIX} Process identity - {proc_name}:")]
 
         if info:
             safety = info.get("safety", "unknown")
@@ -4040,19 +4058,19 @@ class ResponseBuilder:
             lines.append(f"  {icon} {desc}")
             if safety == "suspicious":
                 lines.append(_t(lang,
-                    "  ⚠ Oznaczony jako podejrzany — sprawdź w Menedżerze zadań.",
-                    "  ⚠ Flagged as suspicious — check in Task Manager."))
+                    "  ⚠ Oznaczony jako podejrzany - sprawdź w Menedżerze zadań.",
+                    "  ⚠ Flagged as suspicious - check in Task Manager."))
             elif safety == "unsafe":
                 lines.append(_t(lang,
-                    "  🔴 Oznaczony jako niebezpieczny — zamknij i przeskanuj antywirusem.",
-                    "  🔴 Flagged as unsafe — close it and run antivirus scan."))
+                    "  🔴 Oznaczony jako niebezpieczny - zamknij i przeskanuj antywirusem.",
+                    "  🔴 Flagged as unsafe - close it and run antivirus scan."))
         elif is_system:
             lines.append(_t(lang,
-                f"  ✓ Proces systemowy Windows — uruchomiony z folderu System32.",
-                f"  ✓ Windows system process — running from System32 folder."))
+                f"  ✓ Proces systemowy Windows - uruchomiony z folderu System32.",
+                f"  ✓ Windows system process - running from System32 folder."))
             lines.append(_t(lang,
-                "  Bezpieczny — nie przerywaj go.",
-                "  Safe — do not terminate it."))
+                "  Bezpieczny - nie przerywaj go.",
+                "  Safe - do not terminate it."))
         else:
             lines.append(_t(lang,
                 "  ? Nie ma go w bibliotece procesów PC Workman.",
@@ -4153,7 +4171,7 @@ class ResponseBuilder:
                 f"  Znaleziono {len(stale)} aplikacji bez widocznej aktywności w ostatnich 30 dniach:",
                 f"  Found {len(stale)} apps with no visible activity in the last 30 days:"))
             for app in stale[:10]:
-                lines.append(f"  — {app[:50]}")
+                lines.append(f"  - {app[:50]}")
             if len(stale) > 10:
                 lines.append(_t(lang, f"  ... i {len(stale)-10} więcej", f"  ... and {len(stale)-10} more"))
         else:
@@ -4163,11 +4181,11 @@ class ResponseBuilder:
 
         lines.append("")
         lines.append(_t(lang,
-            "  💡 Odinstaluj przez: Start → Ustawienia → Aplikacje",
-            "  💡 Uninstall via: Start → Settings → Apps"))
+            "  💡 Odinstaluj przez: Start -> Ustawienia -> Aplikacje",
+            "  💡 Uninstall via: Start -> Settings -> Apps"))
         return lines
 
-    # ── FPS degradation — time-travel debugging ───────────────────────────────
+    # ── FPS degradation - time-travel debugging ───────────────────────────────
 
     def _resp_fps_degradation(self, r: ParseResult, lang: str = "pl") -> List[str]:
         """
@@ -4205,14 +4223,14 @@ class ResponseBuilder:
             "  Najczęstsze przyczyny degradacji FPS z czasem:",
             "  Most common causes of FPS degradation over time:"))
         lines.append(_t(lang,
-            "  🌡 Kurz → gorzsze chłodzenie → CPU/GPU throttluje → gorsza wydajność",
-            "  🌡 Dust buildup → worse cooling → CPU/GPU throttles → lower FPS"))
+            "  🌡 Kurz -> gorzsze chłodzenie -> CPU/GPU throttluje -> gorsza wydajność",
+            "  🌡 Dust buildup -> worse cooling -> CPU/GPU throttles -> lower FPS"))
         lines.append(_t(lang,
-            "  💾 Pełny dysk C: < 10 GB wolne → Windows swap spowalnia grę",
-            "  💾 Full drive C: < 10 GB free → Windows swap slows the game"))
+            "  💾 Pełny dysk C: < 10 GB wolne -> Windows swap spowalnia grę",
+            "  💾 Full drive C: < 10 GB free -> Windows swap slows the game"))
         lines.append(_t(lang,
-            "  🔄 Aktualizacja sterownika GPU — czasem nowe wersje są gorsze dla starszych gier",
-            "  🔄 GPU driver update — newer versions sometimes regress older titles"))
+            "  🔄 Aktualizacja sterownika GPU - czasem nowe wersje są gorsze dla starszych gier",
+            "  🔄 GPU driver update - newer versions sometimes regress older titles"))
         lines.append(_t(lang,
             "  📦 Nowe apki w autostarcie pożerają RAM przy każdym starcie",
             "  📦 New startup apps eating RAM from boot"))
@@ -4221,8 +4239,8 @@ class ResponseBuilder:
         self._trigger_micro_benchmark("disk_seq")
         lines.append("")
         lines.append(_t(lang,
-            "  🔬 Uruchomiono micro-test dysku w tle — zapytaj 'jak szybki jest mój dysk' za 10s.",
-            "  🔬 Disk micro-benchmark running in background — ask 'disk speed' in ~10s for results."))
+            "  🔬 Uruchomiono micro-test dysku w tle - zapytaj 'jak szybki jest mój dysk' za 10s.",
+            "  🔬 Disk micro-benchmark running in background - ask 'disk speed' in ~10s for results."))
 
         lines.append(_followup("perf", lang))
         return lines
@@ -4255,8 +4273,8 @@ class ResponseBuilder:
         typ_cpu = float(patterns.get("typical_cpu_avg") or 0)
         if typ_cpu > 0 and cpu > typ_cpu + 15:
             lines.append(_t(lang,
-                f"  ⚠ CPU teraz {cpu:.0f}% vs norma {typ_cpu:.0f}% — coś pobiera więcej mocy niż zwykle.",
-                f"  ⚠ CPU now {cpu:.0f}% vs typical {typ_cpu:.0f}% — something is consuming more than usual."))
+                f"  ⚠ CPU teraz {cpu:.0f}% vs norma {typ_cpu:.0f}% - coś pobiera więcej mocy niż zwykle.",
+                f"  ⚠ CPU now {cpu:.0f}% vs typical {typ_cpu:.0f}% - something is consuming more than usual."))
 
         if cpu_hist:
             lines.append(_t(lang, "  CPU trend (7 dni):", "  CPU trend (7 days):"))
@@ -4267,25 +4285,25 @@ class ResponseBuilder:
 
         if not cpu_hist and not ram_hist:
             lines.append(_t(lang,
-                "  Brak wystarczającej historii metryk — potrzebuję 7+ dni danych.",
-                "  Not enough metric history — need 7+ days of data."))
+                "  Brak wystarczającej historii metryk - potrzebuję 7+ dni danych.",
+                "  Not enough metric history - need 7+ days of data."))
 
         lines.append("")
         lines.append(_t(lang,
             "  Typowe przyczyny zmiany zachowania aplikacji:",
             "  Typical causes of app behavior change:"))
         lines.append(_t(lang,
-            "  • Aktualizacja aplikacji — sprawdź w Ustawienia → Aplikacje",
-            "  • App update — check Settings → Apps for recent updates"))
+            "  • Aktualizacja aplikacji - sprawdź w Ustawienia -> Aplikacje",
+            "  • App update - check Settings -> Apps for recent updates"))
         lines.append(_t(lang,
             "  • Nowa usługa w tle odciągająca CPU/RAM",
             "  • New background service consuming CPU/RAM"))
         lines.append(_t(lang,
-            "  • Pełny dysk — < 10 GB wolne spowalnia wszystko",
-            "  • Full disk — < 10 GB free slows everything down"))
+            "  • Pełny dysk - < 10 GB wolne spowalnia wszystko",
+            "  • Full disk - < 10 GB free slows everything down"))
         lines.append(_t(lang,
-            "  • Problem z temperaturą — CPU/GPU throttluje pod obciążeniem",
-            "  • Thermal issue — CPU/GPU throttling under load"))
+            "  • Problem z temperaturą - CPU/GPU throttluje pod obciążeniem",
+            "  • Thermal issue - CPU/GPU throttling under load"))
         lines.append(_t(lang,
             "  💬 Sprawdź 'co się zmieniło od wczoraj' po konkretne zmiany procesów",
             "  💬 Try 'what changed since yesterday' for specific process changes"))
@@ -4295,7 +4313,7 @@ class ResponseBuilder:
 
     def _resp_startup_slowdown(self, r: ParseResult, lang: str = "pl") -> List[str]:
         """
-        Enhanced startup analysis — ranks startup entries by likely boot impact,
+        Enhanced startup analysis - ranks startup entries by likely boot impact,
         measures current startup program count and gives actionable prioritization.
         """
         import winreg
@@ -4363,9 +4381,9 @@ class ResponseBuilder:
         if total <= 4:
             verdict = _t(lang, "✓ Bardzo czysty autostart.", "✓ Very clean startup.")
         elif total <= 8:
-            verdict = _t(lang, "! Umiarkowany — można skrócić czas boot.", "! Moderate — boot time can be reduced.")
+            verdict = _t(lang, "! Umiarkowany - można skrócić czas boot.", "! Moderate - boot time can be reduced.")
         else:
-            verdict = _t(lang, "⚠ Dużo wpisów — boot jest wyraźnie wolniejszy.", "⚠ Many entries — boot is noticeably slower.")
+            verdict = _t(lang, "⚠ Dużo wpisów - boot jest wyraźnie wolniejszy.", "⚠ Many entries - boot is noticeably slower.")
 
         lines.append(f"  {verdict}  ({total} wpisów / {total} entries)")
         lines.append(_t(lang, "  Największy wpływ (sugeruj wyłączyć):", "  Highest impact (suggest disabling):"))
@@ -4376,8 +4394,8 @@ class ResponseBuilder:
 
         lines.append("")
         lines.append(_t(lang,
-            "  💬 Zarządzaj wpisami  [→ Startup Manager]",
-            "  💬 Manage entries  [→ Startup Manager]"))
+            "  💬 Zarządzaj wpisami  [-> Startup Manager]",
+            "  💬 Manage entries  [-> Startup Manager]"))
         lines.append(_followup("startup", lang))
         return lines
 
@@ -4389,8 +4407,8 @@ class ResponseBuilder:
         Answers "is my PC hotter than usual lately?"
         """
         lines = [_t(lang,
-            f"{self.PREFIX} Porównanie temperatur — czy jest goręcej niż zwykle?",
-            f"{self.PREFIX} Temperature comparison — running hotter than usual?")]
+            f"{self.PREFIX} Porównanie temperatur - czy jest goręcej niż zwykle?",
+            f"{self.PREFIX} Temperature comparison - running hotter than usual?")]
 
         cpu_7d  = self._get_historical_comparison("cpu_temp", 7,  lang)
         cpu_30d = self._get_historical_comparison("cpu_temp", 30, lang)
@@ -4401,8 +4419,8 @@ class ResponseBuilder:
             lines.extend(self._no_data("temp_comparison", lang,
                 _t(lang, "brak danych z metrics_store", "no metrics_store temperature history")))
             lines.append(_t(lang,
-                "  PC Workman zbiera dane co 5 min — wróć za kilka dni.",
-                "  PC Workman collects data every 5 min — check back in a few days."))
+                "  PC Workman zbiera dane co 5 min - wróć za kilka dni.",
+                "  PC Workman collects data every 5 min - check back in a few days."))
             return lines
 
         if cpu_7d:
@@ -4423,8 +4441,8 @@ class ResponseBuilder:
             "  • Wyczyść chłodnik ze kurzu (sprężone powietrze)",
             "  • Clean heatsink of dust (compressed air)"))
         lines.append(_t(lang,
-            "  • Sprawdź plan zasilania — High Performance grzeje bardziej",
-            "  • Check power plan — High Performance runs hotter"))
+            "  • Sprawdź plan zasilania - High Performance grzeje bardziej",
+            "  • Check power plan - High Performance runs hotter"))
         lines.append(_t(lang,
             "  • Sprawdź czy pasta termoprzewodząca nie wymaga wymiany (>3-4 lata)",
             "  • Check if thermal paste needs replacing (>3–4 years old)"))
@@ -4462,8 +4480,8 @@ class ResponseBuilder:
         if freeze_hint:
             age = freeze_hint.age_minutes()
             lines.append(_t(lang,
-                f"  Ostatnie zdarzenie: {freeze_hint.event_type} — {age:.0f} min temu",
-                f"  Last event: {freeze_hint.event_type} — {age:.0f} min ago"))
+                f"  Ostatnie zdarzenie: {freeze_hint.event_type} - {age:.0f} min temu",
+                f"  Last event: {freeze_hint.event_type} - {age:.0f} min ago"))
             if freeze_hint.detail:
                 lines.append(f"  Szczegóły: {freeze_hint.detail}")
         else:
@@ -4484,8 +4502,8 @@ class ResponseBuilder:
             max_temp = max(t for _, t in temps)
             if max_temp > 80:
                 lines.append(_t(lang,
-                    f"  ⚠ Temperatura teraz: {max_temp:.0f}°C — przegrzanie jest częstą przyczyną freezów.",
-                    f"  ⚠ Temperature now: {max_temp:.0f}°C — overheating is a frequent freeze cause."))
+                    f"  ⚠ Temperatura teraz: {max_temp:.0f}°C - przegrzanie jest częstą przyczyną freezów.",
+                    f"  ⚠ Temperature now: {max_temp:.0f}°C - overheating is a frequent freeze cause."))
 
         # Historical crash patterns from metrics
         cpu_temp_hist = self._get_historical_comparison("cpu_temp", 7, lang)
@@ -4498,20 +4516,20 @@ class ResponseBuilder:
             "  Typowe przyczyny freezów/crashów:",
             "  Common causes of freezes/crashes:"))
         lines.append(_t(lang,
-            "  🌡 Przegrzanie CPU/GPU — sprawdź temperatury i kurz",
-            "  🌡 CPU/GPU overheating — check temps and dust"))
+            "  🌡 Przegrzanie CPU/GPU - sprawdź temperatury i kurz",
+            "  🌡 CPU/GPU overheating - check temps and dust"))
         lines.append(_t(lang,
-            "  💾 RAM — uszkodzony moduł lub przeciążony pagefile (niski wolny RAM)",
-            "  💾 RAM — faulty module or overloaded pagefile (low free RAM)"))
+            "  💾 RAM - uszkodzony moduł lub przeciążony pagefile (niski wolny RAM)",
+            "  💾 RAM - faulty module or overloaded pagefile (low free RAM)"))
         lines.append(_t(lang,
-            "  ⚡ Zasilanie — PSU zbyt słabe dla obciążenia, szczególnie przy graniu",
-            "  ⚡ PSU — underpowered for load, especially during gaming"))
+            "  ⚡ Zasilanie - PSU zbyt słabe dla obciążenia, szczególnie przy graniu",
+            "  ⚡ PSU - underpowered for load, especially during gaming"))
         lines.append(_t(lang,
-            "  🔄 Sterowniki GPU — niestabilne wersje czasem powodują crash",
-            "  🔄 GPU driver — unstable versions can cause crashes"))
+            "  🔄 Sterowniki GPU - niestabilne wersje czasem powodują crash",
+            "  🔄 GPU driver - unstable versions can cause crashes"))
         lines.append(_t(lang,
-            "  💬 Sprawdź Windows Event Viewer: Win+R → eventvwr → System Logs",
-            "  💬 Check Windows Event Viewer: Win+R → eventvwr → System Logs"))
+            "  💬 Sprawdź Windows Event Viewer: Win+R -> eventvwr -> System Logs",
+            "  💬 Check Windows Event Viewer: Win+R -> eventvwr -> System Logs"))
         return lines
 
     # ── Game hardware stress ───────────────────────────────────────────────────
@@ -4596,8 +4614,8 @@ class ResponseBuilder:
                         f"  Historical GPU peak (14 days): {gpu_peak:.0f}% load ({peak_day['date_str']})"))
                     if cpu_peak:
                         lines.append(_t(lang,
-                            f"  Przy tym CPU {cpu_peak:.0f}% — prawdopodobnie ciężka sesja gamingowa.",
-                            f"  Alongside CPU {cpu_peak:.0f}% — likely a heavy gaming session."))
+                            f"  Przy tym CPU {cpu_peak:.0f}% - prawdopodobnie ciężka sesja gamingowa.",
+                            f"  Alongside CPU {cpu_peak:.0f}% - likely a heavy gaming session."))
         except Exception:
             pass
 
@@ -4621,7 +4639,7 @@ class ResponseBuilder:
     # ── Battery drain rate ─────────────────────────────────────────────────────
 
     def _resp_battery_drain_rate(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        """Enhanced battery response — shows drain rate estimate during gaming vs idle."""
+        """Enhanced battery response - shows drain rate estimate during gaming vs idle."""
         try:
             import psutil
             bat = psutil.sensors_battery()
@@ -4660,21 +4678,21 @@ class ResponseBuilder:
             ram = psutil.virtual_memory().percent
             lines.append("")
             lines.append(_t(lang,
-                f"  CPU teraz: {cpu:.0f}%  RAM: {ram:.0f}%  — to główne czynniki poboru prądu",
-                f"  CPU now: {cpu:.0f}%  RAM: {ram:.0f}%  — main factors in power draw"))
+                f"  CPU teraz: {cpu:.0f}%  RAM: {ram:.0f}%  - to główne czynniki poboru prądu",
+                f"  CPU now: {cpu:.0f}%  RAM: {ram:.0f}%  - main factors in power draw"))
 
             if cpu > 70:
                 lines.append(_t(lang,
-                    "  🔴 Wysokie CPU = wysoki pobór — bateria rozładowuje się szybko",
-                    "  🔴 High CPU = high draw — battery draining fast"))
+                    "  🔴 Wysokie CPU = wysoki pobór - bateria rozładowuje się szybko",
+                    "  🔴 High CPU = high draw - battery draining fast"))
             elif cpu > 40:
                 lines.append(_t(lang,
-                    "  🟡 Umiarkowane CPU — bateria rozładowuje się w normalnym tempie",
-                    "  🟡 Moderate CPU — battery draining at normal pace"))
+                    "  🟡 Umiarkowane CPU - bateria rozładowuje się w normalnym tempie",
+                    "  🟡 Moderate CPU - battery draining at normal pace"))
             else:
                 lines.append(_t(lang,
-                    "  ✓ Niskie CPU — wolne rozładowywanie baterii",
-                    "  ✓ Low CPU — slow battery drain"))
+                    "  ✓ Niskie CPU - wolne rozładowywanie baterii",
+                    "  ✓ Low CPU - slow battery drain"))
         except Exception:
             pass
 
@@ -4736,11 +4754,11 @@ class ResponseBuilder:
                     "  Processes with most cumulative CPU time since boot:"))
                 for name, secs in procs_cpu[:7]:
                     mins = secs / 60
-                    lines.append(f"  — {name[:30]:<30}  {mins:.0f} min CPU time")
+                    lines.append(f"  - {name[:30]:<30}  {mins:.0f} min CPU time")
             else:
                 lines.append(_t(lang,
-                    "  Brak danych o CPU times — prawdopodobnie brak uprawnień.",
-                    "  No CPU times data — likely insufficient permissions."))
+                    "  Brak danych o CPU times - prawdopodobnie brak uprawnień.",
+                    "  No CPU times data - likely insufficient permissions."))
         except Exception:
             lines.append(_t(lang,
                 "  Nie mogę pobrać danych o procesach.",
@@ -4751,9 +4769,872 @@ class ResponseBuilder:
             "  💡 Więcej czasu CPU = więcej prądu zużytego.",
             "  💡 More CPU time = more power consumed."))
         lines.append(_t(lang,
-            "  Dla dokładniejszego pomiaru (laptopy): Start → powercfg /batteryreport",
-            "  For more precise measurement (laptops): Start → powercfg /batteryreport"))
+            "  Dla dokładniejszego pomiaru (laptopy): Start -> powercfg /batteryreport",
+            "  For more precise measurement (laptops): Start -> powercfg /batteryreport"))
         lines.append(_followup("process", lang))
+        return lines
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # COMMUNITY INTENTS - WAVE 2
+    # ─────────────────────────────────────────────────────────────────────────
+
+    # ── Can my PC run game X ──────────────────────────────────────────────────
+
+    # Inline game requirements database - min / recommended specs
+    # keys: lowercase search terms that match game names in user messages
+    _GAME_DB: dict = {
+        "cs2":          {"name": "CS2",              "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "csgo":         {"name": "CS:GO / CS2",      "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "counter-strike":{"name":"CS2",              "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "fortnite":     {"name": "Fortnite",         "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 40,  "cpu_note": "i5-7300U / Ryzen 3 3300U"},
+        "cyberpunk":    {"name": "Cyberpunk 2077",   "ram_min": 12, "ram_rec": 16, "vram_min": 8, "disk_gb": 70,  "cpu_note": "i7-6700 / Ryzen 5 1600"},
+        "hogwarts":     {"name": "Hogwarts Legacy",  "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 85,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
+        "minecraft":    {"name": "Minecraft Java",   "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 4,   "cpu_note": "any modern dual-core"},
+        "gta":          {"name": "GTA V",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 90,  "cpu_note": "i5-3470 / FX-8350"},
+        "gta5":         {"name": "GTA V",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 90,  "cpu_note": "i5-3470 / FX-8350"},
+        "valorant":     {"name": "Valorant",         "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 22,  "cpu_note": "i3-4150 / Ryzen 3 1200"},
+        "elden ring":   {"name": "Elden Ring",       "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
+        "eldenring":    {"name": "Elden Ring",       "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
+        "witcher":      {"name": "The Witcher 3",    "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i5-2500K / FX-8350"},
+        "apex":         {"name": "Apex Legends",     "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 60,  "cpu_note": "i5-3570T / FX-4170"},
+        "warzone":      {"name": "Warzone",          "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 125, "cpu_note": "i5-2500K / Ryzen 5 1600X"},
+        "overwatch":    {"name": "Overwatch 2",      "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i7-4770 / Ryzen 5 1600"},
+        "league":       {"name": "League of Legends","ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 20,  "cpu_note": "any dual-core 2GHz+"},
+        "roblox":       {"name": "Roblox",           "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 2,   "cpu_note": "any dual-core"},
+        "battlefield":  {"name": "Battlefield 2042", "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 100, "cpu_note": "i7-4790 / Ryzen 7 3700X"},
+        "stray":        {"name": "Stray",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 10,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
+    }
+
+    def _resp_game_can_run(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Checks if the user's PC meets minimum/recommended requirements
+        for a specific game detected in the message text.
+        Uses live RAM, GPU VRAM (from WMI), and disk data.
+        """
+        from hck_gpt.memory.user_knowledge import user_knowledge
+        from hck_gpt.context.system_context import system_context
+
+        msg_lower = (r.raw_text or "").lower()
+
+        # Find which game the user is asking about
+        game = None
+        for key, data in self._GAME_DB.items():
+            if key in msg_lower:
+                game = data
+                break
+
+        hw = user_knowledge.get_all_hardware()
+        snap = system_context.snapshot()
+
+        # Get actual RAM (GB installed)
+        ram_gb: Optional[float] = None
+        try:
+            import psutil
+            ram_gb = psutil.virtual_memory().total / (1024 ** 3)
+        except Exception:
+            pass
+        if not ram_gb:
+            raw_ram = hw.get("ram_total", "") or ""
+            try:
+                ram_gb = float(str(raw_ram).replace("GB", "").strip())
+            except Exception:
+                ram_gb = None
+
+        # Get GPU VRAM (GB) from user_knowledge
+        vram_gb: Optional[float] = None
+        raw_vram = hw.get("gpu_vram", "") or hw.get("vram", "") or ""
+        try:
+            vram_gb = float(str(raw_vram).replace("GB", "").replace("MB", "").strip())
+            if "MB" in str(raw_vram):
+                vram_gb /= 1024
+        except Exception:
+            vram_gb = None
+
+        # Get free disk space
+        disk_free_gb: Optional[float] = None
+        try:
+            import psutil
+            disk_free_gb = psutil.disk_usage("C:\\").free / (1024 ** 3)
+        except Exception:
+            pass
+
+        if game is None:
+            # Unknown game - give generic guidance
+            lines = [_t(lang,
+                f"{self.PREFIX} Nie rozpoznałem nazwy gry w pytaniu.",
+                f"{self.PREFIX} I didn't recognise a game name in your question.")]
+            lines.append(_t(lang,
+                "  Zapytaj np.: 'czy dam radę uruchomić Cyberpunk 2077' / 'czy zagram w Fortnite'",
+                "  Try: 'can my pc run Cyberpunk 2077' / 'can I play Fortnite'"))
+            lines.append(_t(lang,
+                "  Obsługiwane gry: CS2, Fortnite, Cyberpunk, Hogwarts Legacy, Minecraft,",
+                "  Supported games: CS2, Fortnite, Cyberpunk, Hogwarts Legacy, Minecraft,"))
+            lines.append(_t(lang,
+                "    GTA V, Valorant, Elden Ring, Witcher 3, Apex, Warzone, Overwatch 2",
+                "    GTA V, Valorant, Elden Ring, Witcher 3, Apex, Warzone, Overwatch 2"))
+            return lines
+
+        gname     = game["name"]
+        ram_min   = game["ram_min"]
+        ram_rec   = game["ram_rec"]
+        vram_min  = game["vram_min"]
+        disk_gb   = game["disk_gb"]
+        cpu_note  = game["cpu_note"]
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Sprawdzam wymagania: {gname}",
+            f"{self.PREFIX} Checking requirements: {gname}")]
+
+        # RAM check
+        ram_ok = ram_rec_ok = False
+        if ram_gb is not None:
+            ram_ok     = ram_gb >= ram_min
+            ram_rec_ok = ram_gb >= ram_rec
+            if ram_rec_ok:
+                ram_icon = "✓"
+            elif ram_ok:
+                ram_icon = "!"
+            else:
+                ram_icon = "✗"
+            lines.append(_t(lang,
+                f"  {ram_icon} RAM: {ram_gb:.0f} GB masz  /  min {ram_min} GB  /  rec {ram_rec} GB",
+                f"  {ram_icon} RAM: {ram_gb:.0f} GB installed  /  min {ram_min} GB  /  rec {ram_rec} GB"))
+        else:
+            lines.append(_t(lang,
+                f"  ? RAM: brak danych  (wymagane min {ram_min} GB)",
+                f"  ? RAM: no data available  (required min {ram_min} GB)"))
+
+        # VRAM check
+        if vram_gb is not None:
+            vram_ok = vram_gb >= vram_min
+            vram_icon = "✓" if vram_ok else "✗"
+            lines.append(_t(lang,
+                f"  {vram_icon} VRAM GPU: {vram_gb:.0f} GB masz  /  min {vram_min} GB",
+                f"  {vram_icon} VRAM GPU: {vram_gb:.0f} GB installed  /  min {vram_min} GB"))
+        else:
+            lines.append(_t(lang,
+                f"  ? VRAM GPU: brak danych  (wymagane min {vram_min} GB)",
+                f"  ? VRAM GPU: no data  (required min {vram_min} GB)"))
+
+        # Disk check
+        if disk_free_gb is not None:
+            disk_ok = disk_free_gb >= disk_gb
+            disk_icon = "✓" if disk_ok else "✗"
+            lines.append(_t(lang,
+                f"  {disk_icon} Dysk wolne: {disk_free_gb:.0f} GB  /  wymagane ~{disk_gb} GB",
+                f"  {disk_icon} Disk free: {disk_free_gb:.0f} GB  /  required ~{disk_gb} GB"))
+        else:
+            lines.append(_t(lang,
+                f"  ? Dysk: brak danych  (wymagane ~{disk_gb} GB wolnego)",
+                f"  ? Disk: no data  (need ~{disk_gb} GB free)"))
+
+        lines.append(_t(lang,
+            f"  CPU: wymagany {cpu_note}",
+            f"  CPU: required {cpu_note}"))
+
+        # Verdict
+        lines.append("")
+        can_run    = (ram_gb is None or ram_ok) and (vram_gb is None or vram_gb >= vram_min)
+        can_ultra  = (ram_gb is None or ram_rec_ok) and (vram_gb is None or vram_gb >= vram_min * 2)
+        no_data    = ram_gb is None and vram_gb is None
+
+        if no_data:
+            lines.append(_t(lang,
+                "  ⚠ Za mało danych sprzętowych - sprawdź 'moje specs' aby je wypełnić.",
+                "  ⚠ Not enough hardware data - type 'my specs' to populate it."))
+        elif not can_run:
+            lines.append(_t(lang,
+                f"  ✗ Twój sprzęt NIE SPEŁNIA minimalnych wymagań {gname}.",
+                f"  ✗ Your hardware does NOT meet minimum requirements for {gname}."))
+            lines.append(_t(lang,
+                "  Gra może nie uruchomić się lub działać bardzo źle.",
+                "  The game may not launch or will run very poorly."))
+        elif can_ultra:
+            lines.append(_t(lang,
+                f"  ✓ {gname} pójdzie płynnie - masz zapas na wyższe ustawienia.",
+                f"  ✓ {gname} will run smoothly - you have headroom for higher settings."))
+        else:
+            lines.append(_t(lang,
+                f"  ! {gname} uruchomi się, ale spodziewaj się niskich/średnich ustawień.",
+                f"  ! {gname} will launch but expect low to medium settings."))
+            lines.append(_t(lang,
+                "  Na ultra może być za wolno - spróbuj najpierw ustawień Medium.",
+                "  Ultra settings will likely struggle - start with Medium."))
+
+        lines.append(_followup("hw", lang))
+        return lines
+
+    # ── How much RAM do I use while gaming ───────────────────────────────────
+
+    def _resp_gaming_ram_usage(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Shows RAM usage specifically during gaming sessions:
+        - Current RAM if a game is running
+        - Session peak RAM (from session_memory)
+        - 7-day average RAM during high-GPU-load periods (metrics_store)
+        """
+        from hck_gpt.memory.session_memory import session_memory
+        from hck_gpt.data.metrics_store import metrics_store
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Zużycie RAM podczas grania:",
+            f"{self.PREFIX} RAM usage during gaming:")]
+
+        # Current RAM snapshot
+        try:
+            import psutil
+            vm = psutil.virtual_memory()
+            ram_used  = vm.used  / (1024 ** 3)
+            ram_total = vm.total / (1024 ** 3)
+            ram_pct   = vm.percent
+
+            # Check if a game process is currently running
+            game_slugs = {
+                "cs2", "csgo", "valorant", "fortnite", "minecraft",
+                "epicgameslauncher", "steam", "leagueoflegends",
+                "dota2", "rocketleague", "cyberpunk2077", "witcher3",
+                "eldenring", "r5apex", "cod", "warzone2", "overwatch",
+                "destiny2", "battlefield", "hogwartslauncher",
+            }
+            game_running = []
+            game_ram_mb  = 0
+            for proc in psutil.process_iter(["name", "memory_info"]):
+                try:
+                    pname = (proc.info.get("name") or "").lower().replace(".exe", "").replace("_", "").replace("-", "").replace(" ", "")
+                    if any(slug in pname for slug in game_slugs):
+                        mem = proc.info.get("memory_info")
+                        if mem:
+                            mb = (mem.rss or 0) / (1024 ** 2)
+                            game_running.append((proc.info["name"], mb))
+                            game_ram_mb += mb
+                except Exception:
+                    continue
+
+            if game_running:
+                lines.append(_t(lang,
+                    f"  🎮 Aktywna gra wykryta - RAM teraz: {ram_used:.1f} GB / {ram_total:.0f} GB ({ram_pct:.0f}%)",
+                    f"  🎮 Active game detected - RAM now: {ram_used:.1f} GB / {ram_total:.0f} GB ({ram_pct:.0f}%)"))
+                lines.append(_t(lang,
+                    f"  Gra zajmuje RAM: ~{game_ram_mb:.0f} MB",
+                    f"  Game RAM footprint: ~{game_ram_mb:.0f} MB"))
+                for gname, gmb in sorted(game_running, key=lambda x: x[1], reverse=True)[:3]:
+                    lines.append(f"    - {gname[:32]:<32}  {gmb:.0f} MB")
+            else:
+                lines.append(_t(lang,
+                    f"  RAM teraz (bez aktywnej gry): {ram_used:.1f} GB / {ram_total:.0f} GB ({ram_pct:.0f}%)",
+                    f"  RAM now (no active game): {ram_used:.1f} GB / {ram_total:.0f} GB ({ram_pct:.0f}%)"))
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie mogę odczytać aktualnego RAM.",
+                "  Cannot read current RAM."))
+
+        # Historical: session peak from session_memory
+        try:
+            peak_ram = max(session_memory._ram_trend) if session_memory._ram_trend else None
+            if peak_ram:
+                lines.append("")
+                lines.append(_t(lang,
+                    f"  Szczyt RAM tej sesji: {peak_ram:.0f}%",
+                    f"  RAM peak this session: {peak_ram:.0f}%"))
+        except Exception:
+            pass
+
+        # 7-day history - average RAM on gaming days vs non-gaming days
+        lines.append("")
+        hist = self._get_historical_comparison("ram_pct", 7, lang)
+        if hist:
+            lines.append(_t(lang,
+                "  Historyczne porównanie RAM (7 dni):",
+                "  Historical RAM comparison (7 days):"))
+            lines.append(hist)
+        else:
+            lines.append(_t(lang,
+                "  Brak 7-dniowej historii RAM - zbiera się z czasem.",
+                "  No 7-day RAM history yet - accumulates over time."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Typowe gry: 4–8 GB RAM. Nowe tytuły AAA mogą wymagać 12–16 GB.",
+            "  💡 Typical games: 4–8 GB RAM. New AAA titles may require 12–16 GB."))
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── Typical daily RAM usage ───────────────────────────────────────────────
+
+    def _resp_daily_ram_usage(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Shows typical daily RAM usage from 7-day metrics_store history.
+        Compares to current usage and installed capacity.
+        """
+        lines = [_t(lang,
+            f"{self.PREFIX} Typowe dzienne zużycie RAM:",
+            f"{self.PREFIX} Your typical daily RAM usage:")]
+
+        # Current live value
+        try:
+            import psutil
+            vm = psutil.virtual_memory()
+            ram_used_gb  = vm.used  / (1024 ** 3)
+            ram_total_gb = vm.total / (1024 ** 3)
+            ram_pct      = vm.percent
+            lines.append(_t(lang,
+                f"  Teraz: {ram_used_gb:.1f} GB / {ram_total_gb:.0f} GB ({ram_pct:.0f}%)",
+                f"  Right now: {ram_used_gb:.1f} GB / {ram_total_gb:.0f} GB ({ram_pct:.0f}%)"))
+        except Exception:
+            ram_total_gb = 0
+            lines.append(_t(lang, "  RAM: brak danych na żywo.", "  RAM: no live data."))
+
+        # 7-day history from metrics_store
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            summary = metrics_store.daily_summary(days=7)
+            if summary:
+                valid_avg  = [float(r["ram_avg"]) for r in summary if r.get("ram_avg") and float(r["ram_avg"]) > 0]
+                valid_max  = [float(r["ram_max"]) for r in summary if r.get("ram_max") and float(r["ram_max"]) > 0]
+
+                if valid_avg:
+                    avg7 = sum(valid_avg) / len(valid_avg)
+                    max7 = max(valid_max) if valid_max else None
+                    min7 = min(valid_avg)
+
+                    lines.append("")
+                    lines.append(_t(lang,
+                        f"  Średnia (7 dni):    {avg7:.0f}%",
+                        f"  Average (7 days):   {avg7:.0f}%"))
+                    if max7:
+                        lines.append(_t(lang,
+                            f"  Szczyt (7 dni):     {max7:.0f}%",
+                            f"  Peak (7 days):      {max7:.0f}%"))
+                    lines.append(_t(lang,
+                        f"  Minimum (7 dni):    {min7:.0f}%",
+                        f"  Minimum (7 days):   {min7:.0f}%"))
+
+                    if ram_total_gb > 0:
+                        avg_gb = (avg7 / 100) * ram_total_gb
+                        max_gb = (max7 / 100) * ram_total_gb if max7 else None
+                        lines.append("")
+                        lines.append(_t(lang,
+                            f"  W GB: średnio ~{avg_gb:.1f} GB{f'  /  szczyt ~{max_gb:.1f} GB' if max_gb else ''} z {ram_total_gb:.0f} GB",
+                            f"  In GB: average ~{avg_gb:.1f} GB{f'  /  peak ~{max_gb:.1f} GB' if max_gb else ''} of {ram_total_gb:.0f} GB"))
+
+                    # Verdict
+                    lines.append("")
+                    if avg7 > 85:
+                        lines.append(_t(lang,
+                            "  ⚠ Bardzo wysokie - regularnie brakuje RAM. Rozważ upgrade lub zamknięcie procesów w tle.",
+                            "  ⚠ Very high - regularly running low on RAM. Consider upgrading or closing background apps."))
+                    elif avg7 > 70:
+                        lines.append(_t(lang,
+                            "  ! Wysokie - masz mało rezerwy. Przy graniu lub renderze możesz odczuć spowolnienia.",
+                            "  ! High - limited headroom. You may notice slowdowns during gaming or rendering."))
+                    elif avg7 > 50:
+                        lines.append(_t(lang,
+                            "  ✓ Umiarkowane - normalne przy aktywnym użytkowaniu.",
+                            "  ✓ Moderate - normal for active desktop usage."))
+                    else:
+                        lines.append(_t(lang,
+                            "  ✓ Niskie - masz spory zapas RAM. System oddycha swobodnie.",
+                            "  ✓ Low - plenty of RAM headroom. System is comfortable."))
+                else:
+                    lines.append(_t(lang,
+                        "  Brak wystarczającej historii - uruchom PC Workman przez kilka dni.",
+                        "  Not enough history yet - run PC Workman for a few days."))
+            else:
+                lines.append(_t(lang,
+                    "  Brak danych historycznych (metrics_store pusty).",
+                    "  No historical data (metrics_store is empty)."))
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie można pobrać historii RAM.",
+                "  Cannot load RAM history."))
+
+        lines.append(_followup("hw", lang))
+        return lines
+
+    # ── Battery life estimate for activity ───────────────────────────────────
+
+    def _resp_battery_estimate(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Estimates remaining battery life based on current % and activity type.
+        Detects activity from message text (gaming / work / video / idle).
+        """
+        msg_lower = (r.raw_text or "").lower()
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Szacowany czas pracy na baterii:",
+            f"{self.PREFIX} Estimated battery life remaining:")]
+
+        # Read current battery state
+        try:
+            import psutil
+            batt = psutil.sensors_battery()
+            if batt is None:
+                lines.append(_t(lang,
+                    "  ⚠ Bateria nie wykryta - to może być komputer stacjonarny lub psutil nie widzi baterii.",
+                    "  ⚠ No battery detected - this may be a desktop PC or psutil cannot read battery state."))
+                return lines
+
+            pct        = batt.percent
+            plugged    = batt.power_plugged
+            secsleft   = batt.secsleft  # can be psutil.POWER_TIME_UNLIMITED or -1
+
+            if plugged:
+                lines.append(_t(lang,
+                    f"  🔌 Podłączono ładowarkę - bateria: {pct:.0f}%",
+                    f"  🔌 Charger connected - battery at {pct:.0f}%"))
+                lines.append(_t(lang,
+                    "  Szacowanie czasu nie ma sensu gdy jesteś podłączony do prądu.",
+                    "  Runtime estimate is irrelevant while you're plugged in."))
+                return lines
+
+            lines.append(_t(lang,
+                f"  Bateria: {pct:.0f}%  (nie podłączono)",
+                f"  Battery: {pct:.0f}%  (on battery)"))
+
+            # If OS provides remaining time, use it
+            if secsleft and secsleft > 0:
+                hours   = secsleft // 3600
+                minutes = (secsleft % 3600) // 60
+                lines.append(_t(lang,
+                    f"  System szacuje: ~{hours}h {minutes}m przy obecnym zużyciu",
+                    f"  OS estimate: ~{hours}h {minutes}m at current consumption"))
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie można odczytać stanu baterii (psutil).",
+                "  Cannot read battery state (psutil)."))
+            return lines
+
+        # Activity detection from message
+        is_gaming = any(w in msg_lower for w in ("gra", "gaming", "fortnite", "cs", "minecraft"))
+        is_video  = any(w in msg_lower for w in ("film", "video", "youtube", "oglądani", "watch"))
+        is_work   = any(w in msg_lower for w in ("praca", "projekt", "pisani", "word", "excel", "piszę", "write", "work", "office"))
+        is_idle   = any(w in msg_lower for w in ("bezczynny", "idle", "nic", "spać", "sleep"))
+
+        # Drain rate lookup (% per hour, typical for laptops)
+        if is_gaming:
+            drain_lo, drain_hi = 22, 35
+            activity_pl = "granie"
+            activity_en = "gaming"
+        elif is_video:
+            drain_lo, drain_hi = 12, 18
+            activity_pl = "oglądanie wideo"
+            activity_en = "watching video"
+        elif is_work:
+            drain_lo, drain_hi = 8, 15
+            activity_pl = "praca biurowa / pisanie"
+            activity_en = "office / writing work"
+        elif is_idle:
+            drain_lo, drain_hi = 3, 6
+            activity_pl = "bezczynność"
+            activity_en = "idle"
+        else:
+            # Generic - mixed use
+            drain_lo, drain_hi = 8, 18
+            activity_pl = "typowe użytkowanie"
+            activity_en = "typical mixed use"
+
+        try:
+            pct_now = psutil.sensors_battery().percent  # type: ignore[union-attr]
+        except Exception:
+            pct_now = 50  # fallback
+
+        hrs_lo = pct_now / drain_hi
+        hrs_hi = pct_now / drain_lo
+        mins_lo = int((hrs_lo % 1) * 60)
+        mins_hi = int((hrs_hi % 1) * 60)
+
+        lines.append("")
+        lines.append(_t(lang,
+            f"  Aktywność: {activity_pl}",
+            f"  Activity: {activity_en}"))
+        lines.append(_t(lang,
+            f"  Typowe zużycie: {drain_lo}–{drain_hi}% / godz",
+            f"  Typical drain: {drain_lo}–{drain_hi}% / hour"))
+        lines.append(_t(lang,
+            f"  Szacowany czas: ~{int(hrs_lo)}h {mins_lo}m  -  {int(hrs_hi)}h {mins_hi}m",
+            f"  Estimated remaining: ~{int(hrs_lo)}h {mins_lo}m  -  {int(hrs_hi)}h {mins_hi}m"))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Oszczędność: zmniejsz jasność, wyłącz Wi-Fi gdy niepotrzebne, plan Balanced.",
+            "  💡 Save battery: lower brightness, disable Wi-Fi when idle, use Balanced plan."))
+        lines.append(_followup("perf", lang))
+        return lines
+
+    # ── Can I upgrade RAM or SSD on this machine ────────────────────────────
+
+    def _resp_upgrade_feasibility(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Checks whether the machine can have RAM or storage added.
+        Uses WMI to read RAM slot count and populated slots.
+        Falls back to graceful hardware info if WMI unavailable.
+        """
+        import subprocess
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Możliwości rozbudowy sprzętu:",
+            f"{self.PREFIX} Upgrade feasibility check:")]
+
+        # ── RAM slots via WMI ──────────────────────────────────────────────
+        lines.append("")
+        lines.append(_t(lang, "  ── RAM ──", "  ── RAM ──"))
+        try:
+            ps_ram = (
+                "Get-WmiObject Win32_PhysicalMemoryArray | "
+                "Select-Object MemoryDevices,MaxCapacity | "
+                "ConvertTo-Json"
+            )
+            res = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_ram],
+                capture_output=True, text=True, timeout=7,
+            )
+            import json as _json
+            raw = res.stdout.strip()
+            if raw:
+                data = _json.loads(raw)
+                if isinstance(data, dict):
+                    data = [data]
+                for slot_info in data:
+                    total_slots = slot_info.get("MemoryDevices", "?")
+                    max_cap_kb  = slot_info.get("MaxCapacity", 0) or 0
+                    max_cap_gb  = int(max_cap_kb) // (1024 * 1024) if max_cap_kb else 0
+
+                    # Count populated slots
+                    ps_sticks = (
+                        "Get-WmiObject Win32_PhysicalMemory | "
+                        "Select-Object Capacity,Speed,MemoryType | "
+                        "ConvertTo-Json"
+                    )
+                    res2 = subprocess.run(
+                        ["powershell", "-NoProfile", "-Command", ps_sticks],
+                        capture_output=True, text=True, timeout=7,
+                    )
+                    sticks = []
+                    try:
+                        raw2 = res2.stdout.strip()
+                        if raw2:
+                            sticks_data = _json.loads(raw2)
+                            if isinstance(sticks_data, dict):
+                                sticks_data = [sticks_data]
+                            sticks = sticks_data
+                    except Exception:
+                        pass
+
+                    populated = len(sticks)
+                    free_slots = int(total_slots) - populated if isinstance(total_slots, int) else "?"
+                    installed_gb = sum(
+                        int(s.get("Capacity", 0) or 0) // (1024 ** 3) for s in sticks
+                    )
+
+                    lines.append(_t(lang,
+                        f"  Sloty RAM: {total_slots} total  /  {populated} zajęte  /  {free_slots} wolne",
+                        f"  RAM slots: {total_slots} total  /  {populated} used  /  {free_slots} free"))
+                    lines.append(_t(lang,
+                        f"  Zainstalowane: {installed_gb} GB  |  Maks obsługiwane: {max_cap_gb if max_cap_gb else '?'} GB",
+                        f"  Installed: {installed_gb} GB  |  Max supported: {max_cap_gb if max_cap_gb else '?'} GB"))
+
+                    if free_slots and free_slots != "?" and int(str(free_slots)) > 0:
+                        lines.append(_t(lang,
+                            f"  ✓ Masz {free_slots} wolny slot(ów) - można dołożyć RAM.",
+                            f"  ✓ {free_slots} free slot(s) available - RAM upgrade is possible."))
+                    else:
+                        lines.append(_t(lang,
+                            "  ! Wszystkie sloty zajęte - upgrade wymaga wymiany kości, nie dołożenia.",
+                            "  ! All slots occupied - upgrade requires replacing sticks, not adding."))
+
+                    if max_cap_gb and installed_gb and max_cap_gb > installed_gb:
+                        diff = max_cap_gb - installed_gb
+                        lines.append(_t(lang,
+                            f"  Możesz dodać do {diff} GB więcej RAM (maks płyty: {max_cap_gb} GB).",
+                            f"  You can add up to {diff} GB more RAM (board max: {max_cap_gb} GB)."))
+            else:
+                raise ValueError("empty")
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie udało się odczytać danych przez WMI - sprawdź Menedżer urządzeń.",
+                "  WMI query failed - check Device Manager manually."))
+            # Fallback: show current RAM from psutil
+            try:
+                import psutil
+                vm = psutil.virtual_memory()
+                lines.append(_t(lang,
+                    f"  Aktualnie zainstalowane: {vm.total / (1024**3):.0f} GB RAM",
+                    f"  Currently installed: {vm.total / (1024**3):.0f} GB RAM"))
+            except Exception:
+                pass
+
+        # ── Storage upgrade hint ───────────────────────────────────────────
+        lines.append("")
+        lines.append(_t(lang, "  ── Dysk / Storage ──", "  ── Disk / Storage ──"))
+        try:
+            import psutil
+            partitions = psutil.disk_partitions(all=False)
+            for p in partitions:
+                try:
+                    usage = psutil.disk_usage(p.mountpoint)
+                    total_gb = usage.total / (1024 ** 3)
+                    free_gb  = usage.free  / (1024 ** 3)
+                    lines.append(f"  {p.device}  {total_gb:.0f} GB total  /  {free_gb:.0f} GB free  ({p.fstype})")
+                except Exception:
+                    continue
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie można odczytać dysków.",
+                "  Cannot read disk info."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Większość laptopów ma 1–2 sloty M.2/SATA. Sprawdź model w specyfikacji producenta.",
+            "  💡 Most laptops have 1–2 M.2/SATA slots. Check manufacturer specs for your model."))
+        lines.append(_t(lang,
+            "  Wpisz 'specs' by zobaczyć pełny profil sprzętu.",
+            "  Type 'specs' to see your full hardware profile."))
+        return lines
+
+    # ── Which process eats most RAM or disk I/O ──────────────────────────────
+
+    def _resp_top_resource_hog(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Shows top 5 processes by RAM usage and top 5 by disk I/O bytes.
+        Straight psutil data - no fabrication.
+        """
+        msg_lower = (r.raw_text or "").lower()
+        want_disk = any(w in msg_lower for w in ("disk", "dysk", "io", "i/o", "storage"))
+        want_ram  = any(w in msg_lower for w in ("ram", "pamię", "memory", "mem"))
+
+        # Default: show both unless user was specific
+        show_ram  = want_ram  or (not want_disk)
+        show_disk = want_disk or (not want_ram)
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Największe pochłaniacze zasobów:",
+            f"{self.PREFIX} Top resource consumers:")]
+
+        try:
+            import psutil
+
+            # ── TOP RAM consumers ──────────────────────────────────────────
+            if show_ram:
+                procs_ram: list[tuple[str, float]] = []
+                for proc in psutil.process_iter(["name", "memory_info"]):
+                    try:
+                        mi = proc.info.get("memory_info")
+                        if mi:
+                            mb = (mi.rss or 0) / (1024 ** 2)
+                            if mb > 10:
+                                procs_ram.append((proc.info["name"] or "?", mb))
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+
+                procs_ram.sort(key=lambda x: x[1], reverse=True)
+                lines.append("")
+                lines.append(_t(lang,
+                    "  🧠 TOP 5 - RAM (RSS):",
+                    "  🧠 TOP 5 - RAM (RSS):"))
+                for name, mb in procs_ram[:5]:
+                    gb_str = f"{mb/1024:.2f} GB" if mb > 1024 else f"{mb:.0f} MB"
+                    lines.append(f"  - {name[:36]:<36}  {gb_str}")
+
+            # ── TOP Disk I/O consumers ─────────────────────────────────────
+            if show_disk:
+                procs_io: list[tuple[str, float]] = []
+                for proc in psutil.process_iter(["name", "io_counters"]):
+                    try:
+                        io = proc.info.get("io_counters")
+                        if io:
+                            total_mb = ((io.read_bytes or 0) + (io.write_bytes or 0)) / (1024 ** 2)
+                            if total_mb > 1:
+                                procs_io.append((proc.info["name"] or "?", total_mb))
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+
+                procs_io.sort(key=lambda x: x[1], reverse=True)
+                lines.append("")
+                lines.append(_t(lang,
+                    "  💾 TOP 5 - I/O dysku (łączne od uruchomienia):",
+                    "  💾 TOP 5 - Disk I/O (cumulative since boot):"))
+                if procs_io:
+                    for name, mb in procs_io[:5]:
+                        gb_str = f"{mb/1024:.1f} GB" if mb > 1024 else f"{mb:.0f} MB"
+                        lines.append(f"  - {name[:36]:<36}  {gb_str}")
+                else:
+                    lines.append(_t(lang,
+                        "  Brak danych I/O (Windows może wymagać uprawnień admina).",
+                        "  No I/O data (Windows may require admin rights for this)."))
+
+        except Exception:
+            lines.append(_t(lang,
+                "  Nie można pobrać danych procesów.",
+                "  Cannot fetch process data."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💡 Duże I/O nie znaczy problem - to mogą być aktualizacje lub indeksowanie.",
+            "  💡 High disk I/O isn't always a problem - it may be updates or indexing."))
+        lines.append(_followup("process", lang))
+        return lines
+
+
+    # ── Greeting response (via intent or direct routing) ─────────────────────
+
+    _GREET_INTROS_PL = [
+        "{P} Cześć! Monitoruję Twój PC. CPU {cpu}%, RAM {ram}%. Co sprawdzamy?",
+        "{P} Hej! Jestem tu i obserwuję. CPU {cpu}%, RAM {ram}%. Czym mogę pomóc?",
+        "{P} Witaj! System spokojny - CPU {cpu}%, RAM {ram}%. Pytaj o co chcesz.",
+        "{P} Hejka! Gotowy. CPU {cpu}%, RAM {ram}%. Zacznij od 'specs' lub 'zdrowie'.",
+    ]
+    _GREET_INTROS_EN = [
+        "{P} Hey! Monitoring your PC. CPU {cpu}%, RAM {ram}%. What shall we check?",
+        "{P} Hi! Here and watching. CPU {cpu}%, RAM {ram}%. How can I help?",
+        "{P} Welcome! System calm - CPU {cpu}%, RAM {ram}%. Ask away.",
+        "{P} Hello! Ready. CPU {cpu}%, RAM {ram}%. Start with 'specs' or 'health'.",
+    ]
+
+    def _resp_greeting(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            from hck_gpt.context.system_context import system_context
+            snap = system_context.snapshot()
+            cpu = f"{snap.get('cpu_pct', 0) or 0:.0f}"
+            ram = f"{snap.get('ram_pct', 0) or 0:.0f}"
+        except Exception:
+            cpu, ram = "?", "?"
+        pool = self._GREET_INTROS_EN if lang == "en" else self._GREET_INTROS_PL
+        resp = self._pick_fresh("greeting", lang, self._GREET_INTROS_PL, self._GREET_INTROS_EN)
+        return [resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)]
+
+    # ── Thanks response ────────────────────────────────────────────────────────
+
+    _THANKS_PL = [
+        "{P} Spoko! Monitoruję dalej. Wróć jak będziesz potrzebował.",
+        "{P} Nie ma za co. Czujki działają, dane lecą. Pytaj kiedy chcesz.",
+        "{P} Zawsze do usług. Wpisz 'help' kiedy zapomnisz co potrafię.",
+        "{P} Okej! Pilnuję systemu. Daj znać jak coś się zmieni.",
+    ]
+    _THANKS_EN = [
+        "{P} Sure! Still monitoring. Come back whenever.",
+        "{P} No problem. Sensors running, data flowing. Ask anytime.",
+        "{P} Anytime. Type 'help' if you forget what I can do.",
+        "{P} All good! Watching the system. Let me know if anything changes.",
+    ]
+
+    def _resp_thanks(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        resp = self._pick_fresh("thanks", lang, self._THANKS_PL, self._THANKS_EN)
+        return [resp.replace("{P}", self.PREFIX)]
+
+    # ── Health check (live context-enriched) ──────────────────────────────────
+
+    def _resp_health_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """
+        Comprehensive health overview: live metrics, temps, throttle, disk.
+        Gives an overall verdict with actionable follow-ups.
+        """
+        from hck_gpt.context.system_context import system_context
+        from hck_gpt.memory.user_knowledge  import user_knowledge
+        snap     = system_context.snapshot()
+        patterns = user_knowledge.get_all_patterns()
+
+        cpu  = float(snap.get("cpu_pct",  0) or 0)
+        ram  = float(snap.get("ram_pct",  0) or 0)
+        cpu_t = snap.get("cpu_temp")
+        gpu_t = snap.get("gpu_temp")
+        disk_free = snap.get("disk_free_gb", 0) or 0
+        throttled = snap.get("cpu_throttled", False)
+
+        # Score-based health verdict
+        score = 100
+        issues: List[str] = []
+        tips:   List[str] = []
+
+        if cpu > 90:
+            score -= 25; issues.append(_t(lang, "CPU krytycznie wysoki", "CPU critically high"))
+        elif cpu > 75:
+            score -= 12; issues.append(_t(lang, "CPU podwyższony", "CPU elevated"))
+
+        if ram > 90:
+            score -= 25; issues.append(_t(lang, "RAM krytycznie zajęty", "RAM critically full"))
+        elif ram > 80:
+            score -= 12; issues.append(_t(lang, "RAM wysoki", "RAM high"))
+
+        if cpu_t and cpu_t > 88:
+            score -= 20; issues.append(_t(lang, f"CPU przegrzany ({cpu_t:.0f}°C)", f"CPU overheating ({cpu_t:.0f}°C)"))
+        elif cpu_t and cpu_t > 78:
+            score -= 8;  issues.append(_t(lang, f"CPU ciepły ({cpu_t:.0f}°C)", f"CPU warm ({cpu_t:.0f}°C)"))
+
+        if gpu_t and gpu_t > 90:
+            score -= 15; issues.append(_t(lang, f"GPU przegrzany ({gpu_t:.0f}°C)", f"GPU overheating ({gpu_t:.0f}°C)"))
+        elif gpu_t and gpu_t > 80:
+            score -= 8;  issues.append(_t(lang, f"GPU ciepły ({gpu_t:.0f}°C)", f"GPU warm ({gpu_t:.0f}°C)"))
+
+        if throttled:
+            score -= 15; issues.append(_t(lang, "CPU throttluje", "CPU throttling"))
+
+        if disk_free < 5:
+            score -= 20; issues.append(_t(lang, f"Dysk prawie pełny ({disk_free:.0f} GB wolne)", f"Disk nearly full ({disk_free:.0f} GB free)"))
+        elif disk_free < 15:
+            score -= 8;  issues.append(_t(lang, f"Mało miejsca na dysku ({disk_free:.0f} GB)", f"Low disk space ({disk_free:.0f} GB free)"))
+
+        score = max(0, score)
+
+        # Verdict
+        if score >= 90:
+            verdict = _t(lang, "DOSKONAŁY", "EXCELLENT")
+            verdict_sym = "✓"
+        elif score >= 75:
+            verdict = _t(lang, "DOBRY", "GOOD")
+            verdict_sym = "✓"
+        elif score >= 55:
+            verdict = _t(lang, "PRZECIĘTNY", "FAIR")
+            verdict_sym = "!"
+        else:
+            verdict = _t(lang, "KRYTYCZNY", "CRITICAL")
+            verdict_sym = "⚠"
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Stan zdrowia systemu  [{verdict_sym} {verdict}  {score}/100]",
+            f"{self.PREFIX} System health  [{verdict_sym} {verdict}  {score}/100]")]
+        lines.append("")
+
+        # Live metrics row
+        temp_str = ""
+        if cpu_t:
+            temp_str += f"  {cpu_t:.0f}°C CPU"
+        if gpu_t:
+            temp_str += f"  {gpu_t:.0f}°C GPU"
+        lines.append(f"  CPU {cpu:.0f}%   RAM {ram:.0f}%{temp_str}")
+        if snap.get("cpu_mhz") and snap.get("cpu_max_mhz"):
+            ratio = snap["cpu_mhz"] / snap["cpu_max_mhz"] * 100
+            if ratio < 75:
+                lines.append(_t(lang,
+                    f"  Taktowanie: {snap['cpu_mhz']} MHz  ({ratio:.0f}% mocy)",
+                    f"  Freq: {snap['cpu_mhz']} MHz  ({ratio:.0f}% of max)"))
+
+        # Issues
+        if issues:
+            lines.append("")
+            lines.append(_t(lang, "  Znalezione problemy:", "  Issues detected:"))
+            for iss in issues:
+                lines.append(f"  • {iss}")
+
+        # Typical vs now comparison
+        typ_cpu = float(patterns.get("typical_cpu_avg") or 0)
+        if typ_cpu > 0 and abs(cpu - typ_cpu) > 10:
+            delta = cpu - typ_cpu
+            sign = "+" if delta > 0 else ""
+            lines.append(_t(lang,
+                f"  CPU teraz {sign}{delta:.0f}% vs Twoja norma ({typ_cpu:.0f}%)",
+                f"  CPU now {sign}{delta:.0f}% vs your typical ({typ_cpu:.0f}%)"))
+
+        # Tips
+        lines.append("")
+        if score < 75:
+            lines.append(_t(lang,
+                "  💬 Rekomendowane: 'optymalizacja' · 'top procesy' · 'temperatura'",
+                "  💬 Recommended: 'optimization' · 'top processes' · 'temperature'"))
+        else:
+            lines.append(_t(lang,
+                "  💬 Sprawdź: 'stats' · 'temperatura' · 'specs'",
+                "  💬 Check: 'stats' · 'temperature' · 'specs'"))
+
         return lines
 
 
