@@ -15,7 +15,7 @@ What it does:
   5. Prints a summary report
 
 Use this after editing vocabulary.py to pre-bake the model before shipping.
-The app auto-trains on first launch anyway — this is just for convenience
+The app auto-trains on first launch anyway - this is just for convenience
 and for verifying vocabulary quality before a release.
 """
 from __future__ import annotations
@@ -33,7 +33,7 @@ if _root not in sys.path:
 
 def main() -> None:
     print("=" * 60)
-    print("  hck_GPT — ML Intent Classifier Training")
+    print("  hck_GPT - ML Intent Classifier Training")
     print("=" * 60)
     print()
 
@@ -101,7 +101,7 @@ def main() -> None:
         pred, conf = model.predict(query)
         status = "✓" if pred == expected else "✗"
         print(f"  {status}  \"{query}\"")
-        print(f"      → {pred} ({conf:.0%})  expected: {expected}")
+        print(f"      -> {pred} ({conf:.0%})  expected: {expected}")
     print()
 
     # ── Save ──────────────────────────────────────────────────────
@@ -113,7 +113,7 @@ def main() -> None:
     if saved:
         print("[+] Model saved successfully")
     else:
-        print("[!] Save failed — model will be retrained on next app launch")
+        print("[!] Save failed - model will be retrained on next app launch")
     print()
 
     # ── Summary ───────────────────────────────────────────────────
@@ -123,11 +123,11 @@ def main() -> None:
     print(f"  Train time: {train_time*1000:.0f} ms")
     print(f"  CV acc    : {acc*100:.1f}%")
     if acc >= 0.85:
-        print("  Status    : GOOD — ready for production")
+        print("  Status    : GOOD - ready for production")
     elif acc >= 0.70:
-        print("  Status    : OK — consider adding more vocabulary phrases")
+        print("  Status    : OK - consider adding more vocabulary phrases")
     else:
-        print("  Status    : LOW — review vocabulary.py for ambiguous phrases")
+        print("  Status    : LOW - review vocabulary.py for ambiguous phrases")
     print("=" * 60)
 
 

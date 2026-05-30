@@ -1,4 +1,4 @@
-# hck_gpt/intents — intent parsing + vocabulary
+# hck_gpt/intents - intent parsing + vocabulary
 from .parser import intent_parser, ParseResult
 from .vocabulary import INTENT_PATTERNS, ENTITY_MAP
 

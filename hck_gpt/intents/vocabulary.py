@@ -1,6 +1,6 @@
 # hck_gpt/intents/vocabulary.py
 """
-Vocabulary — intent trigger patterns and entity extraction maps.
+Vocabulary - intent trigger patterns and entity extraction maps.
 
 Both Polish and English keywords are present in every intent so the
 chatbot responds to mixed-language input without any translation step.
@@ -13,13 +13,13 @@ Pattern scoring (in parser.py):
 
 Adding more multi-word phrases to an intent raises its confidence score,
 making it more likely to be handled by the rule engine (threshold 0.60).
-Ambiguous / open-ended queries remain below threshold → Ollama LLM.
+Ambiguous / open-ended queries remain below threshold -> Ollama LLM.
 """
 from __future__ import annotations
 from typing import Dict, List
 
 # ── Intent patterns ───────────────────────────────────────────────────────────
-# intent_name → list of trigger strings (lowercase, PL + EN)
+# intent_name -> list of trigger strings (lowercase, PL + EN)
 
 INTENT_PATTERNS: Dict[str, List[str]] = {
 
@@ -100,7 +100,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what do i have", "show me my specs",
     ],
 
-    # ── Proactive message follow-up — "what does that mean?" ─────────────────
+    # ── Proactive message follow-up - "what does that mean?" ─────────────────
     "explain_proactive": [
         # Polish tokens
         "wyjaśnij", "wytłumacz", "objaśnij",
@@ -136,7 +136,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     "health_check": [
         # Tokens
         "zdrowie", "health", "kondycja", "diagnostyka", "diagnostics",
-        # Multi-word PL ← these raise confidence significantly
+        # Multi-word PL <- these raise confidence significantly
         "stan systemu", "czy ok", "czy działa ok", "czy wszystko ok",
         "sprawdź komputer", "oceń komputer",
         "czy komputer jest zdrowy", "jak działa mój komputer",
@@ -271,7 +271,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Program info / meta ───────────────────────────────────────────────────
     "about_program": [
-        # Polish — multi-word (high bonus)
+        # Polish - multi-word (high bonus)
         "jak działa program", "o czym jest program", "czym jest pc workman",
         "co to jest ten program", "co robi program", "jakie są funkcje",
         "jak to działa", "powiedz o programie", "opisz program",
@@ -381,7 +381,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "get more fps", "how do i speed up my pc",
     ],
 
-    # ── Small talk / open conversation → goes to Ollama ──────────────────────
+    # ── Small talk / open conversation -> goes to Ollama ──────────────────────
     "small_talk": [
         # greeting-style small talk (higher score so rule fallback works)
         "jak się masz", "co słychać", "co u ciebie", "jak leci",
@@ -576,7 +576,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Fun / roast / personality ─────────────────────────────────────────────
     "fun_roast": [
-        # Polish — meme questions
+        # Polish - meme questions
         "dlaczego mój komputer mnie nienawidzi", "komputer mnie nienawidzi",
         "czy mój pc jest głupi", "pc jest głupi", "komputer jest głupi",
         "który proces jest największym leniem", "który program jest leniem",
@@ -589,7 +589,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "który program jest największym złodziejem ram",
         "mój komputer dzisiaj leniwy", "pc jest leniwy dzisiaj",
         "komputer sobie nie radzi", "komputer jest zmęczony",
-        # English — meme questions
+        # English - meme questions
         "why does my computer hate me", "my pc hates me",
         "is my pc dumb", "is my computer stupid",
         "which process is the laziest", "who is the laziest program",
@@ -602,7 +602,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which program steals the most ram",
     ],
 
-    # ── Startup safety — can I disable X from startup? ───────────────────────
+    # ── Startup safety - can I disable X from startup? ───────────────────────
     "startup_safety": [
         # Polish
         "czy mogę wyłączyć ze startu", "czy bezpiecznie wyłączyć ze startu",
@@ -1197,7 +1197,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "summarize what you know about my system",
     ],
 
-    # ── Fan noise history — is fan louder than usual? ────────────────────────
+    # ── Fan noise history - is fan louder than usual? ────────────────────────
     "fan_noise_history": [
         # Polish
         "czy wentylator jest głośniejszy niż zwykle",
@@ -1221,7 +1221,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why does my pc sound like a jet engine",
     ],
 
-    # ── Driver status — installed drivers and update dates ───────────────────
+    # ── Driver status - installed drivers and update dates ───────────────────
     "driver_status": [
         # Polish
         "jakie mam sterowniki", "kiedy były aktualizowane sterowniki",
@@ -1267,7 +1267,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "gaming hours this week", "time breakdown pc",
     ],
 
-    # ── Process identity — is this exe Windows or suspicious? ────────────────
+    # ── Process identity - is this exe Windows or suspicious? ────────────────
     "process_identity": [
         # Polish
         "czy ten plik exe jest częścią windows",
@@ -1316,7 +1316,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "clean up unused software",
     ],
 
-    # ── FPS degradation — time-travel debugging ──────────────────────────────
+    # ── FPS degradation - time-travel debugging ──────────────────────────────
     "fps_degradation": [
         # Polish
         "dlaczego moje fps są gorsze niż miesiąc temu",
@@ -1338,7 +1338,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "game feels slower than before",
     ],
 
-    # ── App behavior change — why did X start behaving differently? ──────────
+    # ── App behavior change - why did X start behaving differently? ──────────
     "app_behavior_change": [
         # Polish
         "dlaczego aplikacja zaczęła się zachowywać inaczej",
@@ -1363,7 +1363,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why is this app suddenly different",
     ],
 
-    # ── Startup slowdown — what slows boot the most ──────────────────────────
+    # ── Startup slowdown - what slows boot the most ──────────────────────────
     "startup_slowdown": [
         # Polish
         "co najbardziej zwalnia komputer podczas uruchamiania",
@@ -1388,7 +1388,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what programs are slowing boot",
     ],
 
-    # ── Temperature comparison — hotter than usual lately? ───────────────────
+    # ── Temperature comparison - hotter than usual lately? ───────────────────
     "temp_comparison": [
         # Polish
         "czy komputer jest ostatnio goręcej niż zwykle",
@@ -1412,7 +1412,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "thermal history comparison",
     ],
 
-    # ── Crash / freeze context — what happened before the crash? ─────────────
+    # ── Crash / freeze context - what happened before the crash? ─────────────
     "crash_context": [
         # Polish
         "co się działo na moim pc tuż przed ostatnim freezem",
@@ -1438,7 +1438,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what led to the system freeze",
     ],
 
-    # ── Game hardware stress — which game stresses hardware most ─────────────
+    # ── Game hardware stress - which game stresses hardware most ─────────────
     "game_hardware_stress": [
         # Polish
         "która gra najbardziej obciąża mój hardware",
@@ -1464,7 +1464,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "most demanding games for my specs",
     ],
 
-    # ── Battery drain rate — % lost during gaming/work ───────────────────────
+    # ── Battery drain rate - % lost during gaming/work ───────────────────────
     "battery_drain_rate": [
         # Polish
         "ile procent baterii tracę podczas grania",
@@ -1505,10 +1505,240 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "power consumption since system start",
         "what has been using the most power",
     ],
+
+    # ── Can my PC run game X ──────────────────────────────────────────────────
+    "game_can_run": [
+        # Polish - long specific phrases that beat hw_all generic tokens
+        "czy ten komputer odpali grę", "czy odpalę tę grę",
+        "czy mój komputer uniesie grę",
+        "czy mój sprzęt wystarczy na grę", "czy zadziała gra na moim pc",
+        "czy komputer nadaje się do gry", "minimalne wymagania sprzętowe",
+        "czy zagram w fortnite", "czy zagram w csgo", "czy zagram w cs2",
+        "czy zagram w cyberpunk", "czy zagram w minecraft",
+        "czy zagram w hogwarts", "czy zagram w gta",
+        "czy zagram w valorant", "czy zagram w elden ring",
+        "czy zagram w witcher", "czy zadziała cyberpunk",
+        "czy komputer odpali cyberpunka", "czy gra pójdzie na ultra",
+        "czy gra pójdzie na low", "czy gra pójdzie bez lagów",
+        "minimalne wymagania do gry", "sprawdź wymagania gry",
+        "czy mój ram wystarczy na cyberpunk", "czy mój gpu wystarczy",
+        "czy dysk wystarczy żeby włączyć grę",
+        "czy hogwarts zacina bo nie mam ram", "czy ram wystarczy na grę",
+        "fortnite bez lagów z muzyką", "czy odpalę fortnite",
+        "czy zagram w fortnite bez lagów",
+        "wymagania sprzętowe gry", "czy dam radę zagrać",
+        "czy sprzęt wystarczy do grania", "czy pc poradzi sobie z grą",
+        # Polish ASCII fallback (game-specific to win over hw_all)
+        "czy odpale fortnite", "czy odpale cyberpunk",
+        "czy odpale cs2", "czy odpale minecraft",
+        "czy zagra w fortnite", "czy zagra w cyberpunk",
+        "czy zagra w cs2", "czy zagra w hogwarts",
+        "czy zagra w valorant", "odpale gre",
+        "wymagania gry check", "spelnia wymagania gry",
+        "gra pojdzie na moim pc", "gra pojdzie na niskich",
+        "gra pojdzie na ultra", "czy spelnia wymagania",
+        # English
+        "can my pc run the game", "can i run this game",
+        "can my computer run fortnite", "can my pc run cs2",
+        "can my pc run cyberpunk", "can my pc run hogwarts legacy",
+        "can my pc run minecraft", "can my pc run gta 5",
+        "can i play fortnite on this pc", "will my pc run this game",
+        "is my pc good enough for this game", "can my rig handle the game",
+        "minimum requirements check", "does my pc meet game requirements",
+        "will cyberpunk run on my pc", "can my pc handle cyberpunk",
+        "will fortnite run without lag", "can i run the game on ultra",
+        "can i run the game on low settings", "game requirements check",
+        "is my gpu good enough for this game", "does my ram meet requirements",
+        "will hogwarts legacy run", "will elden ring run on my pc",
+        "enough ram for this game", "is my disk enough for cyberpunk",
+        "can this laptop run the game", "does my pc meet minimum specs",
+    ],
+
+    # ── How much RAM do I use during gaming ──────────────────────────────────
+    "gaming_ram_usage": [
+        # Polish - strong multi-word phrases that beat hw_ram single "ram" token
+        "ile ramu zazwyczaj używam podczas grania",
+        "ile pamięci używam kiedy gram",
+        "ile ramu zajmuje granie", "zużycie ram podczas gier",
+        "ile ram kiedy gram w gry", "ram podczas gaming",
+        "ile ramu kiedy gram w cs", "ile ramu kiedy gram w fortnite",
+        "ile ramu kiedy gram w minecraft", "ile ramu przy grach",
+        "typowe zużycie ram podczas grania",
+        "ile pamięci gry zajmują średnio",
+        "ram w sesji gamingowej", "ile ramu w grach",
+        "zużycie pamięci podczas grania", "ile ram gra zużywa",
+        # Polish ASCII fallback - key uniquifiers with "gram" context
+        "ile ram kiedy gram", "ile ramu kiedy gram",
+        "ram kiedy gram", "ram podczas grania",
+        "ile pamieci kiedy gram", "ile pamieci podczas grania",
+        "pamieci kiedy gram", "ram gaming session",
+        # English
+        "how much ram do i use when gaming",
+        "how much memory do i use while gaming",
+        "ram usage during gaming", "memory usage while gaming",
+        "how much ram does gaming use", "gaming ram consumption",
+        "typical ram usage when gaming", "how much ram for gaming",
+        "ram usage in games", "how much memory does the game use",
+        "ram while playing games", "gaming memory usage",
+        "how much ram when i play cs2", "how much ram fortnite uses",
+        "average ram during gaming session",
+        "ram usage while gaming",
+    ],
+
+    # ── How much RAM do I use on a daily basis ────────────────────────────────
+    "daily_ram_usage": [
+        # Polish
+        "ile ramu używam na codzień", "ile pamięci zazwyczaj używam",
+        "typowe zużycie ram", "ile ram na co dzień",
+        "ile ramu zużywam średnio", "przeciętne zużycie ram",
+        "jakie jest moje zwykłe zużycie ram",
+        "ile pamięci operacyjnej normalnie używam",
+        "ile ram przy normalnej pracy", "ile ram przy codziennej pracy",
+        "ile ram zazwyczaj", "zwykłe zużycie pamięci",
+        "ile pamięci normalnie zajmuje system", "ram na codzień",
+        "ile ram bez gier", "ile pamięci do pracy",
+        # English
+        "how much ram do i use daily", "how much ram do i normally use",
+        "average ram usage", "typical ram usage",
+        "how much ram do i use on average", "daily ram consumption",
+        "what is my usual ram usage", "normal ram usage",
+        "how much memory does my pc typically use",
+        "ram usage without gaming", "daily memory usage",
+        "everyday ram usage", "average daily memory",
+        "what is my average memory usage", "how much ram usually",
+        "typical memory load",
+    ],
+
+    # ── How long will battery last for activity X ─────────────────────────────
+    "battery_estimate": [
+        # Polish (with ł)
+        "jak długo wytrzyma bateria", "ile mi zostało baterii",
+        "ile czasu wytrzyma bateria kiedy piszę",
+        "jak długo wytrzyma bateria przy pisaniu projektu",
+        "ile godzin zostało mi baterii", "jak długo laptop pociągnie",
+        "jak długo wytrzyma bateria w pociągu",
+        "jak długo bateria przy pracy biurowej",
+        "ile godzin grania zostało mi na baterii",
+        "jak długo bateria przy youtube", "jak długo bateria przy oglądaniu",
+        "czy bateria starczy na film", "czy bateria starczy na prezentację",
+        "ile zostało czasu na baterii", "na ile jeszcze wystarczy bateria",
+        "ile godzin bateria przy normalnym użytkowaniu",
+        "szacowany czas pracy na baterii", "prognoza baterii",
+        "jak długo wytrzyma laptop bez ładowania",
+        # Polish ASCII fallback (l instead of ł - for users without Polish keyboard)
+        "jak dlugo wytrzyma bateria", "ile mi zostalo baterii",
+        "ile czasu wytrzyma bateria kiedy pisze",
+        "jak dlugo wytrzyma bateria przy pisaniu projektu",
+        "ile godzin zostalo mi baterii", "jak dlugo laptop pociagnie",
+        "jak dlugo bateria", "wytrzyma bateria",
+        "jak dlugo bateria pracy", "ile godzin bateria",
+        "szacowany czas bateria", "bateria ile czasu",
+        # English
+        "how long will my battery last", "battery life estimate",
+        "how long will the battery last on the train",
+        "how long will battery last while writing a project",
+        "how many hours of battery do i have left",
+        "how long until battery dies", "battery time estimate",
+        "how long will battery last for work",
+        "how long for gaming on battery", "battery hours remaining",
+        "will battery last through a presentation",
+        "can battery last for a movie", "estimated battery life",
+        "how long will laptop last without charging",
+        "battery runtime estimate", "predicted battery life",
+        "how much time do i have on battery",
+        # English short forms without "my" (multi-word, beat uptime "how long" token)
+        "how long will battery last", "how long does battery last",
+        "how long battery will last", "battery life remaining",
+        "hours left on battery", "battery time left",
+        "how many hours battery", "battery estimate",
+    ],
+
+    # ── Can I upgrade RAM or storage on this machine ──────────────────────────
+    "upgrade_feasibility": [
+        # Polish (with ł/ó/ę etc.)
+        "czy mogę dołożyć ram", "czy mogę rozbudować ram",
+        "czy da się dołożyć ram do tego laptopa",
+        "czy laptop ma możliwość rozbudowy ramu",
+        "czy mogę zainstalować więcej ramu",
+        "czy mogę wymienić ram na więcej gb",
+        "czy da się wbudować większy dysk", "czy można dodać dysk",
+        "czy można wymienić dysk", "czy mogę dołożyć ssd",
+        "czy laptop obsługuje upgrade", "czy mam wolne sloty ram",
+        "ile slotów ram jest wolnych", "ile slotów ram mam",
+        "czy mogę rozbudować pamięć", "czy mogę dołożyć pamięć",
+        "czy warto dokupić ram", "upgrade ramu możliwy",
+        "ile gb mogę wsadzić w ram", "maksymalna ilość ram",
+        "czy komputer obsługuje więcej ramu", "upgrade dysk możliwy",
+        "czy warto dokupić dysk", "ile ssd mogę dodać",
+        "czy laptop da się rozbudować", "możliwości rozbudowy",
+        "czy sprzęt obsługuje upgrade", "co mogę dokupić do komputera",
+        # Polish ASCII fallback (l instead of ł)
+        "czy moge dolożyc ram", "czy moge rozbudowac ram",
+        "czy da sie dolożyc ram", "dolożyc ram do laptopa",
+        "czy moge dolożyc pamieci", "czy moge dolożyc ssd",
+        "sloty ram wolne", "ile slotow ram",
+        "wolne sloty ram", "upgrade ramu",
+        "mozliwosc rozbudowy", "rozbudowa laptopa",
+        "dolożyc ram", "dolożyc dysk",
+        # English
+        "can i add more ram", "can i upgrade my ram",
+        "is ram upgradeable on this laptop", "can i add ram to my laptop",
+        "can i install more ram", "can i replace ram with more gb",
+        "can i add an ssd", "can i add another drive",
+        "upgrade feasibility", "can this laptop be upgraded",
+        "how many ram slots do i have", "are there free ram slots",
+        "how much ram can i install maximum", "max supported ram",
+        "is my ram upgradeable", "can i expand storage",
+        "upgrade ram possible", "can i put more ram in",
+        "is storage upgradeable", "can i add more storage",
+        "laptop upgrade options", "hardware upgrade check",
+        "how much ram can i add", "ssd upgrade possible",
+        "what can i upgrade on this pc", "upgrade my laptop",
+    ],
+
+    # ── Which process eats most disk or RAM ───────────────────────────────────
+    "top_resource_hog": [
+        # Polish tokens - unique verbs that DON'T appear in hw_ram/hw_storage
+        "zjada", "pozera", "zeżera", "kradnie", "pochłania",
+        # Polish
+        "jaki proces zjada mi najwięcej ramu",
+        "jaki proces zjada mi najwięcej dysku",
+        "który program pożera dysk", "który program pożera ram",
+        "co najbardziej obciąża dysk", "co najbardziej obciąża pamięć",
+        "co zjada ram teraz", "co zjada dysk teraz",
+        "kto pożera zasoby", "największy pożeracz ram",
+        "który program używa najwięcej miejsca na dysku",
+        "który program ma największy io dysku",
+        "największy io dysku", "top io dysku",
+        "co zużywa najwięcej ramu teraz", "co zżera ram",
+        "co zżera dysk", "co zajmuje dysk teraz",
+        "który proces kradnie ram", "który proces blokuje dysk",
+        "jaki program zajmuje dysk najbardziej",
+        "co tak dysk zajmuje", "co tak pamięć zajmuje",
+        "pochłaniacz ramu", "pochłaniacz dysku",
+        # Polish ASCII fallback
+        "co zjada ram", "co zjada dysk",
+        "co pozera ram", "co pozera dysk",
+        "zjada mi ram", "zjada mi dysk",
+        "zjada ram teraz", "zjada dysk teraz",
+        "pozera zasoby", "top io ram",
+        # English
+        "which process uses the most ram", "which process uses the most disk",
+        "what is the top ram consumer", "which app uses most memory",
+        "what is eating my disk", "what is eating my ram",
+        "biggest ram hog", "biggest disk hog",
+        "top disk io process", "what has highest disk usage",
+        "which program hogs memory", "most ram intensive process",
+        "most disk intensive process", "top memory consumer",
+        "what is hogging disk io", "what process uses most storage",
+        "who is eating disk io", "disk hog right now",
+        "ram hog right now", "top resource hog",
+        "which app is using the most ram", "memory hog process",
+    ],
 }
 
 # ── Entity extraction map ─────────────────────────────────────────────────────
-# token → canonical entity name
+# token -> canonical entity name
 ENTITY_MAP: Dict[str, str] = {
     # Components
     "cpu": "cpu", "procesor": "cpu", "processor": "cpu",

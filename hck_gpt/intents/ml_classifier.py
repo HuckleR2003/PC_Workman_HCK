@@ -1,6 +1,6 @@
 # hck_gpt/intents/ml_classifier.py
 """
-ML Intent Classifier — Pure-Python Multinomial Naive Bayes
+ML Intent Classifier - Pure-Python Multinomial Naive Bayes
 
 Zero external dependencies (only stdlib).
 Trained on phrases from vocabulary.py with data augmentation.
@@ -14,12 +14,12 @@ Performance target:
   - Model size      : ~200–400 KB on disk
 
 Architecture:
-  word unigrams + bigrams  →  Multinomial NB  →  softmax probabilities
+  word unigrams + bigrams  ->  Multinomial NB  ->  softmax probabilities
 
 Integration with parser.py:
-  - ML conf >= 0.70  →  use ML result directly
-  - ML conf 0.35–0.69 →  blend 65% ML + 35% keyword score
-  - ML conf < 0.35   →  pure keyword scoring (current behaviour)
+  - ML conf >= 0.70  ->  use ML result directly
+  - ML conf 0.35–0.69 ->  blend 65% ML + 35% keyword score
+  - ML conf < 0.35   ->  pure keyword scoring (current behaviour)
 """
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ def _tokenize(text: str) -> List[str]:
 
 
 def _ascii_fold(text: str) -> str:
-    """Strip diacritics: ą→a, ę→e, ó→o, ś→s, ź/ż→z, ć→c, ń→n, ł→l."""
+    """Strip diacritics: ą->a, ę->e, ó->o, ś->s, ź/ż->z, ć->c, ń->n, ł->l."""
     return "".join(
         c for c in unicodedata.normalize("NFD", text)
         if unicodedata.category(c) != "Mn"
@@ -171,7 +171,7 @@ class TrainingDataBuilder:
         return X, y
 
     def vocab_fingerprint(self) -> str:
-        """MD5 hash of current INTENT_PATTERNS — detects vocabulary changes."""
+        """MD5 hash of current INTENT_PATTERNS - detects vocabulary changes."""
         import hashlib
         from hck_gpt.intents.vocabulary import INTENT_PATTERNS
         content = str(sorted(
@@ -305,7 +305,7 @@ class MLIntentClassifier:
             with open(hpath, "r", encoding="utf-8") as f:
                 saved_hash = f.read().strip()
             if saved_hash != TrainingDataBuilder().vocab_fingerprint():
-                return False  # vocabulary changed → must retrain
+                return False  # vocabulary changed -> must retrain
             with open(mpath, "rb") as f:
                 self._model = pickle.load(f)
             self._ready = True

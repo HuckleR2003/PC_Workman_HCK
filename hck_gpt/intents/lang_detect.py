@@ -3,7 +3,7 @@
 Language Detector
 
 Determines whether a user message is Polish or English using:
-  1. Polish diacritics — very strong signal (ą ę ó ś ź ż ć ń ł)
+  1. Polish diacritics - very strong signal (ą ę ó ś ź ż ć ń ł)
   2. Common Polish function words
   3. Common English function words
   4. Fallback: Polish (primary language of PC Workman)
@@ -40,12 +40,12 @@ _EN_WORDS = frozenset({
 def detect_language(text: str) -> str:
     """
     Returns 'pl' or 'en' based on content analysis.
-    Fast — no external dependencies.
+    Fast - no external dependencies.
     """
     if not text or not text.strip():
         return "pl"
 
-    # Polish diacritics → instant PL detection
+    # Polish diacritics -> instant PL detection
     if any(c in _PL_DIACRITICS for c in text):
         return "pl"
 
