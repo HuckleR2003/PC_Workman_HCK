@@ -4,6 +4,11 @@ SystemToast - modern slide-in notification toasts.
 
 Public API
 ----------
+show_welcome_toast(root)
+    -> Called once on app startup - warm greeting in bottom-right corner.
+
+
+----------
 show_startup_toast(root, name, exe, hive, on_manage, lang='en')
     -> Called when a new Windows autostart entry is detected.
 
@@ -85,6 +90,11 @@ _ST_GLOW   = "#500724"
 _AI_ACCENT = "#10b981"
 _AI_ICON   = "#052e16"
 _AI_GLOW   = "#065f46"
+
+# Welcome toast - violet/indigo (brand colour)
+_WC_ACCENT = "#7c3aed"
+_WC_ICON   = "#1e0a3c"
+_WC_GLOW   = "#2e1065"
 
 
 
@@ -554,3 +564,84 @@ def show_app_install_toast(
         btn_primary_cb  = lambda: None,
         btn_dismiss_text= _t("startup_dismiss"),
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Welcome Toast  — shown once per app launch
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _detect_system_lang() -> str:
+    """Return 'pl' if Windows UI language is Polish, else 'en'."""
+    try:
+        import ctypes
+        lcid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+        # Polish LCID family: 0x415 (Polish), 0x0415
+        if (lcid & 0xFF) == 0x15:
+            return "pl"
+    except Exception:
+        pass
+    try:
+        import locale
+        loc = locale.getdefaultlocale()[0] or ""
+        if loc.lower().startswith("pl"):
+            return "pl"
+    except Exception:
+        pass
+    return "en"
+
+
+def show_welcome_toast(root: tk.Misc, delay_ms: int = 1800) -> None:
+    """
+    Show the warm welcome toast once on startup.
+    Detects Windows system language (Polish / English).
+    Slide-in from bottom-right after *delay_ms* milliseconds.
+
+    Args:
+        root:     Tkinter root or any widget (used for .after() scheduling).
+        delay_ms: How long to wait after startup before showing (default 1.8 s).
+    """
+    def _show():
+        lang = _detect_system_lang()
+        # ── Strings ──────────────────────────────────────────────────────────
+        if lang == "pl":
+            title   = "Hej! Dziekujemy, ze korzystasz z PC Workmana :)"
+            body    = ("Po cichu powiadomimy Cie gdy wlaczy sie nowy program "
+                       "do Startu z Windowsem, lub gdy cos bedzie nie tak.")
+            version = "v1.7.6  ·  29.05.2026"
+            ok_txt  = "Rozumiem"
+        else:
+            title   = "Hey! Thanks for using PC Workman :)"
+            body    = ("We’ll quietly notify you when a new program is added "
+                       "to Windows Startup, or if something looks off.")
+            version = "v1.7.6  ·  2026-05-29"
+            ok_txt  = "Got it"
+
+        # ── Icon: small violet HCK badge ─────────────────────────────────────
+        def _place_icon(parent: tk.Widget) -> None:
+            c = tk.Canvas(parent, width=46, height=46,
+                          bg=_WC_ICON, highlightthickness=0)
+            c.place(relx=0.5, rely=0.5, anchor="center")
+            # Outer glow ring
+            c.create_oval(3, 3, 43, 43, outline=_WC_ACCENT, width=2)
+            # Inner fill
+            c.create_oval(8, 8, 38, 38, fill=_WC_GLOW, outline="")
+            # "PC" text
+            c.create_text(23, 19, text="PC", fill="#c4b5fd",
+                          font=(_MONO, 7, "bold"))
+            c.create_text(23, 30, text="WK", fill="#7c3aed",
+                          font=(_MONO, 6, "bold"))
+
+        _Toast(
+            root             = root,
+            accent           = _WC_ACCENT,
+            icon_frame_bg    = _WC_ICON,
+            icon_widget_fn   = _place_icon,
+            title            = title,
+            body             = body,
+            sub              = version,
+            btn_primary_text = ok_txt,
+            btn_primary_cb   = lambda: None,
+            btn_dismiss_text = "✕",
+        )
+
+    root.after(delay_ms, _show)

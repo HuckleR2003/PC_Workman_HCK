@@ -49,8 +49,9 @@ _CW = 680
 _CH = 540
 
 # Draw-space origin of 3D (0,0,0) — PC tower centered in canvas
+# _OY raised by 40 px so the floor stays visible without scrolling
 _OX = int((_CW // 2 - 18) * _SSAA)   # 644
-_OY = int((_CH - 75)       * _SSAA)  # 930
+_OY = int((_CH - 115)      * _SSAA)  # 850  (was 930)
 
 
 def _iso(x: float, y: float, z: float,
@@ -425,7 +426,7 @@ def _desktop_scene(data: Dict, pulse: float) -> List[_Box]:
 
 # Laptop origin is shifted
 _LOX = int((_CW // 2 - 40) * _SSAA)
-_LOY = int((_CH - 90)       * _SSAA)
+_LOY = int((_CH - 130)      * _SSAA)   # raised 40 px to match desktop origin fix
 
 
 def _laptop_scene(data: Dict, pulse: float) -> List[_Box]:
@@ -741,12 +742,30 @@ class PCMapView(tk.Frame):
                  font=(_BODY, 7), bg="#0f1117", fg="#374151", padx=10
                  ).pack(side="right", fill="y")
 
-        # Canvas
-        self._canvas = tk.Canvas(self, width=_CW, height=_CH,
-                                 bg="#08090f", highlightthickness=0, cursor="crosshair")
-        self._canvas.pack(fill="both", expand=True)
-        self._canvas.bind("<Motion>",  self._on_motion)
-        self._canvas.bind("<Leave>",   self._on_leave)
+        # Canvas + vertical scrollbar so the scene never gets cut off
+        _canvas_wrap = tk.Frame(self, bg="#08090f")
+        _canvas_wrap.pack(fill="both", expand=True)
+
+        _vsb = tk.Scrollbar(_canvas_wrap, orient="vertical",
+                            bg="#0a0e14", troughcolor="#060911", width=6,
+                            relief="flat", bd=0)
+        _vsb.pack(side="right", fill="y")
+
+        self._canvas = tk.Canvas(
+            _canvas_wrap, width=_CW, height=_CH,
+            bg="#08090f", highlightthickness=0, cursor="crosshair",
+            yscrollcommand=_vsb.set, scrollregion=(0, 0, _CW, _CH),
+        )
+        self._canvas.pack(side="left", fill="both", expand=True)
+        _vsb.config(command=self._canvas.yview)
+
+        # Mouse-wheel scroll
+        self._canvas.bind("<MouseWheel>",
+                          lambda e: self._canvas.yview_scroll(
+                              int(-1 * (e.delta / 120)), "units"))
+
+        self._canvas.bind("<Motion>",   self._on_motion)
+        self._canvas.bind("<Leave>",    self._on_leave)
         self._canvas.bind("<Button-1>", self._on_click)
 
         self._update_mode_buttons()
