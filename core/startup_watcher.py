@@ -1,6 +1,6 @@
 # core/startup_watcher.py
 """
-StartupWatcher — background thread that polls the Windows registry for:
+StartupWatcher - background thread that polls the Windows registry for:
   1. New autostart entries  (HKCU/HKLM Run keys)
   2. New installed applications  (Uninstall keys)
 
@@ -25,6 +25,8 @@ import os
 import threading
 import time
 from typing import Callable, List, Optional
+
+from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
 
 try:
     import winreg
@@ -163,16 +165,17 @@ class StartupWatcher:
     Background daemon that detects new startup entries and newly installed apps.
 
     Callbacks receive plain Python values and are invoked from the watcher
-    thread — wrap with  root.after(0, lambda: cb(...))  for tkinter safety.
+    thread - wrap with  root.after(0, lambda: cb(...))  for tkinter safety.
     """
 
     def __init__(self) -> None:
         self._startup_cbs: List[Callable] = []
+        register_component("core.startup_watcher", self, STATUS_OK)
         self._app_cbs:     List[Callable] = []
         self._thread:      Optional[threading.Thread] = None
         self._stop_evt     = threading.Event()
 
-        # Known sets — populated on first scan (baseline), never fired first time
+        # Known sets - populated on first scan (baseline), never fired first time
         self._known_startup: Optional[set] = None
         self._known_apps:    Optional[set] = None
 
@@ -227,7 +230,7 @@ class StartupWatcher:
         current_ids     = set(current_startup.keys())
 
         if self._known_startup is None:
-            # First scan — establish baseline, no notifications
+            # First scan - establish baseline, no notifications
             self._known_startup = current_ids
             _save_cache(self._build_cache(current_ids, self._known_apps))
         else:

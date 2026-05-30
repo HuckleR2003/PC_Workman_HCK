@@ -1,11 +1,11 @@
 """
 core/turbo_manager.py
 ─────────────────────
-TURBO Mode Backend — three subsystems:
+TURBO Mode Backend - three subsystems:
 
-  TurboServiceManager   — stop non-essential Windows services by profile
-  TurboProcessSuspender — freeze idle background processes, resume on demand
-  TurboPowerManager     — auto-switch power plan; game/battery detection
+  TurboServiceManager   - stop non-essential Windows services by profile
+  TurboProcessSuspender - freeze idle background processes, resume on demand
+  TurboPowerManager     - auto-switch power plan; game/battery detection
 
 Singletons exposed at module level:
   turbo_services  = TurboServiceManager()
@@ -70,7 +70,7 @@ _SVC_WHITELIST: set[str] = {
     # Core Windows
     "RpcSs", "RpcEptMapper", "DcomLaunch", "LSM", "lsass",
     "services", "wininit", "winlogon", "smss",
-    # Security — absolute no-touch
+    # Security - absolute no-touch
     "WinDefend", "MpsSvc", "SecurityHealthService", "wscsvc",
     "BITS", "CryptSvc", "EventLog", "EventSystem", "SamSs",
     # Audio
@@ -123,7 +123,7 @@ PROFILES: dict[str, dict] = {
             "spooler", "BTAGService", "bthserv",
             "RetailDemo", "SEMgrSvc",
         ],
-        "desc": "Max CPU headroom — stops search, telemetry, Xbox, BT, printing.",
+        "desc": "Max CPU headroom - stops search, telemetry, Xbox, BT, printing.",
     },
     "work": {
         "label":    "Work",
@@ -135,7 +135,7 @@ PROFILES: dict[str, dict] = {
             "MapsBroker", "Fax", "RemoteRegistry",
             "spooler", "RetailDemo", "SEMgrSvc",
         ],
-        "desc": "Focused work — keeps search & audio, removes Xbox & telemetry.",
+        "desc": "Focused work - keeps search & audio, removes Xbox & telemetry.",
     },
     "economy": {
         "label":    "Economy",
@@ -151,7 +151,7 @@ PROFILES: dict[str, dict] = {
             "WerSvc", "wuauserv",
             "RetailDemo", "SEMgrSvc", "WbioSrvc",
         ],
-        "desc": "Deep savings — stops all non-essential including Update & BT.",
+        "desc": "Deep savings - stops all non-essential including Update & BT.",
     },
 }
 
@@ -291,7 +291,7 @@ class TurboServiceManager:
             err = r.stderr.decode("utf-8", errors="replace").strip()
             out = r.stdout.decode("utf-8", errors="replace").strip()
             msg = "OK" if ok else (err or out)[:60]
-            _log("SVC", f"{action.upper()} {svc}  →  {'OK' if ok else msg}")
+            _log("SVC", f"{action.upper()} {svc}  ->  {'OK' if ok else msg}")
             return ok, msg
         except Exception as ex:
             return False, str(ex)[:50]
@@ -314,7 +314,7 @@ class TurboServiceManager:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PROCESS SUSPENSION — blacklists
+#  PROCESS SUSPENSION - blacklists
 # ══════════════════════════════════════════════════════════════════════════════
 
 _PROC_WHITELIST_NAMES: set[str] = {
@@ -341,7 +341,7 @@ _PROC_WHITELIST_KEYWORDS = (
     "windows\\system32", "windows\\syswow64",
 )
 
-# Known safe paths (partial) — process running elsewhere = suspicious
+# Known safe paths (partial) - process running elsewhere = suspicious
 _KNOWN_EXE_PATHS: dict[str, str] = {
     "chrome.exe":   r"program files\google\chrome",
     "msedge.exe":   r"program files (x86)\microsoft\edge",
@@ -354,7 +354,7 @@ _KNOWN_EXE_PATHS: dict[str, str] = {
     "steam.exe":    r"program files (x86)\steam",
 }
 
-# Candidates we actively look for — well-known idle-able apps
+# Candidates we actively look for - well-known idle-able apps
 SUSPEND_CANDIDATES = (
     "chrome.exe", "msedge.exe", "firefox.exe",
     "discord.exe", "slack.exe", "teams.exe",
@@ -380,8 +380,8 @@ class TurboProcessSuspender:
     """
 
     def __init__(self) -> None:
-        self._suspended: dict[int, dict] = {}   # pid → info dict
-        self._cpu_samples: dict[int, list] = {} # pid → [float, ...]
+        self._suspended: dict[int, dict] = {}   # pid -> info dict
+        self._cpu_samples: dict[int, list] = {} # pid -> [float, ...]
         self._lock        = threading.Lock()
         self._running     = False
         self.idle_threshold = IDLE_SECONDS_DEFAULT
@@ -401,7 +401,7 @@ class TurboProcessSuspender:
     def stop(self) -> None:
         self._running = False
         self.resume_all()
-        _log("PROC", "monitor stopped — all resumed")
+        _log("PROC", "monitor stopped - all resumed")
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -588,7 +588,7 @@ class TurboPowerManager:
     # ── Power plan helpers ────────────────────────────────────────────────────
 
     def list_plans(self) -> dict[str, str]:
-        """Return {name: guid} from powercfg /list — language-agnostic.
+        """Return {name: guid} from powercfg /list - language-agnostic.
         Uses binary mode + safe UTF-8 decode to handle any OEM codepage."""
         plans = {}
         try:
@@ -634,7 +634,7 @@ class TurboPowerManager:
             )
             ok = r.returncode == 0
             err = r.stderr.decode("utf-8", errors="replace").strip()[:40]
-            _log("PWR", f"setactive {guid}  →  {'OK' if ok else err}")
+            _log("PWR", f"setactive {guid}  ->  {'OK' if ok else err}")
             return ok, ("OK" if ok else err[:50])
         except Exception as ex:
             return False, str(ex)[:50]
@@ -659,7 +659,7 @@ class TurboPowerManager:
             if new_guid:
                 subprocess.run(
                     ["powercfg", "/changename", new_guid, name,
-                     "PC Workman — Turbo PC custom high-performance profile"],
+                     "PC Workman - Turbo PC custom high-performance profile"],
                     capture_output=True, timeout=5,
                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 )
@@ -671,9 +671,9 @@ class TurboPowerManager:
 
     def activate(self) -> tuple[bool, str]:
         if not _is_admin():
-            return False, "Needs admin — restart as Administrator"
+            return False, "Needs admin - restart as Administrator"
         if self.is_on_battery():
-            return False, "On battery — not switching to high perf"
+            return False, "On battery - not switching to high perf"
         with self._lock:
             if not self._original:
                 self._original = self.active_guid()
