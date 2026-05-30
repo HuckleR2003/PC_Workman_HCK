@@ -5,14 +5,16 @@ from hck_stats_engine.constants import (
     SECONDS_PER_HOUR, SECONDS_PER_DAY, SECONDS_PER_WEEK
 )
 from hck_stats_engine.db_manager import db_manager
+from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
 
 
 class StatsQueryAPI:
     def __init__(self):
         print("[StatsQueryAPI] Initialized")
+        register_component("hck_stats_engine.query_api", self, STATUS_OK)
 
     def get_usage_for_range(self, start_ts, end_ts, max_points=500):
-        # <=2d → minute_stats, <=14d → hourly, <=120d → daily, else monthly
+        # <=2d -> minute_stats, <=14d -> hourly, <=120d -> daily, else monthly
         if not db_manager.is_ready:
             return []
 
