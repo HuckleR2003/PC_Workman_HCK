@@ -1,7 +1,7 @@
 # hck_stats_engine package
 """
 HCK Stats Engine v2 - Long-term statistics collection and storage
-SQLite-based pipeline: minute → hour → day → week → month
+SQLite-based pipeline: minute -> hour -> day -> week -> month
 """
 
 from hck_stats_engine.db_manager import db_manager
