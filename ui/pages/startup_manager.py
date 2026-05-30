@@ -171,6 +171,30 @@ def _delete_startup_entry(hive_const, path: str, name: str) -> bool:
         return False
 
 
+def _restore_startup_entry(hive_const, path: str, name: str, value: str) -> bool:
+    """Write the entry back to the registry (re-enable startup)."""
+    if not _HAS_WINREG: return False
+    try:
+        key = winreg.OpenKey(hive_const, path, 0,
+                             winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
+        winreg.SetValueEx(key, name, 0, winreg.REG_SZ, value)
+        winreg.CloseKey(key)
+        return True
+    except OSError:
+        return False
+
+
+# Map hive label -> (hive_const, reg_path) for restore
+_HIVE_MAP = {
+    "HKCU":   (winreg.HKEY_CURRENT_USER  if _HAS_WINREG else None,
+               r"Software\Microsoft\Windows\CurrentVersion\Run"),
+    "HKLM":   (winreg.HKEY_LOCAL_MACHINE if _HAS_WINREG else None,
+               r"Software\Microsoft\Windows\CurrentVersion\Run"),
+    "HKLM32": (winreg.HKEY_LOCAL_MACHINE if _HAS_WINREG else None,
+               r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Run"),
+} if _HAS_WINREG else {}
+
+
 def _is_critical(exe: str) -> bool:
     exe_lower = (exe or "").lower()
     return any(frag in exe_lower for frag in _CRITICAL_FRAGS)
@@ -524,7 +548,22 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
         def _make_restore(entry=e, r=row):
             def _do():
-                prefs.setdefault(entry["id"], {})["status"] = "active"
+                # Write entry back to registry so Windows actually starts it again
+                hc  = entry.get("hive_const")
+                rp  = entry.get("reg_path", "")
+                val = entry.get("value", "")
+                if hc and rp and val:
+                    ok = _restore_startup_entry(hc, rp, entry["name"], val)
+                    if not ok:
+                        import tkinter.messagebox as _mb
+                        _mb.showerror(
+                            "Nie udało się przywrócić",
+                            f"Nie można wpisać '{entry['name']}' z powrotem do rejestru.\n"
+                            "Uruchom PC Workman jako Administrator."
+                        )
+                        return
+                # Remove from prefs entirely — entry will appear as active next scan
+                prefs.pop(entry["id"], None)
                 _save_prefs(prefs)
                 r.destroy()
                 on_restore_done()
@@ -572,9 +611,35 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
 
     # Derived lists
     def _get_derived():
-        active   = [e for e in entries if prefs.get(e["id"], {}).get("status", "active") == "active"]
-        flagged  = [e for e in active  if e["rec"] in ("disable", "delay") and e["impact"] in ("high", "medium")]
-        disabled = [e for e in entries if prefs.get(e["id"], {}).get("status", "active") != "active"]
+        active  = [e for e in entries if prefs.get(e["id"], {}).get("status", "active") == "active"]
+        flagged = [e for e in active  if e["rec"] in ("disable", "delay") and e["impact"] in ("high", "medium")]
+
+        # Disabled = entries that are in registry but marked disabled
+        #          + entries that were deleted from registry (stored only in prefs)
+        disabled_from_registry = [e for e in entries
+                                   if prefs.get(e["id"], {}).get("status", "active") != "active"]
+        registry_ids = {e["id"] for e in entries}
+        disabled_offline = []
+        for eid, pdata in prefs.items():
+            if pdata.get("status") == "disabled" and eid not in registry_ids:
+                # Reconstruct ghost entry from saved prefs data
+                hive_label = pdata.get("hive", "HKCU")
+                hive_info  = _HIVE_MAP.get(hive_label, (None, ""))
+                impact, rec, desc_kb = _KNOWN.get(pdata.get("exe", ""), ("low", "keep", ""))
+                disabled_offline.append({
+                    "id":         eid,
+                    "name":       pdata.get("name", eid),
+                    "value":      pdata.get("value", ""),
+                    "exe":        pdata.get("exe", ""),
+                    "hive":       hive_label,
+                    "hive_const": hive_info[0],
+                    "reg_path":   hive_info[1],
+                    "impact":     pdata.get("impact", impact),
+                    "rec":        rec,
+                    "desc":       pdata.get("desc", desc_kb),
+                    "_ghost":     True,   # not in registry
+                })
+        disabled = disabled_from_registry + disabled_offline
         return active, flagged, disabled
 
     active, flagged, disabled = _get_derived()
@@ -731,7 +796,17 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
         for e in list(queue):
             ok = _delete_startup_entry(e["hive_const"], e["reg_path"], e["name"])
             if ok:
-                prefs.setdefault(e["id"], {})["status"] = "disabled"
+                # Save full entry data so we can show it in Disabled tab
+                # and restore it to registry later even if it's no longer there
+                prefs.setdefault(e["id"], {}).update({
+                    "status":   "disabled",
+                    "name":     e["name"],
+                    "value":    e.get("value", ""),
+                    "exe":      e.get("exe", ""),
+                    "hive":     e.get("hive", "HKCU"),
+                    "impact":   e.get("impact", "low"),
+                    "desc":     e.get("desc", ""),
+                })
             else:
                 failed.append(e["name"])
 
