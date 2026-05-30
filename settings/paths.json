@@ -1,0 +1,5 @@
+{
+    "data_dir": "data/logs",
+    "process_info_dir": "data/process_info",
+    "cache_dir": "data/cache"
+}
