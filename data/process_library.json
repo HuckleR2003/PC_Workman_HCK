@@ -480,14 +480,14 @@
     "typical_ram": "4000-8000MB"
   },
   "minecraft.exe": {
-    "name": "Minecraft Java Edition",
-    "vendor": "Mojang Studios",
+    "name": "Minecraft",
+    "vendor": "Mojang Studios / Microsoft",
     "category": "gaming",
-    "description": "Sandbox game. Single-threaded, benefits from high CPU clock.",
-    "power_usage": "medium",
+    "description": "Sandbox block game. Java Edition is CPU-heavy; Bedrock is more optimized. Chunk loading spikes CPU.",
+    "power_usage": "high",
     "safety": "safe",
-    "typical_cpu": "20-60%",
-    "typical_ram": "1000-4000MB"
+    "typical_cpu": "30-80%",
+    "typical_ram": "2000-8000MB"
   },
   "javaw.exe": {
     "name": "Java Runtime",
@@ -523,31 +523,31 @@
     "name": "Print Spooler",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Manages print jobs. Can be disabled if no printer used.",
+    "description": "Manages print job queue and printer communication. Persistent high CPU without printing may indicate malware.",
     "power_usage": "low",
-    "safety": "safe",
-    "typical_cpu": "0-5%",
-    "typical_ram": "10-50MB"
+    "safety": "caution",
+    "typical_cpu": "0-15%",
+    "typical_ram": "10-80MB"
   },
   "audiodg.exe": {
     "name": "Windows Audio Device Graph",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Processes audio streams and effects. Isolated for stability.",
+    "description": "Handles audio processing and software effects pipeline. High CPU can indicate a bad audio driver or heavy effect chain.",
     "power_usage": "low",
     "safety": "safe",
-    "typical_cpu": "1-5%",
-    "typical_ram": "20-80MB"
+    "typical_cpu": "0-15%",
+    "typical_ram": "10-80MB"
   },
   "conhost.exe": {
     "name": "Console Window Host",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Hosts console (cmd.exe) windows. One per console instance.",
-    "power_usage": "low",
+    "description": "Renders console windows for CMD, PowerShell, and CLI tools. One instance per open console.",
+    "power_usage": "very_low",
     "safety": "safe",
-    "typical_cpu": "0-2%",
-    "typical_ram": "5-20MB"
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-30MB"
   },
   "cmd.exe": {
     "name": "Command Prompt",
@@ -593,10 +593,10 @@
     "name": "Windows Installer",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Installs, maintains, and removes software (.msi packages).",
+    "description": "Runs .msi installer packages. Should only appear during software installations. Impersonation by malware is possible.",
     "power_usage": "medium",
-    "safety": "safe",
-    "typical_cpu": "5-50%",
+    "safety": "caution",
+    "typical_cpu": "5-50% (during install)",
     "typical_ram": "20-200MB"
   },
   "trustedinstaller.exe": {
@@ -622,12 +622,12 @@
   "wsl.exe": {
     "name": "Windows Subsystem for Linux",
     "vendor": "Microsoft Corporation",
-    "category": "development",
-    "description": "Runs Linux distributions on Windows. Popular for development.",
-    "power_usage": "varies",
+    "category": "virtualization",
+    "description": "Entry point for WSL Linux environment. Launches Linux distro processes inside a lightweight VM.",
+    "power_usage": "medium",
     "safety": "safe",
-    "typical_cpu": "1-40%",
-    "typical_ram": "50-2000MB"
+    "typical_cpu": "5-50%",
+    "typical_ram": "100-2000MB"
   },
   "windowsterminal.exe": {
     "name": "Windows Terminal",
@@ -691,23 +691,23 @@
   },
   "7zfm.exe": {
     "name": "7-Zip File Manager",
-    "vendor": "Igor Pavlov",
+    "vendor": "Igor Pavlov (Open Source)",
     "category": "utility",
-    "description": "Open-source file archiver. Faster compression than WinRAR.",
-    "power_usage": "medium",
+    "description": "Open-source file archiver. Compression can peg CPU; ultra preset runs mostly single-threaded.",
+    "power_usage": "varies",
     "safety": "safe",
-    "typical_cpu": "5-100%",
-    "typical_ram": "20-200MB"
+    "typical_cpu": "10-100% (during compress)",
+    "typical_ram": "20-300MB"
   },
   "everything.exe": {
     "name": "Everything Search",
-    "vendor": "Voidtools",
+    "vendor": "voidtools",
     "category": "utility",
-    "description": "Instant file search. Much faster than Windows search.",
+    "description": "Instant file search using NTFS MFT indexing. Finds any file in milliseconds; extremely lightweight.",
     "power_usage": "very_low",
     "safety": "safe",
-    "typical_cpu": "0-2%",
-    "typical_ram": "10-50MB"
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-100MB"
   },
   "anydesk.exe": {
     "name": "AnyDesk",
@@ -849,7 +849,6 @@
     "typical_cpu": "30-65%",
     "typical_ram": "3000-6000MB"
   },
-
   "wermgr.exe": {
     "name": "Windows Error Reporting",
     "vendor": "Microsoft Corporation",
@@ -864,21 +863,21 @@
     "name": "Shell Infrastructure Host",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Handles shell-related UI including Action Center and taskbar notifications.",
-    "power_usage": "low",
+    "description": "Manages background shell elements including wallpaper and taskbar features. Required by Explorer.",
+    "power_usage": "very_low",
     "safety": "safe",
-    "typical_cpu": "0-2%",
+    "typical_cpu": "0-3%",
     "typical_ram": "10-40MB"
   },
   "fontdrvhost.exe": {
     "name": "Font Driver Host",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Isolated host process for font rendering. Sandboxed for security.",
+    "description": "Sandboxed process for font rendering. Two instances (System + User) are always normal.",
     "power_usage": "very_low",
     "safety": "safe",
-    "typical_cpu": "0-1%",
-    "typical_ram": "5-20MB"
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-30MB"
   },
   "smss.exe": {
     "name": "Session Manager Subsystem",
@@ -894,23 +893,22 @@
     "name": "COM Surrogate",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Hosts COM objects (e.g. thumbnail generators). Multiple instances are normal.",
+    "description": "Hosts COM objects for Explorer (thumbnail generation, codec previews). Multiple instances are normal. Can be spoofed by malware.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "0-20%",
+    "typical_ram": "5-100MB"
+  },
+  "taskhostw.exe": {
+    "name": "Task Host Window",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Hosts scheduled tasks and COM objects at logon and logoff. Multiple instances are normal.",
     "power_usage": "low",
     "safety": "safe",
     "typical_cpu": "0-10%",
-    "typical_ram": "10-50MB"
+    "typical_ram": "5-50MB"
   },
-  "taskhostw.exe": {
-    "name": "Task Host for Windows",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Runs scheduled tasks and DLL-based services. Brief CPU spikes are normal.",
-    "power_usage": "low",
-    "safety": "safe",
-    "typical_cpu": "0-5%",
-    "typical_ram": "10-40MB"
-  },
-
   "telegram.exe": {
     "name": "Telegram Desktop",
     "vendor": "Telegram FZ-LLC",
@@ -931,7 +929,6 @@
     "typical_cpu": "2-12%",
     "typical_ram": "150-400MB"
   },
-
   "notepad++.exe": {
     "name": "Notepad++",
     "vendor": "Don Ho",
@@ -952,7 +949,6 @@
     "typical_cpu": "5-80%",
     "typical_ram": "100-4000MB"
   },
-
   "onedrive.exe": {
     "name": "Microsoft OneDrive",
     "vendor": "Microsoft Corporation",
@@ -973,7 +969,6 @@
     "typical_cpu": "1-15%",
     "typical_ram": "100-350MB"
   },
-
   "avp.exe": {
     "name": "Kaspersky Antivirus",
     "vendor": "Kaspersky Lab",
@@ -1004,7 +999,6 @@
     "typical_cpu": "1-15%",
     "typical_ram": "50-200MB"
   },
-
   "xmrig.exe": {
     "name": "XMRig Miner",
     "vendor": "Unknown",
@@ -1045,7 +1039,6 @@
     "typical_cpu": "30-90%",
     "typical_ram": "100-300MB"
   },
-
   "system idle process": {
     "name": "System Idle Process",
     "vendor": "Microsoft Corporation",
@@ -1296,46 +1289,6 @@
     "typical_cpu": "0-3%",
     "typical_ram": "5-30MB"
   },
-  "audiodg.exe": {
-    "name": "Windows Audio Device Graph",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Handles audio processing and software effects pipeline. High CPU can indicate a bad audio driver or heavy effect chain.",
-    "power_usage": "low",
-    "safety": "safe",
-    "typical_cpu": "0-15%",
-    "typical_ram": "10-80MB"
-  },
-  "fontdrvhost.exe": {
-    "name": "Font Driver Host",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Sandboxed process for font rendering. Two instances (System + User) are always normal.",
-    "power_usage": "very_low",
-    "safety": "safe",
-    "typical_cpu": "0-3%",
-    "typical_ram": "5-30MB"
-  },
-  "sihost.exe": {
-    "name": "Shell Infrastructure Host",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Manages background shell elements including wallpaper and taskbar features. Required by Explorer.",
-    "power_usage": "very_low",
-    "safety": "safe",
-    "typical_cpu": "0-3%",
-    "typical_ram": "10-40MB"
-  },
-  "taskhostw.exe": {
-    "name": "Task Host Window",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Hosts scheduled tasks and COM objects at logon and logoff. Multiple instances are normal.",
-    "power_usage": "low",
-    "safety": "safe",
-    "typical_cpu": "0-10%",
-    "typical_ram": "5-50MB"
-  },
   "smartscreen.exe": {
     "name": "Windows SmartScreen",
     "vendor": "Microsoft Corporation",
@@ -1346,57 +1299,6 @@
     "typical_cpu": "0-10%",
     "typical_ram": "10-60MB"
   },
-  "conhost.exe": {
-    "name": "Console Window Host",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Renders console windows for CMD, PowerShell, and CLI tools. One instance per open console.",
-    "power_usage": "very_low",
-    "safety": "safe",
-    "typical_cpu": "0-5%",
-    "typical_ram": "5-30MB"
-  },
-  "msiexec.exe": {
-    "name": "Windows Installer",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Runs .msi installer packages. Should only appear during software installations. Impersonation by malware is possible.",
-    "power_usage": "medium",
-    "safety": "caution",
-    "typical_cpu": "5-50% (during install)",
-    "typical_ram": "20-200MB"
-  },
-  "dllhost.exe": {
-    "name": "COM Surrogate",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Hosts COM objects for Explorer (thumbnail generation, codec previews). Multiple instances are normal. Can be spoofed by malware.",
-    "power_usage": "low",
-    "safety": "caution",
-    "typical_cpu": "0-20%",
-    "typical_ram": "5-100MB"
-  },
-  "wsl.exe": {
-    "name": "Windows Subsystem for Linux",
-    "vendor": "Microsoft Corporation",
-    "category": "virtualization",
-    "description": "Entry point for WSL Linux environment. Launches Linux distro processes inside a lightweight VM.",
-    "power_usage": "medium",
-    "safety": "safe",
-    "typical_cpu": "5-50%",
-    "typical_ram": "100-2000MB"
-  },
-  "spoolsv.exe": {
-    "name": "Print Spooler",
-    "vendor": "Microsoft Corporation",
-    "category": "system",
-    "description": "Manages print job queue and printer communication. Persistent high CPU without printing may indicate malware.",
-    "power_usage": "low",
-    "safety": "caution",
-    "typical_cpu": "0-15%",
-    "typical_ram": "10-80MB"
-  },
-
   "nvtelemetrycontainer.exe": {
     "name": "NVIDIA Telemetry Container",
     "vendor": "NVIDIA Corporation",
@@ -1477,7 +1379,6 @@
     "typical_cpu": "0-3%",
     "typical_ram": "20-80MB"
   },
-
   "ksp_x64.exe": {
     "name": "Kerbal Space Program",
     "vendor": "Squad / Private Division",
@@ -1678,16 +1579,6 @@
     "typical_cpu": "40-80%",
     "typical_ram": "8000-16000MB"
   },
-  "minecraft.exe": {
-    "name": "Minecraft",
-    "vendor": "Mojang Studios / Microsoft",
-    "category": "gaming",
-    "description": "Sandbox block game. Java Edition is CPU-heavy; Bedrock is more optimized. Chunk loading spikes CPU.",
-    "power_usage": "high",
-    "safety": "safe",
-    "typical_cpu": "30-80%",
-    "typical_ram": "2000-8000MB"
-  },
   "valheim.exe": {
     "name": "Valheim",
     "vendor": "Iron Gate AB",
@@ -1728,7 +1619,6 @@
     "typical_cpu": "40-80%",
     "typical_ram": "6000-12000MB"
   },
-
   "devenv.exe": {
     "name": "Visual Studio IDE",
     "vendor": "Microsoft Corporation",
@@ -1879,7 +1769,6 @@
     "typical_cpu": "5-60%",
     "typical_ram": "100-1000MB"
   },
-
   "acrobat.exe": {
     "name": "Adobe Acrobat",
     "vendor": "Adobe Inc.",
@@ -2000,7 +1889,6 @@
     "typical_cpu": "80-100% (during encode)",
     "typical_ram": "200-2000MB"
   },
-
   "galaxyclient.exe": {
     "name": "GOG Galaxy Client",
     "vendor": "CD Projekt",
@@ -2141,7 +2029,6 @@
     "typical_cpu": "0-5%",
     "typical_ram": "20-80MB"
   },
-
   "avguard.exe": {
     "name": "Avira Protection Guard",
     "vendor": "Avira Operations GmbH",
@@ -2222,7 +2109,6 @@
     "typical_cpu": "5-50% (during scan)",
     "typical_ram": "50-300MB"
   },
-
   "googledrivefs.exe": {
     "name": "Google Drive File Stream",
     "vendor": "Google LLC",
@@ -2323,7 +2209,6 @@
     "typical_cpu": "0-10%",
     "typical_ram": "10-60MB"
   },
-
   "icue.exe": {
     "name": "Corsair iCUE",
     "vendor": "Corsair Gaming Inc.",
@@ -2384,7 +2269,6 @@
     "typical_cpu": "1-10%",
     "typical_ram": "100-400MB"
   },
-
   "hwinfo64.exe": {
     "name": "HWiNFO64",
     "vendor": "REALiX",
@@ -2505,26 +2389,6 @@
     "typical_cpu": "5-50% (during capture)",
     "typical_ram": "200-2000MB"
   },
-  "everything.exe": {
-    "name": "Everything Search",
-    "vendor": "voidtools",
-    "category": "utility",
-    "description": "Instant file search using NTFS MFT indexing. Finds any file in milliseconds; extremely lightweight.",
-    "power_usage": "very_low",
-    "safety": "safe",
-    "typical_cpu": "0-5%",
-    "typical_ram": "10-100MB"
-  },
-  "7zfm.exe": {
-    "name": "7-Zip File Manager",
-    "vendor": "Igor Pavlov (Open Source)",
-    "category": "utility",
-    "description": "Open-source file archiver. Compression can peg CPU; ultra preset runs mostly single-threaded.",
-    "power_usage": "varies",
-    "safety": "safe",
-    "typical_cpu": "10-100% (during compress)",
-    "typical_ram": "20-300MB"
-  },
   "logioptionsplus.exe": {
     "name": "Logi Options+",
     "vendor": "Logitech International",
@@ -2544,5 +2408,1325 @@
     "safety": "safe",
     "typical_cpu": "0-5%",
     "typical_ram": "30-150MB"
+  },
+  "signal.exe": {
+    "name": "Signal",
+    "vendor": "Signal Foundation",
+    "category": "communication",
+    "description": "Encrypted instant messenger. End-to-end encrypted messages and calls.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "80-200MB"
+  },
+  "viber.exe": {
+    "name": "Viber",
+    "vendor": "Rakuten Viber",
+    "category": "communication",
+    "description": "Free messaging and calling app with group chats and end-to-end encryption.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "80-200MB"
+  },
+  "webex.exe": {
+    "name": "Cisco Webex",
+    "vendor": "Cisco Systems",
+    "category": "communication",
+    "description": "Video conferencing and team collaboration platform by Cisco.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-25%",
+    "typical_ram": "200-600MB"
+  },
+  "mattermost-desktop.exe": {
+    "name": "Mattermost",
+    "vendor": "Mattermost Inc.",
+    "category": "communication",
+    "description": "Open-source self-hosted team messaging platform. Slack alternative.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-8%",
+    "typical_ram": "150-400MB"
+  },
+  "element.exe": {
+    "name": "Element (Matrix)",
+    "vendor": "New Vector Ltd",
+    "category": "communication",
+    "description": "Decentralized end-to-end encrypted messaging on the Matrix protocol.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "100-300MB"
+  },
+  "vivaldi.exe": {
+    "name": "Vivaldi Browser",
+    "vendor": "Vivaldi Technologies",
+    "category": "browser",
+    "description": "Feature-rich Chromium-based browser with high customizability.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "200-700MB"
+  },
+  "librewolf.exe": {
+    "name": "LibreWolf",
+    "vendor": "LibreWolf Community",
+    "category": "browser",
+    "description": "Firefox fork focused on privacy. Blocks trackers and telemetry.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-15%",
+    "typical_ram": "150-600MB"
+  },
+  "bitwarden.exe": {
+    "name": "Bitwarden",
+    "vendor": "Bitwarden Inc.",
+    "category": "security",
+    "description": "Open-source password manager. Securely stores and autofills passwords.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "80-160MB"
+  },
+  "keepassxc.exe": {
+    "name": "KeePassXC",
+    "vendor": "KeePassXC Team",
+    "category": "security",
+    "description": "Open-source offline password manager. No cloud sync - fully local.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "30-80MB"
+  },
+  "veracrypt.exe": {
+    "name": "VeraCrypt",
+    "vendor": "IDRIX",
+    "category": "security",
+    "description": "Disk encryption tool. Creates encrypted volumes or encrypts entire partitions.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "20-50MB"
+  },
+  "surfshark.exe": {
+    "name": "Surfshark VPN",
+    "vendor": "Surfshark B.V.",
+    "category": "security",
+    "description": "VPN client encrypting internet traffic and hiding IP address.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "50-120MB"
+  },
+  "expressvpn.exe": {
+    "name": "ExpressVPN",
+    "vendor": "ExpressVPN International Ltd",
+    "category": "security",
+    "description": "Premium VPN service with fast servers in 94+ countries.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "50-120MB"
+  },
+  "mullvadvpn.exe": {
+    "name": "Mullvad VPN",
+    "vendor": "Mullvad AB",
+    "category": "security",
+    "description": "Privacy-focused VPN. Supports anonymous account numbers, strict no-logs policy.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-2%",
+    "typical_ram": "40-100MB"
+  },
+  "windscribe.exe": {
+    "name": "Windscribe VPN",
+    "vendor": "Windscribe Limited",
+    "category": "security",
+    "description": "VPN and firewall with a free tier. Blocks ads and trackers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "50-120MB"
+  },
+  "protonvpn.exe": {
+    "name": "ProtonVPN",
+    "vendor": "Proton AG",
+    "category": "security",
+    "description": "VPN by creators of ProtonMail. Strong privacy policy, strict no-logs.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-3%",
+    "typical_ram": "60-130MB"
+  },
+  "mpv.exe": {
+    "name": "MPV Player",
+    "vendor": "mpv.io (open-source)",
+    "category": "media",
+    "description": "Lightweight open-source media player with hardware-accelerated decoding.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "50-200MB"
+  },
+  "potplayer64.exe": {
+    "name": "PotPlayer",
+    "vendor": "Kakao Corp.",
+    "category": "media",
+    "description": "Versatile media player with broad codec support and hardware acceleration.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-20%",
+    "typical_ram": "60-250MB"
+  },
+  "kodi.exe": {
+    "name": "Kodi Media Center",
+    "vendor": "Kodi Foundation",
+    "category": "media",
+    "description": "Open-source home theater software for managing and playing media collections.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-20%",
+    "typical_ram": "100-400MB"
+  },
+  "mpc-hc64.exe": {
+    "name": "Media Player Classic - HC",
+    "vendor": "mpc-hc.org (open-source)",
+    "category": "media",
+    "description": "Lightweight classic-style media player with strong codec support.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "30-120MB"
+  },
+  "foobar2000.exe": {
+    "name": "foobar2000",
+    "vendor": "Peter Pawlowski",
+    "category": "media",
+    "description": "Advanced freeware audio player for Windows with extensive plugin support.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "autohotkey.exe": {
+    "name": "AutoHotkey",
+    "vendor": "AutoHotkey Foundation",
+    "category": "utility",
+    "description": "Automation scripting language for Windows. Remaps keys, creates hotkeys, automates tasks.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-30MB"
+  },
+  "autohotkey32.exe": {
+    "name": "AutoHotkey (32-bit)",
+    "vendor": "AutoHotkey Foundation",
+    "category": "utility",
+    "description": "32-bit version of the AutoHotkey automation scripting engine.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-25MB"
+  },
+  "sharex.exe": {
+    "name": "ShareX",
+    "vendor": "ShareX Team (open-source)",
+    "category": "utility",
+    "description": "Feature-rich screenshot and screen recording tool with annotations and upload support.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-100MB"
+  },
+  "greenshot.exe": {
+    "name": "Greenshot",
+    "vendor": "Greenshot (open-source)",
+    "category": "utility",
+    "description": "Lightweight screenshot tool with annotation capabilities.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "15-40MB"
+  },
+  "rufus.exe": {
+    "name": "Rufus",
+    "vendor": "Pete Batard (open-source)",
+    "category": "utility",
+    "description": "Utility for creating bootable USB drives from ISO files. Fast and reliable.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "5-20MB"
+  },
+  "revouninstaller.exe": {
+    "name": "Revo Uninstaller",
+    "vendor": "VS Revo Group",
+    "category": "utility",
+    "description": "Advanced uninstaller removing programs and leftover registry/file traces.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "powertoys.exe": {
+    "name": "Microsoft PowerToys",
+    "vendor": "Microsoft Corporation",
+    "category": "utility",
+    "description": "Windows productivity utilities: FancyZones, PowerRename, Run launcher, and more.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "50-150MB"
+  },
+  "windirstat.exe": {
+    "name": "WinDirStat",
+    "vendor": "WinDirStat (open-source)",
+    "category": "utility",
+    "description": "Disk usage visualizer displaying folder sizes as a treemap for easy analysis.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "30-100MB"
+  },
+  "wiztree64.exe": {
+    "name": "WizTree",
+    "vendor": "Antibody Software",
+    "category": "utility",
+    "description": "Extremely fast disk space analyzer. Reads the NTFS MFT directly for instant results.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "20-60MB"
+  },
+  "cleanmgr.exe": {
+    "name": "Disk Cleanup",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows built-in tool to delete temporary files and free up disk space.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "20-50MB"
+  },
+  "mrt.exe": {
+    "name": "Malicious Software Removal Tool",
+    "vendor": "Microsoft Corporation",
+    "category": "security",
+    "description": "Microsoft tool checking for specific malware. Runs monthly via Windows Update.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "50-150MB"
+  },
+  "dism.exe": {
+    "name": "DISM",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Deployment Image Servicing. Used by Windows Update and repair operations.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-80%",
+    "typical_ram": "50-200MB"
+  },
+  "sfc.exe": {
+    "name": "System File Checker",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Scans and repairs corrupted Windows system files. Run via 'sfc /scannow'.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "30-80MB"
+  },
+  "regedit.exe": {
+    "name": "Registry Editor",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Windows tool for viewing and editing the system registry. Use with caution.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-30MB"
+  },
+  "winget.exe": {
+    "name": "Windows Package Manager",
+    "vendor": "Microsoft Corporation",
+    "category": "utility",
+    "description": "Windows built-in package manager for installing and updating apps from CLI.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "30-80MB"
+  },
+  "coretemp.exe": {
+    "name": "Core Temp",
+    "vendor": "Alcpu",
+    "category": "utility",
+    "description": "Lightweight CPU temperature monitoring tool with per-core temperature readings.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "5-20MB"
+  },
+  "speccy.exe": {
+    "name": "Speccy",
+    "vendor": "Piriform",
+    "category": "utility",
+    "description": "System information tool showing detailed hardware specs and live temperatures.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-50MB"
+  },
+  "occt.exe": {
+    "name": "OCCT Stability Test",
+    "vendor": "OCBASE",
+    "category": "utility",
+    "description": "CPU, GPU, RAM and PSU stability testing tool. Used for overclocking validation.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "90-100%",
+    "typical_ram": "50-200MB"
+  },
+  "thunderbird.exe": {
+    "name": "Mozilla Thunderbird",
+    "vendor": "Mozilla Foundation",
+    "category": "productivity",
+    "description": "Open-source email client with advanced filtering and extension support.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-400MB"
+  },
+  "sumatrapdf.exe": {
+    "name": "Sumatra PDF",
+    "vendor": "Krzysztof Kowalczyk",
+    "category": "utility",
+    "description": "Fast lightweight PDF and ebook reader with minimal memory footprint.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-50MB"
+  },
+  "obsidian.exe": {
+    "name": "Obsidian",
+    "vendor": "Obsidian.md",
+    "category": "productivity",
+    "description": "Knowledge base and note-taking app using linked Markdown files. Personal wiki.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "80-300MB"
+  },
+  "typora.exe": {
+    "name": "Typora",
+    "vendor": "Abner Lee",
+    "category": "productivity",
+    "description": "Minimal Markdown editor with live preview. Hides syntax to show formatted output.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-5%",
+    "typical_ram": "60-200MB"
+  },
+  "scrivener3.exe": {
+    "name": "Scrivener",
+    "vendor": "Literature and Latte",
+    "category": "productivity",
+    "description": "Writing software for long-form projects like novels, scripts, and research papers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "50-200MB"
+  },
+  "calibre.exe": {
+    "name": "Calibre",
+    "vendor": "Kovid Goyal (open-source)",
+    "category": "utility",
+    "description": "E-book library management with format conversion and device sync.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "100-300MB"
+  },
+  "rustdesk.exe": {
+    "name": "RustDesk",
+    "vendor": "RustDesk (open-source)",
+    "category": "remote",
+    "description": "Open-source remote desktop tool. Self-hostable alternative to TeamViewer.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "50-150MB"
+  },
+  "parsec.exe": {
+    "name": "Parsec",
+    "vendor": "Parsec Cloud Inc.",
+    "category": "remote",
+    "description": "Low-latency remote desktop streaming optimized for gaming and creative work.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "80-200MB"
+  },
+  "nomachine.exe": {
+    "name": "NoMachine",
+    "vendor": "NoMachine",
+    "category": "remote",
+    "description": "High-performance remote desktop solution using the NX protocol.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-10%",
+    "typical_ram": "60-180MB"
+  },
+  "reaper.exe": {
+    "name": "REAPER DAW",
+    "vendor": "Cockos Incorporated",
+    "category": "media",
+    "description": "Digital audio workstation for recording, mixing, editing. Very lightweight for a DAW.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-60%",
+    "typical_ram": "100-800MB"
+  },
+  "fl64.exe": {
+    "name": "FL Studio",
+    "vendor": "Image-Line",
+    "category": "media",
+    "description": "FL Studio music production DAW with step sequencer and mixer.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-80%",
+    "typical_ram": "200-2000MB"
+  },
+  "protools.exe": {
+    "name": "Pro Tools",
+    "vendor": "Avid Technology",
+    "category": "media",
+    "description": "Industry-standard professional DAW used in studios worldwide.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-70%",
+    "typical_ram": "400-2000MB"
+  },
+  "latencymon.exe": {
+    "name": "LatencyMon",
+    "vendor": "Resplendence Software",
+    "category": "utility",
+    "description": "Analyzes DPC and ISR latency. Used to diagnose audio glitches and real-time issues.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "15-40MB"
+  },
+  "procmon64.exe": {
+    "name": "Process Monitor",
+    "vendor": "Microsoft (Sysinternals)",
+    "category": "development",
+    "description": "Advanced monitoring tool showing real-time file, registry, and process activity.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "100-500MB"
+  },
+  "autoruns64.exe": {
+    "name": "Autoruns",
+    "vendor": "Microsoft (Sysinternals)",
+    "category": "utility",
+    "description": "Shows every autostart location in Windows. Essential for malware detection.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-60MB"
+  },
+  "procexp64.exe": {
+    "name": "Process Explorer",
+    "vendor": "Microsoft (Sysinternals)",
+    "category": "utility",
+    "description": "Advanced Task Manager replacement with detailed process and handle information.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "mysql.exe": {
+    "name": "MySQL Server",
+    "vendor": "Oracle Corporation",
+    "category": "development",
+    "description": "MySQL database server process handling queries and connections.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "50-500MB"
+  },
+  "redis-server.exe": {
+    "name": "Redis Server",
+    "vendor": "Redis Ltd (open-source)",
+    "category": "development",
+    "description": "In-memory data structure store used as database, cache, and message broker.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-200MB"
+  },
+  "mongod.exe": {
+    "name": "MongoDB Server",
+    "vendor": "MongoDB Inc.",
+    "category": "development",
+    "description": "MongoDB NoSQL database server process.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "100-500MB"
+  },
+  "krita.exe": {
+    "name": "Krita",
+    "vendor": "Krita Foundation (open-source)",
+    "category": "development",
+    "description": "Professional free and open-source digital painting and illustration application.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-30%",
+    "typical_ram": "100-600MB"
+  },
+  "kdenlive.exe": {
+    "name": "Kdenlive",
+    "vendor": "KDE Community (open-source)",
+    "category": "media",
+    "description": "Open-source non-linear video editor with multi-track timeline.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "200-800MB"
+  },
+  "godot.exe": {
+    "name": "Godot Engine 3",
+    "vendor": "Godot Engine Community",
+    "category": "development",
+    "description": "Open-source 2D/3D game engine editor. Godot 3.x branch.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "200-800MB"
+  },
+  "godot4.exe": {
+    "name": "Godot Engine 4",
+    "vendor": "Godot Engine Community",
+    "category": "development",
+    "description": "Godot 4.x game engine with Vulkan rendering and improved 3D capabilities.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "300-1200MB"
+  },
+  "unreal.exe": {
+    "name": "Unreal Editor",
+    "vendor": "Epic Games",
+    "category": "development",
+    "description": "Unreal Engine editor. Professional game and simulation development environment.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-100%",
+    "typical_ram": "4-16GB"
+  },
+  "flutter.exe": {
+    "name": "Flutter CLI",
+    "vendor": "Google LLC",
+    "category": "development",
+    "description": "Flutter cross-platform UI SDK CLI tool for project management and building.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "100-400MB"
+  },
+  "cargo.exe": {
+    "name": "Cargo (Rust)",
+    "vendor": "Rust Foundation",
+    "category": "development",
+    "description": "Rust package manager and build system. Compiles Rust code and manages dependencies.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-100%",
+    "typical_ram": "100-800MB"
+  },
+  "cmake.exe": {
+    "name": "CMake",
+    "vendor": "Kitware Inc.",
+    "category": "development",
+    "description": "Cross-platform build system generator creating makefiles/project files for compilation.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-50%",
+    "typical_ram": "20-100MB"
+  },
+  "gh.exe": {
+    "name": "GitHub CLI",
+    "vendor": "GitHub Inc.",
+    "category": "development",
+    "description": "GitHub command-line tool for managing repos, PRs, and issues from terminal.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-60MB"
+  },
+  "kubectl.exe": {
+    "name": "kubectl",
+    "vendor": "Cloud Native Computing Foundation",
+    "category": "development",
+    "description": "Kubernetes command-line tool for managing containerized workloads and clusters.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "nmap.exe": {
+    "name": "Nmap",
+    "vendor": "Insecure.com LLC",
+    "category": "network",
+    "description": "Network exploration and security auditing tool. Scans ports and detects services.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-60%",
+    "typical_ram": "20-100MB"
+  },
+  "heidisql.exe": {
+    "name": "HeidiSQL",
+    "vendor": "Ansgar Becker",
+    "category": "development",
+    "description": "Lightweight SQL client for MySQL, MariaDB, MSSQL, PostgreSQL databases.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-100MB"
+  },
+  "sqlitebrowser.exe": {
+    "name": "DB Browser for SQLite",
+    "vendor": "SQLiteBrowser Team (open-source)",
+    "category": "development",
+    "description": "Visual tool for creating and editing SQLite databases.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-80MB"
+  },
+  "pgadmin4.exe": {
+    "name": "pgAdmin 4",
+    "vendor": "pgAdmin Development Team",
+    "category": "development",
+    "description": "Web-based administration tool for PostgreSQL databases.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-600MB"
+  },
+  "mobaxterm.exe": {
+    "name": "MobaXterm",
+    "vendor": "Mobatek",
+    "category": "utility",
+    "description": "Enhanced terminal for Windows with X11 server, SSH client and many network tools.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-100MB"
+  },
+  "mkvtoolnix-gui.exe": {
+    "name": "MKVToolNix",
+    "vendor": "Moritz Bunkus (open-source)",
+    "category": "media",
+    "description": "GUI for creating, editing and inspecting MKV video files.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "30-100MB"
+  },
+  "mediainfo.exe": {
+    "name": "MediaInfo",
+    "vendor": "MediaArea.net",
+    "category": "media",
+    "description": "Technical metadata analyzer for audio and video files.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "10-30MB"
+  },
+  "irfanview64.exe": {
+    "name": "IrfanView",
+    "vendor": "Irfan Skiljan",
+    "category": "media",
+    "description": "Fast compact image viewer supporting 100+ file formats. Very lightweight.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-30MB"
+  },
+  "pcloud.exe": {
+    "name": "pCloud Drive",
+    "vendor": "pCloud AG",
+    "category": "cloud",
+    "description": "pCloud cloud storage desktop client mounting cloud as a virtual drive.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "30-100MB"
+  },
+  "rclone.exe": {
+    "name": "rclone",
+    "vendor": "rclone.org (open-source)",
+    "category": "cloud",
+    "description": "CLI tool for syncing files with cloud storage providers (S3, GDrive, Dropbox, etc.).",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "30-100MB"
+  },
+  "duplicati.exe": {
+    "name": "Duplicati",
+    "vendor": "Duplicati Team (open-source)",
+    "category": "utility",
+    "description": "Encrypted online backup tool supporting multiple cloud storage backends.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-40%",
+    "typical_ram": "50-200MB"
+  },
+  "macrium.reflect64.exe": {
+    "name": "Macrium Reflect",
+    "vendor": "Paramount Software UK",
+    "category": "utility",
+    "description": "Disk imaging and backup software. Creates full, incremental, and differential backups.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-60%",
+    "typical_ram": "100-300MB"
+  },
+  "qbittorrent.exe": {
+    "name": "qBittorrent",
+    "vendor": "qBittorrent Project (open-source)",
+    "category": "network",
+    "description": "Free open-source BitTorrent client. Alternative to uTorrent without ads.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-20%",
+    "typical_ram": "50-200MB"
+  },
+  "sandboxie-plus.exe": {
+    "name": "Sandboxie Plus",
+    "vendor": "Sandboxie Team (open-source)",
+    "category": "security",
+    "description": "Sandbox isolation program running apps in a safe isolated space.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "choco.exe": {
+    "name": "Chocolatey",
+    "vendor": "Chocolatey Software",
+    "category": "utility",
+    "description": "Windows package manager for automated software installation from CLI.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "30-100MB"
+  },
+  "rdr2.exe": {
+    "name": "Red Dead Redemption 2",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Open-world Western action-adventure. Extremely GPU and VRAM demanding.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "8-16GB"
+  },
+  "horizonzerodawn.exe": {
+    "name": "Horizon Zero Dawn",
+    "vendor": "Guerrilla Games / Sony",
+    "category": "gaming",
+    "description": "Open-world action RPG. PC port with demanding graphics settings.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-12GB"
+  },
+  "horizonforbiddenwest.exe": {
+    "name": "Horizon Forbidden West",
+    "vendor": "Guerrilla Games",
+    "category": "gaming",
+    "description": "Sequel to Horizon Zero Dawn. One of the most visually demanding PC games.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "8-16GB"
+  },
+  "deathstranding.exe": {
+    "name": "Death Stranding",
+    "vendor": "Kojima Productions",
+    "category": "gaming",
+    "description": "Post-apocalyptic delivery action game by Hideo Kojima. Well-optimized on PC.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "bf2042.exe": {
+    "name": "Battlefield 2042",
+    "vendor": "EA DICE",
+    "category": "gaming",
+    "description": "Large-scale multiplayer FPS with 128-player battles. CPU and GPU intensive.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "8-16GB"
+  },
+  "bf5.exe": {
+    "name": "Battlefield V",
+    "vendor": "EA DICE",
+    "category": "gaming",
+    "description": "WWII-era Battlefield game with ray-traced lighting support.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-12GB"
+  },
+  "bf1.exe": {
+    "name": "Battlefield 1",
+    "vendor": "EA DICE",
+    "category": "gaming",
+    "description": "WWI-set Battlefield with stunning visuals. Still popular online.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "modernwarfare3.exe": {
+    "name": "Call of Duty: Modern Warfare III",
+    "vendor": "Activision / Sledgehammer Games",
+    "category": "gaming",
+    "description": "Latest CoD title. High VRAM requirements for modern settings.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "8-16GB"
+  },
+  "warzone.exe": {
+    "name": "Call of Duty: Warzone",
+    "vendor": "Activision",
+    "category": "gaming",
+    "description": "Free-to-play battle royale. Notorious for large install size (70-120GB).",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "8-16GB"
+  },
+  "haloinfinite.exe": {
+    "name": "Halo Infinite",
+    "vendor": "343 Industries",
+    "category": "gaming",
+    "description": "Latest Halo with open-world campaign and free-to-play multiplayer.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-12GB"
+  },
+  "doometernal.exe": {
+    "name": "DOOM Eternal",
+    "vendor": "id Software / Bethesda",
+    "category": "gaming",
+    "description": "Fast-paced FPS sequel. Uses Vulkan for excellent GPU performance.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-8GB"
+  },
+  "fsd-win64-shipping.exe": {
+    "name": "Deep Rock Galactic",
+    "vendor": "Ghost Ship Games",
+    "category": "gaming",
+    "description": "Co-op FPS with procedurally generated caves. Play as dwarven miners.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "helldivers2.exe": {
+    "name": "Helldivers 2",
+    "vendor": "Arrowhead Game Studios",
+    "category": "gaming",
+    "description": "Co-op third-person shooter in satirical sci-fi setting. High GPU demand.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "8-16GB"
+  },
+  "palworld.exe": {
+    "name": "Palworld",
+    "vendor": "Pocketpair",
+    "category": "gaming",
+    "description": "Survival crafting game with creature collection. Massive 2024 hit.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-12GB"
+  },
+  "factorygame-win64-shipping.exe": {
+    "name": "Satisfactory",
+    "vendor": "Coffee Stain Studios",
+    "category": "gaming",
+    "description": "First-person factory building game. CPU-heavy in late-game.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-80%",
+    "typical_ram": "4-12GB"
+  },
+  "rust.exe": {
+    "name": "Rust",
+    "vendor": "Facepunch Studios",
+    "category": "gaming",
+    "description": "Survival multiplayer game. Notorious for high CPU usage on populated servers.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-70%",
+    "typical_ram": "4-12GB"
+  },
+  "dayz_x64.exe": {
+    "name": "DayZ",
+    "vendor": "Bohemia Interactive",
+    "category": "gaming",
+    "description": "Post-apocalyptic survival game. CPU-intensive for server-side simulation.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-8GB"
+  },
+  "theforest.exe": {
+    "name": "The Forest",
+    "vendor": "Endnight Games",
+    "category": "gaming",
+    "description": "Survival horror in a cannibal-infested forest. Predecessor to Sons of the Forest.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "2-6GB"
+  },
+  "sonsoftheforest.exe": {
+    "name": "Sons of the Forest",
+    "vendor": "Endnight Games",
+    "category": "gaming",
+    "description": "Survival horror sequel to The Forest. More demanding graphically.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-12GB"
+  },
+  "subnautica.exe": {
+    "name": "Subnautica",
+    "vendor": "Unknown Worlds Entertainment",
+    "category": "gaming",
+    "description": "Underwater open-world survival game. RAM usage grows in long sessions.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "nomanssky.exe": {
+    "name": "No Man's Sky",
+    "vendor": "Hello Games",
+    "category": "gaming",
+    "description": "Space exploration survival game. Vastly improved since launch.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "factorio.exe": {
+    "name": "Factorio",
+    "vendor": "Wube Software",
+    "category": "gaming",
+    "description": "Factory building game. CPU-heavy in late game with large automated factories.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-90%",
+    "typical_ram": "1-4GB"
+  },
+  "anno1800.exe": {
+    "name": "Anno 1800",
+    "vendor": "Ubisoft Blue Byte",
+    "category": "gaming",
+    "description": "City-building strategy set in the 19th century industrial era.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-8GB"
+  },
+  "cities.exe": {
+    "name": "Cities: Skylines",
+    "vendor": "Colossal Order",
+    "category": "gaming",
+    "description": "City-building simulation. CPU-heavy with large cities.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-70%",
+    "typical_ram": "4-8GB"
+  },
+  "cities2.exe": {
+    "name": "Cities: Skylines 2",
+    "vendor": "Colossal Order",
+    "category": "gaming",
+    "description": "Sequel to Cities: Skylines. Even more demanding, especially on CPU.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "40-100%",
+    "typical_ram": "8-16GB"
+  },
+  "ck3.exe": {
+    "name": "Crusader Kings III",
+    "vendor": "Paradox Interactive",
+    "category": "gaming",
+    "description": "Medieval dynasty grand strategy RPG. CPU-heavy in late game.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "2-6GB"
+  },
+  "eu4.exe": {
+    "name": "Europa Universalis IV",
+    "vendor": "Paradox Interactive",
+    "category": "gaming",
+    "description": "Historical grand strategy spanning 1444-1821.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "1-4GB"
+  },
+  "hoi4.exe": {
+    "name": "Hearts of Iron IV",
+    "vendor": "Paradox Interactive",
+    "category": "gaming",
+    "description": "WWII grand strategy. CPU intensive with many AI nations.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-70%",
+    "typical_ram": "2-4GB"
+  },
+  "stellaris.exe": {
+    "name": "Stellaris",
+    "vendor": "Paradox Interactive",
+    "category": "gaming",
+    "description": "Space grand strategy with 4X elements. Late-game lag with many AI empires.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "2-6GB"
+  },
+  "victoria3.exe": {
+    "name": "Victoria 3",
+    "vendor": "Paradox Interactive",
+    "category": "gaming",
+    "description": "Economic and political grand strategy set in the 1800s.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "30-80%",
+    "typical_ram": "4-8GB"
+  },
+  "warhammer3.exe": {
+    "name": "Total War: Warhammer III",
+    "vendor": "Creative Assembly / SEGA",
+    "category": "gaming",
+    "description": "Turn-based strategy with real-time battles in Warhammer Fantasy setting.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "6-12GB"
+  },
+  "monsterhunterworld.exe": {
+    "name": "Monster Hunter: World",
+    "vendor": "Capcom",
+    "category": "gaming",
+    "description": "Action RPG hunting gigantic monsters. Iceborne expansion adds major content.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "monsterhunterrise.exe": {
+    "name": "Monster Hunter Rise",
+    "vendor": "Capcom",
+    "category": "gaming",
+    "description": "PC port of the Switch title. Less demanding than World. Includes Sunbreak DLC.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "re4.exe": {
+    "name": "Resident Evil 4 Remake",
+    "vendor": "Capcom",
+    "category": "gaming",
+    "description": "2023 remake of the classic survival horror. Uses RE Engine with ray tracing.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "8-16GB"
+  },
+  "re8.exe": {
+    "name": "Resident Evil Village",
+    "vendor": "Capcom",
+    "category": "gaming",
+    "description": "First-person survival horror with multiple gameplay styles.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "6-12GB"
+  },
+  "dmc5.exe": {
+    "name": "Devil May Cry 5",
+    "vendor": "Capcom",
+    "category": "gaming",
+    "description": "High-energy character action game. Very well-optimized on PC.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "darksoulsiii.exe": {
+    "name": "Dark Souls III",
+    "vendor": "FromSoftware / Bandai Namco",
+    "category": "gaming",
+    "description": "Demanding action RPG known for high difficulty. PvP still active.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "sekiro.exe": {
+    "name": "Sekiro: Shadows Die Twice",
+    "vendor": "FromSoftware / Activision",
+    "category": "gaming",
+    "description": "Samurai action game by FromSoftware. Focused single-player experience.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "deadbydaylight-win64-shipping.exe": {
+    "name": "Dead by Daylight",
+    "vendor": "Behaviour Interactive",
+    "category": "gaming",
+    "description": "Asymmetric survival horror. 1 killer vs 4 survivors. Frequent performance issues.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-8GB"
+  },
+  "hunt.exe": {
+    "name": "Hunt: Showdown",
+    "vendor": "Crytek",
+    "category": "gaming",
+    "description": "Extraction shooter set in the Louisiana bayou. Uses CryEngine.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "6-12GB"
+  },
+  "phasmophobia.exe": {
+    "name": "Phasmophobia",
+    "vendor": "Kinetic Games",
+    "category": "gaming",
+    "description": "Co-op paranormal investigation horror game. VR-supported.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "2-6GB"
+  },
+  "vrchat.exe": {
+    "name": "VRChat",
+    "vendor": "VRChat Inc.",
+    "category": "gaming",
+    "description": "Social VR platform. RAM usage depends heavily on avatar complexity.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "4-12GB"
+  },
+  "seaofthieves.exe": {
+    "name": "Sea of Thieves",
+    "vendor": "Rare / Xbox Game Studios",
+    "category": "gaming",
+    "description": "Pirate adventure MMO. Good GPU optimization. Requires Xbox account.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "left4dead2.exe": {
+    "name": "Left 4 Dead 2",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "Co-op zombie shooter on the Source engine. Still very popular.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-30%",
+    "typical_ram": "1-3GB"
+  },
+  "hl2.exe": {
+    "name": "Source Engine Game (HL2/TF2/GMod/Portal)",
+    "vendor": "Valve Corporation",
+    "category": "gaming",
+    "description": "Source engine executable shared by Half-Life 2, TF2, Garry's Mod, Portal and other Valve games.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "1-4GB"
+  },
+  "ffxiv_dx11.exe": {
+    "name": "Final Fantasy XIV",
+    "vendor": "Square Enix",
+    "category": "gaming",
+    "description": "Popular MMORPG with acclaimed story. CPU-bound on populated servers.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "4-8GB"
+  },
+  "dyinglight2.exe": {
+    "name": "Dying Light 2 Stay Human",
+    "vendor": "Techland",
+    "category": "gaming",
+    "description": "Open-world parkour zombie RPG. Ray tracing support, demanding on GPU.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "8-12GB"
+  },
+  "lies-p.exe": {
+    "name": "Lies of P",
+    "vendor": "ROUND8 Studio / Neowiz",
+    "category": "gaming",
+    "description": "Soulslike action game based on the Pinocchio story.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "6-12GB"
+  },
+  "remnant2.exe": {
+    "name": "Remnant II",
+    "vendor": "Gunfire Games",
+    "category": "gaming",
+    "description": "Co-op third-person shooter RPG with procedurally generated worlds.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-60%",
+    "typical_ram": "6-16GB"
+  },
+  "alanwake2.exe": {
+    "name": "Alan Wake 2",
+    "vendor": "Remedy Entertainment / Epic Games",
+    "category": "gaming",
+    "description": "Psychological horror sequel. Most GPU-demanding game available, with full path tracing.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "20-50%",
+    "typical_ram": "12-16GB"
   }
 }
