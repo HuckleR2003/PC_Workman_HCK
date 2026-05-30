@@ -9,6 +9,7 @@ import os
 import time
 
 from hck_stats_engine.constants import DB_PATH, LOGS_DIR, SCHEMA_VERSION
+from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
 
 
 class StatsDBManager:
@@ -16,6 +17,7 @@ class StatsDBManager:
 
     def __init__(self):
         self._db_path = DB_PATH
+        register_component("hck_stats_engine.db_manager", self, STATUS_OK)
         self._local = threading.local()
         self._initialized = False
 
