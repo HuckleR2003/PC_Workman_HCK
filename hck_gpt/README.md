@@ -1,235 +1,133 @@
-# hck_GPT Module
+# hck_GPT
 
-## Description
+AI diagnostic assistant embedded inside PC_Workman. Answers natural language questions about your PC in Polish and English using a hybrid rule+LLM engine.
 
-hck_GPT is the AI assistant module for PC Workman, providing intelligent system optimizations and user support.
+---
 
-## Module Structure
+## Architecture
 
 ```
 hck_gpt/
-├── __init__.py                  # Module initialization
-├── chat_handler.py              # Main chat logic and command processing
-├── service_setup_wizard.py      # Windows services optimization wizard
-├── services_manager.py          # Windows services manager (enable/disable)
-└── README.md                    # Documentation (this file)
+├── chat_handler.py          # Entry point — quick aliases, routing, help
+├── panel.py                 # Chat UI panel, nav links, session display
+├── insights.py              # InsightsEngine — habits, anomalies, teasers
+├── process_library.py       # Process lookup from data/process_library.json
+├── service_setup_wizard.py  # Windows service optimization wizard
+├── services_manager.py      # Windows service stop/start manager
+├── tooltip.py               # Process tooltip widget
+│
+├── intents/
+│   ├── vocabulary.py        # 76 intents, PL+EN trigger patterns
+│   ├── parser.py            # Intent parsing + confidence scoring
+│   ├── lang_detect.py       # PL/EN auto-detection
+│   └── ml_classifier.py     # Naive Bayes fallback classifier
+│
+├── engine/
+│   └── hybrid_engine.py     # Routes intent → rule handler or Ollama LLM
+│
+├── responses/
+│   └── builder.py           # All _resp_* handlers + MEGA features
+│
+├── context/
+│   ├── system_context.py    # Builds PC context string for LLM
+│   └── hardware_scanner.py  # WMI scan: CPU, GPU, RAM, disk, mobo
+│
+├── memory/
+│   ├── session_memory.py    # In-session event log, spike tracker
+│   ├── user_knowledge.py    # SQLite persistent user profile (AppData)
+│   └── proactive_monitor.py # Background alerts (CPU/RAM/disk/uptime)
+│
+└── data/
+    ├── live_sensors.py      # Real-time CPU/GPU/RAM snapshot
+    └── metrics_store.py     # daily_summary() queries from hck_stats.db
 ```
 
-## Features
+---
 
-### 1. Service Setup Wizard
+## Intent Coverage (76 total)
 
-Interactive wizard that helps users optimize their PC by disabling unnecessary Windows services.
+| Category | Intents |
+|---|---|
+| Hardware | `hw_cpu`, `hw_gpu`, `hw_ram`, `hw_storage`, `hw_all` |
+| Temperature | `temperature`, `throttle_check`, `gpu_temp_why` |
+| Performance | `performance`, `stats`, `perf_change`, `session_compare`, `pc_changes` |
+| Why | `why_slow`, `ram_why_high`, `processes`, `disk_usage_why` |
+| Diagnostics | `health_check`, `virus_check`, `disk_health`, `uptime`, `voltage_check` |
+| Gaming | `gaming_session`, `weekly_trends`, `fps_degradation`, `game_hardware_stress` |
+| New (1.7.5) | `fan_noise_history`, `driver_status`, `gaming_vs_work_time`, `process_identity`, `stale_apps`, `app_behavior_change`, `startup_slowdown`, `temp_comparison`, `crash_context`, `battery_drain_rate`, `power_after_restart` |
+| Optimization | `optimization`, `fan_speed`, `power_mode` |
+| Security | `process_info`, `security_check` |
+| Misc | `help`, `small_talk`, `unknown` + 15 others |
 
-**How to use:**
-```
-> service setup
-```
+All intents have Polish and English trigger patterns. Language is auto-detected per message.
 
-**Process:**
-1. Welcome and explanation
-2. Series of questions about specific features (Printer, Bluetooth, Remote Desktop, etc.)
-3. Summary and confirmation
-4. Apply optimizations
-5. Save configuration
+---
 
-**Questions asked by wizard:**
-- Do you have a Printer connected to your PC?
-- Do you use Bluetooth devices?
-- Do you use Remote Desktop or PC sharing?
-- Do you use Fax services?
-- Do you have a drawing tablet or use pen input?
-- Do you use Xbox gaming features?
-- Do you want to keep Windows telemetry enabled?
+## Key Features
 
-### 2. Services Manager
+### Hybrid Engine
+- **Rule path**: known intents → deterministic `_resp_*` handler in `builder.py`
+- **LLM path**: open-ended or low-confidence → Ollama (local, no cloud)
+- Per-intent temperature and system prompt hint tuning
 
-Manages Windows services - disables and enables them based on user preferences.
+### Context Time-Windowing
+Each intent gets a history window matched to its nature:
 
-**Supported service categories:**
-- **Printer** - Print Spooler
-- **Bluetooth** - Bluetooth Support Services
-- **Remote** - Remote Desktop & Registry
-- **Fax** - Fax Service
-- **Tablet** - Tablet Input Service
-- **Xbox** - Xbox Services (XblAuthManager, XblGameSave, etc.)
-- **Telemetry** - Windows Telemetry & Diagnostics
-
-**Configuration saved in:**
-```
-data/services_config.json
+```python
+"hw_cpu": 5,          # 5 minutes — live query
+"health_check": 30,   # 30 minutes — recent session
+"temp_comparison": 10080,  # 7 days — historical trend
 ```
 
-### 3. Chat Handler
+`build_llm_context_windowed(lang, minutes)` builds the LLM context scoped to that window — tight windows strip stale patterns, wide windows append daily metric history.
 
-Processes user messages and routes them to appropriate components.
+### No-AI-Slop Fallback
+`_no_data(intent, lang, what_missing)` — returns a structured "data unavailable" response instead of fabricating an answer. Used when sensor data, history, or process lists are empty.
 
-**Available commands:**
+### Time-Travel Debugging
+`_get_historical_comparison(metric, days, lang)` — fetches live sensor value and compares to N-day average from `metrics_store.daily_summary()`. Returns formatted delta with direction arrow.
 
-| Command | Description |
-|---------|-------------|
-| `service setup` | Launch optimization wizard |
-| `service status` | Show services status |
-| `restore services` | Restore all disabled services |
-| `help` | Show available commands |
+### Micro-Benchmarking
+`_trigger_micro_benchmark(bench_type)` — fires a background thread:
+- `cpu_single`: 1M sqrt operations, measures ops/sec
+- `disk_seq`: 32 MB sequential write+read, measures MB/s
 
-## Integration
+Results stored in `session_memory` under `micro_bench` key.
 
-### In UI (hck_gpt_panel.py)
+### Process Library
+`data/process_library.json` — **241 processes** with vendor, category, safety rating, typical CPU/RAM, and description. Used by `process_identity` and process tooltip widget.
+
+### Session Memory
+Tracks per-session events, spikes, and response data. Later handlers can reference what was discussed earlier in the same session (`discussed_this_session()`, `get_response_data(intent)`).
+
+### Proactive Monitor
+Background thread watching CPU, RAM, disk, and uptime. Fires non-intrusive alerts into the chat panel when thresholds are exceeded.
+
+---
+
+## Usage
 
 ```python
 from hck_gpt.chat_handler import ChatHandler
 
-# Initialize
-self.chat_handler = ChatHandler()
-
-# Process messages
-responses = self.chat_handler.process_message(user_input)
-for response in responses:
-    self.add_message(response)
+handler = ChatHandler()
+responses = handler.process_message("dlaczego mój komputer jest wolny?")
+# returns list of formatted response strings (bilingual)
 ```
 
-## Example Flow
+Quick aliases available in `chat_handler.py` — short Polish keywords map directly to intents without going through the parser (e.g. `sterowniki` → `driver_status`, `bateria` → `battery_drain_rate`).
 
-### Service Setup - Full Process
+---
 
-```
-User: service setup
+## Requirements
 
-GPT: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     📋 Service Setup - Welcome!
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Python 3.9+
+- `psutil` — process and sensor data
+- `wmi` — hardware scanner (Windows only)
+- `ollama` — optional, for LLM fallback path (local install required)
+- `sqlite3` — built-in, used by `metrics_store` and `user_knowledge`
 
-     Do you want to quick setup to disable
-     useless services for your PC?
+---
 
-     E.g. Print Spooler, Bluetooth, Remote Desktop
-     and more services that take system resources.
-
-     Type 'Yes' to start or 'No' to cancel
-
-User: yes
-
-GPT: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     🔧 Service Setup [1/7]
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-     Do you have a Printer connected to your PC?
-     (Yes/No)
-
-User: no
-
-GPT: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     🔧 Service Setup [2/7]
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-     Do you use Bluetooth devices?
-     (Yes/No)
-
-... (more questions)
-
-GPT: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-     ✅ Service Setup - Summary
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-     Based on your answers, these services
-     will be DISABLED to optimize your PC:
-
-       • Print Spooler
-       • Bluetooth Support
-       • Fax Service
-
-     Type 'Yes' to apply or 'No' to cancel
-
-User: yes
-
-GPT: ⚙️  Applying optimizations...
-     ✅ Disabled: Print Spooler
-     ✅ Disabled: Bluetooth Support
-     ✅ Disabled: Fax Service
-
-     ✨ Optimization Complete!
-        3 services optimized
-```
-
-## Administrator Permissions
-
-**IMPORTANT:** Managing Windows services requires administrator permissions.
-
-To disable/enable services, the application must be run as administrator.
-
-## Configuration
-
-Configuration file: `data/services_config.json`
-
-```json
-{
-  "disabled": [
-    "Spooler",
-    "bthserv",
-    "BluetoothUserService"
-  ],
-  "timestamp": "2025-11-26 21:30:00"
-}
-```
-
-## Development
-
-### Adding New Service Category
-
-In `services_manager.py`:
-
-```python
-SERVICES = {
-    "new_category": {
-        "services": ["ServiceName1", "ServiceName2"],
-        "display": "Display Name",
-        "description": "Service description"
-    }
-}
-```
-
-In `service_setup_wizard.py`:
-
-```python
-self.questions.append({
-    "id": "new_category",
-    "question": "Question for user?",
-    "hint": "(Yes/No)",
-    "service_category": "new_category"
-})
-```
-
-### Adding New Command
-
-In `chat_handler.py`:
-
-```python
-def process_message(self, user_message):
-    # ...
-    elif "new command" in message_lower:
-        return self._handle_new_command()
-```
-
-## Debugging
-
-```python
-# Enable verbose logging
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## Future Features (Roadmap)
-
-- Full AI integration (GPT/LLM)
-- Real-time performance analysis
-- Intelligent optimization suggestions
-- Predictive monitoring
-- Export/import configurations
-- Optimization schedules
-- Problem notifications
-
-## License
-
-Part of PC Workman - HCK_Labs  
+Part of PC Workman HCK — [github.com/HuckleR2003/PC_Workman_HCK](https://github.com/HuckleR2003/PC_Workman_HCK)  
 Developed by Marcin "HCK" Firmuga

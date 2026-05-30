@@ -37,6 +37,10 @@ except Exception:
 
 _NO_INSIGHTS = ["hck_GPT: Insights engine not available."]
 
+def _t_handler(lang: str, pl: str, en: str) -> str:
+    """Bilingual string helper for ChatHandler methods."""
+    return en if lang == "en" else pl
+
 # Legacy keyword routes (kept as fallback for service/wizard commands)
 _ROUTES: list[tuple[tuple[str, ...], str]] = [
     (("service setup", "service's setup", "setup services"),
@@ -71,7 +75,7 @@ _LEGACY_ONLY_KEYWORDS = (
 )
 
 # ── Quick shorthand aliases ───────────────────────────────────────────────────
-# Exact stripped-lower match → response_builder intent name (bypasses parser).
+# Exact stripped-lower match -> response_builder intent name (bypasses parser).
 _QUICK_ALIASES: dict[str, str] = {
     # Hardware
     "cpu":           "hw_cpu",
@@ -107,7 +111,7 @@ _QUICK_ALIASES: dict[str, str] = {
     "procesy":       "processes",
     "processes":     "processes",
     "top":           "processes",
-    # New intents — quick aliases
+    # New intents - quick aliases
     "turbo":         "turbo_boost",
     "lag":           "why_slow",
     "lagi":          "why_slow",
@@ -135,7 +139,7 @@ _QUICK_ALIASES: dict[str, str] = {
     "tygodniowe":    "weekly_trends",
     "overheat":      "thermal_prediction",
     "przegrzanie":   "thermal_prediction",
-    # Community feedback intents — quick aliases
+    # Community feedback intents - quick aliases
     "sterowniki":         "driver_status",
     "drivers":            "driver_status",
     "driver":             "driver_status",
@@ -154,10 +158,43 @@ _QUICK_ALIASES: dict[str, str] = {
     "hotter":             "temp_comparison",
     "crash":              "crash_context",
     "freeze":             "crash_context",
-    "bateria":            "battery_drain_rate",
-    "battery":            "battery_drain_rate",
+    "bateria drain":      "battery_drain_rate",
+    "battery drain":      "battery_drain_rate",
     "prad":               "power_after_restart",
     "power usage":        "power_after_restart",
+    # Wave 2 community intents - quick aliases
+    "game":               "game_can_run",
+    "gra":                "game_can_run",
+    "odpale":             "game_can_run",
+    "gaming ram":         "gaming_ram_usage",
+    "ram gaming":         "gaming_ram_usage",
+    "ile ram gra":        "gaming_ram_usage",
+    "daily ram":          "daily_ram_usage",
+    "ile ram":            "daily_ram_usage",
+    "ram dzien":          "daily_ram_usage",
+    "bateria":            "battery_estimate",
+    "battery":            "battery_estimate",
+    "ile baterii":        "battery_estimate",
+    "how long battery":   "battery_estimate",
+    "upgrade":            "upgrade_feasibility",
+    "ram upgrade":        "upgrade_feasibility",
+    "rozbudowa":          "upgrade_feasibility",
+    "dołożyć ram":        "upgrade_feasibility",
+    "dolożyc ram":        "upgrade_feasibility",
+    "top ram":            "top_resource_hog",
+    "top disk":           "top_resource_hog",
+    "top io":             "top_resource_hog",
+    "who eats ram":       "top_resource_hog",
+    "co zjada ram":       "top_resource_hog",
+    "co zjada dysk":      "top_resource_hog",
+    "swap":               "swap_analysis",
+    "pagefile":           "swap_analysis",
+    "plik wymiany":       "swap_analysis",
+    "browser":            "browser_cache",
+    "chrome ram":         "browser_cache",
+    "network":            "network_usage",
+    "siec":               "network_usage",
+    "internet kto":       "network_usage",
 }
 
 # Keywords that show the styled help card (handled directly, not via builder).
@@ -165,6 +202,44 @@ _HELP_KEYWORDS = frozenset({
     "komendy", "commands", "help", "pomoc",
     "komendy!", "commands!", "help!", "pomoc!",
     "?",
+})
+
+# ── Greeting triggers ─────────────────────────────────────────────────────────
+_GREETING_EXACT = frozenset({
+    "cześć", "czesc", "hej", "hejka", "hejko", "siema", "siemano",
+    "witaj", "witajcie", "dzień dobry", "dobry wieczór", "dobranoc",
+    "hi", "hello", "hey", "good morning", "good evening", "yo",
+    "elo", "eloo", "co tam", "co słychać", "jak tam",
+})
+_GREETING_PREFIXES = (
+    "cześć", "hej", "hejka", "siema", "witaj", "dzień dobry",
+    "hi ", "hey ", "hello ",
+)
+
+# ── "Tell me more" triggers ───────────────────────────────────────────────────
+_MORE_TRIGGERS = frozenset({
+    "więcej", "wiecej", "więcej szczegółów", "rozwiń", "rozwin",
+    "tell me more", "more details", "more info", "more", "expand",
+    "co jeszcze", "powiedz więcej", "powiedz wiecej",
+    "elabor", "szczegóły", "szczegoly",
+})
+
+# ── "What should I do" triggers ──────────────────────────────────────────────
+_ACTION_TRIGGERS = frozenset({
+    "co zrobić", "co robic", "co powinienem zrobić", "co powinienem robic",
+    "jak naprawić", "jak naprawic", "jak to naprawić",
+    "co teraz", "co dalej", "jak to poprawić",
+    "what should i do", "what do i do", "how do i fix",
+    "how to fix", "what now", "what next", "fix it", "napraw to",
+    "co mam zrobić", "co mam robic",
+})
+
+# ── "Thank you" triggers ──────────────────────────────────────────────────────
+_THANKS_TRIGGERS = frozenset({
+    "dzięki", "dzieki", "dzięki!", "dziękuję", "dziekuje", "thx",
+    "thanks", "thank you", "thanks!", "dzieks", "dzięks",
+    "spoko", "super", "świetnie", "fajnie", "ok dzieki",
+    "okej dzieki", "ok dzięki", "dobra dzięki", "git", "git git",
 })
 
 # Keywords that trigger the reset confirmation flow.
@@ -199,9 +274,9 @@ class ChatHandler:
     def _trigger_hw_scan(self) -> None:
         """
         Background thread: hardware scan + usage pattern update + pattern detection.
-        - scan_and_store()         → skipped if data is < 24 h old
-        - update_usage_patterns()  → skipped if patterns are < 24 h old
-        - detect_and_log_patterns()→ analyses data, writes to insights_log (48 h cooldown)
+        - scan_and_store()         -> skipped if data is < 24 h old
+        - update_usage_patterns()  -> skipped if patterns are < 24 h old
+        - detect_and_log_patterns()-> analyses data, writes to insights_log (48 h cooldown)
         """
         import threading
         def _scan():
@@ -223,11 +298,11 @@ class ChatHandler:
         msg   = user_message.strip()
         lower = msg.lower().strip()
 
-        # ── Language resolution — resolve ONCE at the top so every path uses it
+        # ── Language resolution - resolve ONCE at the top so every path uses it
         # ui_lang comes from the user's Language popup choice:
-        #   "en"   → always English regardless of input language
-        #   "pl"   → always Polish regardless of input language
-        #   "auto" → detect from message (default behaviour)
+        #   "en"   -> always English regardless of input language
+        #   "pl"   -> always Polish regardless of input language
+        #   "auto" -> detect from message (default behaviour)
         if ui_lang in ("en", "pl"):
             lang = ui_lang
         else:
@@ -258,15 +333,37 @@ class ChatHandler:
                 if any(kw in lower for kw in keywords):
                     return getattr(self, handler)()
 
-        # ── 3. Help card — exact trigger words ────────────────────────────────
+        # ── 3. Help card - exact trigger words ────────────────────────────────
         if lower in _HELP_KEYWORDS:
             return self._show_help(ui_lang if ui_lang in ("en", "pl") else self._last_lang)
+
+        # ── 3.5. Greeting detection ───────────────────────────────────────────
+        if lower in _GREETING_EXACT or any(lower.startswith(p) for p in _GREETING_PREFIXES):
+            return self._handle_greeting(lang)
+
+        # ── 3.6. "Thank you" detection ────────────────────────────────────────
+        if lower in _THANKS_TRIGGERS:
+            return self._handle_thanks(lang)
+
+        # ── 3.7. "Tell me more" / expand detection ────────────────────────────
+        if lower in _MORE_TRIGGERS or lower.startswith(("więcej o ", "more about ")):
+            resp = self._handle_more(lang)
+            if resp:
+                return resp
+
+        # ── 3.8. "What should I do" / action request ─────────────────────────
+        if lower in _ACTION_TRIGGERS or any(
+            lower.startswith(p) for p in ("co zrobić z ", "how to fix ", "jak naprawić ")
+        ):
+            resp = self._handle_action_request(lang)
+            if resp:
+                return resp
 
         # ── 4. Reset command ──────────────────────────────────────────────────
         if lower in _RESET_KEYWORDS:
             return self._cmd_reset_confirm()
 
-        # ── 4b. Smart "why" detection — before aliases, route WHY questions ─────
+        # ── 4b. Smart "why" detection - before aliases, route WHY questions ─────
         # Detects "dlaczego X" / "why is X" and maps to the correct diagnostic intent.
         # This fires before the full parser so specific handlers get first priority.
         _WHY_TRIGGERS = frozenset({"dlaczego", "czemu", "skąd", "co powoduje",
@@ -341,10 +438,10 @@ class ChatHandler:
             except Exception:
                 pass
 
-        # ── 7. Entity routing — unknown intent but clear hardware entity ─────────
+        # ── 7. Entity routing - unknown intent but clear hardware entity ─────────
         # If the parser found no confident intent but extracted a known entity
         # (cpu, gpu, ram, storage, motherboard), route directly to its hw_* handler.
-        # Example: "my gpu?" or "procesor?" → hw_gpu / hw_cpu
+        # Example: "my gpu?" or "procesor?" -> hw_gpu / hw_cpu
         if HAS_AI_LAYER:
             try:
                 _entity_intent_map = {
@@ -373,7 +470,7 @@ class ChatHandler:
             except Exception:
                 pass
 
-        # ── 7b. Context carry-over — short vague follow-up reuses last topic ────
+        # ── 7b. Context carry-over - short vague follow-up reuses last topic ────
         # When the message is very short (≤ 2 tokens) and the last conversation
         # topic is a hardware intent, assume the user is asking about that component.
         # Example: "and?" / "a GPU?" after asking about CPU -> repeat/extend GPU info
@@ -492,8 +589,8 @@ class ChatHandler:
 
         msgs += ["", "━" * 28,
                  "Commands:",
-                 "  • 'restore services'  — re-enable all",
-                 "  • 'service setup'     — run again"]
+                 "  • 'restore services'  - re-enable all",
+                 "  • 'service setup'     - run again"]
         return msgs
 
     def _show_help(self, lang: str = "pl") -> list[str]:
@@ -501,15 +598,15 @@ class ChatHandler:
         if lang == "en":
             return [
                 bar,
-                "◈ hck_GPT — Commands & Capabilities",
+                "◈ hck_GPT - Commands & Capabilities",
                 bar,
                 "",
-                "◈ Hardware  — just type one word or ask naturally",
+                "◈ Hardware  - just type one word or ask naturally",
                 "  cpu · ram · gpu · mb · disk · storage · specs",
                 "  'what CPU do I have'    'how much RAM'",
                 "  'what motherboard'      'disk space free'",
                 "",
-                "◈ Diagnostics  — system health & performance",
+                "◈ Diagnostics  - system health & performance",
                 "  health · temp · perf · throttle",
                 "  'health check'          'is CPU throttling'",
                 "  'temperatures'          'top processes'",
@@ -518,48 +615,58 @@ class ChatHandler:
                 "  stats · insights · alerts · teaser · report",
                 "  uptime · optimization · power",
                 "",
-                "◈ Time-Travel Diagnostics  — compare NOW vs history",
-                "  'is my pc hotter than usual lately'  ← temp_comparison",
-                "  'why are fps worse than last month'  ← fps_degradation",
-                "  'what changed since yesterday'       ← pc_changes",
-                "  'what was happening before the freeze' ← crash_context",
-                "  'why did this app start behaving differently' ← app_behavior_change",
+                "◈ Time-Travel Diagnostics  - compare NOW vs history",
+                "  'is my pc hotter than usual lately'  <- temp_comparison",
+                "  'why are fps worse than last month'  <- fps_degradation",
+                "  'what changed since yesterday'       <- pc_changes",
+                "  'what was happening before the freeze' <- crash_context",
+                "  'why did this app start behaving differently' <- app_behavior_change",
                 "",
                 "◈ Identity & Security",
-                "  'is conhost.exe a windows process'  ← process_identity",
+                "  'is conhost.exe a windows process'  <- process_identity",
                 "  'virus check'  ·  'suspicious processes'",
                 "  'driver status'  ·  'which drivers are installed'",
                 "",
+                "◈ Gaming & Requirements",
+                "  'can my pc run Cyberpunk'       <- game_can_run (with verdict + settings)",
+                "  'how much ram do i use when gaming'  <- gaming_ram_usage",
+                "  'which game stresses hardware most'  <- game_hardware_stress",
+                "",
                 "◈ Usage & Habits",
-                "  'which apps haven't been opened in a month'  ← stale_apps",
-                "  'gaming vs work time'   ← time breakdown",
-                "  'what slows down startup'  ← startup_slowdown",
-                "  'which game stresses hardware most'  ← game_hardware_stress",
+                "  'which apps haven't been opened in a month'  <- stale_apps",
+                "  'gaming vs work time'   <- time breakdown",
+                "  'what slows down startup'  <- startup_slowdown",
+                "  'how much ram do i use daily'  <- daily_ram_usage",
+                "  'which process uses the most ram/disk'  <- top_resource_hog",
+                "",
+                "◈ Battery & Upgrades",
+                "  'how long will battery last while writing'  <- battery_estimate",
+                "  'can i add more ram to this laptop'  <- upgrade_feasibility",
                 "  'battery drain during gaming'  ·  'power since restart'",
                 "",
                 "◈ Services",
-                "  'service setup'    — optimization wizard",
-                "  'service status'   — check service state",
-                "  'restore services' — re-enable all services",
+                "  'service setup'    - optimization wizard",
+                "  'service status'   - check service state",
+                "  'restore services' - re-enable all services",
                 "",
                 "◈ Database",
-                "  reset  — clear knowledge base (confirms first)",
-                "  wipe db  — full data wipe",
+                "  reset  - clear knowledge base (confirms first)",
+                "  wipe db  - full data wipe",
                 "",
                 bar,
             ]
         # Polish
         return [
             bar,
-            "◈ hck_GPT — Komendy i możliwości",
+            "◈ hck_GPT - Komendy i możliwości",
             bar,
             "",
-            "◈ Sprzęt  — wpisz słowo lub zapytaj naturalnie",
+            "◈ Sprzęt  - wpisz słowo lub zapytaj naturalnie",
             "  cpu · ram · gpu · mb · dysk · specs · storage",
             "  'jaki mam procesor'     'ile mam RAM'",
             "  'jaka płyta główna'     'ile miejsca na dysku'",
             "",
-            "◈ Diagnostyka  — zdrowie i wydajność",
+            "◈ Diagnostyka  - zdrowie i wydajność",
             "  health · temp · perf · throttle",
             "  'czy komputer jest zdrowy'   'czy CPU throttluje'",
             "  'jakie temperatury'          'top procesy'",
@@ -568,33 +675,43 @@ class ChatHandler:
             "  stats · insights · alerts · teaser · report",
             "  uptime · optimization · zasilanie",
             "",
-            "◈ Time-Travel Diagnostyka  — teraz vs historia",
-            "  'czy komputer jest ostatnio goręcej niż zwykle'  ← temp_comparison",
-            "  'dlaczego fps gorsze niż miesiąc temu'          ← fps_degradation",
-            "  'co się zmieniło od wczoraj'                    ← pc_changes",
-            "  'co się działo przed ostatnim freezem'          ← crash_context",
-            "  'dlaczego ta aplikacja działa inaczej'          ← app_behavior_change",
+            "◈ Time-Travel Diagnostyka  - teraz vs historia",
+            "  'czy komputer jest ostatnio goręcej niż zwykle'  <- temp_comparison",
+            "  'dlaczego fps gorsze niż miesiąc temu'          <- fps_degradation",
+            "  'co się zmieniło od wczoraj'                    <- pc_changes",
+            "  'co się działo przed ostatnim freezem'          <- crash_context",
+            "  'dlaczego ta aplikacja działa inaczej'          <- app_behavior_change",
             "",
             "◈ Identyfikacja i bezpieczeństwo",
-            "  'czy conhost.exe to część windows'  ← process_identity",
+            "  'czy conhost.exe to część windows'  <- process_identity",
             "  'sprawdź wirusy'  ·  'podejrzane procesy'",
             "  'sterowniki'  ·  'jakie mam sterowniki'",
             "",
+            "◈ Gry i wymagania sprzętowe",
+            "  'czy mój pc odpali Cyberpunk'   <- game_can_run (z werdyktem i ustawieniami)",
+            "  'ile ram używam kiedy gram'      <- gaming_ram_usage",
+            "  'która gra obciąża hardware'    <- game_hardware_stress",
+            "",
             "◈ Nawyki i użytkowanie",
-            "  'które apki nie były otwierane od miesiąca'  ← stale_apps",
-            "  'ile czasu na grach vs praca'  ← gaming_vs_work_time",
-            "  'co zwalnia uruchamianie'       ← startup_slowdown",
-            "  'która gra obciąża hardware'    ← game_hardware_stress",
+            "  'które apki nie były otwierane od miesiąca'  <- stale_apps",
+            "  'ile czasu na grach vs praca'  <- gaming_vs_work_time",
+            "  'co zwalnia uruchamianie'       <- startup_slowdown",
+            "  'ile ramu używam na codzień'    <- daily_ram_usage",
+            "  'co zjada mi ram/dysk'          <- top_resource_hog",
+            "",
+            "◈ Bateria i rozbudowa",
+            "  'jak długo wytrzyma bateria przy pisaniu projektu'  <- battery_estimate",
+            "  'czy mogę dołożyć RAM do tego laptopa'              <- upgrade_feasibility",
             "  'bateria podczas grania'  ·  'prąd od restartu'",
             "",
             "◈ Serwisy",
-            "  'service setup'     — kreator optymalizacji",
-            "  'service status'    — stan serwisów",
-            "  'restore services'  — przywróć wszystkie",
+            "  'service setup'     - kreator optymalizacji",
+            "  'service status'    - stan serwisów",
+            "  'restore services'  - przywróć wszystkie",
             "",
             "◈ Baza danych",
-            "  reset  — wyczyść bazę wiedzy (pyta o potwierdzenie)",
-            "  wipe db  — pełne czyszczenie danych",
+            "  reset  - wyczyść bazę wiedzy (pyta o potwierdzenie)",
+            "  wipe db  - pełne czyszczenie danych",
             "",
             bar,
         ]
@@ -616,7 +733,7 @@ class ChatHandler:
             "  • Historia rozmów (log)",
             "  • Wzorce użytkowania",
             "",
-            "Pamięć sesji (RAM) zostaje — zniknie po restarcie.",
+            "Pamięć sesji (RAM) zostaje - zniknie po restarcie.",
             "",
             "Wpisz  tak / yes  aby potwierdzić.",
             "Wpisz cokolwiek innego aby anulować.",
@@ -632,8 +749,8 @@ class ChatHandler:
         self._pending_reset = False
         lang = self._last_lang
         if lang == "en":
-            return ["hck_GPT: Cancelled — database was not reset."]
-        return ["hck_GPT: Anulowano — baza danych nie została zresetowana."]
+            return ["hck_GPT: Cancelled - database was not reset."]
+        return ["hck_GPT: Anulowano - baza danych nie została zresetowana."]
 
     def _execute_reset(self) -> list[str]:
         """Wipe all tables in user_knowledge + clear in-RAM session state."""
@@ -704,24 +821,215 @@ class ChatHandler:
             except Exception:
                 pass
 
+        # ── Try the hybrid engine one more time with lower confidence bar ───────
+        if HAS_AI_LAYER and HAS_HYBRID:
+            try:
+                _late_result = intent_parser.parse(msg)
+                if _late_result.confidence >= 0.18:   # lower floor than normal 0.20
+                    _late_resp = hybrid_engine.process(msg, _late_result, lang=lang)
+                    if _late_resp:
+                        session_memory.add_message("user", msg)
+                        for line in _late_resp:
+                            session_memory.add_message("assistant", line)
+                        return _late_resp
+            except Exception:
+                pass
+
+        # ── .exe process name detection ───────────────────────────────────────
+        if lower.endswith(".exe") or (".exe" in lower and len(lower) < 40):
+            if HAS_AI_LAYER:
+                try:
+                    from .intents.parser import ParseResult as _PR5
+                    _fake_proc = _PR5(intent="process_identity", confidence=0.85,
+                                      raw_text=msg,
+                                      entities={"process": lower.split()[0]})
+                    _proc_resp = response_builder.build(_fake_proc, lang=lang)
+                    if _proc_resp:
+                        session_memory.add_message("user", msg)
+                        for line in _proc_resp:
+                            session_memory.add_message("assistant", line)
+                        return _proc_resp
+                except Exception:
+                    pass
+
         lines: list[str] = []
         if self.insights:
             current = self.insights.get_current_insight()
             if current:
                 lines += [current, ""]
+
+        # ── Context-aware "I don't understand" ────────────────────────────────
+        last_topic = None
+        try:
+            if HAS_AI_LAYER:
+                last_topic = session_memory.current_topic()
+        except Exception:
+            pass
+
+        import random as _rnd
         if lang == "en":
-            lines += [
-                "hck_GPT: I don't understand that query.",
-                "  Try: 'specs', 'health', 'stats', 'help'",
-                "  or ask naturally: 'what CPU do I have'",
+            _fallbacks_en = [
+                "hck_GPT: Hmm, not sure what you mean. Try 'help' for all commands.",
+                "hck_GPT: Can't match that to a known query. Type 'help' or try 'health'.",
+                "hck_GPT: I don't follow. Try rephrasing - or type 'help' for ideas.",
+                "hck_GPT: Didn't catch that one. 'specs', 'health' or 'help' might be what you need.",
             ]
+            lines.append(_rnd.choice(_fallbacks_en))
+            if last_topic and last_topic not in ("unknown", "small_talk"):
+                lines.append(f"  (You were just asking about: {last_topic.replace('_', ' ')})")
+            lines.append("  Try: 'specs' · 'health' · 'temps' · 'top' · 'help'")
         else:
-            lines += [
-                "hck_GPT: Nie rozumiem tego zapytania.",
-                "  Spróbuj: 'specyfikacja', 'health', 'stats', 'help'",
-                "  lub zapytaj naturalnie: 'jaki mam procesor'",
+            _fallbacks_pl = [
+                "hck_GPT: Hmm, nie zrozumiałem. Wpisz 'help' żeby zobaczyć co potrafię.",
+                "hck_GPT: Nie trafiłem w żaden znany wzorzec. Spróbuj inaczej lub wpisz 'help'.",
+                "hck_GPT: Nie łapię o co chodzi - może inaczej? Albo wpisz 'pomoc' po listę komend.",
+                "hck_GPT: Nie rozpoznałem zapytania. Wpisz 'specyfikacja', 'zdrowie', lub 'help'.",
             ]
+            lines.append(_rnd.choice(_fallbacks_pl))
+            if last_topic and last_topic not in ("unknown", "small_talk"):
+                topic_clean = last_topic.replace("_", " ").replace("hw ", "")
+                lines.append(f"  (Ostatnio pytałeś o: {topic_clean})")
+            lines.append("  Spróbuj: 'specs' · 'zdrowie' · 'temp' · 'top' · 'help'")
         return lines
+
+    # ── New conversation flow handlers ────────────────────────────────────────
+
+    def _handle_greeting(self, lang: str) -> list[str]:
+        """Warm, live-data-enriched greeting response."""
+        import random as _rnd
+        try:
+            import psutil as _ps
+            cpu = _ps.cpu_percent(interval=None)
+            ram = _ps.virtual_memory().percent
+            stat = ""
+            if cpu > 80 or ram > 85:
+                stat = (_t_handler(lang,
+                    f"  ⚠ CPU {cpu:.0f}%, RAM {ram:.0f}% - trochę zajęty teraz.",
+                    f"  ⚠ CPU {cpu:.0f}%, RAM {ram:.0f}% - kinda busy right now."))
+            elif cpu > 50 or ram > 65:
+                stat = (_t_handler(lang,
+                    f"  CPU {cpu:.0f}%, RAM {ram:.0f}% - normalna aktywność.",
+                    f"  CPU {cpu:.0f}%, RAM {ram:.0f}% - normal activity."))
+            else:
+                stat = (_t_handler(lang,
+                    f"  CPU {cpu:.0f}%, RAM {ram:.0f}% - system spokojny.",
+                    f"  CPU {cpu:.0f}%, RAM {ram:.0f}% - system calm."))
+        except Exception:
+            stat = ""
+
+        greetings_pl = [
+            "hck_GPT: Hej! Wszystko monitoruję. Co chcesz sprawdzić?",
+            "hck_GPT: Cześć! Gotowy do pracy. Zapytaj o sprzęt, temperatury albo statystyki.",
+            "hck_GPT: Hejka! Jestem tu. Wpisz 'help' jeśli nie wiesz od czego zacząć.",
+            "hck_GPT: Witaj! Monitoruję Twój PC od startu. Co Cię interesuje?",
+            "hck_GPT: Siema! Czekam na komendy. CPU · RAM · GPU · temps · health - do wyboru.",
+        ]
+        greetings_en = [
+            "hck_GPT: Hey! Monitoring everything. What do you want to check?",
+            "hck_GPT: Hi there! Ready. Ask about hardware, temperatures, or stats.",
+            "hck_GPT: Hello! Type 'help' if you're not sure where to start.",
+            "hck_GPT: Welcome! Watching your PC since startup. What are you curious about?",
+            "hck_GPT: Hey! Waiting for commands. CPU · RAM · GPU · temps · health - pick one.",
+        ]
+        pool = greetings_en if lang == "en" else greetings_pl
+        reply = _rnd.choice(pool)
+        return [reply, stat] if stat else [reply]
+
+    def _handle_thanks(self, lang: str) -> list[str]:
+        """Friendly acknowledgment of thanks - keeps the conversation warm."""
+        import random as _rnd
+        replies_pl = [
+            "hck_GPT: Spoko! Zawsze tu jestem. Wpisz 'help' kiedy będziesz potrzebował.",
+            "hck_GPT: Nie ma za co. Pilnuję systemu w tle - pytaj kiedy chcesz.",
+            "hck_GPT: Zawsze do usług. Wróć jak będziesz potrzebował czegoś sprawdzić.",
+            "hck_GPT: Spoko! Monitoruję dalej. Daj znać jak coś się zmieni.",
+        ]
+        replies_en = [
+            "hck_GPT: Sure! Always here. Type 'help' whenever you need.",
+            "hck_GPT: No problem. Monitoring in the background - just ask anytime.",
+            "hck_GPT: Anytime. Come back whenever you need something checked.",
+            "hck_GPT: All good! Still monitoring. Let me know if anything changes.",
+        ]
+        pool = replies_en if lang == "en" else replies_pl
+        return [_rnd.choice(pool)]
+
+    def _handle_more(self, lang: str) -> "list[str] | None":
+        """Expand on the last topic - re-run the last intent response."""
+        if not HAS_AI_LAYER:
+            return None
+        try:
+            last_topic = session_memory.current_topic()
+            if not last_topic or last_topic in ("unknown", "small_talk", "help"):
+                return None
+            from .intents.parser import ParseResult as _PR6
+            _more_fake = _PR6(intent=last_topic, confidence=0.80, raw_text="more")
+            _more_resp = response_builder.build(_more_fake, lang=lang)
+            if _more_resp:
+                prefix = ("hck_GPT: Oto więcej o poprzednim temacie:"
+                          if lang == "pl" else
+                          "hck_GPT: More on the previous topic:")
+                session_memory.add_message("user", "więcej" if lang == "pl" else "more")
+                for line in _more_resp:
+                    session_memory.add_message("assistant", line)
+                return [prefix, ""] + _more_resp
+        except Exception:
+            pass
+        return None
+
+    def _handle_action_request(self, lang: str) -> "list[str] | None":
+        """
+        Context-aware 'what should I do?' handler.
+        Looks at recent session events and conversation topic to give targeted advice.
+        """
+        if not HAS_AI_LAYER:
+            return None
+        try:
+            last_topic  = session_memory.current_topic() or "unknown"
+            recent_evts = session_memory.recent_events_summary(within_minutes=30)
+
+            # Build context-aware response based on what was just discussed
+            _TOPIC_ACTION_MAP = {
+                "temperature":     "thermal_prediction",
+                "throttle_check":  "thermal_prediction",
+                "why_slow":        "optimization",
+                "ram_why_high":    "swap_analysis",
+                "health_check":    "optimization",
+                "hw_cpu":          "performance",
+                "hw_gpu":          "performance",
+                "hw_ram":          "upgrade_feasibility",
+                "performance":     "optimization",
+                "disk_health":     "fps_degradation",
+                "processes":       "unnecessary_programs",
+                "virus_check":     "optimization",
+            }
+
+            target_intent = _TOPIC_ACTION_MAP.get(last_topic, "optimization")
+
+            # Check for active events that override topic
+            if recent_evts:
+                if "cpu_temp_crit" in recent_evts or "temp_sustained" in recent_evts:
+                    target_intent = "thermal_prediction"
+                elif "ram_crit" in recent_evts or "ram_high" in recent_evts:
+                    target_intent = "swap_analysis"
+                elif "disk_low" in recent_evts or "multi_disk_low" in recent_evts:
+                    target_intent = "disk_health"
+
+            from .intents.parser import ParseResult as _PR7
+            _action_fake = _PR7(intent=target_intent, confidence=0.80,
+                                raw_text="what should I do")
+            _action_resp = response_builder.build(_action_fake, lang=lang)
+            if _action_resp:
+                context_lbl = last_topic.replace("_", " ")
+                prefix_pl = f"hck_GPT: Na podstawie ostatniej rozmowy ({context_lbl}):"
+                prefix_en = f"hck_GPT: Based on recent context ({context_lbl}):"
+                prefix = prefix_pl if lang == "pl" else prefix_en
+                session_memory.add_message("user", "co zrobić" if lang == "pl" else "what should I do")
+                for line in _action_resp:
+                    session_memory.add_message("assistant", line)
+                return [prefix, ""] + _action_resp
+        except Exception:
+            pass
+        return None
 
     def reset(self) -> None:
         self.wizard.reset()
