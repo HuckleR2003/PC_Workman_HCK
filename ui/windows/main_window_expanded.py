@@ -137,7 +137,7 @@ class ExpandedMainWindow:
 
         # Create root window
         self.root = tk.Tk()
-        self.root.title("PC Workman - HCK Labs v1.7.1")
+        self.root.title("PC Workman HCK  v1.7.6")
         self.root.geometry("1160x575")  # Expanded for sidebar (980 + 180)
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
@@ -2402,12 +2402,29 @@ class ExpandedMainWindow:
                     except:
                         pass
 
-                # Sort by CPU
+                # Filter: remove System Idle Process (PID 0, not a real process)
+                procs = [p for p in procs
+                         if p["name"].lower() not in ("system idle process", "idle")]
+
+                # Sort by CPU descending
                 procs.sort(key=lambda x: x["cpu_percent"], reverse=True)
 
-                # Split into user/system (simple heuristic)
-                user_procs = [p for p in procs if not p["name"].lower().startswith(("system", "svchost", "dwm"))]
-                system_procs = [p for p in procs if p["name"].lower().startswith(("system", "svchost", "dwm"))]
+                # Comprehensive Windows system process set
+                _SYS_NAMES = {
+                    "system", "registry", "smss.exe", "csrss.exe", "wininit.exe",
+                    "winlogon.exe", "services.exe", "lsass.exe", "svchost.exe",
+                    "dwm.exe", "ntoskrnl.exe", "hal.dll", "spoolsv.exe",
+                    "searchindexer.exe", "taskhostw.exe", "taskhost.exe",
+                    "audiodg.exe", "conhost.exe", "fontdrvhost.exe", "sihost.exe",
+                    "dllhost.exe", "wermgr.exe", "msdtc.exe", "lsm.exe",
+                    "memory compression", "secure system", "cryptographic services",
+                }
+                def _is_sys(name: str) -> bool:
+                    n = name.lower()
+                    return n in _SYS_NAMES or n.startswith("svchost")
+
+                user_procs   = [p for p in procs if not _is_sys(p["name"])]
+                system_procs = [p for p in procs if     _is_sys(p["name"])]
 
                 self._render_expanded_user_processes(user_procs[:5])
                 self._render_expanded_system_processes(system_procs[:5])
