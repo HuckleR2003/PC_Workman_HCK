@@ -1,6 +1,7 @@
 import platform
 import subprocess
 import threading
+from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
 
 try:
     import psutil
@@ -50,6 +51,7 @@ class HardwareDetector:
         self._data: dict = {}
         self._ready = False
         self._lock = threading.Lock()
+        register_component('core.hardware_detector', self, STATUS_STARTING)
 
     @property
     def is_ready(self) -> bool:
@@ -61,6 +63,7 @@ class HardwareDetector:
             with self._lock:
                 self._data = data
                 self._ready = True
+            update_status('core.hardware_detector', STATUS_OK, "scan complete")
             if on_done:
                 on_done(data)
         threading.Thread(target=_work, daemon=True).start()

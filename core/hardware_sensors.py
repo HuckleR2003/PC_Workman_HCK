@@ -2,6 +2,7 @@ import psutil
 import platform
 import time
 from typing import Dict, List, Any, Optional
+from import_core import register_component, update_status, STATUS_OK
 
 # Try GPU monitoring
 try:
@@ -23,11 +24,16 @@ class HardwareSensors:
         self.last_update = 0
         self.update_interval = 1.0  # 1 second between updates
         self._cached_data = None
+        self._sensor_mins: dict = {}  # "Category|sensor_name" -> raw float
+        self._sensor_maxs: dict = {}
 
         # Get static hardware info once
         self.cpu_name = self._get_cpu_name()
         self.gpu_name = self._get_gpu_name()
         self.ram_total = self._get_ram_total()
+
+        register_component('core.hardware_sensors', self)
+        update_status('core.hardware_sensors', STATUS_OK)
 
     def _get_cpu_name(self) -> str:
         if HAS_CPUINFO:
@@ -72,9 +78,37 @@ class HardwareSensors:
             'Storage': self._get_storage_sensors(),
         }
 
+        # Update session min/max and inject into each sensor dict
+        for category, data in tree.items():
+            for sensor_name, sensor_data in data.get('sensors', {}).items():
+                raw = sensor_data.get('raw', 0)
+                unit = sensor_data.get('unit', '')
+                key = f"{category}|{sensor_name}"
+                if key not in self._sensor_mins or raw < self._sensor_mins[key]:
+                    self._sensor_mins[key] = raw
+                if key not in self._sensor_maxs or raw > self._sensor_maxs[key]:
+                    self._sensor_maxs[key] = raw
+                sensor_data['min'] = self._fmt(self._sensor_mins[key], unit)
+                sensor_data['max'] = self._fmt(self._sensor_maxs[key], unit)
+
         self._cached_data = tree
         self.last_update = now
         return tree
+
+    def _fmt(self, raw: float, unit: str) -> str:
+        if unit == '°C':
+            return f"{int(raw)}°C"
+        if unit == '%':
+            return f"{int(raw)}%"
+        if unit == 'MHz':
+            return f"{int(raw)} MHz"
+        if unit == 'W':
+            return f"{int(raw)}W"
+        if unit == 'GB':
+            return f"{raw:.1f} GB"
+        if unit == '':
+            return "-"
+        return f"{raw:.1f} {unit}"
 
     def _get_cpu_sensors(self) -> Dict[str, Any]:
         sensors = {
