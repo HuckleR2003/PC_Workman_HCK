@@ -7,7 +7,7 @@ import os
 import sys
 
 # ============================================================
-# PATHS — frozen-safe (onefile / onedir / dev)
+# PATHS - frozen-safe (onefile / onedir / dev)
 # ============================================================
 def _base_dir() -> str:
     if getattr(sys, "frozen", False):
