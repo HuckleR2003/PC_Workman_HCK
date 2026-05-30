@@ -71,6 +71,7 @@ def _load_prefs():
 
 def _save_opt(**kw):
     try:
+        os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
         p = _load_prefs()
         o = p.get("optimization", {})
         o.update(kw)

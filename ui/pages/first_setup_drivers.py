@@ -187,9 +187,18 @@ def _get_windows_info():
             def _v(n, d=""):
                 try: return winreg.QueryValueEx(k, n)[0]
                 except OSError: return d
-            info["product"]     = _v("ProductName")
+            raw_product         = _v("ProductName")
             info["version_tag"] = _v("DisplayVersion")
             info["build"]       = _v("CurrentBuildNumber")
+            # Windows 11 reports build 22000+; ProductName may still say "Windows 10"
+            try:
+                build_int = int(info["build"])
+            except (ValueError, TypeError):
+                build_int = 0
+            if build_int >= 22000 and "10" in raw_product:
+                info["product"] = raw_product.replace("Windows 10", "Windows 11")
+            else:
+                info["product"] = raw_product
             info["install_ts"]  = int(_v("InstallDate", 0) or 0)
     except Exception:
         pass
@@ -822,13 +831,33 @@ def _apply(refs, drivers, win_info, startup, score, uptime_str, last_boot_str):
         c_col = RED if cnt > 12 else AMBER if cnt > 7 else GREEN
         refs.get("startup_cnt", tk.Label()).config(
             text=f"{cnt} items detected", fg=c_col)
+        # Build set of running exe names once (lowercase) for O(1) lookup
+        _running_exes: set = set()
+        if _HAS_PSUTIL:
+            try:
+                for _p in psutil.process_iter(["name"]):
+                    try:
+                        _running_exes.add(_p.info["name"].lower())
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
         for i, row in enumerate(refs.get("startup_rows", [])):
             if i < cnt:
                 s = startup[i]
                 row["frame"].pack(fill="x", pady=1)
-                row["dot"].config(fg=GREEN if s["source"] == "User" else AMBER)
+                # Dot = is the exe actually running right now?
+                exe_lower = s.get("exe", "").lower()
+                if exe_lower and exe_lower in _running_exes:
+                    dot_color = GREEN   # running now
+                    src_text  = f"{s['source']} · running"
+                else:
+                    dot_color = MUTED   # registered but not running
+                    src_text  = s["source"]
+                row["dot"].config(fg=dot_color)
                 row["name"].config(text=s["name"][:30], fg=TEXT)
-                row["src"].config(text=s["source"], fg=MUTED)
+                row["src"].config(text=src_text, fg=MUTED)
             else:
                 row["frame"].pack_forget()
 
