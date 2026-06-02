@@ -400,14 +400,23 @@ def _desktop_scene(data: Dict, pulse: float) -> List[_Box]:
     boxes.append(_Box(1.9, 1.0, 14.88, 3.2, 2.6, 0.08, _shade(_C["fan"], 1.4), ""))
 
     # ── Case frame (front and right side visible edges) ───────
+    # The case front is intentionally open so internals remain visible.
+    # Only thin structural rails are drawn at the front opening corners.
     edge_c = _C["case_hi"]
     edge_out = (60, 68, 88)
     # Right side edge (x=7.5)
     boxes.append(_Box(7.38, 0, 0, 0.12, 4, 15,  edge_c, "", edge_out, 1, 0.55, 0.42, 0.32))
     # Top lid
     boxes.append(_Box(0, 0, 14.88, 7.5, 4, 0.14, edge_c, "", edge_out, 1, 0.7, 0.55, 0.44))
-    # Front face frame (bottom strip + top strip)
-    boxes.append(_Box(0, 0, 0, 7.5, 0.14, 15, edge_c, "case_front", edge_out, 1, 0.6, 0.5, 0.38))
+    # Front opening corner rails (thin structural frame — no solid panel blocking internals)
+    # Bottom-front horizontal rail
+    boxes.append(_Box(0, 0, 0,     7.5, 0.1, 0.15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
+    # Top-front horizontal rail
+    boxes.append(_Box(0, 0, 14.73, 7.5, 0.1, 0.15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
+    # Left-front vertical corner rail
+    boxes.append(_Box(0,    0, 0, 0.15, 0.1, 15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
+    # Right-front vertical corner rail
+    boxes.append(_Box(7.35, 0, 0, 0.15, 0.1, 15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
 
     # LED strip (front bottom)
     led_col = _C["led_b"] if cpu_heat < 0.65 else _C["led_g"] if cpu_heat < 0.82 else (220, 50, 50)
