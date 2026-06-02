@@ -6,19 +6,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PC_Workman v1.6 – PC monitor with hck_GPT (9-layer logic, 100 intents), TURBO optimization center, 6-12 month natural temperature learning, Fan Dashboard and AllMonitor. HWMonitor alternative with a brain.">
-    <meta name="keywords" content="PC Workman monitor, hck GPT PC assistant, Windows optimization center, TURBO mode PC, temperature voltage monitoring, fan dashboard control, stats alerts PC, AllMonitor HWMonitor alternative">
+    <meta name="description" content="PC_Workman v1.7.7 – Windows system monitor with hck_GPT (82 intents, offline AI), TURBO suite, Ghost Driver Detection, DeepMonitor sensor table, 2.5D PC Map, Startup & Services Manager. Free, open-source.">
+    <meta name="keywords" content="PC Workman monitor, hck GPT PC assistant, Windows optimization, TURBO mode PC, ghost driver detection, driver health monitor, temperature monitoring, fan dashboard, HWMonitor alternative, system monitor with AI, pnputil ghost driver, dead driver cleanup Windows">
     <meta name="author" content="HCK_Labs - Marcin Firmuga">
-    <meta property="og:title" content="PC_Workman v1.6 - PC Monitor with Real Intelligence">
-    <meta property="og:description" content="5 modules. hck_GPT with 9-layer logic and 100 intents. TURBO mode. 6-12 months learning your hardware norms. Zero corporate slop.">
+    <meta property="og:title" content="PC_Workman v1.7.7 — PC Monitor with Local AI, Ghost Driver Detection & TURBO Suite">
+    <meta property="og:description" content="82 AI intents. Ghost Driver Detection via pnputil. TURBO: RAM Flush + Power Plan + Service Stop + Process Guard. 100% offline. Open source.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <meta name="twitter:title" content="PC_Workman v1.7.6 - PC Monitor with a Brain">
-    <meta name="twitter:description" content="hck_GPT: 9-layer logic, 100 intents. TURBO: 4 functions one toggle. Stats & Alerts learns your PC for 6-12 months.">
+    <meta name="twitter:title" content="PC_Workman v1.7.7 — Local AI monitor with Ghost Driver Detection">
+    <meta name="twitter:description" content="82 AI intents offline. Ghost drivers detected via pnputil /connected. TURBO suite. DeepMonitor. 2.5D PC Map. Free.">
 
-    <title>PC_Workman v1.7.6 | PC Monitor with hck_GPT, TURBO Mode and Stats & Alerts</title>
+    <title>PC_Workman v1.7.7 | PC Monitor with hck_GPT, Ghost Driver Detection & TURBO Suite</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,26 +31,31 @@
       "@type": "SoftwareApplication",
       "name": "PC_Workman",
       "alternateName": "PC Workman HCK",
-      "version": "1.7.6",
+      "version": "1.7.7",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
-      "description": "PC monitor with hck_GPT (9-layer logic, 100 intents), Optimization Center (TURBO mode), Stats & Alerts (6-12 months learning), AllMonitor and Fan Dashboard.",
+      "description": "PC_Workman is a free, open-source Windows system monitor with built-in local AI (hck_GPT, 82 intents), TURBO optimization suite, Ghost Driver Detection via pnputil, DeepMonitor sensor table, 2.5D PC Map, Startup Manager, Services Manager, Fan Dashboard, and long-term anomaly detection.",
       "screenshot": "assets/images/PCWorkman-dashboard.gif",
       "featureList": [
-        "hck_GPT - 9-layer response logic, 100 query recognition intents",
-        "Optimization Center - 4/16 functions active, TURBO mode one toggle",
-        "Stats & Alerts - 6-12 months learning natural temps and voltages of your PC",
-        "AllMonitor - complete real-time hardware monitoring",
-        "Fan Dashboard - fan control center with profiles",
-        "My PC - navigation hub and quick access to all modules",
-        "GUIDE - interactive guide with Live Guide onboarding"
+        "hck_GPT - local AI assistant, 82 intents, bilingual Polish/English, zero cloud",
+        "Ghost Driver Detection - pnputil /connected comparison finds phantom drivers from replaced hardware",
+        "TURBO suite - Auto RAM Flush with process exclusions, Turbo Power Plan, Service Stop (Gaming/Work/Economy profiles), Process Guard",
+        "DeepMonitor - ttk.Treeview sensor table with Sensor/Value/Min/Max columns, CSV export",
+        "MAP OF COMPONENTS - 2.5D isometric PC visualization, heat-based color shift, hover tooltips",
+        "Driver Health - full class enumeration, age tracking, SEE EVERYTHING / SEE OUTDATED views",
+        "Startup Manager - Windows registry Run keys, impact rating, safe disable with prefs persistence",
+        "Services Manager - 40+ services catalogued, TURBO integration, change log",
+        "Fan Dashboard - custom RPM curves, profiles, real-time RPM cards",
+        "Stats and Alerts - long-term anomaly detection via SQLite time-series pipeline",
+        "Minimalistic Overlay - always-on-top floating monitor widget",
+        "Live Guide - interactive 3-step dashboard spotlight onboarding"
       ],
       "author": {
         "@type": "Person",
         "name": "Marcin Firmuga",
         "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcin-firmuga"]
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga/"]
       },
       "publisher": {
         "@type": "Organization",
@@ -58,9 +63,9 @@
         "url": "https://github.com/HuckleR2003"
       },
       "datePublished": "2024-06-15",
-      "dateModified": "2026-05-16",
-      "softwareVersion": "1.7.6",
-      "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK"
+      "dateModified": "2026-06-02",
+      "softwareVersion": "1.7.7",
+      "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/releases"
     }
     </script>
 
@@ -71,18 +76,26 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How does hck_GPT's 9-layer logic work?",
+          "name": "How does hck_GPT work and how many intents does it have?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "hck_GPT is a local engine - no cloud. Every query goes through 9 layers: intent recognition (100 patterns EN+PL) -> context classification -> live hardware query from AllMonitor -> session history check -> Stats & Alerts lookup (your learned norms) -> CPU/GPU knowledge base profile match (TDP, Tj_Max) -> response generation with actual numbers -> action suggestion if something needs attention -> format and deliver. Result: answer specific to your hardware, not generic text."
+            "text": "hck_GPT is a local engine — zero cloud, zero API key. It has 82 recognized intent patterns in Polish and English. Every query goes through a routing pipeline: intent parser (confidence score) -> if high confidence: rule engine with live hardware data; if low confidence: local Ollama LLM. Responses always use real data from your machine — CPU%, RAM%, temperatures, running processes, driver ages — not generic text."
           }
         },
         {
           "@type": "Question",
-          "name": "What does Stats & Alerts do and how long does it learn?",
+          "name": "What is Ghost Driver Detection and how does it work?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Stats & Alerts collects data for 6-12 months and learns what normal temperatures and voltages look like for your specific PC. After that, it only alerts on real anomalies - unnatural voltage spikes (much more frequent than before), systematic temperature increases (= thermal paste replacement needed), patterns deviating from the learned norm. No false alarms."
+            "text": "Ghost Driver Detection finds driver packages left in Windows registry after you replaced hardware. For example: you swap GT 1030 for RTX 3050. The old GT 1030 driver stays installed silently. PC_Workman detects this by comparing Windows registry entries against pnputil /enum-devices /connected output — which only lists hardware physically present. The gap between those two lists is the ghost. Detected ghosts show in bordeaux with an ISSUE badge and can be removed via pnputil /remove-device with admin confirmation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does TURBO mode activate?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "TURBO suite has four independent features: Auto RAM Flush (triggers when RAM stays above threshold for 30s, skips user-protected processes), Turbo Power Plan (creates a custom High Performance clone called Turbo PC, auto-restores on exit), Turbo Service Stop (stops non-essential services by Gaming/Work/Economy profile), Process Guard (suspends idle background processes). Each has its own AUTO toggle and persists settings across restarts."
           }
         },
         {
@@ -90,7 +103,7 @@
           "name": "How is PC_Workman different from MSI Afterburner and HWMonitor?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "MSI Afterburner and HWMonitor show raw data. PC_Workman explains what that data means in the context of your specific hardware. hck_GPT with 100 intents answers hardware questions locally, Stats & Alerts learns your normal values, Optimization Center's TURBO mode fires 4 optimization functions with one toggle. That's the difference between a chart and an assistant."
+            "text": "MSI Afterburner is focused on GPU OC and OSD — great at what it does. HWMonitor shows raw sensor data. PC_Workman does neither of those things primarily. It explains what the data means for your specific hardware, automates optimization through the TURBO suite, detects ghost drivers from replaced hardware, runs a local AI assistant (hck_GPT) that answers hardware questions without internet, and tracks long-term anomalies via a SQLite time-series pipeline. Different tool, different goal."
           }
         }
       ]
@@ -347,6 +360,72 @@
             font-style: italic;
             margin-top: 6px;
         }
+
+        /* ── Apple/NVIDIA-style typographic density improvements ── */
+        /* Tighter heading tracking on large section titles */
+        .section-title {
+            letter-spacing: -0.025em;
+        }
+        /* Refined body text line-height */
+        .section-subtitle {
+            font-size: 13px;
+            line-height: 1.55;
+            color: #6b7a8d;
+        }
+        /* Module card — tighter layout */
+        .module-title {
+            font-size: 13px;
+            letter-spacing: -0.01em;
+        }
+        .module-desc {
+            font-size: 11px;
+            line-height: 1.58;
+        }
+        /* Showcase text density */
+        .showcase-title {
+            font-size: 14px;
+            letter-spacing: -0.015em;
+        }
+        .showcase-desc {
+            font-size: 11px;
+            line-height: 1.58;
+        }
+        /* hck_GPT layer list — tighter, more refined */
+        .gpt-layer {
+            font-size: 12px;
+            padding: 9px 13px;
+        }
+        .layer-name {
+            font-size: 12px;
+            min-width: 150px;
+        }
+        .layer-desc {
+            font-size: 11px;
+        }
+        /* Killer cards */
+        .killer-card h3 {
+            letter-spacing: -0.01em;
+        }
+        /* Comparison table — tighter cells */
+        .comparison-table td,
+        .comparison-table th {
+            font-size: 12px;
+            padding: 10px 14px;
+        }
+        /* Ghost grid responsive */
+        @media (max-width: 680px) {
+            .ghost-grid { grid-template-columns: 1fr !important; }
+        }
+        /* Eyebrow labels — Apple style */
+        .section-eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+        }
+        .showcase-eyebrow {
+            font-size: 9px;
+            letter-spacing: 0.14em;
+        }
     </style>
 </head>
 <body>
@@ -461,16 +540,17 @@
                         </span>
                     </h1>
                     <p class="hero-subtitle">
-                        5 modules. hck_GPT with 9-layer logic and 100 intents. TURBO mode one toggle.
-                        Stats &amp; Alerts that learns <strong>your specific PC</strong> for 6–12 months.
+                        hck_GPT with 82 intents — offline, local, no API key.
+                        TURBO suite. Ghost Driver Detection. DeepMonitor. 2.5D PC Map.
+                        Learns <strong>your specific hardware</strong>, not generic norms.
                     </p>
                     <div class="hero-cta">
                         <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" class="cta-button primary" target="_blank">
                             <span class="cta-icon-shape"></span>
-                            Download v1.7.6 – Free
+                            Download v1.7.7 – Free
                         </a>
                         <a href="#modules" class="cta-button secondary">
-                            5 Modules &darr;
+                            Features &darr;
                         </a>
                     </div>
                     <div class="hero-badges">
@@ -480,18 +560,18 @@
                         </span>
                         <span class="badge badge-ai">
                             <span class="badge-icon badge-icon-ai"></span>
-                            hck_GPT 100 intents
+                            hck_GPT 82 intents
                         </span>
                         <span class="badge badge-star">
                             <span class="badge-icon badge-icon-star"></span>
-                            Open Source
+                            Open Source MIT
                         </span>
                     </div>
                 </div>
                 <div class="hero-image">
                     <div class="hero-main-visual">
                         <img src="assets/images/PCWorkman-dashboard.gif"
-                             alt="PC_Workman v1.7.6 Dashboard – main screen with 5 modules"
+                             alt="PC_Workman v1.6 Dashboard – main screen with 5 modules"
                              loading="eager">
                         <div class="image-glow"></div>
                     </div>
@@ -574,19 +654,18 @@
                     </div>
 
                     <!-- Fan Dashboard -->
-                    <div class="module-card disabled">
-                        <div class="module-accent" style="background: #d94545"></div>
-                        <span class="module-tag tag-paused">TEMPORARILY OFF</span>
+                    <div class="module-card">
+                        <div class="module-accent" style="background: linear-gradient(90deg,#8b5cf6,#6366f1)"></div>
+                        <span class="module-tag tag-live">LIVE</span>
                         <div class="module-title">Fan Dashboard</div>
                         <div class="module-desc">
-                            Fan control center. Setting RPM curves, saving profiles,
-                            export and import — full cooling management.
-                            Temporarily disabled so it comes back as a stable daily driver.
+                            Custom RPM curves with drag-and-drop points. 2×2 fan status cards
+                            with real-time RPM. Profiles: Default, Silent, AI, P1, P2 —
+                            saved to JSON, importable. Full cooling control.
                         </div>
                         <img src="assets/images/PCWorkman-fan-dashboard.gif"
-                             alt="Fan Dashboard – fan setup, profiles, export"
+                             alt="Fan Dashboard – fan curve editor, RPM monitoring, profiles"
                              class="feature-screenshot-wide" loading="lazy">
-                        <p class="feature-notice">Coming back — after thorough stability testing.</p>
                     </div>
 
                     <!-- GUIDE -->
@@ -659,6 +738,62 @@
                     </div>
 
                 </div>
+
+                <!-- Ghost Driver Detection -->
+                <div style="margin-top:28px">
+                    <div style="
+                        background:#0d0508;
+                        border:1px solid #3f0a14;
+                        border-radius:12px;
+                        overflow:hidden;
+                        transition:border-color .2s;
+                    ">
+                        <div style="
+                            background:#140308;
+                            border-bottom:1px solid #3f0a14;
+                            padding:12px 20px;
+                            display:flex;
+                            align-items:center;
+                            gap:10px;
+                        ">
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ef4444;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);padding:2px 8px;border-radius:4px;">NEW · v1.7.7</span>
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Driver Health</span>
+                        </div>
+                        <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;" class="ghost-grid">
+                            <div>
+                                <h3 style="font-size:17px;font-weight:700;color:#e6eef6;margin:0 0 10px;letter-spacing:-.02em;">Ghost Driver Detection</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    You replaced a GPU years ago. The old driver is still in Windows — silently.
+                                    Device Manager hides it by default. Most monitors don't see it at all.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:16px;">
+                                    PC_Workman compares Windows registry entries against
+                                    <code style="font-size:11px;color:#ef4444;background:rgba(239,68,68,.08);padding:1px 5px;border-radius:3px;">pnputil /connected</code> —
+                                    which returns only hardware that's physically present.
+                                    The gap is your ghost.
+                                </p>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(239,68,68,.10);color:#ef4444;border:1px solid rgba(239,68,68,.2);">GPU · Audio · Network · USB</span>
+                                    <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(0,255,200,.08);color:#00ffc8;border:1px solid rgba(0,255,200,.2);">pnputil removal</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="background:#0a0010;border:1px solid #2a0810;border-radius:8px;padding:14px 16px;font-family:'Courier New',monospace;font-size:11px;line-height:1.7;">
+                                    <div style="color:#6b7280;margin-bottom:8px;"># registry says:</div>
+                                    <div style="color:#d4a0a0;">NVIDIA GeForce RTX 3050 &nbsp;<span style="color:#00ffc8;">← active</span></div>
+                                    <div style="color:#d4a0a0;">NVIDIA GeForce GT 1030 &nbsp;&nbsp;<span style="color:#ef4444;">← ghost</span></div>
+                                    <div style="color:#6b7280;margin:10px 0 8px;"># pnputil /connected says:</div>
+                                    <div style="color:#00ffc8;">NVIDIA GeForce RTX 3050 &nbsp;<span style="color:#6b7280;">✓ connected</span></div>
+                                    <div style="color:#3f1010;">&lt;GT 1030 not present&gt; &nbsp;&nbsp;&nbsp;<span style="color:#ef4444;">⚠ ghost</span></div>
+                                </div>
+                                <p style="font-size:10px;color:#4b5563;margin-top:8px;font-style:italic;">
+                                    Shown with bordeaux background + ⚠ badge. One click → details + optional removal with admin confirmation.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -678,14 +813,14 @@
                 <div class="two-col">
                     <div>
                         <div class="intents-chip">
-                            100 intents <span>— recognized query patterns</span>
+                            82 intents <span>— recognized query patterns, PL + EN</span>
                         </div>
 
                         <div class="gpt-layers">
                             <div class="gpt-layer">
                                 <span class="layer-num">01</span>
                                 <span class="layer-name">Intent Recognition</span>
-                                <span class="layer-desc">100 patterns -> query classification (EN + PL)</span>
+                                <span class="layer-desc">82 patterns + aliases → classification (EN + PL)</span>
                             </div>
                             <div class="gpt-layer">
                                 <span class="layer-num">02</span>
@@ -740,7 +875,7 @@
                              class="feature-screenshot-wide" loading="lazy"
                              style="border-radius:10px;border:1px solid #1e2530;">
                         <p style="font-size:11px;color:#91a1ab;margin-top:8px;text-align:center;font-style:italic;">
-                            100 intents — recognizes queries in Polish and English
+                            82 intents — Polish and English, auto-detected per message
                         </p>
 
                         <div style="margin-top:24px">
@@ -846,14 +981,12 @@
                             </p>
 
                             <div class="minimal-notice">
-                                <div class="minimal-notice-label">// STATUS — not actively developed</div>
+                                <div class="minimal-notice-label">// STATUS — stable, lower priority</div>
                                 <p>
-                                    Minimalistic View Mode has been on hold for a while — not actively developed.
-                                    The last major change was a redesign for the new hck_GPT assistant and a new banner.
-                                    It'll come back at version <strong style="color:#ffd24a;font-style:normal">1.8.0+</strong>,
-                                    when PC_Workman gets Polish language support —
-                                    minimalistic mode will be updated alongside everything else at that point.
-                                    For now it works, but it's not the priority.
+                                    Minimalistic View works reliably — it runs hck_GPT, TURBO suite, and all monitoring features
+                                    in a compact always-on-top window. Not actively extended right now;
+                                    the main development focus is on the expanded view and v2.0.0 features.
+                                    Richer widget support is on the roadmap for later this year.
                                 </p>
                             </div>
                         </div>
@@ -890,7 +1023,12 @@
                             <tr>
                                 <td><strong>AI assistant (local)</strong></td>
                                 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-                                <td class="winner-cell">✅ <span class="winner-note">hck_GPT, 100 intents</span></td>
+                                <td class="winner-cell">✅ <span class="winner-note">hck_GPT, 82 intents, offline</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ghost Driver Detection</strong></td>
+                                <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+                                <td class="winner-cell">✅ <span class="winner-note">pnputil /connected, v1.7.7</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Learns your PC's norms</strong></td>
@@ -971,8 +1109,9 @@
                         </p>
                         <p>
                             No VC money, no team. Solo grind, late-night refactoring sessions,
-                            and every line of code solving <em>my</em> real problem. 6+ months,
-                            from zero to 5 modules, hck_GPT with 100 intents and TURBO mode.
+                            and every line of code solving <em>my</em> real problem. 18 months,
+                            from zero to hck_GPT with 82 intents, TURBO suite, Ghost Driver Detection,
+                            DeepMonitor, and a 2.5D hardware map.
                         </p>
                         <blockquote class="story-quote">
                             "Constraint breeds creativity. The old laptop taught me to optimize every feature.
@@ -994,34 +1133,34 @@
                         <div class="post-embed">
                             <div class="post-header">
                                 <span class="post-author">@hck_lab</span>
+                                <span class="post-date">June 2026</span>
+                            </div>
+                            <p class="post-content">
+                                v1.7.7 — Ghost Driver Detection landed. PC_Workman now finds driver packages
+                                left from hardware you replaced years ago. pnputil /connected vs registry comparison.
+                                GTX 1030 driver still sitting there after upgrading to RTX 3050? Found. Removable.
+                            </p>
+                        </div>
+                        <div class="post-embed">
+                            <div class="post-header">
+                                <span class="post-author">@hck_lab</span>
                                 <span class="post-date">May 2026</span>
                             </div>
                             <p class="post-content">
-                                v1.6.3 — TURBO mode complete. 3 separate managers (Process Guard, Service Stop, Power Plan)
-                                integrated under one toggle. Encoding fix for Polish Windows because CP852 vs CP1250
-                                is a beautiful disaster. xDD But it works.
+                                v1.7.6 — DeepMonitor rewrite (HWMonitor-style Treeview), 2.5D isometric PC Map
+                                with live heat mapping, hck_GPT Wave 2 (82 intents). Font system 100% coverage.
+                                Biggest update in months.
                             </p>
                         </div>
                         <div class="post-embed">
                             <div class="post-header">
                                 <span class="post-author">@hck_lab</span>
-                                <span class="post-date">March 2026</span>
+                                <span class="post-date">April 2026</span>
                             </div>
                             <p class="post-content">
-                                hck_GPT rewritten with 9-layer logic. 100 intents — Polish and English.
-                                Every answer is based on real data from your hardware,
-                                not hallucinations from a cloud LLM. That's how it should be.
-                            </p>
-                        </div>
-                        <div class="post-embed">
-                            <div class="post-header">
-                                <span class="post-author">@hck_lab</span>
-                                <span class="post-date">December 2024</span>
-                            </div>
-                            <p class="post-content">
-                                Reality check: grinding between freelance gigs, 90°C throttling during compilation,
-                                but constraints force you to write efficient code. PC_Workman is built on the hardware
-                                it has to run on.
+                                v1.7.2 — first proper .exe release. Startup Manager, Services Manager, hck_GPT with
+                                hybrid engine (local rules + Ollama LLM). Signed with Sigstore, 0/70 VirusTotal.
+                                Strangers on the internet ran a full security audit. It passed.
                             </p>
                         </div>
                     </div>
@@ -1084,15 +1223,15 @@
                 <div class="faq-container">
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>How does hck_GPT and its 9-layer logic work?</span>
+                            <span>How does hck_GPT work — 82 intents, local AI?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p>hck_GPT is a local engine — zero cloud. Every query goes through 9 layers:
-                            intent recognition (100 patterns EN+PL), context classification, live hardware query from AllMonitor,
-                            session history check, Stats & Alerts lookup (your learned norms), CPU/GPU knowledge base profile
-                            match (TDP, Tj_Max, hotspot), response generation with actual numbers, action suggestion if
-                            something needs attention, format and deliver. Result: answer specific to your hardware, not generic text.</p>
+                            <p>hck_GPT is a local engine — zero cloud, zero API key. Every message goes through an intent parser
+                            (82 recognized patterns in Polish and English). High-confidence matches route to a deterministic
+                            rule engine that pulls real-time data from your hardware. Low-confidence queries go to a local
+                            Ollama LLM with your full system state as context. Every answer references your actual CPU%, RAM%,
+                            temperatures, running processes — not generic text from a dataset.</p>
                         </div>
                     </div>
 
@@ -1189,7 +1328,7 @@
                     <p>5 modules. hck_GPT. TURBO mode. Stats &amp; Alerts. Open source. Free.</p>
                     <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" class="cta-button primary large" target="_blank">
                         <span class="cta-icon-shape"></span>
-                        Download v1.7.6 — Free
+                        Download v1.6.3 — Free
                     </a>
                 </div>
 
@@ -1237,7 +1376,7 @@
                     <div class="footer-badges">
                         <span class="footer-badge"><span class="footer-badge-icon fire-icon"></span> Build in Public</span>
                         <span class="footer-badge"><span class="footer-badge-icon ai-icon"></span> hck_GPT</span>
-                        <span class="footer-badge"><span class="footer-badge-icon star-icon"></span> v1.7.6</span>
+                        <span class="footer-badge"><span class="footer-badge-icon star-icon"></span> v1.6.3</span>
                     </div>
                 </div>
             </div>
