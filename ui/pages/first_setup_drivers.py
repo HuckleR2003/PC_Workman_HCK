@@ -101,6 +101,9 @@ def _age_info(days):
         return "CURRENT",    GREEN,  "#064e3b", GREEN,     "#065f46"
     if days < 365:
         return "6+ MONTHS",  AMBER,  "#451a03", AMBER,     "#78350f"
+    if days < 730:
+        mo = days // 30
+        return f"{mo}mo OLD", AMBER, "#451a03", AMBER,    "#78350f"
     mo = days // 30
     return f"{mo}mo OLD",    RED,    "#450a0a", RED,       "#7f1d1d"
 
@@ -142,13 +145,21 @@ def _lighten(hex_color, amount=22):
 # ─── Registry helpers ─────────────────────────────────────────────────────────
 def _read_class_driver(guid):
     """Return first real driver dict from Windows device class GUID."""
+    results = _read_all_class_drivers(guid)
+    return results[0] if results else None
+
+
+def _read_all_class_drivers(guid, max_entries=32):
+    """Return ALL real driver dicts from Windows device class GUID."""
     if not _HAS_WINREG:
-        return None
+        return []
     key_path = fr"SYSTEM\CurrentControlSet\Control\Class\{guid}"
+    results = []
+    seen_names = set()
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as cls:
             n = winreg.QueryInfoKey(cls)[0]
-            for i in range(min(n, 24)):
+            for i in range(min(n, 64)):
                 try:
                     sn = winreg.EnumKey(cls, i)
                     if not sn[:4].isdigit():
@@ -160,6 +171,9 @@ def _read_class_driver(guid):
                             continue
                         if any(kw in desc.lower() for kw in _SKIP):
                             continue
+                        if desc in seen_names:
+                            continue
+                        seen_names.add(desc)
                         ver, drv_date = "", ""
                         try:
                             ver = winreg.QueryValueEx(dev, "DriverVersion")[0]
@@ -169,12 +183,14 @@ def _read_class_driver(guid):
                             drv_date = winreg.QueryValueEx(dev, "DriverDate")[0]
                         except OSError:
                             pass
-                        return {"name": desc, "version": ver, "date": drv_date}
+                        results.append({"name": desc, "version": ver, "date": drv_date})
+                        if len(results) >= max_entries:
+                            break
                 except OSError:
                     continue
     except Exception:
         pass
-    return None
+    return results
 
 
 def _get_windows_info():
@@ -308,20 +324,21 @@ def build_first_setup_page(win_self, parent):
     _start_pulse(refs)
 
     def _do_scan():
-        gpu   = _read_class_driver("{4d36e968-e325-11ce-bfc1-08002be10318}")
-        audio = _read_class_driver("{4d36e96c-e325-11ce-bfc1-08002be10318}")
-        net   = _read_class_driver("{4d36e972-e325-11ce-bfc1-08002be10318}")
-        usb   = _read_class_driver("{36fc9e60-c465-11cf-8056-444553540000}")
+        gpu_all   = _read_all_class_drivers("{4d36e968-e325-11ce-bfc1-08002be10318}")
+        audio_all = _read_all_class_drivers("{4d36e96c-e325-11ce-bfc1-08002be10318}")
+        net_all   = _read_all_class_drivers("{4d36e972-e325-11ce-bfc1-08002be10318}")
+        usb_all   = _read_all_class_drivers("{36fc9e60-c465-11cf-8056-444553540000}")
 
-        all_drivers = [
-            gpu   or {"name": "Display adapter not detected",  "version": "", "date": ""},
-            audio or {"name": "Audio device not detected",     "version": "", "date": ""},
-            net   or {"name": "Network adapter not detected",  "version": "", "date": ""},
-            usb   or {"name": "USB controller not detected",   "version": "", "date": ""},
+        _FALLBACK = [
+            gpu_all   or [{"name": "Display adapter not detected",  "version": "", "date": ""}],
+            audio_all or [{"name": "Audio device not detected",     "version": "", "date": ""}],
+            net_all   or [{"name": "Network adapter not detected",  "version": "", "date": ""}],
+            usb_all   or [{"name": "USB controller not detected",   "version": "", "date": ""}],
         ]
+        all_drivers_primary = [lst[0] for lst in _FALLBACK]
         win_info = _get_windows_info()
         startup  = _get_startup_programs()
-        score    = _compute_score(all_drivers, len(startup))
+        score    = _compute_score(all_drivers_primary, len(startup))
 
         uptime_str = last_boot_str = ""
         if _HAS_PSUTIL:
@@ -337,7 +354,8 @@ def build_first_setup_page(win_self, parent):
                 pass
 
         try:
-            sf.after(0, lambda: _apply(refs, all_drivers, win_info, startup,
+            sf.after(0, lambda: _apply(refs, all_drivers_primary, _FALLBACK,
+                                       win_info, startup,
                                        score, uptime_str, last_boot_str))
         except Exception:
             pass
@@ -581,13 +599,13 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     age_bar_fill = tk.Frame(age_bar_bg, bg="#374151", height=3)
     age_bar_fill.place(x=0, y=0, relwidth=0.0, relheight=1.0)
 
-    rf = tk.Frame(row, bg=PANEL2, width=120)
+    rf = tk.Frame(row, bg=PANEL2, width=130)
     rf.pack(side="right", fill="y", padx=10)
     rf.pack_propagate(False)
 
     badge = tk.Label(rf, text="SCANNING", font=(_MONO, 7, "bold"),
                      bg="#1f2937", fg=MUTED, padx=8, pady=3)
-    badge.pack(pady=(10, 4))
+    badge.pack(pady=(10, 2))
 
     def _open_dm(e=None):
         try: subprocess.Popen(["devmgmt.msc"], shell=True)
@@ -601,10 +619,36 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     action.bind("<Enter>", lambda e: action.config(fg=BLUE))
     action.bind("<Leave>", lambda e: action.config(fg="#4b5563"))
 
+    # Expand toggle button — shown only after scan with extra devices
+    expand_btn = tk.Label(rf, text="", font=(_MONO, 6),
+                          bg=PANEL2, fg="#4b5563", cursor="hand2")
+    expand_btn.pack(pady=(4, 0))
+
+    # Expand panel — shows all detected devices in this class
+    _EXP_BG = "#0a0e17"
+    expand_panel = tk.Frame(outer, bg=_EXP_BG)
+    _exp_state = {"open": False}
+
+    def _toggle_expand(e=None):
+        if _exp_state["open"]:
+            expand_panel.pack_forget()
+            expand_btn.config(text="▼ show all", fg="#4b5563")
+        else:
+            expand_panel.pack(fill="x", padx=(4, 4), pady=(0, 4))
+            expand_btn.config(text="▲ collapse", fg=accent)
+        _exp_state["open"] = not _exp_state["open"]
+
+    expand_btn.bind("<Button-1>", _toggle_expand)
+    expand_btn.bind("<Enter>", lambda e: expand_btn.config(fg=accent))
+    expand_btn.bind("<Leave>", lambda e: expand_btn.config(
+        fg=accent if _exp_state["open"] else "#4b5563"))
+
     return {
         "frame": outer, "bar": ab,
         "name": name_lbl, "ver": ver_lbl, "date": date_lbl,
         "badge": badge, "age_fill": age_bar_fill,
+        "expand_btn": expand_btn, "expand_panel": expand_panel,
+        "accent": accent,
     }
 
 
@@ -788,7 +832,7 @@ def _build_checklist(parent):
 
 
 # ─── Apply scan results ───────────────────────────────────────────────────────
-def _apply(refs, drivers, win_info, startup, score, uptime_str, last_boot_str):
+def _apply(refs, drivers, all_driver_lists, win_info, startup, score, uptime_str, last_boot_str):
     refs["scanning"] = False
     try:
         gc = refs.get("gauge")
@@ -824,8 +868,9 @@ def _apply(refs, drivers, win_info, startup, score, uptime_str, last_boot_str):
         refs.get("header_dot",  tk.Label()).config(
             text=f"● Ready  {score}/100", fg=_score_color(score))
 
-        for card, d in zip(refs.get("cards", []), drivers):
+        for card, d, all_devs in zip(refs.get("cards", []), drivers, all_driver_lists):
             _fill_card(card, d)
+            _fill_expand_panel(card, all_devs)
 
         cnt   = len(startup)
         c_col = RED if cnt > 12 else AMBER if cnt > 7 else GREEN
@@ -883,6 +928,81 @@ def _fill_card(card, data):
         card["badge"].config(text=f"  {status}  ", bg=badge_bg, fg=txt_col)
         card["age_fill"].place(relwidth=age_ratio)
         card["age_fill"].config(bg=bar_col)
+    except Exception:
+        pass
+
+
+def _fill_expand_panel(card, all_devs: list):
+    """Populate the expand panel with all detected devices for this class."""
+    try:
+        ep = card.get("expand_panel")
+        eb = card.get("expand_btn")
+        accent = card.get("accent", BLUE)
+        if ep is None or eb is None:
+            return
+
+        # Clear existing children
+        for w in ep.winfo_children():
+            w.destroy()
+
+        extra = all_devs[1:]  # skip primary (already shown in card header)
+        if not extra:
+            eb.config(text="")
+            return
+
+        # Build header row inside expand panel
+        _EXP_BG = "#0a0e17"
+        hdr = tk.Frame(ep, bg=_EXP_BG)
+        hdr.pack(fill="x", padx=6, pady=(4, 2))
+        tk.Label(hdr, text=f"ALL DETECTED  ({len(all_devs)} devices)",
+                 font=(_MONO, 6, "bold"), bg=_EXP_BG, fg=MUTED).pack(side="left")
+        tk.Frame(hdr, bg="#1a2535", height=1).pack(
+            side="left", fill="x", expand=True, padx=(6, 0))
+
+        for dev in all_devs:
+            name     = dev.get("name", "Unknown")
+            ver      = dev.get("version", "")
+            date_str = dev.get("date", "")
+            days     = _driver_age_days(date_str)
+            status, txt_col, _, bar_col, _ = _age_info(days)
+
+            # Red override for >= 730 days
+            if days is not None and days >= 730:
+                txt_col = RED
+                bar_col = RED
+
+            row = tk.Frame(ep, bg=_EXP_BG, highlightthickness=1,
+                           highlightbackground="#111e2e")
+            row.pack(fill="x", padx=6, pady=1)
+
+            # Thin age-color accent on left
+            tk.Frame(row, bg=bar_col, width=3).pack(side="left", fill="y")
+
+            info = tk.Frame(row, bg=_EXP_BG)
+            info.pack(side="left", fill="both", expand=True, padx=(6, 0), pady=3)
+
+            name_lbl = tk.Label(info, text=name[:52],
+                                font=(_BODY, 7), bg=_EXP_BG, fg=TEXT, anchor="w")
+            name_lbl.pack(anchor="w")
+
+            meta = tk.Frame(info, bg=_EXP_BG)
+            meta.pack(anchor="w")
+            if ver:
+                tk.Label(meta, text=f"v{ver}", font=(_MONO, 6),
+                         bg=_EXP_BG, fg=MUTED).pack(side="left")
+            if date_str:
+                tk.Label(meta, text=_fmt_date(date_str),
+                         font=(_MONO, 6), bg=_EXP_BG, fg=MUTED).pack(
+                         side="left", padx=(8, 0))
+
+            badge = tk.Label(row, text=f" {status} ", font=(_MONO, 6, "bold"),
+                             bg="#0d1522", fg=txt_col, padx=4, pady=2)
+            badge.pack(side="right", padx=(0, 6), pady=3)
+
+        tk.Frame(ep, bg="#0a0e17", height=4).pack(fill="x")
+
+        # Show expand button
+        eb.config(text=f"▼ show all  ({len(all_devs)})", fg="#4b5563")
     except Exception:
         pass
 
