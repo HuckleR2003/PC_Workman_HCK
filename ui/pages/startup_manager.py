@@ -263,11 +263,13 @@ def _bind_scroll(widget, canvas):
 
 def _compact_row(parent, entry: dict, prefs: dict,
                  on_queue, queued_ids: set,
-                 two_col: bool = False):
+                 two_col: bool = False,
+                 running_set: set = None):
     """
     Compact clickable entry row.
     Click -> adds entry to disable queue (shows bottom drawer).
     two_col=True: slightly narrower layout for 2-column grid.
+    running_set: set of lowercase exe names currently running (for ACTIVE NOW badge).
     """
     eid    = entry["id"]
     impact = entry["impact"]
@@ -305,6 +307,15 @@ def _compact_row(parent, entry: dict, prefs: dict,
                         font=(_F, 9, "bold"), bg=base_bg, fg=MUTED if is_dis else TEXT,
                         anchor="w")
     name_lbl.pack(side="left")
+
+    # "ACTIVE NOW" badge — green — if exe is currently running
+    if not is_dis and running_set is not None:
+        exe_l = (entry.get("exe") or "").lower()
+        if exe_l and exe_l in running_set:
+            tk.Label(line1, text="● ACTIVE NOW",
+                     font=(_F, 6, "bold"),
+                     bg="#052e16", fg="#22c55e",
+                     padx=4, pady=1).pack(side="left", padx=(4, 0))
 
     if not is_dis:
         tag = tk.Label(line1, text=_IL.get(impact, "?"),
@@ -467,8 +478,18 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
 
 
 def _build_all_entries_panel(parent: tk.Frame, entries: list[dict],
-                              prefs: dict, on_queue, queued_ids: set):
-    """Right panel - All entries (2-column compact grid)."""
+                              prefs: dict, on_queue, queued_ids: set,
+                              two_col: bool = True):
+    """Left panel - All entries. two_col=False for wider single-column layout."""
+    # Build running exe set for ACTIVE NOW badge
+    _running: set = set()
+    try:
+        import psutil as _ps
+        for _p in _ps.process_iter(["name"]):
+            try: _running.add(_p.info["name"].lower())
+            except Exception: pass
+    except Exception: pass
+
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
@@ -481,24 +502,30 @@ def _build_all_entries_panel(parent: tk.Frame, entries: list[dict],
 
     inner, cv = _scrollable_frame(parent, bg=BG)
 
-    grid = tk.Frame(inner, bg=BG)
-    grid.pack(fill="x", padx=4, pady=2)
-    grid.grid_columnconfigure(0, weight=1)
-    grid.grid_columnconfigure(1, weight=1)
+    if two_col:
+        grid = tk.Frame(inner, bg=BG)
+        grid.pack(fill="x", padx=4, pady=2)
+        grid.grid_columnconfigure(0, weight=1)
+        grid.grid_columnconfigure(1, weight=1)
 
-    for i, e in enumerate(entries):
-        col     = i % 2
-        row_num = i // 2
-
-        cell = tk.Frame(grid, bg=BG)
-        cell.grid(row=row_num, column=col, sticky="ew", padx=2, pady=1)
-        cell.grid_columnconfigure(0, weight=1)
-
-        _bind_scroll(cell, cv)
-
-        row_w, sep_w = _compact_row(cell, e, prefs, on_queue, queued_ids, two_col=True)
-        _bind_scroll(row_w, cv)
-        _bind_scroll(sep_w, cv)
+        for i, e in enumerate(entries):
+            col     = i % 2
+            row_num = i // 2
+            cell = tk.Frame(grid, bg=BG)
+            cell.grid(row=row_num, column=col, sticky="ew", padx=2, pady=1)
+            cell.grid_columnconfigure(0, weight=1)
+            _bind_scroll(cell, cv)
+            row_w, sep_w = _compact_row(cell, e, prefs, on_queue, queued_ids, two_col=True)
+            _bind_scroll(row_w, cv)
+            _bind_scroll(sep_w, cv)
+    else:
+        # Single-column layout with ACTIVE NOW badge
+        for e in entries:
+            row_w, sep_w = _compact_row(inner, e, prefs, on_queue, queued_ids,
+                                        two_col=False,
+                                        running_set=_running)
+            _bind_scroll(row_w, cv)
+            _bind_scroll(sep_w, cv)
 
     tk.Frame(inner, bg=BG, height=6).pack()
 
@@ -539,6 +566,17 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
         tk.Label(body, text=name[:40], font=(_F, 9, "bold"),
                  bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
         tk.Label(body, text=exe, font=(_F, 7), bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
+
+        # "Kto: UŻYTKOWNIK · data" — show if saved
+        pdata   = prefs.get(eid, {})
+        dis_by  = pdata.get("disabled_by", "")
+        dis_at  = pdata.get("disabled_at", "")
+        if dis_by:
+            who_str = f"Kto: {dis_by}"
+            if dis_at:
+                who_str += f"  ·  {dis_at}"
+            tk.Label(body, text=who_str,
+                     font=(_F, 7), bg=SURFACE, fg="#16a34a", anchor="w").pack(anchor="w")
 
         right = tk.Frame(row, bg=SURFACE)
         right.pack(side="right", padx=10, pady=4)
@@ -583,11 +621,30 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
 # ── Main entry point ──────────────────────────────────────────────────────────
 
+def _is_admin() -> bool:
+    try:
+        import ctypes
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
+
+
 def build_startup_manager_page(host, parent: tk.Frame):
     prefs = _load_prefs()
 
     page = tk.Frame(parent, bg=BG)
     page.pack(fill="both", expand=True)
+
+    # Admin notice — shown only when NOT admin.
+    if not _is_admin():
+        _adm = tk.Frame(page, bg="#1a0f00", height=28)
+        _adm.pack(fill="x")
+        _adm.pack_propagate(False)
+        tk.Label(_adm,
+                 text="  ⚠  Not running as Administrator — HKLM startup entries cannot be modified.  "
+                      "Right-click PC Workman → Run as administrator for full control.",
+                 font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER,
+                 padx=8).pack(side="left", fill="y")
 
     spin = tk.Label(page, text="Scanning startup entries…",
                     font=(_F, 10), bg=BG, fg=SUB)
@@ -707,6 +764,14 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
 
     def _switch_view(v: str):
         _view.set(v)
+        # Refresh tab counter labels with up-to-date numbers
+        active_now, flagged_now, disabled_now = _get_derived()
+        if "needs" in _tab_btns:
+            _tab_btns["needs"].config(text=f"Needs attention  {len(flagged_now)}")
+        if "all" in _tab_btns:
+            _tab_btns["all"].config(text=f"All entries  {len(active_now) + len(disabled_now)}")
+        if "disabled" in _tab_btns:
+            _tab_btns["disabled"].config(text=f"Disabled  {len(disabled_now)}")
         _refresh_tabs()
         if _content_ref[0]:
             _content_ref[0].destroy()
@@ -716,7 +781,6 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
         if v == "split":
             _draw_split(cf)
         else:
-            _, _, disabled_now = _get_derived()
             _build_disabled_panel(cf, disabled_now, prefs, lambda: _switch_view("disabled"))
 
     tab_defs = [
@@ -798,14 +862,17 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
             if ok:
                 # Save full entry data so we can show it in Disabled tab
                 # and restore it to registry later even if it's no longer there
+                from datetime import datetime as _dt
                 prefs.setdefault(e["id"], {}).update({
-                    "status":   "disabled",
-                    "name":     e["name"],
-                    "value":    e.get("value", ""),
-                    "exe":      e.get("exe", ""),
-                    "hive":     e.get("hive", "HKCU"),
-                    "impact":   e.get("impact", "low"),
-                    "desc":     e.get("desc", ""),
+                    "status":      "disabled",
+                    "name":        e["name"],
+                    "value":       e.get("value", ""),
+                    "exe":         e.get("exe", ""),
+                    "hive":        e.get("hive", "HKCU"),
+                    "impact":      e.get("impact", "low"),
+                    "desc":        e.get("desc", ""),
+                    "disabled_by": "UŻYTKOWNIK",
+                    "disabled_at": _dt.now().strftime("%Y-%m-%d %H:%M"),
                 })
             else:
                 failed.append(e["name"])
@@ -833,11 +900,11 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
     # ── Split view builder ────────────────────────────────────────────────────
 
     def _draw_split(cf: tk.Frame):
-        """Side-by-side: left = Needs attention, right = All entries 2-col."""
+        """Left = All Entries (wider), Right = Needs Attention (narrower, single col)."""
         cf.grid_rowconfigure(0, weight=1)
-        cf.grid_columnconfigure(0, weight=1, uniform="half")
-        cf.grid_columnconfigure(1, weight=0)  # divider
-        cf.grid_columnconfigure(2, weight=1, uniform="half")
+        cf.grid_columnconfigure(0, weight=3)   # All entries - wider
+        cf.grid_columnconfigure(1, weight=0)   # divider
+        cf.grid_columnconfigure(2, weight=2)   # Needs attention - narrower
 
         left_panel = tk.Frame(cf, bg=BG)
         left_panel.grid(row=0, column=0, sticky="nsew")
@@ -849,8 +916,11 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
 
         _, fl, _ = _get_derived()
 
-        _build_needs_attention_panel(left_panel, fl, prefs, _on_queue, queued_ids)
-        _build_all_entries_panel(right_panel, entries, prefs, _on_queue, queued_ids)
+        # Left = All entries (full width, single column)
+        _build_all_entries_panel(left_panel, entries, prefs, _on_queue, queued_ids,
+                                 two_col=False)
+        # Right = Needs attention (compact)
+        _build_needs_attention_panel(right_panel, fl, prefs, _on_queue, queued_ids)
 
     # ── Initial content render ────────────────────────────────────────────────
     cf_init = tk.Frame(page, bg=BG)
