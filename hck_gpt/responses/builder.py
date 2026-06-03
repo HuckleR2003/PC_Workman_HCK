@@ -241,18 +241,47 @@ class ResponseBuilder:
         self._last_pool_idx[f"{key}_{lang}"] = idx
         return pool[idx]
 
+    # Intents in vocabulary that map to an existing handler with a different name.
+    # This covers cases where the vocabulary has an intent that was never given its own
+    # handler (conf=1.00 → rule engine → None → silent failure without these).
+    _INTENT_ALIASES: dict = {
+        "fan_speed":          "fan_noise_history",   # fan speed queries -> history handler
+        "session_digest":     "session_compare",     # session digest -> comparison handler
+        "thermal_history":    "temp_comparison",     # thermal history -> temp comparison
+        "voltage_check":      "temperature",         # voltage -> temperature handler
+        "symptom_freeze":     "crash_context",       # freezing symptoms -> crash context
+        "symptom_noisy":      "fan_noise_history",   # noisy PC -> fan noise
+        "compare_baseline":   "temp_comparison",     # baseline compare -> temp comparison
+        "game_ready":         "game_can_run",        # game readiness -> game_can_run
+        "morning_brief":      "stats",               # morning brief -> stats handler
+        "gaming_session":     "gaming_vs_work_time", # gaming session -> gaming vs work
+        "weekly_trends":      "perf_change",         # weekly trends -> perf change
+        "process_deep_dive":  "process_info",        # deep dive -> process info
+        "ram_flush":          "optimization",        # flush request -> optimization (actionable)
+        "overclock_check":    "temperature",         # overclock -> temps
+        "ai_context":         "explain_proactive",   # AI context -> explain proactive
+        "thermal_prediction": "temp_comparison",     # prediction -> comparison
+        "process_kill":       "process_info",        # kill request -> process info first
+    }
+
     def build(self, result: ParseResult, lang: str = "pl") -> Optional[List[str]]:
         """
         Returns a list of message lines, or None if the intent
         is not handled here (falls back to legacy ChatHandler).
+        Applies _INTENT_ALIASES so vocabulary intents without their own handler
+        still return a sensible response instead of silent None.
         """
-        handler = getattr(self, f"_resp_{result.intent}", None)
+        intent  = self._INTENT_ALIASES.get(result.intent, result.intent)
+        handler = getattr(self, f"_resp_{intent}", None)
         if handler is None:
             return None
         try:
             out = handler(result, lang)
             return out if isinstance(out, list) else [out]
-        except Exception:
+        except Exception as _e:
+            # Log handler errors so they appear in the diagnostic console
+            # (not swallowed silently — helps during development)
+            print(f"[builder] _resp_{intent} raised: {_e}")
             return None
 
     # ── Hardware - all specs ──────────────────────────────────────────────────
@@ -564,108 +593,6 @@ class ResponseBuilder:
         "{P} Let's see how your machine is holding up:",
         "{P} Quick system check:",
     ]
-
-    def _resp_health_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        from hck_gpt.context.system_context import system_context
-        from hck_gpt.memory.user_knowledge  import user_knowledge
-        from hck_gpt.memory.session_memory  import session_memory
-
-        snap     = system_context.snapshot()
-        patterns = user_knowledge.get_all_patterns()
-        issues   = []
-        good     = []
-
-        cpu = float(snap.get("cpu_pct", 0) or 0)
-        ram = float(snap.get("ram_pct", 0) or 0)
-
-        # ── Pomysł 1: delta labels ────────────────────────────────────────────
-        typ_cpu  = patterns.get("typical_cpu_avg")
-        typ_ram  = patterns.get("typical_ram_avg")
-        cpu_ctx  = f"    {_delta_label(cpu, typ_cpu, lang)}" if typ_cpu else ""
-        ram_ctx  = f"    {_delta_label(ram, typ_ram, lang)}" if typ_ram else ""
-
-        if lang == "en":
-            if cpu > 90:
-                issues.append(f"  ⚠ CPU critical:  {cpu:.0f}%{cpu_ctx}")
-            elif cpu > 75:
-                issues.append(f"  ! CPU high:      {cpu:.0f}%{cpu_ctx}")
-            else:
-                good.append(f"  ✓ CPU OK:        {cpu:.0f}%{cpu_ctx}")
-
-            if ram > 90:
-                issues.append(f"  ⚠ RAM critical:  {ram:.0f}%{ram_ctx}")
-            elif ram > 80:
-                issues.append(f"  ! RAM high:      {ram:.0f}%{ram_ctx}")
-            else:
-                good.append(f"  ✓ RAM OK:        {ram:.0f}%{ram_ctx}")
-
-            if snap.get("cpu_throttled"):
-                ratio = snap.get("cpu_throttle_ratio", 0)
-                issues.append(f"  ⚠ CPU throttled: running at {ratio*100:.0f}% power")
-            else:
-                good.append("  ✓ CPU not throttling")
-
-            intro = random.choice(self._HEALTH_INTROS_EN).replace("{P}", self.PREFIX)
-            lines = [intro]
-            if issues:
-                lines.append("Issues found:")
-                lines.extend(issues)
-            lines.extend(good)
-            if not issues:
-                lines.append(random.choice([
-                    "Everything looks healthy ✓",
-                    "Your PC is in good shape ✓",
-                    "All good - nothing to worry about ✓",
-                    "All looks good ✓",
-                ]))
-
-            # ── Pomysł 2: session reference ───────────────────────────────────
-            ram_sess = session_memory.get_response_data("hw_ram")
-            if ram_sess.get("total_gb") and ram > 70:
-                lines.append(
-                    f"  (Your {ram_sess['total_gb']} GB RAM was discussed earlier"
-                    f" - now at {ram:.0f}%, that's worth watching)"
-                )
-
-        else:
-            if cpu > 90:
-                issues.append(f"  ⚠ CPU krytyczne:  {cpu:.0f}%{cpu_ctx}")
-            elif cpu > 75:
-                issues.append(f"  ! CPU wysokie:    {cpu:.0f}%{cpu_ctx}")
-            else:
-                good.append(f"  ✓ CPU OK:          {cpu:.0f}%{cpu_ctx}")
-
-            if ram > 90:
-                issues.append(f"  ⚠ RAM krytyczne:  {ram:.0f}%{ram_ctx}")
-            elif ram > 80:
-                issues.append(f"  ! RAM wysokie:    {ram:.0f}%{ram_ctx}")
-            else:
-                good.append(f"  ✓ RAM OK:          {ram:.0f}%{ram_ctx}")
-
-            if snap.get("cpu_throttled"):
-                ratio = snap.get("cpu_throttle_ratio", 0)
-                issues.append(f"  ⚠ CPU throttled:  działa na {ratio*100:.0f}% mocy")
-            else:
-                good.append("  ✓ CPU nie throttluje")
-
-            intro = random.choice(self._HEALTH_INTROS_PL).replace("{P}", self.PREFIX)
-            lines = [intro]
-            if issues:
-                lines.append("Problemy:")
-                lines.extend(issues)
-            lines.extend(good)
-            if not issues:
-                lines.append("Wszystko wygląda dobrze ✓")
-
-            ram_sess = session_memory.get_response_data("hw_ram")
-            if ram_sess.get("total_gb") and ram > 70:
-                lines.append(
-                    f"  (RAM {ram_sess['total_gb']} GB omawiany wcześniej"
-                    f" - teraz {ram:.0f}%, warto obserwować)"
-                )
-
-        lines.append(_followup("health", lang))
-        return lines
 
     # ── Temperature ───────────────────────────────────────────────────────────
 
@@ -1052,75 +979,6 @@ class ResponseBuilder:
                    f"{self.PREFIX} Can't read power plan.")]
 
     # ── Conversational ────────────────────────────────────────────────────────
-
-    _GREET_PL = [
-        "{P} Hej! Spytaj o swój sprzęt, temperatury lub wydajność.",
-        "{P} Cześć! Jestem tu - o co chcesz zapytać?",
-        "{P} Siema! Pisz śmiało - CPU, GPU, RAM, zdrowie, statystyki.",
-        "{P} Hej, tu hck_GPT. W czym mogę pomóc?",
-        "{P} Gotowy. Co sprawdzamy?",
-    ]
-    _GREET_EN = [
-        "{P} Hey! Ask about your hardware, temps or performance.",
-        "{P} Hi there - what would you like to know?",
-        "{P} Hey! Fire away - CPU, GPU, RAM, health, stats.",
-        "{P} hck_GPT here. What are we looking at?",
-        "{P} Ready. What do you need?",
-    ]
-    # Sarcastic/alert greetings when system is NOT doing well
-    _GREET_ALERT_PL = [
-        "{P} Hej - RAM już na {ram}%, zanim zaczniesz, może warto to ogarnąć?",
-        "{P} Cześć. CPU na {cpu}%. Nie będę udawać że wszystko OK - co chcesz sprawdzić?",
-        "{P} Tu hck_GPT. System nie jest w najlepszej formie ({cpu}% CPU / {ram}% RAM). Pytaj.",
-    ]
-    _GREET_ALERT_EN = [
-        "{P} Hey - RAM at {ram}% before we even start. Worth addressing?",
-        "{P} Hi. CPU at {cpu}%. Not going to pretend everything is fine - what do you need?",
-        "{P} hck_GPT here. System's not great ({cpu}% CPU / {ram}% RAM). Ask away.",
-    ]
-
-    def _resp_greeting(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        from hck_gpt.memory.session_memory import session_memory
-        from hck_gpt.memory.user_knowledge import user_knowledge
-        from hck_gpt.context.system_context import system_context
-        hw   = user_knowledge.get_hardware("cpu_model")
-        snap = system_context.snapshot()
-        cpu  = snap.get("cpu_pct", 0) or 0
-        ram  = snap.get("ram_pct", 0) or 0
-
-        # Use alert greeting if system is stressed
-        if cpu > 80 or ram > 85:
-            pool = self._GREET_ALERT_EN if lang == "en" else self._GREET_ALERT_PL
-            response = self._pick_fresh("greet_alert", lang, self._GREET_ALERT_PL, self._GREET_ALERT_EN)
-            response = response.replace("{P}", self.PREFIX).replace("{cpu}", f"{cpu:.0f}").replace("{ram}", f"{ram:.0f}")
-        else:
-            response = self._pick_fresh("greet", lang, self._GREET_PL, self._GREET_EN)
-            response = response.replace("{P}", self.PREFIX)
-
-        if not session_memory.greeted_this_session:
-            session_memory.greeted_this_session = True
-            if hw:
-                cpu_note = _t(lang, f"  (Widzę: {hw})", f"  (I see: {hw})")
-                response += "\n" + cpu_note
-        return [response]
-
-    _THANKS_PL = [
-        "{P} Nie ma za co. Pisz jak coś.",
-        "{P} Spoko. Zawsze tu jestem.",
-        "{P} Czystka zaliczona. Co dalej?",
-        "{P} Cała przyjemność po mojej stronie. Następne pytanie?",
-        "{P} Gotowe. Jeśli coś się zmieni - daj znać.",
-    ]
-    _THANKS_EN = [
-        "{P} No problem. Hit me up anytime.",
-        "{P} Done. What's next?",
-        "{P} You're welcome. I'm always running.",
-        "{P} Anytime - that's the job.",
-        "{P} Good. Let me know if anything changes.",
-    ]
-
-    def _resp_thanks(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        return [self._pick_fresh("thanks", lang, self._THANKS_PL, self._THANKS_EN).replace("{P}", self.PREFIX)]
 
     def _resp_help(self, r: ParseResult, lang: str = "pl") -> List[str]:
         if lang == "en":
@@ -5490,17 +5348,47 @@ class ResponseBuilder:
         "{P} Hello! Ready. CPU {cpu}%, RAM {ram}%. Start with 'specs' or 'health'.",
     ]
 
+    _GREET_ALERT_PL = [
+        "{P} Cześć! System dość zajęty - CPU {cpu}%, RAM {ram}%. Mogę pomóc to rozładować.",
+        "{P} Hej! PC pracuje mocno ({cpu}% CPU / {ram}% RAM). Sprawdzamy?",
+    ]
+    _GREET_ALERT_EN = [
+        "{P} Hey! System quite busy - CPU {cpu}%, RAM {ram}%. I can help sort that out.",
+        "{P} Hi! PC working hard ({cpu}% CPU / {ram}% RAM). Shall we check it out?",
+    ]
+
     def _resp_greeting(self, r: ParseResult, lang: str = "pl") -> List[str]:
         try:
             from hck_gpt.context.system_context import system_context
             snap = system_context.snapshot()
-            cpu = f"{snap.get('cpu_pct', 0) or 0:.0f}"
-            ram = f"{snap.get('ram_pct', 0) or 0:.0f}"
+            cpu_raw = float(snap.get("cpu_pct", 0) or 0)
+            ram_raw = float(snap.get("ram_pct", 0) or 0)
+            cpu = f"{cpu_raw:.0f}"
+            ram = f"{ram_raw:.0f}"
         except Exception:
-            cpu, ram = "?", "?"
-        pool = self._GREET_INTROS_EN if lang == "en" else self._GREET_INTROS_PL
-        resp = self._pick_fresh("greeting", lang, self._GREET_INTROS_PL, self._GREET_INTROS_EN)
-        return [resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)]
+            cpu, ram, cpu_raw, ram_raw = "?", "?", 0.0, 0.0
+
+        # Stress-aware greeting (same logic as first version)
+        if cpu_raw > 80 or ram_raw > 85:
+            resp = self._pick_fresh("greet_alert", lang, self._GREET_ALERT_PL, self._GREET_ALERT_EN)
+        else:
+            resp = self._pick_fresh("greeting", lang, self._GREET_INTROS_PL, self._GREET_INTROS_EN)
+
+        resp = resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)
+
+        # Append hardware note on first greeting of session
+        try:
+            from hck_gpt.memory.session_memory import session_memory
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            if not getattr(session_memory, "greeted_this_session", False):
+                session_memory.greeted_this_session = True
+                hw = user_knowledge.get_hardware("cpu_model")
+                if hw:
+                    note = _t(lang, f"  (Widzę: {hw})", f"  (I see: {hw})")
+                    return [resp, note]
+        except Exception:
+            pass
+        return [resp]
 
     # ── Thanks response ────────────────────────────────────────────────────────
 
