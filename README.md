@@ -2,7 +2,7 @@
 
 > **Your PC finally has someone who speaks its language.**
 
-![Version](https://img.shields.io/badge/Version-1.7.6-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.7.7-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
@@ -162,7 +162,41 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.7.6] - `2026-05-29` - CURRENT
+## What's New [1.7.7-patched] - `2026-06-03` - CURRENT
+
+### Ghost Driver Detection *(new in 1.7.7)*
+- Detects driver packages left in Windows after replacing hardware (e.g. old GT 1030 after upgrading to RTX 3050)
+- Uses `pnputil /enum-devices /connected` — only physically present hardware, not phantom registry entries
+- Ghost entries shown on driver cards with bordeaux background and `⚠ GHOST` / `100% UNUSED` badge — visible without expanding
+- Dialog: device age, version, explanation; option to remove via `pnputil /remove-device` (admin + confirmation)
+- Works across GPU, Audio, Network, USB driver classes
+
+### Drivers Tab — SEE EVERYTHING / SEE OUTDATED *(new in 1.7.7)*
+- Two mode buttons in DRIVER HEALTH header: **SEE EVERYTHING** (all devices by category) and **SEE OUTDATED (N)** (drivers 24+ months old, sorted oldest first)
+- Expand button per card: `▼ pokaż wszystkie (N)` reveals every device found in that class, ghost devices highlighted in bordeaux
+- Drivers >= 730 days (~24 months) marked red
+
+### Auto RAM Flush — Process Exclusion *(new in 1.7.7)*
+- Bordeaux exclusion panel inside RAM Flush card: click any process to protect it from flush
+- Protected processes persist across restarts via `user_prefs.json`
+- Flush result shows protected count: `Freed 420 MB (87 procs · 3 protected)`
+
+### Stability & Bug Fixes *(new in 1.7.7)*
+- MAP OF COMPONENTS: case_front panel removed (was covering internals in screen-space); replaced with thin corner rails
+- hck_GPT HOT strip: removed duplicate panel-side monitor that conflicted with proactive_monitor and had broken Polish strings
+- Startup Manager: admin notice now amber and prominent, matching Services Manager style
+- `ram_flush` intent alias fixed: routes to `optimization` (actionable) instead of `ram_why_high` (diagnosis)
+
+### UI & UX Patch *(new in 1.7.7-patched)*
+- **Startup Manager**: renamed "Needs Attention" → "Startup Menu"; removed non-functional "All entries" panel; auto-refresh after restoring a disabled entry
+- **Services Manager**: always shows both **Stop** and **Start** buttons for every non-essential service — active button is colored, inactive is muted (was showing only one direction)
+- **Services Manager**: expand banner now says `∨ Rozwiń więcej (N) ∨` and is more compact
+- **First Setup & Drivers**: GHOST badge now visible immediately on card header (not only inside expanded panel); subcategory labels and expand buttons are clearly readable; ghost devices highlighted bordeaux inside expand panel
+- **Page headers**: compact `← Główne Menu` only — removed redundant large title/subtitle duplication below the title bar
+
+---
+
+## What's New [1.7.6] - `2026-05-29` *(previous)*
 
 ### DeepMonitor *(new in 1.7.6)*
 - `ttk.Treeview` sensor table with 4 aligned columns (Sensor / Value / Min / Max)
@@ -593,7 +627,9 @@ Click any process to see more details.
 | v1.7.3 | Released | Live Guide, hck_GPT AI quality (followups, help rewrite, optimization live), session data store, WMI scan, nav links |
 | v1.7.4 | Released | Optimization Center redesign (2-col grid, expandable cards, Turbo PP creation, Weekly Report, LIVE NOW), dashboard button restyle |
 | v1.7.5 | Released | hck_GPT 13 new intents (community requests), 4 MEGA features (Time-Windowing, No-AI-Slop, Time-Travel Debug, Micro-Bench), process library 104->241 |
-| **v1.7.6** | **Current** | **DeepMonitor rewrite (Treeview), MAP OF COMPONENTS (2.5D isometric), hck_GPT Wave 2 (6 intents, 82 total), font system 100% coverage** |
+| v1.7.6 | Released | DeepMonitor rewrite (Treeview), MAP OF COMPONENTS (2.5D isometric), hck_GPT Wave 2 (6 intents, 82 total), font system 100% coverage |
+| v1.7.7 | Released | Ghost Driver Detection (pnputil), RAM Flush exclusion menu, SEE EVERYTHING/OUTDATED driver views, HOT strip stability, MAP fix |
+| **v1.7.7-patched** | **Current** | **UI/UX fixes: Startup Manager redesign, Services Manager stop/start logic, Drivers page readability, compact headers** |
 | v2.0.0 | **Q2 2026** | ML patterns, advanced gaming |
 
 **[Full Changelog](./CHANGELOG.md)**
