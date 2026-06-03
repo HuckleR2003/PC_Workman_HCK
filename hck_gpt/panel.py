@@ -112,6 +112,13 @@ class HCKGPTPanel:
                         0, lambda s=status: self._set_banner_status(s)
                     )
                 )
+                # hot: RAM/CPU/GPU critical -> HOT strip only, never to chat
+                proactive_monitor.register_hot(
+                    lambda msg: parent.after(0, lambda m=msg: self._set_hot(m))
+                )
+                proactive_monitor.register_hot_clear(
+                    lambda: parent.after(0, self._clear_hot)
+                )
                 proactive_monitor.start()
                 # Sync language immediately so first alerts match panel language
                 proactive_monitor.set_language(self._ui_lang)
@@ -332,6 +339,14 @@ class HCKGPTPanel:
         self.log.tag_configure("orange", foreground="#f97316")
         self.log.tag_configure("light_purple", foreground="#c084fc")
         self.log.tag_configure("user_msg", foreground=THEME["text"])
+        # Welcome block: near-black bg so startup table stands out subtly
+        self.log.tag_configure("welcome_bg",
+                               background="#060810",
+                               foreground=THEME["text"])
+        # Advisory tips (💡 action hints): very subtle green bg
+        self.log.tag_configure("tip_green",
+                               background="#071a0e",   # ~25% #10b981 on dark bg
+                               foreground="#6ee7b7")
 
         # ── Navigation link tags - clickable [-> Name] markers ────────────────
         # _nav_callbacks: name -> callable (registered from main window)
@@ -459,7 +474,10 @@ class HCKGPTPanel:
         self._welcome()
 
         self._start_banner_ticker()
-        self._start_hot_monitor()
+        # HOT strip is driven exclusively by proactive_monitor via register_hot().
+        # The panel had its own duplicate monitor (_start_hot_monitor) that
+        # conflicted with proactive_monitor at overlapping thresholds and also
+        # contained broken Polish diacritics — removed.
 
         parent.bind("<Configure>", self._on_resize)
 
@@ -610,6 +628,14 @@ class HCKGPTPanel:
             pass
 
         # ── First message: brand badge ("hck_GPT") + welcome + session ──
+        # Applied with welcome_bg tag so it flows into the table block visually
+        try:
+            if self.log.winfo_exists():
+                self.log.config(state="normal")
+                _wb_start = self.log.index("end - 1c")
+        except Exception:
+            _wb_start = None
+
         if lang == "pl":
             self.add_message(
                 f"hck_GPT: Witaj z powrotem - PC Workman gotowy do dzialania.{session_suffix}"
@@ -621,6 +647,16 @@ class HCKGPTPanel:
         self.add_message("")
         # ── 3-column table (Commands | Quick check | OPERATIONS) ──────────
         self._add_welcome_tables()
+
+        # Extend welcome_bg tag to cover the greeting message above the table
+        try:
+            if _wb_start and self.log.winfo_exists():
+                self.log.config(state="normal")
+                _wb_end = self.log.index("end - 1c")
+                self.log.tag_add("welcome_bg", _wb_start, _wb_end)
+                self.log.config(state="disabled")
+        except Exception:
+            pass
 
         # Prevent auto-greeting from firing when panel first opens
         self._last_greeting_session = time.time()
@@ -664,6 +700,9 @@ class HCKGPTPanel:
 
         self.log.config(state="normal")
 
+        # Mark start position for welcome_bg tag
+        _start = self.log.index("end - 1c")
+
         # ── top border with colored titles ────────────────────────────────
         _w("┌─ ");           _w("Commands",    "teal")
         _w(" ───────────────┐  ┌─ ")
@@ -678,6 +717,10 @@ class HCKGPTPanel:
 
         # ── bottom border ─────────────────────────────────────────────────
         _w("└──────────────────────────┘  └────────────────────┘  └──────────────────────────┘\n")
+
+        # Apply near-black background to the entire welcome table
+        _end = self.log.index("end - 1c")
+        self.log.tag_add("welcome_bg", _start, _end)
 
         self.log.see("end")
         self.log.config(state="disabled")
@@ -976,9 +1019,11 @@ class HCKGPTPanel:
             return
         self._hot_label.config(text=msg)
         if not self._hot_active:
+            # HOT always sits directly above TIP (or above entry if no TIP)
+            # Never replaces TIP — both can be visible simultaneously
             self._hot_strip.pack(
-                fill="x", padx=8, pady=(0, 2),
-                before=self._tip_strip if self._tip_active else self._entry_container
+                fill="x", padx=8, pady=(0, 1),
+                before=self._tip_strip
             )
             self._hot_active = True
         self._hot_msg = msg
@@ -993,72 +1038,6 @@ class HCKGPTPanel:
             pass
         self._hot_active = False
         self._hot_msg    = ""
-
-    def _hot_monitor_tick(self) -> None:
-        """Check system metrics every 8 s and show/clear HOT alert.
-        Anti-spam: message only changes when the metric category changes."""
-        try:
-            import psutil as _ps
-            cpu  = _ps.cpu_percent(interval=None)
-            ram  = _ps.virtual_memory().percent
-        except Exception:
-            cpu, ram = 0.0, 0.0
-
-        try:
-            from core.hardware_sensors import get_gpu_temp as _gt
-            gpu_t = _gt() or 0
-        except Exception:
-            gpu_t = 0
-
-        lang = getattr(self, "_ui_lang", "en")
-
-        # Build alert text (worst condition wins)
-        alert = None
-        if ram >= 92:
-            if lang == "pl":
-                alert = f"RAM na {ram:.0f}% - system może zwolnic. Zamknij nieuzywane aplikacje."
-            else:
-                alert = f"RAM at {ram:.0f}% - system may slow down. Close unused apps."
-        elif ram >= 85:
-            if lang == "pl":
-                alert = f"RAM na {ram:.0f}% - duz uzuzycie. Uwazaj."
-            else:
-                alert = f"RAM at {ram:.0f}% - high usage. Watch out."
-        elif cpu >= 95:
-            if lang == "pl":
-                alert = f"CPU na {cpu:.0f}% - bardzo duze obciazenie procesora!"
-            else:
-                alert = f"CPU at {cpu:.0f}% - very high processor load!"
-        elif cpu >= 88:
-            if lang == "pl":
-                alert = f"CPU na {cpu:.0f}% - wysoka aktywnosc."
-            else:
-                alert = f"CPU at {cpu:.0f}% - high activity."
-        elif gpu_t >= 90:
-            if lang == "pl":
-                alert = f"GPU temp {gpu_t:.0f}C - karta bardzo goraca!"
-            else:
-                alert = f"GPU temp {gpu_t:.0f}C - GPU running very hot!"
-
-        if alert:
-            self._set_hot(alert)
-        else:
-            self._clear_hot()
-
-        # Schedule next tick
-        try:
-            if self._hot_strip.winfo_exists():
-                self._hot_check_id = self._hot_strip.after(8000, self._hot_monitor_tick)
-        except Exception:
-            pass
-
-    def _start_hot_monitor(self) -> None:
-        """Start the HOT alert monitor (called once after panel is built)."""
-        try:
-            # First check after 12 s (let app settle)
-            self._hot_check_id = self._hot_strip.after(12000, self._hot_monitor_tick)
-        except Exception:
-            pass
 
     # INSERT TIP - show/update tip strip (guaranteed max 1 tip, instant replace)
     def _insert_tip(self, msg: str) -> None:
@@ -1106,6 +1085,10 @@ class HCKGPTPanel:
             self.log.insert("end", " ")
         start_pos = self.log.index("end")
         self.log.insert("end", msg + "\n")
+        end_pos = self.log.index("end - 1c")
+        # Advisory tip messages (contain 💡) get a subtle green background
+        if "\U0001f4a1" in msg:
+            self.log.tag_add("tip_green", start_pos, end_pos)
         self._apply_inline_colors(start_pos)
         self._apply_nav_links(start_pos)
         self.log.see("end")
