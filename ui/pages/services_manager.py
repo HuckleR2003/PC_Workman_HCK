@@ -61,7 +61,6 @@ _CATALOGUE: list[tuple[str, str, str, str]] = [
     ("Themes",          "Themes",                          "recommended", "Windows visual theme engine"),
     ("WSearch",         "Windows Search",                  "recommended", "File indexing for fast search"),
     ("SysMain",         "SysMain / Superfetch",            "recommended", "Memory prefetch - improves app launch times"),
-    ("wuauserv",        "Windows Update (client)",         "recommended", "Windows Update client-side logic"),
     ("WerSvc",          "Windows Error Reporting",         "optional",    "Uploads crash data to Microsoft"),
     ("RemoteRegistry",  "Remote Registry",                 "optional",    "Remote registry access - disable if unused"),
     ("TrkWks",          "Distributed Link Tracking",       "optional",    "Maintains file shortcut links - rarely critical"),
@@ -112,7 +111,26 @@ def _sc_run(args: list[str]) -> tuple[bool, str]:
     except Exception as e: return False, str(e)
 
 
+def _get_start_type(name: str) -> str:
+    """Return start type for a single service via 'sc qc': auto/manual/disabled/unknown."""
+    try:
+        r = subprocess.run(["sc", "qc", name],
+                           capture_output=True, text=True,
+                           creationflags=subprocess.CREATE_NO_WINDOW, timeout=8)
+        for line in r.stdout.splitlines():
+            s = line.strip().upper()
+            if "START_TYPE" in s or "START TYPE" in s:
+                if "DISABLED" in s:   return "disabled"
+                if "AUTO"     in s:   return "auto"
+                if "DEMAND"   in s:   return "manual"
+                if "BOOT"     in s or "SYSTEM" in s: return "auto"
+    except Exception:
+        pass
+    return "unknown"
+
+
 def _get_statuses_batch(names: list[str]) -> dict[str, str]:
+    """Returns dict: service_name_lower -> 'running'|'stopped'|'paused'|'disabled'|'unknown'"""
     try:
         r = subprocess.run(["sc", "query", "type=", "all", "state=", "all"],
                            capture_output=True, text=True,
@@ -131,15 +149,45 @@ def _get_statuses_batch(names: list[str]) -> dict[str, str]:
             elif "STOPPED" in up: statuses[current] = "stopped"
             elif "PAUSED"  in up: statuses[current] = "paused"
             else:                 statuses[current] = "unknown"
-    return {n: statuses.get(n.lower(), "unknown") for n in names}
+    # For services not seen in query (may be disabled at system level), check sc qc
+    result = {}
+    for n in names:
+        st = statuses.get(n.lower(), None)
+        if st is None:
+            # Service not returned by sc query — likely disabled at StartType level
+            st = _get_start_type(n)
+        result[n] = st
+    return result
+
+
+_SVC_PREFS_PATH = os.path.join(_APP_DIR, "data", "cache", "service_prefs.json")
+
+
+def _load_svc_prefs() -> dict:
+    try:
+        with open(_SVC_PREFS_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_svc_prefs(data: dict):
+    os.makedirs(os.path.dirname(_SVC_PREFS_PATH), exist_ok=True)
+    try:
+        with open(_SVC_PREFS_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
 
 
 def _log_change(svc: str, action: str, ok: bool):
     os.makedirs(os.path.dirname(_SVC_LOG), exist_ok=True)
     try:
         from datetime import datetime
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        who = "UŻYTKOWNIK"
         with open(_SVC_LOG, "a", encoding="utf-8") as f:
-            f.write(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] {action.upper()} {svc} - {'OK' if ok else 'FAILED'}\n")
+            f.write(f"[{ts}] {action.upper()} {svc} - {'OK' if ok else 'FAILED'} - przez: {who}\n")
     except Exception: pass
 
 
@@ -290,7 +338,7 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
 
 def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
                  locked: bool, show_turbo: bool, is_admin: bool,
-                 on_action, on_turbo_toggle):
+                 on_action, on_turbo_toggle, svc_prefs: dict = None):
     name   = entry["name"]
     dname  = entry["display"]
     cat    = entry["cat"]
@@ -319,6 +367,19 @@ def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
                         anchor="w", wraplength=220, justify="left")
     desc_lbl.pack(anchor="w", pady=(2, 0))
 
+    # Show "changed by user" badge if this service was previously actioned by user
+    if svc_prefs:
+        hist = svc_prefs.get(name, {})
+        if hist.get("changed_by") == "UŻYTKOWNIK" and hist.get("last_action"):
+            ts  = hist.get("last_change", "")
+            act = hist.get("last_action", "").upper()
+            badge_txt = f"UŻYTKOWNIK: {act}"
+            if ts:
+                badge_txt += f"  ·  {ts}"
+            tk.Label(body, text=badge_txt,
+                     font=(_F, 7), bg=SURFACE, fg="#16a34a",
+                     anchor="w").pack(anchor="w")
+
     all_labels = [body, name_row, name_lbl, svc_key, desc_lbl]
 
     _Tooltip(name_lbl, f"{dname}\n\n{desc}\n\nService key: {name}")
@@ -331,24 +392,44 @@ def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
     pill.pack(side="left", padx=(0, 10))
     all_labels.append(pill)
 
+    # ── Disabled-at-system-level indicator ───────────────────────────────────
+    if status == "disabled":
+        dis_lbl = tk.Label(right, text="DISABLED",
+                           font=(_M, 7, "bold"), bg=SURFACE, fg="#4b5563")
+        dis_lbl.pack(side="left", padx=(0, 8))
+        _Tooltip(dis_lbl, "This service is disabled at the system level.\n"
+                           "Start it first before enabling here.")
+        all_labels.append(dis_lbl)
+        # No Stop/Start buttons for system-disabled services
+        return row
+
     if locked:
         lock = tk.Label(right, text="⛒", font=(_F, 10), bg=SURFACE, fg=LOCK)
         lock.pack(side="left", padx=4)
         _Tooltip(lock, "Essential service - cannot be stopped safely.")
         all_labels.append(lock)
     else:
-        if status == "running":
-            sb = _btn(right, "Stop", fg=RED, bg=SURFACE, hover_fg="#ff6666",
-                      command=lambda n=name, r=row: on_action(n, "stop", r))
-            sb.pack(side="left", padx=2)
-            _Tooltip(sb, f"Stop the {dname} service.")
-            all_labels.append(sb)
-        else:
-            stb = _btn(right, "Start", fg=GREEN, bg=SURFACE, hover_fg="#4ade80",
-                       command=lambda n=name, r=row: on_action(n, "start", r))
-            stb.pack(side="left", padx=2)
-            _Tooltip(stb, f"Start the {dname} service.")
-            all_labels.append(stb)
+        is_running = (status == "running")
+
+        # Stop — always visible; active (red) when running, muted when stopped
+        sb = _btn(right, "Stop",
+                  fg=RED if is_running else "#2d3748",
+                  bg=SURFACE,
+                  hover_fg="#ff6666" if is_running else "#4a5568",
+                  command=lambda n=name, r=row: on_action(n, "stop", r))
+        sb.pack(side="left", padx=2)
+        _Tooltip(sb, f"Stop the {dname} service." if is_running else f"{dname} is already stopped.")
+        all_labels.append(sb)
+
+        # Start — always visible; active (green) when stopped, muted when running
+        stb = _btn(right, "Start",
+                   fg=GREEN if not is_running else "#1a3a1a",
+                   bg=SURFACE,
+                   hover_fg="#4ade80" if not is_running else "#2a4a2a",
+                   command=lambda n=name, r=row: on_action(n, "start", r))
+        stb.pack(side="left", padx=2)
+        _Tooltip(stb, f"Start the {dname} service." if not is_running else f"{dname} is already running.")
+        all_labels.append(stb)
 
         rb = _btn(right, "↺", fg=SUB, bg=SURFACE, hover_fg=TEXT, font_size=11,
                   command=lambda n=name, r=row: on_action(n, "restart", r))
@@ -474,15 +555,14 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
     running = sum(1 for s in statuses.values() if s == "running")
     total   = len(seen)
 
+    # Compact header — no subtitle
     header = tk.Frame(page, bg=BG)
-    header.pack(fill="x", padx=20, pady=(18, 0))
+    header.pack(fill="x", padx=16, pady=(6, 0))
 
     left_col = tk.Frame(header, bg=BG)
     left_col.pack(side="left")
-    tk.Label(left_col, text="Services Manager", font=(_F, 15, "bold"),
+    tk.Label(left_col, text="Services Manager", font=(_F, 13, "bold"),
              bg=BG, fg=TEXT).pack(anchor="w")
-    tk.Label(left_col, text="Monitor and control Windows background services",
-             font=(_F, 9), bg=BG, fg=SUB).pack(anchor="w", pady=(2, 0))
 
     right_col = tk.Frame(header, bg=BG)
     right_col.pack(side="right", fill="y")
@@ -538,7 +618,10 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         stat_lbl.config(text=_stat_text(total, running, turbo_set))
         refresh_turbo()
 
+    svc_prefs = _load_svc_prefs()
+
     def on_action(svc_name: str, action: str, row: tk.Frame):
+        nonlocal svc_prefs
         if not is_admin:
             messagebox.showwarning("Admin required",
                 "PC Workman must run as Administrator to control services.")
@@ -548,6 +631,7 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         if not confirm: return
 
         def _do():
+            nonlocal svc_prefs
             if action == "restart":
                 _sc_run(["stop", svc_name])
                 time.sleep(1.2)
@@ -558,17 +642,58 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
             new_status = "running" if action in ("start", "restart") else "stopped"
             if ok:
                 statuses[svc_name] = new_status
+                # Track who did what and when
+                from datetime import datetime as _dt
+                ts = _dt.now().strftime("%Y-%m-%d %H:%M")
+                svc_prefs.setdefault(svc_name, {}).update({
+                    "last_action":  action,
+                    "last_change":  ts,
+                    "changed_by":   "UŻYTKOWNIK",
+                })
+                _save_svc_prefs(svc_prefs)
             page.after(0, lambda: _handle_action_result(svc_name, action, ok, row, new_status))
 
         threading.Thread(target=_do, daemon=True).start()
 
     def _handle_action_result(svc_name, action, ok, row, new_status):
         if ok:
-            row.destroy()
-            info = tk.Frame(inner, bg="#0d1f0e")
-            info.pack(fill="x", padx=16, pady=2)
-            tk.Label(info, text=f"  ✓  {svc_name} {action}ed - reload page to see updated status",
-                     font=(_F, 8), bg="#0d1f0e", fg=GREEN, padx=8, pady=4).pack(anchor="w")
+            from datetime import datetime as _dt
+            ts = _dt.now().strftime("%H:%M")
+            # Rebuild the row in place — don't destroy so user can stop/start again
+            for w in row.winfo_children():
+                try: w.destroy()
+                except Exception: pass
+
+            entry_info = next(
+                (e for e in entries_by_cat.get(statuses.get(svc_name + "_cat", "optional"), [])
+                 if e["name"] == svc_name),
+                {"name": svc_name, "display": svc_name, "cat": "optional",
+                 "desc": f"Last action: {action} at {ts}"}
+            )
+            # Find the correct entry across all categories
+            for cat_entries in entries_by_cat.values():
+                for e in cat_entries:
+                    if e["name"] == svc_name:
+                        entry_info = e
+                        break
+
+            # Show brief confirmation banner at top of row
+            confirm_f = tk.Frame(row, bg="#0a160a")
+            confirm_f.pack(fill="x")
+            tk.Frame(confirm_f, bg=GREEN, width=3).pack(side="left", fill="y")
+            tk.Label(confirm_f,
+                     text=f"✓  {action.upper()}  ·  UŻYTKOWNIK  ·  {ts}",
+                     font=(_F, 7), bg="#0a160a", fg="#22c55e",
+                     pady=3, padx=6).pack(side="left")
+
+            # Re-render service info with updated buttons
+            locked = (entry_info.get("cat") == "essential")
+            _service_row(row, entry_info, statuses, turbo_set,
+                         locked=locked, show_turbo=True,
+                         is_admin=is_admin,
+                         on_action=on_action,
+                         on_turbo_toggle=on_turbo_toggle,
+                         svc_prefs=svc_prefs)
         else:
             messagebox.showerror("Action failed",
                 f"Could not {action} '{svc_name}'.\n"
@@ -593,6 +718,8 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
     col_map.update(_make_col_pair(inner, "essential",   "recommended"))
     tk.Frame(inner, bg=BORDER, height=1).pack(fill="x", padx=8)
     col_map.update(_make_col_pair(inner, "optional",    "unnecessary"))
+
+    _PREVIEW_COUNT = 3   # services shown before "expand more" banner
 
     for cat in _CAT_ORDER:
         elist = entries_by_cat.get(cat, [])
@@ -619,12 +746,64 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         section_bodies[cat] = body
 
         locked = (cat == "essential")
-        for entry in elist:
+        preview  = elist[:_PREVIEW_COUNT]
+        overflow = elist[_PREVIEW_COUNT:]
+
+        for entry in preview:
             _service_row(body, entry, statuses, turbo_set,
                          locked=locked, show_turbo=True,
                          is_admin=is_admin,
                          on_action=on_action,
-                         on_turbo_toggle=on_turbo_toggle)
+                         on_turbo_toggle=on_turbo_toggle,
+                         svc_prefs=svc_prefs)
+
+        if overflow:
+            # Overflow frame — hidden by default, shown by expand banner
+            overflow_frame = tk.Frame(body, bg=BG)
+            _exp_open = [False]
+
+            def _build_overflow(of=overflow_frame, ol=overflow, lkd=locked):
+                for oe in ol:
+                    _service_row(of, oe, statuses, turbo_set,
+                                 locked=lkd, show_turbo=True,
+                                 is_admin=is_admin,
+                                 on_action=on_action,
+                                 on_turbo_toggle=on_turbo_toggle,
+                                 svc_prefs=svc_prefs)
+
+            _overflow_built = [False]
+
+            expand_bar = tk.Frame(body, bg="#0b1018", cursor="hand2")
+            expand_bar.pack(fill="x", padx=8, pady=0)
+            expand_lbl = tk.Label(expand_bar,
+                                   text=f"∨  Rozwiń więcej ({len(overflow)})  ∨",
+                                   font=(_F, 7), bg="#0b1018", fg=MUTED,
+                                   pady=2, cursor="hand2")
+            expand_lbl.pack()
+
+            def _toggle_overflow(e=None,
+                                  ef=overflow_frame,
+                                  el=expand_lbl,
+                                  eo=_exp_open,
+                                  eb=_overflow_built,
+                                  ol=overflow,
+                                  bld=_build_overflow):
+                eo[0] = not eo[0]
+                if eo[0]:
+                    if not eb[0]:
+                        bld()
+                        eb[0] = True
+                    ef.pack(fill="x", after=expand_bar)
+                    el.config(text="∧  Collapse  ∧")
+                else:
+                    ef.pack_forget()
+                    el.config(text=f"∨  Rozwiń więcej ({len(ol)})  ∨")
+                inner.event_generate("<Configure>")
+
+            expand_bar.bind("<Button-1>", _toggle_overflow)
+            expand_lbl.bind("<Button-1>", _toggle_overflow)
+            expand_bar.bind("<Enter>", lambda e, w=expand_lbl: w.config(fg=TEXT))
+            expand_bar.bind("<Leave>", lambda e, w=expand_lbl: w.config(fg=MUTED))
 
     tk.Frame(inner, bg=BG, height=10).pack()
 
