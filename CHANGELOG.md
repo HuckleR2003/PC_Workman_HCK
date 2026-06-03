@@ -1,6 +1,122 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.7-patched] - 2026-06-03
+
+UI/UX audit pass — 5 targeted fixes found during post-release review.
+No new features. No breaking changes. Safe upgrade from v1.7.7.
+
+### Startup Manager — UX overhaul
+
+**`ui/pages/startup_manager.py`**
+
+- Renamed "Needs Attention" section header to **"Startup Menu"** — matches the tab label, clearer purpose
+- Removed non-functional "All entries" panel from the split layout — page now shows a single full-width list of flagged entries
+- Fixed geometry manager conflict (`pack` + `grid` on same parent) — admin notice moved inside `header_block`; notice now survives `_full_refresh()` calls
+- Auto-refresh after restoring a disabled entry works correctly — `_full_refresh()` re-reads registry and rebuilds view immediately
+
+### Services Manager — stop/start logic fix
+
+**`ui/pages/services_manager.py`**
+
+- **Both Stop and Start buttons now always visible** for every non-essential, non-disabled service
+  - Active direction: full color (Stop = red, Start = green)
+  - Inactive direction: muted/ghosted — makes it immediately clear both operations are available
+  - Previously: only the "relevant" button was shown, which made the page look like it could only enable services
+- Expand banner text changed from `∨ Show N more ∨` to **`∨ Rozwiń więcej (N) ∨`** (Polish, compact `pady=2`)
+
+### First Setup & Drivers — readability + GHOST visibility
+
+**`ui/pages/first_setup_drivers.py`**
+
+- **GHOST badge now visible immediately on card header** — `card["badge"]` overridden with bordeaux `⚠ N ghost` text when ghost detected; no longer requires expanding the card
+- Ghost devices in expanded panel highlighted with bordeaux background + `⚠ GHOST` badge (was plain row)
+- Expand button now shows count: `▼ pokaż wszystkie (N)` / `▲ zwiń`; shows `⚠ GHOST` suffix when ghosts present
+- Subcategory text ("Display / Graphics", "Sound Device" etc.): color `#5a6a80` → `#8a9db8` — clearly readable
+- Expand button font: 6pt → 7pt, color `#4b5563` → `#6b7280`
+- Ghost badge font: 5pt → 7pt + increased padding
+- `ghost_names` set now passed from `_apply` to `_fill_expand_panel` — expand panel knows which devices are ghosts
+
+### Page headers — compact back button
+
+**`ui/windows/main_window_expanded.py`**
+
+- `_build_page_header()`: height 60px → 26px; removed large title and subtitle labels (already shown inside page); kept only `← Główne Menu` in small muted style
+- Applies to: Startup Manager, Services Manager, and all other sub-pages using `_build_page_header`
+
+---
+
+## [1.7.7] - 2026-06-02
+
+### Ghost Driver Detection — new feature
+
+**`ui/pages/first_setup_drivers.py`**
+
+- Ghost drivers = driver packages left in Windows registry after replacing hardware (e.g. old GPU still installed after swap)
+- Detection: `pnputil /enum-devices /class {guid} /connected` returns only physically present hardware; anything in the registry but not in connected output is flagged as ghost
+- WMI (`Win32_VideoController`) was intentionally avoided — it returns phantom devices too, making it unreliable for this use case
+- Ghost entries shown with bordeaux background, `⚠` marker, and `100% UNUSED` / `⚠ GHOST` badge visible on card header without expanding
+- `_open_ghost_dialog()` — Toplevel popup with device age, version, explanation, and optional removal
+- `pnputil /remove-device <instanceID> /subtree` for removal (admin required, confirmation dialog)
+- Works across all 4 driver categories: GPU, Audio, Network, USB
+
+### Drivers tab — SEE EVERYTHING / SEE OUTDATED views
+
+- Two mode buttons added to DRIVER HEALTH section header
+- **SEE EVERYTHING** — all detected drivers across all classes, grouped by category (GPU first), ghost entries highlighted
+- **SEE OUTDATED (N)** — only drivers >= 730 days (~24 months), sorted oldest first; count badge updated after scan
+- BACK button replaces mode buttons while in extended view
+- `_build_see_everything_view()`, `_build_see_outdated_view()` — self-contained view builders
+- Extended views show: category badge, device name, version, date, age badge, ghost marker where applicable
+
+### Drivers tab — all devices per class
+
+- `_read_all_class_drivers(guid)` — collects all unique devices per class (not just first entry)
+- Each driver card: expand button `▼ show all (N)` reveals complete device list
+- Per-device: name, version, date badge, age color (730+ days = red, 365-730 = amber)
+- Devices >= 730 days marked red in expand panel
+
+### Optimization — Auto RAM Flush process exclusion
+
+**`ui/pages/optimization_services.py`**
+
+- `_RAM_EXCLUDE: set` — module-level exclusion list, loaded from `user_prefs.json → optimization.ram_flush_exclude` at startup
+- `_do_ram_flush()` — skips excluded processes by name; result shows `N protected` count
+- `_build_exclusion_panel()` — bordeaux-styled panel inside RAM Flush card expand area:
+  - Process list: excluded first (always visible even offline), then running alphabetically
+  - Click to toggle protection; `↺ Refresh` reloads live process list
+  - Excluded processes persist across app restarts
+- `_save_exclude()` — writes sorted list to prefs immediately on toggle
+
+### hck_GPT panel — HOT strip duplicate monitor removed
+
+**`hck_gpt/panel.py`**
+
+- Removed `_hot_monitor_tick()` and `_start_hot_monitor()` — they duplicated proactive_monitor's HOT logic at lower thresholds (RAM >= 85% vs proactive_monitor's 93%), causing double-triggers
+- HOT strip now driven exclusively by `proactive_monitor` via `register_hot()` callback
+- Also removed broken Polish strings from the panel-side monitor (missing diacritics: "duz uzuzycie", "Uwazaj", "goraca")
+
+### hck_GPT — intent alias fix
+
+**`hck_gpt/responses/builder.py`**
+
+- `ram_flush` alias: `ram_why_high` → `optimization` — user asking to flush RAM gets actionable optimization response instead of a diagnosis
+
+### MAP OF COMPONENTS — case_front fix
+
+**`ui/components/pc_map.py`**
+
+- Removed solid `case_front` panel (7.5×15 box drawn last, covering all internals in screen-space)
+- Replaced with 4 thin structural corner rails — open-front case look, all components visible
+
+### Admin notices
+
+**`ui/pages/startup_manager.py`**
+
+- Non-admin notice upgraded: amber warning matching Services Manager style — `⚠ Not running as Administrator — HKLM startup entries cannot be modified. Right-click PC Workman → Run as administrator.`
+
+---
+
 ## [1.7.6] - 2026-05-29
 
 ### DeepMonitor — complete rewrite
