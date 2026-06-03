@@ -89,6 +89,9 @@ _RAM = {
     "run_cv": None, "run_draw": None,
 }
 
+# ── RAM Flush exclusion list — exe names (lowercase) that are never flushed ──
+_RAM_EXCLUDE: set = set()
+
 # ── Turbo Power Plan state ────────────────────────────────────────────────────
 _TPP = {
     "active":       False,   # currently using Turbo PC plan
@@ -107,8 +110,14 @@ def _init():
     _RAM["threshold"] = int(o.get("ram_threshold", 75))
     _TPP["auto"]      = bool(o.get("tpp_auto", False))
     _TPP["on_turbo"]  = bool(o.get("tpp_on_turbo", False))
+    saved = o.get("ram_flush_exclude", [])
+    _RAM_EXCLUDE.update(n.lower() for n in saved if isinstance(n, str))
 
 _init()
+
+
+def _save_exclude():
+    _save_opt(ram_flush_exclude=sorted(_RAM_EXCLUDE))
 _ACTION_BTNS: dict = {}
 
 
@@ -1369,16 +1378,168 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
     if not custom_fn:
         if key == "ram_flush":
             _wire_ram_flush(run_btn, auto_pill, auto_state,
-                            turbo_pill, turbo_state, status_lbl, run_color)
+                            turbo_pill, turbo_state, status_lbl, run_color,
+                            expand_frame)
         elif key == "turbo_pp":
             _wire_turbo_pp(run_btn, auto_pill, auto_state,
                            turbo_pill, turbo_state, status_lbl, run_color)
 
 
+def _build_exclusion_panel(parent):
+    """
+    Expandable process exclusion panel for RAM Flush.
+    Processes in _RAM_EXCLUDE are skipped by _do_ram_flush().
+    Exclusions persist to user_prefs.json.
+    """
+    _EX_BG   = "#07080f"
+    _EX_ROW  = "#0c0d16"
+    _EX_BORD = "#141828"
+    _EX_ON   = "#200810"   # excluded row background (dark bordeaux)
+    _EX_HDR  = "#0d0e18"
+
+    wrap = tk.Frame(parent, bg=_EX_BG, highlightthickness=1,
+                    highlightbackground=_EX_BORD)
+    wrap.pack(fill="x", padx=0, pady=(6, 0))
+
+    # ── Header bar ──────────────────────────────────────────────
+    hdr = tk.Frame(wrap, bg=_EX_HDR)
+    hdr.pack(fill="x")
+
+    count_lbl = tk.Label(hdr, text=f"PROCESS EXCLUSIONS  ·  {len(_RAM_EXCLUDE)} protected",
+                         font=(_HDR, 6), bg=_EX_HDR, fg=MUTED, anchor="w",
+                         padx=8, pady=4)
+    count_lbl.pack(side="left", fill="x", expand=True)
+
+    refresh_btn = tk.Label(hdr, text="↺ Refresh",
+                           font=(_MONO, 6), bg=_EX_HDR, fg="#334455",
+                           cursor="hand2", padx=8, pady=4)
+    refresh_btn.pack(side="right")
+
+    hint = tk.Label(wrap,
+                    text="  Click a process to protect it from flush. Click again to unprotect.",
+                    font=(_F, 6), bg=_EX_BG, fg=MUTED, anchor="w", pady=2)
+    hint.pack(fill="x")
+
+    # ── Scrollable process list ──────────────────────────────────
+    list_frame = tk.Frame(wrap, bg=_EX_BG)
+    list_frame.pack(fill="x", padx=4, pady=(0, 4))
+
+    _row_widgets: dict = {}
+
+    def _refresh_list():
+        for w in list_frame.winfo_children():
+            w.destroy()
+        _row_widgets.clear()
+
+        try:
+            import psutil as _ps
+            procs = {}
+            for p in _ps.process_iter(["pid", "name"]):
+                try:
+                    nm = p.info["name"]
+                    if not nm or p.pid <= 4:
+                        continue
+                    key = nm.lower()
+                    if key not in procs:
+                        procs[key] = nm
+                except Exception:
+                    continue
+        except Exception:
+            procs = {}
+
+        # Excluded first (even if not running), then rest alphabetical
+        excluded_names  = sorted(_RAM_EXCLUDE)
+        running_names   = sorted(k for k in procs if k not in _RAM_EXCLUDE)
+        ordered = [(nm, True) for nm in excluded_names] + \
+                  [(nm, False) for nm in running_names]
+
+        for exe_lower, is_excluded in ordered:
+            display_name = procs.get(exe_lower, exe_lower)
+            is_running   = exe_lower in procs
+
+            row_bg = _EX_ON if is_excluded else _EX_ROW
+
+            row = tk.Frame(list_frame, bg=row_bg, highlightthickness=1,
+                           highlightbackground=_EX_BORD, cursor="hand2")
+            row.pack(fill="x", pady=1)
+
+            # Toggle indicator
+            mark = tk.Label(row, text="✕" if is_excluded else " ",
+                            font=(_MONO, 8, "bold"), bg=row_bg,
+                            fg=BORD_L if is_excluded else "#1e2838",
+                            width=2, padx=4)
+            mark.pack(side="left", pady=3)
+
+            # Process name
+            name_col = BORD_L if is_excluded else (TEXT if is_running else MUTED)
+            name_lbl = tk.Label(row, text=display_name[:36],
+                                font=(_F, 7), bg=row_bg, fg=name_col,
+                                anchor="w")
+            name_lbl.pack(side="left", fill="x", expand=True, pady=3)
+
+            # Running / saved badge
+            if is_running:
+                badge_fg  = BORD_L if is_excluded else EMERALD
+                badge_txt = "PROTECTED" if is_excluded else "● running"
+            else:
+                badge_fg  = BORD_L
+                badge_txt = "PROTECTED · offline"
+
+            badge = tk.Label(row, text=badge_txt,
+                             font=(_MONO, 5, "bold"), bg=row_bg,
+                             fg=badge_fg, padx=6)
+            badge.pack(side="right", pady=3)
+
+            _row_widgets[exe_lower] = (row, mark, name_lbl, badge)
+
+            def _toggle(e, k=exe_lower):
+                if k in _RAM_EXCLUDE:
+                    _RAM_EXCLUDE.discard(k)
+                else:
+                    _RAM_EXCLUDE.add(k)
+                _save_exclude()
+                count_lbl.config(
+                    text=f"PROCESS EXCLUSIONS  ·  {len(_RAM_EXCLUDE)} protected")
+                _refresh_list()
+
+            for w in (row, mark, name_lbl, badge):
+                w.bind("<Button-1>", _toggle)
+
+            def _on_enter(e, r=row, ex=is_excluded):
+                try:
+                    r.config(highlightbackground=BORD_L if ex else BORDER2)
+                except Exception:
+                    pass
+
+            def _on_leave(e, r=row):
+                try:
+                    r.config(highlightbackground=_EX_BORD)
+                except Exception:
+                    pass
+
+            row.bind("<Enter>", _on_enter)
+            row.bind("<Leave>", _on_leave)
+
+        if not ordered:
+            tk.Label(list_frame,
+                     text="  No processes detected. Click Refresh.",
+                     font=(_F, 7), bg=_EX_BG, fg=MUTED, pady=6
+                     ).pack(fill="x")
+
+    refresh_btn.bind("<Button-1>", lambda e: _refresh_list())
+    refresh_btn.bind("<Enter>",
+                     lambda e: refresh_btn.config(fg=EMERALD))
+    refresh_btn.bind("<Leave>",
+                     lambda e: refresh_btn.config(fg="#334455"))
+
+    wrap.after(200, _refresh_list)
+    return wrap
+
+
 def _wire_ram_flush(run_btn, auto_pill, auto_state,
-                    turbo_pill, turbo_state, status_lbl, run_color):
+                    turbo_pill, turbo_state, status_lbl, run_color,
+                    expand_frame=None):
     """Wire RAM flush card controls."""
-    # Load prefs
     prefs = _load_prefs().get("optimization", {})
     auto_state["on"] = bool(prefs.get("ram_auto", False))
     _pill_cv(auto_pill, auto_state["on"], 32, 15, EMERALD)
@@ -1419,6 +1580,13 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
 
     run_btn.bind("<Button-1>", _run)
     auto_pill.bind("<Button-1>", _toggle_auto)
+
+    # Append exclusion panel to the card's expand frame
+    if expand_frame is not None:
+        try:
+            _build_exclusion_panel(expand_frame)
+        except Exception:
+            pass
 
 
 def _wire_turbo_pp(run_btn, auto_pill, auto_state,
@@ -1540,11 +1708,15 @@ def _do_ram_flush():
             ctypes.c_size_t(0xFFFFFFFF), ctypes.c_size_t(0xFFFFFFFF), 0)
     except Exception:
         pass
-    count = 0
+    count = skipped = 0
     try:
-        for proc in psutil.process_iter(["pid"]):
-            pid = proc.pid
+        for proc in psutil.process_iter(["pid", "name"]):
+            pid  = proc.pid
+            name = (proc.info.get("name") or "").lower()
             if pid <= 4:
+                continue
+            if name and name in _RAM_EXCLUDE:
+                skipped += 1
                 continue
             try:
                 h = ctypes.windll.kernel32.OpenProcess(0x0100 | 0x0400, False, pid)
@@ -1559,10 +1731,11 @@ def _do_ram_flush():
     time.sleep(0.8)
     after = int(psutil.virtual_memory().available / 1048576)
     freed = after - before
+    skip_note = f"  ·  {skipped} protected" if skipped else ""
     if freed > 0:
-        return True, f"Freed {freed} MB  ({count} procs)", before, after
+        return True, f"Freed {freed} MB  ({count} procs{skip_note})", before, after
     elif count > 0:
-        return True, f"Flushed {count} procs (limited perms)", before, after
+        return True, f"Flushed {count} procs (limited perms{skip_note})", before, after
     return False, "No effect - admin rights needed", before, after
 
 
