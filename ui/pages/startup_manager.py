@@ -451,11 +451,11 @@ def _build_drawer_content(drawer: tk.Frame, queue: list[dict],
 
 def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
                                   prefs: dict, on_queue, queued_ids: set):
-    """Left panel - Needs attention (single column, compact rows)."""
+    """Startup Menu panel — flagged entries (single column, compact rows)."""
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(hdr, text="Needs attention", font=(_F, 8, "bold"),
+    tk.Label(hdr, text="Startup Menu", font=(_F, 8, "bold"),
              bg=BG, fg=AMBER).pack(side="left")
     tk.Label(hdr, text=f"  {len(flagged)}", font=(_F, 8),
              bg=BG, fg=SUB).pack(side="left")
@@ -463,10 +463,18 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
     tk.Frame(parent, bg=BORDER, height=1).pack(fill="x", padx=10)
 
     if not flagged:
-        tk.Label(parent,
-                 text="No programs flagged,\nstartup looks clean.",
-                 font=(_F, 9), bg=BG, fg=GREEN,
-                 justify="center").pack(pady=30)
+        _EmptyAttention = tk.Frame(parent, bg=BG)
+        _EmptyAttention.pack(fill="x", padx=14, pady=20)
+        tk.Label(_EmptyAttention,
+                 text="✓  Startup looks clean.",
+                 font=(_F, 11, "bold"), bg=BG, fg=GREEN,
+                 anchor="w").pack(anchor="w", pady=(0, 10))
+        tk.Label(_EmptyAttention,
+                 text="To tutaj nie przegapisz potencjalnej złośliwej\n"
+                      "aplikacji, która potajemnie chciała wejść\n"
+                      "w działanie systemu przy starcie.",
+                 font=(_F, 8), bg=BG, fg="#2a4a5f",
+                 justify="left", anchor="w").pack(anchor="w")
         return
 
     inner, cv = _scrollable_frame(parent, bg=BG)
@@ -635,17 +643,6 @@ def build_startup_manager_page(host, parent: tk.Frame):
     page = tk.Frame(parent, bg=BG)
     page.pack(fill="both", expand=True)
 
-    # Admin notice — shown only when NOT admin.
-    if not _is_admin():
-        _adm = tk.Frame(page, bg="#1a0f00", height=28)
-        _adm.pack(fill="x")
-        _adm.pack_propagate(False)
-        tk.Label(_adm,
-                 text="  ⚠  Not running as Administrator — HKLM startup entries cannot be modified.  "
-                      "Right-click PC Workman → Run as administrator for full control.",
-                 font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER,
-                 padx=8).pack(side="left", fill="y")
-
     spin = tk.Label(page, text="Scanning startup entries…",
                     font=(_F, 10), bg=BG, fg=SUB)
     spin.pack(pady=60)
@@ -716,46 +713,53 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
     header_block = tk.Frame(page, bg=BG)
     header_block.grid(row=0, column=0, sticky="ew")
 
-    # Title row
+    # Admin notice — inside header_block so it survives _full_refresh
+    if not _is_admin():
+        _adm = tk.Frame(header_block, bg="#1a0f00", height=28)
+        _adm.pack(fill="x")
+        _adm.pack_propagate(False)
+        tk.Label(_adm,
+                 text="  ⚠  Not running as Administrator — HKLM startup entries cannot be modified.  "
+                      "Right-click PC Workman → Run as administrator for full control.",
+                 font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER,
+                 padx=8).pack(side="left", fill="y")
+
+    # Compact title row — no subtitle, minimal vertical padding
     title_row = tk.Frame(header_block, bg=BG)
-    title_row.pack(fill="x", padx=20, pady=(16, 0))
+    title_row.pack(fill="x", padx=16, pady=(6, 0))
 
     title_col = tk.Frame(title_row, bg=BG)
     title_col.pack(side="left", fill="y")
     tk.Label(title_col, text="Startup Manager",
-             font=(_F, 14, "bold"), bg=BG, fg=TEXT).pack(anchor="w")
-    tk.Label(title_col, text="Control what launches when Windows starts",
-             font=(_F, 8), bg=BG, fg=SUB).pack(anchor="w", pady=(1, 0))
+             font=(_F, 13, "bold"), bg=BG, fg=TEXT).pack(anchor="w")
 
     chips_row = tk.Frame(title_row, bg=BG)
     chips_row.pack(side="right", fill="y")
 
     def _chip(parent, label, val, color):
-        f = tk.Frame(parent, bg="#0f1720", padx=8, pady=3)
-        f.pack(side="left", padx=3)
+        f = tk.Frame(parent, bg="#0f1720", padx=7, pady=2)
+        f.pack(side="left", padx=2)
         tk.Label(f, text=label, font=(_F, 7, "bold"), bg="#0f1720", fg=color).pack(side="left")
-        tk.Label(f, text=str(val), font=(_F, 7), bg="#0f1720", fg=SUB).pack(side="left", padx=(3, 0))
+        tk.Label(f, text=str(val), font=(_F, 7), bg="#0f1720", fg=SUB).pack(side="left", padx=(2, 0))
 
     _chip(chips_row, "Total",       len(entries), TEXT)
     _chip(chips_row, "High impact", n_high,        RED)
     _chip(chips_row, "Flagged",     len(flagged),  AMBER)
 
-    tk.Frame(header_block, bg=BORDER, height=1).pack(fill="x", padx=20, pady=(12, 0))
+    tk.Frame(header_block, bg=BORDER, height=1).pack(fill="x", padx=16, pady=(6, 0))
 
-    # ── Tab bar ───────────────────────────────────────────────────────────────
+    # ── Tab bar — only 2 tabs: Startup Menu + Disabled ───────────────────────
     tab_bar = tk.Frame(header_block, bg=BG)
-    tab_bar.pack(fill="x", padx=16, pady=(6, 0))
+    tab_bar.pack(fill="x", padx=12, pady=(4, 0))
 
-    _view = tk.StringVar(value="split")   # "split" or "disabled"
-    _content_ref  = [None]    # holds current content frame
+    _view = tk.StringVar(value="split")
+    _content_ref  = [None]
     _tab_btns: dict[str, tk.Label] = {}
 
     def _refresh_tabs():
-        """Re-style all tabs based on current _view."""
         v = _view.get()
         for key, btn in _tab_btns.items():
-            if key == "all" and v == "split":
-                # "All entries" highlighted when split view is active
+            if key == "split" and v == "split":
                 btn.config(bg=TAB_ACTIVE_BG, fg=TAB_ACTIVE_FG, font=(_F, 9, "bold"))
             elif key == "disabled" and v == "disabled":
                 btn.config(bg=TAB_ACTIVE_BG, fg=TAB_ACTIVE_FG, font=(_F, 9, "bold"))
@@ -764,12 +768,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
 
     def _switch_view(v: str):
         _view.set(v)
-        # Refresh tab counter labels with up-to-date numbers
         active_now, flagged_now, disabled_now = _get_derived()
-        if "needs" in _tab_btns:
-            _tab_btns["needs"].config(text=f"Needs attention  {len(flagged_now)}")
-        if "all" in _tab_btns:
-            _tab_btns["all"].config(text=f"All entries  {len(active_now) + len(disabled_now)}")
+        if "split" in _tab_btns:
+            _tab_btns["split"].config(text=f"Startup Menu  {len(active_now)}")
         if "disabled" in _tab_btns:
             _tab_btns["disabled"].config(text=f"Disabled  {len(disabled_now)}")
         _refresh_tabs()
@@ -781,22 +782,31 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
         if v == "split":
             _draw_split(cf)
         else:
-            _build_disabled_panel(cf, disabled_now, prefs, lambda: _switch_view("disabled"))
+            # Pass a callback that does a full refresh after restore
+            def _after_restore():
+                # Re-scan registry to pick up restored entries immediately
+                page.after(0, lambda: _full_refresh())
+            _build_disabled_panel(cf, disabled_now, prefs, _after_restore)
 
-    tab_defs = [
-        ("split",    f"Needs attention  {len(flagged)}", AMBER),
-        ("all",      f"All entries  {len(entries)}",      TEXT),
-        ("disabled", f"Disabled  {len(disabled)}",        SUB),
-    ]
+    def _full_refresh():
+        """Re-read registry + prefs and rebuild entire view."""
+        new_entries = _read_startup_entries()
+        # Rebuild from scratch on the same page frame
+        for w in page.winfo_children():
+            try: w.destroy()
+            except Exception: pass
+        # Re-run render with fresh entries
+        _render(page, new_entries, prefs)
 
-    for i, (v, lbl, col) in enumerate(tab_defs):
-        # The "Needs attention" tab label maps to split view
-        tab_v = "split" if v == "split" else v
+    # Two tabs only: Startup Menu + Disabled
+    for key, lbl, col in [
+        ("split",    f"Startup Menu  {len(active)}",  TEXT),
+        ("disabled", f"Disabled  {len(disabled)}",    SUB),
+    ]:
         b = tk.Label(tab_bar, text=lbl, font=(_F, 9),
                      bg=BG, fg=col, padx=12, pady=5, cursor="hand2")
-        b.pack(side="left", padx=(0, 4))
-        b.bind("<Button-1>", lambda e, _v=tab_v: _switch_view(_v))
-        key = "all" if v == "all" else ("disabled" if v == "disabled" else "needs")
+        b.pack(side="left", padx=(0, 3))
+        b.bind("<Button-1>", lambda e, _v=key: _switch_view(_v))
         _tab_btns[key] = b
 
     # ── Banner ────────────────────────────────────────────────────────────────
@@ -900,27 +910,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
     # ── Split view builder ────────────────────────────────────────────────────
 
     def _draw_split(cf: tk.Frame):
-        """Left = All Entries (wider), Right = Needs Attention (narrower, single col)."""
-        cf.grid_rowconfigure(0, weight=1)
-        cf.grid_columnconfigure(0, weight=3)   # All entries - wider
-        cf.grid_columnconfigure(1, weight=0)   # divider
-        cf.grid_columnconfigure(2, weight=2)   # Needs attention - narrower
-
-        left_panel = tk.Frame(cf, bg=BG)
-        left_panel.grid(row=0, column=0, sticky="nsew")
-
-        tk.Frame(cf, bg=PANEL_DIV, width=1).grid(row=0, column=1, sticky="ns")
-
-        right_panel = tk.Frame(cf, bg=BG)
-        right_panel.grid(row=0, column=2, sticky="nsew")
-
+        """Full-width Startup Menu — flagged entries only, single column."""
         _, fl, _ = _get_derived()
-
-        # Left = All entries (full width, single column)
-        _build_all_entries_panel(left_panel, entries, prefs, _on_queue, queued_ids,
-                                 two_col=False)
-        # Right = Needs attention (compact)
-        _build_needs_attention_panel(right_panel, fl, prefs, _on_queue, queued_ids)
+        _build_needs_attention_panel(cf, fl, prefs, _on_queue, queued_ids)
 
     # ── Initial content render ────────────────────────────────────────────────
     cf_init = tk.Frame(page, bg=BG)
