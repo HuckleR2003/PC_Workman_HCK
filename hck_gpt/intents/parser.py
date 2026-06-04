@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from hck_gpt.intents.vocabulary import ENTITY_MAP, INTENT_PATTERNS, STOPWORDS
 
@@ -58,6 +58,18 @@ class IntentParser:
     No heavy external dependencies. Supports PL + EN simultaneously.
     """
 
+    # Lazily populated once per instance on first parse() call.
+    # INTENT_PATTERNS is static, so this cache is built once and reused forever.
+    _folded_cache: Dict[str, List[str]] = {}
+
+    def _get_folded_cache(self) -> Dict[str, List[str]]:
+        if not self._folded_cache:
+            IntentParser._folded_cache = {
+                intent: [self._ascii_fold(p) for p in patterns]
+                for intent, patterns in INTENT_PATTERNS.items()
+            }
+        return self._folded_cache
+
     def parse(self, text: str) -> ParseResult:
         if not text or not text.strip():
             return ParseResult("unknown", 0.0, raw_text=text)
@@ -69,10 +81,7 @@ class IntentParser:
         folded_tokens = self._tokenize(folded_text)
         scores: Dict[str, float] = {}
 
-        folded_patterns_cache: Dict[str, List[str]] = {
-            intent: [self._ascii_fold(p) for p in patterns]
-            for intent, patterns in INTENT_PATTERNS.items()
-        }
+        folded_patterns_cache = self._get_folded_cache()
 
         for intent, patterns in INTENT_PATTERNS.items():
             score        = self._score_intent(tokens, clean_text, patterns)
@@ -181,14 +190,11 @@ class IntentParser:
         """
         Best-effort Polish accent restoration.
         Maps common accent-stripped words to their accented form.
-        This lets 'dzieki', 'specyfikacja', 'wydajnosc' etc. score correctly.
+        Uses word-boundary (\b) matching to avoid replacing within longer words
+        (e.g. 'temperatur' must not corrupt 'temperatura' -> 'temperaturaa').
         """
-        import unicodedata
-        # Build full normalization: strip diacritics from BOTH text and patterns
-        # -> compare in ASCII-folded space
-        # (Implemented by also accent-folding vocabulary patterns in scoring)
         for stripped, accented in self._ACCENT_MAP:
-            text = text.replace(stripped, accented)
+            text = re.sub(r'\b' + re.escape(stripped) + r'\b', accented, text)
         return text
 
     def _ascii_fold(self, text: str) -> str:
