@@ -19,6 +19,6 @@ jobs:
       - name: Push mirror to GitLab
         run: |
           git remote add gitlab "https://oauth2:${GITLAB_TOKEN}@gitlab.com/kematex2202/PC_Workman_HCK.git"
-          git push --mirror gitlab
+          git push --prune gitlab "+refs/heads/*:refs/heads/*" "+refs/tags/*:refs/tags/*"
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
