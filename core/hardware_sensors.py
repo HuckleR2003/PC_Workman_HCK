@@ -122,7 +122,10 @@ class HardwareSensors:
 
             if 'coretemp' in temps:  # Linux
                 core_temps = temps['coretemp']
-                package_temp = max([t.current for t in core_temps if 'Package' in t.label])
+                pkg_vals = [t.current for t in core_temps if 'Package' in t.label]
+                if not pkg_vals:
+                    raise ValueError("no Package sensor")
+                package_temp = max(pkg_vals)
                 sensors['sensors']['Package Temperature'] = {
                     'value': f"{int(package_temp)}°C",
                     'raw': package_temp,
