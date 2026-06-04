@@ -1,10 +1,10 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.7.2
+Entry point for PC Workman HCK v1.7.7
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
-APP_VERSION   = "1.7.2"
+APP_VERSION   = "1.7.7"
 HELPER_VERSION = "1.6.3"
 
 # ============================================
@@ -123,6 +123,13 @@ def run_demo():
     except:
         pass
 
+    try:
+        import core.app_activity_tracker
+        import core.hibernation_manager
+        log("App Activity Tracker + Hibernation Manager loaded", "OK")
+    except Exception as e:
+        log(f"Hibernation modules skipped: {e}", "WARN")
+
     # --- Step 3: Load stats engine ---
     try:
         import hck_stats_engine.avg_calculator
@@ -189,6 +196,15 @@ def run_demo():
     if monitor and hasattr(monitor, 'start_background_collection'):
         monitor.start_background_collection(interval=1.0)
         log("Monitor background collection started", "OK")
+
+    # Start App Activity Tracker (foreground window polling for hibernation)
+    try:
+        tracker = COMPONENTS.get("core.app_activity_tracker")
+        if tracker:
+            tracker.start()
+            log("App Activity Tracker started", "OK")
+    except Exception as e:
+        log(f"App Activity Tracker start failed: {e}", "WARN")
 
     # --- Step 6: Start scheduler ---
     if scheduler:
@@ -308,6 +324,14 @@ def run_demo():
             except Exception:
                 pass
 
+            # Gaming launch watcher (subtle 2s notifications per game)
+            try:
+                from ui.components.gaming_toast import gaming_watcher
+                from utils.i18n import get_lang as _gl
+                gaming_watcher.start(mode_mgr.expanded_window.root, lang=_gl())
+            except Exception:
+                pass
+
             log("UI ready - hiding console", "OK")
             print()
             print("-" * 40)
@@ -384,7 +408,7 @@ def _acquire_single_instance_lock():
         if err == 183:   # ERROR_ALREADY_EXISTS
             # Bring existing window to front
             try:
-                hwnd = ctypes.windll.user32.FindWindowW(None, "PC Workman HCK  v1.7.6")
+                hwnd = ctypes.windll.user32.FindWindowW(None, f"PC Workman HCK  v{APP_VERSION}")
                 if hwnd:
                     ctypes.windll.user32.ShowWindow(hwnd, 9)   # SW_RESTORE
                     ctypes.windll.user32.SetForegroundWindow(hwnd)
