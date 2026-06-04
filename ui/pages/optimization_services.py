@@ -1274,8 +1274,9 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
     txt_frame = tk.Frame(compact, bg=CARD2)
     txt_frame.pack(side="left", fill="both", expand=True)
     title_col = TEXT if ready else "#4a5a72"
-    tk.Label(txt_frame, text=title, font=(_HDR, 8),
-             bg=CARD2, fg=title_col, anchor="w").pack(anchor="w")
+    title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 8),
+             bg=CARD2, fg=title_col, anchor="w")
+    title_lbl.pack(anchor="w")
     tk.Label(txt_frame, text=desc, font=(_F, 7),
              bg=CARD2, fg="#4a5a72" if not ready else "#6a80a0",
              anchor="w").pack(anchor="w")
@@ -1379,13 +1380,13 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
         if key == "ram_flush":
             _wire_ram_flush(run_btn, auto_pill, auto_state,
                             turbo_pill, turbo_state, status_lbl, run_color,
-                            expand_frame)
+                            expand_frame, title_lbl)
         elif key == "turbo_pp":
             _wire_turbo_pp(run_btn, auto_pill, auto_state,
                            turbo_pill, turbo_state, status_lbl, run_color)
 
 
-def _build_exclusion_panel(parent):
+def _build_exclusion_panel(parent, card_title_lbl=None):
     """
     Expandable process exclusion panel for RAM Flush.
     Processes in _RAM_EXCLUDE are skipped by _do_ram_flush().
@@ -1405,10 +1406,21 @@ def _build_exclusion_panel(parent):
     hdr = tk.Frame(wrap, bg=_EX_HDR)
     hdr.pack(fill="x")
 
-    count_lbl = tk.Label(hdr, text=f"PROCESS EXCLUSIONS  ·  {len(_RAM_EXCLUDE)} protected",
+    count_lbl = tk.Label(hdr, text="",
                          font=(_HDR, 6), bg=_EX_HDR, fg=MUTED, anchor="w",
                          padx=8, pady=4)
     count_lbl.pack(side="left", fill="x", expand=True)
+
+    def _update_counts():
+        ex_count = len(_RAM_EXCLUDE)
+        count_lbl.config(text=f"PROCESS EXCLUSIONS  ·  {ex_count} protected")
+        if card_title_lbl and card_title_lbl.winfo_exists():
+            if ex_count > 0:
+                card_title_lbl.config(text=f"Auto RAM Flush  ({ex_count} excluded)")
+            else:
+                card_title_lbl.config(text="Auto RAM Flush")
+
+    _update_counts()
 
     refresh_btn = tk.Label(hdr, text="↺ Refresh",
                            font=(_MONO, 6), bg=_EX_HDR, fg="#334455",
@@ -1498,8 +1510,7 @@ def _build_exclusion_panel(parent):
                 else:
                     _RAM_EXCLUDE.add(k)
                 _save_exclude()
-                count_lbl.config(
-                    text=f"PROCESS EXCLUSIONS  ·  {len(_RAM_EXCLUDE)} protected")
+                _update_counts()
                 _refresh_list()
 
             for w in (row, mark, name_lbl, badge):
@@ -1538,7 +1549,7 @@ def _build_exclusion_panel(parent):
 
 def _wire_ram_flush(run_btn, auto_pill, auto_state,
                     turbo_pill, turbo_state, status_lbl, run_color,
-                    expand_frame=None):
+                    expand_frame=None, title_lbl=None):
     """Wire RAM flush card controls."""
     prefs = _load_prefs().get("optimization", {})
     auto_state["on"] = bool(prefs.get("ram_auto", False))
@@ -1584,7 +1595,7 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
     # Append exclusion panel to the card's expand frame
     if expand_frame is not None:
         try:
-            _build_exclusion_panel(expand_frame)
+            _build_exclusion_panel(expand_frame, title_lbl)
         except Exception:
             pass
 
