@@ -112,10 +112,12 @@ class NaiveBayesClassifier:
                 score += math.log((counts.get(tok, 0) + self.smoothing) / denom)
             log_scores[cls] = score
 
+        if not log_scores:
+            return {}
         # Numerically stable softmax
         max_s   = max(log_scores.values())
         exp_s   = {cls: math.exp(s - max_s) for cls, s in log_scores.items()}
-        total_e = sum(exp_s.values())
+        total_e = sum(exp_s.values()) or 1.0
         return {cls: v / total_e for cls, v in exp_s.items()}
 
     def predict(self, text: str) -> Tuple[str, float]:
