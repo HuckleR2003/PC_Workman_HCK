@@ -4,7 +4,7 @@ Hybrid Engine - the brain of hck_GPT
 
 Decision flow for every user message:
   1. intent_parser -> ParseResult with confidence score
-  2. confidence >= RULE_THRESHOLD (0.75)
+  2. confidence >= RULE_THRESHOLD (0.65)
        -> FAST RULE ENGINE (response_builder)   - deterministic, instant
   3. confidence < RULE_THRESHOLD  AND  Ollama available
        -> LOCAL LLM (Ollama)  with rich system prompt + full PC context
@@ -220,8 +220,14 @@ class HybridEngine:
     rule engine (fast) or local LLM (smart).
     """
 
-    # Intents that should always prefer Ollama (conversational / open-ended)
-    _OLLAMA_PREFERRED_INTENTS = frozenset({"small_talk", "unknown"})
+    # Intents that should always prefer Ollama (conversational / open-ended / personality-heavy)
+    _OLLAMA_PREFERRED_INTENTS = frozenset({
+        "small_talk",
+        "unknown",
+        "fun_roast",       # needs personality, not deterministic templates
+        "about_author",    # open-ended, conversational
+        "ai_context",      # self-reflection, LLM handles better
+    })
 
     # FEATURE: Context Time-Windowing
     # Maps intent into relevant history window in minutes for the LLM prompt.
@@ -265,6 +271,58 @@ class HybridEngine:
         "usb_transfer":     5,
         "network_usage":    5,
         "startup_safety":   5,
+        # Hardware info - snapshot queries
+        "hw_storage":       5,
+        "hw_all":           5,
+        "hw_motherboard":   5,
+        # System state - live
+        "uptime":           5,
+        "disk_speed":       5,
+        "disk_health":      5,
+        "process_info":     5,
+        "turbo_boost":      5,
+        "voltage_check":    5,
+        "fan_speed":        5,
+        "game_ready":       5,
+        "process_kill":     5,
+        "ram_flush":        5,
+        "overclock_check":  5,
+        "ai_context":       5,
+        "startup_check":    5,
+        # Short session window
+        "disk_usage_why":   30,
+        "optimization":     30,
+        "speed_up_pc":      30,
+        "process_deep_dive":30,
+        "symptom_noisy":    60,
+        "driver_status":    60,
+        "process_identity": 30,
+        # Medium history
+        "battery_drain":    120,    # 2 hours of drain data
+        "battery_drain_rate":120,
+        "session_digest":   480,    # 8-hour session summary
+        "system_risk":      480,
+        "power_after_restart": 480,
+        "symptom_freeze":   240,    # 4 hours pre-freeze context
+        # Long history - trend analysis
+        "gaming_session":   2880,   # 2 days gaming history
+        "gaming_vs_work_time": 2880,
+        "stale_apps":       10080,  # 7 days
+        "weekly_trends":    10080,
+        "thermal_prediction": 10080,
+        "thermal_history":  10080,
+        "compare_baseline": 10080,
+        "morning_brief":    10080,
+        # Other
+        "fun_roast":        30,
+        "startup_slowdown": 5,
+        "power_plan":       5,
+        "virus_check":      30,
+        "unnecessary_programs": 30,
+        "about_program":    5,
+        "about_author":     5,
+        "help":             5,
+        "explain_proactive":30,
     }
 
     def __init__(self) -> None:
@@ -565,7 +623,6 @@ class HybridEngine:
         "turbo_boost":    "User is asking about Intel Turbo Boost or AMD Boost - explain how it works on their CPU.",
         "process_info":   "User is asking about a specific process - explain what it does and if it's safe.",
         "disk_health":    "User is asking about disk health - check usage, S.M.A.R.T. status if available.",
-        "session_compare":"User wants to compare today's metrics with yesterday's session.",
         "performance":    "User is asking about general system performance - give actionable assessment.",
         "optimization":   "User wants optimization advice - give 2-3 specific, actionable tips.",
         "power_plan":     "User is asking about Windows power plan - explain current plan and tradeoffs.",
@@ -602,6 +659,61 @@ class HybridEngine:
         "usb_transfer":       "User connected an external drive and asks about CPU/IO load - show current disk I/O bytes/sec and CPU load, identify the transfer process.",
         "network_usage":      "User asks what is using their network - list processes with active network connections and estimated bandwidth by app.",
         "startup_safety":     "User wants to disable a program from startup (like Discord) - give exact step-by-step guide for Task Manager startup tab, name safe candidates.",
+        # Hardware snapshot intents
+        "hw_storage":         "User is asking about storage - list all drives (SSD/HDD), capacity, used/free, and health status.",
+        "hw_all":             "User wants a full hardware overview - cover CPU model+speed, GPU model+VRAM, RAM total+speed, main storage. Keep it structured.",
+        "hw_motherboard":     "User is asking about motherboard - give manufacturer, model, chipset, BIOS version and date.",
+        # System state
+        "uptime":             "User is asking how long the PC has been running - show current uptime in hours/days, and current CPU+RAM load.",
+        "disk_speed":         "User is asking about disk read/write speed - show current I/O bytes/sec and peak, name the process doing most I/O.",
+        "disk_health":        "User is asking about disk health - check SMART status if available, show usage %, warn if drive is near capacity or old.",
+        "process_info":       "User is asking what a specific process does - name it, explain its function, confirm if it is system/safe/suspicious.",
+        "turbo_boost":        "User is asking about CPU turbo/boost - explain current boost state, if it's active, and what CPU temp/load triggers throttle.",
+        "voltage_check":      "User is asking about system voltages - show CPU VCore, memory voltage, 12V rail if available via sensors.",
+        "fan_speed":          "User is asking about fan RPM - show all fan sensors (CPU fan, case fan), current RPM, and if any fans are stalled.",
+        "game_ready":         "User asks if PC is ready for gaming right now - check current temps, RAM free, GPU load. Give go/no-go with reason.",
+        "process_kill":       "User wants to stop a process - confirm the process name, warn if it's a system process, suggest safest way to close it.",
+        "ram_flush":          "User wants to free up RAM - explain what's safe to close (no system processes), give current top RAM consumers with MB values.",
+        "overclock_check":    "User is asking if CPU/GPU is overclocked - check clock speeds vs base specs, report if running above stock.",
+        "ai_context":         "User is asking about hck_GPT itself - explain what it can do, what data it uses, and how to ask questions.",
+        "startup_check":      "User is asking which programs start with Windows - list startup entries, flag heavy ones, suggest which to disable.",
+        # Short session intents
+        "disk_usage_why":     "User is asking why disk usage is high - name the top disk-writing processes and current I/O bytes/sec.",
+        "optimization":       "User wants optimization advice - give top 3 specific actions based on current bottlenecks (CPU, RAM, disk, startup).",
+        "speed_up_pc":        "User wants to speed up their PC - identify the biggest drag (high RAM, startup apps, temps) and give the most impactful fix first.",
+        "process_deep_dive":  "User wants details on a specific process - give CPU%, RAM MB, disk I/O, network usage, and whether it's expected behavior.",
+        "symptom_noisy":      "User is reporting fan noise - check current fan RPM and CPU/GPU temps, explain what is causing the fans to spin up.",
+        "driver_status":      "User wants to know about their drivers - list GPU, audio, network driver versions and last-updated dates.",
+        "process_identity":   "User is asking if a .exe is safe or suspicious - check its path (system32 = safe, temp = suspicious), size, and CPU/RAM usage pattern.",
+        # Medium history
+        "battery_drain":      "User is asking about battery drain - show current battery %, drain rate (W or %/hr), and which processes are biggest power consumers.",
+        "battery_drain_rate": "User asks how fast battery drains - give current drain rate, estimated time remaining, and top power-consuming apps.",
+        "session_digest":     "User wants a summary of this session - show session duration, CPU/RAM peak, top processes, and any alerts raised.",
+        "system_risk":        "User is asking about system risks - check for high temps, low disk space, memory pressure, and suspicious processes. Rate overall risk.",
+        "power_after_restart":"User asks what used the most resources since last boot - show top CPU consumers by cumulative time since uptime start.",
+        "symptom_freeze":     "User is asking what caused a recent freeze - look at CPU/RAM/temp events from the past 4 hours before the freeze.",
+        # Long history trend intents
+        "gaming_session":     "User wants gaming session data - show last gaming session duration, average FPS metrics, peak GPU/CPU temps, and RAM peak.",
+        "gaming_vs_work_time":"User wants gaming vs work usage breakdown - categorize app usage by type over last 2 days. Give hours and percentage.",
+        "stale_apps":         "User wants to find unused apps - list installed programs not seen in process list for over 7 days.",
+        "weekly_trends":      "User wants weekly usage trends - show CPU and RAM averages by day for the last 7 days. Highlight the heaviest day.",
+        "thermal_prediction": "User wants to know if temps will be a problem - analyze the 7-day temperature trend. Warn if trend is rising.",
+        "thermal_history":    "User wants temperature history - show daily CPU/GPU temperature averages for the past 7 days. Flag days above safe threshold.",
+        "compare_baseline":   "User wants to know if performance changed - compare current CPU/RAM/temps to the 7-day average as baseline.",
+        "morning_brief":      "User wants a morning system brief - show overnight resource usage, last session summary, temps, and if anything needs attention today.",
+        # Other
+        "fun_roast":          "User wants a humorous roast of their PC specs - be witty and playful, reference real specs (CPU, RAM, GPU). Keep it light.",
+        "startup_slowdown":   "User asks what is slowing down boot - list startup programs by estimated boot impact, suggest which to disable.",
+        "power_plan":         "User is asking about Windows power plan - show current plan (Balanced/High Performance/Power Saver), explain tradeoffs.",
+        "virus_check":        "User is asking about security risks - check if any processes are running from unusual paths, flag high CPU from unknown .exe names.",
+        "unnecessary_programs":"User wants to know what programs are unnecessary - list installed apps not used in recent sessions, safe to remove.",
+        "about_program":      "User is asking about PC Workman HCK - explain it is a real-time system monitor with AI assistant, mention hck_GPT, key features.",
+        "about_author":       "User is asking who made this app - mention HuckleR2003 / the developer, purpose of the project.",
+        "help":               "User is asking for help - list what hck_GPT can answer: hardware info, temps, processes, optimization, history, diagnostics.",
+        "explain_proactive":  "User is asking about the proactive alert they just received - give full context: what triggered it, current values, and recommended action.",
+        "pc_changes":         "User is asking what changed recently on their PC - compare current vs 2-day-old process list and startup entries, flag new additions.",
+        "perf_change":        "User is asking if performance changed over time - compare current CPU/RAM averages to the 7-day baseline and flag any degradation trend.",
+        "session_compare":    "User wants to compare sessions - show today vs yesterday for CPU avg, RAM peak, and top processes. Highlight differences.",
     }
 
     def _build_intent_hint(self, result: Any, lang: str) -> str:
