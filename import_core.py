@@ -72,6 +72,8 @@ STARTUP_MANIFEST: list = [
     ( 18, "hck_gpt.engine"),
     ( 19, "hck_gpt.panel"),
     ( 20, "hck_gpt.proactive_monitor"),
+    ( 21, "core.app_activity_tracker"),
+    ( 22, "core.hibernation_manager"),
 ]
 
 
