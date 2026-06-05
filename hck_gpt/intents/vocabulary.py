@@ -48,9 +48,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Multi-word
         "amd gpu", "rx 6", "rx 7",
         "jaka karta", "jaka grafika", "moja karta", "mój gpu",
+        "jaka mam karte", "jaka mam grafike", "jaka mam karte graficzna",
         "karta graficzna model", "ile vram", "ile ma vram",
         "what gpu", "my gpu", "gpu info", "graphics info",
-        "which graphics", "what graphics card",
+        "which graphics", "what graphics card", "what gpu do i have",
+        "what gpu am i running", "tell me my gpu",
     ],
     "hw_ram": [
         # Tokens
@@ -66,8 +68,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     "hw_motherboard": [
         # Tokens
         "motherboard", "mainboard", "socket", "chipset", "bios", "uefi",
+        "płyta", "płyta główna", "plyta",
         # Multi-word
-        "płyta główna", "jaka płyta", "moja płyta", "model płyty",
+        "jaka płyta", "moja płyta", "model płyty",
+        "plyta glowna", "jaka plyte", "jaka mam plyte", "jaka mam plyte glowna",
+        "co to za plyta", "model plyty",
         "what motherboard", "my motherboard", "motherboard model",
         "which motherboard",
     ],
@@ -307,7 +312,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Security / virus check ────────────────────────────────────────────────
     "virus_check": [
-        # Polish
+        # Polish - with and without diacritics
+        "czy jest jakis wirus", "czy jest wirus",
+        "wirus na komputerze", "podejrzane oprogramowanie",
         "czy mam wirusa", "sprawdź wirusy", "czy jest malware",
         "czy jest zagrożenie", "czy mam złośliwe oprogramowanie",
         "sprawdź bezpieczeństwo", "czy coś podejrzanego działa",
@@ -321,6 +328,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "check for threats", "malware scan", "any threats",
         "is something suspicious running", "virus scan",
         "check for viruses", "any dangerous processes",
+        "is discord safe", "is discord.exe safe", "is steam safe",
+        "is this exe safe", "is this process safe",
+        "is it a virus", "could this be a virus",
     ],
 
     # ── Background / unnecessary programs ─────────────────────────────────────
@@ -341,6 +351,10 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "background apps using resources",
         "what programs are running unnecessarily",
         "any background bloat",
+        "jakie uslugi windows moge wylaczyc", "co moge bezpiecznie wylaczyc",
+        "jakie uslugi wylaczyc", "uslugi do wylaczenia",
+        "what windows services can i disable safely",
+        "which services can i turn off",
     ],
 
     # ── Disk speed / optimization ─────────────────────────────────────────────
@@ -352,16 +366,26 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "wolny dysk", "problemy z dyskiem",
         "jak zwolnić miejsce na dysku", "co zajmuje dysk",
         "co zajmuje miejsce", "dysk prawie pełny",
+        "szybkość dysku", "jak szybki jest dysk",
+        "jak szybki jest moj dysk", "predkosc dysku",
+        "odczyt dysku", "zapis dysku", "io dysku",
+        "szybkość zapisu", "szybkość odczytu",
         # English
         "how to speed up disk", "disk is slow", "slow disk",
         "speed up disk", "disk full", "disk optimization",
         "optimize disk", "hard drive slow", "disk drive slow",
         "how to free disk space", "what is using disk space",
         "disk almost full", "clean up disk",
+        "disk read speed", "disk write speed", "disk io speed",
+        "how fast is my disk", "disk transfer speed",
     ],
 
     # ── Speed up PC / FPS ─────────────────────────────────────────────────────
     "speed_up_pc": [
+        # Polish - "what can I disable to go faster"
+        "co moge wylaczyc zeby pc byl szybszy",
+        "co wylaczyc zeby szybszy", "co wylaczyc zeby pc szybciej dzialal",
+        "jak przyspieszyc przez wylaczenie", "co wylaczyc dla wydajnosci",
         # Polish
         "jak przyspieszyć komputer", "przyspiesz komputer",
         "jak mieć więcej fps", "komputer działa wolno",
@@ -413,6 +437,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Why slow / lag ────────────────────────────────────────────────────────
     "why_slow": [
+        # Polish - ASCII variants (key: "dlaczego wolno chodzi" vs "wolny komputer")
+        "dlaczego komputer tak wolno chodzi", "dlaczego tak wolno chodzi",
+        "dlaczego pc wolno chodzi", "co sprawia ze chodzi wolno",
         # Polish
         "dlaczego laguje", "dlaczego wolno", "dlaczego komputer wolno działa",
         "co spowalnia", "co spowalnia komputer", "co spowalnia pc",
@@ -455,7 +482,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Polish
         "dlaczego ram jest wysoki", "dlaczego ram jest pełny",
         "dlaczego ram jest na 90", "dlaczego ram jest zajęty",
-        "co zajmuje ram", "co zużywa ram", "ram jest pełny dlaczego",
+        "co zre mi tyle ramu", "co zre mi ram", "co zre ram",
+        "co zajmuje ram", "co zużywa ram", "co żre ram", "co zera ram",
+        "co zera mi ram", "co pożera ram", "ram jest pełny dlaczego",
         "czy ram jest dobry", "czy mój ram wystarczy",
         "dlaczego pamięć jest zajęta", "co zajmuje pamięć",
         "ram skacze", "ram rośnie", "dlaczego ram rośnie",
@@ -494,6 +523,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "czy dysk może paść", "czy dysk nie umiera",
         "smart dysk", "badania dysku", "diagnoza dysku",
         "ile zostało dyskowi", "czy dysk jest dobry",
+        "ile mam wolnego miejsca", "ile miejsca na dysku",
+        "ile wolnego na dysku", "ile gb wolne",
         "dysk robi dziwne dźwięki", "problemy z dyskiem",
         "czy dysk się starzeje",
         # English
@@ -576,9 +607,19 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Fun / roast / personality ─────────────────────────────────────────────
     "fun_roast": [
+        # Polish - roast / meme queries
+        "zrób roast mojego pc", "zrob roast mojego pc",
+        "zrób roast", "roast mój pc", "roast mojego komputera",
+        "skrytykuj mój sprzęt", "zrób sobie jaja z mojego pc",
+        "powiedz że mój pc jest słaby", "wyśmiej mój komputer",
         # Polish - meme questions
         "dlaczego mój komputer mnie nienawidzi", "komputer mnie nienawidzi",
         "czy mój pc jest głupi", "pc jest głupi", "komputer jest głupi",
+        "czy moj pc spiewa w nocy", "co robi pc jak spie",
+        "ile kalorii spala procesor", "ile kalorii spala cpu",
+        "czy moge nakarmić pc zeby dzialal szybciej",
+        "dlaczego komputer oddycha tak ciezko", "komputer oddycha",
+        "czy pc teskni za mna gdy ide spac", "czy pc jest smutny",
         "który proces jest największym leniem", "który program jest leniem",
         "czy mogę powiedzieć chrome żeby się zamknął", "chrome się zamknij",
         "dlaczego discord działa w tle jak stalker", "discord stalker",
@@ -600,6 +641,14 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why does everything load like it has a hangover",
         "my computer is lazy today", "pc is tired today",
         "which program steals the most ram",
+        # Frustration expressions (route to fun_roast for empathetic response)
+        "ten komputer jest do niczego", "ten pc jest do niczego",
+        "komputer jest beznadziejny", "ten sprzet to dramat",
+        "pc nie dziala jak powinien", "komputer mnie wkurwia",
+        "nienawidze tego komputera", "ten komputer to kupa",
+        "my pc is useless", "this pc is garbage",
+        "this computer is terrible", "i hate this pc",
+        "my pc is so slow it hurts", "this machine is a disaster",
     ],
 
     # ── Startup safety - can I disable X from startup? ───────────────────────
@@ -1052,8 +1101,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Morning brief / first-launch context ─────────────────────────────────
     "morning_brief": [
-        # Polish
-        "co się działo przez noc", "podsumowanie nocy",
+        # Polish + EN direct phrases
+        "morning brief", "poranny brief", "dobry ranek pc",
+        "co nowego od kiedy sie obudzilem", "co sie dzialo od rana",
+        "co sie stalo kiedy spalem", "co sie dzialo bez mnie",
+        "co nowego na pc od rana", "od kiedy sie obudzilem co sie stalo",
+        "co sie działo przez noc", "podsumowanie nocy",
         "co się działo gdy byłem nieobecny", "raport poranny",
         "co nowego od uruchomienia", "co się zdarzyło od startu",
         "co się działo gdy spałem", "podsumowanie od uruchomienia",
@@ -1072,7 +1125,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Session digest / end-of-day summary ──────────────────────────────────
     "session_digest": [
-        # Polish
+        # Polish - with and without diacritics
+        "podsumuj dzisiejsza sesje", "podsumuj ta sesje",
+        "podsumowanie tej sesji", "co sie dzisiaj dzialo",
         "podsumuj dzisiaj", "podsumowanie sesji", "co dziś się działo",
         "jak wyglądał dzień na pc", "dzisiejsze podsumowanie",
         "co się działo dzisiaj na pc", "sesja podsumowanie",
@@ -1165,6 +1220,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "czy powinienem podkręcić", "czy warto podkręcić cpu",
         "jak bezpiecznie podkręcić", "czy mogę podkręcić",
         "podkręcenie bezpieczne", "taktowanie powyżej normy",
+        "czy moj cpu jest podkrecony", "czy jest podkrecony",
+        "podkrecony procesor", "oc procesora",
+        "czy mam podkrecony cpu", "czy jest oc na cpu",
         # English
         "is my cpu overclocked", "is it overclocked",
         "oc check", "overclock status", "is gpu overclocked",
@@ -1224,7 +1282,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     # ── Driver status - installed drivers and update dates ───────────────────
     "driver_status": [
         # Polish
+        "zainstalowane sterowniki", "lista zainstalowanych sterownikow",
+        "jakie sterowniki mam zainstalowane", "sterowniki na komputerze",
         "jakie mam sterowniki", "kiedy były aktualizowane sterowniki",
+        "kiedy ostatnio sterowniki byly aktualizowane",
+        "kiedy zaktualizowane sterowniki", "ostatnia aktualizacja sterownikow",
         "jakie sterowniki są zainstalowane", "lista sterowników",
         "czy sterowniki są aktualne", "sprawdź sterowniki",
         "sterowniki graficzne", "sterowniki gpu", "sterowniki nvidia",
@@ -1390,7 +1452,13 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Temperature comparison - hotter than usual lately? ───────────────────
     "temp_comparison": [
-        # Polish
+        # Polish - ASCII fallback (bez polskich znakow)
+        "czy moj pc jest goretszy niz zwykle",
+        "czy pc jest goretszy", "goretszy niz zwykle",
+        "czy jest cieplejszy niz normalnie", "temperatury sa wyzsze",
+        "czy gorecej niz zwykle", "czy jest gorecej niz bylo",
+        "czy temperatura wzrosla ostatnio",
+        # Polish - accented
         "czy komputer jest ostatnio goręcej niż zwykle",
         "czy temperatury są wyższe niż wcześniej",
         "czy mój pc jest cieplejszy niż był",
@@ -1460,6 +1528,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "game vs hardware stress", "most hardware intensive game",
         "which game is most demanding on my system",
         "what game stresses hardware most",
+        "what game stresses my hardware most",
+        "what game stresses my hardware",
+        "which game stresses my gpu most",
         "game performance on my hardware",
         "most demanding games for my specs",
     ],
@@ -1508,6 +1579,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Can my PC run game X ──────────────────────────────────────────────────
     "game_can_run": [
+        # Polish - generic game capability (no specific title needed)
+        "czy unreal engine 5 ujdzie na moim pc", "czy unreal engine ujdzie",
+        "czy gra ujdzie na moim pc", "czy ujdzie na moim komputerze",
+        "czy ta gra ujdzie", "czy pc uniesie gre",
+        "czy gra zadziala na moim pc", "czy zadziala na moim sprzecie",
+        "czy moj pc udwignie gre", "czy komputer dam rade uruchomic gre",
         # Polish - long specific phrases that beat hw_all generic tokens
         "czy ten komputer odpali grę", "czy odpalę tę grę",
         "czy mój komputer uniesie grę",
@@ -1537,6 +1614,10 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "wymagania gry check", "spelnia wymagania gry",
         "gra pojdzie na moim pc", "gra pojdzie na niskich",
         "gra pojdzie na ultra", "czy spelnia wymagania",
+        "czy udzwigne gre", "czy udzwigne cyberpunka",
+        "czy udzwigne eldenringa", "czy udzwigne fortnite",
+        "czy udzwigne cs2", "czy udzwigne minecraft",
+        "czy udzwigne valoranta", "czy udzwigne witchera",
         # English
         "can my pc run the game", "can i run this game",
         "can my computer run fortnite", "can my pc run cs2",
@@ -1550,6 +1631,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "can i run the game on low settings", "game requirements check",
         "is my gpu good enough for this game", "does my ram meet requirements",
         "will hogwarts legacy run", "will elden ring run on my pc",
+        "can i run elden ring", "can i run cyberpunk", "can i run fortnite",
+        "can i run cs2", "can i run valorant", "can i run minecraft",
+        "can i run gta", "can i run the witcher",
         "enough ram for this game", "is my disk enough for cyberpunk",
         "can this laptop run the game", "does my pc meet minimum specs",
     ],
@@ -1567,7 +1651,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "ile pamięci gry zajmują średnio",
         "ram w sesji gamingowej", "ile ramu w grach",
         "zużycie pamięci podczas grania", "ile ram gra zużywa",
-        # Polish ASCII fallback - key uniquifiers with "gram" context
+        # Polish ASCII fallback - key uniquifiers with "gram" / "grania" context
+        "ile ramu uzywam podczas grania", "ile ram uzywam podczas grania",
+        "ile pamieci uzywam podczas grania", "ile ram podczas grania",
         "ile ram kiedy gram", "ile ramu kiedy gram",
         "ram kiedy gram", "ram podczas grania",
         "ile pamieci kiedy gram", "ile pamieci podczas grania",
