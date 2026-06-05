@@ -1223,6 +1223,16 @@ class HCKGPTPanel:
             except Exception:
                 pass
             self._ticker_id = None
+        self._stop_banner_ticker()
+
+    def _stop_banner_ticker(self):
+        """Cancel the banner status ticker."""
+        if self._banner_ticker_id is not None:
+            try:
+                self.frame.after_cancel(self._banner_ticker_id)
+            except Exception:
+                pass
+            self._banner_ticker_id = None
 
     def _tick_insight(self):
         """Show contextual insight every 6 minutes - replaces previous tip (no spam)."""
