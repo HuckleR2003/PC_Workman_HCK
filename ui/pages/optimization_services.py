@@ -3,9 +3,7 @@ import subprocess
 import threading
 import os
 import json
-import tempfile
 import time
-import math
 import atexit
 
 try:
@@ -50,7 +48,7 @@ RED     = "#ef4444"
 BORD    = "#991b1b"   # bordeaux for "ON TURBO" slider
 BORD_L  = "#c62828"   # bordeaux light
 
-_TOTAL  = 13   # 14 − 3 moved to Quick Actions + 2 new TURBO features
+_TOTAL  = 14   # +1 Background App Hibernation
 
 try:
     from utils.paths import APP_DIR as _APP_DIR
@@ -86,7 +84,6 @@ _RAM = {
     "active": False, "stop_flag": False,
     "threshold": 75, "consecutive_high": 0,
     "result_lbl": None, "prog_lbl": None,
-    "run_cv": None, "run_draw": None,
 }
 
 # ── RAM Flush exclusion list — exe names (lowercase) that are never flushed ──
@@ -302,9 +299,6 @@ def _blend_hex(c1: str, c2: str, t: float) -> str:
     return (f"#{int(r1+(r2-r1)*t):02x}"
             f"{int(g1+(g2-g1)*t):02x}"
             f"{int(b1+(b2-b1)*t):02x}")
-
-def _lerp(c1, c2, t):
-    return tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
 
 def _hex(r, g, b):
     return f"#{max(0,min(255,r)):02x}{max(0,min(255,g)):02x}{max(0,min(255,b)):02x}"
@@ -1057,6 +1051,381 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# BACKGROUND APP HIBERNATION - expanded panel
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
+    """
+    Background App Hibernation expanded panel.
+    Tab 1 - Unused Apps: idle list with Sleep / Ignore buttons + Turbo Mode dropdown.
+    Tab 2 - Ignored Apps: list with Remove (un-ignore) button.
+    """
+    _BG    = "#090c14"
+    _BD    = "#19243a"
+    _MUT   = "#334560"
+    _DARK  = "#060910"
+    _TEAL  = "#14b8a6"
+    _TEALM = "#0f766e"
+
+    # ── Load backends lazily ──────────────────────────────────────────────────
+    try:
+        from import_core import COMPONENTS
+        _tracker = COMPONENTS.get("core.app_activity_tracker")
+        _hibm    = COMPONENTS.get("core.hibernation_manager")
+    except Exception:
+        _tracker = _hibm = None
+
+    # ── Idle threshold state ──────────────────────────────────────────────────
+    _thresh = {"min": 15}
+    _thr_chips: dict = {}
+
+    def _sel_thr(minutes):
+        _thresh["min"] = minutes
+        for m, ch in _thr_chips.items():
+            is_me = (m == minutes)
+            ch.config(
+                bg=("#0d1128" if is_me else _BG),
+                fg=(_TEAL    if is_me else _MUT),
+                highlightbackground=(_TEAL if is_me else _BD),
+            )
+
+    # ── Threshold chips ───────────────────────────────────────────────────────
+    thr_row = tk.Frame(parent, bg=_BG)
+    thr_row.pack(fill="x", padx=10, pady=(8, 4))
+    tk.Label(thr_row, text="INACTIVE SINCE", font=(_HDR, 6),
+             bg=_BG, fg=_MUT).pack(side="left", padx=(0, 8))
+
+    for lbl, mins in [("10 MIN", 10), ("15 MIN", 15), ("30 MIN", 30)]:
+        ch = tk.Label(thr_row, text=lbl, font=(_HDR, 6),
+                      bg=_BG, fg=_MUT, cursor="hand2",
+                      padx=8, pady=3,
+                      highlightbackground=_BD, highlightthickness=1)
+        ch.pack(side="left", padx=2)
+        _thr_chips[mins] = ch
+        ch.bind("<Button-1>", lambda e, m=mins: (_sel_thr(m), _refresh_unused()))
+    _sel_thr(15)
+
+    # ── Tab bar ───────────────────────────────────────────────────────────────
+    tk.Frame(parent, bg=_BD, height=1).pack(fill="x", padx=10, pady=(4, 0))
+
+    tab_row = tk.Frame(parent, bg=_BG)
+    tab_row.pack(fill="x", padx=10)
+
+    _tab = {"active": "unused"}
+    _tab_btns: dict = {}
+
+    tab_pages: dict = {}
+
+    def _switch_tab(name):
+        _tab["active"] = name
+        for n, btn in _tab_btns.items():
+            btn.config(
+                fg=_TEAL if n == name else _MUT,
+                font=(_HDR, 6) if n == name else (_F, 6),
+            )
+        for n, pg in tab_pages.items():
+            if n == name:
+                pg.pack(fill="both", expand=True)
+            else:
+                pg.pack_forget()
+        if name == "unused":
+            _refresh_unused()
+        else:
+            _refresh_ignored()
+
+    for tab_id, tab_lbl in [("unused", "Unused Apps"), ("ignored", "Ignored")]:
+        btn = tk.Label(tab_row, text=tab_lbl, font=(_F, 6),
+                       bg=_BG, fg=_MUT, cursor="hand2",
+                       padx=10, pady=5)
+        btn.pack(side="left")
+        _tab_btns[tab_id] = btn
+        btn.bind("<Button-1>", lambda e, n=tab_id: _switch_tab(n))
+
+    # Refresh button (right side of tab bar)
+    ref_btn = tk.Label(tab_row, text="↻ REFRESH", font=(_HDR, 5),
+                       bg=_BG, fg=_MUT, cursor="hand2",
+                       padx=6, pady=3,
+                       highlightbackground=_BD, highlightthickness=1)
+    ref_btn.pack(side="right", pady=3)
+    ref_btn.bind("<Button-1>", lambda e: (
+        _refresh_unused() if _tab["active"] == "unused" else _refresh_ignored()))
+    ref_btn.bind("<Enter>", lambda e: ref_btn.config(fg=_TEAL))
+    ref_btn.bind("<Leave>", lambda e: ref_btn.config(fg=_MUT))
+
+    tk.Frame(parent, bg=_BD, height=1).pack(fill="x", padx=10)
+
+    # ── PAGE: Unused Apps ─────────────────────────────────────────────────────
+    page_unused = tk.Frame(parent, bg=_BG)
+
+    summary_lbl = tk.Label(page_unused,
+                           text="Te aplikacje działają w tle, ale nie korzystałeś z nich od dłuższego czasu.",
+                           font=(_F, 6), bg=_BG, fg=_MUT,
+                           anchor="w", justify="left")
+    summary_lbl.pack(fill="x", padx=10, pady=(4, 2))
+
+    # Column headers
+    col_hdr = tk.Frame(page_unused, bg=_BG)
+    col_hdr.pack(fill="x", padx=10, pady=(0, 2))
+    for col_txt, col_w, col_anchor in [
+        ("APLIKACJA", 130, "w"),
+        ("NIEAKTYWNA", 60, "center"),
+        ("RAM", 44, "center"),
+        ("CPU avg", 44, "center"),
+        ("TURBO", 60, "center"),
+        ("", 110, "e"),
+    ]:
+        tk.Label(col_hdr, text=col_txt, font=(_HDR, 5),
+                 bg=_BG, fg="#1e2e44", width=0,
+                 anchor=col_anchor).pack(side="left",
+                                         padx=(0 if col_txt == "APLIKACJA" else 2, 0))
+
+    list_frame = tk.Frame(page_unused, bg=_DARK,
+                          highlightbackground=_BD, highlightthickness=1)
+    list_frame.pack(fill="x", padx=10, pady=(0, 6))
+
+    def _turbo_dropdown(row_frame, exe: str):
+        """Compact Turbo Mode selector embedded in the row."""
+        current = _hibm.get_turbo_behavior(exe) if _hibm else "none"
+        _state = {"val": current}
+        OPTIONS = [("—", "none"), ("Low", "low"), ("Freeze", "freeze")]
+
+        def _cycle(e=None):
+            idx = [o[1] for o in OPTIONS].index(_state["val"])
+            _state["val"] = OPTIONS[(idx + 1) % len(OPTIONS)][1]
+            lbl_text = dict(OPTIONS)[_state["val"]]
+            pill.config(
+                text=lbl_text,
+                fg={
+                    "none":   _MUT,
+                    "low":    _TEAL,
+                    "freeze": AMBER,
+                }[_state["val"]],
+                highlightbackground={
+                    "none":   _BD,
+                    "low":    _TEALM,
+                    "freeze": "#92400e",
+                }[_state["val"]],
+            )
+            if _hibm:
+                _hibm.set_turbo_behavior(exe, _state["val"])
+
+        cur_text  = dict(OPTIONS)[current]
+        cur_color = {"none": _MUT, "low": _TEAL, "freeze": AMBER}[current]
+        cur_bd    = {"none": _BD,  "low": _TEALM, "freeze": "#92400e"}[current]
+
+        pill = tk.Label(row_frame, text=cur_text, font=(_HDR, 5),
+                        bg=_DARK, fg=cur_color, cursor="hand2",
+                        padx=6, pady=2, width=6,
+                        highlightbackground=cur_bd, highlightthickness=1)
+        pill.bind("<Button-1>", _cycle)
+        pill.bind("<Enter>", lambda e: pill.config(fg=_TEAL if _state["val"] == "none" else pill["fg"]))
+        pill.bind("<Leave>", lambda e: None)
+        return pill
+
+    def _refresh_unused():
+        for w in list_frame.winfo_children():
+            w.destroy()
+
+        if not _tracker or not _hibm:
+            tk.Label(list_frame,
+                     text="  Hibernation system unavailable",
+                     font=(_F, 6), bg=_DARK, fg=RED, anchor="w", pady=5
+                     ).pack(fill="x")
+            return
+
+        apps = _tracker.get_idle_apps(idle_threshold_min=_thresh["min"])
+        # Filter ignored apps from the display list
+        apps = [a for a in apps if not _hibm.is_ignored(a["exe"])]
+
+        if not apps:
+            tk.Label(list_frame,
+                     text=f"  Brak nieaktywnych aplikacji przez {_thresh['min']}+ minut",
+                     font=(_F, 6), bg=_DARK, fg=_MUT, anchor="w", pady=6
+                     ).pack(fill="x")
+            try:
+                card.update_idletasks()
+            except Exception:
+                pass
+            return
+
+        for app in apps[:10]:
+            pid      = app["pid"]
+            name     = app["name"]
+            exe      = app["exe"]
+            idle_min = app["idle_min"]
+            ram_mb   = app["ram_mb"]
+            cpu_avg  = app["cpu_avg"]
+
+            is_sleeping = _hibm.is_sleeping(pid)
+
+            row = tk.Frame(list_frame, bg=_DARK)
+            row.pack(fill="x", padx=4, pady=2)
+
+            # Dot indicator
+            dot_color = AMBER if is_sleeping else _TEAL
+            tk.Label(row, text="●", font=(_BODY, 5),
+                     bg=_DARK, fg=dot_color).pack(side="left")
+
+            # Name
+            nm = tk.Label(row, text=name, font=(_F, 6),
+                          bg=_DARK, fg="#3e5878", anchor="w", width=18)
+            nm.pack(side="left", padx=(2, 0))
+
+            # Idle time
+            tk.Label(row, text=f"{idle_min}m", font=(_M, 5),
+                     bg=_DARK, fg=_MUT, width=5, anchor="center"
+                     ).pack(side="left", padx=2)
+
+            # RAM
+            ram_color = AMBER if ram_mb > 300 else _MUT
+            tk.Label(row, text=f"{ram_mb}MB", font=(_M, 5),
+                     bg=_DARK, fg=ram_color, width=5, anchor="center"
+                     ).pack(side="left", padx=2)
+
+            # CPU avg
+            tk.Label(row, text=f"{cpu_avg:.1f}%", font=(_M, 5),
+                     bg=_DARK, fg=_MUT, width=5, anchor="center"
+                     ).pack(side="left", padx=2)
+
+            # Turbo Mode pill
+            tp = _turbo_dropdown(row, exe)
+            tp.pack(side="left", padx=6)
+
+            # Buttons (right side)
+            btn_frame = tk.Frame(row, bg=_DARK)
+            btn_frame.pack(side="right", padx=(0, 2))
+
+            if is_sleeping:
+                # WAKE button
+                wake_btn = tk.Label(btn_frame, text="▶ OBUDŹ",
+                                    font=(_HDR, 5),
+                                    bg=_DARK, fg=_TEAL, cursor="hand2",
+                                    padx=5, pady=1,
+                                    highlightbackground=_TEALM, highlightthickness=1)
+                wake_btn.pack(side="right", padx=2)
+
+                def _do_wake(e, p=pid):
+                    if _hibm:
+                        _hibm.wake_app(p)
+                        if _tracker:
+                            _tracker.mark_active(p)
+                    _refresh_unused()
+
+                wake_btn.bind("<Button-1>", _do_wake)
+                wake_btn.bind("<Enter>", lambda e, b=wake_btn: b.config(fg="#ffffff"))
+                wake_btn.bind("<Leave>", lambda e, b=wake_btn: b.config(fg=_TEAL))
+
+            else:
+                # IGNORE button
+                ign_btn = tk.Label(btn_frame, text="IGNORUJ",
+                                   font=(_HDR, 5),
+                                   bg=_DARK, fg=_MUT, cursor="hand2",
+                                   padx=5, pady=1,
+                                   highlightbackground=_BD, highlightthickness=1)
+                ign_btn.pack(side="right", padx=(2, 0))
+
+                def _do_ignore(e, ex=exe):
+                    if _hibm:
+                        _hibm.add_ignored(ex)
+                    _refresh_unused()
+
+                ign_btn.bind("<Button-1>", _do_ignore)
+                ign_btn.bind("<Enter>", lambda e, b=ign_btn: b.config(fg=AMBER))
+                ign_btn.bind("<Leave>", lambda e, b=ign_btn: b.config(fg=_MUT))
+
+                # UŚPIJ button
+                sleep_behavior = _hibm.get_turbo_behavior(exe) if _hibm else "low"
+                if sleep_behavior == "none":
+                    sleep_behavior = "low"
+
+                slp_btn = tk.Label(btn_frame,
+                                   text="UŚPIJ",
+                                   font=(_HDR, 5),
+                                   bg=_DARK, fg=_TEAL, cursor="hand2",
+                                   padx=5, pady=1,
+                                   highlightbackground=_TEALM, highlightthickness=1)
+                slp_btn.pack(side="right", padx=2)
+
+                def _do_sleep(e, p=pid, n=name, ex=exe):
+                    behavior = _hibm.get_turbo_behavior(ex) if _hibm else "low"
+                    if behavior == "none":
+                        behavior = "low"
+                    if _hibm:
+                        _hibm.sleep_app(p, n, ex, behavior)
+                    _refresh_unused()
+
+                slp_btn.bind("<Button-1>", _do_sleep)
+                slp_btn.bind("<Enter>", lambda e, b=slp_btn: b.config(fg="#ffffff"))
+                slp_btn.bind("<Leave>", lambda e, b=slp_btn: b.config(fg=_TEAL))
+
+        if len(apps) > 10:
+            tk.Label(list_frame, text=f"  + {len(apps) - 10} więcej…",
+                     font=(_F, 5), bg=_DARK, fg=_MUT, anchor="w"
+                     ).pack(anchor="w", padx=6, pady=2)
+
+        try:
+            card.update_idletasks()
+        except Exception:
+            pass
+
+    # ── PAGE: Ignored Apps ────────────────────────────────────────────────────
+    page_ignored = tk.Frame(parent, bg=_BG)
+
+    ign_header = tk.Label(page_ignored,
+                          text="Aplikacje oznaczone jako ignorowane — nie będą proponowane do uśpienia.",
+                          font=(_F, 6), bg=_BG, fg=_MUT,
+                          anchor="w", justify="left")
+    ign_header.pack(fill="x", padx=10, pady=(4, 2))
+
+    ign_frame = tk.Frame(page_ignored, bg=_DARK,
+                         highlightbackground=_BD, highlightthickness=1)
+    ign_frame.pack(fill="x", padx=10, pady=(0, 6))
+
+    def _refresh_ignored():
+        for w in ign_frame.winfo_children():
+            w.destroy()
+        ignored = _hibm.ignored if _hibm else set()
+        if not ignored:
+            tk.Label(ign_frame, text="  Lista ignorowanych jest pusta",
+                     font=(_F, 6), bg=_DARK, fg=_MUT,
+                     anchor="w", pady=5).pack(fill="x")
+            return
+        for exe_name in sorted(ignored):
+            row = tk.Frame(ign_frame, bg=_DARK)
+            row.pack(fill="x", padx=4, pady=2)
+            tk.Label(row, text="◌", font=(_BODY, 6),
+                     bg=_DARK, fg=_MUT).pack(side="left")
+            tk.Label(row, text=exe_name, font=(_F, 6),
+                     bg=_DARK, fg="#2e4060", anchor="w"
+                     ).pack(side="left", padx=(3, 0), fill="x", expand=True)
+            rm_btn = tk.Label(row, text="USUŃ",
+                              font=(_HDR, 5),
+                              bg=_DARK, fg=_MUT, cursor="hand2",
+                              padx=5, pady=1,
+                              highlightbackground=_BD, highlightthickness=1)
+            rm_btn.pack(side="right", padx=2)
+
+            def _do_remove(e, ex=exe_name):
+                if _hibm:
+                    _hibm.remove_ignored(ex)
+                _refresh_ignored()
+
+            rm_btn.bind("<Button-1>", _do_remove)
+            rm_btn.bind("<Enter>", lambda e, b=rm_btn: b.config(fg=EMERALD))
+            rm_btn.bind("<Leave>", lambda e, b=rm_btn: b.config(fg=_MUT))
+        try:
+            card.update_idletasks()
+        except Exception:
+            pass
+
+    # ── Register pages and init ───────────────────────────────────────────────
+    tab_pages["unused"]  = page_unused
+    tab_pages["ignored"] = page_ignored
+
+    _switch_tab("unused")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # FEATURE CARD BUILDER  - 2-column grid, [i] expandable panel
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -1133,6 +1502,18 @@ def _build_features_grid(parent):
             "run_label": "",
             "run_color": VIOLET,
             "custom_expand": _build_guard_expand,
+        },
+        {
+            "key":   "app_hibernation",
+            "title": "App Hibernation",
+            "desc":  "Uśpij aplikacje nieużywane od X minut",
+            "color": "#14b8a6",
+            "icon":  _ico_power,
+            "ready": True,
+            "info":  "",
+            "run_label": "",
+            "run_color": "#14b8a6",
+            "custom_expand": _build_hibernation_expand,
         },
         # ── SOON ──────────────────────────────────────────────────────────────
         {"key": "cpu_throttle", "title": "CPU Throttle Guard",
@@ -1573,7 +1954,7 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
             _RAM["stop_flag"] = False
             threading.Thread(
                 target=_ram_monitor_loop,
-                args=(status_lbl, status_lbl, None, lambda s: None),
+                args=(status_lbl, status_lbl),
                 daemon=True).start()
         else:
             _RAM["stop_flag"] = True
@@ -1739,7 +2120,7 @@ def _do_ram_flush():
     return False, "No effect - admin rights needed", before, after
 
 
-def _ram_monitor_loop(result_lbl, prog_lbl, run_cv, draw_run):
+def _ram_monitor_loop(result_lbl, prog_lbl):
     import psutil
     TRIGGER, STEP = 30, 10
     while not _RAM["stop_flag"]:
@@ -1773,58 +2154,6 @@ def _ram_monitor_loop(result_lbl, prog_lbl, run_cv, draw_run):
 # ═════════════════════════════════════════════════════════════════════════════
 # QUICK ACTION HELPERS  (unchanged)
 # ═════════════════════════════════════════════════════════════════════════════
-
-def _set_high_performance():
-    try:
-        r = subprocess.run(
-            ["powercfg", "/setactive", "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"],
-            capture_output=True, text=True, timeout=5)
-        return (True, "High Performance plan activated.") if r.returncode == 0 \
-               else (False, f"powercfg: {r.stderr.strip()[:50]}")
-    except Exception as ex:
-        return False, str(ex)[:50]
-
-def _flush_dns():
-    try:
-        r = subprocess.run(["ipconfig", "/flushdns"],
-                           capture_output=True, text=True, timeout=5)
-        return (True, "DNS cache flushed.") if r.returncode == 0 \
-               else (False, f"ipconfig: {r.stderr.strip()[:50]}")
-    except Exception as ex:
-        return False, str(ex)[:50]
-
-def _clear_temp():
-    import shutil
-    removed = 0
-    try:
-        for name in os.listdir(tempfile.gettempdir()):
-            path = os.path.join(tempfile.gettempdir(), name)
-            try:
-                if os.path.isfile(path):
-                    os.unlink(path); removed += 1
-                elif os.path.isdir(path):
-                    shutil.rmtree(path, ignore_errors=True); removed += 1
-            except Exception:
-                pass
-        return True, f"Cleared {removed} temp items."
-    except Exception as ex:
-        return False, str(ex)[:50]
-
-def _boost_priority():
-    try:
-        import psutil, ctypes
-        hwnd = ctypes.windll.user32.GetForegroundWindow()
-        pid = ctypes.c_ulong()
-        ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        fg = pid.value
-        if fg and fg > 4:
-            proc = psutil.Process(fg)
-            proc.nice(psutil.HIGH_PRIORITY_CLASS)
-            return True, f"Boosted: {proc.name()[:20]} (PID {fg})"
-        return False, "No foreground process."
-    except Exception as ex:
-        return False, str(ex)[:50]
-
 
 def _run_defrag() -> tuple[bool, str]:
     """Open Windows Disk Defragmenter GUI."""
