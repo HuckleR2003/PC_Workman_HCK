@@ -6,19 +6,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PC_Workman v1.7.7 – Windows system monitor with hck_GPT (82 intents, offline AI), TURBO suite, Ghost Driver Detection, DeepMonitor sensor table, 2.5D PC Map, Startup & Services Manager. Free, open-source.">
-    <meta name="keywords" content="PC Workman monitor, hck GPT PC assistant, Windows optimization, TURBO mode PC, ghost driver detection, driver health monitor, temperature monitoring, fan dashboard, HWMonitor alternative, system monitor with AI, pnputil ghost driver, dead driver cleanup Windows">
+    <meta name="description" content="PC_Workman v1.7.8 – Windows system monitor with hck_GPT (82 intents, offline AI), thermal baseline learning per workload, voltage SPC (Median+MAD, Nelson rules), TURBO suite, Ghost Driver Detection, DeepMonitor, 2.5D PC Map. Free, open-source.">
+    <meta name="keywords" content="PC Workman monitor, hck GPT PC assistant, Windows optimization, TURBO mode PC, ghost driver detection, driver health monitor, temperature monitoring adaptive baseline, voltage anomaly detection SPC, statistical process control PC, thermal learning workload, fan dashboard, HWMonitor alternative, system monitor with AI, pnputil ghost driver, dead driver cleanup Windows">
     <meta name="author" content="HCK_Labs - Marcin Firmuga">
-    <meta property="og:title" content="PC_Workman v1.7.7 — PC Monitor with Local AI, Ghost Driver Detection & TURBO Suite">
-    <meta property="og:description" content="82 AI intents. Ghost Driver Detection via pnputil. TURBO: RAM Flush + Power Plan + Service Stop + Process Guard. 100% offline. Open source.">
+    <meta property="og:title" content="PC_Workman v1.7.8 — Local AI Monitor, Adaptive Thermal Learning & Voltage SPC">
+    <meta property="og:description" content="82 AI intents. Learns your hardware's normal temperatures per workload. Voltage SPC: Median+MAD detects non-natural rail deviations. Ghost Driver Detection. TURBO suite. 100% offline.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <meta name="twitter:title" content="PC_Workman v1.7.7 — Local AI monitor with Ghost Driver Detection">
-    <meta name="twitter:description" content="82 AI intents offline. Ghost drivers detected via pnputil /connected. TURBO suite. DeepMonitor. 2.5D PC Map. Free.">
+    <meta name="twitter:title" content="PC_Workman v1.7.8 — Adaptive thermal + voltage SPC in a local AI monitor">
+    <meta name="twitter:description" content="Thermal baseline per workload context. Voltage SPC via Median+MAD + Nelson rules. 82 AI intents offline. Ghost driver detection. Free.">
 
-    <title>PC_Workman v1.7.7 | PC Monitor with hck_GPT, Ghost Driver Detection & TURBO Suite</title>
+    <title>PC_Workman v1.7.8 | Adaptive Thermal Learning, Voltage SPC, hck_GPT & TURBO Suite</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,11 +31,11 @@
       "@type": "SoftwareApplication",
       "name": "PC_Workman",
       "alternateName": "PC Workman HCK",
-      "version": "1.7.7",
+      "version": "1.7.8",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
-      "description": "PC_Workman is a free, open-source Windows system monitor with built-in local AI (hck_GPT, 82 intents), TURBO optimization suite, Ghost Driver Detection via pnputil, DeepMonitor sensor table, 2.5D PC Map, Startup Manager, Services Manager, Fan Dashboard, and long-term anomaly detection.",
+      "description": "PC_Workman is a free, open-source Windows system monitor with built-in local AI (hck_GPT, 82 intents), adaptive thermal baseline learning per workload context, voltage SPC using Median+MAD with Nelson rules, TURBO optimization suite, Ghost Driver Detection via pnputil, DeepMonitor sensor table, interactive charts with pan/zoom, 2.5D PC Map, Startup Manager, Services Manager, Fan Dashboard, and long-term anomaly detection.",
       "screenshot": "assets/images/PCWorkman-dashboard.gif",
       "featureList": [
         "hck_GPT - local AI assistant, 82 intents, bilingual Polish/English, zero cloud",
@@ -48,6 +48,9 @@
         "Services Manager - 40+ services catalogued, TURBO integration, change log",
         "Fan Dashboard - custom RPM curves, profiles, real-time RPM cards",
         "Stats and Alerts - long-term anomaly detection via SQLite time-series pipeline",
+        "Thermal Baseline Engine - learns natural CPU temperature per workload bucket (idle/light/medium/heavy/gaming) using Welford's online algorithm over 14-day DeepMonitor history",
+        "Voltage SPC - Statistical Process Control on 12V/5V/3.3V rails using Median+MAD (Iglewicz-Hoaglin modified z-score). Nelson Rules 1/2/3/5. GPU transient suppression. Anomaly decay.",
+        "Interactive Charts - pan, zoom, click-pin tooltip with baseline deviation, minimap navigation strip",
         "Minimalistic Overlay - always-on-top floating monitor widget",
         "Live Guide - interactive 3-step dashboard spotlight onboarding"
       ],
@@ -63,8 +66,8 @@
         "url": "https://github.com/HuckleR2003"
       },
       "datePublished": "2024-06-15",
-      "dateModified": "2026-06-02",
-      "softwareVersion": "1.7.7",
+      "dateModified": "2026-06-05",
+      "softwareVersion": "1.7.8",
       "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/releases"
     }
     </script>
@@ -96,6 +99,22 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "TURBO suite has four independent features: Auto RAM Flush (triggers when RAM stays above threshold for 30s, skips user-protected processes), Turbo Power Plan (creates a custom High Performance clone called Turbo PC, auto-restores on exit), Turbo Service Stop (stops non-essential services by Gaming/Work/Economy profile), Process Guard (suspends idle background processes). Each has its own AUTO toggle and persists settings across restarts."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does PC_Workman learn what 'normal' temperature looks like for my hardware?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "PC_Workman classifies each DeepMonitor snapshot into one of five workload buckets (idle: CPU<15%, light, medium, heavy, gaming: GPU>60%). For each bucket it maintains mean and standard deviation via Welford's online algorithm over the last 14 days of history. When you're gaming and the chart shows 72°C, the baseline band reflects your learned gaming range (e.g. 65–78°C) — not a generic 'normal' threshold that would make 72°C look alarming during an idle check. The tooltip shows '6% above usual (Gaming: 65–78°C, ±2.3°C)'. Training levels progress from initializing to calibrated as more samples accumulate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does voltage anomaly detection work and what is Statistical Process Control?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Voltage SPC in PC_Workman uses Median and MAD (Median Absolute Deviation) instead of the conventional mean+sigma approach. The reason: if a spike shifts the mean toward itself, the 'normal band' widens and future spikes silently pass through. Median is unaffected by outliers. The modified z-score formula is M = 0.6745 × (x − median) / MAD (Iglewicz-Hoaglin 1993). Anomaly when |M| > 3.5, warning at |M| > 2.5. Additionally, four Nelson SPC rules are checked: Rule 1 (single spike), Rule 5 (2-of-3 consecutive beyond warning), Rule 2 (9 consecutive same-side — sustained deviation), Rule 3 (6 consecutive monotonic — trend). 12V rail spikes during GPU load changes >25% are suppressed as expected transients. Events that repeat ≥5 times are considered 'your hardware's normal' and severity is reduced (anomaly decay)."
           }
         },
         {
@@ -790,6 +809,75 @@
                                     Shown with bordeaux background + ⚠ badge. One click → details + optional removal with admin confirmation.
                                 </p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thermal Learning + Voltage SPC -->
+                <div style="margin-top:20px">
+                    <div style="background:#080b14;border:1px solid #1a2540;border-radius:12px;overflow:hidden;">
+                        <div style="background:#0a0e1a;border-bottom:1px solid #1a2540;padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#818cf8;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.25);padding:2px 8px;border-radius:4px;">NEW · v1.7.8</span>
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Monitoring &amp; Alerts</span>
+                            <span style="font-size:11px;color:#374151;margin-left:4px;">— adaptive baselines, not static thresholds</span>
+                        </div>
+                        <div style="padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;" class="ghost-grid">
+                            <div>
+                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Thermal Baseline Learning</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:12px;">
+                                    Every monitoring tool uses the same 80°C threshold for every machine.
+                                    72°C gaming on an air-cooled mid-tower is fine.
+                                    The same 72°C during idle on a thin laptop is not.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    PC_Workman classifies each snapshot into one of five workload buckets and learns
+                                    mean + σ per bucket via Welford's online algorithm over the last 14 days.
+                                    Chart baseline reflects <em>your</em> learned range — the tooltip tells you exactly how far off you are.
+                                </p>
+                                <div style="background:#060810;border:1px solid #1a2540;border-radius:7px;padding:11px 14px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;">
+                                    <div style="color:#4a5568;margin-bottom:4px;"># workload buckets (live example)</div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">idle</span><span style="color:#6b7280;">cpu &lt;15%</span><span style="color:#374151;">  36°C ±2.1</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">light</span><span style="color:#6b7280;">15–40%</span><span style="color:#374151;">  48°C ±3.4</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">medium</span><span style="color:#6b7280;">40–70%</span><span style="color:#374151;">  63°C ±4.1</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">heavy</span><span style="color:#6b7280;">≥70%</span><span style="color:#374151;">   78°C ±5.8</span></div>
+                                    <div><span style="color:#a78bfa;display:inline-block;width:68px;">gaming</span><span style="color:#6b7280;">gpu≥60%</span><span style="color:#374151;">  71°C ±4.2</span></div>
+                                    <div style="color:#4a5568;margin-top:6px;"># tooltip at 77°C while gaming:</div>
+                                    <div style="color:#fbbf24;">"8% above usual  (Gaming: 65–78°C)"</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Voltage SPC — Median + MAD</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:12px;">
+                                    Mean + σ breaks on voltage data: one spike shifts the mean, widens the band,
+                                    and the next spike passes silently. Median is immune. MAD inherits that.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    Four Nelson SPC rules run on rebuild: isolated spike, 2-of-3 cluster,
+                                    9-point sustained deviation, 6-point monotonic trend.
+                                    12V spikes during GPU load changes are suppressed — they're physically expected.
+                                    Patterns that repeat ≥5× are decayed to "your hardware's normal".
+                                </p>
+                                <div style="background:#06080f;border:1px solid #1a2540;border-radius:7px;padding:11px 14px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;">
+                                    <div style="color:#4a5568;margin-bottom:4px;"># Iglewicz-Hoaglin 1993</div>
+                                    <div style="color:#a78bfa;">M = 0.6745 × (x − median) / MAD</div>
+                                    <div style="color:#4a5568;margin-top:6px;margin-bottom:2px;"># thresholds</div>
+                                    <div><span style="color:#ef4444;">|M| &gt; 3.5</span><span style="color:#6b7280;">  anomaly</span></div>
+                                    <div><span style="color:#f59e0b;">|M| &gt; 2.5</span><span style="color:#6b7280;">  warning</span></div>
+                                    <div style="color:#4a5568;margin-top:6px;margin-bottom:2px;"># Nelson rules</div>
+                                    <div style="color:#6b7280;">Rule 1  <span style="color:#374151;">isolated spike</span></div>
+                                    <div style="color:#6b7280;">Rule 5  <span style="color:#374151;">2-of-3 beyond warning</span></div>
+                                    <div style="color:#6b7280;">Rule 2  <span style="color:#374151;">9 consecutive same side</span></div>
+                                    <div style="color:#6b7280;">Rule 3  <span style="color:#374151;">6 consecutive monotonic</span></div>
+                                    <div style="color:#374151;margin-top:5px;font-style:italic;font-size:10px;">Requires LibreHardwareMonitor for voltage data</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border-top:1px solid #1a2540;padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <span style="font-size:11px;color:#374151;">Also in v1.7.8:</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Pan + zoom charts</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Click-pin tooltip with baseline deviation</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Minimap navigation</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Proactive voltage alerts in hck_GPT</span>
                         </div>
                     </div>
                 </div>
