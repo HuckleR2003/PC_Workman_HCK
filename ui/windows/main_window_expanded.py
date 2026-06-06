@@ -92,6 +92,21 @@ _HDR  = "Segoe UI Semibold"
 _BODY = _UIF
 _MONO = _MONOF
 
+# ── Dynamic scaling ────────────────────────────────────────────────────────────
+try:
+    import utils.ui_scale as _uis
+except ImportError:
+    class _uis:  # fallback stub
+        SCALE = 1.0
+        @staticmethod
+        def init(_root): pass
+        @staticmethod
+        def compact_w(): return 1160
+        @staticmethod
+        def compact_h(): return 575
+        @staticmethod
+        def sidebar_width(): return 180
+
 
 class ExpandedMainWindow:
     """
@@ -123,6 +138,12 @@ class ExpandedMainWindow:
         # View switching system
         self.current_view = "dashboard"
 
+        # ── Animation after() IDs — tracked so they can be cancelled on page switch ──
+        self._anim_ai_cursor_id   = None
+        self._anim_ai_typing_id   = None
+        self._anim_turbo_glow_id  = None
+        self._anim_tools_glow_id  = None
+
         # ── Persistent LIVE chart buffer - survives view switches ─────────────
         # DO NOT reset in _build_dashboard_view(); data accumulates here forever.
         self.chart_data = {"cpu": [], "ram": [], "gpu": []}
@@ -131,14 +152,18 @@ class ExpandedMainWindow:
         self._historical_chart_data = None
         self._chart_after_id = None
 
+        # Maximize state
+        self._is_maximized = False
+
         # System Tray
         self.tray_manager = None
         self._init_system_tray()
 
         # Create root window
         self.root = tk.Tk()
-        self.root.title("PC Workman HCK  v1.7.6")
-        self.root.geometry("1160x575")  # Expanded for sidebar (980 + 180)
+        _uis.init(self.root)  # detect screen size → set SCALE
+        self.root.title("PC Workman HCK  v1.7.8")
+        self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
 
@@ -206,11 +231,11 @@ class ExpandedMainWindow:
     def _center_window(self):
         """Center window on screen"""
         self.root.update_idletasks()
-        width = 1160  # Expanded for sidebar (980 + 180)
-        height = 575
-        screen_width = self.root.winfo_screenwidth()
+        width  = _uis.compact_w()
+        height = _uis.compact_h()
+        screen_width  = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
-        x = (screen_width // 2) - (width // 2)
+        x = (screen_width  // 2) - (width  // 2)
         y = (screen_height // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
@@ -220,10 +245,10 @@ class ExpandedMainWindow:
         self.main_container = tk.Frame(self.root, bg=THEME["bg_main"])
         self.main_container.pack(fill="both", expand=True)
 
-        # LEFT SIDEBAR (Snyk Evo style) - 180px wide
+        # LEFT SIDEBAR (Snyk Evo style)
         self.sidebar = SidebarNav(
             self.main_container,
-            width=180,
+            width=_uis.sidebar_width(),
             on_navigate=self._handle_sidebar_navigation
         )
         self.sidebar.pack(side="left", fill="y")
@@ -279,6 +304,26 @@ class ExpandedMainWindow:
         if self.current_view == page_id and page_id != "dashboard":
             return
 
+        # Cancel all dashboard after() timers before destroying widgets
+        # (prevents "bad window path" errors and stops accumulation on repeated switches)
+        _cancel_ids = [
+            '_chart_after_id',
+            '_anim_ai_cursor_id', '_anim_ai_typing_id',
+            '_anim_turbo_glow_id', '_anim_tools_glow_id',
+        ]
+        for _attr in _cancel_ids:
+            _aid = getattr(self, _attr, None)
+            if _aid is not None:
+                try:
+                    self.root.after_cancel(_aid)
+                except Exception:
+                    pass
+                setattr(self, _attr, None)
+
+        # Hide dashboard chart tooltip (lives on root, not destroyed with content_area)
+        self._chart_pin_idx = None
+        self._chart_hide_tip()
+
         # Kill overlay immediately (no animation) to prevent race conditions
         if self.overlay_frame:
             try:
@@ -321,63 +366,79 @@ class ExpandedMainWindow:
             self._build_dashboard_view()
             self._show_overlay(page_id)
 
-    def _build_page_header(self, title, subtitle=""):
-        """Build a header for sub-pages with back button"""
-        header = tk.Frame(self.content_area, bg="#0a0e14", height=60)
-        header.pack(fill="x")
-        header.pack_propagate(False)
+    def _build_page_header(self, title: str, subtitle: str = "",
+                            accent: str = "#8b5cf6") -> tk.Frame:
+        """
+        Modern gradient canvas header for direct-navigation pages.
+        64 px · vertical gradient · left accent bar · title + subtitle.
+        Bottom-right: ‹ Dashboard back link.
+        Top-right:    ⤢ / ⊡ maximize toggle (same as dashboard header).
+        """
+        container = tk.Frame(self.content_area, bg="#080b10")
+        container.pack(fill="x")
 
-        # Back button
-        back_btn = tk.Label(
-            header,
-            text=f"<- {_t('nav.back_dashboard')}",
-            font=(_HDR, 10),
-            bg="#0a0e14",
-            fg="#8b5cf6",
-            cursor="hand2",
-            padx=15
-        )
-        back_btn.pack(side="left", pady=15)
+        cv = tk.Canvas(container, bg="#080b10", height=64, highlightthickness=0)
+        cv.pack(fill="both", expand=True)
 
-        def go_back_to_dashboard(e):
+        def _draw(e=None):
+            cv.delete("all")
+            W = cv.winfo_width()
+            if W < 10:
+                return
+            H = 64
+            for y in range(H):
+                t = y / H
+                r = int(8  + 10 * t)
+                g = int(11 + 11 * t)
+                b = int(16 + 22 * t)
+                cv.create_line(0, y, W, y, fill=f"#{r:02x}{g:02x}{b:02x}")
+            cv.create_line(0, H - 1, W, H - 1, fill="#1e2840")
+            cv.create_rectangle(0, 0, 3, H, fill=accent, outline="")
+            cv.create_text(18, 19, text=title, anchor="w",
+                           font=(_HDR, 12), fill="#c4cfdf")
+            if subtitle:
+                cv.create_text(18, 44, text=subtitle, anchor="w",
+                               font=(_BODY, 8), fill="#3d4a60")
+            # Back link — bottom-right
+            cv.create_text(W - 10, 54, text=f"‹ {_t('nav.back_dashboard')}",
+                           anchor="e", font=(_BODY, 7), fill="#273448",
+                           tags="back_tag")
+
+        cv.bind("<Configure>", _draw)
+
+        # Back navigation
+        def _go_back(e=None):
             self._switch_to_page("dashboard")
-            # Update sidebar active state
-            if hasattr(self, 'sidebar') and self.sidebar:
+            if hasattr(self, "sidebar") and self.sidebar:
                 self.sidebar.set_active_page("dashboard")
 
-        back_btn.bind("<Button-1>", go_back_to_dashboard)
+        cv.tag_bind("back_tag", "<Button-1>", _go_back)
+        cv.tag_bind("back_tag", "<Enter>",
+                    lambda e: cv.itemconfig("back_tag", fill="#8b5cf6"))
+        cv.tag_bind("back_tag", "<Leave>",
+                    lambda e: cv.itemconfig("back_tag", fill="#273448"))
 
-        # Hover effect
-        def on_enter(e):
-            back_btn.config(fg="#a78bfa")
-        def on_leave(e):
-            back_btn.config(fg="#8b5cf6")
-        back_btn.bind("<Enter>", on_enter)
-        back_btn.bind("<Leave>", on_leave)
+        # ── Maximize toggle button (top-right, overlaid on canvas) ────────────
+        _max_sym = "⊡" if self._is_maximized else "⤢"
+        max_btn = tk.Label(
+            container,
+            text=_max_sym,
+            font=(_HDR, 10),
+            bg="#090c14",      # matches gradient at y≈8
+            fg="#2d3d56",
+            cursor="hand2",
+            padx=10,
+        )
+        max_btn.place(relx=1.0, y=8, anchor="ne", x=-8)
+        max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
+        max_btn.bind("<Enter>",    lambda e: max_btn.config(fg="#8b5cf6"))
+        max_btn.bind("<Leave>",    lambda e: max_btn.config(fg="#2d3d56"))
 
-        # Title
-        tk.Label(
-            header,
-            text=title,
-            font=(_HDR, 16, "bold"),
-            bg="#0a0e14",
-            fg="#ffffff"
-        ).pack(side="left", padx=(20, 10), pady=15)
-
-        if subtitle:
-            tk.Label(
-                header,
-                text=subtitle,
-                font=(_BODY, 10),
-                bg="#0a0e14",
-                fg="#6b7280"
-            ).pack(side="left", pady=15)
-
-        return header
+        return container
 
     def _build_fans_hardware_view(self):
         """Build FANS - Hardware Info as main view"""
-        self._build_page_header("FANS - Hardware Info", "Real-time fan monitoring")
+        self._build_page_header("FANS — HARDWARE", "Real-time fan monitoring & sensors", "#f59e0b")
 
         # Content
         content = tk.Frame(self.content_area, bg="#0a0e14")
@@ -387,7 +448,7 @@ class ExpandedMainWindow:
 
     def _build_fans_usage_stats_view(self):
         """Build Usage Statistics as main view"""
-        self._build_page_header("Usage Statistics", "Fan intensity over time")
+        self._build_page_header("FAN STATISTICS", "Fan intensity over time", "#f59e0b")
 
         # Content
         content = tk.Frame(self.content_area, bg="#0a0e14")
@@ -397,7 +458,7 @@ class ExpandedMainWindow:
 
     def _build_fan_dashboard_view(self):
         """Build Fan Dashboard as main view"""
-        self._build_page_header("Fan Dashboard", "Cooling control center")
+        self._build_page_header("FAN DASHBOARD", "Cooling control center & profiles", "#f59e0b")
 
         # Content - use existing fan dashboard
         content = tk.Frame(self.content_area, bg="#0f1117")
@@ -419,6 +480,8 @@ class ExpandedMainWindow:
 
     def _build_monitoring_alerts_view(self):
         """Build Monitoring & Alerts page with Time-Travel charts"""
+        self._build_page_header("MONITORING & ALERTS",
+                                "Temperatures · Voltages · System health", "#f59e0b")
         from ui.pages.monitoring_alerts import build_monitoring_alerts_page
         build_monitoring_alerts_page(self, self.content_area)
 
@@ -428,7 +491,8 @@ class ExpandedMainWindow:
         build_first_setup_page(self, self.content_area)
 
     def _build_optimization_view(self):
-        self._build_page_header("Optimization & Services", "Boost, clean and automate your PC")
+        # No _build_page_header here — optimization_services has its own gradient header
+        # with back navigation integrated.
         try:
             from ui.pages.optimization_services import build_optimization_page
             build_optimization_page(self, self.content_area)
@@ -442,7 +506,8 @@ class ExpandedMainWindow:
 
     def _build_startup_manager_view(self):
         """Build Startup Manager page."""
-        self._build_page_header("Startup Manager", "Control which programs launch at boot")
+        # No _build_page_header here — startup_manager has its own title header
+        # with back navigation integrated.
         try:
             from ui.pages.startup_manager import build_startup_manager_page
             build_startup_manager_page(self, self.content_area)
@@ -455,7 +520,8 @@ class ExpandedMainWindow:
 
     def _build_services_manager_view(self):
         """Build Services Manager page."""
-        self._build_page_header("Services Manager", "Manage Windows services & TURBO integration")
+        self._build_page_header("SERVICES MANAGER",
+                                "Windows services & TURBO profiles", "#3b82f6")
         try:
             from ui.pages.services_manager import build_services_manager_page
             build_services_manager_page(self, self.content_area)
@@ -592,35 +658,64 @@ class ExpandedMainWindow:
                      ).pack(side="left", padx=15, pady=5)
 
     def _build_header(self):
-        """Build modern header with branding and mode switcher"""
-        header = tk.Frame(self.content_area, bg="#0a0e27", height=60)
+        """Build dashboard header: branding + version badge + mode switcher."""
+        _BG = "#080b14"
+        header = tk.Frame(self.content_area, bg=_BG, height=58)
         header.pack(fill="x", side="top")
         header.pack_propagate(False)
 
-        # Left side - Branding
-        left_frame = tk.Frame(header, bg="#0a0e27")
+        # ── Thin accent gradient bar at very top ──────────────────────────────
+        accent_bar = tk.Canvas(header, bg=_BG, height=2, highlightthickness=0)
+        accent_bar.pack(fill="x")
+        def _draw_accent(e=None, cv=accent_bar):
+            cv.delete("all")
+            W = cv.winfo_width()
+            if W < 4:
+                return
+            step = max(1, W // 4)
+            for i, col in enumerate(("#7c3aed", "#6d28d9", "#4f46e5", "#3b82f6")):
+                cv.create_rectangle(i * step, 0, (i + 1) * step, 2,
+                                    fill=col, outline="")
+        accent_bar.bind("<Configure>", _draw_accent)
+
+        # ── Left — wordmark ───────────────────────────────────────────────────
+        left_frame = tk.Frame(header, bg=_BG)
         left_frame.pack(side="left", padx=20, fill="y")
 
-        # Title
-        title = tk.Label(
+        tk.Label(
             left_frame,
-            text="PC_WORKMAN",
-            font=("Segoe UI Light", 22, "bold"),  # Light font for ultra-modern look, bigger!
-            bg="#0a0e27",
-            fg="#ffffff"
-        )
-        title.pack(side="left", pady=15)
+            text="PC Workman",
+            font=(_HDR, 16),
+            bg=_BG,
+            fg="#e2e8f0"
+        ).pack(side="left", pady=16)
 
-        # Subtitle
+        # Version badge (small pill)
+        try:
+            from startup import APP_VERSION as _AV
+        except ImportError:
+            _AV = "1.7.8"
+
+        badge = tk.Label(
+            left_frame,
+            text=f" v{_AV} ",
+            font=(_MONO, 7),
+            bg="#1e1b4b",
+            fg="#818cf8",
+            padx=4, pady=2,
+        )
+        badge.pack(side="left", padx=(8, 0), pady=19)
+
+        # Subtitle (edition tag) — live i18n
         subtitle = tk.Label(
             left_frame,
             text=_t("dashboard.subtitle"),
-            font=("Segoe UI Semilight", 13),  # Semilight for elegance!
-            bg="#0a0e27",
-            fg="#6366f1"
+            font=(_BODY, 9),
+            bg=_BG,
+            fg="#334155",
         )
-        subtitle.pack(side="left", padx=(10, 0), pady=15)
-        self._header_subtitle_lbl = subtitle  # kept for live i18n refresh
+        subtitle.pack(side="left", padx=(8, 0), pady=16)
+        self._header_subtitle_lbl = subtitle
 
         # Right side - Mini Monitor + Mode switcher
         right_frame = tk.Frame(header, bg="#0a0e27")
@@ -630,7 +725,7 @@ class ExpandedMainWindow:
         mode_btn = tk.Label(
             right_frame,
             text=_t("dashboard.minimal_mode"),
-            font=(_HDR, 10, "bold"),  # Semibold for modern punch!
+            font=(_HDR, 10, "bold"),
             bg="#1e293b",
             fg="#94a3b8",
             cursor="hand2",
@@ -641,7 +736,6 @@ class ExpandedMainWindow:
         mode_btn.bind("<Button-1>", lambda e: self._switch_to_minimal())
         self._mode_btn = mode_btn  # kept for live i18n refresh
 
-        # Hover effect
         def on_enter(e):
             mode_btn.config(bg="#334155", fg="#e2e8f0")
         def on_leave(e):
@@ -650,14 +744,61 @@ class ExpandedMainWindow:
         mode_btn.bind("<Enter>", on_enter)
         mode_btn.bind("<Leave>", on_leave)
 
+        # Maximize / restore button
+        _max_text = "⊡" if self._is_maximized else "⤢"
+        max_btn = tk.Label(
+            right_frame,
+            text=_max_text,
+            font=(_HDR, 12),
+            bg="#1e293b",
+            fg="#94a3b8",
+            cursor="hand2",
+            padx=12,
+            pady=8
+        )
+        max_btn.pack(side="right", pady=12, padx=(0, 6))
+        max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
+        self._max_btn = max_btn
+
+        def on_max_enter(e):
+            max_btn.config(bg="#334155", fg="#e2e8f0")
+        def on_max_leave(e):
+            max_btn.config(bg="#1e293b", fg="#94a3b8")
+
+        max_btn.bind("<Enter>", on_max_enter)
+        max_btn.bind("<Leave>", on_max_leave)
+
+    def _toggle_maximize(self):
+        """Switch between compact and maximized (zoomed) window state."""
+        if not self._is_maximized:
+            self._pre_max_geometry = self.root.geometry()  # save position for restore
+            self.root.resizable(True, True)
+            self.root.state("zoomed")
+            self._is_maximized = True
+        else:
+            self.root.state("normal")
+            # Restore saved geometry (size + position) so window lands back where it was
+            geo = getattr(self, '_pre_max_geometry', None)
+            if geo:
+                self.root.geometry(geo)
+            else:
+                self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
+            self.root.resizable(False, False)
+            self._is_maximized = False
+        # Rebuild current view with the correct layout variant
+        self._switch_to_page(self.current_view)
+
     def _build_middle_section(self):
         """Build session average bars + category navigation"""
+        # In maximize mode add extra horizontal padding so session-averages
+        # section spans ~65% of content area instead of stretching full width.
+        _mid_padx = _uis.wide_mid_padx() if self._is_maximized else 20
         middle = tk.Frame(self.content_area, bg=THEME["bg_main"], height=180)
-        middle.pack(fill="x", side="top", padx=20, pady=(10, 0))
+        middle.pack(fill="x", side="top", padx=_mid_padx, pady=(10, 0))
         middle.pack_propagate(False)
 
         # LEFT NAVIGATION
-        left_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=200)
+        left_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(200))
         left_nav.pack(side="left", fill="y", padx=(0, 10))
         left_nav.pack_propagate(False)
         self.guide_left_nav = left_nav   # used by LiveGuide spotlight
@@ -700,7 +841,7 @@ class ExpandedMainWindow:
         self._build_yourpc_section(center)
 
         # RIGHT NAVIGATION
-        right_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=200)
+        right_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(200))
         right_nav.pack(side="right", fill="y", padx=(10, 0))
         right_nav.pack_propagate(False)
         self.guide_right_nav = right_nav   # used by LiveGuide spotlight
@@ -1050,14 +1191,19 @@ class ExpandedMainWindow:
         main_row = tk.Frame(content, bg=THEME["bg_main"])
         main_row.pack(fill="both", expand=True)
 
-        # LEFT PANEL - TOP 5 User Processes
-        left_panel = tk.Frame(main_row, bg=THEME["bg_panel"], width=220)
+        # LEFT PANEL - process panel sizing (scales with screen on 2K/4K)
+        _proc_panel_w = _uis.wide_panel_w() if self._is_maximized else _uis.scale(220)
+        _proc_limit   = _uis.wide_proc_limit() if self._is_maximized else 5
+        self._proc_limit = _proc_limit  # read by _update_top5_processes
+
+        left_panel = tk.Frame(main_row, bg=THEME["bg_panel"], width=_proc_panel_w)
         left_panel.pack(side="left", fill="y", padx=(0, 8))
         left_panel.pack_propagate(False)
 
+        _user_title = _t("dashboard.top5_user_proc").replace("5", str(_proc_limit)) if self._is_maximized else _t("dashboard.top5_user_proc")
         tk.Label(
             left_panel,
-            text=_t("dashboard.top5_user_proc"),
+            text=_user_title,
             font=(_BODY, 8, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
@@ -1078,10 +1224,9 @@ class ExpandedMainWindow:
         center = tk.Frame(main_row, bg=THEME["bg_main"])
         center.pack(side="left", fill="both", expand=True, padx=5)
 
-        # Chart (50% height - reduced)
-        chart_frame = tk.Frame(center, bg="#0f1117", height=140)
-        chart_frame.pack(fill="x", pady=(0, 5))
-        chart_frame.pack_propagate(False)
+        # Chart — compact: 140px; maximize: sensible fixed height (never fills full screen)
+        _chart_h = _uis.wide_chart_h() if self._is_maximized else 140
+        chart_frame = tk.Frame(center, bg="#0f1117", height=_chart_h)
 
         # === ULTRA MODERN REAL-TIME CHART ===
         # Canvas for 3-bar chart (CPU, RAM, GPU)
@@ -1097,6 +1242,15 @@ class ExpandedMainWindow:
         # Trigger chart draw once canvas actually has dimensions
         self.realtime_canvas.bind('<Configure>', self._on_chart_configure)
 
+        # ── Click-pin tooltip interaction ─────────────────────────────────────
+        # Single click → pin detail tooltip on nearest bar (persists until
+        # user clicks elsewhere or moves far away).
+        self._chart_pin_idx:   int | None = None   # pinned bar index
+        self._chart_tip_label: tk.Label | None = None
+        self.realtime_canvas.bind("<ButtonPress-1>",   self._chart_on_click)
+        self.realtime_canvas.bind("<Motion>",          self._chart_on_motion)
+        self.realtime_canvas.bind("<Leave>",           self._chart_on_leave)
+
         # chart_data / chart_max_samples persist from __init__ - do NOT reset here.
         # The LIVE buffer survives view switches so the chart never starts blank.
         self._chart_after_id = None   # reset so _schedule_chart_update works on new canvas
@@ -1104,10 +1258,8 @@ class ExpandedMainWindow:
         # Start chart update loop
         self._schedule_chart_update(100)
 
-        # Live metrics line
+        # Live metrics line (packed later — order determines maximize vs compact layout)
         metrics_frame = tk.Frame(center, bg="#1a1d24", height=28)
-        metrics_frame.pack(fill="x")
-        metrics_frame.pack_propagate(False)
 
         _cur_lbl = tk.Label(
             metrics_frame,
@@ -1214,17 +1366,31 @@ class ExpandedMainWindow:
             btn.bind("<Enter>", enter_h)
             btn.bind("<Leave>", leave_h)
 
-        # === INNOVATIVE FEATURE BUTTONS (below chart) ===
-        self._build_feature_buttons(center)
+        # Pack chart + metrics in mode-specific order
+        if self._is_maximized:
+            # Maximize: metrics strip at top (context first), then chart, then buttons
+            metrics_frame.pack(side="top", fill="x")
+            metrics_frame.pack_propagate(False)
+            chart_frame.pack(fill="x", pady=(5, 0))
+            chart_frame.pack_propagate(False)
+            self._build_feature_buttons(center)
+        else:
+            # Compact: chart first (dominant), then metrics, then buttons
+            chart_frame.pack(fill="x", pady=(0, 5))
+            chart_frame.pack_propagate(False)
+            metrics_frame.pack(fill="x")
+            metrics_frame.pack_propagate(False)
+            self._build_feature_buttons(center)
 
-        # RIGHT PANEL - TOP 5 System Processes
-        right_panel = tk.Frame(main_row, bg=THEME["bg_panel"], width=220)
+        # RIGHT PANEL - TOP 5 / TOP 10 System Processes
+        right_panel = tk.Frame(main_row, bg=THEME["bg_panel"], width=_proc_panel_w)
         right_panel.pack(side="right", fill="y", padx=(8, 0))
         right_panel.pack_propagate(False)
 
+        _sys_title = _t("dashboard.top5_sys_proc").replace("5", str(_proc_limit)) if self._is_maximized else _t("dashboard.top5_sys_proc")
         tk.Label(
             right_panel,
-            text=_t("dashboard.top5_sys_proc"),
+            text=_sys_title,
             font=(_BODY, 8, "bold"),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
@@ -1420,7 +1586,7 @@ class ExpandedMainWindow:
 
             # Continue animation
             if self._running:
-                self.root.after(500, self._animate_turbo_glow)
+                self._anim_turbo_glow_id = self.root.after(500, self._animate_turbo_glow)
         except:
             pass
 
@@ -1441,7 +1607,7 @@ class ExpandedMainWindow:
 
             # Continue animation
             if self._running:
-                self.root.after(600, self._animate_tools_glow)
+                self._anim_tools_glow_id = self.root.after(600, self._animate_tools_glow)
         except:
             pass
 
@@ -1498,9 +1664,9 @@ class ExpandedMainWindow:
         self.ai_deleting = False
         self.ai_char_index = 0
 
-        # Start animations
-        self.root.after(500, self._animate_ai_cursor)
-        self.root.after(500, self._animate_ai_typing)
+        # Start animations — IDs tracked so _switch_to_page can cancel them
+        self._anim_ai_cursor_id = self.root.after(500, self._animate_ai_cursor)
+        self._anim_ai_typing_id = self.root.after(500, self._animate_ai_typing)
 
     def _animate_ai_cursor(self):
         """Blink cursor animation"""
@@ -1517,7 +1683,7 @@ class ExpandedMainWindow:
                 self.ai_cursor.config(fg="#a78bfa")  # Show
 
             if self._running:
-                self.root.after(600, self._animate_ai_cursor)
+                self._anim_ai_cursor_id = self.root.after(600, self._animate_ai_cursor)
         except:
             pass
 
@@ -1562,10 +1728,10 @@ class ExpandedMainWindow:
                     delay = 1500
 
             if self._running:
-                self.root.after(delay, self._animate_ai_typing)
+                self._anim_ai_typing_id = self.root.after(delay, self._animate_ai_typing)
         except Exception:
             if self._running:
-                self.root.after(2000, self._animate_ai_typing)
+                self._anim_ai_typing_id = self.root.after(2000, self._animate_ai_typing)
 
 
     def _render_expanded_user_processes(self, procs):
@@ -1582,10 +1748,11 @@ class ExpandedMainWindow:
         total_ram_mb = self._cached_total_ram_mb()
 
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
+        _n_rows = getattr(self, '_proc_limit', 5)
 
         if not self.expanded_user_widgets:
-            for i in range(5):
-                row_bg = row_gradients[i]
+            for i in range(_n_rows):
+                row_bg = row_gradients[i % len(row_gradients)]
                 row = tk.Frame(self.expanded_user_container, bg=row_bg, height=36)
                 row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
@@ -1696,10 +1863,11 @@ class ExpandedMainWindow:
         total_ram_mb = self._cached_total_ram_mb()
 
         row_gradients = ["#1c1f26", "#1e2128", "#20232a", "#22252c", "#24272e"]
+        _n_rows = getattr(self, '_proc_limit', 5)
 
         if not self.expanded_sys_widgets:
-            for i in range(5):
-                row_bg = row_gradients[i]
+            for i in range(_n_rows):
+                row_bg = row_gradients[i % len(row_gradients)]
                 row = tk.Frame(self.expanded_sys_container, bg=row_bg, height=36)
                 row.pack(fill="x", pady=1)
                 row.pack_propagate(False)
@@ -1962,11 +2130,11 @@ class ExpandedMainWindow:
                 avg_gpu = sum(s.get("gpu_percent", 0) for s in self.session_samples) / n
                 avg_ram = sum(s.get("ram_percent", 0) for s in self.session_samples) / n
 
-                self._update_session_bar("cpu", avg_cpu)
-                self._update_session_bar("gpu", avg_gpu)
-                self._update_session_bar("ram", avg_ram)
-
-                self._update_live_metrics(sample)
+                if self.current_view == "dashboard":
+                    self._update_session_bar("cpu", avg_cpu)
+                    self._update_session_bar("gpu", avg_gpu)
+                    self._update_session_bar("ram", avg_ram)
+                    self._update_live_metrics(sample)
 
                 # Hardware cards every 2nd tick (2s)
                 if not hasattr(self, '_hw_card_counter'):
@@ -2000,9 +2168,9 @@ class ExpandedMainWindow:
                         self._update_top5_processes()
 
         except Exception as e:
-            print(f"[ExpandedMode] Update error: {e}")
-            import traceback
-            traceback.print_exc()
+            err = str(e)
+            if "bad window path" not in err and "invalid command name" not in err:
+                print(f"[ExpandedMode] Update error: {e}")
 
         # 1-second cadence (was 300ms - main lag source)
         if self._running:
@@ -2100,6 +2268,141 @@ class ExpandedMainWindow:
             print(f"[ExpandedMode] Historical data load error: {e}")
             self._historical_chart_data = None
 
+    # ── Dashboard chart interaction ───────────────────────────────────────────
+
+    def _chart_on_click(self, event: "tk.Event") -> None:
+        """Pin / unpin detail tooltip on clicked bar."""
+        try:
+            canvas = self.realtime_canvas
+            if not canvas.winfo_exists():
+                return
+            W, H = canvas.winfo_width(), canvas.winfo_height()
+            margin = 10
+            cw = W - margin * 2
+
+            # Select data source
+            if (getattr(self, "chart_filter", "LIVE") != "LIVE" and
+                    getattr(self, "_historical_chart_data", None)):
+                cpu_d = self._historical_chart_data.get("cpu", [])
+                ram_d = self._historical_chart_data.get("ram", [])
+                gpu_d = self._historical_chart_data.get("gpu", [])
+            else:
+                cpu_d = self.chart_data.get("cpu", [])
+                ram_d = self.chart_data.get("ram", [])
+                gpu_d = self.chart_data.get("gpu", [])
+
+            num = max(len(cpu_d), len(ram_d), len(gpu_d))
+            if num < 1:
+                return
+
+            bar_w = max(int(cw / num), 1)
+            idx   = max(0, min(num - 1, (event.x - margin) // max(bar_w, 1)))
+
+            if self._chart_pin_idx == idx:
+                # Second click on same bar → unpin
+                self._chart_pin_idx = None
+                self._chart_hide_tip()
+            else:
+                self._chart_pin_idx = idx
+                self._chart_show_tip(idx, event.x, event.y,
+                                     cpu_d, ram_d, gpu_d, num, W, H)
+        except Exception:
+            pass
+
+    def _chart_on_motion(self, event: "tk.Event") -> None:
+        """Update hover tooltip (only if NOT pinned)."""
+        if getattr(self, "_chart_pin_idx", None) is not None:
+            return   # pinned → don't override with hover
+        try:
+            canvas = self.realtime_canvas
+            if not canvas.winfo_exists():
+                return
+            W, H   = canvas.winfo_width(), canvas.winfo_height()
+            margin = 10
+            cw     = W - margin * 2
+
+            if (getattr(self, "chart_filter", "LIVE") != "LIVE" and
+                    getattr(self, "_historical_chart_data", None)):
+                cpu_d = self._historical_chart_data.get("cpu", [])
+                ram_d = self._historical_chart_data.get("ram", [])
+                gpu_d = self._historical_chart_data.get("gpu", [])
+            else:
+                cpu_d = self.chart_data.get("cpu", [])
+                ram_d = self.chart_data.get("ram", [])
+                gpu_d = self.chart_data.get("gpu", [])
+
+            num = max(len(cpu_d), len(ram_d), len(gpu_d))
+            if num < 1:
+                return
+
+            bar_w = max(int(cw / num), 1)
+            idx   = max(0, min(num - 1, (event.x - margin) // max(bar_w, 1)))
+            self._chart_show_tip(idx, event.x, event.y,
+                                 cpu_d, ram_d, gpu_d, num, W, H)
+        except Exception:
+            pass
+
+    def _chart_on_leave(self, event: "tk.Event") -> None:
+        if getattr(self, "_chart_pin_idx", None) is None:
+            self._chart_hide_tip()
+
+    def _chart_show_tip(self, idx, mx, my, cpu_d, ram_d, gpu_d, num, W, H):
+        """Create or update the floating detail tooltip."""
+        cpu_v = cpu_d[idx] if idx < len(cpu_d) else 0
+        ram_v = ram_d[idx] if idx < len(ram_d) else 0
+        gpu_v = gpu_d[idx] if idx < len(gpu_d) else 0
+
+        pinned = (getattr(self, "_chart_pin_idx", None) is not None)
+        age_s  = (num - 1 - idx)   # samples ago (1 sample ≈ 2s in LIVE mode)
+        age_str = (f"{age_s * 2}s ago" if age_s > 0 else "now")
+
+        lines = [
+            f"● CPU   {cpu_v:.0f}%",
+            f"● RAM   {ram_v:.0f}%",
+            f"● GPU   {gpu_v:.0f}%",
+            f"  {age_str}" + ("  [pinned]" if pinned else ""),
+        ]
+
+        tip_text = "\n".join(lines)
+
+        try:
+            canvas = self.realtime_canvas
+            if not canvas.winfo_exists():
+                return
+        except Exception:
+            return
+
+        # Position: just above cursor, clamped to window
+        tip_w, tip_h = 110, 68
+        tx = canvas.winfo_rootx() + min(mx + 12, W - tip_w - 4) - self.root.winfo_rootx()
+        ty = canvas.winfo_rooty() + max(my - tip_h - 6, 4) - self.root.winfo_rooty()
+
+        if self._chart_tip_label is None:
+            self._chart_tip_label = tk.Label(
+                self.root,
+                font=(_MONO, 8),
+                bg="#0d1323",
+                fg="#e2e8f0",
+                padx=8, pady=5,
+                justify="left",
+                relief="flat",
+                bd=0,
+                highlightthickness=1,
+                highlightbackground="#1e3a5f",
+            )
+
+        self._chart_tip_label.config(text=tip_text)
+        self._chart_tip_label.place(x=tx, y=ty)
+        self._chart_tip_label.lift()
+
+    def _chart_hide_tip(self):
+        lbl = getattr(self, "_chart_tip_label", None)
+        if lbl is not None:
+            try:
+                lbl.place_forget()
+            except Exception:
+                pass
+
     def _schedule_chart_update(self, delay_ms=2000):
         """Schedule chart update, cancelling any pending one to avoid duplicate loops."""
         if self._chart_after_id is not None:
@@ -2125,6 +2428,12 @@ class ExpandedMainWindow:
 
         try:
             canvas = self.realtime_canvas
+            # Guard: widget may have been destroyed when switching views
+            try:
+                if not canvas.winfo_exists():
+                    return
+            except Exception:
+                return
             width = canvas.winfo_width()
             height = canvas.winfo_height()
 
@@ -2220,7 +2529,10 @@ class ExpandedMainWindow:
             self._schedule_chart_update(2000)
 
         except Exception as e:
-            print(f"[Chart] Error: {e}")
+            # Ignore TclError from destroyed widgets (normal during view switches)
+            err = str(e)
+            if "bad window path" not in err and "invalid command name" not in err:
+                print(f"[Chart] Error: {e}")
             if self._running:
                 self._schedule_chart_update(2000)
 
@@ -2292,7 +2604,9 @@ class ExpandedMainWindow:
             # Update GPU card
             self._update_hardware_card("gpu", gpu)
         except Exception as e:
-            print(f"[HardwareCards] Error: {e}")
+            err = str(e)
+            if "bad window path" not in err and "invalid command name" not in err:
+                print(f"[HardwareCards] Error: {e}")
 
     def _update_hardware_card(self, key, value):
         """Update individual hardware card"""
@@ -2373,7 +2687,9 @@ class ExpandedMainWindow:
                 canvas.create_polygon(fill_points, fill=color, stipple="gray25", outline="")
 
         except Exception as e:
-            print(f"[Sparkline] Error: {e}")
+            err = str(e)
+            if "bad window path" not in err and "invalid command name" not in err:
+                print(f"[Sparkline] Error: {e}")
 
     def _update_top5_processes(self):
         """Update TOP 5 process panels with animation"""
@@ -2384,8 +2700,9 @@ class ExpandedMainWindow:
                     user_procs = snapshot.get("user_processes", [])
                     system_procs = snapshot.get("system_processes", [])
 
-                    self._render_expanded_user_processes(user_procs[:5])
-                    self._render_expanded_system_processes(system_procs[:5])
+                    _lim = getattr(self, '_proc_limit', 5)
+                    self._render_expanded_user_processes(user_procs[:_lim])
+                    self._render_expanded_system_processes(system_procs[:_lim])
             elif psutil is not None:
                 # Fallback: get processes directly
                 procs = []
@@ -2426,10 +2743,13 @@ class ExpandedMainWindow:
                 user_procs   = [p for p in procs if not _is_sys(p["name"])]
                 system_procs = [p for p in procs if     _is_sys(p["name"])]
 
-                self._render_expanded_user_processes(user_procs[:5])
-                self._render_expanded_system_processes(system_procs[:5])
+                _lim = getattr(self, '_proc_limit', 5)
+                self._render_expanded_user_processes(user_procs[:_lim])
+                self._render_expanded_system_processes(system_procs[:_lim])
         except Exception as e:
-            print(f"[ExpandedMode] Error updating processes: {e}")
+            err = str(e)
+            if "bad window path" not in err and "invalid command name" not in err:
+                print(f"[ExpandedMode] Error updating processes: {e}")
 
     # ========== OVERLAY MINI-MONITOR (ALWAYS-ON-TOP) ==========
 
@@ -2457,10 +2777,14 @@ class ExpandedMainWindow:
         if self.overlay_frame:
             self._close_overlay()
 
-        # Create overlay frame - FULL CONTENT AREA (except header)
-        # Content area is 980px wide (1160 - 180 sidebar)
+        # Create overlay frame.
+        # Settings: starts below main header (header stays visible as per spec).
+        # All other pages: covers full content area including header.
         self.overlay_frame = tk.Frame(self.content_area, bg="#0f1117", relief="flat", bd=0)
-        self.overlay_frame.place(x=980, y=60, width=980, height=515)
+        if page_id == "settings":
+            self.overlay_frame.place(x=980, y=60, width=980, height=515)
+        else:
+            self.overlay_frame.place(x=980, y=0, relwidth=1.0, relheight=1.0)
 
         # Build page content
         self._build_overlay_content(page_id)
@@ -2528,78 +2852,82 @@ class ExpandedMainWindow:
 
     def _build_overlay_content(self, page_id):
         """Build content for overlay panel"""
-        # Header with close button
-        header = tk.Frame(self.overlay_frame, bg="#1a1d24", height=50)
-        header.pack(fill="x")
-        header.pack_propagate(False)
-
-        # Close button (X)
-        close_btn = tk.Label(
-            header,
-            text="✕",
-            font=(_BODY, 18, "bold"),
-            bg="#1a1d24",
-            fg="#64748b",
-            cursor="hand2",
-            padx=15
-        )
-        close_btn.pack(side="right", pady=10)
-        close_btn.bind("<Button-1>", lambda e: self._close_overlay())
-
-        # Hover effect for close button
-        def on_enter_close(e):
-            close_btn.config(fg="#ef4444")
-        def on_leave_close(e):
-            close_btn.config(fg="#64748b")
-        close_btn.bind("<Enter>", on_enter_close)
-        close_btn.bind("<Leave>", on_leave_close)
-
-        # Dashboard Back! button (LEFT of X)
-        back_btn = tk.Label(
-            header,
-            text=f"⬅ {_t('nav.back_dashboard')}",
-            font=(_BODY, 9, "bold"),
-            bg="#1a1d24",
-            fg="#64748b",
-            cursor="hand2",
-            padx=10
-        )
-        back_btn.pack(side="right", pady=10, padx=(0, 5))  # 5px gap from X
-        back_btn.bind("<Button-1>", lambda e: self._close_overlay())
-
-        # Hover effect for back button
-        def on_enter_back(e):
-            back_btn.config(fg="#8b5cf6")
-        def on_leave_back(e):
-            back_btn.config(fg="#64748b")
-        back_btn.bind("<Enter>", on_enter_back)
-        back_btn.bind("<Leave>", on_leave_back)
-
-        # Title (i18n-aware)
-        title_map = {
-            "your_pc":          f"💻 {_t('nav.my_pc')} - {_t('my_pc.central_title')}",
-            "sensors":          f"📡 {_t('nav.monitoring')} - {_t('monitoring.alerts_title')}",
-            "live_graphs":      f"💻 {_t('nav.my_pc')} - {_t('my_pc.central_title')}",
-            "optimization":     f"⚡ {_t('optimization.page_title')}",
-            "statistics":       f"📊 {_t('statistics.page_title')}",
-            "fan_control":      f"🌀 {_t('fan_control.page_title')}",
-            "fans_hardware":    f"❊ {_t('nav.fan_control_hardware')}",
-            "fans_usage_stats": f"📊 {_t('nav.fan_control_usage')}",
-            "hck_labs":         "🚀 HCK Labs",
-            "guide":            f"📖 {_t('guide.title')}",
-            "settings":         f"⚙ {_t('nav.settings')}",
+        # ── Per-page header metadata (accent colour · title · subtitle) ──────
+        _META = {
+            "your_pc":          ("#3b82f6", "MÓJ PC",           "Overview · Performance · Health"),
+            "sensors":          ("#f59e0b", "MONITORING",        "Temperatures · Voltages · Alerts"),
+            "live_graphs":      ("#3b82f6", "MÓJ PC",           "Live data & hardware overview"),
+            "optimization":     ("#8b5cf6", "OPTIMIZATION",     "Features, automation & power management"),
+            "statistics":       ("#3b82f6", "STATISTICS",        "Usage trends & session history"),
+            "fan_control":      ("#f59e0b", "FAN CONTROL",      "Cooling profiles & temperature curves"),
+            "fans_hardware":    ("#f59e0b", "FANS — HARDWARE",  "Real-time fan monitoring"),
+            "fans_usage_stats": ("#f59e0b", "FAN STATISTICS",   "Fan intensity over time"),
+            "hck_labs":         ("#f59e0b", "HCK LABS",         "Engineering · Monitoring · Intelligence"),
+            "guide":            ("#8b5cf6", "PROGRAM GUIDE",    "Master PC Workman — commands & features"),
+            "settings":         ("#3b82f6", "SETTINGS",         "Language, appearance & behavior"),
         }
+        accent, ov_title, ov_sub = _META.get(
+            page_id, ("#8b5cf6", page_id.upper().replace("_", " "), ""))
 
-        title_text = title_map.get(page_id, "Page")
-        title = tk.Label(
-            header,
-            text=title_text,
-            font=(_BODY, 14, "bold"),
-            bg="#1a1d24",
-            fg="#ffffff",
-            anchor="w"
+        # ── Gradient canvas header ────────────────────────────────────────────
+        hdr_frame = tk.Frame(self.overlay_frame, bg="#080b10")
+        hdr_frame.pack(fill="x")
+
+        hdr_cv = tk.Canvas(hdr_frame, bg="#080b10", height=64, highlightthickness=0)
+        hdr_cv.pack(fill="both", expand=True)
+
+        def _draw_hdr(e=None,
+                      _cv=hdr_cv, _a=accent, _tl=ov_title, _sb=ov_sub):
+            _cv.delete("all")
+            W = _cv.winfo_width()
+            if W < 10:
+                return
+            H = 64
+            for y in range(H):
+                t = y / H
+                r = int(8 + 10 * t)
+                g = int(11 + 11 * t)
+                b = int(16 + 22 * t)
+                _cv.create_line(0, y, W, y, fill=f"#{r:02x}{g:02x}{b:02x}")
+            _cv.create_line(0, H - 1, W, H - 1, fill="#1e2840")
+            _cv.create_rectangle(0, 0, 3, H, fill=_a, outline="")
+            _cv.create_text(18, 19, text=_tl, anchor="w",
+                            font=(_HDR, 12), fill="#c4cfdf")
+            if _sb:
+                _cv.create_text(18, 44, text=_sb, anchor="w",
+                                font=(_BODY, 8), fill="#3d4a60")
+
+        hdr_cv.bind("<Configure>", _draw_hdr)
+
+        # ── Close + Maximize buttons (overlaid, top-right of header) ──────────
+        close_btn = tk.Label(
+            hdr_frame,
+            text="✕",
+            font=(_BODY, 10),
+            bg="#080b10",
+            fg="#2d3d56",
+            cursor="hand2",
+            padx=12,
         )
-        title.pack(side="left", padx=20, pady=10)
+        close_btn.place(relx=1.0, y=8, anchor="ne", x=-4)
+        close_btn.bind("<Button-1>", lambda e: self._close_overlay())
+        close_btn.bind("<Enter>", lambda e: close_btn.config(fg="#ef4444"))
+        close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#2d3d56"))
+
+        _ov_max_sym = "⊡" if self._is_maximized else "⤢"
+        ov_max_btn = tk.Label(
+            hdr_frame,
+            text=_ov_max_sym,
+            font=(_HDR, 10),
+            bg="#090c14",
+            fg="#2d3d56",
+            cursor="hand2",
+            padx=10,
+        )
+        ov_max_btn.place(relx=1.0, y=8, anchor="ne", x=-38)
+        ov_max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
+        ov_max_btn.bind("<Enter>",    lambda e: ov_max_btn.config(fg="#8b5cf6"))
+        ov_max_btn.bind("<Leave>",    lambda e: ov_max_btn.config(fg="#2d3d56"))
 
         # Content area with scrollbar
         content_frame = tk.Frame(self.overlay_frame, bg="#0f1117")
@@ -2654,14 +2982,6 @@ class ExpandedMainWindow:
                      font=(_BODY, 10), bg="#0f1117", fg="#ef4444",
                      justify="left").pack(anchor="nw", padx=20, pady=20)
             traceback.print_exc()
-
-    def _build_live_graphs_page(self, parent):
-        """DeepMonitor - opens My PC overlay then immediately shows HW table popup"""
-        # Close current overlay, open your_pc, then trigger table popup
-        self._close_overlay()
-        self._show_overlay("your_pc")
-        # After overlay is built, fire the table popup
-        self.root.after(150, _launch_hw_table_window_root, self.root)
 
     def _build_optimization_page(self, parent):
         """Build Optimization page - System optimization recommendations"""
@@ -4605,7 +4925,6 @@ def _open_hw_table_popup(anchor):
     popup = tk.Toplevel(anchor)
     popup.title("DeepMonitor - PC Workman")
     popup.configure(bg="#07090f")
-    popup.attributes("-topmost", True)
     popup.resizable(True, True)
 
     content = tk.Frame(popup, bg="#07090f")
