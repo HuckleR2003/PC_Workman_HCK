@@ -47,7 +47,22 @@ SESSION_WINDOW_S    = 1800   # 30-minute window
 
 # Process anomaly - new heavy process threshold
 PROC_SPIKE_PCT      = 30.0   # single process using >30% CPU -> spike alert
-PROC_SPIKE_MIN_GAP  = 600    # 10 min cooldown per process name
+PROC_SPIKE_MIN_GAP  = 3600   # 1 h cooldown per process name (was 10 min — caused spam)
+
+# Processes that should NEVER trigger spike alerts.
+# System Idle Process = Windows idle time counter (high CPU% = CPU is idle).
+# python.exe = PC Workman itself. Registry/System = kernel pseudo-processes.
+_PROC_SPIKE_IGNORE: frozenset = frozenset({
+    "system idle process",
+    "idle",
+    "system",
+    "registry",
+    "memory compression",
+    "secure system",
+    "python.exe",    # PC Workman itself
+    "python3.exe",
+    "pythonw.exe",
+})
 
 # DeepMonitor thresholds
 DM_CPU_TEMP_WARN    = 80.0   # CPU temp warning threshold (°C)
@@ -149,14 +164,15 @@ _MSGS: dict[str, dict[str, list[str]]] = {
     # New heavy process appeared
     "process_spike": {
         "pl": [
-            "hck_GPT: 🔍 Nowy proces: {val} zużywa dużo CPU. Wpisz 'co to {val}' jeśli nie wiesz co to.",
-            "hck_GPT: ⚠ {val} wskoczył na listę top obciążeń. Normalnie go tu nie ma. Wpisz 'top procesy'.",
-            "hck_GPT: Wykryłem {val} - zużywa znaczną część CPU. Przypadkowe uruchomienie czy zaplanowane?",
+            # Note: no "Wpisz 'co to {val}'" — tooltip on process name handles that
+            "hck_GPT: 🔍 {val} pojawił się i zużywa dużo CPU. Najedź na nazwę po szczegóły.",
+            "hck_GPT: ⚠ {val} wskoczył na listę top obciążeń. Normalnie go tu nie ma.",
+            "hck_GPT: Wykryłem {val} - zużywa znaczną część CPU. Przypadkowe czy zaplanowane?",
         ],
         "en": [
-            "hck_GPT: 🔍 New heavy process: {val} appeared and is consuming a lot of CPU.",
-            "hck_GPT: ⚠ {val} just jumped onto the top load list - it doesn't usually show up here.",
-            "hck_GPT: Spotted {val} using significant CPU. Normal activity, or something unexpected?",
+            "hck_GPT: 🔍 {val} appeared and is consuming significant CPU. Hover its name for details.",
+            "hck_GPT: ⚠ {val} jumped onto the top load list - unusual. Normal activity?",
+            "hck_GPT: Spotted {val} using significant CPU. Expected, or something unexpected?",
         ],
     },
     # Morning brief - first launch of the day
@@ -192,6 +208,29 @@ _MSGS: dict[str, dict[str, list[str]]] = {
         "en": [
             "hck_GPT: 💡 You've been active for {val}h. Type 'session digest' to see how the day went.",
             "hck_GPT: {val}h session. Ask me 'what happened today' - I have some interesting data for you.",
+        ],
+    },
+    # Voltage rail anomaly
+    "voltage_spike": {
+        "pl": [
+            "hck_GPT: ⚡ Wykryto anomalię napięcia na szynie {val}. Wpisz 'napięcia' po szczegóły.",
+            "hck_GPT: ⚠ Szyna {val} wykazuje nieregularne wartości. Sprawdź zakładkę Monitoring.",
+            "hck_GPT: Anomalia napięcia ({val}) — SPC wykrył odchylenie poza granicami kontrolnymi.",
+        ],
+        "en": [
+            "hck_GPT: ⚡ Voltage anomaly on {val} rail detected. Type 'voltage status' for details.",
+            "hck_GPT: ⚠ {val} rail shows irregular readings. Check the Monitoring tab.",
+            "hck_GPT: Voltage anomaly on {val} — SPC found readings outside control limits.",
+        ],
+    },
+    "voltage_trend": {
+        "pl": [
+            "hck_GPT: 📉 Szyna {val} wykazuje trend zmiany — może wskazywać na starzenie PSU lub obciążenie.",
+            "hck_GPT: Monotoniczna zmiana napięcia na szynie {val}. Wpisz 'napięcia' by zbadać.",
+        ],
+        "en": [
+            "hck_GPT: 📉 {val} rail shows a sustained trend — may indicate PSU aging or load shift.",
+            "hck_GPT: Monotonic voltage drift on {val} rail. Type 'voltage status' for analysis.",
         ],
     },
     # GPU temperature spike alert
@@ -344,7 +383,9 @@ class ProactiveMonitor:
     """
 
     def __init__(self) -> None:
-        self._push_fn:   Optional[Callable[[str], None]] = None
+        self._push_fn:      Optional[Callable[[str], None]] = None
+        self._hot_fn:       Optional[Callable[[str], None]] = None
+        self._hot_clear_fn: Optional[Callable[[], None]]    = None
         register_component("hck_gpt.proactive_monitor", self, STATUS_OK)
         self._banner_fn: Optional[Callable[[str], None]] = None
         self._lang:      str  = "en"   # matches panel default; updated on first user message
@@ -380,10 +421,14 @@ class ProactiveMonitor:
         self._user_active_until: float = 0.0
 
         # DeepMonitor state
-        self._dm_check_tick: int = 0         # counter: run DM check every DM_CHECK_INTERVAL main cycles
-        self._dm_cpu_temp_crit_cnt: int = 0  # consecutive CPU critical temp readings
-        self._dm_gpu_temp_crit_cnt: int = 0  # consecutive GPU critical temp readings
-        self._dm_healthy_report_due: bool = True  # send one "all clear" after issues resolve
+        self._dm_check_tick: int = 0
+        self._dm_cpu_temp_crit_cnt: int = 0
+        self._dm_gpu_temp_crit_cnt: int = 0
+        self._dm_healthy_report_due: bool = True
+
+        # Voltage monitoring state
+        self._volt_check_tick: int  = 0        # run voltage check every 4 main cycles (~3 min)
+        self._was_volt_anomaly: bool = False   # for clear-on-recovery tracking
 
     def set_user_active(self) -> None:
         """Call when user sends a message - suppresses redundant alerts for 5 min."""
@@ -401,6 +446,15 @@ class ProactiveMonitor:
     def register_push(self, fn: Callable[[str], None]) -> None:
         """Register callback for in-chat messages (must be thread-safe)."""
         self._push_fn = fn
+
+    def register_hot(self, fn: Callable[[str], None]) -> None:
+        """Register callback for HOT strip (RAM/CPU/GPU critical alerts).
+        These are shown only in the red strip, never as chat messages."""
+        self._hot_fn = fn
+
+    def register_hot_clear(self, fn: Callable[[], None]) -> None:
+        """Register callback to clear the HOT strip when metrics normalize."""
+        self._hot_clear_fn = fn
 
     def register_banner(self, fn: Callable[[str], None]) -> None:
         """Register callback for banner status text updates."""
@@ -441,6 +495,10 @@ class ProactiveMonitor:
                 # DeepMonitor sensor check every 3 main cycles (~2 min 15 sec)
                 if self._dm_check_tick % DM_CHECK_INTERVAL == 0:
                     self._check_deepmonitor()
+                # Voltage check every 4 cycles (~3 min — less frequent, heavy DB query)
+                self._volt_check_tick += 1
+                if self._volt_check_tick % 4 == 0:
+                    self._check_voltage_rails()
                 # Show idle tip every ~8 checks (~6 min) when system is healthy
                 if tip_counter % 8 == 0:
                     self._maybe_idle_tip()
@@ -464,9 +522,11 @@ class ProactiveMonitor:
         # accumulate in this dict indefinitely. Prune entries older than 1 h.
         now_prune = time.time()
         if self._proc_spike_last:
+            # Keep entries for 4 h (was 1 h — too short, caused cooldown resets
+            # that let System Idle Process spam every hour of a long session)
             self._proc_spike_last = {
                 k: v for k, v in self._proc_spike_last.items()
-                if now_prune - v < 3600
+                if now_prune - v < 14400
             }
 
         # Use interval=1 (was 2) - shorter blocking, still accurate enough
@@ -520,18 +580,20 @@ class ProactiveMonitor:
             except Exception:
                 pass
 
-        # RAM - sustained critical (2+ readings) gets stronger alert
+        # RAM critical -> HOT strip only (never to chat)
         if ram >= RAM_CRIT_PCT:
             self._ram_crit_cnt += 1
             if self._ram_crit_cnt >= 2:
-                self._alert("ram_crit", f"{ram:.0f}", urgent=True)
+                self._push_hot_ram(ram)
         else:
+            if self._ram_crit_cnt >= 2:
+                self._clear_hot()   # RAM back to normal -> clear HOT strip
             self._ram_crit_cnt = max(0, self._ram_crit_cnt - 1)
 
         # GPU temperature spike + sustained CPU temp
         try:
             from hck_gpt.context.system_context import system_context
-            snap = system_context.snapshot()
+            snap = system_context.snapshot(force=True)
             gpu_temp = snap.get("gpu_temp", None)
             if gpu_temp and gpu_temp > 87:
                 self._alert("gpu_temp_spike", f"{gpu_temp:.0f}")
@@ -548,13 +610,19 @@ class ProactiveMonitor:
             pass
 
         # Process anomaly - new heavy process detection
+        # System Idle Process and kernel pseudo-processes are filtered out —
+        # their high CPU% is normal/meaningless and would spam the user.
         try:
             import psutil as _ps
             now = time.time()
-            for proc in _ps.process_iter(["name", "cpu_percent"]):
+            for proc in _ps.process_iter(["name", "pid", "cpu_percent"]):
                 try:
+                    pid   = proc.info["pid"] or 0
                     pname = proc.info["name"] or ""
                     pcpu  = proc.info["cpu_percent"] or 0.0
+                    # Filter: PID 0 and known non-actionable processes
+                    if pid == 0 or pname.lower() in _PROC_SPIKE_IGNORE:
+                        continue
                     if pcpu < PROC_SPIKE_PCT:
                         continue
                     last_spike = self._proc_spike_last.get(pname, 0)
@@ -562,7 +630,7 @@ class ProactiveMonitor:
                         continue
                     self._proc_spike_last[pname] = now
                     self._alert("process_spike", pname)
-                    break   # only one per check cycle
+                    break   # only one alert per check cycle
                 except Exception:
                     continue
         except Exception:
@@ -592,11 +660,7 @@ class ProactiveMonitor:
             if not self._recovery_notified.get("ram"):
                 self._recovery_notified["ram"] = True
                 self._was_ram_crit = False
-                if lang := self._lang:
-                    msg = (f"hck_GPT: ✓ RAM wróciło do normy - {ram:.0f}%. Świeżo po kryzysie."
-                           if lang == "pl" else
-                           f"hck_GPT: ✓ RAM back to normal - {ram:.0f}%. Crisis over.")
-                    self._push(msg)
+                self._clear_hot()   # RAM resolved -> clear HOT strip silently
         elif ram >= RAM_CRIT_PCT:
             self._was_ram_crit = True
             self._recovery_notified["ram"] = False
@@ -605,6 +669,29 @@ class ProactiveMonitor:
         self._update_banner(cpu, ram)
 
     # ── Alert dispatch ────────────────────────────────────────────────────────
+
+    def _push_hot_ram(self, ram: float) -> None:
+        """Send RAM critical alert to HOT strip only — never to chat."""
+        lang = self._lang
+        if lang == "pl":
+            if ram >= 95:
+                msg = f"RAM na {ram:.0f}% - krytyczne! Zamknij programy lub uruchom RAM Flush."
+            else:
+                msg = f"RAM na {ram:.0f}% - system może siegn po plik wymiany."
+        else:
+            if ram >= 95:
+                msg = f"RAM at {ram:.0f}% - critical! Close apps or run RAM Flush."
+            else:
+                msg = f"RAM at {ram:.0f}% - may start using page file."
+        if self._hot_fn:
+            try: self._hot_fn(msg)
+            except Exception: pass
+
+    def _clear_hot(self) -> None:
+        """Tell the HOT strip to clear itself."""
+        if self._hot_clear_fn:
+            try: self._hot_clear_fn()
+            except Exception: pass
 
     def _budget_ok(self, urgent: bool = False) -> bool:
         """Session budget check - CHI 2025: max 3 unsolicited alerts per 30-min window."""
@@ -894,6 +981,60 @@ class ProactiveMonitor:
                     self._push(msg)
         except Exception:
             pass
+
+    # ── Voltage rail monitoring ───────────────────────────────────────────────
+
+    def _check_voltage_rails(self) -> None:
+        """
+        Proactive voltage anomaly detection using VoltageAnalyzer.
+        Fires an alert when a new critical event appears that is not a
+        GPU transient and has not been decayed to "your normal".
+        Only runs when LHM data is available.
+        """
+        try:
+            from core.voltage_analyzer import voltage_analyzer as _va
+            from core.voltage_analyzer import RAILS as _vr
+        except ImportError:
+            return
+
+        if not _va.is_data_available():
+            return
+
+        try:
+            _, events = _va.analyze_history(hours=1)   # last 60 min only
+        except Exception:
+            return
+
+        # Filter: non-suppressed, non-decayed, critical or trend events
+        real_evts = [
+            e for e in events
+            if not e.suppressed
+            and not e.decayed
+            and e.severity in ("critical", "warning")
+            and e.event_type not in ("cluster",)  # clusters are lower priority
+        ]
+
+        if not real_evts:
+            self._was_volt_anomaly = False
+            return
+
+        # Only alert on first occurrence in this check window (not on every tick)
+        if self._was_volt_anomaly:
+            return   # already alerted in this run — wait for clear
+
+        self._was_volt_anomaly = True
+
+        # Pick the most severe event
+        crits = [e for e in real_evts if e.severity == "critical"]
+        alert_evt = crits[-1] if crits else real_evts[-1]
+
+        rail_meta = _vr.get(alert_evt.rail, {})
+        label     = rail_meta.get("label", alert_evt.rail)
+
+        if alert_evt.event_type in ("trend_up", "trend_down"):
+            self._alert("voltage_trend", label)
+        else:
+            self._alert("voltage_spike", label)
 
     # ── Push helper ───────────────────────────────────────────────────────────
 
