@@ -2,7 +2,7 @@
 
 > **Your PC finally has someone who speaks its language.**
 
-![Version](https://img.shields.io/badge/Version-1.7.7-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.7.8-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
@@ -25,9 +25,11 @@ Ask *"which game pushes my hardware the hardest?"* — get a thermal signature b
 | Traditional tools | PC Workman HCK |
 |---|---|
 | `CPU: 87%` | *"CPU at 87% — Chrome and Electron processes, consider closing Discord"* |
-| Static charts | Time-travel: click any point in history to see what was running |
+| Static charts | Pan/zoom charts: click any point, see pinned tooltip with baseline context |
+| Dumb thresholds | Learns your hardware's normal temperatures per workload — gaming vs idle |
+| Voltage: raw numbers | SPC control limits — flags deviations, not just ATX spec crossings |
 | No context | Remembers patterns, compares today vs your 7-day average |
-| Manual checks | Proactive alerts: RAM spike? Fan noise? Crash context? Auto-detected |
+| Manual checks | Proactive alerts: voltage anomaly? temperature spike? process appeared? Auto-pushed |
 | English only | Polish + English, auto-detected per message |
 
 ---
@@ -73,6 +75,16 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed, disk model)
 - Chat panel nav links: clickable `[→ Page]` tokens route directly to app pages
 - `_followup()` pool system: 8 keys, every response ends with a contextual next-question hint
+
+### Monitoring & Alerts *(significantly extended in 1.7.8)*
+
+- **Interactive charts** (`ui/components/interactive_chart.py`): pan (drag), zoom (scroll wheel around cursor), reset (double-click), crosshair + live value bubble, click-pin persistent tooltip with anomaly reason and baseline deviation
+- **Minimap strip** below each chart — full data range with drag-to-navigate selection window
+- **Thermal Baseline Engine** (`core/thermal_baseline.py`): learns CPU temperature norms per workload context (idle / light / medium / heavy / gaming). Welford's algorithm over last 14 days of DeepMonitor data. Chart baseline band shows learned range, not window average.
+- **Voltage Rail Analyzer** (`core/voltage_analyzer.py`): SPC on 12V / 5V / 3.3V rails using Median + MAD. Nelson Rules 1/2/3/5 (isolated spike, cluster, sustained deviation, trend). 12V GPU-transient suppression. Anomaly decay: pattern repeats ≥5× → "your normal".
+- **Learning status bar**: per-bucket training level badges.
+- **hck_GPT integration**: `_check_voltage_rails()` fires `voltage_spike` / `voltage_trend` proactive alerts (bilingual, budget-controlled). `format_for_chat(lang)` on VoltageAnalyzer.
+- **Dashboard chart tooltip**: click any bar → pinned CPU/RAM/GPU% detail + age. Click again to unpin.
 
 ### DeepMonitor *(new in 1.7.6)*
 - `ttk.Treeview` sensor table with 4 aligned columns (Sensor / Value / Min / Max)

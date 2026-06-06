@@ -1,6 +1,112 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.7.8-monitoring] - 2026-06-05
+
+### Bug fixes
+
+**`ui/pages/startup_manager.py`**
+- `_render()` crashes with `NameError: name 'self' is not defined` at line 930. Root cause: `host` parameter received by `build_startup_manager_page(host, parent)` was never forwarded into `_render()`. Page built the title label then died — everything below line 930 (tabs, panels, entries) was never rendered.
+  - Fix: `_render()` now takes `host=None`; `_on_ready` passes `host=host`; `_full_refresh()` forwards it too.
+  - `getattr(self, "_switch_to_page", None)` → `getattr(host, "_switch_to_page", None) if host else None`
+
+**`ui/windows/main_window_expanded.py` — overlay header coverage**
+- Main header "PC Workman v1.7.8 HCK Edition" remained visible for all overlay pages (MY PC, MONITORING, STATISTICS, etc.) because `_show_overlay()` placed the frame at `y=60` — deliberately below the 58px header.
+  - Fix: non-settings overlays now use `y=0, relwidth=1.0, relheight=1.0` → full coverage. Settings stays at `y=60` (main header visible per spec).
+  - Three prior fix attempts had treated this as a missing `pack_forget()` problem; the root cause was the hardcoded `y=60` offset in `place()`.
+
+**`PCWorkman.spec`**
+- Added `core.app_activity_tracker` and `core.hibernation_manager` to `hiddenimports` (both new modules were missing from the build manifest).
+
+---
+
+### New: `core/thermal_baseline.py`
+
+Workload-aware CPU temperature baseline learning.
+
+- Five workload buckets: `idle` (CPU<15%) / `light` / `medium` / `heavy` / `gaming` (GPU≥60%)
+- Per-bucket statistics: Welford's online algorithm applied to DeepMonitor snapshots from last 14 days. Produces `mean`, `σ`, `p5`, `p95` per bucket. Fresh stats computed from DB on each `rebuild()`, not incremental EMA — avoids the "learned spike" problem.
+- Training levels: `no_data` → `initializing` → `learning` → `basic` → `trained` → `calibrated` (thresholds: 5/20/60/200 samples).
+- JSON persistence: `data/cache/thermal_baseline.json`. Fast startup, version-checked.
+- `BaselineRange.context_label(temp)` returns `"14% above usual  (Gaming: 65–78°C, ±2.3°C)"` — used as chart tooltip and hck_GPT context.
+- `thermal_baseline.maybe_rebuild(min_interval_s=300)` — self-throttled async rebuild, called on each monitoring page refresh.
+- Singleton: `thermal_baseline`.
+
+---
+
+### New: `core/voltage_analyzer.py`
+
+SPC-based voltage rail intelligence using Median + MAD (not mean + σ).
+
+**Why MAD:** A spike shifts the mean toward itself, widening the "normal band" and hiding subsequent spikes. Median is unaffected by outliers. MAD (Median Absolute Deviation) inherits this property.
+
+**Algorithm:** Modified z-score (Iglewicz & Hoaglin 1993): `M = 0.6745 × (x − median) / MAD`. Anomaly if `|M| > 3.5`, warning if `|M| > 2.5`.
+
+**Nelson SPC rules implemented:**
+- Rule 1: single point beyond `Z_ANOMALY` → `isolated_spike`
+- Rule 5: 2-of-3 consecutive points beyond `Z_WARNING` (same sign) → `cluster`
+- Rule 2: 9 consecutive points same side of median → `sustained_high` / `sustained_low`
+- Rule 3: 6 consecutive monotonically changing points → `trend_up` / `trend_down`
+
+**Context suppression:** 12V rail spikes during GPU load delta >25% → downgraded to `transient` (physically expected behavior).
+
+**Anomaly decay:** Same spike magnitude (±30% tolerance) appearing ≥5 times → severity reduced one tier and flagged as "learned normal".
+
+**hck_GPT API:**
+- `format_for_chat(lang)` — formatted multi-line voltage status string, chat-ready.
+- `get_anomaly_summary()` — structured dict per rail (n_crit, n_warn, health, latest reason).
+- `VoltageEvent.reason_for_chat(lang)` — bilingual event description.
+
+Persistence: `data/cache/voltage_baseline.json`. Requires LHM/OHM for real data; graceful no-data path.
+
+---
+
+### New: `ui/components/interactive_chart.py`
+
+Reusable Tkinter canvas chart with full interaction model.
+
+- **Pan:** left-drag → shift view window (data-index space)
+- **Zoom:** scroll wheel → expand/contract around cursor X (factor 0.75×/1.33×)
+- **Reset:** double-click or "⟲ reset" button
+- **Crosshair:** dotted X+Y lines follow cursor with live value bubble
+- **Pin:** single click → anchor detailed tooltip on nearest data point. Shows: timestamp, all series values, deviation from baseline (`▲ 14% vs learned baseline`), anomaly `[event_type]` + reason. Persists until click-elsewhere or double-click.
+- **Minimap:** 18px strip below chart. Full data range compressed view. Darkened overlay outside selection window. Click or drag to jump/pan.
+- **Baseline band:** shaded region from `set_baseline(mean, lo, hi)` (e.g. from `thermal_baseline`).
+- **Anomaly markers:** colored vertical lines + dots at anomaly indices.
+- **Multi-series:** `set_series([{values, color, label}, ...])` — stacked filled areas + lines.
+
+---
+
+### Modified: `ui/pages/monitoring_alerts.py`
+
+- **InteractiveChart integration:** Temperature and Load sections now use `InteractiveChart` instead of static canvas when available. Fallback to existing draw functions if import fails.
+- **Learning Status Bar:** compact row above Temperature section — 5 colored bucket pills (idle/light/medium/heavy/gaming) with training level color coding and sample count. Overall `%` badge + "rebuilt X min ago".
+- **Workload-context temperature:** `_refresh_temp()` classifies workload from recent data, fetches `thermal_baseline.get_range(bucket)`, passes `ext_mean/lo/hi` to `_draw_adaptive_chart()`. Badge shows `"Normal (Gaming: 65–78°C)"` instead of generic `"No regular problems"`.
+- **Temperature stats:** `temp_lifetime_avg` label now shows `45.2°C ±3.1` (learned baseline mean±σ) instead of `--`.
+- **Voltage Rails section** (`_build_voltage_section`): Three-column SPC display (12V / 5V / 3.3V). Each column: `InteractiveChart`-compatible canvas, stats (Median / MAD / UCL / LCL / Samples), health badge. No-data path shows LHM explanation. Badge driven by `_refresh_voltage()` using `voltage_analyzer`.
+- **Voltage chart** (`_draw_voltage_chart`): Tight Y-axis (nominal ±10%). Layers: ATX spec band / normal band / warn dashed lines / UCL+LCL dashed / nominal dotted / actual line / anomaly dots.
+- **Auto-baseline rebuild:** `_start_refresh()` now calls `thermal_baseline.maybe_rebuild(300)` and `voltage_analyzer.maybe_rebuild(300)` on every 30s refresh cycle.
+
+---
+
+### Modified: `hck_gpt/memory/proactive_monitor.py`
+
+- Two new alert message pools: `voltage_spike` and `voltage_trend` (PL + EN).
+- `_volt_check_tick` counter — voltage check runs every 4 main cycles (~3 min; lighter than main checks).
+- `_was_volt_anomaly` state — prevents alert spam; fires once per anomaly window, clears on resolution.
+- `_check_voltage_rails()`: loads last 60 min from `voltage_analyzer.analyze_history()`, filters suppressed/decayed/info events, fires `voltage_spike` or `voltage_trend` alert through existing `_alert()` system (session budget + gap protection apply).
+
+---
+
+### Modified: `ui/windows/main_window_expanded.py` — dashboard chart
+
+- `realtime_canvas` now has `<ButtonPress-1>`, `<Motion>`, `<Leave>` bindings.
+- `_chart_on_click()`: pins/unpins a detail tooltip on the nearest bar (second click on same bar = unpin).
+- `_chart_on_motion()`: hover tooltip when nothing is pinned (bar index → CPU/RAM/GPU% + "Xs ago").
+- Tooltip is a `tk.Label` placed on `self.root` via `.place()` — appears above cursor, clamped to window bounds. Shows `[pinned]` tag when click-anchored.
+
+---
+
 ## [1.7.7-patched] - 2026-06-03
 
 UI/UX audit pass — 5 targeted fixes found during post-release review.
