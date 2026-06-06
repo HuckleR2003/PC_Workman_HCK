@@ -4,7 +4,7 @@
   <!-- Main Landing Page (English - Default) -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -12,7 +12,7 @@
   <!-- English Version -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/index_en.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -20,7 +20,7 @@
   <!-- Polish Version -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/index.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -28,7 +28,7 @@
   <!-- Security Report Page -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/SECURITY_report.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -36,7 +36,7 @@
   <!-- Story Page -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/story.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -44,7 +44,7 @@
   <!-- Story Page (English) -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/story_en.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -52,7 +52,7 @@
   <!-- Profile Page -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/profile.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -60,7 +60,7 @@
   <!-- Hero Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#hero</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -68,7 +68,7 @@
   <!-- Features Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#features</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -76,7 +76,7 @@
   <!-- Killer Features Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#killer</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -84,7 +84,7 @@
   <!-- Quiz Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#quiz</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -92,7 +92,7 @@
   <!-- Comparison Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#comparison</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -100,7 +100,7 @@
   <!-- Personal Story Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#story</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -108,7 +108,7 @@
   <!-- Blog Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#blog</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -116,15 +116,23 @@
   <!-- FAQ Section -->
   <url>
     <loc>https://huckler2003.github.io/PC_Workman_HCK/#faq</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <!-- robots.txt -->
+  <url>
+    <loc>https://huckler2003.github.io/PC_Workman_HCK/robots.txt</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 
   <!-- GitHub Repository (main) -->
   <url>
     <loc>https://github.com/HuckleR2003/PC_Workman_HCK</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -132,7 +140,7 @@
   <!-- GitHub Releases -->
   <url>
     <loc>https://github.com/HuckleR2003/PC_Workman_HCK/releases</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -140,7 +148,7 @@
   <!-- GitHub Discussions (community, indexed by search engines) -->
   <url>
     <loc>https://github.com/HuckleR2003/PC_Workman_HCK/discussions</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -148,7 +156,7 @@
   <!-- GitHub Issues -->
   <url>
     <loc>https://github.com/HuckleR2003/PC_Workman_HCK/issues</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -156,7 +164,7 @@
   <!-- CHANGELOG (raw — indexed by AI crawlers reading project history) -->
   <url>
     <loc>https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
