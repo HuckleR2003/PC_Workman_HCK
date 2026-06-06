@@ -17,6 +17,30 @@ import time
 import math
 from datetime import datetime, timedelta
 
+# ── Interactive chart component ───────────────────────────────────────────────
+try:
+    from ui.components.interactive_chart import InteractiveChart as _IChart
+    _HAS_ICHART = True
+except ImportError:
+    _HAS_ICHART = False
+    _IChart     = None
+
+# ── Intelligence modules (graceful fallback if missing) ───────────────────────
+try:
+    from core.thermal_baseline import thermal_baseline as _thermal_bl
+    _HAS_THERMAL_BL = True
+except ImportError:
+    _HAS_THERMAL_BL = False
+    _thermal_bl     = None
+
+try:
+    from core.voltage_analyzer import voltage_analyzer as _volt_az, RAILS as _VOLT_RAILS
+    _HAS_VOLT_AZ = True
+except ImportError:
+    _HAS_VOLT_AZ = False
+    _volt_az     = None
+    _VOLT_RAILS  = {}
+
 # ── Font system ────────────────────────────────────────────────────────────────
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
@@ -78,11 +102,17 @@ def build_monitoring_alerts_page(self, parent):
     # ── Header (contains HEALTH + ANOMALIES badges) ───────────────────────────
     rings_cv, score_ref, health_lbl, anom_lbl = _build_page_header(sf)
 
+    # ── Learning status bar ───────────────────────────────────────────────────
+    _build_learning_status_bar(sf)
+
     # ── Temperature section ───────────────────────────────────────────────────
     temp_sec = _build_temperature_section(sf)
 
     # ── Voltage / Load section ────────────────────────────────────────────────
     load_sec = _build_load_section(sf)
+
+    # ── Voltage Rails (SPC) ───────────────────────────────────────────────────
+    volt_sec = _build_voltage_section(sf)
 
     # ── 30-day Anomaly Calendar ───────────────────────────────────────────────
     _build_anomaly_calendar(sf)
@@ -90,8 +120,15 @@ def build_monitoring_alerts_page(self, parent):
     # ── Events log ────────────────────────────────────────────────────────────
     _build_alerts_log(sf)
 
+    # ── Kick off baseline rebuilds immediately (async) ────────────────────────
+    if _HAS_THERMAL_BL:
+        _thermal_bl.maybe_rebuild(60.0)
+    if _HAS_VOLT_AZ:
+        _volt_az.maybe_rebuild(60.0)
+
     # ── Auto-refresh ─────────────────────────────────────────────────────────
-    _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl, temp_sec, load_sec)
+    _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl,
+                   temp_sec, load_sec, volt_sec)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -292,15 +329,24 @@ def _build_temperature_section(parent):
     chart_frame = tk.Frame(content, bg="#050809")
     chart_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
 
-    chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
-    chart_cv.pack(fill="x", padx=2, pady=2)
-    section._chart_canvas = chart_cv
-    section._chart_data    = []
-
-    # Alert timeline strip
-    tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
-    tl_cv.pack(fill="x")
-    section._timeline_cv = tl_cv
+    if _HAS_ICHART:
+        ic = _IChart(chart_frame, height=150, minimap=True,
+                     y_min_range=8.0, label="")
+        section._ichart_temp = ic
+        # Keep legacy refs so existing code that checks _chart_canvas still works
+        section._chart_canvas = ic.canvas
+        section._chart_data   = []
+        # No separate timeline strip needed — anomalies shown as markers on chart
+        section._timeline_cv  = None
+    else:
+        chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
+        chart_cv.pack(fill="x", padx=2, pady=2)
+        section._chart_canvas = chart_cv
+        section._chart_data   = []
+        tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
+        tl_cv.pack(fill="x")
+        section._timeline_cv  = tl_cv
+        section._ichart_temp  = None
 
     # Stats panel
     stats_f = tk.Frame(content, bg=PANEL2, width=165)
@@ -377,24 +423,42 @@ def _build_load_section(parent):
     chart_frame = tk.Frame(content, bg="#050809")
     chart_frame.pack(side="left", fill="both", expand=True, padx=(0, 6))
 
-    chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
-    chart_cv.pack(fill="x", padx=2, pady=2)
-    section._chart_canvas = chart_cv
-    section._chart_data    = []
+    if _HAS_ICHART:
+        ic_load = _IChart(chart_frame, height=150, minimap=True,
+                          y_min_range=10.0)
+        section._ichart_load  = ic_load
+        section._chart_canvas = ic_load.canvas
+        section._chart_data   = []
+        section._timeline_cv  = None
+    else:
+        chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
+        chart_cv.pack(fill="x", padx=2, pady=2)
+        section._chart_canvas = chart_cv
+        section._chart_data   = []
+        section._ichart_load  = None
 
-    # Legend
-    legend = tk.Frame(chart_frame, bg="#050809")
-    legend.pack(fill="x", padx=4, pady=(0, 3))
-    for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
-        tk.Label(legend, text="●", font=(_MONO, 6),
-                 bg="#050809", fg=col).pack(side="left", padx=(0, 1))
-        tk.Label(legend, text=name, font=(_MONO, 6),
-                 bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
+        # Legend (only for static version)
+        legend = tk.Frame(chart_frame, bg="#050809")
+        legend.pack(fill="x", padx=4, pady=(0, 3))
+        for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
+            tk.Label(legend, text="●", font=(_MONO, 6),
+                     bg="#050809", fg=col).pack(side="left", padx=(0, 1))
+            tk.Label(legend, text=name, font=(_MONO, 6),
+                     bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
 
-    # Alert timeline
-    tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
-    tl_cv.pack(fill="x")
-    section._timeline_cv = tl_cv
+        tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
+        tl_cv.pack(fill="x")
+        section._timeline_cv = tl_cv
+
+    # Legend for interactive version (separate row, always shown)
+    if _HAS_ICHART:
+        leg = tk.Frame(chart_frame, bg="#050809")
+        leg.pack(fill="x", padx=4, pady=(0, 2))
+        for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
+            tk.Label(leg, text="●", font=(_MONO, 6),
+                     bg="#050809", fg=col).pack(side="left", padx=(0, 1))
+            tk.Label(leg, text=name, font=(_MONO, 6),
+                     bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
 
     stats_f = tk.Frame(content, bg=PANEL2, width=165)
     stats_f.pack(side="right", fill="y")
@@ -439,6 +503,480 @@ def _build_load_stats(parent):
                        bg=PANEL2, fg=col, anchor="e")
         lbl.pack(side="right")
         setattr(parent, key, lbl)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# LEARNING STATUS BAR
+# ──────────────────────────────────────────────────────────────────────────────
+
+_LEVEL_COLORS = {
+    "no_data":     ("#1a1a1a", "#374151"),
+    "initializing":("#1a1000", "#78350f"),
+    "learning":    ("#1a1400", "#d97706"),
+    "basic":       ("#0d1f0d", "#16a34a"),
+    "trained":     ("#0a2010", "#22c55e"),
+    "calibrated":  ("#061808", "#4ade80"),
+}
+
+def _build_learning_status_bar(parent):
+    """
+    Compact horizontal bar showing thermal baseline training status per bucket.
+    Only shown when ThermalBaseline module is available.
+    """
+    if not _HAS_THERMAL_BL:
+        return
+
+    outer = tk.Frame(parent, bg=PANEL)
+    outer.pack(fill="x", padx=15, pady=(0, 6))
+    tk.Frame(outer, bg="#4f46e5", height=1).pack(fill="x")
+
+    bar = tk.Frame(outer, bg=PANEL)
+    bar.pack(fill="x", padx=10, pady=(4, 5))
+
+    # Label
+    tk.Label(bar, text="🧠", font=(_BODY, 9), bg=PANEL).pack(side="left")
+    tk.Label(bar,
+             text=" Thermal Learning",
+             font=(_MONO, 7, "bold"), bg=PANEL, fg="#6366f1").pack(side="left")
+
+    # Separator
+    tk.Frame(bar, bg=BORDER, width=1, height=16).pack(side="left", padx=8)
+
+    # Bucket pills
+    status = _thermal_bl.training_status()
+    bucket_labels = {
+        "idle": "Idle", "light": "Light", "medium": "Medium",
+        "heavy": "Heavy", "gaming": "Gaming",
+    }
+    for bk, bk_lbl in bucket_labels.items():
+        info  = status.get(bk, {})
+        level = info.get("level", "no_data")
+        n     = info.get("n", 0)
+        bg_c, fg_c = _LEVEL_COLORS.get(level, _LEVEL_COLORS["no_data"])
+
+        pill = tk.Frame(bar, bg=BORDER)
+        pill.pack(side="left", padx=2)
+        inner = tk.Frame(pill, bg=bg_c)
+        inner.pack(padx=1, pady=1)
+        tk.Label(inner,
+                 text=f"{bk_lbl}",
+                 font=(_MONO, 6, "bold"),
+                 bg=bg_c, fg=fg_c,
+                 padx=4, pady=1).pack(side="left")
+        if n:
+            tk.Label(inner,
+                     text=f" {n}",
+                     font=(_MONO, 6),
+                     bg=bg_c, fg=DIM,
+                     padx=2).pack(side="left")
+
+    # Overall pct badge
+    pct = _thermal_bl.overall_training_pct()
+    pct_col = OK_C if pct >= 80 else WARN_C if pct >= 40 else DIM
+    tk.Label(bar,
+             text=f"  {pct}% overall",
+             font=(_MONO, 7), bg=PANEL, fg=pct_col).pack(side="right")
+
+    # Last rebuilt
+    tk.Label(bar,
+             text=f"rebuilt {_thermal_bl.last_update_str()}",
+             font=(_MONO, 6), bg=PANEL, fg=DIM).pack(side="right", padx=(0, 8))
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# VOLTAGE RAILS SECTION (SPC)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_SEVERITY_BADGE = {
+    "ok":    ("#0d2818", "#4ade80"),
+    "watch": ("#142010", "#22c55e"),
+    "warn":  ("#2a1800", "#f59e0b"),
+    "crit":  ("#2a0808", "#ef4444"),
+    "none":  ("#1a1a1a", "#374151"),
+}
+
+
+def _build_voltage_section(parent):
+    """
+    Three-column SPC voltage section.
+    Shows real-time charts + learned control limits for 12V, 5V, 3.3V rails.
+    Requires LHM/OHM; shows informational placeholder otherwise.
+    """
+    section = _make_section(parent)
+
+    # ── Section header ────────────────────────────────────────────────────────
+    hdr = tk.Frame(section, bg="#0a0f1a")
+    hdr.pack(fill="x")
+    tk.Frame(hdr, bg=VOLT_C, height=2).pack(fill="x")
+
+    hdr_body = tk.Frame(hdr, bg="#0a0f1a")
+    hdr_body.pack(fill="x", padx=10, pady=6)
+    tk.Label(hdr_body, text="⚡  VOLTAGE RAILS  —  Statistical Process Control",
+             font=(_MONO, 9, "bold"),
+             bg="#0a0f1a", fg=VOLT_C).pack(side="left")
+
+    if _HAS_VOLT_AZ:
+        snap_n = _volt_az.snapshot_count()
+        src_lbl = (f"{snap_n:,} snapshots · LHM" if snap_n
+                   else "Awaiting LHM data")
+        tk.Label(hdr_body,
+                 text=src_lbl,
+                 font=(_MONO, 7), bg="#0a0f1a", fg=DIM).pack(side="right")
+        if snap_n:
+            last_str = _volt_az.last_update_str()
+            tk.Label(hdr_body,
+                     text=f"rebuilt {last_str}",
+                     font=(_MONO, 6), bg="#0a0f1a", fg=DIM
+                     ).pack(side="right", padx=(0, 10))
+
+    # ── Content ───────────────────────────────────────────────────────────────
+    content = tk.Frame(section, bg=PANEL)
+    content.pack(fill="x", padx=8, pady=6)
+    section._volt_content = content
+
+    # Check data availability
+    data_available = (_HAS_VOLT_AZ and _volt_az.is_data_available())
+
+    if not data_available:
+        _build_voltage_no_data(content)
+    else:
+        _build_voltage_rail_columns(section, content)
+
+    # Learn bar at bottom
+    learn_bar = tk.Frame(section, bg=PANEL)
+    learn_bar.pack(fill="x", padx=8, pady=(0, 6))
+    if _HAS_VOLT_AZ:
+        tk.Label(learn_bar, text="⚗", font=(_BODY, 8), bg=PANEL).pack(side="left")
+        tk.Label(learn_bar,
+                 text="Learns your hardware's natural voltage variance — "
+                      "flags only statistically unusual deviations",
+                 font=(_BODY, 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
+        section._volt_badge = tk.Label(
+            learn_bar,
+            text="Initializing…" if not data_available else "Analyzing…",
+            font=(_MONO, 7, "bold"),
+            bg="#0d1020", fg=VOLT_C, padx=8, pady=1)
+        section._volt_badge.pack(side="right")
+
+    return section
+
+
+def _build_voltage_no_data(parent):
+    """Placeholder shown when no LHM voltage data is available."""
+    pad = tk.Frame(parent, bg=PANEL)
+    pad.pack(fill="x", padx=20, pady=18)
+
+    tk.Label(pad,
+             text="⚠  No voltage sensor data available",
+             font=(_MONO, 9, "bold"), bg=PANEL, fg=DIM).pack(anchor="w")
+    tk.Label(pad,
+             text="Voltage monitoring requires LibreHardwareMonitor (LHM) or OpenHardwareMonitor (OHM).\n"
+                  "Once running, PC Workman automatically reads 12V / 5V / 3.3V rails and starts\n"
+                  "building statistical baselines.  Anomaly detection begins after ~50 snapshots (≈4h).",
+             font=(_BODY, 8), bg=PANEL, fg=MUTED,
+             justify="left").pack(anchor="w", pady=(6, 0))
+    tk.Label(pad,
+             text="DeepMonitor stores a snapshot every 5 minutes — baseline learning is fully automatic.",
+             font=(_BODY, 7, "italic"), bg=PANEL, fg=DIM
+             ).pack(anchor="w", pady=(4, 0))
+
+
+def _build_voltage_rail_columns(section, parent):
+    """Three side-by-side rail sub-panels."""
+    if not _HAS_VOLT_AZ:
+        return
+
+    stats = _volt_az.get_rail_stats()
+
+    cols_frame = tk.Frame(parent, bg=PANEL)
+    cols_frame.pack(fill="x")
+
+    section._volt_canvases = {}
+    section._volt_stat_labels = {}
+
+    for i, (rail_key, meta) in enumerate(_VOLT_RAILS.items()):
+        rs  = stats.get(rail_key)
+        col = meta["color"]
+
+        # Column container
+        col_outer = tk.Frame(cols_frame, bg=BORDER)
+        col_outer.pack(side="left", fill="both", expand=True,
+                       padx=(0 if i == 0 else 4, 0))
+        col_frame = tk.Frame(col_outer, bg=PANEL2)
+        col_frame.pack(fill="both", expand=True, padx=1, pady=1)
+
+        # Rail header
+        rail_hdr = tk.Frame(col_frame, bg=PANEL2)
+        rail_hdr.pack(fill="x", padx=6, pady=(5, 2))
+        tk.Label(rail_hdr,
+                 text=f"◈ {meta['label']}",
+                 font=(_MONO, 8, "bold"),
+                 bg=PANEL2, fg=col).pack(side="left")
+        tk.Label(rail_hdr,
+                 text=f"nom. {meta['nominal']:.1f}V",
+                 font=(_MONO, 6), bg=PANEL2, fg=DIM).pack(side="right")
+
+        # Chart canvas
+        cv = tk.Canvas(col_frame, bg="#030508",
+                       height=90, highlightthickness=0)
+        cv.pack(fill="x", padx=4, pady=(0, 2))
+        section._volt_canvases[rail_key] = cv
+
+        # Stats block
+        sf = tk.Frame(col_frame, bg=PANEL2)
+        sf.pack(fill="x", padx=6, pady=(0, 4))
+
+        lbls = {}
+        stat_rows = [
+            ("median",  "Median",  "V", col),
+            ("mad",     "MAD",     "V", DIM),
+            ("ucl",     "UCL",     "V", CRIT_C),
+            ("lcl",     "LCL",     "V", CRIT_C),
+            ("n_snap",  "Samples", "",  DIM),
+        ]
+        for key2, label2, unit2, fg2 in stat_rows:
+            r = tk.Frame(sf, bg=PANEL2)
+            r.pack(fill="x")
+            tk.Label(r, text=label2,
+                     font=(_MONO, 7), bg=PANEL2, fg=TEXT,
+                     anchor="w").pack(side="left")
+            v_str = ("--" if rs is None or not rs.has_data
+                     else f"{getattr(rs, key2.replace('n_snap','n'), '--'):.4f}"
+                     if unit2 == "V"
+                     else f"{rs.n:,}" if key2 == "n_snap"
+                     else "--")
+            lbl = tk.Label(r, text=v_str,
+                           font=(_MONO, 7, "bold"),
+                           bg=PANEL2, fg=fg2, anchor="e")
+            lbl.pack(side="right")
+            lbls[key2] = lbl
+
+        # Health badge
+        hl_text, hl_sev = rs.health_label() if rs else ("No data", "none")
+        bg_b, fg_b = _SEVERITY_BADGE.get(hl_sev, _SEVERITY_BADGE["none"])
+        badge = tk.Label(col_frame,
+                         text=hl_text,
+                         font=(_MONO, 7, "bold"),
+                         bg=bg_b, fg=fg_b, padx=8, pady=2)
+        badge.pack(fill="x", padx=6, pady=(0, 5))
+        lbls["_badge"] = badge
+        lbls["_badge_frame"] = col_frame   # for re-styling on update
+
+        section._volt_stat_labels[rail_key] = lbls
+
+
+def _draw_voltage_chart(canvas, timeline, rail_key, stats, height=90):
+    """
+    SPC-style voltage chart with tight Y-axis scaling.
+
+    Visual layers (bottom to top):
+        1. ATX spec band   (very dark grey background region)
+        2. Green band      ±Z_WATCH×K×MAD  (normal operating range)
+        3. Amber lines     warn_hi / warn_lo  (dashed)
+        4. Red lines       UCL / LCL         (dashed)
+        5. Nominal dotted  reference line
+        6. Blue/amber line actual voltage values
+        7. Anomaly dots    red filled circles on z > 2.5 points
+        8. Y-axis labels
+    """
+    canvas.delete("all")
+    w = canvas.winfo_width() or 300
+
+    if not timeline or stats is None or not stats.has_data:
+        canvas.create_text(w // 2, height // 2,
+                           text="Collecting data…",
+                           fill=MUTED, font=(_MONO, 7))
+        return
+
+    vals = [float(r.get(rail_key, -1.0) or -1.0) for r in timeline]
+    valid = [(i, v) for i, v in enumerate(vals) if v > 0]
+    if len(valid) < 2:
+        canvas.create_text(w // 2, height // 2,
+                           text="Not enough data",
+                           fill=MUTED, font=(_MONO, 7))
+        return
+
+    h   = height
+    PL, PR, PT, PB = 36, 6, 8, 16
+    cw  = w - PL - PR
+    ch  = h - PT - PB
+    n   = len(timeline)
+
+    # ── Y range: nominal ± 10 % (to give visual context around ATX spec) ──────
+    nom  = stats.nominal
+    ylo  = nom * 0.90
+    yhi  = nom * 1.10
+    # Expand if data goes outside that window
+    data_lo = min(v for _, v in valid)
+    data_hi = max(v for _, v in valid)
+    ylo  = min(ylo, data_lo - (yhi - ylo) * 0.05)
+    yhi  = max(yhi, data_hi + (yhi - ylo) * 0.05)
+    yrng = yhi - ylo or 0.001
+
+    def vy(v): return PT + ch * (1.0 - (v - ylo) / yrng)
+    def vx(i): return PL + (i / max(n - 1, 1)) * cw
+
+    # ── 1. ATX spec band (very dark) ─────────────────────────────────────────
+    y_atx_lo = vy(stats.atx_lo)
+    y_atx_hi = vy(stats.atx_hi)
+    canvas.create_rectangle(PL, y_atx_hi, w - PR, y_atx_lo,
+                             fill="#080f08", outline="")
+
+    # ── 2. Normal band (±Z_WATCH × K × MAD) ──────────────────────────────────
+    nlo, nhi = stats.normal_band
+    if ylo < nhi < yhi and ylo < nlo < yhi:
+        canvas.create_rectangle(PL, vy(nhi), w - PR, vy(nlo),
+                                 fill="#0a2010", outline="")
+
+    # ── 3. Warn lines ─────────────────────────────────────────────────────────
+    for vv in (stats.warn_hi, stats.warn_lo):
+        if ylo <= vv <= yhi:
+            y = vy(vv)
+            canvas.create_line(PL, y, w - PR, y,
+                                fill="#78350f", width=1, dash=(4, 4))
+
+    # ── 4. UCL / LCL ─────────────────────────────────────────────────────────
+    for vv in (stats.ucl, stats.lcl):
+        if ylo <= vv <= yhi:
+            y = vy(vv)
+            canvas.create_line(PL, y, w - PR, y,
+                                fill="#7f1d1d", width=1, dash=(3, 5))
+
+    # ── 5. Nominal line ───────────────────────────────────────────────────────
+    yn = vy(nom)
+    canvas.create_line(PL, yn, w - PR, yn,
+                        fill="#1e3a1e", width=1, dash=(6, 4))
+
+    # ── Grid lines + Y-axis labels ─────────────────────────────────────────────
+    for tick_v in (ylo, (ylo + yhi) / 2, yhi):
+        yt = vy(tick_v)
+        canvas.create_line(PL, yt, w - PR, yt, fill="#0d1217", width=1)
+        canvas.create_text(PL - 3, yt,
+                           text=f"{tick_v:.2f}",
+                           fill=DIM, font=(_MONO, 5), anchor="e")
+
+    # ── 6. Voltage line ───────────────────────────────────────────────────────
+    meta = _VOLT_RAILS.get(rail_key, {})
+    line_col = meta.get("color", VOLT_C)
+    pts = []
+    for i, row in enumerate(timeline):
+        v = float(row.get(rail_key, -1.0) or -1.0)
+        if v <= 0:
+            continue
+        clipped = max(ylo, min(yhi, v))
+        pts += [vx(i), vy(clipped)]
+    if len(pts) >= 4:
+        canvas.create_line(pts, fill=line_col, width=1, smooth=False)
+
+    # ── 7. Anomaly dots ───────────────────────────────────────────────────────
+    for i, row in enumerate(timeline):
+        v = float(row.get(rail_key, -1.0) or -1.0)
+        if v <= 0:
+            continue
+        mz = stats.modified_z(v)
+        if abs(mz) > 2.5:
+            dot_col = CRIT_C if abs(mz) > 3.5 else WARN_C
+            px, py  = vx(i), vy(max(ylo, min(yhi, v)))
+            r_dot   = 3 if abs(mz) > 3.5 else 2
+            canvas.create_oval(px - r_dot, py - r_dot,
+                                px + r_dot, py + r_dot,
+                                fill=dot_col, outline="#ffffff", width=1)
+
+    # ── Time axis bookmarks ───────────────────────────────────────────────────
+    ts_list = [r.get("ts", 0) for r in timeline if r.get("ts")]
+    if len(ts_list) >= 2:
+        for frac in (0.0, 0.5, 1.0):
+            ts_v = ts_list[0] + (ts_list[-1] - ts_list[0]) * frac
+            tx   = PL + frac * cw
+            canvas.create_text(tx, h - 4,
+                                text=datetime.fromtimestamp(ts_v).strftime("%H:%M"),
+                                fill=DIM, font=(_MONO, 5),
+                                anchor=("w" if frac == 0 else
+                                        "e" if frac == 1.0 else "center"))
+
+
+def _refresh_voltage(section):
+    """Pull latest voltage history, rebuild charts and update stat labels."""
+    if not _HAS_VOLT_AZ:
+        return
+
+    canvases  = getattr(section, "_volt_canvases",    {})
+    stat_lbls = getattr(section, "_volt_stat_labels", {})
+    if not canvases:
+        return
+
+    # Load last 24h (scale could be added later)
+    timeline, events = _volt_az.analyze_history(hours=24)
+    stats_all        = _volt_az.get_rail_stats()
+
+    # ── Update each rail column ───────────────────────────────────────────────
+    anom_total = 0
+    for rail_key, cv in canvases.items():
+        rs = stats_all.get(rail_key)
+        try:
+            if not cv.winfo_exists():
+                continue
+        except Exception:
+            continue
+
+        cv.bind("<Configure>",
+                lambda e, t=timeline, rk=rail_key, s=rs:
+                    _draw_voltage_chart(e.widget, t, rk, s))
+        _draw_voltage_chart(cv, timeline, rail_key, rs)
+
+        # Update stat labels
+        lbls = stat_lbls.get(rail_key, {})
+        if rs and rs.has_data:
+            nlo, nhi = rs.normal_band
+            for key2, val2 in [
+                ("median",  f"{rs.median:.4f}"),
+                ("mad",     f"{rs.mad:.4f}"),
+                ("ucl",     f"{rs.ucl:.4f}"),
+                ("lcl",     f"{rs.lcl:.4f}"),
+                ("n_snap",  f"{rs.n:,}"),
+            ]:
+                lbl = lbls.get(key2)
+                if lbl:
+                    try:
+                        lbl.config(text=val2)
+                    except Exception:
+                        pass
+
+        # Update health badge
+        hl_text, hl_sev = rs.health_label() if rs else ("No data", "none")
+        bg_b, fg_b = _SEVERITY_BADGE.get(hl_sev, _SEVERITY_BADGE["none"])
+        badge = lbls.get("_badge")
+        if badge:
+            try:
+                badge.config(text=hl_text, bg=bg_b, fg=fg_b)
+            except Exception:
+                pass
+
+        if rs:
+            anom_total += rs.anomaly_count
+
+    # ── Update section badge ──────────────────────────────────────────────────
+    if hasattr(section, "_volt_badge"):
+        # Count non-suppressed critical/warning events in timeline
+        real_events = [e for e in events if not e.suppressed
+                       and e.severity in ("critical", "warning")]
+        n_crit = sum(1 for e in real_events if e.severity == "critical")
+        if n_crit:
+            section._volt_badge.config(
+                text=f"⚠ {n_crit} critical anomaly" + ("s" if n_crit > 1 else ""),
+                bg="#2a0808", fg=CRIT_C)
+        elif real_events:
+            section._volt_badge.config(
+                text=f"{len(real_events)} warnings (24h)",
+                bg="#2a1800", fg=WARN_C)
+        elif _volt_az.is_data_available():
+            section._volt_badge.config(
+                text="All rails within normal bounds",
+                bg="#0d2818", fg="#4ade80")
+        else:
+            section._volt_badge.config(
+                text="Awaiting LHM data",
+                bg="#0d1020", fg=VOLT_C)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -613,7 +1151,8 @@ def _render_event_row(parent, evt: dict):
 # CHART DRAWING - Adaptive baseline + anomaly decay
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _draw_adaptive_chart(canvas, data, key, color, height=150):
+def _draw_adaptive_chart(canvas, data, key, color, height=150,
+                          ext_mean=None, ext_lo=None, ext_hi=None):
     """
     Area chart with:
       • Shaded baseline band (mean ±σ) - learned normal zone
@@ -638,10 +1177,19 @@ def _draw_adaptive_chart(canvas, data, key, color, height=150):
     if n < 2:
         return
 
-    mean, sigma = _compute_adaptive(values)
-    base_lo = max(0, mean - sigma)
-    base_hi = mean + sigma * 1.5
-    thresh  = mean + sigma * 1.5      # same as base_hi
+    # Use externally supplied baseline (from ThermalBaseline) when available,
+    # otherwise fall back to the simple window mean±σ.
+    if ext_mean is not None and ext_lo is not None and ext_hi is not None:
+        mean    = ext_mean
+        sigma_w = (ext_hi - ext_lo) / 3.0 if (ext_hi - ext_lo) > 0 else 5.0
+        base_lo = ext_lo
+        base_hi = ext_hi
+        thresh  = ext_hi
+    else:
+        mean, sigma_w = _compute_adaptive(values)
+        base_lo = max(0, mean - sigma_w)
+        base_hi = mean + sigma_w * 1.5
+        thresh  = base_hi
 
     vmin  = max(0, min(values) * 0.95)
     vmax  = max(values) * 1.08 if max(values) > 0 else 100
@@ -1025,15 +1573,63 @@ def _refresh_temp(section):
             d["display_temp"] = float(d["cpu_temp"])
 
     section._chart_data = data
-    _draw_adaptive_chart(section._chart_canvas, data, "display_temp", TEMP_C)
 
-    # Timeline strip
-    if hasattr(section, "_timeline_cv"):
-        section._timeline_cv.bind(
-            "<Configure>",
-            lambda e, d=data: _draw_alert_timeline(
-                section._timeline_cv, d, "display_temp"))
-        _draw_alert_timeline(section._timeline_cv, data, "display_temp")
+    # ── Thermal baseline: workload-context chart band ─────────────────────────
+    ext_mean = ext_lo = ext_hi = None
+    section._current_workload = "unknown"
+    if _HAS_THERMAL_BL and data:
+        # Classify workload from the most recent data points
+        recent  = data[-min(8, len(data)):]
+        avg_cpu = sum(d.get("cpu_avg", 0) or 0 for d in recent) / len(recent)
+        avg_gpu = sum(d.get("gpu_avg", 0) or 0 for d in recent) / len(recent)
+        bucket  = _thermal_bl.classify(avg_cpu, avg_gpu)
+        bl_rng  = _thermal_bl.get_range(bucket)
+        section._current_workload = bucket
+
+        if bl_rng.is_usable:
+            ext_mean = bl_rng.mean
+            ext_lo   = bl_rng.p5
+            ext_hi   = bl_rng.p95
+            # Store range on section for stats display
+            section._baseline_range  = bl_rng
+        else:
+            section._baseline_range = None
+    else:
+        section._baseline_range = None
+
+    if _HAS_ICHART and getattr(section, "_ichart_temp", None):
+        ic = section._ichart_temp
+        vals = [d.get("display_temp") for d in data]
+        ts   = [d.get("timestamp", 0) for d in data]
+
+        # Compute anomaly markers for the chart
+        mean_v, sig_v = _compute_adaptive(vals)
+        anom_threshold = ext_hi if ext_hi else mean_v + sig_v * 1.5
+        anom_markers = [
+            {"idx": i, "severity": "critical" if v > anom_threshold + sig_v else "warning",
+             "reason": (getattr(section, "_baseline_range", None).context_label(v)
+                        if getattr(section, "_baseline_range", None) else ""),
+             "type": "isolated_spike"}
+            for i, v in enumerate(vals) if v and v > anom_threshold
+        ]
+
+        ic.set_series([{"values": vals, "color": TEMP_C, "label": "Temp °C"}])
+        ic.set_timestamps(ts)
+        if ext_mean is not None:
+            ic.set_baseline(mean=ext_mean, lo=ext_lo, hi=ext_hi)
+        else:
+            ic.clear_baseline()
+        ic.set_anomalies(anom_markers)
+        ic.draw()
+    else:
+        _draw_adaptive_chart(section._chart_canvas, data, "display_temp", TEMP_C,
+                             ext_mean=ext_mean, ext_lo=ext_lo, ext_hi=ext_hi)
+        if hasattr(section, "_timeline_cv") and section._timeline_cv:
+            section._timeline_cv.bind(
+                "<Configure>",
+                lambda e, d=data: _draw_alert_timeline(
+                    section._timeline_cv, d, "display_temp"))
+            _draw_alert_timeline(section._timeline_cv, data, "display_temp")
 
     _update_temp_stats(section, data)
 
@@ -1043,10 +1639,34 @@ def _refresh_load(section):
              else section._load_scale[0])
     data  = _load_data(scale)
     section._chart_data = data
-    _draw_multi_load_chart(section._chart_canvas, data)
 
-    if hasattr(section, "_timeline_cv"):
-        _draw_alert_timeline(section._timeline_cv, data, "cpu_avg")
+    if _HAS_ICHART and getattr(section, "_ichart_load", None):
+        ic  = section._ichart_load
+        cpu = [d.get("cpu_avg") for d in data]
+        ram = [d.get("ram_avg") for d in data]
+        gpu = [d.get("gpu_avg") for d in data]
+        ts  = [d.get("timestamp", 0) for d in data]
+
+        # Anomaly markers on CPU series
+        mean_c, sig_c = _compute_adaptive([v for v in cpu if v is not None])
+        cpu_anom = [
+            {"idx": i, "severity": "warning",
+             "reason": f"CPU spike: {v:.0f}%", "type": "isolated_spike"}
+            for i, v in enumerate(cpu) if v and v > mean_c + sig_c * 2
+        ]
+        ic.set_series([
+            {"values": cpu, "color": LOAD_C, "label": "CPU%"},
+            {"values": ram, "color": RAM_C,  "label": "RAM%"},
+            {"values": gpu, "color": GPU_C,  "label": "GPU%"},
+        ])
+        ic.set_timestamps(ts)
+        ic.clear_baseline()
+        ic.set_anomalies(cpu_anom)
+        ic.draw()
+    else:
+        _draw_multi_load_chart(section._chart_canvas, data)
+        if hasattr(section, "_timeline_cv") and section._timeline_cv:
+            _draw_alert_timeline(section._timeline_cv, data, "cpu_avg")
 
     _update_load_stats(section, data)
 
@@ -1073,34 +1693,68 @@ def _update_temp_stats(section, data):
         e2 = sum(temps[-10:]) / 10
         trend = "↑" if e2 > e1 + 1 else ("↓" if e2 < e1 - 1 else "->")
 
-    cur_col = CRIT_C if cur > 80 else WARN_C if cur > 65 else LOAD_C
+    # ── Thermal baseline context-aware coloring ───────────────────────────────
+    bl_rng = getattr(section, "_baseline_range", None)
+    if bl_rng is not None:
+        cl = bl_rng.classify_temp(cur)
+        cur_col = (CRIT_C  if cl == "critical" else
+                   CRIT_C  if cl == "high"     else
+                   WARN_C  if cl == "elevated" else LOAD_C)
+    else:
+        cur_col = CRIT_C if cur > 80 else WARN_C if cur > 65 else LOAD_C
+
+    # Lifetime avg label shows learned baseline when available
+    lf_avg_val = (f"{bl_rng.mean:.1f}°C ±{bl_rng.sigma:.1f}"
+                  if bl_rng and bl_rng.is_usable else "--")
 
     for attr, val, kw in [
-        ("temp_today_avg",    f"{avg:.1f}°C", {}),
-        ("temp_current",      f"{cur:.1f}°C", {"fg": cur_col}),
-        ("temp_today_max",    f"{mx:.1f}°C",  {}),
-        ("temp_spikes",       str(spikes),    {}),
-        ("temp_trend",        trend,          {}),
+        ("temp_today_avg",    f"{avg:.1f}°C",  {}),
+        ("temp_lifetime_avg", lf_avg_val,       {"fg": MUTED}),
+        ("temp_current",      f"{cur:.1f}°C",  {"fg": cur_col}),
+        ("temp_today_max",    f"{mx:.1f}°C",   {}),
+        ("temp_spikes",       str(spikes),      {}),
+        ("temp_trend",        trend,            {}),
     ]:
         lbl = getattr(sf, attr, None)
         if lbl:
             lbl.config(text=val, **kw)
 
-    # Workload badge
+    # Workload badge — shows workload context
+    wl, wl_col = _classify_workload(data)
+    bucket_name = getattr(section, "_current_workload", "unknown").title()
     if hasattr(section, "_workload_lbl"):
-        wl, wl_col = _classify_workload(data)
-        section._workload_lbl.config(text=f"Workload: {wl}", fg=wl_col)
+        section._workload_lbl.config(
+            text=f"Workload: {wl}  ·  Context: {bucket_name}", fg=wl_col)
 
-    # Status badge
+    # Status badge — uses baseline context when trained, else fixed thresholds
     if hasattr(section, "_temp_badge"):
-        if spikes > 5 or mx > 85:
-            col  = CRIT_C if mx > 85 else WARN_C
-            bgc  = "#2a0a0a" if mx > 85 else "#2a1800"
-            msg  = "High temps detected" if mx > 85 else "Frequent spikes"
-            section._temp_badge.config(text=msg, bg=bgc, fg=col)
+        if bl_rng and bl_rng.is_usable:
+            cl = bl_rng.classify_temp(cur)
+            if cl == "critical":
+                section._temp_badge.config(
+                    text=f"Critical — {bl_rng.context_label(cur)}",
+                    bg="#2a0a0a", fg=CRIT_C)
+            elif cl == "high":
+                section._temp_badge.config(
+                    text=f"High for {bucket_name}",
+                    bg="#2a1800", fg=WARN_C)
+            elif cl == "elevated":
+                section._temp_badge.config(
+                    text=f"Slightly elevated for {bucket_name}",
+                    bg="#1a1400", fg=WARN_C)
+            else:
+                section._temp_badge.config(
+                    text=f"Normal ({bucket_name}: {bl_rng.p5:.0f}–{bl_rng.p95:.0f}°C)",
+                    bg="#0d2818", fg="#4ade80")
         else:
-            section._temp_badge.config(text="No regular problems",
-                                        bg="#0d2818", fg="#4ade80")
+            if spikes > 5 or mx > 85:
+                col = CRIT_C if mx > 85 else WARN_C
+                bgc = "#2a0a0a" if mx > 85 else "#2a1800"
+                msg = "High temps detected" if mx > 85 else "Frequent spikes"
+                section._temp_badge.config(text=msg, bg=bgc, fg=col)
+            else:
+                section._temp_badge.config(text="No regular problems",
+                                            bg="#0d2818", fg="#4ade80")
 
 
 def _update_load_stats(section, data):
@@ -1159,7 +1813,8 @@ def _update_load_stats(section, data):
 # AUTO-REFRESH
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl, temp_sec, load_sec):
+def _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl,
+                   temp_sec, load_sec, volt_sec=None):
     def _do():
         try:
             if not parent.winfo_exists():
@@ -1175,6 +1830,16 @@ def _start_refresh(parent, rings_cv, score_ref, health_lbl, anom_lbl, temp_sec, 
             _refresh_load(load_sec)
         except Exception:
             pass
+        try:
+            if volt_sec is not None:
+                _refresh_voltage(volt_sec)
+        except Exception:
+            pass
+        # Trigger async baseline rebuilds every refresh cycle (they self-throttle)
+        if _HAS_THERMAL_BL:
+            _thermal_bl.maybe_rebuild(300.0)
+        if _HAS_VOLT_AZ:
+            _volt_az.maybe_rebuild(300.0)
 
         # Update header health + anomaly badges + rings
         try:
