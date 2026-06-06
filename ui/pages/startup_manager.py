@@ -59,6 +59,22 @@ _IL = {"high": "H",   "medium": "M",   "low": "L"}
 _IB = {"high": "#1c0808", "medium": "#1c1008", "low": "#081c0e"}
 _IF = {"high": "#fca5a5", "medium": "#fcd34d", "low": "#86efac"}
 
+# Source badge colors: HKCU / HKLM / startup folder
+_SRC_COLOR = {
+    "HKCU":         "#2a4a6a",
+    "HKLM":         "#3a2a6a",
+    "HKLM32":       "#3a2a6a",
+    "STARTUP_USER": "#1a3a2a",
+    "STARTUP_SYS":  "#1a3a2a",
+}
+_SRC_LABEL = {
+    "HKCU":         "HKCU",
+    "HKLM":         "HKLM",
+    "HKLM32":       "HKLM32",
+    "STARTUP_USER": "📁 User",
+    "STARTUP_SYS":  "📁 Sys",
+}
+
 # Exe fragments that warrant a critical warning before disabling
 _CRITICAL_FRAGS = frozenset({
     "realtek", "audio", "sound", "nahimic", "conexant", "hdaudio",
@@ -93,6 +109,23 @@ _KNOWN: dict[str, tuple[str, str, str]] = {
     "razercentralservice.exe":("low",    "keep",    "Razer Synapse - needed for G keys and lighting."),
     "lghub.exe":              ("low",    "keep",    "Logitech G HUB - needed for G-series devices."),
     "curve.exe":              ("medium", "delay",   "NZXT CAM - can delay startup without issues."),
+    # Screenshot / recording
+    "sharex.exe":             ("low",    "keep",    "ShareX screenshot & recording - lightweight, safe to keep."),
+    "lightshot.exe":          ("low",    "keep",    "Lightshot screenshot tool - very lightweight."),
+    "obs64.exe":              ("medium", "delay",   "OBS Studio - start manually when streaming/recording."),
+    "obs32.exe":              ("medium", "delay",   "OBS Studio (32-bit) - start manually when needed."),
+    # Remote / streaming
+    "parsec.exe":             ("low",    "keep",    "Parsec remote desktop - keep if used regularly."),
+    "rustdesk.exe":           ("medium", "delay",   "RustDesk remote desktop - start on demand."),
+    "anydesk.exe":            ("medium", "delay",   "AnyDesk remote access - start manually when needed."),
+    # Password managers
+    "bitwarden.exe":          ("low",    "keep",    "Bitwarden password manager - keep for autofill."),
+    "keepassxc.exe":          ("low",    "keep",    "KeePassXC password manager - keep for autofill."),
+    # Cloud / sync
+    "nextcloud.exe":          ("medium", "delay",   "Nextcloud desktop sync - delayed start is fine."),
+    "megasync.exe":           ("medium", "delay",   "MEGA cloud sync - can start delayed."),
+    # Dev / heavy tools
+    "docker desktop.exe":     ("high",   "disable", "Docker Desktop - heavy, start manually when developing."),
 }
 
 # ── Registry helpers ──────────────────────────────────────────────────────────
@@ -116,10 +149,40 @@ except Exception:
 _PREFS_PATH = os.path.join(_APP_DIR, "data", "cache", "startup_prefs.json")
 
 
+def _extract_exe(value: str) -> str:
+    """
+    Safely extract lowercase exe basename from a registry Run value.
+    Handles:
+      "C:\\path with spaces\\app.exe" -silent   (quoted path + args)
+      C:\\path\\app.exe                          (unquoted, no args)
+      "C:\\path\\app.exe"                        (quoted, no args)
+      C:\\path with spaces\\app.exe              (unquoted, spaces in path)
+    """
+    if not value:
+        return ""
+    v = value.strip()
+    if v.startswith('"'):
+        # Quoted path — everything between first and second quote
+        end = v.find('"', 1)
+        path = v[1:end] if end > 1 else v[1:]
+    else:
+        # Unquoted — find .exe boundary (handles paths with spaces)
+        v_lower = v.lower()
+        exe_idx = v_lower.find('.exe')
+        if exe_idx >= 0:
+            path = v[:exe_idx + 4]
+        else:
+            # No .exe found — fall back to first token
+            path = v.split()[0] if v else ""
+    return os.path.basename(path).lower()
+
+
 def _read_startup_entries() -> list[dict]:
     if not _HAS_WINREG:
         return []
     entries, seen = [], set()
+
+    # ── Registry Run keys ─────────────────────────────────────────────────────
     for hive, path, hive_label in _REG_PATHS:
         try:
             key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
@@ -131,7 +194,7 @@ def _read_startup_entries() -> list[dict]:
                 name, value, _ = winreg.EnumValue(key, i); i += 1
             except OSError:
                 break
-            exe = os.path.basename(value.strip('"').split()[0]).lower() if value else ""
+            exe = _extract_exe(value)
             kid = f"{hive_label}:{name.lower()}"
             if kid in seen: continue
             seen.add(kid)
@@ -140,6 +203,68 @@ def _read_startup_entries() -> list[dict]:
                             "hive": hive_label, "hive_const": hive, "reg_path": path,
                             "impact": impact, "rec": rec, "desc": desc})
         winreg.CloseKey(key)
+
+    # ── Startup folders (.lnk shortcuts) ──────────────────────────────────────
+    _startup_dirs = []
+    _appdata = os.environ.get("APPDATA", "")
+    if _appdata:
+        _startup_dirs.append((
+            os.path.join(_appdata, "Microsoft", "Windows",
+                         "Start Menu", "Programs", "Startup"),
+            "STARTUP_USER"
+        ))
+    _allusers = os.environ.get("ALLUSERSPROFILE", os.environ.get("ProgramData", ""))
+    if _allusers:
+        _startup_dirs.append((
+            os.path.join(_allusers, "Microsoft", "Windows",
+                         "Start Menu", "Programs", "Startup"),
+            "STARTUP_SYS"
+        ))
+
+    for folder_path, hive_label in _startup_dirs:
+        if not os.path.isdir(folder_path):
+            continue
+        try:
+            for fname in os.listdir(folder_path):
+                if not fname.lower().endswith(".lnk"):
+                    continue
+                full_path = os.path.join(folder_path, fname)
+                name = fname[:-4]  # strip .lnk
+
+                # Try win32com to resolve target exe; fall back to name-based guess
+                exe = ""
+                target_value = full_path
+                try:
+                    import win32com.client as _wc
+                    _shell = _wc.Dispatch("WScript.Shell")
+                    _sc    = _shell.CreateShortcut(full_path)
+                    target_value = _sc.TargetPath or full_path
+                    exe = os.path.basename(_sc.TargetPath).lower() if _sc.TargetPath else ""
+                except Exception:
+                    exe = (name.lower().replace(" ", "") + ".exe")
+
+                kid = f"{hive_label}:{name.lower()}"
+                if kid in seen:
+                    continue
+                seen.add(kid)
+
+                impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
+                entries.append({
+                    "id":         kid,
+                    "name":       name,
+                    "value":      target_value,
+                    "exe":        exe,
+                    "hive":       hive_label,
+                    "hive_const": None,     # not registry-based
+                    "reg_path":   folder_path,
+                    "impact":     impact,
+                    "rec":        rec,
+                    "desc":       desc,
+                    "_folder":    True,     # startup folder item (not registry)
+                })
+        except Exception:
+            pass
+
     return entries
 
 
@@ -264,7 +389,8 @@ def _bind_scroll(widget, canvas):
 def _compact_row(parent, entry: dict, prefs: dict,
                  on_queue, queued_ids: set,
                  two_col: bool = False,
-                 running_set: set = None):
+                 running_set: set = None,
+                 show_on_badge: bool = False):
     """
     Compact clickable entry row.
     Click -> adds entry to disable queue (shows bottom drawer).
@@ -331,6 +457,23 @@ def _compact_row(parent, entry: dict, prefs: dict,
     if in_q:
         tk.Label(line1, text="✓", font=(_F, 8, "bold"),
                  bg=base_bg, fg=ACCENT).pack(side="right", padx=(0, 4))
+
+    # "ON" badge — subtle green — shown in the all-active panel
+    if show_on_badge and not is_dis and not in_q:
+        tk.Label(line1, text="ON",
+                 font=(_F, 6, "bold"),
+                 bg="#052e16", fg="#22c55e",
+                 padx=4, pady=1).pack(side="right", padx=(0, 4))
+
+    # Source badge — where this entry comes from (HKCU / HKLM / 📁)
+    if show_on_badge and not is_dis:
+        hive = entry.get("hive", "")
+        src_col = _SRC_COLOR.get(hive, "#1a2530")
+        src_txt = _SRC_LABEL.get(hive, hive[:6])
+        if src_txt:
+            tk.Label(line1, text=src_txt,
+                     font=(_F, 6), bg=src_col, fg="#6a8aaa",
+                     padx=3, pady=1).pack(side="right", padx=(0, 3))
 
     # Line 2: exe
     exe_lbl = tk.Label(body,
@@ -485,10 +628,12 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
     tk.Frame(inner, bg=BG, height=6).pack()
 
 
-def _build_all_entries_panel(parent: tk.Frame, entries: list[dict],
-                              prefs: dict, on_queue, queued_ids: set,
-                              two_col: bool = True):
-    """Left panel - All entries. two_col=False for wider single-column layout."""
+def _build_all_active_panel(parent: tk.Frame, active: list[dict],
+                             prefs: dict, on_queue, queued_ids: set):
+    """Right panel — ALL active startup entries with ON badge + source indicator.
+    Shows everything that starts with Windows (registry + startup folders).
+    Subtly styled — secondary info, all clickable to queue for disable.
+    """
     # Build running exe set for ACTIVE NOW badge
     _running: set = set()
     try:
@@ -501,41 +646,89 @@ def _build_all_entries_panel(parent: tk.Frame, entries: list[dict],
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(hdr, text="All entries", font=(_F, 8, "bold"),
-             bg=BG, fg=TAB_ACTIVE_FG).pack(side="left")
-    tk.Label(hdr, text=f"  {len(entries)}", font=(_F, 8),
+    tk.Label(hdr, text="Aktywne przy starcie",
+             font=(_F, 8, "bold"), bg=BG, fg=TEXT).pack(side="left")
+    tk.Label(hdr, text=f"  {len(active)}", font=(_F, 8),
              bg=BG, fg=SUB).pack(side="left")
+    tk.Label(hdr, text="kliknij aby wyłączyć",
+             font=(_F, 7), bg=BG, fg=MUTED).pack(side="right")
 
     tk.Frame(parent, bg=BORDER, height=1).pack(fill="x", padx=10)
 
+    if not active:
+        tk.Label(parent,
+                 text="Brak aktywnych wpisów autostartu.",
+                 font=(_F, 9), bg=BG, fg=SUB).pack(pady=30)
+        return
+
     inner, cv = _scrollable_frame(parent, bg=BG)
 
-    if two_col:
-        grid = tk.Frame(inner, bg=BG)
-        grid.pack(fill="x", padx=4, pady=2)
-        grid.grid_columnconfigure(0, weight=1)
-        grid.grid_columnconfigure(1, weight=1)
-
-        for i, e in enumerate(entries):
-            col     = i % 2
-            row_num = i // 2
-            cell = tk.Frame(grid, bg=BG)
-            cell.grid(row=row_num, column=col, sticky="ew", padx=2, pady=1)
-            cell.grid_columnconfigure(0, weight=1)
-            _bind_scroll(cell, cv)
-            row_w, sep_w = _compact_row(cell, e, prefs, on_queue, queued_ids, two_col=True)
-            _bind_scroll(row_w, cv)
-            _bind_scroll(sep_w, cv)
-    else:
-        # Single-column layout with ACTIVE NOW badge
-        for e in entries:
-            row_w, sep_w = _compact_row(inner, e, prefs, on_queue, queued_ids,
-                                        two_col=False,
-                                        running_set=_running)
+    for e in active:
+        # Folder items can be shown but disabling requires file system action
+        # Mark them as non-queueable (no registry key to remove)
+        if e.get("_folder"):
+            # Read-only row for startup folder items
+            _folder_row(inner, e, prefs, running_set=_running)
+        else:
+            row_w, sep_w = _compact_row(
+                inner, e, prefs, on_queue, queued_ids,
+                two_col=False,
+                running_set=_running,
+                show_on_badge=True,
+            )
             _bind_scroll(row_w, cv)
             _bind_scroll(sep_w, cv)
 
     tk.Frame(inner, bg=BG, height=6).pack()
+
+
+def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = None):
+    """Read-only row for startup folder (.lnk) items — shown but not queue-able."""
+    name  = entry["name"]
+    exe   = entry["exe"] or "-"
+    hive  = entry.get("hive", "")
+
+    row = tk.Frame(parent, bg=SURFACE, cursor="arrow")
+    row.pack(fill="x", padx=0, pady=0)
+
+    # Thin grey accent bar (not clickable = no color)
+    tk.Frame(row, bg="#1a3a2a", width=2).pack(side="left", fill="y")
+
+    body = tk.Frame(row, bg=SURFACE)
+    body.pack(side="left", fill="both", expand=True, padx=(7, 4), pady=(4, 3))
+
+    line1 = tk.Frame(body, bg=SURFACE)
+    line1.pack(fill="x")
+
+    tk.Label(line1, text=name[:28], font=(_F, 9, "bold"),
+             bg=SURFACE, fg=TEXT, anchor="w").pack(side="left")
+
+    # ACTIVE NOW if running
+    if running_set is not None:
+        if exe.lower() in running_set:
+            tk.Label(line1, text="● ACTIVE NOW", font=(_F, 6, "bold"),
+                     bg="#052e16", fg="#22c55e", padx=4, pady=1
+                     ).pack(side="left", padx=(4, 0))
+
+    # ON badge (green, subtle)
+    tk.Label(line1, text="ON", font=(_F, 6, "bold"),
+             bg="#052e16", fg="#22c55e", padx=4, pady=1
+             ).pack(side="right", padx=(0, 4))
+
+    # Source badge (📁)
+    src_lbl = _SRC_LABEL.get(hive, "📁")
+    tk.Label(line1, text=src_lbl, font=(_F, 6),
+             bg=_SRC_COLOR.get(hive, "#1a3a2a"), fg="#5a8a6a",
+             padx=3, pady=1).pack(side="right", padx=(0, 3))
+
+    tk.Label(body, text=exe[:32], font=(_F, 7),
+             bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
+
+    # Tooltip explaining it's a startup folder item
+    _Tooltip(row, f"Startup folder shortcut — managed via Windows Explorer.\n"
+                  f"Location: {entry.get('reg_path','')}")
+
+    tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
 
 
 def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
@@ -649,7 +842,7 @@ def build_startup_manager_page(host, parent: tk.Frame):
 
     def _on_ready(entries):
         spin.destroy()
-        _render(page, entries, prefs)
+        _render(page, entries, prefs, host=host)
 
     threading.Thread(
         target=lambda: page.after(0, lambda: _on_ready(_read_startup_entries())),
@@ -657,7 +850,7 @@ def build_startup_manager_page(host, parent: tk.Frame):
     ).start()
 
 
-def _render(page: tk.Frame, entries: list[dict], prefs: dict):
+def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     if not entries:
         tk.Label(page, text="No startup entries found - or winreg unavailable.",
                  font=(_F, 10), bg=BG, fg=SUB).pack(pady=60)
@@ -733,6 +926,17 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
     tk.Label(title_col, text="Startup Manager",
              font=(_F, 13, "bold"), bg=BG, fg=TEXT).pack(anchor="w")
 
+    # Back navigation link (far right, before chips so it sits at the edge)
+    _nav_cb = getattr(host, "_switch_to_page", None) if host else None
+    if _nav_cb:
+        _back_sm = tk.Label(title_row, text="‹ Dashboard",
+                            font=(_F, 7), bg=BG, fg="#2d3d56",
+                            cursor="hand2", padx=8)
+        _back_sm.pack(side="right", fill="y")
+        _back_sm.bind("<Button-1>", lambda e: _nav_cb("dashboard"))
+        _back_sm.bind("<Enter>", lambda e: _back_sm.config(fg="#8b5cf6"))
+        _back_sm.bind("<Leave>", lambda e: _back_sm.config(fg="#2d3d56"))
+
     chips_row = tk.Frame(title_row, bg=BG)
     chips_row.pack(side="right", fill="y")
 
@@ -795,8 +999,8 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
         for w in page.winfo_children():
             try: w.destroy()
             except Exception: pass
-        # Re-run render with fresh entries
-        _render(page, new_entries, prefs)
+        # Re-run render with fresh entries (host propagated from outer _render scope)
+        _render(page, new_entries, prefs, host=host)
 
     # Two tabs only: Startup Menu + Disabled
     for key, lbl, col in [
@@ -910,9 +1114,24 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict):
     # ── Split view builder ────────────────────────────────────────────────────
 
     def _draw_split(cf: tk.Frame):
-        """Full-width Startup Menu — flagged entries only, single column."""
-        _, fl, _ = _get_derived()
-        _build_needs_attention_panel(cf, fl, prefs, _on_queue, queued_ids)
+        """Split: LEFT = Startup Menu (flagged, needs action),
+                  RIGHT = All active entries with ON badge."""
+        cf.grid_rowconfigure(0, weight=1)
+        cf.grid_columnconfigure(0, weight=2)   # Startup Menu — narrower
+        cf.grid_columnconfigure(1, weight=0)   # divider
+        cf.grid_columnconfigure(2, weight=3)   # All active — wider
+
+        left_panel = tk.Frame(cf, bg=BG)
+        left_panel.grid(row=0, column=0, sticky="nsew")
+
+        tk.Frame(cf, bg=PANEL_DIV, width=1).grid(row=0, column=1, sticky="ns")
+
+        right_panel = tk.Frame(cf, bg=BG)
+        right_panel.grid(row=0, column=2, sticky="nsew")
+
+        active_now, fl, _ = _get_derived()
+        _build_needs_attention_panel(left_panel, fl, prefs, _on_queue, queued_ids)
+        _build_all_active_panel(right_panel, active_now, prefs, _on_queue, queued_ids)
 
     # ── Initial content render ────────────────────────────────────────────────
     cf_init = tk.Frame(page, bg=BG)
