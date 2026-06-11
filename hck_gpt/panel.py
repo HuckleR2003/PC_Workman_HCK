@@ -60,6 +60,16 @@ class HCKGPTPanel:
         self.total_h = collapsed_h + expanded_h
         self.current_mode = "normal"  # normal, maximized
 
+        # Window-mode height scaling — the main window sets these when it
+        # toggles maximized view (taller window → taller chat panel).
+        self._h_scale_open = 1.0   # scales expanded_h (default open height)
+        self._h_scale_max  = 1.0   # scales max_h (chat "Maximize" height)
+
+        # Visibility gate — callable set by the main window; returns False on
+        # pages that must not show the banner. Checked in _on_resize so a
+        # stray <Configure>/deferred call can't resurrect a hidden panel.
+        self._visibility_gate = None
+
         self.is_open = False
         self.animating = False
         self.after_id = None
@@ -77,9 +87,8 @@ class HCKGPTPanel:
         self._tip_active = False
 
         # HOT alert strip - anti-spam state
-        self._hot_active   = False    # is the HOT strip currently shown?
-        self._hot_msg      = ""       # current message text
-        self._hot_check_id = None     # after() id for periodic check
+        self._hot_active = False    # is the HOT strip currently shown?
+        self._hot_msg    = ""       # current message text
 
         # Conversation turn counter - unique bg tag per Q&A pair
         self._turn_count = 0
@@ -375,7 +384,8 @@ class HCKGPTPanel:
             self._hot_strip, text="",
             bg=_HOT_BG, fg=_HOT_FG,
             font=("Consolas", 8),
-            wraplength=0, justify="left", anchor="w",
+            wraplength=max(200, self.width - 80),
+            justify="left", anchor="w",
             padx=5, pady=2
         )
         self._hot_label.pack(side="left", fill="x", expand=True)
@@ -400,7 +410,8 @@ class HCKGPTPanel:
             self._tip_strip, text="",
             bg=_TIP_BG, fg=_TIP_FG,
             font=("Consolas", 8),
-            wraplength=0, justify="left", anchor="w",
+            wraplength=max(200, self.width - 80),
+            justify="left", anchor="w",
             padx=5, pady=2
         )
         self._tip_label.pack(side="left", fill="x", expand=True)
@@ -483,12 +494,15 @@ class HCKGPTPanel:
 
     # BORDEAUX NOIR GRADIENT BANNER (black -> deep crimson, living shimmer)
     def _draw_gradient_banner(self, phase=0.0):
-        """Redraws gradient strips with sine-wave shimmer. Tagged 'grad' - UI layer raised on top."""
+        """Gradient strips with sine-wave shimmer. Tagged 'grad' - UI layer raised on top.
+
+        Strips are created ONCE per width and recoloured via itemconfig on
+        every shimmer tick — delete+create of ~350 rects at 10 fps was a
+        constant CPU drain on the Tk main thread.
+        """
         import math
         w = self.width
         h = self.collapsed_h
-
-        self.banner.delete("grad")
 
         anchors = [
             (0.00, (0,   0,   0)),    # Pure black
@@ -499,34 +513,48 @@ class HCKGPTPanel:
         ]
 
         strip_w = 5
-        for x in range(0, w, strip_w):
-            t = x / max(w - 1, 1)
-            r, g, b = anchors[-1][1]
-            for j in range(len(anchors) - 1):
-                if anchors[j][0] <= t <= anchors[j + 1][0]:
-                    seg_t = (t - anchors[j][0]) / (anchors[j + 1][0] - anchors[j][0])
-                    c0, c1 = anchors[j][1], anchors[j + 1][1]
-                    r = int(c0[0] + (c1[0] - c0[0]) * seg_t)
-                    g = int(c0[1] + (c1[1] - c0[1]) * seg_t)
-                    b = int(c0[2] + (c1[2] - c0[2]) * seg_t)
-                    break
+        rebuild = getattr(self, "_grad_w", None) != w
+        if rebuild:
+            self.banner.delete("grad")
+            self._grad_items = []
+            self._grad_base = []   # cached per-strip (t, base r, g, b)
+            self._grad_w = w
 
+        idx = 0
+        for x in range(0, w, strip_w):
+            if rebuild:
+                t = x / max(w - 1, 1)
+                r, g, b = anchors[-1][1]
+                for j in range(len(anchors) - 1):
+                    if anchors[j][0] <= t <= anchors[j + 1][0]:
+                        seg_t = (t - anchors[j][0]) / (anchors[j + 1][0] - anchors[j][0])
+                        c0, c1 = anchors[j][1], anchors[j + 1][1]
+                        r = int(c0[0] + (c1[0] - c0[0]) * seg_t)
+                        g = int(c0[1] + (c1[1] - c0[1]) * seg_t)
+                        b = int(c0[2] + (c1[2] - c0[2]) * seg_t)
+                        break
+                item = self.banner.create_rectangle(
+                    x, 0, x + strip_w + 1, h,
+                    fill="#000000", outline="#000000", tags="grad")
+                self._grad_items.append(item)
+                self._grad_base.append((t, r, g, b))
+
+            t, r, g, b = self._grad_base[idx]
             # Living shimmer: broad sine wave travelling across the gradient
             shimmer = (math.sin(t * 5.0 + phase) + 1) / 2 * 0.16
-            r = min(255, int(r + shimmer * 90))
-            g = min(255, int(g + shimmer * 9))
-            b = min(255, int(b + shimmer * 14))
+            r2 = min(255, int(r + shimmer * 90))
+            g2 = min(255, int(g + shimmer * 9))
+            b2 = min(255, int(b + shimmer * 14))
+            col = f"#{r2:02x}{g2:02x}{b2:02x}"
+            self.banner.itemconfig(self._grad_items[idx], fill=col, outline=col)
+            idx += 1
 
-            self.banner.create_rectangle(x, 0, x + strip_w + 1, h,
-                                          fill=f"#{r:02x}{g:02x}{b:02x}",
-                                          outline=f"#{r:02x}{g:02x}{b:02x}",
-                                          tags="grad")
-
-        # Bottom crimson border (1px)
-        self.banner.create_rectangle(0, h - 1, w, h, fill="#9b1630", outline="", tags="grad")
-
-        # Keep UI items (badge, text, arrow) on top of fresh gradient
-        self.banner.tag_raise("ui")
+        if rebuild:
+            # Bottom crimson border (1px)
+            self.banner.create_rectangle(0, h - 1, w, h,
+                                         fill="#9b1630", outline="", tags="grad")
+            # Keep UI items (badge, text, arrow) on top of fresh gradient
+            self.banner.tag_raise("ui")
 
     # BORDEAUX LIVING ANIMATION (shimmer + pulse, no moving lines)
     def _start_banner_sweep(self):
@@ -541,6 +569,11 @@ class HCKGPTPanel:
         import math
         try:
             if not self.banner.winfo_exists():
+                return
+            # Panel hidden (other page via place_forget) — idle cheaply
+            # instead of animating an invisible gradient at 10 fps.
+            if not self.frame.winfo_ismapped():
+                self.banner.after(500, self._do_banner_sweep)
                 return
         except Exception:
             return
@@ -1019,12 +1052,12 @@ class HCKGPTPanel:
             return
         self._hot_label.config(text=msg)
         if not self._hot_active:
-            # HOT always sits directly above TIP (or above entry if no TIP)
-            # Never replaces TIP — both can be visible simultaneously
-            self._hot_strip.pack(
-                fill="x", padx=8, pady=(0, 1),
-                before=self._tip_strip
-            )
+            # HOT sits above TIP when TIP is visible; otherwise above entry.
+            # IMPORTANT: before= requires the reference widget to be currently
+            # managed by pack — _tip_strip is hidden by default (pack_forget'd),
+            # so we must fall back to _entry_container when TIP is not active.
+            _ref = self._tip_strip if self._tip_active else self._entry_container
+            self._hot_strip.pack(fill="x", padx=8, pady=(0, 1), before=_ref)
             self._hot_active = True
         self._hot_msg = msg
 
@@ -1159,6 +1192,24 @@ class HCKGPTPanel:
 
         toggle()
 
+    # WINDOW-MODE HEIGHT SCALING
+    def _eff_expanded_h(self) -> int:
+        return int(self.expanded_h * self._h_scale_open)
+
+    def _eff_max_h(self) -> int:
+        return int(self.max_h * self._h_scale_max)
+
+    def set_height_scale(self, open_scale=1.0, max_scale=1.0):
+        """Called by the main window on compact↔maximized toggle.
+        Recomputes total_h for the current chat mode and re-docks the panel."""
+        self._h_scale_open = open_scale
+        self._h_scale_max  = max_scale
+        if self.current_mode == "maximized":
+            self.total_h = self.collapsed_h + self._eff_max_h()
+        else:
+            self.total_h = self.collapsed_h + self._eff_expanded_h()
+        self._on_resize()
+
     # TOGGLE
     def toggle(self, event=None):
         if self.animating:
@@ -1172,7 +1223,9 @@ class HCKGPTPanel:
     # OPEN
     def open(self):
         self.is_open = True
-        self.chat.pack(side="top", fill="both")
+        # expand=True: without it the log area doesn't stretch into the
+        # taller maximized-mode panel and dead space shows under the entry
+        self.chat.pack(side="top", fill="both", expand=True)
         self.banner.itemconfig(self.banner_arrow, text="▲")
         self.banner.itemconfig(self.banner_text, text="hck_GPT  -  Your PC Companion")
         self._animate(self.collapsed_h, self.total_h)
@@ -1640,10 +1693,40 @@ class HCKGPTPanel:
                                   lambda e, n=pname, t=tt: self.tooltip.show(e, n, t))
                 self.log.tag_bind(tag, "<Leave>", lambda e: self.tooltip.hide())
 
-    # RESIZE -> keep bottom docking
+    def set_visibility_gate(self, fn) -> None:
+        """fn() -> bool; False = panel must stay hidden (non-banner page)."""
+        self._visibility_gate = fn
+
+    # RESIZE -> keep bottom docking + full parent width (maximized mode safe)
     def _on_resize(self, event=None):
+        try:
+            if not self.frame.winfo_exists():
+                return
+        except Exception:
+            return
+
+        gate = self._visibility_gate
+        if gate is not None:
+            try:
+                if not gate():
+                    self.frame.place_forget()
+                    return
+            except Exception:
+                pass
+
         parent_h = self.parent.winfo_height()
+        parent_w = self.parent.winfo_width()
+
+        # Track the live parent width so the panel scales with the window
+        # (compact ↔ maximized). Right-anchored banner items must follow.
+        if parent_w > 120 and parent_w != self.width:
+            self.width = parent_w
+            self._reposition_banner_items()
+
         target_h = self.total_h if self.is_open else self.collapsed_h
+        # Never taller than the hosting window (scaled heights + compact mode)
+        if parent_h > 80:
+            target_h = min(target_h, parent_h - 8)
         new_y = parent_h - target_h
         if new_y < 0:
             new_y = 0
@@ -1654,16 +1737,48 @@ class HCKGPTPanel:
             width=self.width,
             height=target_h
         )
+        # Dashboard rebuilds create new siblings above this place()'d frame —
+        # keep the panel on top of the stacking order or it becomes unclickable.
+        self.frame.lift()
+
+        # Keep strip labels word-wrapped to current panel width
+        _wl = max(200, self.width - 80)
+        try:
+            self._hot_label.config(wraplength=_wl)
+            self._tip_label.config(wraplength=_wl)
+        except Exception:
+            pass
+
+    def _reposition_banner_items(self):
+        """Re-anchor right-aligned banner canvas items after a width change."""
+        try:
+            _oy = self.collapsed_h // 2
+            self.banner.coords(self._online_rect,
+                               self.width - 64, _oy - 7,
+                               self.width - 22, _oy + 7)
+            self.banner.coords(self._online_lbl,
+                               (self.width - 64 + self.width - 22) // 2, _oy)
+            self.banner.coords(self.banner_arrow, self.width - 8, _oy)
+        except Exception:
+            pass
 
     # SMOOTH ANIMATION WITH EASING
     def _animate(self, start_h, end_h, duration_ms=200, on_end=None):
         if self.after_id:
             self.frame.after_cancel(self.after_id)
 
+        # Guard: window must be rendered before we can position the panel.
+        # winfo_height() returns 0 or 1 before the first expose event.
+        parent_h = self.parent.winfo_height()
+        if parent_h < 50:
+            self.frame.after(
+                80, lambda: self._animate(start_h, end_h, duration_ms, on_end)
+            )
+            return
+
         import time as _time
         start_time = _time.time()
         diff = end_h - start_h
-        parent_h = self.parent.winfo_height()
 
         def ease_out_cubic(t):
             return 1 - pow(1 - t, 3)
@@ -1737,10 +1852,13 @@ class HCKGPTPanel:
             self._apply_turn_background(_turn_start)
 
     def clear_chat(self):
-        """Clear the chat log"""
+        """Clear the chat log and hide both TIP and HOT strips."""
         self.log.config(state="normal")
         self.log.delete("1.0", "end")
         self.log.config(state="disabled")
+        # Also dismiss both strips so the cleared state looks consistent
+        self._remove_active_tip()
+        self._clear_hot()
 
     def _start_service_setup(self):
         """Start the Service Setup wizard via button"""
@@ -1760,7 +1878,7 @@ class HCKGPTPanel:
             self.expand_btn.config(text="⬛ Normal")
 
             if self.is_open:
-                target_h = self.collapsed_h + self.max_h
+                target_h = self.collapsed_h + self._eff_max_h()
                 self._animate(self.total_h, target_h, on_end=lambda: setattr(self, 'total_h', target_h))
         else:
             self.current_mode = "normal"
@@ -1768,5 +1886,5 @@ class HCKGPTPanel:
             self.expand_btn.config(text="⬜ Maximize")
 
             if self.is_open:
-                target_h = self.collapsed_h + self.expanded_h
+                target_h = self.collapsed_h + self._eff_expanded_h()
                 self._animate(self.total_h, target_h, on_end=lambda: setattr(self, 'total_h', target_h))
