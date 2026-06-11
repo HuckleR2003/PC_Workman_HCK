@@ -44,7 +44,7 @@ class OverlayWidget:
         # Window configuration
         self.root.title("PC Workman Monitor")
         self.root.overrideredirect(True)  # Remove window frame
-        self.root.attributes('-topmost', True)  # Always on top
+        # topmost removed — was causing interference with games and fullscreen apps
         self.root.attributes('-alpha', 0.95)  # Slight transparency
 
         # Widget size
@@ -61,6 +61,9 @@ class OverlayWidget:
         self.dragging = False
         self.drag_start_x = 0
         self.drag_start_y = 0
+
+        # Update-thread stop flag (set False in close())
+        self._running = True
 
         self._build_ui()
         self._start_update_loop()
@@ -167,7 +170,7 @@ class OverlayWidget:
     def _start_update_loop(self):
         """Start background update loop"""
         def update_stats():
-            while True:
+            while self._running:
                 try:
                     # Get system stats
                     cpu = psutil.cpu_percent(interval=0.5) if psutil else 0
@@ -184,8 +187,9 @@ class OverlayWidget:
                     # Update labels (thread-safe)
                     self.root.after(0, self._update_labels, cpu, ram, gpu)
 
-                except Exception as e:
-                    print(f"[OverlayWidget] Update error: {e}")
+                except Exception:
+                    # Window gone (closed) — stop instead of erroring every 2 s
+                    break
 
                 time.sleep(2)  # Update every 2 seconds
 
@@ -231,6 +235,7 @@ class OverlayWidget:
 
     def close(self):
         """Close widget"""
+        self._running = False
         self.root.quit()
         self.root.destroy()
 
