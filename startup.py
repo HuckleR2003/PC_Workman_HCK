@@ -1,10 +1,10 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.7.7
+Entry point for PC Workman HCK v1.7.9
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
-APP_VERSION   = "1.7.7"
+APP_VERSION   = "1.7.9"
 HELPER_VERSION = "1.6.3"
 
 # ============================================
@@ -258,15 +258,21 @@ def run_demo():
                 if self.minimal_window:
                     try:
                         self.minimal_window.root.withdraw()
-                    except:
-                        pass
+                    except Exception as e:
+                        log(f"switch_to_expanded: minimal withdraw failed: {e}", "WARN")
                 if self.expanded_window:
                     try:
-                        self.expanded_window.root.deiconify()
-                        self.expanded_window.root.lift()
-                        self.expanded_window.root.focus_force()
-                    except:
-                        pass
+                        # restore_window() re-applies the tracked window state —
+                        # plain deiconify() can come back 'zoomed' on Windows
+                        # after a maximize round-trip.
+                        if hasattr(self.expanded_window, "restore_window"):
+                            self.expanded_window.restore_window()
+                        else:
+                            self.expanded_window.root.deiconify()
+                            self.expanded_window.root.lift()
+                            self.expanded_window.root.focus_force()
+                    except Exception as e:
+                        log(f"switch_to_expanded failed: {e}", "ERROR")
 
             def quit_application(self):
                 self.quit_flag = True
