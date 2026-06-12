@@ -26,25 +26,37 @@ class SystemContext:
     build_llm_context()- rich narrative string for LLM system prompt
     """
 
-    # Internal trend push interval (seconds) - push to session_memory no more than once per 30s
+    # Internal trend push interval (seconds)
     _TREND_PUSH_INTERVAL  = 30.0
-    # LLM context cache - rebuild at most every 5 s to avoid hammering psutil + SQLite
-    # on rapid Ollama calls (e.g. user sends multiple messages quickly)
+    # LLM context cache TTL
     _LLM_CONTEXT_CACHE_TTL = 5.0
+    # snapshot() cache TTL — multiple handlers in one response cycle share the same data
+    # 1 s is short enough to always be "live" from user perspective
+    _SNAPSHOT_CACHE_TTL = 1.0
 
     def __init__(self) -> None:
         self._last_trend_push: float = 0.0
         self._llm_context_cache: str   = ""
         self._llm_context_ts:    float = 0.0
-        self._llm_context_lang:  str   = ""    # invalidate cache on language switch
+        self._llm_context_lang:  str   = ""
+        # snapshot cache
+        self._snapshot_cache: Dict[str, Any] = {}
+        self._snapshot_ts:    float           = 0.0
 
     # ── Main snapshot ──────────────────────────────────────────────────────────
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self, force: bool = False) -> Dict[str, Any]:
         """
         Returns a dict with current PC metrics + stored hardware profile.
-        Keys present depend on what's available - always check before using.
+        Cached for _SNAPSHOT_CACHE_TTL seconds so multiple builder handlers
+        within the same response cycle share one psutil scan.
+        Pass force=True to bypass cache (e.g. proactive monitor checks).
         """
+        import time as _t
+        now = _t.time()
+        if not force and self._snapshot_cache and (now - self._snapshot_ts) < self._SNAPSHOT_CACHE_TTL:
+            return self._snapshot_cache
+
         ctx: Dict[str, Any] = {}
 
         # ── Live psutil ────────────────────────────────────────────────────────
@@ -205,6 +217,9 @@ class SystemContext:
         except Exception:
             pass
 
+        # Cache result
+        self._snapshot_cache = ctx
+        self._snapshot_ts    = now
         return ctx
 
     # ── Legacy compact context (used by ResponseBuilder) ──────────────────────
