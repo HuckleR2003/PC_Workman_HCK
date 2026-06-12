@@ -981,7 +981,9 @@ def _build_hey_user_table(self, parent):
                 canvas.yview_scroll(int(-1 * (e.delta / 120)), "units")
         except Exception:
             pass
-    canvas.bind_all("<MouseWheel>", _wheel, add="+")
+    # No add="+": overwrite the previous page's global wheel handler instead
+    # of stacking a dead one per page visit.
+    canvas.bind_all("<MouseWheel>", _wheel)
 
     # "Show Full Table" button
     btn_f = tk.Frame(parent, bg=BG)
@@ -1813,7 +1815,9 @@ def _make_scroll_frame(parent):
                 canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         except Exception:
             pass
-    canvas.bind_all("<MouseWheel>", _mw, add="+")
+    # No add="+": overwrite the previous page's global wheel handler instead
+    # of stacking a dead one per page visit.
+    canvas.bind_all("<MouseWheel>", _mw)
 
     sb.pack(side="right", fill="y")
     canvas.pack(side="left", fill="both", expand=True)
