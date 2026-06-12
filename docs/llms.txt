@@ -1,0 +1,43 @@
+# PC Workman
+
+> Free, open-source Windows system monitor with a built-in offline AI assistant (hck_GPT, 82 intents, Polish + English). Learns your hardware's normal temperatures per workload, runs SPC on voltage rails (Median+MAD, Nelson rules), detects ghost drivers via pnputil, and ships a TURBO optimization suite. Built solo and in public by Marcin Firmuga (HCK_Labs). No cloud, no account, no telemetry — everything runs locally.
+
+Current version line: 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. License: MIT.
+
+## Main pages
+
+- [Landing (English)](https://huckler2003.github.io/PC_Workman_HCK/index_en.html): features, hck_GPT 9-layer logic, comparisons, FAQ
+- [Landing (Polish)](https://huckler2003.github.io/PC_Workman_HCK/index.html): pełny opis po polsku
+- [Download](https://huckler2003.github.io/PC_Workman_HCK/download/): latest release, requirements, Sigstore signing, security notes
+- [Security Report](https://huckler2003.github.io/PC_Workman_HCK/SECURITY_report.html): release verification and audit
+
+## Blog (build in public)
+
+- [Blog hub](https://huckler2003.github.io/PC_Workman_HCK/blog/): three weekly series, archive
+- [Monday Grind Blueprint](https://huckler2003.github.io/PC_Workman_HCK/blog/monday-grind-blueprint/): the week's plan, announced before the work starts
+- [Wednesday Code Autopsy](https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/): one bug or feature dissected — root cause, dead ends, fix
+- [Friday Shipped & Scarred](https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/): Monday's plan vs Friday's reality
+- [The Story](https://huckler2003.github.io/PC_Workman_HCK/blog/story_en.html): from warehouse night shifts and a 94°C laptop to a homemade AI
+- [RSS feed](https://huckler2003.github.io/PC_Workman_HCK/blog/feed.xml)
+
+## Guides (how-tos by the developer)
+
+- [Guides hub](https://huckler2003.github.io/PC_Workman_HCK/guides/): Windows performance explained honestly, EN + PL
+- [What's a normal CPU temperature?](https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/): per-workload reference ranges, when "normal" is a warning
+- [Ghost drivers in Windows](https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/): finding and removing drivers of hardware you no longer own, via pnputil
+- [Jak przyspieszyć komputer (PL)](https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/): real speed-ups in the right order, myths debunked
+- [Które usługi Windows wyłączyć (PL)](https://huckler2003.github.io/PC_Workman_HCK/guides/ktore-uslugi-windows-wylaczyc/): safe-to-disable services list with a critical-services whitelist
+
+## Source & releases
+
+- [GitHub repository](https://github.com/HuckleR2003/PC_Workman_HCK): full source code, issues, discussions
+- [Releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases): signed ZIP builds
+- [Changelog](https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md): per-file change history
+
+## Author
+
+- [Marcin Firmuga on GitHub](https://github.com/HuckleR2003)
+- [LinkedIn](https://linkedin.com/in/marcinfirmuga): newest series editions premiere here
+- [dev.to](https://dev.to/huckler): technical write-ups and series archive
+- [X](https://x.com/hck_lab)
+- [Linktree](https://linktr.ee/marcin_firmuga): all links and support
