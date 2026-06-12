@@ -101,7 +101,7 @@ class StatsQueryAPI:
             d = self._row_to_dict(r)
             d['uptime_minutes'] = r['uptime_minutes']
             results.append(d)
-        return results
+        return self._downsample(results, max_points)
 
     def _row_to_dict(self, row):
         return {
@@ -128,11 +128,12 @@ class StatsQueryAPI:
         result = []
         idx = 0.0
         while idx < len(data):
-            result.append(data[int(idx)])
+            # Use round() to avoid truncation bias on fractional steps
+            result.append(data[min(round(idx), len(data) - 1)])
             idx += step
 
-        # Always include last point
-        if result and result[-1] != data[-1]:
+        # Always include last point for visual continuity
+        if result and result[-1] is not data[-1]:
             result.append(data[-1])
 
         return result
@@ -443,8 +444,6 @@ class StatsQueryAPI:
             # Find the latest daily_stats timestamp so we only count
             # hourly data that hasn't been aggregated yet.
             latest_daily_ts = 0
-            if rows:
-                latest_daily_ts = max(r['uptime_minutes'] for r in rows) if False else 0
             try:
                 ld_row = conn.execute(
                     "SELECT MAX(timestamp) as t FROM daily_stats WHERE timestamp >= ?",
