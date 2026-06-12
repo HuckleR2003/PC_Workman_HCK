@@ -54,6 +54,10 @@ def _ascii_fold(text: str) -> str:
 
 # ── Naive Bayes Classifier ─────────────────────────────────────────────────────
 
+# Laplace smoothing — single source of truth used by NB and cross-validation
+NB_SMOOTHING: float = 0.5
+
+
 class NaiveBayesClassifier:
     """
     Multinomial Naive Bayes with Laplace smoothing and softmax output.
@@ -63,7 +67,7 @@ class NaiveBayesClassifier:
     confidence values are comparable across different query lengths.
     """
 
-    def __init__(self, smoothing: float = 0.5) -> None:
+    def __init__(self, smoothing: float = NB_SMOOTHING) -> None:
         self.smoothing   = smoothing
         self.classes:     List[str]             = []
         self.log_priors:  Dict[str, float]      = {}
@@ -162,7 +166,7 @@ class TrainingDataBuilder:
                 if len(words) >= 3:
                     for w in words:
                         if len(w) >= 4 and _ascii_fold(w) not in {
-                            "jest", "moje", "moja", "moje", "mamy", "maja",
+                            "jest", "moje", "moja", "mamy", "maja",
                             "what", "does", "this", "that", "have", "with",
                         }:
                             X.append(w); y.append(intent)
@@ -267,13 +271,24 @@ class MLIntentClassifier:
                 vs, ve = i * fold, (i + 1) * fold
                 Xtr = X[:vs] + X[ve:]
                 ytr = y[:vs] + y[ve:]
-                m = NaiveBayesClassifier(smoothing=0.5).fit(Xtr, ytr)
+                m = NaiveBayesClassifier(smoothing=NB_SMOOTHING).fit(Xtr, ytr)
                 for xt, yt in zip(X[vs:ve], y[vs:ve]):
                     correct += (m.predict(xt)[0] == yt)
                     total   += 1
             return round(correct / total, 4) if total else 0.0
         except Exception:
             return 0.0
+
+    def get_top_k(self, text: str, k: int = 5) -> List[Tuple[str, float]]:
+        """
+        Return top-k (intent, confidence) pairs sorted by confidence descending.
+        Useful for debugging intent routing — shows what the model is "thinking".
+        Returns empty list if model is not ready.
+        """
+        probs = self.predict_proba(text)
+        if not probs:
+            return []
+        return sorted(probs.items(), key=lambda x: x[1], reverse=True)[:k]
 
     def accuracy_report(self) -> str:
         """Human-readable accuracy + training set size report."""

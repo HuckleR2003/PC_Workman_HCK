@@ -15,25 +15,57 @@ from __future__ import annotations
 _PL_DIACRITICS = frozenset("ąęóśźżćńłĄĘÓŚŹŻĆŃŁ")
 
 _PL_WORDS = frozenset({
+    # Question words / grammatical markers
     "czy", "jak", "mam", "jest", "co", "ile", "jaki", "jaka", "jakie",
-    "mój", "moja", "moje", "się", "nie", "tak", "już", "dla", "przez",
-    "przy", "więcej", "mniej", "gdzie", "kiedy", "który", "która",
+    "moj", "moja", "moje", "moj", "sie", "nie", "tak", "juz", "dla", "przez",
+    "przy", "wiecej", "mniej", "gdzie", "kiedy", "ktory", "ktora",
+    "pokaz", "sprawdz", "powiedz", "chce", "chcialbym", "chcialabym",
+    "bardzo", "dobrze", "troche", "znowu", "jeszcze", "prosze",
+    "masz", "mamy", "maja", "tego", "tej", "ten", "ta", "te",
+    "tutaj", "tam", "teraz", "dzisiaj", "dzis", "wczoraj",
+    # Accented versions (auto-detected via diacritics, but just in case)
+    "mój", "moja", "moje", "się", "już", "więcej", "gdzie", "który", "która",
     "pokaż", "sprawdź", "powiedz", "chcę", "chciałbym", "chciałabym",
     "bardzo", "dobrze", "trochę", "znowu", "jeszcze", "proszę",
-    "masz", "mamy", "mają", "tego", "tej", "ten", "ta", "te",
-    "tutaj", "tam", "teraz", "dzisiaj", "dzis", "wczoraj",
-    "komputer", "procesor", "pamięć", "dysk", "karta", "płyta",
-    "dobra", "spoko", "git", "dzięki", "cześć", "hej", "siema",
+    # Common Polish tech words (accent-stripped variants)
+    "komputer", "procesor", "pamiec", "dysk", "karta", "plyta",
+    "grzeje", "wolno", "szybko", "wysoki", "niski", "duzo", "malo",
+    "program", "aplikacja", "sterownik", "usluga",
+    "pc", "komp", "sprzet", "system", "windows",
+    # Greetings / meta (ASCII safe)
+    "dobra", "spoko", "git", "dzieki", "czesc", "hej", "siema", "hejka",
+    "nara", "okej", "oki", "no", "dobranoc", "dobry", "wieczor", "ranek",
+    # Common verbs
+    "dziala", "nie dziala", "wolno", "zwalnia", "sie grzeje", "grzeje",
+    "uruchom", "wylacz", "wlacz", "zamknij", "otworz",
 })
 
 _EN_WORDS = frozenset({
+    # Question words / auxiliaries
     "what", "how", "my", "is", "are", "show", "tell", "check",
     "does", "do", "can", "will", "the", "and", "or", "its",
-    "this", "that", "which", "where", "when", "why",
-    "please", "want", "need", "have", "got", "get", "give",
+    "this", "that", "which", "where", "when", "why", "who",
+    "i", "me", "it", "am", "was", "were", "has", "have", "had",
+    "would", "could", "should", "just", "now", "right", "up",
+    # Actions / intents
+    "please", "want", "need", "got", "get", "give", "run",
+    "see", "list", "find", "read", "open", "close", "kill",
+    "stop", "start", "restart", "fix", "help", "test", "scan",
+    # Nouns common in EN tech queries
     "computer", "processor", "memory", "disk", "card", "board",
-    "hello", "hi", "hey", "thanks", "thank",
-    "current", "running", "usage", "status", "info",
+    "specs", "spec", "top", "process", "processes", "game", "games",
+    "cpu", "gpu", "ram", "ssd", "temp", "temps", "speed", "load",
+    "driver", "drivers", "update", "startup", "boot", "crash",
+    "battery", "fan", "fans", "network", "connection", "internet",
+    # Greetings / meta / time-of-day
+    "hello", "hi", "hey", "thanks", "thank", "ok", "okay",
+    "good", "morning", "evening", "afternoon", "night",
+    "bye", "goodbye", "you", "there", "mate", "bro",
+    # Modifiers common in EN
+    "current", "running", "usage", "status", "info", "much",
+    "many", "all", "any", "most", "least", "high", "low", "fast",
+    "slow", "hot", "cold", "old", "new", "best", "worst", "total",
+    "free", "used", "available", "installed", "detected", "found",
 })
 
 
