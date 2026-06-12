@@ -1,0 +1,198 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: normal CPU temperature -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="What is a normal CPU temperature? There is no single safe number — it depends on the workload. Reference ranges for idle, office work, heavy load and gaming, plus when a 'normal' reading is actually a warning sign.">
+    <meta name="keywords" content="normal CPU temperature, safe CPU temp, CPU temperature while gaming, CPU temp idle, how hot is too hot CPU, CPU temperature guide, Tj Max">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/">
+    <meta property="og:title" content="What's a normal CPU temperature? It depends on the workload">
+    <meta property="og:description" content="72°C while gaming is fine. The same 72°C at idle is a warning. Per-workload reference ranges from 18 months of real sensor data.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>What's a Normal CPU Temperature? It Depends on the Workload | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What's a normal CPU temperature? It depends on the workload",
+      "description": "There is no single safe CPU temperature. Reference ranges for idle, light, medium, heavy and gaming workloads, and when a normal-looking reading is a warning.",
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-06-12",
+      "inLanguage": "en",
+      "image": "https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Normal CPU temperature", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-wednesday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <nav>
+            <a href="../">All guides</a>
+            <a href="../../download/">Download</a>
+            <a href="../../blog/">Blog</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Temperatures · Guide</span>
+        <h1>What's a normal CPU temperature?</h1>
+        <p class="tagline">Wrong question. The right one: normal <em>for what the CPU is doing right now</em>.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-06-12</span><span>·</span><span>6 min read</span>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#one-number">Why "below 80°C is fine" is a myth</a></li>
+                <li><a href="#reference">Reference ranges per workload</a></li>
+                <li><a href="#warning">When a "normal" number is a warning</a></li>
+                <li><a href="#check">How to check your own baseline</a></li>
+                <li><a href="#lower">What actually lowers temperatures</a></li>
+            </ol>
+        </div>
+
+        <h2 id="one-number">Why "below 80°C is fine" is a myth</h2>
+        <p>
+            Search this question and you'll get one number repeated everywhere: keep it under 80°C and you're fine.
+            That single threshold ignores the only thing that matters — <strong>context</strong>.
+            72°C on a desktop running Cyberpunk is healthy. The same 72°C while the machine sits idle
+            on the desktop means something is wrong: a stuck background process, a dead fan,
+            or thermal paste that dried out years ago.
+        </p>
+        <p>
+            CPUs are designed to run hot under load. Modern Intel and AMD chips boost until they approach
+            their thermal limit (Tj&nbsp;Max — typically 95–105°C depending on the model) and only then throttle.
+            A short spike to 90°C during a render is the chip doing its job. Twelve hours at 90°C is a cooling problem.
+        </p>
+
+        <h2 id="reference">Reference ranges per workload</h2>
+        <p>
+            These ranges come from sensor data collected by <a href="../../index_en.html">PC Workman</a> across
+            real machines — desktops with air cooling. Laptops typically run 8–15°C higher in every bucket;
+            thin ultrabooks even more.
+        </p>
+        <pre><code># workload          CPU load        typical range
+idle                &lt;15%            30–45°C
+light (browser)     15–40%          40–55°C
+medium (office+)    40–70%          55–70°C
+heavy (render)      ≥70%            65–85°C
+gaming              GPU≥60%         60–80°C</code></pre>
+        <p>
+            Your own machine will have narrower ranges than these — a specific CPU with a specific cooler
+            in a specific case is far more predictable than the global average. That's the whole idea behind
+            learning <em>your</em> baseline instead of trusting a universal chart.
+        </p>
+
+        <div class="callout warn">
+            <b>Laptop note:</b> the project behind this guide started on a 2014 laptop that idled at 94°C.
+            That was not "an old laptop being an old laptop" — it was six years of dust and dead thermal paste.
+            After cleaning and repasting, the same machine idled at 61°C.
+        </div>
+
+        <h2 id="warning">When a "normal" number is a warning</h2>
+        <ul>
+            <li><strong>Idle temperature creeping up over weeks</strong> — same workload, +1°C every few days. That's dust accumulating or paste degrading, and it's invisible if you only check "is it under 80".</li>
+            <li><strong>High idle, normal load temps</strong> — usually a background process keeping cores awake, not a cooling problem. Check what's consuming CPU before opening the case.</li>
+            <li><strong>Gaming temps fine, but fans at maximum</strong> — the cooler is compensating. You're one dusty month away from throttling.</li>
+            <li><strong>Sudden +10°C jump at the same workload</strong> — a fan died, a heatpipe failed, or the case airflow changed. Investigate the same day.</li>
+        </ul>
+
+        <h2 id="check">How to check your own baseline</h2>
+        <p>
+            Any sensor tool gives you the current number. The baseline needs history: what does <em>this</em>
+            machine usually do at <em>this</em> load? PC Workman automates exactly that — it classifies every
+            reading into a workload bucket (idle / light / medium / heavy / gaming) and learns the normal range
+            per bucket over 14 days. The chart then tells you <em>"8% above usual (Gaming: 65–78°C)"</em>
+            instead of leaving you to guess.
+        </p>
+        <p>
+            Doing it manually works too: note your idle temperature once a week, at the same time,
+            ten minutes after boot. A trend over four weeks tells you more than any single reading.
+        </p>
+
+        <h2 id="lower">What actually lowers temperatures</h2>
+        <ol>
+            <li><strong>Dust removal</strong> — the highest impact per minute spent. Compressed air through the heatsink, outside the case.</li>
+            <li><strong>Thermal paste</strong> — if the machine is 4+ years old and has never been repasted, expect 5–15°C improvement.</li>
+            <li><strong>Case airflow</strong> — one intake + one exhaust beats four fans fighting each other.</li>
+            <li><strong>Background load</strong> — every percent of CPU is heat. Trimming autostart and runaway processes lowers idle temps for free.</li>
+            <li><strong>Undervolting</strong> — effective but advanced; the only software-side change with hardware-level impact.</li>
+        </ol>
+        <p>
+            What doesn't help: registry "tweaks", RAM cleaners, and most "game boosters".
+            Heat is physics — software can only reduce the work, not improve the cooling.
+        </p>
+
+        <div class="guide-cta">
+            <b>Watch your baselines automatically.</b> PC Workman learns your machine's normal temperatures
+            per workload and flags real anomalies — free, open source, 100% offline.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <div class="author-card">
+            <div class="avatar">MF</div>
+            <div>
+                <h4>Marcin Firmuga</h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public — every guide is based on what the sensors actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+</body>
+</html>
