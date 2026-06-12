@@ -64,8 +64,11 @@ document.addEventListener('click', (e) => {
 // === SMOOTH SCROLL & ACTIVE SECTION HIGHLIGHTING ===
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
-        e.preventDefault();
         const targetId = link.getAttribute('href');
+        // Real page links (download/, blog/) must navigate normally —
+        // only in-page #anchors get the smooth-scroll treatment.
+        if (!targetId || !targetId.startsWith('#')) return;
+        e.preventDefault();
         const targetSection = document.querySelector(targetId);
         
         if (targetSection) {
