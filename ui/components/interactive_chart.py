@@ -114,12 +114,14 @@ class InteractiveChart:
         minimap:      bool  = True,
         y_min_range:  float = 5.0,
         label:        str   = "",
+        bar_mode:     bool  = False,
     ) -> None:
         self._height      = height
         self._bg          = bg
         self._minimap     = minimap
         self._y_min_range = y_min_range
         self._label       = label
+        self._bar_mode    = bar_mode
 
         # ── Data ──────────────────────────────────────────────────────────────
         self._series:     list[dict]  = []
@@ -136,6 +138,12 @@ class InteractiveChart:
         self._drag_moved:  bool       = False
         self._pin_idx:     int | None = None
         self._mm_drag:     bool       = False
+
+        # ── Bar animation state ───────────────────────────────────────────────
+        self._bar_anim_ease: float     = 1.0
+        self._bar_anim_t0:   float     = 0.0
+        self._bar_anim_id:   int|None  = None
+        self._bar_prev_n:    int       = 0
 
         # ── Layout margins (constant) ─────────────────────────────────────────
         self._PL, self._PR, self._PT, self._PB = 42, 8, 10, 20
@@ -184,8 +192,19 @@ class InteractiveChart:
 
     def set_series(self, series: list[dict]) -> "InteractiveChart":
         """series = [{"values": [...float|None], "color": "#hex", "label": str}]"""
+        prev_n = self._n()
         self._series = series
         self._reset_view_to_all()
+        if self._bar_mode and self._n() > prev_n:
+            self._start_bar_anim()
+        return self
+
+    def update_series_values(self, series: list[dict]) -> "InteractiveChart":
+        """Update series data WITHOUT resetting the pan/zoom view (for live append updates)."""
+        prev_n = self._n()
+        self._series = series
+        if self._bar_mode and self._n() > prev_n:
+            self._start_bar_anim()
         return self
 
     def set_timestamps(self, ts_list: list[float]) -> "InteractiveChart":
@@ -225,6 +244,38 @@ class InteractiveChart:
         n = self._n()
         self._view_lo = 0.0
         self._view_hi = max(0.0, float(n - 1))
+
+    # ── Bar-mode animation ────────────────────────────────────────────────────
+
+    def _start_bar_anim(self) -> None:
+        import time as _time
+        if self._bar_anim_id is not None:
+            try:
+                self.canvas.after_cancel(self._bar_anim_id)
+            except Exception:
+                pass
+        self._bar_anim_ease = 0.0
+        self._bar_anim_t0   = _time.perf_counter()
+        self._bar_anim_id   = self.canvas.after(16, self._tick_bar_anim)
+
+    def _tick_bar_anim(self) -> None:
+        import time as _time
+        try:
+            if not self.canvas.winfo_exists():
+                self._bar_anim_id = None
+                return
+        except Exception:
+            self._bar_anim_id = None
+            return
+        elapsed = _time.perf_counter() - self._bar_anim_t0
+        t = min(elapsed / 0.55, 1.0)
+        self._bar_anim_ease = 1.0 - (1.0 - t) ** 3   # ease-out cubic
+        self._redraw()
+        if t < 1.0:
+            self._bar_anim_id = self.canvas.after(16, self._tick_bar_anim)
+        else:
+            self._bar_anim_ease = 1.0
+            self._bar_anim_id   = None
 
     def _clamp(self) -> None:
         n = self._n()
@@ -278,6 +329,10 @@ class InteractiveChart:
 
         lo = max(0,     int(self._view_lo))
         hi = min(n - 1, int(self._view_hi) + 1)
+
+        if self._bar_mode:
+            self._draw_bars(cv, W, H, n, lo, hi, PL, PR, PT, ch)
+            return
 
         # ── Y range from visible data ─────────────────────────────────────────
         all_vis = []
@@ -387,6 +442,71 @@ class InteractiveChart:
                     ts_v = ts_lo + (ts_hi - ts_lo) * frac
                     ax   = PL + frac * cw
                     anch = ("w" if frac == 0.0 else "e" if frac == 1.0 else "center")
+                    cv.create_text(ax, H - 5,
+                                   text=datetime.fromtimestamp(ts_v).strftime(fmt),
+                                   fill=_C["text"], font=(_MONO, 5), anchor=anch)
+
+    def _draw_bars(self, cv, W, H, n, lo, hi, PL, PR, PT, ch) -> None:
+        """Bar-mode rendering: overlapping vertical bars (CPU → RAM → GPU, last on top).
+        Newest bar grows in via ease-out cubic animation."""
+        bottom_y = PT + ch
+
+        def vy(v: float) -> float:
+            return PT + ch * (1.0 - max(0.0, min(100.0, v)) / 100.0)
+
+        def vx(idx: float) -> float:
+            frac = (idx - self._view_lo) / max(self._view_hi - self._view_lo, 1)
+            return PL + frac * (W - PL - self._PR)
+
+        # Grid lines at 25 / 50 / 75 / 100 %
+        for pct in (25, 50, 75, 100):
+            y = vy(pct)
+            cv.create_line(PL, y, W - self._PR, y, fill=_C["grid"], width=1)
+            cv.create_text(PL - 4, y, text=str(pct), fill=_C["text"],
+                           font=(_MONO, 5), anchor="e")
+
+        visible_n = hi - lo + 1
+        slot_px   = (W - PL - self._PR) / max(visible_n, 1)
+        bar_half  = max(1.5, slot_px * 0.43)
+        newest    = n - 1
+        ease      = self._bar_anim_ease
+
+        # Draw each series in order: first series deepest, last on top
+        for s in self._series:
+            vals = s.get("values", [])
+            col  = s.get("color", "#3b82f6")
+            for i in range(lo, min(hi + 1, len(vals))):
+                v = vals[i]
+                if v is None:
+                    continue
+                # Apply ease-out growth animation on the newest bar only
+                if i == newest and ease < 1.0:
+                    v = v * ease
+                bar_top = vy(v)
+                if bar_top >= bottom_y:
+                    continue
+                x_c = vx(i)
+                cv.create_rectangle(
+                    x_c - bar_half, bar_top,
+                    x_c + bar_half, bottom_y,
+                    fill=col, outline="",
+                )
+
+        # Pinned tooltip (reuses existing helper with adapted coords)
+        if self._pin_idx is not None and lo <= self._pin_idx <= hi:
+            self._draw_pin_tooltip(cv, self._pin_idx, vx, vy, lo, hi,
+                                   W, H, PL, self._PR, PT, ch)
+
+        # Time axis
+        if self._timestamps:
+            ts_lo = self._timestamps[lo] if lo < len(self._timestamps) else 0
+            ts_hi = self._timestamps[min(hi, len(self._timestamps) - 1)]
+            if ts_lo and ts_hi and ts_hi > ts_lo:
+                fmt = "%H:%M" if (ts_hi - ts_lo) < 86400 else "%d/%m %H:%M"
+                for frac_t in (0.0, 0.25, 0.5, 0.75, 1.0):
+                    ts_v = ts_lo + (ts_hi - ts_lo) * frac_t
+                    ax   = PL + frac_t * (W - PL - self._PR)
+                    anch = "w" if frac_t == 0.0 else ("e" if frac_t == 1.0 else "center")
                     cv.create_text(ax, H - 5,
                                    text=datetime.fromtimestamp(ts_v).strftime(fmt),
                                    fill=_C["text"], font=(_MONO, 5), anchor=anch)
@@ -645,8 +765,9 @@ class InteractiveChart:
         # Crosshair lines
         cv.create_line(mx, PT, mx, PT + ch,
                        fill=_C["cross"], width=1, dash=(3, 3))
-        cv.create_line(PL, my, W - PR, my,
-                       fill=_C["cross"], width=1, dash=(3, 3))
+        if not self._bar_mode:
+            cv.create_line(PL, my, W - PR, my,
+                           fill=_C["cross"], width=1, dash=(3, 3))
 
         # Live bubble
         parts = []
@@ -655,7 +776,9 @@ class InteractiveChart:
             col   = s.get("color", "#3b82f6")
             label = s.get("label", "")
             if idx < len(vals) and vals[idx] is not None:
-                parts.append(f"{label}: {vals[idx]:.2f}")
+                v = vals[idx]
+                parts.append(f"{label}: {int(round(v))}%" if self._bar_mode
+                             else f"{label}: {v:.2f}")
 
         if not parts:
             return

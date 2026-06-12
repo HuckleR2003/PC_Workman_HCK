@@ -386,7 +386,12 @@ class SidebarNav:
             print("[SidebarNav] WARNING: No callback set!")
 
     def _expand_category(self, item_id):
-        """Expand category."""
+        """Expand category, auto-collapsing any other currently-open section."""
+        # Collapse all other expanded categories first
+        for other_id in list(self.expanded_categories):
+            if other_id != item_id:
+                self._collapse_category(other_id)
+
         widgets = self.item_widgets.get(item_id)
         if not widgets or not widgets["subitems_frame"]:
             return
@@ -494,7 +499,7 @@ class SidebarNav:
         widgets["text"].config(bg=bg, fg=fg)
 
     def _build_bottom_section(self):
-        """Build bottom sidebar section (Pinned, Settings)."""
+        """Build bottom sidebar section — Settings only (Pinned removed)."""
         # Separator
         sep = tk.Frame(self.frame, bg=self.COLORS["separator"], height=1)
         sep.pack(fill="x", padx=12, pady=10, side="bottom")
@@ -503,11 +508,8 @@ class SidebarNav:
         bottom = tk.Frame(self.frame, bg=self.COLORS["bg"])
         bottom.pack(fill="x", side="bottom", pady=(0, 15))
 
-        # Settings
+        # Settings (only item at the bottom)
         self._create_bottom_item(bottom, "settings", "⚙", t("nav.settings"))
-
-        # Pinned
-        self._create_bottom_item(bottom, "pinned", "📌", t("nav.pinned"))
 
     def _create_bottom_item(self, parent, item_id, icon, label):
         """Create an item in bottom section."""
@@ -627,12 +629,12 @@ class SidebarNav:
 
     # ── Auto-hide sidebar ─────────────────────────────────────────────────────
 
-    def set_auto_hide(self, enabled: bool, delay_ms: int = 3000) -> None:
+    def set_auto_hide(self, enabled: bool, delay_ms: int = 500) -> None:
         """
         Enable / disable mouse-leave auto-collapse.
-        When enabled the sidebar collapses to a 48 px icon rail after
-        `delay_ms` ms of the cursor being outside the sidebar frame.
-        On cursor re-entry the sidebar expands immediately.
+        Collapses to 48 px icon rail after delay_ms (default 500 ms)
+        of the cursor being outside the sidebar frame.
+        Activates immediately on enable — no need to switch pages first.
         """
         self._auto_hide       = enabled
         self._auto_hide_delay = delay_ms
@@ -640,6 +642,21 @@ class SidebarNav:
         if enabled:
             self.frame.bind("<Leave>", self._on_sidebar_leave)
             self.frame.bind("<Enter>", self._on_sidebar_enter)
+            # Immediate effect: check whether cursor is already outside and start timer
+            try:
+                px = self.frame.winfo_pointerx()
+                py = self.frame.winfo_pointery()
+                sx = self.frame.winfo_rootx()
+                sy = self.frame.winfo_rooty()
+                sw = self.frame.winfo_width()
+                sh = self.frame.winfo_height()
+                if not (sx <= px <= sx + sw and sy <= py <= sy + sh):
+                    self._cancel_auto_collapse()
+                    self._collapse_timer = self.frame.after(
+                        self._auto_hide_delay, self._collapse_sidebar
+                    )
+            except Exception:
+                pass
         else:
             self.frame.unbind("<Leave>")
             self.frame.unbind("<Enter>")
