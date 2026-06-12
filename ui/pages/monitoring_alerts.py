@@ -94,7 +94,9 @@ def build_monitoring_alerts_page(self, parent):
                 canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         except Exception:
             pass
-    canvas.bind_all("<MouseWheel>", _wheel, add="+")
+    # No add="+": overwrite the previous page's global wheel handler instead
+    # of stacking a dead one per page visit.
+    canvas.bind_all("<MouseWheel>", _wheel)
 
     canvas.pack(side="left", fill="both", expand=True)
     sb.pack(side="right", fill="y")
