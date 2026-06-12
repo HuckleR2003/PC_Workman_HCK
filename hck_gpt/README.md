@@ -1,6 +1,24 @@
 # hck_GPT
 
-AI diagnostic assistant embedded inside PC_Workman. Answers natural language questions about your PC in Polish and English using a hybrid rule+LLM engine.
+**v2.1.0** · Part of [PC Workman HCK](https://github.com/HuckleR2003/PC_Workman_HCK)
+
+AI diagnostic assistant for Windows system monitoring. Answers natural language questions about your PC — in Polish and English — using real hardware data. No cloud. No API key.
+
+---
+
+## What it does
+
+You ask. It checks your actual hardware. It answers.
+
+```
+"Why is my PC slow right now?"
+"Is cs2.exe a virus or a normal process?"
+"Which game pushes my GPU the hardest?"
+"RAM na 91% - co powinienem zamknąć?"
+```
+
+82 built-in intents covering hardware diagnostics, performance analysis, process identity,
+driver status, gaming analytics, battery, startup programs, and system health.
 
 ---
 
@@ -8,126 +26,129 @@ AI diagnostic assistant embedded inside PC_Workman. Answers natural language que
 
 ```
 hck_gpt/
-├── chat_handler.py          # Entry point — quick aliases, routing, help
-├── panel.py                 # Chat UI panel, nav links, session display
-├── insights.py              # InsightsEngine — habits, anomalies, teasers
-├── process_library.py       # Process lookup from data/process_library.json
-├── service_setup_wizard.py  # Windows service optimization wizard
-├── services_manager.py      # Windows service stop/start manager
-├── tooltip.py               # Process tooltip widget
-│
-├── intents/
-│   ├── vocabulary.py        # 76 intents, PL+EN trigger patterns
-│   ├── parser.py            # Intent parsing + confidence scoring
-│   ├── lang_detect.py       # PL/EN auto-detection
-│   └── ml_classifier.py     # Naive Bayes fallback classifier
-│
 ├── engine/
-│   └── hybrid_engine.py     # Routes intent → rule handler or Ollama LLM
-│
+│   └── hybrid_engine.py     # Routes messages: rule engine first, Ollama LLM fallback
+├── intents/
+│   ├── parser.py            # Intent parser with Polish diacritic normalization
+│   ├── vocabulary.py        # 82 intents, PL+EN patterns, confidence scoring
+│   └── lang_detect.py       # Auto-detects Polish vs English per message
 ├── responses/
-│   └── builder.py           # All _resp_* handlers + MEGA features
-│
-├── context/
-│   ├── system_context.py    # Builds PC context string for LLM
-│   └── hardware_scanner.py  # WMI scan: CPU, GPU, RAM, disk, mobo
-│
+│   └── builder.py           # 5600+ lines of bilingual response handlers
+│                            # Every handler uses real psutil/WMI/SQLite data
 ├── memory/
-│   ├── session_memory.py    # In-session event log, spike tracker
-│   ├── user_knowledge.py    # SQLite persistent user profile (AppData)
-│   └── proactive_monitor.py # Background alerts (CPU/RAM/disk/uptime)
-│
-└── data/
-    ├── live_sensors.py      # Real-time CPU/GPU/RAM snapshot
-    └── metrics_store.py     # daily_summary() queries from hck_stats.db
+│   ├── session_memory.py    # Conversation context, CPU/RAM trend buffers
+│   ├── proactive_monitor.py # Background daemon: CPU/RAM/GPU/disk/temp alerts
+│   └── user_knowledge.py    # SQLite user profile (hardware, usage patterns)
+├── context/
+│   ├── system_context.py    # Live snapshot: processes, temps, averages
+│   └── hardware_scanner.py  # WMI scan: CPU model, GPU, VRAM, mobo, RAM speed
+├── data/
+│   ├── live_sensors.py      # LibreHardwareMonitor bridge
+│   └── metrics_store.py     # DeepMonitor 5-min snapshots
+├── chat_handler.py          # Message routing + quick aliases
+├── panel.py                 # Tkinter UI: Bordeaux Noir panel, TIP/HOT strips
+└── insights.py              # Habit tracking, anomaly detection, teasers
 ```
 
 ---
 
-## Intent Coverage (76 total)
+## How the hybrid engine works
 
-| Category | Intents |
+Every message hits the **intent parser** first. Known intents (82 total) go to the **rule engine** — fast, predictable, deterministic, no GPU needed.
+
+Low-confidence or open-ended messages get routed to **Ollama** (local LLM). The engine injects a 6-section system context into the prompt: live CPU/RAM/GPU, today's averages, top processes, temperatures, hardware profile, and conversation history.
+
+Ollama unavailable? 60-second cooldown, graceful fallback. No crashes.
+
+```
+User message
+     │
+     ▼
+Intent parser  (confidence 0.0–1.0)
+     │
+     ├─ >= 0.60 ──► Rule engine handler ──► bilingual response + live hardware data
+     │
+     └─ < 0.60  ──► Ollama LLM (local, port 11434)
+                     + 6-section system context injected
+                     │
+                     └─ unavailable ──► structured fallback
+```
+
+---
+
+## Intent categories
+
+| Category | Example questions | Count |
+|---|---|---|
+| Hardware info | "What GPU do I have?", "How much RAM?" | 6 |
+| Diagnostics | "Is my PC healthy?", "Check temperatures" | 4 |
+| Performance | "Why is it slow?", "Compare today vs yesterday" | 6 |
+| Process identity | "Is svchost.exe a virus?" | 3 |
+| Gaming | "Can I run Cyberpunk?", "Which game stresses hardware most?" | 5 |
+| Startup / drivers | "What starts with Windows?", "Are drivers updated?" | 4 |
+| Resource analysis | "Why is RAM high?", "What's the top memory hog?" | 6 |
+| Time-travel | "What changed since last week?", "Crash context?" | 7 |
+| Battery / power | "How fast is battery draining?" | 4 |
+| Small talk | Greetings, thanks, follow-up questions | 4 |
+| + more | optimization, security, disk, network, fun | 33 |
+
+---
+
+## Proactive monitor
+
+Background daemon that watches your system and pushes alerts without being asked:
+
+- CPU sustained >88% for 30s
+- RAM critical >93% → HOT strip (red, not chat spam)
+- CPU/GPU temperature spikes
+- Disk <8 GB free on any drive
+- Session uptime >12h reminder
+- New heavy process detected
+
+Alerts go to the HOT strip (red) or TIP strip (yellow) depending on severity.
+RAM critical never appears as a chat message — only in the dedicated HOT indicator.
+
+---
+
+## Bilingual design
+
+Language detected **per message**, not per session. Mix Polish and English freely.
+
+Polish diacritic normalization via ASCII-fold dual scoring:
+`"dzieki"` matches `"dzięki"`, `"wydajnosc"` matches `"wydajność"`.
+
+---
+
+## Dependencies
+
+hck_GPT is designed as part of PC Workman HCK and uses its data pipeline:
+
+| Dependency | Used for |
 |---|---|
-| Hardware | `hw_cpu`, `hw_gpu`, `hw_ram`, `hw_storage`, `hw_all` |
-| Temperature | `temperature`, `throttle_check`, `gpu_temp_why` |
-| Performance | `performance`, `stats`, `perf_change`, `session_compare`, `pc_changes` |
-| Why | `why_slow`, `ram_why_high`, `processes`, `disk_usage_why` |
-| Diagnostics | `health_check`, `virus_check`, `disk_health`, `uptime`, `voltage_check` |
-| Gaming | `gaming_session`, `weekly_trends`, `fps_degradation`, `game_hardware_stress` |
-| New (1.7.5) | `fan_noise_history`, `driver_status`, `gaming_vs_work_time`, `process_identity`, `stale_apps`, `app_behavior_change`, `startup_slowdown`, `temp_comparison`, `crash_context`, `battery_drain_rate`, `power_after_restart` |
-| Optimization | `optimization`, `fan_speed`, `power_mode` |
-| Security | `process_info`, `security_check` |
-| Misc | `help`, `small_talk`, `unknown` + 15 others |
+| `psutil` | Live process list, CPU/RAM/disk |
+| `pywin32` (WMI) | CPU model, GPU name, VRAM, mobo, RAM speed |
+| `sqlite3` stdlib | User knowledge base, historical stats |
+| `tkinter` stdlib | Chat panel UI |
+| `requests` optional | Ollama LLM API (local) |
 
-All intents have Polish and English trigger patterns. Language is auto-detected per message.
+Standalone extraction as a pip-installable library is planned for a future milestone.
 
 ---
 
-## Key Features
+## Version history
 
-### Hybrid Engine
-- **Rule path**: known intents → deterministic `_resp_*` handler in `builder.py`
-- **LLM path**: open-ended or low-confidence → Ollama (local, no cloud)
-- Per-intent temperature and system prompt hint tuning
-
-### Context Time-Windowing
-Each intent gets a history window matched to its nature:
-
-```python
-"hw_cpu": 5,          # 5 minutes — live query
-"health_check": 30,   # 30 minutes — recent session
-"temp_comparison": 10080,  # 7 days — historical trend
-```
-
-`build_llm_context_windowed(lang, minutes)` builds the LLM context scoped to that window — tight windows strip stale patterns, wide windows append daily metric history.
-
-### No-AI-Slop Fallback
-`_no_data(intent, lang, what_missing)` — returns a structured "data unavailable" response instead of fabricating an answer. Used when sensor data, history, or process lists are empty.
-
-### Time-Travel Debugging
-`_get_historical_comparison(metric, days, lang)` — fetches live sensor value and compares to N-day average from `metrics_store.daily_summary()`. Returns formatted delta with direction arrow.
-
-### Micro-Benchmarking
-`_trigger_micro_benchmark(bench_type)` — fires a background thread:
-- `cpu_single`: 1M sqrt operations, measures ops/sec
-- `disk_seq`: 32 MB sequential write+read, measures MB/s
-
-Results stored in `session_memory` under `micro_bench` key.
-
-### Process Library
-`data/process_library.json` — **241 processes** with vendor, category, safety rating, typical CPU/RAM, and description. Used by `process_identity` and process tooltip widget.
-
-### Session Memory
-Tracks per-session events, spikes, and response data. Later handlers can reference what was discussed earlier in the same session (`discussed_this_session()`, `get_response_data(intent)`).
-
-### Proactive Monitor
-Background thread watching CPU, RAM, disk, and uptime. Fires non-intrusive alerts into the chat panel when thresholds are exceeded.
+| Version | What changed |
+|---|---|
+| **2.1.0** | HOT strip for RAM alerts (no chat spam), tip_green advisory background, welcome_bg table styling, register_hot/clear callbacks, UZYTKOWNIK action tracking |
+| 2.0.4 | Wave 2: 6 new intents (game_can_run, upgrade_feasibility, top_resource_hog, daily_ram_usage, battery_estimate, gaming_ram_usage). 82 intents total |
+| 2.0.0 | Wave 1: 13 community-requested intents, Context Time-Windowing, No-AI-Slop fallback, Time-Travel Debugging, Micro-Benchmarking |
+| 1.7.x | DeepMonitor integration, language sync, conversation flow, process library 373 entries |
+| 1.0.0 | Initial: Hybrid Engine, 63 intents, Bordeaux Noir panel, proactive monitor, session memory |
 
 ---
 
-## Usage
+## Part of PC Workman HCK
 
-```python
-from hck_gpt.chat_handler import ChatHandler
+hck_GPT is the AI brain inside [PC Workman HCK](https://github.com/HuckleR2003/PC_Workman_HCK) — a real-time Windows system monitor with 2.5D hardware map, DeepMonitor sensor table, startup/services manager, and time-travel diagnostics.
 
-handler = ChatHandler()
-responses = handler.process_message("dlaczego mój komputer jest wolny?")
-# returns list of formatted response strings (bilingual)
-```
-
-Quick aliases available in `chat_handler.py` — short Polish keywords map directly to intents without going through the parser (e.g. `sterowniki` → `driver_status`, `bateria` → `battery_drain_rate`).
-
----
-
-## Requirements
-
-- Python 3.9+
-- `psutil` — process and sensor data
-- `wmi` — hardware scanner (Windows only)
-- `ollama` — optional, for LLM fallback path (local install required)
-- `sqlite3` — built-in, used by `metrics_store` and `user_knowledge`
-
----
-
-Part of PC Workman HCK — [github.com/HuckleR2003/PC_Workman_HCK](https://github.com/HuckleR2003/PC_Workman_HCK)  
-Developed by Marcin "HCK" Firmuga
+**Marcin "HCK" Firmuga** · [GitHub](https://github.com/HuckleR2003) · [LinkedIn](https://linkedin.com/in/marcinfirmuga) · MIT License
