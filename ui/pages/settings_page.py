@@ -1032,11 +1032,14 @@ class SettingsPage:
         )
 
         rows = [
-            ("toast_temp_spike",   _t("settings.notifications.temp_spike_label"),  _t("settings.notifications.temp_spike_desc"), True),
-            ("toast_ram_pressure", _t("settings.notifications.ram_label"),         _t("settings.notifications.ram_desc"),        True),
-            ("toast_weekly_recap", _t("settings.notifications.weekly_label"),      _t("settings.notifications.weekly_desc"),     True),
-            ("toast_new_process",  _t("settings.notifications.new_proc_label"),    _t("settings.notifications.new_proc_desc"),   False),
-            ("toast_gaming_recap", _t("settings.notifications.gaming_label"),      _t("settings.notifications.gaming_desc"),     True),
+            ("toast_temp_spike",     _t("settings.notifications.temp_spike_label"),  _t("settings.notifications.temp_spike_desc"), True),
+            ("toast_ram_pressure",   _t("settings.notifications.ram_label"),         _t("settings.notifications.ram_desc"),        True),
+            ("toast_weekly_recap",   _t("settings.notifications.weekly_label"),      _t("settings.notifications.weekly_desc"),     True),
+            ("toast_new_process",    _t("settings.notifications.new_proc_label"),    _t("settings.notifications.new_proc_desc"),   False),
+            ("toast_gaming_recap",   _t("settings.notifications.gaming_label"),      _t("settings.notifications.gaming_desc"),     True),
+            ("gaming_launch_toast",  _t("settings.notifications.gaming_launch_label", default="Gaming launch reminders"),
+                                     _t("settings.notifications.gaming_launch_desc",  default='Subtle 2s tip when a game starts — "Good luck!", custom messages per game'),
+                                     True),
         ]
 
         for i, (key, label, sub, default) in enumerate(rows):
