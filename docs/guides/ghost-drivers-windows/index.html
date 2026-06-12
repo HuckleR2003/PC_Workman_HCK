@@ -1,0 +1,183 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: ghost drivers -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Ghost drivers are drivers for hardware you removed years ago — still installed, hidden by Device Manager. How to find them with pnputil /enum-devices /connected and remove them safely.">
+    <meta name="keywords" content="ghost drivers Windows, remove old drivers, pnputil remove device, hidden devices Device Manager, leftover GPU driver, phantom drivers cleanup, old hardware drivers Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/">
+    <meta property="og:title" content="Ghost drivers: the hardware you removed years ago is still in Windows">
+    <meta property="og:description" content="Device Manager hides them. Most monitoring tools never see them. How to find and remove ghost drivers with pnputil — step by step.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Ghost Drivers in Windows: Find &amp; Remove Drivers of Hardware You No Longer Own | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Ghost drivers in Windows: what they are and how to remove them",
+      "description": "Drivers for hardware you removed years ago are still installed and hidden. Finding them with pnputil /enum-devices /connected and removing them safely.",
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-06-12",
+      "inLanguage": "en",
+      "image": "https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Ghost drivers", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <nav>
+            <a href="../">All guides</a>
+            <a href="../../download/">Download</a>
+            <a href="../../blog/">Blog</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Drivers · Guide</span>
+        <h1>Ghost drivers in Windows</h1>
+        <p class="tagline">The GPU you sold in 2021 still lives in your system. Here's how to find it.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-06-12</span><span>·</span><span>5 min read</span>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#what">What a ghost driver is</a></li>
+                <li><a href="#why-care">Does it actually matter?</a></li>
+                <li><a href="#find">Finding ghosts with pnputil</a></li>
+                <li><a href="#remove">Removing them safely</a></li>
+                <li><a href="#auto">The automated way</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">What a ghost driver is</h2>
+        <p>
+            Every device you ever plugged in left a driver package behind. Replace a GT 1030 with an RTX 3050
+            and the old NVIDIA package stays installed — registered in the registry, present in the driver store,
+            just not bound to any physical device. Windows calls these <em>non-present devices</em>.
+            Device Manager hides them by default, so for most users they simply don't exist.
+        </p>
+        <p>
+            The tricky part: tools that enumerate hardware through WMI see those registry entries too,
+            ghosts included — so even many monitoring apps can't tell a real device from a phantom one.
+            The reliable source of truth is <code>pnputil /enum-devices /connected</code>,
+            which returns only hardware that is physically present right now.
+            <strong>The gap between the registry list and the connected list is your ghosts.</strong>
+        </p>
+
+        <h2 id="why-care">Does it actually matter?</h2>
+        <p>Honest answer: usually it's hygiene, not a crisis. But there are three real cases:</p>
+        <ul>
+            <li><strong>Driver conflicts</strong> — leftover GPU/audio packages can fight with current ones, especially after AMD↔NVIDIA switches. The classic symptom: random black screens after a "clean" GPU swap.</li>
+            <li><strong>Disk space</strong> — driver store packages range from a few MB to over 1 GB for GPU suites.</li>
+            <li><strong>Stale services</strong> — some ghosts leave services that still launch at boot, doing nothing useful.</li>
+        </ul>
+
+        <h2 id="find">Finding ghosts with pnputil</h2>
+        <p>Open PowerShell as administrator and compare two lists:</p>
+        <pre><code># everything Windows knows about (incl. ghosts)
+pnputil /enum-devices
+
+# only what is physically connected right now
+pnputil /enum-devices /connected</code></pre>
+        <p>
+            Any device that appears in the first list but not the second is non-present.
+            Old GPUs, audio interfaces from a previous motherboard, USB devices you owned once —
+            they'll all be there, often dozens of entries deep.
+        </p>
+        <div class="callout warn">
+            <b>Don't touch:</b> entries for docking stations, headsets or drives you still use but
+            haven't plugged in today. Non-present ≠ never used. Remove only hardware you genuinely no longer own.
+        </div>
+
+        <h2 id="remove">Removing them safely</h2>
+        <p>Each device has an instance ID shown by the enum command. Removal:</p>
+        <pre><code>pnputil /remove-device "&lt;instance-id&gt;"</code></pre>
+        <p>
+            Two safety rules. First, remove one device at a time and reboot if it was a GPU or storage class.
+            Second, never bulk-delete by wildcard — one mistyped pattern can take out the driver
+            of the disk you're booted from.
+        </p>
+
+        <h2 id="auto">The automated way</h2>
+        <p>
+            <a href="../../index_en.html">PC Workman</a> does this comparison automatically: its Driver Health page
+            runs the registry-vs-connected diff per device class (GPU, Audio, Network, USB) and marks ghosts
+            with a ⚠ badge directly on the card — including the device age and a one-click removal dialog
+            with admin confirmation. The detection method is exactly the one described above, just without the typing.
+        </p>
+
+        <div class="guide-cta">
+            <b>Find your ghosts in one click.</b> PC Workman's Ghost Driver Detection scans GPU, audio,
+            network and USB classes automatically — free, open source, offline.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <div class="author-card">
+            <div class="avatar">MF</div>
+            <div>
+                <h4>Marcin Firmuga</h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>Ghost Driver Detection shipped in PC Workman v1.7.7 — this guide documents the method behind it.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+</body>
+</html>
