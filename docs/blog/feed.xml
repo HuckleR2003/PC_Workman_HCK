@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>PC Workman — Build in Public Blog</title>
+  <link>https://huckler2003.github.io/PC_Workman_HCK/blog/</link>
+  <atom:link href="https://huckler2003.github.io/PC_Workman_HCK/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
+  <language>en</language>
+  <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
+  <lastBuildDate>Thu, 11 Jun 2026 12:00:00 GMT</lastBuildDate>
+
+  <item>
+    <title>I Was Supposed to Fix Bugs. I Accidentally Built Two Features Instead. PC Workman 1.7.8</title>
+    <link>https://dev.to/huckler/i-was-supposed-to-fix-bugs-i-accidentally-built-two-features-instead-pc-workman-178-advanced-a83</link>
+    <guid isPermaLink="true">https://dev.to/huckler/i-was-supposed-to-fix-bugs-i-accidentally-built-two-features-instead-pc-workman-178-advanced-a83</guid>
+    <pubDate>Fri, 05 Jun 2026 12:00:00 GMT</pubDate>
+    <description>Thermal baseline learning and voltage SPC — the two features that grew out of a bug-fixing week. PC Workman 1.7.8.</description>
+  </item>
+
+  <item>
+    <title>I Built an AI-Powered PC Monitor in Python. 28 Strangers Shaped Its Brain. PC Workman 1.7.6</title>
+    <link>https://dev.to/huckler/i-built-an-ai-powered-pc-monitor-in-python-28-strangers-shaped-its-brain-pc-workman-176-l4d</link>
+    <guid isPermaLink="true">https://dev.to/huckler/i-built-an-ai-powered-pc-monitor-in-python-28-strangers-shaped-its-brain-pc-workman-176-l4d</guid>
+    <pubDate>Thu, 28 May 2026 12:00:00 GMT</pubDate>
+    <description>How 28 community members shaped hck_GPT's 82 intents. DeepMonitor, the 2.5D PC map and Wave 2 of the offline assistant.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #4: The Canvas Arc Nobody Uses — PC Workman</title>
+    <link>https://dev.to/huckler/wednesday-code-autopsy-4-the-canvas-arc-nobody-uses-pc-workman-oob</link>
+    <guid isPermaLink="true">https://dev.to/huckler/wednesday-code-autopsy-4-the-canvas-arc-nobody-uses-pc-workman-oob</guid>
+    <pubDate>Thu, 16 Apr 2026 12:00:00 GMT</pubDate>
+    <description>Tkinter's create_arc — the forgotten canvas primitive behind PC Workman's driver health gauge.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #3: I Built a Driver Booster Competitor From Scratch — PC Workman v1.7.2</title>
+    <link>https://dev.to/huckler/pc-workman-v172-i-built-a-driver-booster-competitor-from-scratch-fixes-monday-grind-blueprint-3393</link>
+    <guid isPermaLink="true">https://dev.to/huckler/pc-workman-v172-i-built-a-driver-booster-competitor-from-scratch-fixes-monday-grind-blueprint-3393</guid>
+    <pubDate>Mon, 13 Apr 2026 12:00:00 GMT</pubDate>
+    <description>The week's plan: driver health scanning without the bloatware — what became First Setup &amp; Drivers.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #3: PC Workman 1.7.1 — The Foundation Great Release</title>
+    <link>https://dev.to/huckler/friday-shipped-scarred-3-pc-workman-171-the-foundation-great-release-10aj</link>
+    <guid isPermaLink="true">https://dev.to/huckler/friday-shipped-scarred-3-pc-workman-171-the-foundation-great-release-10aj</guid>
+    <pubDate>Fri, 10 Apr 2026 12:00:00 GMT</pubDate>
+    <description>Stats Engine v2 shipped: the SQLite time-series pipeline every later feature stands on.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #2: 80 Processes Explained, 3 Issues Targeted, 1 Week to Ship</title>
+    <link>https://dev.to/huckler/monday-grind-blueprint-2-80-processes-explained-3-issues-targeted-1-week-to-ship-785</link>
+    <guid isPermaLink="true">https://dev.to/huckler/monday-grind-blueprint-2-80-processes-explained-3-issues-targeted-1-week-to-ship-785</guid>
+    <pubDate>Mon, 06 Apr 2026 12:00:00 GMT</pubDate>
+    <description>Growing the process library and committing publicly to three community-reported issues in one week.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #1: The Day git --force Deleted 130 PC Workman Commits</title>
+    <link>https://dev.to/huckler/friday-shipped-scarred-1-the-day-git-force-deleted-130-pc-workman-commits-i-got-90-back-1947</link>
+    <guid isPermaLink="true">https://dev.to/huckler/friday-shipped-scarred-1-the-day-git-force-deleted-130-pc-workman-commits-i-got-90-back-1947</guid>
+    <pubDate>Fri, 27 Mar 2026 12:00:00 GMT</pubDate>
+    <description>The week the repo died on a Tuesday. Recovery via reflog — 90 of 130 commits back — and the backup rule born from it.</description>
+  </item>
+
+  <item>
+    <title>Code Autopsy #1: How ~90 Lines Turned System Monitoring Into A Conversation</title>
+    <link>https://dev.to/huckler/code-autopsy-1-how-90-lines-turned-system-monitoring-into-a-conversation-2jh8</link>
+    <guid isPermaLink="true">https://dev.to/huckler/code-autopsy-1-how-90-lines-turned-system-monitoring-into-a-conversation-2jh8</guid>
+    <pubDate>Wed, 25 Mar 2026 12:00:00 GMT</pubDate>
+    <description>The first intent parser — the ~90-line seed that grew into hck_GPT's 82 offline intents.</description>
+  </item>
+
+</channel>
+</rss>
