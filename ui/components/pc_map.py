@@ -268,15 +268,45 @@ class _Box:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+#  WORKLOAD-AWARE HEAT HELPER
+# ─────────────────────────────────────────────────────────────────────────────
+def _thermal_aware_cpu_heat(cpu_pct: float, cpu_temp: float,
+                            gpu_pct: float) -> float:
+    """
+    Returns heat 0..1 using thermal_baseline when trained.
+    Falls back to the classic formula if baseline is unavailable.
+
+    Innovation: the heat colour reflects whether a temperature is *actually*
+    abnormal for the current workload — not just a fixed threshold.
+    E.g. 72°C during heavy gaming is "normal" (cool colour) while 72°C at
+    idle is "hot" (amber/red).
+    """
+    if cpu_temp > 0:
+        try:
+            from core.thermal_baseline import thermal_baseline
+            bucket = thermal_baseline.classify(cpu_pct, gpu_pct)
+            br     = thermal_baseline.get_range(bucket)
+            if br.is_usable:
+                z = br.z_score(cpu_temp)
+                # Map z-score → heat: z≤0 = cool, z≥3 = max heat
+                return max(0.0, min(1.0, z / 3.0))
+        except Exception:
+            pass
+        # Fallback: classic weighted formula
+        return max(0.0, min(1.0, cpu_pct / 100 * 0.4 + cpu_temp / 100 * 0.6))
+    return max(0.0, min(1.0, cpu_pct / 100))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 #  DESKTOP PC SCENE DEFINITION
 # ─────────────────────────────────────────────────────────────────────────────
 def _desktop_scene(data: Dict, pulse: float) -> List[_Box]:
     """Return all boxes for the desktop PC, in draw order (back to front)."""
 
     # ── dynamic colors based on live data ──
-    cpu_heat  = max(0.0, min(1.0, (data["cpu_pct"]/100*0.4 +
-                                    data["cpu_temp"]/100*0.6) if data["cpu_temp"] else
-                                   data["cpu_pct"]/100))
+    # CPU heat uses workload-aware thermal baseline when trained
+    cpu_heat  = _thermal_aware_cpu_heat(
+        data["cpu_pct"], data["cpu_temp"], data["gpu_pct"])
     gpu_heat  = max(0.0, min(1.0, data["gpu_temp"]/100 if data["gpu_temp"] else
                                    data["gpu_pct"]/100))
     ram_heat  = max(0.0, min(1.0, data["ram_pct"]/100))
@@ -440,7 +470,8 @@ _LOY = int((_CH - 130)      * _SSAA)   # raised 40 px to match desktop origin fi
 
 def _laptop_scene(data: Dict, pulse: float) -> List[_Box]:
     """Return all boxes for laptop scene."""
-    cpu_heat  = max(0.0, min(1.0, data["cpu_pct"]/100))
+    cpu_heat  = _thermal_aware_cpu_heat(
+        data["cpu_pct"], data["cpu_temp"], data["gpu_pct"])
     gpu_heat  = max(0.0, min(1.0, data["gpu_pct"]/100))
     ram_heat  = max(0.0, min(1.0, data["ram_pct"]/100))
     disk_heat = max(0.0, min(1.0, data["disk_pct"]/100))
@@ -707,7 +738,7 @@ class PCMapView(tk.Frame):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, bg="#0a0e14", **kwargs)
         self._mode       = "desktop"   # "desktop" | "laptop"
-        self._live_data  = _gather_live.__call__()
+        self._live_data  = _gather_live()
         self._pulse      = 0.0
         self._running    = True
         self._photo      = None
@@ -715,14 +746,26 @@ class PCMapView(tk.Frame):
         self._hovered    = None
         self._tooltip_win: Optional[tk.Toplevel] = None
         self._last_render_time = 0.0
+        # Cached PIL fonts — loaded once, reused every frame
+        self._font_sm = None
+        self._font_xs = None
 
         if not _HAS_PIL:
             tk.Label(self, text="Pillow (PIL) not installed.\npip install Pillow",
                      font=(_BODY, 11), bg="#0a0e14", fg="#ef4444").pack(expand=True)
             return
 
+        # Page switches destroy this widget via the PARENT's destroy() — the
+        # Python-level destroy() override below is never called then, so the
+        # 3 s data thread would leak (one per page visit). <Destroy> always fires.
+        self.bind("<Destroy>", self._on_tk_destroy, add="+")
+
         self._build_ui()
         self._start_loop()
+
+    def _on_tk_destroy(self, event=None):
+        if event is None or event.widget is self:
+            self._running = False
 
     # ── UI ────────────────────────────────────────────────────
     def _build_ui(self):
@@ -872,15 +915,18 @@ class PCMapView(tk.Frame):
 
             self._hit_rects = hit
 
-            # Fonts (try PIL truetype, fall back to default)
-            try:
-                font_sm = ImageFont.truetype("C:/Windows/Fonts/consola.ttf",
-                                             11 * _SSAA)
-                font_xs = ImageFont.truetype("C:/Windows/Fonts/consola.ttf",
-                                             9  * _SSAA)
-            except Exception:
-                font_sm = ImageFont.load_default()
-                font_xs = font_sm
+            # Fonts — load once and cache; loading from disk every 120ms is expensive
+            if self._font_sm is None:
+                try:
+                    self._font_sm = ImageFont.truetype(
+                        "C:/Windows/Fonts/consola.ttf", 11 * _SSAA)
+                    self._font_xs = ImageFont.truetype(
+                        "C:/Windows/Fonts/consola.ttf",  9 * _SSAA)
+                except Exception:
+                    self._font_sm = ImageFont.load_default()
+                    self._font_xs = self._font_sm
+            font_sm = self._font_sm
+            font_xs = self._font_xs
 
             # Labels — wrapped separately so label failure doesn't blank the canvas
             try:
