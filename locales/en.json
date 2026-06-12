@@ -24,7 +24,6 @@
     "coming_soon": "Coming soon",
     "not_available": "Not available"
   },
-
   "nav": {
     "dashboard": "Dashboard",
     "monitoring": "MONITORING & ALERTS",
@@ -53,7 +52,6 @@
     "pinned": "Pinned",
     "back_dashboard": "Dashboard"
   },
-
   "settings": {
     "page_title": "Settings",
     "page_subtitle": "PC Workman HCK",
@@ -130,7 +128,9 @@
       "new_proc_label": "New heavy process",
       "new_proc_desc": "First time using > 15 % CPU",
       "gaming_label": "Gaming session recap",
-      "gaming_desc": "Shown after fullscreen session"
+      "gaming_desc": "Shown after fullscreen session",
+      "gaming_launch_label": "Gaming launch reminders",
+      "gaming_launch_desc": "Subtle 2s tip when a game starts — custom message per game"
     },
     "data_privacy": {
       "retention_label": "Data retention",
@@ -155,7 +155,6 @@
       "github_btn": "GitHub ↗"
     }
   },
-
   "guide": {
     "title": "Quick Guide",
     "subtitle": "Get started with PC Workman",
@@ -176,7 +175,6 @@
     "finale_title": "Was that enough?",
     "finale_body": "You can expand any section or close the guide."
   },
-
   "toast": {
     "startup_title": "New Startup Entry Detected",
     "startup_body": "A program was added to Windows autostart.",
@@ -187,7 +185,6 @@
     "app_body": "A new program was added to your system.",
     "app_ok": "OK"
   },
-
   "startup_manager": {
     "page_title": "Startup Manager",
     "col_name": "Program Name",
@@ -203,7 +200,6 @@
     "confirm_delete": "Remove this entry from startup?",
     "empty": "No startup entries found."
   },
-
   "optimization": {
     "page_title": "Optimization",
     "services_title": "Services",
@@ -215,10 +211,9 @@
     "status_running": "Running…",
     "status_done": "Complete"
   },
-
   "dashboard": {
     "page_title": "Dashboard",
-    "subtitle": "Your PC Masterdude",
+    "subtitle": "HCK Edition",
     "session_averages": "SESSION AVERAGES",
     "minimal_mode": "⚡ Minimal Mode",
     "cpu_label": "CPU",
@@ -249,9 +244,9 @@
     "status_heavy": "Heavy load",
     "status_max": "Maximum",
     "opt_center_label": "Optimization Center",
-    "opt_center_sub": "Everything about optimizing"
+    "opt_center_sub": "Everything about optimizing",
+    "chart_unpin": "click bar to unpin"
   },
-
   "fan_control": {
     "page_title": "Fan Control",
     "dashboard_title": "Fan Dashboard",
@@ -265,7 +260,6 @@
     "auto_label": "Automatic",
     "manual_label": "Manual"
   },
-
   "monitoring": {
     "page_title": "Monitoring",
     "temperature_title": "Temperature",
@@ -278,7 +272,6 @@
     "condition_above": "above",
     "condition_below": "below"
   },
-
   "my_pc": {
     "page_title": "MY PC",
     "central_title": "Central",
@@ -292,7 +285,6 @@
     "good": "Good",
     "fair": "Fair",
     "poor": "Poor",
-
     "quick_actions": "QUICK ACTIONS",
     "health_report": "Health Report",
     "cleanup": "Cleanup",
@@ -301,34 +293,27 @@
     "export_report": "Export Report",
     "stability_tests": "Stability Tests",
     "your_account": "Your Account",
-
     "stats_alerts": "STATS & ALERTS",
     "no_alerts": "NO ALERTS",
     "first_setup": "First Setup & Drivers",
     "checks_passed": "All checks passed ✓",
     "items_pending": "{n} items pending",
     "driver_health": "Driver health & startup control",
-
     "opt_center": "Optimization Center",
     "services_manager": "Services Manager",
     "turbo_row": "TURBO BOOST  ·  RAM Flush  ·  TEMP clean",
     "automated_cleanup": "Automated performance & cleanup",
-
     "scanning": "Scanning...",
     "startup_entries": "{n} startup entries detected",
     "unnecessary_services": "{n} potentially unnecessary",
-
     "session_label": "SESSION:  {h}h {m}m",
     "session_na": "SESSION:  N/A",
     "live_badge": "● LIVE",
-
     "coming_soon_tab": "{tab} - Coming Soon",
     "hey_user": "Hey — USER",
-
     "col_current": "CURRENT",
     "col_min": "MIN",
     "col_max": "MAX",
-
     "section_component_status": "COMPONENT STATUS",
     "section_health_uptime": "HEALTH SCORE  ·  UPTIME",
     "section_recent_events": "RECENT EVENTS",
@@ -344,7 +329,6 @@
     "section_usage_cores": "USAGE / CORES",
     "section_space": "SPACE",
     "section_fans": "BODY FANS",
-
     "health_score": "HEALTH SCORE",
     "uptime": "UPTIME",
     "uptime_session": "Session",
@@ -353,7 +337,6 @@
     "alert_critical": "Critical",
     "alert_warning": "Warning",
     "alert_info": "Info",
-
     "status_critical": "CRITICAL",
     "status_hot": "HOT",
     "status_warm": "WARM",
@@ -361,38 +344,50 @@
     "status_high": "HIGH",
     "status_moderate": "MODERATE",
     "status_normal": "NORMAL",
-
     "events_col_time": "TIME",
     "events_col_sev": "SEV",
     "events_col_metric": "METRIC",
     "events_col_desc": "DESCRIPTION",
     "no_events": "No events recorded yet.",
-
     "disk_drive": "Drive",
     "disk_used": "Used GB",
     "disk_free": "Free GB",
     "disk_total": "Total",
     "disk_pct": "%",
     "disk_status": "Status",
-
     "show_full_table": "Show Full Table",
     "full_hw_table": "Full Hardware Table",
     "hw_table_unavailable": "Hardware table not available",
-
     "no_startup_items": "No startup items found in registry.",
     "manage_startup_hint": "Manage startup in  Setup & Drivers →",
     "reading_startup": "Reading startup entries…",
     "scanning_hardware": "Scanning hardware…",
     "detecting": "Detecting…",
-
-    "tooltip_health_report": ["Advanced PC health report.", "Component history in one place."],
-    "tooltip_cleanup": ["Cleanup tools.", "Combined power in one place!"],
-    "tooltip_stability": ["PC Workman internal diagnostics.", "File integrity, engine status, logs."],
-    "tooltip_account": ["Account details and preferences.", "Manage your PC Workman profile."],
-    "tooltip_stats": ["Monthly statistics overview.", "Watch temp & voltage spikes."],
-    "tooltip_setup": ["Driver health  ·  Startup control", "Registry-based scan  ·  No admin needed"]
+    "tooltip_health_report": [
+      "Advanced PC health report.",
+      "Component history in one place."
+    ],
+    "tooltip_cleanup": [
+      "Cleanup tools.",
+      "Combined power in one place!"
+    ],
+    "tooltip_stability": [
+      "PC Workman internal diagnostics.",
+      "File integrity, engine status, logs."
+    ],
+    "tooltip_account": [
+      "Account details and preferences.",
+      "Manage your PC Workman profile."
+    ],
+    "tooltip_stats": [
+      "Monthly statistics overview.",
+      "Watch temp & voltage spikes."
+    ],
+    "tooltip_setup": [
+      "Driver health  ·  Startup control",
+      "Registry-based scan  ·  No admin needed"
+    ]
   },
-
   "statistics": {
     "page_title": "Statistics",
     "today_title": "Today",
@@ -403,7 +398,6 @@
     "max_label": "Maximum",
     "min_label": "Minimum"
   },
-
   "hck_gpt": {
     "panel_title": "hck_GPT",
     "placeholder": "Ask anything about your hardware…",
@@ -415,7 +409,6 @@
     "error_timeout": "Request timed out.",
     "tip_prefix": "Tip:"
   },
-
   "setup": {
     "page_title": "Setup & Drivers",
     "drivers_title": "Driver Status",
@@ -426,13 +419,11 @@
     "status_outdated": "Update available",
     "status_missing": "Missing"
   },
-
   "system_tray": {
     "open": "Open PC Workman",
     "minimize": "Minimize to tray",
     "quit": "Quit"
   },
-
   "splash": {
     "loading": "Loading…",
     "initializing": "Initializing components…",

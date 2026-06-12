@@ -24,7 +24,6 @@
     "coming_soon": "Wkrótce",
     "not_available": "Niedostępne"
   },
-
   "nav": {
     "dashboard": "Panel główny",
     "monitoring": "MONITOROWANIE I ALERTY",
@@ -51,9 +50,8 @@
     "statistics_monthly": "Miesięczne",
     "settings": "Ustawienia",
     "pinned": "Przypięte",
-    "back_dashboard": "Główne Menu"
+    "back_dashboard": "Dashboard"
   },
-
   "settings": {
     "page_title": "Ustawienia",
     "page_subtitle": "PC Workman HCK",
@@ -130,7 +128,9 @@
       "new_proc_label": "Nowy obciążający proces",
       "new_proc_desc": "Pierwsze uruchomienie używające > 15% CPU",
       "gaming_label": "Podsumowanie sesji gamingowej",
-      "gaming_desc": "Wyświetlane po sesji pełnoekranowej"
+      "gaming_desc": "Wyświetlane po sesji pełnoekranowej",
+      "gaming_launch_label": "Przypomnienia przy starcie gry",
+      "gaming_launch_desc": "Subtelne 2s powiadomienie gdy uruchomisz grę — własna wiadomość dla każdej gry"
     },
     "data_privacy": {
       "retention_label": "Przechowywanie danych",
@@ -155,7 +155,6 @@
       "github_btn": "GitHub ↗"
     }
   },
-
   "guide": {
     "title": "Szybki przewodnik",
     "subtitle": "Zacznij korzystać z PC Workman",
@@ -176,7 +175,6 @@
     "finale_title": "Czy to wystarczy?",
     "finale_body": "Możesz rozwinąć dowolną sekcję lub zamknąć przewodnik."
   },
-
   "toast": {
     "startup_title": "Wykryto nowy element startowy",
     "startup_body": "Program został dodany do autostartu Windows.",
@@ -187,7 +185,6 @@
     "app_body": "Nowy program został dodany do systemu.",
     "app_ok": "OK"
   },
-
   "startup_manager": {
     "page_title": "Menadżer autostartu",
     "col_name": "Nazwa programu",
@@ -203,7 +200,6 @@
     "confirm_delete": "Usunąć ten wpis z autostartu?",
     "empty": "Nie znaleziono wpisów autostartu."
   },
-
   "optimization": {
     "page_title": "Optymalizacja",
     "services_title": "Usługi",
@@ -215,10 +211,9 @@
     "status_running": "Trwa…",
     "status_done": "Zakończono"
   },
-
   "dashboard": {
     "page_title": "Panel główny",
-    "subtitle": "Twój asystent PC",
+    "subtitle": "HCK Edition",
     "session_averages": "ŚREDNIE OBECNEJ SESJI",
     "minimal_mode": "⚡ Tryb minimalny",
     "cpu_label": "CPU",
@@ -249,9 +244,9 @@
     "status_heavy": "Nadmierne",
     "status_max": "Maksymalne",
     "opt_center_label": "Centrum optymalizacji",
-    "opt_center_sub": "Wszystko o optymalizacji"
+    "opt_center_sub": "Wszystko o optymalizacji",
+    "chart_unpin": "kliknij słupek aby odpiąć"
   },
-
   "fan_control": {
     "page_title": "Kontrola wentylatorów",
     "dashboard_title": "Panel wentylatorów",
@@ -265,7 +260,6 @@
     "auto_label": "Automatyczny",
     "manual_label": "Ręczny"
   },
-
   "monitoring": {
     "page_title": "Monitorowanie",
     "temperature_title": "Temperatura",
@@ -278,7 +272,6 @@
     "condition_above": "powyżej",
     "condition_below": "poniżej"
   },
-
   "my_pc": {
     "page_title": "MÓJ PC",
     "central_title": "Centrum",
@@ -292,7 +285,6 @@
     "good": "Dobry",
     "fair": "Przeciętny",
     "poor": "Zły",
-
     "quick_actions": "SZYBKIE AKCJE",
     "health_report": "Raport zdrowia",
     "cleanup": "Oczyszczanie",
@@ -301,34 +293,27 @@
     "export_report": "Eksportuj raport",
     "stability_tests": "Testy stabilności",
     "your_account": "Twoje konto",
-
     "stats_alerts": "STATYSTYKI I ALERTY",
     "no_alerts": "BRAK ALERTÓW",
     "first_setup": "Konfiguracja i sterowniki",
     "checks_passed": "Wszystkie testy zaliczone ✓",
     "items_pending": "{n} elementów oczekuje",
     "driver_health": "Stan sterowników i kontrola autostartu",
-
     "opt_center": "Centrum optymalizacji",
     "services_manager": "Menadżer usług",
     "turbo_row": "TURBO BOOST  ·  Czyszczenie RAM  ·  TEMP",
     "automated_cleanup": "Automatyczna optymalizacja i czyszczenie",
-
     "scanning": "Skanowanie...",
     "startup_entries": "Wykryto {n} wpisów autostartu",
     "unnecessary_services": "{n} potencjalnie zbędnych",
-
     "session_label": "SESJA:  {h}h {m}m",
     "session_na": "SESJA:  brak danych",
     "live_badge": "● NA ŻYWO",
-
     "coming_soon_tab": "{tab} — wkrótce",
     "hey_user": "Hej — UŻYTKOWNIKU",
-
     "col_current": "BIEŻĄCA",
     "col_min": "MIN",
     "col_max": "MAX",
-
     "section_component_status": "STAN KOMPONENTÓW",
     "section_health_uptime": "WSKAŹNIK ZDROWIA  ·  CZAS PRACY",
     "section_recent_events": "OSTATNIE ZDARZENIA",
@@ -344,7 +329,6 @@
     "section_usage_cores": "UŻYCIE / RDZENIE",
     "section_space": "MIEJSCE",
     "section_fans": "WENTYLATORY",
-
     "health_score": "WSKAŹNIK ZDROWIA",
     "uptime": "CZAS PRACY",
     "uptime_session": "Sesja",
@@ -353,7 +337,6 @@
     "alert_critical": "Krytyczny",
     "alert_warning": "Ostrzeżenie",
     "alert_info": "Informacja",
-
     "status_critical": "KRYTYCZNY",
     "status_hot": "GORĄCY",
     "status_warm": "CIEPŁY",
@@ -361,38 +344,50 @@
     "status_high": "WYSOKI",
     "status_moderate": "UMIARKOWANY",
     "status_normal": "NORMALNY",
-
     "events_col_time": "CZAS",
     "events_col_sev": "WAG",
     "events_col_metric": "METRYKA",
     "events_col_desc": "OPIS",
     "no_events": "Brak zarejestrowanych zdarzeń.",
-
     "disk_drive": "Dysk",
     "disk_used": "Zajęte GB",
     "disk_free": "Wolne GB",
     "disk_total": "Łącznie",
     "disk_pct": "%",
     "disk_status": "Status",
-
     "show_full_table": "Pokaż pełną tabelę",
     "full_hw_table": "Pełna tabela sprzętu",
     "hw_table_unavailable": "Tabela sprzętu niedostępna",
-
     "no_startup_items": "Brak wpisów autostartu w rejestrze.",
     "manage_startup_hint": "Zarządzaj autostartem w  Konfiguracja →",
     "reading_startup": "Wczytywanie wpisów autostartu…",
     "scanning_hardware": "Skanowanie sprzętu…",
     "detecting": "Wykrywanie…",
-
-    "tooltip_health_report": ["Zaawansowany raport zdrowia PC.", "Historia komponentów w jednym miejscu."],
-    "tooltip_cleanup": ["Narzędzia do czyszczenia.", "Pełna moc w jednym miejscu!"],
-    "tooltip_stability": ["Wewnętrzna diagnostyka PC Workman.", "Integralność plików, stan silnika, logi."],
-    "tooltip_account": ["Szczegóły konta i preferencje.", "Zarządzaj profilem PC Workman."],
-    "tooltip_stats": ["Przegląd statystyk miesięcznych.", "Obserwuj skoki temp i napięcia."],
-    "tooltip_setup": ["Stan sterowników  ·  Kontrola autostartu", "Skan rejestru  ·  Bez praw admina"]
+    "tooltip_health_report": [
+      "Zaawansowany raport zdrowia PC.",
+      "Historia komponentów w jednym miejscu."
+    ],
+    "tooltip_cleanup": [
+      "Narzędzia do czyszczenia.",
+      "Pełna moc w jednym miejscu!"
+    ],
+    "tooltip_stability": [
+      "Wewnętrzna diagnostyka PC Workman.",
+      "Integralność plików, stan silnika, logi."
+    ],
+    "tooltip_account": [
+      "Szczegóły konta i preferencje.",
+      "Zarządzaj profilem PC Workman."
+    ],
+    "tooltip_stats": [
+      "Przegląd statystyk miesięcznych.",
+      "Obserwuj skoki temp i napięcia."
+    ],
+    "tooltip_setup": [
+      "Stan sterowników  ·  Kontrola autostartu",
+      "Skan rejestru  ·  Bez praw admina"
+    ]
   },
-
   "statistics": {
     "page_title": "Statystyki",
     "today_title": "Dzisiaj",
@@ -403,7 +398,6 @@
     "max_label": "Maksimum",
     "min_label": "Minimum"
   },
-
   "hck_gpt": {
     "panel_title": "hck_GPT",
     "placeholder": "Zapytaj o cokolwiek dotyczącego sprzętu…",
@@ -415,7 +409,6 @@
     "error_timeout": "Żądanie przekroczyło limit czasu.",
     "tip_prefix": "Wskazówka:"
   },
-
   "setup": {
     "page_title": "Konfiguracja i sterowniki",
     "drivers_title": "Stan sterowników",
@@ -426,13 +419,11 @@
     "status_outdated": "Dostępna aktualizacja",
     "status_missing": "Brakujący"
   },
-
   "system_tray": {
     "open": "Otwórz PC Workman",
     "minimize": "Minimalizuj do zasobnika",
     "quit": "Zamknij"
   },
-
   "splash": {
     "loading": "Ładowanie…",
     "initializing": "Inicjalizacja komponentów…",
