@@ -111,6 +111,12 @@ class DeepMonitorTable(tk.Frame):
         self._store: dict = {}   # iid -> {current, min, max, type}
         self._pause_btn  = None
 
+        # Parent-driven destruction skips the destroy() override below —
+        # <Destroy> always fires, so the 2 s update loop can't outlive the page.
+        self.bind("<Destroy>",
+                  lambda e: self._stop_ev.set() if e.widget is self else None,
+                  add="+")
+
         self._build_action_bar()
         self._build_tree()
         self._populate()
