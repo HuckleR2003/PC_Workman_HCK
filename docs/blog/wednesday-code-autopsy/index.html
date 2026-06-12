@@ -1,0 +1,162 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog: Wednesday Code Autopsy -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Wednesday Code Autopsy — the weekly series where one PC Workman bug or feature is dissected: root cause, dead ends, and the actual fix, with code. By Marcin Firmuga, HCK_Labs.">
+    <meta name="keywords" content="Wednesday Code Autopsy, debugging stories, root cause analysis, Python Tkinter bugs, PC Workman development, build in public, Marcin Firmuga">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/">
+    <meta property="og:title" content="Wednesday Code Autopsy — one bug on the table, every week">
+    <meta property="og:description" content="Root cause, dead ends, the fix. From a laptop at 94°C to 130 commits lost to git --force. Real debugging stories from building PC Workman.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wednesday Code Autopsy | PC Workman build-in-public series</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Wednesday Code Autopsy",
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/",
+      "description": "Weekly build-in-public series: one PC Workman bug or feature dissected — root cause, dead ends, and the fix, with code.",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": [
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://medium.com/@firmuga.marcin.s",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+      "blogPost": [
+        {
+          "@type": "BlogPosting",
+          "headline": "Wednesday Code Autopsy #4: The Canvas Arc Nobody Uses — PC Workman",
+          "url": "https://dev.to/huckler/wednesday-code-autopsy-4-the-canvas-arc-nobody-uses-pc-workman-oob",
+          "datePublished": "2026-04-16",
+          "author": { "@type": "Person", "name": "Marcin Firmuga" }
+        },
+        {
+          "@type": "BlogPosting",
+          "headline": "Code Autopsy #1: How ~90 Lines Turned System Monitoring Into A Conversation",
+          "url": "https://dev.to/huckler/code-autopsy-1-how-90-lines-turned-system-monitoring-into-a-conversation-2jh8",
+          "datePublished": "2026-03-25",
+          "author": { "@type": "Person", "name": "Marcin Firmuga" }
+        }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://huckler2003.github.io/PC_Workman_HCK/blog/" },
+        { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-wednesday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">All series</a>
+            <a href="../monday-grind-blueprint/">Monday</a>
+            <a href="../friday-shipped-scarred/">Friday</a>
+            <a href="../story_en.html">The Story</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Every Wednesday</span>
+        <h1>Wednesday Code Autopsy</h1>
+        <p class="tagline">
+            One bug or feature on the table. Root cause, the dead ends I walked into,
+            and the fix that finally held — with the code to prove it.
+        </p>
+        <div class="stats">
+            <div class="stat"><b>94°C</b><span>the laptop it started on</span></div>
+            <div class="stat"><b>~90</b><span>lines that became hck_GPT</span></div>
+            <div class="stat"><b>#10</b><span>autopsies and counting</span></div>
+        </div>
+    </section>
+
+    <main class="wrap">
+
+        <div class="section-label">How this series works</div>
+        <p style="font-size:.88rem;color:#a0a0a0;">
+            Most debugging stories are written after the glory, with the messy middle cut out.
+            Autopsy keeps the middle: the wrong hypothesis, the fix that broke something else,
+            the moment the real cause shows up in a log at 2 AM. If a fix took three attempts,
+            you read about all three.
+        </p>
+
+        <div class="section-label">Episodes on dev.to</div>
+
+        <!-- To add an episode: copy one <a class="ep"> block, newest on top -->
+        <a class="ep" href="https://dev.to/huckler/wednesday-code-autopsy-4-the-canvas-arc-nobody-uses-pc-workman-oob" target="_blank" rel="noopener">
+            <div class="ep-meta"><span class="ep-num">#4</span><span>Apr 2026</span><span class="ep-host">dev.to</span></div>
+            <h3>The Canvas Arc Nobody Uses — PC Workman</h3>
+            <p>Tkinter's create_arc, the forgotten primitive behind the driver health gauge.</p>
+        </a>
+        <a class="ep" href="https://dev.to/huckler/code-autopsy-1-how-90-lines-turned-system-monitoring-into-a-conversation-2jh8" target="_blank" rel="noopener">
+            <div class="ep-meta"><span class="ep-num">#1</span><span>Mar 2026</span><span class="ep-host">dev.to</span></div>
+            <h3>How ~90 Lines Turned System Monitoring Into A Conversation</h3>
+            <p>The first intent parser — the seed that grew into hck_GPT's 82 intents.</p>
+        </a>
+
+        <div class="section-label">Newest editions</div>
+        <p style="font-size:.88rem;color:#a0a0a0;">
+            The freshest autopsies premiere on LinkedIn every Wednesday:
+            <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener">linkedin.com/in/marcinfirmuga</a>
+            · <a href="https://x.com/hck_lab" target="_blank" rel="noopener">x.com/@hck_lab</a>
+        </p>
+
+        <div class="author-card">
+            <div class="avatar">MF</div>
+            <div>
+                <h4>Marcin Firmuga</h4>
+                <div class="role">Author of the series · solo developer · founder of HCK_Labs</div>
+                <p>Every autopsy is a bug I personally caused, chased and fixed in PC Workman that week.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Blog</a> · <a href="../../index_en.html">PC Workman</a> · <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">GitHub</a></p>
+    </footer>
+
+</body>
+</html>
