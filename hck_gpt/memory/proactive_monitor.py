@@ -588,7 +588,9 @@ class ProactiveMonitor:
         else:
             if self._ram_crit_cnt >= 2:
                 self._clear_hot()   # RAM back to normal -> clear HOT strip
-            self._ram_crit_cnt = max(0, self._ram_crit_cnt - 1)
+            # Reset immediately — decrementing 1-per-tick caused a multi-minute
+            # recovery delay if RAM had been critical for a long time.
+            self._ram_crit_cnt = 0
 
         # GPU temperature spike + sustained CPU temp
         try:

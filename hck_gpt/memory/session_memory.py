@@ -203,6 +203,10 @@ class SessionMemory:
             })
         """
         self._session_data[intent] = {"recorded_at": time.time(), **data}
+        # Keep session store bounded — evict oldest when over 40 intents
+        if len(self._session_data) > 40:
+            oldest = min(self._session_data, key=lambda k: self._session_data[k].get("recorded_at", 0))
+            del self._session_data[oldest]
 
     def get_response_data(self, intent: str) -> dict:
         """

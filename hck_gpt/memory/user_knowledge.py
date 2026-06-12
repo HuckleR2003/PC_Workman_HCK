@@ -17,8 +17,12 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import threading
 import time
 from typing import Any, Dict, List, Optional, Tuple
+
+# Thread-local storage for SQLite connections (avoids repeated open/close overhead)
+_tls = threading.local()
 
 # ── DB path (AppData/Local) ───────────────────────────────────────────────────
 _DB_DIR  = os.path.join(os.path.expanduser("~"),
@@ -88,9 +92,13 @@ class UserKnowledge:
     # ── Internal ──────────────────────────────────────────────────────────────
 
     def _conn(self) -> sqlite3.Connection:
-        cx = sqlite3.connect(self.db_path, timeout=5,
-                             check_same_thread=False)
-        cx.row_factory = sqlite3.Row
+        """Return a thread-local SQLite connection (created once per thread, reused)."""
+        cx = getattr(_tls, "uk_conn", None)
+        if cx is None:
+            cx = sqlite3.connect(self.db_path, timeout=5, check_same_thread=False)
+            cx.execute("PRAGMA journal_mode=WAL")
+            cx.row_factory = sqlite3.Row
+            _tls.uk_conn = cx
         return cx
 
     def _init_db(self) -> None:
