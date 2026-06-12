@@ -261,7 +261,13 @@ def _scrollable(parent, bg=BG):
     wid = cv.create_window((0, 0), window=inner, anchor="nw")
     cv.bind("<Configure>", lambda e: cv.itemconfig(wid, width=e.width))
     inner.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
-    cv.bind_all("<MouseWheel>", lambda e: cv.yview_scroll(int(-1*(e.delta/120)), "units"))
+    def _mw(e):
+        try:
+            if cv.winfo_exists():
+                cv.yview_scroll(int(-1 * (e.delta / 120)), "units")
+        except Exception:
+            pass
+    cv.bind_all("<MouseWheel>", _mw)
     sb.pack(side="right", fill="y")
     cv.pack(side="left", fill="both", expand=True)
     cv.configure(yscrollcommand=sb.set)
