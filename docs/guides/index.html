@@ -1,0 +1,177 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guides hub -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Practical Windows performance guides by the developer of PC Workman: CPU temperatures per workload, ghost drivers, safe service tweaks, real speed-ups. No bloatware, no myths.">
+    <meta name="keywords" content="Windows performance guides, CPU temperature guide, ghost drivers Windows, speed up PC guide, Windows services safe to disable, PC optimization tutorials">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
+    <link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
+    <link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/guides/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
+    <meta property="og:title" content="PC Workman Guides — Windows performance, explained honestly">
+    <meta property="og:description" content="CPU temperatures per workload, ghost drivers, services worth disabling, real speed-ups. Written by the developer of an open-source system monitor.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/guides/">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>PC Workman Guides | Windows performance, temperatures &amp; optimization — explained honestly</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../blog/series.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "PC Workman Guides",
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/",
+      "description": "Practical Windows performance guides by the developer of PC Workman.",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": [
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "What is a normal CPU temperature? It depends on the workload", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/" },
+          { "@type": "ListItem", "position": 2, "name": "Ghost drivers in Windows: what they are and how to remove them", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/" },
+          { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer z Windows — bez mitów", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/" },
+          { "@type": "ListItem", "position": 4, "name": "Które usługi Windows można bezpiecznie wyłączyć", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/ktore-uslugi-windows-wylaczyc/" }
+        ]
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/" }
+      ]
+    }
+    </script>
+</head>
+<body>
+
+    <header class="topbar">
+        <a class="brand" href="../index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <nav>
+            <a href="../index_en.html">Home</a>
+            <a href="../download/">Download</a>
+            <a href="../blog/">Blog</a>
+            <a href="index_pl.html">PL</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Guides &amp; explainers</span>
+        <h1>Windows performance,<br>explained honestly</h1>
+        <p class="tagline">
+            Written by the developer of an open-source system monitor — from real sensor data,
+            not recycled myths. No registry voodoo, no bloatware recommendations.
+        </p>
+    </section>
+
+    <main class="wrap">
+
+        <div class="section-label">Featured guides</div>
+        <div class="series-grid">
+            <a class="series-card wednesday" href="normal-cpu-temperature/">
+                <span class="day-badge day-wednesday">Temperatures</span>
+                <h3>What's a normal CPU temperature?</h3>
+                <p>72°C while gaming is fine. The same 72°C at idle is a warning. Why one threshold for every PC is a myth — with per-workload reference table.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card monday" href="ghost-drivers-windows/">
+                <span class="day-badge day-monday">Drivers</span>
+                <h3>Ghost drivers: the hardware you removed years ago</h3>
+                <p>Your old GPU's driver is still in Windows — hidden by Device Manager. How to find and remove ghosts with pnputil, step by step.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="jak-przyspieszyc-komputer/">
+                <span class="day-badge day-friday">PL · Optymalizacja</span>
+                <h3>Jak przyspieszyć komputer — bez mitów</h3>
+                <p>Co naprawdę spowalnia Windows i co realnie pomaga: autostart, usługi, dyski, RAM. Konkretna kolejność działań zamiast 50 przypadkowych trików.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card friday" href="ktore-uslugi-windows-wylaczyc/">
+                <span class="day-badge day-friday">PL · Usługi</span>
+                <h3>Które usługi Windows można bezpiecznie wyłączyć</h3>
+                <p>Lista usług, które realnie można zatrzymać — i tych, których nie wolno ruszać. Na bazie profili Gaming/Work/Economy z PC Workmana.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+        </div>
+
+        <div class="section-label">Coming next</div>
+        <div class="series-grid">
+            <div class="series-card soon">
+                <span class="day-badge day-monday">Disk</span>
+                <h3>100% disk usage in Windows — the real causes</h3>
+                <p>Indexing, diagnostics telemetry, antivirus scans. How to identify which one is eating your disk.</p>
+                <span class="go">Coming soon</span>
+            </div>
+            <div class="series-card soon">
+                <span class="day-badge day-wednesday">Startup</span>
+                <h3>Startup programs: what's safe to disable</h3>
+                <p>Boot impact ratings and the entries that quietly re-add themselves.</p>
+                <span class="go">Coming soon</span>
+            </div>
+            <div class="series-card soon">
+                <span class="day-badge day-friday">PSU</span>
+                <h3>What 12V rail readings say about your power supply</h3>
+                <p>Reading voltage rails like an engineer — spikes, sustained sag and what's physically normal.</p>
+                <span class="go">Coming soon</span>
+            </div>
+        </div>
+
+        <div class="guide-cta">
+            <b>These guides come from a real tool.</b> PC Workman monitors temperatures per workload,
+            finds ghost drivers and manages services automatically — free, open source, offline.
+            <a href="../download/">Download it here</a>.
+        </div>
+
+        <div class="author-card">
+            <div class="avatar">MF</div>
+            <div>
+                <h4>Marcin Firmuga</h4>
+                <div class="role">Solo developer · HCK_Labs · 18 months of sensor data behind every guide</div>
+                <p>I write these from what PC Workman's sensors actually show across real machines —
+                   including the 2014 laptop at 94°C this project started on.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../index_en.html">PC Workman</a> · <a href="../blog/">Blog</a> · <a href="../download/">Download</a></p>
+    </footer>
+
+</body>
+</html>
