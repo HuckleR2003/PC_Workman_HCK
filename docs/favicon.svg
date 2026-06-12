@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- PC_Workman mark — same geometry as the landing sidebar logo -->
+    <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+    <rect x="10" y="10" width="44" height="44" rx="8" stroke="url(#g1)" stroke-width="4" fill="none"/>
+    <path d="M32 18 L46 32 L32 46 L18 32 Z" fill="url(#g2)"/>
+    <circle cx="32" cy="32" r="7" fill="#00D9FF"/>
+    <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#00D9FF"/>
+            <stop offset="1" stop-color="#00FF99"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="18" y1="18" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#00D9FF" stop-opacity=".45"/>
+            <stop offset="1" stop-color="#00FF99" stop-opacity=".45"/>
+        </linearGradient>
+    </defs>
+</svg>
