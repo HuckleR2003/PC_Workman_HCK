@@ -1,0 +1,196 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: jak przyspieszyć komputer -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Jak przyspieszyć komputer z Windows — bez mitów i bloatware'u. Konkretna kolejność działań: autostart, usługi, dysk, RAM, temperatury. Co realnie działa, a co jest stratą czasu.">
+    <meta name="keywords" content="jak przyspieszyć komputer, jak przyspieszyć laptopa, wolny komputer co zrobić, optymalizacja Windows 11, optymalizacja Windows 10, komputer wolno działa, przyspieszenie komputera za darmo">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/">
+    <meta property="og:title" content="Jak przyspieszyć komputer — bez mitów">
+    <meta property="og:description" content="Co naprawdę spowalnia Windows i co realnie pomaga. Konkretna kolejność działań zamiast 50 przypadkowych trików — od twórcy open-source'owego monitora systemu.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Jak przyspieszyć komputer z Windows — bez mitów | Poradniki PC Workmana</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Jak przyspieszyć komputer z Windows — bez mitów",
+      "description": "Co naprawdę spowalnia Windows i co realnie pomaga: autostart, usługi, dysk, RAM, temperatury. Konkretna kolejność działań.",
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-06-12",
+      "inLanguage": "pl",
+      "image": "https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <nav>
+            <a href="../index_pl.html">Wszystkie poradniki</a>
+            <a href="../../download/index_pl.html">Pobierz</a>
+            <a href="../../blog/index_pl.html">Blog</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Optymalizacja · Poradnik</span>
+        <h1>Jak przyspieszyć komputer<br>— bez mitów</h1>
+        <p class="tagline">Pięć kroków w dobrej kolejności zamiast pięćdziesięciu przypadkowych trików.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>·</span><span>Publikacja 2026-06-12</span><span>·</span><span>7 min czytania</span>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#diagnoza">Najpierw diagnoza, nie czyszczenie</a></li>
+                <li><a href="#autostart">Krok 1: Autostart</a></li>
+                <li><a href="#procesy">Krok 2: Procesy w tle</a></li>
+                <li><a href="#uslugi">Krok 3: Usługi</a></li>
+                <li><a href="#dysk-ram">Krok 4: Dysk i RAM</a></li>
+                <li><a href="#temperatury">Krok 5: Temperatury</a></li>
+                <li><a href="#mity">Czego NIE robić</a></li>
+            </ol>
+        </div>
+
+        <h2 id="diagnoza">Najpierw diagnoza, nie czyszczenie</h2>
+        <p>
+            Większość poradników zaczyna od „wyczyść pliki tymczasowe". To kosmetyka — pliki tymczasowe
+            nie spowalniają procesora. Komputer wolno działa z czterech mierzalnych powodów:
+            <strong>za dużo rzeczy startuje z systemem, coś zjada CPU/RAM w tle, dysk jest wąskim gardłem,
+            albo sprzęt się przegrzewa i obniża taktowanie</strong>. Zanim cokolwiek „zoptymalizujesz",
+            otwórz Menedżera zadań (Ctrl+Shift+Esc) i sprawdź, która z tych czterech rzeczy faktycznie występuje.
+        </p>
+
+        <h2 id="autostart">Krok 1: Autostart — największy zysk za darmo</h2>
+        <p>
+            Każdy program w autostarcie to dłuższy boot i stała rezydencja w RAM. Spotify, Discord, klienty
+            sklepów z grami, aktualizatory — wszystkie „chcą być ważne". W Menedżerze zadań → karta Uruchamianie
+            zobaczysz wpływ każdej pozycji na start.
+        </p>
+        <ul>
+            <li>Wyłącz wszystko, czego nie potrzebujesz <em>w pierwszej minucie</em> po włączeniu komputera.</li>
+            <li>Uwaga na wpisy, które po aktualizacji dodają się ponownie — sprawdzaj listę co kilka tygodni.</li>
+            <li>Nie wyłączaj sterowników audio, touchpada ani antywirusa.</li>
+        </ul>
+
+        <h2 id="procesy">Krok 2: Procesy w tle — znajdź pożeracza</h2>
+        <p>
+            Posortuj procesy po CPU, potem po pamięci. Jeden proces trzymający stale 15–30% CPU
+            to klasyka: zawieszony aktualizator, indeksowanie, skan antywirusa albo przeglądarka
+            z 40 kartami. Jeśli nazwa procesu nic ci nie mówi — sprawdź ją, zanim zabijesz.
+            Identyfikacja procesów (czym jest, czy jest bezpieczny, ile zwykle zużywa) to jedna z głównych
+            funkcji <a href="../../index.html">PC Workmana</a> — baza opisuje 373 znane procesy.
+        </p>
+
+        <h2 id="uslugi">Krok 3: Usługi — ostrożnie, ale skutecznie</h2>
+        <p>
+            Windows uruchamia dziesiątki usług, z których część jest zbędna na domowym komputerze
+            (fax, telemetria, usługi Xbox u osób, które nie grają). Realny zysk to zwykle 200–600 MB RAM
+            i mniej aktywności dysku. Pełną listę z podziałem na bezpieczne/niebezpieczne znajdziesz w osobnym
+            poradniku: <a href="../ktore-uslugi-windows-wylaczyc/">Które usługi Windows można bezpiecznie wyłączyć</a>.
+        </p>
+
+        <h2 id="dysk-ram">Krok 4: Dysk i RAM</h2>
+        <ul>
+            <li><strong>HDD → SSD to nadal największe pojedyncze przyspieszenie</strong>, jakie istnieje. Żadna optymalizacja software'owa nie zbliży się do tej różnicy.</li>
+            <li><strong>Dysk systemowy zapełniony powyżej ~90%</strong> realnie spowalnia Windows — zostaw mu oddech.</li>
+            <li><strong>Defragmentacja dotyczy tylko HDD.</strong> Na SSD jest zbędna (Windows i tak robi TRIM automatycznie).</li>
+            <li><strong>8 GB RAM w 2026 to minimum</strong> — przy przeglądarce + Teams/Discord system zaczyna używać pliku stronicowania, a to boli najbardziej na HDD.</li>
+        </ul>
+
+        <h2 id="temperatury">Krok 5: Temperatury — niewidzialny hamulec</h2>
+        <p>
+            Przegrzewający się procesor obniża taktowanie (throttling) i komputer „zwalnia bez powodu".
+            Kurz na radiatorze i stara pasta termoprzewodząca to najczęstsi winowajcy — projekt PC Workman
+            zaczął się na laptopie z 2014 roku, który w idle trzymał 94°C; po czyszczeniu i nowej paście — 61°C.
+            Jeśli wentylatory wyją przy lekkiej pracy, zacznij od sprężonego powietrza, nie od reinstalacji systemu.
+        </p>
+
+        <h2 id="mity">Czego NIE robić</h2>
+        <ul>
+            <li><strong>„Czyszczenie rejestru"</strong> — zero mierzalnego zysku wydajności, realne ryzyko uszkodzenia systemu.</li>
+            <li><strong>Płatne „boostery" i „optymalizatory"</strong> — robią to samo, co Menedżer zadań, tylko z reklamami i często z własnym procesem w tle.</li>
+            <li><strong>Wyłączanie pliku stronicowania</strong> — Windows go potrzebuje; wyłączenie powoduje crashe zamiast przyspieszenia.</li>
+            <li><strong>Ręczne „czyszczenie RAM" co godzinę</strong> — system zarządza pamięcią lepiej niż klikanie; automatyczny trim ma sens tylko przy realnej presji pamięci.</li>
+        </ul>
+
+        <div class="callout">
+            <b>Kolejność ma znaczenie:</b> autostart → procesy → usługi → dysk/RAM → temperatury.
+            Pierwsze trzy kroki są darmowe i odwracalne. Zacznij od nich, zanim wydasz złotówkę na sprzęt.
+        </div>
+
+        <div class="guide-cta">
+            <b>Wszystkie te kroki w jednym narzędziu.</b> PC Workman ma Startup Manager z oceną wpływu na boot,
+            identyfikację procesów, profile usług Gaming/Work/Economy i monitoring temperatur per obciążenie —
+            za darmo, open source, offline. <a href="../../download/index_pl.html">Pobierz tutaj</a>.
+        </div>
+
+        <div class="author-card">
+            <div class="avatar">MF</div>
+            <div>
+                <h4>Marcin Firmuga</h4>
+                <div class="role">Twórca PC Workmana · HCK_Labs</div>
+                <p>18 miesięcy budowy monitora systemu w public — każdy poradnik oparty na tym, co realnie pokazują czujniki.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../index_pl.html">Poradniki</a> · <a href="../../index.html">PC Workman</a> · <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+
+</body>
+</html>
