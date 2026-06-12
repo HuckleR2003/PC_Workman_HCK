@@ -5,25 +5,37 @@
 <html lang="pl">
 <head>
     <script>
-        if (!sessionStorage.getItem('langPreference')) {
+        // Auto-switch to EN only for non-Polish browsers; sessionStorage wins.
+        // (Unconditional redirect was hiding the PL page from users and crawlers.)
+        if (!sessionStorage.getItem('langPreference')
+            && !(navigator.language || '').toLowerCase().startsWith('pl')) {
             window.location.replace('index_en.html');
         }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PC_Workman v1.6 – inteligentny monitor PC z hck_GPT (9-warstwowa logika, 100 intents), centrum optymalizacji TURBO, 6-12 miesięcy uczenia naturalnych temperatur, Fan Dashboard i AllMonitor. Alternatywa HWMonitor z mózgiem.">
-    <meta name="keywords" content="PC Workman monitor, hck GPT asystent PC, centrum optymalizacji Windows, TURBO tryb PC, monitoring temperatury napięć, fan dashboard kontrola wentylatorów, stats alerts PC, AllMonitor HWMonitor alternatywa">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC_Workman v1.7.9 – monitor systemu Windows z hck_GPT (82 intencje, offline AI), uczeniem temperatur per obciążenie, SPC napięć (Mediana+MAD, reguły Nelsona), pakietem TURBO, Ghost Driver Detection, DeepMonitor i mapą PC 2.5D. Darmowy, open-source.">
+    <meta name="keywords" content="PC Workman monitor, hck GPT asystent PC, optymalizacja Windows, TURBO tryb PC, ghost driver detection, zdrowie sterowników, monitoring temperatury adaptacyjny baseline, anomalie napięć SPC, uczenie termiczne obciążenie, fan dashboard kontrola wentylatorów, alternatywa HWMonitor, monitor systemu z AI">
     <meta name="author" content="HCK_Labs - Marcin Firmuga">
-    <meta property="og:title" content="PC_Workman v1.6 - Monitor PC z prawdziwą inteligencją">
-    <meta property="og:description" content="5 modułów. hck_GPT z 9-warstwową logiką i 100 intents. TURBO tryb. 6-12 miesięcy nauki naturalnych temp. Zero corporate slopa.">
+    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/index.html">
+    <link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/index.html">
+    <link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/index_en.html">
+    <link rel="alternate" hreflang="x-default" href="https://huckler2003.github.io/PC_Workman_HCK/index_en.html">
+    <meta property="og:title" content="PC_Workman v1.7.9 — Monitor PC z lokalnym AI, uczeniem termicznym i SPC napięć">
+    <meta property="og:description" content="82 intencje AI. Uczy się normalnych temperatur twojego sprzętu per obciążenie. SPC napięć: Mediana+MAD łapie nienaturalne odchyłki. Ghost Driver Detection. Pakiet TURBO. 100% offline.">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="assets/images/PCWorkman-dashboard.gif">
+    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/index.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <meta name="twitter:title" content="PC_Workman v1.6 - Monitor PC z mózgiem">
-    <meta name="twitter:description" content="hck_GPT: 9 warstw logiki, 100 intents. TURBO: 4 funkcje jednym togglem. Stats & Alerts uczy się twojego PC 6-12 miesięcy.">
+    <meta name="twitter:title" content="PC_Workman v1.7.9 — monitor PC z mózgiem">
+    <meta name="twitter:description" content="Baseline termiczny per kontekst obciążenia. SPC napięć: Mediana+MAD + reguły Nelsona. 82 intencje AI offline. Ghost driver detection. Za darmo.">
 
-    <title>PC_Workman v1.6 | Monitor PC z hck_GPT, TURBO Mode i Stats & Alerts</title>
+    <title>PC_Workman v1.7.9 | Monitor PC z hck_GPT, uczeniem termicznym i SPC napięć</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,7 +48,7 @@
       "@type": "SoftwareApplication",
       "name": "PC_Workman",
       "alternateName": "PC Workman HCK",
-      "version": "1.6.3",
+      "version": "1.7.9",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
@@ -55,7 +67,13 @@
         "@type": "Person",
         "name": "Marcin Firmuga",
         "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcin-firmuga"]
+        "sameAs": [
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://medium.com/@firmuga.marcin.s",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
       "publisher": {
         "@type": "Organization",
@@ -63,9 +81,9 @@
         "url": "https://github.com/HuckleR2003"
       },
       "datePublished": "2024-06-15",
-      "dateModified": "2026-05-16",
-      "softwareVersion": "1.6.3",
-      "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK"
+      "dateModified": "2026-06-11",
+      "softwareVersion": "1.7.9",
+      "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/releases"
     }
     </script>
 
@@ -102,6 +120,36 @@
     }
     </script>
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PC Workman",
+      "alternateName": ["PC_Workman", "PC Workman HCK"],
+      "url": "https://huckler2003.github.io/PC_Workman_HCK/",
+      "inLanguage": ["pl", "en"],
+      "publisher": {
+        "@type": "Organization",
+        "name": "HCK_Labs",
+        "url": "https://huckler2003.github.io/PC_Workman_HCK/",
+        "logo": "https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif",
+        "founder": {
+          "@type": "Person",
+          "name": "Marcin Firmuga",
+          "url": "https://github.com/HuckleR2003",
+          "sameAs": [
+            "https://x.com/hck_lab",
+            "https://linkedin.com/in/marcinfirmuga",
+            "https://dev.to/huckler",
+            "https://medium.com/@firmuga.marcin.s",
+            "https://linktr.ee/marcin_firmuga"
+          ]
+        }
+      }
+    }
+    </script>
+
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="blog/feed.xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://github.com">
@@ -383,6 +431,18 @@
                 <span class="nav-icon nav-icon-home"></span>
                 <span class="nav-text">Home</span>
             </a></li>
+            <li><a href="download/index_pl.html" class="nav-link">
+                <span class="nav-icon nav-icon-features"></span>
+                <span class="nav-text">Pobierz 1.7.9</span>
+            </a></li>
+            <li><a href="blog/index_pl.html" class="nav-link">
+                <span class="nav-icon nav-icon-blog"></span>
+                <span class="nav-text">Blog &amp; Serie</span>
+            </a></li>
+            <li><a href="guides/index_pl.html" class="nav-link">
+                <span class="nav-icon nav-icon-faq"></span>
+                <span class="nav-text">Poradniki</span>
+            </a></li>
             <li><a href="#modules" class="nav-link" data-section="modules">
                 <span class="nav-icon nav-icon-features"></span>
                 <span class="nav-text">Moduły</span>
@@ -423,7 +483,7 @@
             <a href="https://x.com/hck_lab" target="_blank" class="social-link social-x" aria-label="X (Twitter)">
                 <span class="social-icon"></span>
             </a>
-            <a href="https://linkedin.com/in/marcin-firmuga" target="_blank" class="social-link social-linkedin" aria-label="LinkedIn">
+            <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" class="social-link social-linkedin" aria-label="LinkedIn">
                 <span class="social-icon"></span>
             </a>
         </div>
@@ -471,9 +531,9 @@
                         Stats &amp; Alerts, które uczą się <strong>twojego konkretnego PC</strong> przez 6–12 miesięcy.
                     </p>
                     <div class="hero-cta">
-                        <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" class="cta-button primary" target="_blank">
+                        <a href="download/index_pl.html" class="cta-button primary">
                             <span class="cta-icon-shape"></span>
-                            Pobierz v1.6.3 – Za Darmo
+                            Pobierz v1.7.9 – Za Darmo
                         </a>
                         <a href="#modules" class="cta-button secondary">
                             5 Modułów &darr;
@@ -665,6 +725,133 @@
                     </div>
 
                 </div>
+
+                <!-- Ghost Driver Detection -->
+                <div style="margin-top:28px">
+                    <div style="
+                        background:#0d0508;
+                        border:1px solid #3f0a14;
+                        border-radius:12px;
+                        overflow:hidden;
+                        transition:border-color .2s;
+                    ">
+                        <div style="
+                            background:#140308;
+                            border-bottom:1px solid #3f0a14;
+                            padding:12px 20px;
+                            display:flex;
+                            align-items:center;
+                            gap:10px;
+                        ">
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ef4444;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);padding:2px 8px;border-radius:4px;">NOWOŚĆ · v1.7.7</span>
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Driver Health</span>
+                        </div>
+                        <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;" class="ghost-grid">
+                            <div>
+                                <h3 style="font-size:17px;font-weight:700;color:#e6eef6;margin:0 0 10px;letter-spacing:-.02em;">Ghost Driver Detection</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    Wymieniłeś GPU lata temu. Stary sterownik dalej siedzi w Windowsie — po cichu.
+                                    Menedżer urządzeń domyślnie go ukrywa. Większość monitorów w ogóle go nie widzi.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:16px;">
+                                    PC_Workman porównuje wpisy rejestru Windows z wynikiem
+                                    <code style="font-size:11px;color:#ef4444;background:rgba(239,68,68,.08);padding:1px 5px;border-radius:3px;">pnputil /connected</code> —
+                                    który zwraca tylko fizycznie obecny sprzęt.
+                                    Różnica to twój ghost.
+                                </p>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(239,68,68,.10);color:#ef4444;border:1px solid rgba(239,68,68,.2);">GPU · Audio · Sieć · USB</span>
+                                    <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;background:rgba(0,255,200,.08);color:#00ffc8;border:1px solid rgba(0,255,200,.2);">usuwanie przez pnputil</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="background:#0a0010;border:1px solid #2a0810;border-radius:8px;padding:14px 16px;font-family:'Courier New',monospace;font-size:11px;line-height:1.7;">
+                                    <div style="color:#6b7280;margin-bottom:8px;"># rejestr mówi:</div>
+                                    <div style="color:#d4a0a0;">NVIDIA GeForce RTX 3050 &nbsp;<span style="color:#00ffc8;">← aktywna</span></div>
+                                    <div style="color:#d4a0a0;">NVIDIA GeForce GT 1030 &nbsp;&nbsp;<span style="color:#ef4444;">← ghost</span></div>
+                                    <div style="color:#6b7280;margin:10px 0 8px;"># pnputil /connected mówi:</div>
+                                    <div style="color:#00ffc8;">NVIDIA GeForce RTX 3050 &nbsp;<span style="color:#6b7280;">✓ podłączona</span></div>
+                                    <div style="color:#3f1010;">&lt;GT 1030 nieobecna&gt; &nbsp;&nbsp;&nbsp;<span style="color:#ef4444;">⚠ ghost</span></div>
+                                </div>
+                                <p style="font-size:10px;color:#4b5563;margin-top:8px;font-style:italic;">
+                                    Pokazany z bordowym tłem + odznaką ⚠. Jeden klik → szczegóły + opcjonalne usunięcie z potwierdzeniem admina.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thermal Learning + Voltage SPC -->
+                <div style="margin-top:20px">
+                    <div style="background:#080b14;border:1px solid #1a2540;border-radius:12px;overflow:hidden;">
+                        <div style="background:#0a0e1a;border-bottom:1px solid #1a2540;padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#818cf8;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.25);padding:2px 8px;border-radius:4px;">NOWOŚĆ · v1.7.8</span>
+                            <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Monitoring &amp; Alerts</span>
+                            <span style="font-size:11px;color:#374151;margin-left:4px;">— adaptacyjne baseline'y, nie sztywne progi</span>
+                        </div>
+                        <div style="padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;" class="ghost-grid">
+                            <div>
+                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Thermal Baseline Learning</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:12px;">
+                                    Każdy monitoring używa tego samego progu 80°C dla każdej maszyny.
+                                    72°C w gamingu na mid-towerze z chłodzeniem powietrzem — w porządku.
+                                    Te same 72°C w idle na cienkim laptopie — już nie.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    PC_Workman klasyfikuje każdy snapshot do jednego z pięciu kubełków obciążenia
+                                    i uczy się mean + σ per kubełek algorytmem online Welforda z ostatnich 14 dni.
+                                    Baseline na wykresie odzwierciedla <em>twój</em> nauczony zakres — tooltip mówi
+                                    dokładnie, jak daleko jesteś od normy.
+                                </p>
+                                <div style="background:#060810;border:1px solid #1a2540;border-radius:7px;padding:11px 14px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;">
+                                    <div style="color:#4a5568;margin-bottom:4px;"># kubełki obciążenia (przykład live)</div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">idle</span><span style="color:#6b7280;">cpu &lt;15%</span><span style="color:#374151;">  36°C ±2.1</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">light</span><span style="color:#6b7280;">15–40%</span><span style="color:#374151;">  48°C ±3.4</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">medium</span><span style="color:#6b7280;">40–70%</span><span style="color:#374151;">  63°C ±4.1</span></div>
+                                    <div><span style="color:#818cf8;display:inline-block;width:68px;">heavy</span><span style="color:#6b7280;">≥70%</span><span style="color:#374151;">   78°C ±5.8</span></div>
+                                    <div><span style="color:#a78bfa;display:inline-block;width:68px;">gaming</span><span style="color:#6b7280;">gpu≥60%</span><span style="color:#374151;">  71°C ±4.2</span></div>
+                                    <div style="color:#4a5568;margin-top:6px;"># tooltip przy 77°C w gamingu:</div>
+                                    <div style="color:#fbbf24;">"8% powyżej normy  (Gaming: 65–78°C)"</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Voltage SPC — Mediana + MAD</h3>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:12px;">
+                                    Średnia + σ wykłada się na danych napięciowych: jeden skok przesuwa średnią,
+                                    poszerza pasmo i następny skok przechodzi bez alarmu. Mediana jest odporna.
+                                    MAD dziedziczy tę odporność.
+                                </p>
+                                <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
+                                    Cztery reguły SPC Nelsona przy każdym przeliczeniu: pojedynczy skok, klaster 2-z-3,
+                                    9-punktowe utrzymane odchylenie, 6-punktowy trend monotoniczny.
+                                    Skoki 12V przy zmianach obciążenia GPU są tłumione — fizycznie oczekiwane.
+                                    Wzorce powtarzające się ≥5× wygasają do „normy twojego sprzętu".
+                                </p>
+                                <div style="background:#06080f;border:1px solid #1a2540;border-radius:7px;padding:11px 14px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;">
+                                    <div style="color:#4a5568;margin-bottom:4px;"># Iglewicz-Hoaglin 1993</div>
+                                    <div style="color:#a78bfa;">M = 0.6745 × (x − mediana) / MAD</div>
+                                    <div style="color:#4a5568;margin-top:6px;margin-bottom:2px;"># progi</div>
+                                    <div><span style="color:#ef4444;">|M| &gt; 3.5</span><span style="color:#6b7280;">  anomalia</span></div>
+                                    <div><span style="color:#f59e0b;">|M| &gt; 2.5</span><span style="color:#6b7280;">  ostrzeżenie</span></div>
+                                    <div style="color:#4a5568;margin-top:6px;margin-bottom:2px;"># reguły Nelsona</div>
+                                    <div style="color:#6b7280;">Reguła 1  <span style="color:#374151;">pojedynczy skok</span></div>
+                                    <div style="color:#6b7280;">Reguła 5  <span style="color:#374151;">2-z-3 ponad ostrzeżeniem</span></div>
+                                    <div style="color:#6b7280;">Reguła 2  <span style="color:#374151;">9 kolejnych po jednej stronie</span></div>
+                                    <div style="color:#6b7280;">Reguła 3  <span style="color:#374151;">6 kolejnych monotonicznych</span></div>
+                                    <div style="color:#374151;margin-top:5px;font-style:italic;font-size:10px;">Dane napięć wymagają LibreHardwareMonitor</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border-top:1px solid #1a2540;padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <span style="font-size:11px;color:#374151;">Również w v1.7.8:</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Wykresy pan + zoom</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Tooltip z odchyleniem od baseline</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Nawigacja minimapą</span>
+                            <span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px;background:rgba(129,140,248,.10);color:#818cf8;border:1px solid rgba(129,140,248,.2);">Proaktywne alerty napięć w hck_GPT</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -758,6 +945,48 @@
                                 Konkretna rozmowa — dane z twojego sprzętu, nie z internetu
                             </p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════
+             NOWOŚCI 1.7.9
+        ══════════════════════════════════════════════════════ -->
+        <section id="v179" class="features-section" style="padding-top:0">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-eyebrow">Nowość w 1.7.9</p>
+                    <h2 class="section-title">Pełnoekranowe <span class="highlight-neon">centrum dowodzenia</span></h2>
+                    <p class="section-subtitle">Jeden klik (⤢) i dashboard przebudowuje się w symetryczny układ full-screen.</p>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">MAXIMIZED VIEW MODE</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">TOP 8 procesów po obu stronach, chart w centrum</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Karty podzespołów rosną do mini-chartów, a nazwa komponentu
+                            („CPU Intel64…", „RAM 7.9 GB") rysuje się w rogu wykresu.
+                            Turbo Boost i Centrum Optymalizacji zadokowane na dole.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#34d399;font-weight:700;letter-spacing:1px;margin-bottom:6px;">GAMING-HUD TOOLTIP</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Najedź. Przypnij. Patrz jak czas tyka.</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Półprzezroczyste (72%) okienko podąża za kursorem nad wykresem.
+                            Klik = PIN w stylu pasków hck_GPT: tooltip dokuje przy słupku,
+                            wiek próbki odświeża się na żywo, a pin wędruje razem z buforem LIVE.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#f59e0b;font-weight:700;letter-spacing:1px;margin-bottom:6px;">HCK_GPT WSZĘDZIE</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Czat na MY PC i FAN DASHBOARD</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Baner asystenta nie znika już po wyjściu z dashboardu,
+                            a w trybie maximized czat jest wyższy (+12%, tryb Maximize +35%).
+                            Pod maską: −1326 linii martwego kodu i kilkanaście wycieków zasobów mniej.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -1039,40 +1268,70 @@
              BLOG
         ══════════════════════════════════════════════════════ -->
         <section id="blog" class="blog-section">
+            <style>
+                .bl2-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin-top:28px; }
+                .bl2-card {
+                    display:block; border:1px solid transparent; border-radius:14px; padding:20px;
+                    color:inherit; text-decoration:none; transition:transform .15s, box-shadow .2s;
+                }
+                .bl2-card:hover { transform:translateY(-4px); box-shadow:0 14px 38px rgba(0,0,0,.5); text-decoration:none; }
+                .bl2-mon { background:linear-gradient(#0c1116,#0c1116) padding-box, linear-gradient(150deg, rgba(0,217,255,.45), rgba(30,37,48,.9) 55%) border-box; }
+                .bl2-wed { background:linear-gradient(#12100a,#12100a) padding-box, linear-gradient(150deg, rgba(255,215,0,.45), rgba(30,37,48,.9) 55%) border-box; }
+                .bl2-fri { background:linear-gradient(#0a1310,#0a1310) padding-box, linear-gradient(150deg, rgba(0,255,153,.45), rgba(30,37,48,.9) 55%) border-box; }
+                .bl2-story { background:linear-gradient(#110d14,#110d14) padding-box, linear-gradient(150deg, rgba(167,139,250,.5), rgba(30,37,48,.9) 55%) border-box; }
+                .bl2-day { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 10px; border-radius:999px; display:inline-block; }
+                .bl2-card h3 { font-size:16px; color:#e6eef6; margin:12px 0 8px; }
+                .bl2-card p { font-size:12.5px; color:#91a1ab; line-height:1.6; margin:0 0 12px; }
+                .bl2-num { font-family:'JetBrains Mono',monospace; font-size:11px; color:#5a6a78; }
+                .bl2-num b { color:#e6eef6; }
+                .bl2-go { font-family:'JetBrains Mono',monospace; font-size:12px; display:inline-block; margin-top:10px; }
+                .bl2-cta {
+                    display:inline-block; margin-top:26px; font-family:'JetBrains Mono',monospace; font-weight:700;
+                    font-size:13px; color:#0a0a0a; padding:12px 28px; border-radius:10px;
+                    background:linear-gradient(135deg,#00FF99,#00D9FF); text-decoration:none;
+                }
+                .bl2-cta:hover { filter:brightness(1.12); text-decoration:none; }
+            </style>
             <div class="container">
                 <div class="section-header">
-                    <h2 class="section-title">Latest <span class="highlight-green">Posts</span></h2>
-                    <p class="section-subtitle">Insights z development journey</p>
+                    <p class="section-eyebrow">Build in public · PON — ŚR — PT, co tydzień</p>
+                    <h2 class="section-title">Blog: <span class="highlight-green">kulisy budowy</span></h2>
+                    <p class="section-subtitle">Prawdziwe liczby, prawdziwe bugi, prawdziwe decyzje. Trzy serie, zero lukru.</p>
                 </div>
 
-                <div class="blog-grid">
-                    <article class="blog-card">
-                        <div class="blog-tag">Technical</div>
-                        <h3>TURBO Mode: jak zatrzymać 21 usług Windows bez crashy</h3>
-                        <p>3 osobne managery, whitelist 33 usług, crash recovery przez turbo_state.json. Encoding fix dla polskiego OEM Windows.</p>
-                        <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" class="blog-link">Zobacz repo na GitHub -></a>
-                    </article>
+                <div class="bl2-grid">
+                    <a class="bl2-card bl2-mon" href="blog/monday-grind-blueprint/">
+                        <span class="bl2-day" style="color:#00D9FF;background:rgba(0,217,255,.1);">Poniedziałek</span>
+                        <h3>Monday Grind Blueprint</h3>
+                        <p>Plan tygodnia ogłaszany publicznie, zanim zacznie się robota — zobowiązanie, którego nie da się po cichu cofnąć.</p>
+                        <span class="bl2-num"><b>41 000</b> wyświetleń edycji #9</span><br>
+                        <span class="bl2-go" style="color:#00D9FF;">Cała seria -&gt;</span>
+                    </a>
+                    <a class="bl2-card bl2-wed" href="blog/wednesday-code-autopsy/">
+                        <span class="bl2-day" style="color:#FFD700;background:rgba(255,215,0,.1);">Środa</span>
+                        <h3>Wednesday Code Autopsy</h3>
+                        <p>Jeden bug na stole: root cause, ślepe uliczki, faktyczny fix — z kodem. Sekcja zwłok, nie laurka.</p>
+                        <span class="bl2-num"><b>94°C</b> — laptop, na którym to się zaczęło</span><br>
+                        <span class="bl2-go" style="color:#FFD700;">Cała seria -&gt;</span>
+                    </a>
+                    <a class="bl2-card bl2-fri" href="blog/friday-shipped-scarred/">
+                        <span class="bl2-day" style="color:#00FF99;background:rgba(0,255,153,.1);">Piątek</span>
+                        <h3>Friday Shipped &amp; Scarred</h3>
+                        <p>Poniedziałek złożył obietnice. Piątek sprawdza paragony: co weszło, co poległo, jakie blizny zostały.</p>
+                        <span class="bl2-num"><b>130</b> commitów straconych — i odzyskanych 90</span><br>
+                        <span class="bl2-go" style="color:#00FF99;">Cała seria -&gt;</span>
+                    </a>
+                    <a class="bl2-card bl2-story" href="blog/story.html">
+                        <span class="bl2-day" style="color:#a78bfa;background:rgba(167,139,250,.1);">Historia</span>
+                        <h3>Od nocnych zmian w magazynie do własnego AI</h3>
+                        <p>Laptop z 2014 przy 94°C, zwolnienie 22 grudnia i monitor, który z tego wszystkiego powstał. Bez skrótów.</p>
+                        <span class="bl2-num"><b>48 000+</b> linii Pythona, 18 miesięcy</span><br>
+                        <span class="bl2-go" style="color:#a78bfa;">Czytaj historię -&gt;</span>
+                    </a>
+                </div>
 
-                    <article class="blog-card">
-                        <div class="blog-tag">Build in Public</div>
-                        <h3>6+ Miesięcy Solo: od taxi driver do hck_GPT</h3>
-                        <p>Reality check indie developera. Droga przez nockodowanie, refactoring i 100 intents napisanych ręcznie.</p>
-                        <a href="https://www.linkedin.com/in/marcinfirmuga/" target="_blank" class="blog-link">Zobacz na LinkedIn -></a>
-                    </article>
-
-                    <article class="blog-card">
-                        <div class="blog-tag">AI & Design</div>
-                        <h3>Dlaczego 9 warstw logiki zamiast GPT-4 API</h3>
-                        <p>Lokalny engine vs chmurowy LLM. Latencja, prywatność, kontrola nad odpowiedziami. Konkretne liczby.</p>
-                        <a href="https://x.com/hck_lab" target="_blank" class="blog-link">Thread na X -></a>
-                    </article>
-
-                    <article class="blog-card featured-post">
-                        <div class="blog-tag">Dev Story</div>
-                        <h3>Stats & Alerts: jak program uczy się twojego PC</h3>
-                        <p>6–12 miesięcy danych, uczenie naturalnych norm. Dlaczego fałszywe alarmy są gorsze niż brak alertów.</p>
-                        <a href="blog/story.html" class="blog-link">Czytaj historię -></a>
-                    </article>
+                <div style="text-align:center;">
+                    <a class="bl2-cta" href="blog/index_pl.html">Wejdź na blog PC Workmana →</a>
                 </div>
             </div>
         </section>
@@ -1194,9 +1453,9 @@
                 <div class="footer-cta">
                     <h2>Gotowy na <span class="highlight-green">Monitor z Mózgiem?</span></h2>
                     <p>5 modułów. hck_GPT. TURBO mode. Stats &amp; Alerts. Open source. Za darmo.</p>
-                    <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" class="cta-button primary large" target="_blank">
+                    <a href="download/index_pl.html" class="cta-button primary large">
                         <span class="cta-icon-shape"></span>
-                        Pobierz v1.6.3 — Za Darmo
+                        Pobierz v1.7.9 — Za Darmo
                     </a>
                 </div>
 
