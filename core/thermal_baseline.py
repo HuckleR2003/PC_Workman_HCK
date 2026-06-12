@@ -49,6 +49,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import sqlite3
 import sys
 import threading
 import time
@@ -215,7 +216,10 @@ class ThermalBaseline:
 
     def overall_training_pct(self) -> int:
         """0–100 % — rough overall training completeness across all buckets."""
-        total  = sum(self.get_range(b).n for b in BUCKETS)
+        # Single lock acquisition for all buckets (avoids 5 separate lock/unlock cycles)
+        with self._lock:
+            raw_buckets = self._raw.get("buckets", {})
+        total  = sum(raw_buckets.get(b, {}).get("n", 0) for b in BUCKETS)
         target = len(BUCKETS) * T_CALIBRATED
         return min(100, int(total / target * 100))
 
@@ -237,6 +241,86 @@ class ThermalBaseline:
                 "p95":         r.p95,
             }
         return result
+
+    def format_for_chat(self, cpu_temp: float = 0.0,
+                        cpu_load: float = 0.0,
+                        gpu_load: float = 0.0,
+                        lang: str = "en") -> str:
+        """
+        Return a chat-ready string with workload-aware temperature context.
+        Used by hck_gpt/responses/builder.py.
+
+        Parameters
+        ----------
+        cpu_temp : current CPU temperature in °C (0 = unknown)
+        cpu_load : current CPU utilisation % (for bucket classification)
+        gpu_load : current GPU utilisation % (for gaming detection)
+        lang     : "en" | "pl"
+        """
+        bucket = self.classify(cpu_load, gpu_load)
+        br     = self.get_range(bucket)
+
+        # ── Not yet trained ──────────────────────────────────────────────────
+        if not br.is_usable:
+            if lang == "pl":
+                return (
+                    f"🌡 Uczę się Twojego systemu "
+                    f"({br.training_level}: {br.n}/{T_CALIBRATED} próbek).\n"
+                    "  Potrzebuję więcej danych by ocenić temperaturę w kontekście."
+                )
+            return (
+                f"🌡 Still learning your system "
+                f"({br.training_level}: {br.n}/{T_CALIBRATED} samples).\n"
+                "  Need more data to evaluate temperature in workload context."
+            )
+
+        # ── Classification ───────────────────────────────────────────────────
+        if cpu_temp > 0:
+            classification = br.classify_temp(cpu_temp)
+            context        = br.context_label(cpu_temp)
+        else:
+            classification = "unknown"
+            context        = ""
+
+        _icons = {"normal": "✓", "elevated": "⚠", "high": "🔴",
+                  "critical": "🔴", "unknown": "·"}
+        icon = _icons.get(classification, "·")
+
+        if lang == "pl":
+            _bucket_pl = {
+                "idle": "bezczynność", "light": "lekki", "medium": "średni",
+                "heavy": "intensywny", "gaming": "gaming",
+            }
+            bn = _bucket_pl.get(bucket, bucket)
+            lines = [
+                f"🌡 TEMPERATURA CPU  (tryb: {bn})",
+                f"  {icon} {cpu_temp:.1f}°C — {classification}" if cpu_temp else
+                f"  Brak odczytu temperatury",
+                f"  Zakres normalny: {br.p5:.0f}–{br.p95:.0f}°C "
+                f"(σ={br.sigma:.1f}°C)",
+            ]
+            if context:
+                lines.append(f"  {context}")
+            lines.append(
+                f"\n  Kalibracja: {br.training_level} "
+                f"({br.n}/{T_CALIBRATED} próbek)"
+            )
+        else:
+            lines = [
+                f"🌡 CPU TEMPERATURE  (workload: {bucket})",
+                f"  {icon} {cpu_temp:.1f}°C — {classification}" if cpu_temp else
+                "  No temperature reading",
+                f"  Normal range: {br.p5:.0f}–{br.p95:.0f}°C "
+                f"(σ={br.sigma:.1f}°C)",
+            ]
+            if context:
+                lines.append(f"  {context}")
+            lines.append(
+                f"\n  Calibration: {br.training_level} "
+                f"({br.n}/{T_CALIBRATED} samples)"
+            )
+
+        return "\n".join(lines)
 
     def last_update_str(self) -> str:
         """Human-readable timestamp of last successful rebuild."""
@@ -298,7 +382,8 @@ class ThermalBaseline:
 
             n     = len(samples)
             mean  = sum(samples) / n
-            var   = sum((s - mean) ** 2 for s in samples) / n
+            # Bessel's correction: divide by (n-1) for sample variance
+            var   = sum((s - mean) ** 2 for s in samples) / max(n - 1, 1)
             sigma = math.sqrt(var) if var > 0 else 1.0
 
             s_sorted = sorted(samples)
@@ -338,7 +423,6 @@ class ThermalBaseline:
     def _query_db(self) -> list[dict]:
         """Load cpu_temp / cpu_load / gpu_load from deepmonitor_snapshots."""
         try:
-            import sqlite3
             since = time.time() - LOOKBACK_DAYS * 86400
             con   = sqlite3.connect(_DB_PATH, timeout=5)
             con.row_factory = sqlite3.Row

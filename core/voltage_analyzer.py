@@ -265,6 +265,8 @@ class VoltageAnalyzer:
         """Total number of DeepMonitor voltage snapshots available."""
         try:
             con = sqlite3.connect(_DB_PATH, timeout=3)
+            con.execute("PRAGMA journal_mode=WAL")
+            con.execute("PRAGMA busy_timeout=5000")
             n   = con.execute(
                 "SELECT COUNT(*) FROM deepmonitor_snapshots "
                 "WHERE mb_volt_12v > 0"
@@ -592,6 +594,7 @@ class VoltageAnalyzer:
                              if e.rail == key and e.severity == "critical"]
             warn_for_rail = [e for e in real_events
                              if e.rail == key and e.severity == "warning"]
+            rail_events   = [e for e in real_events if e.rail == key]
             per_rail[key] = {
                 "label":     meta["label"],
                 "has_data":  rs.has_data if rs else False,
@@ -600,8 +603,8 @@ class VoltageAnalyzer:
                 "nominal":   meta["nominal"],
                 "n_crit":    len(crit_for_rail),
                 "n_warn":    len(warn_for_rail),
-                "latest":    (real_events[-1].reason_for_chat()
-                              if real_events else ""),
+                "latest":    (rail_events[-1].reason_for_chat()
+                              if rail_events else ""),
                 "health":    ("critical" if crit_for_rail else
                               "warning"  if warn_for_rail else "ok"),
             }
@@ -675,6 +678,43 @@ class VoltageAnalyzer:
 
         return "\n".join(lines)
 
+    def overall_health_score(self) -> int:
+        """
+        Returns a 0-100 PSU health score for the last 24 h.
+
+        Scoring (starts at 100):
+          - Rail with no data          : −5
+          - Sustained deviation        : −15 per rail
+          - Warning event (not decayed): −10 each (capped −20 per rail)
+          - Critical event (not decayed): −20 each (capped −40 per rail)
+
+        A score of 100 means all rails nominal, zero real anomalies.
+        A score ≤ 40 means serious voltage instability.
+        """
+        _, events = self.analyze_history(hours=24)
+        stats     = self.get_rail_stats()
+
+        score = 100
+        for key, rs in stats.items():
+            if not rs.has_data:
+                score -= 5
+                continue
+            rail_evts = [e for e in events
+                         if e.rail == key and not e.suppressed]
+            crits = sum(1 for e in rail_evts
+                        if e.severity == "critical" and not e.decayed)
+            warns = sum(1 for e in rail_evts
+                        if e.severity == "warning"  and not e.decayed)
+            sustained = any(e.event_type in ("sustained_high", "sustained_low")
+                            for e in rail_evts)
+
+            score -= min(40, crits * 20)
+            score -= min(20, warns * 10)
+            if sustained:
+                score -= 15
+
+        return max(0, min(100, score))
+
     def last_update_str(self) -> str:
         ts = self._cache.get("last_update", 0.0)
         if not ts:
@@ -690,6 +730,8 @@ class VoltageAnalyzer:
         try:
             since = time.time() - hours * 3600
             con   = sqlite3.connect(_DB_PATH, timeout=5)
+            con.execute("PRAGMA journal_mode=WAL")
+            con.execute("PRAGMA busy_timeout=5000")
             con.row_factory = sqlite3.Row
             rows  = con.execute(
                 "SELECT ts, mb_volt_12v, mb_volt_5v, mb_volt_33v, gpu_load "

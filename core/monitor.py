@@ -59,16 +59,21 @@ class Monitor:
         ram = psutil.virtual_memory().percent
         gpu = self._get_gpu_percent()
 
+        # PID 0 = System Idle Process (represents idle CPU time, not a real workload)
+        _SKIP_NAMES = {"system idle process", "idle"}
         procs = []
         for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info']):
             try:
                 info = p.info
+                name = (info.get('name') or '').strip()
+                if info.get('pid') == 0 or name.lower() in _SKIP_NAMES:
+                    continue
                 cpu_p = info.get('cpu_percent') or 0.0
                 mem_info = info.get('memory_info')
                 ram_mb = (mem_info.rss / (1024*1024)) if mem_info else 0.0
                 procs.append({
                     'pid': info.get('pid'),
-                    'name': (info.get('name') or '').strip(),
+                    'name': name,
                     'cpu_percent': round(cpu_p, 2),
                     'ram_MB': round(ram_mb, 2)
                 })

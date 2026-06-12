@@ -141,6 +141,9 @@ class HibernationManager:
             else:
                 _set_priority(pid, NORMAL_PRIORITY_CLASS)
             return True
+        except psutil.NoSuchProcess:
+            # Process already exited — consider it successfully "woken"
+            return True
         except Exception:
             return False
         finally:
@@ -170,6 +173,49 @@ class HibernationManager:
     def is_sleeping(self, pid: int) -> bool:
         with self._lock:
             return pid in self._sleeping
+
+    def cleanup_dead_pids(self) -> int:
+        """
+        Remove entries for processes that have already exited naturally.
+        Call periodically (e.g. every 60s) to prevent stale PID accumulation.
+        Returns the number of entries removed.
+        """
+        with self._lock:
+            dead = [pid for pid in self._sleeping
+                    if not psutil.pid_exists(pid)]
+            for pid in dead:
+                self._sleeping.pop(pid, None)
+        if dead:
+            remaining = len(self._sleeping)
+            update_status("core.hibernation_manager",
+                          STATUS_OK if remaining == 0 else STATUS_WARN,
+                          f"{remaining} sleeping")
+        return len(dead)
+
+    def get_savings_estimate(self) -> dict:
+        """
+        Estimate resource impact of currently hibernated processes.
+
+        Returns
+        -------
+        dict with:
+          processes       : total sleeping process count
+          total_sleep_min : combined CPU-minutes offline across all sleeping apps
+          frozen_count    : processes fully suspended (NtSuspendProcess)
+          low_count       : processes on idle priority (SetPriorityClass)
+        """
+        now = time.time()
+        with self._lock:
+            sleeping = list(self._sleeping.values())
+        return {
+            "processes":       len(sleeping),
+            "total_sleep_min": int(sum(
+                (now - s["slept_at"]) / 60 for s in sleeping)),
+            "frozen_count":    sum(1 for s in sleeping
+                                   if s["behavior"] == "freeze"),
+            "low_count":       sum(1 for s in sleeping
+                                   if s["behavior"] == "low"),
+        }
 
     # ── Ignored list ──────────────────────────────────────────────────────────
 
