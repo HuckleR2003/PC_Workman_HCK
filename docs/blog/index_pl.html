@@ -11,16 +11,16 @@
     <meta name="description" content="Blog build-in-public PC Workmana: Monday Grind Blueprint (plan tygodnia), Wednesday Code Autopsy (jeden bug na stole), Friday Shipped & Scarred (plan vs rzeczywistość). Autor: Marcin Firmuga, HCK_Labs.">
     <meta name="keywords" content="build in public blog, PC Workman blog, Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped and Scarred, polski indie developer, solo developer blog">
     <meta name="author" content="Marcin Firmuga">
-    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html">
-    <link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/blog/">
-    <link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html">
-    <link rel="alternate" hreflang="x-default" href="https://huckler2003.github.io/PC_Workman_HCK/blog/">
+    <link rel="canonical" href="https://pcworkman.dev/blog/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/">
     <meta property="og:title" content="Blog PC Workmana — trzy serie build-in-public, co tydzień">
     <meta property="og:description" content="Poniedziałek: plan. Środa: jeden bug na stole. Piątek: plan vs rzeczywistość. Prawdziwe liczby z 18 miesięcy solo-budowy monitora systemu.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html">
+    <meta property="og:url" content="https://pcworkman.dev/blog/index_pl.html">
     <meta property="og:locale" content="pl_PL">
-    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
@@ -37,7 +37,7 @@
       "@context": "https://schema.org",
       "@type": "Blog",
       "name": "PC Workman — Blog Build in Public",
-      "url": "https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html",
+      "url": "https://pcworkman.dev/blog/index_pl.html",
       "description": "Trzy cotygodniowe serie build-in-public dokumentujące rozwój PC Workmana — monitora systemu Windows z lokalnym AI.",
       "inLanguage": "pl",
       "author": {
@@ -70,12 +70,28 @@
         </nav>
     </header>
 
+    <style>
+        /* Subtle typewriter line — homage to the story page animation */
+        .typing-story { display: inline-block; margin-top: 1.1rem; text-decoration: none; }
+        .typing-story:hover { text-decoration: none; }
+        .typing-story .ts-text {
+            display: inline-block; overflow: hidden; white-space: nowrap;
+            font-family: var(--font-mono); font-size: .78rem; color: var(--accent-gold);
+            border-right: 2px solid var(--accent-gold); padding-right: 2px;
+            width: 0; vertical-align: bottom;
+            animation: tsType 2.4s steps(30, end) 1s forwards, tsBlink 1.05s step-end infinite;
+        }
+        .typing-story:hover .ts-text { color: #ffe566; }
+        @keyframes tsType { to { width: 30ch; } }
+        @keyframes tsBlink { 0%, 50% { border-color: var(--accent-gold); } 51%, 100% { border-color: transparent; } }
+    </style>
     <section class="hero">
         <h1>Build in public.<br>Trzy serie. Co tydzień.</h1>
         <p class="tagline">
             18 miesięcy budowy monitora systemu z własnym AI — dokumentowane na bieżąco.
             Prawdziwe liczby, prawdziwe bugi, prawdziwe decyzje. Zero retrospektywnego lukru.
         </p>
+        <a class="typing-story" href="story.html" title="Przeczytaj pełną historię"><span class="ts-text">Marcin Firmuga — Moja Historia</span></a>
         <div class="stats">
             <div class="stat"><b>41k</b><span>wyświetleń, 1 post</span></div>
             <div class="stat"><b>48k+</b><span>linii Pythona</span></div>
@@ -109,6 +125,67 @@
         </div>
         <p style="font-size:.75rem;color:#6b6b6b;">Odcinki serii pisane są po angielsku — tam mieszka społeczność projektu. Historia i profil dostępne po polsku.</p>
 
+        <div class="section-label">Najnowsze wpisy</div>
+        <div class="hub-columns">
+            <div class="hub-col">
+                <div class="col-head"><span class="day-badge day-monday">Poniedzialek</span><h3>Grind Blueprint</h3></div>
+                <a class="hub-teaser" href="monday-grind-blueprint/11-google-ai-cert-exam-maximized-mode/">
+                    <span class="te-num">#11</span>
+                    <h4>Certifying in AI Through the Company Whose API I Avoided</h4>
+                    <p>Five weeks of Google's Skills of Tomorrow 3.0, final exam today. I built hck_GPT offline — 102 intents, 9-layer routing, no API. This week: Maximized View Mode across every page + roadmap to v1.9+.</p>
+                </a>
+                <a class="hub-teaser" href="monday-grind-blueprint/10-biggest-release-then-tester-bugs/">
+                    <span class="te-num">#10</span>
+                    <h4>My Biggest Release, Then 48 Hours of Tester Bugs</h4>
+                    <p>v1.7.6 felt great for 12 hours. Then three testers spent 5+ hours each. 17 silent intents, psutil scanned 19×/message, CS2.exe topping charts for people who don't play it. This week: cleanup.</p>
+                </a>
+                <a class="hub-teaser" href="monday-grind-blueprint/09-building-what-28-people-asked-for/">
+                    <span class="te-num">#9</span>
+                    <h4>Building What 28 Real People Asked For</h4>
+                    <p>I asked what you'd ask an AI inside your system monitor. 28 answers came back (13 GitHub, 15 LinkedIn DMs). This week every single one becomes real code in hck_GPT.</p>
+                </a>
+                <a class="col-all" href="monday-grind-blueprint/">Cala seria &rarr;</a>
+            </div>
+            <div class="hub-col">
+                <div class="col-head"><span class="day-badge day-wednesday">Sroda</span><h3>Code Autopsy</h3></div>
+                <a class="hub-teaser" href="wednesday-code-autopsy/12-thermal-baseline-five-contexts/">
+                    <span class="te-num">#12</span>
+                    <h4>Five Words That Teach the App What "Normal" Means</h4>
+                    <p>v1.7.8's thermal baseline starts with six lines: gaming, idle, light, medium, heavy. Once it knows the context, it learns what normal means inside it — for your machine, doing what it's doing right now.</p>
+                </a>
+                <a class="hub-teaser" href="wednesday-code-autopsy/11-snapshot-cache-19-calls/">
+                    <span class="te-num">#11</span>
+                    <h4>The Bug That Worked Perfectly for 4 Months</h4>
+                    <p>snapshot() read live CPU/RAM/GPU flawlessly. Every module called it independently — 19 times per message, no errors, for 4 months. The fix: a 1-second TTL cache. 19 calls become 1.</p>
+                </a>
+                <a class="hub-teaser" href="wednesday-code-autopsy/10-context-window-dictionary/">
+                    <span class="te-num">#10</span>
+                    <h4>Six Memory Depths, One Dictionary</h4>
+                    <p>The answer depends on how far back the AI looks. One dictionary maps each question to a time window — 5 minutes to 7 days — and two lines turn it into the AI's context.</p>
+                </a>
+                <a class="col-all" href="wednesday-code-autopsy/">Cala seria &rarr;</a>
+            </div>
+            <div class="hub-col">
+                <div class="col-head"><span class="day-badge day-friday">Piatek</span><h3>Shipped & Scarred</h3></div>
+                <a class="hub-teaser" href="friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/">
+                    <span class="te-num">#12</span>
+                    <h4>Welding Plastics by Day, Deleting 1,326 Lines by Night</h4>
+                    <p>Maximized View Mode 100% done, chart tooltips 2.0, 1,326 dead lines removed, thread leaks fixed. The scar: months blaming tkinter for a slowdown that was my own bind_all on 8 pages.</p>
+                </a>
+                <a class="hub-teaser" href="friday-shipped-scarred/11-maintenance-week-two-accidental-features/">
+                    <span class="te-num">#11</span>
+                    <h4>A Quiet Maintenance Week That Lasted 36 Hours</h4>
+                    <p>Planned only bug fixes. Noticed a dead GT 1030 still in my registry → Ghost Drivers Hunter. Noticed idle apps burning RAM → Background App Hibernation. Two accidental features in a 'maintenance' week.</p>
+                </a>
+                <a class="hub-teaser" href="friday-shipped-scarred/10-v176-biggest-update/">
+                    <span class="te-num">#10</span>
+                    <h4>#151 in Poland and the Biggest Update of My Life</h4>
+                    <p>v1.7.6 live — 82 intents, DeepMonitor rewritten, a 2.5D component map, 373 process defs. The scar: psutil temperature reads returned None for months and passed every test because the function never ran.</p>
+                </a>
+                <a class="col-all" href="friday-shipped-scarred/">Cala seria &rarr;</a>
+            </div>
+        </div>
+
         <div class="section-label">Dłuższe czytanie</div>
         <a class="ep" href="story.html">
             <div class="ep-meta"><span class="ep-num">HISTORIA</span><span>pełna droga</span></div>
@@ -122,9 +199,9 @@
         </a>
 
         <div class="author-card">
-            <div class="avatar">MF</div>
+            <a class="avatar-link" href="profile.html"><div class="avatar">MF</div></a>
             <div>
-                <h4>Marcin Firmuga</h4>
+                <h4><a href="profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Solo developer · założyciel HCK_Labs · buduje PC Workmana publicznie</div>
                 <p>Każdy wpis w tych seriach piszę sam, na podstawie commitów z danego tygodnia.
                    Nowe edycje lądują najpierw na LinkedIn i dev.to — tu mieszka archiwum.</p>
