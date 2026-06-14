@@ -1,0 +1,144 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Two pages live, Schema.org in the head, Search Console verified - then validator.schema.org found four critical errors. Schema isn't decoration; it's the language you speak to AI.">
+    <meta name="keywords" content="Wednesday Code Autopsy, schema.org, structured data, JSON-LD, SEO for AI, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/">
+    <meta property="og:title" content="Wednesday Code Autopsy #3: How I Almost Made Myself Invisible to AI">
+    <meta property="og:description" content="Two pages live, Schema.org in the head, Search Console verified - then validator.schema.org found four critical errors. Schema isn't decoration; it's the language you speak to AI.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-04-08">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wednesday Code Autopsy #3: How I Almost Made Myself Invisible to AI | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wednesday Code Autopsy #3: How I Almost Made Myself Invisible to AI",
+  "description": "Two pages live, Schema.org in the head, Search Console verified - then validator.schema.org found four critical errors. Schema isn't decoration; it's the language you speak to AI.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/",
+  "datePublished": "2026-04-08",
+  "dateModified": "2026-04-08",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Wednesday Code Autopsy",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#3", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Wednesday Code Autopsy</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #3</span>
+        <h1>How I Almost Made Myself Invisible to AI</h1>
+        <p class="tagline">In 2026, schema.org isn't decoration. It's the language you speak to AI. If you mumble, they ignore you.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-08</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #3</span>
+        </div>
+
+        <p class="lead">How I almost made myself invisible to AI &mdash; and every recruiter using it.</p>
+
+<p>Yesterday, 1:23 AM after work, I went to bed thinking I had finally nailed it. Two GitHub Pages live. Schema.org JSON-LD in the <code>&lt;head&gt;</code>. Google Search Console verified.</p>
+
+<p>At <span class="hl-red">7:42 AM the validator destroyed that illusion. Four critical errors.</span> I sat there with my coffee, realising I had spent three evenings building something that looked great to humans&hellip; but was technically <span class="hl">invisible to every AI crawler out there</span>.</p>
+
+<h2>The four errors</h2>
+<ul>
+<li><strong>Inconsistent <code>id</code></strong> &mdash; the personal schema used one id, the project schema referenced a plain name. Fix: reference the same id everywhere.</li>
+<li><strong>Image type mismatch</strong> &mdash; <code>"image": "url-string"</code> where the validator expected an <code>ImageObject</code>. Machines need structure, not just URLs.</li>
+<li><strong>Lying <code>dateModified</code></strong> &mdash; a hardcoded date the validator flagged as stale. Now it updates by weeks.</li>
+<li><strong>Graph chaos</strong> &mdash; personal site used a <code>@graph</code>, the project page a flat <code>SoftwareApplication</code>. They weren't talking to each other. Fix: make the project schema reference the Person from the graph by id.</li>
+</ul>
+
+<p>I fixed it that morning. Now both pages pass with <span class="hl-green">zero errors</span>. AI can finally connect the dots. Google sees the structured data properly.</p>
+
+<div class="callout warn">
+<b>The lesson hit hard.</b> In 2026, schema.org isn't decoration. <span class="hl">It's the language you speak directly to AI.</span> If you mumble, they ignore you. One clean reference is worth more than ten fancy nested properties.
+</div>
+
+<p>If you're building in public &mdash; especially if you want recruiters or AI tools to find you &mdash; go check your schema today. It takes 30 seconds. <code>validator.schema.org</code> is free and brutally honest.</p>
+
+<p><strong>Ever thought your structured data was perfect&hellip; until the validator humbled you?</strong></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">SEO</span><span class="tag">schema</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../02-memory-not-snapshots/"><span class="pn-dir">&larr; #2</span><span class="pn-title">Your Monitor Shows Numbers. Mine Builds Memory.</span></a><a class="pn-next" href="../04-tkinter-canvas-arc/"><span class="pn-dir">#4 &rarr;</span><span class="pn-title">The Canvas Arc Style Nobody Uses</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
