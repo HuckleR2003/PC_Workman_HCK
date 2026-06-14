@@ -1849,6 +1849,38 @@ body {
     line-height: 1.7;
 }
 
+/* ════════════════ GLOBAL TOP NAV (landing, fixed overlay) ════════════════ */
+:root { --topnav-h: 46px; }
+.global-topnav {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--topnav-h); z-index: 1300;
+    display: flex; align-items: center; gap: .1rem; padding: 0 1rem 0 1.3rem;
+    background: rgba(10, 12, 18, .82); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+    font-family: 'Inter', sans-serif; font-size: .8rem; white-space: nowrap; overflow-x: auto;
+    transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+}
+.global-topnav.gt-hidden { transform: translateY(-100%); }
+.global-topnav::-webkit-scrollbar { height: 0; }
+.gt-link { color: #aeb6c2; text-decoration: none; padding: .3rem .55rem; border-radius: 6px; transition: color .15s, background .15s; }
+.gt-link:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+.gt-white { color: #fff; font-weight: 700; }
+.gt-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, .12); margin: 0 .4rem; flex: 0 0 auto; }
+.gt-series { display: flex; align-items: center; gap: .05rem; }
+.gt-series-label { font-family: 'JetBrains Mono', monospace; font-size: .7rem; font-weight: 700; letter-spacing: 1.5px; color: #ff2e4d; padding: 0 .25rem; }
+.gt-mon { color: #FFD54A; font-weight: 700; }
+.gt-wed { color: #C9852B; font-weight: 700; }
+.gt-fri { color: #9B2335; font-weight: 700; }
+.gt-mon:hover, .gt-wed:hover, .gt-fri:hover { filter: brightness(1.3); background: rgba(255, 255, 255, .05); }
+.gt-spacer { margin-left: auto; flex: 1 0 1rem; }
+.gt-lang { display: flex; align-items: center; gap: .2rem; flex: 0 0 auto; }
+.gt-lang a { color: #8892a0; text-decoration: none; font-weight: 600; padding: .15rem .4rem; border-radius: 5px; }
+.gt-lang a:hover { color: #fff; }
+.gt-lang a.active { color: #fff; background: rgba(255, 255, 255, .1); }
+.gt-lang .gt-slash { color: #5b6472; }
+/* push the sidebar logo below the fixed bar (styles.css = landing only) */
+.sidebar { top: var(--topnav-h); height: calc(100vh - var(--topnav-h)); }
+@media (max-width: 768px) { .global-topnav { display: none; } .sidebar { top: 0; height: 100vh; } }
+
 /* === FOOTER === */
 .footer {
     background-color: var(--darker-bg);
