@@ -1,0 +1,146 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Planned three issues, shipped all three - on four hours of sleep, starting at 6 AM after a week of retail shifts. v1.7.1 with rewritten tests, a UI redesign and ~130 lines of dead code gone.">
+    <meta name="keywords" content="Friday Shipped and Scarred, PC Workman v1.7.1, unittest mock, dead code removal, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/">
+    <meta property="og:title" content="Friday Shipped & Scarred #3: Three Issues Closed on Four Hours of Sleep">
+    <meta property="og:description" content="Planned three issues, shipped all three - on four hours of sleep, starting at 6 AM after a week of retail shifts. v1.7.1 with rewritten tests, a UI redesign and ~130 lines of dead code gone.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-04-10">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #3: Three Issues Closed on Four Hours of Sleep | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #3: Three Issues Closed on Four Hours of Sleep",
+  "description": "Planned three issues, shipped all three - on four hours of sleep, starting at 6 AM after a week of retail shifts. v1.7.1 with rewritten tests, a UI redesign and ~130 lines of dead code gone.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/",
+  "datePublished": "2026-04-10",
+  "dateModified": "2026-04-10",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#3", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #3</span>
+        <h1>Three Issues Closed on Four Hours of Sleep</h1>
+        <p class="tagline">Four hours of sleep works once. Maybe twice. You can't build a career on sleep debt.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-10</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #3</span>
+        </div>
+
+        <p class="lead">I planned to close 3 issues this week. I closed all 3 &mdash; on four hours of sleep, starting at 6 AM.</p>
+
+<h2>The plan</h2>
+<ul>
+<li>Issue #1 &mdash; missing tests, packaging discussion (from a community contributor)</li>
+<li>Issue #2 &mdash; UI button redesign</li>
+<li>Issue #3 &mdash; code optimization in <code>hck_gpt/</code></li>
+</ul>
+
+<h2>The reality</h2>
+<p>Tuesday: the schema.org validator destroyed me at 7:42 AM. Wednesday and every day: a 9-hour Żabka shift. Thursday: home at 00:30, four hours' sleep, zero dev time. By Thursday night I'd shipped <span class="hl-red">nothing</span>. All three issues still open.</p>
+<p>Friday morning: alarm 6:00 AM, four hours of sleep, coffee &mdash; oh yeah. <span class="hl">Flow state doesn't ask permission.</span></p>
+
+<h2>What shipped (v1.7.1)</h2>
+<ul>
+<li><span class="hl-green">Issue #1 closed</span> &mdash; tests rewritten: 18 cases across 3 files, all on <code>unittest.mock</code> (zero live dependencies)</li>
+<li><span class="hl-green">Issue #2 closed</span> &mdash; process display redesigned (actually readable now), a reusable AnimatedBar component, 3 chart bugs fixed (blank startup screen, filter lag, colours)</li>
+<li><span class="hl-green">Issue #3 closed</span> &mdash; ~130 lines of dead code removed, redundant imports cleaned, module headers standardised</li>
+</ul>
+
+<div class="callout warn">
+<b>Four hours of sleep works once.</b> Maybe twice if you're lucky. But you can't build a career on sleep debt and lucky flow states. I knew exactly what to do (clear issues, no ambiguity), and flow happened to align with the time I had. That's not a system.
+</div>
+
+<p>v1.7.2 starts Monday with realistic scope. TURBO Mode builds on this foundation across 1.7.2&ndash;1.7.8. Microsoft Store still on track for Q4 2026.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">SoloDev</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../02-plan-vs-reality/"><span class="pn-dir">&larr; #2</span><span class="pn-title">Plans Assume Energy I Didn't Have</span></a><a class="pn-next" href="../04-built-a-whole-menu-instead/"><span class="pn-dir">#4 &rarr;</span><span class="pn-title">I Planned 3 Issues. I Built a Whole Menu.</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
