@@ -404,6 +404,29 @@
     </style>
 </head>
 <body>
+
+    <!-- Global top navigation (fixed, auto-hides on scroll down) -->
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-link" href="index.html">Strona Główna</a>
+        <a class="gt-link" href="blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="index.html" class="active" data-lang="pl" onclick="localStorage.setItem('pcw_lang','pl')">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="index_en.html" data-lang="en" onclick="localStorage.setItem('pcw_lang','en')">EN</a>
+        </span>
+    </nav>
+
     <!-- Left Sticky Sidebar Navigation -->
     <nav class="sidebar" id="sidebar">
         <div class="logo">
