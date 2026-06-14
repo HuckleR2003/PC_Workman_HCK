@@ -81,18 +81,33 @@
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-20</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Monday Grind Blueprint #4</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-20</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Monday Grind Blueprint #4</span>
         </div>
 
-        <p>It's 23:50. Alarm set for 4:30 AM. I should be asleep. Instead I just shipped a RAM optimizer, custom fonts, and a redesigned Optimization Center. Four commits, and v1.7.2 suddenly feels alive.</p>
-<h2>Tonight</h2>
+        <p class="lead">It's 23:50. My alarm is set for 4:30 AM. I should be asleep. Instead I just shipped a RAM optimizer, custom fonts, and a redesigned Optimization Center.</p>
+
+<p>Four commits later and PC Workman v1.7.2 suddenly feels a lot more alive. What happened tonight:</p>
 <ul>
-<li><strong>Custom fonts across the app</strong> (Inter via GDI32) - it stopped looking like default Windows.</li>
-<li><strong>Auto RAM flush above 75%</strong> - the first TURBO feature that actually intervenes.</li>
-<li><strong>Optimization Center redesign</strong> - cleaner layout, pulse animation on turbo run.</li>
+<li><span class="hl-green">Custom fonts across the entire app</span> &mdash; it finally doesn't look like default Windows.</li>
+<li><span class="hl-green">Auto RAM flush above 75%</span> &mdash; the first real TURBO feature that actually intervenes.</li>
+<li><span class="hl-green">Optimization Center redesign</span> &mdash; better layout, a pulse animation on turbo run, a much cleaner feel.</li>
 </ul>
-<h2>The plan</h2>
-<p>Final dashboard polish before 1.7.8, deep testing of the RAM flush, and GuideAI's broken Google OAuth. Six work days ahead, only Wednesday free. 4:27 AM edit: already on the bike home.</p>
+
+<h2>The plan for this week</h2>
+<p><strong>PC Workman:</strong></p>
+<ol>
+<li><span class="hl">Final dashboard button redesign</span> &mdash; visual polish before 1.7.8.</li>
+<li><span class="hl">Deep-test the new TURBO RAM flush</span> &mdash; edge cases, safety, real-world impact.</li>
+</ol>
+<p><strong>GuideAI (coming back strong):</strong></p>
+<ol start="3">
+<li>Fix the broken Google OAuth (login is currently dead).</li>
+<li>Integrate the Claude API &mdash; scan a QR code on any device and chat with it intelligently.</li>
+</ol>
+
+<p>Six work days ahead, only Wednesday free. Wednesday decides how much of this ships. Friday tells the truth. <em>4:27 AM edit: already on my bike heading home.</em></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">opentowork</span><span class="tag">OpenSource</span><span class="tag">python</span></div>
 
         <div class="guide-cta">
             <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
