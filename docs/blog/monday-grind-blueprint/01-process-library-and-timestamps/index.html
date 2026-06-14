@@ -81,17 +81,29 @@
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-03-30</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Monday Grind Blueprint #1</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-03-30</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Monday Grind Blueprint #1</span>
         </div>
 
-        <p>When hck_GPT told you "Chrome ate 6 GB of RAM three hours ago," two questions hung in the air: <em>which</em> three hours, and what even is <code>msedge.exe</code>? This week was about killing both.</p>
-<h2>Goal 1 - timestamp everything</h2>
-<p>Every hck_GPT message gets an exact time. Spike detected at 14:37. Report generated at 09:15. No more "recently" or "a while ago".</p>
-<h2>Goal 2 - a 100+ process library</h2>
-<p>A JSON database of common processes: what they are (<code>chrome.exe - Google Chrome browser</code>), who made them, what they do. Hover any process and get an instant tooltip - no more Googling "what is svchost.exe?".</p>
-<h2>Goal 3 - write it down</h2>
-<p>One or two articles: the Stats Engine v2 deep-dive, and the git backup lesson (losing 130 commits, recovering 90 - that earned its own Friday post).</p>
-<p>The point: the difference between "CPU: 87%" and "CPU spiked to 87% at 14:37 because Chrome opened 50 tabs." One is a number. The other is something you can act on.</p>
+        <p class="lead">Week one of building PC_Workman in public. Here's the plan.</p>
+
+<p>This week I'm tackling something that's bugged me since day one: when hck_GPT tells you "Chrome ate 6 GB RAM three hours ago" &mdash; <em>which</em> three hours? And what even is <code>msedge.exe</code>?</p>
+
+<h2>Goal 1 &mdash; timestamp everything</h2>
+<p>Every hck_GPT message gets a timestamp. Spike detected at 14:37. Report generated at 09:15. <span class="hl">No more "recently" or "a while ago" &mdash; exact times.</span></p>
+
+<h2>Goal 2 &mdash; a process library (100+ definitions)</h2>
+<p>A JSON database of common processes: what they are ("chrome.exe &mdash; Google Chrome browser"), who made them ("Google LLC"), what they do ("web browsing, can eat RAM with too many tabs"). Hover over any process in hck_GPT for an instant tooltip &mdash; no more Googling "what is svchost.exe?"</p>
+
+<h2>Goal 3 &mdash; write it down</h2>
+<p>Publishing 1&ndash;2 articles this week: recent updates (Stats Engine v2, EventDetector) and the git backup lessons (lost 130 commits, recovered 90).</p>
+
+<div class="callout">
+<b>Why this matters:</b> users don't need more data &mdash; they need <span class="hl">context</span>. That's the difference between "CPU: 87%" and "CPU spiked to 87% at 14:37 because Chrome opened 50 tabs."
+</div>
+
+<p>Building v1.6.8 &rarr; v2.0. Monday Grind Blueprint every week &mdash; real plans, not vague goals.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">IndieHacker</span></div>
 
         <div class="guide-cta">
             <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
