@@ -1,0 +1,140 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="I asked what you'd type to an AI living inside your system monitor. 28 answers came back. This week every one becomes real, working code inside hck_GPT.">
+    <meta name="keywords" content="Monday Grind Blueprint, community-driven features, hck_GPT intents, PC Workman, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/">
+    <meta property="og:title" content="Monday Grind Blueprint #9: Building What 28 Real People Asked For">
+    <meta property="og:description" content="I asked what you'd type to an AI living inside your system monitor. 28 answers came back. This week every one becomes real, working code inside hck_GPT.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-05-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Monday Grind Blueprint">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monday Grind Blueprint #9: Building What 28 Real People Asked For | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Monday Grind Blueprint #9: Building What 28 Real People Asked For",
+  "description": "I asked what you'd type to an AI living inside your system monitor. 28 answers came back. This week every one becomes real, working code inside hck_GPT.",
+  "url": "https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/",
+  "datePublished": "2026-05-25",
+  "dateModified": "2026-05-25",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Monday Grind Blueprint",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Monday Grind Blueprint", "url": "https://pcworkman.dev/blog/monday-grind-blueprint/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Monday Grind Blueprint", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/" },
+    { "@type": "ListItem", "position": 4, "name": "#9", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/" }
+  ]
+}
+</script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Monday Grind Blueprint</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Monday Grind Blueprint &middot; #9</span>
+        <h1>Building What 28 Real People Asked For</h1>
+        <p class="tagline">Most indie devs build whatever they feel like. This week I'm building what 28 real people actually asked for.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-05-25</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Monday Grind Blueprint #9</span>
+        </div>
+
+        <p class="lead">Most indie devs build whatever they feel like. This week I'm building what 28 real people actually asked for.</p>
+
+<p>A few weeks ago I asked a simple question on GitHub and LinkedIn: <span class="hl">"What would you ask an AI that lives inside your system monitor?"</span> 28 answers came back &mdash; some from the GitHub discussion, some from LinkedIn DMs. This week every single one becomes real, working code inside hck_GPT.</p>
+
+<p>Questions like:</p>
+<ul>
+<li>"Which background process is eating my network?"</li>
+<li>"Is my SSD actually healthy?"</li>
+<li>"What's draining my battery right now?"</li>
+<li>"How does today compare to last week?"</li>
+</ul>
+
+<p>Week 3 of Google's AI certification runs in the background while I turn these into real intents and logic.</p>
+
+<div class="callout warn">
+Also fixing something embarrassing: <span class="hl-red">SourceForge has been serving v1.6.3 to most people</span> &mdash; two full releases behind. While I was writing about 9-layer routing and TURBO mode, new users were downloading an ancient version. Fixed this week.
+</div>
+
+<p>Friday will tell the truth.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-next" href="../10-biggest-release-then-tester-bugs/"><span class="pn-dir">#10 &rarr;</span><span class="pn-title">My Biggest Release, Then 48 Hours of Tester Bugs</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Monday Grind Blueprint</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
