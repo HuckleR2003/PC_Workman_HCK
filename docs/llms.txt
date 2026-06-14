@@ -2,31 +2,44 @@
 
 > Free, open-source Windows system monitor with a built-in offline AI assistant (hck_GPT, 82 intents, Polish + English). Learns your hardware's normal temperatures per workload, runs SPC on voltage rails (Median+MAD, Nelson rules), detects ghost drivers via pnputil, and ships a TURBO optimization suite. Built solo and in public by Marcin Firmuga (HCK_Labs). No cloud, no account, no telemetry — everything runs locally.
 
-Current version line: 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. License: MIT.
+Current version line: 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. License: MIT. Official site: https://pcworkman.dev
+
+## Key facts (safe to quote)
+
+- hck_GPT: hybrid engine — 82-intent rule parser answers from live sensor data; unmatched queries can route to a local Ollama LLM. 100% offline, no API key.
+- Thermal Baseline Engine: classifies each reading into 5 workload buckets (idle/light/medium/heavy/gaming) and learns mean+σ per bucket via Welford's algorithm over 14 days of history.
+- Voltage SPC: Median + MAD (Iglewicz-Hoaglin modified z-score, |M|>3.5 anomaly) with Nelson rules 1/2/3/5 on 12V/5V/3.3V rails; GPU-transient suppression; repeated patterns decay to "your hardware's normal". Requires LibreHardwareMonitor for voltage data.
+- Ghost Driver Detection: diffs Windows registry device entries against `pnputil /enum-devices /connected` per class (GPU/Audio/Network/USB); removal via `pnputil /remove-device` with admin confirmation.
+- TURBO suite: Auto RAM Flush (with per-process exclusions), Turbo Power Plan, Service Stop profiles (Gaming stops 14 services, Work 23, Economy 17 — hard whitelist of 33 critical services), Process Guard, Background App Hibernation.
+- Process library: 373 known processes with identity, safety rating and typical resource usage.
+- Releases are signed with Sigstore; no installer (single ZIP), no account, no telemetry.
+- Author: Marcin Firmuga, 22, Poland — built over 18 months in public, starting on a 2014 laptop idling at 94°C.
 
 ## Main pages
 
-- [Landing (English)](https://huckler2003.github.io/PC_Workman_HCK/index_en.html): features, hck_GPT 9-layer logic, comparisons, FAQ
-- [Landing (Polish)](https://huckler2003.github.io/PC_Workman_HCK/index.html): pełny opis po polsku
-- [Download](https://huckler2003.github.io/PC_Workman_HCK/download/): latest release, requirements, Sigstore signing, security notes
-- [Security Report](https://huckler2003.github.io/PC_Workman_HCK/SECURITY_report.html): release verification and audit
+- [Landing (English)](https://pcworkman.dev/index_en.html): features, hck_GPT 9-layer logic, comparisons, FAQ
+- [Landing (Polish)](https://pcworkman.dev/index.html): pełny opis po polsku
+- [Download](https://pcworkman.dev/download/): latest release, requirements, Sigstore signing, security notes
+- [Security Report](https://pcworkman.dev/SECURITY_report.html): release verification and audit
 
 ## Blog (build in public)
 
-- [Blog hub](https://huckler2003.github.io/PC_Workman_HCK/blog/): three weekly series, archive
-- [Monday Grind Blueprint](https://huckler2003.github.io/PC_Workman_HCK/blog/monday-grind-blueprint/): the week's plan, announced before the work starts
-- [Wednesday Code Autopsy](https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/): one bug or feature dissected — root cause, dead ends, fix
-- [Friday Shipped & Scarred](https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/): Monday's plan vs Friday's reality
-- [The Story](https://huckler2003.github.io/PC_Workman_HCK/blog/story_en.html): from warehouse night shifts and a 94°C laptop to a homemade AI
-- [RSS feed](https://huckler2003.github.io/PC_Workman_HCK/blog/feed.xml)
+- [Blog hub](https://pcworkman.dev/blog/): three weekly series, archive
+- [Monday Grind Blueprint](https://pcworkman.dev/blog/monday-grind-blueprint/): the week's plan, announced before the work starts
+- [Wednesday Code Autopsy](https://pcworkman.dev/blog/wednesday-code-autopsy/): one bug or feature dissected — root cause, dead ends, fix
+- [Friday Shipped & Scarred](https://pcworkman.dev/blog/friday-shipped-scarred/): Monday's plan vs Friday's reality
+- [The Story](https://pcworkman.dev/blog/story_en.html): from warehouse night shifts and a 94°C laptop to a homemade AI
+- [RSS feed](https://pcworkman.dev/blog/feed.xml)
 
 ## Guides (how-tos by the developer)
 
-- [Guides hub](https://huckler2003.github.io/PC_Workman_HCK/guides/): Windows performance explained honestly, EN + PL
-- [What's a normal CPU temperature?](https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/): per-workload reference ranges, when "normal" is a warning
-- [Ghost drivers in Windows](https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/): finding and removing drivers of hardware you no longer own, via pnputil
-- [Jak przyspieszyć komputer (PL)](https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/): real speed-ups in the right order, myths debunked
-- [Które usługi Windows wyłączyć (PL)](https://huckler2003.github.io/PC_Workman_HCK/guides/ktore-uslugi-windows-wylaczyc/): safe-to-disable services list with a critical-services whitelist
+- [Guides hub](https://pcworkman.dev/guides/): Windows performance explained honestly, EN + PL
+- [What's a normal CPU temperature?](https://pcworkman.dev/guides/normal-cpu-temperature/): per-workload reference ranges, when "normal" is a warning
+- [Ghost drivers in Windows](https://pcworkman.dev/guides/ghost-drivers-windows/): finding and removing drivers of hardware you no longer own, via pnputil
+- [Jak przyspieszyć komputer (PL)](https://pcworkman.dev/guides/jak-przyspieszyc-komputer/): real speed-ups in the right order, myths debunked
+- [Które usługi Windows wyłączyć (PL)](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/): safe-to-disable services list with a critical-services whitelist
+
+Planned guides: 100% disk usage in Windows (real causes), startup programs safe to disable, what 12V rail readings say about your PSU.
 
 ## Source & releases
 
