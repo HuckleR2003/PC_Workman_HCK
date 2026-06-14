@@ -1,0 +1,142 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="v1.7.6 live: 82 intents, a rewritten DeepMonitor, a 2.5D component map, 373 process definitions — and the temperature bug that silently did nothing for months.">
+    <meta name="keywords" content="Friday Shipped and Scarred, PC Workman v1.7.6, DeepMonitor, LibreHardwareMonitor, silent bug, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/">
+    <meta property="og:title" content="Friday Shipped & Scarred #10: #151 in Poland and the Biggest Update of My Life">
+    <meta property="og:description" content="v1.7.6 live: 82 intents, a rewritten DeepMonitor, a 2.5D component map, 373 process definitions — and the temperature bug that silently did nothing for months.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-05-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #10: #151 in Poland and the Biggest Update of My Life | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #10: #151 in Poland and the Biggest Update of My Life",
+  "description": "v1.7.6 live: 82 intents, a rewritten DeepMonitor, a 2.5D component map, 373 process definitions — and the temperature bug that silently did nothing for months.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/",
+  "datePublished": "2026-05-29",
+  "dateModified": "2026-05-29",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#10", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #10</span>
+        <h1>#151 in Poland and the Biggest Update of My Life</h1>
+        <p class="tagline">11 months ago: 12 dead projects and a warehouse job. This week: #151 on GitHub's Top Committers in Poland.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-05-29</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #10</span>
+        </div>
+
+        <p class="lead">11 months ago I had 12 dead projects and a warehouse job. This week I'm #151 on GitHub's Top Committers in Poland &mdash; and just dropped the biggest update of my life.</p>
+
+<p>Monday's post hit <span class="hl">33,000 views</span>, a new personal record (the old one was 28k, three weeks earlier). This series keeps outrunning itself. And today PC Workman v1.7.6 is live: new .exe &mdash; download, extract, run, no Python.</p>
+
+<h2>Shipped</h2>
+<ul>
+<li><span class="hl-green">v1.7.6 released</span> &mdash; Sigstore signed, VirusTotal 0/70, CodeQL clean. The real deal.</li>
+<li><span class="hl-green">82 AI intents</span> (started at 25 three months ago). "Can I run Cyberpunk?" checks your hardware against a 20-game database; "How long will my battery last?" calculates drain by activity type. Every intent from a real person who asked a real question.</li>
+<li><span class="hl-green">DeepMonitor rewritten</span> &mdash; 4 aligned columns like HWMonitor, colours that shift with heat. You see the problem before you read the number.</li>
+<li><span class="hl-green">Map of Components</span> &mdash; a 2.5D isometric view of your actual PC: live colours, pulsing hot parts, a CPU glow ring at 75&deg;C. Wasn't planned. Just happened.</li>
+<li><span class="hl-green">373 process definitions</span> (was 241 &mdash; +132 this week alone)</li>
+<li>proactive monitor now reads real temperatures &mdash; CPU &gt;80&deg;C, GPU &gt;82&deg;C, severe throttle, multi-drive disk space &mdash; and sends "all clear" when things normalise</li>
+<li>hck_GPT conversations actually flow now: greetings, "tell me more," "what should I do," all handled</li>
+<li>full PC Workman website redesign for v1.7.6, and SourceForge synced after weeks of serving an ancient version</li>
+</ul>
+
+<div class="callout warn">
+<b>Scarred:</b> <code>psutil.sensors_temperatures()</code> returns empty on Windows. That was the proactive monitor's temperature function &mdash; the one I built "months ago." It was reading <code>None</code> every single check, doing nothing, for months. Found it this week and switched to LibreHardwareMonitor. <span class="hl-red">The scariest bugs don't crash your app &mdash; they pass every test because they never ran in the first place.</span>
+</div>
+
+<p>Ten weeks. Never missed a post. Monday plan. Wednesday code. Friday truth.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../09-from-26-to-58-stars/"><span class="pn-dir">&larr; #9</span><span class="pn-title">From 26 Stars to 58 — No Ads, Just Shipping</span></a><a class="pn-next" href="../11-maintenance-week-two-accidental-features/"><span class="pn-dir">#11 &rarr;</span><span class="pn-title">A Quiet Maintenance Week That Lasted 36 Hours</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
