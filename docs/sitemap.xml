@@ -7,131 +7,348 @@
 
   <!-- Landing — English (default) -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/index_en.html</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/index_en.html</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/index.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
   </url>
 
   <!-- Landing — Polish -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/index.html</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/index.html</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/index.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
   </url>
 
   <!-- Download -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/download/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/download/</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/download/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/download/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/download/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/download/index_pl.html</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/download/index_pl.html</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Blog hub -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/blog/</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/blog/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/"/>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/index_pl.html</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/blog/index_pl.html</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Blog series -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/monday-grind-blueprint/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/wednesday-code-autopsy/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/</loc>
-    <lastmod>2026-06-11</lastmod>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/</loc>
+    <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Guides -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/</loc>
+    <loc>https://pcworkman.dev/guides/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/guides/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/guides/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/index_pl.html</loc>
+    <loc>https://pcworkman.dev/guides/index_pl.html</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/</loc>
+    <loc>https://pcworkman.dev/guides/normal-cpu-temperature/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/</loc>
+    <loc>https://pcworkman.dev/guides/ghost-drivers-windows/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/</loc>
+    <loc>https://pcworkman.dev/guides/jak-przyspieszyc-komputer/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/guides/ktore-uslugi-windows-wylaczyc/</loc>
+    <loc>https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
+
+  <!-- Blog posts (series episodes) -->
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/01-git-force-deleted-130-commits/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/02-plan-vs-reality/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/06-startup-services-managers-shipped/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/07-twelve-intents-deepmonitor/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/09-from-26-to-58-stars/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/11-maintenance-week-two-accidental-features/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/01-process-library-and-timestamps/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/03-shipped-before-lunch/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/04-ram-optimizer-and-fonts/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/05-most-devs-never-ship-an-exe/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/06-google-ai-cert-and-intent-expansion/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/07-turbo-suite-and-fake-process-detection/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/08-full-polish-localization/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/10-biggest-release-then-tester-bugs/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/11-google-ai-cert-exam-maximized-mode/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/01-your-pc-baseline/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/02-memory-not-snapshots/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/04-tkinter-canvas-arc/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/05-automatic-ram-flush/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/06-nine-layer-routing-engine/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/07-stateless-memory-by-design/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/09-intent-aware-temperature/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/10-context-window-dictionary/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/11-snapshot-cache-19-calls/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/</loc>
+    <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Long reads -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/story.html</loc>
+    <loc>https://pcworkman.dev/blog/story.html</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/story_en.html</loc>
+    <loc>https://pcworkman.dev/blog/story_en.html</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
   </url>
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/blog/profile.html</loc>
+    <loc>https://pcworkman.dev/blog/profile.html</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -139,7 +356,7 @@
 
   <!-- Security report -->
   <url>
-    <loc>https://huckler2003.github.io/PC_Workman_HCK/SECURITY_report.html</loc>
+    <loc>https://pcworkman.dev/SECURITY_report.html</loc>
     <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
