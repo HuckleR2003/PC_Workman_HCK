@@ -44,6 +44,16 @@ window.addEventListener('load', () => {
     setTimeout(typeText, 1000); // Delay before starting
 });
 
+// === MINI SIDEBAR (desktop): auto-collapse 1.5 s after load ===
+// Hover re-expands via CSS (.sidebar.mini:hover) and overlays the content;
+// body.sidebar-docked keeps the page laid out at the mini width.
+if (window.innerWidth > 768 && sidebar) {
+    setTimeout(() => {
+        sidebar.classList.add('mini');
+        document.body.classList.add('sidebar-docked');
+    }, 1500);
+}
+
 // === MOBILE MENU TOGGLE ===
 mobileMenuToggle.addEventListener('click', () => {
     sidebar.classList.toggle('active');
