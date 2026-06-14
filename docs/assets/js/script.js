@@ -355,3 +355,29 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 console.log('✅ PC_Workman Landing Page initialized');
 console.log('🤖 All interactive features loaded');
 console.log('🚀 Building in public on 10-year-old laptop!');
+
+// === GLOBAL TOP NAV: hide on scroll down, reveal on scroll up ===
+(function () {
+    const topnav = document.getElementById('globalTopnav');
+    if (!topnav) return;
+    let lastY = window.scrollY;
+    let ticking = false;
+    function onScroll() {
+        const y = window.scrollY;
+        if (y > lastY && y > 90) {
+            topnav.classList.add('gt-hidden');      // scrolling down
+        } else {
+            topnav.classList.remove('gt-hidden');   // scrolling up / near top
+        }
+        lastY = y;
+        ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+        if (!ticking) { window.requestAnimationFrame(onScroll); ticking = true; }
+    }, { passive: true });
+
+    // Remember the language choice (no auto-redirect — SEO-safe)
+    topnav.querySelectorAll('.gt-lang a[data-lang]').forEach(a => {
+        a.addEventListener('click', () => localStorage.setItem('pcw_lang', a.getAttribute('data-lang')));
+    });
+})();
