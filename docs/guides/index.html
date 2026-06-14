@@ -11,15 +11,15 @@
     <meta name="description" content="Practical Windows performance guides by the developer of PC Workman: CPU temperatures per workload, ghost drivers, safe service tweaks, real speed-ups. No bloatware, no myths.">
     <meta name="keywords" content="Windows performance guides, CPU temperature guide, ghost drivers Windows, speed up PC guide, Windows services safe to disable, PC optimization tutorials">
     <meta name="author" content="Marcin Firmuga">
-    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
-    <link rel="alternate" hreflang="en" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
-    <link rel="alternate" hreflang="pl" href="https://huckler2003.github.io/PC_Workman_HCK/guides/index_pl.html">
-    <link rel="alternate" hreflang="x-default" href="https://huckler2003.github.io/PC_Workman_HCK/guides/">
+    <link rel="canonical" href="https://pcworkman.dev/guides/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/">
     <meta property="og:title" content="PC Workman Guides — Windows performance, explained honestly">
     <meta property="og:description" content="CPU temperatures per workload, ghost drivers, services worth disabling, real speed-ups. Written by the developer of an open-source system monitor.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/guides/">
-    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="og:url" content="https://pcworkman.dev/guides/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
@@ -35,7 +35,7 @@
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       "name": "PC Workman Guides",
-      "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/",
+      "url": "https://pcworkman.dev/guides/",
       "description": "Practical Windows performance guides by the developer of PC Workman.",
       "inLanguage": "en",
       "author": {
@@ -53,10 +53,10 @@
       "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "What is a normal CPU temperature? It depends on the workload", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/normal-cpu-temperature/" },
-          { "@type": "ListItem", "position": 2, "name": "Ghost drivers in Windows: what they are and how to remove them", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/ghost-drivers-windows/" },
-          { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer z Windows — bez mitów", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/jak-przyspieszyc-komputer/" },
-          { "@type": "ListItem", "position": 4, "name": "Które usługi Windows można bezpiecznie wyłączyć", "url": "https://huckler2003.github.io/PC_Workman_HCK/guides/ktore-uslugi-windows-wylaczyc/" }
+          { "@type": "ListItem", "position": 1, "name": "What is a normal CPU temperature? It depends on the workload", "url": "https://pcworkman.dev/guides/normal-cpu-temperature/" },
+          { "@type": "ListItem", "position": 2, "name": "Ghost drivers in Windows: what they are and how to remove them", "url": "https://pcworkman.dev/guides/ghost-drivers-windows/" },
+          { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer z Windows — bez mitów", "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/" },
+          { "@type": "ListItem", "position": 4, "name": "Które usługi Windows można bezpiecznie wyłączyć", "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/" }
         ]
       }
     }
@@ -66,8 +66,8 @@
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
-        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://huckler2003.github.io/PC_Workman_HCK/guides/" }
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" }
       ]
     }
     </script>
@@ -84,16 +84,40 @@
         </nav>
     </header>
 
-    <section class="hero">
-        <span class="day-badge day-wednesday">Guides &amp; explainers</span>
-        <h1>Windows performance,<br>explained honestly</h1>
-        <p class="tagline">
-            Written by the developer of an open-source system monitor — from real sensor data,
-            not recycled myths. No registry voodoo, no bloatware recommendations.
-        </p>
+    <section class="hero compact">
+        <span class="day-badge day-wednesday">Articles &amp; guides</span>
+        <h1>Windows performance, explained honestly</h1>
+        <p class="tagline">Practical articles to read — from real sensor data, not recycled myths.</p>
     </section>
 
     <main class="wrap">
+
+        <div class="section-label center">Top guides</div>
+        <div class="top-guides">
+            <div class="tg-cluster">
+                <div class="tg-label">Optimization</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-opt" href="ktore-uslugi-windows-wylaczyc/"><span class="tg-ic">⚙</span><h4>Services to disable</h4><span class="tg-go">Read →</span></a>
+                    <div class="tg-tile tg-opt soon"><span class="tg-ic">▣</span><h4>100% disk usage</h4><span class="tg-go">Soon</span></div>
+                    <div class="tg-tile tg-opt soon"><span class="tg-ic">⤓</span><h4>Startup apps</h4><span class="tg-go">Soon</span></div>
+                </div>
+            </div>
+            <div class="tg-cluster">
+                <div class="tg-label">Speed-up</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/"><span class="tg-ic">⚡</span><h4>Speed up your PC</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="normal-cpu-temperature/"><span class="tg-ic">◷</span><h4>Normal CPU temp</h4><span class="tg-go">Read →</span></a>
+                    <div class="tg-tile tg-spd soon"><span class="tg-ic">▤</span><h4>How much RAM</h4><span class="tg-go">Soon</span></div>
+                </div>
+            </div>
+            <div class="tg-cluster">
+                <div class="tg-label">PC Workman</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-pcw" href="ghost-drivers-windows/"><span class="tg-ic">⬡</span><h4>Ghost drivers</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-pcw" href="../download/"><span class="tg-ic">⬇</span><h4>What PC Workman does</h4><span class="tg-go">Download →</span></a>
+                </div>
+            </div>
+        </div>
 
         <div class="section-label">Featured guides</div>
         <div class="series-grid">
@@ -152,9 +176,9 @@
         </div>
 
         <div class="author-card">
-            <div class="avatar">MF</div>
+            <a class="avatar-link" href="../blog/profile.html"><div class="avatar">MF</div></a>
             <div>
-                <h4>Marcin Firmuga</h4>
+                <h4><a href="../blog/profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Solo developer · HCK_Labs · 18 months of sensor data behind every guide</div>
                 <p>I write these from what PC Workman's sensors actually show across real machines —
                    including the 2014 laptop at 94°C this project started on.</p>
