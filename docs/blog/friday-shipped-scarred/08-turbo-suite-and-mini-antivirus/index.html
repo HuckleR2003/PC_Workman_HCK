@@ -1,0 +1,142 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A simple legitimacy check - does chrome.exe run from where Chrome should be, or from %TEMP%? - grew into the foundation of an offline anti-virus, alongside the full TURBO suite.">
+    <meta name="keywords" content="Friday Shipped and Scarred, TURBO suite, Process Guard, spoof detection, CP852 encoding, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/">
+    <meta property="og:title" content="Friday Shipped & Scarred #8: I Wanted to Suspend Processes. I Built a Mini Anti-Virus.">
+    <meta property="og:description" content="A simple legitimacy check - does chrome.exe run from where Chrome should be, or from %TEMP%? - grew into the foundation of an offline anti-virus, alongside the full TURBO suite.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-05-15">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #8: I Wanted to Suspend Processes. I Built a Mini Anti-Virus. | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #8: I Wanted to Suspend Processes. I Built a Mini Anti-Virus.",
+  "description": "A simple legitimacy check - does chrome.exe run from where Chrome should be, or from %TEMP%? - grew into the foundation of an offline anti-virus, alongside the full TURBO suite.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/",
+  "datePublished": "2026-05-15",
+  "dateModified": "2026-05-15",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#8", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #8</span>
+        <h1>I Wanted to Suspend Processes. I Built a Mini Anti-Virus.</h1>
+        <p class="tagline">One innocent safety feature slowly turned into the early foundation of a small offline anti-virus.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-05-15</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #8</span>
+        </div>
+
+        <p class="lead">I wanted to suspend a few background processes. Instead I built a mini offline anti-virus.</p>
+
+<p>Monday's plan was calm. Friday got&hellip; great.</p>
+
+<h2>Shipped</h2>
+<ul>
+<li><span class="hl-green">Full TURBO Service Stop</span> with 3 profiles (Gaming / Work / Economy) and solid crash recovery</li>
+<li><span class="hl-green">Process Guard</span> &mdash; intelligently suspends idle processes (doesn't kill them, just freezes)</li>
+<li><span class="hl-green">Turbo Power Plan</span> &mdash; auto-creates &amp; switches a custom power plan with game detection</li>
+<li>Weekly Performance Report with charts and trends</li>
+<li>new Settings page + 6 fresh hck_GPT intent categories</li>
+</ul>
+
+<h2>Scarred</h2>
+<p>While building Process Guard I added a simple legitimacy check: does <code>chrome.exe</code> actually live where Chrome should live, or is it running from <code>%TEMP%</code>? Then I tested obvious spoofs &mdash; <code>svch0st.exe</code>, <code>expl0rer.exe</code>, <code>winlogonn.exe</code>&hellip; and the check immediately started flagging them. <span class="hl">One innocent safety feature slowly turned into the early foundation of a small offline anti-virus</span> &mdash; based on path, behaviour and spoof detection. Completely unplanned.</p>
+
+<div class="callout warn">
+Also lost hours fighting Polish Windows CP852 encoding hell &mdash; <span class="hl-red">one single byte (0x98) broke the entire power-plan system.</span> Classic.
+</div>
+
+<p>Second week in a row shipping more than planned. Feels weird&hellip; but really good. Still doing Żabka shifts. Still building.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">PC_Workman</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../07-twelve-intents-deepmonitor/"><span class="pn-dir">&larr; #7</span><span class="pn-title">Not Scarred This Week - Everything Shipped</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
