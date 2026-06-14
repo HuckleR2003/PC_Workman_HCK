@@ -1,0 +1,128 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Three GitHub issues toward v1.7.8 - tests, dashboard button redesign, hck_GPT cleanup - planned during the first exhausting week of retail shifts.">
+    <meta name="keywords" content="Monday Grind Blueprint, roadmap issues, PC Workman v1.7.8, build in public, indie developer Poland">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/">
+    <meta property="og:title" content="Monday Grind Blueprint #2: Three Roadmap Issues, Week One at a New Job">
+    <meta property="og:description" content="Three GitHub issues toward v1.7.8 - tests, dashboard button redesign, hck_GPT cleanup - planned during the first exhausting week of retail shifts.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-04-06">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Monday Grind Blueprint">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monday Grind Blueprint #2: Three Roadmap Issues, Week One at a New Job | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Monday Grind Blueprint #2: Three Roadmap Issues, Week One at a New Job",
+  "description": "Three GitHub issues toward v1.7.8 - tests, dashboard button redesign, hck_GPT cleanup - planned during the first exhausting week of retail shifts.",
+  "url": "https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/",
+  "datePublished": "2026-04-06",
+  "dateModified": "2026-04-06",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Monday Grind Blueprint",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Monday Grind Blueprint", "url": "https://pcworkman.dev/blog/monday-grind-blueprint/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Monday Grind Blueprint", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/" },
+    { "@type": "ListItem", "position": 4, "name": "#2", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/" }
+  ]
+}
+</script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Monday Grind Blueprint</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Monday Grind Blueprint &middot; #2</span>
+        <h1>Three Roadmap Issues, Week One at a New Job</h1>
+        <p class="tagline">Context beats raw data. "epicgames.exe taking 40% CPU" looks like a virus until you know it's the launcher.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-06</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Monday Grind Blueprint #2</span>
+        </div>
+
+        <p>Three issues from the roadmap to v1.7.8 this week - and the honest backdrop of a brand-new retail job eating most of my energy.</p>
+<h2>The three</h2>
+<ul>
+<li><strong>Tests, discussions, packaging</strong> - a community-raised GitHub issue. Real coverage, not decoration.</li>
+<li><strong>Dashboard button redesign</strong> - they worked but still looked like 2015.</li>
+<li><strong>hck_GPT cleanup</strong> - performance pass and possible file consolidation.</li>
+</ul>
+<h2>Why context is the whole project</h2>
+<p>Last weekend's process library already changed how the app feels. Before: a user sees <code>epicgames.exe - 40% CPU</code> and thinks "virus, kill it?" After: hover, see it's the Epic Games Launcher, safe, typical. Context instead of raw data - the thesis the whole app is built on.</p>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../01-process-library-and-timestamps/"><span class="pn-dir">&larr; #1</span><span class="pn-title">Timestamp Everything + a 100-Process Library</span></a><a class="pn-next" href="../03-shipped-before-lunch/"><span class="pn-dir">#3 &rarr;</span><span class="pn-title">Four Things Shipped Before Lunch</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Monday Grind Blueprint</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
