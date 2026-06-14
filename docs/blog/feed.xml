@@ -2,8 +2,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>PC Workman — Build in Public Blog</title>
-  <link>https://huckler2003.github.io/PC_Workman_HCK/blog/</link>
-  <atom:link href="https://huckler2003.github.io/PC_Workman_HCK/blog/feed.xml" rel="self" type="application/rss+xml"/>
+  <link>https://pcworkman.dev/blog/</link>
+  <atom:link href="https://pcworkman.dev/blog/feed.xml" rel="self" type="application/rss+xml"/>
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
