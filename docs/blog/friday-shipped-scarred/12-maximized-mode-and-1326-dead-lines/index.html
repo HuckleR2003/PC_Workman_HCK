@@ -1,0 +1,142 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Maximized View Mode finished, chart tooltips 2.0, 1,326 lines of dead code deleted — and the slowdown I blamed on tkinter for months turned out to be my own global event bindings.">
+    <meta name="keywords" content="Friday Shipped and Scarred, Maximized View Mode, dead code, bind_all leak, PC Workman v1.7.9, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/">
+    <meta property="og:title" content="Friday Shipped & Scarred #12: Welding Plastics by Day, Deleting 1,326 Lines by Night">
+    <meta property="og:description" content="Maximized View Mode finished, chart tooltips 2.0, 1,326 lines of dead code deleted — and the slowdown I blamed on tkinter for months turned out to be my own global event bindings.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #12: Welding Plastics by Day, Deleting 1,326 Lines by Night | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #12: Welding Plastics by Day, Deleting 1,326 Lines by Night",
+  "description": "Maximized View Mode finished, chart tooltips 2.0, 1,326 lines of dead code deleted — and the slowdown I blamed on tkinter for months turned out to be my own global event bindings.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/",
+  "datePublished": "2026-06-12",
+  "dateModified": "2026-06-12",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#12", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #12</span>
+        <h1>Welding Plastics by Day, Deleting 1,326 Lines by Night</h1>
+        <p class="tagline">Thursday morning: welding plastics at a repair shop. Thursday night: deleting 1,326 lines of my own code.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-12</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #12</span>
+        </div>
+
+        <p class="lead">Thursday morning: welding plastics at a repair shop. Thursday night: deleting 1,326 lines of my own code.</p>
+
+<p>Three days into the new job and the rhythm is back &mdash; physical work by day, code by night. Wednesday I wrote that the dream just waits until evening. This week, <span class="hl">evening delivered</span>.</p>
+
+<h2>Shipped</h2>
+<ul>
+<li><span class="hl-green">Maximized View Mode &mdash; 100% done.</span> The week's main goal: a full window-scaling system, no forced sizes. Every page adapts &mdash; Dashboard, My PC, Optimization Center.</li>
+<li><span class="hl-green">Chart tooltips 2.0</span> &mdash; hover shows a semi-transparent live bubble; click pins it to the bar. The pin travels left with the LIVE buffer and unpins itself at the edge. Component cards got gaming-HUD sparklines.</li>
+<li><span class="hl-green">1,326 lines of dead code deleted</span> from one file (5,579 &rarr; 4,253) &mdash; features that no longer exist, animations that never started, chains nobody called. Verified with grep across the whole repo. Zero regrets.</li>
+<li>thread leaks fixed &mdash; two components never stopped their data threads on destroy, so every page visit added one more thread, forever</li>
+<li>hck_GPT chat scales in Maximized (+35% height); the banner now follows you to My PC and Fan Dashboard tabs</li>
+<li>real domain in progress &mdash; blog rebuilt from scratch (feed, robots.txt, llms.txt, sitemap). Time for the website to tell the story.</li>
+</ul>
+
+<div class="callout warn">
+<b>Scarred:</b> for months I blamed tkinter. Then Windows. Then my charts. It was <code>bind_all("")</code> registered globally on 8 different pages &mdash; every new page added another permanent scroll handler. Visit Monitoring five times? Five handlers firing on every scroll, forever. <span class="hl-red">The app wasn't slow &mdash; it was drowning in my own forgotten event bindings.</span> One evening, eight fixes, and the "slow after long use" issue is gone. The worst bugs aren't the ones that crash &mdash; they're the ones that make you blame everything except yourself.
+</div>
+
+<p>21/21 tested, good results &mdash; v1.7.9 is shaping up to be the most stable build yet.</p>
+
+<p><strong>What's the longest you've blamed the wrong thing for a bug that was yours all along?</strong></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../11-maintenance-week-two-accidental-features/"><span class="pn-dir">&larr; #11</span><span class="pn-title">A Quiet Maintenance Week That Lasted 36 Hours</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
