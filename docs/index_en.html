@@ -493,6 +493,29 @@
     </style>
 </head>
 <body>
+
+    <!-- Global top navigation (fixed, auto-hides on scroll down) -->
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-link" href="index_en.html">Home</a>
+        <a class="gt-link" href="blog/">Blog</a>
+        <a class="gt-link gt-white" href="SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="download/">Download</a>
+        <a class="gt-link" href="guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="index.html" data-lang="pl" onclick="localStorage.setItem('pcw_lang','pl')">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="index_en.html" class="active" data-lang="en" onclick="localStorage.setItem('pcw_lang','en')">EN</a>
+        </span>
+    </nav>
+
     <!-- Left Sticky Sidebar Navigation -->
     <nav class="sidebar" id="sidebar">
         <div class="logo">
