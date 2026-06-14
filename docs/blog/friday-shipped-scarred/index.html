@@ -11,12 +11,12 @@
     <meta name="description" content="Friday Shipped & Scarred — the weekly series where Monday's PC Workman plan meets Friday's reality. What shipped, what died, what scars remain. By Marcin Firmuga, HCK_Labs.">
     <meta name="keywords" content="Friday Shipped and Scarred, build in public retro, weekly shipping, indie developer honesty, PC Workman development, Marcin Firmuga">
     <meta name="author" content="Marcin Firmuga">
-    <link rel="canonical" href="https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/">
     <meta property="og:title" content="Friday Shipped &amp; Scarred — Monday's plan vs Friday's reality">
     <meta property="og:description" content="The weekly receipts check. What shipped, what died, what scars remain — including the day git --force deleted 130 commits.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/">
-    <meta property="og:image" content="https://huckler2003.github.io/PC_Workman_HCK/assets/images/PCWorkman-dashboard.gif">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
@@ -33,7 +33,7 @@
       "@context": "https://schema.org",
       "@type": "Blog",
       "name": "Friday Shipped & Scarred",
-      "url": "https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/",
+      "url": "https://pcworkman.dev/blog/friday-shipped-scarred/",
       "description": "Weekly build-in-public series: Monday's plan measured against Friday's reality — what shipped, what died, what scars remain.",
       "inLanguage": "en",
       "author": {
@@ -72,9 +72,9 @@
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://huckler2003.github.io/PC_Workman_HCK/" },
-        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://huckler2003.github.io/PC_Workman_HCK/blog/" },
-        { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://huckler2003.github.io/PC_Workman_HCK/blog/friday-shipped-scarred/" }
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+        { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
       ]
     }
     </script>
@@ -106,52 +106,131 @@
     </section>
 
     <main class="wrap">
-
-        <div class="section-label">How this series works</div>
-        <p style="font-size:.88rem;color:#a0a0a0;">
-            Every Friday I put the week's <a href="../monday-grind-blueprint/">Monday Blueprint</a> next to
-            the actual commit log. Shipped gets a checkmark. Failed gets a paragraph explaining why —
-            not an excuse, a cause. The scars section is for the things that worked but cost more
-            than they should have.
-        </p>
-
-        <div class="section-label">Episodes on dev.to</div>
-
-        <!-- To add an episode: copy one <a class="ep"> block, newest on top -->
-        <a class="ep" href="https://dev.to/huckler/friday-shipped-scarred-3-pc-workman-171-the-foundation-great-release-10aj" target="_blank" rel="noopener">
-            <div class="ep-meta"><span class="ep-num">#3</span><span>Apr 2026</span><span class="ep-host">dev.to</span></div>
-            <h3>PC Workman 1.7.1 — The Foundation Great Release</h3>
-            <p>Stats Engine v2 shipped: the SQLite pipeline that every later feature stands on.</p>
-        </a>
-        <a class="ep" href="https://dev.to/huckler/friday-shipped-scarred-1-the-day-git-force-deleted-130-pc-workman-commits-i-got-90-back-1947" target="_blank" rel="noopener">
-            <div class="ep-meta"><span class="ep-num">#1</span><span>Mar 2026</span><span class="ep-host">dev.to</span></div>
-            <h3>The Day git --force Deleted 130 PC Workman Commits (I Got 90 Back)</h3>
-            <p>The week the repo died on a Tuesday. Recovery via reflog, and the backup rule born from it.</p>
-        </a>
-
-        <div class="section-label">Newest editions</div>
-        <p style="font-size:.88rem;color:#a0a0a0;">
-            The freshest retros premiere on LinkedIn every Friday:
-            <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener">linkedin.com/in/marcinfirmuga</a>
-            · <a href="https://x.com/hck_lab" target="_blank" rel="noopener">x.com/@hck_lab</a>
-        </p>
-
-        <div class="author-card">
-            <div class="avatar">MF</div>
-            <div>
-                <h4>Marcin Firmuga</h4>
-                <div class="role">Author of the series · solo developer · founder of HCK_Labs</div>
-                <p>The plan and the retro are written by the same person — that's the whole point.</p>
-                <div class="author-links">
-                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
-                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
-                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
-                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
-                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+        <div class="series-layout">
+            <div class="series-main">
+                <div class="section-label">Episodes - start at #1</div>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#1</span><span>2026-03-27</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>git push --force Turned 130 Commits Into 1</h3>
+                    <p>Monday morning, my heart literally stopped. git push --force turned 130 commits into 1, permanently. Eight months gone - until I remembered an archive branch from three weeks earlier. 90 commits inside.</p>
                 </div>
+                <a class="fade-banner" href="01-git-force-deleted-130-commits/">Read the full story &mdash; #1 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#2</span><span>2026-04-03</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Plans Assume Energy I Didn't Have</h3>
+                    <p>Planned: 100+ process definitions, timestamps, two articles. Shipped: the JSON framework and one article. Week one at Zabka hit harder than expected - too tired by evening to write definitions.</p>
+                </div>
+                <a class="fade-banner" href="02-plan-vs-reality/">Read the full story &mdash; #2 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#3</span><span>2026-04-10</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Three Issues Closed on Four Hours of Sleep</h3>
+                    <p>Planned three issues. Closed all three - after four hours of sleep, starting at 6 AM. Tests rewritten (18 cases, all mocked), process display redesigned, three chart bugs fixed, ~130 lines of dead code gone.</p>
+                </div>
+                <a class="fade-banner" href="03-three-issues-four-hours-sleep/">Read the full story &mdash; #3 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#4</span><span>2026-04-17</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>I Planned 3 Issues. I Built a Whole Menu.</h3>
+                    <p>Planned three issues. Built an entire new menu instead - 18 commits, two new modules, one production-ready First Setup & Drivers page with an arc health gauge.</p>
+                </div>
+                <a class="fade-banner" href="04-built-a-whole-menu-instead/">Read the full story &mdash; #4 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#5</span><span>2026-04-24</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>I Was Going to Plug in Claude. I Built My Own Engine.</h3>
+                    <p>The plan: plug Claude API into the chatbot. Instead I built my own hybrid AI engine from scratch - rule-based, offline-first. Plus auto RAM flush, a dashboard rewrite and a fixed Google login.</p>
+                </div>
+                <a class="fade-banner" href="05-built-my-own-ai-engine/">Read the full story &mdash; #5 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#6</span><span>2026-05-01</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>30,000 Views, Five Features, One Project I Keep Avoiding</h3>
+                    <p>Monday's post hit 30k views; a stranger ran a clean security audit and became a tester. Friday: Startup Manager (3 registry hives), Services Manager (40+ services, 4 tiers), the signed v1.7.2 .exe.</p>
+                </div>
+                <a class="fade-banner" href="06-startup-services-managers-shipped/">Read the full story &mdash; #6 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#7</span><span>2026-05-08</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Not Scarred This Week - Everything Shipped</h3>
+                    <p>Twelve new AI query types from your feedback, a full DeepMonitor table (SQLite, snapshots every 5 min), a metrics backend, Stripe on GuideAI - and someone from a dream company reached out. Nothing scarred.</p>
+                </div>
+                <a class="fade-banner" href="07-twelve-intents-deepmonitor/">Read the full story &mdash; #7 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#8</span><span>2026-05-15</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>I Wanted to Suspend Processes. I Built a Mini Anti-Virus.</h3>
+                    <p>I wanted to suspend idle processes. A legitimacy check (does chrome.exe live where it should, or in %TEMP%?) flagged svch0st.exe and expl0rer.exe - and became the seed of an offline anti-virus.</p>
+                </div>
+                <a class="fade-banner" href="08-turbo-suite-and-mini-antivirus/">Read the full story &mdash; #8 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#9</span><span>2026-05-22</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>From 26 Stars to 58 — No Ads, Just Shipping</h3>
+                    <p>26 stars to 58 in two weeks, no ads. Shipped: stable Polish support (300+ hand-written lines), a fully persistent Settings page, and 23 community-requested intents — with 23 more waiting.</p>
+                </div>
+                <a class="fade-banner" href="09-from-26-to-58-stars/">Read the full story &mdash; #9 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#10</span><span>2026-05-29</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>#151 in Poland and the Biggest Update of My Life</h3>
+                    <p>v1.7.6 live — 82 intents, DeepMonitor rewritten, a 2.5D component map, 373 process defs. The scar: psutil temperature reads returned None for months and passed every test because the function never ran.</p>
+                </div>
+                <a class="fade-banner" href="10-v176-biggest-update/">Read the full story &mdash; #10 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#11</span><span>2026-06-05</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>A Quiet Maintenance Week That Lasted 36 Hours</h3>
+                    <p>Planned only bug fixes. Noticed a dead GT 1030 still in my registry → Ghost Drivers Hunter. Noticed idle apps burning RAM → Background App Hibernation. Two accidental features in a 'maintenance' week.</p>
+                </div>
+                <a class="fade-banner" href="11-maintenance-week-two-accidental-features/">Read the full story &mdash; #11 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#12</span><span>2026-06-12</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Welding Plastics by Day, Deleting 1,326 Lines by Night</h3>
+                    <p>Maximized View Mode 100% done, chart tooltips 2.0, 1,326 dead lines removed, thread leaks fixed. The scar: months blaming tkinter for a slowdown that was my own bind_all on 8 pages.</p>
+                </div>
+                <a class="fade-banner" href="12-maximized-mode-and-1326-dead-lines/">Read the full story &mdash; #12 &rarr;</a>
+            </article>
+                <p style="font-size:.8rem;color:#6b6b6b;margin-top:.4rem;">Newer editions premiere on <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener">LinkedIn</a> first and land here over time.</p>
             </div>
+            <aside class="series-aside">
+                <div class="aside-box">
+                    <h4>About this series</h4>
+                    <p>Monday's plan measured against Friday's reality: what shipped, what died, what scars remain.</p>
+                </div>
+                <div class="aside-box">
+                    <h4>The other two</h4>
+                    <p><a href="../monday-grind-blueprint/">Monday Grind Blueprint</a> <a href="../wednesday-code-autopsy/">Wednesday Code Autopsy</a></p>
+                </div>
+                <div class="aside-box">
+                    <h4>Support the build</h4>
+                    <p>PC Workman is free and open source, built solo. If a post helped, a coffee keeps the next one coming.</p>
+                    <a class="coffee-btn" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+                <div class="author-card" style="margin:0;">
+                    <a class="avatar-link" href="../profile.html"><div class="avatar">MF</div></a>
+                    <div>
+                        <h4><a href="../profile.html">Marcin Firmuga</a></h4>
+                        <div class="role">Solo dev &middot; HCK_Labs</div>
+                        <p><a href="../story_en.html">My story</a> &middot; <a href="../profile.html">profile</a></p>
+                    </div>
+                </div>
+            </aside>
         </div>
-
     </main>
 
     <footer class="foot">
