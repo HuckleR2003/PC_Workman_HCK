@@ -600,22 +600,77 @@
                 gap: 15px;
             }
         }
+
+        /* ───────── Blog-style redesign: sticky topbar + denser layout ───────── */
+        body { padding: 0 0 40px; }
+        .container { margin: 26px auto; max-width: 1100px; width: calc(100% - 40px); }
+        .content { padding: 34px 38px; }
+        section { margin-bottom: 44px; }
+        .section-title { font-size: 1.65em; margin-bottom: 22px; padding-bottom: 12px; }
+        .security-intro { padding: 26px 28px; margin-bottom: 36px; }
+        .security-intro h2 { font-size: 1.5em; margin-bottom: 16px; }
+        .security-intro p { font-size: 1em; margin-bottom: 14px; }
+        .security-highlight { padding: 16px 18px; margin-top: 18px; }
+        .badges-grid { gap: 18px; margin-bottom: 0; }
+        .badge-card { padding: 22px; }
+        .scanning-grid { gap: 18px; }
+        .verify-section { padding: 28px; }
+        .verify-grid { gap: 18px; }
+        .verify-item { padding: 20px; }
+        .version-log { padding: 22px; }
+        .version-entry { padding: 14px 16px; margin-bottom: 12px; }
+        .footer { padding: 30px 38px; }
+
+        .sec-topbar { position: sticky; top: 0; z-index: 100; width: 100%; display: flex; align-items: center; gap: 1rem; padding: 0 28px; height: 52px; background: rgba(2, 12, 27, .92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-accent); }
+        .sec-brand { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
+        .sec-brand span:first-of-type { color: var(--accent-primary); }
+        .sec-brand .sec-brand-sub { color: var(--text-secondary); font-family: var(--font-primary); font-weight: 400; font-size: .82rem; }
+        .sec-nav { margin-left: auto; display: flex; align-items: center; gap: .1rem; font-size: .8rem; white-space: nowrap; overflow-x: auto; }
+        .sec-nav::-webkit-scrollbar { height: 0; }
+        .sec-nav a { color: #aeb6c2; text-decoration: none; padding: .3rem .5rem; border-radius: 6px; transition: color .15s, background .15s; }
+        .sec-nav a:hover { color: #fff; background: rgba(255, 255, 255, .06); }
+        .sec-nav a.sn-white { color: #fff; font-weight: 700; }
+        .sec-nav a.sn-active { color: var(--accent-primary); font-weight: 700; }
+        .sec-nav .sn-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, .14); margin: 0 .4rem; flex: 0 0 auto; }
+        .sec-nav .sn-series-label { font-family: 'Courier New', monospace; font-weight: 700; font-size: .7rem; letter-spacing: 1px; color: #ff2e4d; padding: 0 .2rem; }
+        .sec-nav a.sn-mon { color: #FFD54A; font-weight: 700; }
+        .sec-nav a.sn-wed { color: #C9852B; font-weight: 700; }
+        .sec-nav a.sn-fri { color: #9B2335; font-weight: 700; }
+        .sec-hero { padding: 38px 40px 28px; border-bottom: 1px solid var(--border-color); background: linear-gradient(135deg, rgba(0, 217, 255, .06), rgba(0, 255, 153, .03)); }
+        .sec-hero h1 { font-family: var(--font-heading); font-size: 2.1em; font-weight: 900; color: var(--text-primary); letter-spacing: -.5px; }
+        .sec-hero-sub { color: var(--text-secondary); font-size: 1em; margin-top: 8px; }
+        @media (max-width: 768px) {
+            .sec-brand .sec-brand-sub { display: none; }
+            .sec-hero { padding: 24px 20px 18px; }
+            .sec-hero h1 { font-size: 1.55em; }
+            .content { padding: 26px 18px; }
+            .sec-topbar { padding: 0 16px; }
+        }
     </style>
 </head>
 <body>
-    <!-- Back to main site button -->
-    <a href="index_en.html" class="back-button">Back to PC_Workman</a>
+    <!-- Blog-style header: brand left, navigation right -->
+    <header class="sec-topbar">
+        <a class="sec-brand" href="index_en.html">PC<span>_</span>Workman<span class="sec-brand-sub"> / security &amp; user safety</span></a>
+        <nav class="sec-nav" aria-label="Primary navigation">
+            <a href="index_en.html">Home</a>
+            <a href="blog/">Blog</a>
+            <a class="sn-active" href="SECURITY_report.html">Security</a>
+            <a class="sn-white" href="download/">Download</a>
+            <a href="guides/">Articles / Guides</a>
+            <span class="sn-sep"></span>
+            <span class="sn-series-label">SERIES:</span>
+            <a class="sn-mon" href="blog/monday-grind-blueprint/">// Mon</a>
+            <a class="sn-wed" href="blog/wednesday-code-autopsy/">// Wed</a>
+            <a class="sn-fri" href="blog/friday-shipped-scarred/">// Fri</a>
+        </nav>
+    </header>
 
     <div class="container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="header-content">
-                <h1>PC_WORKMAN</h1>
-                <p class="header-subtitle">User Safe & Security</p>
-                <div class="header-accent">
-                    Verified Safe | Open Source | Digitally Signed
-                </div>
-            </div>
+        <!-- COMPACT HERO -->
+        <div class="sec-hero">
+            <h1>Security &amp; User Safety</h1>
+            <p class="sec-hero-sub">Verified safe &middot; Open source &middot; Digitally signed &middot; Sigstore &middot; VirusTotal &middot; CodeQL</p>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -812,7 +867,7 @@ PC_Workman_HCK</code>
                         </div>
                         <h3>Social Channels</h3>
                         <p>Follow development on LinkedIn, Twitter, Reddit. Direct from creator - Marcin only.</p>
-                        <a href="#" style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">Follow</a>
+                        <a href="https://linktr.ee/marcin_firmuga" target="_blank" rel="noopener" style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">Follow</a>
                     </div>
                 </div>
             </section>
@@ -880,8 +935,8 @@ PC_Workman_HCK</code>
         <div class="footer">
             <p><strong>PC_Workman v1.6.4</strong> - Security Report & Verification</p>
             <p style="margin-top: 15px;">
-                Built by Marcin Firmuga | 
-                <a href="https://hcklabs.com">HCK_Labs</a> | 
+                Built by Marcin Firmuga |
+                <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener">HCK_Labs</a> |
                 <a href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHub</a>
             </p>
             
