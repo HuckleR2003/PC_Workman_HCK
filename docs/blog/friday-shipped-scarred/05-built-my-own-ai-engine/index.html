@@ -1,0 +1,145 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="The plan was to wire Claude into the chatbot. Instead I built a local hybrid AI engine from scratch - because not every user has an API key or wants cloud AI.">
+    <meta name="keywords" content="Friday Shipped and Scarred, hybrid AI engine, offline AI, Ollama, RAM flush, PC Workman, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/">
+    <meta property="og:title" content="Friday Shipped & Scarred #5: I Was Going to Plug in Claude. I Built My Own Engine.">
+    <meta property="og:description" content="The plan was to wire Claude into the chatbot. Instead I built a local hybrid AI engine from scratch - because not every user has an API key or wants cloud AI.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-04-24">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #5: I Was Going to Plug in Claude. I Built My Own Engine. | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #5: I Was Going to Plug in Claude. I Built My Own Engine.",
+  "description": "The plan was to wire Claude into the chatbot. Instead I built a local hybrid AI engine from scratch - because not every user has an API key or wants cloud AI.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/",
+  "datePublished": "2026-04-24",
+  "dateModified": "2026-04-24",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#5", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #5</span>
+        <h1>I Was Going to Plug in Claude. I Built My Own Engine.</h1>
+        <p class="tagline">Not everyone wants cloud AI. The app needs to be smart on its own first.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-24</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #5</span>
+        </div>
+
+        <p class="lead">I was supposed to plug the Claude API into my chatbot. Instead I built my own AI engine from scratch.</p>
+
+<p>Monday's plan had four tasks &mdash; simple, realistic. Here's what actually happened across six retail shifts and one Wednesday off.</p>
+
+<h2>Planned &rarr; shipped</h2>
+<ul>
+<li><span class="hl-green">Dashboard buttons redesigned</span> &mdash; dark, bordeaux, 7 vector icons drawn on Canvas. The main screen finally stopped looking like a prototype.</li>
+<li><span class="hl-green">Auto RAM flush at &gt;75%</span> &mdash; the first TURBO feature that actually intervenes: detects sustained pressure, flushes.</li>
+<li><span class="hl-green">GuideAI Google OAuth fixed</span> &mdash; login works again. Sounds small, but nothing else can happen until users can sign in.</li>
+<li><span class="hl-red">GuideAI Claude API &mdash; not yet.</span> Still researching how to secure the API key in a public project. I'm not shipping something half-baked that leaks credentials.</li>
+</ul>
+
+<h2>Unplanned &mdash; and shipped anyway</h2>
+<p>A new <span class="hl">hybrid AI engine for hck_GPT</span>. Not an LLM &mdash; a rule-based command parser that actually tries to understand what the user is asking. More commands, better intent detection, built to be the default AI core. Ollama integration comes around v1.8&ndash;1.9 for anyone who wants a real local LLM (heavy in the background, so it'll be opt-in &mdash; PC Workman itself stays under 1% CPU).</p>
+
+<p>Why build this instead of just plugging in Claude? Because not every user has an API key, and not everyone wants cloud AI. <span class="hl">The app needs to be smart on its own first. External AI is the upgrade, not the foundation.</span></p>
+
+<p>The hck_GPT chat banner also got completely rebuilt in the dark bordeaux style. I don't know how long it looked that rough &mdash; months, probably. Nobody told me. I didn't notice until this week.</p>
+
+<div class="callout warn">
+<b>Scarred:</b> 4:30 AM bike rides to Żabka, 9-hour shifts at 21 zł/h, home, code, sleep, repeat. Wednesday was the only real dev day and I burned every hour of it. The Claude API delay stings &mdash; but security isn't optional and I'm not cutting corners on it.
+</div>
+
+<p>Three of four planned tasks shipped, plus an entire AI engine nobody asked for. <span class="hl">Sometimes the best features are the ones you didn't plan.</span> v1.7.2 .exe releases this weekend.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">AI</span><span class="tag">Python</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../04-built-a-whole-menu-instead/"><span class="pn-dir">&larr; #4</span><span class="pn-title">I Planned 3 Issues. I Built a Whole Menu.</span></a><a class="pn-next" href="../06-startup-services-managers-shipped/"><span class="pn-dir">#6 &rarr;</span><span class="pn-title">30,000 Views, Five Features, One Project I Keep Avoiding</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
