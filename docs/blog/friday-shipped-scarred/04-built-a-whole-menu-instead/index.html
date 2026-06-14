@@ -1,0 +1,141 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="18 commits, two new modules and one production-ready First Setup & Drivers page - over-delivery between full retail shifts, and the three lessons that came with it.">
+    <meta name="keywords" content="Friday Shipped and Scarred, First Setup Drivers, scope creep, AnimatedBar, hardware detector, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/">
+    <meta property="og:title" content="Friday Shipped & Scarred #4: I Planned 3 Issues. I Built a Whole Menu.">
+    <meta property="og:description" content="18 commits, two new modules and one production-ready First Setup & Drivers page - over-delivery between full retail shifts, and the three lessons that came with it.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-04-17">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #4: I Planned 3 Issues. I Built a Whole Menu. | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #4: I Planned 3 Issues. I Built a Whole Menu.",
+  "description": "18 commits, two new modules and one production-ready First Setup & Drivers page - over-delivery between full retail shifts, and the three lessons that came with it.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/",
+  "datePublished": "2026-04-17",
+  "dateModified": "2026-04-17",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#4", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <header class="topbar">
+        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <nav>
+            <a href="../">Friday Shipped & Scarred</a>
+            <a href="../../">All series</a>
+            <a href="../../../download/">Download</a>
+            <a href="../../../guides/">Guides</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #4</span>
+        <h1>I Planned 3 Issues. I Built a Whole Menu.</h1>
+        <p class="tagline">Over-delivery feels good until Monday. You can't plan flow state - only be awake when it arrives.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-04-17</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #4</span>
+        </div>
+
+        <p class="lead">I planned to close 3 issues this week. I built an entire new menu instead &mdash; 18 commits, around full retail shifts.</p>
+
+<h2>What shipped</h2>
+<ul>
+<li><span class="hl-green">First Setup &amp; Drivers</span> &mdash; a complete new menu: arc-gauge system health score (pure Tkinter Canvas, zero libraries), driver health tracking (GPU, audio, network, USB), age &amp; status monitoring, and Quick Actions (Windows Update, Device Manager, re-scan&hellip;)</li>
+<li><span class="hl-green">Optimization &amp; Services foundation</span> &mdash; a new <code>optimization_services.py</code> module, TURBO BOOST infrastructure live: power-plan switching, DNS flush, TEMP clearing, priority boost</li>
+<li><span class="hl-green">Hardware detector</span> &mdash; new <code>core/hardware_detector.py</code> with async WMI scanning for CPU/GPU/RAM/storage/motherboard</li>
+<li>UI &amp; code polish everywhere &mdash; AnimatedBar across the app, process tooltips on all TOP 5 panels, hck_GPT time badges, export to JSON</li>
+</ul>
+
+<p>Total: <span class="hl">18 commits, 2 new modules, 1 production-ready menu.</span> The reality behind it: nine-hour shifts through the week, then Thursday I woke up with code in my head and didn't stop until the menu worked.</p>
+
+<h2>Scarred &mdash; three lessons</h2>
+<ul>
+<li><strong>Over-delivery feels good until Monday.</strong> 18 commits while working retail isn't discipline &mdash; it's <span class="hl-red">desperation to build when energy shows up</span>. You can't plan flow state; you can only be awake when it arrives.</li>
+<li><strong>Scope creep is a feature.</strong> "Add driver health" became "build the entire Setup &amp; Drivers page." The problem: "done" keeps expanding.</li>
+<li><strong>Foundation work compounds.</strong> Last week's AnimatedBar is used everywhere now; the process_library tooltips slot into every panel. Clean code lets you move fast; messy code makes you stop.</li>
+</ul>
+
+<p>Next: the roadmap to 1.7.8 is solid. First Setup &amp; Drivers is production-ready, four TURBO functions work with more coming, and Microsoft Store prep is still on track.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">opentowork</span><span class="tag">OpenSource</span><span class="tag">python</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../03-three-issues-four-hours-sleep/"><span class="pn-dir">&larr; #3</span><span class="pn-title">Three Issues Closed on Four Hours of Sleep</span></a><a class="pn-next" href="../05-built-my-own-ai-engine/"><span class="pn-dir">#5 &rarr;</span><span class="pn-title">I Was Going to Plug in Claude. I Built My Own Engine.</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
