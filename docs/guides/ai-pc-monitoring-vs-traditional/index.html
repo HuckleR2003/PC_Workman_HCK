@@ -1,0 +1,209 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology article (EN) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Traditional monitors show numbers and rigid thresholds. AI learns the norm of your specific unit — temperatures, voltages (median/MAD, SPC), undervolt. Local, offline. Afterburner, HWiNFO, CCleaner vs a model that understands your hardware.">
+    <meta name="keywords" content="AI system monitor, MSI Afterburner alternative, HWiNFO, CCleaner, undervolt silicon lottery, PSU voltage monitoring, PC optimization, predictive maintenance, thermal baseline, statistical process control">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <meta property="og:title" content="Stop optimizing the average PC. You don't have one.">
+    <meta property="og:description" content="A threshold is dumb by definition. Why traditional monitors (Afterburner, HWiNFO, CCleaner) stopped being enough — and what an AI that learns your specific hardware actually does.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-15">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>AI PC Monitoring vs MSI Afterburner, HWiNFO &amp; CCleaner — Why Thresholds Aren't Enough | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Stop optimizing the average PC. You don't have one.",
+      "description": "Why traditional system monitors (MSI Afterburner, HWiNFO, CCleaner) stopped being enough, and what a monitor with a local AI that learns the norm of your specific hardware unit actually does.",
+      "url": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/",
+      "datePublished": "2026-06-15",
+      "dateModified": "2026-06-15",
+      "inLanguage": "en",
+      "keywords": "AI system monitor, MSI Afterburner, HWiNFO, CCleaner, undervolt, silicon lottery, voltage monitoring, statistical process control, thermal baseline",
+      "wordCount": 1600,
+      "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Stop optimizing the average PC", "item": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <nav>
+            <a href="../">All guides</a>
+            <a href="../../download/">Download</a>
+            <a href="../../blog/">Blog</a>
+            <a href="index_pl.html">PL</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; PRO</span>
+        <h1>Stop optimizing the average PC.<br>You don't have one.</h1>
+        <p class="tagline">Your monitor shows you numbers. It's about time it understood the hardware it runs on.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-15</span><span>&middot;</span><span>8 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>Open any popular system monitor and it does one thing: it draws 78&deg;C on a graph. Red once the temperature crosses 80. That's it. It has no idea whether that 78&deg;C is your idle on a sweltering July afternoon, or gaming on a cooler that's been collecting dust for six months. To it, 78 is just 78.</p>
+
+        <p><span class="hl-cyan">A threshold is dumb by definition.</span> And that's not an insult — it's its nature. The rule "if temp &gt; X, alarm" has no idea what it's running on. It doesn't remember yesterday. It doesn't know that your RTX always holds 71&deg;C in this game, and today it's suddenly hitting 77 under the same load in the same room. A threshold only sees a number against a constant someone hardcoded for every machine in the world at once.</p>
+
+        <p class="lead">And now the most important sentence in this piece: your machine isn't in any table.</p>
+
+        <h2>How these tools actually work</h2>
+        <p>Before someone says "but I've got Afterburner and it's great" — sure, it is. Let's just look at what it actually does under the hood. And what the rest do, because each one is brilliant at one thing and blind to another.</p>
+
+        <table>
+            <thead>
+                <tr><th>Tool</th><th>What it actually does</th><th>The fundamental limit</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>MSI Afterburner / RivaTuner</td><td>Hand-drawn fan curve (a lookup table), static clock/voltage offset</td><td>Zero learning. The curve is a table. "Set and forget" OC — knows nothing about silicon aging or ambient</td></tr>
+                <tr><td>Fan Control (rem0o) / Argus Monitor</td><td>Highly configurable, but still rules + mixes + triggers that you define</td><td>You are the intelligence. The program just executes</td></tr>
+                <tr><td>HWiNFO / HWMonitor</td><td>The gold standard for raw sensor data</td><td>Zero recommendations, zero memory — pure readout</td></tr>
+                <tr><td>CCleaner</td><td>Deletes temp files + "registry cleaning"</td><td>Registry cleaning is a 2026 myth (Microsoft itself discourages it; performance gain &asymp; 0). One-size-fits-all heuristics</td></tr>
+                <tr><td>GeForce Experience / "Optimal Settings", Armoury Crate, iCUE</td><td>Cloud database of GPU+game &rarr; preset by hardware tier</td><td>A profile for "an RTX 4070", not for your unit or your temperatures. Phone-home</td></tr>
+                <tr><td>Razer Cortex / "boosters"</td><td>Kill processes from a static list</td><td>"Boost" is mostly marketing; doesn't know what you actually use</td></tr>
+            </tbody>
+        </table>
+
+        <p>Notice the pattern. The first column is just different ways of doing the same thing: show data, or execute a rule someone decided up front. <span class="hl-cyan">None of these tools builds a model of your computer.</span> At best, you are the intelligence — sitting there setting curves by hand. At worst (hi, GeForce Experience) the intelligence is a cloud that knows you have "an RTX 4070" and has no clue your unit runs 6 degrees hotter than your neighbour's with the same SKU.</p>
+
+        <h2>Four reasons "generic" is weak</h2>
+
+        <h3>1. The silicon lottery</h3>
+        <p>Two identical RTX 4070s off the same production line aren't identical. Different voltage-frequency curves, different leakage, different undervolt headroom. The gap can reach <span class="hl-cyan">&plusmn;50–100 mV</span>. Which means the forum wisdom "for a 4070 just give it &minus;100 mV, runs great on mine" will crash half of those units to a black screen, because half of them don't have that headroom. A generic profile physically cannot know your silicon. It saw an averaged card you don't own.</p>
+
+        <h3>2. Aging and drift</h3>
+        <p>Thermal paste pumps out — over one, two, three years it creeps out from under the hotspot and temperatures climb a few degrees. Fan bearings wear. PSU capacitors age and lose capacitance. A static profile never adapts to any of this, because it was written once and that's it. Your "stable" OC from a year ago is throwing quiet soft errors today that you wouldn't even connect to the silicon having some miles on it.</p>
+
+        <h3>3. Ambient and context</h3>
+        <p>The same load at 18&deg;C in winter and 28&deg;C in August is two different core temperatures. The rule "if temp &gt; X" is blind as a bat to that. It doesn't know your room, doesn't know the season, doesn't know you opened a window. It sees a number and compares it to a constant.</p>
+
+        <h3>4. Workload composition</h3>
+        <p>"Game + Discord + browser + OBS" is a completely different thermal profile than the game alone. A Blender render (sustained 100% for an hour) behaves differently than a game (spikes, bursts) and differently than a miner (pegged at full, non-stop). Generic thresholds treat load as if it existed in isolation. In real life it never does.</p>
+
+        <h2>Voltages. This is where it all clicks into one.</h2>
+        <p>If you remember one example from this piece — remember this one.</p>
+        <p>The ATX spec for the 12V rail allows &plusmn;5%. So anything from 11.4 V to 12.6 V is formally "within range". Every classic monitor will only alarm you once the voltage leaves that band.</p>
+        <p>But a healthy PSU doesn't drift across that whole band. A healthy PSU holds your rail far, far tighter — somewhere around <span class="hl-green">11.95–12.05 V</span>. That's a real &plusmn;0.4%, not &plusmn;5%.</p>
+        <p>And now: your PSU starts to age. Under load the rail drops to <span class="hl-red">11.7 V</span>. Still "in spec"! The threshold says: fine, relax, you're within range. But those are tired capacitors making themselves known — months, sometimes half a year, before the system starts falling over under heavier load.</p>
+        <p>This is where statistics computed on your history come in, not on a spec sheet. PC Workman keeps the median and MAD (median absolute deviation) of your own samples and computes a modified Z-score à la Iglewicz-Hoaglin:</p>
+        <pre><code>M = 0.6745 &times; (x &minus; median) / MAD
+|M| &gt; 3.5  &rarr; anomaly
+|M| &gt; 2.5  &rarr; warning</code></pre>
+        <p>A drop to 11.7 V, invisible to the ATX threshold, runs well past 3.5 against your own 11.95–12.05 V norm. <span class="hl-red">Anomaly.</span> An early warning no threshold on Earth will catch, because a threshold looks at the manufacturer's spec, not at how this specific PSU has behaved over the last few weeks.</p>
+        <p>Why the median and not the mean? <span class="hl-cyan">Because the average is a coward.</span> One voltage spike drags the mean up, widens the band, and the next spike sails through without an alarm — the tool anesthetizes itself. The median doesn't budge after a single outlier. MAD inherits that robustness. On top of that come four Nelson rules (a single spike, a 2-of-3 cluster, nine points on one side, a six-point monotonic trend) — that's classic Statistical Process Control, the same one factories have used to police production lines for decades. I'm not reinventing the wheel. I moved proven process control onto your PC's power rail.</p>
+        <div class="callout">
+            <b>This is the whole thesis in one picture:</b> an absolute threshold from a spec sheet versus statistical control against <span class="hl-cyan">your own history</span>.
+        </div>
+
+        <h2>Hold on — "AI", meaning what exactly?</h2>
+        <p>I have to say this plainly, or the whole piece goes in the bin along with the marketing waffle: "AI" here does not mean a chatbot bolted onto an old tool.</p>
+        <p>There's no bolted-on GPT that "intelligently analyses your hardware" and in practice makes things up. Underneath sits real statistics: Welford's algorithm for computing mean and variance online (a single pass, without keeping the whole history in RAM), median and MAD for voltages, Nelson rules, process control. These are methods from the '60s and '90s, boring and predictable, and that's exactly why I trust them. <span class="hl-cyan">Statistics don't hallucinate.</span></p>
+        <p>When someone says "AI in a monitor", 95% of the time it means "we wired in an API and now it's pricier". Here it's the opposite — the model learns locally, on your data, with no account and without sending anything anywhere.</p>
+
+        <h2>What a model like that does on your machine</h2>
+        <p><b>It learns the norm per unit.</b> Not "for an RTX 4070" — for <i>your</i> RTX 4070, in your room, on your PSU. Your idle, your gaming, your real rail variance. Not the spec — observation.</p>
+        <p><b>The baseline is conditional, not absolute.</b> "CPU 78&deg;C" means something completely different at idle than in a game. So every snapshot lands in one of five load buckets — idle, light, medium, heavy, gaming — and each bucket has its own learned norm. An 80&deg;C threshold for everything is lazy. 72&deg;C while gaming on a mid-tower is fine. The same 72&deg;C at idle on a thin laptop is a sign something's off.</p>
+        <p><b>Detection is temporal.</b> "This fan spins 200 rpm faster than it did under identical load three months ago" — that's not information any threshold can give you. It's a trend. And a trend that says: dust or paste, deal with it before it gets hot.</p>
+        <p><b>All local, all offline.</b> Your "hardware fingerprint" — exactly how your specific machine behaves — never leaves your machine. Zero telemetry, zero phone-home, zero latency. The opposite of cloud "optimal settings" that phone home on the side.</p>
+
+        <h2>Where it actually beats a threshold</h2>
+        <p><b>Predictive maintenance</b> (this is the killer feature). Voltage drift caught by MAD and Nelson rules = tired capacitors. A systematic temperature climb of +3–5&deg;C over a few weeks = paste due for a change, caught before the CPU starts throttling. A falling RPM-to-temperature efficiency = dust in the heatsink. <span class="hl-green">Catching problems before they become problems.</span> A threshold can't do this by definition — it waits until things are already bad.</p>
+        <p><b>Root-cause for throttling</b> instead of "CPU hot". A generic tool says: 95&deg;C, a lot. The model says: 95&deg;C, but only on the game+render combo, and that's +6&deg;C above your thirty-day norm for this specific load — so most likely dust or paste, here's the trend chart, see for yourself. The second answer has a cause in it. The first is just a number with an exclamation mark.</p>
+        <p><b>The background processes you actually use.</b> CCleaner kills a list. Razer Cortex kills a list. Both lists are static and don't know what you do. The model learns what you actually use, suspends only the genuinely idle processes, and knows that an svchost spike at Windows Update time is normal for you, not "suspicious activity".</p>
+        <p><b>An anomaly is also security.</b> A process pretending to be <code>svchost.exe</code> but launched from <code>%TEMP%</code>. An unusual CPU pattern that looks like a quiet miner. Pattern-against-your-norm catches things a signature list doesn't know, because you don't need to know the threat's name — you just need to know this machine has never behaved like this before.</p>
+
+        <h2>The analogy that ties it together</h2>
+        <p>Whoop and Garmin don't tell you "your resting heart rate is 60, the norm is 60–100, you're OK". They learn your resting heart rate and HRV, and alarm when you drift from your own baseline — even if you're still inside the "population norm". That's why they can catch that something's up a day before you feel it yourself.</p>
+        <p><span class="hl-cyan">PC Workman is exactly that, just for a computer.</span> "78&deg;C" without your baseline is like a heart rate of 100 without knowing whether you're looking at a marathon runner after a workout, or someone who just walked up to the second floor and got winded. Same number, two completely different worlds. The whole difference is context — and a threshold has none.</p>
+
+        <h2>Honestly: where it has limits</h2>
+        <p>I won't sell you this as magic, because it isn't, and a piece that pretends its product has no flaws disqualifies itself.</p>
+        <p><b>The model has a cold start.</b> Fresh after install it doesn't know your norm yet — it has to gather data over weeks, realistically 6–12 months, to get through summer and winter, gaming and idle, different loads. During that time it's closer to a regular monitor than a smart one. That's the price for it later talking about your hardware, not an averaged one.</p>
+        <p><b>The model needs good sensors</b>, and Windows can really kick you here. <code>psutil.sensors_temperatures()</code> on Windows simply returns an empty field — no temperatures, the end, thanks for playing. Hence the dependency on LibreHardwareMonitor and WMI just to have something to learn from. I know this not from the docs but because I tripped over it myself and lost an evening before I understood why the voltage chart was empty.</p>
+        <p><b>And the model must not bark for no reason.</b> One false alarm now and then and you stop trusting the tool — you turn off notifications and that's that. That's why 12V spikes during GPU load changes are deliberately suppressed (they're physically expected, not a fault), and a pattern that repeats five times stops being treated as an anomaly and simply becomes your hardware's new norm. <span class="hl-cyan">Anomaly decay.</span> A tool that learns also has to be able to retract its own alarm.</p>
+        <p>And one more thing, to be clear: this is not anti-HWiNFO or anti-Afterburner. Raw sensor data is still the foundation everything stands on. What changes isn't that you read data — what changes is what happens to that data next.</p>
+
+        <p class="lead">Your computer has a history. A specific, physical, personal one — this one piece of silicon, in this one room, on this one PSU. It's about time a program remembered it, instead of comparing you to an average you never owned.</p>
+        <p>We stopped needing a tool that shows. We need one that understands — and does the work for us. Locally. Quietly.</p>
+
+        <div class="guide-cta">
+            <b>This isn't a roadmap — it's working code.</b> The Thermal Baseline Learning and Voltage SPC described above ship in <span class="hl-green">PC Workman v1.7.9</span> — free and open-source. You can check every line.
+            <a href="../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+            Related: <a href="../normal-cpu-temperature/">what's a normal CPU temperature</a> &middot; <a href="../../blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/">how thermal baseline works</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>I write about what I actually shipped — with real numbers and real code. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
