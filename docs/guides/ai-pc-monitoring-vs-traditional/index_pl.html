@@ -1,0 +1,209 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology article (PL) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Tradycyjne monitory pokazują liczby i sztywne progi. AI uczy się normy Twojego egzemplarza — temperatury, napięcia (mediana/MAD, SPC), undervolt. Lokalnie, offline. Afterburner, HWiNFO, CCleaner kontra model, który rozumie Twój sprzęt.">
+    <meta name="keywords" content="monitor systemu AI, MSI Afterburner alternatywa, HWiNFO, CCleaner, undervolt loteria krzemowa, kontrola napięć zasilacza, optymalizacja PC, predykcyjna konserwacja, thermal baseline, statistical process control">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/">
+    <meta property="og:title" content="Przestań optymalizować przeciętny komputer. Nie masz przeciętnego.">
+    <meta property="og:description" content="Próg jest głupi z definicji. Dlaczego tradycyjne monitory (Afterburner, HWiNFO, CCleaner) przestały wystarczać — i co robi AI, które uczy się Twojego konkretnego sprzętu.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="article:published_time" content="2026-06-15">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monitoring PC z AI kontra MSI Afterburner, HWiNFO i CCleaner — dlaczego progi nie wystarczają | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Przestań optymalizować przeciętny komputer. Nie masz przeciętnego.",
+      "description": "Dlaczego tradycyjne monitory systemu (MSI Afterburner, HWiNFO, CCleaner) przestały wystarczać, i co robi monitor z lokalnym AI, które uczy się normy Twojego konkretnego egzemplarza sprzętu.",
+      "url": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html",
+      "datePublished": "2026-06-15",
+      "dateModified": "2026-06-15",
+      "inLanguage": "pl",
+      "keywords": "monitor systemu AI, MSI Afterburner, HWiNFO, CCleaner, undervolt, loteria krzemowa, kontrola napięć, statistical process control, thermal baseline",
+      "wordCount": 1600,
+      "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Przestań optymalizować przeciętny komputer", "item": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <nav>
+            <a href="../index_pl.html">Wszystkie poradniki</a>
+            <a href="../../download/index_pl.html">Pobierz</a>
+            <a href="../../blog/index_pl.html">Blog</a>
+            <a href="./">EN</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; PRO</span>
+        <h1>Przestań optymalizować przeciętny komputer.<br>Nie masz przeciętnego.</h1>
+        <p class="tagline">Twój monitor pokazuje liczby. Już najwyższy czas, żeby rozumiał sprzęt, na którym chodzi.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-06-15</span><span>&middot;</span><span>8 min czytania</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>Otwierasz dowolny popularny monitor systemu i on robi jedno: rysuje 78&deg;C na wykresie. Czerwone, jak temperatura przekroczy 80. To wszystko. Nie wie, czy te 78&deg;C to twój idle w upalny lipiec, czy gaming na chłodzeniu, które od pół roku zbiera kurz. Dla niego 78 to po prostu 78.</p>
+
+        <p><span class="hl-cyan">Próg jest głupi z definicji.</span> I to nie zarzut — taka jest jego natura. Reguła „jeśli temp &gt; X, alarmuj" nie ma pojęcia, na czym działa. Nie pamięta wczoraj. Nie wie, że twój RTX w tej grze zawsze trzyma 71&deg;C, a dziś nagle robi 77 przy tym samym obciążeniu i tym samym pokoju. Próg widzi tylko liczbę względem stałej, którą ktoś wpisał na sztywno dla wszystkich maszyn świata naraz.</p>
+
+        <p class="lead">A teraz najważniejsze zdanie tego tekstu: twojej maszyny nie ma w żadnej tabeli.</p>
+
+        <h2>Jak te narzędzia naprawdę działają</h2>
+        <p>Zanim ktoś rzuci „przecież mam Afterburnera i jest super" — jasne, jest. Tylko zobaczmy, co on faktycznie robi pod maską. I co robią pozostałe, bo każde z nich jest świetne w jednej rzeczy i ślepe w drugiej.</p>
+
+        <table>
+            <thead>
+                <tr><th>Narzędzie</th><th>Co robi naprawdę</th><th>Fundamentalne ograniczenie</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>MSI Afterburner / RivaTuner</td><td>Ręcznie rysowana krzywa wentylatora (lookup table), sztywny offset zegara/napięcia</td><td>Zero uczenia. Krzywa to tabela. OC „ustaw i zapomnij" — nie wie o starzeniu krzemu ani ambiencie</td></tr>
+                <tr><td>Fan Control (rem0o) / Argus Monitor</td><td>Bardzo konfigurowalne, ale wciąż reguły + miksy + triggery, które Ty definiujesz</td><td>To Ty jesteś inteligencją. Program tylko wykonuje</td></tr>
+                <tr><td>HWiNFO / HWMonitor</td><td>Złoty standard surowych danych z czujników</td><td>Zero rekomendacji i pamięci — czysty odczyt</td></tr>
+                <tr><td>CCleaner</td><td>Kasowanie temp + „czyszczenie rejestru"</td><td>Rejestr-cleaning to w 2026 mit (sam Microsoft odradza; zysk wydajności &asymp; 0). Heurystyki one-size-fits-all</td></tr>
+                <tr><td>GeForce Experience / „Optimal Settings", Armoury Crate, iCUE</td><td>Chmurowa baza GPU+gra &rarr; preset wg kategorii sprzętu</td><td>Profil dla „RTX 4070", nie dla twojego egzemplarza ani twoich temperatur. Phone-home</td></tr>
+                <tr><td>Razer Cortex / „boostery"</td><td>Ubijają procesy ze statycznej listy</td><td>„Boost" to głównie marketing; nie wie, czego realnie używasz</td></tr>
+            </tbody>
+        </table>
+
+        <p>Zauważ wzór. Pierwsza kolumna to różne sposoby na to samo: pokazać dane albo wykonać regułę, którą ktoś z góry ustalił. <span class="hl-cyan">Żadne z tych narzędzi nie buduje modelu twojego komputera.</span> W najlepszym razie inteligencją jesteś ty — siedzisz i ustawiasz krzywe ręcznie. W najgorszym (cześć, GeForce Experience) inteligencją jest chmura, która wie, że masz „RTX 4070", i kompletnie nie wie, że twój egzemplarz grzeje się o 6 stopni wyżej od sąsiada z tym samym SKU.</p>
+
+        <h2>Cztery powody, dla których „ogólne" jest słabe</h2>
+
+        <h3>1. Loteria krzemowa</h3>
+        <p>Dwa identyczne RTX 4070 z tej samej taśmy produkcyjnej nie są identyczne. Mają różne krzywe napięcie-zegar, różny leakage, różny zapas na undervolt. Różnica potrafi sięgać <span class="hl-cyan">&plusmn;50–100 mV</span>. To znaczy, że forumowe „dla 4070 dawaj &minus;100 mV, u mnie śmiga" wykrzaczy połowę egzemplarzy w czarny ekran, bo połowa egzemplarzy nie ma takiego zapasu. Profil ogólny fizycznie nie może znać twojego krzemu. On widział uśrednioną kartę, której nie posiadasz.</p>
+
+        <h3>2. Starzenie i dryf</h3>
+        <p>Pasta termoprzewodząca robi pump-out — przez rok, dwa, trzy wyłazi spod hotspotu i temperatury rosną o kilka stopni. Łożyska wentylatorów się zużywają. Kondensatory w zasilaczu starzeją się i tracą pojemność. Sztywny profil nigdy się do tego nie adaptuje, bo został wpisany raz i tyle. Twój „stabilny" OC sprzed roku dziś rzuca ciche soft-errory, których nawet nie kojarzysz z tym, że krzem ma już swoje przejścia.</p>
+
+        <h3>3. Ambient i kontekst</h3>
+        <p>Ten sam load przy 18&deg;C w zimie i przy 28&deg;C w sierpniu to dwie różne temperatury rdzenia. Reguła „jeśli temp &gt; X" jest na to ślepa jak kret. Nie zna twojego pokoju, nie zna pory roku, nie zna tego, że otworzyłeś okno. Widzi liczbę i porównuje ze stałą.</p>
+
+        <h3>4. Kompozycja obciążenia</h3>
+        <p>„Gra + Discord + przeglądarka + OBS" to zupełnie inny profil termiczny niż sama gra. Render w Blenderze (sustained 100% przez godzinę) zachowuje się inaczej niż gra (skoki, bursty) i inaczej niż koparka (pegged na full bez przerwy). Ogólne progi traktują obciążenie tak, jakby istniało w izolacji. W realnym życiu nigdy nie istnieje.</p>
+
+        <h2>Napięcia. Tu się to wszystko spina w jedno.</h2>
+        <p>Jeśli masz zapamiętać z tego tekstu jeden przykład — zapamiętaj ten.</p>
+        <p>Specyfikacja ATX dla szyny 12V dopuszcza &plusmn;5%. Czyli wszystko od 11.4 V do 12.6 V jest formalnie „w normie". Każdy klasyczny monitor zaalarmuje cię dopiero, jak napięcie wyjdzie poza ten zakres.</p>
+        <p>Tylko że zdrowy zasilacz nie pływa po całym tym paśmie. Zdrowy zasilacz trzyma twoją szynę dużo, dużo ciaśniej — w okolicy <span class="hl-green">11.95–12.05 V</span>. To jest realne &plusmn;0.4%, nie &plusmn;5%.</p>
+        <p>I teraz: twój zasilacz zaczyna się starzeć. Pod obciążeniem szyna spada do <span class="hl-red">11.7 V</span>. Wciąż „w spec"! Próg mówi: OK, spokojnie, mieścisz się. A to już są zmęczone kondensatory dające o sobie znać — miesiące, czasem pół roku przed tym, zanim system zacznie się sypać pod większym obciążeniem.</p>
+        <p>Tu wchodzi statystyka liczona na twojej historii, nie na arkuszu specyfikacji. PC Workman trzyma medianę i MAD (medianowe odchylenie bezwzględne) z twoich własnych próbek i liczy zmodyfikowany Z-score wg Iglewicza-Hoaglina:</p>
+        <pre><code>M = 0.6745 &times; (x &minus; mediana) / MAD
+|M| &gt; 3.5  &rarr; anomalia
+|M| &gt; 2.5  &rarr; ostrzeżenie</code></pre>
+        <p>Spadek do 11.7 V, który dla progu ATX jest niewidzialny, względem twojej własnej normy 11.95–12.05 V leci grubo ponad 3.5. <span class="hl-red">Anomalia.</span> Wczesne ostrzeżenie, którego żaden próg na świecie nie złapie, bo próg patrzy na specyfikację producenta, a nie na to, jak ten konkretny zasilacz zachowywał się przez ostatnie tygodnie.</p>
+        <p>Dlaczego mediana, a nie średnia? <span class="hl-cyan">Bo średnia jest tchórzem.</span> Jeden skok napięcia podciąga średnią w górę, poszerza pasmo i następny skok przechodzi już bez alarmu — narzędzie samo siebie znieczula. Mediana się nie rusza po jednym wyskoku. MAD dziedziczy tę odporność. Do tego dochodzą cztery reguły Nelsona (pojedynczy skok, klaster 2-z-3, dziewięć punktów po jednej stronie, sześciopunktowy trend monotoniczny) — to klasyczna Statistical Process Control, ta sama, którą fabryki od dekad pilnują linii produkcyjnych. Nie wymyślam koła. Przeniosłem sprawdzoną kontrolę procesu na szynę zasilania twojego peceta.</p>
+        <div class="callout">
+            <b>To jest cała teza w jednym obrazku:</b> absolutny próg ze specyfikacji kontra statystyczna kontrola względem <span class="hl-cyan">twojej własnej historii</span>.
+        </div>
+
+        <h2>Zaraz, „AI" — czyli co konkretnie?</h2>
+        <p>Muszę to powiedzieć wprost, bo inaczej cały tekst leci do kosza razem z marketingowym bełkotem: „AI" tutaj nie znaczy chatbot doklejony do starego narzędzia.</p>
+        <p>Nie ma żadnego doklejonego GPT, który „inteligentnie analizuje twój sprzęt", a w praktyce zmyśla. Pod spodem siedzi realna statystyka: algorytm Welforda do liczenia średniej i wariancji online (jeden przebieg, bez trzymania całej historii w RAM-ie), mediana i MAD na napięcia, reguły Nelsona, kontrola procesu. To są metody z lat 60. i 90., nudne i przewidywalne, i właśnie dlatego im ufam. <span class="hl-cyan">Statystyka się nie halucynuje.</span></p>
+        <p>Kiedy ktoś mówi „AI w monitorze", w 95% przypadków znaczy to „wkleiliśmy API i teraz jest drożej". Tu jest odwrotnie — model uczy się lokalnie, na twoich danych, bez konta i bez wysyłania czegokolwiek na zewnątrz.</p>
+
+        <h2>Co robi taki model na twojej maszynie</h2>
+        <p><b>Uczy się normy per egzemplarz.</b> Nie „dla RTX 4070" — dla <i>twojego</i> RTX 4070, w twoim pokoju, przy twoim zasilaczu. Twój idle, twój gaming, twoja realna wariancja szyn. Nie spec, tylko obserwacja.</p>
+        <p><b>Baseline jest warunkowy, nie absolutny.</b> „CPU 78&deg;C" znaczy coś zupełnie innego na idle niż w grze. Dlatego każdy snapshot ląduje w jednym z pięciu kubełków obciążenia — idle, light, medium, heavy, gaming — i każdy kubełek ma swoją osobną nauczoną normę. Próg 80&deg;C dla wszystkiego jest leniwy. 72&deg;C w gamingu na mid-towerze jest spoko. Te same 72&deg;C na idle na cienkim laptopie to już sygnał, że coś jest nie tak.</p>
+        <p><b>Detekcja jest czasowa.</b> „Ten wentylator kręci się o 200 obr./min szybciej niż przy identycznym obciążeniu trzy miesiące temu" — to nie jest informacja, którą da ci jakikolwiek próg. To trend. I to trend, który mówi: kurz albo pasta, zajmij się tym, zanim zrobi się gorąco.</p>
+        <p><b>Wszystko lokalnie, offline.</b> Twój „odcisk sprzętu" — czyli dokładnie to, jak zachowuje się twoja konkretna maszyna — nie wychodzi z twojej maszyny. Zero telemetrii, zero phone-home, zero latencji. Przeciwieństwo chmurowych „optymalnych ustawień", które przy okazji dzwonią do domu.</p>
+
+        <h2>Gdzie to realnie wygrywa z progiem</h2>
+        <p><b>Konserwacja predykcyjna</b> (to jest killer feature). Dryf napięcia wyłapany przez MAD i reguły Nelsona = zmęczone kondensatory. Systematyczny wzrost temperatur o te +3–5&deg;C przez kilka tygodni = pasta do wymiany, wykryta zanim CPU zacznie throttlować. Spadek sprawności w relacji RPM-do-temperatury = kurz w radiatorze. <span class="hl-green">Łapanie problemów zanim staną się problemami.</span> Próg tego nie umie z definicji — on czeka, aż będzie już źle.</p>
+        <p><b>Root-cause throttlingu</b> zamiast „CPU gorące". Ogólne narzędzie powie: 95&deg;C, dużo. Model powie: 95&deg;C, ale tylko przy kombinacji gra+render, i to +6&deg;C ponad twoją trzydziestodniową normę dla tego konkretnego obciążenia — czyli najpewniej kurz albo pasta, masz wykres trendu, zobacz sam. Druga odpowiedź ma w sobie przyczynę. Pierwsza to tylko liczba z wykrzyknikiem.</p>
+        <p><b>Procesy w tle, których naprawdę używasz.</b> CCleaner ubija listę. Razer Cortex ubija listę. Obie listy są statyczne i nie wiedzą, co robisz. Model uczy się, czego ty faktycznie używasz, usypia tylko realnie bezczynne procesy, i wie, że skok svchost o porze Windows Update jest u ciebie normalny, a nie „podejrzana aktywność".</p>
+        <p><b>Anomalia to też bezpieczeństwo.</b> Proces udający <code>svchost.exe</code>, ale odpalony z <code>%TEMP%</code>. Nietypowy wzorzec CPU, który wygląda jak cicha koparka. Wzorzec-względem-twojej-normy łapie rzeczy, których lista sygnatur nie zna, bo nie trzeba wiedzieć, jak nazywa się zagrożenie — wystarczy wiedzieć, że ta maszyna nigdy wcześniej tak się nie zachowywała.</p>
+
+        <h2>Analogia, która to domyka</h2>
+        <p>Whoop i Garmin nie mówią ci „twoje tętno spoczynkowe to 60, norma to 60–100, jesteś OK". One uczą się twojego spoczynkowego tętna i HRV, i alarmują, gdy odjeżdżasz od swojej linii bazowej — nawet jeśli wciąż mieścisz się w „normie populacji". Dlatego potrafią wyłapać, że coś się dzieje, dzień przed tym, zanim sam to poczujesz.</p>
+        <p><span class="hl-cyan">PC Workman to dokładnie to, tylko dla komputera.</span> „78&deg;C" bez twojej linii bazowej to jak tętno 100 bez wiedzy, czy patrzysz na maratończyka po treningu, czy na kogoś, kto właśnie wszedł na drugie piętro i się zadyszał. Ta sama liczba, dwa zupełnie różne światy. Cała różnica jest w kontekście — a kontekstu próg nie ma.</p>
+
+        <h2>Uczciwie: gdzie to ma granice</h2>
+        <p>Nie sprzedam ci tego jako magii, bo magią nie jest, a tekst, który udaje, że jego produkt nie ma wad, sam się dyskwalifikuje.</p>
+        <p><b>Model ma cold-start.</b> Świeżo po instalacji nie zna jeszcze twojej normy — musi pozbierać dane przez tygodnie, realnie 6–12 miesięcy, żeby przejść przez lato i zimę, gaming i idle, różne obciążenia. Przez ten czas jest bliżej zwykłego monitora niż inteligentnego. To cena za to, że później mówi o twoim sprzęcie, a nie o uśrednionym.</p>
+        <p><b>Model wymaga dobrych czujników</b>, a tu Windows potrafi nieźle dokopać. <code>psutil.sensors_temperatures()</code> na Windowsie zwraca po prostu puste pole — nie ma temperatur, koniec, dziękujemy. Stąd zależność od LibreHardwareMonitor i WMI, żeby w ogóle mieć z czego się uczyć. Wiem to nie z dokumentacji, tylko stąd, że sam się o to potknąłem i straciłem wieczór, zanim zrozumiałem, czemu wykres napięć jest pusty.</p>
+        <p><b>I model musi nie szczekać bez powodu.</b> Fałszywy alarm raz na jakiś czas i przestajesz ufać narzędziu — wyłączasz powiadomienia i tyle. Dlatego skoki 12V przy zmianach obciążenia GPU są celowo tłumione (są fizycznie oczekiwane, to nie awaria), a wzorzec, który powtórzy się pięć razy, przestaje być traktowany jako anomalia i staje się po prostu nową normą twojego sprzętu. <span class="hl-cyan">Anomaly decay.</span> Narzędzie, które się uczy, musi też umieć odwołać własny alarm.</p>
+        <p>I jeszcze jedno, żeby było jasne: to nie jest anty-HWiNFO ani anty-Afterburner. Surowe dane z czujników to wciąż fundament, na którym wszystko stoi. Zmienia się nie to, że czytasz dane — zmienia się to, co się z tymi danymi dzieje dalej.</p>
+
+        <p class="lead">Twój komputer ma swoją historię. Konkretną, fizyczną, swoją — tę jedną sztukę krzemu w tym jednym pokoju przy tym jednym zasilaczu. Najwyższy czas, żeby program ją pamiętał, zamiast porównywać cię ze średnią, której nigdy nie posiadałeś.</p>
+        <p>Przestaliśmy potrzebować narzędzia, które pokazuje. Potrzebujemy takiego, które rozumie — i robotę odwala za nas. Lokalnie. Po cichu.</p>
+
+        <div class="guide-cta">
+            <b>To nie roadmapa — to działający kod.</b> Thermal Baseline Learning i Voltage SPC opisane wyżej działają w <span class="hl-green">PC Workman v1.7.9</span> — darmowym, open-source. Możesz sprawdzić każdą linię.
+            <a href="../../download/index_pl.html">Pobierz</a> lub <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przejrzyj kod</a>.
+            Powiązane: <a href="../ktore-uslugi-windows-wylaczyc/">które usługi wyłączyć</a> &middot; <a href="../../blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/">jak działa thermal baseline</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduje PC Workman publicznie</div>
+                <p>Piszę o tym, co faktycznie zakodowałem — z prawdziwymi liczbami i prawdziwym kodem. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
