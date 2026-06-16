@@ -10,6 +10,7 @@
 
 ---
 
+
 Most monitoring tools give you numbers. PC Workman gives you **answers**.
 
 Ask *"why is my PC slow right now?"* — and get a real explanation, not just a percentage.  
