@@ -29,6 +29,10 @@ _M    = _MONOF  # monospace / numbers
 _BODY = _UIF
 _MONO = _MONOF
 
+# Page-level navigation callback (set in build_optimization_page) so nested card
+# builders can jump to another page — e.g. the MANAGER 'i' -> Services Manager.
+_NAV = {"cb": None}
+
 # ── Palette ───────────────────────────────────────────────────────────────────
 BG      = "#080b10"
 CARD    = "#0e1118"
@@ -302,6 +306,49 @@ def _tpp_atexit():
     if _TPP["active"]:
         _tpp_restore()
 atexit.register(_tpp_atexit)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# MASTER TURBO SWITCH  - driven by the Main Dashboard "Turbo Boost" button
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _set_turbo_flag(on: bool) -> None:
+    """Persist the master TURBO flag at top level (read by feature monitors)."""
+    try:
+        os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
+        p = _load_prefs()
+        p["turbo_active"] = bool(on)
+        with open(_PREFS_PATH, "w", encoding="utf-8") as f:
+            json.dump(p, f, indent=2)
+    except Exception:
+        pass
+
+
+def is_turbo_active() -> bool:
+    """Current master TURBO state (persisted)."""
+    return bool(_load_prefs().get("turbo_active", False))
+
+
+def set_turbo_active(on: bool) -> dict:
+    """Master TURBO switch. Persists the flag and directly activates / restores
+    every feature the user set to fire on TURBO — works whether or not the
+    Optimization page is open (idempotent; safe to call repeatedly).
+
+    Returns {'on': bool, 'applied': [(feature, ok), ...], 'admin': bool}.
+    """
+    on = bool(on)
+    _set_turbo_flag(on)
+    applied: list[tuple[str, bool]] = []
+    o = _load_prefs().get("optimization", {})
+
+    # Turbo Power Plan (also applies hibernation turbo behaviors via _tpp_run)
+    if o.get("tpp_on_turbo", False):
+        if on and not _TPP["active"]:
+            ok, _ = _tpp_run();     applied.append(("Turbo Power Plan", ok))
+        elif not on and _TPP["active"]:
+            ok, _ = _tpp_restore(); applied.append(("Turbo Power Plan", ok))
+
+    return {"on": on, "applied": applied, "admin": _is_admin()}
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -765,8 +812,10 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
         for w in list_frame.winfo_children():
             w.destroy()
         svc_rows.clear()
-        svcs = (PROFILES.get(pkey, {}).get("services", [])
-                if _TURBO_MGR_OK else [])
+        # Read the EFFECTIVE list (user overrides > preset) so MANAGER and any
+        # edits made in the Services Manager configurator show up here too.
+        svcs = (turbo_services.get_profile_services(pkey)
+                if (_TURBO_MGR_OK and turbo_services) else [])
         pcolor = PROFILES.get(pkey, {}).get("color", BORD_L) if _TURBO_MGR_OK else BORD_L
         count_lbl.config(text=f"{len(svcs)} services  ->  will stop",
                          fg=pcolor)
@@ -793,30 +842,49 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
     def _sel_profile(pkey):
         _sel["key"] = pkey
+        if _TURBO_MGR_OK and turbo_services:
+            turbo_services.set_active_profile(pkey)   # sync with Services Manager
         pdata = PROFILES.get(pkey, {}) if _TURBO_MGR_OK else {}
         pcol  = pdata.get("color", BORD_L)
         pbg   = pdata.get("bg",    "#0a0812")
         for k2, (ch2, c2, _) in _chips.items():
             is_me = (k2 == pkey)
-            ch2.config(
-                bg    = pdata.get("bg", pbg) if is_me else _BG,
-                fg    = pcol if is_me else _MUT,
-                highlightbackground = pcol if is_me else _BD,
-            )
+            if k2 == "manager":
+                # MANAGER stays on a white background; selection shown as violet border
+                ch2.config(bg="#f5f5f5", fg="#0a0a0a",
+                           highlightbackground="#8b5cf6" if is_me else "#cfd2d6")
+            else:
+                ch2.config(
+                    bg    = pdata.get("bg", pbg) if is_me else _BG,
+                    fg    = pcol if is_me else _MUT,
+                    highlightbackground = pcol if is_me else _BD,
+                )
         _redraw_list(pkey)
 
     for pkey, pdata in (PROFILES.items() if _TURBO_MGR_OK else []):
         pcol = pdata["color"]
+        is_mgr = (pkey == "manager")
         ch = tk.Label(top, text=pdata["label"].upper(),
-                      font=(_HDR, 6),
-                      bg=_BG, fg=_MUT, cursor="hand2",
-                      padx=9, pady=3,
-                      highlightbackground=_BD, highlightthickness=1)
-        ch.pack(side="left", padx=2)
+                      font=(_HDR, 6), cursor="hand2", padx=9, pady=3,
+                      bg="#f5f5f5" if is_mgr else _BG,
+                      fg="#0a0a0a" if is_mgr else _MUT,
+                      highlightbackground="#cfd2d6" if is_mgr else _BD,
+                      highlightthickness=1)
+        ch.pack(side="left", padx=(2, 0) if is_mgr else 2)
         _chips[pkey] = (ch, pcol, pdata.get("bg", _BG))
         ch.bind("<Button-1>", lambda e, k=pkey: _sel_profile(k))
+        if is_mgr:
+            # Clickable info badge — jumps to the Services Manager configurator
+            info = tk.Label(top, text="ⓘ", font=(_HDR, 7), bg=_BG,
+                            fg="#8b5cf6", cursor="hand2")
+            info.pack(side="left", padx=(0, 2))
+            info.bind("<Button-1>",
+                      lambda e: _NAV["cb"]("services_manager") if _NAV["cb"] else None)
+            info.bind("<Enter>", lambda e, w=info: w.config(fg="#c4b5fd"))
+            info.bind("<Leave>", lambda e, w=info: w.config(fg="#8b5cf6"))
 
-    _sel_profile("gaming")  # default
+    _sel_profile(turbo_services.get_active_profile()
+                 if (_TURBO_MGR_OK and turbo_services) else "gaming")  # active profile (synced)
 
     # ── Action row ────────────────────────────────────────────────────────────
     btn_row = tk.Frame(parent, bg=_BG)
@@ -2028,7 +2096,6 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
 def _wire_turbo_pp(run_btn, auto_pill, auto_state,
                    turbo_pill, turbo_state, status_lbl, run_color):
     """Wire Turbo Power Plan card controls."""
-    prefs = _load_prefs().get("optimization", {})
     auto_state["on"]   = _TPP["auto"]
     turbo_state["on"]  = _TPP["on_turbo"]
     _TPP["status_lbl"] = status_lbl
@@ -2040,7 +2107,6 @@ def _wire_turbo_pp(run_btn, auto_pill, auto_state,
             run_btn.config(text="...", fg=MUTED)
             def _bg_restore():
                 ok, msg = _tpp_restore()
-                col = EMERALD if ok else RED
                 if run_btn.winfo_exists():
                     run_btn.after(0, lambda: run_btn.config(
                         text="ACTIVATE", fg=run_color,
@@ -2107,6 +2173,7 @@ def build_optimization_page(self, parent):
     root_frame.pack(fill="both", expand=True)
 
     _nav = getattr(self, "_switch_to_page", None)
+    _NAV["cb"] = _nav
     _back_fn = (lambda: _nav("dashboard")) if _nav else None
     _build_hero_header(root_frame, back_fn=_back_fn)
     _build_snapshot_strip(root_frame)
@@ -2579,7 +2646,6 @@ def _build_insight_card(parent, col_idx: int, name: str, color: str,
 
             # Area fill under spark line
             if len(pts) >= 2:
-                poly = [pts[0]] + pts + [pts[-1]]
                 poly_flat = [pts[0][0], H]
                 for px2, py2 in pts:
                     poly_flat += [px2, py2]
