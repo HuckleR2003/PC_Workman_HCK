@@ -1385,54 +1385,30 @@ class ExpandedMainWindow:
         self._create_hardware_card(cards, "GPU", gpu_model, "#10b981", "gpu")
 
     def _create_hardware_card(self, parent, hw_type, model, color, key):
-        """Create ULTRA COMPACT hardware card"""
+        """Hardware card: sparkline with the component name overlaid in its
+        corner — same principle in compact and maximized, so the name never
+        collides with the layout (the chart owns the whole card width)."""
         card = tk.Frame(parent, bg=THEME["bg_panel"], relief="flat", bd=0)
         card.pack(side="left", fill="both", expand=True, padx=2)
 
-        # Minimal padding
         inner = tk.Frame(card, bg=THEME["bg_panel"])
         inner.pack(fill="both", expand=True, padx=4, pady=4)
 
-        if not self._is_maximized:
-            # Compact: classic header row (type + model) above the sparkline
-            header = tk.Frame(inner, bg=THEME["bg_panel"])
-            header.pack(fill="x")
-
-            tk.Label(
-                header,
-                text=hw_type,
-                font=(_BODY, 7, "bold"),
-                bg=THEME["bg_panel"],
-                fg=color,
-                anchor="w"
-            ).pack(side="left")
-
-            tk.Label(
-                header,
-                text=model[:20],  # Shorter model name
-                font=(_BODY, 6),
-                bg=THEME["bg_panel"],
-                fg=THEME["muted"],
-                anchor="w"
-            ).pack(side="left", padx=(4, 0))
-
-        # Mini chart area (sparkline). Maximized: taller chart with the
-        # component name overlaid in its corner instead of a header row.
-        _chart_h = 50 if self._is_maximized else 22
+        # Sparkline area — taller in both modes so the corner name has room.
+        _chart_h = 50 if self._is_maximized else 44
         chart_frame = tk.Frame(inner, bg="#0f1117", height=_chart_h)
-        chart_frame.pack(fill="x", pady=(3, 0))
+        chart_frame.pack(fill="x", pady=(0, 0))
         chart_frame.pack_propagate(False)
 
         chart_canvas = tk.Canvas(chart_frame, bg="#0f1117", highlightthickness=0)
         chart_canvas.pack(fill="both", expand=True)
 
-        if self._is_maximized:
-            chart_canvas._corner_title = hw_type
-            chart_canvas._corner_sub   = model[:24]
-            chart_canvas._corner_color = color
-            # Show the name immediately — sparkline data arrives a few s later
-            chart_canvas.after(50, lambda cv=chart_canvas: self._draw_card_corner(cv)
-                               if cv.winfo_exists() else None)
+        # Component name + model drawn IN the chart corner (no header row → no collision)
+        chart_canvas._corner_title = hw_type
+        chart_canvas._corner_sub   = model[:24]
+        chart_canvas._corner_color = color
+        chart_canvas.after(50, lambda cv=chart_canvas: self._draw_card_corner(cv)
+                           if cv.winfo_exists() else None)
 
         # Temperature bar - smaller
         temp_frame = tk.Frame(inner, bg=THEME["bg_panel"])
@@ -1548,7 +1524,7 @@ class ExpandedMainWindow:
             center, bg="#080b14", bd=0, highlightthickness=1,
             highlightbackground="#0d1825", height=150,
         )
-        self.realtime_canvas.pack(fill="x", pady=(0, 4))
+        self.realtime_canvas.pack(fill="x", pady=(0, 0))
         self.realtime_canvas.bind("<Motion>",   self._chart_on_motion)
         self.realtime_canvas.bind("<Button-1>", self._chart_on_click)
         self.realtime_canvas.bind("<Leave>",    self._chart_on_leave)
@@ -1557,39 +1533,41 @@ class ExpandedMainWindow:
         self._chart_after_id  = None
         self._schedule_chart_update(100)
 
-        # Live metrics strip
-        metrics_frame = tk.Frame(center, bg="#1a1d24", height=28)
+        # Chart legend footer — visually part of the chart (same bg, flush above):
+        # CURRENT USAGE + coloured CPU/RAM/GPU values left, time-range filters right.
+        _LEG_BG = "#080b14"
+        metrics_frame = tk.Frame(center, bg=_LEG_BG, height=31)
         metrics_frame.pack(fill="x")
         metrics_frame.pack_propagate(False)
 
         _cur_lbl = tk.Label(
             metrics_frame, text=_t("dashboard.current_usage_label"),
-            font=(_BODY, 7, "bold"), bg="#1a1d24", fg="#6b7280",
+            font=(_BODY, 7, "bold"), bg=_LEG_BG, fg="#6b7280",
         )
-        _cur_lbl.pack(side="left", padx=(10, 15))
+        _cur_lbl.pack(side="left", padx=(10, 10))
         self._current_usage_lbl = _cur_lbl
 
         self.live_cpu_label = tk.Label(
-            metrics_frame, text="CPU: 0%",
-            font=(_MONO, 8, "bold"), bg="#1a1d24", fg="#3b82f6",
+            metrics_frame, text="■ CPU 0%",
+            font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#3b82f6",
         )
-        self.live_cpu_label.pack(side="left", padx=8)
-
-        self.live_gpu_label = tk.Label(
-            metrics_frame, text="GPU: 0%",
-            font=(_MONO, 8, "bold"), bg="#1a1d24", fg="#10b981",
-        )
-        self.live_gpu_label.pack(side="left", padx=8)
+        self.live_cpu_label.pack(side="left", padx=7)
 
         self.live_ram_label = tk.Label(
-            metrics_frame, text="RAM: 0%",
-            font=(_MONO, 8, "bold"), bg="#1a1d24", fg="#fbbf24",
+            metrics_frame, text="■ RAM 0%",
+            font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#fbbf24",
         )
-        self.live_ram_label.pack(side="left", padx=8)
+        self.live_ram_label.pack(side="left", padx=7)
 
-        tk.Frame(metrics_frame, bg="#1a1d24", width=2).pack(side="left", padx=10)
+        self.live_gpu_label = tk.Label(
+            metrics_frame, text="■ GPU 0%",
+            font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#10b981",
+        )
+        self.live_gpu_label.pack(side="left", padx=7)
 
-        filter_btns = tk.Frame(metrics_frame, bg="#1a1d24")
+        tk.Frame(metrics_frame, bg=_LEG_BG, width=2).pack(side="left", padx=10)
+
+        filter_btns = tk.Frame(metrics_frame, bg=_LEG_BG)
         filter_btns.pack(side="right", padx=10)
 
         filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
@@ -1655,82 +1633,70 @@ class ExpandedMainWindow:
         buttons_row = tk.Frame(buttons_container, bg=THEME["bg_main"])
         buttons_row.pack(fill="x", padx=5)
 
-        # Left: Turbo Boost - COMING SOON (greyed out)
-        turbo_btn = tk.Frame(buttons_row, bg="#2a2d35")
+        # Left: Turbo Boost — master switch for every feature set to fire on TURBO
+        try:
+            from ui.pages import optimization_services as _opt_mod
+        except Exception:
+            _opt_mod = None
+        self.turbo_active = bool(_opt_mod.is_turbo_active()) if _opt_mod else False
+
+        _T_ON, _T_OFF = "#7f1d1d", "#2a2d35"   # bordeaux (on) / grey (off)
+
+        turbo_btn = tk.Frame(buttons_row, bg=_T_ON if self.turbo_active else _T_OFF,
+                             cursor="hand2")
         turbo_btn.pack(side="left", fill="both", expand=True, padx=(0, 3))
 
         turbo_content = tk.Frame(turbo_btn, bg="#1e2028")
         turbo_content.pack(fill="x", padx=2, pady=2)
 
-        turbo_header = tk.Frame(turbo_content, bg="#2a2d35")
+        turbo_header = tk.Frame(turbo_content, bg="#1e2028")
         turbo_header.pack(fill="x", padx=8, pady=(6, 4))
 
-        tk.Label(
-            turbo_header,
-            text="Turbo Boost:",
-            font=(_BODY, 11, "bold"),
-            bg="#2a2d35",
-            fg="#6b7280",
-            padx=6, pady=2
-        ).pack(side="left")
-
-        tk.Label(
-            turbo_header,
-            text="OFF",
-            font=(_BODY, 11, "bold"),
-            bg="#2a2d35",
-            fg="#4b5563",
-            padx=4, pady=2
-        ).pack(side="left")
-
-        self.turbo_active = False
+        tk.Label(turbo_header, text="Turbo Boost:", font=(_BODY, 11, "bold"),
+                 bg="#1e2028", fg="#e5e7eb", padx=2, pady=2).pack(side="left")
+        self._turbo_state_lbl = tk.Label(
+            turbo_header, text="ON" if self.turbo_active else "OFF",
+            font=(_BODY, 11, "bold"), bg="#1e2028",
+            fg="#f87171" if self.turbo_active else "#6b7280", padx=4, pady=2)
+        self._turbo_state_lbl.pack(side="left")
 
         tk.Frame(turbo_content, bg="#374151", height=1).pack(fill="x", pady=(4, 4))
 
         turbo_actions = tk.Frame(turbo_content, bg="#1e2028")
         turbo_actions.pack(fill="x", padx=8, pady=(0, 6))
 
-        tk.Label(
-            turbo_actions,
-            text="Configure",
-            font=(_BODY, 7, "bold"),
-            bg="#374151", fg="#6b7280",
-            padx=8, pady=3
-        ).pack(side="left")
+        _cfg = tk.Label(turbo_actions, text="Configure", font=(_BODY, 7, "bold"),
+                        bg="#374151", fg="#9ca3af", padx=8, pady=3, cursor="hand2")
+        _cfg.pack(side="left")
+        _cfg.bind("<Button-1>", lambda e: self._switch_to_page("optimization"))
+        _cfg.bind("<Enter>", lambda e: _cfg.config(fg="#cbd5e1"))
+        _cfg.bind("<Leave>", lambda e: _cfg.config(fg="#9ca3af"))
 
-        tk.Label(
-            turbo_actions,
-            text="Launch",
-            font=(_BODY, 7, "bold"),
-            bg="#374151", fg="#6b7280",
-            padx=10, pady=3
-        ).pack(side="right")
+        _launch = tk.Label(turbo_actions, text="Launch", font=(_BODY, 7, "bold"),
+                           bg="#7f1d1d", fg="#fecaca", padx=10, pady=3, cursor="hand2")
+        _launch.pack(side="right")
 
-        # ── Coming soon tooltip ───────────────────────────────────────────────
-        _tip = tk.Label(
-            self.root,
-            text="Coming soon…\nCheck Optimization Center for features",
-            font=(_BODY, 9),
-            bg="#1c1f27", fg="#94a3b8",
-            padx=10, pady=8,
-            justify="center",
-            relief="flat",
-            bd=0
-        )
+        def _toggle_turbo(e=None):
+            if _opt_mod is None:
+                return
+            res = _opt_mod.set_turbo_active(not self.turbo_active)
+            self.turbo_active = res["on"]
+            n = sum(1 for _, ok in res["applied"] if ok)
+            base = "ON" if self.turbo_active else "OFF"
+            if self.turbo_active:
+                extra = (f" · {n} fired" if n
+                         else (" · needs admin" if not res["admin"] else " · configure"))
+            else:
+                extra = ""
+            self._turbo_state_lbl.config(
+                text=base + extra,
+                fg="#f87171" if self.turbo_active else "#6b7280")
+            turbo_btn.config(bg=_T_ON if self.turbo_active else _T_OFF)
+            self.root.after(2600, lambda: self._turbo_state_lbl.config(text=base)
+                            if self._turbo_state_lbl.winfo_exists() else None)
 
-        def _show_tip(e):
-            x = turbo_btn.winfo_rootx()
-            y = turbo_btn.winfo_rooty() + turbo_btn.winfo_height() + 4
-            _tip.place(x=x - self.root.winfo_rootx(),
-                       y=y - self.root.winfo_rooty())
-            _tip.lift()
-
-        def _hide_tip(e):
-            _tip.place_forget()
-
-        for w in (turbo_btn, turbo_content, turbo_header, turbo_actions):
-            w.bind("<Enter>", _show_tip, add="+")
-            w.bind("<Leave>", _hide_tip, add="+")
+        for w in (turbo_btn, turbo_content, turbo_header, self._turbo_state_lbl, _launch):
+            w.bind("<Button-1>", _toggle_turbo, add="+")
 
         # === RIGHT: OPTIMIZATION CENTER ===
         _OC_BG    = "#0c1018"
@@ -2426,9 +2392,9 @@ class ExpandedMainWindow:
             gpu = sample.get("gpu_percent", 0)
             ram = sample.get("ram_percent", 0)
 
-            self.live_cpu_label.config(text=f"CPU: {cpu:.0f}%")
-            self.live_gpu_label.config(text=f"GPU: {gpu:.0f}%")
-            self.live_ram_label.config(text=f"RAM: {ram:.0f}%")
+            self.live_cpu_label.config(text=f"■ CPU {cpu:.0f}%")
+            self.live_gpu_label.config(text=f"■ GPU {gpu:.0f}%")
+            self.live_ram_label.config(text=f"■ RAM {ram:.0f}%")
 
             # Update chart data
             if hasattr(self, 'chart_data'):
@@ -2519,8 +2485,9 @@ class ExpandedMainWindow:
                     self._schedule_chart_update(150)
                 return
 
-            # Margins: left=28 (Y labels) right=8 top=8 bottom=22 (legend)
-            ML, MR, MT, MB = 28, 8, 8, 22
+            # Margins: left=28 (Y labels) right=8 top=8 bottom=10
+            # (legend now lives in the footer strip below the canvas)
+            ML, MR, MT, MB = 28, 8, 8, 10
             cw = W - ML - MR
             ch = H - MT - MB
             bottom_y = MT + ch
@@ -2571,7 +2538,6 @@ class ExpandedMainWindow:
                     text="Collecting data...",
                     fill="#1e2a3a", font=(_BODY, 8),
                 )
-                self._draw_chart_legend(canvas, W, H, MB)
                 if not _from_anim:
                     self._schedule_chart_update(500)
                 return
@@ -2634,8 +2600,6 @@ class ExpandedMainWindow:
                     self._chart_refresh_pinned_tip(cpu_data, ram_data, gpu_data,
                                                    num, bar_w, ML, MT)
 
-            self._draw_chart_legend(canvas, W, H, MB)
-
             # ── Schedule next update ─────────────────────────────────────────
             if _new_bar and not _from_anim:
                 self._start_bar_grow_anim()
@@ -2648,18 +2612,6 @@ class ExpandedMainWindow:
                 print(f"[Chart] Error: {e}")
             if self._running and not _from_anim:
                 self._schedule_chart_update(2000)
-
-    def _draw_chart_legend(self, canvas, W: int, H: int, MB: int) -> None:
-        """CPU / RAM / GPU colour legend at bottom of chart canvas."""
-        ly    = H - MB // 2
-        items = [("CPU", "#3b82f6"), ("RAM", "#fbbf24"), ("GPU", "#10b981")]
-        total = len(items) * 52
-        lx    = (W - total) // 2
-        for label, col in items:
-            canvas.create_rectangle(lx, ly - 4, lx + 8, ly + 4, fill=col, outline="")
-            canvas.create_text(lx + 11, ly, text=label,
-                               fill="#4a6080", font=(_BODY, 6), anchor="w")
-            lx += 52
 
     def _start_bar_grow_anim(self) -> None:
         """Start a 600 ms ease-out grow animation for the newest bar."""
@@ -4423,8 +4375,6 @@ def _draw_page_icon(canvas, page_id, cx, cy, accent="#3b82f6"):
     import math
 
     A   = accent        # primary accent colour
-    BG  = "#05070d"     # icon panel background (same as icon section fill)
-    W   = "#ffffff"     # white for inset details
     DK  = "#0a0e1a"     # dark for screen / details
 
     def R(x0, y0, x1, y1, fill=A, outline=""):
@@ -4504,12 +4454,3 @@ def _launch_hw_table_window(parent):
 def _launch_hw_table_window_root(root):
     """Called via root.after() - uses root as anchor."""
     _open_hw_table_popup(root)
-
-    # Size and position after content loads
-    popup.update_idletasks()
-    w, h = 520, 640
-    sw = popup.winfo_screenwidth()
-    sh = popup.winfo_screenheight()
-    x = (sw - w) // 2
-    y = (sh - h) // 2
-    popup.geometry(f"{w}x{h}+{x}+{y}")
