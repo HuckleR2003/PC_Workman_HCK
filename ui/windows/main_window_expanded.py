@@ -55,12 +55,6 @@ except ImportError:
 # Fan Dashboard (Advanced cooling control)
 from ui.components.fan_dashboard import create_fan_dashboard
 
-# Overlay Widget (Floating Monitor)
-try:
-    from ui.overlay_widget import create_overlay_widget
-except ImportError:
-    create_overlay_widget = None
-
 # Live Guide
 try:
     from ui.guide.live_guide import LiveGuide as _LiveGuide
@@ -715,6 +709,20 @@ class ExpandedMainWindow:
                 self.gpt_panel.register_nav_callback(
                     "Startup Manager",
                     lambda: self._switch_to_page("startup_manager")
+                )
+
+                def _open_stability_from_chat():
+                    # Stability Tests lives inside the "My PC" page -> show it, then
+                    # swap its content area to the stability tests view.
+                    try:
+                        self._show_overlay("your_pc")
+                        from ui.components.yourpc_page import _open_stability_tests
+                        self.root.after(220, lambda: _open_stability_tests(self))
+                    except Exception:
+                        pass
+
+                self.gpt_panel.register_nav_callback(
+                    "Stability Tests", _open_stability_from_chat
                 )
             except Exception:
                 pass
@@ -3947,25 +3955,6 @@ class ExpandedMainWindow:
                      wraplength=220, justify="left").pack(anchor="w", padx=14, pady=(0, 12))
 
         _gap(40)
-
-    # ========== OVERLAY WIDGET ==========
-
-    def _launch_overlay_widget(self):
-        """Launch floating overlay widget"""
-        if create_overlay_widget is None:
-            from tkinter import messagebox
-            messagebox.showwarning("Overlay Widget", "Overlay widget module not available!")
-            return
-
-        # Launch in separate thread to avoid blocking main window
-        def launch_thread():
-            try:
-                create_overlay_widget()
-            except Exception as e:
-                print(f"[ERROR] Overlay widget failed: {e}")
-
-        widget_thread = threading.Thread(target=launch_thread, daemon=True)
-        widget_thread.start()
 
     # ========== SERVICES DIALOG ==========
 
