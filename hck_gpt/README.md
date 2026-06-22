@@ -151,4 +151,4 @@ Standalone extraction as a pip-installable library is planned for a future miles
 
 hck_GPT is the AI brain inside [PC Workman HCK](https://github.com/HuckleR2003/PC_Workman_HCK) — a real-time Windows system monitor with 2.5D hardware map, DeepMonitor sensor table, startup/services manager, and time-travel diagnostics.
 
-**Marcin "HCK" Firmuga** · [GitHub](https://github.com/HuckleR2003) · [LinkedIn](https://linkedin.com/in/marcinfirmuga) · MIT License
+**Marcin "HCK" Firmuga** · [pcworkman.dev](https://pcworkman.dev) · [GitHub](https://github.com/HuckleR2003) · [LinkedIn](https://linkedin.com/in/marcinfirmuga) · MIT License
