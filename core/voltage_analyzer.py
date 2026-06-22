@@ -47,13 +47,12 @@ Public singleton:  voltage_analyzer
 from __future__ import annotations
 
 import json
-import math
 import os
 import sqlite3
 import sys
 import threading
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
@@ -398,7 +397,6 @@ class VoltageAnalyzer:
             n   = len(mzs)
             run_sign = 0
             run_len  = 0
-            run_start = 0
             for i, mz in enumerate(mzs):
                 if mz is None:
                     run_len = 0
@@ -410,7 +408,6 @@ class VoltageAnalyzer:
                 else:
                     run_sign  = sign
                     run_len   = 1
-                    run_start = i
                 if run_len == 9:
                     ts9 = float(rows[i].get("ts", 0.0))
                     v9  = rail_v[rail_key][i]
@@ -530,9 +527,6 @@ class VoltageAnalyzer:
             warn_hi = med + Z_WARNING * _K * mad
             warn_lo = med - Z_WARNING * _K * mad
 
-            n_anom  = sum(1 for v in vals
-                          if abs(_modified_z(v, med, mad)) > Z_WARNING)
-
             new_rails[rail_key] = {
                 "n":             len(vals),
                 "has_data":      True,
@@ -542,7 +536,7 @@ class VoltageAnalyzer:
                 "lcl":           round(lcl,     4),
                 "warn_hi":       round(warn_hi, 4),
                 "warn_lo":       round(warn_lo, 4),
-                "anomaly_count": n_anom,
+                "anomaly_count": 0,   # filled below from real Nelson-rule events
             }
 
         with self._lock:
@@ -552,6 +546,29 @@ class VoltageAnalyzer:
             self._last_rebuild         = time.time()
 
         self._save_cache()
+
+        # anomaly_count must reflect GENUINE anomalies — Nelson-rule events that
+        # survived GPU-transient suppression and recurrence decay — not the ~1.2%
+        # Gaussian tail beyond 2.5σ. Counting raw tail crossings over a 7-day window
+        # made the count grow purely with sample size, so every healthy rail read
+        # "crit" once enough snapshots accumulated. health_label() reads this field.
+        try:
+            _, events = self.analyze_history(hours=24)
+            counts: dict[str, int] = {k: 0 for k in RAILS}
+            for e in events:
+                if e.suppressed or e.severity == "info":
+                    continue
+                if e.rail in counts:
+                    counts[e.rail] += 1
+            with self._lock:
+                cached_rails = self._cache.get("rails", {})
+                for k, c in counts.items():
+                    if k in cached_rails:
+                        cached_rails[k]["anomaly_count"] = c
+            self._save_cache()
+        except Exception:
+            pass
+
         return True
 
     def maybe_rebuild(self, min_interval_s: float = 300.0) -> None:
@@ -666,9 +683,9 @@ class VoltageAnalyzer:
             if crits:
                 latest = crits[-1]
                 if lang == "pl":
-                    lines.append(f"\n⚠ Ostatnie zdarzenie krytyczne:")
+                    lines.append("\n⚠ Ostatnie zdarzenie krytyczne:")
                 else:
-                    lines.append(f"\n⚠ Latest critical event:")
+                    lines.append("\n⚠ Latest critical event:")
                 lines.append(f"  [{latest.event_type}] {latest.reason_for_chat(lang)}")
 
         if lang == "pl":
@@ -780,12 +797,6 @@ def _mad(vals: list[float], med: float) -> float:
     n    = len(devs)
     mid  = n // 2
     return devs[mid] if n % 2 else (devs[mid - 1] + devs[mid]) / 2.0
-
-
-def _modified_z(v: float, med: float, mad: float) -> float:
-    if mad < 1e-9:
-        return 0.0
-    return 0.6745 * (v - med) / mad
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────

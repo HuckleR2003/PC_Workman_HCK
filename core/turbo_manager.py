@@ -38,8 +38,9 @@ except Exception:
         else os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
     )
 
-_LOG_PATH   = os.path.join(_APP_DIR, "data", "logs", "turbo_engine.log")
-_STATE_PATH = os.path.join(_APP_DIR, "settings", "turbo_state.json")
+_LOG_PATH      = os.path.join(_APP_DIR, "data", "logs", "turbo_engine.log")
+_STATE_PATH    = os.path.join(_APP_DIR, "settings", "turbo_state.json")
+_PROFILES_PATH = os.path.join(_APP_DIR, "settings", "turbo_services.json")  # user mode edits
 
 os.makedirs(os.path.dirname(_LOG_PATH),   exist_ok=True)
 os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
@@ -125,18 +126,6 @@ PROFILES: dict[str, dict] = {
         ],
         "desc": "Max CPU headroom - stops search, telemetry, Xbox, BT, printing.",
     },
-    "work": {
-        "label":    "Work",
-        "color":    "#3b82f6",   # blue
-        "bg":       "#060e18",
-        "services": [
-            "DiagTrack", "dmwappushservice",
-            "XblAuthManager", "XblGameSave", "XboxGipSvc", "XboxNetApiSvc",
-            "MapsBroker", "Fax", "RemoteRegistry",
-            "spooler", "RetailDemo", "SEMgrSvc",
-        ],
-        "desc": "Focused work - keeps search & audio, removes Xbox & telemetry.",
-    },
     "economy": {
         "label":    "Economy",
         "color":    "#10b981",   # emerald
@@ -153,7 +142,35 @@ PROFILES: dict[str, dict] = {
         ],
         "desc": "Deep savings - stops all non-essential including Update & BT.",
     },
+    # User-composed custom profile, built in the Services Manager. White-themed,
+    # starts empty — the user picks exactly which services it stops.
+    "manager": {
+        "label":    "Manager",
+        "color":    "#e5e7eb",   # near-white
+        "bg":       "#101014",
+        "services": [],
+        "desc":     "Your custom set — pick exactly which services stop. Edit in Services Manager.",
+    },
 }
+
+# Recommended-to-disable services, each paired with a plain-language question so
+# the Services Manager can guide the user ("Do you use Bluetooth?"). Answering
+# "no" is a strong hint the service is safe to add to a mode's stop-list.
+RECOMMENDED: list[dict] = [
+    {"label": "Bluetooth",      "services": ["bthserv", "BTAGService"],
+     "q_pl": "Czy używasz Bluetooth?",            "q_en": "Do you use Bluetooth?"},
+    {"label": "Drukowanie",     "services": ["spooler"],
+     "q_pl": "Czy drukujesz na tym komputerze?",  "q_en": "Do you print on this PC?"},
+    {"label": "Xbox",           "services": ["XblAuthManager", "XblGameSave",
+                                             "XboxGipSvc", "XboxNetApiSvc"],
+     "q_pl": "Grasz w gry Xbox / Game Pass?",      "q_en": "Do you play Xbox / Game Pass games?"},
+    {"label": "Telemetria",     "services": ["DiagTrack", "dmwappushservice"],
+     "q_pl": "Wyłączyć telemetrię Microsoftu?",    "q_en": "Disable Microsoft telemetry?"},
+    {"label": "Fax",            "services": ["Fax"],
+     "q_pl": "Czy używasz faksu?",                 "q_en": "Do you use fax?"},
+    {"label": "Pulpit zdalny",  "services": ["RemoteRegistry", "TermService"],
+     "q_pl": "Używasz pulpitu/rejestru zdalnego?", "q_en": "Do you use remote desktop/registry?"},
+]
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -167,6 +184,7 @@ class TurboServiceManager:
         self._stopped:  dict[str, str] = {}   # {svc: original_state}
         self._lock      = threading.Lock()
         self._confirmed = False               # user confirmed first-use warning
+        self._overrides = self._load_overrides()   # {mode: [services]} user edits
         register_component('core.turbo_services', self, STATUS_IDLE)
 
     # ── Public API ────────────────────────────────────────────────────────────
@@ -225,7 +243,7 @@ class TurboServiceManager:
     ) -> list[tuple[str, bool, str]]:
         """Stop all services in profile. Returns [(svc, ok, msg)]."""
         services = [
-            s for s in PROFILES.get(profile_key, {}).get("services", [])
+            s for s in self.get_profile_services(profile_key)
             if s not in _SVC_WHITELIST
         ]
         statuses = self.get_service_statuses(services)
@@ -277,6 +295,92 @@ class TurboServiceManager:
                 self._stopped = data.get("svc_stopped", {})
         except Exception:
             pass
+
+    # ── Editable profiles (single source of truth, synced with Features) ───────
+
+    def _load_overrides(self) -> dict:
+        try:
+            with open(_PROFILES_PATH, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+
+    def _save_overrides(self) -> None:
+        try:
+            os.makedirs(os.path.dirname(_PROFILES_PATH), exist_ok=True)
+            with open(_PROFILES_PATH, "w", encoding="utf-8") as f:
+                json.dump(self._overrides, f, indent=2)
+        except Exception:
+            pass
+
+    def get_profile_services(self, key: str) -> list[str]:
+        """Effective stop-list for a mode: user override if set, else the preset."""
+        if key in self._overrides:
+            return list(self._overrides[key])
+        return list(PROFILES.get(key, {}).get("services", []))
+
+    def set_profile_services(self, key: str, services: list[str]) -> None:
+        self._overrides[key] = sorted(set(services))
+        self._save_overrides()
+
+    def set_membership(self, key: str, svc: str, on: bool) -> None:
+        """Add/remove a single service from a mode's stop-list (persisted)."""
+        cur = set(self.get_profile_services(key))
+        cur.add(svc) if on else cur.discard(svc)
+        self.set_profile_services(key, sorted(cur))
+
+    def reset_profile(self, key: str) -> None:
+        """Drop the user override so the mode falls back to its built-in preset."""
+        self._overrides.pop(key, None)
+        self._save_overrides()
+
+    def get_active_profile(self) -> str:
+        """Currently selected mode, shared by the Services Manager and Features."""
+        key = self._overrides.get("__active__", "gaming")
+        return key if key in PROFILES else "gaming"
+
+    def set_active_profile(self, key: str) -> None:
+        if key in PROFILES:
+            self._overrides["__active__"] = key
+            self._save_overrides()
+
+    @staticmethod
+    def friendly(svc: str) -> str:
+        return _SVC_LABELS.get(svc, svc)
+
+    def list_all_services(self) -> list[dict]:
+        """Every Windows service: [{name, display, state}], sorted by display name.
+        Whitelisted core services are flagged 'locked' so the UI can protect them."""
+        out = []
+        try:
+            r = subprocess.run(
+                ["sc", "query", "type=", "service", "state=", "all"],
+                capture_output=True, timeout=12,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            name = disp = None
+            state = "unknown"
+            for line in r.stdout.decode("utf-8", errors="replace").splitlines():
+                ls = line.strip()
+                if ls.startswith("SERVICE_NAME:"):
+                    if name:
+                        out.append({"name": name, "display": disp or name,
+                                    "state": state, "locked": name in _SVC_WHITELIST})
+                    name = ls.split(":", 1)[1].strip()
+                    disp, state = None, "unknown"
+                elif ls.startswith("DISPLAY_NAME:"):
+                    disp = ls.split(":", 1)[1].strip()
+                elif ls.startswith("STATE") and ":" in ls:
+                    sl = ls.lower()
+                    state = ("running" if "running" in sl else
+                             "stopped" if "stopped" in sl else "unknown")
+            if name:
+                out.append({"name": name, "display": disp or name,
+                            "state": state, "locked": name in _SVC_WHITELIST})
+        except Exception:
+            pass
+        out.sort(key=lambda s: s["display"].lower())
+        return out
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
