@@ -4,6 +4,7 @@ MY PC - Hardware & Health
 
 import tkinter as tk
 import os
+import json
 import time
 
 # i18n - graceful fallback if utils not on path
@@ -188,21 +189,8 @@ def _build_central(self, parent):
                        _t("my_pc.tooltip_cleanup"),
                        lambda: _nav_to("optimization", "services"))
 
-    # Row 1.5: System utilities (3 across)
-    import subprocess as _sp
-    row_sys = tk.Frame(left, bg="#0a0e14")
-    row_sys.pack(fill="x", pady=(2, 0))
-    for _ico, _title, _color, _cmd in [
-        ("⚙️", _t("my_pc.device_manager"), "#6b7280",
-         lambda: _sp.Popen(["devmgmt.msc"], shell=True)),
-        ("📊", _t("my_pc.task_manager"),   "#6b7280",
-         lambda: _sp.Popen(["taskmgr"])),
-        ("💾", _t("my_pc.export_report"),  "#6b7280",
-         lambda: _export_health_report()),
-    ]:
-        _col_f = tk.Frame(row_sys, bg="#0a0e14")
-        _col_f.pack(side="left", fill="both", expand=True, padx=1)
-        _create_action_btn(_col_f, _ico, _title, _color, command=_cmd)
+    # Row 1.5: GAMING / In-Game overlay (replaces the device/task/export shortcuts)
+    _create_gaming_tile(left, lambda: _open_gaming_configurator(self))
 
     # Row 2: LARGE - STATS & ALERTS (yellow gradient)
     _create_large_gradient_btn(
@@ -636,6 +624,652 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
 
     info_btn.bind("<Enter>", lambda e: info_btn.config(bg="#3b82f6", fg="#ffffff"))
     info_btn.bind("<Leave>", lambda e: info_btn.config(bg="#0a0a0a", fg="#6b7280"))
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GAMING / In-Game Overlay  -  tile + configurator   (Phase 1 skeleton)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_GAMING_CFG_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "settings", "gaming_overlay.json",
+)
+
+# Metric palette the Custom configurator can place in the overlay.  (id, label, group)
+_GAMING_METRICS = [
+    ("cpu_pct",   "CPU %",     "CPU"),
+    ("cpu_temp",  "CPU temp",  "CPU"),
+    ("cpu_mhz",   "CPU clock", "CPU"),
+    ("cpu_power", "CPU power", "CPU"),
+    ("gpu_pct",   "GPU %",     "GPU"),
+    ("gpu_temp",  "GPU temp",  "GPU"),
+    ("gpu_vram",  "VRAM",      "GPU"),
+    ("gpu_power", "GPU power", "GPU"),
+    ("ram_pct",   "RAM %",     "RAM"),
+    ("ram_gb",    "RAM used",  "RAM"),
+    ("fps",       "FPS",       "FPS"),     # Phase 2 (PresentMon)
+    ("v12",       "12V rail",  "Voltage"),
+]
+_GAMING_LABELS = {m[0]: m[1] for m in _GAMING_METRICS}
+
+# Sample render per metric for the live preview: id -> (tag, value, color).
+# Lets the configurator show each parameter the way it actually appears in the
+# overlay (label + value + unit), color-coded, instead of a plain name chip.
+_GAMING_SAMPLE = {
+    "cpu_pct":   ("CPU",  "47%",    "#3b82f6"),
+    "cpu_temp":  ("CPU",  "61°C",   "#3b82f6"),
+    "cpu_mhz":   ("CPU",  "4.2GHz", "#3b82f6"),
+    "cpu_power": ("CPU",  "65W",    "#3b82f6"),
+    "gpu_pct":   ("GPU",  "73%",    "#22c55e"),
+    "gpu_temp":  ("GPU",  "72°C",   "#22c55e"),
+    "gpu_vram":  ("VRAM", "6.1GB",  "#22c55e"),
+    "gpu_power": ("GPU",  "180W",   "#22c55e"),
+    "ram_pct":   ("RAM",  "58%",    "#eab308"),
+    "ram_gb":    ("RAM",  "9.3GB",  "#eab308"),
+    "fps":       ("FPS",  "60",     "#a78bfa"),
+    "v12":       ("12V",  "12.01V", "#f59e0b"),
+}
+
+_GAMING_PRESETS = {
+    "default": ("Default", ["cpu_pct", "cpu_temp", "gpu_pct", "gpu_temp", "ram_pct", "fps"]),
+    "compact": ("Compact", ["cpu_pct", "gpu_pct", "ram_pct"]),
+    "pro":     ("Pro",     ["cpu_pct", "cpu_temp", "cpu_mhz", "gpu_pct", "gpu_temp",
+                            "gpu_vram", "ram_pct", "fps", "v12"]),
+}
+
+# Gaming tile gradient: bordeaux -> yellow -> purple
+_GM_BORDEAUX = (138, 21, 56)
+_GM_YELLOW   = (202, 162, 26)
+_GM_PURPLE   = (124, 58, 237)
+
+
+def _gaming_load_cfg() -> dict:
+    try:
+        with open(_GAMING_CFG_PATH, encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def _gaming_save_cfg(cfg: dict) -> None:
+    try:
+        os.makedirs(os.path.dirname(_GAMING_CFG_PATH), exist_ok=True)
+        with open(_GAMING_CFG_PATH, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2)
+    except Exception:
+        pass
+
+
+def _bind_click(widget, fn):
+    """Bind a left-click on a widget and all its current descendants."""
+    widget.bind("<Button-1>", lambda e: fn())
+    for ch in widget.winfo_children():
+        _bind_click(ch, fn)
+
+
+def _create_gaming_tile(parent, command):
+    """Wide bordeaux->yellow->purple tile that opens the In-Game Overlay configurator."""
+    HEIGHT = 42
+    outer = tk.Frame(parent, bg="#2a2d34", highlightthickness=1,
+                     highlightbackground="#2a2d34")
+    outer.pack(fill="x", pady=2)
+    canvas = tk.Canvas(outer, height=HEIGHT, bg="#1a1d24",
+                       highlightthickness=0, cursor="hand2")
+    canvas.pack(fill="x")
+
+    def _draw(bright=1.0):
+        canvas.delete("all")
+        w = canvas.winfo_width()
+        if w < 10:
+            w = 400
+        for x in range(0, w, 2):
+            t = x / max(w - 1, 1)
+            if t < 0.5:
+                r, g, b = _lerp_color(_GM_BORDEAUX, _GM_YELLOW, t * 2)
+            else:
+                r, g, b = _lerp_color(_GM_YELLOW, _GM_PURPLE, (t - 0.5) * 2)
+            r = min(255, int(r * bright)); g = min(255, int(g * bright)); b = min(255, int(b * bright))
+            col = f"#{r:02x}{g:02x}{b:02x}"
+            canvas.create_rectangle(x, 0, x + 2, HEIGHT, fill=col, outline=col)
+        canvas.create_text(12, HEIGHT // 2, text="\U0001f3ae", font=(_BODY, 12),
+                           fill="#ffffff", anchor="w")
+        canvas.create_text(34, HEIGHT // 2 - 6,
+                           text=_t("gaming.tile_title", default="GAMING  /  In-Game"),
+                           font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
+        canvas.create_text(34, HEIGHT // 2 + 8,
+                           text=_t("gaming.tile_sub", default="In-game overlay + MiniOverlay"),
+                           font=(_BODY, 6), fill="#f0e6ff", anchor="w")
+        canvas.create_text(w - 12, HEIGHT // 2, text="NEW",
+                           font=(_BODY, 6, "bold"), fill="#ffffff", anchor="e")
+
+    canvas.bind("<Configure>", lambda e: _draw())
+    canvas.bind("<Enter>", lambda e: _draw(1.15))
+    canvas.bind("<Leave>", lambda e: _draw(1.0))
+    canvas.bind("<Button-1>", lambda e: command())
+
+
+def _open_gaming_configurator(self):
+    for w in self.yourpc_content_frame.winfo_children():
+        w.destroy()
+    _build_gaming_configurator(self, self.yourpc_content_frame)
+
+
+def _mini_overlay_section(self, par):
+    """Small control for the existing always-on MiniOverlay (on/off)."""
+    sec = tk.Frame(par, bg="#0d1118", highlightthickness=1, highlightbackground="#1a2436")
+    sec.pack(fill="x", pady=(16, 0))
+    txt = tk.Frame(sec, bg="#0d1118")
+    txt.pack(side="left", fill="x", expand=True, padx=12, pady=10)
+    tk.Label(txt, text=_t("gaming.mini_title", default="MiniOverlay  (always-on)"),
+             font=(_BODY, 9, "bold"), bg="#0d1118", fg="#cbd5e1", anchor="w").pack(fill="x")
+    tk.Label(txt, text=_t("gaming.mini_desc",
+             default="The small floating monitor that runs the whole time PC Workman is open."),
+             font=(_BODY, 7), bg="#0d1118", fg="#6b7280", anchor="w").pack(fill="x")
+
+    sw = tk.Label(sec, text="", font=(_BODY, 8, "bold"), padx=12, pady=4, cursor="hand2")
+    sw.pack(side="right", padx=12)
+
+    def _inst():
+        try:
+            import ui.overlay_mini_monitor as _omm
+            return getattr(_omm, "_overlay_instance", None)
+        except Exception:
+            return None
+
+    def _on():
+        i = _inst()
+        return bool(i and getattr(i, "running", False))
+
+    def _paint():
+        try:
+            if not sw.winfo_exists():
+                return
+        except Exception:
+            return
+        cur = _on()
+        sw.config(text="ON" if cur else "OFF",
+                  bg="#166534" if cur else "#3a1010",
+                  fg="#86efac" if cur else "#fca5a5")
+
+    def _flip(_=None):
+        try:
+            import ui.overlay_mini_monitor as _omm
+            if _on():
+                _omm._overlay_instance.stop()
+            else:
+                top = self.yourpc_content_frame.winfo_toplevel()
+                _omm.launch_overlay_in_main_tk(top, monitor=getattr(self, "monitor", None))
+        except Exception as exc:
+            print(f"[gaming] mini overlay toggle: {exc}")
+        sw.after(60, _paint)
+
+    sw.bind("<Button-1>", _flip)
+    _paint()
+
+
+def _build_gaming_configurator(self, parent):
+    BG = "#0a0e14"
+    cfg = _gaming_load_cfg()
+    state = {"custom": list(cfg.get("custom_metrics", _GAMING_PRESETS["default"][1])),
+             "style":  dict(cfg.get("style") or {})}
+
+    root = tk.Frame(parent, bg=BG)
+    root.pack(fill="both", expand=True, padx=10, pady=8)
+
+    top = tk.Frame(root, bg=BG)
+    top.pack(fill="x")
+    body = tk.Frame(root, bg=BG)
+
+    def _nav(active_presets=False):
+        """Breadcrumb tabs in the persistent top bar: '← My PC' + 'Presets'
+        (highlighted like the My-PC tabs when we're in presets/custom)."""
+        for w in top.winfo_children():
+            w.destroy()
+        mypc = tk.Label(top, text="←  " + _t("gaming.back", default="My PC"),
+                        font=(_BODY, 8, "bold"), bg=BG, fg="#9ca3af",
+                        cursor="hand2", padx=2, pady=2)
+        mypc.pack(side="left")
+        mypc.bind("<Button-1>", lambda e: _show_tab(self, "central"))
+        mypc.bind("<Enter>", lambda e: mypc.config(fg="#e5e7eb"))
+        mypc.bind("<Leave>", lambda e: mypc.config(fg="#9ca3af"))
+        pres = tk.Label(top, text=_t("gaming.presets_tab", default="Presets"),
+                        font=(_BODY, 8, "bold"), cursor="hand2", padx=10, pady=2,
+                        bg="#3b82f6" if active_presets else "#11131c",
+                        fg="#ffffff" if active_presets else "#9ca3af")
+        pres.pack(side="left", padx=(8, 0))
+        pres.bind("<Button-1>", lambda e: _render_presets())
+
+    body.pack(fill="both", expand=True, pady=(10, 0))
+
+    def _clear():
+        for w in body.winfo_children():
+            w.destroy()
+
+    def _header(title, desc, action_text=None, action_cmd=None, accent="#7c3aed"):
+        h = tk.Frame(body, bg="#11131c", highlightthickness=1, highlightbackground="#241a3a")
+        h.pack(fill="x")
+        tk.Frame(h, bg=accent, width=3).pack(side="left", fill="y")
+        if action_text:
+            btn = tk.Label(h, text=action_text, font=(_BODY, 9, "bold"),
+                           bg=accent, fg="#ffffff", padx=16, pady=8, cursor="hand2")
+            btn.pack(side="right", padx=14)
+            btn.bind("<Button-1>", lambda e: action_cmd())
+        txt = tk.Frame(h, bg="#11131c")
+        txt.pack(side="left", fill="x", expand=True, padx=14, pady=12)
+        tk.Label(txt, text=title, font=(_HDR, 13), bg="#11131c", fg="#f3e8ff",
+                 anchor="w").pack(fill="x")
+        tk.Label(txt, text=desc, font=(_BODY, 8), bg="#11131c", fg="#a78bbf",
+                 anchor="w", wraplength=600, justify="left").pack(fill="x", pady=(3, 0))
+
+    def _preview(par, metrics, style=None):
+        """Mini render of the overlay 1:1 with the live one: component rows on the
+        left, FPS as a tall box on the right. Same group_rows() + resolve_style() as
+        the real overlay, so size/theme in the preview == what you get in-game."""
+        try:
+            from ui.components.ingame_overlay import group_rows, resolve_style
+            rows = group_rows(metrics)
+            lp, vp, fp, panel, value, sep, _a = resolve_style(style)
+        except Exception:
+            rows = []
+            lp, vp, fp, panel, value, sep = 8, 9, 13, "#0a0d14", "#e8edf4", "#1a2436"
+        pv = tk.Frame(par, bg=panel, padx=8, pady=5,
+                      highlightthickness=1, highlightbackground=sep)
+        has_fps = "fps" in metrics
+        if not rows and not has_fps:
+            tk.Label(pv, text=_t("gaming.preview_empty",
+                     default="(empty - add metrics below)"), font=("Consolas", 8),
+                     bg=panel, fg="#5b6b7b").pack(anchor="w")
+            return pv
+        left = tk.Frame(pv, bg=panel)
+        left.pack(side="left")
+        for r, (label, color, mids) in enumerate(rows):
+            tk.Label(left, text=label, font=("Segoe UI", lp, "bold"), bg=panel,
+                     fg=color, anchor="w").grid(row=r, column=0, sticky="w",
+                                                padx=(0, 10), pady=1)
+            for c, mid in enumerate(mids):
+                _, val, _ = _GAMING_SAMPLE.get(mid, (mid, "--", "#9ca3af"))
+                tk.Label(left, text=val, font=("Consolas", vp, "bold"), bg=panel,
+                         fg=value, anchor="e").grid(row=r, column=c + 1,
+                                                    sticky="e", padx=(0, 8), pady=1)
+        if has_fps:
+            tk.Frame(pv, bg=sep, width=1).pack(side="left", fill="y", padx=8)
+            fb = tk.Frame(pv, bg=panel)
+            fb.pack(side="left", fill="y")
+            tk.Label(fb, text="FPS", font=("Segoe UI", lp, "bold"), bg=panel,
+                     fg="#a78bfa").pack(expand=True)
+            _, fval, _ = _GAMING_SAMPLE.get("fps", ("FPS", "60", "#a78bfa"))
+            tk.Label(fb, text=fval, font=("Consolas", fp, "bold"), bg=panel,
+                     fg=value).pack(expand=True)
+        return pv
+
+    def _hint():
+        tk.Label(body, text="\U0001f4a1 " + _t("gaming.quick_move",
+                 default="Quick move: left/right-click the overlay in-game to jump it to the next corner."),
+                 font=(_BODY, 7), bg=BG, fg="#6b7280", anchor="w",
+                 wraplength=640, justify="left").pack(fill="x", pady=(14, 0))
+
+    # ── STATE: presets ──────────────────────────────────────────────────────
+    def _render_presets():
+        _clear()
+        _nav(True)
+        tk.Label(body, text=_t("gaming.pick_layout", default="Choose your in-game layout"),
+                 font=(_HDR, 11), bg=BG, fg="#e5e7eb").pack(anchor="w", pady=(8, 8))
+        row = tk.Frame(body, bg=BG)
+        row.pack(fill="x")
+        for key, (name, metrics) in _GAMING_PRESETS.items():
+            card = tk.Frame(row, bg="#11131c", highlightthickness=1,
+                            highlightbackground="#2a2440", cursor="hand2")
+            card.pack(side="left", fill="both", expand=True, padx=4)
+            tk.Label(card, text=name, font=(_HDR, 10), bg="#11131c",
+                     fg="#f3e8ff").pack(anchor="w", padx=10, pady=(8, 4))
+            _preview(card, metrics).pack(anchor="w", padx=10, pady=(0, 8))
+
+            def _pick(k=key, m=metrics):
+                c = _gaming_load_cfg()
+                c["preset"] = k
+                c["custom_metrics"] = list(m)
+                _gaming_save_cfg(c)
+                state["custom"] = list(m)
+                _render_configured()
+
+            _bind_click(card, _pick)
+            card.bind("<Enter>", lambda e, c=card: c.config(highlightbackground="#7c3aed"))
+            card.bind("<Leave>", lambda e, c=card: c.config(highlightbackground="#2a2440"))
+
+        cc = tk.Label(body, text="＋  " + _t("gaming.create_custom", default="Create Custom"),
+                      font=(_BODY, 9, "bold"), bg="#1a1330", fg="#c4b5fd",
+                      padx=16, pady=10, cursor="hand2")
+        cc.pack(fill="x", pady=(12, 0))
+        cc.bind("<Button-1>", lambda e: _render_custom())
+        _hint()
+
+    # ── STATE: custom ───────────────────────────────────────────────────────
+    def _render_custom():
+        _clear()
+        _nav(True)
+        tk.Label(body, text=_t("gaming.custom_title", default="Custom overlay"),
+                 font=(_HDR, 11), bg=BG, fg="#e5e7eb").pack(anchor="w", pady=(8, 4))
+
+        tk.Label(body, text=_t("gaming.live_preview",
+                 default="Live preview (updates as you pick):"),
+                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(anchor="w")
+        prev_holder = tk.Frame(body, bg=BG)
+        prev_holder.pack(anchor="w", pady=(3, 10))
+
+        def _redraw_preview():
+            for w in prev_holder.winfo_children():
+                w.destroy()
+            _preview(prev_holder, state["custom"], state["style"]).pack(anchor="w")
+
+        _redraw_preview()
+
+        # Form model: one row per component; each FIELD is a ▼ dropdown that picks
+        # which metric goes there (native tk.Menu - rock-solid, form-like select).
+        _GROUP_OF = {m[0]: m[2] for m in _GAMING_METRICS}
+        _form_groups: dict = {}
+        for _gm, _gl, _gg in _GAMING_METRICS:
+            _form_groups.setdefault(_gg, []).append((_gm, _gl))
+        _FORM_ORDER  = ["CPU", "GPU", "RAM", "Voltage", "FPS"]
+        _FORM_COLOR  = {"CPU": "#3b82f6", "GPU": "#22c55e", "RAM": "#eab308",
+                        "Voltage": "#f59e0b", "FPS": "#a78bfa"}
+        _FORM_RLABEL = {"CPU": "CPU", "GPU": "GPU", "RAM": "RAM",
+                        "Voltage": "12V", "FPS": "FPS"}
+
+        def _persist_custom():
+            c = _gaming_load_cfg()
+            c["custom_metrics"] = list(state["custom"])
+            c["preset"] = "custom"
+            _gaming_save_cfg(c)
+
+        def _after_change():
+            _persist_custom()
+            _redraw_preview()
+            _rebuild_form()
+
+        def _replace_field(old, new):
+            if new == old:
+                return
+            if new in state["custom"]:
+                if old in state["custom"]:
+                    state["custom"].remove(old)          # collapse onto existing
+            elif old in state["custom"]:
+                state["custom"][state["custom"].index(old)] = new
+            _after_change()
+
+        def _remove_field(mid):
+            if mid in state["custom"]:
+                state["custom"].remove(mid)
+            _after_change()
+
+        def _add_field(mid):
+            if mid not in state["custom"]:
+                state["custom"].append(mid)
+            _after_change()
+
+        def _field_menu(anchor, items):
+            m = tk.Menu(anchor, tearoff=0, bg="#11131c", fg="#e5e7eb",
+                        activebackground="#7c3aed", activeforeground="#ffffff",
+                        bd=0, font=(_BODY, 8))
+            for lbl, cb in items:
+                if cb is None:
+                    m.add_separator()
+                else:
+                    m.add_command(label=lbl, command=cb)
+            try:
+                m.tk_popup(anchor.winfo_rootx(),
+                           anchor.winfo_rooty() + anchor.winfo_height())
+            finally:
+                m.grab_release()
+
+        def _dropdown(parent, text, items, bg, fg):
+            d = tk.Label(parent, text=text + "  ▼", font=(_BODY, 8), bg=bg, fg=fg,
+                         padx=8, pady=3, cursor="hand2")
+            d.pack(side="left", padx=2)
+            d.bind("<Button-1>", lambda e: _field_menu(d, items))
+
+        tk.Label(body, text=_t("gaming.build",
+                 default="Build your overlay (pick a metric per field):"),
+                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(anchor="w")
+        form = tk.Frame(body, bg=BG)
+        form.pack(fill="x", pady=(3, 10))
+
+        def _rebuild_form():
+            for w in form.winfo_children():
+                w.destroy()
+            for grp in _FORM_ORDER:
+                metrics = _form_groups.get(grp, [])
+                if not metrics:
+                    continue
+                labels = dict(metrics)
+                rowf = tk.Frame(form, bg=BG)
+                rowf.pack(fill="x", pady=2)
+                tk.Label(rowf, text=_FORM_RLABEL[grp], font=(_BODY, 8, "bold"),
+                         bg=BG, fg=_FORM_COLOR[grp], width=5,
+                         anchor="w").pack(side="left")
+                used = [m for m in state["custom"] if _GROUP_OF.get(m) == grp]
+                for mid in used:
+                    opts = [(l2, (lambda mm=mid, nn=m2: _replace_field(mm, nn)))
+                            for m2, l2 in metrics]
+                    opts.append(("", None))
+                    opts.append(("✕ " + _t("gaming.remove_field", default="Remove"),
+                                 (lambda mm=mid: _remove_field(mm))))
+                    _dropdown(rowf, labels.get(mid, mid), opts, "#161922", "#c4b5fd")
+                unused = [(m2, l2) for m2, l2 in metrics if m2 not in state["custom"]]
+                if unused:
+                    opts = [(l2, (lambda mm=m2: _add_field(mm))) for m2, l2 in unused]
+                    _dropdown(rowf, "+", opts, "#1a1330", "#86efac")
+
+        _rebuild_form()
+
+        # ── STYLE — size / theme / opacity (live, applied to preview + overlay) ──
+        from ui.components.ingame_overlay import DEFAULT_STYLE as _DSTYLE
+        tk.Label(body, text=_t("gaming.style", default="Style"), font=(_HDR, 9),
+                 bg=BG, fg="#e5e7eb").pack(anchor="w", pady=(14, 4))
+
+        def _style_get(key):
+            return state["style"].get(key, _DSTYLE.get(key))
+
+        def _style_set(key, val):
+            state["style"][key] = val
+            c = _gaming_load_cfg()
+            c["style"] = dict(state["style"])
+            _gaming_save_cfg(c)
+            _redraw_preview()
+
+        def _style_chip_row(title, options, key):
+            row = tk.Frame(body, bg=BG)
+            row.pack(fill="x", pady=2)
+            tk.Label(row, text=title, font=(_BODY, 7, "bold"), bg=BG, fg="#6b7280",
+                     width=8, anchor="w").pack(side="left")
+            chips = {}
+
+            def _repaint():
+                cur = _style_get(key)
+                for v, ch in chips.items():
+                    on = (v == cur)
+                    ch.config(bg="#2a1f4a" if on else "#161922",
+                              fg="#c4b5fd" if on else "#9ca3af")
+
+            for v, lbl in options:
+                ch = tk.Label(row, text=lbl, font=(_BODY, 8), padx=10, pady=3,
+                              cursor="hand2")
+                ch.pack(side="left", padx=2)
+                chips[v] = ch
+
+                def _pick(vv=v):
+                    _style_set(key, vv)
+                    _repaint()
+
+                ch.bind("<Button-1>", lambda e, f=_pick: f())
+            _repaint()
+
+        _style_chip_row(_t("gaming.size", default="Size"),
+                        [("S", "S"), ("M", "M"), ("L", "L")], "size")
+        _style_chip_row(_t("gaming.theme", default="Theme"),
+                        [("dark", "Dark"), ("slate", "Slate"), ("contrast", "Contrast")],
+                        "theme")
+
+        orow = tk.Frame(body, bg=BG)
+        orow.pack(fill="x", pady=2)
+        tk.Label(orow, text=_t("gaming.opacity", default="Opacity"),
+                 font=(_BODY, 7, "bold"), bg=BG, fg="#6b7280", width=8,
+                 anchor="w").pack(side="left")
+        oval = tk.Label(orow, text="", font=(_MONO, 8, "bold"), bg=BG, fg="#c4b5fd")
+
+        def _bump_op(d):
+            cur = int(_style_get("opacity") or 80)
+            _style_set("opacity", max(40, min(95, cur + d)))
+            oval.config(text=f"{int(_style_get('opacity') or 80)}%")
+
+        for txt, dd in (("−", -5), ("＋", 5)):
+            b = tk.Label(orow, text=txt, font=(_BODY, 9, "bold"), bg="#161922",
+                         fg="#c4b5fd", padx=10, pady=2, cursor="hand2")
+            b.pack(side="left", padx=2)
+            b.bind("<Button-1>", lambda e, dv=dd: _bump_op(dv))
+        oval.pack(side="left", padx=6)
+        oval.config(text=f"{int(_style_get('opacity') or 80)}%")
+
+        done = tk.Label(body, text=_t("gaming.use_overlay", default="Use this overlay  →"),
+                        font=(_BODY, 9, "bold"), bg="#7c3aed", fg="#ffffff",
+                        padx=16, pady=8, cursor="hand2")
+        done.pack(anchor="e", pady=(14, 0))
+        done.bind("<Button-1>", lambda e: _render_configured())
+
+    # ── STATE: configured ───────────────────────────────────────────────────
+    def _render_configured():
+        _clear()
+        _nav(False)
+        metrics = _gaming_load_cfg().get("custom_metrics", _GAMING_PRESETS["default"][1])
+
+        # One compact panel:  left texts  ·  centre preview  ·  right CHANGE + toggle.
+        panel = tk.Frame(body, bg="#11131c", highlightthickness=1,
+                         highlightbackground="#1a3a26")
+        panel.pack(fill="x")
+        tk.Frame(panel, bg="#22c55e", width=3).pack(side="left", fill="y")
+        inner = tk.Frame(panel, bg="#11131c")
+        inner.pack(side="left", fill="x", expand=True, padx=14, pady=12)
+        inner.columnconfigure(0, weight=0)
+        inner.columnconfigure(1, weight=1)
+        inner.columnconfigure(2, weight=0)
+
+        # LEFT — title / done / All-Time label
+        lc = tk.Frame(inner, bg="#11131c")
+        lc.grid(row=0, column=0, sticky="nw")
+        tk.Label(lc, text=_t("gaming.cfg_title", default="OVERLAY In-Game"),
+                 font=(_HDR, 13), bg="#11131c", fg="#f3e8ff", anchor="w").pack(anchor="w")
+        tk.Label(lc, text=_t("gaming.cfg_done", default="Fully configured!"),
+                 font=(_BODY, 8), bg="#11131c", fg="#86efac",
+                 anchor="w").pack(anchor="w", pady=(2, 10))
+        tk.Label(lc, text=_t("gaming.all_time", default="All-Time Overlay"),
+                 font=(_BODY, 8, "bold"), bg="#11131c", fg="#cbd5e1",
+                 anchor="w").pack(anchor="w")
+        tk.Label(lc, text=_t("gaming.all_time_desc",
+                 default="Keep the overlay on even outside games."),
+                 font=(_BODY, 6), bg="#11131c", fg="#6b7280", anchor="w",
+                 wraplength=170, justify="left").pack(anchor="w")
+
+        # CENTRE — current overlay preview
+        cc = tk.Frame(inner, bg="#11131c")
+        cc.grid(row=0, column=1)
+        tk.Label(cc, text=_t("gaming.current", default="Current overlay:"),
+                 font=(_BODY, 7), bg="#11131c", fg="#6b7280").pack()
+        _preview(cc, metrics, _gaming_load_cfg().get("style")).pack(pady=(3, 0))
+
+        # RIGHT — CHANGE + All-Time ON/OFF
+        rc = tk.Frame(inner, bg="#11131c")
+        rc.grid(row=0, column=2, sticky="ne")
+        chg = tk.Label(rc, text=_t("gaming.change", default="CHANGE"),
+                       font=(_BODY, 9, "bold"), bg="#22c55e", fg="#06210f",
+                       padx=16, pady=6, cursor="hand2")
+        chg.pack(anchor="e")
+        chg.bind("<Button-1>", lambda e: _render_presets())
+        at_sw = tk.Label(rc, text="", font=(_BODY, 8, "bold"), padx=14, pady=4,
+                         cursor="hand2")
+        at_sw.pack(anchor="e", pady=(10, 0))
+
+        def _paint_at():
+            try:
+                if not at_sw.winfo_exists():
+                    return
+            except Exception:
+                return
+            cur = bool(_gaming_load_cfg().get("all_time", False))
+            at_sw.config(text="ON" if cur else "OFF",
+                         bg="#166534" if cur else "#3a1010",
+                         fg="#86efac" if cur else "#fca5a5")
+
+        def _flip_at(_=None):
+            c = _gaming_load_cfg()
+            c["all_time"] = not bool(c.get("all_time", False))
+            _gaming_save_cfg(c)
+            _paint_at()
+
+        at_sw.bind("<Button-1>", _flip_at)
+        _paint_at()
+
+        # Below the panel — show/hide the live overlay + MiniOverlay control.
+        ctl = tk.Frame(body, bg=BG)
+        ctl.pack(fill="x", pady=(12, 0))
+        ov_btn = tk.Label(ctl, text="", font=(_BODY, 9, "bold"), padx=16, pady=8,
+                          cursor="hand2")
+        ov_btn.pack(side="left")
+        tk.Label(ctl, text=_t("gaming.overlay_hint",
+                 default="Borderless / windowed games. Left/right-click the HUD to move corner."),
+                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(side="left", padx=(12, 0))
+
+        def _paint_ov():
+            try:
+                if not ov_btn.winfo_exists():
+                    return
+            except Exception:
+                return
+            try:
+                import ui.components.ingame_overlay as _igo
+                on = _igo.is_running()
+            except Exception:
+                on = False
+            ov_btn.config(
+                text=_t("gaming.hide_overlay", default="■  Hide overlay") if on
+                     else _t("gaming.show_overlay", default="▶  Show overlay"),
+                bg="#3a1010" if on else "#7c3aed",
+                fg="#fca5a5" if on else "#ffffff")
+
+        def _toggle_ov(_=None):
+            try:
+                import ui.components.ingame_overlay as _igo
+                if _igo.is_running():
+                    _igo.stop_ingame_overlay()
+                else:
+                    top = self.yourpc_content_frame.winfo_toplevel()
+                    _cfg = _gaming_load_cfg()
+                    mets = _cfg.get("custom_metrics", _GAMING_PRESETS["default"][1])
+                    _igo.launch_ingame_overlay(top, mets, _cfg.get("style"))
+            except Exception as exc:
+                print(f"[gaming] overlay toggle: {exc}")
+            ov_btn.after(80, _paint_ov)
+
+        ov_btn.bind("<Button-1>", _toggle_ov)
+        _paint_ov()
+
+        _mini_overlay_section(self, body)
+
+    # ── STATE: intro (entry) ────────────────────────────────────────────────
+    def _render_intro():
+        _clear()
+        _nav(False)
+        _header(_t("gaming.intro_title", default="IN-GAME OVERLAY"),
+                _t("gaming.intro_desc",
+                   default="Configure an intuitive in-game overlay. Highly configurable, "
+                           "and it won't get in your way."),
+                action_text=_t("gaming.start_setup", default="Start Instant Setup"),
+                action_cmd=_render_presets, accent="#7c3aed")
+        _mini_overlay_section(self, body)
+
+    if cfg.get("custom_metrics") or cfg.get("preset"):
+        _render_configured()
+    else:
+        _render_intro()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
