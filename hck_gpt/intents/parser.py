@@ -135,7 +135,13 @@ class IntentParser:
             ml_intent, ml_conf = ml_classifier.predict(text)
 
             if ml_conf >= 0.70:
-                # ML is very confident - trust it outright
+                # ML is very confident - trust it outright, UNLESS a strong
+                # keyword phrase disagrees. A high keyword score (>=0.85) means a
+                # deliberate multi-word phrase matched (e.g. "czy mój komputer jest
+                # przegrzany") - that exact-phrase signal is more reliable than an
+                # over-confident Naive Bayes guess on a short query.
+                if ml_intent != kw_intent and kw_conf >= 0.85:
+                    return kw_intent, kw_conf
                 return ml_intent, ml_conf
 
             if ml_conf >= 0.35:
