@@ -824,8 +824,9 @@ class ChatHandler:
         # ── Try the hybrid engine one more time with lower confidence bar ───────
         if HAS_AI_LAYER and HAS_HYBRID:
             try:
-                # Reuse earlier parse result if available (avoid triple-parsing the same message)
-                _late_result = _parsed_result if _parsed_result is not None else intent_parser.parse(msg)
+                # Parse fresh here — _default_response runs in its own scope and
+                # has no access to process_message's local parse result.
+                _late_result = intent_parser.parse(msg)
                 if _late_result.confidence >= 0.18:   # lower floor than normal 0.20
                     _late_resp = hybrid_engine.process(msg, _late_result, lang=lang)
                     if _late_resp:

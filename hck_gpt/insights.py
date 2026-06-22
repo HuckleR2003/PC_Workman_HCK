@@ -1,8 +1,10 @@
 # hck_gpt/insights.py
+from __future__ import annotations
 import time
 import random
 import traceback
 from datetime import datetime, timedelta
+from typing import Optional
 
 _PATTERN_TTL = 300   # 5 min - 7-day scan is expensive
 _SUMMARY_TTL  = 120  # 2 min

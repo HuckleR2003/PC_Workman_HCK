@@ -50,6 +50,34 @@ _SB_BD_N   = "#4c0519"   # border normal
 _SB_BD_H   = "#be123c"   # border hover
 
 
+# ── Component / hardware-brand highlighter ────────────────────────────────────
+# When a bot message names a real device or brand (Intel, RTX 4070, DDR5,
+# Samsung, Ryzen…), the matched token is tagged "purple" so hardware pops out
+# visually in chat. Curated + distinctive tokens only — lookarounds (not \b) so
+# it runs cleanly under Python re. Case-insensitive; model numbers attach to
+# their family (e.g. "RTX 3060", "i5-10400F") so the whole name lights up.
+_COMPONENT_RE = re.compile(
+    r'(?<![\w])('
+    # CPU vendors & families
+    r'Intel|AMD|Ryzen|Threadripper|Xeon|Pentium|Celeron|Athlon|'
+    r'Core\s?i[3579]|i[3579]-\d{3,5}[A-Za-z]{0,2}|'
+    # GPU vendors & families (+ attached model numbers)
+    r'NVIDIA|GeForce|Radeon|Quadro|'
+    r'RTX\s?\d{3,4}\s?[A-Za-z]{0,4}|GTX\s?\d{3,4}\s?[A-Za-z]{0,4}|'
+    r'RX\s?\d{3,4}\s?[A-Za-z]{0,3}|RTX|GTX|'
+    # RAM
+    r'DDR[2345]|LPDDR[2345]|'
+    # Storage interface + brands
+    r'NVMe|'
+    r'Samsung|Kingston|Crucial|Corsair|Seagate|ADATA|Hynix|Micron|Toshiba|'
+    r'Western\s?Digital|G\.Skill|'
+    # Motherboard / vendor brands
+    r'ASUS|ASRock|Gigabyte|MSI|Biostar'
+    r')(?![\w])',
+    re.IGNORECASE,
+)
+
+
 class HCKGPTPanel:
     def __init__(self, parent, width, collapsed_h=34, expanded_h=280, max_h=420):
         self.parent = parent
@@ -1123,6 +1151,7 @@ class HCKGPTPanel:
         if "\U0001f4a1" in msg:
             self.log.tag_add("tip_green", start_pos, end_pos)
         self._apply_inline_colors(start_pos)
+        self._apply_component_colors(start_pos)
         self._apply_nav_links(start_pos)
         self.log.see("end")
         self.log.config(state="disabled")
@@ -1155,6 +1184,22 @@ class HCKGPTPanel:
                 match_end = f"{pos}+{len(m.group(0))}c"
                 self.log.tag_add(tag, pos, match_end)
                 idx = match_end
+
+    def _apply_component_colors(self, start_pos: str):
+        """Tag hardware brand/model tokens (Intel, RTX 4070, DDR5, Samsung…)
+        in purple so components stand out in the chat log."""
+        try:
+            end_pos = self.log.index("end")
+            text = self.log.get(start_pos, end_pos)
+        except Exception:
+            return
+        for m in _COMPONENT_RE.finditer(text):
+            try:
+                s = f"{start_pos}+{m.start()}c"
+                e = f"{start_pos}+{m.end()}c"
+                self.log.tag_add("purple", s, e)
+            except Exception:
+                continue
 
     def add_colored(self, text, tag=None):
         """Add text with a color tag (no newline - caller controls layout)."""
