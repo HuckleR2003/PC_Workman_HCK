@@ -21,7 +21,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/index_en.html">
     <meta property="og:locale" content="en_US">
-    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
     <meta name="twitter:title" content="PC_Workman v1.7.9 — Adaptive thermal + voltage SPC in a local AI monitor">
@@ -1116,6 +1116,110 @@
                             Under the hood: −1326 lines of dead code and a dozen resource leaks gone.
                         </p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════
+             NEW IN 1.8.0 — SMART LEARNING
+        ══════════════════════════════════════════════════════ -->
+        <section id="v180" class="features-section" style="padding-top:0">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-eyebrow">New in 1.8.0</p>
+                    <h2 class="section-title">Smart Learning that <span class="highlight-green">actually accumulates</span></h2>
+                    <p class="section-subtitle">It learns YOUR machine over time — and now you can see exactly what it knows.</p>
+                </div>
+
+                <!-- [GIF] Replace this placeholder with:
+                     <img class="feature-screenshot-wide" src="assets/images/learning-center.gif" alt="PC Workman Learning Center"> -->
+                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
+                    🧠 &nbsp;LEARNING CENTER &nbsp;·&nbsp; live view of what your PC has learned
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#34d399;font-weight:700;letter-spacing:1px;margin-bottom:6px;">WORKLOAD-AWARE TEMPS</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">82°C: normal while gaming, critical at idle</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Same number, opposite verdict. hck_GPT judges temperature against
+                            your learned norm for the current workload (z-score), not a hardcoded
+                            85°C cutoff — so it stops crying wolf during normal gaming.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">LEARNING CENTER</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">See what it learned — live</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Per-workload training progress and learned ranges, voltage SPC baselines,
+                            a live PSU health score, and a ↻ Rebuild self-check that re-thinks from
+                            your data on the spot.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#f59e0b;font-weight:700;letter-spacing:1px;margin-bottom:6px;">NEVER FORGETS</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Welford accumulator</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Learning accumulates for the life of the install and survives 90-day
+                            data pruning — not a 14-day window. The longer it runs, the more it
+                            knows your hardware. <a href="guides/what-your-pc-learned/" style="color:#34d399;">How it works →</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════
+             NEW IN 1.8.0 — GAMING / IN-GAME OVERLAY
+        ══════════════════════════════════════════════════════ -->
+        <section id="v180-gaming" class="features-section" style="padding-top:0">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-eyebrow">New in 1.8.0</p>
+                    <h2 class="section-title">An overlay that shows <span class="highlight-green">nothing until you choose</span></h2>
+                    <p class="section-subtitle">Every gaming tool decides what your overlay shows. This one starts empty — you drop in exactly what you want.</p>
+                </div>
+
+                <!-- [GIF] Replace this placeholder with the build-and-test recording:
+                     <img class="feature-screenshot-wide" src="assets/images/gaming-overlay-custom.gif" alt="Building and testing a custom in-game overlay in PC Workman"> -->
+                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
+                    🎮 &nbsp;MY PC → GAMING / IN-GAME &nbsp;·&nbsp; build your own layout, then test it live
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px;">
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">STARTS EMPTY</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">You choose what it shows</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            Temps in one corner, FPS in another, nothing else. A glance when you
+                            want it, invisible when you don't — floating over borderless games
+                            without stealing focus.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#34d399;font-weight:700;letter-spacing:1px;margin-bottom:6px;">3 READY LAYOUTS</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Default · Compact · Pro</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            In a hurry? Pick a preset and you're done. Or open Create Custom and
+                            build it row by row — each field a dropdown, no duplicates, with a live
+                            preview that matches the overlay 1:1.
+                        </p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#f59e0b;font-weight:700;letter-spacing:1px;margin-bottom:6px;">KNOWS YOUR GAME</div>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">A hello when you launch</h3>
+                        <p style="font-size:12.5px;color:#91a1ab;margin:0;">
+                            PC Workman sees the game start and drops a one-second greeting in the
+                            corner — "Good luck at the tournament!" for CS2, "Breeding an albino
+                            today?" for Planet Zoo. 40+ games, two languages.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- [IMAGE] Replace this placeholder with the three-presets photo:
+                     <img class="feature-screenshot-wide" src="assets/images/gaming-overlay-presets.png" alt="The three in-game overlay presets: Default, Compact and Pro"> -->
+                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:34px 18px;text-align:center;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
+                    🖼 &nbsp;THE THREE PRESETS &nbsp;·&nbsp; Default · Compact · Pro
                 </div>
             </div>
         </section>
