@@ -24,11 +24,13 @@ Silent notifications (banner):
 """
 from __future__ import annotations
 
+import json
+import os
 import threading
 import time
 import random
 from typing import Callable, List, Optional
-from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+from import_core import register_component, STATUS_OK
 
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
@@ -72,6 +74,10 @@ DM_GPU_TEMP_CRIT    = 92.0   # GPU temp critical threshold (°C)
 DM_CPU_FREQ_DROP    = 0.55   # CPU freq below 55% of max = severe throttle
 DM_MULTI_DISK_LOW   = 8.0    # GB free - check ALL drives, not just C:
 DM_CHECK_INTERVAL   = 3      # run DeepMonitor check every N main checks (~2 min)
+
+# Training-level ordering for one-time learning-milestone announcements
+_TRAIN_RANK = {"no_data": 0, "initializing": 1, "learning": 2,
+               "basic": 3, "trained": 4, "calibrated": 5}
 
 
 # ── Message pools - PL + EN ───────────────────────────────────────────────────
@@ -285,6 +291,16 @@ _MSGS: dict[str, dict[str, list[str]]] = {
             "hck_GPT: 🔴 GPU overheating at {val}°C! Lower graphics settings or improve airflow.",
         ],
     },
+    "thermal_insight": {
+        "pl": [
+            "hck_GPT: 💡 CPU lekko cieplej niż Twoja norma: {val}. Na razie spokojnie - obserwuję.",
+            "hck_GPT: 💡 Temperatura nieco ponad zwykłą: {val}. Jeśli się utrzyma, warto zerknąć na chłodzenie.",
+        ],
+        "en": [
+            "hck_GPT: 💡 CPU running a touch above your norm: {val}. Nothing alarming yet - I'm watching.",
+            "hck_GPT: 💡 Slightly above usual: {val}. If it persists, worth a glance at cooling.",
+        ],
+    },
     "multi_disk_low": {
         "pl": [
             "hck_GPT: 💾 Dysk {val} ma mało miejsca. Sprawdź zakładkę Optymalizacja -> wyczyść tymczasowe.",
@@ -313,6 +329,26 @@ _MSGS: dict[str, dict[str, list[str]]] = {
         "en": [
             "hck_GPT: ✓ DeepMonitor: CPU {val}. All sensors nominal.",
             "hck_GPT: 📊 Sensor report: {val}. System under control.",
+        ],
+    },
+    "learning_milestone": {
+        "pl": [
+            "hck_GPT: 💡 Znam już Twoje temperatury w {val} na tyle dobrze, że wyłapię realne anomalie, nie fałszywe alarmy.",
+            "hck_GPT: 💡 Skalibrowałem się na Twoich danych: {val}. Od teraz oceniam temperaturę względem TWOJEJ normy.",
+        ],
+        "en": [
+            "hck_GPT: 💡 I now know your {val} temperatures well enough to catch real anomalies, not false alarms.",
+            "hck_GPT: 💡 Calibrated on your data: {val}. From now I judge temperature against YOUR normal.",
+        ],
+    },
+    "voltage_new_normal": {
+        "pl": [
+            "hck_GPT: 💡 Ten powtarzalny skok na szynie {val} uznaję teraz za normalny dla Twojego sprzętu - widziałem go już kilka razy.",
+            "hck_GPT: 💡 Szyna {val}: ten wzorzec powtórzył się na tyle, że traktuję go jako Twoją normę, nie anomalię.",
+        ],
+        "en": [
+            "hck_GPT: 💡 That recurring blip on the {val} rail - I'm treating it as normal for your rig now, seen it enough times.",
+            "hck_GPT: 💡 {val} rail: this pattern repeated enough that I now treat it as your normal, not an anomaly.",
         ],
     },
 }
@@ -430,6 +466,10 @@ class ProactiveMonitor:
         self._volt_check_tick: int  = 0        # run voltage check every 4 main cycles (~3 min)
         self._was_volt_anomaly: bool = False   # for clear-on-recovery tracking
 
+        # Learning-engine announcements (one-time, positive)
+        self._milestones_announced: Optional[dict] = None  # lazy-loaded from cache
+        self._volt_new_normal_announced: set = set()       # rails announced this session
+
     def set_user_active(self) -> None:
         """Call when user sends a message - suppresses redundant alerts for 5 min."""
         self._user_active = True
@@ -489,6 +529,10 @@ class ProactiveMonitor:
 
         while self._running:
             try:
+                # Fold new snapshots into the learning engines every cycle so the
+                # baselines accumulate continuously while the app runs — not only
+                # when the user opens Monitoring or asks hck_GPT about temps.
+                self._learning_tick()
                 self._check_system()
                 tip_counter += 1
                 self._dm_check_tick += 1
@@ -505,9 +549,86 @@ class ProactiveMonitor:
                 # Suggest session digest every ~26 checks (~20 min) for long sessions
                 if tip_counter % 26 == 0:
                     self._maybe_digest_suggestion()
+                # Announce a learning milestone when a bucket hits full calibration
+                if tip_counter % 6 == 0:
+                    self._check_learning_milestones()
             except Exception:
                 pass
             time.sleep(CHECK_INTERVAL_S)
+
+    def _learning_tick(self) -> None:
+        """Continuously fold new snapshots into the learning engines.
+        maybe_rebuild() self-throttles (~5 min), matching the snapshot cadence,
+        so this is cheap to call every cycle."""
+        try:
+            from core.thermal_baseline import thermal_baseline
+            thermal_baseline.maybe_rebuild()
+        except Exception:
+            pass
+        try:
+            from core.voltage_analyzer import voltage_analyzer
+            voltage_analyzer.maybe_rebuild()
+        except Exception:
+            pass
+
+    # ── Learning-milestone announcements (one-time, positive) ──────────────────
+
+    def _milestones_path(self) -> str:
+        from utils.paths import APP_DIR
+        return os.path.join(APP_DIR, "data", "cache", "learning_milestones.json")
+
+    def _load_milestones(self) -> dict:
+        if self._milestones_announced is not None:
+            return self._milestones_announced
+        data = {}
+        try:
+            with open(self._milestones_path(), encoding="utf-8") as f:
+                loaded = json.load(f)
+            if isinstance(loaded, dict):
+                data = loaded
+        except Exception:
+            data = {}
+        self._milestones_announced = data
+        return data
+
+    def _save_milestones(self) -> None:
+        try:
+            p = self._milestones_path()
+            os.makedirs(os.path.dirname(p), exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump(self._milestones_announced or {}, f, indent=2)
+        except Exception:
+            pass
+
+    def _check_learning_milestones(self) -> None:
+        """Announce ONCE when a workload bucket reaches full calibration — a
+        positive, trust-building note that the learned baseline is now reliable.
+        Persisted so it never repeats across restarts."""
+        try:
+            from core.thermal_baseline import thermal_baseline
+            status = thermal_baseline.training_status()
+        except Exception:
+            return
+        announced = self._load_milestones()
+        _bk_pl = {"idle": "bezczynności", "light": "lekkim", "medium": "średnim",
+                  "heavy": "intensywnym", "gaming": "gaming"}
+        _bk_en = {"idle": "idle", "light": "light", "medium": "medium",
+                  "heavy": "heavy", "gaming": "gaming"}
+        for bucket, info in status.items():
+            level = info.get("level", "no_data")
+            if _TRAIN_RANK.get(level, 0) < _TRAIN_RANK["calibrated"]:
+                continue   # only celebrate full calibration
+            if _TRAIN_RANK.get(announced.get(bucket, "no_data"), 0) >= _TRAIN_RANK[level]:
+                continue   # already announced this level or higher
+            n = int(info.get("n", 0))
+            if self._lang == "pl":
+                val = f"trybie {_bk_pl.get(bucket, bucket)} ({n} próbek)"
+            else:
+                val = f"{_bk_en.get(bucket, bucket)} workload ({n} samples)"
+            self._alert("learning_milestone", val)
+            announced[bucket] = level
+            self._save_milestones()
+            return   # one per check — avoids same-event gap hiding the next
 
     # ── System checks ─────────────────────────────────────────────────────────
 
@@ -601,7 +722,10 @@ class ProactiveMonitor:
                 self._alert("gpu_temp_spike", f"{gpu_temp:.0f}")
 
             cpu_temp = snap.get("cpu_temp", None)
-            if cpu_temp and cpu_temp > 82:
+            verdict, _ = self._thermal_verdict(cpu_temp) if cpu_temp else (None, "")
+            _hot = ((verdict in ("high", "critical")) if verdict is not None
+                    else bool(cpu_temp and cpu_temp > 82))
+            if _hot:
                 self._cpu_temp_high_cnt += 1
                 # Only alert after 3 consecutive high readings (~2+ min sustained)
                 if self._cpu_temp_high_cnt >= 3:
@@ -864,6 +988,39 @@ class ProactiveMonitor:
 
     # ── DeepMonitor deep-sensor check ─────────────────────────────────────────
 
+    def _thermal_verdict(self, cpu_temp):
+        """Workload-aware CPU temp verdict from the learned baseline.
+        Returns (verdict, context) where verdict is normal/elevated/high/critical,
+        or (None, "") when that workload bucket isn't trained yet — the caller then
+        falls back to fixed thresholds. This is what stops false alarms during
+        normal gaming: 82°C is critical at idle but normal under a GPU load."""
+        if not cpu_temp:
+            return None, ""
+        try:
+            import psutil as _ps
+            from core.thermal_baseline import thermal_baseline
+            cpu_load = _ps.cpu_percent(interval=None)
+            gpu_load = 0.0
+            try:
+                from hck_gpt.data.live_sensors import snapshot as _ls
+                gl = _ls().get("gpu_load", -1)
+                if gl is not None and gl >= 0:
+                    gpu_load = float(gl)
+            except Exception:
+                pass
+            bucket = thermal_baseline.classify(cpu_load, gpu_load)
+            br = thermal_baseline.get_range(bucket)
+            if not br.is_usable:
+                return None, ""
+            verdict = br.classify_temp(cpu_temp)
+            if self._lang == "pl":
+                ctx = f"{cpu_temp:.0f}°C w trybie {bucket} (norma {br.p5:.0f}–{br.p95:.0f}°C)"
+            else:
+                ctx = f"{cpu_temp:.0f}°C in {bucket} workload (normal {br.p5:.0f}–{br.p95:.0f}°C)"
+            return verdict, ctx
+        except Exception:
+            return None, ""
+
     def _check_deepmonitor(self) -> None:
         """
         Rich hardware check powered by LibreHardwareMonitor sensor data
@@ -876,7 +1033,7 @@ class ProactiveMonitor:
         except ImportError:
             return
 
-        cpu_temp = gpu_temp = cpu_mhz = cpu_max_mhz = None
+        cpu_temp = gpu_temp = None
 
         # ── CPU + GPU temperatures ─────────────────────────────────────────
         try:
@@ -893,9 +1050,26 @@ class ProactiveMonitor:
         except Exception:
             pass
 
-        # CPU temperature tiers (warn / critical with consecutive-reading hysteresis)
+        # CPU temperature — workload-aware via the learned baseline; fixed-threshold
+        # fallback until that workload bucket is trained.
         if cpu_temp is not None:
-            if cpu_temp >= DM_CPU_TEMP_CRIT:
+            verdict, ctx = self._thermal_verdict(cpu_temp)
+            if verdict is not None:
+                if verdict == "critical":
+                    self._dm_cpu_temp_crit_cnt += 1
+                    if self._dm_cpu_temp_crit_cnt >= 2:
+                        self._alert("cpu_temp_crit", f"{cpu_temp:.0f}", urgent=True)
+                        self._dm_healthy_report_due = True
+                elif verdict == "high":
+                    self._dm_cpu_temp_crit_cnt = max(0, self._dm_cpu_temp_crit_cnt - 1)
+                    self._alert("cpu_temp_warn", f"{cpu_temp:.0f}")
+                    self._dm_healthy_report_due = True
+                elif verdict == "elevated":
+                    self._dm_cpu_temp_crit_cnt = max(0, self._dm_cpu_temp_crit_cnt - 1)
+                    self._alert("thermal_insight", ctx)
+                else:
+                    self._dm_cpu_temp_crit_cnt = max(0, self._dm_cpu_temp_crit_cnt - 1)
+            elif cpu_temp >= DM_CPU_TEMP_CRIT:
                 self._dm_cpu_temp_crit_cnt += 1
                 if self._dm_cpu_temp_crit_cnt >= 2:
                     self._alert("cpu_temp_crit", f"{cpu_temp:.0f}", urgent=True)
@@ -946,7 +1120,6 @@ class ProactiveMonitor:
                     free_gb = usage.free / 1_073_741_824
                     if free_gb < DM_MULTI_DISK_LOW:
                         drive_label = part.mountpoint.rstrip("\\").rstrip("/") or part.device
-                        event_key = f"disk_low_{drive_label}"
                         self._alert("multi_disk_low", drive_label)
                 except Exception:
                     continue
@@ -1006,6 +1179,19 @@ class ProactiveMonitor:
             _, events = _va.analyze_history(hours=1)   # last 60 min only
         except Exception:
             return
+
+        # "New normal" (#3): a previously-flagged spike has recurred enough to
+        # decay into your hardware's normal — surface that learning, once per rail.
+        try:
+            for e in events:
+                if (e.decayed and not e.suppressed
+                        and e.rail not in self._volt_new_normal_announced):
+                    label = _vr.get(e.rail, {}).get("label", e.rail)
+                    self._alert("voltage_new_normal", label)
+                    self._volt_new_normal_announced.add(e.rail)
+                    break   # one per check
+        except Exception:
+            pass
 
         # Filter: non-suppressed, non-decayed, critical or trend events
         real_evts = [
