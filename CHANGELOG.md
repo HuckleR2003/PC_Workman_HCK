@@ -1,6 +1,116 @@
 # HCK_Labs — PC_Workman_HCK — Changelog
 _All notable changes are documented here._
 
+## [1.8.0] - 2026-06-22
+
+### Smart Learning — engines wired into chat, and they accumulate
+**`core/thermal_baseline.py`, `core/voltage_analyzer.py`, `hck_gpt/responses/builder.py`, `hck_gpt/memory/proactive_monitor.py`, `ui/pages/monitoring_alerts.py`**
+- hck_GPT now answers temperature with the **learned, workload-aware verdict** (`thermal_baseline.format_for_chat`) instead of a fixed 85°C cutoff — 82°C reads *normal* under a gaming load but *critical* at idle. `voltage_check` got its own handler via `voltage_analyzer` (was silently aliased to the temperature handler). The chat handler imported neither engine before.
+- Proactive monitor judges CPU temperature against the learned per-workload baseline (`_thermal_verdict`, z-score) with a fixed-threshold fallback until a bucket is trained, so it no longer cries wolf during normal gaming. Elevated-but-safe goes out as a 💡 TIP, not an alarm.
+- **Thermal baseline is now a true Welford accumulator.** Each rebuild folds only the snapshots recorded since the last one into a per-bucket running `{n, mean, M2}`; learning accumulates over the whole life of the install (persisted to JSON) and survives even after the raw snapshots are pruned at 90 days — instead of recomputing from a fixed 14-day window. `sigma`/`p5`/`p95` derive live from `mean`+`M2`. A continuous fold tick in the proactive loop (`_learning_tick`) keeps it learning while the app runs, not only when Monitoring is open or temps are asked. A non-blocking rebuild guard prevents concurrent double-counting; `VERSION` bump discards the old windowed format.
+- **Learning Center** in Monitoring & Alerts: per-workload thermal training progress + learned ranges, per-rail voltage SPC baselines, overall %, a live PSU health score, and a ↻ Rebuild self-check.
+- Voltage rail health now reflects **genuine Nelson-rule anomalies** (after GPU-transient suppression + recurrence decay), not the ~1.2% Gaussian tail beyond 2.5σ — a healthy rail no longer reads "critical" once enough snapshots accumulate. `overall_health_score()` wired into the Learning Center header; dead `all_ranges()` / `_modified_z()` and unused imports removed.
+- **Two new proactive learning notes** (`proactive_monitor.py`): a one-time 💡 milestone when a workload bucket reaches full calibration ("I now judge temperature against YOUR normal"), and a 💡 "new normal" note when a recurring voltage blip decays into your hardware's baseline. Both budget-gated and deduped/persisted so they never nag.
+
+### GAMING — In-Game Overlay + visual configurator
+**`ui/components/ingame_overlay.py` (new), `ui/components/yourpc_page.py`**
+- New **GAMING / In-Game** tile in My PC (replaces the Device Manager / Task Manager / Export shortcuts): a translucent, always-on-top HUD that floats over **borderless / windowed** games without stealing focus (layered tool-window, `WS_EX_NOACTIVATE`). Left/right-click cycles it through the four screen corners.
+- **Table layout** that mirrors a real HUD: one row per component (CPU / GPU / RAM / 12V), value cells to the right, FPS as a tall side box. Live values from `live_sensors` with a psutil fallback.
+- **Form-style configurator**: three presets plus a Create-Custom builder where each field is a ▼ dropdown (native menu) to pick the metric per row — no duplicates. Live preview renders 1:1 with the overlay. **Style panel**: size (S/M/L), theme (dark / slate / contrast), opacity. Everything persists to `settings/gaming_overlay.json`.
+- **Live FPS** via `core/fps_monitor.py` (new): reads the RTSS shared-memory block published by RivaTuner / MSI Afterburner — no admin, no DLL injection, no anti-cheat surface. Picks the foreground app's frame rate; falls back to "—" when RTSS isn't running. (Per-pixel transparency remains a follow-up.)
+- **Game launch greetings** (`ui/components/gaming_toast.py`): rebuilt to bilingual PL/EN with random variants and grown to 40+ games (Planet Zoo, Terraria, Minecraft, Helldivers 2, GTA V, Hades, Palworld, …). A known game starting drops a one-second corner toast.
+- The existing always-on **MiniOverlay** gets an on/off control in the same hub.
+
+### Startup Manager — full source coverage
+**`ui/pages/startup_manager.py`**
+- Enumerate Task Scheduler logon/boot tasks (`Get-ScheduledTask` — locale-independent, unlike schtasks CSV headers) and Microsoft Store/UWP startup apps (registry `State` DWORD) next to the existing Run keys + Startup folders. Previously invisible entries (GPU Tweak, ShareX, LinkedIn, MSI Center, …) now appear.
+- Reversible enable/disable per source: registry removal, `schtasks /change`, or UWP state toggle. Active/disabled split reflects real system state for tasks/UWP. New source badges (⏰ Task · ⊞ Store).
+
+### Services Manager — mode configurator
+**`ui/pages/services_manager.py`, `core/turbo_manager.py`**
+- Per-service **G/E/M** chips assign each service to the Gaming / Economy / MANAGER stop-lists, replacing the orphaned single "turbo_stop" toggle that drove nothing.
+- Guided recommendations strip with plain questions ("Do you use Bluetooth?") that build the MANAGER profile.
+- `turbo_manager` is now the single source of truth: editable per-mode profiles persisted to `settings/turbo_services.json` (`get/set_profile_services`, `set_membership`, `reset_profile`), a white-themed `manager` profile, a `RECOMMENDED` set, and `list_all_services()`.
+
+### Features
+**`ui/pages/optimization_services.py`**
+- New **MANAGER** mode chip (white) after Gaming/Economy with a clickable **ⓘ** that opens the Services Manager. Mode chips read the effective per-mode lists, so configurator edits sync live.
+
+### hck_GPT — Process Suspect Guard (mini-AV)
+**`core/process_guard.py` (new), `hck_gpt/responses/builder.py`**
+- Author (Authenticode) verification + typosquat/homoglyph + masquerade detection; verdicts trusted/unknown/caution/suspicious/danger with bilingual reasons. Microsoft signers always trusted (WHCP). Wired into `virus_check` and `process_identity`.
+
+### hck_GPT — routing & polish
+- Natural-language routing overhaul across ~16 intents + an ML-blend fix (a strong keyword phrase now beats an over-confident NB guess): everyday phrasings route correctly. Hardware names (Intel, RTX, DDR5…) highlighted purple in chat.
+
+### hck_GPT — four new data-driven intents
+**`hck_gpt/responses/builder.py`, `hck_gpt/intents/vocabulary.py`**
+- **`upgrade_advice`** ("what should I upgrade?") finds the real bottleneck from your own 14-day load + temperature history — CPU pinned while the GPU idles ⇒ CPU is the limit; hot but not maxed ⇒ check cooling before replacing — grounded in the actual numbers, not generic advice.
+- **`privacy_data`** ("do you spy / what do you collect?") answers honestly: local-only, hardware stats only, never files or keystrokes, with a click-through to the Stability Tests.
+- **`greeting` / `small_talk`** now open with your favourite app ("Fancy CS2 again today?") via `get_top_processes_lifetime`; `about_program` reads the live version (`_app_version()`) instead of a hardcoded one.
+- **`startup_check`** lists your real startup entries and links to the Manager ("…or tell me what to disable") with a Disabled-tab reminder. New phrasings ("co się odpala z windowsem", "jakie mam aplikacje autostartu") route correctly. Vocabulary is now **84 intents**; the ML classifier auto-retrains on the fingerprint change.
+
+### Fixes
+- `chat_handler`: dead late-retry path (out-of-scope `_parsed_result` raised a swallowed NameError).
+- `insights`: missing `Optional` import crashed the module at import on Python 3.9–3.13 (silently disabling Insights).
+- `hybrid_engine._INTENT_HINTS`: 19 duplicate keys deduped. `vocabulary`: duplicate `gaming` entity key.
+- `builder`: System Idle Process no longer listed as a CPU culprit; `temp_comparison` double `hck_GPT:` prefix; `hw_cpu` live model fallback.
+- `query_api.get_temperature_summary`: selected non-existent `cpu_temp_max` / `gpu_temp_max` columns, so the query threw and every 7-day temperature comparison silently returned nothing. Now reads the stored `*_avg` columns (max derived from the period averages).
+
+## [1.7.9] - 2026-06-11
+
+### Maximized View Mode — full redesign
+
+**`ui/windows/main_window_expanded.py`**
+- Symmetric dashboard layout: TOP 8 user processes left, TOP 8 system right (280 px columns). Temperature/Voltage mini-monitors removed — their data lives in Monitoring & Alerts.
+- Turbo Boost + Optimization Center buttons docked to the bottom edge, 48 px clearance for the hck_GPT banner.
+- Main chart fixed at 35% of window height (was fill-everything). Session-averages section 180 → 274 px, taller bars (20 px), inset 72 px so its edges align with the chart column below.
+- Hardware cards: sparkline 22 → 50 px, component name drawn inside the chart corner (`_draw_card_corner`, canvas-attr based) instead of a header row. Compact mode unchanged.
+
+### Chart tooltip 2.0
+
+- Hover (not click) shows a borderless Toplevel at 72% opacity next to the cursor: Segoe UI Black labels, bold mono values, live sample age.
+- Click pins. Pinned tooltip docks to its bar, age keeps ticking, and the pin index follows the LIVE ring buffer (auto-unpins at the left edge). Any click while pinned unpins — in LIVE the bar drifts 1 px/s, so "click the same bar" was untargetable.
+- PIN strip styled like the hck_GPT TIP/HOT strips (badge canvas + bordered frame). New locale key `dashboard.chart_unpin` (PL/EN).
+- Fixed: sample age was computed ×2 (samples arrive 1/s, not every 2 s). Historical filters use real span ÷ bar count.
+- Pin + tooltip cleared on every page switch.
+
+### TOP 8 processes
+
+- Scroll fix: the Enter/Leave `bind_all` died the moment the cursor touched a row (`<Leave>` fires with NotifyInferior), so the wheel never worked over rows. Wheel is now bound directly on the canvas + every row subtree.
+- Stale-offset fix: `yview_moveto(0)` whenever content fits the viewport — kills the blank gap stuck at the top.
+- Removed dead primary branch calling `data_manager.get_latest_snapshot()` — the method exists nowhere; psutil was always the real path. CPU%/RAM% math verified (raw psutil per-proc ÷ core count = machine %, Task-Manager style).
+- Style: rows 36 → 40 px, names Segoe UI Semibold 8 pt, values bold mono 7 pt, `<1%` instead of a misleading `0%`.
+
+### hck_GPT panel
+
+**`hck_gpt/panel.py`**
+- Panel width now tracks the live parent width — scales correctly in maximized mode; right-anchored banner items reposition on width change.
+- `set_height_scale()`: maximized window → default open height +12%, chat-Maximize +35%; clamped to window height.
+- `open()` packs the chat with `expand=True` — log fills the taller panel, no dead band under the entry.
+- Visibility gate (`set_visibility_gate`): a deferred re-dock can no longer resurrect the banner on pages that must not show it.
+- `frame.lift()` on every re-dock — dashboard rebuilds created siblings above the place()'d panel, leaving the banner covered and unclickable after returning from maximized.
+- Banner gradient rebuilt only on width change; shimmer recolors ~350 persistent rects via `itemconfig` (was delete+create at 10 fps). Sweep idles at 2 Hz while the panel is hidden.
+
+### hck_GPT on tabs
+
+- Banner now rides on MY PC and FAN DASHBOARD (`_GPT_BANNER_PAGES`), lifted above the overlay; hidden everywhere else.
+- Overlay slide-in/out uses the real content width — hardcoded 980 px left the overlay half-visible in maximized mode.
+
+### Window-state bugs
+
+- `restore_window()` (new): re-applies the tracked maximize state after `deiconify()` — Windows can bring a withdrawn window back zoomed, which broke minimal → expanded after a maximize round-trip. Used by tray restore and `startup.py → switch_to_expanded` (bare `except` there now logs).
+- `_switch_to_minimal` remembers geometry; restore puts the window back exactly where it was.
+
+### Audit (resource leaks, dead code)
+
+- 1326 lines of dead code removed from `main_window_expanded.py`: `_REMOVED_*` chart methods, never-started glow animations, orphaned PC-2D/fan-card/advanced-dashboard cluster (zero callers, repo-wide grep + dynamic-access check).
+- 8× global `<MouseWheel>` `bind_all(add="+")` leaks de-stacked (monitoring_alerts, first_setup_drivers, sensor_kb, yourpc_page ×2, services_manager, hck_labs/guide); optimization_services converted to scoped Enter/Leave binding.
+- `ui/components/pc_map.py`, `ui/components/pro_info_table.py`: background loops now stop via `<Destroy>` — one leaked thread/timer per page visit before.
+- `ui/overlay_widget.py`: update thread gets a stop flag; breaks instead of erroring every 2 s after the window closes.
+- Nav icons load from `BUNDLE_DIR` — relative `data/icons` broke in frozen EXE when CWD differed.
+- `_bar_anim_id` added to the page-switch cancel list.
+
 ## [1.7.8-monitoring] - 2026-06-05
 
 ### Bug fixes
@@ -104,6 +214,41 @@ Reusable Tkinter canvas chart with full interaction model.
 - `_chart_on_click()`: pins/unpins a detail tooltip on the nearest bar (second click on same bar = unpin).
 - `_chart_on_motion()`: hover tooltip when nothing is pinned (bar index → CPU/RAM/GPU% + "Xs ago").
 - Tooltip is a `tk.Label` placed on `self.root` via `.place()` — appears above cursor, clamped to window bounds. Shows `[pinned]` tag when click-anchored.
+
+---
+
+### Code quality audit — 6 modules, 13 fixes + 8 innovations
+
+**`core/voltage_analyzer.py`**
+- Bug: `get_anomaly_summary()["latest"]` was returning the most recent event from *any* rail — filtered to `e.rail == key` per-rail now.
+- Added `PRAGMA journal_mode=WAL` + `PRAGMA busy_timeout=5000` to `_query_history()` and `snapshot_count()` — prevents `SQLITE_BUSY` under concurrent writer activity.
+- New: `overall_health_score() -> int` (0–100) — PSU health composite. Deducts 20pt per undecayed critical event, 10pt per warning, 15pt per sustained deviation. Independent of thermal/memory/load scores in `monitoring_alerts.py`.
+
+**`core/thermal_baseline.py`**
+- Fixed: `import sqlite3` was inside `_query_db()` — caused `NameError` on first call if no other module had imported sqlite3. Moved to top-level.
+- Bug: variance used population formula `/n`. Corrected to Bessel's correction `/ max(n-1, 1)` for unbiased sample variance.
+- `overall_training_pct()`: batched into single lock acquisition — was releasing between reads, risking a stale intermediate count.
+- New: `format_for_chat(cpu_temp, cpu_load, gpu_load, lang)` — workload-contextualized string for hck_GPT intent handlers (PL/EN).
+
+**`hck_gpt/intents/ml_classifier.py`**
+- Removed duplicate `"moje"` in `TrainingDataBuilder` content-word stopwords set.
+- Extracted `NB_SMOOTHING = 0.5` module constant — used in both `NaiveBayesClassifier.__init__` and `cross_validate` (was two independent `0.5` literals).
+- New: `get_top_k(text, k=5) -> List[Tuple[str, float]]` — full probability distribution sorted by confidence. Intent routing debug + vocabulary quality review.
+
+**`hck_stats_engine/query_api.py`**
+- `get_summary_stats()`: removed dead code — `latest_daily_ts = max(...) if False else 0` was always 0.
+- `_downsample()`: changed `int(idx)` to `round(idx)` — eliminates cumulative truncation bias across the stride sequence.
+- `_query_monthly_range()`: results now passed through `_downsample(results, max_points)` before return (was skipping the step entirely).
+
+**`ui/components/pc_map.py`**
+- Font objects (`ImageFont.truetype`) moved to instance variables, cached after first load. Was re-loading from disk on every 120ms render frame — 2–4 unnecessary I/O calls per cycle.
+- Fixed: `_gather_live.__call__()` → `_gather_live()` (wrong attribute access on a bound method).
+- New: `_thermal_aware_cpu_heat(cpu_pct, cpu_temp, gpu_pct) -> float` — heat value for the CPU block now uses `thermal_baseline` z-score when a calibrated baseline exists (`heat = z/3.0`). Falls back to the prior blend formula when baseline is not yet usable.
+
+**`core/hibernation_manager.py`**
+- `wake_app()`: `psutil.NoSuchProcess` now returns `True` — process already gone counts as successfully woken.
+- New: `cleanup_dead_pids() -> int` — removes stale entries from `_sleeping` for PIDs that have exited naturally. Updates component status. Safe to call periodically.
+- New: `get_savings_estimate() -> dict` — returns `{processes, total_sleep_min, frozen_count, low_count}` from internal timestamps; no psutil query required.
 
 ---
 
