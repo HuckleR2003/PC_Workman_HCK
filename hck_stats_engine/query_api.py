@@ -725,9 +725,11 @@ class StatsQueryAPI:
         cutoff = time.time() - days * SECONDS_PER_DAY
 
         try:
-            # Try daily_stats first (has cpu_temp_avg / gpu_temp_avg)
+            # daily_stats / hourly_stats store only *averages* (cpu_temp_avg,
+            # gpu_temp_avg) - there is no cpu_temp_max column. Select what exists
+            # and use the max of the period-averages as the "max" proxy.
             rows = conn.execute("""
-                SELECT cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max
+                SELECT cpu_temp_avg, gpu_temp_avg
                 FROM daily_stats
                 WHERE timestamp >= ?
                   AND cpu_temp_avg IS NOT NULL
@@ -736,7 +738,7 @@ class StatsQueryAPI:
             if not rows:
                 # Fallback to hourly_stats
                 rows = conn.execute("""
-                    SELECT cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max
+                    SELECT cpu_temp_avg, gpu_temp_avg
                     FROM hourly_stats
                     WHERE timestamp >= ?
                       AND cpu_temp_avg IS NOT NULL
@@ -746,15 +748,13 @@ class StatsQueryAPI:
                 return {}
 
             cpu_avgs = [r['cpu_temp_avg'] for r in rows if r['cpu_temp_avg']]
-            cpu_maxs = [r['cpu_temp_max'] for r in rows if r['cpu_temp_max']]
             gpu_avgs = [r['gpu_temp_avg'] for r in rows if r['gpu_temp_avg']]
-            gpu_maxs = [r['gpu_temp_max'] for r in rows if r['gpu_temp_max']]
 
             return {
                 'cpu_temp_avg': round(sum(cpu_avgs) / len(cpu_avgs), 1) if cpu_avgs else None,
-                'cpu_temp_max': round(max(cpu_maxs), 1) if cpu_maxs else None,
+                'cpu_temp_max': round(max(cpu_avgs), 1) if cpu_avgs else None,
                 'gpu_temp_avg': round(sum(gpu_avgs) / len(gpu_avgs), 1) if gpu_avgs else None,
-                'gpu_temp_max': round(max(gpu_maxs), 1) if gpu_maxs else None,
+                'gpu_temp_max': round(max(gpu_avgs), 1) if gpu_avgs else None,
                 'days_with_data': len(rows),
             }
 
