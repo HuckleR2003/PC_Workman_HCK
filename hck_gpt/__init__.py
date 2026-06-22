@@ -5,7 +5,7 @@ AI diagnostic assistant embedded inside PC Workman HCK.
 
 Architecture:
   engine/      - Hybrid routing: rule engine + Ollama LLM fallback
-  intents/     - Intent parser, vocabulary (82 intents), language detection PL/EN
+  intents/     - Intent parser, vocabulary (84 intents), language detection PL/EN
   responses/   - Bilingual response builder with live hardware data
   memory/      - Session memory, proactive monitor, user knowledge (SQLite)
   context/     - System context builder, hardware scanner (WMI + psutil)
