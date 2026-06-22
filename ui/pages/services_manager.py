@@ -2,6 +2,21 @@ import tkinter as tk
 from tkinter import messagebox
 import threading, subprocess, os, json, ctypes, time
 
+# Single source of truth for mode -> service stop-lists (synced with Features).
+try:
+    from core.turbo_manager import turbo_services, RECOMMENDED
+    _HAS_TURBO = True
+except Exception:
+    turbo_services, RECOMMENDED = None, []
+    _HAS_TURBO = False
+
+# User-facing modes shown as per-service chips (match the Features mode buttons).
+_MODES = [
+    ("gaming",  "G", "#c62828"),
+    ("economy", "E", "#10b981"),
+    ("manager", "M", "#cbd5e1"),
+]
+
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except Exception:
@@ -94,7 +109,6 @@ except Exception:
     _APP_DIR = os.path.dirname(_sys.executable) if getattr(_sys, "frozen", False) \
                else os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-_TURBO_PREFS = os.path.join(_APP_DIR, "settings", "turbo_services.json")
 _SVC_LOG     = os.path.join(_APP_DIR, "data", "logs", "service_changes.log")
 
 
@@ -180,6 +194,27 @@ def _save_svc_prefs(data: dict):
         pass
 
 
+_QUICK_PATH = os.path.join(_APP_DIR, "settings", "quick_setup.json")
+
+
+def _load_quick() -> dict:
+    """Saved Quick-setup answers: {recommendation_label: 'yes'|'no'}."""
+    try:
+        with open(_QUICK_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _save_quick(data: dict):
+    os.makedirs(os.path.dirname(_QUICK_PATH), exist_ok=True)
+    try:
+        with open(_QUICK_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception:
+        pass
+
+
 def _log_change(svc: str, action: str, ok: bool):
     os.makedirs(os.path.dirname(_SVC_LOG), exist_ok=True)
     try:
@@ -188,19 +223,6 @@ def _log_change(svc: str, action: str, ok: bool):
         who = "UŻYTKOWNIK"
         with open(_SVC_LOG, "a", encoding="utf-8") as f:
             f.write(f"[{ts}] {action.upper()} {svc} - {'OK' if ok else 'FAILED'} - przez: {who}\n")
-    except Exception: pass
-
-
-def _load_turbo() -> dict:
-    try:
-        with open(_TURBO_PREFS, encoding="utf-8") as f: return json.load(f)
-    except Exception: return {"turbo_stop": []}
-
-
-def _save_turbo(data: dict):
-    os.makedirs(os.path.dirname(_TURBO_PREFS), exist_ok=True)
-    try:
-        with open(_TURBO_PREFS, "w", encoding="utf-8") as f: json.dump(data, f, indent=2)
     except Exception: pass
 
 
@@ -294,10 +316,34 @@ def _btn(parent, text: str, fg: str, bg: str, hover_fg: str, command, font_size:
     return b
 
 
+def _mode_chip(parent, svc: str, mkey: str, letter: str, color: str,
+               active: bool, on_toggle):
+    """Small G / E / M chip: lit when `svc` is in that mode's stop-list. Click toggles."""
+    st = {"on": active}
+    chip = tk.Label(parent, text=letter, font=(_F, 7, "bold"), width=2,
+                    cursor="hand2", padx=1, pady=1,
+                    highlightthickness=1)
+
+    def _paint():
+        chip.config(bg=color if st["on"] else "#0e141d",
+                    fg="#08080a" if st["on"] else MUTED,
+                    highlightbackground=color if st["on"] else BORDER)
+
+    def _click(_=None):
+        st["on"] = not st["on"]
+        _paint()
+        on_toggle(svc, mkey, st["on"])
+
+    chip.bind("<Button-1>", _click)
+    _paint()
+    _Tooltip(chip, f"{mkey.capitalize()} mode: {'stops' if active else 'add to stop'} "
+                   f"'{svc}' when this mode runs.")
+    return chip
+
+
 def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, toggle_fn):
     meta = _CAT_META[cat]
     color = meta["color"]
-    bg_strip = meta["bg"]
 
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(12, 0))
@@ -342,15 +388,13 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
     return hdr
 
 
-def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
-                 locked: bool, show_turbo: bool, is_admin: bool,
-                 on_action, on_turbo_toggle, svc_prefs: dict = None):
+def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
+                 locked: bool, is_admin: bool,
+                 on_action, on_mode_toggle, svc_prefs: dict = None):
     name   = entry["name"]
     dname  = entry["display"]
-    cat    = entry["cat"]
     desc   = entry["desc"]
     status = statuses.get(name, "unknown")
-    meta   = _CAT_META.get(cat, _CAT_META["optional"])
 
     row = tk.Frame(parent, bg=SURFACE)
     row.pack(fill="x", padx=8, pady=1)
@@ -443,25 +487,14 @@ def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
         _Tooltip(rb, f"Restart {dname}.")
         all_labels.append(rb)
 
-        if show_turbo and cat in ("optional", "unnecessary"):
-            in_turbo = name in turbo_set
-            tv = tk.BooleanVar(value=in_turbo)
-
-            def _make_turbo_lbl(var, n):
-                lbl_color = AMBER if var.get() else MUTED
-                tlbl = tk.Label(right, text="⚡", font=(_F, 10),
-                                bg=SURFACE, fg=lbl_color, cursor="hand2")
-                def _toggle():
-                    var.set(not var.get())
-                    tlbl.config(fg=AMBER if var.get() else MUTED)
-                    on_turbo_toggle(n, var.get())
-                tlbl.bind("<Button-1>", lambda e: _toggle())
-                _Tooltip(tlbl, "Toggle TURBO: this service will auto-stop when TURBO Boost activates.")
-                return tlbl
-
-            tlbl = _make_turbo_lbl(tv, name)
-            tlbl.pack(side="left", padx=(6, 0))
-            all_labels.append(tlbl)
+        # Mode chips — pick which TURBO / Features modes stop this service.
+        mc = tk.Frame(right, bg=SURFACE)
+        mc.pack(side="left", padx=(8, 0))
+        all_labels.append(mc)
+        for mkey, letter, color in _MODES:
+            ch = _mode_chip(mc, name, mkey, letter, color,
+                            name in mode_sets.get(mkey, set()), on_mode_toggle)
+            ch.pack(side="left", padx=1)
 
     sep = tk.Frame(parent, bg=SEP, height=1)
     sep.pack(fill="x", padx=8)
@@ -469,56 +502,192 @@ def _service_row(parent, entry: dict, statuses: dict, turbo_set: set,
     _hover_row(row, all_labels)
 
 
-def _turbo_panel(parent, turbo_set: set, stat_lbl: tk.Label):
-    panel = tk.Frame(parent, bg=TURBO_BG, highlightthickness=1,
-                     highlightbackground=TURBO_BD)
-    panel.pack(fill="x", side="bottom")
+def _quick_card(strip, item, answers, on_answer, after_answer):
+    """One Quick-setup tile. Persists its TAK/NIE answer and shows a corner ZMIEŃ
+    to flip it later — the layout never shifts (header reserves the corner slot)."""
+    label = item["label"]
+    card = tk.Frame(strip, bg=SURFACE, highlightthickness=1, highlightbackground=BORDER)
+    card.pack(side="left", padx=(0, 6), pady=2)
+    inner = tk.Frame(card, bg=SURFACE)
+    inner.pack(padx=8, pady=6, fill="both")
 
-    hdr = tk.Frame(panel, bg=TURBO_BG)
-    hdr.pack(fill="x", padx=14, pady=(6, 2))
+    head = tk.Frame(inner, bg=SURFACE)
+    head.pack(fill="x")
+    tk.Label(head, text=label, font=(_F, 8, "bold"), bg=SURFACE, fg=TEXT).pack(side="left")
+    change = tk.Label(head, text="", font=(_F, 7, "bold"), bg=SURFACE, fg=SUB, cursor="hand2")
+    change.pack(side="right")
+    change.bind("<Enter>", lambda e: change.config(fg=TEXT) if change.cget("text") else None)
+    change.bind("<Leave>", lambda e: change.config(fg=SUB)  if change.cget("text") else None)
 
-    tk.Label(hdr, text="⚡ TURBO", font=(_F, 8, "bold"),
-             bg=TURBO_BG, fg=AMBER).pack(side="left")
-    tk.Label(hdr, text="  - services queued to stop on TURBO activate:",
-             font=(_F, 7), bg=TURBO_BG, fg=MUTED).pack(side="left")
+    tk.Label(inner, text=(item.get("q_pl") or item.get("q_en") or ""),
+             font=(_F, 7), bg=SURFACE, fg=SUB, wraplength=150,
+             justify="left").pack(anchor="w", pady=(1, 4))
 
-    chips_frame = [None]
+    content = tk.Frame(inner, bg=SURFACE)
+    content.pack(anchor="w", fill="x")
 
-    def _refresh_chips():
-        if chips_frame[0]: chips_frame[0].destroy()
-        cf = tk.Frame(panel, bg=TURBO_BG)
-        cf.pack(fill="x", padx=14, pady=(0, 10))
-        chips_frame[0] = cf
+    def _buttons():
+        for w in content.winfo_children():
+            w.destroy()
+        change.config(text="")
+        change.unbind("<Button-1>")
+        _btn(content, "Nie używam", "#f87171", SURFACE, "#fca5a5",
+             lambda: _answer(False), 7).pack(side="left", padx=(0, 4))
+        _btn(content, "Używam", "#34d399", SURFACE, "#6ee7b7",
+             lambda: _answer(True), 7).pack(side="left")
 
-        if not turbo_set:
-            tk.Label(cf, text="No services queued.  Use ⚡ buttons in Optional / Unneeded rows above.",
-                     font=(_F, 8), bg=TURBO_BG, fg=MUTED).pack(anchor="w")
+    def _state(used):
+        for w in content.winfo_children():
+            w.destroy()
+        if used:
+            tk.Label(content, text="TAK", font=(_F, 8, "bold"),
+                     bg=SURFACE, fg=GREEN).pack(side="left")
+            tk.Label(content, text=" — zostawiam", font=(_F, 7),
+                     bg=SURFACE, fg=MUTED).pack(side="left")
         else:
-            for svc in sorted(turbo_set):
-                chip = tk.Frame(cf, bg="#141c30", padx=6, pady=3)
-                chip.pack(side="left", padx=(0, 6), pady=2)
-                tk.Label(chip, text=svc, font=(_M, 8), bg="#141c30", fg=AMBER).pack(side="left")
+            tk.Label(content, text="NIE", font=(_F, 8, "bold"),
+                     bg=SURFACE, fg=RED).pack(side="left")
+            tk.Label(content, text=" — dodano do MANAGER", font=(_F, 7),
+                     bg=SURFACE, fg=GREEN).pack(side="left")
+        change.config(text="ZMIEŃ", fg=SUB)
+        change.bind("<Button-1>", lambda e: _buttons())
 
-                def _remove(s=svc):
-                    turbo_set.discard(s)
-                    data = _load_turbo()
-                    data["turbo_stop"] = list(turbo_set)
-                    _save_turbo(data)
-                    _refresh_chips()
-                    stat_lbl.config(text=_stat_text(stat_lbl._total, stat_lbl._running, turbo_set))
+    def _answer(used):
+        answers[label] = "yes" if used else "no"
+        _save_quick(answers)
+        on_answer(item, used)
+        _state(used)
+        after_answer()
 
-                x = tk.Label(chip, text=" ✕", font=(_F, 8), bg="#141c30", fg=MUTED, cursor="hand2")
-                x.pack(side="left")
-                x.bind("<Button-1>", lambda e, fn=_remove: fn())
-                x.bind("<Enter>", lambda e, w=x: w.config(fg=RED))
-                x.bind("<Leave>", lambda e, w=x: w.config(fg=MUTED))
-
-    _refresh_chips()
-    return _refresh_chips
+    prev = answers.get(label)
+    _state(prev == "yes") if prev in ("yes", "no") else _buttons()
 
 
-def _stat_text(total, running, turbo_set):
-    return f"  {total} services catalogued   ·   {running} running   ·   {len(turbo_set)} in TURBO"
+def _recommended_strip(parent, on_answer):
+    """Guided Quick-setup row. Remembers answers across launches; once every card is
+    answered it collapses to a thin full-width 'QUICK SETUP CONFIGURED' banner."""
+    if not RECOMMENDED:
+        return
+    answers = _load_quick()
+
+    wrap = tk.Frame(parent, bg=BG)
+    wrap.pack(fill="x", padx=20, pady=(2, 4))
+    cards_holder = tk.Frame(wrap, bg=BG)
+    banner       = tk.Frame(wrap, bg=BG)
+
+    def _all_answered():
+        return all(it["label"] in answers for it in RECOMMENDED)
+
+    def _show_cards():
+        banner.pack_forget()
+        cards_holder.pack(fill="x")
+
+    def _show_banner():
+        cards_holder.pack_forget()
+        for w in banner.winfo_children():
+            w.destroy()
+        bar = tk.Frame(banner, bg="#0c1a12", height=22)
+        bar.pack(fill="x")
+        bar.pack_propagate(False)
+        tk.Label(bar, text="✓  QUICK SETUP CONFIGURED", font=(_F, 8, "bold"),
+                 bg="#0c1a12", fg=GREEN).pack(side="left", padx=12)
+        chg = tk.Label(bar, text="CHANGE", font=(_F, 7, "bold"), bg="#0c1a12",
+                       fg=SUB, cursor="hand2", padx=10)
+        chg.pack(side="left")
+        chg.bind("<Button-1>", lambda e: _show_cards())
+        chg.bind("<Enter>", lambda e: chg.config(fg=TEXT))
+        chg.bind("<Leave>", lambda e: chg.config(fg=SUB))
+        banner.pack(fill="x")
+
+    cv = tk.Canvas(cards_holder, bg=BG, highlightthickness=0, height=92)
+    cv.pack(fill="x")
+    strip = tk.Frame(cv, bg=BG)
+    cv.create_window((0, 0), window=strip, anchor="nw")
+    strip.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+    cv.bind("<Shift-MouseWheel>",
+            lambda e: cv.xview_scroll(int(-1 * (e.delta / 120)), "units"))
+
+    def _maybe_collapse():
+        if _all_answered():
+            _show_banner()
+
+    for item in RECOMMENDED:
+        _quick_card(strip, item, answers, on_answer, _maybe_collapse)
+
+    _show_banner() if _all_answered() else _show_cards()
+
+
+def _modes_panel(parent, mode_sets: dict, get_active, set_active):
+    """Bottom bar: clickable per-mode chips that set the active profile (synced with
+    the Features modes), plus a 'Current profile' label that flashes Saving/Saved!."""
+    panel = tk.Frame(parent, bg=TURBO_BG, highlightthickness=1, highlightbackground=TURBO_BD)
+    panel.pack(fill="x", side="bottom")
+    row = tk.Frame(panel, bg=TURBO_BG)
+    row.pack(fill="x", padx=14, pady=6)
+    tk.Label(row, text="MODES", font=(_F, 8, "bold"),
+             bg=TURBO_BG, fg=TEXT).pack(side="left", padx=(0, 12))
+
+    active = {"key": get_active()}
+    chips  = {}
+
+    cur_lbl = tk.Label(row, text="", font=(_F, 8, "bold"), bg=TURBO_BG, fg=VIOLET)
+    cur_lbl.pack(side="right")
+
+    def _cur_text():
+        return f"Current profile: {active['key'].upper()}"
+
+    def _paint():
+        for mkey, (fr, cl) in chips.items():
+            on = (mkey == active["key"])
+            fr.config(highlightbackground="#8b5cf6" if on else TURBO_BD)
+            cl.config(fg=TEXT if on else SUB)
+
+    for mkey, letter, color in _MODES:
+        fr = tk.Frame(row, bg=TURBO_BG, cursor="hand2",
+                      highlightthickness=1, highlightbackground=TURBO_BD)
+        fr.pack(side="left", padx=(0, 10))
+        ll = tk.Label(fr, text=letter, font=(_F, 8, "bold"),
+                      bg=color, fg="#08080a", width=2)
+        ll.pack(side="left")
+        cl = tk.Label(fr, text=f" {mkey.capitalize()}: {len(mode_sets[mkey])} ",
+                      font=(_F, 8), bg=TURBO_BG, fg=SUB)
+        cl.pack(side="left")
+        chips[mkey] = (fr, cl)
+
+        def _click(_=None, k=mkey):
+            active["key"] = k
+            set_active(k)
+            _paint()
+            cur_lbl.config(text=_cur_text(), fg=VIOLET)
+        for w in (fr, ll, cl):
+            w.bind("<Button-1>", _click)
+
+    cur_lbl.config(text=_cur_text())
+    _paint()
+
+    class _Ctl:
+        def refresh(self):
+            for mkey, (fr, cl) in chips.items():
+                cl.config(text=f" {mkey.capitalize()}: {len(mode_sets[mkey])} ")
+
+        def flash(self):
+            if not cur_lbl.winfo_exists():
+                return
+            cur_lbl.config(text="Saving…", fg=AMBER)
+            def _saved():
+                if cur_lbl.winfo_exists():
+                    cur_lbl.config(text="Saved!", fg=GREEN)
+            def _restore():
+                if cur_lbl.winfo_exists():
+                    cur_lbl.config(text=_cur_text(), fg=VIOLET)
+            panel.after(500,  _saved)
+            panel.after(1500, _restore)
+
+    return _Ctl()
+
+
+def _stat_text(total, running):
+    return f"  {total} services catalogued   ·   {running} running"
 
 
 def build_services_manager_page(host, parent: tk.Frame):
@@ -548,8 +717,8 @@ def build_services_manager_page(host, parent: tk.Frame):
 
 
 def _render(page: tk.Frame, statuses: dict, is_admin: bool):
-    turbo_data = _load_turbo()
-    turbo_set  = set(turbo_data.get("turbo_stop", []))
+    mode_sets = ({m: set(turbo_services.get_profile_services(m)) for m, _, _ in _MODES}
+                 if _HAS_TURBO else {m: set() for m, _, _ in _MODES})
 
     entries_by_cat: dict[str, list[dict]] = {c: [] for c in _CAT_ORDER}
     seen = set()
@@ -580,11 +749,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         tk.Label(right_col, text="Limited mode", font=(_F, 8, "bold"),
                  bg="#1a0f00", fg=AMBER, padx=8, pady=3).pack(side="right", padx=(6, 0))
 
-    stat_lbl = tk.Label(right_col, text=_stat_text(total, running, turbo_set),
+    stat_lbl = tk.Label(right_col, text=_stat_text(total, running),
                         font=(_F, 8), bg=BG, fg=MUTED)
     stat_lbl.pack(side="right")
-    stat_lbl._total   = total
-    stat_lbl._running = running
 
     tk.Frame(page, bg=BORDER, height=1).pack(fill="x", padx=20, pady=(14, 0))
 
@@ -607,6 +774,24 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
     search_entry.bind("<FocusOut>", lambda e: (search_entry.insert(0, placeholder), search_entry.config(fg=SUB))
                                     if not search_entry.get() else None)
 
+    def on_mode_toggle(svc_name: str, mkey: str, enabled: bool):
+        if _HAS_TURBO:
+            turbo_services.set_membership(mkey, svc_name, enabled)
+        (mode_sets[mkey].add if enabled else mode_sets[mkey].discard)(svc_name)
+        modes.refresh()
+        modes.flash()
+
+    def on_answer(item, used: bool):
+        # "Używam" -> keep running (remove from MANAGER); "Nie używam" -> add to MANAGER
+        for svc in item.get("services", []):
+            if _HAS_TURBO:
+                turbo_services.set_membership("manager", svc, not used)
+            (mode_sets["manager"].discard if used else mode_sets["manager"].add)(svc)
+        modes.refresh()
+        modes.flash()
+
+    _recommended_strip(page, on_answer)
+
     content_wrap = tk.Frame(page, bg=BG)
     content_wrap.pack(fill="both", expand=True)
 
@@ -615,19 +800,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
     section_bodies: dict[str, tk.Frame] = {}
     collapsed_vars: dict[str, tk.BooleanVar] = {}
 
-    def on_turbo_toggle(svc_name: str, enabled: bool):
-        if enabled: turbo_set.add(svc_name)
-        else:       turbo_set.discard(svc_name)
-        data = _load_turbo()
-        data["turbo_stop"] = list(turbo_set)
-        _save_turbo(data)
-        stat_lbl.config(text=_stat_text(total, running, turbo_set))
-        refresh_turbo()
-
     svc_prefs = _load_svc_prefs()
 
     def on_action(svc_name: str, action: str, row: tk.Frame):
-        nonlocal svc_prefs
         if not is_admin:
             messagebox.showwarning("Admin required",
                 "PC Workman must run as Administrator to control services.")
@@ -637,7 +812,6 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         if not confirm: return
 
         def _do():
-            nonlocal svc_prefs
             if action == "restart":
                 _sc_run(["stop", svc_name])
                 time.sleep(1.2)
@@ -694,11 +868,10 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
             # Re-render service info with updated buttons
             locked = (entry_info.get("cat") == "essential")
-            _service_row(row, entry_info, statuses, turbo_set,
-                         locked=locked, show_turbo=True,
-                         is_admin=is_admin,
+            _service_row(row, entry_info, statuses, mode_sets,
+                         locked=locked, is_admin=is_admin,
                          on_action=on_action,
-                         on_turbo_toggle=on_turbo_toggle,
+                         on_mode_toggle=on_mode_toggle,
                          svc_prefs=svc_prefs)
         else:
             messagebox.showerror("Action failed",
@@ -756,11 +929,10 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         overflow = elist[_PREVIEW_COUNT:]
 
         for entry in preview:
-            _service_row(body, entry, statuses, turbo_set,
-                         locked=locked, show_turbo=True,
-                         is_admin=is_admin,
+            _service_row(body, entry, statuses, mode_sets,
+                         locked=locked, is_admin=is_admin,
                          on_action=on_action,
-                         on_turbo_toggle=on_turbo_toggle,
+                         on_mode_toggle=on_mode_toggle,
                          svc_prefs=svc_prefs)
 
         if overflow:
@@ -770,11 +942,10 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
             def _build_overflow(of=overflow_frame, ol=overflow, lkd=locked):
                 for oe in ol:
-                    _service_row(of, oe, statuses, turbo_set,
-                                 locked=lkd, show_turbo=True,
-                                 is_admin=is_admin,
+                    _service_row(of, oe, statuses, mode_sets,
+                                 locked=lkd, is_admin=is_admin,
                                  on_action=on_action,
-                                 on_turbo_toggle=on_turbo_toggle,
+                                 on_mode_toggle=on_mode_toggle,
                                  svc_prefs=svc_prefs)
 
             _overflow_built = [False]
@@ -813,7 +984,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
     tk.Frame(inner, bg=BG, height=10).pack()
 
-    refresh_turbo = _turbo_panel(page, turbo_set, stat_lbl)
+    active_get = turbo_services.get_active_profile if _HAS_TURBO else (lambda: "gaming")
+    active_set = turbo_services.set_active_profile if _HAS_TURBO else (lambda k: None)
+    modes = _modes_panel(page, mode_sets, active_get, active_set)
 
     def _apply_search(*_):
         q = search_var.get().lower().strip()

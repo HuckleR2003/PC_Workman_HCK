@@ -700,12 +700,190 @@ class SettingsPage:
         BG = _GEN_PANEL
         BD = _GEN_SEP
 
-        # ── 1. Access to Internet (locked toggle) ─────────────────────────────
+        # ── 1. Anonymous telemetry (ON by default this release) — INFO + TURN ──
+        _net_box = {}
+
+        def _kick_send():
+            """Fire one telemetry send right now (off-thread) so enabling it gives
+            instant confirmation instead of waiting for the next app start."""
+            import threading as _th
+
+            def _go():
+                try:
+                    from core.telemetry import send as _s
+                    _s("")
+                except Exception:
+                    pass
+
+            _th.Thread(target=_go, daemon=True, name="telemetry-now").start()
+
+        def _on_quick_toggle(v):
+            from core import network as _net
+            _net.set_network(v, v)   # ON = allowed + telemetry · OFF = full offline
+            if v:
+                _kick_send()
+
+        def _make_info_btn(parent, compact=False):
+            """INFO chip that opens the 'what PC Workman collects' presentation.
+            Available PERMANENTLY - before AND after the first TURN."""
+            info = tk.Label(parent, text=("ⓘ INFO" if compact else "INFO"),
+                            font=(_BODY, 8, "bold"), bg="#241a3a", fg="#c4b5fd",
+                            padx=(10 if compact else 16), pady=(4 if compact else 6),
+                            cursor="hand2")
+            info.bind("<Button-1>", lambda e: _net_dialog())
+            info.bind("<Enter>", lambda e: info.config(bg="#2f2150"))
+            info.bind("<Leave>", lambda e: info.config(bg="#241a3a"))
+            return info
+
+        def _render_net_widget():
+            box = _net_box.get("c")
+            try:
+                if not box or not box.winfo_exists():
+                    return
+            except Exception:
+                return
+            for w in box.winfo_children():
+                w.destroy()
+            from core import network as _net
+            if _net.telemetry_touched():
+                # After the first TURN: ON/OFF toggle PLUS a permanent INFO button,
+                # so the resource/data dialog is always one click away.
+                _ToggleSquare(box, _net.telemetry_enabled(), _on_quick_toggle, bg=BG)
+                _make_info_btn(box, compact=True).pack(side="right", padx=(0, 8))
+            else:
+                # Before the first TURN: a prominent INFO button only.
+                _make_info_btn(box, compact=False).pack(side="right")
+
+        def _net_dialog():
+            from core import network as _net
+            try:
+                from utils.i18n import get_lang
+                _pl = get_lang() == "pl"
+            except Exception:
+                _pl = False
+
+            def L(en, plt):
+                return plt if _pl else en
+
+            import json as _json
+            try:
+                from core import telemetry
+                payload_txt = _json.dumps(telemetry.build_payload(""), indent=2,
+                                          ensure_ascii=False)
+            except Exception:
+                payload_txt = "{}"
+
+            dlg = tk.Toplevel(card)
+            dlg.title(L("Anonymous telemetry", "Anonimowa telemetria"))
+            dlg.configure(bg="#0a0e14")
+            dlg.resizable(False, False)
+            try:
+                dlg.transient(card.winfo_toplevel())
+                dlg.grab_set()
+            except Exception:
+                pass
+
+            wrap = tk.Frame(dlg, bg="#0a0e14", padx=20, pady=16)
+            wrap.pack(fill="both", expand=True)
+            tk.Label(wrap, text="📊 " + L("Anonymous telemetry", "Anonimowa telemetria"),
+                     font=(_HDR, 14), bg="#0a0e14", fg="#f3e8ff",
+                     anchor="w").pack(fill="x")
+            tk.Label(wrap, text=L(
+                "PC Workman shares an anonymous snapshot that helps improve the app. "
+                "Turn it here anytime, OFF means zero "
+                "network traffic.",
+                "PC Workman wysyła anonimowy zrzut, który pomaga ulepszać program." \
+                "Włączysz tutaj w każdej chwili, a WYŁ oznacza "
+                "zero ruchu sieciowego."),
+                font=(_BODY, 9), bg="#0a0e14", fg="#9ca3af", anchor="w",
+                justify="left", wraplength=470).pack(fill="x", pady=(8, 12))
+
+            for en, plt in [
+                ("Anonymous — a random ID, never your name, machine or IP.",
+                 "Anonimowo — losowy identyfikator, nigdy nazwa, maszyna ani IP."),
+                ("Minimal — hardware models, OS and session time only. No files, no "
+                 "process names, no content.",
+                 "Minimalnie — tylko modele sprzętu, OS i czas sesji. Żadnych plików, "
+                 "nazw procesów ani treści."),
+                ("Verifiable — the exact data is shown below, the code is open-source, "
+                 "and OFF means zero traffic (check with a firewall).",
+                 "Sprawdzalnie — dokładne dane masz niżej, kod jest open-source, a WYŁ "
+                 "= zero ruchu (sprawdź firewallem)."),
+                ("Reversible — turn it off anytime.",
+                 "Odwracalnie — wyłączysz w każdej chwili."),
+            ]:
+                rf = tk.Frame(wrap, bg="#0a0e14")
+                rf.pack(fill="x", pady=1)
+                tk.Label(rf, text="✓", font=(_BODY, 9, "bold"), bg="#0a0e14",
+                         fg="#22c55e").pack(side="left", anchor="n", padx=(0, 6))
+                tk.Label(rf, text=L(en, plt), font=(_BODY, 8), bg="#0a0e14",
+                         fg="#cbd5e1", anchor="w", justify="left",
+                         wraplength=440).pack(side="left", fill="x")
+
+            tk.Label(wrap, text=L("Exactly what is sent:",
+                     "Dokładnie to, co jest wysyłane:"),
+                     font=(_BODY, 8, "bold"), bg="#0a0e14", fg="#6b7280",
+                     anchor="w").pack(fill="x", pady=(12, 4))
+            box = tk.Text(wrap, height=11, width=58, font=(_MONO, 8), bg="#06080d",
+                          fg="#86efac", bd=0, padx=8, pady=6, wrap="none")
+            box.insert("1.0", payload_txt)
+            box.config(state="disabled")
+            box.pack(fill="x")
+
+            btns = tk.Frame(wrap, bg="#0a0e14")
+            btns.pack(fill="x", pady=(14, 0))
+            close = tk.Label(btns, text=L("Close", "Zamknij"),
+                             font=(_BODY, 9, "bold"), bg="#1a1f2e", fg="#9ca3af",
+                             padx=16, pady=8, cursor="hand2")
+            close.pack(side="left")
+            close.bind("<Button-1>", lambda e: dlg.destroy())
+
+            turn = tk.Label(btns, font=(_BODY, 10, "bold"), padx=22, pady=8,
+                            cursor="hand2")
+            turn.pack(side="right")
+
+            def _paint_turn():
+                if not _net.telemetry_touched():
+                    turn.config(text="TURN", bg="#7c3aed", fg="#ffffff")
+                elif _net.telemetry_enabled():
+                    turn.config(text="ON", bg="#166534", fg="#86efac")
+                else:
+                    turn.config(text="OFF", bg="#3a1010", fg="#fca5a5")
+
+            def _do_turn(_=None):
+                new = not _net.telemetry_enabled()
+                _net.set_network(new, new)
+                _net.set_touched()
+                _paint_turn()
+                _render_net_widget()
+                if new:
+                    _kick_send()
+
+            turn.bind("<Button-1>", _do_turn)
+            _paint_turn()
+
+            dlg.update_idletasks()
+            try:
+                top = card.winfo_toplevel()
+                x = top.winfo_rootx() + (top.winfo_width() - dlg.winfo_width()) // 2
+                y = top.winfo_rooty() + (top.winfo_height() - dlg.winfo_height()) // 2
+                dlg.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+            except Exception:
+                pass
+            dlg.wait_window()
+
+        def _build_net_widget(r):
+            c = tk.Frame(r, bg=BG)
+            c.pack(side="right")
+            _net_box["c"] = c
+            _render_net_widget()
+            return c
+
         _setting_row(
             card,
             _t("settings.general.internet_label"),
             _t("settings.general.internet_desc"),
-            right_widget_factory=lambda r: _LockedToggle(r, bg=BG),
+            right_widget_factory=_build_net_widget,
             separator=True,
             bg=BG, border=BD,
         )
