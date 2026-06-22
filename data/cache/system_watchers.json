@@ -1,5 +1,6 @@
 {
   "startup_known": [
+    "HKCU:microsoftedgeautolaunch_6be24301ad05ca3c4a62fd6f29f2087d",
     "HKCU:opera gx stable",
     "HKLM:riot vanguard",
     "HKLM:securityhealth"
@@ -25,6 +26,7 @@
     "democracy 4 - event pack",
     "democracy 4 - voting systems",
     "discord",
+    "don't starve",
     "don't starve together",
     "driver booster 11",
     "drug dealer simulator",
@@ -126,7 +128,7 @@
     "obs studio",
     "openal",
     "openiv",
-    "opera gx stable 131.0.5877.104",
+    "opera gx stable 132.0.5905.82",
     "outlast: whistleblower",
     "paradox launcher v2",
     "payday 2",
@@ -161,6 +163,8 @@
     "transport fever 2: deluxe upgrade pack",
     "transport fever 2: early supporter pack",
     "ue4 prerequisites (x64)",
+    "unity 6000.4.11f1",
+    "unity hub 3.18.2",
     "update for x64-based windows systems (kb5001716)",
     "verbatim_surefiregaming_product",
     "wd p40 game drive",
@@ -171,5 +175,5 @@
     "\u00b5torrent",
     "\u015brodowisko uruchomieniowe microsoft edge webview2"
   ],
-  "last_scan": 1780017443.9181192
+  "last_scan": 1782116815.8224006
 }
