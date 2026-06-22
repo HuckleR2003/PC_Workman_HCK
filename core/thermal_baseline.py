@@ -1,15 +1,22 @@
 """
-Thermal Baseline Engine — PC Workman HCK  v1.7.8
-=================================================
-Learns CPU/GPU temperature natural ranges per workload context using
-Welford's online algorithm (numerically stable incremental mean + variance).
+Thermal Baseline Engine — PC Workman HCK
+========================================
+Learns CPU temperature natural ranges per workload context using Welford's
+online algorithm (numerically stable incremental mean + variance).
 
-WHY this beats a simple rolling window
----------------------------------------
-A plain mean±σ over "last 24 h" is broken if that day was heavy gaming:
-the baseline shifts toward the hot values and real anomalies disappear.
-Welford runs over ALL historical data *bucketed by workload*, so the
-"idle normal" stays stable even after 8 hours of gaming.
+WHY an online accumulator (and not a windowed re-scan)
+------------------------------------------------------
+Each rebuild folds ONLY the snapshots recorded since the last one into a
+per-bucket running accumulator (count + mean + M2). Learning therefore
+ACCUMULATES over the whole life of the install — the running stats persist
+in JSON and survive even after the raw snapshots are pruned at 90 days. A
+fixed "last N days" window can never know your long-term normal; this can.
+
+WHY bucket by workload
+----------------------
+A plain mean±σ over "last 24 h" is broken if that day was heavy gaming: the
+baseline shifts toward the hot values and real anomalies disappear. Bucketing
+by workload keeps the "idle normal" stable even after 8 hours of gaming.
 
 Workload buckets (classified per snapshot):
     idle     cpu_load < 15%               "System at rest"
@@ -25,7 +32,9 @@ Data source:
     deepmonitor_snapshots.gpu_load   (%) — for gaming detection
 
 Persistence:
-    data/cache/thermal_baseline.json  — auto-created, version-checked
+    data/cache/thermal_baseline.json  — per-bucket {n, mean, M2} + last_ts;
+    auto-created, version-checked (a version bump discards the old format).
+    sigma and the p5/p95 band are derived live from mean + M2.
 
 Training levels (samples per bucket):
     no_data      0 samples
@@ -38,11 +47,10 @@ Training levels (samples per bucket):
 Public singleton:  thermal_baseline
     .classify(cpu_load, gpu_load)  → str bucket name
     .get_range(bucket)             → BaselineRange
-    .all_ranges()                  → dict[str, BaselineRange]
     .training_status()             → dict for UI display
     .overall_training_pct()        → 0-100 int
-    .rebuild(force=False)          → int samples processed
-    .maybe_rebuild(min_interval_s) → async rebuild if stale
+    .rebuild(force=False)          → int new samples folded in
+    .maybe_rebuild(min_interval_s) → async incremental fold if stale
 """
 from __future__ import annotations
 
@@ -76,14 +84,15 @@ T_BASIC       =  20
 T_TRAINED     =  60
 T_CALIBRATED  = 200
 
-# DeepMonitor lookback for each rebuild
-LOOKBACK_DAYS = 14
+# z-multiplier for the displayed normal band (≈ central 90%: p5 / p95)
+_P_Z          = 1.645
 
 # Valid temperature range (rejects sensor errors / cold-boot noise)
 TEMP_MIN      = 10.0
 TEMP_MAX      = 110.0
 
-VERSION       = 1
+# v2: per-bucket Welford accumulator {n, mean, M2} + last_ts (was windowed batch)
+VERSION       = 2
 
 
 # ── BaselineRange (immutable result object) ───────────────────────────────────
@@ -180,6 +189,7 @@ class ThermalBaseline:
 
     def __init__(self) -> None:
         self._lock         = threading.Lock()
+        self._rebuild_lock = threading.Lock()
         self._raw: dict    = {}
         self._last_rebuild = 0.0
         self._load_json()
@@ -198,21 +208,25 @@ class ThermalBaseline:
     # ── Public query API ──────────────────────────────────────────────────────
 
     def get_range(self, bucket: str) -> BaselineRange:
-        """Return the learned range for a workload bucket. Always returns safely."""
+        """Return the learned range for a workload bucket. Always returns safely.
+        sigma and the p5/p95 band are derived live from the running mean + M2."""
         with self._lock:
-            bd = self._raw.get("buckets", {}).get(bucket, {})
+            bd = dict(self._raw.get("buckets", {}).get(bucket, {}))
+        n    = int(bd.get("n", 0))
+        mean = float(bd.get("mean", 50.0))
+        if n >= 2:
+            var   = bd.get("M2", 0.0) / (n - 1)          # Bessel's correction
+            sigma = math.sqrt(var) if var > 0 else 1.0
+        else:
+            sigma = 5.0
         return BaselineRange(
             bucket = bucket,
-            n      = bd.get("n",     0),
-            mean   = bd.get("mean",  50.0),
-            sigma  = bd.get("sigma", 5.0),
-            p5     = bd.get("p5",    40.0),
-            p95    = bd.get("p95",   60.0),
+            n      = n,
+            mean   = mean,
+            sigma  = sigma,
+            p5     = mean - _P_Z * sigma,
+            p95    = mean + _P_Z * sigma,
         )
-
-    def all_ranges(self) -> dict[str, BaselineRange]:
-        """Return BaselineRange for every workload bucket."""
-        return {b: self.get_range(b) for b in BUCKETS}
 
     def overall_training_pct(self) -> int:
         """0–100 % — rough overall training completeness across all buckets."""
@@ -295,7 +309,7 @@ class ThermalBaseline:
             lines = [
                 f"🌡 TEMPERATURA CPU  (tryb: {bn})",
                 f"  {icon} {cpu_temp:.1f}°C — {classification}" if cpu_temp else
-                f"  Brak odczytu temperatury",
+                "  Brak odczytu temperatury",
                 f"  Zakres normalny: {br.p5:.0f}–{br.p95:.0f}°C "
                 f"(σ={br.sigma:.1f}°C)",
             ]
@@ -336,81 +350,74 @@ class ThermalBaseline:
 
     # ── Rebuild ───────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _welford_add(acc: dict, x: float) -> None:
+        """Fold one sample into a running accumulator (Welford 1962)."""
+        n     = acc["n"] + 1
+        delta = x - acc["mean"]
+        mean  = acc["mean"] + delta / n
+        acc["n"]    = n
+        acc["mean"] = mean
+        acc["M2"]   = acc["M2"] + delta * (x - mean)
+
     def rebuild(self, force: bool = False) -> int:
         """
-        Scan the DeepMonitor database and recompute all per-bucket statistics.
+        Fold any new DeepMonitor snapshots into the per-bucket Welford
+        accumulators (running n + mean + M2). Only rows newer than the last
+        processed timestamp are read, so learning ACCUMULATES across the whole
+        life of the install — never recomputed from a fixed window, and it
+        survives even after the raw rows are pruned at 90 days.
 
-        Uses true population statistics (mean, σ, 5th/95th percentile) over
-        the last LOOKBACK_DAYS of snapshots.  This is run at most once per
-        5 minutes unless force=True.
-
-        Returns the total number of valid temperature samples processed.
+        Returns the number of new valid samples folded in this pass. Throttled
+        to once per 5 min unless force=True. Concurrent calls are skipped (the
+        first wins) so the accumulators are never double-counted.
         """
         if not force and (time.time() - self._last_rebuild < 300):
             return 0
-
-        rows = self._query_db()
-        if not rows:
-            self._last_rebuild = time.time()
+        if not self._rebuild_lock.acquire(blocking=False):
             return 0
-
-        # ── Bucket samples ────────────────────────────────────────────────────
-        bucket_samples: dict[str, list[float]] = {b: [] for b in BUCKETS}
-
-        for row in rows:
-            cpu_t = float(row.get("cpu_temp", -1.0) or -1.0)
-            cpu_l = float(row.get("cpu_load",  0.0) or  0.0)
-            gpu_l = float(row.get("gpu_load",  0.0) or  0.0)
-
-            if cpu_t < TEMP_MIN or cpu_t > TEMP_MAX:
-                continue   # reject invalid / estimated-before-data readings
-
-            bucket_samples[self.classify(cpu_l, gpu_l)].append(cpu_t)
-
-        # ── Per-bucket statistics ─────────────────────────────────────────────
-        new_buckets: dict[str, dict] = {}
-
-        for b, samples in bucket_samples.items():
-            if len(samples) < 2:
-                # Not enough data yet — keep existing or set defaults
-                existing = self._raw.get("buckets", {}).get(b, {})
-                new_buckets[b] = existing if existing else {
-                    "n": len(samples), "mean": 50.0,
-                    "sigma": 5.0, "p5": 40.0, "p95": 60.0,
+        try:
+            with self._lock:
+                last_ts = float(self._raw.get("last_ts", 0.0) or 0.0)
+                buckets = {
+                    b: dict(self._raw.get("buckets", {}).get(
+                        b, {"n": 0, "mean": 0.0, "M2": 0.0}))
+                    for b in BUCKETS
                 }
-                continue
 
-            n     = len(samples)
-            mean  = sum(samples) / n
-            # Bessel's correction: divide by (n-1) for sample variance
-            var   = sum((s - mean) ** 2 for s in samples) / max(n - 1, 1)
-            sigma = math.sqrt(var) if var > 0 else 1.0
+            rows = self._query_db_since(last_ts)
+            if not rows:
+                self._last_rebuild = time.time()
+                return 0
 
-            s_sorted = sorted(samples)
-            p5  = s_sorted[max(0,     int(0.05 * n))]
-            p95 = s_sorted[min(n - 1, int(0.95 * n))]
+            max_ts    = last_ts
+            processed = 0
+            for row in rows:
+                ts = float(row.get("ts", 0.0) or 0.0)
+                if ts > max_ts:
+                    max_ts = ts
+                cpu_t = float(row.get("cpu_temp", -1.0) or -1.0)
+                if cpu_t < TEMP_MIN or cpu_t > TEMP_MAX:
+                    continue   # reject invalid / estimated-before-data readings
+                cpu_l = float(row.get("cpu_load", 0.0) or 0.0)
+                gpu_l = float(row.get("gpu_load", 0.0) or 0.0)
+                self._welford_add(buckets[self.classify(cpu_l, gpu_l)], cpu_t)
+                processed += 1
 
-            new_buckets[b] = {
-                "n":     n,
-                "mean":  round(mean,  2),
-                "sigma": round(sigma, 2),
-                "p5":    round(p5,    1),
-                "p95":   round(p95,   1),
-            }
+            with self._lock:
+                self._raw["buckets"]     = buckets
+                self._raw["last_ts"]     = max_ts
+                self._raw["last_update"] = time.time()
+                self._raw["version"]     = VERSION
+                self._last_rebuild       = time.time()
 
-        # ── Persist ───────────────────────────────────────────────────────────
-        with self._lock:
-            self._raw["buckets"]     = new_buckets
-            self._raw["last_update"] = time.time()
-            self._raw["version"]     = VERSION
-            self._last_rebuild       = time.time()
-
-        self._save_json()
-        processed = sum(len(v) for v in bucket_samples.values())
-        return processed
+            self._save_json()
+            return processed
+        finally:
+            self._rebuild_lock.release()
 
     def maybe_rebuild(self, min_interval_s: float = 300.0) -> None:
-        """Trigger an async rebuild only if older than min_interval_s seconds."""
+        """Trigger an async incremental fold only if older than min_interval_s."""
         if time.time() - self._last_rebuild > min_interval_s:
             threading.Thread(
                 target=self.rebuild,
@@ -420,18 +427,17 @@ class ThermalBaseline:
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
-    def _query_db(self) -> list[dict]:
-        """Load cpu_temp / cpu_load / gpu_load from deepmonitor_snapshots."""
+    def _query_db_since(self, last_ts: float) -> list[dict]:
+        """Load ts/cpu_temp/cpu_load/gpu_load for snapshots newer than last_ts."""
         try:
-            since = time.time() - LOOKBACK_DAYS * 86400
-            con   = sqlite3.connect(_DB_PATH, timeout=5)
+            con = sqlite3.connect(_DB_PATH, timeout=5)
             con.row_factory = sqlite3.Row
-            rows  = con.execute(
-                "SELECT cpu_temp, cpu_load, gpu_load "
+            rows = con.execute(
+                "SELECT ts, cpu_temp, cpu_load, gpu_load "
                 "FROM deepmonitor_snapshots "
-                "WHERE ts >= ? AND cpu_temp > 0 "
+                "WHERE ts > ? AND cpu_temp > 0 "
                 "ORDER BY ts",
-                (since,),
+                (last_ts,),
             ).fetchall()
             con.close()
             return [dict(r) for r in rows]
@@ -450,6 +456,7 @@ class ThermalBaseline:
         self._raw = {
             "version":     VERSION,
             "buckets":     {},
+            "last_ts":     0.0,
             "last_update": 0.0,
         }
 
