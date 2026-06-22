@@ -5,6 +5,9 @@ Gaming launch toast — subtle 2-second notification when a game is detected.
 Shows in bottom-right corner, no buttons, auto-dismisses with a progress bar.
 Can be disabled from Settings -> Notifications -> Gaming launch reminders.
 
+Per-game messages are bilingual (pl/en) and may carry MULTIPLE variants — one is
+picked at random each launch, so the same game can greet you differently.
+
 Public API
 ----------
 show_gaming_toast(root, exe_name, lang='pl')
@@ -13,8 +16,8 @@ show_gaming_toast(root, exe_name, lang='pl')
 """
 from __future__ import annotations
 
+import random
 import tkinter as tk
-import math
 from typing import Optional
 
 # ── Font system ────────────────────────────────────────────────────────────────
@@ -39,48 +42,209 @@ _DURATION = 2200      # ms until auto-dismiss
 _SLIDE_MS = 220       # slide-in animation duration
 _BAR_H    = 3         # progress bar height
 
-# ── Per-game custom messages (exe_name_lower -> (title, subtitle)) ────────────
-# title: main bold line
-# subtitle: smaller flavour text (None = skip)
-_GAME_DB: dict[str, tuple[str, Optional[str]]] = {
-    # FPS / competitive
-    "cs2.exe":                  ("Powodzenia na turnieju!", "CS2 uruchomione."),
-    "csgo.exe":                 ("Graj na maksa!", "CS:GO uruchomione."),
-    "valorant.exe":             ("Dobrej gry!", "Valorant odpalony."),
-    "r5apex.exe":               ("Ratuj druzyne!", "Apex Legends uruchomiony."),
-    "overwatch.exe":            ("Push the payload!", "Overwatch uruchomiony."),
-    # MOBA
-    "league of legends.exe":    ("Walkę z Nerdami czas zacząć...", "League of Legends"),
-    "leagueoflegends.exe":      ("Walkę z Nerdami czas zacząć...", "League of Legends"),
-    "dota2.exe":                ("Good luck, have fun!", "Dota 2 uruchomiona."),
-    # Cozy / simulation
-    "stardewvalley.exe":        ("Odświeżmy Farmę po dziadku!", "Stardew Valley"),
-    "planet zoo.exe":           ("Czas zająć się zwierzakami!", "Planet Zoo · Nie zapomnij o TURBO"),
-    "planetzoo.exe":            ("Czas zająć się zwierzakami!", "Planet Zoo · Nie zapomnij o TURBO"),
-    "cities skylines 2.exe":   ("Czas budować miasto!", "Cities Skylines 2"),
-    "citiesskylines2.exe":     ("Czas budować miasto!", "Cities Skylines 2"),
-    "sims4.exe":                ("Zyj zyj zyj!", "The Sims 4"),
-    # RPG / Story
-    "witcher3.exe":             ("Dzikie Łowy czekają!", "Wiedźmin 3"),
-    "cyberpunk2077.exe":        ("Night City wita!", "Cyberpunk 2077"),
-    "eldenring.exe":            ("Powodzenia w Pomiędzyziemiu!", "Elden Ring · Tarnished"),
-    "baldursgate3.exe":        ("Dobrej przygody!", "Baldur's Gate 3"),
-    "starfield.exe":           ("Odkrywaj gwiazdy!", "Starfield"),
-    # Survival / sandbox
-    "rust.exe":                ("Nie daj sie zabic za bardzo!", "Rust"),
-    "minecraft.exe":           ("Czas budować!", "Minecraft"),
-    "valheim.exe":             ("Podbij Wikingów!", "Valheim"),
-    # Racing
-    "forza_horizon5.exe":      ("Gaz do dechy!", "Forza Horizon 5"),
-    "assettocorsa.exe":        ("Na tor!", "Assetto Corsa"),
-    # Strategy
-    "ck3.exe":                 ("Dynastia nie zbuduje się sama!", "Crusader Kings III"),
-    "eu4.exe":                 ("Europa czeka!", "Europa Universalis IV"),
-    "stellaris.exe":           ("Podbij galaktyke!", "Stellaris"),
-    # Horror / tense
-    "re4.exe":                 ("Leon, salvar la princesa!", "Resident Evil 4"),
-    "phasmophobia.exe":        ("Duuuuchy!", "Phasmophobia"),
-    "deadbydaylight.exe":     ("Uciekaj albo poluj!", "Dead by Daylight"),
+# ── Per-game custom messages ──────────────────────────────────────────────────
+# exe_name_lower -> {"pl": [(title, subtitle|None), ...], "en": [...]}
+#   title:    main bold line
+#   subtitle: smaller flavour text (None = skip)
+# Multiple entries per language = a random variant is shown each launch.
+_Variant = tuple  # (title, subtitle|None)
+_GAME_DB: dict[str, dict[str, list[tuple[str, Optional[str]]]]] = {
+    # ── FPS / competitive ─────────────────────────────────────────────────────
+    "cs2.exe": {
+        "pl": [("Powodzenia na turnieju!", "CS2 uruchomione."),
+               ("Czas na kilka headshotów!", "CS2 · clutch or kick")],
+        "en": [("Good luck at the tournament!", "CS2 launched."),
+               ("Time for some headshots!", "CS2 · clutch or kick")],
+    },
+    "csgo.exe": {
+        "pl": [("Graj na maksa!", "CS:GO uruchomione.")],
+        "en": [("Give it your all!", "CS:GO launched.")],
+    },
+    "valorant.exe": {
+        "pl": [("Dobrej gry!", "Valorant odpalony."),
+               ("Pokaż im swojego Jett!", "Valorant")],
+        "en": [("Have a good one!", "Valorant launched."),
+               ("Show them your Jett!", "Valorant")],
+    },
+    "r5apex.exe": {
+        "pl": [("Ratuj druzyne!", "Apex Legends")],
+        "en": [("Carry the squad!", "Apex Legends")],
+    },
+    "overwatch.exe": {
+        "pl": [("Push the payload!", "Overwatch")],
+        "en": [("Push the payload!", "Overwatch")],
+    },
+    "helldivers2.exe": {
+        "pl": [("Za Super-Ziemię!", "Helldivers 2"),
+               ("Szerz demokrację!", "Helldivers 2")],
+        "en": [("For Super Earth!", "Helldivers 2"),
+               ("Spread democracy!", "Helldivers 2")],
+    },
+    "fortniteclient-win64-shipping.exe": {
+        "pl": [("Po Victory Royale!", "Fortnite")],
+        "en": [("Go get that Victory Royale!", "Fortnite")],
+    },
+    "tslgame.exe": {
+        "pl": [("Winner winner, chicken dinner!", "PUBG")],
+        "en": [("Winner winner, chicken dinner!", "PUBG")],
+    },
+    "rocketleague.exe": {
+        "pl": [("Gol! ...albo własna bramka.", "Rocket League")],
+        "en": [("Goal! ...or an own goal.", "Rocket League")],
+    },
+    # ── MOBA ──────────────────────────────────────────────────────────────────
+    "league of legends.exe": {
+        "pl": [("Walkę z Nerdami czas zacząć...", "League of Legends")],
+        "en": [("Let the battle with the Nerds begin...", "League of Legends")],
+    },
+    "dota2.exe": {
+        "pl": [("Powodzenia, dobrej zabawy!", "Dota 2")],
+        "en": [("Good luck, have fun!", "Dota 2")],
+    },
+    # ── Cozy / simulation ─────────────────────────────────────────────────────
+    "stardewvalley.exe": {
+        "pl": [("Odświeżmy farmę po dziadku!", "Stardew Valley")],
+        "en": [("Let's revive grandpa's farm!", "Stardew Valley")],
+    },
+    "planet zoo.exe": {
+        "pl": [("Czy wychodujesz dziś jakiegoś albinoska?", "Planet Zoo"),
+               ("Jaki wybieg udało ci się dzisiaj zbudować?", "Planet Zoo")],
+        "en": [("Breeding an albino today?", "Planet Zoo"),
+               ("What habitat will you build today?", "Planet Zoo")],
+    },
+    "cities skylines 2.exe": {
+        "pl": [("Czas budować miasto!", "Cities: Skylines II")],
+        "en": [("Time to build a city!", "Cities: Skylines II")],
+    },
+    "sims4.exe": {
+        "pl": [("Zyj, zyj, zyj!", "The Sims 4")],
+        "en": [("Live, laugh, Sim!", "The Sims 4")],
+    },
+    "terraria.exe": {
+        "pl": [("Jakiś boss dziś będzie bity?", "Terraria"),
+               ("Kopiemy w głąb?", "Terraria")],
+        "en": [("Fighting a boss today?", "Terraria"),
+               ("Digging deep today?", "Terraria")],
+    },
+    "factorygame.exe": {
+        "pl": [("Optymalizuj fabrykę... i bez spaghetti!", "Satisfactory")],
+        "en": [("Optimize the factory... no spaghetti!", "Satisfactory")],
+    },
+    "factorio.exe": {
+        "pl": [("Fabryka musi rosnąć.", "Factorio")],
+        "en": [("The factory must grow.", "Factorio")],
+    },
+    # ── RPG / story ───────────────────────────────────────────────────────────
+    "witcher3.exe": {
+        "pl": [("Dzikie Łowy czekają!", "Wiedźmin 3")],
+        "en": [("The Wild Hunt awaits!", "The Witcher 3")],
+    },
+    "cyberpunk2077.exe": {
+        "pl": [("Night City wita!", "Cyberpunk 2077")],
+        "en": [("Welcome to Night City!", "Cyberpunk 2077")],
+    },
+    "eldenring.exe": {
+        "pl": [("Powodzenia w Pomiędzyziemiu!", "Elden Ring · Tarnished")],
+        "en": [("Good luck in the Lands Between!", "Elden Ring · Tarnished")],
+    },
+    "baldursgate3.exe": {
+        "pl": [("Dobrej przygody!", "Baldur's Gate 3")],
+        "en": [("Have a great adventure!", "Baldur's Gate 3")],
+    },
+    "starfield.exe": {
+        "pl": [("Odkrywaj gwiazdy!", "Starfield")],
+        "en": [("Explore the stars!", "Starfield")],
+    },
+    "hades.exe": {
+        "pl": [("Ucieczka z podziemi, próba #∞", "Hades")],
+        "en": [("Escaping the underworld, attempt #∞", "Hades")],
+    },
+    "hades2.exe": {
+        "pl": [("Ucieczka z podziemi, próba #∞", "Hades II")],
+        "en": [("Escaping the underworld, attempt #∞", "Hades II")],
+    },
+    "hollow_knight.exe": {
+        "pl": [("Hallownest czeka!", "Hollow Knight")],
+        "en": [("Hallownest awaits!", "Hollow Knight")],
+    },
+    "gta5.exe": {
+        "pl": [("Witaj w Los Santos!", "GTA V")],
+        "en": [("Welcome to Los Santos!", "GTA V")],
+    },
+    "rdr2.exe": {
+        "pl": [("Dziki Zachód wzywa, kowboju.", "Red Dead Redemption 2")],
+        "en": [("The Wild West is calling, cowboy.", "Red Dead Redemption 2")],
+    },
+    # ── Survival / sandbox ────────────────────────────────────────────────────
+    "rust.exe": {
+        "pl": [("Nie daj się zabić... za bardzo.", "Rust")],
+        "en": [("Try not to get killed... too much.", "Rust")],
+    },
+    "minecraft.exe": {
+        "pl": [("Kopiemy diamenty?", "Minecraft"),
+               ("Czas budować!", "Minecraft")],
+        "en": [("Mining diamonds today?", "Minecraft"),
+               ("Time to build!", "Minecraft")],
+    },
+    "valheim.exe": {
+        "pl": [("Podbij krainę Wikingów!", "Valheim")],
+        "en": [("Conquer the Viking realm!", "Valheim")],
+    },
+    "palworld.exe": {
+        "pl": [("Łap, hoduj... i do roboty!", "Palworld")],
+        "en": [("Catch 'em, breed 'em... back to work!", "Palworld")],
+    },
+    "sotgame.exe": {
+        "pl": [("Po skarby, piracie!", "Sea of Thieves")],
+        "en": [("Set sail for treasure, pirate!", "Sea of Thieves")],
+    },
+    "nms.exe": {
+        "pl": [("Odkrywaj nowe światy!", "No Man's Sky")],
+        "en": [("Explore new worlds!", "No Man's Sky")],
+    },
+    # ── Racing ────────────────────────────────────────────────────────────────
+    "forza_horizon5.exe": {
+        "pl": [("Gaz do dechy!", "Forza Horizon 5")],
+        "en": [("Pedal to the metal!", "Forza Horizon 5")],
+    },
+    "assettocorsa.exe": {
+        "pl": [("Na tor!", "Assetto Corsa")],
+        "en": [("Hit the track!", "Assetto Corsa")],
+    },
+    # ── Strategy ──────────────────────────────────────────────────────────────
+    "ck3.exe": {
+        "pl": [("Dynastia nie zbuduje się sama!", "Crusader Kings III")],
+        "en": [("The dynasty won't build itself!", "Crusader Kings III")],
+    },
+    "eu4.exe": {
+        "pl": [("Europa czeka!", "Europa Universalis IV")],
+        "en": [("Europe awaits!", "Europa Universalis IV")],
+    },
+    "stellaris.exe": {
+        "pl": [("Podbij galaktykę!", "Stellaris")],
+        "en": [("Conquer the galaxy!", "Stellaris")],
+    },
+    # ── Horror / tense ────────────────────────────────────────────────────────
+    "re4.exe": {
+        "pl": [("Leon, ratuj księżniczkę!", "Resident Evil 4")],
+        "en": [("Leon, save the princess!", "Resident Evil 4")],
+    },
+    "phasmophobia.exe": {
+        "pl": [("Duuuuchy!", "Phasmophobia")],
+        "en": [("Ghoooosts!", "Phasmophobia")],
+    },
+    "deadbydaylight.exe": {
+        "pl": [("Uciekaj albo poluj!", "Dead by Daylight")],
+        "en": [("Run or hunt!", "Dead by Daylight")],
+    },
+}
+
+# Alternate exe spellings -> canonical key (keeps _GAME_DB DRY).
+_ALIASES: dict[str, str] = {
+    "leagueoflegends.exe": "league of legends.exe",
+    "planetzoo.exe":       "planet zoo.exe",
+    "citiesskylines2.exe": "cities skylines 2.exe",
+    "seaofthieves.exe":    "sotgame.exe",
 }
 
 # Default messages when game not in DB
@@ -95,13 +259,38 @@ _ACCENT_DEFAULT  = "#3b82f6"   # blue - default
 
 _ACCENT_MAP: dict[str, str] = {
     "cs2": _ACCENT_FPS, "csgo": _ACCENT_FPS, "valorant": _ACCENT_FPS,
-    "apex": _ACCENT_FPS, "overwatch": _ACCENT_FPS,
+    "apex": _ACCENT_FPS, "overwatch": _ACCENT_FPS, "helldivers": _ACCENT_FPS,
+    "fortnite": _ACCENT_FPS, "tslgame": _ACCENT_FPS, "rocketleague": _ACCENT_FPS,
     "league": _ACCENT_FPS, "dota": _ACCENT_FPS,
     "stardew": _ACCENT_COZY, "planet zoo": _ACCENT_COZY, "planetzoo": _ACCENT_COZY,
-    "sims": _ACCENT_COZY, "cities": _ACCENT_COZY,
+    "sims": _ACCENT_COZY, "cities": _ACCENT_COZY, "terraria": _ACCENT_COZY,
+    "factory": _ACCENT_COZY, "factorio": _ACCENT_COZY, "minecraft": _ACCENT_COZY,
+    "palworld": _ACCENT_COZY, "valheim": _ACCENT_COZY, "sot": _ACCENT_COZY,
+    "nms": _ACCENT_COZY, "stellaris": _ACCENT_COZY, "eu4": _ACCENT_COZY,
     "witcher": _ACCENT_RPG, "cyberpunk": _ACCENT_RPG, "eldenring": _ACCENT_RPG,
     "baldurs": _ACCENT_RPG, "starfield": _ACCENT_RPG, "ck3": _ACCENT_RPG,
+    "hades": _ACCENT_RPG, "hollow": _ACCENT_RPG, "gta5": _ACCENT_RPG, "rdr2": _ACCENT_RPG,
 }
+
+
+def _canon(exe_lower: str) -> str:
+    """Resolve an exe alias to its canonical _GAME_DB key."""
+    return _ALIASES.get(exe_lower, exe_lower)
+
+
+def _is_known(exe_lower: str) -> bool:
+    return exe_lower in _GAME_DB or exe_lower in _ALIASES
+
+
+def _pick(exe_lower: str, lang: str) -> tuple[str, Optional[str]]:
+    """Pick one (title, subtitle) variant for this game + language at random."""
+    entry = _GAME_DB.get(_canon(exe_lower))
+    if not entry:
+        return _DEFAULT_PL if lang == "pl" else _DEFAULT_EN
+    variants = entry.get(lang) or entry.get("pl") or entry.get("en")
+    if not variants:
+        return _DEFAULT_PL if lang == "pl" else _DEFAULT_EN
+    return random.choice(variants)
 
 
 def _get_accent(exe_lower: str) -> str:
@@ -317,7 +506,7 @@ class GamingToastWatcher:
                     name = (proc.info["name"] or "").lower()
                 except Exception:
                     continue
-                if name in _GAME_DB and name not in self._seen:
+                if _is_known(name) and name not in self._seen:
                     self._seen.add(name)
                     self._fire(name)
         except Exception:
@@ -326,9 +515,7 @@ class GamingToastWatcher:
     def _fire(self, exe_lower: str) -> None:
         if self._root is None:
             return
-        title, subtitle = _GAME_DB.get(exe_lower, (
-            _DEFAULT_PL[0] if self._lang == "pl" else _DEFAULT_EN[0], None
-        ))
+        title, subtitle = _pick(exe_lower, self._lang)
         accent = _get_accent(exe_lower)
         try:
             self._root.after(
@@ -352,7 +539,5 @@ def show_gaming_toast(root: tk.Misc, exe_name: str, lang: str = "pl") -> None:
     Useful for testing or manual trigger from process monitor.
     """
     exe_lower = exe_name.lower()
-    title, subtitle = _GAME_DB.get(exe_lower, (
-        _DEFAULT_PL[0] if lang == "pl" else _DEFAULT_EN[0], None
-    ))
+    title, subtitle = _pick(exe_lower, lang)
     _GamingToast(root, title, subtitle, _get_accent(exe_lower))
