@@ -1,0 +1,243 @@
+[2026-05-15 13:59:30] [PROC]  monitor started  idle_threshold=300s
+[2026-05-15 13:59:31] [PROC]  monitor stopped — all resumed
+[2026-05-15 13:59:32] [PROC]  monitor started  idle_threshold=300s
+[2026-05-15 14:09:28] [PROC]  monitor started  idle_threshold=300s
+[2026-05-15 14:14:03] [PROC]  suspended  pid=1536  name=pet.exe
+[2026-05-15 14:14:03] [PROC]  suspended  pid=2000  name=LockApp.exe
+[2026-05-15 14:14:03] [PROC]  suspended  pid=3512  name=opera.exe
+[2026-05-15 14:14:03] [PROC]  suspended  pid=4792  name=TextInputHost.exe
+[2026-05-15 14:14:03] [PROC]  suspended  pid=5308  name=claude.exe
+[2026-05-15 14:14:03] [PROC]  suspended  pid=5540  name=OpenConsole.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=8736  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=10376  name=OpenConsole.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=10488  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=10824  name=SearchApp.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=11060  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=11228  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=11372  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=12004  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=12276  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=12552  name=StartMenuExperienceHost.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=12600  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=13912  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=14500  name=ShellExperienceHost.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=14928  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=15640  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=15760  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=15952  name=DTShellHlp.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=16228  name=XboxPcAppFT.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=16876  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=17156  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=17720  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=17748  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=18724  name=opera_crashreporter.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=19212  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=20236  name=GameInputRedistService.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21000  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21140  name=SearchApp.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21332  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21660  name=claude.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21936  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=21948  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=22088  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=22988  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=23004  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=23244  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=23348  name=OpenConsole.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=23624  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=23820  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=24000  name=opera.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=24220  name=Code.exe
+[2026-05-15 14:14:04] [PROC]  suspended  pid=24548  name=claude.exe
+[2026-05-15 14:14:34] [PROC]  suspended  pid=21268  name=Code.exe
+[2026-05-15 14:15:04] [PROC]  suspended  pid=10452  name=Code.exe
+[2026-05-15 14:15:05] [PROC]  suspended  pid=21068  name=Code.exe
+[2026-05-15 14:15:35] [PROC]  suspended  pid=18992  name=opera.exe
+[2026-05-15 14:15:35] [PROC]  suspended  pid=19228  name=claude.exe
+[2026-05-15 14:19:38] [PROC]  suspended  pid=6544  name=opera.exe
+[2026-05-15 14:19:38] [PROC]  suspended  pid=12060  name=opera.exe
+[2026-05-15 14:28:14] [PROC]  monitor started  idle_threshold=300s
+[2026-05-16 01:56:07] [PROC]  monitor started  idle_threshold=300s
+[2026-05-16 01:56:08] [PROC]  monitor stopped — all resumed
+[2026-05-16 01:56:08] [PROC]  monitor started  idle_threshold=300s
+[2026-05-16 01:58:10] [PROC]  suspended  pid=1340  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=2272  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=2408  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=2752  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=4856  name=OpenConsole.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=5328  name=GameInputRedistService.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=5624  name=claude.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=5948  name=OpenConsole.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=6548  name=claude.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=7024  name=XboxPcAppFT.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=7636  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=7760  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=8116  name=claude.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=8808  name=StartMenuExperienceHost.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=9168  name=SearchApp.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=9380  name=steamwebhelper.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=9668  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=9988  name=SearchApp.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=10128  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=11448  name=pet.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=12248  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=12440  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=13008  name=claude.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=13512  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=13664  name=ShellExperienceHost.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=13892  name=steamwebhelper.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=14292  name=RiotClientServices.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=14912  name=OpenConsole.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=15796  name=opera.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=15956  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=16072  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=16312  name=opera_crashreporter.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=16376  name=Code.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=16404  name=RiotClientCrashHandler.exe
+[2026-05-16 01:58:10] [PROC]  suspended  pid=16812  name=opera.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=17492  name=steamwebhelper.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=17584  name=claude.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=18352  name=steamwebhelper.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=18464  name=steam.exe  ⚠ suspicious path
+[2026-05-16 01:58:11] [PROC]  suspended  pid=18532  name=opera.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=18904  name=opera.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=19152  name=Code.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=19480  name=opera.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=19608  name=claude.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=19808  name=claude.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=19928  name=Code.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=20044  name=claude.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=20432  name=claude.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=20512  name=steamwebhelper.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=20516  name=steamwebhelper.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=21256  name=opera.exe
+[2026-05-16 01:58:11] [PROC]  suspended  pid=21500  name=opera.exe
+[2026-05-16 01:58:40] [PROC]  suspended  pid=3660  name=opera.exe
+[2026-05-16 01:58:41] [PROC]  suspended  pid=4312  name=opera.exe
+[2026-05-16 01:58:41] [PROC]  suspended  pid=16060  name=Code.exe
+[2026-05-16 01:59:10] [PROC]  suspended  pid=13092  name=TextInputHost.exe
+[2026-05-16 01:59:10] [PROC]  suspended  pid=15724  name=opera.exe
+[2026-05-20 14:26:39] [PROC]  monitor started  idle_threshold=300s
+[2026-05-20 14:31:13] [PROC]  suspended  pid=1180  name=steam.exe  ⚠ suspicious path
+[2026-05-20 14:31:13] [PROC]  suspended  pid=1376  name=GameInputRedistService.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=1620  name=steamwebhelper.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=1760  name=claude.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=2112  name=opera.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=3108  name=steamwebhelper.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=3264  name=steamwebhelper.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=3796  name=Code.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=4536  name=steamwebhelper.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=7108  name=opera.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=7144  name=ShellExperienceHost.exe
+[2026-05-20 14:31:13] [PROC]  suspended  pid=7336  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=7784  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=8468  name=XboxPcAppFT.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=9064  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=9336  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=10064  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=10780  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11016  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11036  name=StartMenuExperienceHost.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11196  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11272  name=OpenConsole.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11492  name=SearchApp.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=11500  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=12536  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=12544  name=SystemSettings.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=13196  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=13240  name=steamwebhelper.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=13356  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=13424  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=13824  name=OpenConsole.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=14696  name=pet.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=15012  name=SearchApp.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=15940  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16056  name=LockApp.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16112  name=opera_crashreporter.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16200  name=steamwebhelper.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16388  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16412  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=16548  name=OpenConsole.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=17308  name=DTShellHlp.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=19136  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=19376  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=19572  name=steamwebhelper.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=19624  name=claude.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=20312  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=20456  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=20636  name=opera.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=21332  name=Code.exe
+[2026-05-20 14:31:14] [PROC]  suspended  pid=22244  name=opera.exe
+[2026-05-20 14:31:44] [PROC]  suspended  pid=12540  name=Code.exe
+[2026-05-20 14:32:45] [PROC]  suspended  pid=4660  name=opera.exe
+[2026-05-20 14:43:28] [PROC]  monitor started  idle_threshold=300s
+[2026-05-20 14:48:02] [PROC]  suspended  pid=1440  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=1684  name=ShellExperienceHost.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=1744  name=TextInputHost.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=1976  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=2840  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=4444  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=4832  name=LockApp.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=5348  name=GameInputRedistService.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=5996  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=7724  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=7808  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=8148  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=8908  name=SystemSettings.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=9760  name=SearchApp.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=9884  name=StartMenuExperienceHost.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=10332  name=SearchApp.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=10452  name=OpenConsole.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=10796  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=11228  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=13424  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=13768  name=Code.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14032  name=OpenConsole.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14220  name=opera_crashreporter.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14384  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14516  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14668  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14740  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=14892  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=15108  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=15408  name=OpenConsole.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=16016  name=opera.exe
+[2026-05-20 14:48:02] [PROC]  suspended  pid=17296  name=pet.exe
+[2026-06-18 17:09:26] [SVC]  STOP SEMgrSvc  ->  OK
+[2026-06-18 17:09:26] [SVC]  STOP SysMain  ->  OK
+[2026-06-18 17:09:26] [SVC]  STOP TabletInputService  ->  [SC] ControlService FAILED 1052:
+
+��dany sygna� steruj�cy 
+[2026-06-18 17:09:26] [SVC]  STOP WSearch  ->  [SC] ControlService FAILED 1051:
+
+Sygna� kontrolny Stop zo
+[2026-06-18 17:09:26] [SVC]  profile=economy  stopped=2
+[2026-06-18 17:09:32] [SVC]  STOP WSearch  ->  [SC] ControlService FAILED 1051:
+
+Sygna� kontrolny Stop zo
+[2026-06-18 17:09:32] [SVC]  STOP TabletInputService  ->  [SC] ControlService FAILED 1052:
+
+��dany sygna� steruj�cy 
+[2026-06-18 17:09:32] [SVC]  profile=gaming  stopped=2
+[2026-06-18 17:09:35] [SVC]  STOP WSearch  ->  [SC] ControlService FAILED 1051:
+
+Sygna� kontrolny Stop zo
+[2026-06-18 17:09:35] [SVC]  STOP TabletInputService  ->  [SC] ControlService FAILED 1052:
+
+��dany sygna� steruj�cy 
+[2026-06-18 17:09:35] [SVC]  profile=gaming  stopped=2
+[2026-06-18 17:09:35] [SVC]  START SEMgrSvc  ->  OK
+[2026-06-18 17:09:36] [SVC]  START SysMain  ->  OK
+[2026-06-18 17:09:36] [SVC]  restore_all  restored=2
+[2026-06-18 17:16:34] [SVC]  STOP SEMgrSvc  ->  OK
+[2026-06-18 17:16:34] [SVC]  STOP SysMain  ->  OK
+[2026-06-18 17:16:34] [SVC]  STOP TabletInputService  ->  [SC] ControlService FAILED 1052:
+
+��dany sygna� steruj�cy 
+[2026-06-18 17:16:34] [SVC]  STOP WSearch  ->  [SC] ControlService FAILED 1051:
+
+Sygna� kontrolny Stop zo
+[2026-06-18 17:16:34] [SVC]  profile=economy  stopped=2
+[2026-06-18 17:16:36] [SVC]  START SEMgrSvc  ->  OK
+[2026-06-18 17:16:36] [SVC]  START SysMain  ->  OK
+[2026-06-18 17:16:36] [SVC]  restore_all  restored=2
