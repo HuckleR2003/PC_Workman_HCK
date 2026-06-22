@@ -7,6 +7,7 @@ _FONT_DIR = os.path.normpath(
 
 UI   = "Segoe UI"
 MONO = "Consolas"
+SCALE = 1.0  # set by ui_scale.init() when window is maximized
 
 def load():
     global UI
