@@ -78,3 +78,13 @@ def wide_mid_padx() -> int:
     Reduces visible width to ~65% of content area — avoids overstretching.
     On 1080P content area ≈ 1740px → padx 304px each side → middle ≈ 1132px."""
     return scale(304)
+
+
+def left_col_w() -> int:
+    """Width of the left info-column in maximized dashboard (session + hardware + nav)."""
+    if SCALE >= 2.0:
+        return 480   # 4K
+    elif SCALE >= 1.35:
+        return 380   # 2K
+    else:
+        return 320   # 1080P
