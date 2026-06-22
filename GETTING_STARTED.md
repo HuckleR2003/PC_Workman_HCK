@@ -24,16 +24,15 @@ Welcome! This guide covers installation and basic usage.
 ### Step 1: Download
 
 1. Go to [GitHub Releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases)
-2. Find latest release
-3. Download `PC_Workman.exe`
-4. Wait for download (~100MB)
+2. Download the latest `PC_Workman_HCK_1.8.0.zip` (~95 MB)
+3. Extract the folder anywhere you like
 
 ### Step 2: Run
 
-1. Find downloaded file (usually in Downloads folder)
-2. Double-click `PC_Workman.exe`
-3. If Windows asks "Allow this app to make changes?" → Click **Yes**
-4. PC_Workman opens → **Done!**
+1. Open the extracted folder
+2. Run **`PC Workman HCK.exe`** — keep the `_internal` folder next to it (that's the runtime)
+3. If Windows SmartScreen warns about a new app → **More info → Run anyway**
+4. PC Workman opens → **Done!**
 
 ### Step 3: First Use
 
@@ -235,8 +234,7 @@ Edit `settings/config.json` for advanced configuration:
 
 ### "Temperatures showing 0°C"
 
-Normal. Real hardware sensors need admin access.
-v1.5.1 adds proper hardware sensor support.
+Windows hands `psutil` an empty field for temps — there's no way around it. For real temperatures and voltages, run **LibreHardwareMonitor** in the background; PC Workman reads its sensors automatically.
 
 ### "GPU not showing data"
 
@@ -303,45 +301,29 @@ Try:
 ```
 data/
 ├── logs/
-│   ├── raw_usage.csv          (per-second raw data)
-│   ├── minute_avg.csv         (minute averages)
-│   ├── hourly_usage.csv       (hourly summary)
-│   ├── daily_usage.csv        (daily summary)
-│   ├── weekly_usage.csv       (weekly summary)
-│   └── monthly_usage.csv      (monthly summary)
+│   └── hck_stats.db           (SQLite — minute→hour→day→week→month stats)
 └── cache/
-    ├── runtime_cache.json     (current session)
-    └── process_patterns.json  (identified patterns)
+    ├── thermal_baseline.json  (learned per-workload temperatures)
+    └── voltage_baseline.json  (learned voltage SPC baselines)
+settings/                       (your preferences)
 ```
 
-### Data Retention
-- **Raw data:** Last 7 days
-- **Minute averages:** Last 30 days
-- **Monthly summaries:** Forever
+Everything lives on your machine. The stats database rolls up over time (minute → hour → day → week → month) and prunes raw detail after 90 days, while the learned baselines keep accumulating for the life of the install.
 
-You can:
-- Delete logs anytime
-- PC_Workman will start fresh
-- Archived data can be backed up
+You can delete the `data/` folder anytime — PC Workman starts fresh and begins learning again.
 
 ---
 
 ## 🔐 Privacy Check
 
-PC_Workman collects:
-- CPU/GPU/RAM usage
-- Process names
-- Temperatures
-- Network usage
+PC Workman records, **on your machine only**:
+- CPU / GPU / RAM usage
+- Temperatures and voltages
+- Process names and per-app network usage
 
-PC_Workman does NOT:
-- Send anything to cloud
-- Track user behavior
-- Collect personal data
-- Show ads or telemetry
-- Require account creation
+It never touches your files, keystrokes, browsing, or any personal content — and it never shows ads or asks for an account.
 
-**Everything stays on your computer.** Period.
+Every outbound connection goes through one network gate you control in **Settings**. Turn it off and the app makes zero connections — check it with a firewall.
 
 ---
 

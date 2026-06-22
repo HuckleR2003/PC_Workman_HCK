@@ -48,7 +48,7 @@ If signature verification fails, do not run the executable. Report the issue imm
 **Started:** v1.6.3  
 **Frequency:** Every new .exe release  
 **Current Status:** 0/70 clean  
-**Last Scanned:** v1.7.6 (May 29, 2026)
+**Last Scanned:** v1.8.0 (June 22, 2026)
 
 Before publishing any executable, it is uploaded to VirusTotal and verified against 70+ antivirus engines. Users can verify this independently at [virustotal.com](https://www.virustotal.com).
 
@@ -84,11 +84,10 @@ Only the latest stable version receives active security support.
 
 | Version | Supported | Security Updates | Notes |
 |---------|-----------|------------------|-------|
-| 1.7.X patched (latest) | Yes | Best | Active development branch | score at VirusTotal (0/61) |
-| 1.7.2 | Yes | Immediate | Active development branch | New score at VirusTotal (0/61) |
-| 1.6.x | Yes | Immediate | Active development branch |
-| 1.5.x | Limited | Critical only | Upgrade recommended |
-| < 1.5 | No | None | End of life |
+| 1.8.0 (latest stable) | Yes | Best | Current release |
+| 1.7.x | Limited | Critical only | Upgrade recommended |
+| 1.6.x | Limited | Critical only | Upgrade recommended |
+| < 1.6 | No | None | End of life |
 
 **Alpha/Beta builds** receive security patches but may contain other stability issues. Production environments should use stable releases only.
 
@@ -287,12 +286,25 @@ PC_Workman uses third-party libraries documented in `requirements.txt` and `DEPE
 
 **Current Dependencies with Security Implications:**
 - `psutil` - System monitoring (regular security audits by maintainers)
-- `pyqt5` - GUI framework (maintained by Riverbank Computing)
+- `Tkinter` - GUI toolkit (Python standard library, no third-party GUI runtime)
+- `pystray` / `Pillow` - tray icon and image handling
+- `LibreHardwareMonitor` (optional) - hardware sensors, loaded only if present
 - Additional dependencies listed in DEPENDENCIES.md
 
 ---
 
 ## Security Update Log
+
+### v1.8.0 (June 22, 2026)
+
+**Security Improvements:**
+- Sigstore signature renewed for the 1.8.0 stable build
+- VirusTotal scan: 0/70 clean (verified before release)
+- CodeQL: clean on every commit through the 1.7.x → 1.8.0 cycle
+- Dependency note corrected: the GUI is Tkinter (Python stdlib), not a third-party framework
+
+**Dependencies:**
+- `pip-audit` clean, no vulnerable dependencies
 
 ### v1.6.4 (January 24, 2026)
 
@@ -375,23 +387,13 @@ Users should verify these measures before granting administrative access.
 
 ### What data does PC_Workman collect or transmit?
 
-**No telemetry or analytics are collected.**
+All system-monitoring data — CPU/GPU/RAM usage, temperatures, process info — is stored **locally on your device**. It is never your files, keystrokes, browsing, or any personal content.
 
-Network activity is limited to:
-- Optional AI diagnostic features (HCK_GPT) - only when explicitly used
-- Manual update checks (if implemented in future versions)
-
-Core system monitoring functions operate entirely offline. No data is transmitted to external servers without explicit user action.
+Every outbound connection in the app passes through a single network gate that you control in **Settings**. Turn network access off and the program makes **zero** outbound connections — verifiable with a firewall or Wireshark.
 
 ### Does PC_Workman require internet access?
 
-No. Core functionality operates completely offline:
-- System monitoring
-- Fan control
-- Performance tracking
-- Diagnostic reporting
-
-Internet access is only used for optional AI features, which require explicit user activation.
+No. All core functionality — system monitoring, fan control, performance tracking, and the offline AI assistant — runs without the internet. Network access is optional and fully controllable in Settings; with it off, the app is completely offline.
 
 ### What happens if development stops?
 
@@ -432,8 +434,8 @@ Marcin Firmuga
 
 ## Policy Updates
 
-**Last Updated:** May 29, 2026  
-**Version:** 1.3
+**Last Updated:** June 22, 2026  
+**Version:** 1.4
 
 Changes to this security policy are tracked in git commit history. Significant changes will be announced in release notes and project communications.
 
