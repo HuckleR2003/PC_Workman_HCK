@@ -15,6 +15,7 @@ Innovations in this redesign:
 import tkinter as tk
 import time
 import math
+import threading
 from datetime import datetime, timedelta
 
 # ── Interactive chart component ───────────────────────────────────────────────
@@ -105,7 +106,7 @@ def build_monitoring_alerts_page(self, parent):
     rings_cv, score_ref, health_lbl, anom_lbl = _build_page_header(sf)
 
     # ── Learning status bar ───────────────────────────────────────────────────
-    _build_learning_status_bar(sf)
+    _build_learning_center(sf)
 
     # ── Temperature section ───────────────────────────────────────────────────
     temp_sec = _build_temperature_section(sf)
@@ -520,69 +521,165 @@ _LEVEL_COLORS = {
     "calibrated":  ("#061808", "#4ade80"),
 }
 
-def _build_learning_status_bar(parent):
-    """
-    Compact horizontal bar showing thermal baseline training status per bucket.
-    Only shown when ThermalBaseline module is available.
-    """
-    if not _HAS_THERMAL_BL:
+_LC_BUCKETS = [("idle", "Idle"), ("light", "Light"), ("medium", "Medium"),
+               ("heavy", "Heavy"), ("gaming", "Gaming")]
+
+
+def _build_learning_center(parent):
+    """At-a-glance view of what PC Workman has learned: thermal baselines per
+    workload + voltage SPC baselines + overall progress. The Rebuild button is a
+    live self-check that the learning engines are actually working."""
+    if not _HAS_THERMAL_BL and not _HAS_VOLT_AZ:
         return
 
-    outer = tk.Frame(parent, bg=PANEL)
-    outer.pack(fill="x", padx=15, pady=(0, 6))
-    tk.Frame(outer, bg="#4f46e5", height=1).pack(fill="x")
+    section = _make_section(parent)
+    tk.Frame(section, bg="#6366f1", height=2).pack(fill="x")
 
-    bar = tk.Frame(outer, bg=PANEL)
-    bar.pack(fill="x", padx=10, pady=(4, 5))
+    hdr = tk.Frame(section, bg=PANEL)
+    hdr.pack(fill="x", padx=12, pady=(8, 2))
+    tk.Label(hdr, text="🧠", font=(_BODY, 11), bg=PANEL).pack(side="left")
+    tk.Label(hdr, text=" WHAT PC WORKMAN HAS LEARNED", font=(_HDR, 9),
+             bg=PANEL, fg="#a5b4fc").pack(side="left")
 
-    # Label
-    tk.Label(bar, text="🧠", font=(_BODY, 9), bg=PANEL).pack(side="left")
-    tk.Label(bar,
-             text=" Thermal Learning",
-             font=(_MONO, 7, "bold"), bg=PANEL, fg="#6366f1").pack(side="left")
+    pct_lbl = tk.Label(hdr, text="", font=(_MONO, 8, "bold"), bg=PANEL, fg=DIM)
+    pct_lbl.pack(side="right", padx=(8, 0))
+    psu_lbl = tk.Label(hdr, text="", font=(_MONO, 8, "bold"), bg=PANEL, fg=DIM)
+    psu_lbl.pack(side="right", padx=(8, 0))
+    upd_lbl = tk.Label(hdr, text="", font=(_MONO, 7), bg=PANEL, fg=DIM)
+    upd_lbl.pack(side="right", padx=(8, 0))
+    reb = tk.Label(hdr, text="↻ Rebuild", font=(_MONO, 7, "bold"),
+                   bg="#13182a", fg="#818cf8", cursor="hand2", padx=8, pady=2)
+    reb.pack(side="right", padx=(8, 0))
 
-    # Separator
-    tk.Frame(bar, bg=BORDER, width=1, height=16).pack(side="left", padx=8)
+    body = tk.Frame(section, bg=PANEL)
+    body.pack(fill="x", padx=12, pady=(2, 4))
 
-    # Bucket pills
+    tk.Label(section,
+             text="ℹ The longer it runs, the better it knows YOUR normal — "
+                  "and the smarter the temperature & voltage alerts become.",
+             font=(_BODY, 7), bg=PANEL, fg=MUTED, anchor="w",
+             wraplength=720, justify="left").pack(fill="x", padx=12, pady=(0, 8))
+
+    def _populate():
+        for w in body.winfo_children():
+            try:
+                w.destroy()
+            except Exception:
+                pass
+        body.grid_columnconfigure(0, weight=1, uniform="lc")
+        body.grid_columnconfigure(1, weight=1, uniform="lc")
+        left  = tk.Frame(body, bg=PANEL)
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        right = tk.Frame(body, bg=PANEL)
+        right.grid(row=0, column=1, sticky="nsew")
+        _lc_thermal(left)
+        _lc_voltage(right)
+        if _HAS_THERMAL_BL:
+            p = _thermal_bl.overall_training_pct()
+            pct_lbl.config(text=f"{p}% learned",
+                           fg=OK_C if p >= 80 else WARN_C if p >= 40 else "#6366f1")
+            upd_lbl.config(text=f"rebuilt {_thermal_bl.last_update_str()}")
+        if _HAS_VOLT_AZ and _volt_az.is_data_available():
+            try:
+                hs = _volt_az.overall_health_score()
+                psu_lbl.config(text=f"PSU {hs}%",
+                               fg=OK_C if hs >= 80 else WARN_C if hs >= 50 else "#ef4444")
+            except Exception:
+                psu_lbl.config(text="")
+        else:
+            psu_lbl.config(text="")
+
+    def _rebuild(_=None):
+        reb.config(text="↻ …", fg=DIM)
+
+        def _bg():
+            try:
+                if _HAS_THERMAL_BL:
+                    _thermal_bl.rebuild(force=True)
+                if _HAS_VOLT_AZ:
+                    _volt_az.rebuild(force=True)
+            except Exception:
+                pass
+            try:
+                if section.winfo_exists():
+                    section.after(0, lambda: (_populate(),
+                                              reb.config(text="↻ Rebuild", fg="#818cf8")))
+            except Exception:
+                pass
+
+        threading.Thread(target=_bg, daemon=True, name="lc-rebuild").start()
+
+    reb.bind("<Button-1>", _rebuild)
+    reb.bind("<Enter>", lambda e: reb.config(fg="#c4b5fd") if "…" not in reb.cget("text") else None)
+    reb.bind("<Leave>", lambda e: reb.config(fg="#818cf8") if "…" not in reb.cget("text") else None)
+
+    _populate()
+    return section
+
+
+def _lc_thermal(parent):
+    tk.Label(parent, text="THERMAL  ·  per workload", font=(_MONO, 7, "bold"),
+             bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
+    if not _HAS_THERMAL_BL:
+        tk.Label(parent, text="thermal engine unavailable", font=(_BODY, 7),
+                 bg=PANEL, fg=MUTED).pack(anchor="w")
+        return
     status = _thermal_bl.training_status()
-    bucket_labels = {
-        "idle": "Idle", "light": "Light", "medium": "Medium",
-        "heavy": "Heavy", "gaming": "Gaming",
-    }
-    for bk, bk_lbl in bucket_labels.items():
+    for bk, label in _LC_BUCKETS:
         info  = status.get(bk, {})
         level = info.get("level", "no_data")
-        n     = info.get("n", 0)
-        bg_c, fg_c = _LEVEL_COLORS.get(level, _LEVEL_COLORS["no_data"])
+        n     = int(info.get("n", 0))
+        tp    = int(info.get("training_pct", 0))
+        _, fg_c = _LEVEL_COLORS.get(level, _LEVEL_COLORS["no_data"])
 
-        pill = tk.Frame(bar, bg=BORDER)
-        pill.pack(side="left", padx=2)
-        inner = tk.Frame(pill, bg=bg_c)
-        inner.pack(padx=1, pady=1)
-        tk.Label(inner,
-                 text=f"{bk_lbl}",
-                 font=(_MONO, 6, "bold"),
-                 bg=bg_c, fg=fg_c,
-                 padx=4, pady=1).pack(side="left")
-        if n:
-            tk.Label(inner,
-                     text=f" {n}",
-                     font=(_MONO, 6),
-                     bg=bg_c, fg=DIM,
-                     padx=2).pack(side="left")
+        row = tk.Frame(parent, bg=PANEL)
+        row.pack(fill="x", pady=1)
+        tk.Label(row, text=label, font=(_MONO, 7), bg=PANEL, fg=TEXT,
+                 width=7, anchor="w").pack(side="left")
+        cv = tk.Canvas(row, width=64, height=8, bg=PANEL, highlightthickness=0)
+        cv.pack(side="left", padx=(0, 6))
+        cv.create_rectangle(0, 2, 64, 7, fill="#161c28", outline="")
+        fw = int(64 * min(max(tp, 0), 100) / 100)
+        if fw > 0:
+            cv.create_rectangle(0, 2, fw, 7, fill=fg_c, outline="")
+        detail = (f"{info.get('p5', 0):.0f}–{info.get('p95', 0):.0f}°C"
+                  if n >= 20 else f"{n} smp")
+        tk.Label(row, text=detail, font=(_MONO, 6), bg=PANEL, fg=MUTED,
+                 width=9, anchor="w").pack(side="left")
+        tk.Label(row, text=level, font=(_MONO, 6), bg=PANEL, fg=fg_c,
+                 anchor="w").pack(side="left")
 
-    # Overall pct badge
-    pct = _thermal_bl.overall_training_pct()
-    pct_col = OK_C if pct >= 80 else WARN_C if pct >= 40 else DIM
-    tk.Label(bar,
-             text=f"  {pct}% overall",
-             font=(_MONO, 7), bg=PANEL, fg=pct_col).pack(side="right")
 
-    # Last rebuilt
-    tk.Label(bar,
-             text=f"rebuilt {_thermal_bl.last_update_str()}",
-             font=(_MONO, 6), bg=PANEL, fg=DIM).pack(side="right", padx=(0, 8))
+def _lc_voltage(parent):
+    tk.Label(parent, text="VOLTAGE  ·  SPC baselines", font=(_MONO, 7, "bold"),
+             bg=PANEL, fg=VOLT_C).pack(anchor="w", pady=(0, 3))
+    if not (_HAS_VOLT_AZ and _volt_az.is_data_available()):
+        tk.Label(parent, text="⚡ Needs LibreHardwareMonitor to learn rails",
+                 font=(_BODY, 7), bg=PANEL, fg=MUTED).pack(anchor="w", pady=4)
+        return
+    stats = _volt_az.get_rail_stats()
+    for key, meta in _VOLT_RAILS.items():
+        rs  = stats.get(key)
+        row = tk.Frame(parent, bg=PANEL)
+        row.pack(fill="x", pady=1)
+        tk.Label(row, text=meta["label"], font=(_MONO, 7), bg=PANEL, fg=TEXT,
+                 width=5, anchor="w").pack(side="left")
+        if rs and rs.has_data:
+            _, sev = rs.health_label()
+            _, scol = _SEVERITY_BADGE.get(sev, _SEVERITY_BADGE["none"])
+            band = rs.normal_band
+            half = (band[1] - band[0]) / 2 if band else 0
+            tk.Label(row, text="●", font=(_MONO, 7), bg=PANEL,
+                     fg=scol).pack(side="left", padx=(0, 4))
+            tk.Label(row, text=f"{rs.median:.3f}V", font=(_MONO, 7, "bold"),
+                     bg=PANEL, fg=VOLT_C).pack(side="left")
+            tk.Label(row, text=f"  ±{half:.3f}", font=(_MONO, 6),
+                     bg=PANEL, fg=MUTED).pack(side="left")
+        else:
+            tk.Label(row, text="learning…", font=(_MONO, 6),
+                     bg=PANEL, fg=DIM).pack(side="left", padx=(0, 4))
+    tk.Label(parent, text=f"{_volt_az.snapshot_count():,} snapshots learned",
+             font=(_MONO, 6), bg=PANEL, fg=DIM).pack(anchor="w", pady=(2, 0))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1049,9 +1146,6 @@ def _build_anomaly_calendar(parent):
         lbl   = tk.Label(cell_in, text=day_n,
                          font=(_MONO, 7), bg=bg_c, fg=fg_c, cursor="hand2")
         lbl.pack(expand=True)
-
-        tooltip_txt = (f"{day_date.strftime('%b %d')}  "
-                       f"{'no anomalies' if anomalies == 0 else f'{anomalies} anomalies'}")
 
         def _enter(e, f=cell_in, b="#1e293b", lbl=lbl, old=bg_c, fg=fg_c):
             f.config(bg=b)
