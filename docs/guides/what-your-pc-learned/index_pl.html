@@ -1,0 +1,178 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology article (PL) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Większość monitorów zapomina wszystko, gdy je zamkniesz. PC Workman trzyma żywy model Twoich temperatur i napięć per obciążenie — akumulator Welforda, który uczy się przez całe życie instalacji i przeżywa przycinanie danych — oraz Learning Center, gdzie widzisz, jak myśli.">
+    <meta name="keywords" content="thermal baseline, algorytm Welforda, akumulator online, temperatura per obciążenie, uczący się monitor systemu, SPC napięć, MAD, reguły Nelsona, PC Workman Learning Center, predykcyjna konserwacja">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <meta property="og:title" content="Czego Twój komputer nauczył się o sobie">
+    <meta property="og:description" content="Większość monitorów zapomina wszystko w chwili zamknięcia. Ten pamięta — żywy model per obciążenie, który kumuluje się przez całe życie instalacji, plus Learning Center, gdzie widzisz, jak myśli.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-06-19">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Czego Twój komputer nauczył się o sobie — Learning Center i akumulator, który nigdy nie zapomina | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Czego Twój komputer nauczył się o sobie",
+      "description": "Jak PC Workman trzyma żywy model Twoich temperatur i napięć per obciążenie algorytmem Welforda, dlaczego to bije okno przesuwne, i co pokazuje Learning Center w v1.8.0.",
+      "url": "https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html",
+      "datePublished": "2026-06-19",
+      "dateModified": "2026-06-19",
+      "inLanguage": "pl",
+      "keywords": "thermal baseline, algorytm Welforda, akumulator online, temperatura per obciążenie, SPC napięć, MAD, reguły Nelsona, Learning Center",
+      "wordCount": 1500,
+      "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Czego Twój komputer nauczył się o sobie", "item": "https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <nav>
+            <a href="../index_pl.html">Wszystkie poradniki</a>
+            <a href="../../download/index_pl.html">Pobierz</a>
+            <a href="../../blog/index_pl.html">Blog</a>
+            <a href="./">EN</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; PRO</span>
+        <h1>Czego Twój komputer<br>nauczył się o sobie</h1>
+        <p class="tagline">Większość monitorów zapomina wszystko w chwili, gdy je zamkniesz. Ten pamięta &mdash; i im dłużej działa, tym lepiej zna Twoją maszynę.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-06-19</span><span>&middot;</span><span>7 min czytania</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>Zamknij HWiNFO. Zamknij Afterburnera. Otwórz jutro &mdash; co pamięta o Twojej maszynie? Nic. Startuje od zera i porównuje dzisiejsze 78&deg;C do tego samego progu, który pokazuje każdemu komputerowi na świecie. Nie ma pojęcia, że Twoja karta w tej grze zawsze trzyma 71&deg;C, a dziś po cichu robi 77 przy tym samym obciążeniu, w tym samym pokoju.</p>
+
+        <p class="lead">Monitor bez pamięci może Cię zaskoczyć dopiero po fakcie.</p>
+
+        <p>Więc w <span class="hl-green">v1.8.0</span> dałem PC Workmanowi pamięć, która naprawdę się kumuluje &mdash; żywy model <i>Twoich</i> temperatur i napięć per obciążenie, który uczy się przez całe życie instalacji. I miejsce, w którym możesz to oglądać: <span class="hl-cyan">Learning Center</span>. Oto co siedzi pod maską.</p>
+
+        <h2>Dlaczego &bdquo;ostatnie 14 dni&rdquo; nigdy nie wystarczało</h2>
+        <p>Pierwsza wersja silnika termicznego patrzyła na przesuwne okno 14 dni. Lepiej niż sztywny próg &mdash; przynajmniej uczył się <i>czegoś</i> z Twoich danych &mdash; ale zapominał. Cokolwiek starsze niż dwa tygodnie wypadało z tyłu okna i znikało. To znaczy, że nigdy nie odpowiedziałby na jedyne pytanie, które dla sprzętu naprawdę się liczy:</p>
+        <p><span class="hl-cyan">&bdquo;Czy mój idle grzeje się bardziej niż dwa miesiące temu?&rdquo;</span> Okno nie widzi dryfu. Z definicji zna tylko niedawną przeszłość. A dryf &mdash; wypompowana pasta, narastający kurz, starzejące się kondensatory &mdash; to dokładnie ten powolny problem, który chcesz złapać wcześnie.</p>
+
+        <h2>Welford: uczenie, które się kumuluje i nigdy nie czyta przeszłości od nowa</h2>
+        <p>Okna już nie ma. Zamiast co kilka minut skanować bazę i liczyć wszystko od zera, silnik wgniata teraz <em>tylko nowe próbki</em> w bieżący akumulator algorytmem online Welforda &mdash; jedną z tych cichych, numerycznie stabilnych metod z 1962 roku, które po prostu działają:</p>
+        <pre><code>n    += 1
+delta = x &minus; mean
+mean += delta / n
+M2   += delta &times; (x &minus; mean)</code></pre>
+        <p>Trzy liczby na obciążenie &mdash; licznik, bieżąca średnia i <code>M2</code> (suma kwadratów odchyleń). To cała pamięć. Z tych trzech program wyprowadza średnią i odchylenie standardowe w dowolnej chwili, oraz &bdquo;zakres normalny&rdquo;, który widzisz na ekranie.</p>
+        <p>Cicha magia tkwi w tym, czego to <i>nie</i> robi. Nigdy nie trzyma całej historii w RAM-ie i nigdy nie czyta starych wierszy ponownie. Każdy rebuild dotyka tylko tego, co przyszło od ostatniego razu. Dzięki temu bieżące statystyki <span class="hl-green">przeżywają nawet przycięcie surowych snapshotów po 90 dniach</span> &mdash; pamięć zostaje w maleńkim pliku JSON długo po tym, jak dane, które ją zbudowały, znikną. Uczenie kumuluje się przez całe życie instalacji, nie przez stałe okno. Im dłużej to chodzi, tym więcej naprawdę wie.</p>
+        <div class="callout">
+            Statystyka z lat '60. Nudna, przewidywalna &mdash; i właśnie dlatego ufam jej przy Twoim sprzęcie. <span class="hl-cyan">Statystyka nie halucynuje.</span>
+        </div>
+
+        <h2>Per obciążenie, żeby &bdquo;78&deg;C&rdquo; wreszcie coś znaczyło</h2>
+        <p>Jedna liczba dla &bdquo;Twojej normalnej temperatury&rdquo; jest bezużyteczna, bo 78&deg;C nic nie znaczy bez kontekstu. Więc każdy snapshot ląduje w jednym z pięciu kubełków obciążenia &mdash; <b>bezczynność, lekki, średni, intensywny, gaming</b> &mdash; i każdy kubełek ma własny akumulator.</p>
+        <p>Teraz ten sam odczyt rozdziela się na dwa:</p>
+        <table>
+            <thead><tr><th>Odczyt</th><th>Werdykt</th><th>Dlaczego</th></tr></thead>
+            <tbody>
+                <tr><td>82&deg;C w bezczynności</td><td><span class="hl-red">krytyczny</span></td><td>Twoja norma idle to może ~37&deg;C. 82 to wiele odchyleń dalej &mdash; coś jest nie tak</td></tr>
+                <tr><td>82&deg;C w grze</td><td><span class="hl-green">normalny</span></td><td>Twoja norma gaming to może ~80&deg;C. 82 siedzi w samym środku Twojego nauczonego zakresu</td></tr>
+            </tbody>
+        </table>
+        <p>Ta sama liczba, przeciwny werdykt &mdash; oceniony z-score'em względem <i>właściwego</i> kubełka, nie globalnego progu 85&deg;C, który ktoś raz zahardkodował. To też powód, dla którego przestał krzyczeć &bdquo;wilk&rdquo; podczas normalnego grania: 82&deg;C w grze i 82&deg;C w bezczynności to już nie ten sam alarm.</p>
+
+        <h2>Learning Center: zobacz, jak myśli</h2>
+        <p>To wszystko było dotąd niewidzialne &mdash; działo się w tle, brane na wiarę. W v1.8.0 to panel, który możesz otworzyć, w Monitoring &amp; Alerts. Learning Center pokazuje na żywo:</p>
+        <ul>
+            <li><b>Trening per obciążenie</b> &mdash; jak daleko zaszedł każdy z pięciu kubełków (<code>brak danych &rarr; uczenie &rarr; basic &rarr; trained &rarr; calibrated</code> przy 200+ próbkach), z nauczonym zakresem obok.</li>
+            <li><b>Szyny napięć</b> &mdash; baza SPC dla każdej szyny (mediana &plusmn; MAD) i żywy wynik zdrowia zasilacza.</li>
+            <li><b>Przycisk &#8635; Rebuild</b> &mdash; samokontrola, która wgniata najnowsze dane i przerysowuje panel w miejscu, żebyś na żywo zobaczył, jak silnik przelicza Twoje dane.</li>
+        </ul>
+        <!-- [GIF: spacer po Learning Center tutaj] -->
+        <p>Jest świadomie uczciwy co do tego, czego jeszcze nie wie. Kubełek, którego ledwie dotknąłeś, pokazuje <code>12 próbek</code>, a nie pewny siebie udawany zakres. Twierdzi, że zna tylko to, co naprawdę widział &mdash; co po paru tygodniach normalnego używania jest już sporo.</p>
+
+        <h2>Wie też, kiedy <i>nie</i> alarmować</h2>
+        <p>Strona napięciowa używa tego samego pomysłu, ale z medianą i MAD (medianowe odchylenie bezwzględne) zamiast średniej i sigmy &mdash; bo pojedynczy skok ciągnie średnią w górę, rozszerza pasmo, i następny skok przechodzi niezauważony. Mediana nawet nie drgnie. Na wierzchu siedzą klasyczne reguły Nelsona ze Statystycznej Kontroli Procesu: samotny skok, skupisko 2 z 3, dziewięć punktów po jednej stronie, sześciopunktowy trend.</p>
+        <p>I, co kluczowe, potrafi cofnąć alarm. Skok 12V przy zmianie obciążenia GPU jest fizycznie oczekiwany, więc jest tłumiony. Wzorzec, który powtórzy się pięć razy, przestaje być &bdquo;anomalią&rdquo; i po cichu staje się <span class="hl-cyan">nową normą Twojego sprzętu</span>. Narzędzie, które się uczy, musi umieć wycofać własne ostrzeżenia &mdash; inaczej wyciszysz je w jeden dzień, a wtedy nie chroni już niczego.</p>
+
+        <h2>Uczciwie: ograniczenia</h2>
+        <p><b>Ma zimny start.</b> Świeżo po instalacji nie wie o Tobie nic. Potrzebuje tygodni &mdash; realnie miesięcy, żeby zobaczyć lato i zimę, granie i bezczynność &mdash; zanim będzie sensownie mądrzejszy niż zwykły monitor. To cena za to, że później mówi o <i>Twoim</i> sprzęcie, a nie o uśrednionym. Akumulator jest zbudowany dokładnie pod tę długą grę.</p>
+        <p><b>Potrzebuje prawdziwych sensorów.</b> Na Windowsie <code>psutil</code> oddaje puste pole dla temperatur &mdash; nic, koniec tematu. Więc dobre dane idą przez LibreHardwareMonitor. Bez LHM nie ma nauki napięć; to ściana dostępu do sprzętu, nie wybór.</p>
+
+        <p class="lead">Twój komputer ma historię &mdash; jedna konkretna maszyna, w jednym pokoju, na jednym zasilaczu. Teraz coś wreszcie ją pamięta, zamiast porównywać Cię do średniej, której nigdy nie miałeś.</p>
+
+        <div class="guide-cta">
+            <b>To nie makieta &mdash; to działający kod.</b> Akumulator Welforda i Learning Center opisane wyżej są w <span class="hl-green">PC Workman v1.8.0</span> &mdash; za darmo i open-source. Każdą linijkę możesz przeczytać.
+            <a href="../../download/index_pl.html">Pobierz</a> albo <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przejrzyj źródło</a>.
+            Powiązane: <a href="../ai-pc-monitoring-vs-traditional/index_pl.html">dlaczego progi zawodzą na Twoim sprzęcie</a> &middot; <a href="../normal-cpu-temperature/">jaka jest normalna temperatura CPU</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję PC Workman publicznie</div>
+                <p>Piszę o tym, co naprawdę wydałem &mdash; z prawdziwymi liczbami i prawdziwym kodem. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>

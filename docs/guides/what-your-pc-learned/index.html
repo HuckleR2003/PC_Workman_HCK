@@ -1,0 +1,178 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology article (EN) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Most system monitors forget everything when you close them. PC Workman keeps a running per-workload model of your temperatures and voltages — Welford's online accumulator that learns for the life of the install and survives data pruning — and a Learning Center where you watch it think.">
+    <meta name="keywords" content="thermal baseline, Welford algorithm, online accumulator, per-workload temperature, learning system monitor, voltage SPC, MAD, Nelson rules, PC Workman Learning Center, predictive maintenance">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <meta property="og:title" content="What your PC has learned about itself">
+    <meta property="og:description" content="Most monitors forget everything the moment you close them. This one remembers — a running per-workload model that accumulates for the life of the install, plus a Learning Center where you watch it think.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-your-pc-learned/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-06-19">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>What Your PC Has Learned About Itself — The Learning Center &amp; the Accumulator That Never Forgets | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What your PC has learned about itself",
+      "description": "How PC Workman keeps a running per-workload model of your temperatures and voltages with Welford's online algorithm, why that beats a rolling window, and what the Learning Center shows you in v1.8.0.",
+      "url": "https://pcworkman.dev/guides/what-your-pc-learned/",
+      "datePublished": "2026-06-19",
+      "dateModified": "2026-06-19",
+      "inLanguage": "en",
+      "keywords": "thermal baseline, Welford algorithm, online accumulator, per-workload temperature, voltage SPC, MAD, Nelson rules, Learning Center",
+      "wordCount": 1500,
+      "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "What your PC has learned about itself", "item": "https://pcworkman.dev/guides/what-your-pc-learned/" }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <header class="topbar">
+        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <nav>
+            <a href="../">All guides</a>
+            <a href="../../download/">Download</a>
+            <a href="../../blog/">Blog</a>
+            <a href="index_pl.html">PL</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; PRO</span>
+        <h1>What your PC has learned<br>about itself</h1>
+        <p class="tagline">Most monitors forget everything the moment you close them. This one remembers &mdash; and the longer it runs, the better it knows your machine.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-19</span><span>&middot;</span><span>7 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>Close HWiNFO. Close Afterburner. Open it again tomorrow &mdash; what does it remember about your machine? Nothing. It starts from zero, comparing today's 78&deg;C against the same threshold it shows every PC on Earth. It has no idea your card always holds 71&deg;C in this game, and today it's quietly running 77 under the same load in the same room.</p>
+
+        <p class="lead">A monitor with no memory can only ever surprise you after the fact.</p>
+
+        <p>So in <span class="hl-green">v1.8.0</span> I gave PC Workman a memory that actually accumulates &mdash; a running, per-workload model of <i>your</i> temperatures and voltages that keeps learning for the entire life of the install. And a place where you can watch it: the <span class="hl-cyan">Learning Center</span>. This is what's under that hood.</p>
+
+        <h2>Why &ldquo;the last 14 days&rdquo; was never enough</h2>
+        <p>The first version of the thermal engine looked at a rolling 14-day window. Better than a fixed threshold &mdash; at least it learned <i>something</i> from your data &mdash; but it forgot. Anything older than two weeks fell off the back of the window and was gone. Which means it could never answer the one question that actually matters for hardware:</p>
+        <p><span class="hl-cyan">&ldquo;Is my idle running hotter than it did two months ago?&rdquo;</span> A window can't see drift. By design, it only ever knows the recent past. And drift &mdash; paste pumping out, dust building up, capacitors aging &mdash; is exactly the slow problem you want caught early.</p>
+
+        <h2>Welford: learning that accumulates, and never re-reads the past</h2>
+        <p>So the window is gone. Instead of re-scanning a database every few minutes and recomputing from scratch, the engine now folds <em>only the new samples</em> into a running accumulator using Welford's online algorithm &mdash; one of those quiet, numerically stable methods from 1962 that just works:</p>
+        <pre><code>n    += 1
+delta = x &minus; mean
+mean += delta / n
+M2   += delta &times; (x &minus; mean)</code></pre>
+        <p>Three numbers per workload &mdash; a count, a running mean, and <code>M2</code> (the sum of squared differences). That's the entire memory. From those three the program derives the mean and standard deviation at any instant, and the &ldquo;normal range&rdquo; you see on screen.</p>
+        <p>The quiet magic is what this <i>doesn't</i> do. It never holds your whole history in RAM, and it never re-reads old rows. Each rebuild touches only what arrived since the last one. So the running stats <span class="hl-green">survive even after the raw snapshots are pruned at 90 days</span> &mdash; the memory persists in a tiny JSON file long after the data that built it is gone. Learning accumulates for the life of the install, not a fixed window. The longer you leave it running, the more it actually knows.</p>
+        <div class="callout">
+            Statistics from the '60s. Boring, predictable, and that's exactly why I trust them on your hardware. <span class="hl-cyan">Statistics don't hallucinate.</span>
+        </div>
+
+        <h2>Per workload, so &ldquo;78&deg;C&rdquo; finally means something</h2>
+        <p>One number for &ldquo;your normal temperature&rdquo; is useless, because 78&deg;C means nothing without context. So every snapshot lands in one of five workload buckets &mdash; <b>idle, light, medium, heavy, gaming</b> &mdash; and each bucket keeps its own accumulator.</p>
+        <p>Now the same reading splits in two:</p>
+        <table>
+            <thead><tr><th>Reading</th><th>Verdict</th><th>Why</th></tr></thead>
+            <tbody>
+                <tr><td>82&deg;C at idle</td><td><span class="hl-red">critical</span></td><td>Your idle norm might be ~37&deg;C. 82 is many standard deviations away &mdash; something is wrong</td></tr>
+                <tr><td>82&deg;C while gaming</td><td><span class="hl-green">normal</span></td><td>Your gaming norm might be ~80&deg;C. 82 sits right inside your own learned range</td></tr>
+            </tbody>
+        </table>
+        <p>Same number, opposite verdict &mdash; judged by a z-score against the <i>right</i> bucket, not a global 85&deg;C cutoff someone hardcoded once. That's also why it stopped crying wolf during normal gaming: 82&deg;C gaming and 82&deg;C idle are no longer the same alarm.</p>
+
+        <h2>The Learning Center: watch it think</h2>
+        <p>All of this used to be invisible &mdash; happening in the background, taken on faith. In v1.8.0 it's a panel you can open, in Monitoring &amp; Alerts. The Learning Center shows, live:</p>
+        <ul>
+            <li><b>Per-workload training</b> &mdash; how far each of the five buckets has come (<code>no_data &rarr; learning &rarr; basic &rarr; trained &rarr; calibrated</code> at 200+ samples), with the learned range right next to it.</li>
+            <li><b>Voltage rails</b> &mdash; the SPC baseline for each rail (median &plusmn; MAD) and a live PSU health score.</li>
+            <li><b>A &#8635; Rebuild button</b> &mdash; a self-check that folds the latest data and re-renders on the spot, so you can watch the engine rethink from your data in real time.</li>
+        </ul>
+        <!-- [GIF: Learning Center tour goes here] -->
+        <p>It's deliberately honest about what it doesn't know yet. A bucket you've barely touched reads <code>12 samples</code>, not a confident fake range. It only ever claims to know what it has actually seen &mdash; which, after a couple of weeks of normal use, is already a lot.</p>
+
+        <h2>It also knows when <i>not</i> to alarm</h2>
+        <p>The voltage side uses the same idea, but with the median and MAD (median absolute deviation) instead of mean and sigma &mdash; because a single spike drags an average up, widens the band, and the next spike sails through unnoticed. The median doesn't flinch. On top sit the classic Nelson rules from Statistical Process Control: a lone spike, a 2-of-3 cluster, nine points on one side, a six-point trend.</p>
+        <p>And crucially, it can take an alarm back. A 12V blip during a GPU load change is physically expected, so it's suppressed. A pattern that repeats five times stops being an &ldquo;anomaly&rdquo; and quietly becomes <span class="hl-cyan">your hardware's new normal</span>. A tool that learns has to be able to retract its own warnings &mdash; otherwise you mute it within a day, and then it protects nothing.</p>
+
+        <h2>Honestly: the limits</h2>
+        <p><b>It has a cold start.</b> Fresh after install it knows nothing about you. It needs weeks &mdash; realistically months, to see summer and winter, gaming and idle &mdash; before it's meaningfully smarter than a plain monitor. That's the price of it later talking about <i>your</i> hardware instead of an averaged one. The accumulator is built for exactly that long game.</p>
+        <p><b>It needs real sensors.</b> On Windows, <code>psutil</code> hands you an empty field for temperatures &mdash; nothing, end of story. So the good data comes through LibreHardwareMonitor. No LHM, no voltage learning; that's a hardware-access wall, not a choice.</p>
+
+        <p class="lead">Your computer has a history &mdash; one specific machine, in one room, on one PSU. Now something finally remembers it, instead of comparing you to an average you never owned.</p>
+
+        <div class="guide-cta">
+            <b>This isn't a mock-up &mdash; it's shipping code.</b> The Welford accumulator and the Learning Center described above ship in <span class="hl-green">PC Workman v1.8.0</span> &mdash; free and open-source. Every line is readable.
+            <a href="../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+            Related: <a href="../ai-pc-monitoring-vs-traditional/">why thresholds fail your specific hardware</a> &middot; <a href="../normal-cpu-temperature/">what's a normal CPU temperature</a> &middot; <a href="../../blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/">thermal baseline, five contexts</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>I write about what I actually shipped &mdash; with real numbers and real code. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+</body>
+</html>
