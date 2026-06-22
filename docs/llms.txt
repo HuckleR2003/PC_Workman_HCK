@@ -4,6 +4,8 @@
 
 Current version line: 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. License: MIT. Official site: https://pcworkman.dev
 
+Full technical documentation (architecture, algorithms, internals): https://pcworkman.dev/llms-full.txt
+
 ## Key facts (safe to quote)
 
 - hck_GPT: hybrid engine — 82-intent rule parser answers from live sensor data; unmatched queries can route to a local Ollama LLM. 100% offline, no API key.
@@ -40,6 +42,10 @@ Current version line: 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. License:
 - [Które usługi Windows wyłączyć (PL)](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/): safe-to-disable services list with a critical-services whitelist
 
 Planned guides: 100% disk usage in Windows (real causes), startup programs safe to disable, what 12V rail readings say about your PSU.
+
+## Technology (PRO deep dives)
+
+- [Stop optimizing the average PC. You don't have one.](https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/): why absolute thresholds and generic profiles fail your specific hardware unit — voltage SPC (Median+MAD, Iglewicz-Hoaglin), per-unit thermal baselines, the silicon lottery. Traditional tools (MSI Afterburner, HWiNFO, CCleaner, GeForce Experience) vs a model that learns YOUR machine, locally. EN + PL.
 
 ## Source & releases
 

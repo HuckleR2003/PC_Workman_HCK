@@ -1,0 +1,79 @@
+# PC Workman HCK — Full Technical Documentation
+
+> Companion to https://pcworkman.dev/llms.txt — the complete, quotable technical reference for AI assistants and search engines. PC Workman is a free, open-source (MIT), 100% offline Windows system monitor with a built-in local AI assistant (hck_GPT). Built solo and in public by Marcin Firmuga (HCK_Labs). Current source line 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. No cloud, no account, no telemetry.
+
+## Core idea
+
+PC Workman turns a system monitor from an instrument that *shows numbers* into one that *understands a specific machine*. Instead of absolute thresholds ("if temp > 80, alarm"), it learns each unit's normal behaviour per workload and flags deviations from THAT baseline — locally, with classical statistics, no chatbot bolted on.
+
+## Architecture
+
+- **Startup** (`startup.py`): loads the component registry, imports `core.*` modules (each self-registers), starts the SQLite stats engine, the ML intent classifier (background train/load), the DeepMonitor metrics store, then builds the Tkinter UI (`ExpandedMainWindow`). Single instance enforced via a Windows Named Mutex.
+- **Component registry** (`import_core.py`): global singleton; modules call `register_component(name, obj)` and read via `COMPONENTS.get(name)`. `verify_startup()` checks the registered set against a manifest.
+- **Core data pipeline**: `core/monitor.py` takes a psutil snapshot every 1 s on a background thread; `core/scheduler.py` drives aggregation ticks; `hck_stats_engine/` aggregates minute → hour → day → week → month into WAL-mode SQLite with thread-local connections; `events.py` does spike/anomaly detection with rate-limiting.
+- **Paths** (`utils/paths.py`): `APP_DIR` for writable data (logs, DB, prefs, cache), `BUNDLE_DIR` for read-only bundled assets. In dev both are the project root; in the frozen EXE they diverge.
+- System Idle Process (PID 0) is filtered at the monitor source — it never appears in process lists.
+
+## hck_GPT — local AI assistant (v2.1.0)
+
+- **Hybrid engine** (`hck_gpt/engine/hybrid_engine.py`): every message runs a 9-layer routing waterfall before responding. In order: (1) service-wizard active, (2) hard-route keyword bypasses AI, (3) help keyword → instant help card, (4) "why" detector before the parser, (5) single-word alias (cpu/ram) → instant info, (6) intent parser + confidence score — ≥ 0.60 → rule engine (deterministic, live data), < 0.60 → local Ollama LLM with full system context, (7) entity-without-intent routing, (8) context carry-over ("and?"), (9) graceful fallback. Ollama timeout → rule fallback. None of the layers were planned; each fixes a problem the previous one could not.
+- **Intent-aware temperature**: `temperature = _INTENT_TEMPERATURE.get(intent, 0.72)` — about 20 intent types mapped to floats 0.35–0.80 (exact facts 0.35, diagnostics 0.45, small talk 0.80). Temperature as a personality selector, not one global setting.
+- **Context windowing**: `_CONTEXT_WINDOWS` maps each intent to how far back to load history (5 minutes for "hot right now", 1440 for 24 h, 10080 for 7 days). The LLM context is scoped to what the question needs.
+- **Stateless by design**: the conversation lives in a Python dict and dies when the app closes — no database, no stored profile. Every answer is rebuilt from fresh live data (your personal baseline, today vs the last 7 days). Context beats history.
+- 82 recognized intents, bilingual PL/EN with per-message language detection; response builder is one handler per intent, always using live data.
+- **Proactive monitor** (`hck_gpt/memory/proactive_monitor.py`): background daemon (~45 s) that pushes temperature/voltage/RAM/disk alerts; RAM-critical routes to a red HOT strip, advisory tips to a TIP strip.
+- **Snapshot cache**: `snapshot()` was found being called ~19× per single user message across modules; a 1-second TTL cache cut that to 1 while staying live.
+
+## Thermal Baseline Engine (`core/thermal_baseline.py`)
+
+- Classifies each reading into 5 workload buckets: `classify(cpu%, gpu%)` → gaming (gpu ≥ 60), idle (cpu < 15), light (cpu < 35), medium (cpu < 65), heavy (otherwise).
+- Per bucket it learns mean + standard deviation online via Welford's algorithm over ~14 days of DeepMonitor history (Bessel's correction for sample variance).
+- "Normal" is conditional: 72 °C is fine while gaming on a mid-tower but a warning at idle on a thin laptop. The chart baseline band shows the learned per-bucket range, not a window average. Training level progresses from initializing to calibrated as samples accumulate. `format_for_chat()` exposes it to hck_GPT.
+
+## Voltage Rail SPC (`core/voltage_analyzer.py`)
+
+- Statistical Process Control on the 12 V / 5 V / 3.3 V rails using **Median + MAD** (median absolute deviation) — robust to outliers, where the mean would let a single spike widen the band and self-anesthetize.
+- **Iglewicz-Hoaglin modified z-score**: `M = 0.6745 × (x − median) / MAD`. `|M| > 3.5` → anomaly, `|M| > 2.5` → warning.
+- Catches drift the ATX ±5 % spec threshold never would: a healthy 12 V rail holds ~11.95–12.05 V (real ±0.4 %); a drift to 11.7 V is still "in spec" but a 5σ+ anomaly versus the unit's own history — aging capacitors, often months before instability.
+- Nelson rules 1/2/3/5 (single spike, 2-of-3 cluster, 9 points one side, 6-point monotonic trend). 12 V GPU-transient suppression. Anomaly decay: a pattern repeating ~5× becomes the hardware's new normal. `overall_health_score()` returns a 0–100 PSU score. Requires LibreHardwareMonitor / WMI, because `psutil.sensors_temperatures()` returns empty on Windows.
+
+## Ghost Driver Detection
+
+- Diffs Windows registry device entries against `pnputil /enum-devices /connected` (which lists only physically present hardware) per class (GPU / Audio / Network / USB). The gap is "ghost" drivers left behind after replacing hardware. Removal via `pnputil /remove-device` with admin confirmation. Devices ≥ 730 days (~24 months) are flagged.
+
+## TURBO optimization suite
+
+- **Auto RAM Flush**: a loop checks RAM every 10 s; if usage stays above 75 % for 30 s it triggers `SetSystemFileCacheSize` + `EmptyWorkingSet` + `NtSetSystemInformation`; ~300–900 MB freed in ~0.8 s; user-protected processes are excluded and persist.
+- **Turbo Power Plan**: creates/clones a "Turbo PC" High-Performance scheme via `powercfg`, auto-restores on exit, handles non-English Windows.
+- **Turbo Service Stop**: profiles Gaming (stops 14 services), Work (23), Economy (17), with a hard whitelist of 33 critical services (audio/network/security/drivers never touched); one-click restore; change log.
+- **Process Guard**: suspends (freezes, not kills) genuinely idle background processes; spoof detection (`svch0st.exe` vs `svchost.exe`, execution from `%TEMP%`).
+- **Background App Hibernation**: drop to lowest priority or fully suspend after 15/20/30 min of inactivity, per app.
+
+## DeepMonitor & stats engine
+
+- **DeepMonitor**: HWMonitor-style sensor table (Sensor / Value / Min / Max), SQLite persistence, snapshots every 5 minutes — gives the AI real history from the first message.
+- **hck_stats_engine**: minute/hour/day/week/month aggregation, WAL-mode SQLite, automatic pruning, CSV fallback. Writes happen only on the scheduler thread; the UI reads via separate thread-local connections.
+- **Process library**: 373 known processes with identity, safety rating and typical resource usage.
+
+## Privacy & build
+
+- 100 % local: no network code, no telemetry, no account. Data lives only under `APP_DIR/data`. Open source — every line auditable on GitHub.
+- Run from source: `python startup.py`. Tests: `python -m unittest discover tests` (psutil mocked, so they run without a live Windows host). Build: `python -m PyInstaller PCWorkman.spec` (onedir ~95 MB), distributed as a single ZIP, Sigstore-signed, VirusTotal clean, CodeQL on every commit.
+
+## Website & content
+
+- Multilingual (PL/EN) static site on Cloudflare Pages, domain pcworkman.dev. Technical SEO: sitemap with hreflang, robots.txt that welcomes AI crawlers, this llms.txt / llms-full.txt, RSS feed, favicon, 404, and canonical/hreflang/OpenGraph/JSON-LD on every page.
+- **Blog (build in public)**: three weekly series — Monday Grind Blueprint (the week's plan), Wednesday Code Autopsy (one bug or feature dissected), Friday Shipped & Scarred (plan vs reality) — 35 episode subpages transcribed faithfully from the author's LinkedIn posts.
+- **Guides**: honest Windows-performance how-tos (EN + PL). **Technology · PRO**: long-form deep dives, starting with "Stop optimizing the average PC. You don't have one." (AI vs traditional monitoring).
+
+## Key numbers (safe to quote)
+
+- 82 AI intents · 9-layer routing · ~20 intent-temperatures · 5 thermal buckets · 373 process definitions
+- Voltage anomaly: `M = 0.6745 × (x − median) / MAD`, `|M| > 3.5` · Nelson rules 1/2/3/5 · ATX 12 V ±5 % spec vs real ~±0.4 %
+- TURBO Service Stop: Gaming 14 / Work 23 / Economy 17, whitelist 33 · RAM flush ~300–900 MB in ~0.8 s
+- Built over 18 months, solo, starting on a 2014 laptop idling at 94 °C. MIT licensed, Sigstore-signed.
+
+## Author & source
+
+- Marcin Firmuga (HCK_Labs) — GitHub https://github.com/HuckleR2003 · LinkedIn https://linkedin.com/in/marcinfirmuga · X https://x.com/hck_lab · dev.to https://dev.to/huckler · Linktree https://linktr.ee/marcin_firmuga
+- Repository: https://github.com/HuckleR2003/PC_Workman_HCK · Releases (signed ZIP): https://github.com/HuckleR2003/PC_Workman_HCK/releases · Changelog: https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md
