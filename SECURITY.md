@@ -84,7 +84,7 @@ Only the latest stable version receives active security support.
 
 | Version | Supported | Security Updates | Notes |
 |---------|-----------|------------------|-------|
-| 1.7.6 (latest) | Yes | Best | Active development branch | score at VirusTotal (0/61) |
+| 1.7.X patched (latest) | Yes | Best | Active development branch | score at VirusTotal (0/61) |
 | 1.7.2 | Yes | Immediate | Active development branch | New score at VirusTotal (0/61) |
 | 1.6.x | Yes | Immediate | Active development branch |
 | 1.5.x | Limited | Critical only | Upgrade recommended |
@@ -162,7 +162,7 @@ Response urgency is prioritized based on severity and exploitability.
 
 **Official Distribution Channels:**
 - GitHub Releases: [github.com/HuckleR2003/PC_Workman_HCK/releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases)
-- Project Website: [huckler2003.github.io/PC_Workman_HCK](https://huckler2003.github.io/PC_Workman_HCK)
+- Project Website: [pcworkman.dev](https://pcworkman.dev)
 - Sourceforge: [https://sourceforge.net/projects/pc-workman-hck/](https://sourceforge.net/projects/pc-workman-hck/)
 
 **Unofficial sources are not endorsed and may distribute modified or malicious versions:**
