@@ -1,0 +1,53 @@
+{
+  "economy": [
+    "BTAGService",
+    "DiagTrack",
+    "Fax",
+    "MapsBroker",
+    "RetailDemo",
+    "SEMgrSvc",
+    "SysMain",
+    "TabletInputService",
+    "TermService",
+    "TrkWks",
+    "WSearch",
+    "WbioSrvc",
+    "WerSvc",
+    "XblAuthManager",
+    "XblGameSave",
+    "XboxGipSvc",
+    "XboxNetApiSvc",
+    "bthserv",
+    "dmwappushservice",
+    "spooler",
+    "wuauserv"
+  ],
+  "__active__": "manager",
+  "gaming": [
+    "BTAGService",
+    "DiagTrack",
+    "Fax",
+    "MapsBroker",
+    "RemoteRegistry",
+    "RetailDemo",
+    "SEMgrSvc",
+    "SysMain",
+    "TabletInputService",
+    "TermService",
+    "TrkWks",
+    "WSearch",
+    "WerSvc",
+    "XblAuthManager",
+    "XblGameSave",
+    "XboxGipSvc",
+    "XboxNetApiSvc",
+    "bthserv",
+    "dmwappushservice",
+    "spooler"
+  ],
+  "manager": [
+    "BTAGService",
+    "bthserv",
+    "spooler"
+  ]
+}

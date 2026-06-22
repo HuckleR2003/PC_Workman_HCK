@@ -11,5 +11,6 @@
       "applicationframehost.exe",
       "ascservice.exe"
     ]
-  }
+  },
+  "turbo_active": true
 }
