@@ -1,10 +1,10 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.7.9
+Entry point for PC Workman HCK v1.8.0
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
-APP_VERSION   = "1.7.9"
+APP_VERSION   = "1.8.0"
 HELPER_VERSION = "1.6.3"
 
 # ============================================
@@ -206,7 +206,7 @@ def run_demo():
     except Exception as e:
         log(f"App Activity Tracker start failed: {e}", "WARN")
 
-    # --- Step 6: Start scheduler ---
+    # --- Step 6: Start scheduler ---   
     if scheduler:
         try:
             scheduler.start_loop()
@@ -338,14 +338,44 @@ def run_demo():
             except Exception:
                 pass
 
+            # Opt-in telemetry: a no-op unless the user turned Network Access +
+            # Telemetry ON in Settings AND a Worker endpoint is configured. Runs
+            # off-thread so it never touches startup.
+            try:
+                import threading as _th
+
+                def _telemetry_once():
+                    try:
+                        import time as _time
+                        _time.sleep(60)
+                        from core.telemetry import send as _tsend
+                        _tsend(APP_VERSION)
+                    except Exception:
+                        pass
+
+                _th.Thread(target=_telemetry_once, daemon=True,
+                           name="telemetry").start()
+            except Exception:
+                pass
+
             log("UI ready - hiding console", "OK")
             print()
             print("-" * 40)
             print("  All systems GO - Starting PC Workman")
             print("-" * 40)
 
-            # === HIDE CONSOLE ON SUCCESS ===
-            hide_console()
+            # === HIDE CONSOLE ONCE THE UI IS ACTUALLY ON SCREEN ===
+            # Schedule the hide INSIDE the event loop (after the window is mapped),
+            # not before mainloop starts. This way a startup that fails before the
+            # UI is up leaves the diagnostic console visible (with the error), the
+            # user never sees a blank "nothing on screen" gap, and the console only
+            # vanishes once PC Workman is genuinely running and painted.
+            try:
+                _root = mode_mgr.expanded_window.root
+                _root.update_idletasks()                 # force a first paint
+                _root.after(500, hide_console)           # hide from inside the loop
+            except Exception:
+                hide_console()                           # fallback: hide immediately
 
             # Run the UI mainloop
             mode_mgr.expanded_window.run()
