@@ -66,6 +66,8 @@ _SRC_COLOR = {
     "HKLM32":       "#3a2a6a",
     "STARTUP_USER": "#1a3a2a",
     "STARTUP_SYS":  "#1a3a2a",
+    "TASK":         "#5a3a1a",
+    "UWP":          "#1a3a5a",
 }
 _SRC_LABEL = {
     "HKCU":         "HKCU",
@@ -73,6 +75,8 @@ _SRC_LABEL = {
     "HKLM32":       "HKLM32",
     "STARTUP_USER": "📁 User",
     "STARTUP_SYS":  "📁 Sys",
+    "TASK":         "⏰ Task",
+    "UWP":          "⊞ Store",
 }
 
 # Exe fragments that warrant a critical warning before disabling
@@ -265,6 +269,12 @@ def _read_startup_entries() -> list[dict]:
         except Exception:
             pass
 
+    # ── Sources 2 & 3: scheduled tasks + UWP/Store startup ────────────────────
+    for extra in _read_scheduled_tasks() + _read_uwp_startup():
+        if extra["id"] not in seen:
+            seen.add(extra["id"])
+            entries.append(extra)
+
     return entries
 
 
@@ -303,6 +313,145 @@ def _restore_startup_entry(hive_const, path: str, name: str, value: str) -> bool
         key = winreg.OpenKey(hive_const, path, 0,
                              winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
         winreg.SetValueEx(key, name, 0, winreg.REG_SZ, value)
+        winreg.CloseKey(key)
+        return True
+    except OSError:
+        return False
+
+
+# ── Source 2: Task Scheduler (GPU Tweak, MSI helpers, ShareX, vendor tools) ────
+# Many modern apps register startup via a logon/boot scheduled task instead of a
+# Run key, so they were invisible to the old Run-only scan. We read third-party
+# logon/boot tasks and let the user enable/disable them (reversible) via schtasks.
+
+_CREATE_NO_WINDOW = 0x08000000
+
+
+def _read_scheduled_tasks() -> list[dict]:
+    # Use Get-ScheduledTask (not schtasks CSV) because its CIM trigger class
+    # names and State enum are language-neutral — schtasks column headers are
+    # localized and would break enumeration on non-English Windows.
+    if os.name != "nt":
+        return []
+    import subprocess, json as _json
+    ps = (
+        "Get-ScheduledTask | Where-Object { "
+        "($_.Triggers | ForEach-Object { $_.CimClass.CimClassName }) "
+        "-match 'LogonTrigger|BootTrigger' -and $_.TaskPath -notlike '\\Microsoft\\*' "
+        "} | ForEach-Object { [PSCustomObject]@{ Name=$_.TaskName; Path=$_.TaskPath; "
+        "State=[string]$_.State; Exe=($_.Actions | Select-Object -First 1 "
+        "-ExpandProperty Execute) } } | ConvertTo-Json -Compress"
+    )
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                           capture_output=True, timeout=30, creationflags=_CREATE_NO_WINDOW)
+        out = r.stdout.decode("utf-8", "replace").strip()
+        if not out:
+            return []
+        data = _json.loads(out)
+        if isinstance(data, dict):
+            data = [data]
+    except Exception:
+        return []
+    entries = []
+    for d in data:
+        try:
+            name = (d.get("Name") or "").strip()
+            if not name:
+                continue
+            full = (d.get("Path") or "") + name      # full task path for schtasks /change
+            enabled = (d.get("State") or "").strip().lower() != "disabled"
+            exe_path = (d.get("Exe") or "").strip().strip('"')
+            exe = os.path.basename(exe_path).lower() if exe_path else ""
+            impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
+            entries.append({
+                "id": f"TASK:{full.lower()}", "name": name, "value": exe_path,
+                "exe": exe, "hive": "TASK", "hive_const": None, "reg_path": full,
+                "impact": impact, "rec": rec, "desc": desc,
+                "_task": True, "_enabled": enabled,
+            })
+        except Exception:
+            continue
+    return entries
+
+
+def _set_task_enabled(task_path: str, enable: bool) -> bool:
+    """Enable/disable a scheduled task (reversible 'disable from startup')."""
+    if os.name != "nt":
+        return False
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["schtasks", "/change", "/tn", task_path,
+             "/enable" if enable else "/disable"],
+            capture_output=True, timeout=15, creationflags=_CREATE_NO_WINDOW)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+# ── Source 3: UWP / Microsoft Store packaged-app startup tasks ─────────────────
+# Store apps (ShareX, LinkedIn, MSI Center...) register a StartupTask whose state
+# lives in the registry. Task Manager toggles the same 'State' DWORD.
+#   ...\AppModel\SystemAppData\<PackageFamilyName>\<TaskId>\State
+#   State: 2/4 = enabled, 0/1/3 = disabled (StartupTaskState enum)
+
+_UWP_BASE = (r"Software\Classes\Local Settings\Software\Microsoft\Windows"
+             r"\CurrentVersion\AppModel\SystemAppData")
+
+
+def _read_uwp_startup() -> list[dict]:
+    if not _HAS_WINREG:
+        return []
+    entries = []
+    try:
+        root = winreg.OpenKey(winreg.HKEY_CURRENT_USER, _UWP_BASE)
+    except OSError:
+        return entries
+    i = 0
+    while True:
+        try:
+            pfn = winreg.EnumKey(root, i); i += 1
+        except OSError:
+            break
+        try:
+            pkg = winreg.OpenKey(root, pfn)
+        except OSError:
+            continue
+        j = 0
+        while True:
+            try:
+                task_id = winreg.EnumKey(pkg, j); j += 1
+            except OSError:
+                break
+            sub_path = f"{_UWP_BASE}\\{pfn}\\{task_id}"
+            try:
+                tk = winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_path)
+                state, _ = winreg.QueryValueEx(tk, "State")
+                winreg.CloseKey(tk)
+            except OSError:
+                continue   # no State -> not a startup task
+            enabled = int(state) in (2, 4)
+            disp = pfn.split("_")[0].split(".")[-1] or pfn
+            entries.append({
+                "id": f"UWP:{pfn.lower()}:{task_id.lower()}", "name": disp,
+                "value": pfn, "exe": "", "hive": "UWP", "hive_const": None,
+                "reg_path": sub_path, "impact": "low", "rec": "keep", "desc": "",
+                "_uwp": True, "_enabled": enabled,
+            })
+        winreg.CloseKey(pkg)
+    winreg.CloseKey(root)
+    return entries
+
+
+def _set_uwp_enabled(reg_path: str, enable: bool) -> bool:
+    """Toggle a UWP startup task's State DWORD (2 = enabled, 1 = disabled-by-user)."""
+    if not _HAS_WINREG:
+        return False
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, reg_path, 0,
+                             winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, "State", 0, winreg.REG_DWORD, 2 if enable else 1)
         winreg.CloseKey(key)
         return True
     except OSError:
@@ -629,7 +778,8 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
 
 
 def _build_all_active_panel(parent: tk.Frame, active: list[dict],
-                             prefs: dict, on_queue, queued_ids: set):
+                             prefs: dict, on_queue, queued_ids: set,
+                             on_toggle=None):
     """Right panel — ALL active startup entries with ON badge + source indicator.
     Shows everything that starts with Windows (registry + startup folders).
     Subtly styled — secondary info, all clickable to queue for disable.
@@ -664,10 +814,11 @@ def _build_all_active_panel(parent: tk.Frame, active: list[dict],
     inner, cv = _scrollable_frame(parent, bg=BG)
 
     for e in active:
-        # Folder items can be shown but disabling requires file system action
-        # Mark them as non-queueable (no registry key to remove)
-        if e.get("_folder"):
-            # Read-only row for startup folder items
+        if e.get("_task") or e.get("_uwp"):
+            # Scheduled task / Store app — inline on/off toggle
+            _actionable_row(inner, e, on_toggle, running_set=_running)
+        elif e.get("_folder"):
+            # Startup folder shortcut — managed via Explorer (read-only)
             _folder_row(inner, e, prefs, running_set=_running)
         else:
             row_w, sep_w = _compact_row(
@@ -731,6 +882,57 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
     tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
 
 
+def _actionable_row(parent: tk.Frame, entry: dict, on_toggle, running_set: set = None):
+    """Row for a scheduled task / UWP startup item with an inline on/off toggle.
+    Unlike registry rows (queue + confirm), these flip state directly."""
+    name    = entry["name"]
+    exe     = entry.get("exe") or "-"
+    hive    = entry.get("hive", "")
+    enabled = entry.get("_enabled", True)
+    accent  = "#5a3a1a" if entry.get("_task") else "#1d3a5a"
+
+    row = tk.Frame(parent, bg=SURFACE)
+    row.pack(fill="x")
+    bar = tk.Frame(row, bg=accent, width=2)
+    bar.pack(side="left", fill="y")
+    bar.pack_propagate(False)
+
+    body = tk.Frame(row, bg=SURFACE)
+    body.pack(side="left", fill="both", expand=True, padx=(7, 4), pady=(4, 3))
+    line1 = tk.Frame(body, bg=SURFACE)
+    line1.pack(fill="x")
+
+    tk.Label(line1, text=name[:30] + ("…" if len(name) > 30 else ""),
+             font=(_F, 9, "bold"), bg=SURFACE, fg=TEXT if enabled else MUTED,
+             anchor="w").pack(side="left")
+    if running_set is not None and exe.lower() in running_set:
+        tk.Label(line1, text="● ACTIVE NOW", font=(_F, 6, "bold"),
+                 bg="#052e16", fg="#22c55e", padx=4, pady=1).pack(side="left", padx=(4, 0))
+
+    # Inline toggle button (disable if on, enable if off)
+    btn = tk.Label(line1, text="Wyłącz" if enabled else "Włącz",
+                   font=(_F, 7, "bold"), cursor="hand2", padx=8, pady=2,
+                   bg="#1a1030" if enabled else "#08220f",
+                   fg="#c4b5fd" if enabled else "#86efac")
+    btn.pack(side="right", padx=(0, 4))
+    if on_toggle:
+        btn.bind("<Button-1>", lambda e, en=entry: on_toggle(en, not enabled))
+
+    tk.Label(line1, text="ON" if enabled else "OFF", font=(_F, 6, "bold"),
+             bg="#052e16" if enabled else SURFACE, fg="#22c55e" if enabled else MUTED,
+             padx=4, pady=1).pack(side="right", padx=(0, 4))
+    tk.Label(line1, text=_SRC_LABEL.get(hive, hive), font=(_F, 6),
+             bg=_SRC_COLOR.get(hive, "#1a2530"), fg="#8aa0bc",
+             padx=3, pady=1).pack(side="right", padx=(0, 3))
+
+    tk.Label(body, text=exe[:34], font=(_F, 7), bg=SURFACE, fg=MUTED,
+             anchor="w").pack(anchor="w")
+
+    kind = "Scheduled task" if entry.get("_task") else "Microsoft Store app"
+    _Tooltip(row, f"{kind} — toggled directly (reversible).\n{entry.get('reg_path','')}")
+    tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
+
+
 def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                            prefs: dict, on_restore_done):
     """Full-width view for Disabled tab."""
@@ -787,6 +989,20 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
         def _make_restore(entry=e, r=row):
             def _do():
+                # Scheduled task / UWP: re-enable directly (no registry value to write)
+                if entry.get("_task") or entry.get("_uwp"):
+                    ok = (_set_task_enabled(entry["reg_path"], True) if entry.get("_task")
+                          else _set_uwp_enabled(entry["reg_path"], True))
+                    if not ok:
+                        import tkinter.messagebox as _mb
+                        _mb.showerror(
+                            "Nie udało się przywrócić",
+                            f"Nie można włączyć '{entry['name']}'.\n"
+                            "Może wymagać uprawnień Administratora.")
+                        return
+                    r.destroy()
+                    on_restore_done()
+                    return
                 # Write entry back to registry so Windows actually starts it again
                 hc  = entry.get("hive_const")
                 rp  = entry.get("reg_path", "")
@@ -858,13 +1074,19 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
     # Derived lists
     def _get_derived():
-        active  = [e for e in entries if prefs.get(e["id"], {}).get("status", "active") == "active"]
+        def _is_on(e):
+            # Task / UWP entries carry their real on/off state from the system;
+            # registry & folder entries use the app's prefs (disabled-by-user).
+            if e.get("_task") or e.get("_uwp"):
+                return e.get("_enabled", True)
+            return prefs.get(e["id"], {}).get("status", "active") == "active"
+
+        active  = [e for e in entries if _is_on(e)]
         flagged = [e for e in active  if e["rec"] in ("disable", "delay") and e["impact"] in ("high", "medium")]
 
-        # Disabled = entries that are in registry but marked disabled
-        #          + entries that were deleted from registry (stored only in prefs)
-        disabled_from_registry = [e for e in entries
-                                   if prefs.get(e["id"], {}).get("status", "active") != "active"]
+        # Disabled = registry entries marked disabled, system tasks/UWP turned off,
+        #            plus entries deleted from the registry (stored only in prefs).
+        disabled_from_registry = [e for e in entries if not _is_on(e)]
         registry_ids = {e["id"] for e in entries}
         disabled_offline = []
         for eid, pdata in prefs.items():
@@ -1002,6 +1224,23 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
         # Re-run render with fresh entries (host propagated from outer _render scope)
         _render(page, new_entries, prefs, host=host)
 
+    def _on_toggle_startup(entry, enable):
+        """Flip a scheduled-task / UWP startup item on or off, then refresh."""
+        if entry.get("_task"):
+            ok = _set_task_enabled(entry["reg_path"], enable)
+        elif entry.get("_uwp"):
+            ok = _set_uwp_enabled(entry["reg_path"], enable)
+        else:
+            ok = False
+        if not ok:
+            messagebox.showerror(
+                "Nie udało się",
+                f"Nie można zmienić '{entry['name']}'.\n"
+                "Niektóre zadania wymagają uprawnień Administratora."
+            )
+            return
+        _full_refresh()
+
     # Two tabs only: Startup Menu + Disabled
     for key, lbl, col in [
         ("split",    f"Startup Menu  {len(active)}",  TEXT),
@@ -1131,7 +1370,8 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
         active_now, fl, _ = _get_derived()
         _build_needs_attention_panel(left_panel, fl, prefs, _on_queue, queued_ids)
-        _build_all_active_panel(right_panel, active_now, prefs, _on_queue, queued_ids)
+        _build_all_active_panel(right_panel, active_now, prefs, _on_queue, queued_ids,
+                                on_toggle=_on_toggle_startup)
 
     # ── Initial content render ────────────────────────────────────────────────
     cf_init = tk.Frame(page, bg=BG)
