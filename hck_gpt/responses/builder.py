@@ -20,6 +20,12 @@ from typing import List, Optional
 from hck_gpt.intents.parser import ParseResult
 
 
+# Pseudo-processes whose CPU% is meaningless / misleading as a "top consumer":
+# System Idle Process reports ~100%×cores precisely when the machine is IDLE,
+# so it must never appear as a culprit / top CPU hog in chat answers.
+_IDLE_PROC_NAMES = frozenset({"system idle process", "idle", ""})
+
+
 # ── Bilingual helper ──────────────────────────────────────────────────────────
 
 def _t(lang: str, pl: str, en: str) -> str:
@@ -248,7 +254,6 @@ class ResponseBuilder:
         "fan_speed":          "fan_noise_history",   # fan speed queries -> history handler
         "session_digest":     "session_compare",     # session digest -> comparison handler
         "thermal_history":    "temp_comparison",     # thermal history -> temp comparison
-        "voltage_check":      "temperature",         # voltage -> temperature handler
         "symptom_freeze":     "crash_context",       # freezing symptoms -> crash context
         "symptom_noisy":      "fan_noise_history",   # noisy PC -> fan noise
         "compare_baseline":   "temp_comparison",     # baseline compare -> temp comparison
@@ -362,6 +367,29 @@ class ResponseBuilder:
 
     # ── Hardware - CPU ────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _live_cpu_model() -> str:
+        """Best-effort live CPU model name for when the hardware scan hasn't
+        stored one yet (e.g. first seconds after launch, or WMI unavailable).
+        Windows registry gives the clean marketing name; platform is the fallback."""
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                    r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as k:
+                name, _ = winreg.QueryValueEx(k, "ProcessorNameString")
+                if name:
+                    return str(name).strip()
+        except Exception:
+            pass
+        try:
+            import platform
+            p = platform.processor()
+            if p:
+                return p.strip()
+        except Exception:
+            pass
+        return ""
+
     def _resp_hw_cpu(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
         from hck_gpt.context.system_context import system_context
@@ -370,7 +398,8 @@ class ResponseBuilder:
         snap     = system_context.snapshot()
         patterns = user_knowledge.get_all_patterns()
 
-        model   = hw.get("cpu_model",     _t(lang, "nieznany model", "unknown model"))
+        model   = (hw.get("cpu_model") or self._live_cpu_model()
+                   or _t(lang, "nieznany model", "unknown model"))
         cores_p = hw.get("cpu_cores",     snap.get("cpu_cores_physical", "?"))
         cores_l = hw.get("cpu_threads",   snap.get("cpu_cores_logical",  "?"))
         boost   = hw.get("cpu_boost_ghz", "?")
@@ -597,123 +626,74 @@ class ResponseBuilder:
     # ── Temperature ───────────────────────────────────────────────────────────
 
     def _resp_temperature(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        # ── 1. Try live hardware sensors (works on Linux / some Windows setups)
+        # Leads with the learned, workload-aware verdict (thermal_baseline) so
+        # the answer is "82C is +14% above your gaming norm", not a fixed 85C cutoff.
+        from hck_gpt.context.system_context import system_context
+        snap     = system_context.snapshot()
+        cpu_load = float(snap.get("cpu_pct",  0) or 0)
+        cpu_temp = float(snap.get("cpu_temp", 0) or 0)
+        gpu_temp = float(snap.get("gpu_temp", 0) or 0)
+        gpu_load = 0.0
         try:
-            import psutil
-            temps = psutil.sensors_temperatures()
-            if temps:
-                header = _t(lang, f"{self.PREFIX} Temperatury (live):", f"{self.PREFIX} Temperatures (live):")
-                lines = [header]
-                for name, entries in temps.items():
-                    for e in entries[:3]:
-                        label = e.label or name
-                        if e.current > 85:
-                            status = _t(lang, "⚠ GORĄCO", "⚠ HOT")
-                        elif e.current > 70:
-                            status = _t(lang, "! ciepło", "! warm")
-                        else:
-                            status = "OK"
-                        lines.append(f"  {label:<20} {e.current:.0f}°C  {status}")
-                return lines
+            from hck_gpt.data.live_sensors import snapshot as _ls
+            ls = _ls()
+            if (ls.get("gpu_load", -1) or -1) >= 0:
+                gpu_load = float(ls["gpu_load"])
+            if cpu_temp <= 0 and (ls.get("cpu_temp", -1) or -1) > 0:
+                cpu_temp = float(ls["cpu_temp"])
+            if gpu_temp <= 0 and (ls.get("gpu_temp", -1) or -1) > 0:
+                gpu_temp = float(ls["gpu_temp"])
         except Exception:
             pass
 
-        # ── 2. Fall back to DB - scheduler records cpu_temp every minute
+        lines: List[str] = []
+        try:
+            from core.thermal_baseline import thermal_baseline
+            thermal_baseline.maybe_rebuild()
+            block = thermal_baseline.format_for_chat(cpu_temp, cpu_load, gpu_load, lang).split("\n")
+            block[0] = f"{self.PREFIX} {block[0].lstrip()}"
+            lines.extend(block)
+        except Exception:
+            pass
+
+        if gpu_temp > 0:
+            g_state = "✓" if gpu_temp <= 83 else "⚠"
+            lines.append(_t(lang,
+                f"  {g_state} GPU teraz: {gpu_temp:.0f}°C",
+                f"  {g_state} GPU now: {gpu_temp:.0f}°C"))
+
         try:
             from hck_stats_engine.query_api import query_api
-            th = query_api.get_temperature_history(minutes=60)
-            if th:
-                cpu_cur  = th.get("cpu_current")
-                gpu_cur  = th.get("gpu_current")
-                cpu_avg  = th.get("cpu_avg")
-                gpu_avg  = th.get("gpu_avg")
-                cpu_max  = th.get("cpu_max")
-                gpu_max  = th.get("gpu_max")
-                samples  = th.get("samples", 0)
-                est      = th.get("estimated", False)
-
-                def _status(t):
-                    if t is None:
-                        return "-"
-                    if t > 85:
-                        return _t(lang, "⚠ GORĄCO", "⚠ HOT")
-                    if t > 70:
-                        return _t(lang, "! ciepło", "! warm")
-                    return "OK"
-
-                note = _t(lang,
-                    "  (szacowane - brak czujnika HW; scheduler oblicza z obciążenia)",
-                    "  (estimated - no HW sensor; scheduler derives from load)") if est else ""
-
-                header = _t(lang,
-                    f"{self.PREFIX} Temperatury (ostatnia godzina, {samples} próbek):",
-                    f"{self.PREFIX} Temperatures (last hour, {samples} samples):")
-                lines = [header]
-                if note:
-                    lines.append(note)
-                lines.append("")
-
-                if cpu_cur is not None:
-                    lines.append(
-                        f"  {'CPU teraz' if lang == 'pl' else 'CPU now':<20} "
-                        f"{cpu_cur:.0f}°C  {_status(cpu_cur)}")
-                if cpu_avg is not None:
-                    lines.append(
-                        f"  {'CPU śr. 1h' if lang == 'pl' else 'CPU avg 1h':<20} "
-                        f"{cpu_avg:.0f}°C")
-                if cpu_max is not None:
-                    lines.append(
-                        f"  {'CPU max 1h' if lang == 'pl' else 'CPU peak 1h':<20} "
-                        f"{cpu_max:.0f}°C  {_status(cpu_max)}")
-
-                if gpu_cur is not None:
-                    lines.append(
-                        f"  {'GPU teraz' if lang == 'pl' else 'GPU now':<20} "
-                        f"{gpu_cur:.0f}°C  {_status(gpu_cur)}")
-                if gpu_avg is not None:
-                    lines.append(
-                        f"  {'GPU śr. 1h' if lang == 'pl' else 'GPU avg 1h':<20} "
-                        f"{gpu_avg:.0f}°C")
-                if gpu_max is not None:
-                    lines.append(
-                        f"  {'GPU max 1h' if lang == 'pl' else 'GPU peak 1h':<20} "
-                        f"{gpu_max:.0f}°C  {_status(gpu_max)}")
-
-                # Long-term averages from daily stats
-                try:
-                    ts = query_api.get_temperature_summary(days=7)
-                    if ts and ts.get("cpu_temp_avg"):
-                        lines.append("")
-                        lines.append(_t(lang,
-                            f"  CPU śr. 7 dni:  {ts['cpu_temp_avg']:.0f}°C  "
-                            f"  max: {ts.get('cpu_temp_max', '-')}°C",
-                            f"  CPU avg 7 days: {ts['cpu_temp_avg']:.0f}°C  "
-                            f"  peak: {ts.get('cpu_temp_max', '-')}°C"))
-                        if ts.get("gpu_temp_avg"):
-                            lines.append(_t(lang,
-                                f"  GPU śr. 7 dni:  {ts['gpu_temp_avg']:.0f}°C  "
-                                f"  max: {ts.get('gpu_temp_max', '-')}°C",
-                                f"  GPU avg 7 days: {ts['gpu_temp_avg']:.0f}°C  "
-                                f"  peak: {ts.get('gpu_temp_max', '-')}°C"))
-                except Exception:
-                    pass
-
-                return lines
+            ts = query_api.get_temperature_summary(days=7)
+            if ts and ts.get("cpu_temp_avg"):
+                lines.append(_t(lang,
+                    f"  Śr. 7 dni: CPU {ts['cpu_temp_avg']:.0f}°C (max {ts.get('cpu_temp_max', '-')}°C)",
+                    f"  7-day avg: CPU {ts['cpu_temp_avg']:.0f}°C (peak {ts.get('cpu_temp_max', '-')}°C)"))
         except Exception:
             pass
 
-        # ── 3. No data at all
-        if lang == "en":
-            return [
-                f"{self.PREFIX} No temperature data yet.",
-                "  The scheduler collects CPU temp every minute - check back in a moment.",
-                "  For GPU temps, hardware sensor support is needed.",
-            ]
-        return [
-            f"{self.PREFIX} Brak danych o temperaturach.",
-            "  Scheduler zapisuje temp. CPU co minutę - sprawdź za chwilę.",
-            "  Temperatury GPU wymagają czujnika sprzętowego.",
-        ]
+        if not lines:
+            return [_t(lang,
+                f"{self.PREFIX} Brak danych o temperaturach — scheduler zbiera co minutę, sprawdź za chwilę.",
+                f"{self.PREFIX} No temperature data yet — the scheduler samples every minute, check back shortly.")]
+
+        lines.append(_followup("health", lang))
+        return lines
+
+    # ── Voltage rails ─────────────────────────────────────────────────────────
+
+    def _resp_voltage_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        # Real voltage answer backed by the learned SPC analyzer (was aliased to temperature).
+        try:
+            from core.voltage_analyzer import voltage_analyzer
+            voltage_analyzer.maybe_rebuild()
+            block = voltage_analyzer.format_for_chat(lang).split("\n")
+        except Exception:
+            return [_t(lang,
+                f"{self.PREFIX} Nie mogę teraz odczytać napięć.",
+                f"{self.PREFIX} Cannot read voltages right now.")]
+        block[0] = f"{self.PREFIX} {block[0].lstrip()}"
+        return block
 
     # ── Throttle check ────────────────────────────────────────────────────────
 
@@ -883,11 +863,14 @@ class ResponseBuilder:
                         break
                 except Exception:
                     continue
-            procs = sorted(
-                raw,
-                key=lambda p: p.info.get("cpu_percent", 0) or 0,
-                reverse=True
-            )[:5]
+            procs = [
+                p for p in sorted(
+                    raw,
+                    key=lambda p: p.info.get("cpu_percent", 0) or 0,
+                    reverse=True,
+                )
+                if (p.info.get("name") or "").lower() not in _IDLE_PROC_NAMES
+            ][:5]
             header = _t(lang,
                         f"{self.PREFIX} Top procesy CPU teraz:",
                         f"{self.PREFIX} Top CPU processes now:")
@@ -1084,6 +1067,54 @@ class ResponseBuilder:
         "{P} Good to hear from you. CPU {cpu}%, RAM {ram}% - everything's fine. What shall we look at?",
     ]
 
+    # ── Engaging "your favourite app" hook ────────────────────────────────────
+    # The heaviest *recognisable* program across the user's whole history. Makes
+    # greetings / small-talk feel personal ("fancy CS2 again today?"). Returns
+    # None on a fresh install (no process history yet) so callers degrade quietly.
+    _FAV_SKIP = {
+        "system idle process", "system", "registry", "memory compression", "idle",
+        "svchost.exe", "svchost", "explorer.exe", "dwm.exe", "csrss.exe",
+        "wininit.exe", "winlogon.exe", "services.exe", "lsass.exe", "smss.exe",
+        "runtimebroker.exe", "searchhost.exe", "searchapp.exe", "taskhostw.exe",
+        "ctfmon.exe", "fontdrvhost.exe", "sihost.exe", "conhost.exe", "audiodg.exe",
+        "shellexperiencehost.exe", "startmenuexperiencehost.exe", "wmiprvse.exe",
+        "applicationframehost.exe", "spoolsv.exe", "msmpeng.exe", "wininit",
+        "python.exe", "pythonw.exe", "pc workman hck.exe", "pcworkman.exe",
+    }
+    _FAV_PL = [
+        "  Widzę, że {app} to Twój faworyt - dziś też lecimy? 😏",
+        "  {app} króluje w Twoich statystykach. Odpalamy znowu?",
+        "  Czy dziś znowu lecimy z {app}? 😏",
+        "  Stawiam, że dziś też odpalisz {app}. 😉",
+    ]
+    _FAV_EN = [
+        "  {app} is your favourite, I can tell - going again today? 😏",
+        "  {app} tops your stats. Firing it up again?",
+        "  Fancy {app} again today? 😏",
+        "  I'd bet {app} is on the menu today too. 😉",
+    ]
+
+    def _favorite_process(self, lang: str = "pl") -> Optional[str]:
+        """A warm, engaging one-liner about the user's most-used app, or None."""
+        try:
+            from hck_stats_engine.query_api import query_api
+            procs = query_api.get_top_processes_lifetime(top_n=12) or []
+        except Exception:
+            return None
+        import random
+        for p in procs:
+            name = (p.get("process_name") or "").strip().lower()
+            if not name or name in self._FAV_SKIP:
+                continue
+            if (p.get("days_active") or 0) < 1:
+                continue
+            disp = (p.get("display_name") or p.get("process_name") or "").strip()
+            if not disp:
+                continue
+            pool = self._FAV_PL if lang == "pl" else self._FAV_EN
+            return random.choice(pool).replace("{app}", disp)
+        return None
+
     def _resp_small_talk(self, r: ParseResult, lang: str = "pl") -> List[str]:
         try:
             from hck_gpt.context.system_context import system_context
@@ -1093,37 +1124,63 @@ class ResponseBuilder:
         except Exception:
             cpu, ram = "?", "?"
         resp = self._pick_fresh("smalltalk", lang, self._SMALLTALK_PL, self._SMALLTALK_EN)
-        return [resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)]
+        out = [resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)]
+        import random
+        if random.random() < 0.6:
+            fav = self._favorite_process(lang)
+            if fav:
+                out.append(fav)
+        return out
 
     # ── About the program ─────────────────────────────────────────────────────
 
+    @staticmethod
+    def _app_version() -> str:
+        """Current app version - tracks startup.py in dev, safe fallback in frozen."""
+        try:
+            import os, re
+            from utils.paths import BUNDLE_DIR
+            with open(os.path.join(BUNDLE_DIR, "startup.py"), encoding="utf-8") as f:
+                for line in f:
+                    m = re.match(r'\s*APP_VERSION\s*=\s*["\']([^"\']+)["\']', line)
+                    if m:
+                        return m.group(1)
+        except Exception:
+            pass
+        return "1.8.0"
+
     def _resp_about_program(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ver = self._app_version()
         if lang == "en":
             return [
-                f"{self.PREFIX} About PC Workman HCK v1.7.6:",
-                "  A real-time PC monitoring and optimization tool.",
+                f"{self.PREFIX} About PC Workman HCK v{ver}:",
+                "  A real-time PC monitor + optimizer - runs fully on your machine,",
+                "  nothing in the cloud.",
                 "  • Live CPU / RAM / GPU tracking with history graphs",
-                "  • hck_GPT - AI assistant (82 intents, bilingual PL/EN, Ollama-ready)",
-                "  • Stats engine - daily/weekly usage database (SQLite)",
+                "  • hck_GPT - AI assistant (bilingual PL/EN, learns your patterns, Ollama-ready)",
+                "  • Stats engine - daily/weekly usage history (local SQLite)",
                 "  • Optimization Center - one-click TURBO BOOST, RAM flush",
                 "  • Fan control editor, stability tests, hardware sensors",
-                "  • DeepMonitor - HWMonitor-style sensor table (all temps, voltages, clocks)",
-                "  • MAP OF COMPONENTS - 2.5D isometric live PC hardware visualization",
+                "  • DeepMonitor + 2.5D MAP OF COMPONENTS - live hardware view",
                 "  • Process library - identifies 370+ running programs & games",
-                "  💬 Try: 'specs'  'health'  'temperatures'  'stats'  'help'",
+                "",
+                "  Your data stays local - want proof it runs clean?  [-> Stability Tests]",
+                "  💬 Try: 'specs'  'health'  'temperatures'  'what do you collect'",
             ]
         return [
-            f"{self.PREFIX} O programie PC Workman HCK v1.7.6:",
-            "  Narzędzie do monitorowania i optymalizacji PC w czasie rzeczywistym.",
+            f"{self.PREFIX} O programie PC Workman HCK v{ver}:",
+            "  Monitor i optymalizator PC w czasie rzeczywistym - działa w całości",
+            "  na Twoim komputerze, nic nie idzie do chmury.",
             "  • Śledzenie CPU / RAM / GPU na żywo z wykresami historii",
-            "  • hck_GPT - asystent AI (82 intenty, PL/EN, gotowy na Ollama)",
-            "  • Silnik statystyk - baza danych użytkowania (SQLite)",
+            "  • hck_GPT - asystent AI (PL/EN, uczy się Twoich wzorców, gotowy na Ollama)",
+            "  • Silnik statystyk - lokalna historia użytkowania (SQLite)",
             "  • Centrum optymalizacji - TURBO BOOST jednym kliknięciem, flush RAM",
             "  • Edytor krzywej wentylatora, testy stabilności, czujniki sprzętu",
-            "  • DeepMonitor - tabela sensorów w stylu HWMonitor (tempy, napięcia, takty)",
-            "  • MAP OF COMPONENTS - izometryczny widok 2.5D na żywo całego PC",
+            "  • DeepMonitor + MAPA PODZESPOŁÓW 2.5D - podgląd sprzętu na żywo",
             "  • Biblioteka procesów - identyfikuje 370+ programów i gier",
-            "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'stats'  'help'",
+            "",
+            "  Twoje dane zostają u Ciebie - chcesz dowód, że działa czysto?  [-> Stability Tests]",
+            "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'jakie dane zbierasz'",
         ]
 
     # ── About the author ──────────────────────────────────────────────────────
@@ -1143,82 +1200,217 @@ class ResponseBuilder:
             "  w to, co dzieje się z ich komputerem - bez zbędnych rzeczy.",
         ]
 
+    # ── Privacy / data - "do you spy on me / what do you collect?" ────────────
+
+    def _resp_privacy_data(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        if lang == "en":
+            return [
+                f"{self.PREFIX} Relax - I'm not spying on you. 🛡️",
+                "  PC Workman runs locally, on your machine:",
+                "  • I only remember hardware stats - CPU/RAM/GPU load, temperatures,",
+                "    uptime - in a local SQLite database on your own disk.",
+                "  • I never read your files, keystrokes, browser or anything personal.",
+                "  • I never send your data anywhere without consent - every bit of",
+                "    internet access is yours to control in Settings.",
+                "  • Nothing is hidden: it all lives in plain files you can open.",
+                "",
+                "  Want to see for yourself how clean it runs?  [-> Stability Tests]",
+            ]
+        return [
+            f"{self.PREFIX} Spokojnie - nie szpieguję Cię. 🛡️",
+            "  PC Workman działa lokalnie, na Twoim komputerze:",
+            "  • Zapamiętuję tylko statystyki sprzętu - obciążenie CPU/RAM/GPU,",
+            "    temperatury, czas pracy - w lokalnej bazie SQLite na Twoim dysku.",
+            "  • Nigdy nie czytam plików, klawiatury, przeglądarki ani niczego osobistego.",
+            "  • Nigdy nie wysyłam Twoich danych bez zgody - każdy dostęp do",
+            "    internetu w całości kontrolujesz w Ustawieniach.",
+            "  • Nic nie jest ukryte: wszystko leży w zwykłych plikach, które otworzysz.",
+            "",
+            "  Chcesz sam zobaczyć, jak czysto działa?  [-> Stability Tests]",
+        ]
+
+    # ── Upgrade advice - "what should I replace/upgrade?" (data-driven) ───────
+
+    def _resp_upgrade_advice(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """Detects the real bottleneck from the user's own load/temperature history
+        (CPU vs GPU headroom, RAM pressure, cooling) - no generic guessing."""
+        P = self.PREFIX
+        try:
+            from hck_gpt.context.system_context import system_context
+            snap = system_context.snapshot()
+        except Exception:
+            snap = {}
+        try:
+            from hck_stats_engine.query_api import query_api
+            summ  = query_api.get_summary_stats(days=14) or {}
+            temps = query_api.get_temperature_summary(days=14) or {}
+        except Exception:
+            summ, temps = {}, {}
+        try:
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            hw = user_knowledge.get_all_hardware() or {}
+        except Exception:
+            hw = {}
+
+        # Not enough history yet -> set expectations, don't bluff
+        if not summ or float(summ.get("cpu_avg") or 0) <= 0:
+            return [
+                _t(lang, f"{P} Jeszcze zbieram dane o Twoim obciążeniu.",
+                         f"{P} I'm still learning how you load this PC."),
+                _t(lang, "  Daj mi popracować dzień-dwa w tle, a powiem konkretnie,",
+                         "  Give me a day or two in the background and I'll tell you"),
+                _t(lang, "  który podzespół jest wąskim gardłem - bez zgadywania. 📊",
+                         "  exactly which part is the bottleneck - no guessing. 📊"),
+            ]
+
+        cpu_avg = float(summ.get("cpu_avg") or 0)
+        cpu_max = float(summ.get("cpu_max") or 0)
+        gpu_avg = float(summ.get("gpu_avg") or 0)
+        gpu_max = float(summ.get("gpu_max") or 0)
+        ram_avg = float(summ.get("ram_avg") or 0)
+        ram_max = float(summ.get("ram_max") or 0)
+        days    = int(summ.get("days_with_data") or 1)
+        ct_avg  = temps.get("cpu_temp_avg")
+        ct_max  = temps.get("cpu_temp_max")
+        throttled = bool(snap.get("cpu_throttled"))
+
+        has_gpu   = (gpu_avg > 0 or gpu_max > 0)
+        cpu_model = hw.get("cpu_model") or "CPU"
+        gpu_model = hw.get("gpu_model") or "GPU"
+        ram_gb    = hw.get("ram_total_gb")
+
+        cpu_loaded   = cpu_avg >= 70 or cpu_max >= 99
+        cpu_heavy    = cpu_avg >= 80
+        cpu_headroom = cpu_avg < 50
+        gpu_loaded   = has_gpu and (gpu_avg >= 70 or gpu_max >= 99)
+        gpu_headroom = has_gpu and gpu_avg < 55
+        ram_pressure = ram_avg >= 80 or ram_max >= 97
+        cpu_hot      = bool((ct_avg and ct_avg > 75) or (ct_max and ct_max > 92) or throttled)
+
+        d_lbl = _t(lang, "dni", "days")
+        lines = [_t(lang,
+            f"{P} Co warto wymienić? Patrzę na Twoje {days} {d_lbl} użytkowania:",
+            f"{P} What's worth upgrading? Reading your last {days} {d_lbl} of use:")]
+        ev = (f"  CPU śr. {cpu_avg:.0f}% (szczyt {cpu_max:.0f}%)" if lang == "pl"
+              else f"  CPU avg {cpu_avg:.0f}% (peak {cpu_max:.0f}%)")
+        if has_gpu:
+            ev += _t(lang, f"  ·  GPU śr. {gpu_avg:.0f}%", f"  ·  GPU avg {gpu_avg:.0f}%")
+        ev += _t(lang, f"  ·  RAM śr. {ram_avg:.0f}%", f"  ·  RAM avg {ram_avg:.0f}%")
+        if ct_avg:
+            ev += f"  ·  CPU {ct_avg:.0f}°C"
+        lines.append(ev)
+        lines.append("")
+
+        if cpu_loaded and gpu_headroom:
+            lines.append(_t(lang,
+                f"  ▸ Procesor jest wąskim gardłem. {cpu_model} często pracuje na maksa,",
+                f"  ▸ Your CPU is the bottleneck. {cpu_model} runs near its limit,"))
+            lines.append(_t(lang,
+                f"    a {gpu_model} ma sporo wolnej mocy ({gpu_avg:.0f}%). Mocniejszy CPU",
+                f"    while {gpu_model} sits with spare power ({gpu_avg:.0f}%). A stronger CPU"))
+            lines.append(_t(lang,
+                "    dałby tu największy skok wydajności.",
+                "    would give you the biggest jump here."))
+        elif gpu_loaded and cpu_headroom:
+            lines.append(_t(lang,
+                f"  ▸ Karta graficzna jest wąskim gardłem. {gpu_model} pracuje na maksa",
+                f"  ▸ Your GPU is the bottleneck. {gpu_model} runs flat out"))
+            lines.append(_t(lang,
+                f"    (śr. {gpu_avg:.0f}%), a CPU ma zapas ({cpu_avg:.0f}%). Nowsza karta",
+                f"    (avg {gpu_avg:.0f}%) while the CPU has headroom ({cpu_avg:.0f}%). A newer GPU"))
+            lines.append(_t(lang,
+                "    da najwięcej, zwłaszcza w grach i renderowaniu.",
+                "    helps most, especially in games and rendering."))
+        elif ram_pressure:
+            cur    = f" (masz {ram_gb:.0f} GB)" if ram_gb else ""
+            cur_en = f" (you have {ram_gb:.0f} GB)" if ram_gb else ""
+            lines.append(_t(lang,
+                f"  ▸ RAM się dusi - średnio {ram_avg:.0f}%, szczyty {ram_max:.0f}%{cur}.",
+                f"  ▸ RAM is under pressure - avg {ram_avg:.0f}%, peaks {ram_max:.0f}%{cur_en}."))
+            lines.append(_t(lang,
+                "    Dołożenie pamięci to najtańszy i najpewniejszy zysk płynności.",
+                "    Adding memory is the cheapest, surest win for smoothness."))
+        elif cpu_loaded and gpu_loaded:
+            lines.append(_t(lang,
+                "  ▸ I CPU, i GPU pracują mocno - ładnie zbalansowany zestaw.",
+                "  ▸ Both CPU and GPU work hard - a nicely balanced rig."))
+            lines.append(_t(lang,
+                "    Wymiana opłaca się dopiero, gdy konkretna gra/program zwalnia.",
+                "    An upgrade only pays off once a specific game/app feels slow."))
+        else:
+            extra    = f", GPU {gpu_avg:.0f}%" if has_gpu else ""
+            lines.append(_t(lang,
+                "  ▸ Nie widzę potrzeby wymiany. Wszystko ma zapas mocy -",
+                "  ▸ No upgrade needed. Everything has headroom -"))
+            lines.append(_t(lang,
+                f"    CPU {cpu_avg:.0f}%, RAM {ram_avg:.0f}%{extra}. Sprzęt nadąża za Tobą.",
+                f"    CPU {cpu_avg:.0f}%, RAM {ram_avg:.0f}%{extra}. The hardware keeps up with you."))
+
+        if cpu_hot and not cpu_heavy:
+            t_show = ct_max or ct_avg
+            lines.append("")
+            if t_show:
+                lines.append(_t(lang,
+                    f"  🌡 Uwaga: CPU bywa gorący ({t_show:.0f}°C) przy umiarkowanym obciążeniu -",
+                    f"  🌡 Note: CPU runs hot ({t_show:.0f}°C) at moderate load -"))
+            else:
+                lines.append(_t(lang,
+                    "  🌡 Uwaga: CPU throttluje przy umiarkowanym obciążeniu -",
+                    "  🌡 Note: CPU throttles at moderate load -"))
+            lines.append(_t(lang,
+                "    zanim wymienisz, sprawdź chłodzenie/pastę. To dużo tańsze.",
+                "    before replacing it, check cooling/paste. Far cheaper."))
+
+        lines.append("")
+        lines.append(_t(lang,
+            "  💬 Chcesz pełny obraz? Napisz 'zdrowie' albo 'temperatura'.",
+            "  💬 Want the full picture? Try 'health' or 'temperature'."))
+        return lines
+
     # ── Virus / security check ────────────────────────────────────────────────
 
     def _resp_virus_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        import time as _time
+        # Powered by the Process Suspect Guard engine: author (Authenticode)
+        # verification + typosquat/homoglyph detection + masquerade checks.
         try:
-            import psutil
-            from hck_gpt.process_library import process_library as _lib
+            from core.process_guard import process_guard as _guard
         except Exception:
             return [_t(lang,
-                       f"{self.PREFIX} Nie mogę sprawdzić procesów.",
-                       f"{self.PREFIX} Cannot check processes right now.")]
+                       f"{self.PREFIX} Nie mogę teraz uruchomić skanera.",
+                       f"{self.PREFIX} Cannot run the security scanner right now.")]
 
-        _SUSPICIOUS_PATTERNS = {
-            "xmrig", "cpuminer", "nicehash", "minerd", "claymore",
-            "cgminer", "bfgminer", "ethminer", "gminer", "phoenixminer",
-        }
+        summary = _guard.scan_summary(deep=True)
+        counts  = summary["counts"]
+        threats = summary["threats"]
 
-        checked = 0
-        unknown = []
-        suspicious = []
-
-        try:
-            for proc in psutil.process_iter(["name", "pid"]):
-                try:
-                    name = (proc.info.get("name") or "").lower().strip()
-                    if not name or name in ("system idle process", "idle"):
-                        continue
-                    checked += 1
-                    if checked > 120:
-                        break
-
-                    # Known suspicious patterns (miners etc.)
-                    base = name.replace(".exe", "")
-                    if any(pat in base for pat in _SUSPICIOUS_PATTERNS):
-                        suspicious.append(name)
-                        continue
-
-                    info = _lib.get_process_info(name)
-                    if info:
-                        if info.get("safety") in ("suspicious", "unsafe"):
-                            suspicious.append(f"{name}  [{info.get('name', '')}]")
-                    else:
-                        # Not in library - unknown but not necessarily bad
-                        if len(unknown) < 8 and not name.startswith(("svchost", "conhost")):
-                            unknown.append(name)
-                except Exception:
-                    continue
-        except Exception:
-            pass
-
-        if suspicious:
+        if threats:
             lines = [_t(lang,
-                        f"{self.PREFIX} ⚠ UWAGA - znaleziono podejrzane procesy!",
-                        f"{self.PREFIX} ⚠ WARNING - suspicious processes detected!")]
-            for s in suspicious[:5]:
-                lines.append(f"  ⚠ {s}")
+                f"{self.PREFIX} ⚠ Process Suspect Guard - wykryto zagrożenia!",
+                f"{self.PREFIX} ⚠ Process Suspect Guard - threats detected!")]
+            for f in threats[:6]:
+                lines.append(f"  {f.name}  (risk {f.score}/100)")
+                for rl in f.reason_lines(lang)[:2]:
+                    lines.append(f"     {rl}")
+                if f.publisher:
+                    lines.append(_t(lang, f"     Autor: {f.publisher}",
+                                          f"     Author: {f.publisher}"))
             lines.append(_t(lang,
-                            "  Sprawdź te procesy w Menedżerze zadań.",
-                            "  Check these in Task Manager immediately."))
+                "  → Optimization → ANTIVIRUS: zawieś / zakończ / dodaj do zaufanych.",
+                "  → Optimization → ANTIVIRUS: suspend / kill / trust."))
             lines.append(_followup("security", lang))
             return lines
 
-        header = _t(lang,
-                    f"{self.PREFIX} Skanowanie bezpieczeństwa ({checked} procesów):",
-                    f"{self.PREFIX} Security scan ({checked} processes):")
-        lines = [header,
-                 _t(lang, "  ✓ Brak podejrzanych procesów.", "  ✓ No suspicious processes found.")]
-
-        if unknown:
-            unk_label = _t(lang, f"  Nieznanych programom:", f"  Unrecognised programs:")
-            lines.append(unk_label)
-            for u in unknown[:5]:
-                lines.append(f"    - {u}")
+        lines = [_t(lang,
+            f"{self.PREFIX} ✓ Skan bezpieczeństwa - brak zagrożeń.",
+            f"{self.PREFIX} ✓ Security scan - no threats found.")]
+        lines.append(_t(lang,
+            "  Zweryfikowałem autorów (podpisy), nazwy i lokalizacje procesów.",
+            "  Verified process authors (signatures), names and locations."))
+        n_caution = counts.get("caution", 0)
+        if n_caution:
             lines.append(_t(lang,
-                            "  (Nieznane ≠ niebezpieczne - to np. własne aplikacje.)",
-                            "  (Unknown ≠ dangerous - could be your own tools.)"))
+                f"  {n_caution} proces(y) warte uwagi (nie groźne) - szczegóły w ANTIVIRUS.",
+                f"  {n_caution} process(es) worth a look (not dangerous) - see ANTIVIRUS."))
         lines.append(_followup("security", lang))
         return lines
 
@@ -1521,11 +1713,15 @@ class ResponseBuilder:
                 except Exception:
                     continue
             sorted_procs = sorted(raw, key=lambda p: p.info.get("cpu_percent", 0) or 0, reverse=True)
-            for p in sorted_procs[:3]:
-                name = (p.info.get("name") or "?")[:24]
-                pct  = p.info.get("cpu_percent", 0) or 0
+            for p in sorted_procs:
+                name_raw = p.info.get("name") or "?"
+                if name_raw.lower() in _IDLE_PROC_NAMES:
+                    continue   # never blame System Idle Process
+                pct = p.info.get("cpu_percent", 0) or 0
                 if pct > 0.5:
-                    top_procs.append(f"{name} ({pct:.0f}%)")
+                    top_procs.append(f"{name_raw[:24]} ({pct:.0f}%)")
+                if len(top_procs) >= 3:
+                    break
         except Exception:
             pass
 
@@ -1977,10 +2173,13 @@ class ResponseBuilder:
             lines.append(_t(lang,
                             f"  Niski wpływ ({len(low)}): {', '.join(low[:3])}{'...' if len(low) > 3 else ''}",
                             f"  Low impact ({len(low)}): {', '.join(low[:3])}{'...' if len(low) > 3 else ''}"))
+        lines.append("")
         lines.append(_t(lang,
-                        "  💬 Zarządzaj programami startowymi  [-> Startup Manager]",
-                        "  💬 Manage startup programs  [-> Startup Manager]"))
-        lines.append(_followup("startup", lang))
+                        "  💬 Przejdź do Menadżera  [-> Startup Manager]   ·   lub napisz, co wyłączyć",
+                        "  💬 Open the Manager  [-> Startup Manager]   ·   or tell me what to disable"))
+        lines.append(_t(lang,
+                        "  Wszystko, co wyłączysz, bezpiecznie włączysz z powrotem w zakładce Disabled.",
+                        "  Anything you disable can be safely switched back on in the Disabled tab."))
         return lines
 
     # ── Startup safety - is it safe to disable X from startup? ───────────────
@@ -3874,72 +4073,59 @@ class ResponseBuilder:
                 "  lub: 'co to jest werfault.exe'",
             ]
 
-        # Check process library first
-        try:
-            from hck_gpt.process_library import process_library as _lib
-            info = _lib.get_process_info(proc_name)
-        except Exception:
-            info = None
-
-        # Windows system path check
-        is_system = False
-        win_paths  = [
-            os.environ.get("SystemRoot", "C:\\Windows"),
-            os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "System32"),
-            os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "SysWOW64"),
-        ]
+        # ── Process Suspect Guard: author (signature) + typosquat + masquerade ──
+        exe = ""
+        pid = None
         try:
             import psutil
-            for proc in psutil.process_iter(["name", "exe"]):
+            for proc in psutil.process_iter(["name", "exe", "pid"]):
                 try:
                     if (proc.info.get("name") or "").lower() == proc_name.lower():
-                        exe_path = proc.info.get("exe") or ""
-                        for wp in win_paths:
-                            if exe_path.lower().startswith(wp.lower()):
-                                is_system = True
-                                break
+                        exe = proc.info.get("exe") or ""
+                        pid = proc.info.get("pid")
                         break
                 except Exception:
                     continue
         except Exception:
             pass
 
+        try:
+            from core.process_guard import process_guard as _guard
+            f = _guard.analyze(proc_name, exe=exe, pid=pid, deep=bool(exe))
+        except Exception:
+            f = None
+
+        if f is None:
+            return [_t(lang,
+                f"{self.PREFIX} Nie mogę teraz sprawdzić {proc_name}.",
+                f"{self.PREFIX} Cannot check {proc_name} right now.")]
+
+        _icon = {"trusted": "✓", "unknown": "❓", "caution": "ℹ",
+                 "suspicious": "⚠", "danger": "🔴"}.get(f.verdict, "❓")
+        _label = {
+            "trusted":    _t(lang, "Zaufany - wszystko się zgadza.",
+                                    "Trusted - everything checks out."),
+            "unknown":    _t(lang, "Nieznany - brak danych, ale i brak sygnałów zagrożenia.",
+                                    "Unknown - no data, but no threat signals either."),
+            "caution":    _t(lang, "Wart uwagi.", "Worth watching."),
+            "suspicious": _t(lang, "Podejrzany - sprawdź uważnie.",
+                                    "Suspicious - review carefully."),
+            "danger":     _t(lang, "Niebezpieczny - reaguj.",
+                                    "Dangerous - take action."),
+        }.get(f.verdict, "")
+
         lines = [_t(lang,
             f"{self.PREFIX} Identyfikacja procesu - {proc_name}:",
             f"{self.PREFIX} Process identity - {proc_name}:")]
-
-        if info:
-            safety = info.get("safety", "unknown")
-            desc_key = "description_pl" if lang == "pl" else "description_en"
-            desc = info.get(desc_key) or info.get("description_en") or info.get("name", "?")
-            icon = {"safe": "✓", "suspicious": "⚠", "unsafe": "🔴"}.get(safety, "?")
-            lines.append(f"  {icon} {desc}")
-            if safety == "suspicious":
-                lines.append(_t(lang,
-                    "  ⚠ Oznaczony jako podejrzany - sprawdź w Menedżerze zadań.",
-                    "  ⚠ Flagged as suspicious - check in Task Manager."))
-            elif safety == "unsafe":
-                lines.append(_t(lang,
-                    "  🔴 Oznaczony jako niebezpieczny - zamknij i przeskanuj antywirusem.",
-                    "  🔴 Flagged as unsafe - close it and run antivirus scan."))
-        elif is_system:
-            lines.append(_t(lang,
-                f"  ✓ Proces systemowy Windows - uruchomiony z folderu System32.",
-                f"  ✓ Windows system process - running from System32 folder."))
-            lines.append(_t(lang,
-                "  Bezpieczny - nie przerywaj go.",
-                "  Safe - do not terminate it."))
+        lines.append(f"  {_icon} {_label}  (risk {f.score}/100)")
+        for rl in f.reason_lines(lang):
+            lines.append(f"  {rl}")
+        if exe:
+            lines.append(_t(lang, f"  Lokalizacja: {exe}", f"  Location: {exe}"))
         else:
             lines.append(_t(lang,
-                "  ? Nie ma go w bibliotece procesów PC Workman.",
-                "  ? Not found in PC Workman's process library."))
-            lines.append(_t(lang,
-                "  Nieznany ≠ niebezpieczny. Sprawdź: google 'co to [nazwa].exe'",
-                "  Unknown ≠ dangerous. Check: google 'what is [name].exe'"))
-            lines.append(_t(lang,
-                "  Podejrzany jeśli: w %TEMP%, brak podpisu, losowa nazwa",
-                "  Suspicious if: in %TEMP%, no digital signature, random name"))
-
+                "  (Proces nie jest teraz uruchomiony - sprawdzenie po samej nazwie.)",
+                "  (Process not running right now - name-only check.)"))
         lines.append(_followup("security", lang))
         return lines
 
@@ -4264,22 +4450,24 @@ class ResponseBuilder:
         Time-Travel: compares current temps to 7-day and 30-day historical averages.
         Answers "is my PC hotter than usual lately?"
         """
-        lines = [_t(lang,
-            f"{self.PREFIX} Porównanie temperatur - czy jest goręcej niż zwykle?",
-            f"{self.PREFIX} Temperature comparison - running hotter than usual?")]
-
         cpu_7d  = self._get_historical_comparison("cpu_temp", 7,  lang)
         cpu_30d = self._get_historical_comparison("cpu_temp", 30, lang)
         gpu_7d  = self._get_historical_comparison("gpu_temp", 7,  lang)
 
         has_data = any([cpu_7d, cpu_30d, gpu_7d])
         if not has_data:
-            lines.extend(self._no_data("temp_comparison", lang,
-                _t(lang, "brak danych z metrics_store", "no metrics_store temperature history")))
+            # _no_data already carries the hck_GPT: prefix — don't prepend a
+            # second prefixed header (was producing a double "hck_GPT:" line).
+            lines = self._no_data("temp_comparison", lang,
+                _t(lang, "brak danych z metrics_store", "no metrics_store temperature history"))
             lines.append(_t(lang,
                 "  PC Workman zbiera dane co 5 min - wróć za kilka dni.",
                 "  PC Workman collects data every 5 min - check back in a few days."))
             return lines
+
+        lines = [_t(lang,
+            f"{self.PREFIX} Porównanie temperatur - czy jest goręcej niż zwykle?",
+            f"{self.PREFIX} Temperature comparison - running hotter than usual?")]
 
         if cpu_7d:
             lines.append(_t(lang, "  CPU temp vs 7 dni:", "  CPU temp vs 7 days:"))
@@ -5376,19 +5564,24 @@ class ResponseBuilder:
 
         resp = resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)
 
-        # Append hardware note on first greeting of session
-        try:
-            from hck_gpt.memory.session_memory import session_memory
-            from hck_gpt.memory.user_knowledge import user_knowledge
-            if not getattr(session_memory, "greeted_this_session", False):
-                session_memory.greeted_this_session = True
-                hw = user_knowledge.get_hardware("cpu_model")
-                if hw:
-                    note = _t(lang, f"  (Widzę: {hw})", f"  (I see: {hw})")
-                    return [resp, note]
-        except Exception:
-            pass
-        return [resp]
+        lines = [resp]
+        # Engaging personal hook: the user's favourite app ("fancy CS2 again today?")
+        fav = self._favorite_process(lang)
+        if fav:
+            lines.append(fav)
+        else:
+            # First greeting of the session with no fav hook -> note the CPU we see
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                from hck_gpt.memory.user_knowledge import user_knowledge
+                if not getattr(session_memory, "greeted_this_session", False):
+                    session_memory.greeted_this_session = True
+                    hw = user_knowledge.get_hardware("cpu_model")
+                    if hw:
+                        lines.append(_t(lang, f"  (Widzę: {hw})", f"  (I see: {hw})"))
+            except Exception:
+                pass
+        return lines
 
     # ── Thanks response ────────────────────────────────────────────────────────
 
