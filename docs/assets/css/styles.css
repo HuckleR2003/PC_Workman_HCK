@@ -78,6 +78,16 @@ body {
     overflow-y: auto;
 }
 
+/* Custom sidebar scrollbar — kills the default white Windows bar (per request). */
+.sidebar { scrollbar-width: thin; scrollbar-color: rgba(0, 217, 255, .28) transparent; }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(0, 217, 255, .35), rgba(0, 255, 153, .3));
+    border-radius: 3px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover { background: rgba(0, 217, 255, .55); }
+
 .logo {
     display: flex;
     align-items: center;
@@ -2437,25 +2447,21 @@ body {
 
     body.sidebar-docked .main-content { margin-left: 132px; }
 
-    .sidebar.mini:hover {
-        width: var(--sidebar-width);
-        box-shadow: 14px 0 44px rgba(0, 0, 0, .65);
-    }
-
-    .sidebar.mini:not(:hover) { width: 132px; padding: 1.5rem .6rem; }
-    .sidebar.mini:not(:hover) .nav-icon,
-    .sidebar.mini:not(:hover) .logo-icon { display: none; }
-    .sidebar.mini:not(:hover) .logo { margin-bottom: 1.6rem; padding: 0 .4rem; }
-    .sidebar.mini:not(:hover) .logo-text { font-size: .85rem; }
-    .sidebar.mini:not(:hover) .nav-link { padding: .5rem .55rem; gap: 0; }
-    .sidebar.mini:not(:hover) .nav-text { font-size: .68rem; letter-spacing: .2px; }
-    .sidebar.mini:not(:hover) .sidebar-footer { gap: .4rem; padding-top: 1rem; transform: scale(.78); }
-    .sidebar.mini:not(:hover) .security-report-btn { padding: .45rem .4rem; font-size: .58rem; gap: .3rem; }
-    .sidebar.mini:not(:hover) .security-icon { display: none; }
-    .sidebar.mini:not(:hover) .language-toggle { padding: .4rem; margin-top: .8rem; font-size: .72rem; }
-    .sidebar.mini:not(:hover) .story-button { padding: .6rem .4rem; border-width: 1px; border-radius: 10px; }
-    .sidebar.mini:not(:hover) .story-button-main span { font-size: .6rem; }
-    .sidebar.mini:not(:hover) .story-button-subtitle { font-size: .5rem; }
+    /* Sidebar LOCKED at the collapsed size — no hover-expand (per request). */
+    .sidebar.mini { width: 132px; padding: 1.5rem .6rem; }
+    .sidebar.mini .nav-icon,
+    .sidebar.mini .logo-icon { display: none; }
+    .sidebar.mini .logo { margin-bottom: 1.6rem; padding: 0 .4rem; }
+    .sidebar.mini .logo-text { font-size: .85rem; }
+    .sidebar.mini .nav-link { padding: .5rem .55rem; gap: 0; }
+    .sidebar.mini .nav-text { font-size: .68rem; letter-spacing: .2px; }
+    .sidebar.mini .sidebar-footer { gap: .4rem; padding-top: 1rem; transform: scale(.78); }
+    .sidebar.mini .security-report-btn { padding: .45rem .4rem; font-size: .58rem; gap: .3rem; }
+    .sidebar.mini .security-icon { display: none; }
+    .sidebar.mini .language-toggle { padding: .4rem; margin-top: .8rem; font-size: .72rem; }
+    .sidebar.mini .story-button { padding: .6rem .4rem; border-width: 1px; border-radius: 10px; }
+    .sidebar.mini .story-button-main span { font-size: .6rem; }
+    .sidebar.mini .story-button-subtitle { font-size: .5rem; }
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -2524,8 +2530,8 @@ body {
 
 /* Mini mode: special items shrink with the rest */
 @media (min-width: 769px) {
-    .sidebar.mini:not(:hover) .nav-special { padding: .42rem .5rem; font-size: .64rem; border-left-width: 2px; }
-    .sidebar.mini:not(:hover) .nav-special .ns-sub { display: none; }
+    .sidebar.mini .nav-special { padding: .42rem .5rem; font-size: .64rem; border-left-width: 2px; }
+    .sidebar.mini .nav-special .ns-sub { display: none; }
 }
 
 
