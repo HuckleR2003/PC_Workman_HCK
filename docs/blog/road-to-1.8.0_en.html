@@ -1,0 +1,226 @@
+<!-- Marcin HCK Firmuga · HCK_Labs · PC_Workman -->
+<!-- Standalone release story: Road to 1.8.0 - EN (canonical-first draft for Medium/Dev.to/HackerNoon) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html">
+    <meta property="og:url" content="https://pcworkman.dev/blog/road-to-1.8.0_en.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="1.8.0 - The Release That Remembers">
+    <meta property="og:description" content="Five weeks. One roadmap closed. One Google certificate in my hand. The release where my system monitor finally got a memory - and so did I.">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="description" content="The story of PC Workman 1.8.0 - a full roadmap finished, a monitor that learns your machine, and the five weeks that ran alongside a Google certificate. Built solo, in public.">
+    <meta name="keywords" content="PC Workman, building in public, solo developer, system monitor, Smart Learning, Welford, hck_GPT, Google certificate">
+    <title>1.8.0 - The Release That Remembers | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+            --bg:#0a0a0a; --bg2:#050505; --card:#141414;
+            --text:#ececec; --muted:#9a9a9a;
+            --gold:#FFD700; --cyan:#00D9FF; --green:#00FF99; --red:#FF5577;
+            --f:'Inter',sans-serif; --m:'JetBrains Mono',monospace;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:var(--f);line-height:1.75;-webkit-font-smoothing:antialiased}
+        a{color:var(--cyan);text-decoration:none}
+        a:hover{text-decoration:underline}
+
+        .back{position:fixed;top:1.2rem;left:1.2rem;z-index:50;padding:.55rem 1.1rem;background:var(--card);
+              border:1px solid rgba(255,215,0,.25);border-radius:10px;color:var(--text);font-weight:600;font-size:.85rem}
+        .back:hover{border-color:var(--gold);text-decoration:none}
+
+        /* Hero */
+        .hero{padding:6rem 1.5rem 2.5rem;text-align:center;background:
+              radial-gradient(circle at 25% 20%,rgba(255,215,0,.06),transparent 45%),
+              radial-gradient(circle at 80% 30%,rgba(0,217,255,.06),transparent 45%)}
+        .eyebrow{font-family:var(--m);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
+        .hero h1{font-size:clamp(2.1rem,5.5vw,3.6rem);font-weight:900;letter-spacing:-1px;line-height:1.1;
+                 background:linear-gradient(120deg,var(--gold),var(--cyan) 60%,var(--green));
+                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero .sub{max-width:680px;margin:1.3rem auto 0;font-size:1.18rem;color:var(--muted)}
+        .meta{margin-top:1.6rem;font-family:var(--m);font-size:.82rem;color:var(--muted)}
+        .meta b{color:var(--text)}
+
+        /* Article */
+        article{max-width:760px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+        article h2{font-size:1.75rem;font-weight:800;margin:3rem 0 .4rem;letter-spacing:-.5px}
+        article h2 .n{font-family:var(--m);font-size:1rem;color:var(--gold);margin-right:.6rem}
+        article h3{font-size:1.15rem;font-weight:700;margin:1.8rem 0 .3rem;color:var(--cyan)}
+        article p{margin:1rem 0;font-size:1.06rem;color:#d6d6d6}
+        article strong{color:#fff}
+        article em{color:var(--gold);font-style:normal}
+        .lead{font-size:1.2rem;color:#e8e8e8}
+
+        .rule{height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.3),transparent);margin:3rem 0 1rem}
+
+        /* Pull quote */
+        .pq{margin:2rem 0;padding:1.2rem 1.5rem;border-left:3px solid var(--gold);background:rgba(255,215,0,.04);
+            font-size:1.22rem;font-weight:600;color:#fff;line-height:1.5}
+
+        /* Callouts */
+        .note{margin:1.6rem 0;padding:1rem 1.2rem;border-radius:10px;font-size:1rem;line-height:1.65}
+        .ship{background:rgba(0,255,153,.05);border-left:3px solid var(--green)}
+        .scar{background:rgba(255,85,119,.05);border-left:3px solid var(--red)}
+        .me{background:rgba(0,217,255,.05);border-left:3px solid var(--cyan)}
+        .note .tag{display:block;font-family:var(--m);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:.4rem}
+        .ship .tag{color:var(--green)} .scar .tag{color:var(--red)} .me .tag{color:var(--cyan)}
+
+        /* Image slot */
+        .shot{margin:2rem 0;background:#0d0d0d;border:1px dashed #333;border-radius:12px;
+              padding:42px 18px;text-align:center;color:#666;font-size:.85rem;font-family:var(--m);letter-spacing:.5px}
+        .shot img{display:block;width:100%;border-radius:12px}
+
+        /* Stats */
+        .stats{margin:2.5rem 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem}
+        .stat{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1rem;text-align:center}
+        .stat .v{font-family:var(--m);font-size:1.5rem;font-weight:700;color:var(--gold)}
+        .stat .l{font-size:.78rem;color:var(--muted);margin-top:.25rem}
+
+        /* CTA */
+        .cta{max-width:760px;margin:1rem auto 5rem;padding:1.8rem;text-align:center;background:var(--card);
+             border:1px solid rgba(255,215,0,.2);border-radius:16px}
+        .cta h3{color:#fff;font-size:1.3rem;margin-bottom:.4rem}
+        .cta p{color:var(--muted);margin-bottom:1.2rem}
+        .btn{display:inline-block;margin:.3rem;padding:.7rem 1.4rem;border-radius:10px;font-weight:700;font-size:.92rem}
+        .btn.p{background:linear-gradient(120deg,var(--gold),var(--cyan));color:#0a0a0a}
+        .btn.s{background:transparent;border:1px solid rgba(255,255,255,.2);color:var(--text)}
+        .btn:hover{text-decoration:none;filter:brightness(1.08)}
+        .signoff{font-family:var(--m);font-size:.85rem;color:var(--muted);text-align:center;margin:2rem auto;max-width:760px}
+    </style>
+</head>
+<body>
+
+<a href="index_en.html" class="back">← Blog</a>
+
+<header class="hero">
+    <p class="eyebrow">Building in public · Release story</p>
+    <h1>1.8.0 - The Release That Remembers</h1>
+    <p class="sub">Five weeks. One roadmap closed. One Google certificate in my hand. The release where my system monitor finally got a memory - and, somewhere along the way, so did I.</p>
+    <p class="meta">By <b>Marcin "HCK" Firmuga</b> · June 22, 2026 · ~9 min read</p>
+</header>
+
+<article>
+
+    <p class="lead">Today I did two things I'll remember for a long time.</p>
+
+    <p>I clicked <em>publish</em> on PC Workman 1.8.0 - the biggest release I've ever shipped. And a few hours earlier, I held my certificate from <em>Skills of Tomorrow 3.0 AI</em> — a five-week Google program I'd just finished.</p>
+
+    <p>Two milestones, one day, and they took the exact same five weeks. One of them Google structured for me. The other I had to structure myself - out loud, in public, on a ten-year-old laptop that still idles warm. I keep thinking about that symmetry. I spent five weeks being taught, and five weeks teaching a program to learn. Both finished today.</p>
+
+         <img src="../assets/images/PCWorkman180Dashboard.gif" alt="PC Workman 1.8.0 dashboard">
+    <div class="shot">🖼 &nbsp;HERO &nbsp;·&nbsp; Maximized dashboard / Learning Center</div>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">01</span>I didn't ship a feature. I closed a board.</h2>
+
+    <p>Most releases are a feature. This one was a whole roadmap. For weeks the GitHub project board had a column of issues that all pointed at the same idea, and 1.8.0 is what it looks like when you finally drag every one of them to <strong>Done</strong>.</p>
+
+    <p>An offline mini-antivirus that reasons about who signed a process. A real Startup Manager that finds the apps every other tool misses. A Services Manager you can actually configure. A TURBO suite that stops services, suspends idle apps, flushes RAM, switches power plans — and finally <em>turns on</em>, because for months its button was wired to a flag nothing in the codebase ever wrote. Routing rebuilt so my own questions stopped hitting the wrong answer. DeepMonitor that remembers. And underneath all of it, the thing the entire project was quietly building toward: a monitor with a memory.</p>
+
+    <p>That's the part I want to tell you about properly.</p>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">02</span>Why a monitor needs a memory</h2>
+
+    <p>Close HWiNFO. Close Afterburner. Open them tomorrow and they remember nothing about your machine. They draw 78°C against the same line they draw for every PC on Earth. For months PC Workman wasn't much better — and worse, it had two learning engines built in that the chat assistant <strong>never once imported.</strong> Months of learning it couldn't reach.</p>
+
+    <p>1.8.0 fixes that at the root. Every temperature reading now lands in one of five workload buckets — idle, light, medium, heavy, gaming — and each bucket keeps its own learned normal. So the same number splits in two:</p>
+
+    <div class="pq">82°C while gaming = normal.<br>82°C at idle = critical.<br>Same number. Opposite verdict. Judged against the <em>right</em> normal instead of a hardcoded 85°C line.</div>
+
+    <p>And the memory actually <em>accumulates.</em> The old engine looked at a rolling 14 days and forgot everything older — but a window can't see drift, and drift is the whole point: paste pumping out, dust building up, capacitors aging. So I rewrote it as a true Welford online accumulator. Three numbers per workload — a running count, mean, and M2 — folded forward, never recomputed. It never re-reads old rows, and the stats survive even after the raw data gets pruned at 90 days.</p>
+
+    <div class="note ship"><span class="tag">Shipped</span>Learning that compounds for the life of the install. The longer it runs, the more it actually knows your hardware. There's a Learning Center now where you can watch it fill up — honest about what it doesn't know yet: a bucket you've barely hit reads "12 samples," not a confident lie.</div>
+
+    <p>The voltages work the same way — median and MAD instead of the mean, a modified z-score, and four Nelson SPC rules from the 1960s and 1980s. Boring, predictable statistics. That's exactly why I trust them on someone's power supply. <em>Statistics don't hallucinate.</em></p>
+
+         <img src="../assets/images/PCWorkman180MonitoringAlerts.gif" alt="PC Workman Learning Center">
+    <div class="shot">🖼 &nbsp;LEARNING CENTER &nbsp;·&nbsp; per-workload progress + learned ranges</div>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">03</span>An overlay that shows nothing until you choose</h2>
+
+    <p>Every gaming tool decides what your overlay shows. MSI, Razer, Corsair — they pick, you watch, and most of them vomit forty stats across your screen mid-game. I think that's backwards. So the new in-game overlay starts <strong>empty.</strong> You drop in exactly what you want — temps in one corner, FPS in another, nothing else — or grab one of three presets. A glance when you want it, invisible when you don't.</p>
+
+    <p>It reads real FPS from RTSS (no admin, no injection), floats over borderless games without stealing focus, and — because the app already watches what you're running — it drops a one-second hello when a game launches. <em>"Good luck at the tournament"</em> for CS2. <em>"Fighting a boss today?"</em> for Terraria. A monitor that recognizes your game instead of just measuring your GPU. Small thing. Feels completely different.</p>
+
+         <img src="../assets/images/gaming-overlay-custom.gif" alt="In-game overlay presets">
+    <div class="shot">🖼 &nbsp;IN-GAME OVERLAY &nbsp;·&nbsp; the HUD + the three presets</div>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">04</span>The assistant got a memory too</h2>
+
+    <p>hck_GPT is the little AI that lives inside the app — 84 intents, fully offline, no API key. This release it stopped giving generic advice and started answering from <em>your</em> data.</p>
+
+    <p>Ask <strong>"what should I upgrade?"</strong> and it reads your own 14-day load history. CPU pinned at 100% while the GPU idles at 55%? It says the CPU is the bottleneck — with the numbers — instead of guessing "buy more RAM." Hot but not actually maxed? It tells you to check cooling before you spend a złoty. Ask <strong>"do you spy on me?"</strong> and it gives you a straight answer: everything is local, it remembers hardware stats only, never your files, and it points you to the stability tests so you can check for yourself. Even the greetings know you now — say hey and it might come back with <em>"fancy CS2 again today?"</em>, pulled from your heaviest process across your whole history.</p>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">05</span>The scars I don't hide</h2>
+
+    <p>This release came out of an audit where I ran every intent in both languages, looking for the bugs that don't scream. The worst ones never do.</p>
+
+    <div class="note scar"><span class="tag">Scar</span>My AI couldn't reach its own brain. A function referenced a variable that lived in a different function — every call threw, and a bare <code>except: pass</code> swallowed it. The whole "finish the answer with the LLM" path had been dead for <em>months.</em> Nothing crashed, so nobody noticed.</div>
+
+    <div class="note scar"><span class="tag">Scar</span>A temperature query asked for two database columns that never existed. The whole function threw and quietly returned nothing — so every seven-day temperature comparison had been silently empty. It "worked" by failing politely.</div>
+
+    <p>I publish these on purpose. Every Friday I post what I planned on Monday against what actually shipped, scars included, because a build-in-public log that only shows the wins is just marketing with extra steps. The bugs are the honest part.</p>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">06</span>Learning, while shipping</h2>
+
+    <p>Here's where the two milestones meet.</p>
+
+    <p>I weld for a living. Before that, night shifts. The thing about reading metal is that nobody hands you the eye for it — it accumulates. Cherry red, straw, the blue that means you've gone too far. You burn enough of it and one day the numbers in your head are <em>yours</em>, not the chart's. That's the exact thing I wanted from a system monitor, and it's the exact thing those five weeks of Google coursework felt like from the inside: not a download of knowledge, but an accumulation of it. A running mean, folded forward, never recomputed.</p>
+
+    <div class="note me"><span class="tag">The honest part</span>I don't know if I'll get where I'm trying to go. Twelve projects died before this one. But my belief in myself has been compounding the same way the baseline does - slowly, quietly, surviving the prunes. Today the certificate and the release landed on the same afternoon, and for once the graph in my own head read <em>trained</em> instead of <em>still learning.</em></div>
+
+         <img src="../assets/images/Google-SkillsOfTomorrow-3.0.png" alt="Google certificate">
+    <div class="shot">🖼 &nbsp;OPTIONAL &nbsp;·&nbsp; the Google certificate (today)</div>
+
+    <div class="rule"></div>
+
+    <h2><span class="n">07</span>By the numbers</h2>
+
+    <div class="stats">
+        <div class="stat"><div class="v">1.8.0</div><div class="l">stable, biggest yet</div></div>
+        <div class="stat"><div class="v">84</div><div class="l">hck_GPT intents</div></div>
+        <div class="stat"><div class="v">40+</div><div class="l">games it greets</div></div>
+        <div class="stat"><div class="v">373</div><div class="l">processes it knows</div></div>
+        <div class="stat"><div class="v">21/21</div><div class="l">tests green</div></div>
+        <div class="stat"><div class="v">~1 yr</div><div class="l">PC Workman's age</div></div>
+        <div class="stat"><div class="v">12</div><div class="l">dead projects before it</div></div>
+        <div class="stat"><div class="v">100%</div><div class="l">offline AI, local</div></div>
+    </div>
+
+    <p>One year old this week. Twelve dead projects came before it. This is the one that didn't die — and now it remembers your machine, and you can watch it think.</p>
+
+    <p>Next is 2.0.0: the Microsoft Store version, long-term drift detection now that the data finally accumulates, and context-aware profiles. But that's next. This one was about the memory.</p>
+
+    <p class="lead">What would you ask your PC, if it could actually answer?</p>
+
+</article>
+
+<div class="cta">
+    <h3>PC Workman 1.8.0 is free, open source, MIT.</h3>
+    <p>No installer, no account. One ZIP, runs locally.</p>
+    <a class="btn p" href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">⬇ Download 1.8.0</a>
+    <a class="btn s" href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHub</a>
+    <a class="btn s" href="index_en.html">The build-in-public blog</a>
+</div>
+
+<p class="signoff">Built solo, in public, by Marcin "HCK" Firmuga · HCK_Labs · Poland - still shipping.</p>
+
+</body>
+</html>
