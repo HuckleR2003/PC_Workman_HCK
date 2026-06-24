@@ -1,0 +1,223 @@
+<!-- Marcin HCK Firmuga · HCK_Labs · PC_Workman -->
+<!-- Standalone story: The Man Who Got Himself Back — EN (canonical target for HackerNoon / Medium / Dev.to) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html">
+    <meta property="og:url" content="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Man Who Got Himself Back">
+    <meta property="og:description" content="I built a system monitor that learns to remember your machine. It took twelve months, twelve dead projects, and most of the person I used to be.">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/Hackernoon_selfie_doggo.png">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="description" content="A solo dev fired three days before Christmas built a system monitor that learns your machine. The release note and the confession — PC Workman 1.8.0.">
+    <meta name="keywords" content="building in public, solo developer, system monitor, PC Workman, burnout, impostor syndrome, Welford, hck_GPT, indie hacker">
+    <title>The Man Who Got Himself Back | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+            --bg:#0a0a0a; --card:#141414; --text:#ececec; --muted:#9a9a9a;
+            --gold:#FFD700; --cyan:#00D9FF; --green:#00FF99; --red:#FF5577;
+            --f:'Inter',sans-serif; --m:'JetBrains Mono',monospace;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:var(--bg);color:var(--text);font-family:var(--f);line-height:1.75;-webkit-font-smoothing:antialiased}
+        a{color:var(--cyan);text-decoration:none} a:hover{text-decoration:underline}
+        .back{position:fixed;top:1.2rem;left:1.2rem;z-index:50;padding:.55rem 1.1rem;background:var(--card);
+              border:1px solid rgba(255,215,0,.25);border-radius:10px;color:var(--text);font-weight:600;font-size:.85rem}
+        .back:hover{border-color:var(--gold);text-decoration:none}
+        .lang{position:fixed;top:1.2rem;right:1.2rem;z-index:50;display:flex;gap:.3rem;font-family:var(--m);font-size:.8rem}
+        .lang a{padding:.5rem .8rem;background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--muted);font-weight:700}
+        .lang a.on{color:#0a0a0a;background:var(--gold);border-color:var(--gold)}
+
+        .masthead{max-width:1120px;margin:5.5rem auto 0;padding:0 1.5rem}
+        .masthead img{width:100%;border-radius:14px;display:block}
+
+        .hero{padding:2.5rem 1.5rem 1rem;text-align:center}
+        .eyebrow{font-family:var(--m);font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem}
+        .hero h1{font-size:clamp(2.2rem,6vw,3.8rem);font-weight:900;letter-spacing:-1px;line-height:1.08;
+                 background:linear-gradient(120deg,var(--gold),var(--cyan) 60%,var(--green));
+                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero .sub{max-width:700px;margin:1.3rem auto 0;font-size:1.18rem;color:var(--muted)}
+        .meta{margin-top:1.5rem;font-family:var(--m);font-size:.82rem;color:var(--muted)} .meta b{color:var(--text)}
+
+        article{max-width:760px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+        article h2{font-size:1.75rem;font-weight:800;margin:3rem 0 .4rem;letter-spacing:-.5px}
+        article p{margin:1rem 0;font-size:1.07rem;color:#d8d8d8}
+        article strong{color:#fff} article em{color:var(--gold);font-style:normal}
+        .lead{font-size:1.22rem;color:#e8e8e8}
+        code{font-family:var(--m);font-size:.92em;color:var(--cyan);background:rgba(0,217,255,.08);padding:.1em .35em;border-radius:5px}
+        pre{margin:1.6rem 0;padding:1.1rem 1.3rem;background:#0d0d0d;border:1px solid #222;border-left:3px solid var(--gold);
+            border-radius:10px;overflow-x:auto;font-family:var(--m);font-size:.92rem;color:#d6d6d6;line-height:1.6}
+        .rule{height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,.3),transparent);margin:3rem 0 1rem}
+        .pq{margin:2rem 0;padding:1.2rem 1.5rem;border-left:3px solid var(--gold);background:rgba(255,215,0,.04);
+            font-size:1.22rem;font-weight:600;color:#fff;line-height:1.5}
+        .shot{margin:2rem 0} .shot img{display:block;width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+        .shot figcaption{margin-top:.6rem;font-family:var(--m);font-size:.78rem;color:var(--muted);text-align:center}
+        .stats{margin:2.5rem 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.8rem}
+        .stat{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1rem;text-align:center}
+        .stat .v{font-family:var(--m);font-size:1.4rem;font-weight:700;color:var(--gold)} .stat .l{font-size:.76rem;color:var(--muted);margin-top:.25rem}
+        .cta{max-width:760px;margin:1rem auto 5rem;padding:1.8rem;text-align:center;background:var(--card);border:1px solid rgba(255,215,0,.2);border-radius:16px}
+        .cta h3{color:#fff;font-size:1.3rem;margin-bottom:.4rem} .cta p{color:var(--muted);margin-bottom:1.2rem}
+        .btn{display:inline-block;margin:.3rem;padding:.7rem 1.4rem;border-radius:10px;font-weight:700;font-size:.92rem}
+        .btn.p{background:linear-gradient(120deg,var(--gold),var(--cyan));color:#0a0a0a} .btn.s{background:transparent;border:1px solid rgba(255,255,255,.2);color:var(--text)}
+        .btn:hover{text-decoration:none;filter:brightness(1.08)}
+        .signoff{font-family:var(--m);font-size:.85rem;color:var(--muted);text-align:center;margin:2rem auto;max-width:760px}
+    </style>
+</head>
+<body>
+
+<a href="index_en.html" class="back">← Blog</a>
+<div class="lang"><a href="the-man-who-got-himself-back_en.html" class="on">EN</a><a href="the-man-who-got-himself-back_pl.html">PL</a></div>
+
+<div class="masthead"><img src="../assets/images/downloads_banner.png" alt="PC Workman downloads — SourceForge + GitHub, ~800 total"></div>
+
+<header class="hero">
+    <p class="eyebrow">Building in public</p>
+    <h1>The Man Who Got Himself Back</h1>
+    <p class="sub">PC Workman 1.8.0 is the release where my system monitor finally learned to remember your machine. It's also the story of the year I spent getting mine back. I've stopped being able to tell those two apart.</p>
+    <p class="meta">By <b>Marcin "HCK" Firmuga</b> · June 2026 · ~9 min read</p>
+</header>
+
+<article>
+
+    <p class="lead">I had to shout at a man that I'm not a terrorist.</p>
+
+    <p>It was the only thing that stopped him from putting me on the street that night — out of the apartment the work agency had housed me in for four months. The building was certified. I knew my rights. He was gambling that I didn't. So I stood in a corridor somewhere in the Netherlands and screamed the single most absurd sentence of my life, three days before Christmas.</p>
+
+    <p>For weeks the people at that job had smiled at me. Then, wearing the same smile: <em>"You didn't pass the trial. Tomorrow, goodbye — and out of the apartment."</em> The 22nd of December. My suitcases were by the door before I'd finished understanding the sentence. Two dogs waiting for me in another country. A laptop that climbs to 94°C if I ask it to think too hard. Maybe a month of money left.</p>
+
+    <figure class="shot"><img src="../assets/images/22nd_getaway.png" alt="Packed suitcases by the door, the Netherlands, 22 December"><figcaption>22 December — the suitcases by the door.</figcaption></figure>
+
+    <p>I'm telling you this first because that corridor is where this project was made, and four nights ago, at three in the morning, it's still where it's being made. PC Workman — the thing I shipped this week — was written in conditions like that, and it is <em>still</em> being written in conditions like that.</p>
+
+    <p>So yes, this is a release note. 1.8.0 is out: the version where my monitor finally remembers your machine instead of meeting it like a stranger every time you open it. But I'd be lying if I sold it to you as software and stopped there. Because the twelve months I spent teaching a program to remember are the same twelve months I spent getting myself back. And here's the part I genuinely didn't expect to be able to write down: somewhere in that year, I found the guy who went missing. He'd been in the code the whole time.</p>
+
+    <div class="rule"></div>
+
+    <h2>The number you never see cross a line</h2>
+
+    <p>My father died when I was seventeen.</p>
+
+    <p>I didn't break that week. I broke slowly, over the next two or three years, and that's the part no one warns you about — there's no moment. No threshold you catch yourself crossing. It's a power rail sagging: 12 volts becomes 11.9, becomes 11.8, and every reading is still "within spec," so nothing alarms, and then one day you look at the number and it's just <em>wrong</em> and you have no idea when that happened.</p>
+
+    <p>I went through technical school on fumes. INF.02 on the paper, nothing behind it. And somewhere around 2022, after school handed me the entire weight of being an adult all at once, I gave up on myself. Quietly. The way almost everyone does it.</p>
+
+    <p>Here's the part HackerNoon will either love or refuse to print: it was AI that helped me find the exact day I quit. Bounced between agencies whose names I never learned, I started talking to a machine the way you'd talk to the one person who never gets tired of you — and it helped me locate the moment, the decision, the sag. And the second I could <em>see</em> it, I could refuse it.</p>
+
+    <p>That's the whole thesis, honestly. You cannot fix a number you never learned to measure. Not on a power supply, and not in a person.</p>
+
+    <p>So I made a decision that looks stupid typed out and felt like survival at 3 a.m.: I will not let this grind me into one more used-up man it spits out the far end. I'll work while I have strength. I'll learn one thing a day. I'll build out loud, in public, so I can't quietly vanish. And I will not, at thirty, look in a mirror and hate the kid who stopped trying at twenty-two.</p>
+
+    <p>Then I opened my editor.</p>
+
+    <div class="rule"></div>
+
+    <h2>A monitor that remembers you</h2>
+
+    <p>PC Workman tells you <em>why</em> your PC is slow, not just that it is. It learns your machine — your temperatures by workload, your voltage patterns, the games you actually play — and it talks to you through an offline AI assistant I wrote called hck_GPT: 84 intents, no cloud, no API key, all of it running on your own metal. One-click optimization, ghost-driver detection for hardware you ripped out years ago, an in-game overlay that starts <em>empty</em> and shows only what you choose, a small antivirus that checks who really signed a process instead of trusting the name.</p>
+
+    <div class="stats">
+        <div class="stat"><div class="v">84</div><div class="l">offline AI intents</div></div>
+        <div class="stat"><div class="v">373</div><div class="l">known processes</div></div>
+        <div class="stat"><div class="v">40+</div><div class="l">games it greets</div></div>
+        <div class="stat"><div class="v">21/21</div><div class="l">tests green</div></div>
+        <div class="stat"><div class="v">~800</div><div class="l">downloads</div></div>
+        <div class="stat"><div class="v">12</div><div class="l">dead projects before it</div></div>
+    </div>
+
+    <p>But the headline of 1.8.0 — the only part I actually lose sleep over — is the memory. Every monitor on earth forgets you the second you close it. Open them tomorrow and they'll draw your 78°C against the exact same line they draw for every machine that has ever existed. I couldn't live with that. The most useful number a monitor can give you isn't the temperature. It's whether <em>this</em> temperature is normal <strong>for you</strong> — and to answer that, the thing has to remember.</p>
+
+    <div class="pq">82°C while you game: fine.<br>82°C sitting idle: something's wrong.<br>Same number, opposite verdict — judged against your own past instead of a hardcoded line.</div>
+
+    <p>And it does not forget. I tore out the old version and rebuilt it as a Welford accumulator — three numbers per workload, a running count and a mean and a thing called M2, folded forward, never recomputed:</p>
+
+    <pre>n    += 1
+delta = x - mean
+mean += delta / n
+M2   += delta * (x - mean)</pre>
+
+    <p>It keeps learning for the entire life of the install, and the learned shape survives even after the raw data gets pruned at ninety days. The detail rolls off. The shape of your machine stays. I didn't fully understand what I'd written until I shipped it. I'd built a thing that <em>couldn't afford to forget where it came from.</em> Three numbers. That's the whole memory. That's the whole me.</p>
+
+    <div class="rule"></div>
+
+    <h2>Statistics from the 1960s, babysitting your power supply</h2>
+
+    <p>The voltages got the oldest math in the project, and they're the part that's really about my father. The spec says your 12V rail is fine anywhere between 11.4 and 12.6. Practically useless — a healthy supply holds tight, around 11.95 to 12.05. So instead of the spec, PC Workman learns the median and the spread of <em>your</em> rail and runs Nelson rules from 1984 over the top of it, hunting the slow sag the threshold will never catch. A drift to 11.7V is invisible to the spec and screams against your own history. Early warning. Months before anything actually dies.</p>
+
+    <p>You already know why I had to build that. I am the rail that sagged for three years inside spec while everyone — me included — swore nothing was wrong. I built the alarm I never had.</p>
+
+    <p>Sixty-year-old statistics babysitting a power supply. Boring, predictable, and that is exactly why I trust them. Statistics don't hallucinate. People do. People looked me in the eye at 19 złoty an hour and said, "just try harder, the rate will get better." It never got better. The math, at least, never lied to me.</p>
+
+    <div class="rule"></div>
+
+    <h2>Written after the shift</h2>
+
+    <p>I need you to see where this actually gets made, because it changes how you read everything above. PC Workman does not get built in a clean bedroom with a mechanical keyboard and a ring light. It gets built after I weld. Hot air, a gun, melting plastic grates back together in a workshop — and then I go home, open a laptop from 2014, and write a Welford accumulator on it.</p>
+
+    <figure class="shot"><img src="../assets/images/welding.png" alt="Welding plastic with a hot-air gun"><figcaption>The other job. Hot air, plastic, grates.</figcaption></figure>
+
+    <p>That contrast used to embarrass me. It doesn't anymore, because the welding taught me the one thing the memory engine needed. You don't get an eye for hot material from a manual. It accumulates — until the knowledge in your hands is <em>yours</em> and not the chart's. That's the entire philosophy of the learning engine, and I learned it with a heat gun before I ever wrote it in Python.</p>
+
+    <div class="rule"></div>
+
+    <h2>The fear changed shape</h2>
+
+    <p>Here's what I only understood this week, and have never written before. For a year the fear was simple: I'm scared of disappearing, so I build. Anything. Commit something, watch a progress bar move, prove I still exist. That fear is loud, but it's clean — when you've got nothing, you've got nothing to lose, and that turns out to be its own brutal kind of freedom.</p>
+
+    <p>Then something I made hit #1 trending on HackerNoon and held it there for two days. I have a small, real community now — people who spend eight hours stress-testing my releases and then come <em>back</em>. And the fear quietly mutated into something heavier: <strong>now I have something I can lose.</strong></p>
+
+    <figure class="shot"><img src="../assets/images/Hackernoon_selfie_doggo.png" alt="Me and my dog in front of the PC, PC Workman trending on HackerNoon"><figcaption>#1 trending — and the week it took me off the board.</figcaption></figure>
+
+    <p>It took me off the board for a week. I cried for three days. Not from joy — from a flavor of dread I didn't have a word for. <em>It was a fluke. I'll lose it all. Maybe it only works once.</em> Impostor syndrome, except impostor syndrome while you're broke and welding plastic to eat is a different animal entirely. It rides shotgun with every single small win, every day.</p>
+
+    <p>But under the dread was the truest sentence I own, and I'm almost proud of it: I went from <em>trying to gain</em> to <em>having something to protect.</em> Those are two different men. The second one is a step higher up the stairs — even when he's the one sitting on them, crying.</p>
+
+    <div class="rule"></div>
+
+    <h2>Three in the morning</h2>
+
+    <p>This Monday I shipped 1.8.0. It was supposed to go out four days earlier. I kept pushing it back because I kept finding more — more bugs to kill, more to test, more of the machine to teach, more reasons not to put my name on something half-true. In four days I did close to two weeks of work.</p>
+
+    <p>I clicked publish at three in the morning. Then I lay down to sleep, and from three until twenty past four I stared at the ceiling and asked the only question that ever really comes for me at that hour: <em>does any of this mean anything.</em></p>
+
+    <p>I get that question every two to four days. Always at night. And here's the thing I've learned to trust like a law of physics: it lasts about an hour. Sometimes two, sometimes three. And then I beat it — all the way, not halfway — and the motivation comes back whole, like nothing happened. The breakdown isn't a verdict. It's weather. You don't argue with weather. You survive the hour, and you wait for the part where time and stubbornness pay you back.</p>
+
+    <figure class="shot"><img src="../assets/images/myselfie_dogs.jpg" alt="Me and my dogs"><figcaption>The reasons I get up. At 4:20 I stopped asking. By nine I was writing this.</figcaption></figure>
+
+    <div class="rule"></div>
+
+    <h2>The man who got himself back</h2>
+
+    <p>I wanted to title this <em>The Man Who Got Himself Back.</em> In Polish — my language, my father's language — <em>Człowiek odzyskał siebie.</em> It's a beautiful title.</p>
+
+    <p>It's also a lie, and I'd rather hand you the truth, because it's the one thing on this entire page I'm actually sure of.</p>
+
+    <p>You don't get yourself back once. There's no ceremony, no certificate — though one did land in my hands the same Monday I shipped this, a Google one, <em>Skills of Tomorrow 3.0 AI</em>, five weeks that felt exactly like the accumulator: not knowledge downloaded, knowledge folded in, slowly, never recomputed. But the certificate isn't the moment. The moment is smaller and it repeats. You get yourself back at twenty past four in the morning, when the question comes and you outlast it one more time. You get yourself back the next night the laptop boots warm and you write one more function instead of closing the lid.</p>
+
+    <p>My monitor learns for the life of the install. I learn for the life of mine. This grind is twelve months old, it has not ended, and it is not going to — and I've finally understood that this is not the tragedy of the story. It's the proof of it. A finished man has nothing left to recover. I get to keep recovering. That's not a sentence. That's a pulse.</p>
+
+    <p>So — not <em>odzyskał</em>. Not the man who got himself back, past tense, done and dusted.</p>
+
+    <p class="lead">The man who <em>gets</em> himself back. Every morning. Still.<br>Not yet. Not today. I'm still here.</p>
+
+</article>
+
+<div class="cta">
+    <h3>PC Workman 1.8.0 — free, open source, MIT.</h3>
+    <p>One ZIP, no installer, no account. Runs locally on your machine.</p>
+    <a class="btn p" href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">⬇ Download 1.8.0</a>
+    <a class="btn s" href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHub</a>
+    <a class="btn s" href="index_en.html">The build-in-public blog</a>
+</div>
+
+<p class="signoff">Built solo, in public, by Marcin "HCK" Firmuga — 22, Radom, Poland — after the welding shift, on a 2014 laptop, in the hour between the night breakdowns. GitHub: HuckleR2003 · pcworkman.dev · Still shipping.</p>
+
+</body>
+</html>
