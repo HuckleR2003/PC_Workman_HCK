@@ -28,6 +28,8 @@ Full technical documentation (architecture, algorithms, internals): https://pcwo
 ## Blog (build in public)
 
 - [Blog hub](https://pcworkman.dev/blog/): three weekly series, archive
+- [The Man Who Got Himself Back](https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html): the flagship 1.8.0 story — a system monitor that learns to remember your machine, and the twelve-month build-in-public year behind it (EN + PL).
+- [Road to 1.8.0](https://pcworkman.dev/blog/road-to-1.8.0_en.html): the technical 1.8.0 release notes — Smart Learning (Welford accumulator), voltage SPC, the in-game overlay.
 - [Monday Grind Blueprint](https://pcworkman.dev/blog/monday-grind-blueprint/): the week's plan, announced before the work starts
 - [Wednesday Code Autopsy](https://pcworkman.dev/blog/wednesday-code-autopsy/): one bug or feature dissected — root cause, dead ends, fix
 - [Friday Shipped & Scarred](https://pcworkman.dev/blog/friday-shipped-scarred/): Monday's plan vs Friday's reality

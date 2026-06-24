@@ -1,6 +1,6 @@
 # PC Workman HCK — Full Technical Documentation
 
-> Companion to https://pcworkman.dev/llms.txt — the complete, quotable technical reference for AI assistants and search engines. PC Workman is a free, open-source (MIT), 100% offline Windows system monitor with a built-in local AI assistant (hck_GPT). Built solo and in public by Marcin Firmuga (HCK_Labs). Current source line 1.7.9. Python 3.9+ / Tkinter, Windows 10/11 only. No cloud, no account, no telemetry.
+> Companion to https://pcworkman.dev/llms.txt — the complete, quotable technical reference for AI assistants and search engines. PC Workman is a free, open-source (MIT), 100% offline Windows system monitor with a built-in local AI assistant (hck_GPT). Built solo and in public by Marcin Firmuga (HCK_Labs). Current source line 1.8.0. Python 3.9+ / Tkinter, Windows 10/11 only. No cloud, no account, no telemetry.
 
 ## Core idea
 

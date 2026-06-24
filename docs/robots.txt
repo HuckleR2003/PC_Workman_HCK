@@ -2,6 +2,7 @@
 # PC Workman — pcworkman.dev
 # Free, open-source Windows system monitor with offline AI.
 # Curated site map for LLMs: https://pcworkman.dev/llms.txt
+# Full technical docs for LLMs: https://pcworkman.dev/llms-full.txt
 # ═══════════════════════════════════════════════════════════
 
 User-agent: *
