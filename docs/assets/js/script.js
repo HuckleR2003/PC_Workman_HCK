@@ -44,14 +44,12 @@ window.addEventListener('load', () => {
     setTimeout(typeText, 1000); // Delay before starting
 });
 
-// === MINI SIDEBAR (desktop): auto-collapse 1.5 s after load ===
-// Hover re-expands via CSS (.sidebar.mini:hover) and overlays the content;
-// body.sidebar-docked keeps the page laid out at the mini width.
+// === MINI SIDEBAR (desktop): collapsed by default — no expand-then-collapse flash ===
+// The HTML already ships .sidebar.mini + body.sidebar-docked so it paints collapsed
+// on the first frame; this just reasserts it (and stays a no-op on mobile ≤768).
 if (window.innerWidth > 768 && sidebar) {
-    setTimeout(() => {
-        sidebar.classList.add('mini');
-        document.body.classList.add('sidebar-docked');
-    }, 1500);
+    sidebar.classList.add('mini');
+    document.body.classList.add('sidebar-docked');
 }
 
 // === MOBILE MENU TOGGLE ===
