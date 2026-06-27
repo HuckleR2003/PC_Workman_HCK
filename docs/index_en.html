@@ -6,7 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="description" content="PC_Workman v1.8.0 – Windows system monitor with hck_GPT (84 intents, offline AI), thermal baseline learning per workload, voltage SPC (Median+MAD, Nelson rules), TURBO suite, Ghost Driver Detection, DeepMonitor, 2.5D PC Map. Free, open-source.">
@@ -492,12 +493,12 @@
         }
     </style>
 </head>
-<body>
+<body class="sidebar-docked">
 
     <!-- Global top navigation (fixed, auto-hides on scroll down) -->
     <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
         <a class="gt-link" href="index_en.html">Home</a>
-        <a class="gt-link" href="blog/">Blog</a>
+        <a class="gt-link gt-blog" href="blog/">Blog</a>
         <a class="gt-link gt-white" href="SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="download/">Download</a>
         <a class="gt-link" href="guides/">Articles / Guides</a>
@@ -517,27 +518,12 @@
     </nav>
 
     <!-- Left Sticky Sidebar Navigation -->
-    <nav class="sidebar" id="sidebar">
-        <div class="logo">
-            <span class="logo-icon">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="28" height="28" stroke="url(#grad1)" stroke-width="2" rx="4"/>
-                    <path d="M16 8 L24 16 L16 24 L8 16 Z" fill="url(#grad2)"/>
-                    <circle cx="16" cy="16" r="4" fill="var(--neon-cyan)"/>
-                    <defs>
-                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:var(--neon-cyan);stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:var(--neon-green);stop-opacity:1" />
-                        </linearGradient>
-                        <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:rgba(0,217,255,0.3);stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:rgba(0,255,153,0.3);stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-            </span>
-            <span class="logo-text">PC_Workman</span>
-        </div>
+    <nav class="sidebar mini" id="sidebar">
+        <a class="logo" href="index_en.html" aria-label="PC Workman — home">
+            <img class="logo-img" src="assets/images/pcworkman-logo.png"
+                 alt="PC Workman — local AI Windows system monitor" width="40" height="40">
+            <span class="logo-text">PC Workman</span>
+        </a>
         <ul class="nav-links">
             <li><a href="#hero" class="nav-link active" data-section="hero">
                 <span class="nav-icon nav-icon-home"></span>
@@ -586,20 +572,24 @@
             </a></li>
         </ul>
         <div class="sidebar-footer">
-            <a href="https://github.com/HuckleR2003" target="_blank" class="social-link social-github" aria-label="GitHub">
-                <span class="social-icon"></span>
+            <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener" class="social-link social-github" aria-label="GitHub">
+                <svg class="social-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.8c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 4.9 18 4.9c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
             </a>
-            <a href="https://x.com/hck_lab" target="_blank" class="social-link social-x" aria-label="X (Twitter)">
-                <span class="social-icon"></span>
+            <a href="https://x.com/hck_lab" target="_blank" rel="noopener" class="social-link social-x" aria-label="X (Twitter)">
+                <svg class="social-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
-            <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" class="social-link social-linkedin" aria-label="LinkedIn">
-                <span class="social-icon"></span>
+            <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener" class="social-link social-linkedin" aria-label="LinkedIn">
+                <svg class="social-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
             </a>
         </div>
         <div class="sidebar-security-link">
             <a href="SECURITY_report.html" class="security-report-btn">
                 <span class="security-icon"></span>
-                <span>SECURITY Report</span>
+                <span>SECURITY<br>POLICY</span>
+            </a>
+            <a href="privacy_en.html" class="security-report-btn privacy-policy-btn">
+                <span class="security-icon"></span>
+                <span>PRIVACY<br>POLICY</span>
             </a>
         </div>
         <div class="language-toggle">
@@ -608,9 +598,8 @@
             <a href="index_en.html" class="lang-btn active" data-lang="en" onclick="sessionStorage.setItem('langPreference', 'en')">ENG</a>
         </div>
         <div class="sidebar-story-cta">
-            <a href="blog/story.html" class="story-button">
-                <div class="story-button-main"><span>Build In Public</span></div>
-                <div class="story-button-subtitle">Follow My Journey</div>
+            <a href="blog/story.html" class="story-button story-button-archive">
+                <div class="story-button-main"><span>Archive</span></div>
             </a>
         </div>
     </nav>
