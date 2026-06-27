@@ -8,7 +8,7 @@
   <!-- Landing — English (default) -->
   <url>
     <loc>https://pcworkman.dev/index_en.html</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
@@ -18,7 +18,7 @@
   <!-- Landing — Polish -->
   <url>
     <loc>https://pcworkman.dev/index.html</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
@@ -380,6 +380,24 @@
     <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+
+  <!-- Privacy Policy -->
+  <url>
+    <loc>https://pcworkman.dev/privacy_en.html</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html"/>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/privacy.html</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html"/>
   </url>
 
   <!-- Blog — The Man Who Got Himself Back (flagship 1.8.0 story) -->
