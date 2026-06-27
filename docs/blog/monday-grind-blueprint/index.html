@@ -26,6 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
     <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed.xml">
 
     <script type="application/ld+json">
@@ -81,15 +82,26 @@
 </head>
 <body class="page-monday">
 
-    <header class="topbar">
-        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
-        <nav>
-            <a href="../">All series</a>
-            <a href="../wednesday-code-autopsy/">Wednesday</a>
-            <a href="../friday-shipped-scarred/">Friday</a>
-            <a href="../story_en.html">The Story</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero">
         <span class="day-badge day-monday">Every Monday</span>
@@ -108,78 +120,14 @@
     <main class="wrap">
         <div class="series-layout">
             <div class="series-main">
-                <div class="section-label">Episodes - start at #1</div>
+                <div class="section-label">Episodes — newest first</div>
             <article class="post-list-card">
                 <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#1</span><span>2026-03-30</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>Timestamp Everything + a 100-Process Library</h3>
-                    <p>When hck_GPT says "Chrome ate 6 GB three hours ago" - which three hours? Week one: timestamp every event and build a 100-process library so hovering any name explains it.</p>
+                    <div class="plc-meta"><span class="plc-num">#11</span><span>2026-06-08</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Certifying in AI Through the Company Whose API I Avoided</h3>
+                    <p>Five weeks of Google's Skills of Tomorrow 3.0, final exam today. I built hck_GPT offline — 102 intents, 9-layer routing, no API. This week: Maximized View Mode across every page + roadmap to v1.9+.</p>
                 </div>
-                <a class="fade-banner" href="01-process-library-and-timestamps/">Read the full story &mdash; #1 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#2</span><span>2026-04-06</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>Three Roadmap Issues, Week One at a New Job</h3>
-                    <p>Three issues from the road to v1.7.8: missing tests and packaging, a dashboard button redesign, and an hck_GPT cleanup - planned around 9-hour Zabka shifts.</p>
-                </div>
-                <a class="fade-banner" href="02-three-roadmap-issues/">Read the full story &mdash; #2 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#3</span><span>2026-04-13</span><span>&middot;</span><span>5 min read</span></div>
-                    <h3>Four Things Shipped Before Lunch</h3>
-                    <p>6 AM, couldn't sleep. By 11 AM, four things shipped that weren't even on the list: First Setup & Drivers, Quick Actions, timestamps everywhere, tooltips. Then the real plan.</p>
-                </div>
-                <a class="fade-banner" href="03-shipped-before-lunch/">Read the full story &mdash; #3 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#4</span><span>2026-04-20</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>A RAM Optimizer at Midnight, Alarm at 4:30</h3>
-                    <p>23:50. Alarm at 4:30. Instead of sleeping: custom fonts across the app, auto RAM flush above 75% (first real TURBO feature), and a redesigned Optimization Center.</p>
-                </div>
-                <a class="fade-banner" href="04-ram-optimizer-and-fonts/">Read the full story &mdash; #4 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#5</span><span>2026-04-27</span><span>&middot;</span><span>5 min read</span></div>
-                    <h3>Most Developers Never Ship an .exe</h3>
-                    <p>Most developers never ship an .exe. Today: the second one ever (v1.7.2) - download, double-click, run 800+ hours of work without Python. This week: Startup Manager and Services Manager.</p>
-                </div>
-                <a class="fade-banner" href="05-most-devs-never-ship-an-exe/">Read the full story &mdash; #5 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#6</span><span>2026-05-04</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>Starting Google's AI Cert, Expanding hck_GPT</h3>
-                    <p>First structured tech education since 2023 starts today. The plan: turn your questions into hck_GPT intents, build a HWMonitor-style DeepMonitor table with persistence, and finally wire GuideAI's payment gateway.</p>
-                </div>
-                <a class="fade-banner" href="06-google-ai-cert-and-intent-expansion/">Read the full story &mdash; #6 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#7</span><span>2026-05-11</span><span>&middot;</span><span>5 min read</span></div>
-                    <h3>Teaching the AI to Spot Fake Windows Processes</h3>
-                    <p>The TURBO suite goes live: stop non-essential services (3 profiles), suspend idle processes, auto power-plan switching. On the horizon: an offline mini anti-virus that flags svch0st.exe pretending to be svchost.exe.</p>
-                </div>
-                <a class="fade-banner" href="07-turbo-suite-and-fake-process-detection/">Read the full story &mdash; #7 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#8</span><span>2026-05-18</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>I Built Polish Software in English for 10 Months</h3>
-                    <p>hck_GPT already speaks Polish (854 lines of bilingual vocabulary) - but the rest of the app was English-only. This week: real Polish localization, written by someone who thinks in Polish, plus a final Settings polish.</p>
-                </div>
-                <a class="fade-banner" href="08-full-polish-localization/">Read the full story &mdash; #8 &rarr;</a>
-            </article>
-            <article class="post-list-card">
-                <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#9</span><span>2026-05-25</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>Building What 28 Real People Asked For</h3>
-                    <p>I asked what you'd ask an AI inside your system monitor. 28 answers came back (13 GitHub, 15 LinkedIn DMs). This week every single one becomes real code in hck_GPT.</p>
-                </div>
-                <a class="fade-banner" href="09-building-what-28-people-asked-for/">Read the full story &mdash; #9 &rarr;</a>
+                <a class="fade-banner" href="11-google-ai-cert-exam-maximized-mode/">Read the full story &mdash; #11 &rarr;</a>
             </article>
             <article class="post-list-card">
                 <div class="plc-body">
@@ -191,11 +139,75 @@
             </article>
             <article class="post-list-card">
                 <div class="plc-body">
-                    <div class="plc-meta"><span class="plc-num">#11</span><span>2026-06-08</span><span>&middot;</span><span>4 min read</span></div>
-                    <h3>Certifying in AI Through the Company Whose API I Avoided</h3>
-                    <p>Five weeks of Google's Skills of Tomorrow 3.0, final exam today. I built hck_GPT offline — 102 intents, 9-layer routing, no API. This week: Maximized View Mode across every page + roadmap to v1.9+.</p>
+                    <div class="plc-meta"><span class="plc-num">#9</span><span>2026-05-25</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Building What 28 Real People Asked For</h3>
+                    <p>I asked what you'd ask an AI inside your system monitor. 28 answers came back (13 GitHub, 15 LinkedIn DMs). This week every single one becomes real code in hck_GPT.</p>
                 </div>
-                <a class="fade-banner" href="11-google-ai-cert-exam-maximized-mode/">Read the full story &mdash; #11 &rarr;</a>
+                <a class="fade-banner" href="09-building-what-28-people-asked-for/">Read the full story &mdash; #9 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#8</span><span>2026-05-18</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>I Built Polish Software in English for 10 Months</h3>
+                    <p>hck_GPT already speaks Polish (854 lines of bilingual vocabulary) - but the rest of the app was English-only. This week: real Polish localization, written by someone who thinks in Polish, plus a final Settings polish.</p>
+                </div>
+                <a class="fade-banner" href="08-full-polish-localization/">Read the full story &mdash; #8 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#7</span><span>2026-05-11</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Teaching the AI to Spot Fake Windows Processes</h3>
+                    <p>The TURBO suite goes live: stop non-essential services (3 profiles), suspend idle processes, auto power-plan switching. On the horizon: an offline mini anti-virus that flags svch0st.exe pretending to be svchost.exe.</p>
+                </div>
+                <a class="fade-banner" href="07-turbo-suite-and-fake-process-detection/">Read the full story &mdash; #7 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#6</span><span>2026-05-04</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Starting Google's AI Cert, Expanding hck_GPT</h3>
+                    <p>First structured tech education since 2023 starts today. The plan: turn your questions into hck_GPT intents, build a HWMonitor-style DeepMonitor table with persistence, and finally wire GuideAI's payment gateway.</p>
+                </div>
+                <a class="fade-banner" href="06-google-ai-cert-and-intent-expansion/">Read the full story &mdash; #6 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#5</span><span>2026-04-27</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Most Developers Never Ship an .exe</h3>
+                    <p>Most developers never ship an .exe. Today: the second one ever (v1.7.2) - download, double-click, run 800+ hours of work without Python. This week: Startup Manager and Services Manager.</p>
+                </div>
+                <a class="fade-banner" href="05-most-devs-never-ship-an-exe/">Read the full story &mdash; #5 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#4</span><span>2026-04-20</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>A RAM Optimizer at Midnight, Alarm at 4:30</h3>
+                    <p>23:50. Alarm at 4:30. Instead of sleeping: custom fonts across the app, auto RAM flush above 75% (first real TURBO feature), and a redesigned Optimization Center.</p>
+                </div>
+                <a class="fade-banner" href="04-ram-optimizer-and-fonts/">Read the full story &mdash; #4 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#3</span><span>2026-04-13</span><span>&middot;</span><span>5 min read</span></div>
+                    <h3>Four Things Shipped Before Lunch</h3>
+                    <p>6 AM, couldn't sleep. By 11 AM, four things shipped that weren't even on the list: First Setup & Drivers, Quick Actions, timestamps everywhere, tooltips. Then the real plan.</p>
+                </div>
+                <a class="fade-banner" href="03-shipped-before-lunch/">Read the full story &mdash; #3 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#2</span><span>2026-04-06</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Three Roadmap Issues, Week One at a New Job</h3>
+                    <p>Three issues from the road to v1.7.8: missing tests and packaging, a dashboard button redesign, and an hck_GPT cleanup - planned around 9-hour Zabka shifts.</p>
+                </div>
+                <a class="fade-banner" href="02-three-roadmap-issues/">Read the full story &mdash; #2 &rarr;</a>
+            </article>
+            <article class="post-list-card">
+                <div class="plc-body">
+                    <div class="plc-meta"><span class="plc-num">#1</span><span>2026-03-30</span><span>&middot;</span><span>4 min read</span></div>
+                    <h3>Timestamp Everything + a 100-Process Library</h3>
+                    <p>When hck_GPT says "Chrome ate 6 GB three hours ago" - which three hours? Week one: timestamp every event and build a 100-process library so hovering any name explains it.</p>
+                </div>
+                <a class="fade-banner" href="01-process-library-and-timestamps/">Read the full story &mdash; #1 &rarr;</a>
             </article>
                 <p style="font-size:.8rem;color:#6b6b6b;margin-top:.4rem;">Newer editions premiere on <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener">LinkedIn</a> first and land here over time.</p>
             </div>
@@ -229,5 +241,6 @@
         <p>© 2026 HCK_Labs · <a href="../">Blog</a> · <a href="../../index_en.html">PC Workman</a> · <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">GitHub</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>
