@@ -48,6 +48,9 @@ hiddenimports = [
     'core.process_data_manager',
     'core.hardware_sensors',
     'core.hardware_detector',
+    'core.fps_monitor',
+    'core.network',
+    'core.telemetry',
     'core.hibernation_manager',
     'core.process_definitions',
     # ── Stats Engine ──────────────────────────────────────────────────────────
@@ -96,7 +99,6 @@ hiddenimports = [
     'ui.dialogs',
     'ui.splash_screen',
     'ui.system_tray',
-    'ui.overlay_widget',
     'ui.overlay_mini_monitor',
     'ui.windows',
     'ui.windows.main_window',
@@ -105,7 +107,6 @@ hiddenimports = [
     'ui.components',
     'ui.components.led_bars',
     'ui.components.charts',
-    'ui.components.expandable_list',
     'ui.components.process_tooltip',
     'ui.components.sensor_tree',
     'ui.components.sensor_kb',
@@ -118,6 +119,7 @@ hiddenimports = [
     'ui.components.sidebar_nav',
     'ui.components.yourpc_page',
     'ui.components.system_toast',
+    'ui.components.ingame_overlay',
     # ── UI — pages ────────────────────────────────────────────────────────────
     'ui.pages',
     'ui.pages.page_all_stats',
@@ -136,7 +138,6 @@ hiddenimports = [
     'utils.fonts',
     'utils.i18n',
     'utils.paths',
-    'utils.ollama_helper',
     # ── hck_gpt.data (DeepMonitor metrics) ───────────────────────────────────
     'hck_gpt.data',
     'hck_gpt.data.metrics_store',
@@ -183,7 +184,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=True,   # Shows diagnostic console — hides itself on successful launch
-    icon=os.path.join(project_root, 'data', 'icons', 'HCKintro.png'),
+    icon=os.path.join(project_root, 'data', 'icons', 'PCWorkman.ico'),
 )
 
 coll = COLLECT(
@@ -193,5 +194,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=False,
-    name='PC_Workman_HCK_1.7.7',
+    name='PC_Workman_HCK_1.8.0',
 )
