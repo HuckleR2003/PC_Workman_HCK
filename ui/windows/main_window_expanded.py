@@ -166,10 +166,23 @@ class ExpandedMainWindow:
         # Create root window
         self.root = tk.Tk()
         _uis.init(self.root)  # detect screen size → set SCALE
-        self.root.title("PC Workman HCK  v1.7.9")
+        self.root.title("PC Workman HCK  v1.8.0")
         self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
+
+        # Window / taskbar icon — new HCK brand icon (BUNDLE_DIR-aware for frozen EXE)
+        try:
+            from utils.paths import BUNDLE_DIR as _BUNDLE_DIR
+            _win_ico_path = os.path.join(_BUNDLE_DIR, "data", "icons", "app_icon.png")
+        except Exception:
+            _win_ico_path = os.path.join("data", "icons", "app_icon.png")
+        try:
+            if Image and ImageTk and os.path.exists(_win_ico_path):
+                self._win_icon = ImageTk.PhotoImage(Image.open(_win_ico_path))
+                self.root.iconphoto(True, self._win_icon)
+        except Exception:
+            pass
 
         # Load navigation icons (AFTER root window creation)
         self.nav_icons = {}
