@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
     <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
 
     <script type="application/ld+json">
@@ -63,15 +64,26 @@
 </head>
 <body class="page-friday">
 
-    <header class="topbar">
-        <a class="brand" href="../../../index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
-        <nav>
-            <a href="../">Friday Shipped & Scarred</a>
-            <a href="../../">All series</a>
-            <a href="../../../download/">Download</a>
-            <a href="../../../guides/">Guides</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero">
         <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #4</span>
@@ -137,5 +149,6 @@
         <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>
