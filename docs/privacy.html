@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pcworkman.dev/privacy.html">
+    <meta property="og:url" content="https://pcworkman.dev/privacy.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PC Workman — Polityka Prywatności">
+    <meta property="og:description" content="Wszystko lokalnie, bez konta, bez chmury. Jedyne co może opuścić komputer to opcjonalna anonimowa migawka sprzętu do testów kompatybilności — tu masz dokładnie co zawiera i jak ją wyłączyć.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="description" content="Polityka Prywatności PC Workman — monitor systemu działający lokalnie. Jedyne dane, które mogą opuścić urządzenie, to opcjonalna anonimowa migawka sprzętu używana do testów kompatybilności. Zobacz dokładny payload i jak go wyłączyć.">
+    <meta name="author" content="Marcin Firmuga, HCK_Labs">
+    <title>Polityka Prywatności — PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .article { padding-top: 1.2rem; padding-bottom: 1rem; }
+        .article .kicker {
+            font-family: var(--font-mono); font-size: .7rem; font-weight: 700;
+            letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-top: 1.4rem;
+        }
+        .article h1 {
+            font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 800; letter-spacing: -.5px; margin: .35rem 0 .3rem;
+        }
+        .article .updated { font-family: var(--font-mono); font-size: .74rem; color: var(--text-dim); margin-bottom: 1.4rem; }
+        .article h2:first-of-type { margin-top: 1.6rem; }
+        .article .back { font-family: var(--font-mono); font-size: .74rem; color: var(--text-secondary); display: inline-block; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ prywatność</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" class="active" data-lang="pl" onclick="localStorage.setItem('pcw_lang','pl')">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" data-lang="en" onclick="localStorage.setItem('pcw_lang','en')">EN</a>
+        </span>
+    </nav>
+
+    <main class="article">
+        <p class="kicker">Polityka Prywatności</p>
+        <h1>Polityka Prywatności</h1>
+        <p class="updated">Ostatnia aktualizacja: 26 czerwca 2026 — dotyczy PC Workman v1.8.0 i nowszych</p>
+
+        <p class="lead">PC Workman to monitor systemu Windows działający lokalnie. Niemal wszystko, co robi — odczyt czujników, uczenie się normalnego zachowania Twojego sprzętu, asystent hck_GPT, cała historia — dzieje się na Twojej maszynie i nigdy jej nie opuszcza. Ten dokument to pełny opis jedynej rzeczy, która <em>może</em> opuścić urządzenie: czym jest, po co istnieje i jak ją wyłączyć.</p>
+
+        <h2>W skrócie</h2>
+        <ul>
+            <li>Dane monitoringu, asystent hck_GPT i Twoja historia zostają na Twoim PC. Bez konta, bez logowania, bez synchronizacji w chmurze.</li>
+            <li>Jedyne dane, które mogą zostać wysłane, to opcjonalna, anonimowa migawka sprzętu i użycia, służąca do naprawy niekompatybilności.</li>
+            <li>Zawiera losowy identyfikator i modele Twoich podzespołów — nigdy imię, pliki, adres IP ani to, co robisz.</li>
+            <li>Można ją wyłączyć w Ustawieniach. Z wyłączonym dostępem do sieci aplikacja nie wykonuje żadnych połączeń wychodzących.</li>
+        </ul>
+
+        <h2>Co zostaje na Twoim urządzeniu</h2>
+        <p>Nic z poniższych rzeczy nigdy nie jest wysyłane:</p>
+        <ul>
+            <li>Dane monitoringu — użycie CPU, GPU i RAM, temperatury, napięcia i obroty wentylatorów.</li>
+            <li>Lista procesów i wszystko, co PC Workman wie o Twoich uruchomionych programach.</li>
+            <li>Dane wyuczone — bazowe temperatury per obciążenie, historia anomalii napięć, statystyki długoterminowe.</li>
+            <li>hck_GPT — asystent działa w całości na Twojej maszynie; Twoje pytania i rozmowy nigdy nigdzie nie trafiają.</li>
+            <li>Twoje ustawienia i preferencje.</li>
+        </ul>
+        <p>Dane są przechowywane lokalnie — na przykład baza statystyk w <code>…/data/logs/hck_stats.db</code> — i należą wyłącznie do Ciebie.</p>
+
+        <h2>Dane, które mogą zostać wysłane</h2>
+        <p>Najwyżej raz na sesję PC Workman może wysłać jedną anonimową migawkę przez jedną bramkę sieciową. Poniższa tabela to cała zawartość; nic więcej nigdy nie jest przesyłane.</p>
+        <table>
+            <thead><tr><th>Pole</th><th>Co to jest</th><th>Przykład</th></tr></thead>
+            <tbody>
+                <tr><td>install_id</td><td>Losowy identyfikator tworzony raz na Twojej maszynie. Niepowiązany z Tobą, imieniem ani żadnym kontem.</td><td>a1b2c3…</td></tr>
+                <tr><td>app_version</td><td>Której wersji PC Workman używasz.</td><td>1.8.0</td></tr>
+                <tr><td>os</td><td>Twoja wersja i build Windowsa.</td><td>Windows 10 (build 19045)</td></tr>
+                <tr><td>country</td><td>Dwuliterowy region odczytany z ustawienia języka Windows — nigdy z adresu IP.</td><td>PL</td></tr>
+                <tr><td>cpu, cpu_cores</td><td>Model procesora i liczba rdzeni fizycznych.</td><td>Intel Core i7-4710HQ, 4</td></tr>
+                <tr><td>gpu</td><td>Model karty graficznej.</td><td>NVIDIA GeForce RTX 3050</td></tr>
+                <tr><td>ram_gb, ram_mhz</td><td>Rozmiar i prędkość RAM.</td><td>16, 2667</td></tr>
+                <tr><td>motherboard</td><td>Producent i model płyty głównej.</td><td>ASUS PRIME B450M</td></tr>
+                <tr><td>disks</td><td>Do czterech dysków: model, rozmiar i typ (SSD/HDD).</td><td>—</td></tr>
+                <tr><td>session_min</td><td>Ile minut aplikacja była otwarta w tym uruchomieniu.</td><td>42</td></tr>
+            </tbody>
+        </table>
+        <p>Tę dokładną migawkę możesz przejrzeć, dosłownie, w Ustawieniach, zanim na cokolwiek się zgodzisz — w tym samym miejscu, które pozwala ją wyłączyć.</p>
+
+        <h2>Czego nigdy nie zbieramy</h2>
+        <p>Żeby było jednoznacznie, PC Workman nigdy nie zbiera, nie wysyła ani nie przechowuje:</p>
+        <ul>
+            <li>Twojego imienia, nazwy użytkownika ani nazwy komputera.</li>
+            <li>Twojego adresu e-mail ani żadnych danych kontaktowych.</li>
+            <li>Twojego adresu IP — nie jest logowany po stronie odbierającej.</li>
+            <li>Nazw plików, ścieżek ani zawartości plików.</li>
+            <li>Nazw procesów ani programów, które uruchamiasz.</li>
+            <li>Naciśnięć klawiszy, zawartości ekranu, schowka ani aktywności w przeglądarce.</li>
+        </ul>
+        <p>Nie ma żadnych sieci reklamowych, zewnętrznych analityk, pikseli śledzących ani odcisku poza polami modeli sprzętu wymienionymi powyżej.</p>
+
+        <h2>Po co te dane są zbierane</h2>
+        <p>PC Workman buduje jedna osoba. Wraz ze wzrostem liczby pobrań rośnie liczba zgłoszeń błędów i niekompatybilności na sprzęcie, którego deweloper nie posiada. Modele podzespołów w migawce wskazują, na jakich procesorach, kartach graficznych, pamięciach, płytach głównych i dyskach ludzie naprawdę uruchamiają PC Workman — od najstarszych maszyn po najnowsze — tak aby problemy można było odtworzyć i naprawić.</p>
+        <p>To jedyny cel. Dane nigdy nie są sprzedawane, udostępniane do reklam ani używane do budowania Twojego profilu.</p>
+
+        <h2>Gdzie są wysyłane</h2>
+        <p>Po wysłaniu migawka trafia do prywatnego Cloudflare Worker i magazynu, do którego dostęp ma wyłącznie deweloper (Marcin Firmuga, HCK_Labs). Nie jest udostępniana żadnej stronie trzeciej i służy jedynie do opisanego wyżej celu testów kompatybilności i naprawy błędów.</p>
+
+        <h2>Masz kontrolę</h2>
+        <div class="callout"><b>Wyłączenie.</b> Otwórz Ustawienia i wyłącz Dostęp do sieci. Z wyłączonym, PC Workman nie wykonuje żadnych połączeń wychodzących — można to niezależnie sprawdzić firewallem lub analizatorem pakietów, takim jak Wireshark.</div>
+        <p><b>Stan domyślny.</b> W v1.8.0 przełącznik sieci/telemetrii jest domyślnie włączony. Przy pierwszym otwarciu tej opcji wyjaśnia ona dokładnie, co jest wysyłane, i pozwala Ci zdecydować.</p>
+        <p><b>Reset losowego identyfikatora.</b> Usuń <code>settings/network.json</code>. Następnym razem powstanie nowy losowy identyfikator (albo żaden, jeśli telemetria pozostanie wyłączona).</p>
+        <p><b>Żądanie usunięcia.</b> Ponieważ dane są anonimowe, nie ma konta, po którym można by Cię zidentyfikować. Jeśli wyślesz deweloperowi swój <code>install_id</code>, powiązane z nim rekordy mogą zostać usunięte.</p>
+
+        <h2>Przechowywanie danych</h2>
+        <p>Migawki są przechowywane tylko tak długo, jak pozostają przydatne do analizy kompatybilności i błędów, i są używane zbiorczo (na przykład: ilu użytkowników ma daną kartę graficzną). Nigdy nie powstaje profil użytkownika, bo nie ma tożsamości, do której można by go przypiąć.</p>
+
+        <h2>Dzieci</h2>
+        <p>PC Workman to narzędzie dla deweloperów i entuzjastów i nie jest kierowane do dzieci poniżej 13. roku życia.</p>
+
+        <h2>Zmiany w tej polityce</h2>
+        <p>Jeśli ta polityka się zmieni, zaktualizowana wersja zostanie opublikowana tutaj z nową datą, a istotne zmiany zostaną także odnotowane w komunikacji projektu.</p>
+
+        <h2>Kontakt</h2>
+        <p>GitHub: <a href="https://github.com/HuckleR2003">@HuckleR2003</a> (załóż issue lub dyskusję).<br>
+        E-mail: firmuga.marcin.s@gmail.com</p>
+
+        <p>PC Workman jest oprogramowaniem open source na licencji MIT. Nie musisz brać tego na słowo — kod, który buduje i wysyła migawkę, jest w <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/telemetry.py">core/telemetry.py</a> i <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/network.py">core/network.py</a>.</p>
+
+        <a class="back" href="index.html">← Wróć do PC Workman</a>
+    </main>
+
+    <footer class="foot">
+        PC Workman · tworzone build-in-public przez <a href="https://github.com/HuckleR2003">Marcina Firmugę</a> · MIT · <a href="SECURITY_report.html">Bezpieczeństwo</a>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pcworkman.dev/privacy_en.html">
+    <meta property="og:url" content="https://pcworkman.dev/privacy_en.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PC Workman — Privacy Policy">
+    <meta property="og:description" content="Local-first, no account, no cloud. The only thing that can leave your PC is an optional anonymous hardware snapshot for compatibility testing — here is exactly what it contains and how to turn it off.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="description" content="PC Workman Privacy Policy — local-first system monitor. The only data that can leave your device is an optional, anonymous hardware snapshot used for compatibility testing. See the exact payload and how to disable it.">
+    <meta name="author" content="Marcin Firmuga, HCK_Labs">
+    <title>Privacy Policy — PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .article { padding-top: 1.2rem; padding-bottom: 1rem; }
+        .article .kicker {
+            font-family: var(--font-mono); font-size: .7rem; font-weight: 700;
+            letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-top: 1.4rem;
+        }
+        .article h1 {
+            font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 800; letter-spacing: -.5px; margin: .35rem 0 .3rem;
+        }
+        .article .updated { font-family: var(--font-mono); font-size: .74rem; color: var(--text-dim); margin-bottom: 1.4rem; }
+        .article h2:first-of-type { margin-top: 1.6rem; }
+        .article .back { font-family: var(--font-mono); font-size: .74rem; color: var(--text-secondary); display: inline-block; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ privacy</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl" onclick="localStorage.setItem('pcw_lang','pl')">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en" onclick="localStorage.setItem('pcw_lang','en')">EN</a>
+        </span>
+    </nav>
+
+    <main class="article">
+        <p class="kicker">Privacy Policy</p>
+        <h1>Privacy Policy</h1>
+        <p class="updated">Last updated 26 June 2026 — applies to PC Workman v1.8.0 and later</p>
+
+        <p class="lead">PC Workman is a local-first Windows system monitor. Almost everything it does — reading your sensors, learning your hardware's normal behaviour, the hck_GPT assistant, your entire history — happens on your own machine and never leaves it. This document is the complete account of the one thing that <em>can</em> leave your device: what it is, why it exists, and how to turn it off.</p>
+
+        <h2>Summary</h2>
+        <ul>
+            <li>Your monitoring data, the hck_GPT assistant and your history stay on your PC. There is no account, no login, no cloud sync.</li>
+            <li>The only data that can be sent is an optional, anonymous hardware and usage snapshot, used to fix incompatibilities.</li>
+            <li>It contains a random ID and your component models — never your name, your files, your IP address, or anything you do.</li>
+            <li>It can be switched off in Settings. With Network Access off, the application makes zero outbound connections.</li>
+        </ul>
+
+        <h2>What stays on your device</h2>
+        <p>None of the following is ever uploaded:</p>
+        <ul>
+            <li>System metrics — CPU, GPU and RAM usage, temperatures, voltages and fan speeds.</li>
+            <li>The process list and everything PC Workman knows about your running programs.</li>
+            <li>Learned data — thermal baselines per workload, voltage anomaly history, long-term statistics.</li>
+            <li>hck_GPT — the assistant runs entirely on your machine; your questions and conversations are never sent anywhere.</li>
+            <li>Your settings and preferences.</li>
+        </ul>
+        <p>This data is stored locally — for example, the statistics database at <code>…/data/logs/hck_stats.db</code> — and is yours alone.</p>
+
+        <h2>The data that can be sent</h2>
+        <p>At most once per session, PC Workman can send a single anonymous snapshot through one network gate. The table below is the entire payload; nothing else is ever transmitted.</p>
+        <table>
+            <thead><tr><th>Field</th><th>What it is</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>install_id</td><td>A random identifier generated once on your machine. Not linked to you, your name, or any account.</td><td>a1b2c3…</td></tr>
+                <tr><td>app_version</td><td>Which version of PC Workman you run.</td><td>1.8.0</td></tr>
+                <tr><td>os</td><td>Your Windows version and build.</td><td>Windows 10 (build 19045)</td></tr>
+                <tr><td>country</td><td>A two-letter region read from your Windows language setting — never from your IP address.</td><td>PL</td></tr>
+                <tr><td>cpu, cpu_cores</td><td>Your processor model and physical core count.</td><td>Intel Core i7-4710HQ, 4</td></tr>
+                <tr><td>gpu</td><td>Your graphics card model.</td><td>NVIDIA GeForce RTX 3050</td></tr>
+                <tr><td>ram_gb, ram_mhz</td><td>RAM size and speed.</td><td>16, 2667</td></tr>
+                <tr><td>motherboard</td><td>Motherboard manufacturer and model.</td><td>ASUS PRIME B450M</td></tr>
+                <tr><td>disks</td><td>Up to four drives: model, size and type (SSD/HDD).</td><td>—</td></tr>
+                <tr><td>session_min</td><td>How many minutes the application was open during this run.</td><td>42</td></tr>
+            </tbody>
+        </table>
+        <p>You can review this exact snapshot, verbatim, in Settings before you agree to anything — the same control that lets you turn it off.</p>
+
+        <h2>What is never collected</h2>
+        <p>To be unambiguous, PC Workman never collects, sends or stores:</p>
+        <ul>
+            <li>Your name, username or computer name.</li>
+            <li>Your email address or any contact details.</li>
+            <li>Your IP address — it is not logged on the receiving end.</li>
+            <li>File names, file paths or file contents.</li>
+            <li>The names of the processes or programs you run.</li>
+            <li>Keystrokes, screen contents, clipboard, or browsing activity.</li>
+        </ul>
+        <p>There are no advertising networks, no third-party analytics, no tracking pixels, and no fingerprinting beyond the hardware-model fields listed above.</p>
+
+        <h2>Why this data is collected</h2>
+        <p>PC Workman is built by one person. As the number of downloads grows, so does the number of bug reports and incompatibilities on hardware the developer does not own. The component models in the snapshot indicate which processors, graphics cards, memory, motherboards and drives people actually run PC Workman on — from the oldest machines to the newest — so that problems can be reproduced and fixed.</p>
+        <p>That is the only purpose. The data is never sold, never shared for advertising, and never used to build a profile of you.</p>
+
+        <h2>Where it is sent</h2>
+        <p>When sent, the snapshot is delivered to a private Cloudflare Worker and storage that only the developer (Marcin Firmuga, HCK_Labs) can access. It is not shared with any third party, and it is used solely for the compatibility and bug-fixing purpose described above.</p>
+
+        <h2>Your control</h2>
+        <div class="callout"><b>Turning it off.</b> Open Settings and switch Network Access off. With it off, PC Workman makes zero outbound connections — this can be verified independently with a firewall or a packet analyser such as Wireshark.</div>
+        <p><b>Default state.</b> In v1.8.0 the network/telemetry switch is on by default. The first time you open the control, it explains exactly what is sent and lets you decide.</p>
+        <p><b>Resetting your random ID.</b> Delete <code>settings/network.json</code>. A fresh random identifier is generated the next time (or none at all, if telemetry remains off).</p>
+        <p><b>Deletion requests.</b> Because the data is anonymous, there is no account to identify you by. If you send the developer your <code>install_id</code>, the records tied to it can be deleted.</p>
+
+        <h2>Data retention</h2>
+        <p>Snapshots are kept only as long as they remain useful for compatibility and bug analysis, and are used in aggregate (for example, how many users run a given graphics card). No per-user profile is ever built, because there is no identity to attach one to.</p>
+
+        <h2>Children</h2>
+        <p>PC Workman is a developer and enthusiast tool and is not directed at children under 13.</p>
+
+        <h2>Changes to this policy</h2>
+        <p>If this policy changes, the updated version will be published here with a new date, and material changes will also be noted in project communications.</p>
+
+        <h2>Contact</h2>
+        <p>GitHub: <a href="https://github.com/HuckleR2003">@HuckleR2003</a> (open an issue or discussion).<br>
+        Email: firmuga.marcin.s@gmail.com</p>
+
+        <p>PC Workman is open source under the MIT licence. You do not have to take any of this on trust — the code that builds and sends the snapshot is in <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/telemetry.py">core/telemetry.py</a> and <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/network.py">core/network.py</a>.</p>
+
+        <a class="back" href="index_en.html">← Back to PC Workman</a>
+    </main>
+
+    <footer class="foot">
+        PC Workman · built in public by <a href="https://github.com/HuckleR2003">Marcin Firmuga</a> · MIT · <a href="SECURITY_report.html">Security</a>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
