@@ -58,7 +58,7 @@ class SplashScreen:
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
         # Dark background
-        self.root.configure(bg="#0a0e27")
+        self.root.configure(bg="#000000")
 
         # Start with alpha = 0 (fully transparent)
         self.root.attributes('-alpha', 0.0)
@@ -79,7 +79,7 @@ class SplashScreen:
 
     def _load_logo(self):
         """Load HCK_Labs logo"""
-        logo_path = os.path.join("data", "icons", "HCKintro.png")
+        logo_path = os.path.join("data", "icons", "app_icon.png")
 
         if not os.path.exists(logo_path):
             # Fallback: display text if logo not found
@@ -87,7 +87,7 @@ class SplashScreen:
                 self.root,
                 text="HCK_Labs",
                 font=(_BODY, 48, "bold"),
-                bg="#0a0e27",
+                bg="#000000",
                 fg="#8b5cf6"
             ).pack(expand=True)
             return
@@ -106,7 +106,7 @@ class SplashScreen:
                 tk.Label(
                     self.root,
                     image=self.logo_image,
-                    bg="#0a0e27"
+                    bg="#000000"
                 ).pack(expand=True)
             else:
                 # Fallback to PhotoImage
@@ -114,7 +114,7 @@ class SplashScreen:
                 tk.Label(
                     self.root,
                     image=self.logo_image,
-                    bg="#0a0e27"
+                    bg="#000000"
                 ).pack(expand=True)
 
         except Exception as e:
@@ -124,7 +124,7 @@ class SplashScreen:
                 self.root,
                 text="HCK_Labs",
                 font=(_BODY, 48, "bold"),
-                bg="#0a0e27",
+                bg="#000000",
                 fg="#8b5cf6"
             ).pack(expand=True)
 
