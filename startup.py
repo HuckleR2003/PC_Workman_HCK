@@ -27,6 +27,21 @@ import os
 import ctypes
 from typing import Optional, Any
 
+# ── High-DPI awareness — MUST run before any tk.Tk() is created ────────────────
+# Without this, Windows bitmap-stretches the whole UI on displays scaled above
+# 100% (125% / 150% — standard on laptops), making every label blurry and hard
+# to read. Per-Monitor-Aware-V2 gives crisp native rendering; the app then sees
+# the REAL screen resolution, so utils.ui_scale picks the correct SCALE tier
+# instead of a stretched-down one. This is THE fix for "blurry / unreadable text".
+if sys.platform == "win32":
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)   # PER_MONITOR_AWARE_V2
+    except Exception:
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()    # legacy fallback (Win 7/8)
+        except Exception:
+            pass
+
 print("[+] Python environment ready")
 print("[~] Loading core systems...")
 
@@ -236,10 +251,13 @@ def run_demo():
                     except:
                         pass
                 if self.minimal_window is None:
+                    # Pass the Expanded root as master so Minimal is a Toplevel of
+                    # the single app root — never a second tk.Tk() (that crashed
+                    # Expanded <-> Minimal switching).
                     self.minimal_window = main_window_module.MainWindow(
-                        switch_to_expanded_callback=self.switch_to_expanded
+                        switch_to_expanded_callback=self.switch_to_expanded,
+                        master=(self.expanded_window.root if self.expanded_window else None),
                     )
-                    self.current_mode = "minimal"
                 else:
                     try:
                         self.minimal_window.root.deiconify()
@@ -251,8 +269,9 @@ def run_demo():
                                 target=self.minimal_window._tray_update_loop, daemon=True
                             )
                             self.minimal_window._tray_thread.start()
-                    except:
-                        pass
+                    except Exception as e:
+                        log(f"switch_to_minimal re-show failed: {e}", "WARN")
+                self.current_mode = "minimal"
 
             def switch_to_expanded(self):
                 if self.minimal_window:
@@ -347,9 +366,9 @@ def run_demo():
                 def _telemetry_once():
                     try:
                         import time as _time
-                        _time.sleep(60)
+                        _time.sleep(2)   # let network init settle; send right after
                         from core.telemetry import send as _tsend
-                        _tsend(APP_VERSION)
+                        _tsend(APP_VERSION)   # ensure_data() scans HW inside send()
                     except Exception:
                         pass
 
