@@ -58,7 +58,7 @@ PANEL2  = "#10151e"
 BORDER  = "#1a2030"
 TEXT    = "#e2e8f0"
 MUTED   = "#6b7280"
-DIM     = "#374151"
+DIM     = "#74839a"   # readable dim (was #374151 — barely visible on dark)
 
 TEMP_C  = "#f59e0b"    # amber  - temperature
 LOAD_C  = "#3b82f6"    # blue   - CPU load
@@ -260,7 +260,7 @@ def _draw_health_rings(canvas, size, thermal, memory, load):
     canvas.create_text(cx, cy - 4, text=str(avg_score),
                        font=(_MONO, 14, "bold"), fill=s_col)
     canvas.create_text(cx, cy + 10, text="SCORE",
-                       font=(_MONO, 5), fill=DIM)
+                       font=(_MONO, 7), fill=DIM)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -287,7 +287,7 @@ def _build_session_overview(parent):
         tk.Frame(card, bg=col, height=2).pack(fill="x")
         body = tk.Frame(card, bg=PANEL)
         body.pack(fill="x", padx=8, pady=6)
-        tk.Label(body, text=title, font=(_MONO, 6, "bold"),
+        tk.Label(body, text=title, font=(_MONO, 7, "bold"),
                  bg=PANEL, fg=DIM).pack(anchor="w")
         lbl = tk.Label(body, text=val, font=(_MONO, 13, "bold"),
                        bg=PANEL, fg=col)
@@ -444,9 +444,9 @@ def _build_load_section(parent):
         legend = tk.Frame(chart_frame, bg="#050809")
         legend.pack(fill="x", padx=4, pady=(0, 3))
         for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
-            tk.Label(legend, text="●", font=(_MONO, 6),
+            tk.Label(legend, text="●", font=(_MONO, 7),
                      bg="#050809", fg=col).pack(side="left", padx=(0, 1))
-            tk.Label(legend, text=name, font=(_MONO, 6),
+            tk.Label(legend, text=name, font=(_MONO, 7),
                      bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
 
         tl_cv = tk.Canvas(chart_frame, bg="#03050a", height=22, highlightthickness=0)
@@ -458,9 +458,9 @@ def _build_load_section(parent):
         leg = tk.Frame(chart_frame, bg="#050809")
         leg.pack(fill="x", padx=4, pady=(0, 2))
         for name, col in [("CPU", LOAD_C), ("RAM", RAM_C), ("GPU", GPU_C)]:
-            tk.Label(leg, text="●", font=(_MONO, 6),
+            tk.Label(leg, text="●", font=(_MONO, 7),
                      bg="#050809", fg=col).pack(side="left", padx=(0, 1))
-            tk.Label(leg, text=name, font=(_MONO, 6),
+            tk.Label(leg, text=name, font=(_MONO, 7),
                      bg="#050809", fg=MUTED).pack(side="left", padx=(0, 8))
 
     stats_f = tk.Frame(content, bg=PANEL2, width=165)
@@ -644,9 +644,9 @@ def _lc_thermal(parent):
             cv.create_rectangle(0, 2, fw, 7, fill=fg_c, outline="")
         detail = (f"{info.get('p5', 0):.0f}–{info.get('p95', 0):.0f}°C"
                   if n >= 20 else f"{n} smp")
-        tk.Label(row, text=detail, font=(_MONO, 6), bg=PANEL, fg=MUTED,
+        tk.Label(row, text=detail, font=(_MONO, 7), bg=PANEL, fg=MUTED,
                  width=9, anchor="w").pack(side="left")
-        tk.Label(row, text=level, font=(_MONO, 6), bg=PANEL, fg=fg_c,
+        tk.Label(row, text=level, font=(_MONO, 7), bg=PANEL, fg=fg_c,
                  anchor="w").pack(side="left")
 
 
@@ -673,13 +673,13 @@ def _lc_voltage(parent):
                      fg=scol).pack(side="left", padx=(0, 4))
             tk.Label(row, text=f"{rs.median:.3f}V", font=(_MONO, 7, "bold"),
                      bg=PANEL, fg=VOLT_C).pack(side="left")
-            tk.Label(row, text=f"  ±{half:.3f}", font=(_MONO, 6),
+            tk.Label(row, text=f"  ±{half:.3f}", font=(_MONO, 7),
                      bg=PANEL, fg=MUTED).pack(side="left")
         else:
-            tk.Label(row, text="learning…", font=(_MONO, 6),
+            tk.Label(row, text="learning…", font=(_MONO, 7),
                      bg=PANEL, fg=DIM).pack(side="left", padx=(0, 4))
     tk.Label(parent, text=f"{_volt_az.snapshot_count():,} snapshots learned",
-             font=(_MONO, 6), bg=PANEL, fg=DIM).pack(anchor="w", pady=(2, 0))
+             font=(_MONO, 7), bg=PANEL, fg=DIM).pack(anchor="w", pady=(2, 0))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -725,7 +725,7 @@ def _build_voltage_section(parent):
             last_str = _volt_az.last_update_str()
             tk.Label(hdr_body,
                      text=f"rebuilt {last_str}",
-                     font=(_MONO, 6), bg="#0a0f1a", fg=DIM
+                     font=(_MONO, 7), bg="#0a0f1a", fg=DIM
                      ).pack(side="right", padx=(0, 10))
 
     # ── Content ───────────────────────────────────────────────────────────────
@@ -813,7 +813,7 @@ def _build_voltage_rail_columns(section, parent):
                  bg=PANEL2, fg=col).pack(side="left")
         tk.Label(rail_hdr,
                  text=f"nom. {meta['nominal']:.1f}V",
-                 font=(_MONO, 6), bg=PANEL2, fg=DIM).pack(side="right")
+                 font=(_MONO, 7), bg=PANEL2, fg=DIM).pack(side="right")
 
         # Chart canvas
         cv = tk.Canvas(col_frame, bg="#030508",
@@ -952,7 +952,7 @@ def _draw_voltage_chart(canvas, timeline, rail_key, stats, height=90):
         canvas.create_line(PL, yt, w - PR, yt, fill="#0d1217", width=1)
         canvas.create_text(PL - 3, yt,
                            text=f"{tick_v:.2f}",
-                           fill=DIM, font=(_MONO, 5), anchor="e")
+                           fill=DIM, font=(_MONO, 7), anchor="e")
 
     # ── 6. Voltage line ───────────────────────────────────────────────────────
     meta = _VOLT_RAILS.get(rail_key, {})
@@ -989,7 +989,7 @@ def _draw_voltage_chart(canvas, timeline, rail_key, stats, height=90):
             tx   = PL + frac * cw
             canvas.create_text(tx, h - 4,
                                 text=datetime.fromtimestamp(ts_v).strftime("%H:%M"),
-                                fill=DIM, font=(_MONO, 5),
+                                fill=DIM, font=(_MONO, 7),
                                 anchor=("w" if frac == 0 else
                                         "e" if frac == 1.0 else "center"))
 
@@ -1161,11 +1161,11 @@ def _build_anomaly_calendar(parent):
     # Legend
     legend = tk.Frame(body, bg=PANEL)
     legend.pack(fill="x", pady=(6, 0))
-    tk.Label(legend, text="Clean", font=(_MONO, 6), bg=PANEL, fg=DIM).pack(side="left", padx=(0, 6))
+    tk.Label(legend, text="Clean", font=(_MONO, 7), bg=PANEL, fg=DIM).pack(side="left", padx=(0, 6))
     for col, txt in [("#4ade80", "Mild"), ("#f59e0b", "Moderate"), ("#ef4444", "Heavy")]:
         dot = tk.Frame(legend, bg=col, width=8, height=8)
         dot.pack(side="left", padx=(0, 2))
-        tk.Label(legend, text=txt, font=(_MONO, 6),
+        tk.Label(legend, text=txt, font=(_MONO, 7),
                  bg=PANEL, fg=col).pack(side="left", padx=(0, 8))
 
 
@@ -1228,7 +1228,7 @@ def _render_event_row(parent, evt: dict):
     time_f.pack(side="left", padx=(6, 0))
     tk.Label(time_f, text=time_str, font=(_MONO, 8, "bold"),
              bg=PANEL2, fg=TEXT).pack(anchor="w")
-    tk.Label(time_f, text=day_str, font=(_MONO, 6),
+    tk.Label(time_f, text=day_str, font=(_MONO, 7),
              bg=PANEL2, fg=MUTED).pack(anchor="w")
 
     # Badge
@@ -1305,7 +1305,7 @@ def _draw_adaptive_chart(canvas, data, key, color, height=150,
         y = vy(v)
         canvas.create_line(PL, y, w - PR, y, fill="#111820", width=1)
         canvas.create_text(PL - 3, y, text=f"{v:.0f}",
-                           fill=DIM, font=(_MONO, 5), anchor="e")
+                           fill=DIM, font=(_MONO, 7), anchor="e")
 
     # ── Adaptive baseline band ────────────────────────────────────────────────
     band_pts = ([PL, vy(base_lo)] +
@@ -1385,7 +1385,7 @@ def _draw_adaptive_chart(canvas, data, key, color, height=150,
                                  tip_x + len(tip) * 5 + 8, tip_y + 14,
                                  fill="#1e293b", outline="#334155", tags="hover_tip")
         canvas.create_text(tip_x + 4, tip_y + 6, text=tip,
-                           fill="#ffffff", font=(_MONO, 6),
+                           fill="#ffffff", font=(_MONO, 7),
                            anchor="w", tags="hover_tip")
 
     def _leave(event):
@@ -1422,7 +1422,7 @@ def _draw_multi_load_chart(canvas, data, height=150):
         y = vy(step)
         canvas.create_line(PL, y, w - PR, y, fill="#111820", width=1)
         canvas.create_text(PL - 3, y, text=str(step),
-                           fill=DIM, font=(_MONO, 5), anchor="e")
+                           fill=DIM, font=(_MONO, 7), anchor="e")
 
     keys_cols = [("cpu_avg", LOAD_C), ("ram_avg", RAM_C), ("gpu_avg", GPU_C)]
     all_pts: dict[str, list] = {}
@@ -1478,7 +1478,7 @@ def _draw_multi_load_chart(canvas, data, height=150):
                                  tip_x + len(tip) * 5 + 8, tip_y + 14,
                                  fill="#1e293b", outline="#334155", tags="hover_tip")
         canvas.create_text(tip_x + 4, tip_y + 6, text=tip,
-                           fill="#ffffff", font=(_MONO, 6),
+                           fill="#ffffff", font=(_MONO, 7),
                            anchor="w", tags="hover_tip")
 
     def _leave(event):
@@ -1534,7 +1534,7 @@ def _draw_alert_timeline(canvas, data, key):
         t_s  = datetime.fromtimestamp(ts_val).strftime("%H:%M")
         anch = "w" if frac == 0 else ("e" if frac == 1 else "center")
         canvas.create_text(x, h - 4, text=t_s,
-                           font=(_MONO, 5), fill="#1e293b", anchor=anch)
+                           font=(_MONO, 7), fill="#1e293b", anchor=anch)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1996,7 +1996,7 @@ def _draw_time_axis(canvas, data, x0, x1, h):
         x   = x0 + frac * (x1 - x0)
         fmt = "%H:%M" if (last_ts - first_ts) < 86400 else "%d/%m %H:%M"
         canvas.create_text(x, h - 5, text=datetime.fromtimestamp(ts).strftime(fmt),
-                           fill=DIM, font=(_MONO, 5))
+                           fill=DIM, font=(_MONO, 7))
 
 
 def _darker(hex_color: str) -> str:
