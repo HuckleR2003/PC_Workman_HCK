@@ -3,6 +3,15 @@ _All notable changes are documented here._
 
 ## [1.8.0] - 2026-06-22
 
+### Post-release patch — 2026-06-28
+**`ui/pages/services_manager.py`, `ui/components/operator_drawer.py` (new), `ui/pages/optimization_services.py`, `core/hardware_detector.py`, `ui/pages/startup_manager.py`, `hck_gpt/services_manager.py`**
+- **Services Manager is now a configurator.** One Wyłącz/Włącz control per service queues the change into a single shared operator drawer at the bottom of the page; Zatwierdź applies the whole batch at once and marks each change as user-made. Removes the cramped per-row buttons that truncated long service names. SZCZEGÓŁY expands the queue inline.
+- Fixed a crash that blanked the Features page (`'float' object is not callable`) — a gradient loop variable shadowed the translation helper. Feature cards now widen into the neighbouring column when expanded, so long descriptions are readable.
+- **Hardware detection works on Windows 11 24H2+** (build ≥ 26100), where `wmic.exe` no longer ships: CPU / GPU / RAM / motherboard / disk reads fall back to PowerShell `Get-CimInstance`. Fixes empty values in My PC → Components on recent builds.
+- Windows `sc` / PowerShell output is now decoded with `errors="replace"`, so a service or task name with a non-ANSI byte no longer crashes a background reader thread when opening Services Manager.
+- Mouse-wheel scrolling in Services Manager is scoped to the page instead of bound globally, so it no longer leaks between views.
+- New `operator.*` / `optimization.*` strings localised in PL and EN.
+
 ### Smart Learning — engines wired into chat, and they accumulate
 **`core/thermal_baseline.py`, `core/voltage_analyzer.py`, `hck_gpt/responses/builder.py`, `hck_gpt/memory/proactive_monitor.py`, `ui/pages/monitoring_alerts.py`**
 - hck_GPT now answers temperature with the **learned, workload-aware verdict** (`thermal_baseline.format_for_chat`) instead of a fixed 85°C cutoff — 82°C reads *normal* under a gaming load but *critical* at idle. `voltage_check` got its own handler via `voltage_analyzer` (was silently aliased to the temperature handler). The chat handler imported neither engine before.

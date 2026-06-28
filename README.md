@@ -191,6 +191,11 @@ PC_Workman/
 
 ## What's New [1.8.0] - `2026-06-22` - CURRENT
 
+### Patched — `2026-06-28`
+- **Services Manager rebuilt as a real configurator**: one Wyłącz/Włącz per service feeds a single operator drawer at the bottom of the page, and Zatwierdź applies the whole batch at once — no more per-row dialogs or truncated service names. SZCZEGÓŁY expands the queued list inline.
+- **Hardware detection fixed for Windows 11 24H2+** (build ≥ 26100), where `wmic.exe` was removed — My PC → Components now fills in CPU / GPU / RAM / motherboard / disks via a PowerShell CIM fallback.
+- Fixed a Features-page crash, made expanded feature cards widen for readability, scoped Services Manager scrolling to the page, and hardened `sc` / PowerShell output decoding so unusual service names can't crash a reader thread.
+
 ### Smart Learning — engines wired in, and they accumulate
 - hck_GPT now answers temperature with the **learned, workload-aware verdict** instead of a fixed 85°C cutoff: 82°C reads *normal* under a gaming load but *critical* at idle. "voltage check" got its own real handler (was silently aliased to the temperature one). The chat handler imported neither learning engine before — months of learning it couldn't reach.
 - The proactive monitor judges CPU temperature against the learned per-workload baseline (z-score), falling back to fixed thresholds until a bucket is trained — so it stops crying wolf during normal gaming. Elevated-but-safe goes out as a 💡 TIP, not an alarm.
