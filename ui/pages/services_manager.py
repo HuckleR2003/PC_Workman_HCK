@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import threading, subprocess, os, json, ctypes, time
+import threading, subprocess, os, json, ctypes
 
 # Single source of truth for mode -> service stop-lists (synced with Features).
 try:
@@ -9,6 +9,16 @@ try:
 except Exception:
     turbo_services, RECOMMENDED = None, []
     _HAS_TURBO = False
+
+# Shared "operator" drawer — the single confirm/queue mechanism (also used by
+# Startup Manager). One component, no duplicated drawers.
+from ui.components.operator_drawer import OperatorDrawer
+
+try:
+    from utils.i18n import t as _t
+except Exception:
+    def _t(key, default=None, **kw):
+        return default if default is not None else key
 
 # User-facing modes shown as per-service chips (match the Features mode buttons).
 _MODES = [
@@ -33,8 +43,8 @@ HOVER   = "#101620"
 BORDER  = "#14202e"
 SEP     = "#141d28"
 TEXT    = "#cdd8e8"
-SUB     = "#66788f"
-MUTED   = "#344256"
+SUB     = "#8693a6"   # readable secondary (was #66788f)
+MUTED   = "#93a1b5"   # readable muted (was #344256 — barely visible on dark)
 ACCENT  = "#7c3aed"
 AMBER   = "#d97706"
 GREEN   = "#16a34a"
@@ -120,6 +130,7 @@ def _is_admin() -> bool:
 def _sc_run(args: list[str]) -> tuple[bool, str]:
     try:
         r = subprocess.run(["sc"] + args, capture_output=True, text=True,
+                           errors="replace",
                            creationflags=subprocess.CREATE_NO_WINDOW, timeout=10)
         return r.returncode == 0, r.stdout.strip()
     except Exception as e: return False, str(e)
@@ -129,7 +140,7 @@ def _get_start_type(name: str) -> str:
     """Return start type for a single service via 'sc qc': auto/manual/disabled/unknown."""
     try:
         r = subprocess.run(["sc", "qc", name],
-                           capture_output=True, text=True,
+                           capture_output=True, text=True, errors="replace",
                            creationflags=subprocess.CREATE_NO_WINDOW, timeout=8)
         for line in r.stdout.splitlines():
             s = line.strip().upper()
@@ -147,7 +158,7 @@ def _get_statuses_batch(names: list[str]) -> dict[str, str]:
     """Returns dict: service_name_lower -> 'running'|'stopped'|'paused'|'disabled'|'unknown'"""
     try:
         r = subprocess.run(["sc", "query", "type=", "all", "state=", "all"],
-                           capture_output=True, text=True,
+                           capture_output=True, text=True, errors="replace",
                            creationflags=subprocess.CREATE_NO_WINDOW, timeout=20)
         lines = r.stdout.splitlines()
     except Exception: return {n: "unknown" for n in names}
@@ -289,7 +300,25 @@ def _scrollable(parent, bg=BG):
                 cv.yview_scroll(int(-1 * (e.delta / 120)), "units")
         except Exception:
             pass
-    cv.bind_all("<MouseWheel>", _mw)
+
+    # Scope the wheel to THIS scroll area only (hover in -> grab, hover out ->
+    # release). A global bind_all leaks the wheel across page switches; the
+    # bounds-check on Leave ignores NotifyInferior crossings into child rows.
+    def _enter(_e):
+        cv.bind_all("<MouseWheel>", _mw)
+
+    def _leave(_e):
+        try:
+            sx, sy = outer.winfo_pointerxy()
+            rx, ry = outer.winfo_rootx(), outer.winfo_rooty()
+            if not (rx <= sx <= rx + outer.winfo_width()
+                    and ry <= sy <= ry + outer.winfo_height()):
+                cv.unbind_all("<MouseWheel>")
+        except Exception:
+            pass
+
+    outer.bind("<Enter>", _enter, add="+")
+    outer.bind("<Leave>", _leave, add="+")
     sb.pack(side="right", fill="y")
     cv.pack(side="left", fill="both", expand=True)
     cv.configure(yscrollcommand=sb.set)
@@ -390,116 +419,121 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
 
 def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
                  locked: bool, is_admin: bool,
-                 on_action, on_mode_toggle, svc_prefs: dict = None):
-    name   = entry["name"]
-    dname  = entry["display"]
-    desc   = entry["desc"]
-    status = statuses.get(name, "unknown")
+                 on_mode_toggle, queue_toggle, is_queued,
+                 svc_prefs: dict = None, row_apis: dict = None):
+    """One configurator row. A single Wyłącz/Włącz control queues the change into
+    the shared operator drawer (no per-row confirm dialogs). G/E/M chips stay
+    inline. Repaints itself in place after a batch is applied."""
+    name  = entry["name"]
+    dname = entry["display"]
+    desc  = entry["desc"]
 
     row = tk.Frame(parent, bg=SURFACE)
     row.pack(fill="x", padx=8, pady=1)
-
-    body = tk.Frame(row, bg=SURFACE)
-    body.pack(side="left", fill="both", expand=True, padx=(8, 4), pady=7)
-
-    name_row = tk.Frame(body, bg=SURFACE)
-    name_row.pack(fill="x")
-
-    name_lbl = tk.Label(name_row, text=dname, font=(_F, 10, "bold"),
-                        bg=SURFACE, fg=TEXT)
-    name_lbl.pack(side="left")
-
-    svc_key = tk.Label(name_row, text=f"  {name}", font=(_M, 8),
-                       bg=SURFACE, fg=MUTED)
-    svc_key.pack(side="left")
-
-    desc_lbl = tk.Label(body, text=desc, font=(_F, 8), bg=SURFACE, fg=SUB,
-                        anchor="w", wraplength=220, justify="left")
-    desc_lbl.pack(anchor="w", pady=(2, 0))
-
-    # Show "changed by user" badge if this service was previously actioned by user
-    if svc_prefs:
-        hist = svc_prefs.get(name, {})
-        if hist.get("changed_by") == "UŻYTKOWNIK" and hist.get("last_action"):
-            ts  = hist.get("last_change", "")
-            act = hist.get("last_action", "").upper()
-            badge_txt = f"UŻYTKOWNIK: {act}"
-            if ts:
-                badge_txt += f"  ·  {ts}"
-            tk.Label(body, text=badge_txt,
-                     font=(_F, 7), bg=SURFACE, fg="#16a34a",
-                     anchor="w").pack(anchor="w")
-
-    all_labels = [body, name_row, name_lbl, svc_key, desc_lbl]
-
-    _Tooltip(name_lbl, f"{dname}\n\n{desc}\n\nService key: {name}")
-
-    right = tk.Frame(row, bg=SURFACE)
-    right.pack(side="right", padx=(0, 12), pady=8)
-    all_labels.append(right)
-
-    pill = _pill_status(right, status, SURFACE)
-    pill.pack(side="left", padx=(0, 10))
-    all_labels.append(pill)
-
-    # ── Disabled-at-system-level indicator ───────────────────────────────────
-    if status == "disabled":
-        dis_lbl = tk.Label(right, text="DISABLED",
-                           font=(_M, 7, "bold"), bg=SURFACE, fg="#4b5563")
-        dis_lbl.pack(side="left", padx=(0, 8))
-        _Tooltip(dis_lbl, "This service is disabled at the system level.\n"
-                           "Start it first before enabling here.")
-        all_labels.append(dis_lbl)
-        # No Stop/Start buttons for system-disabled services
-        return row
-
-    if locked:
-        lock = tk.Label(right, text="⛒", font=(_F, 10), bg=SURFACE, fg=LOCK)
-        lock.pack(side="left", padx=4)
-        _Tooltip(lock, "Essential service - cannot be stopped safely.")
-        all_labels.append(lock)
-    else:
-        is_running = (status == "running")
-
-        # Stop — always visible; active (red) when running, muted when stopped
-        sb = _btn(right, "Stop",
-                  fg=RED if is_running else "#2d3748",
-                  bg=SURFACE,
-                  hover_fg="#ff6666" if is_running else "#4a5568",
-                  command=lambda n=name, r=row: on_action(n, "stop", r))
-        sb.pack(side="left", padx=2)
-        _Tooltip(sb, f"Stop the {dname} service." if is_running else f"{dname} is already stopped.")
-        all_labels.append(sb)
-
-        # Start — always visible; active (green) when stopped, muted when running
-        stb = _btn(right, "Start",
-                   fg=GREEN if not is_running else "#1a3a1a",
-                   bg=SURFACE,
-                   hover_fg="#4ade80" if not is_running else "#2a4a2a",
-                   command=lambda n=name, r=row: on_action(n, "start", r))
-        stb.pack(side="left", padx=2)
-        _Tooltip(stb, f"Start the {dname} service." if not is_running else f"{dname} is already running.")
-        all_labels.append(stb)
-
-        rb = _btn(right, "↺", fg=SUB, bg=SURFACE, hover_fg=TEXT, font_size=11,
-                  command=lambda n=name, r=row: on_action(n, "restart", r))
-        rb.pack(side="left", padx=2)
-        _Tooltip(rb, f"Restart {dname}.")
-        all_labels.append(rb)
-
-        # Mode chips — pick which TURBO / Features modes stop this service.
-        mc = tk.Frame(right, bg=SURFACE)
-        mc.pack(side="left", padx=(8, 0))
-        all_labels.append(mc)
-        for mkey, letter, color in _MODES:
-            ch = _mode_chip(mc, name, mkey, letter, color,
-                            name in mode_sets.get(mkey, set()), on_mode_toggle)
-            ch.pack(side="left", padx=1)
-
     sep = tk.Frame(parent, bg=SEP, height=1)
     sep.pack(fill="x", padx=8)
 
-    _hover_row(row, all_labels)
+    state = {"sync": (lambda: None)}
+
+    def _build():
+        status = statuses.get(name, "unknown")
+
+        body = tk.Frame(row, bg=SURFACE)
+        body.pack(side="left", fill="both", expand=True, padx=(8, 4), pady=7)
+
+        name_row = tk.Frame(body, bg=SURFACE)
+        name_row.pack(fill="x")
+        name_lbl = tk.Label(name_row, text=dname, font=(_F, 10, "bold"),
+                            bg=SURFACE, fg=TEXT)
+        name_lbl.pack(side="left")
+        svc_key = tk.Label(name_row, text=f"  {name}", font=(_M, 8),
+                           bg=SURFACE, fg=MUTED)
+        svc_key.pack(side="left")
+
+        desc_lbl = tk.Label(body, text=desc, font=(_F, 8), bg=SURFACE, fg=SUB,
+                            anchor="w", wraplength=220, justify="left")
+        desc_lbl.pack(anchor="w", pady=(2, 0))
+
+        # "changed by user" badge if this service was previously actioned by user
+        if svc_prefs:
+            hist = svc_prefs.get(name, {})
+            if hist.get("changed_by") == "UŻYTKOWNIK" and hist.get("last_action"):
+                ts  = hist.get("last_change", "")
+                act = hist.get("last_action", "").upper()
+                badge_txt = f"UŻYTKOWNIK: {act}" + (f"  ·  {ts}" if ts else "")
+                tk.Label(body, text=badge_txt, font=(_F, 7), bg=SURFACE,
+                         fg="#16a34a", anchor="w").pack(anchor="w")
+
+        all_labels = [body, name_row, name_lbl, svc_key, desc_lbl]
+        _Tooltip(name_lbl, f"{dname}\n\n{desc}\n\nService key: {name}")
+
+        right = tk.Frame(row, bg=SURFACE)
+        right.pack(side="right", padx=(0, 12), pady=8)
+        all_labels.append(right)
+
+        pill = _pill_status(right, status, SURFACE)
+        pill.pack(side="left", padx=(0, 10))
+        all_labels.append(pill)
+
+        sync = (lambda: None)
+
+        if status == "disabled":
+            # Disabled at system level — nothing to queue.
+            dis_lbl = tk.Label(right, text="DISABLED", font=(_M, 7, "bold"),
+                               bg=SURFACE, fg="#4b5563")
+            dis_lbl.pack(side="left", padx=(0, 8))
+            _Tooltip(dis_lbl, "This service is disabled at the system level.\n"
+                              "Start it first before enabling here.")
+            all_labels.append(dis_lbl)
+        elif locked:
+            # Essential — never queued for stopping.
+            lock = tk.Label(right, text="⛒", font=(_F, 10), bg=SURFACE, fg=LOCK)
+            lock.pack(side="left", padx=4)
+            _Tooltip(lock, "Essential service - cannot be stopped safely.")
+            all_labels.append(lock)
+        else:
+            running  = (status == "running")
+            base_txt = "Wyłącz" if running else "Włącz"
+            base_fg  = RED if running else GREEN
+
+            tg = tk.Label(right, font=(_F, 9, "bold"), bg=SURFACE,
+                          cursor="hand2", padx=12, pady=3)
+
+            def _style():
+                if is_queued(name):
+                    tg.config(text=f"✓ {base_txt}", fg="#08080a", bg=base_fg)
+                else:
+                    tg.config(text=base_txt, fg=base_fg, bg=SURFACE)
+
+            tg.bind("<Button-1>", lambda e, en=entry: queue_toggle(en))
+            tg.bind("<Enter>", lambda e: (tg.config(fg=TEXT) if not is_queued(name) else None))
+            tg.bind("<Leave>", lambda e: _style())
+            tg.pack(side="left", padx=2)
+            _Tooltip(tg, f"Dodaj „{base_txt} {dname}” do operatora zmian (na dole).")
+            _style()
+            sync = _style
+
+            # Mode chips — pick which TURBO / Features modes stop this service.
+            mc = tk.Frame(right, bg=SURFACE)
+            mc.pack(side="left", padx=(8, 0))
+            all_labels.append(mc)
+            for mkey, letter, color in _MODES:
+                ch = _mode_chip(mc, name, mkey, letter, color,
+                                name in mode_sets.get(mkey, set()), on_mode_toggle)
+                ch.pack(side="left", padx=1)
+
+        _hover_row(row, all_labels)
+        return sync
+
+    def _paint():
+        for w in row.winfo_children():
+            try: w.destroy()
+            except Exception: pass
+        state["sync"] = _build()
+
+    _paint()
+    if row_apis is not None:
+        row_apis[name] = {"refresh": _paint, "sync": (lambda: state["sync"]())}
 
 
 def _quick_card(strip, item, answers, on_answer, after_answer):
@@ -802,83 +836,81 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
     svc_prefs = _load_svc_prefs()
 
-    def on_action(svc_name: str, action: str, row: tk.Frame):
+    # ── Operator-drawer queue model ─────────────────────────────────────────
+    # Each row's Wyłącz/Włącz adds a change here; the drawer applies them as a
+    # single batch on Zatwierdź. No per-row confirm dialogs.
+    row_apis: dict[str, dict] = {}
+    drawer_holder = {"d": None}            # set once the drawer is built (below)
+
+    def is_queued(svc_name: str) -> bool:
+        d = drawer_holder["d"]
+        return bool(d and d.is_queued(svc_name))
+
+    def queue_toggle(entry: dict):
+        d = drawer_holder["d"]
+        if not d:
+            return
+        n       = entry["name"]
+        running = (statuses.get(n) == "running")
+        action  = "stop" if running else "start"
+        d.toggle({
+            "id":      n,
+            "label":   f"{entry['display']}  ·  {action.upper()}",
+            "warn":    entry.get("cat") in ("recommended", "essential"),
+            "payload": {"name": n, "action": action},
+        })
+
+    def _sync_queue_buttons():
+        # Re-style every row's toggle to match the current queue.
+        for api in row_apis.values():
+            try: api["sync"]()
+            except Exception: pass
+
+    def _apply_changes(items: list):
         if not is_admin:
             messagebox.showwarning("Admin required",
                 "PC Workman must run as Administrator to control services.")
             return
-        confirm = messagebox.askyesno("Confirm action",
-            f"Are you sure you want to {action}  \"{svc_name}\"?")
-        if not confirm: return
+        lines = "\n".join(
+            f"   •  {it['payload']['action'].upper()}   {it['label'].split('  ·')[0]}"
+            for it in items)
+        if not messagebox.askyesno("Potwierdź zmiany",
+                f"Zatwierdzić {len(items)} zmian(y)?\n\n{lines}"):
+            return
+
+        payloads = [dict(it["payload"]) for it in items]
 
         def _do():
-            if action == "restart":
-                _sc_run(["stop", svc_name])
-                time.sleep(1.2)
-                ok, _ = _sc_run(["start", svc_name])
-            else:
-                ok, _ = _sc_run([action, svc_name])
-            _log_change(svc_name, action, ok)
-            new_status = "running" if action in ("start", "restart") else "stopped"
-            if ok:
-                statuses[svc_name] = new_status
-                # Track who did what and when
-                from datetime import datetime as _dt
-                ts = _dt.now().strftime("%Y-%m-%d %H:%M")
-                svc_prefs.setdefault(svc_name, {}).update({
-                    "last_action":  action,
-                    "last_change":  ts,
-                    "changed_by":   "UŻYTKOWNIK",
-                })
-                _save_svc_prefs(svc_prefs)
-            page.after(0, lambda: _handle_action_result(svc_name, action, ok, row, new_status))
+            from datetime import datetime as _dt
+            for p in payloads:
+                n, action = p["name"], p["action"]
+                ok, _ = _sc_run([action, n])
+                _log_change(n, action, ok)
+                if ok:
+                    statuses[n] = "running" if action == "start" else "stopped"
+                    ts = _dt.now().strftime("%Y-%m-%d %H:%M")
+                    svc_prefs.setdefault(n, {}).update({
+                        "last_action": action,
+                        "last_change": ts,
+                        "changed_by":  "UŻYTKOWNIK",
+                    })
+            _save_svc_prefs(svc_prefs)
+            page.after(0, _after)
+
+        def _after():
+            for p in payloads:
+                api = row_apis.get(p["name"])
+                if api:
+                    try: api["refresh"]()
+                    except Exception: pass
+            d = drawer_holder["d"]
+            if d:
+                d.clear()
 
         threading.Thread(target=_do, daemon=True).start()
 
-    def _handle_action_result(svc_name, action, ok, row, new_status):
-        if ok:
-            from datetime import datetime as _dt
-            ts = _dt.now().strftime("%H:%M")
-            # Rebuild the row in place — don't destroy so user can stop/start again
-            for w in row.winfo_children():
-                try: w.destroy()
-                except Exception: pass
-
-            entry_info = next(
-                (e for e in entries_by_cat.get(statuses.get(svc_name + "_cat", "optional"), [])
-                 if e["name"] == svc_name),
-                {"name": svc_name, "display": svc_name, "cat": "optional",
-                 "desc": f"Last action: {action} at {ts}"}
-            )
-            # Find the correct entry across all categories
-            for cat_entries in entries_by_cat.values():
-                for e in cat_entries:
-                    if e["name"] == svc_name:
-                        entry_info = e
-                        break
-
-            # Show brief confirmation banner at top of row
-            confirm_f = tk.Frame(row, bg="#0a160a")
-            confirm_f.pack(fill="x")
-            tk.Frame(confirm_f, bg=GREEN, width=3).pack(side="left", fill="y")
-            tk.Label(confirm_f,
-                     text=f"✓  {action.upper()}  ·  UŻYTKOWNIK  ·  {ts}",
-                     font=(_F, 7), bg="#0a160a", fg="#22c55e",
-                     pady=3, padx=6).pack(side="left")
-
-            # Re-render service info with updated buttons
-            locked = (entry_info.get("cat") == "essential")
-            _service_row(row, entry_info, statuses, mode_sets,
-                         locked=locked, is_admin=is_admin,
-                         on_action=on_action,
-                         on_mode_toggle=on_mode_toggle,
-                         svc_prefs=svc_prefs)
-        else:
-            messagebox.showerror("Action failed",
-                f"Could not {action} '{svc_name}'.\n"
-                "Check data/logs/service_changes.log for details.")
-
-    # ── 2×2 grid: row1 = ESSENTIAL | RECOMMENDED, row2 = OPTIONAL | UNNEEDED ──
+    # ── 2×2 grid: row1 = UNNEEDED | OPTIONAL, row2 = RECOMMENDED | ESSENTIAL ──
+    #    (configurator order: safest-to-disable at the top, never-touch at the bottom)
     def _make_col_pair(parent_frame, left_cat, right_cat):
         row = tk.Frame(parent_frame, bg=BG)
         row.pack(fill="x")
@@ -894,9 +926,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         return {left_cat: left_col, right_cat: right_col}
 
     col_map: dict[str, tk.Frame] = {}
-    col_map.update(_make_col_pair(inner, "essential",   "recommended"))
+    col_map.update(_make_col_pair(inner, "unnecessary", "optional"))
     tk.Frame(inner, bg=BORDER, height=1).pack(fill="x", padx=8)
-    col_map.update(_make_col_pair(inner, "optional",    "unnecessary"))
+    col_map.update(_make_col_pair(inner, "recommended", "essential"))
 
     _PREVIEW_COUNT = 3   # services shown before "expand more" banner
 
@@ -931,9 +963,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         for entry in preview:
             _service_row(body, entry, statuses, mode_sets,
                          locked=locked, is_admin=is_admin,
-                         on_action=on_action,
                          on_mode_toggle=on_mode_toggle,
-                         svc_prefs=svc_prefs)
+                         queue_toggle=queue_toggle, is_queued=is_queued,
+                         svc_prefs=svc_prefs, row_apis=row_apis)
 
         if overflow:
             # Overflow frame — hidden by default, shown by expand banner
@@ -944,9 +976,9 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                 for oe in ol:
                     _service_row(of, oe, statuses, mode_sets,
                                  locked=lkd, is_admin=is_admin,
-                                 on_action=on_action,
                                  on_mode_toggle=on_mode_toggle,
-                                 svc_prefs=svc_prefs)
+                                 queue_toggle=queue_toggle, is_queued=is_queued,
+                                 svc_prefs=svc_prefs, row_apis=row_apis)
 
             _overflow_built = [False]
 
@@ -964,14 +996,15 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                                   eo=_exp_open,
                                   eb=_overflow_built,
                                   ol=overflow,
-                                  bld=_build_overflow):
+                                  bld=_build_overflow,
+                                  bar=expand_bar):   # capture THIS tier's bar (late-binding fix)
                 eo[0] = not eo[0]
                 if eo[0]:
                     if not eb[0]:
                         bld()
                         eb[0] = True
-                    ef.pack(fill="x", after=expand_bar)
-                    el.config(text="∧  Collapse  ∧")
+                    ef.pack(fill="x", after=bar)
+                    el.config(text="∧  Zwiń  ∧")
                 else:
                     ef.pack_forget()
                     el.config(text=f"∨  Rozwiń więcej ({len(ol)})  ∨")
@@ -983,6 +1016,15 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
             expand_bar.bind("<Leave>", lambda e, w=expand_lbl: w.config(fg=MUTED))
 
     tk.Frame(inner, bg=BG, height=10).pack()
+
+    # ── Shared operator drawer — always visible at the very bottom ───────────
+    drawer = OperatorDrawer(
+        page, pack_side="bottom",
+        on_confirm=_apply_changes,
+        on_change=_sync_queue_buttons,
+        title=_t("operator.title", default="Zmiany do zatwierdzenia"),
+    )
+    drawer_holder["d"] = drawer
 
     active_get = turbo_services.get_active_profile if _HAS_TURBO else (lambda: "gaming")
     active_set = turbo_services.set_active_profile if _HAS_TURBO else (lambda k: None)
