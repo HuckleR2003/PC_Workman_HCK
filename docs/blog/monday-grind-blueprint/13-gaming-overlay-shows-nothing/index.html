@@ -1,0 +1,164 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="MSI, Razer and Corsair decide what your gaming overlay shows. I built one that shows nothing until you choose — and greets you by the game you just launched. Plus v1.8.0 drops and the project turns one.">
+    <meta name="keywords" content="Monday Grind Blueprint, gaming overlay, in-game HUD, game detection, PC Workman v1.8.0, community intents, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/">
+    <meta property="og:title" content="Monday Grind Blueprint #13: Every Gaming Tool Picks Your Overlay. Mine Starts Empty.">
+    <meta property="og:description" content="Most overlays vomit 40 stats across your screen. Mine shows nothing until you choose — and knows when you launch a game. v1.8.0 drops today, and the project turns one year old.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-monday.png">
+    <meta property="article:published_time" content="2026-06-22">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Monday Grind Blueprint">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monday Grind Blueprint #13: Every Gaming Tool Picks Your Overlay. Mine Starts Empty. | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Monday Grind Blueprint #13: Every Gaming Tool Picks Your Overlay. Mine Starts Empty.",
+  "description": "Most overlays vomit 40 stats across your screen. Mine shows nothing until you choose — and knows when you launch a game. v1.8.0 drops today, and the project turns one year old.",
+  "url": "https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/",
+  "datePublished": "2026-06-22",
+  "dateModified": "2026-06-22",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Monday Grind Blueprint",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Monday Grind Blueprint", "url": "https://pcworkman.dev/blog/monday-grind-blueprint/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Monday Grind Blueprint", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/" },
+    { "@type": "ListItem", "position": 4, "name": "#13", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/" }
+  ]
+}
+</script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Monday Grind Blueprint &middot; #13</span>
+        <h1>Every Gaming Tool Picks Your Overlay. Mine Starts Empty.</h1>
+        <p class="tagline">MSI, Razer, Corsair &mdash; they pick, you watch. I think that's backwards. So I built one that shows nothing until you choose.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-22</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Monday Grind Blueprint #13</span>
+        </div>
+
+        <p class="lead">Three days on a feature you'll see for two seconds, then forget exists. That's not a waste &mdash; it's the entire point.</p>
+
+<p>Most overlays vomit 40 stats across your screen mid-game. Mine starts empty. <span class="hl">You drop in exactly what you want</span> &mdash; temps in one corner, FPS in another, nothing else &mdash; or pick one of three ready layouts. A glance when you want it. Invisible when you don't.</p>
+
+<p>And because PC Workman watches what you're actually doing, it knows when you launch a game. So you get a small hello in the corner for a second:</p>
+<ul>
+<li>Launch CS2 &rarr; <em>&ldquo;Good luck at the tournament!&rdquo;</em></li>
+<li>Terraria &rarr; <em>&ldquo;Beating a boss today?&rdquo;</em></li>
+<li>Planet Zoo &rarr; <em>&ldquo;Breeding an albino today?&rdquo;</em></li>
+</ul>
+<p>A monitor that recognises your game instead of just measuring your GPU. Small thing. Feels completely different.</p>
+
+<div class="callout">
+<b>Here's where you come in.</b> Back in Monday Grind Blueprint #9 I asked what you'd ask an AI living inside your system monitor. 28 of you answered &mdash; every single question became real code that week. I'm doing it again, and this time the AI actually remembers your machine.
+<br><br>
+1&#65039;&#8419; Do you game? Tell me the game and what greeting it should pop. The best ones ship.
+<br>
+2&#65039;&#8419; What would you ask an AI that knows your exact temps, voltages, and what's eating your PC right now?
+</div>
+
+<h2>This week</h2>
+<ul>
+<li>Gaming overlay &mdash; final pass, making sure every layout configures cleanly.</li>
+<li>Your intents &mdash; all of them, added before Friday. Last time I shipped all 28; I'm not breaking that.</li>
+<li><span class="hl-green">v1.8.0 stable drops today</span> &mdash; the release where the monitor finally got a memory.</li>
+</ul>
+
+<p>And quietly, this week the project turns one year old. 12 dead projects came before it. This is the one that didn't die. I also completed Google's 5-week &ldquo;Skills of Tomorrow 3.0 AI&rdquo; program &mdash; now it's time to put that knowledge into real code.</p>
+
+<p>Friday will tell the truth. <strong>What would you ask your PC if it could actually answer?</strong></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../12-llms-txt-open-to-ai-crawlers/"><span class="pn-dir">&larr; #12</span><span class="pn-title">I Spent My Day Off Building a File That Does Almost Nothing</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Monday Grind Blueprint</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
