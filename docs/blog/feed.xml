@@ -7,7 +7,31 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Thu, 11 Jun 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Fri, 26 Jun 2026 12:00:00 GMT</lastBuildDate>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #14: Microsoft Store Said No — Over a Blurry Icon and the Wrong Link</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/</guid>
+    <pubDate>Fri, 26 Jun 2026 12:00:00 GMT</pubDate>
+    <description>My first .msix, a full Partner Center submission, v1.8.0 stable — and a rejection over a blurry tile icon and a privacy link pointing at my security policy. A checklist, not a no.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #14: My AI Had a Brain — It Just Couldn't Reach It</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/</guid>
+    <pubDate>Wed, 24 Jun 2026 12:00:00 GMT</pubDate>
+    <description>Two tested learning engines the chat never called — a bare except: pass swallowed the NameError that wired them in, dead for four months and silent.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #13: Every Gaming Tool Picks Your Overlay. Mine Starts Empty.</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/</guid>
+    <pubDate>Mon, 22 Jun 2026 12:00:00 GMT</pubDate>
+    <description>An in-game overlay that shows nothing until you choose, and greets you by the game you launched. v1.8.0 ships and the project turns one year old.</description>
+  </item>
 
   <item>
     <title>I Was Supposed to Fix Bugs. I Accidentally Built Two Features Instead. PC Workman 1.7.8</title>
