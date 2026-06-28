@@ -786,7 +786,7 @@ class ExpandedMainWindow:
         try:
             from startup import APP_VERSION as _AV
         except ImportError:
-            _AV = "1.7.9"
+            _AV = "1.8.0"
 
         badge = tk.Label(
             left_frame,
@@ -1726,8 +1726,8 @@ class ExpandedMainWindow:
         _OC_TEXT  = "#4a7ab5"    # visible but subtle blue
         _OC_HOV   = "#7ab0e8"    # nice hover blue
         _OC_ICON  = "#2d5080"    # icon color
-        _OC_SUB   = "#2a4a6a"    # subtitle color
-        _OC_PATH  = "#1e3550"    # path color
+        _OC_SUB   = "#8fa6c4"    # subtitle color (was #2a4a6a — barely visible)
+        _OC_PATH  = "#6f86a3"    # path color (was #1e3550 — barely visible)
 
         optim_btn = tk.Frame(buttons_row, bg=_OC_BD, cursor="hand2")
         optim_btn.pack(side="right", fill="both", expand=True, padx=(3, 0))
@@ -3597,7 +3597,7 @@ class ExpandedMainWindow:
         _card(about_row, VIOLET, "Inspiration",
               "Designed with learnings from Tesla UI, Apple macOS, and MSI Afterburner. Calm, dense, and fast.")
         _card(about_row, EMERALD, "Philosophy",
-              "Local-first. No cloud. No telemetry. Everything runs on your machine - configure once, runs forever.")
+              "Local-first. No cloud, no account - monitoring and AI run on your machine. Optional anonymous telemetry, off in one click in Settings.")
 
         # ── FEATURES GRID ───────────────────────────────────────────────────
         _section("What makes it different")
@@ -3866,7 +3866,7 @@ class ExpandedMainWindow:
             "Real-time CPU, GPU, RAM tracking - updates every second in a background thread so the UI stays buttery smooth.",
             "Session averages on the dashboard give an instant health baseline - no digging into charts needed.",
             "Stats Engine v2 stores minute-by-minute data in SQLite - browse 1H / 4H / 1D / 1W / 1M history in Monitoring.",
-            "All data lives on your machine. Zero cloud, zero telemetry, zero accounts.",
+            "All your data lives on your machine - no cloud, no accounts. The optional anonymous telemetry can be switched off in Settings.",
         ], BLUE)
         _gap(32)
 
