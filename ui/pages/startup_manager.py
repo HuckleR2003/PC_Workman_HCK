@@ -35,8 +35,8 @@ HOVER_Q    = "#120d1a"      # queue-item hover (purplish tint)
 BORDER     = "#14202e"
 SEP        = "#141d28"
 TEXT       = "#cdd8e8"
-SUB        = "#66788f"
-MUTED      = "#344256"
+SUB        = "#8693a6"   # readable secondary (was #66788f)
+MUTED      = "#93a1b5"   # readable muted (was #344256 — barely visible on dark)
 ACCENT     = "#7c3aed"
 AMBER      = "#d97706"
 GREEN      = "#16a34a"
@@ -335,6 +335,7 @@ def _read_scheduled_tasks() -> list[dict]:
         return []
     import subprocess, json as _json
     ps = (
+        "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; "
         "Get-ScheduledTask | Where-Object { "
         "($_.Triggers | ForEach-Object { $_.CimClass.CimClassName }) "
         "-match 'LogonTrigger|BootTrigger' -and $_.TaskPath -notlike '\\Microsoft\\*' "
@@ -588,13 +589,13 @@ def _compact_row(parent, entry: dict, prefs: dict,
         exe_l = (entry.get("exe") or "").lower()
         if exe_l and exe_l in running_set:
             tk.Label(line1, text="● ACTIVE NOW",
-                     font=(_F, 6, "bold"),
+                     font=(_F, 7, "bold"),
                      bg="#052e16", fg="#22c55e",
                      padx=4, pady=1).pack(side="left", padx=(4, 0))
 
     if not is_dis:
         tag = tk.Label(line1, text=_IL.get(impact, "?"),
-                       font=(_F, 6, "bold"),
+                       font=(_F, 7, "bold"),
                        bg=_IB.get(impact, "#111"),
                        fg=_IF.get(impact, SUB),
                        padx=4, pady=1)
@@ -610,7 +611,7 @@ def _compact_row(parent, entry: dict, prefs: dict,
     # "ON" badge — subtle green — shown in the all-active panel
     if show_on_badge and not is_dis and not in_q:
         tk.Label(line1, text="ON",
-                 font=(_F, 6, "bold"),
+                 font=(_F, 7, "bold"),
                  bg="#052e16", fg="#22c55e",
                  padx=4, pady=1).pack(side="right", padx=(0, 4))
 
@@ -621,7 +622,7 @@ def _compact_row(parent, entry: dict, prefs: dict,
         src_txt = _SRC_LABEL.get(hive, hive[:6])
         if src_txt:
             tk.Label(line1, text=src_txt,
-                     font=(_F, 6), bg=src_col, fg="#6a8aaa",
+                     font=(_F, 7), bg=src_col, fg="#6a8aaa",
                      padx=3, pady=1).pack(side="right", padx=(0, 3))
 
     # Line 2: exe
@@ -857,18 +858,18 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
     # ACTIVE NOW if running
     if running_set is not None:
         if exe.lower() in running_set:
-            tk.Label(line1, text="● ACTIVE NOW", font=(_F, 6, "bold"),
+            tk.Label(line1, text="● ACTIVE NOW", font=(_F, 7, "bold"),
                      bg="#052e16", fg="#22c55e", padx=4, pady=1
                      ).pack(side="left", padx=(4, 0))
 
     # ON badge (green, subtle)
-    tk.Label(line1, text="ON", font=(_F, 6, "bold"),
+    tk.Label(line1, text="ON", font=(_F, 7, "bold"),
              bg="#052e16", fg="#22c55e", padx=4, pady=1
              ).pack(side="right", padx=(0, 4))
 
     # Source badge (📁)
     src_lbl = _SRC_LABEL.get(hive, "📁")
-    tk.Label(line1, text=src_lbl, font=(_F, 6),
+    tk.Label(line1, text=src_lbl, font=(_F, 7),
              bg=_SRC_COLOR.get(hive, "#1a3a2a"), fg="#5a8a6a",
              padx=3, pady=1).pack(side="right", padx=(0, 3))
 
@@ -906,7 +907,7 @@ def _actionable_row(parent: tk.Frame, entry: dict, on_toggle, running_set: set =
              font=(_F, 9, "bold"), bg=SURFACE, fg=TEXT if enabled else MUTED,
              anchor="w").pack(side="left")
     if running_set is not None and exe.lower() in running_set:
-        tk.Label(line1, text="● ACTIVE NOW", font=(_F, 6, "bold"),
+        tk.Label(line1, text="● ACTIVE NOW", font=(_F, 7, "bold"),
                  bg="#052e16", fg="#22c55e", padx=4, pady=1).pack(side="left", padx=(4, 0))
 
     # Inline toggle button (disable if on, enable if off)
@@ -918,10 +919,10 @@ def _actionable_row(parent: tk.Frame, entry: dict, on_toggle, running_set: set =
     if on_toggle:
         btn.bind("<Button-1>", lambda e, en=entry: on_toggle(en, not enabled))
 
-    tk.Label(line1, text="ON" if enabled else "OFF", font=(_F, 6, "bold"),
+    tk.Label(line1, text="ON" if enabled else "OFF", font=(_F, 7, "bold"),
              bg="#052e16" if enabled else SURFACE, fg="#22c55e" if enabled else MUTED,
              padx=4, pady=1).pack(side="right", padx=(0, 4))
-    tk.Label(line1, text=_SRC_LABEL.get(hive, hive), font=(_F, 6),
+    tk.Label(line1, text=_SRC_LABEL.get(hive, hive), font=(_F, 7),
              bg=_SRC_COLOR.get(hive, "#1a2530"), fg="#8aa0bc",
              padx=3, pady=1).pack(side="right", padx=(0, 3))
 
