@@ -1,6 +1,6 @@
 # PC Workman HCK — Full Technical Documentation
 
-> Companion to https://pcworkman.dev/llms.txt — the complete, quotable technical reference for AI assistants and search engines. PC Workman is a free, open-source (MIT), 100% offline Windows system monitor with a built-in local AI assistant (hck_GPT). Built solo and in public by Marcin Firmuga (HCK_Labs). Current source line 1.8.0. Python 3.9+ / Tkinter, Windows 10/11 only. No cloud, no account, no telemetry.
+> Companion to https://pcworkman.dev/llms.txt — the complete, quotable technical reference for AI assistants and search engines. PC Workman is a free, open-source (MIT), local-first Windows system monitor with a built-in local AI assistant (hck_GPT). Built solo and in public by Marcin Firmuga (HCK_Labs). Current source line 1.8.0. Python 3.9+ / Tkinter, Windows 10/11 only. Monitoring and the AI run on your machine, no account, no cloud sync; the only network use is an optional anonymous telemetry snapshot, off in Settings.
 
 ## Core idea
 
@@ -20,14 +20,14 @@ PC Workman turns a system monitor from an instrument that *shows numbers* into o
 - **Intent-aware temperature**: `temperature = _INTENT_TEMPERATURE.get(intent, 0.72)` — about 20 intent types mapped to floats 0.35–0.80 (exact facts 0.35, diagnostics 0.45, small talk 0.80). Temperature as a personality selector, not one global setting.
 - **Context windowing**: `_CONTEXT_WINDOWS` maps each intent to how far back to load history (5 minutes for "hot right now", 1440 for 24 h, 10080 for 7 days). The LLM context is scoped to what the question needs.
 - **Stateless by design**: the conversation lives in a Python dict and dies when the app closes — no database, no stored profile. Every answer is rebuilt from fresh live data (your personal baseline, today vs the last 7 days). Context beats history.
-- 82 recognized intents, bilingual PL/EN with per-message language detection; response builder is one handler per intent, always using live data.
+- 84 recognized intents, bilingual PL/EN with per-message language detection; response builder is one handler per intent, always using live data.
 - **Proactive monitor** (`hck_gpt/memory/proactive_monitor.py`): background daemon (~45 s) that pushes temperature/voltage/RAM/disk alerts; RAM-critical routes to a red HOT strip, advisory tips to a TIP strip.
 - **Snapshot cache**: `snapshot()` was found being called ~19× per single user message across modules; a 1-second TTL cache cut that to 1 while staying live.
 
 ## Thermal Baseline Engine (`core/thermal_baseline.py`)
 
 - Classifies each reading into 5 workload buckets: `classify(cpu%, gpu%)` → gaming (gpu ≥ 60), idle (cpu < 15), light (cpu < 35), medium (cpu < 65), heavy (otherwise).
-- Per bucket it learns mean + standard deviation online via Welford's algorithm over ~14 days of DeepMonitor history (Bessel's correction for sample variance).
+- Per bucket it learns mean + standard deviation online via Welford's algorithm — a running accumulator that keeps learning for the life of the install and survives 90-day pruning (Bessel's correction for sample variance).
 - "Normal" is conditional: 72 °C is fine while gaming on a mid-tower but a warning at idle on a thin laptop. The chart baseline band shows the learned per-bucket range, not a window average. Training level progresses from initializing to calibrated as samples accumulate. `format_for_chat()` exposes it to hck_GPT.
 
 ## Voltage Rail SPC (`core/voltage_analyzer.py`)
@@ -57,7 +57,7 @@ PC Workman turns a system monitor from an instrument that *shows numbers* into o
 
 ## Privacy & build
 
-- 100 % local: no network code, no telemetry, no account. Data lives only under `APP_DIR/data`. Open source — every line auditable on GitHub.
+- Local-first: monitoring, the AI, and your data run and stay on your machine (under `APP_DIR/data`), no account. The only network use is an optional anonymous telemetry snapshot, off in Settings. Open source — every line auditable on GitHub.
 - Run from source: `python startup.py`. Tests: `python -m unittest discover tests` (psutil mocked, so they run without a live Windows host). Build: `python -m PyInstaller PCWorkman.spec` (onedir ~95 MB), distributed as a single ZIP, Sigstore-signed, VirusTotal clean, CodeQL on every commit.
 
 ## Website & content

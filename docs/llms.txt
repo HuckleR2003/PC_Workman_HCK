@@ -24,6 +24,7 @@ Full technical documentation (architecture, algorithms, internals): https://pcwo
 - [Landing (Polish)](https://pcworkman.dev/index.html): pełny opis po polsku
 - [Download](https://pcworkman.dev/download/): latest release, requirements, Sigstore signing, security notes
 - [Security Report](https://pcworkman.dev/SECURITY_report.html): release verification and audit
+- [Privacy Policy](https://pcworkman.dev/privacy_en.html): what stays on your machine, the exact anonymous telemetry snapshot, and how to switch it off (EN + PL)
 
 ## Blog (build in public)
 
