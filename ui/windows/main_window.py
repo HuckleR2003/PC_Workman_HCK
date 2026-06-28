@@ -54,11 +54,17 @@ def clamp(v, a=0, b=100):
 
 
 class MainWindow:
-    def __init__(self, switch_to_expanded_callback=None):
+    def __init__(self, switch_to_expanded_callback=None, master=None):
         self.switch_to_expanded_callback = switch_to_expanded_callback
 
-        self.root = tk.Tk()
-        self.root.title("PC Workman – HCK_Labs v1.7.1")
+        # SINGLE-ROOT RULE: the Minimal window is a Toplevel of the one app root
+        # (the Expanded window's tk.Tk()). A second tk.Tk() spins up a second Tcl
+        # interpreter — that is exactly what crashed Expanded <-> Minimal switching
+        # (after() callbacks, images and variables don't cross interpreters, and
+        # mainloop only services one). `master` is the Expanded root; tk.Tk() stays
+        # only as a fallback for a hypothetical standalone launch.
+        self.root = tk.Toplevel(master) if master is not None else tk.Tk()
+        self.root.title("PC Workman – HCK_Labs v1.8.0")
         self.root.configure(bg=THEME["bg_main"])
 
         # Window settings
@@ -260,8 +266,37 @@ class MainWindow:
             print("[INFO] GPT Panel not available")
             self.gpt = None
 
+        # Modern "return to Expanded view" control, pinned top-right (every page)
+        self._build_expand_control(self.root)
+
         # Update services counter (async to not block UI)
         self.root.after(1000, self._update_services_counter)
+
+    def _build_expand_control(self, parent):
+        """Modern 'back to Expanded view' button, pinned to the top-right corner.
+        Built on the root (not a page frame) so it stays visible on every Minimal
+        page, and lifted above the content so page switches never hide it."""
+        BG, BG_HOVER = "#10151e", "#1c2636"
+        ACC = THEME.get("accent", "#00D9FF")
+        ctrl = tk.Frame(parent, bg=BG, cursor="hand2",
+                        highlightthickness=1, highlightbackground=ACC, highlightcolor=ACC)
+        ctrl.place(relx=1.0, y=8, x=-10, anchor="ne")
+        lbl = tk.Label(ctrl, text="⤢  Expand", font=(_BODY, 8, "bold"),
+                       bg=BG, fg=ACC, padx=11, pady=5)
+        lbl.pack()
+
+        def _hover(on):
+            bg = BG_HOVER if on else BG
+            ctrl.config(bg=bg)
+            lbl.config(bg=bg, fg=("#ffffff" if on else ACC))
+
+        for w in (ctrl, lbl):
+            w.bind("<Enter>", lambda e: _hover(True))
+            w.bind("<Leave>", lambda e: _hover(False))
+            w.bind("<Button-1>", lambda e: self._switch_to_expanded())
+
+        self.expand_control = ctrl
+        ctrl.lift()
 
     def _toggle_position_lock(self):
         """Toggle window position lock"""
@@ -851,27 +886,9 @@ class MainWindow:
         btn_width = (content_w - right_w - 8 - 8) // 2
         btn_height = 51  # 40% less than 85px (85 * 0.6 = 51)
 
-        # EXPANDED VIEW button - Small minimalist button above main buttons
-        expanded_btn_height = 28
-        expanded_btn_y = btn_y - expanded_btn_height - 6
-
-        self.expanded_btn = tk.Frame(parent, bg="#6366f1", cursor="hand2", relief="flat")
-        self.expanded_btn.place(x=8, y=expanded_btn_y, width=(btn_width * 2) - 4, height=expanded_btn_height)
-
-        expanded_content = tk.Frame(self.expanded_btn, bg="#6366f1")
-        expanded_content.pack(fill="both", expand=True)
-
-        tk.Label(
-            expanded_content,
-            text="◱ EXPANDED VIEW",
-            font=(_BODY, 8, "bold"),
-            bg="#6366f1",
-            fg="white"
-        ).pack(expand=True)
-
-        # Click handler for switching to Expanded Mode
-        for widget in [self.expanded_btn, expanded_content]:
-            widget.bind("<Button-1>", lambda e: self._switch_to_expanded())
+        # NOTE: the "back to Expanded view" control moved to a modern button
+        # pinned in the top-right corner — see _build_expand_control(), built on
+        # self.root so it stays visible on every Minimal page (not just Dashboard).
 
         # OPTIMIZATION OPTIONS button
         self.opt_btn_frame = tk.Frame(parent, bg="#0ea56a", cursor="hand2", relief="flat")
