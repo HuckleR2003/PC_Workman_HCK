@@ -1,0 +1,153 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="For months hck_GPT answered questions while sitting on two working learning systems it never called. A bare except: pass swallowed a NameError and killed the whole fallback for four months. Nothing ever complained.">
+    <meta name="keywords" content="Wednesday Code Autopsy, hck_GPT, bare except, NameError, Welford baselines, voltage SPC, silent bug, PC Workman, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/">
+    <meta property="og:title" content="Wednesday Code Autopsy #14: My AI Had a Brain — It Just Couldn't Reach It">
+    <meta property="og:description" content="Two working learning systems, both tested, both running. The chat just never called them — a bare except: pass swallowed the NameError that wired them in. Dead since day one. Four months. Silent.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
+    <meta property="article:published_time" content="2026-06-24">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wednesday Code Autopsy #14: My AI Had a Brain — It Just Couldn't Reach It | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wednesday Code Autopsy #14: My AI Had a Brain — It Just Couldn't Reach It",
+  "description": "Two working learning systems, both tested, both running. The chat just never called them — a bare except: pass swallowed the NameError that wired them in. Dead since day one. Four months. Silent.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/",
+  "datePublished": "2026-06-24",
+  "dateModified": "2026-06-24",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Wednesday Code Autopsy",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#14", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #14</span>
+        <h1>My AI Had a Brain &mdash; It Just Couldn't Reach It</h1>
+        <p class="tagline">For months hck_GPT was answering questions while sitting on two working systems that actually knew what &ldquo;normal&rdquo; means for your machine.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-24</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #14</span>
+        </div>
+
+        <p class="lead">Welford baselines for CPU/GPU/RAM/temps per workload. Voltage SPC with Nelson rules for real anomaly detection. Both were running. Both were tested. The chat just never called them.</p>
+
+<p>When someone asked <em>&ldquo;82&deg;C &mdash; is that bad?&rdquo;</em>, the AI had no idea if that's normal for your gaming laptop or a real problem. It gave the same generic answer every other monitor gives. I found it during a full audit of all 84 intents.</p>
+
+<h2>The two lines that killed it</h2>
+<p>I started grepping and found this in <code>hybrid_engine.py</code>:</p>
+<pre><code>except:
+    pass</code></pre>
+<p>Two lines above it, the code tried to read a variable from another function. <span class="hl-red">NameError every time.</span> The bare <code>except: pass</code> just swallowed it. No crash, no log, no warning.</p>
+
+<div class="callout warn">
+The entire fallback logic was dead since day one. Four months. Silent. Nothing ever complained. I only caught it because some answers felt dumber than they should.
+</div>
+
+<p>Fixed it in two places &mdash; removed the silent except, and actually wired the learning engines into the response builder. Now when hck_GPT answers, it finally reads what it learned about your machine. <span class="hl">Same number, different meaning depending on whether you're gaming or idle.</span></p>
+
+<p>The scary part isn't that the bug existed. It's that nothing ever told me it was there.</p>
+
+<p><strong>What's the longest a &ldquo;working&rdquo; feature in your code was quietly doing nothing?</strong></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../13-python-314-hid-broken-import/"><span class="pn-dir">&larr; #13</span><span class="pn-title">Two Invisible Bugs: One Python Hid, One That Accused NVIDIA</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
