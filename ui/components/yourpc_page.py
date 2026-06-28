@@ -106,7 +106,7 @@ def build_yourpc_page(self, parent):
     try:
         map_tab = self.yourpc_tabs["map"]
         pc_badge = tk.Label(tabs_frame, text=" PC",
-                            font=(_BODY, 5, "bold"),
+                            font=(_BODY, 7, "bold"),
                             bg="#0f1117", fg="#3b82f6",
                             pady=0)
         pc_badge.pack(side="left", pady=(0, 8))
@@ -165,7 +165,7 @@ def _build_central(self, parent):
     left = tk.Frame(container, bg="#0a0e14")
     left.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
-    tk.Label(left, text=_t("my_pc.quick_actions"), font=(_BODY, 6, "bold"),
+    tk.Label(left, text=_t("my_pc.quick_actions"), font=(_BODY, 7, "bold"),
              bg="#0a0e14", fg="#4b5563").pack(anchor="w", pady=(0, 3))
 
     def _nav_to(page_id, subpage_id=None):
@@ -266,7 +266,7 @@ def _build_central(self, parent):
     ses_bar.pack_propagate(False)
     tk.Label(ses_bar, text=_ses_txt, font=(_BODY, 7, "bold"),
              bg="#1e3a5f", fg="#93c5fd").pack(side="left", padx=10, fill="y")
-    tk.Label(ses_bar, text=_t("my_pc.live_badge"), font=(_BODY, 6),
+    tk.Label(ses_bar, text=_t("my_pc.live_badge"), font=(_BODY, 7),
              bg="#1e3a5f", fg="#60a5fa").pack(side="right", padx=8, fill="y")
 
     right = tk.Frame(container, bg="#0a0e27", width=408)
@@ -375,10 +375,10 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
                            font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
         canvas.create_text(38, h // 2,
                            text=_t("my_pc.turbo_row"),
-                           font=(_BODY, 6), fill="#e5c47a", anchor="w")
+                           font=(_BODY, 7), fill="#e5c47a", anchor="w")
         canvas.create_text(38, h // 2 + 12,
                            text=_t("my_pc.automated_cleanup"),
-                           font=(_BODY, 6), fill="#a38a4a", anchor="w")
+                           font=(_BODY, 7), fill="#a38a4a", anchor="w")
 
         # ── Vertical divider ─────────────────────────────────────────────
         canvas.create_rectangle(sp, 0, sp + 2, h, fill="#0d0f15", outline="")
@@ -396,7 +396,7 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
         su_txt = (_t("my_pc.startup_entries", n=n_su) if n_su
                   else _t("my_pc.scanning"))
         canvas.create_text(sp + 12, hh // 2 + 6, text=su_txt,
-                           font=(_BODY, 6), fill="#93c5fd", anchor="w")
+                           font=(_BODY, 7), fill="#93c5fd", anchor="w")
 
         # ── Horizontal divider ────────────────────────────────────────────
         canvas.create_rectangle(sp + 2, hh - 1, w, hh + 1,
@@ -415,7 +415,7 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
         svc_txt = (_t("my_pc.unnecessary_services", n=n_svc) if n_svc
                    else _t("my_pc.scanning"))
         canvas.create_text(sp + 12, hh + (h - hh) // 2 + 6, text=svc_txt,
-                           font=(_BODY, 6), fill="#6ee7b7", anchor="w")
+                           font=(_BODY, 7), fill="#6ee7b7", anchor="w")
 
     def _zone(x, y):
         w = canvas.winfo_width() or 400
@@ -480,7 +480,7 @@ def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, com
     title_lbl.pack(side="left")
 
     if badge:
-        badge_lbl = tk.Label(btn, text=badge, font=(_BODY, 6, "bold"),
+        badge_lbl = tk.Label(btn, text=badge, font=(_BODY, 7, "bold"),
                             bg="#166534", fg="#ffffff", padx=4)
         badge_lbl.pack(side="left", padx=(5, 0))
 
@@ -583,13 +583,13 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
             )
             canvas.create_text(
                 bx - text_w // 2, HEIGHT // 2 - (3 if sub_text else 0),
-                text=badge_text, font=(_BODY, 6, "bold"),
+                text=badge_text, font=(_BODY, 7, "bold"),
                 fill="#ffffff", tags="content"
             )
             if sub_text:
                 canvas.create_text(
                     bx - text_w // 2, HEIGHT // 2 + 12,
-                    text=sub_text, font=(_BODY, 5),
+                    text=sub_text, font=(_BODY, 7),
                     fill="#9ca3af", tags="content"
                 )
 
@@ -739,9 +739,9 @@ def _create_gaming_tile(parent, command):
                            font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
         canvas.create_text(34, HEIGHT // 2 + 8,
                            text=_t("gaming.tile_sub", default="In-game overlay + MiniOverlay"),
-                           font=(_BODY, 6), fill="#f0e6ff", anchor="w")
+                           font=(_BODY, 7), fill="#f0e6ff", anchor="w")
         canvas.create_text(w - 12, HEIGHT // 2, text="NEW",
-                           font=(_BODY, 6, "bold"), fill="#ffffff", anchor="e")
+                           font=(_BODY, 7, "bold"), fill="#ffffff", anchor="e")
 
     canvas.bind("<Configure>", lambda e: _draw())
     canvas.bind("<Enter>", lambda e: _draw(1.15))
@@ -1166,7 +1166,7 @@ def _build_gaming_configurator(self, parent):
                  anchor="w").pack(anchor="w")
         tk.Label(lc, text=_t("gaming.all_time_desc",
                  default="Keep the overlay on even outside games."),
-                 font=(_BODY, 6), bg="#11131c", fg="#6b7280", anchor="w",
+                 font=(_BODY, 7), bg="#11131c", fg="#6b7280", anchor="w",
                  wraplength=170, justify="left").pack(anchor="w")
 
         # CENTRE — current overlay preview
@@ -1677,20 +1677,20 @@ def _build_hey_user_table(self, parent):
         title_bar.pack(fill="x")
         title_bar.pack_propagate(False)
         tk.Label(title_bar, text=title,
-                 font=(_HDR, 6),
+                 font=(_HDR, 7),
                  bg="#1c2238", fg="#b8b0bc").pack(side="left", padx=5)
         bdg = tk.Label(title_bar, text="OK",
-                       font=(_BODY, 6, "bold"),
+                       font=(_BODY, 7, "bold"),
                        bg=_COK, fg="#ffffff", padx=10, pady=1)
         bdg.pack(side="right", padx=2)
 
         hdr = tk.Frame(parent_frame, bg="#080b18")
         hdr.pack(fill="x")
         tk.Label(hdr, text="", width=10, bg="#080b18",
-                 font=(_BODY, 5)).pack(side="left")
+                 font=(_BODY, 7)).pack(side="left")
         for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
             tk.Label(hdr, text=col, width=7, bg="#080b18",
-                     fg="#3d4e6b", font=(_BODY, 5, "bold")).pack(side="left", padx=1)
+                     fg="#3d4e6b", font=(_BODY, 7, "bold")).pack(side="left", padx=1)
 
         container = tk.Frame(parent_frame, bg="#0f1117")
         container.pack(fill="x")
@@ -1700,15 +1700,15 @@ def _build_hey_user_table(self, parent):
             row = tk.Frame(container, bg="#0f1117")
             row.pack(fill="x")
             tk.Label(row, text=lbl_txt,
-                     font=(_BODY, 6), bg="#0f1117", fg="#6a7a94",
+                     font=(_BODY, 7), bg="#0f1117", fg="#6a7a94",
                      anchor="w", width=10).pack(side="left", padx=1)
-            cur_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
+            cur_l = tk.Label(row, text="--", font=(_BODY, 7, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             cur_l.pack(side="left", padx=1)
-            min_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
+            min_l = tk.Label(row, text="--", font=(_BODY, 7, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             min_l.pack(side="left", padx=1)
-            max_l = tk.Label(row, text="--", font=(_BODY, 6, "bold"),
+            max_l = tk.Label(row, text="--", font=(_BODY, 7, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
             max_l.pack(side="left", padx=1)
             cells.append((key, cur_l, min_l, max_l))
@@ -1875,7 +1875,7 @@ def _build_hey_user_table(self, parent):
         _t("my_pc.disk_total"), _t("my_pc.disk_pct"), _t("my_pc.disk_status"),
     ]):
         tk.Label(disk_hdr, text=txt, bg="#080b18",
-                 fg="#3d4e6b", font=(_HDR, 5),
+                 fg="#3d4e6b", font=(_HDR, 7),
                  anchor="center").grid(row=0, column=col_i, sticky="ew", padx=1, pady=1)
 
     # Fetch disk models once
@@ -1922,26 +1922,26 @@ def _build_hey_user_table(self, parent):
             _row.columnconfigure(5, weight=3)
 
             tk.Label(_row, text=_letter, bg="#0a0d1a", fg="#8896a8",
-                     font=(_BODY, 6), anchor="center").grid(
+                     font=(_BODY, 7), anchor="center").grid(
                 row=0, column=0, sticky="ew", padx=1, pady=1)
             _used_l = tk.Label(_row, text=f"{_u.used/1e9:.1f}",
                                bg="#080b18", fg=_CN,
-                               font=(_BODY, 6, "bold"), anchor="center")
+                               font=(_BODY, 7, "bold"), anchor="center")
             _used_l.grid(row=0, column=1, sticky="ew", padx=1)
             _free_l = tk.Label(_row, text=f"{_u.free/1e9:.1f}",
                                bg="#080b18", fg=_CN,
-                               font=(_BODY, 6, "bold"), anchor="center")
+                               font=(_BODY, 7, "bold"), anchor="center")
             _free_l.grid(row=0, column=2, sticky="ew", padx=1)
             _tot_l  = tk.Label(_row, text=f"{_u.total/1e9:.1f}",
                                bg="#080b18", fg=_CNA,
-                               font=(_BODY, 6), anchor="center")
+                               font=(_BODY, 7), anchor="center")
             _tot_l.grid(row=0, column=3, sticky="ew", padx=1)
             _pct_l  = tk.Label(_row, text=f"{_pct:.0f}%",
                                bg="#080b18", fg=_pc,
-                               font=(_BODY, 6, "bold"), anchor="center")
+                               font=(_BODY, 7, "bold"), anchor="center")
             _pct_l.grid(row=0, column=4, sticky="ew", padx=1)
             _bdg_l  = tk.Label(_row, text=_bt,
-                               font=(_BODY, 5, "bold"),
+                               font=(_BODY, 7, "bold"),
                                bg=_bb, fg="#ffffff", anchor="center")
             _bdg_l.grid(row=0, column=5, sticky="ew", padx=2, pady=1)
             disk_rows.append((_letter, _used_l, _free_l, _tot_l, _pct_l, _bdg_l))
@@ -2266,18 +2266,18 @@ def _build_mini_data_table(parent, title, rows):
     title_bar = tk.Frame(parent, bg="#fbbf24", height=12)
     title_bar.pack(fill="x")
     title_bar.pack_propagate(False)
-    tk.Label(title_bar, text=title, font=(_BODY, 6, "bold"),
+    tk.Label(title_bar, text=title, font=(_BODY, 7, "bold"),
              bg="#fbbf24", fg="#000000").pack(side="left", padx=5)
-    tk.Label(title_bar, text="OK", font=(_BODY, 6, "bold"),
+    tk.Label(title_bar, text="OK", font=(_BODY, 7, "bold"),
              bg="#10b981", fg="#ffffff", padx=12, pady=1).pack(side="right", padx=2)
 
     # Column headers
     hdr_bar = tk.Frame(parent, bg="#000000")
     hdr_bar.pack(fill="x")
-    tk.Label(hdr_bar, text="", width=10, bg="#000000", font=(_BODY, 5)).pack(side="left")
+    tk.Label(hdr_bar, text="", width=10, bg="#000000", font=(_BODY, 7)).pack(side="left")
     for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
         tk.Label(hdr_bar, text=col, width=7, bg="#000000", fg="#64748b",
-                 font=(_BODY, 5, "bold")).pack(side="left", padx=1)
+                 font=(_BODY, 7, "bold")).pack(side="left", padx=1)
 
     # Data rows
     container = tk.Frame(parent, bg="#0f1117")
@@ -2289,11 +2289,11 @@ def _build_mini_data_table(parent, title, rows):
         label = row_data[0]
         vals = row_data[1:]
 
-        tk.Label(row, text=label, font=(_BODY, 6), bg="#0f1117", fg="#94a3b8",
+        tk.Label(row, text=label, font=(_BODY, 7), bg="#0f1117", fg="#94a3b8",
                  anchor="w", width=10).pack(side="left", padx=1)
 
         for val in vals:
-            tk.Label(row, text=val, font=(_BODY, 6, "bold"),
+            tk.Label(row, text=val, font=(_BODY, 7, "bold"),
                      bg="#000000", fg="#ffffff", width=7).pack(side="left", padx=1)
 
 
@@ -2307,9 +2307,9 @@ def _build_disk_fans_strip(parent):
     space = tk.Frame(strip_frame, bg="#000000", height=16)
     space.pack(fill="x", pady=(1, 0))
     space.pack_propagate(False)
-    tk.Label(space, text=_t("my_pc.section_space"), font=(_BODY, 6, "bold"),
+    tk.Label(space, text=_t("my_pc.section_space"), font=(_BODY, 7, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(space, text="|", font=(_BODY, 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
+    tk.Label(space, text="|", font=(_BODY, 7), bg="#000000", fg="#64748b").pack(side="left", padx=2)
 
     if psutil:
         try:
@@ -2318,7 +2318,7 @@ def _build_disk_fans_strip(parent):
                     usage = psutil.disk_usage(part.mountpoint)
                     pct = int(usage.percent)
                     color = "#ef4444" if pct > 90 else "#f59e0b" if pct > 75 else "#10b981"
-                    tk.Label(space, text=f"{part.device[0]}:/ {pct}%", font=(_BODY, 6, "bold"),
+                    tk.Label(space, text=f"{part.device[0]}:/ {pct}%", font=(_BODY, 7, "bold"),
                              bg="#000000", fg=color).pack(side="left", padx=5)
                 except Exception:
                     pass
@@ -2329,12 +2329,12 @@ def _build_disk_fans_strip(parent):
     fans = tk.Frame(strip_frame, bg="#000000", height=16)
     fans.pack(fill="x", pady=(1, 1))
     fans.pack_propagate(False)
-    tk.Label(fans, text=_t("my_pc.section_fans"), font=(_BODY, 6, "bold"),
+    tk.Label(fans, text=_t("my_pc.section_fans"), font=(_BODY, 7, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(fans, text="|", font=(_BODY, 6), bg="#000000", fg="#64748b").pack(side="left", padx=2)
-    tk.Label(fans, text="CPU 560 RPM", font=(_BODY, 6),
+    tk.Label(fans, text="|", font=(_BODY, 7), bg="#000000", fg="#64748b").pack(side="left", padx=2)
+    tk.Label(fans, text="CPU 560 RPM", font=(_BODY, 7),
              bg="#000000", fg="#ffffff").pack(side="left", padx=6)
-    tk.Label(fans, text="BODYFAN 990 RPM", font=(_BODY, 6),
+    tk.Label(fans, text="BODYFAN 990 RPM", font=(_BODY, 7),
              bg="#000000", fg="#ffffff").pack(side="left", padx=6)
 
 
@@ -2523,12 +2523,12 @@ def _build_health(self, parent):
         col.pack(side="left", fill="both", expand=True, padx=2)
         tk.Label(col, text=icon, font=(_BODY, 13), bg="#1a1d24",
                  fg="#94a3b8").pack(pady=(5, 0))
-        tk.Label(col, text=label, font=(_BODY, 6, "bold"),
+        tk.Label(col, text=label, font=(_BODY, 7, "bold"),
                  bg="#1a1d24", fg="#4b5563").pack()
         val_lbl = tk.Label(col, text="-", font=(_BODY, 13, "bold"),
                            bg="#1a1d24", fg="#10b981")
         val_lbl.pack(pady=(1, 0))
-        status_lbl = tk.Label(col, text=" ", font=(_BODY, 6),
+        status_lbl = tk.Label(col, text=" ", font=(_BODY, 7),
                                bg="#1a1d24", fg="#6b7280", pady=3)
         status_lbl.pack()
         refs[key] = (val_lbl, status_lbl)
@@ -2543,7 +2543,7 @@ def _build_health(self, parent):
                            highlightbackground="#2a2d34", highlightthickness=1)
     gauge_outer.pack(side="left", fill="y", padx=(0, 4))
     gauge_outer.pack_propagate(False)
-    tk.Label(gauge_outer, text="HEALTH SCORE", font=(_BODY, 6, "bold"),
+    tk.Label(gauge_outer, text="HEALTH SCORE", font=(_BODY, 7, "bold"),
              bg="#1a1d24", fg="#4b5563").pack(pady=(4, 0))
     score_canvas = tk.Canvas(gauge_outer, width=80, height=46,
                              bg="#1a1d24", highlightthickness=0)
@@ -2551,7 +2551,7 @@ def _build_health(self, parent):
     score_lbl = tk.Label(gauge_outer, text="-", font=(_BODY, 14, "bold"),
                          bg="#1a1d24", fg="#10b981")
     score_lbl.pack()
-    score_sub = tk.Label(gauge_outer, text=" ", font=(_BODY, 6),
+    score_sub = tk.Label(gauge_outer, text=" ", font=(_BODY, 7),
                          bg="#1a1d24", fg="#6b7280", pady=3)
     score_sub.pack()
     refs["score_canvas"] = score_canvas
@@ -2565,7 +2565,7 @@ def _build_health(self, parent):
     up_card = tk.Frame(right_col, bg="#1a1d24",
                        highlightbackground="#2a2d34", highlightthickness=1)
     up_card.pack(fill="x", pady=(0, 3))
-    tk.Label(up_card, text=_t("my_pc.uptime"), font=(_BODY, 6, "bold"),
+    tk.Label(up_card, text=_t("my_pc.uptime"), font=(_BODY, 7, "bold"),
              bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
     for key, label in [
         ("session_up",  _t("my_pc.uptime_session")),
@@ -2585,7 +2585,7 @@ def _build_health(self, parent):
     alerts_card = tk.Frame(right_col, bg="#1a1d24",
                            highlightbackground="#2a2d34", highlightthickness=1)
     alerts_card.pack(fill="x")
-    tk.Label(alerts_card, text=_t("my_pc.alerts_24h"), font=(_BODY, 6, "bold"),
+    tk.Label(alerts_card, text=_t("my_pc.alerts_24h"), font=(_BODY, 7, "bold"),
              bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
     alerts_row = tk.Frame(alerts_card, bg="#1a1d24")
     alerts_row.pack(fill="x", padx=8, pady=(0, 4))
@@ -2599,7 +2599,7 @@ def _build_health(self, parent):
         cnt_lbl = tk.Label(col_f, text="-", font=(_BODY, 13, "bold"),
                            bg="#1a1d24", fg=color)
         cnt_lbl.pack()
-        tk.Label(col_f, text=label, font=(_BODY, 6), bg="#1a1d24",
+        tk.Label(col_f, text=label, font=(_BODY, 7), bg="#1a1d24",
                  fg="#6b7280").pack()
         refs[key] = cnt_lbl
 
@@ -2615,7 +2615,7 @@ def _build_health(self, parent):
         (_t("my_pc.events_col_time"), 10), (_t("my_pc.events_col_sev"), 8),
         (_t("my_pc.events_col_metric"), 10), (_t("my_pc.events_col_desc"), 36),
     ]:
-        tk.Label(hdr_bar, text=col_txt, font=(_BODY, 6, "bold"),
+        tk.Label(hdr_bar, text=col_txt, font=(_BODY, 7, "bold"),
                  bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=2)
 
     refs["events_outer"] = events_outer
@@ -2829,7 +2829,7 @@ def _populate_events_table(parent):
             (ev["metric"][:10], 10, "#94a3b8"),
             (ev["description"][:46], 36, "#64748b"),
         ]:
-            tk.Label(row, text=text, font=(_BODY, 6), bg="#0f1117",
+            tk.Label(row, text=text, font=(_BODY, 7), bg="#0f1117",
                      fg=fg, width=w, anchor="w").pack(side="left", padx=2)
 
 
@@ -3055,13 +3055,13 @@ def _build_efficiency(self, parent):
         # Stats row: ↓min  ↑max  ~avg
         sr = tk.Frame(card, bg="#111827")
         sr.pack(fill="x", padx=4, pady=(0, 4))
-        mn = tk.Label(sr, text="↓ -", font=(_MONO, 6),
+        mn = tk.Label(sr, text="↓ -", font=(_MONO, 7),
                       bg="#111827", fg="#374151")
         mn.pack(side="left")
-        mx = tk.Label(sr, text="↑ -", font=(_MONO, 6),
+        mx = tk.Label(sr, text="↑ -", font=(_MONO, 7),
                       bg="#111827", fg="#374151")
         mx.pack(side="left", padx=(4, 0))
-        av = tk.Label(sr, text="~ -", font=(_MONO, 6, "bold"),
+        av = tk.Label(sr, text="~ -", font=(_MONO, 7, "bold"),
                       bg="#111827", fg="#a5b4fc")
         av.pack(side="right")
 
@@ -3142,7 +3142,6 @@ def _build_efficiency(self, parent):
 def _efficiency_refresh(refs):
     """Update all efficiency tab widgets."""
     import psutil as _psu
-    import time
 
     now = time.time()
 
@@ -3285,9 +3284,9 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
     # Column header
     hdr = tk.Frame(parent, bg=HDR)
     hdr.pack(fill="x")
-    tk.Label(hdr, text="  PROCESS", font=(_BODY, 6, "bold"),
+    tk.Label(hdr, text="  PROCESS", font=(_BODY, 7, "bold"),
              bg=HDR, fg="#374151", anchor="w").pack(side="left", padx=2, pady=2)
-    tk.Label(hdr, text="NOW   AVG", font=(_MONO, 6, "bold"),
+    tk.Label(hdr, text="NOW   AVG", font=(_MONO, 7, "bold"),
              bg=HDR, fg="#374151", anchor="e").pack(side="right", padx=6, pady=2)
 
     rank_colors = ["#f59e0b", "#94a3b8", "#78716c", "#4b5563", "#374151", "#2d3748"]
@@ -3347,7 +3346,7 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
 
         # Rank duration (if available)
         if rank_badge:
-            tk.Label(right, text=rank_badge, font=(_BODY, 6),
+            tk.Label(right, text=rank_badge, font=(_BODY, 7),
                      bg=BG, fg="#374151").pack(side="left", padx=(3, 0))
 
         # Thin usage bar below the row
@@ -3442,7 +3441,7 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     hdr = tk.Frame(sf, bg="#111827")
     hdr.pack(fill="x", padx=8)
     for col_txt, col_w in [("NAME", 22), ("SOURCE", 6), ("COMMAND", 40)]:
-        tk.Label(hdr, text=col_txt, font=(_BODY, 6, "bold"),
+        tk.Label(hdr, text=col_txt, font=(_BODY, 7, "bold"),
                  bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=3)
 
     # Rows
