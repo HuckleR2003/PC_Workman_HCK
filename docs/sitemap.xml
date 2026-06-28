@@ -212,6 +212,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/13-plugged-in-the-brain/</loc>
+    <lastmod>2026-06-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/01-process-library-and-timestamps/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -274,6 +286,18 @@
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/11-google-ai-cert-exam-maximized-mode/</loc>
     <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/12-llms-txt-open-to-ai-crawlers/</loc>
+    <lastmod>2026-06-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/</loc>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -346,6 +370,18 @@
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/</loc>
     <lastmod>2026-06-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/</loc>
+    <lastmod>2026-06-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

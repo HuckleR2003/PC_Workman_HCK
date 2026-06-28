@@ -6,953 +6,131 @@
     <link rel="canonical" href="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:url" content="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:type" content="website">
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <meta name="description" content="PC_Workman Security Report - Verified safe, open source, digitally signed. See our security practices and verification methods.">
-    <meta name="keywords" content="PC_Workman security, Sigstore, VirusTotal, CodeQL, open source security">
+    <meta property="og:title" content="PC Workman — Security Policy">
+    <meta property="og:description" content="How every PC Workman release is protected and how to verify it yourself: Sigstore signatures, VirusTotal 0/70, CodeQL on every commit. Open source, auditable.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="description" content="PC Workman Security Policy — Sigstore-signed releases, VirusTotal 0/70, CodeQL on every commit. Verify signatures and hashes yourself, report vulnerabilities, and see supported versions.">
     <meta name="author" content="Marcin Firmuga, HCK_Labs">
-    <title>PC_Workman - Security Report | Safe & Verified</title>
+    <title>Security Policy — PC Workman</title>
 
-    <!-- Fonts - same as main site -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            /* Dark Theme Colors - Matching PC_Workman main site */
-            --bg-primary: #0A192F;
-            --bg-secondary: #020C1B;
-            --bg-tertiary: #112240;
-            --bg-card: #112240;
-            --bg-card-hover: #1A2F4F;
-
-            --text-primary: #E6F1FF;
-            --text-secondary: #8892B0;
-            --text-muted: #6b7280;
-
-            --accent-primary: #00D9FF;
-            --accent-secondary: #00FF99;
-            --accent-glow: rgba(0, 217, 255, 0.3);
-
-            --success: #00FF99;
-            --success-dark: #00cc7a;
-            --warning: #f59e0b;
-            --danger: #FF0066;
-
-            --border-color: rgba(0, 217, 255, 0.1);
-            --border-accent: rgba(0, 217, 255, 0.2);
-
-            /* Fonts */
-            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --font-heading: 'Poppins', sans-serif;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-        }
-
-        body {
-            font-family: var(--font-primary);
-            line-height: 1.6;
-            color: var(--text-primary);
-            background: var(--bg-primary);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        /* BACK BUTTON */
-        .back-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            color: var(--bg-primary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
-        }
-
-        .back-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 255, 153, 0.4);
-        }
-
-        .back-button::before {
-            content: '←';
-            font-size: 1.1rem;
-        }
-
-        /* HEADER */
-        .header {
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            color: var(--bg-primary);
-            padding: 60px 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            box-shadow: 0 0 100px var(--accent-glow);
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -5%;
-            width: 250px;
-            height: 250px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 {
-            font-family: var(--font-heading);
-            font-size: 3.5em;
-            font-weight: 900;
-            margin-bottom: 15px;
-            letter-spacing: -1px;
-            text-shadow: 0 0 30px var(--accent-glow);
-        }
-
-        .header-subtitle {
-            font-size: 1.5em;
-            opacity: 0.95;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-
-        .header-accent {
-            display: inline-block;
-            background: rgba(10, 25, 47, 0.3);
-            padding: 12px 28px;
-            border-radius: 50px;
-            margin-top: 25px;
-            font-size: 1em;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(10, 25, 47, 0.3);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        /* CONTENT */
-        .content {
-            padding: 60px 40px;
-        }
-
-        section {
-            margin-bottom: 80px;
-        }
-
-        .section-title {
-            font-family: var(--font-heading);
-            font-size: 2.2em;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 40px;
-            position: relative;
-            padding-bottom: 20px;
-            border-bottom: 3px solid var(--accent-primary);
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 80px;
-            height: 3px;
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
-        }
-
-        /* SECURITY INTRO SECTION */
-        .security-intro {
-            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-tertiary) 100%);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 40px;
-            margin-bottom: 60px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .security-intro h2 {
-            font-size: 2em;
-            color: var(--accent-primary);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .security-intro p {
-            font-size: 1.1em;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-        }
-
-        .security-intro strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        .security-highlight {
-            background: var(--bg-secondary);
-            border-left: 4px solid var(--accent-primary);
-            padding: 20px;
-            margin-top: 25px;
-            border-radius: 8px;
-        }
-
-        .security-highlight p {
-            margin-bottom: 10px;
-        }
-
-        .security-highlight ul {
-            margin-top: 15px;
-            margin-left: 20px;
-            color: var(--text-secondary);
-        }
-
-        .security-highlight li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-        }
-
-        /* BADGES SECTION */
-        .badges-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-bottom: 50px;
-        }
-
-        .badge-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .badge-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-        }
-
-        .badge-card:hover {
-            border-color: var(--accent-primary);
-            background: var(--bg-card-hover);
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
-            transform: translateY(-5px);
-        }
-
-        .badge-icon {
-            width: 100%;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .badge-icon img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 0 10px var(--accent-glow));
-            border-radius: 8px;
-        }
-
-        .badge-card h3 {
-            font-size: 1.3em;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-
-        .badge-card p {
-            font-size: 0.95em;
-            color: var(--text-secondary);
-        }
-
-        .badge-status {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: var(--success);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-        }
-
-        .badge-status.in-progress {
-            background: var(--warning);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-        }
-
-        /* FILES SCANNING SECTION */
-        .scanning-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-        }
-
-        .scan-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .scan-item:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
-            border-color: var(--accent-primary);
-        }
-
-        .scan-item-header {
-            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .scan-item-header h3 {
-            font-size: 1.3em;
-            font-weight: 700;
-        }
-
-        .scan-item-content {
-            padding: 25px;
-        }
-
-        .scan-item-content p {
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-
-        .scan-item-image {
-            display: block;
-            width: 100%;
-        }
-
-        .scan-item-image img {
-            width: 100%;
-            height: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 0 8px var(--accent-glow));
-            border-radius: 8px;
-        }
-
-        /* VERIFY SECTION */
-        .verify-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 40px;
-            border-left: 4px solid var(--success);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .verify-title {
-            font-size: 1.8em;
-            color: var(--accent-primary);
-            margin-bottom: 30px;
-            font-weight: 700;
-        }
-
-        .verify-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .verify-item {
-            background: var(--bg-secondary);
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid var(--border-accent);
-            transition: all 0.3s ease;
-        }
-
-        .verify-item:hover {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .verify-item h4 {
-            font-size: 1.2em;
-            color: var(--accent-primary);
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .verify-item-number {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            background: var(--accent-primary);
-            color: white;
-            border-radius: 50%;
-            font-size: 0.85em;
-            font-weight: 700;
-        }
-
-        .verify-item p {
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-
-        .code-block {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 15px;
-            margin: 15px 0;
-            overflow-x: auto;
-        }
-
-        .code-block code {
-            color: var(--success);
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            white-space: pre-wrap;
-        }
-
-        /* VERSION LOG */
-        .version-log {
-            background: var(--bg-card);
-            border: 1px solid var(--border-accent);
-            border-radius: 12px;
-            padding: 30px;
-        }
-
-        .version-log h4 {
-            font-size: 1.4em;
-            color: var(--accent-primary);
-            margin-bottom: 25px;
-        }
-
-        .version-entry {
-            padding: 20px;
-            border-left: 3px solid var(--accent-primary);
-            margin-bottom: 20px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-        }
-
-        .version-entry strong {
-            color: var(--text-primary);
-            font-size: 1.1em;
-        }
-
-        .version-date {
-            color: var(--text-muted);
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        .version-entry p {
-            color: var(--text-secondary);
-        }
-
-        /* FOOTER */
-        .footer {
-            background: var(--bg-primary);
-            color: var(--text-secondary);
-            padding: 40px;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .footer p {
-            margin-bottom: 10px;
-        }
-
-        .footer a {
-            color: var(--accent-primary);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: var(--text-primary);
-            text-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-            margin-top: 25px;
-        }
-
-        .footer-links a {
-            padding: 10px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-accent);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .update-timestamp {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 0.85em;
-            opacity: 0.7;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.2em;
-            }
-
-            .header-subtitle {
-                font-size: 1.2em;
-            }
-
-            .content {
-                padding: 40px 20px;
-            }
-
-            .section-title {
-                font-size: 1.8em;
-            }
-
-            .badges-grid,
-            .scanning-grid,
-            .verify-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .verify-section,
-            .security-intro {
-                padding: 25px;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-
-        /* ───────── Blog-style redesign: sticky topbar + denser layout ───────── */
-        body { padding: 0 0 40px; }
-        .container { margin: 26px auto; max-width: 1100px; width: calc(100% - 40px); }
-        .content { padding: 34px 38px; }
-        section { margin-bottom: 44px; }
-        .section-title { font-size: 1.65em; margin-bottom: 22px; padding-bottom: 12px; }
-        .security-intro { padding: 26px 28px; margin-bottom: 36px; }
-        .security-intro h2 { font-size: 1.5em; margin-bottom: 16px; }
-        .security-intro p { font-size: 1em; margin-bottom: 14px; }
-        .security-highlight { padding: 16px 18px; margin-top: 18px; }
-        .badges-grid { gap: 18px; margin-bottom: 0; }
-        .badge-card { padding: 22px; }
-        .scanning-grid { gap: 18px; }
-        .verify-section { padding: 28px; }
-        .verify-grid { gap: 18px; }
-        .verify-item { padding: 20px; }
-        .version-log { padding: 22px; }
-        .version-entry { padding: 14px 16px; margin-bottom: 12px; }
-        .footer { padding: 30px 38px; }
-
-        .sec-topbar { position: sticky; top: 0; z-index: 100; width: 100%; display: flex; align-items: center; gap: 1rem; padding: 0 28px; height: 52px; background: rgba(2, 12, 27, .92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-accent); }
-        .sec-brand { font-family: var(--font-heading); font-weight: 700; font-size: 1rem; color: var(--text-primary); text-decoration: none; white-space: nowrap; }
-        .sec-brand span:first-of-type { color: var(--accent-primary); }
-        .sec-brand .sec-brand-sub { color: var(--text-secondary); font-family: var(--font-primary); font-weight: 400; font-size: .82rem; }
-        .sec-nav { margin-left: auto; display: flex; align-items: center; gap: .1rem; font-size: .8rem; white-space: nowrap; overflow-x: auto; }
-        .sec-nav::-webkit-scrollbar { height: 0; }
-        .sec-nav a { color: #aeb6c2; text-decoration: none; padding: .3rem .5rem; border-radius: 6px; transition: color .15s, background .15s; }
-        .sec-nav a:hover { color: #fff; background: rgba(255, 255, 255, .06); }
-        .sec-nav a.sn-white { color: #fff; font-weight: 700; }
-        .sec-nav a.sn-active { color: var(--accent-primary); font-weight: 700; }
-        .sec-nav .sn-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, .14); margin: 0 .4rem; flex: 0 0 auto; }
-        .sec-nav .sn-series-label { font-family: 'Courier New', monospace; font-weight: 700; font-size: .7rem; letter-spacing: 1px; color: #ff2e4d; padding: 0 .2rem; }
-        .sec-nav a.sn-mon { color: #FFD54A; font-weight: 700; }
-        .sec-nav a.sn-wed { color: #C9852B; font-weight: 700; }
-        .sec-nav a.sn-fri { color: #9B2335; font-weight: 700; }
-        .sec-hero { padding: 38px 40px 28px; border-bottom: 1px solid var(--border-color); background: linear-gradient(135deg, rgba(0, 217, 255, .06), rgba(0, 255, 153, .03)); }
-        .sec-hero h1 { font-family: var(--font-heading); font-size: 2.1em; font-weight: 900; color: var(--text-primary); letter-spacing: -.5px; }
-        .sec-hero-sub { color: var(--text-secondary); font-size: 1em; margin-top: 8px; }
-        @media (max-width: 768px) {
-            .sec-brand .sec-brand-sub { display: none; }
-            .sec-hero { padding: 24px 20px 18px; }
-            .sec-hero h1 { font-size: 1.55em; }
-            .content { padding: 26px 18px; }
-            .sec-topbar { padding: 0 16px; }
-        }
+        .article { padding-top: 1.2rem; padding-bottom: 1rem; }
+        .article .kicker { font-family: var(--font-mono); font-size: .7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim); margin-top: 1.4rem; }
+        .article h1 { font-family: var(--font-mono); font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 800; letter-spacing: -.5px; margin: .35rem 0 .3rem; }
+        .article .updated { font-family: var(--font-mono); font-size: .74rem; color: var(--text-dim); margin-bottom: 1.4rem; }
+        .article h2:first-of-type { margin-top: 1.6rem; }
+        .article .back { font-family: var(--font-mono); font-size: .74rem; color: var(--text-secondary); display: inline-block; margin-top: 2rem; }
+        .sec-badges { display: flex; flex-wrap: wrap; gap: 1.4rem; align-items: center; margin: 1.4rem 0 .4rem; }
+        .sec-badges figure { margin: 0; text-align: center; }
+        .sec-badges img { height: 44px; width: auto; opacity: .92; }
+        .sec-badges figcaption { font-family: var(--font-mono); font-size: .62rem; color: var(--text-dim); margin-top: .35rem; letter-spacing: .5px; }
     </style>
 </head>
 <body>
-    <!-- Blog-style header: brand left, navigation right -->
-    <header class="sec-topbar">
-        <a class="sec-brand" href="index_en.html">PC<span>_</span>Workman<span class="sec-brand-sub"> / security &amp; user safety</span></a>
-        <nav class="sec-nav" aria-label="Primary navigation">
-            <a href="index_en.html">Home</a>
-            <a href="blog/">Blog</a>
-            <a class="sn-active" href="SECURITY_report.html">Security</a>
-            <a class="sn-white" href="download/">Download</a>
-            <a href="guides/">Articles / Guides</a>
-            <span class="sn-sep"></span>
-            <span class="sn-series-label">SERIES:</span>
-            <a class="sn-mon" href="blog/monday-grind-blueprint/">// Mon</a>
-            <a class="sn-wed" href="blog/wednesday-code-autopsy/">// Wed</a>
-            <a class="sn-fri" href="blog/friday-shipped-scarred/">// Fri</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ security</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
 
-    <div class="container">
-        <!-- COMPACT HERO -->
-        <div class="sec-hero">
-            <h1>Security &amp; User Safety</h1>
-            <p class="sec-hero-sub">Verified safe &middot; Open source &middot; Digitally signed &middot; Sigstore &middot; VirusTotal &middot; CodeQL</p>
+    <main class="article">
+        <p class="kicker">Security Policy</p>
+        <h1>Security Policy</h1>
+        <p class="updated">Last updated 26 June 2026 — version 1.5</p>
+
+        <p class="lead">PC Workman needs administrative privileges to read hardware sensors and control fan speeds. That level of access deserves rigorous, verifiable security. This page summarises how every release is protected and how you can verify it yourself — you don't have to take my word for any of it. The full policy lives in <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+
+        <div class="sec-badges">
+            <figure><img src="assets/images/codeql.png" alt="CodeQL">          <figcaption>CodeQL</figcaption></figure>
+            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 0/70</figcaption></figure>
+            <figure><img src="assets/images/github_security.png" alt="Sigstore"> <figcaption>Sigstore signed</figcaption></figure>
+            <figure><img src="assets/images/openssf.png" alt="OpenSSF">          <figcaption>OpenSSF (in progress)</figcaption></figure>
         </div>
 
-        <!-- MAIN CONTENT -->
-        <div class="content">
-            <!-- SECURITY COMMITMENT INTRO -->
-            <div class="security-intro">
-                <h2>Our Security Mission</h2>
-                <p>
-                    I'm doing everything possible to ensure PC_Workman is <strong>perceived as safe and trustworthy</strong> by users, antivirus software, and security platforms.
-                </p>
-                <p>
-                    Security isn't an afterthought—it's built into every release from day one.
-                </p>
-                
-                <div class="security-highlight">
-                    <p><strong>Testing & Verification Process:</strong></p>
-                    <ul>
-                        <li>Before every <strong>stable release</strong>, PC_Workman undergoes comprehensive security testing</li>
-                        <li>All tests are repeated and documented with <strong>version numbers and dates</strong></li>
-                        <li>Security badges are renewed with each stable version to reflect current verification status</li>
-                        <li>This page is updated to show which version was tested and when badges were last verified</li>
-                    </ul>
-                    <p style="margin-top: 15px; color: var(--accent-primary); font-weight: 600;">
-                        Transparency first. Every test. Every version. Every time.
-                    </p>
-                </div>
-            </div>
+        <h2>How every release is protected</h2>
+        <ul>
+            <li><b>Sigstore digital signatures</b> — cryptographic proof that a release is authentic, active since January 20, 2026.</li>
+            <li><b>VirusTotal scanning</b> — every <code>.exe</code> is checked against 70+ antivirus engines before release (currently 0/70).</li>
+            <li><b>CodeQL</b> — automated security scanning on every commit to <code>main</code>.</li>
+            <li><b>Private vulnerability reporting</b> + Dependabot alerts on GitHub.</li>
+            <li><b>Documented testing</b> — version, date and results recorded publicly; source tagged and archived per release.</li>
+        </ul>
 
-            <!-- FILES SCANNING (moved to top) -->
-            <section>
-                <h2 class="section-title">PC_WORKMAN - Files Scanning</h2>
+        <h2>Verify it yourself</h2>
+        <p>Before running any release, you can confirm it is authentic and clean:</p>
+        <p><b>1. Verify the Sigstore signature</b></p>
+        <pre><code>sigstore verify github \
+  PC_Workman_HCK_&lt;version&gt;.exe \
+  --bundle sigstore.bundle</code></pre>
+        <p>If verification fails, do not run the file — report it.</p>
+        <p><b>2. Check the SHA256 hash</b> against the value in the release notes</p>
+        <pre><code>Get-FileHash PC_Workman_HCK_&lt;version&gt;.exe -Algorithm SHA256</code></pre>
+        <p><b>3. Scan it on <a href="https://www.virustotal.com">VirusTotal</a></b> (expected: 0 detections) and <b>read the source</b> — every line is on GitHub.</p>
+        <div class="callout warn"><b>Download only from official sources:</b> <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a>, <a href="https://pcworkman.dev">pcworkman.dev</a>, or <a href="https://sourceforge.net/projects/pc-workman-hck/">SourceForge</a>. Executables received by email, Discord or third-party download sites should be treated as untrusted.</div>
 
-                <div class="scanning-grid">
-                    <!-- VirusTotal -->
-                    <div class="scan-item">
-                        <div class="scan-item-header">
-                            <h3>VirusTotal</h3>
-                            <p style="opacity: 0.9; margin-top: 5px;">70+ Antivirus Engines</p>
-                        </div>
-                        <div class="scan-item-content">
-                            <div class="scan-item-image">
-                                <img src="assets/images/virustotal.png" alt="VirusTotal">
-                            </div>
-                        </div>
-                    </div>
+        <h2>Privacy &amp; data</h2>
+        <p>PC Workman is local-first: all system-monitoring data, learned baselines, the offline hck_GPT assistant and your history stay on your device. The only data that can leave is an <b>optional, anonymous hardware &amp; usage snapshot</b> (component models, OS, region from your locale, app version, session length — never your name, IP, files or process names), used to fix hardware incompatibilities and controllable in Settings.</p>
+        <p>Full details: <a href="privacy_en.html">Privacy Policy</a> (EN + PL) and <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/PRIVACY.md">PRIVACY.md</a>.</p>
 
-                    <!-- OpenSSF -->
-                    <div class="scan-item">
-                        <div class="scan-item-header">
-                            <h3>OpenSSF Scorecard</h3>
-                            <p style="opacity: 0.9; margin-top: 5px;">Security Best Practices</p>
-                        </div>
-                        <div class="scan-item-content">
-                            <div class="scan-item-image">
-                                <img src="assets/images/openssf.png" alt="OpenSSF">
-                            </div>
-                        </div>
-                    </div>
+        <h2>Supported versions</h2>
+        <table>
+            <thead><tr><th>Version</th><th>Supported</th><th>Security updates</th></tr></thead>
+            <tbody>
+                <tr><td>1.8.0 (latest stable)</td><td>Yes</td><td>Best — current release</td></tr>
+                <tr><td>1.7.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
+                <tr><td>1.6.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
+                <tr><td>&lt; 1.6</td><td>No</td><td>End of life</td></tr>
+            </tbody>
+        </table>
 
-                    <!-- CodeQL -->
-                    <div class="scan-item">
-                        <div class="scan-item-header">
-                            <h3>CodeQL Analysis</h3>
-                            <p style="opacity: 0.9; margin-top: 5px;">GitHub / Always On</p>
-                        </div>
-                        <div class="scan-item-content">
-                            <div class="scan-item-image">
-                                <img src="assets/images/codeql.png" alt="CodeQL">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <h2>Reporting a vulnerability</h2>
+        <p>Please report security issues privately, not in public issues:</p>
+        <ul>
+            <li><b>Preferred:</b> GitHub → <a href="https://github.com/HuckleR2003/PC_Workman_HCK/security">Security tab</a> → "Report a vulnerability".</li>
+            <li><b>Alternative:</b> email <code>firmuga.marcin.s@gmail.com</code> with subject <code>[SECURITY] PC Workman</code>.</li>
+        </ul>
+        <p>Response timeline: acknowledgment within 24 hours, validation and severity within 72 hours, a fix for critical issues (CVSS 7.0+) within 7 days. Reporters are credited unless anonymity is requested.</p>
 
-            <!-- VERIFICATION METHODS -->
-            <section>
-                <h2 class="section-title">Verification Methods</h2>
-                <div class="badges-grid">
-                    <!-- VirusTotal -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/virustotal.png" alt="VirusTotal">
-                        </div>
-                        <h3>VirusTotal</h3>
-                        <p>Scan any file with 70+ antivirus engines. Upload PC_Workman.exe to verify it's clean.</p>
-                    </div>
+        <h2>Status at a glance</h2>
+        <table>
+            <thead><tr><th>Measure</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr><td>Sigstore signatures</td><td>Active (since Jan 20, 2026)</td></tr>
+                <tr><td>VirusTotal</td><td>0/70 clean — last scanned v1.8.0 (June 22, 2026)</td></tr>
+                <tr><td>CodeQL</td><td>Clean on every commit</td></tr>
+                <tr><td>OpenSSF Best Practices</td><td>In progress (~25%)</td></tr>
+            </tbody>
+        </table>
 
-                    <!-- OpenSSF -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/openssf.png" alt="OpenSSF">
-                        </div>
-                        <h3>OpenSSF Best Practices</h3>
-                        <p>Following OpenSSF security guidelines for open source project development.</p>
-                    </div>
+        <a class="back" href="index_en.html">← Back to PC Workman</a>
+    </main>
 
-                    <!-- GitHub Security -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/github_security.png" alt="GitHub Security">
-                        </div>
-                        <h3>GitHub Security Features</h3>
-                        <p>Dependabot, secret scanning, code scanning, and security advisories enabled.</p>
-                    </div>
-                </div>
-            </section>
+    <footer class="foot">
+        PC Workman · built in public by <a href="https://github.com/HuckleR2003">Marcin Firmuga</a> · MIT · <a href="privacy_en.html">Privacy</a>
+    </footer>
 
-            <!-- VERIFY YOURSELF -->
-            <section>
-                <div class="verify-section">
-                    <h3 class="verify-title">CHECK BY YOURSELF</h3>
-                    
-                    <div class="verify-grid">
-                        <!-- VirusTotal -->
-                        <div class="verify-item">
-                            <h4>
-                                <span class="verify-item-number">1</span>
-                                VirusTotal Scan
-                            </h4>
-                            <p>Check if PC_Workman.exe is safe using 70+ antivirus engines.</p>
-                            <p style="font-size: 0.85em; color: var(--text-muted);">Go to:</p>
-                            <div class="code-block">
-                                <code>https://www.virustotal.com</code>
-                            </div>
-                            <p style="font-size: 0.85em; margin-top: 10px;">Upload your PC_Workman_HCK.exe file</p>
-                            <p style="font-size: 0.85em; color: var(--success); font-weight: 600;">Expected: 4/70 detections (CLEAN)</p>
-                        </div>
-
-                        <!-- Sigstore -->
-                        <div class="verify-item">
-                            <h4>
-                                <span class="verify-item-number">2</span>
-                                Sigstore Certificate
-                            </h4>
-                            <p>Verify PC_Workman was signed by official source.</p>
-                            <p style="font-size: 0.85em; color: var(--text-muted);">Run in PowerShell/Terminal:</p>
-                            <div class="code-block">
-                                <code>sigstore verify github \
-  PC_Workman_HCK_1.6.4.exe \
-  --bundle sigstore.bundle</code>
-                            </div>
-                            <p style="font-size: 0.85em; color: var(--success); font-weight: 600;">Expected: "Signature verified"</p>
-                        </div>
-
-                        <!-- GitHub -->
-                        <div class="verify-item">
-                            <h4>
-                                <span class="verify-item-number">3</span>
-                                Review Source Code
-                            </h4>
-                            <p>Read the code yourself. 100% open source on GitHub.</p>
-                            <p style="font-size: 0.85em; color: var(--text-muted);">Go to repository:</p>
-                            <div class="code-block">
-                                <code>github.com/HuckleR2003/\
-PC_Workman_HCK</code>
-                            </div>
-                            <p style="font-size: 0.85em;">Clone, review, or audit the code anytime.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- DOCUMENTATION -->
-            <section>
-                <h2 class="section-title">Documentation & Updates</h2>
-
-                <div class="badges-grid">
-                    <!-- CHANGELOG -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/github_security.png" alt="GitHub">
-                        </div>
-                        <h3>CHANGELOG.md</h3>
-                        <p>Complete version history since day one. Track every update, fix, and security improvement.</p>
-                        <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md"
-                           style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">View</a>
-                    </div>
-
-                    <!-- README -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/github_security.png" alt="GitHub">
-                        </div>
-                        <h3>README.md</h3>
-                        <p>Continuously updated with features, installation guide, and usage documentation.</p>
-                        <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/README.md"
-                           style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">View</a>
-                    </div>
-
-                    <!-- Socials -->
-                    <div class="badge-card">
-                        <div class="badge-icon">
-                            <img src="assets/images/github_security.png" alt="GitHub">
-                        </div>
-                        <h3>Social Channels</h3>
-                        <p>Follow development on LinkedIn, Twitter, Reddit. Direct from creator - Marcin only.</p>
-                        <a href="https://linktr.ee/marcin_firmuga" target="_blank" rel="noopener" style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">Follow</a>
-                    </div>
-                </div>
-            </section>
-
-            <!-- VERSION LOG -->
-            <section>
-                <h2 class="section-title">Version Testing Log</h2>
-                <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                    Every stable version is thoroughly tested and verified. Below is the testing record:
-                </p>
-                
-                <div class="version-log">
-                    <h4>Verified Releases</h4>
-                    
-                    <div class="version-entry">
-                        <strong>v1.6.4 - Security Verified Release</strong>
-                        <div class="version-date">January 24, 2026</div>
-                        <p style="margin-top: 8px; font-size: 0.9em;">
-                            Sigstore signed | VirusTotal: 4/70 clean | CodeQL passed | Security audit complete
-                        </p>
-                    </div>
-
-                    <div class="version-entry">
-                        <strong>v1.6.3 - First .EXE Release</strong>
-                        <div class="version-date">January 23, 2026</div>
-                        <p style="margin-top: 8px; font-size: 0.9em;">
-                            VirusTotal: 4/70 clean | Real user testing | First bugs fixed
-                        </p>
-                    </div>
-
-                    <div class="version-entry">
-                        <strong>v1.6.2 - Beta Testing</strong>
-                        <div class="version-date">January 22, 2026</div>
-                        <p style="margin-top: 8px; font-size: 0.9em;">
-                            Community testers verified | No errors reported | Stable
-                        </p>
-                    </div>
-                </div>
-
-                <p style="margin-top: 20px; color: var(--text-secondary); font-size: 0.9em;">
-                    <strong>Update Schedule:</strong> Tests and badges are renewed with each stable version release. New versions undergo the same verification process.
-                </p>
-            </section>
-
-            <!-- SECURITY COMMITMENT -->
-            <section>
-                <h2 class="section-title">Our Security Commitment</h2>
-                <div style="background: var(--bg-card); padding: 30px; border-radius: 8px; border-left: 4px solid var(--accent-primary); border: 1px solid var(--border-accent);">
-                    <p style="font-size: 1.05em; line-height: 1.8; color: var(--text-secondary);">
-                        We do everything to ensure PC_Workman is perceived as safe and trustworthy:
-                    </p>
-                    <ul style="margin-top: 20px; margin-left: 20px; color: var(--text-secondary); list-style: none;">
-                        <li style="margin-bottom: 12px;"><strong>Open Source:</strong> All code publicly available for audit and review</li>
-                        <li style="margin-bottom: 12px;"><strong>Digitally Signed:</strong> Every release signed with Sigstore</li>
-                        <li style="margin-bottom: 12px;"><strong>Malware Scanned:</strong> 70+ antivirus engines verify each version</li>
-                        <li style="margin-bottom: 12px;"><strong>Security Tested:</strong> CodeQL continuously scans for vulnerabilities</li>
-                        <li style="margin-bottom: 12px;"><strong>Transparent:</strong> Version history and testing records publicly available</li>
-                        <li style="margin-bottom: 12px;"><strong>Responsive:</strong> Security issues addressed within 24 hours</li>
-                    </ul>
-                </div>
-            </section>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <p><strong>PC_Workman v1.6.4</strong> - Security Report & Verification</p>
-            <p style="margin-top: 15px;">
-                Built by Marcin Firmuga |
-                <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener">HCK_Labs</a> |
-                <a href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHub</a>
-            </p>
-            
-            <div class="footer-links">
-                <a href="index_en.html" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: var(--bg-primary);">← Back to PC_Workman</a>
-                <a href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHub Repository</a>
-                <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/.github/SECURITY.md">Security Policy</a>
-                <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/DEPENDENCIES.md">Dependencies</a>
-                <a href="https://www.virustotal.com">Verify on VirusTotal</a>
-            </div>
-
-            <div class="update-timestamp">
-                <p>Last Updated: January 24, 2026</p>
-                <p style="margin-top: 10px; opacity: 0.7;">This page is updated quarterly with new verification results and security improvements.</p>
-            </div>
-        </div>
-    </div>
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>
