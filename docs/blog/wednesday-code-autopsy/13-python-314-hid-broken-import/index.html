@@ -1,0 +1,151 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A quality audit found two invisible bugs: a missing Optional import that only crashes on Python versions I don't develop on, and a mini anti-virus whose first act was flagging NVIDIA's driver and python.exe as malware.">
+    <meta name="keywords" content="Wednesday Code Autopsy, Python 3.14, PEP 749 lazy annotations, Optional import, Authenticode, false positives, PC Workman, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/">
+    <meta property="og:title" content="Wednesday Code Autopsy #13: Two Invisible Bugs — One Python Hid, One That Accused NVIDIA">
+    <meta property="og:description" content="My code worked perfectly on my machine. That's exactly why it was broken for everyone else — a missing import Python 3.14 hid, and a mini-AV that flagged NVIDIA and Python as malware.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
+    <meta property="article:published_time" content="2026-06-17">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wednesday Code Autopsy #13: Two Invisible Bugs — One Python Hid, One That Accused NVIDIA | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wednesday Code Autopsy #13: Two Invisible Bugs — One Python Hid, One That Accused NVIDIA",
+  "description": "My code worked perfectly on my machine. That's exactly why it was broken for everyone else — a missing import Python 3.14 hid, and a mini-AV that flagged NVIDIA and Python as malware.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/",
+  "datePublished": "2026-06-17",
+  "dateModified": "2026-06-17",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Wednesday Code Autopsy",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#13", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #13</span>
+        <h1>Two Invisible Bugs: One Python Hid, One That Accused NVIDIA</h1>
+        <p class="tagline">My code worked perfectly on my machine. That's exactly why it was broken for everyone else.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-17</span><span>&middot;</span><span>5 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #13</span>
+        </div>
+
+        <p class="lead">This week I ran a full quality audit on PC Workman &mdash; static analysis plus a custom harness that fires all 82 intents in both languages. It found 5 real defects. Two of them are the kind that make you stare at the screen for a while.</p>
+
+<h2>Bug one: Python 3.14 hid a broken import from me</h2>
+<p><code>insights.py</code> used <code>Optional[str]</code> in its annotations. But it never imported <code>Optional</code>.</p>
+<p>On my machine: works perfectly. Zero errors. Ships fine. On Python 3.9 through 3.13 &mdash; <span class="hl">the versions I officially support</span> &mdash; it crashes on import. The entire Insights module silently turns itself off.</p>
+<p>Why did it work for me? Python 3.14 (what I develop on) added lazy annotations, PEP 749. Annotations don't get evaluated at import time anymore, so the missing import never fired on my setup. <span class="hl-red">A bug that only exists on hardware you don't own is the hardest bug to see, because your machine actively hides it from you.</span></p>
+
+<h2>Bug two: my mini anti-virus accused NVIDIA and Python of being malware</h2>
+<p>The engine asks what a real analyst asks: who signed this process, is the name a fake, is it pretending to be a system process from a suspicious location.</p>
+<p>The first version flagged my NVIDIA driver. And <code>python.exe</code>. As suspicious. Why? NVIDIA's driver is signed by &ldquo;Microsoft Windows Hardware Compatibility Publisher,&rdquo; not &ldquo;NVIDIA Corporation.&rdquo; My code didn't recognise the Microsoft WHCP signature and got suspicious. And Python is often unsigned entirely, which my code read as a red flag. Both flagged.</p>
+<div class="callout">
+The fix was teaching the engine two real-world truths: <b>any valid Microsoft signature means trusted</b>, and <b>missing a signature is not the same as being a threat</b>. From over-zealous to zero false positives. A security tool that cries wolf gets its notifications muted in a day. Then it protects nothing.
+</div>
+
+<p>Both bugs share a DNA: they were invisible. One because my Python version hid it, one because &ldquo;unsigned&rdquo; looked guilty. Neither crashed loudly. <span class="hl">Both needed someone to actually go looking.</span> That's the quiet reality of building solo &mdash; nobody tells you if it's a good direction, near no one points at the silent bug. You either keep auditing your own work, or things rot in the dark where nothing screams.</p>
+
+<p><strong>What's the longest a bug survived in your code because nothing ever crashed?</strong></p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../12-thermal-baseline-five-contexts/"><span class="pn-dir">&larr; #12</span><span class="pn-title">The Thermal Baseline That Fits in Five Contexts</span></a><a class="pn-next" href="../14-ai-brain-it-couldnt-reach/"><span class="pn-dir">#14 &rarr;</span><span class="pn-title">My AI Had a Brain — It Just Couldn't Reach It</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
