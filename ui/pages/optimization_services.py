@@ -29,6 +29,12 @@ _M    = _MONOF  # monospace / numbers
 _BODY = _UIF
 _MONO = _MONOF
 
+try:
+    from utils.i18n import t
+except Exception:
+    def t(key, default=None, **kw):
+        return default if default is not None else key
+
 # Page-level navigation callback (set in build_optimization_page) so nested card
 # builders can jump to another page — e.g. the MANAGER 'i' -> Services Manager.
 _NAV = {"cb": None}
@@ -42,8 +48,8 @@ BORDER  = "#161d2c"
 BORDER2 = "#1e2840"
 LINE    = "#141826"
 TEXT    = "#c4cfdf"
-MUTED   = "#3d4a60"
-DIM     = "#1e2838"
+MUTED   = "#93a1b5"   # readable muted (was #3d4a60 — barely visible on dark)
+DIM     = "#74839a"   # readable dim   (was #1e2838 — nearly invisible)
 AMBER   = "#f59e0b"
 EMERALD = "#10b981"
 VIOLET  = "#8b5cf6"
@@ -452,12 +458,12 @@ def _build_hero_header(parent, back_fn=None):
         if W < 10:
             return
         H = 64
-        # Gradient bands
+        # Gradient bands  (loop var must NOT shadow the i18n `t` used below)
         for y in range(H):
-            t = y / H
-            r = int(8   + (18 - 8)   * t)
-            g = int(11  + (22 - 11)  * t)
-            b = int(16  + (38 - 16)  * t)
+            tt = y / H
+            r = int(8   + (18 - 8)   * tt)
+            g = int(11  + (22 - 11)  * tt)
+            b = int(16  + (38 - 16)  * tt)
             hero.create_line(0, y, W, y, fill=_hex(r, g, b))
         # Accent line
         hero.create_line(0, H-1, W, H-1, fill=BORDER2)
@@ -466,7 +472,7 @@ def _build_hero_header(parent, back_fn=None):
         # Title + subtitle
         hero.create_text(18, 18, text="OPTIMIZATION", anchor="w",
                          font=(_HDR, 13), fill=TEXT)
-        hero.create_text(18, 38, text="Features, automation & power management",
+        hero.create_text(18, 38, text=t("optimization.header_sub", default="Features, automation & power management"),
                          anchor="w", font=(_F, 8), fill=MUTED)
         # Feature count badge
         hero.create_rectangle(W - 90, 22, W - 8, 42,
@@ -477,7 +483,7 @@ def _build_hero_header(parent, back_fn=None):
         # Back link — quiet, bottom-right (only when back_fn provided)
         if back_fn:
             hero.create_text(W - 10, 57, text="‹ Dashboard",
-                             anchor="e", font=(_F, 7), fill="#273448",
+                             anchor="e", font=(_F, 7), fill="#6b7a90",
                              tags="back_nav")
 
     hero.bind("<Configure>", _draw_hero)
@@ -487,7 +493,7 @@ def _build_hero_header(parent, back_fn=None):
         hero.tag_bind("back_nav", "<Enter>",
                       lambda e: hero.itemconfig("back_nav", fill="#8b5cf6"))
         hero.tag_bind("back_nav", "<Leave>",
-                      lambda e: hero.itemconfig("back_nav", fill="#273448"))
+                      lambda e: hero.itemconfig("back_nav", fill="#6b7a90"))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -581,7 +587,7 @@ def _build_quick_actions(parent, nav_callback=None):
       3. Disk Defragmenter     -> open dfrgui
       4. Weekly Perf Report    -> open report Toplevel
     """
-    _section_label(parent, "QUICK  ACTIONS")
+    _section_label(parent, t("optimization.section_quick_actions", default="QUICK ACTIONS"))
 
     wrap = tk.Frame(parent, bg=CARD,
                     highlightbackground=BORDER, highlightthickness=1)
@@ -623,9 +629,9 @@ def _build_quick_actions(parent, nav_callback=None):
         row.pack(fill="x")
 
         col   = qa["color"]
-        label = qa["label"]
-        sub   = qa["sub"]
-        btn_t = qa["btn"]
+        label = t(f"optimization.quick_actions.{qa['key']}.label", default=qa["label"])
+        sub   = t(f"optimization.quick_actions.{qa['key']}.sub",  default=qa["sub"])
+        btn_t = t(f"optimization.btn_{qa['btn'].lower()}",         default=qa["btn"])
 
         # ── Left accent bar (4 px - 70 % wider than original 2 px) ───────────
         tk.Frame(row, bg=col, width=4).pack(side="left", fill="y")
@@ -637,12 +643,12 @@ def _build_quick_actions(parent, nav_callback=None):
         # Text block: label + subtitle
         txt = tk.Frame(row, bg=row_bg)
         txt.pack(side="left", fill="both", expand=True)
-        tk.Label(txt, text=label, font=(_HDR, 7),
+        tk.Label(txt, text=label, font=(_HDR, 9),
                  bg=row_bg, fg="#a0b4cc" if row_bg == CARD else "#4aaa70",
                  anchor="w").pack(anchor="w", pady=(4, 0))
         if sub:
-            tk.Label(txt, text=sub, font=(_F, 6),
-                     bg=row_bg, fg=MUTED, anchor="w").pack(anchor="w", pady=(0, 4))
+            tk.Label(txt, text=sub, font=(_F, 8),
+                     bg=row_bg, fg="#9fb0c6", anchor="w").pack(anchor="w", pady=(0, 4))
 
         # RUN / OPEN / VIEW button  (slightly larger: padx=10, pady=4)
         btn = tk.Label(row, text=btn_t, font=(_HDR, 6),
@@ -711,7 +717,7 @@ def _build_quick_actions(parent, nav_callback=None):
 
 def _build_live_mini(parent):
     """CPU / RAM / GPU live bars - updates every 2 s via after()."""
-    _section_label(parent, "LIVE  NOW")
+    _section_label(parent, t("optimization.section_live_now", default="LIVE NOW"))
 
     wrap = tk.Frame(parent, bg=CARD,
                     highlightbackground=BORDER, highlightthickness=1)
@@ -730,9 +736,9 @@ def _build_live_mini(parent):
         # Label row: name  •••  value
         hdr = tk.Frame(row, bg=CARD)
         hdr.pack(fill="x")
-        tk.Label(hdr, text=name, font=(_F, 5, "bold"),
-                 bg=CARD, fg=MUTED).pack(side="left")
-        vl = tk.Label(hdr, text="-", font=(_M, 5),
+        tk.Label(hdr, text=name, font=(_F, 7, "bold"),
+                 bg=CARD, fg="#9fb0c6").pack(side="left")
+        vl = tk.Label(hdr, text="-", font=(_M, 7),
                       bg=CARD, fg=col)
         vl.pack(side="right")
         _val_lbls[name] = vl
@@ -787,7 +793,7 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
     """TURBO Service Stop expanded panel: profile chips -> service list -> stop/restore."""
     _BG  = "#090c14"
     _BD  = "#19243a"
-    _MUT = "#334560"
+    _MUT = "#8f9db2"
     _DARK = "#060910"
 
     # ── Profile selector ──────────────────────────────────────────────────────
@@ -826,7 +832,7 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
                      bg=_DARK, fg=_BD).pack(side="left")
             friendly = _SVC_LABELS.get(svc, svc)
             tk.Label(row, text=friendly, font=(_F, 6),
-                     bg=_DARK, fg="#3e5878", anchor="w",
+                     bg=_DARK, fg="#7f93ad", anchor="w",
                      ).pack(side="left", padx=(4, 0), fill="x", expand=True)
             sl = tk.Label(row, text="", font=(_F, 5), bg=_DARK, fg=_MUT)
             sl.pack(side="right", padx=4)
@@ -974,7 +980,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
     """Process Guard expanded panel: idle threshold -> auto-suspend -> live process list."""
     _BG   = "#090c14"
     _BD   = "#19243a"
-    _MUT  = "#334560"
+    _MUT  = "#8f9db2"
     _DARK = "#060910"
 
     # ── Idle threshold chips ──────────────────────────────────────────────────
@@ -1027,7 +1033,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
     # Security notice
     sec_lbl = tk.Label(auto_row, text="✓ anti-spoof check",
-                       font=(_F, 6), bg=_BG, fg="#1e4030")
+                       font=(_F, 6), bg=_BG, fg="#5fae7e")
     sec_lbl.pack(side="left")
 
     # ── Process list ──────────────────────────────────────────────────────────
@@ -1080,7 +1086,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
             tk.Label(row, text="●", font=(_BODY, 6),
                      bg=_DARK, fg=dot_c).pack(side="left")
             nm_lbl = tk.Label(row, text=name, font=(_F, 6),
-                              bg=_DARK, fg="#3e5878", anchor="w")
+                              bg=_DARK, fg="#7f93ad", anchor="w")
             nm_lbl.pack(side="left", padx=(3, 0), fill="x", expand=True)
             if susp:
                 tk.Label(row, text="⚠", font=(_BODY, 6),
@@ -1121,7 +1127,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
         else:
             turbo_processes.stop()
             mon_lbl.config(text="inactive", fg=_MUT)
-            sec_lbl.config(fg="#1e4030")
+            sec_lbl.config(fg="#5fae7e")
             _refresh()
 
     def _tick():
@@ -1297,7 +1303,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     col_hdr.pack(fill="x", padx=10, pady=(0, 2))
     for col_txt in ["APLIKACJA", "NIEAKTYWNA", "RAM", "CPU"]:
         tk.Label(col_hdr, text=col_txt, font=(_HDR, 5),
-                 bg=_BG, fg="#3a5470",
+                 bg=_BG, fg="#7f93ad",
                  anchor="w").pack(side="left", padx=(0, 8))
 
     list_frame = tk.Frame(page_unused, bg=_DARK,
@@ -1350,7 +1356,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
             # ── Process name ────────────────────────────────────────────────
             tk.Label(row, text=name, font=(_F, 6),
-                     bg=_DARK, fg="#6080a0", anchor="w", width=16
+                     bg=_DARK, fg="#8a9cb5", anchor="w", width=16
                      ).pack(side="left", padx=(3, 0))
 
             # ── Metrics ─────────────────────────────────────────────────────
@@ -1552,7 +1558,7 @@ def _build_features_grid(parent):
     # ── Header row ────────────────────────────────────────────────────────────
     hdr_row = tk.Frame(parent, bg=BG)
     hdr_row.pack(fill="x", pady=(0, 8))
-    tk.Label(hdr_row, text="FEATURES",
+    tk.Label(hdr_row, text=t("optimization.section_features", default="FEATURES"),
              font=(_F, 6, "bold"), bg=BG, fg=MUTED).pack(side="left")
     tk.Frame(hdr_row, bg=LINE, height=1).pack(
         side="left", fill="x", expand=True, padx=8)
@@ -1716,10 +1722,30 @@ def _build_features_grid(parent):
     grid_frame.columnconfigure(0, weight=1, uniform="feat")
     grid_frame.columnconfigure(1, weight=1, uniform="feat")
 
-    for idx, feat in enumerate(features):
-        col = idx % 2
-        row = idx // 2
-        _build_feature_card(grid_frame, feat, row, col)
+    # Expanding a card makes it span BOTH columns (takes the neighbour's slot) and
+    # the rest re-flow around it — far more room for the expanded content.
+    _cards: list = []
+
+    def _relayout():
+        r = c = 0
+        for outer, state in _cards:
+            if state["open"]:
+                if c == 1:                 # start the full-width card on a fresh row
+                    r += 1; c = 0
+                outer.grid(row=r, column=0, columnspan=2,
+                           sticky="nsew", padx=0, pady=4)
+                r += 1; c = 0
+            else:
+                outer.grid(row=r, column=c, columnspan=1, sticky="nsew",
+                           padx=(0, 4) if c == 0 else 0, pady=4)
+                c += 1
+                if c == 2:
+                    c = 0; r += 1
+
+    for feat in features:
+        outer, state = _build_feature_card(grid_frame, feat, _relayout)
+        _cards.append((outer, state))
+    _relayout()
 
 
 def _ico_glob_feat(c, s, p=None, bg=CARD2):
@@ -1731,15 +1757,17 @@ def _ico_glob_feat(c, s, p=None, bg=CARD2):
     return cv
 
 
-def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
+def _build_feature_card(parent, feat: dict, relayout=None):
     """
     One feature card with:
       - compact view: accent | icon | title + desc | [i]
       - expanded view: adds info text + RUN btn + AUTO + ON TURBO sliders
+    Returns (outer_frame, expanded_state). The caller's _relayout() grids it:
+    an expanded card spans both columns (takes the neighbour's slot).
     """
     key        = feat["key"]
-    title      = feat["title"]
-    desc       = feat["desc"]
+    title      = t(f"optimization.features.{key}.title", default=feat["title"])
+    desc       = t(f"optimization.features.{key}.desc",  default=feat["desc"])
     color      = feat["color"]
     icon_fn    = feat["icon"]
     ready      = feat["ready"]
@@ -1747,17 +1775,15 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
     run_label  = feat["run_label"]
     run_color  = feat["run_color"]
 
-    # Outer wrapper - padded cell
+    # Outer wrapper - padded cell. The caller's _relayout() does the gridding
+    # (a card spans both columns when expanded, otherwise sits in its 2-col slot).
     outer = tk.Frame(parent, bg=BG)
-    outer.grid(row=grid_row, column=grid_col, sticky="nsew",
-               padx=(0 if grid_col else 0, 4 if grid_col == 0 else 0),
-               pady=4)
     outer.columnconfigure(0, weight=1)
 
     # Card frame
     card = tk.Frame(outer, bg=CARD2,
                     highlightbackground=BORDER, highlightthickness=1)
-    card.pack(fill="both", expand=True, padx=(0, 3 if grid_col == 0 else 0))
+    card.pack(fill="both", expand=True, padx=0)
 
     # ── Top accent bar ────────────────────────────────────────────────────────
     tk.Frame(card, bg=color, height=2).pack(fill="x")
@@ -1777,17 +1803,17 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
     # Title + desc
     txt_frame = tk.Frame(compact, bg=CARD2)
     txt_frame.pack(side="left", fill="both", expand=True)
-    title_col = TEXT if ready else "#5a6a82"
-    tk.Label(txt_frame, text=title, font=(_HDR, 8),
+    title_col = TEXT if ready else "#8593a8"
+    tk.Label(txt_frame, text=title, font=(_HDR, 10),
              bg=CARD2, fg=title_col, anchor="w").pack(anchor="w")
-    tk.Label(txt_frame, text=desc, font=(_F, 7),
-             bg=CARD2, fg="#556070" if not ready else "#7a96b2",
+    tk.Label(txt_frame, text=desc, font=(_F, 8),
+             bg=CARD2, fg="#8a98ad" if not ready else "#9fb3cc",
              anchor="w").pack(anchor="w")
 
     # [i] button - gray, toggles highlight
     info_btn = tk.Label(compact, text=" i ",
                         font=(_HDR, 7),
-                        bg="#161d2c", fg="#4a5568",
+                        bg="#161d2c", fg="#7c8aa0",
                         cursor="hand2", padx=5, pady=3,
                         highlightbackground="#1e2840", highlightthickness=1)
     info_btn.pack(side="right", padx=(6, 0))
@@ -1861,7 +1887,7 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
         if _expanded["open"]:
             sep_line.pack_forget()
             expand_frame.pack_forget()
-            info_btn.config(bg="#161d2c", fg="#4a5568",
+            info_btn.config(bg="#161d2c", fg="#7c8aa0",
                             highlightbackground="#1e2840")
         else:
             sep_line.pack(fill="x")
@@ -1869,6 +1895,9 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
             info_btn.config(bg="#1a2a40", fg="#7dd3fc",
                             highlightbackground=BLUE)
         _expanded["open"] = not _expanded["open"]
+        # Re-flow the grid: an open card spans both columns (neighbour's slot)
+        if relayout:
+            relayout()
         # Force grid_frame to recalculate so canvas scrollregion updates
         card.update_idletasks()
 
@@ -1876,7 +1905,7 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
     info_btn.bind("<Enter>",
                   lambda e: info_btn.config(fg="#93c5fd") if not _expanded["open"] else None)
     info_btn.bind("<Leave>",
-                  lambda e: info_btn.config(fg="#4a5568") if not _expanded["open"] else None)
+                  lambda e: info_btn.config(fg="#7c8aa0") if not _expanded["open"] else None)
 
     # ── Feature-specific logic (only for standard expand cards) ──────────────
     if not custom_fn:
@@ -1887,6 +1916,8 @@ def _build_feature_card(parent, feat: dict, grid_row: int, grid_col: int):
         elif key == "turbo_pp":
             _wire_turbo_pp(run_btn, auto_pill, auto_state,
                            turbo_pill, turbo_state, status_lbl, run_color)
+
+    return outer, _expanded
 
 
 def _build_exclusion_panel(parent):
@@ -1915,7 +1946,7 @@ def _build_exclusion_panel(parent):
     count_lbl.pack(side="left", fill="x", expand=True)
 
     refresh_btn = tk.Label(hdr, text="↺ Refresh",
-                           font=(_MONO, 6), bg=_EX_HDR, fg="#334455",
+                           font=(_MONO, 6), bg=_EX_HDR, fg="#6f8093",
                            cursor="hand2", padx=8, pady=4)
     refresh_btn.pack(side="right")
 
@@ -2034,7 +2065,7 @@ def _build_exclusion_panel(parent):
     refresh_btn.bind("<Enter>",
                      lambda e: refresh_btn.config(fg=EMERALD))
     refresh_btn.bind("<Leave>",
-                     lambda e: refresh_btn.config(fg="#334455"))
+                     lambda e: refresh_btn.config(fg="#6f8093"))
 
     wrap.after(200, _refresh_list)
     return wrap
@@ -2309,7 +2340,7 @@ def _build_weekly_chart(parent, gr: int, gc: int,
     """
     _CARD = "#0c0f18"
     _BD   = "#151e2e"
-    _MUT  = "#263650"
+    _MUT  = "#8f9db2"
     _GRID = "#0e1320"
 
     cell = tk.Frame(parent, bg=_CARD,
@@ -2772,19 +2803,16 @@ def _build_highlight_card(parent, week_data: list, wa_fn, wm_fn,
         dot2.create_oval(0, 0, 6, 6, fill=bul_col, outline="")
 
         tk.Label(row, text=text, font=(_BODY, 7),
-                 bg=_R_CARD, fg="#6a8aaa", anchor="w",
+                 bg=_R_CARD, fg="#8fa0b8", anchor="w",
                  wraplength=140).pack(side="left", fill="x", expand=True)
 
 
 def _show_weekly_report(root_win) -> None:
     """Open the 6-week performance report Toplevel - 5 charts + highlights."""
-    import datetime
-
     _N = 6   # weeks
 
     # ── Data - read from minute_avg.csv, aggregate into daily summaries ────────
     import csv as _csv
-    import sys as _sys
 
     def _load_daily_from_csv() -> list:
         """Read minute_avg.csv and return list of {date_str, cpu_avg, ram_avg, gpu_avg}."""
@@ -2897,7 +2925,7 @@ def _show_weekly_report(root_win) -> None:
     _W_CARD = "#0c0f18"
     _W_BD   = "#151e2e"
     _W_TXT  = "#c4cfdf"
-    _W_MUT  = "#2a3a54"
+    _W_MUT  = "#8f9db2"
     _W_SOFT = "#4a6080"
 
     # ── Window ────────────────────────────────────────────────────────────────
@@ -2918,10 +2946,10 @@ def _show_weekly_report(root_win) -> None:
         Wh = hdr.winfo_width()
         H  = 72
         for y in range(H):
-            t = y / H
-            r = int(7  + (15 - 7)  * t)
-            g = int(9  + (20 - 9)  * t)
-            b = int(14 + (30 - 14) * t)
+            tt = y / H
+            r = int(7  + (15 - 7)  * tt)
+            g = int(9  + (20 - 9)  * tt)
+            b = int(14 + (30 - 14) * tt)
             hdr.create_line(0, y, Wh, y, fill=_hex(r, g, b))
         hdr.create_line(0, H - 1, Wh, H - 1, fill=_W_BD)
         # Violet left accent bar (fading out)
@@ -3042,7 +3070,7 @@ def _show_weekly_report(root_win) -> None:
 
     summary = _generate_report_summary(week_data, _N)
     tk.Label(footer, text=summary,
-             font=(_BODY, 7), bg="#090c14", fg="#3d5878",
+             font=(_BODY, 7), bg="#090c14", fg="#7f93ad",
              justify="left", anchor="w", wraplength=700,
              ).pack(side="left", padx=14, pady=8, fill="x", expand=True)
 
