@@ -9,6 +9,10 @@ import platform
 import json
 import os
 
+# No console flash + never crash the subprocess reader thread on stray bytes.
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
+
 class ServicesManager:
     """Manages Windows services optimization"""
 
@@ -89,8 +93,8 @@ class ServicesManager:
             result = subprocess.run(
                 ["sc", "query", service_name],
                 capture_output=True,
-                text=True,
-                timeout=5
+                text=True, errors="replace",
+                timeout=5, creationflags=_NO_WINDOW
             )
 
             if "RUNNING" in result.stdout:
@@ -112,15 +116,15 @@ class ServicesManager:
             subprocess.run(
                 ["sc", "stop", service_name],
                 capture_output=True,
-                timeout=10
+                timeout=10, creationflags=_NO_WINDOW
             )
 
             # Disable the service
             result = subprocess.run(
                 ["sc", "config", service_name, "start=", "disabled"],
                 capture_output=True,
-                text=True,
-                timeout=10
+                text=True, errors="replace",
+                timeout=10, creationflags=_NO_WINDOW
             )
 
             if result.returncode == 0:
@@ -140,8 +144,8 @@ class ServicesManager:
             result = subprocess.run(
                 ["sc", "config", service_name, "start=", "demand"],
                 capture_output=True,
-                text=True,
-                timeout=10
+                text=True, errors="replace",
+                timeout=10, creationflags=_NO_WINDOW
             )
 
             if result.returncode == 0:
