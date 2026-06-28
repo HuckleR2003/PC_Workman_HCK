@@ -1,0 +1,161 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="I submitted PC Workman to the Microsoft Store. It got rejected twice — not for the code, but for a blurry tile icon and a privacy-policy link that pointed at a security policy. A rejection that's really a checklist.">
+    <meta name="keywords" content="Friday Shipped and Scarred, Microsoft Store, MSIX, Partner Center, certification, privacy policy, PC Workman v1.8.0, build in public">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/">
+    <meta property="og:title" content="Friday Shipped & Scarred #14: Microsoft Store Said No — Over a Blurry Icon and the Wrong Link">
+    <meta property="og:description" content="A year ago the Store was the last line of a roadmap I didn't believe I'd reach. This week I submitted. Microsoft said no — over a fuzzy PNG and a privacy link pointing at the wrong file.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-friday.png">
+    <meta property="article:published_time" content="2026-06-26">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #14: Microsoft Store Said No — Over a Blurry Icon and the Wrong Link | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #14: Microsoft Store Said No — Over a Blurry Icon and the Wrong Link",
+  "description": "A year ago the Store was the last line of a roadmap I didn't believe I'd reach. This week I submitted. Microsoft said no — over a fuzzy PNG and a privacy link pointing at the wrong file.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/",
+  "datePublished": "2026-06-26",
+  "dateModified": "2026-06-26",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@firmuga.marcin.s", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#14", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #14</span>
+        <h1>Microsoft Store Said No &mdash; Over a Blurry Icon and the Wrong Link</h1>
+        <p class="tagline">A year ago, &ldquo;Microsoft Store&rdquo; was the last line of a roadmap I wrote but didn't believe I'd reach. This week I submitted PC Workman to it. Microsoft said no.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-06-26</span><span>&middot;</span><span>5 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #14</span>
+        </div>
+
+        <p class="lead">Not because of the code. Because of a blurry icon and a Security Policy link to the wrong file.</p>
+
+<p>Monday's plan was the gaming overlay and your community intents. Those shipped. But the real story of this week happened somewhere I circled for 12 months and never dared to open: <span class="hl">Microsoft Partner Center</span>.</p>
+
+<h2>Shipped</h2>
+<ul>
+<li><span class="hl-green">My first .msix package. Ever.</span> Four .exe releases behind me, and packaging for the Store was a different planet. 3 hours, 6 broken files, two tools tested. MSIX Hero finally won.</li>
+<li><span class="hl-green">Full Partner Center submission</span> &mdash; store listing, descriptions, features, screenshots. Two days of research turned into a real product page sitting inside Microsoft's system.</li>
+<li><span class="hl-green">v1.8.0 stable</span> &mdash; the release where the monitor finally got a memory.</li>
+<li>Finished Google's &ldquo;Skills of Tomorrow 3.0 AI&rdquo; (SGH and Google).</li>
+<li>And quietly, the project turned <span class="hl">one year old</span> this week. 12 dead projects came before it. This is the one that didn't die.</li>
+</ul>
+
+<div class="callout warn">
+<b>Scarred:</b> certification failed. Twice. First attempt, I forgot to give them a logo at all (yes, really). Second attempt, two things stopped me. <span class="hl-red">&ldquo;Please provide a clear tile icon, not distorted, blurry, or low resolution.&rdquo;</span> A year of voltage-anomaly math and offline AI &mdash; my blocker was a fuzzy PNG. And <span class="hl-red">&ldquo;The privacy policy link doesn't display a privacy policy.&rdquo;</span> I'd pointed them at my SECURITY.md. That's a security policy, not a privacy policy. The reviewer opened the link and correctly said: this isn't what we asked for.
+</div>
+
+<p>A rejection that says &ldquo;fix these two things and resubmit&rdquo; isn't a no. It's the Store telling me I'm <em>this</em> close. A year ago that line was a fantasy. This week it's a checklist.</p>
+
+<h2>What's next</h2>
+<ul>
+<li>New icon &mdash; already drawn. Going in clean this time.</li>
+<li>A real, readable Privacy Policy, living on pcworkman.dev where it belongs.</li>
+<li>Resubmit. And maybe, maybe, the next Friday is a different kind of post.</li>
+</ul>
+
+<p>Welding plastics by day. Building for the Store by night. The same rhythm that built every line of this.</p>
+
+<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">MicrosoftStore</span><span class="tag">Python</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../13-plugged-in-the-brain/"><span class="pn-dir">&larr; #13</span><span class="pn-title">Built a Brain for My App, Forgot to Plug It In</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
