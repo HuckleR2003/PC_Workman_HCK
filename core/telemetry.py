@@ -44,13 +44,32 @@ def _country() -> str:
         return ""
 
 
+def _resolve_version(app_version: str = "") -> str:
+    """Use the caller's version, else read APP_VERSION from startup.py (tracks the
+    real version in dev and frozen builds), else a safe fallback. Stops empty
+    app_version="" payloads from the Settings 'send on enable' path."""
+    if app_version:
+        return app_version
+    try:
+        import os, re
+        from utils.paths import BUNDLE_DIR
+        with open(os.path.join(BUNDLE_DIR, "startup.py"), encoding="utf-8") as f:
+            for line in f:
+                m = re.match(r'\s*APP_VERSION\s*=\s*["\']([^"\']+)["\']', line)
+                if m:
+                    return m.group(1)
+    except Exception:
+        pass
+    return "1.8.0"
+
+
 def build_payload(app_version: str = "") -> dict:
     """The exact anonymous snapshot we would send. Safe to show the user verbatim."""
     from core import network
 
     payload = {
         "install_id":  network.get_install_id(),
-        "app_version": app_version,
+        "app_version": _resolve_version(app_version),
         "ts":          int(time.time()),
         "session_min": int((time.time() - _session_start) / 60),
         "os":          _os_info(),
@@ -90,8 +109,17 @@ def build_payload(app_version: str = "") -> dict:
 
 
 def send(app_version: str = "") -> bool:
-    """Send the snapshot if (and only if) the user opted in. Returns success."""
+    """Send the snapshot if (and only if) the user opted in. Returns success.
+
+    Runs a synchronous hardware scan first so the payload carries real specs even
+    when the user never opened the My PC -> Components tab. Call off the UI thread
+    (startup fires this from a daemon thread; Settings from 'telemetry-now')."""
     from core import network
     if not network.telemetry_enabled() or not ENDPOINT:
         return False
+    try:
+        from core.hardware_detector import get_hardware_detector
+        get_hardware_detector().ensure_data()   # blocks here until specs are known
+    except Exception:
+        pass
     return network.post_json(ENDPOINT, build_payload(app_version))
