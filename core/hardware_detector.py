@@ -1,7 +1,11 @@
+import json
 import platform
 import subprocess
 import threading
 from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+
+# Hide the transient console window when shelling out to wmic / PowerShell.
+_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 try:
     import psutil
@@ -17,10 +21,24 @@ except ImportError:
     HAS_GPUTIL = False
 
 
-def _wmic(wmi_path: str, get_fields: list, timeout: int = 8) -> list:
+# Legacy wmic aliases -> modern CIM class names (wmic.exe is removed on Windows
+# 11 24H2+ builds, so we fall back to PowerShell Get-CimInstance there).
+_WMIC_TO_CIM = {
+    "cpu":         "Win32_Processor",
+    "memorychip":  "Win32_PhysicalMemory",
+    "baseboard":   "Win32_BaseBoard",
+    "diskdrive":   "Win32_DiskDrive",
+    "os":          "Win32_OperatingSystem",
+}
+
+
+def _run_wmic(wmi_path: str, get_fields: list, timeout: int = 8) -> list:
+    """Query via the legacy wmic.exe. Returns [] if wmic is missing/failed."""
     try:
         cmd = ["wmic", wmi_path, "get", ",".join(get_fields), "/format:csv"]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        result = subprocess.run(cmd, capture_output=True, text=True,
+                                errors="replace",
+                                timeout=timeout, creationflags=_NO_WINDOW)
         if result.returncode != 0:
             return []
         lines = [l.strip() for l in result.stdout.splitlines() if l.strip()]
@@ -37,6 +55,49 @@ def _wmic(wmi_path: str, get_fields: list, timeout: int = 8) -> list:
         return items
     except Exception:
         return []
+
+
+def _run_cim(wmi_path: str, get_fields: list, timeout: int = 12) -> list:
+    """Modern fallback using PowerShell Get-CimInstance (works on every supported
+    Windows, including 24H2+ where wmic.exe no longer ships)."""
+    cls = wmi_path.strip()
+    if cls.lower().startswith("path "):
+        cls = cls[5:].strip()
+    cls = _WMIC_TO_CIM.get(cls.lower(), cls)
+    sel = ", ".join(get_fields)
+    # Force UTF-8 out of PowerShell so hardware names with accents decode correctly
+    # (default console codepage is cp1250/OEM on many systems and would crash the
+    # subprocess reader thread on stray bytes).
+    ps = ("[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; "
+          f"Get-CimInstance -ClassName {cls} -ErrorAction Stop | "
+          f"Select-Object {sel} | ConvertTo-Json -Compress")
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=timeout, creationflags=_NO_WINDOW)
+        out = (result.stdout or "").strip()
+        if not out:
+            return []
+        data = json.loads(out)
+        if isinstance(data, dict):
+            data = [data]
+        items = []
+        for obj in data:
+            if isinstance(obj, dict):
+                items.append({str(k).lower(): ("" if v is None else str(v).strip())
+                              for k, v in obj.items()})
+        return items
+    except Exception:
+        return []
+
+
+def _wmic(wmi_path: str, get_fields: list, timeout: int = 8) -> list:
+    """Hardware query with the legacy wmic first, CIM (PowerShell) as fallback."""
+    rows = _run_wmic(wmi_path, get_fields, timeout)
+    if rows:
+        return rows
+    return _run_cim(wmi_path, get_fields)
 
 
 def _fmt_driver_date(raw: str) -> str:
@@ -71,6 +132,25 @@ class HardwareDetector:
     def get_data(self) -> dict:
         with self._lock:
             return dict(self._data)
+
+    def ensure_data(self) -> dict:
+        """Return scanned hardware, running a SYNCHRONOUS scan first if it hasn't
+        been done yet. For background consumers (telemetry) that can't assume the
+        user ever opened the My PC -> Components tab. Safe to call off the UI
+        thread only — the scan shells out to wmic/PowerShell and can take seconds.
+        Result is cached on the singleton, so later get_data() calls are instant."""
+        with self._lock:
+            if self._ready and self._data:
+                return dict(self._data)
+        data = self._do_scan()
+        with self._lock:
+            self._data = data
+            self._ready = True
+        try:
+            update_status('core.hardware_detector', STATUS_OK, "scan complete")
+        except Exception:
+            pass
+        return dict(data)
 
     def _do_scan(self) -> dict:
         return {
