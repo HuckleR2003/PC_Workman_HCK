@@ -388,6 +388,12 @@
 
   <!-- Long reads -->
   <url>
+    <loc>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://pcworkman.dev/blog/story.html</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
