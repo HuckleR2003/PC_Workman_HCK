@@ -7,7 +7,15 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Fri, 26 Jun 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Thu, 02 Jul 2026 12:00:00 GMT</lastBuildDate>
+
+  <item>
+    <title>From a Warehouse Floor to the Microsoft Store</title>
+    <link>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/</guid>
+    <pubDate>Thu, 02 Jul 2026 12:00:00 GMT</pubDate>
+    <description>A year ago I scanned barcodes and coded every night because I was afraid of disappearing. Today PC Workman — a Windows monitor with a fully offline AI — is on the Microsoft Store, permanently. The whole story, and the math underneath it.</description>
+  </item>
 
   <item>
     <title>Friday Shipped &amp; Scarred #14: Microsoft Store Said No — Over a Blurry Icon and the Wrong Link</title>
