@@ -12,6 +12,9 @@
     <meta name="keywords" content="Microsoft Store, PC Workman, build in public, solo developer, offline AI, indie dev story, Marcin Firmuga, warehouse to developer">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/">
     <meta property="og:title" content="From a Warehouse Floor to the Microsoft Store">
     <meta property="og:description" content="A year ago I coded every night because I was afraid of disappearing. Today PC Workman is on the Microsoft Store — permanently. The opposite of disappearing.">
     <meta property="og:type" content="article">
@@ -42,7 +45,7 @@
   "datePublished": "2026-07-02",
   "dateModified": "2026-07-02",
   "inLanguage": "en",
-  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman180Dashboard.gif",
   "articleSection": "Milestone",
   "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@MarcinFirmuga", "https://hackernoon.com/u/huckler", "https://linktr.ee/marcin_firmuga"] },
   "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
@@ -78,56 +81,74 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="index_pl.html" data-lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+            <a href="index.html" class="active" data-lang="en">EN</a>
         </span>
     </nav>
 
     <section class="hero">
         <span class="day-badge" style="background:#1a1205;color:#ffcf5c;border:1px solid #6b5210;">★ Milestone &middot; It's on the Microsoft Store</span>
         <h1>From a Warehouse Floor to the Microsoft Store</h1>
-        <p class="tagline">A year ago I coded every night because I was afraid that if I stopped, I'd disappear. Today that code is on the Microsoft Store — permanently. The opposite of disappearing.</p>
+        <p class="tagline">A cheap laptop makes a specific sound right before it gives up. For most of last year, that sound was my soundtrack.</p>
     </section>
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-07-02</span><span>&middot;</span><span>7 min read</span><span>&middot;</span><span>Milestone</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-07-02</span><span>&middot;</span><span>8 min read</span><span>&middot;</span><span>Milestone</span>
         </div>
 
-        <p class="lead">For a year I wrote code every single night — not because I loved it, but because I was scared. Scared that if I stopped moving, I'd quietly vanish, like the twelve projects and the version of me that came before this one.</p>
+        <p class="lead">There's a temperature a cheap laptop reaches right before it gives up. Mine hits it at 94&deg;C — fan screaming, the keyboard too hot to rest my wrists on. For most of last year, that scream was the soundtrack to my nights.</p>
 
-<p>This morning, that fear got the strangest possible answer. <span class="hl">PC Workman — a Windows system monitor with a fully offline AI, built by one broke kid on a dying laptop — is live on the Microsoft Store.</span> Not a random ZIP. Not "clone the repo." A real listing, in the same store as the software I grew up thinking only companies could make. Just click <b>Install</b>.</p>
+<p>I coded through it anyway. Not because I loved it. Because I was scared that if I stopped moving, I'd vanish — quietly, the way twelve dead projects before this one did. The way I almost did at twenty-two.</p>
 
-<p>Let me tell you how a barcode scanner got here. All of it — the good, the desperate, and the math underneath.</p>
+<p>This morning that fear got the strangest answer I can imagine.</p>
 
-<figure><img src="/assets/images/PCWorkman-dashboard.gif" alt="PC Workman 1.8.0 main dashboard — live CPU/GPU/RAM with the offline AI assistant" loading="lazy"><figcaption>PC Workman 1.8.0 — the dashboard. Live everything, and an AI that explains it.</figcaption></figure>
+<p><span class="hl">PC Workman — the Windows monitor I built on that screaming laptop, alone, broke, between shifts — is live on the Microsoft Store.</span> Not a random ZIP. Not "clone the repo." A real listing, in the same store as the software I grew up thinking only companies could make.</p>
+
+<p>Let me tell you how a barcode scanner got here. The good parts, the desperate parts, and the math underneath all of it.</p>
+
+<figure><img src="/assets/images/PCWorkman180Dashboard.gif" alt="PC Workman 1.8.0 dashboard — live CPU/GPU/RAM with the offline AI assistant" loading="lazy"><figcaption>PC Workman 1.8.0. Live everything, plus an AI that actually explains it.</figcaption></figure>
 
 <h2>The number you never see cross a line</h2>
 
-<p>My father died when I was seventeen. I didn't break that week. I broke slowly, over the next two or three years — and that's the part nobody warns you about: there's no moment. No threshold you catch yourself crossing.</p>
+<p>My father died when I was seventeen.</p>
 
-<p>It's a power rail sagging. 12 volts becomes 11.9, becomes 11.8, and every reading is still "within spec," so nothing alarms — and then one day you look at the number and it's just <em>wrong</em>, and you have no idea when that happened. Somewhere around 22, I quietly gave up on myself. The way almost everyone does it. <span class="hl">You cannot fix a number you never learned to measure.</span></p>
+<p>I didn't break that week. I broke slowly, over two or three years, and that's the part nobody warns you about: there's no moment. No line you catch yourself crossing.</p>
+
+<p>It's a power rail sagging. Twelve volts becomes 11.9, becomes 11.8, and every reading is still "within spec," so nothing alarms. And then one day you look at the number and it's just <em>wrong</em>, and you have no idea when that happened. Somewhere around twenty-two, that was me. I gave up on myself. Quietly, the way almost everyone does it.</p>
+
+<p>Remember that rail. It comes back later, in code.</p>
 
 <h2>The warehouse</h2>
 
-<p>Nine months in a warehouse in the Netherlands. 15 km a day on foot, scanning barcodes, for 19 zł an hour that became about 15 after deductions — roughly €3.50. Nine-hour shifts, then six-hour coding sessions at night on a 2014 laptop that climbs to 94&deg;C if I ask it to think too hard.</p>
+<p>Nine months in a warehouse in the Netherlands. Fifteen kilometres a day on foot, scanning barcodes, for nineteen złoty an hour that turned into about fifteen after deductions. Call it three and a half euros. Nine-hour shifts, and then — because I couldn't not — six more hours at night on that 2014 laptop.</p>
 
-<p>Then, three days before Christmas, they smiled the same smile they'd smiled for weeks and said: <em>"You didn't pass the trial. Tomorrow, goodbye — and out of the apartment."</em> The 22nd of December. Suitcases by the door before I'd finished understanding the sentence. Two dogs waiting for me in another country. Maybe a month of money left.</p>
+<p>Then, three days before Christmas, the same people who'd smiled at me for weeks smiled again and said: <em>"You didn't pass the trial. Tomorrow, goodbye. And out of the apartment."</em></p>
 
-<p>That night I started rebuild #4. Three weeks later I shipped the first <code>.exe</code>. Twelve dead projects came before it. I didn't know it yet, but this was the one that wouldn't die.</p>
+<p>The 22nd of December. Suitcases by the door before I'd finished understanding the sentence. Two dogs waiting for me in another country. Maybe a month of money left.</p>
+
+<figure><img src="/assets/images/22nd_getaway.png" alt="Leaving the Netherlands, 22 December 2025" loading="lazy"><figcaption>22 December. I stood in a corridor and shouted that I wasn't a terrorist, three days before Christmas, in a language that wasn't mine. Long story. Different post.</figcaption></figure>
+
+<p>I didn't open a job board that night. I didn't write my hundredth identical CV. I opened my editor and started rebuild number four. Three weeks later I shipped the first <code>.exe</code>. Twelve projects had died before it. I didn't know yet that this was the one that wouldn't.</p>
 
 <div class="callout">
-Here's the truest sentence I own from that year: build something. Commit something. Watch a progress bar move. <b>Feel like you exist.</b> That's not a motivational poster — <span class="hl-red">that's survival.</span>
+Here's the truest sentence I own from that year. Build something. Commit something. Watch a progress bar move. <b>Feel like you exist.</b> That's not a motivational poster — <span class="hl-red">that's survival.</span>
 </div>
 
 <h2>What I actually built</h2>
 
-<p>PC Workman tells you <em>why</em> your PC is slow, not just that it is. It talks to you through <b>hck_GPT</b> — an assistant I wrote that runs 100% on your machine. 84 intents through a 9-layer routing engine, no cloud, no API key, nothing ever leaving your computer.</p>
+<p>PC Workman tells you <em>why</em> your PC is slow. Not that it is — you already know that. Why.</p>
 
-<p>But the part I actually lose sleep over is <span class="hl">memory</span>. Every monitor on earth forgets you the second you close it — HWiNFO, Afterburner, they draw your 78&deg;C against the same line they draw for every machine that ever existed. I couldn't live with that. The most useful number a monitor can give you isn't the temperature. It's whether <em>this</em> temperature is normal <em>for you</em>.</p>
+<p>It talks to you through <b>hck_GPT</b>, an assistant I wrote that runs entirely on your machine. Eighty-four intents, a nine-layer router, no cloud, no API key, nothing ever leaving your computer. Ask "is this a virus?" and it checks who really signed the file. Ask "what should I upgrade?" and it reads your own fourteen-day load history and names the actual bottleneck.</p>
 
-<p>So every reading falls into one of five workload buckets, and each keeps its own learned normal — folded forward with a Welford accumulator, three numbers per bucket, never recomputed:</p>
+<figure><img src="/assets/images/new_hckgpt_chat.gif" alt="hck_GPT — the offline AI assistant answering questions inside PC Workman" loading="lazy"><figcaption>hck_GPT. No internet, no key, nothing sent anywhere. It reads your live machine and answers in plain language.</figcaption></figure>
+
+<p>But the part I actually lose sleep over is <span class="hl">memory</span>.</p>
+
+<p>Every monitor on earth forgets you the second you close it. HWiNFO, Afterburner — open them tomorrow and they'll draw your 78&deg;C against the exact same line they draw for every machine that has ever existed. I couldn't live with that. The most useful number a monitor can give you isn't the temperature. It's whether <em>this</em> temperature is normal <em>for you</em>.</p>
+
+<p>So every reading lands in one of five workload buckets, and each bucket keeps its own learned normal — folded forward with a Welford accumulator. Three numbers per bucket. Never recomputed:</p>
 
 <pre><code>def _welford_add(acc, x):
     """Fold one sample into a running accumulator (Welford, 1962)."""
@@ -138,37 +159,49 @@ Here's the truest sentence I own from that year: build something. Commit somethi
     acc["mean"] = mean
     acc["M2"]   = acc["M2"] + delta * (x - mean)</code></pre>
 
-<p>82&deg;C while you game: normal. 82&deg;C sitting idle: something's wrong. Same number, opposite verdict — judged against your own past instead of a spec line. Voltages get the oldest math in the project: median and MAD, Nelson rules from 1984, hunting the slow sag a threshold will never catch.</p>
+<p>82&deg;C while you game: fine. 82&deg;C sitting idle: something's wrong. Same number, opposite verdict. Judged against your own past, not a spec sheet. Voltages get the oldest math in the project: median and MAD, Nelson rules from 1984, hunting the slow sag a threshold will never catch.</p>
 
-<p>You already know why I had to build that. <span class="hl">I am the rail that sagged for three years inside spec while everyone — me included — swore nothing was wrong. I built the alarm I never had.</span> Statistics from the '60s babysitting a power supply. Boring, predictable — and that's exactly why I trust them. Statistics don't hallucinate. People do.</p>
+<p>Now, the rail from earlier. <span class="hl">I am the one that sagged for three years inside spec while everyone, me included, swore nothing was wrong.</span> I built the alarm I never had. Statistics from the sixties, babysitting a power supply. Boring, predictable, and that's exactly why I trust them. Statistics don't hallucinate. People do. People looked me in the eye at fifteen złoty an hour and said "just try harder, the rate will improve." It never improved. The math, at least, never lied to me.</p>
 
 <h2>A year, measured in releases</h2>
 
-<p>You don't see the grind. You see the version number. So here's the receipt: <b>11 releases</b>, <b>800 commits</b>, roughly <b>48,000 lines</b>, <b>4 complete UI rebuilds</b>.</p>
+<p>You never see the grind. You see the version number.</p>
 
-<p>From a <code>v1.0.6</code> prototype that could barely draw a graph → the first stable <code>.exe</code> at <code>1.6.3</code> → the SQLite stats engine at <code>1.6.8</code> → the hybrid AI + Startup/Services managers at <code>1.7.2</code> → the biggest quality jump at <code>1.7.6</code> → the Smart Learning core at <code>1.8.0</code>, where the monitor finally got a memory. Every one of those written after a shift, on the same warm laptop.</p>
+<p>So here's the receipt. It started as a prototype that could barely draw a graph. Then a first stable <code>.exe</code>. Then a SQLite stats engine. Then a hybrid AI, and a Startup manager, and a Services manager. Then the biggest quality jump. Then Smart Learning, the release where the monitor finally got a memory. Eleven releases in all, around eight hundred commits, four complete rebuilds of the whole interface. Every one of them written after a shift, on the same warm laptop.</p>
 
-<figure><img src="/assets/images/PCWorkman-store.png" alt="PC Workman on the Microsoft Store" loading="lazy"><figcaption>The listing I circled for twelve months and never dared to open.</figcaption></figure>
+<figure><img src="/assets/images/welding.png" alt="Welding by day — the physical job behind the project" loading="lazy"><figcaption>These days it's a welding gun by day. Hot air, melting plastic back together — and the welding taught me the one thing the learning engine needed: you don't get an eye for hot metal from a manual. Cherry red, straw, blue that means you've gone too far. It accumulates. You earn it.</figcaption></figure>
 
 <h2>Microsoft said no. Then Microsoft said yes.</h2>
 
-<p>Two weeks ago I wrote a post titled <em>"Microsoft said no."</em> My first <code>.msix</code> was rejected — not for the code. For a blurry tile icon and a privacy-policy link that pointed at the wrong file. A year of voltage-anomaly math and offline AI, gatekept by one fuzzy PNG. <span class="hl-red">The reviewer was right, and it stung anyway.</span></p>
+<p>Two weeks ago I published a post called <em>"Microsoft said no."</em></p>
 
-<p>So I fixed it. A crisp new icon, drawn clean. A real, readable privacy policy, living where it belongs. A patched build with 13 more fixes I'd collected from my testers in the meantime. Resubmit. Wait. And this morning — <span class="hl-green">approved.</span> A rejection that says "fix these two things and resubmit" was never a no. It was the Store telling me I was <em>this</em> close.</p>
+<p>My first <code>.msix</code> got rejected. Not for the code. For a blurry tile icon and a privacy-policy link that pointed at the wrong file. A year of voltage-anomaly math and offline AI, and my blocker was a fuzzy PNG. The reviewer was right, and it stung anyway.</p>
+
+<p>So I fixed it. A crisp new icon, drawn clean. A real, readable privacy policy, living where it belongs. A patched build with thirteen more fixes my testers had found in the meantime. Resubmit. Wait.</p>
+
+<p>This morning: <span class="hl-green">approved.</span> A rejection that says "fix these two things and resubmit" was never a no. It was the Store telling me I was <em>this</em> close.</p>
+
+<p>And here's what the Store actually fixes. You don't have to trust a stranger's ZIP anymore. Every build is Sigstore-signed, clean on VirusTotal, checked by CodeQL on every commit — proof, not promises, that the file is really from me. I built that paranoia in from the first release. The Store just makes it obvious to everyone.</p>
 
 <h2>The kid who was afraid of disappearing</h2>
 
-<p>A while back, an article of mine hit 44,000 people, and I wrote the most honest thing I've ever published: that I keep building because I'm terrified of disappearing. That I code to prove I still exist.</p>
+<p>For the first months, I shipped into an empty room. Thirty views on a post. Zero stars on the repo. You write into that silence long enough and you start to wonder if you're really there at all.</p>
 
-<p>I don't have a tidy ending for that fear. But I have this: <span class="hl">a permanent listing in the Microsoft Store is about the most concrete "I exist" a solo dev can get.</span> The kid who quietly quit at 22 didn't stay quit. The rail that sagged inside spec got its alarm. Twelve projects died so this one could stand in a store next to software made by companies with a thousand engineers.</p>
+<p>Then one of my articles reached forty-four thousand people, and I wrote the most honest thing I've ever put online: that I keep building because I'm terrified of disappearing. That I ship code to prove I still exist.</p>
 
-<p>I built a program that learns for the entire life of the install. I learn for the life of mine. This grind is a year old, it hasn't ended, and it isn't going to — and I've finally understood that's not the tragedy of the story. It's the proof of it.</p>
+<p>I don't have a clean ending for that fear. Anyone who sells you one is lying.</p>
+
+<p>But I have this. A permanent listing in the Microsoft Store is about the most concrete <em>"I exist"</em> a solo dev can get. The kid who quietly quit at twenty-two didn't stay quit. The rail that sagged inside spec got its alarm. Twelve projects had to die so this one could stand in a store next to software made by companies with a thousand engineers and a real salary each.</p>
+
+<p>I built a program that learns for the entire life of the install. I learn for the life of mine. This grind is a year old, it hasn't ended, and it isn't going to. And I've finally understood that this isn't the tragedy of the story. It's the proof of it. A finished man has nothing left to recover. I get to keep going. That's a pulse.</p>
+
+<figure><img src="/assets/images/myselfie_dogs.jpg" alt="Marcin with his two dogs, Kacia and Lusia" loading="lazy"><figcaption>Kacia (11) and Lusia (2). Best teammates for the breaks. Still here.</figcaption></figure>
 
 <div class="callout warn">
-<b>Thank you</b> — to every tester who spent hours breaking things I'd never find alone, to the 28 strangers whose questions became real features, to everyone who starred it, read a post, or just said "keep going." This one is yours too. 🖤
+<b>Thank you.</b> To every tester who spent hours breaking things I'd never have found alone. To the strangers whose questions turned into real features. To everyone who starred it, read a post, or just said "keep going." This one is yours too.
 </div>
 
-<p>PC Workman is <b>free and open source (MIT)</b>. No accounts, no cloud AI, nothing leaves your machine. Physical work by day, code by night — the same rhythm that built every line of this. Next chapter's already loading.</p>
+<p>PC Workman is <b>free and open source (MIT)</b>. No accounts, no cloud AI, nothing leaves your machine. Physical work by day, code by night. The same rhythm that built every line of it. The next chapter is already loading.</p>
 
 <p><strong>Still here. Still shipping.</strong></p>
 
