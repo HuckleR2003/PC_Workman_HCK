@@ -1,0 +1,228 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog: milestone feature (PL) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Rok temu skanowałem kody kreskowe w magazynie i klepałem kod każdej nocy na laptopie przy 94°C, bo bałem się, że zniknę. Dziś PC Workman — monitor Windows z w pełni offline'owym AI — jest na Microsoft Store. Cała historia i matematyka pod nią.">
+    <meta name="keywords" content="Microsoft Store, PC Workman, build in public, solo developer, offline AI, historia indie dev, Marcin Firmuga, z magazynu na dewelopera">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/">
+    <meta property="og:title" content="Od podłogi magazynu do Microsoft Store">
+    <meta property="og:description" content="Rok temu klepałem kod każdej nocy, bo bałem się, że zniknę. Dziś PC Workman jest na Microsoft Store — na stałe. Odwrotność znikania.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-friday.png">
+    <meta property="article:published_time" content="2026-07-02">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Milestone">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Od podłogi magazynu do Microsoft Store | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Od podłogi magazynu do Microsoft Store",
+  "description": "Rok temu klepałem kod każdej nocy, bo bałem się, że zniknę. Dziś PC Workman jest na Microsoft Store — na stałe.",
+  "url": "https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html",
+  "datePublished": "2026-07-02",
+  "dateModified": "2026-07-02",
+  "inLanguage": "pl",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman180Dashboard.gif",
+  "articleSection": "Milestone",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@MarcinFirmuga", "https://hackernoon.com/u/huckler", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "PC Workman — Build in Public", "url": "https://pcworkman.dev/blog/" }
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="index.html" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge" style="background:#1a1205;color:#ffcf5c;border:1px solid #6b5210;">★ Kamień milowy &middot; Jest na Microsoft Store</span>
+        <h1>Od podłogi magazynu do Microsoft Store</h1>
+        <p class="tagline">Tani laptop wydaje pewien dźwięk tuż zanim się poddaje. Przez większość zeszłego roku ten dźwięk był moją ścieżką dźwiękową.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-07-02</span><span>&middot;</span><span>8 min czytania</span><span>&middot;</span><span>Kamień milowy</span>
+        </div>
+
+        <p class="lead">Jest taka temperatura, którą tani laptop osiąga tuż przed tym, jak się poddaje. Mój dobija do niej przy 94&deg;C — wentylator wyje, klawiatura za gorąca, żeby oprzeć na niej nadgarstki. Przez większość zeszłego roku to wycie było ścieżką dźwiękową moich nocy.</p>
+
+<p>I klepałem kod mimo wszystko. Nie dlatego, że to kochałem. Dlatego, że bałem się, że jeśli przestanę się ruszać, zniknę — po cichu, tak jak dwanaście martwych projektów przede tym. Tak jak sam prawie zniknąłem w wieku dwudziestu dwóch lat.</p>
+
+<p>Dziś rano ten strach dostał najdziwniejszą odpowiedź, jaką potrafię sobie wyobrazić.</p>
+
+<p><span class="hl">PC Workman — monitor do Windowsa, który zbudowałem na tym wyjącym laptopie, sam, spłukany, między zmianami — jest dostępny na Microsoft Store.</span> Nie jakiś losowy ZIP. Nie „sklonuj repo". Prawdziwy listing, w tym samym sklepie co oprogramowanie, o którym jako dzieciak myślałem, że robią je tylko firmy. Wystarczy kliknąć <b>Zainstaluj</b>.</p>
+
+<p>Opowiem ci, jak skaner kodów kreskowych się tu znalazł. Dobre kawałki, te zdesperowane, i matematykę pod tym wszystkim.</p>
+
+<figure><img src="/assets/images/PCWorkman180Dashboard.gif" alt="PC Workman 1.8.0 — panel główny z odczytami CPU/GPU/RAM na żywo i offline'owym AI" loading="lazy"><figcaption>PC Workman 1.8.0. Wszystko na żywo, plus AI, które faktycznie to tłumaczy.</figcaption></figure>
+
+<h2>Liczba, której nigdy nie widzisz, jak przekracza granicę</h2>
+
+<p>Mój tata umarł, gdy miałem siedemnaście lat.</p>
+
+<p>Nie załamałem się w tamtym tygodniu. Załamywałem się powoli, przez dwa czy trzy lata, i to jest ta część, przed którą nikt nie ostrzega: nie ma momentu. Nie ma granicy, którą łapiesz się na przekraczaniu.</p>
+
+<p>To jak obsuwająca się szyna zasilania. Dwanaście woltów staje się 11,9, potem 11,8, a każdy odczyt wciąż jest „w normie", więc nic nie alarmuje. A potem pewnego dnia patrzysz na tę liczbę i ona jest po prostu <em>zła</em>, i nie masz pojęcia, kiedy to się stało. Gdzieś koło dwudziestego drugiego roku życia to byłem ja. Odpuściłem sobie samego siebie. Po cichu, tak jak robi to prawie każdy.</p>
+
+<p>Zapamiętaj tę szynę. Wróci później, w kodzie.</p>
+
+<h2>Magazyn</h2>
+
+<p>Dziewięć miesięcy w magazynie w Holandii. Piętnaście kilometrów dziennie na piechotę, skanowanie kodów, za dziewiętnaście złotych na godzinę, które po potrąceniach robiły się jakieś piętnaście. Powiedzmy trzy i pół euro. Dziewięciogodzinne zmiany, a potem — bo nie potrafiłem inaczej — jeszcze sześć godzin w nocy na tym laptopie z 2014 roku.</p>
+
+<p>Potem, trzy dni przed świętami, ci sami ludzie, którzy uśmiechali się do mnie przez tygodnie, uśmiechnęli się znowu i powiedzieli: <em>„Nie przeszedłeś okresu próbnego. Jutro się żegnamy. I wyprowadzka z mieszkania."</em></p>
+
+<p>Dwudziesty drugi grudnia. Walizki przy drzwiach, zanim skończyłem rozumieć to zdanie. Dwa psy czekające na mnie w innym kraju. Może miesiąc pieniędzy na koncie.</p>
+
+<figure><img src="/assets/images/22nd_getaway.png" alt="Wyjazd z Holandii, 22 grudnia 2025" loading="lazy"><figcaption>22 grudnia. Stałem na korytarzu i krzyczałem, że nie jestem terrorystą, trzy dni przed świętami, w języku, który nie był mój. Długa historia. Inny post.</figcaption></figure>
+
+<p>Tamtej nocy nie otworzyłem żadnej tablicy z ofertami pracy. Nie napisałem setnego identycznego CV. Otworzyłem edytor i zacząłem przebudowę numer cztery. Trzy tygodnie później wypuściłem pierwszy <code>.exe</code>. Dwanaście projektów umarło przede nim. Jeszcze nie wiedziałem, że ten jeden nie umrze.</p>
+
+<div class="callout">
+Oto najprawdziwsze zdanie, jakie mam z tamtego roku. Zbuduj coś. Zacommituj coś. Popatrz, jak pasek postępu się przesuwa. <b>Poczuj, że istniejesz.</b> To nie jest motywacyjny plakat — <span class="hl-red">to przetrwanie.</span>
+</div>
+
+<h2>Co właściwie zbudowałem</h2>
+
+<p>PC Workman mówi ci, <em>dlaczego</em> twój komputer jest wolny. Nie że jest — to już wiesz. Dlaczego.</p>
+
+<p>Rozmawia z tobą przez <b>hck_GPT</b> — asystenta, którego napisałem i który działa w całości na twojej maszynie. Osiemdziesiąt cztery intencje, dziewięciowarstwowy router, żadnej chmury, żadnego klucza API, nic nigdy nie opuszcza twojego komputera. Zapytaj „czy to wirus?", a sprawdzi, kto naprawdę podpisał plik. Zapytaj „co powinienem ulepszyć?", a przeczyta twoją własną czternastodniową historię obciążenia i wskaże prawdziwe wąskie gardło.</p>
+
+<figure><img src="/assets/images/new_hckgpt_chat.gif" alt="hck_GPT — offline'owy asystent AI odpowiadający w PC Workman" loading="lazy"><figcaption>hck_GPT. Bez internetu, bez klucza, nic nigdzie nie wysyłane. Czyta twoją maszynę na żywo i odpowiada zwykłym językiem.</figcaption></figure>
+
+<p>Ale częścią, przez którą naprawdę nie sypiam, jest <span class="hl">pamięć</span>.</p>
+
+<p>Każdy monitor na świecie zapomina cię w sekundę, w której go zamkniesz. HWiNFO, Afterburner — otwórz je jutro, a narysują twoje 78&deg;C względem tej samej linii, którą rysują dla każdej maszyny, jaka kiedykolwiek istniała. Nie mogłem z tym żyć. Najbardziej przydatna liczba, jaką monitor może ci dać, to nie temperatura. To to, czy ta temperatura jest normalna <em>dla ciebie</em>.</p>
+
+<p>Więc każdy odczyt trafia do jednego z pięciu koszyków obciążenia, a każdy koszyk trzyma swoją własną wyuczoną normę — zwijaną do przodu akumulatorem Welforda. Trzy liczby na koszyk. Nigdy przeliczane od nowa:</p>
+
+<pre><code>def _welford_add(acc, x):
+    """Fold one sample into a running accumulator (Welford, 1962)."""
+    n     = acc["n"] + 1
+    delta = x - acc["mean"]
+    mean  = acc["mean"] + delta / n
+    acc["n"]    = n
+    acc["mean"] = mean
+    acc["M2"]   = acc["M2"] + delta * (x - mean)</code></pre>
+
+<p>82&deg;C w trakcie grania: spoko. 82&deg;C na bezczynności: coś jest nie tak. Ta sama liczba, przeciwny werdykt. Oceniana względem twojej własnej przeszłości, nie kartki ze specyfikacją. Napięcia dostają najstarszą matematykę w projekcie: medianę i MAD, reguły Nelsona z 1984 roku, polujące na powolne obsuwanie, którego próg nigdy nie złapie.</p>
+
+<p>A teraz ta szyna sprzed chwili. <span class="hl">To ja obsuwałem się przez trzy lata w normie, podczas gdy wszyscy, łącznie ze mną, przysięgali, że nic się nie dzieje.</span> Zbudowałem alarm, którego nigdy nie miałem. Statystyka z lat sześćdziesiątych, pilnująca zasilacza. Nudna, przewidywalna, i właśnie dlatego jej ufam. Statystyka nie halucynuje. Ludzie tak. Ludzie patrzyli mi w oczy przy piętnastu złotych na godzinę i mówili „po prostu bardziej się postaraj, stawka się poprawi". Nigdy się nie poprawiła. Matematyka przynajmniej nigdy mnie nie okłamała.</p>
+
+<h2>Rok, mierzony w wydaniach</h2>
+
+<p>Nigdy nie widzisz harówki. Widzisz numer wersji.</p>
+
+<p>Więc oto paragon. Zaczęło się jako prototyp, który ledwo umiał narysować wykres. Potem pierwszy stabilny <code>.exe</code>. Potem silnik statystyk na SQLite. Potem hybrydowe AI, menedżer Startupu i menedżer Usług. Potem największy skok jakości. Potem Smart Learning, wydanie, w którym monitor w końcu dostał pamięć. Jedenaście wydań w sumie, jakieś osiemset commitów, cztery kompletne przebudowy całego interfejsu. Każde z nich napisane po zmianie, na tym samym ciepłym laptopie.</p>
+
+<figure><img src="/assets/images/welding.png" alt="Spawanie za dnia — fizyczna praca stojąca za projektem" loading="lazy"><figcaption>Teraz za dnia jest pistolet do spawania. Gorące powietrze, zgrzewanie plastiku z powrotem — i spawanie nauczyło mnie jednej rzeczy, której potrzebował silnik uczenia: oka do gorącego metalu nie dostaniesz z instrukcji. Wiśniowa czerwień, słomkowy, niebieski, który znaczy, że poszedłeś za daleko. To się kumuluje. Musisz to wypracować.</figcaption></figure>
+
+<h2>Microsoft powiedział nie. Potem Microsoft powiedział tak.</h2>
+
+<p>Dwa tygodnie temu opublikowałem post zatytułowany <em>„Microsoft powiedział nie"</em>.</p>
+
+<p>Mój pierwszy <code>.msix</code> został odrzucony. Nie przez kod. Przez rozmytą ikonę kafelka i link do polityki prywatności, który prowadził do złego pliku. Rok matematyki anomalii napięć i offline'owego AI, a moim blokerem był nieostry PNG. Recenzent miał rację, a i tak zabolało.</p>
+
+<p>Więc to naprawiłem. Nowa, ostra ikona, narysowana czysto. Prawdziwa, czytelna polityka prywatności, mieszkająca tam, gdzie powinna. Załatana wersja z trzynastoma kolejnymi poprawkami, które moi testerzy znaleźli w międzyczasie. Wyślij ponownie. Czekaj.</p>
+
+<p>Dziś rano: <span class="hl-green">zatwierdzone.</span> Odrzucenie, które mówi „napraw te dwie rzeczy i wyślij ponownie", nigdy nie było „nie". To Store mówił mi, że jestem <em>o tyle</em> blisko.</p>
+
+<p>I oto co Store faktycznie naprawia. Nie musisz już ufać ZIP-owi od nieznajomego. Każda wersja jest podpisana Sigstore, czysta na VirusTotal, sprawdzona przez CodeQL przy każdym commicie — dowód, nie obietnice, że plik jest naprawdę ode mnie. Wbudowałem tę paranoję od pierwszego wydania. Store po prostu robi to oczywistym dla wszystkich.</p>
+
+<h2>Dzieciak, który bał się zniknąć</h2>
+
+<p>Przez pierwsze miesiące wypuszczałem to do pustego pokoju. Trzydzieści wyświetleń na poście. Zero gwiazdek na repo. Piszesz w tę ciszę wystarczająco długo i zaczynasz się zastanawiać, czy w ogóle tam jesteś.</p>
+
+<p>Potem jeden z moich artykułów dotarł do czterdziestu czterech tysięcy ludzi, i napisałem najszczerszą rzecz, jaką kiedykolwiek dałem do internetu: że buduję dalej, bo jestem przerażony zniknięciem. Że wypuszczam kod, żeby udowodnić, że wciąż istnieję.</p>
+
+<p>Nie mam czystego zakończenia dla tego strachu. Każdy, kto ci takie sprzedaje, kłamie.</p>
+
+<p>Ale mam to. Stały listing w Microsoft Store to chyba najbardziej konkretne <em>„istnieję"</em>, jakie solo-dev może dostać. Dzieciak, który po cichu się poddał w wieku dwudziestu dwóch lat, nie został poddany. Szyna, która obsuwała się w normie, dostała swój alarm. Dwanaście projektów musiało umrzeć, żeby ten jeden mógł stanąć w sklepie obok oprogramowania robionego przez firmy z tysiącem inżynierów, każdy z prawdziwą pensją.</p>
+
+<p>Zbudowałem program, który uczy się przez całe życie instalacji. Ja uczę się przez całe życie swojego. Ta harówka ma rok, nie skończyła się i się nie skończy. I w końcu zrozumiałem, że to nie jest tragedia tej historii. To jej dowód. Skończony człowiek nie ma już czego odzyskiwać. Ja mogę iść dalej. To jest puls.</p>
+
+<figure><img src="/assets/images/myselfie_dogs.jpg" alt="Marcin ze swoimi dwoma psami, Kacią i Lusią" loading="lazy"><figcaption>Kacia (11) i Lusia (2). Najlepszy zespół na przerwy. Wciąż tu jestem.</figcaption></figure>
+
+<div class="callout warn">
+<b>Dziękuję.</b> Każdemu testerowi, który spędził godziny na rozwalaniu rzeczy, których sam nigdy bym nie znalazł. Nieznajomym, których pytania zamieniły się w prawdziwe funkcje. Każdemu, kto dał gwiazdkę, przeczytał post albo po prostu powiedział „nie odpuszczaj". Ten jest też twój.
+</div>
+
+<p>PC Workman jest <b>darmowy i open source (MIT)</b>. Bez kont, bez chmurowego AI, nic nie opuszcza twojej maszyny. Fizyczna praca za dnia, kod w nocy. Ten sam rytm, który zbudował każdą linijkę. Następny rozdział już się ładuje.</p>
+
+<p><strong>Wciąż tu jestem. Wciąż wypuszczam.</strong></p>
+
+<div class="post-tags"><span class="tag">MicrosoftStore</span><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">OpenSource</span></div>
+
+        <div class="guide-cta">
+            <b>To projekt stojący za tą historią.</b> PC Workman to darmowy monitor systemu Windows z w pełni offline'owym asystentem AI — wszystko powyżej to prawdziwy, wydany kod.
+            <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Pobierz z Microsoft Store</a>, <a href="../../download/">ściągnij ZIP</a> albo <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przeczytaj kod źródłowy</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję PC Workman publicznie</div>
+                <p>Rok budowania publicznie — monitor Windows z w pełni offline'owym AI, teraz na Microsoft Store. Tworzony po zmianach w pracy, na laptopie z 2014 roku.
+                   Więcej: <a href="../story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://medium.com/@MarcinFirmuga" target="_blank" rel="me noopener">Medium</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Blog</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
