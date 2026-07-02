@@ -2,13 +2,18 @@
 
 > **Your PC finally has someone who speaks its language.**
 
+[![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Available-0067b8?style=flat-square&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PGW6WS2N50V)
 ![Version](https://img.shields.io/badge/Version-1.8.0-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2B-0ea5e9?style=flat-square)
 
-**[⬇ Download the latest release](https://github.com/HuckleR2003/PC_Workman_HCK/releases)** — one ZIP, no installer, no account.
+### 🎉 Now on the Microsoft Store — just click **Install**.
+
+[<img alt="Get it from Microsoft" src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" />](https://apps.microsoft.com/detail/9PGW6WS2N50V)
+
+**[⬇ Or download the latest release](https://github.com/HuckleR2003/PC_Workman_HCK/releases)** — one ZIP, no installer, no account.
 
 **🌐 [pcworkman.dev](https://pcworkman.dev)** — website, [guides](https://pcworkman.dev/guides/), and the build-in-public [blog](https://pcworkman.dev/blog/) (Monday / Wednesday / Friday).
 
