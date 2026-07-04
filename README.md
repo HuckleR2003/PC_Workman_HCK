@@ -3,31 +3,31 @@
 > **Your PC finally has someone who speaks its language.**
 
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Available-0067b8?style=flat-square&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PGW6WS2N50V)
-![Version](https://img.shields.io/badge/Version-1.8.0-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.8.1-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2B-0ea5e9?style=flat-square)
 
-### 🎉 Now on the Microsoft Store — just click **Install**.
+### After 12 months of work: on the Microsoft Store. Just click **Install**.
 
 [<img alt="Get it from Microsoft" src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" />](https://apps.microsoft.com/detail/9PGW6WS2N50V)
 
-**[⬇ Or download the latest release](https://github.com/HuckleR2003/PC_Workman_HCK/releases)** — one ZIP, no installer, no account.
+**[Or download the latest release](https://github.com/HuckleR2003/PC_Workman_HCK/releases)**, one ZIP, no installer, no account.
 
-**🌐 [pcworkman.dev](https://pcworkman.dev)** — website, [guides](https://pcworkman.dev/guides/), and the build-in-public [blog](https://pcworkman.dev/blog/) (Monday / Wednesday / Friday).
+**[pcworkman.dev](https://pcworkman.dev)** - website, [guides](https://pcworkman.dev/guides/), and the build-in-public [blog](https://pcworkman.dev/blog/) (Monday / Wednesday / Friday).
 
 ---
 
 Most monitoring tools give you numbers. PC Workman gives you **answers**.
 
-Ask *"why is my PC slow right now?"* — and get a real explanation, not just a percentage.  
-Ask *"is cs2.exe a virus?"* — get an instant process identity check.  
-Ask *"which game pushes my hardware the hardest?"* — get a thermal signature breakdown.
+Ask *"why is my PC slow right now?"*, and get a real explanation, not just a percentage.  
+Ask *"is cs2.exe a virus?"*, get an instant process identity check.  
+Ask *"which game pushes my hardware the hardest?"*, get a thermal signature breakdown.
 
-**84 AI intents. The assistant runs 100% on your machine — no API key, no cloud LLM. Just your PC talking to you.**
+**90 AI intents. The assistant runs 100% on your machine, no API key, no cloud LLM. Just your PC talking to you.**
 
-It learns *your* machine: 82°C is normal while you game but critical at idle — judged against your own history, not a generic 85°C line. Drop an in-game overlay that shows only what you choose, hit ⤢ for a full-screen control center, and watch the Learning Center fill up as it gets to know your hardware. Built by one person, in public, on real hardware.
+It learns *your* machine: 82°C is normal while you game but critical at idle, judged against your own history, not a generic 85°C line. Drop an in-game overlay that shows only what you choose, hit ⤢ for a full-screen control center, and watch the Learning Center fill up as it gets to know your hardware. Built by one person, in public, on real hardware.
 
 ---
 
@@ -48,9 +48,9 @@ It learns *your* machine: 82°C is normal while you game but critical at idle �
 
 ### Windows Users (Easiest)
 ```
-1. Download PC_Workman_HCK_1.8.0.zip from Releases
+1. Download PC_Workman_HCK_1.8.1.zip from Releases
 2. Extract the folder anywhere
-3. Run "PC Workman HCK.exe" — done ✅
+3. Run "PC Workman HCK.exe" and you are done.
    (keep the _internal folder next to it — that's the runtime)
 ```
 
@@ -80,30 +80,30 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Symmetric layout: TOP 8 user processes left, TOP 8 system processes right, chart hub in the middle
 - Hardware cards grow into mini-charts with the component name drawn inside the chart corner
 - hck_GPT chat scales with the window: +12% default height, +35% in chat-Maximize
-- Gaming-HUD chart tooltip: hover to inspect any bar at 72% opacity, click to pin — the pin follows the live buffer and its age keeps ticking
+- Gaming-HUD chart tooltip: hover to inspect any bar at 72% opacity, click to pin, the pin follows the live buffer and its age keeps ticking
 
 ### Intelligence (hck_GPT)
-- **84 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade/privacy
-- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions — 100% offline, no API key needed
+- **90 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade/privacy
+- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions, 100% offline, no API key needed
 - **Bilingual**: Polish and English, auto-detected per message
 - **Session memory**: conversation context, CPU/RAM trend buffers, cross-response data store
 - **Proactive monitor with DeepMonitor integration**: background daemon watches CPU/GPU temps, RAM, throttle, disk on all drives; pushes alerts automatically; banner shows live temps
 - **Conversation flow**: greeting, thanks, "more info", "what should I do" all handled naturally with context-aware routing
-- Local insights engine — habit tracking, anomaly awareness, teasers from Stats Engine
+- Local insights engine, habit tracking, anomaly awareness, teasers from Stats Engine
 - SQLite user knowledge base (hardware profile, usage patterns) at `AppData/Local/`
-- Background hardware scanner (psutil + WMI — CPU model, GPU, VRAM, mobo, RAM speed, disk model)
+- Background hardware scanner (psutil + WMI, CPU model, GPU, VRAM, mobo, RAM speed, disk model)
 - Chat panel nav links: clickable `[→ Page]` tokens route directly to app pages
 - `_followup()` pool system: 8 keys, every response ends with a contextual next-question hint
 
 ### Monitoring & Alerts *(significantly extended in 1.7.8)*
 
 - **Interactive charts** (`ui/components/interactive_chart.py`): pan (drag), zoom (scroll wheel around cursor), reset (double-click), crosshair + live value bubble, click-pin persistent tooltip with anomaly reason and baseline deviation
-- **Minimap strip** below each chart — full data range with drag-to-navigate selection window
-- **Thermal Baseline Engine** (`core/thermal_baseline.py`): learns CPU temperature norms per workload context (idle / light / medium / heavy / gaming) with a true **Welford online accumulator** — running per-bucket stats that accumulate over the whole install life and survive 90-day snapshot pruning, not a fixed window. Chart baseline band shows the learned range, not a window average.
+- **Minimap strip** below each chart, full data range with drag-to-navigate selection window
+- **Thermal Baseline Engine** (`core/thermal_baseline.py`): learns CPU temperature norms per workload context (idle / light / medium / heavy / gaming) with a true **Welford online accumulator**, running per-bucket stats that accumulate over the whole install life and survive 90-day snapshot pruning, not a fixed window. Chart baseline band shows the learned range, not a window average.
 - **Voltage Rail Analyzer** (`core/voltage_analyzer.py`): SPC on 12V / 5V / 3.3V rails using Median + MAD. Nelson Rules 1/2/3/5 (isolated spike, cluster, sustained deviation, trend). 12V GPU-transient suppression. Anomaly decay: pattern repeats ≥5× → "your normal".
 - **Learning Center**: per-workload thermal training progress + learned ranges, per-rail voltage SPC baselines, overall %, live PSU health score, and a ↻ Rebuild self-check.
 - **hck_GPT integration**: `_check_voltage_rails()` fires `voltage_spike` / `voltage_trend` proactive alerts (bilingual, budget-controlled). `format_for_chat(lang)` on VoltageAnalyzer.
-- **Dashboard chart tooltip**: hover any bar → translucent detail box (CPU/RAM/GPU% + sample age) next to the cursor. Click to pin — the tooltip docks to its bar, the age ticks live, and the PIN strip mirrors the hck_GPT TIP/HOT style. Click anywhere to unpin.
+- **Dashboard chart tooltip**: hover any bar → translucent detail box (CPU/RAM/GPU% + sample age) next to the cursor. Click to pin, the tooltip docks to its bar, the age ticks live, and the PIN strip mirrors the hck_GPT TIP/HOT style. Click anywhere to unpin.
 
 ### DeepMonitor *(new in 1.7.6)*
 - `ttk.Treeview` sensor table with 4 aligned columns (Sensor / Value / Min / Max)
@@ -126,21 +126,21 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Floating info card with accent bar, step dots, DALEJ / Zakończ button; ESC or ✕ to dismiss
 
 ### First Setup & Drivers *(new in 1.7.2)*
-- Health score gauge (0–100 arc) — computed from driver ages and startup count
-- 4 driver health cards: GPU, Audio, Network, USB — real data from Windows registry
+- Health score gauge (0–100 arc), computed from driver ages and startup count
+- 4 driver health cards: GPU, Audio, Network, USB, real data from Windows registry
 - Driver freshness bar per card; status badges: CURRENT / 6+ MONTHS / Xmo OLD
 - Startup program list (registry HKCU/HKLM Run keys), 6-item setup checklist with persistent state
 - Quick Actions: Windows Update, Device Manager, Services, Task Scheduler, System Info, MSConfig
 
 ### Startup Manager
-- Reads **every** startup source: HKCU/HKLM/HKLM32 Run keys, Startup folders, **Task Scheduler** logon/boot tasks, and **Microsoft Store (UWP)** startup apps — so GPU Tweak, ShareX, LinkedIn, MSI Center and the like finally show up
+- Reads **every** startup source: HKCU/HKLM/HKLM32 Run keys, Startup folders, **Task Scheduler** logon/boot tasks, and **Microsoft Store (UWP)** startup apps, so GPU Tweak, ShareX, LinkedIn, MSI Center and the like finally show up
 - Knowledge base of common programs with impact rating (High/Medium/Low) and recommendation
 - Reversible enable/disable per source (registry removal · `schtasks` · UWP state); locale-independent task scan works on non-English Windows; choices persist to `data/cache/startup_prefs.json`
 
-### Services Manager — mode configurator
+### Services Manager - mode configurator
 - Catalogue of 40+ Windows services in 4 categories (Essential locked / Recommended / Optional / Likely Unnecessary), plus enumeration of every installed service
 - Guided **Quick setup** strip: plain questions ("Do you use Bluetooth?") build your custom profile
-- Per-service **G / E / M** chips assign each service to the **Gaming · Economy · MANAGER** modes — one source of truth, synced live with the Features mode buttons (`settings/turbo_services.json`)
+- Per-service **G / E / M** chips assign each service to the **Gaming · Economy · MANAGER** modes, one source of truth, synced live with the Features mode buttons (`settings/turbo_services.json`)
 - Stop / Start / Restart per service; admin detection; all changes logged to `data/logs/service_changes.log`
 
 ### Interface
@@ -149,7 +149,7 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Color-coded process lists
 - Interactive charts and metrics
 - Click-to-investigate functionality
-- Process tooltips on TOP 5 panels — hover any process name for instant library lookup
+- Process tooltips on TOP 5 panels, hover any process name for instant library lookup
 
 ### On the roadmap
 - Monitoring & Alerts layout polish pass
@@ -189,48 +189,48 @@ PC_Workman/
 
 **Design principles:**
 - Dynamic component registry (auto-registration)
-- Seamless inter-module communication
+- Direct inter-module communication
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
 -
 
 ## What's New [1.8.0] - `2026-06-22` - CURRENT
 
-### Patched — `2026-06-28`
-- **Services Manager rebuilt as a real configurator**: one Wyłącz/Włącz per service feeds a single operator drawer at the bottom of the page, and Zatwierdź applies the whole batch at once — no more per-row dialogs or truncated service names. SZCZEGÓŁY expands the queued list inline.
-- **Hardware detection fixed for Windows 11 24H2+** (build ≥ 26100), where `wmic.exe` was removed — My PC → Components now fills in CPU / GPU / RAM / motherboard / disks via a PowerShell CIM fallback.
+### Patched - `2026-06-28`
+- **Services Manager rebuilt as a real configurator**: one Wyłącz/Włącz per service feeds a single operator drawer at the bottom of the page, and Zatwierdź applies the whole batch at once, no more per-row dialogs or truncated service names. SZCZEGÓŁY expands the queued list inline.
+- **Hardware detection fixed for Windows 11 24H2+** (build ≥ 26100), where `wmic.exe` was removed, My PC → Components now fills in CPU / GPU / RAM / motherboard / disks via a PowerShell CIM fallback.
 - Fixed a Features-page crash, made expanded feature cards widen for readability, scoped Services Manager scrolling to the page, and hardened `sc` / PowerShell output decoding so unusual service names can't crash a reader thread.
 
-### Smart Learning — engines wired in, and they accumulate
-- hck_GPT now answers temperature with the **learned, workload-aware verdict** instead of a fixed 85°C cutoff: 82°C reads *normal* under a gaming load but *critical* at idle. "voltage check" got its own real handler (was silently aliased to the temperature one). The chat handler imported neither learning engine before — months of learning it couldn't reach.
-- The proactive monitor judges CPU temperature against the learned per-workload baseline (z-score), falling back to fixed thresholds until a bucket is trained — so it stops crying wolf during normal gaming. Elevated-but-safe goes out as a 💡 TIP, not an alarm.
-- **Thermal baseline is a real Welford accumulator now**: each pass folds only the newest snapshots into a running per-bucket `{n, mean, M2}`, so learning accumulates for the life of the install and survives 90-day pruning — and a continuous tick in the proactive loop keeps it learning while the app runs.
+### Smart Learning - engines wired in, and they accumulate
+- hck_GPT now answers temperature with the **learned, workload-aware verdict** instead of a fixed 85°C cutoff: 82°C reads *normal* under a gaming load but *critical* at idle. "voltage check" got its own real handler (was silently aliased to the temperature one). The chat handler imported neither learning engine before, months of learning it couldn't reach.
+- The proactive monitor judges CPU temperature against the learned per-workload baseline (z-score), falling back to fixed thresholds until a bucket is trained, so it stops crying wolf during normal gaming. Elevated-but-safe goes out as a 💡 TIP, not an alarm.
+- **Thermal baseline is a real Welford accumulator now**: each pass folds only the newest snapshots into a running per-bucket `{n, mean, M2}`, so learning accumulates for the life of the install and survives 90-day pruning, and a continuous tick in the proactive loop keeps it learning while the app runs.
 - **Learning Center** in Monitoring & Alerts shows live what was learned: per-workload thermal progress + ranges, per-rail voltage SPC baselines, overall %, PSU health score, and a ↻ Rebuild self-check.
-- Voltage rail health now counts **genuine Nelson-rule anomalies** (after GPU-transient suppression + recurrence decay), not the ~1.2% Gaussian tail — a healthy rail no longer reads "critical" once enough samples pile up.
+- Voltage rail health now counts **genuine Nelson-rule anomalies** (after GPU-transient suppression + recurrence decay), not the ~1.2% Gaussian tail, a healthy rail no longer reads "critical" once enough samples pile up.
 - hck_GPT volunteers two positive learning notes: a one-time 💡 when a workload reaches full calibration ("I now judge temperature against YOUR normal"), and a 💡 "new normal" when a recurring voltage blip becomes your baseline. Both deduped so they never nag.
 
-### GAMING — In-Game Overlay
+### GAMING - In-Game Overlay
 - New **GAMING / In-Game** tile in My PC: a translucent always-on-top HUD that floats over borderless / windowed games without stealing focus. Left/right-click moves it between the four corners.
-- Real HUD table — one row per component (CPU / GPU / RAM / 12V), FPS as a side box — with live values.
+- Real HUD table, one row per component (CPU / GPU / RAM / 12V), FPS as a side box, with live values.
 - A form-style configurator: 3 presets, or Create Custom where each field is a ▼ dropdown to pick the metric per row, plus a style panel (size / theme / opacity). Live preview matches the overlay 1:1.
-- **Live FPS** read from RTSS (RivaTuner / MSI Afterburner) — no admin, no DLL injection; shows "—" when RTSS isn't running. Per-pixel transparency is on the way.
-- **Game launch greetings**: a one-second corner toast when a known game starts — now bilingual (PL/EN) with random variants across 40+ games (Planet Zoo, Terraria, Minecraft, Helldivers 2, GTA V, Hades…).
+- **Live FPS** read from RTSS (RivaTuner / MSI Afterburner), no admin, no DLL injection; shows "-" when RTSS isn't running. Per-pixel transparency is on the way.
+- **Game launch greetings**: a one-second corner toast when a known game starts, now bilingual (PL/EN) with random variants across 40+ games (Planet Zoo, Terraria, Minecraft, Helldivers 2, GTA V, Hades…).
 
-### Startup Manager — sees everything
+### Startup Manager - sees everything
 - Now enumerates Task Scheduler logon/boot tasks and Microsoft Store (UWP) startup apps, not just Run keys + Startup folders. GPU Tweak, ShareX, LinkedIn, MSI Center and others finally appear, each with a reversible enable/disable and a source badge (⏰ Task · ⊞ Store).
 
-### Services Manager — configurator + MANAGER mode
+### Services Manager - configurator + MANAGER mode
 - Rebuilt as a configurator: per-service **G/E/M** chips assign services to Gaming, Economy or the new custom **MANAGER** mode, plus a guided question strip. All modes share one config, synced live with the Features buttons.
 - New **MANAGER** mode in Features (white chip) with a click-through **ⓘ** that jumps to the Services Manager.
 
 ### hck_GPT
-- **Process Suspect Guard** mini-AV: author (Authenticode) verification, typosquat/homoglyph detection (svhost, ciaude…) and masquerade checks — wired into "virus check" and process identity.
+- **Process Suspect Guard** mini-AV: author (Authenticode) verification, typosquat/homoglyph detection (svhost, ciaude…) and masquerade checks, wired into "virus check" and process identity.
 - Natural-language routing overhaul (everyday phrasings hit the right intent) and purple highlighting of hardware names in chat.
-- **Four new data-driven answers:** *"what should I upgrade?"* (the real bottleneck from your own load + temperature history), *"do you spy / what do you collect?"* (honest, local-only, links to Stability Tests), greetings that name your favourite app (*"Fancy CS2 again today?"*), and *"what starts with Windows?"* (your real startup list, links straight to the Manager). Vocabulary now **84 intents**.
+- **Four new data-driven answers:** *"what should I upgrade?"* (the real bottleneck from your own load + temperature history), *"do you spy / what do you collect?"* (honest, local-only, links to Stability Tests), greetings that name your favourite app (*"Fancy CS2 again today?"*), and *"what starts with Windows?"* (your real startup list, links straight to the Manager). Vocabulary now **90 intents**.
 
 ## What's New [1.7.9] - `2026-06-11` *(previous)*
 
-### Maximized View Mode — redesigned
+### Maximized View Mode - redesigned
 - Symmetric full-screen dashboard: TOP 8 user processes left, TOP 8 system right, chart hub center
 - Hardware cards: 50px sparklines with the component name drawn inside the chart corner
 - Turbo Boost + Optimization Center docked at the bottom; session averages section +15% taller
@@ -256,14 +256,14 @@ PC_Workman/
 
 ## What's New [1.7.8-monitoring] - `2026-06-05` *(previous)*
 
-### Monitoring & Alerts — full overhaul
+### Monitoring & Alerts - full overhaul
 See [Features → Monitoring & Alerts](#features) for full detail.
-- **Thermal Baseline Engine**: workload-aware temperature learning — 5 buckets (idle/light/medium/heavy/gaming), Welford's algorithm, 95% confidence band on charts
-- **Voltage Rail Analyzer**: SPC on 12V/5V/3.3V — Median+MAD, Nelson Rules 1/2/3/5, GPU-transient suppression, anomaly decay
+- **Thermal Baseline Engine**: workload-aware temperature learning, 5 buckets (idle/light/medium/heavy/gaming), Welford's algorithm, 95% confidence band on charts
+- **Voltage Rail Analyzer**: SPC on 12V/5V/3.3V, Median+MAD, Nelson Rules 1/2/3/5, GPU-transient suppression, anomaly decay
 - **Interactive charts**: pan (drag), zoom (scroll), click-pin tooltip with anomaly reason, minimap navigation strip
-- **hck_GPT proactive alerts**: `_check_voltage_rails()` fires `voltage_spike` / `voltage_trend` — bilingual, session budget + gap protected
+- **hck_GPT proactive alerts**: `_check_voltage_rails()` fires `voltage_spike` / `voltage_trend`, bilingual, session budget + gap protected
 
-### Code quality pass — 6 core modules
+### Code quality pass - 6 core modules
 - **13 bug fixes** including: Bessel's correction for sample variance, per-rail `"latest"` key in anomaly summary, dead `if False else 0` predicate in `get_summary_stats()`, duplicate stopword in ML classifier, font loaded from disk on every 120ms frame, `_gather_live.__call__()` wrong method access form
 - **8 innovations**: `overall_health_score()` (PSU 0-100), `format_for_chat()` on thermal and voltage, `get_top_k()` (intent classifier debug), `_thermal_aware_cpu_heat()` (z-score coloring), `cleanup_dead_pids()`, `get_savings_estimate()`, `_downsample()` bias fix (`round()` vs `int()`)
 - All 6 modules verified clean with `python -m py_compile`
@@ -274,17 +274,17 @@ See [Features → Monitoring & Alerts](#features) for full detail.
 
 ### Ghost Driver Detection *(new in 1.7.7)*
 - Detects driver packages left in Windows after replacing hardware (e.g. old GT 1030 after upgrading to RTX 3050)
-- Uses `pnputil /enum-devices /connected` — only physically present hardware, not phantom registry entries
-- Ghost entries shown on driver cards with bordeaux background and `⚠ GHOST` / `100% UNUSED` badge — visible without expanding
+- Uses `pnputil /enum-devices /connected`, only physically present hardware, not phantom registry entries
+- Ghost entries shown on driver cards with bordeaux background and `⚠ GHOST` / `100% UNUSED` badge, visible without expanding
 - Dialog: device age, version, explanation; option to remove via `pnputil /remove-device` (admin + confirmation)
 - Works across GPU, Audio, Network, USB driver classes
 
-### Drivers Tab — SEE EVERYTHING / SEE OUTDATED *(new in 1.7.7)*
+### Drivers Tab - SEE EVERYTHING / SEE OUTDATED *(new in 1.7.7)*
 - Two mode buttons in DRIVER HEALTH header: **SEE EVERYTHING** (all devices by category) and **SEE OUTDATED (N)** (drivers 24+ months old, sorted oldest first)
 - Expand button per card: `▼ pokaż wszystkie (N)` reveals every device found in that class, ghost devices highlighted in bordeaux
 - Drivers >= 730 days (~24 months) marked red
 
-### Auto RAM Flush — Process Exclusion *(new in 1.7.7)*
+### Auto RAM Flush - Process Exclusion *(new in 1.7.7)*
 - Bordeaux exclusion panel inside RAM Flush card: click any process to protect it from flush
 - Protected processes persist across restarts via `user_prefs.json`
 - Flush result shows protected count: `Freed 420 MB (87 procs · 3 protected)`
@@ -297,10 +297,10 @@ See [Features → Monitoring & Alerts](#features) for full detail.
 
 ### UI & UX Patch *(new in 1.7.7-patched)*
 - **Startup Manager**: renamed "Needs Attention" → "Startup Menu"; removed non-functional "All entries" panel; auto-refresh after restoring a disabled entry
-- **Services Manager**: always shows both **Stop** and **Start** buttons for every non-essential service — active button is colored, inactive is muted (was showing only one direction)
+- **Services Manager**: always shows both **Stop** and **Start** buttons for every non-essential service, active button is colored, inactive is muted (was showing only one direction)
 - **Services Manager**: expand banner now says `∨ Rozwiń więcej (N) ∨` and is more compact
 - **First Setup & Drivers**: GHOST badge now visible immediately on card header (not only inside expanded panel); subcategory labels and expand buttons are clearly readable; ghost devices highlighted bordeaux inside expand panel
-- **Page headers**: compact `← Główne Menu` only — removed redundant large title/subtitle duplication below the title bar
+- **Page headers**: compact `← Główne Menu` only, removed redundant large title/subtitle duplication below the title bar
 
 ---
 
@@ -338,24 +338,24 @@ See [Features → Monitoring & Alerts](#features) for full detail.
 
 ## What's New [1.7.5] - `2026-05-25` *(previous)*
 
-### hck_GPT — 13 new intents + 4 MEGA features
+### hck_GPT - 13 new intents + 4 MEGA features
 Built from 28 real community requests (GitHub Discussions + LinkedIn).
 
-- **13 new intents**: fan noise history, driver status, gaming vs work time, process identity, stale apps, FPS degradation, app behavior change, startup slowdown, temp comparison, crash context, game hardware stress, battery drain rate, power after restart — **63 → 76 intents total**
+- **13 new intents**: fan noise history, driver status, gaming vs work time, process identity, stale apps, FPS degradation, app behavior change, startup slowdown, temp comparison, crash context, game hardware stress, battery drain rate, power after restart, **63 → 76 intents total**
 - **Context Time-Windowing**: each intent gets a history window (5 min → 7 days); LLM context is scoped to what's actually relevant for that question
 - **No-AI-Slop fallback**: when data is missing, the AI says so instead of making things up
 - **Time-Travel Debugging**: compare any live metric to its N-day historical average
 - **Micro-Benchmarking**: background cpu/disk benchmarks triggered on demand, stored in session memory
 
 ### Process Library
-- **104 → 241 entries** — games (CS2, Elden Ring, Cyberpunk, BG3, KSP…), dev tools (JetBrains suite, Cursor, DBeaver…), RGB software, diagnostics, VPN/network, Windows system processes
+- **104 → 241 entries**, games (CS2, Elden Ring, Cyberpunk, BG3, KSP…), dev tools (JetBrains suite, Cursor, DBeaver…), RGB software, diagnostics, VPN/network, Windows system processes
 
 ---
 
 ## What's New [1.7.4] - `2026-05-14` *(previous)*
 
-### Optimization Center — Full Redesign
-- Feature grid rebuilt as 2-column expandable card layout — each card has an inline info panel, no separate overlay
+### Optimization Center - Full Redesign
+- Feature grid rebuilt as 2-column expandable card layout, each card has an inline info panel, no separate overlay
 - Snapshot strip (CPU / RAM / Disk) now shows subtle fill bars behind the percentage values
 - **Turbo Power Plan** now actually creates a "Turbo PC" power scheme via `powercfg`; handles non-English Windows, detects missing admin rights, restores original plan on exit
 - **Quick Actions** replaced: Startup Manager (nav), Services Manager (nav), Disk Defragmenter (run), Weekly Performance Report (window)
@@ -364,7 +364,7 @@ Built from 28 real community requests (GitHub Discussions + LinkedIn).
 - Typography upgrade: Segoe UI Semibold throughout; fixed icon widget parenting bug
 
 ### Dashboard
-- "More Optimization Tools" button replaced with a subtle dark "Optimization Center" chip — navigates to My PC → Hardware & Health; glow animation removed
+- "More Optimization Tools" button replaced with a subtle dark "Optimization Center" chip, navigates to My PC → Hardware & Health; glow animation removed
 
 ### My PC
 - `yourpc_page.py` now uses the shared `utils.fonts` font system (`_HDR / _BODY / _MONO`)
@@ -374,41 +374,41 @@ Built from 28 real community requests (GitHub Discussions + LinkedIn).
 ## What's New [1.7.3] - `2026-05-02` *(previous)*
 
 ### Live Guide
-- New `ui/guide/live_guide.py` — `LiveGuide` class: interactive spotlight overlay with Windows `-transparentcolor` dim technique
+- New `ui/guide/live_guide.py`, `LiveGuide` class: interactive spotlight overlay with Windows `-transparentcolor` dim technique
 - 3-step dashboard tour: chart + filters → nav buttons (left/right) with per-button descriptions → hardware cards + session averages
 - Floating info card: accent bar, badge, step dots, DALEJ/Zakończ; ESC or ✕ to dismiss
 - Wired to "▶ Guide on program LIVE" button in Guide page; auto-returns to dashboard and waits for widgets
 
-### hck_GPT — AI quality & coverage
-- `_resp_help` fully rewritten: 8 sections with emoji headers covering all 37 intents (hardware, diagnostics, performance, why, optimization, security, fun, small talk) — bilingual PL/EN
+### hck_GPT - AI quality & coverage
+- `_resp_help` fully rewritten: 8 sections with emoji headers covering all 37 intents (hardware, diagnostics, performance, why, optimization, security, fun, small talk), bilingual PL/EN
 - `_resp_optimization` rewritten with live data: real CPU/RAM snapshot, hardware-profile flags (HDD, low RAM, few cores), priority tip (🔴/🟡/✓), conditional virtual-memory and HDD notes
 - `_FOLLOWUPS` pool expanded 3 → 8 keys (`hw`, `health`, `perf`, `security`, `disk`, `why`, `process`, `session`); `_followup()` wired into 9 handlers (`virus_check`, `disk_health`, `disk_usage_why`, `battery_drain`, `uptime`, `process_info`, `throttle_check`, `perf_change`, `session_compare`)
-- `record_response_data` added to `hw_gpu`, `perf_change`, `session_compare` — AI can now reference GPU model/VRAM and yesterday's stats in follow-up answers
+- `record_response_data` added to `hw_gpu`, `perf_change`, `session_compare`, AI can now reference GPU model/VRAM and yesterday's stats in follow-up answers
 
-### hck_GPT — hardware & session data
+### hck_GPT - hardware & session data
 - WMI hardware scanner: RAM speed + part number, primary disk model added to user knowledge base
-- Session data store (`session_memory.record_response_data` / `get_response_data` / `discussed_this_session`) — cross-response referencing system
+- Session data store (`session_memory.record_response_data` / `get_response_data` / `discussed_this_session`), cross-response referencing system
 - Chat panel nav links (`_apply_nav_links`): `[→ Page]` tokens in AI responses are clickable and route directly to app pages; `register_nav_callback()` API; `_open_virtual_memory()` helper
 
 ---
 
 ## What's New [1.7.2] - `2026-04-27` *(previous)*
 
-### My PC — Startup & Services Manager
+### My PC - Startup & Services Manager
 - New **Startup Manager** page: reads registry Run keys, rates impact (High/Medium/Low), three panels (Optimize / Safe to disable / All), confirm-before-remove, prefs persisted
 - New **Services Manager** page: 40+ services catalogued, Stop/Start/Restart, admin detection, TURBO Mode integration (queue services for auto-stop), change log
-- Replaced single "Optimization & Services" button with **3-zone Optimization Hub**: Optimization Center (left), Startup Manager (top-right), Services Manager (bottom-right) — single Canvas with zone detection, hover brightening, live metrics in daemon thread
+- Replaced single "Optimization & Services" button with **3-zone Optimization Hub**: Optimization Center (left), Startup Manager (top-right), Services Manager (bottom-right), single Canvas with zone detection, hover brightening, live metrics in daemon thread
 - Removed hck_GPT banner from Central tab; added SESSION bar (`SESSION: Xh Ym` + `● LIVE`)
 - Nav bar: **MY PC** label (Inter Bold), tab/section fonts upgraded to Inter
 - Stability Tests + Your Account moved to bottom row (side by side)
 
-### hck_GPT — Bug fixes
+### hck_GPT - Bug fixes
 - Fixed `_show_help()` always responding in wrong language (used pre-detection `self._last_lang`)
 - Redesigned `_show_help()` with `◈` category headers, bilingual PL/EN
-- Fixed `_resp_temperature()` — DB fallback via `query_api` when `psutil.sensors_temperatures()` empty on Windows
-- Fixed `_resp_speed_up_pc()` — removed unconditional TURBO BOOST + FPS tips regardless of system state
+- Fixed `_resp_temperature()`, DB fallback via `query_api` when `psutil.sensors_temperatures()` empty on Windows
+- Fixed `_resp_speed_up_pc()`, removed unconditional TURBO BOOST + FPS tips regardless of system state
 
-### hck_stats_engine — new query_api methods
+### hck_stats_engine - new query_api methods
 - `get_temperature_history()`, `get_temperature_summary()`, `get_top_processes_lifetime()`, `get_weekly_summary()`
 
 ### Release packaging
@@ -417,30 +417,30 @@ Built from 28 real community requests (GitHub Discussions + LinkedIn).
 
 ---
 
-### hck_GPT — AI Layer & Hybrid Engine *(2026-04-22)*
-- **Bordeaux Noir panel**: animated black→crimson gradient banner with sine-wave shimmer, `AI` vector badge, pulsing `ONLINE` badge — no image files
+### hck_GPT - AI Layer & Hybrid Engine *(2026-04-22)*
+- **Bordeaux Noir panel**: animated black→crimson gradient banner with sine-wave shimmer, `AI` vector badge, pulsing `ONLINE` badge, no image files
 - **Hybrid Engine** (`hck_gpt/engine/`): routes low-confidence / open-ended messages to Ollama LLM (local), rule engine handles everything else; graceful 60s cooldown on Ollama unavailability
 - **Bilingual responses**: every handler now replies in Polish or English based on auto-detected language; `random.choice()` pools for variety
 - **Proactive monitor**: background daemon watches CPU, RAM, throttling, disk, session uptime; pushes alerts to chat panel and banner status bar
 - **Session memory extended**: CPU/RAM trend buffers, auto conversation summary every 6 messages, `get_context_for_llm()` injected into Ollama system prompt
 - **Rich system context**: top 3 processes, temperature readings, 6-section LLM context string (live state, today's averages, processes, temps, hardware profile, conversation)
-- **User knowledge base**: SQLite at AppData — hardware profile, facts, usage patterns; background hardware scan via psutil + WMI (CPU model, GPU, VRAM, motherboard, RAM speed)
+- **User knowledge base**: SQLite at AppData, hardware profile, facts, usage patterns; background hardware scan via psutil + WMI (CPU model, GPU, VRAM, motherboard, RAM speed)
 - **Parser improvements**: ASCII-fold dual scoring for Polish accent normalization; vocabulary enriched with multi-word phrases for reliable confidence above routing threshold
 - **Efficiency tab**: fixed physical core count (was showing logical count); fixed invisible avg text color; per-core session min/max/avg; side-by-side TOP CPU/RAM consumers
-- **HCK_Labs globe icon**: vector globe drawn with canvas primitives — sphere + meridian + equator + parallels
+- **HCK_Labs globe icon**: vector globe drawn with canvas primitives, sphere + meridian + equator + parallels
 
-### Earlier in 1.7.2 — dashboard & nav (`2026-04-21`)
+### Earlier in 1.7.2 - dashboard & nav (`2026-04-21`)
 - Dashboard nav buttons full redesign (dark-gradient, accent stripe, bordeaux L-brackets, vector icons)
 - HCK_Labs and Guide pages full blog-style redesign
 - Navigation routing fixes (MONITORING, AllMonitor, overlay title)
 - Turbo Boost set to coming-soon state with tooltip
 
-### Earlier in 1.7.2 — optimization & fonts (`2026-04-20`)
+### Earlier in 1.7.2 - optimization & fonts (`2026-04-20`)
 - Optimization Center redesign: TURBO BOOST button, feature count badge, column layout, RAM Flush card
-- `utils/fonts.py` — Inter font via GDI32 with Segoe UI fallback
+- `utils/fonts.py`, Inter font via GDI32 with Segoe UI fallback
 - Repository cleanup: proper `.gitignore`, 7 dead files removed, broken imports fixed, `__pycache__` cleared
 
-### Earlier in 1.7.2 — first setup & drivers (`2026-04-13`)
+### Earlier in 1.7.2 - first setup & drivers (`2026-04-13`)
 - First Setup & Drivers page: health score gauge, 4 driver health cards (registry data), setup checklist with persistent state
 - hck_GPT chat time badge (inline canvas, per-message `HH:MM`)
 - Process library expanded (+8 entries); process tooltips on TOP 5 panels
@@ -451,7 +451,7 @@ Built from 28 real community requests (GitHub Discussions + LinkedIn).
 
 ### hck_GPT Intelligence System
 - Local insights engine: habit tracking, anomaly awareness, personalized teasers
-- "Today Report!" button — rainbow gradient, opens detailed report window
+- "Today Report!" button, rainbow gradient, opens detailed report window
 - Today Report: session/lifetime uptime, CPU/GPU/RAM chart, top processes, alert status
 - 7-day recurring pattern detection with personality-driven messages
 - New commands: `stats`, `alerts`, `insights`, `teaser` (+ Polish language)
@@ -490,7 +490,7 @@ Built from 28 real community requests (GitHub Discussions + LinkedIn).
 - Fixed routing IDs for new subitems (temperature, voltage, alerts)
 
 ### Performance Optimization
-- Background-threaded `psutil.process_iter()` — GUI thread never blocks on system calls
+- Background-threaded `psutil.process_iter()`, GUI thread never blocks on system calls
 - Dashboard update cadence: 300ms → 1000ms, hardware cards every 2s, tray every 3s
 - Widget reuse pattern for TOP 5 processes (no destroy/recreate)
 - Nav button gradients drawn once (removed per-pixel `<Configure>` redraw on window move)
@@ -710,13 +710,13 @@ Click any process to see more details.
 
 ### Where It's Stored
 - **Local only:** `/data/logs/hck_stats.db` (SQLite) + learned baselines in `/data/cache/`
-- **Never personal:** no files, keystrokes, browsing, or content — ever
+- **Never personal:** no files, keystrokes, browsing, or content, ever
 - **You control the network:** every outbound connection goes through one gate in Settings; turn it off and the app makes zero connections
 - **You control the data:** delete `/data/` anytime to start fresh
 
 ### Privacy Assurance
 - All monitoring runs locally on your machine
-- Open source — the code is auditable
+- Open source, the code is auditable
 - Network access is optional and off-able in Settings (off = firewall-verifiable zero traffic)
 -
 ## Versioning
@@ -739,7 +739,8 @@ Click any process to see more details.
 | v1.7.7-patched | Released | UI/UX fixes: Startup Manager redesign, Services Manager stop/start logic, Drivers page readability, compact headers |
 | v1.7.8-monitoring | Released | Thermal Baseline Engine, Voltage Rail Analyzer (SPC + Nelson rules), interactive pan/zoom charts, proactive voltage alerts, 6-module code-quality pass |
 | v1.7.9 | Released | Maximized View Mode redesign, gaming-HUD chart tooltip, hck_GPT on MY PC / Fan tabs, 1326 dead lines removed, 10+ resource leaks fixed |
-| **v1.8.0** | **Current** | **Smart Learning (Welford accumulator, workload-aware temps, voltage SPC), GAMING in-game overlay + configurator, live FPS via RTSS, 40+ game greetings, 4 new hck_GPT intents, Process Suspect Guard** |
+| **v1.8.0** | Released | **Smart Learning (Welford accumulator, workload-aware temps, voltage SPC), GAMING in-game overlay + configurator, live FPS via RTSS, 40+ game greetings, 4 new hck_GPT intents, Process Suspect Guard** |
+| **v1.8.1** | **Current** | General fixes from Users feedback |
 | v2.0.0 | **Q2 2026** | Microsoft Store, long-term drift, Smart User Activity |
 
 **[Full Changelog](./CHANGELOG.md)**
@@ -775,7 +776,7 @@ Click any process to see more details.
 - NVIDIA/AMD GPU drivers updated
 - DirectX 12 compatible system
 -
-## 📚 Documentation
+## Documentation
 
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Installation & setup guide
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history & updates
@@ -786,10 +787,10 @@ Click any process to see more details.
 
 **Marcin Firmuga** | Software Engineer
 
-Building PC Workman in public — physical work by day, code by night.
+Building PC Workman in public, physical work by day, code by night.
 
 - **Website:** [pcworkman.dev](https://pcworkman.dev)
-- **Blog:** [Build-in-public series](https://pcworkman.dev/blog/) — Monday / Wednesday / Friday
+- **Blog:** [Build-in-public series](https://pcworkman.dev/blog/), Monday / Wednesday / Friday
 - **GitHub:** [HuckleR2003](https://github.com/HuckleR2003)
 - **LinkedIn:** [Marcin Firmuga](https://linkedin.com/in/marcinfirmuga/)
 - **X:** [@hck_lab](https://x.com/hck_lab)
@@ -797,7 +798,7 @@ Building PC Workman in public — physical work by day, code by night.
 
 Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 -
-## 📄 License
+## License
 
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
 Free for personal and commercial use. Attribution appreciated.
