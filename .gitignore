@@ -51,3 +51,7 @@ settings/turbo_services.json
 
 # EXE binary (distributed via Releases, not tracked in source)
 *.exe
+
+# AI-assistant workspace files - never ship these to the public repo
+CLAUDE.md
+.claude/
