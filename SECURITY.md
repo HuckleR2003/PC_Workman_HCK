@@ -11,9 +11,9 @@ This document outlines the security measures implemented in PC_Workman, how to r
 
 PC_Workman is **local-first**: all system-monitoring data, learned baselines, the offline hck_GPT assistant, and your history stay on your device (local SQLite), with no account and no cloud sync.
 
-The only data that can leave your machine is an **optional, anonymous hardware & usage snapshot** used to test PC_Workman against real-world hardware and fix incompatibilities. It contains a random install ID, your component **models** (CPU / GPU / RAM / motherboard / disks), Windows version, region (from your language setting, never your IP), app version and session length — and **never** your name, IP address, files, or the processes you run. It is controllable in **Settings**; with Network Access off, the app makes **zero** outbound connections (verifiable with a firewall or Wireshark).
+The only data that can leave your machine is an **optional, anonymous hardware & usage snapshot** used to test PC_Workman against real-world hardware and fix incompatibilities. It contains a random install ID, your component **models** (CPU / GPU / RAM / motherboard / disks), Windows version, region (from your language setting, never your IP), app version and session length, and **never** your name, IP address, files, or the processes you run. It is controllable in **Settings**; with Network Access off, the app makes **zero** outbound connections (verifiable with a firewall or Wireshark).
 
-Full details — including the exact payload and how to turn it off — are in the **[Privacy Policy](PRIVACY.md)** (also published at <https://pcworkman.dev/privacy_en.html>).
+Full details, including the exact payload and how to turn it off, are in the **[Privacy Policy](PRIVACY.md)** (also published at <https://pcworkman.dev/privacy_en.html>).
 
 ---
 
@@ -397,13 +397,13 @@ Users should verify these measures before granting administrative access.
 
 ### What data does PC_Workman collect or transmit?
 
-All system-monitoring data — CPU/GPU/RAM usage, temperatures, process info — is stored **locally on your device**. It is never your files, keystrokes, browsing, or any personal content.
+All system-monitoring data, CPU/GPU/RAM usage, temperatures, process info, is stored **locally on your device**. It is never your files, keystrokes, browsing, or any personal content.
 
-The only thing that can be sent is an **anonymous hardware & usage snapshot** — a random install ID, your component models, Windows version, region (from your locale), app version and session length; never your name, IP, files, or process names — used purely to fix hardware incompatibilities. Every outbound connection passes through a single network gate you control in **Settings**; turn Network Access off and the program makes **zero** outbound connections — verifiable with a firewall or Wireshark. See the full **[Privacy Policy](PRIVACY.md)**.
+The only thing that can be sent is an **anonymous hardware & usage snapshot**, a random install ID, your component models, Windows version, region (from your locale), app version and session length; never your name, IP, files, or process names, used purely to fix hardware incompatibilities. Every outbound connection passes through a single network gate you control in **Settings**; turn Network Access off and the program makes **zero** outbound connections, verifiable with a firewall or Wireshark. See the full **[Privacy Policy](PRIVACY.md)**.
 
 ### Does PC_Workman require internet access?
 
-No. All core functionality — system monitoring, fan control, performance tracking, and the offline hck_GPT assistant — runs completely without the internet. The network is used only for the optional anonymous snapshot above. In v1.8.0 network access is on by default and can be switched off in Settings at any time; with it off, the app is fully offline.
+No. All core functionality, system monitoring, fan control, performance tracking, and the offline hck_GPT assistant, runs completely without the internet. The network is used only for the optional anonymous snapshot above. In v1.8.0 network access is on by default and can be switched off in Settings at any time; with it off, the app is fully offline.
 
 ### What happens if development stops?
 
