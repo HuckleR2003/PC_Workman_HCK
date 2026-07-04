@@ -30,7 +30,7 @@ Welcome! This guide covers installation and basic usage.
 ### Step 2: Run
 
 1. Open the extracted folder
-2. Run **`PC Workman HCK.exe`** — keep the `_internal` folder next to it (that's the runtime)
+2. Run **`PC Workman HCK.exe`**, keep the `_internal` folder next to it (that's the runtime)
 3. If Windows SmartScreen warns about a new app → **More info → Run anyway**
 4. PC Workman opens → **Done!**
 
@@ -234,7 +234,7 @@ Edit `settings/config.json` for advanced configuration:
 
 ### "Temperatures showing 0°C"
 
-Windows hands `psutil` an empty field for temps — there's no way around it. For real temperatures and voltages, run **LibreHardwareMonitor** in the background; PC Workman reads its sensors automatically.
+Windows hands `psutil` an empty field for temps, there's no way around it. For real temperatures and voltages, run **LibreHardwareMonitor** in the background; PC Workman reads its sensors automatically.
 
 ### "GPU not showing data"
 
@@ -310,7 +310,7 @@ settings/                       (your preferences)
 
 Everything lives on your machine. The stats database rolls up over time (minute → hour → day → week → month) and prunes raw detail after 90 days, while the learned baselines keep accumulating for the life of the install.
 
-You can delete the `data/` folder anytime — PC Workman starts fresh and begins learning again.
+You can delete the `data/` folder anytime, PC Workman starts fresh and begins learning again.
 
 ---
 
@@ -321,9 +321,9 @@ PC Workman records, **on your machine only**:
 - Temperatures and voltages
 - Process names and per-app network usage
 
-It never touches your files, keystrokes, browsing, or any personal content — and it never shows ads or asks for an account.
+It never touches your files, keystrokes, browsing, or any personal content, and it never shows ads or asks for an account.
 
-Every outbound connection goes through one network gate you control in **Settings**. Turn it off and the app makes zero connections — check it with a firewall.
+Every outbound connection goes through one network gate you control in **Settings**. Turn it off and the app makes zero connections, check it with a firewall.
 
 ---
 
