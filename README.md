@@ -3,7 +3,7 @@
 > **Your PC finally has someone who speaks its language.**
 
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Available-0067b8?style=flat-square&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PGW6WS2N50V)
-![Version](https://img.shields.io/badge/Version-1.8.1-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.8.2-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
@@ -48,7 +48,7 @@ It learns *your* machine: 82°C is normal while you game but critical at idle, j
 
 ### Windows Users (Easiest)
 ```
-1. Download PC_Workman_HCK_1.8.1.zip from Releases
+1. Download PC_Workman_HCK_1.8.2.zip from Releases
 2. Extract the folder anywhere
 3. Run "PC Workman HCK.exe" and you are done.
    (keep the _internal folder next to it — that's the runtime)

@@ -58,7 +58,7 @@ If signature verification fails, do not run the executable. Report the issue imm
 **Started:** v1.6.3  
 **Frequency:** Every new .exe release  
 **Current Status:** 0/70 clean  
-**Last Scanned:** v1.8.0 (June 22, 2026)
+**Last Scanned:** v1.8.2 (July 06, 2026)
 
 Before publishing any executable, it is uploaded to VirusTotal and verified against 70+ antivirus engines. Users can verify this independently at [virustotal.com](https://www.virustotal.com).
 
@@ -94,7 +94,7 @@ Only the latest stable version receives active security support.
 
 | Version | Supported | Security Updates | Notes |
 |---------|-----------|------------------|-------|
-| 1.8.0 (latest stable) | Yes | Best | Current release |
+| 1.8.x (latest stable) | Yes | Best | Current release |
 | 1.7.x | Limited | Critical only | Upgrade recommended |
 | 1.6.x | Limited | Critical only | Upgrade recommended |
 | < 1.6 | No | None | End of life |
@@ -305,7 +305,7 @@ PC_Workman uses third-party libraries documented in `requirements.txt` and `DEPE
 
 ## Security Update Log
 
-### v1.8.0 (June 22, 2026)
+### v1.8.X (July 06, 2026)
 
 **Security Improvements:**
 - Sigstore signature renewed for the 1.8.0 stable build
@@ -444,7 +444,7 @@ Marcin Firmuga
 
 ## Policy Updates
 
-**Last Updated:** June 26, 2026  
+**Last Updated:** July 06, 2026  
 **Version:** 1.5
 
 Changes to this security policy are tracked in git commit history. Significant changes will be announced in release notes and project communications.
