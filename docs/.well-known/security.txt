@@ -1,1 +1,5 @@
-
+Contact: mailto:firmuga.marcin.s@gmail.com
+Expires: 2027-06-12T17:43:00Z
+Canonical: https://pcworkman.dev/.well-known/security.txt
+Policy: https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md
+Preferred-Languages: en, pl
