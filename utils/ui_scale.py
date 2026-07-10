@@ -12,7 +12,18 @@ _BASE_SIDEBAR = 180
 
 
 def init(root):
-    """Detect screen DPI group and set module-level SCALE."""
+    """Detect screen DPI group, set module-level SCALE and sync Tk's font
+    engine to it.
+
+    The font sync is the fix for "text clipped on small screens / 125% laptops":
+    window geometry scales with SCALE, but fonts are absolute point sizes that
+    Tk converts to pixels with its own 'tk scaling' factor (derived from OS
+    DPI). On a 125-150% laptop that factor renders every font ~25-60% larger
+    while our pixel layout stays fixed, so text overflows and gets cut (hck_GPT
+    banner, panels). Pinning the factor to (96dpi/72) * SCALE makes fonts follow
+    the window: identical look at 1080p/100%, proportionally smaller on sub-FHD
+    screens, doubled on 4K. One call - every point-sized font in the app obeys.
+    """
     global SCALE
     sw = root.winfo_screenwidth()
     if sw >= 3840:       # 4K
@@ -23,6 +34,11 @@ def init(root):
         SCALE = 1.0
     else:                # smaller laptops
         SCALE = max(0.85, sw / 1920)
+
+    try:
+        root.tk.call("tk", "scaling", (96.0 / 72.0) * SCALE)
+    except Exception:
+        pass
 
 
 def compact_w() -> int:
