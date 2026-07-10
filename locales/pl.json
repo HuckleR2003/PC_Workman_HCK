@@ -123,7 +123,14 @@
       "debug_dialog_prompt": "Klucz autoryzacyjny:",
       "debug_denied": "⛔  Odmowa dostępu — nieprawidłowy klucz autoryzacyjny",
       "debug_cancel": "Anuluj",
-      "debug_unlock": "Odblokuj  🔓"
+      "debug_unlock": "Odblokuj  🔓",
+      "shortcut_label": "Skrót na pulpicie",
+      "shortcut_desc": "Utwórz klasyczny skrót do PC Workmana na pulpicie (działa też dla instalacji z Microsoft Store).",
+      "shortcut_btn": "Utwórz",
+      "shortcut_done": "✓ Skrót utworzony",
+      "shortcut_fail": "Nie udało się",
+      "admin_label": "Uruchamiaj jako administrator",
+      "admin_desc": "Przy starcie poproś o podniesienie uprawnień (UAC). Potrzebne dla wpisów HKLM, niektórych usług i planów zasilania. Nie dotyczy instalacji z Microsoft Store."
     },
     "turbo": {
       "threshold_label": "Próg bezczynności",
@@ -252,26 +259,80 @@
     "btn_run": "URUCHOM",
     "btn_view": "POKAŻ",
     "quick_actions": {
-      "startup":  { "label": "Aplikacje startowe",   "sub": "Menadżer" },
-      "services": { "label": "Usługi",               "sub": "Menadżer" },
-      "defrag":   { "label": "Dysk",                 "sub": "Defragmentacja" },
-      "report":   { "label": "Wydajność tygodniowa", "sub": "Raport" }
+      "startup": {
+        "label": "Aplikacje startowe",
+        "sub": "Menadżer"
+      },
+      "services": {
+        "label": "Usługi",
+        "sub": "Menadżer"
+      },
+      "defrag": {
+        "label": "Dysk",
+        "sub": "Defragmentacja"
+      },
+      "report": {
+        "label": "Wydajność tygodniowa",
+        "sub": "Raport"
+      }
     },
     "features": {
-      "ram_flush":       { "title": "Auto RAM Flush",        "desc": "Zwolnij pamięć roboczą, gdy użycie jest wysokie" },
-      "turbo_pp":        { "title": "Turbo Power Plan",      "desc": "Przełącz na własny plan 'Turbo PC' na żądanie" },
-      "turbo_svc":       { "title": "TURBO Service Stop",    "desc": "Zatrzymaj zbędne usługi według profilu" },
-      "proc_guard":      { "title": "Process Guard",         "desc": "Wstrzymaj bezczynne procesy w tle" },
-      "app_hibernation": { "title": "App Hibernation",       "desc": "Uśpij aplikacje nieużywane od X minut" },
-      "cpu_throttle":    { "title": "CPU Throttle Guard",    "desc": "Automatycznie zapobiegaj throttlingowi termicznemu" },
-      "browser_cache":   { "title": "Browser Cache Cleaner", "desc": "Okresowo czyść pliki cache przeglądarki" },
-      "bg_limiter":      { "title": "Background Limiter",    "desc": "Ogranicz CPU dla procesów spoza pierwszego planu" },
-      "net_reset":       { "title": "Network Adapter Reset", "desc": "Zresetuj stos sieciowy przy problemach z połączeniem" },
-      "reg_clean":       { "title": "Registry Junk Cleaner", "desc": "Usuń osierocone klucze rejestru" },
-      "gpu_watchdog":    { "title": "GPU Driver Watchdog",   "desc": "Wykryj i zrestartuj zawieszony sterownik GPU" },
-      "log_rotate":      { "title": "Log File Rotation",     "desc": "Automatycznie usuwaj stare logi, by zwolnić miejsce" },
-      "dns_nightly":     { "title": "DNS Auto-Flush",        "desc": "Nocne czyszczenie cache DNS wg harmonogramu" },
-      "fw_monitor":      { "title": "Firewall Health",       "desc": "Sprawdź, czy zapora Windows jest aktywna i sprawna" }
+      "ram_flush": {
+        "title": "Auto RAM Flush",
+        "desc": "Zwolnij pamięć roboczą, gdy użycie jest wysokie"
+      },
+      "turbo_pp": {
+        "title": "Turbo Power Plan",
+        "desc": "Przełącz na własny plan 'Turbo PC' na żądanie"
+      },
+      "turbo_svc": {
+        "title": "TURBO Service Stop",
+        "desc": "Zatrzymaj zbędne usługi według profilu"
+      },
+      "proc_guard": {
+        "title": "Process Guard",
+        "desc": "Wstrzymaj bezczynne procesy w tle"
+      },
+      "app_hibernation": {
+        "title": "App Hibernation",
+        "desc": "Uśpij aplikacje nieużywane od X minut"
+      },
+      "cpu_throttle": {
+        "title": "CPU Throttle Guard",
+        "desc": "Automatycznie zapobiegaj throttlingowi termicznemu"
+      },
+      "browser_cache": {
+        "title": "Browser Cache Cleaner",
+        "desc": "Okresowo czyść pliki cache przeglądarki"
+      },
+      "bg_limiter": {
+        "title": "Background Limiter",
+        "desc": "Ogranicz CPU dla procesów spoza pierwszego planu"
+      },
+      "net_reset": {
+        "title": "Network Adapter Reset",
+        "desc": "Zresetuj stos sieciowy przy problemach z połączeniem"
+      },
+      "reg_clean": {
+        "title": "Registry Junk Cleaner",
+        "desc": "Usuń osierocone klucze rejestru"
+      },
+      "gpu_watchdog": {
+        "title": "GPU Driver Watchdog",
+        "desc": "Wykryj i zrestartuj zawieszony sterownik GPU"
+      },
+      "log_rotate": {
+        "title": "Log File Rotation",
+        "desc": "Automatycznie usuwaj stare logi, by zwolnić miejsce"
+      },
+      "dns_nightly": {
+        "title": "DNS Auto-Flush",
+        "desc": "Nocne czyszczenie cache DNS wg harmonogramu"
+      },
+      "fw_monitor": {
+        "title": "Firewall Health",
+        "desc": "Sprawdź, czy zapora Windows jest aktywna i sprawna"
+      }
     }
   },
   "operator": {
@@ -279,7 +340,7 @@
     "empty": "Zaznacz elementy, aby dodać je do zatwierdzenia",
     "confirm": "Zatwierdź",
     "back": "Wróć",
-        "details": "SZCZEGÓŁY",
+    "details": "SZCZEGÓŁY",
     "warn_critical": "⚠  Wykryto element systemowy — zatwierdzaj z ostrożnością."
   },
   "dashboard": {
