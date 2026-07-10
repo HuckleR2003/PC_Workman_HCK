@@ -787,11 +787,11 @@ class PCMapView(tk.Frame):
         # Status label (right side)
         self._status_lbl = tk.Label(top_bar, text="",
                                     font=(_MONO, 7),
-                                    bg="#0f1117", fg="#4b5563", padx=12)
+                                    bg="#0f1117", fg="#8593a8", padx=12)
         self._status_lbl.pack(side="right", fill="y")
 
         tk.Label(top_bar, text="Hover over a component for details",
-                 font=(_BODY, 7), bg="#0f1117", fg="#374151", padx=10
+                 font=(_BODY, 7), bg="#0f1117", fg="#74839a", padx=10
                  ).pack(side="right", fill="y")
 
         # Canvas + vertical scrollbar so the scene never gets cut off

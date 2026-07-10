@@ -172,7 +172,7 @@ class InteractiveChart:
         ctrl.pack(fill="x", pady=(1, 0))
         if label:
             tk.Label(ctrl, text=label, font=(_MONO, 6, "bold"),
-                     bg=bg, fg="#374151").pack(side="left", padx=6)
+                     bg=bg, fg="#74839a").pack(side="left", padx=6)
 
         reset_btn = tk.Label(ctrl, text="⟲ reset",
                              font=(_MONO, 6), bg=bg, fg=_C["reset_fg"],

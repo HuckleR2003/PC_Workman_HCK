@@ -439,7 +439,7 @@ class DeepMonitorTable(tk.Frame):
                 ["nvidia-smi",
                  "--query-gpu=memory.used,memory.total,utilization.memory",
                  "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, timeout=2,
+                capture_output=True, text=True, errors="replace", timeout=2,
                 creationflags=0x08000000,
             )
             if r.returncode == 0:
