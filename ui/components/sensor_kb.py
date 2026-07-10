@@ -428,7 +428,7 @@ def _build_hey_user_table(self, parent):
                  font=(_BODY, 5)).pack(side="left")
         for col in ["CURRENT", "MIN", "MAX"]:
             tk.Label(hdr, text=col, width=7, bg="#080b18",
-                     fg="#3d4e6b", font=(_BODY, 5, "bold")).pack(side="left", padx=1)
+                     fg="#8593a8", font=(_BODY, 5, "bold")).pack(side="left", padx=1)
 
         container = tk.Frame(parent_frame, bg="#0f1117")
         container.pack(fill="x")
@@ -488,8 +488,8 @@ def _build_hey_user_table(self, parent):
     for key, cur_l, min_l, max_l in volt_cells:
         lo_r, hi_r = _volt_ref.get(key, (0, 0))
         cur_l.config(text="N/A", fg=_CNA)
-        min_l.config(text=f"{lo_r:.2f}V" if lo_r else "--", fg="#2a3650")
-        max_l.config(text=f"{hi_r:.2f}V" if hi_r else "--", fg="#2a3650")
+        min_l.config(text=f"{lo_r:.2f}V" if lo_r else "--", fg="#74839a")
+        max_l.config(text=f"{hi_r:.2f}V" if hi_r else "--", fg="#74839a")
 
     # Temperature sub-table - probed via LHM/OHM if running
     mb_t_bdg, mb_t_cells = _live_table(mb_r, "TEMPERATURE", [
@@ -610,7 +610,7 @@ def _build_hey_user_table(self, parent):
     disk_hdr.columnconfigure(5, weight=3)   # Status
     for col_i, txt in enumerate(["Drive", "Used GB", "Free GB", "Total", "%", "Status"]):
         tk.Label(disk_hdr, text=txt, bg="#080b18",
-                 fg="#3d4e6b", font=("Segoe UI Semibold", 5),
+                 fg="#8593a8", font=("Segoe UI Semibold", 5),
                  anchor="center").grid(row=0, column=col_i, sticky="ew", padx=1, pady=1)
 
     # Fetch disk models once
@@ -759,7 +759,7 @@ def _build_hey_user_table(self, parent):
                     n_l = psutil.cpu_count(logical=True)  or n_p * 2
                     cur_l.config(text=str(n_p), fg=_CNA)
                     min_l.config(text=str(n_l), fg=_CNA)
-                    max_l.config(text="threads", fg="#2a3650")
+                    max_l.config(text="threads", fg="#74839a")
             bp, bb = _badge_p(cpu_load)
             cpu_use_bdg.config(text=bp, bg=bb)
 
@@ -799,7 +799,7 @@ def _build_hey_user_table(self, parent):
                              lambda v: _cw(v, gtdp))
                     elif key == "gpu_tdp":
                         cur_l.config(text=f"{gtdp}W", fg=_CNA)
-                        min_l.config(text="TDP",       fg="#2a3650")
+                        min_l.config(text="TDP",       fg="#74839a")
                         max_l.config(text=f"{gtdp}W", fg=_CNA)
                 bw, bb = _badge_w(gpw, gtdp)
                 gpu_pwr_bdg.config(text=bw, bg=bb)
@@ -943,7 +943,8 @@ def _build_hey_user_table(self, parent):
                     "mb_temp_vrm": mb_data.get("temp_vrm", -1.0),
                     "mb_source":   mb_data.get("source",   ""),
                     "disks":       disk_snap,
-                    "session_hist": {k: list(v) for k, v in _SESSION_HIST.items()},
+                    "session_hist": {**(_ls.get("session_hist") or {}),
+                                     **{k: list(v) for k, v in _SESSION_HIST.items()}},
                 })
 
         except Exception:

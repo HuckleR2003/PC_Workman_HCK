@@ -166,7 +166,7 @@ def _build_central(self, parent):
     left.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
     tk.Label(left, text=_t("my_pc.quick_actions"), font=(_BODY, 7, "bold"),
-             bg="#0a0e14", fg="#4b5563").pack(anchor="w", pady=(0, 3))
+             bg="#0a0e14", fg="#8593a8").pack(anchor="w", pady=(0, 3))
 
     def _nav_to(page_id, subpage_id=None):
         if hasattr(self, '_handle_sidebar_navigation'):
@@ -322,7 +322,7 @@ def _get_services_metrics():
         import subprocess
         result = subprocess.run(
             ["sc", "query", "state=", "running"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True, text=True, errors="replace", timeout=5,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         output = result.stdout.lower()
@@ -1456,107 +1456,12 @@ def _badge_w(w: float, tdp: float) -> tuple:
     if w >= tdp * 0.85:    return "HIGH", _CYL
     return "OK", _COK
 
-# ── nvidia-smi cache (updated every 1.5 s at most) ───────────────────────────
-_GPU_SMI: dict = {}
-_GPU_SMI_TS: float = 0.0
-
-def _fetch_gpu_smi() -> dict:
-    global _GPU_SMI, _GPU_SMI_TS
-    import time as _t, subprocess as _sp
-    if _t.time() - _GPU_SMI_TS < 1.5:
-        return _GPU_SMI
-    _GPU_SMI_TS = _t.time()
-    try:
-        r = _sp.run(
-            ["nvidia-smi",
-             "--query-gpu=temperature.gpu,power.draw,clocks.gr,clocks.mem,"
-             "utilization.gpu,memory.used,memory.total,name",
-             "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=3,
-            creationflags=getattr(_sp, "CREATE_NO_WINDOW", 0),
-        )
-        if r.returncode == 0:
-            p = [x.strip() for x in r.stdout.strip().split(",")]
-            _GPU_SMI = {
-                "temp":      float(p[0]),
-                "power":     float(p[1]),
-                "clk_gr":    int(p[2]),
-                "clk_mem":   int(p[3]),
-                "usage":     float(p[4]),
-                "mem_used":  int(p[5]),
-                "mem_total": int(p[6]),
-                "name":      p[7] if len(p) > 7 else "NVIDIA GPU",
-                "ok":        True,
-            }
-    except Exception:
-        _GPU_SMI.setdefault("ok", False)
-    return _GPU_SMI
-
-
-
-
-def _fetch_mb_sensors() -> dict:
-    """
-    Probe OHM (port 8085) then LHM (port 8086) for motherboard sensor data.
-    Returns keys: volt_12v, volt_5v, volt_33v, temp_sys, temp_vrm, source
-    All floats, -1.0 if not found.
-    """
-    global _MB_CACHE, _MB_CACHE_TS
-    import time as _t
-    if _t.time() - _MB_CACHE_TS < 4.0:   # refresh every 4 s (slower than CPU)
-        return _MB_CACHE
-    _MB_CACHE_TS = _t.time()
-
-    result = {"volt_12v": -1.0, "volt_5v": -1.0, "volt_33v": -1.0,
-              "temp_sys": -1.0, "temp_vrm": -1.0, "source": ""}
-
-    def _walk(node: dict, acc: dict):
-        """Recursively walk OHM/LHM JSON node, collect named sensors."""
-        text  = node.get("Text", "")
-        value = node.get("Value", "")
-        # Parse numeric value  e.g. "45.0 °C" or "11.9 V"
-        try:
-            num = float(value.split()[0])
-        except Exception:
-            num = None
-
-        if num is not None:
-            tl = text.lower()
-            if "+12" in tl:
-                acc["volt_12v"] = num
-            elif "+5" in tl and "12" not in tl:
-                acc["volt_5v"] = num
-            elif "+3.3" in tl or "3.3v" in tl:
-                acc["volt_33v"] = num
-            elif "vrm" in tl and "temp" not in tl:
-                acc["temp_vrm"] = num
-            elif ("motherboard" in tl or "system" in tl or "systin" in tl
-                  or "temp1" in tl):
-                acc["temp_sys"] = num
-
-        for child in node.get("Children", []):
-            _walk(child, acc)
-
-    try:
-        import urllib.request, json
-        for port, src in [(8085, "ohm"), (8086, "lhm")]:
-            try:
-                with urllib.request.urlopen(
-                        f"http://localhost:{port}/data.json", timeout=0.8) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                acc: dict = {}
-                _walk(data, acc)
-                if any(v > 0 for v in acc.values() if isinstance(v, float)):
-                    result.update(acc)
-                    result["source"] = src
-                    break
-            except Exception:
-                continue
-    except Exception:
-        pass
-
-    _MB_CACHE = result
-    return result
+# ── GPU / MB sensor fetchers — moved to core.live_collector (single data
+#    machine, 2026-07-04). Imported here so this page stays a thin consumer.
+from core.live_collector import (          # noqa: E402
+    fetch_gpu_smi as _fetch_gpu_smi,
+    fetch_mb_sensors as _fetch_mb_sensors,
+)
 
 
 def _build_hey_user_table(self, parent):
@@ -1690,7 +1595,7 @@ def _build_hey_user_table(self, parent):
                  font=(_BODY, 7)).pack(side="left")
         for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
             tk.Label(hdr, text=col, width=7, bg="#080b18",
-                     fg="#3d4e6b", font=(_BODY, 7, "bold")).pack(side="left", padx=1)
+                     fg="#8593a8", font=(_BODY, 7, "bold")).pack(side="left", padx=1)
 
         container = tk.Frame(parent_frame, bg="#0f1117")
         container.pack(fill="x")
@@ -1750,8 +1655,8 @@ def _build_hey_user_table(self, parent):
     for key, cur_l, min_l, max_l in volt_cells:
         lo_r, hi_r = _volt_ref.get(key, (0, 0))
         cur_l.config(text="N/A", fg=_CNA)
-        min_l.config(text=f"{lo_r:.2f}V" if lo_r else "--", fg="#2a3650")
-        max_l.config(text=f"{hi_r:.2f}V" if hi_r else "--", fg="#2a3650")
+        min_l.config(text=f"{lo_r:.2f}V" if lo_r else "--", fg="#74839a")
+        max_l.config(text=f"{hi_r:.2f}V" if hi_r else "--", fg="#74839a")
 
     # Temperature sub-table - probed via LHM/OHM if running
     mb_t_bdg, mb_t_cells = _live_table(mb_r, _t("my_pc.section_temperature"), [
@@ -1875,7 +1780,7 @@ def _build_hey_user_table(self, parent):
         _t("my_pc.disk_total"), _t("my_pc.disk_pct"), _t("my_pc.disk_status"),
     ]):
         tk.Label(disk_hdr, text=txt, bg="#080b18",
-                 fg="#3d4e6b", font=(_HDR, 7),
+                 fg="#8593a8", font=(_HDR, 7),
                  anchor="center").grid(row=0, column=col_i, sticky="ew", padx=1, pady=1)
 
     # Fetch disk models once
@@ -2024,7 +1929,7 @@ def _build_hey_user_table(self, parent):
                     n_l = psutil.cpu_count(logical=True)  or n_p * 2
                     cur_l.config(text=str(n_p), fg=_CNA)
                     min_l.config(text=str(n_l), fg=_CNA)
-                    max_l.config(text="threads", fg="#2a3650")
+                    max_l.config(text="threads", fg="#74839a")
             bp, bb = _badge_p(cpu_load)
             cpu_use_bdg.config(text=bp, bg=bb)
 
@@ -2064,7 +1969,7 @@ def _build_hey_user_table(self, parent):
                              lambda v: _cw(v, gtdp))
                     elif key == "gpu_tdp":
                         cur_l.config(text=f"{gtdp}W", fg=_CNA)
-                        min_l.config(text="TDP",       fg="#2a3650")
+                        min_l.config(text="TDP",       fg="#74839a")
                         max_l.config(text=f"{gtdp}W", fg=_CNA)
                 bw, bb = _badge_w(gpw, gtdp)
                 gpu_pwr_bdg.config(text=bw, bg=bb)
@@ -2208,7 +2113,8 @@ def _build_hey_user_table(self, parent):
                     "mb_temp_vrm": mb_data.get("temp_vrm", -1.0),
                     "mb_source":   mb_data.get("source",   ""),
                     "disks":       disk_snap,
-                    "session_hist": {k: list(v) for k, v in _SESSION_HIST.items()},
+                    "session_hist": {**(_ls.get("session_hist") or {}),
+                                     **{k: list(v) for k, v in _SESSION_HIST.items()}},
                 })
 
         except Exception:
@@ -2360,8 +2266,12 @@ def _export_health_report():
         except Exception:
             pass
 
-        cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
-            os.path.abspath(__file__)))), "data", "cache")
+        try:
+            from utils.paths import APP_DIR as _APP_DIR
+        except Exception:
+            _APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(__file__))))
+        cache_dir = os.path.join(_APP_DIR, "data", "cache")
         os.makedirs(cache_dir, exist_ok=True)
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(cache_dir, f"health_report_{ts}.json")
@@ -2524,7 +2434,7 @@ def _build_health(self, parent):
         tk.Label(col, text=icon, font=(_BODY, 13), bg="#1a1d24",
                  fg="#94a3b8").pack(pady=(5, 0))
         tk.Label(col, text=label, font=(_BODY, 7, "bold"),
-                 bg="#1a1d24", fg="#4b5563").pack()
+                 bg="#1a1d24", fg="#8593a8").pack()
         val_lbl = tk.Label(col, text="-", font=(_BODY, 13, "bold"),
                            bg="#1a1d24", fg="#10b981")
         val_lbl.pack(pady=(1, 0))
@@ -2544,7 +2454,7 @@ def _build_health(self, parent):
     gauge_outer.pack(side="left", fill="y", padx=(0, 4))
     gauge_outer.pack_propagate(False)
     tk.Label(gauge_outer, text="HEALTH SCORE", font=(_BODY, 7, "bold"),
-             bg="#1a1d24", fg="#4b5563").pack(pady=(4, 0))
+             bg="#1a1d24", fg="#8593a8").pack(pady=(4, 0))
     score_canvas = tk.Canvas(gauge_outer, width=80, height=46,
                              bg="#1a1d24", highlightthickness=0)
     score_canvas.pack()
@@ -2566,7 +2476,7 @@ def _build_health(self, parent):
                        highlightbackground="#2a2d34", highlightthickness=1)
     up_card.pack(fill="x", pady=(0, 3))
     tk.Label(up_card, text=_t("my_pc.uptime"), font=(_BODY, 7, "bold"),
-             bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
+             bg="#1a1d24", fg="#8593a8", pady=2).pack(anchor="w", padx=8)
     for key, label in [
         ("session_up",  _t("my_pc.uptime_session")),
         ("lifetime_up", _t("my_pc.uptime_lifetime")),
@@ -2586,7 +2496,7 @@ def _build_health(self, parent):
                            highlightbackground="#2a2d34", highlightthickness=1)
     alerts_card.pack(fill="x")
     tk.Label(alerts_card, text=_t("my_pc.alerts_24h"), font=(_BODY, 7, "bold"),
-             bg="#1a1d24", fg="#4b5563", pady=2).pack(anchor="w", padx=8)
+             bg="#1a1d24", fg="#8593a8", pady=2).pack(anchor="w", padx=8)
     alerts_row = tk.Frame(alerts_card, bg="#1a1d24")
     alerts_row.pack(fill="x", padx=8, pady=(0, 4))
     for key, label, color in [
@@ -2616,7 +2526,7 @@ def _build_health(self, parent):
         (_t("my_pc.events_col_metric"), 10), (_t("my_pc.events_col_desc"), 36),
     ]:
         tk.Label(hdr_bar, text=col_txt, font=(_BODY, 7, "bold"),
-                 bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=2)
+                 bg="#111827", fg="#8593a8", width=col_w, anchor="w").pack(side="left", padx=2)
 
     refs["events_outer"] = events_outer
     refs["events_populated"] = False
@@ -2815,7 +2725,7 @@ def _populate_events_table(parent):
 
     if not events:
         tk.Label(parent, text=_t("my_pc.no_events"), font=(_BODY, 7),
-                 bg="#0f1117", fg="#4b5563", pady=6).pack()
+                 bg="#0f1117", fg="#8593a8", pady=6).pack()
         return
 
     sev_colors = {"critical": "#ef4444", "warning": "#f59e0b", "info": "#6b7280"}
@@ -2844,7 +2754,7 @@ def _build_components(self, parent):
 
     # Loading state
     loading_lbl = tk.Label(sf, text=_t("my_pc.scanning_hardware"), font=(_BODY, 9),
-                           bg=BG, fg="#4b5563")
+                           bg=BG, fg="#8593a8")
     loading_lbl.pack(pady=20)
 
     def _on_scan_done(data):
@@ -3006,7 +2916,7 @@ def _build_efficiency(self, parent):
     freq_top = tk.Frame(freq_frame, bg="#0d1219")
     freq_top.pack(fill="x", padx=8, pady=(6, 2))
     tk.Label(freq_top, text="CURRENT CLOCK", font=(_BODY, 7, "bold"),
-             bg="#0d1219", fg="#374151").pack(side="left")
+             bg="#0d1219", fg="#74839a").pack(side="left")
     freq_lbl = tk.Label(freq_top, text="- MHz", font=(_BODY, 8, "bold"),
                         bg="#0d1219", fg="#93c5fd")
     freq_lbl.pack(side="right")
@@ -3056,10 +2966,10 @@ def _build_efficiency(self, parent):
         sr = tk.Frame(card, bg="#111827")
         sr.pack(fill="x", padx=4, pady=(0, 4))
         mn = tk.Label(sr, text="↓ -", font=(_MONO, 7),
-                      bg="#111827", fg="#374151")
+                      bg="#111827", fg="#74839a")
         mn.pack(side="left")
         mx = tk.Label(sr, text="↑ -", font=(_MONO, 7),
-                      bg="#111827", fg="#374151")
+                      bg="#111827", fg="#74839a")
         mx.pack(side="left", padx=(4, 0))
         av = tk.Label(sr, text="~ -", font=(_MONO, 7, "bold"),
                       bg="#111827", fg="#a5b4fc")
@@ -3111,7 +3021,7 @@ def _build_efficiency(self, parent):
         try:
             import subprocess
             r = subprocess.run(["powercfg", "/getactivescheme"],
-                               capture_output=True, text=True, timeout=3)
+                               capture_output=True, text=True, errors="replace", timeout=3)
             line = r.stdout.strip()
             if "(" in line and ")" in line:
                 name = line[line.rfind("(") + 1:line.rfind(")")]
@@ -3285,9 +3195,9 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
     hdr = tk.Frame(parent, bg=HDR)
     hdr.pack(fill="x")
     tk.Label(hdr, text="  PROCESS", font=(_BODY, 7, "bold"),
-             bg=HDR, fg="#374151", anchor="w").pack(side="left", padx=2, pady=2)
+             bg=HDR, fg="#74839a", anchor="w").pack(side="left", padx=2, pady=2)
     tk.Label(hdr, text="NOW   AVG", font=(_MONO, 7, "bold"),
-             bg=HDR, fg="#374151", anchor="e").pack(side="right", padx=6, pady=2)
+             bg=HDR, fg="#74839a", anchor="e").pack(side="right", padx=6, pady=2)
 
     rank_colors = ["#f59e0b", "#94a3b8", "#78716c", "#4b5563", "#374151", "#2d3748"]
 
@@ -3342,12 +3252,12 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
         tk.Label(right, text=f"{val:.1f}%", font=(_MONO, 7, "bold"),
                  bg=BG, fg="#e2e8f0", width=5, anchor="e").pack(side="left")
         tk.Label(right, text=f"{avg:.1f}%", font=(_MONO, 7),
-                 bg=BG, fg="#4b5563", width=5, anchor="e").pack(side="left", padx=(1, 0))
+                 bg=BG, fg="#8593a8", width=5, anchor="e").pack(side="left", padx=(1, 0))
 
         # Rank duration (if available)
         if rank_badge:
             tk.Label(right, text=rank_badge, font=(_BODY, 7),
-                     bg=BG, fg="#374151").pack(side="left", padx=(3, 0))
+                     bg=BG, fg="#74839a").pack(side="left", padx=(3, 0))
 
         # Thin usage bar below the row
         bar_wrap = tk.Frame(parent, bg=BG, height=3)
@@ -3368,7 +3278,7 @@ def _build_startup(self, parent):
     sf, _ = _make_scroll_frame(parent)
 
     loading_lbl = tk.Label(sf, text=_t("my_pc.reading_startup"), font=(_BODY, 8),
-                           bg=BG, fg="#4b5563", pady=10)
+                           bg=BG, fg="#8593a8", pady=10)
     loading_lbl.pack()
 
     def _load():
@@ -3442,7 +3352,7 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     hdr.pack(fill="x", padx=8)
     for col_txt, col_w in [("NAME", 22), ("SOURCE", 6), ("COMMAND", 40)]:
         tk.Label(hdr, text=col_txt, font=(_BODY, 7, "bold"),
-                 bg="#111827", fg="#4b5563", width=col_w, anchor="w").pack(side="left", padx=3)
+                 bg="#111827", fg="#8593a8", width=col_w, anchor="w").pack(side="left", padx=3)
 
     # Rows
     table = tk.Frame(sf, bg="#0f1117", highlightbackground="#2a2d34",
@@ -3451,7 +3361,7 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
 
     if not entries:
         tk.Label(table, text=_t("my_pc.no_startup_items"),
-                 font=(_BODY, 7), bg="#0f1117", fg="#4b5563", pady=8).pack()
+                 font=(_BODY, 7), bg="#0f1117", fg="#8593a8", pady=8).pack()
     else:
         for i, e in enumerate(entries):
             row_bg = "#0f1117" if i % 2 == 0 else "#111827"

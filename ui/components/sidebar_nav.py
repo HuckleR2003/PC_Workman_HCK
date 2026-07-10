@@ -5,8 +5,6 @@ Fixed sidebar with hierarchical navigation and HCK_Labs branding.
 """
 
 import tkinter as tk
-from tkinter import ttk
-import os
 
 try:
     from PIL import Image, ImageTk
@@ -14,7 +12,6 @@ except ImportError:
     Image = None
     ImageTk = None
 
-from ui.theme import THEME
 from utils.i18n import t, register_on_change, unregister_on_change
 
 # ── Font system ────────────────────────────────────────────────────────────────
@@ -373,17 +370,13 @@ class SidebarNav:
 
     def _handle_subitem_click(self, full_id):
         """Handle subitem click."""
-        print(f"[SidebarNav] Subitem clicked: {full_id}")
         parts = full_id.split(".")
         parent_id = parts[0]
         sub_id = parts[1] if len(parts) > 1 else None
 
         self._set_active(full_id)
         if self.on_navigate:
-            print(f"[SidebarNav] Calling callback with: {parent_id}, {sub_id}")
             self.on_navigate(parent_id, sub_id)
-        else:
-            print("[SidebarNav] WARNING: No callback set!")
 
     def _expand_category(self, item_id):
         """Expand category, auto-collapsing any other currently-open section."""

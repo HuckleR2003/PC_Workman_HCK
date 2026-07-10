@@ -206,12 +206,12 @@ class SensorTreeView:
             text=sensor_data.get('max', '-'),
             font=(_MONO, 8),
             bg="#0f1117",
-            fg="#374151",
+            fg="#74839a",
             anchor="e",
             width=9
         )
         max_val_label.pack(side="right", padx=(0, 8))
-        max_hdr = tk.Label(row, text="max:", font=(_BODY, 7), bg="#0f1117", fg="#1f2937", width=4)
+        max_hdr = tk.Label(row, text="max:", font=(_BODY, 7), bg="#0f1117", fg="#5a6b80", width=4)
         max_hdr.pack(side="right")
 
         # Min column
@@ -220,12 +220,12 @@ class SensorTreeView:
             text=sensor_data.get('min', '-'),
             font=(_MONO, 8),
             bg="#0f1117",
-            fg="#374151",
+            fg="#74839a",
             anchor="e",
             width=9
         )
         min_val_label.pack(side="right", padx=(0, 2))
-        min_hdr = tk.Label(row, text="min:", font=(_BODY, 7), bg="#0f1117", fg="#1f2937", width=4)
+        min_hdr = tk.Label(row, text="min:", font=(_BODY, 7), bg="#0f1117", fg="#5a6b80", width=4)
         min_hdr.pack(side="right", padx=(12, 0))
 
         # Right-click menu
