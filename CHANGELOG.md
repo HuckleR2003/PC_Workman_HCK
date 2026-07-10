@@ -1,6 +1,63 @@
 # HCK_Labs - PC_Workman_HCK - Changelog
 _All notable changes are documented here._
 
+## [1.8.2] - 2026-07-09
+
+### CRITICAL - total system freeze fix
+**`core/protected_processes.py`, `core/hibernation_manager.py`, `core/app_activity_tracker.py`**
+- Under long sessions the app could freeze the whole system (white screen, dead desktop, restart to recover). Root cause: `sleep_app`, the single suspend/idle-priority primitive, guarded only anti-cheat, so App Hibernation could suspend an OS-critical process (dwm.exe draws the screen, explorer.exe is the desktop) or PC Workman's own process.
+- The central guard now also covers ~30 OS-critical processes (dwm, explorer, csrss, lsass, services, svchost, Defender, ...) and the app itself (`is_self(pid)` via `os.getpid()`). All four process primitives (hibernation, TURBO suspension, RAM flush, overlay) consult the same guard, so one fix hardened them all. The Unused Apps list filters critical processes out entirely.
+- Regression-tested: 13 critical/self processes blocked for both freeze and low-priority behaviors, 6 normal apps + 3 games still optimizable. Tests 42 -> 46.
+
+### Run as administrator (optional)
+**`startup.py`, `ui/pages/settings_page.py`, `locales/en.json`, `locales/pl.json`**
+- New Settings -> General toggle. When on, startup relaunches elevated with a single UAC prompt (ShellExecuteW "runas") before the mutex/Tk init. Declining the prompt runs the app normally, no loop. Skipped on Microsoft Store installs.
+
+### Display scaling fix (small screens, 125% DPI laptops)
+**`utils/ui_scale.py`**
+- The window geometry scaled with SCALE but fonts never did; on 125-150% DPI laptops Tk renders points larger while the pixel layout stays fixed, so text clipped (hck_GPT banner, panel labels). `ui_scale.init` now pins Tk's font factor to `(96/72) * SCALE`, so every point-sized font follows the window. 1080p at 100% is unchanged.
+
+### hck_GPT
+**`hck_gpt/intents/vocabulary.py`**
+- 19 new warm/hot temperature phrasings (PL/EN), "dlaczego moj laptop jest cieply" / "why is my laptop hot" now route to the temperature answer.
+
+## [1.8.1] - 2026-07-05
+
+### One always-on data machine
+**`core/live_collector.py` (new), `utils/paths.py`, `startup.py`**
+- Live sensors were fed only by UI pages (My PC, Fan Dashboard). With no page open the overlay showed "--", Monitoring waited on "Collecting data..." forever and the learning engines got zero samples. New always-on collector daemon (2 s tick): psutil + nvidia-smi + OHM/LHM web sensors + CPU temp with an honesty flag (`cpu_temp_src: sensor|est`); estimated temps never enter history or learning. Pages are consumers only.
+- **Microsoft Store installs could not save anything.** Under MSIX the exe lives in read-only WindowsApps, so every write silently failed (stats DB, learned baselines, prefs; hence OFFLINE badges on Store installs). `utils/paths.py` now detects WindowsApps (plus a real write probe) and redirects APP_DIR to `%LOCALAPPDATA%\PC_Workman_HCK`. Six duplicated `_base_dir()` copies unified onto one module.
+- History retention 90 -> 183 days. `session_hist` writers merge instead of overwriting each other.
+
+### Anti-cheat hard guard
+**`core/protected_processes.py` (new)**
+- One authoritative `is_protected()` covering ~35 anti-cheat executables and drivers (Vanguard, EasyAntiCheat, BattlEye, FACEIT, PunkBuster, GameGuard, XIGNCODE, mhyprot + keyword fallback), wired into all four process primitives: hibernation sleep, TURBO suspension, RAM-flush working-set trim and the overlay actions. Games themselves (LeagueClient.exe, VALORANT.exe) stay optimizable; only the anti-cheat engines are blocked.
+
+### Learning engine v3 - learns on every machine
+**`core/thermal_baseline.py`, `hck_gpt/responses/builder.py`, `ui/pages/monitoring_alerts.py`**
+- The engine learned only CPU temperature, which needs LibreHardwareMonitor; most machines never install it, so their Learning Center sat at 0% forever. Now a Welford accumulator runs per (workload bucket, metric) for CPU temp, GPU temp and CPU load; a primary-metric fallback picks the best real signal for the Learning Center, chat and alerts, with an honest "run LibreHardwareMonitor to unlock CPU temp" hint.
+- Time counter: the engine records its earliest folded snapshot and shows "Learning for X days, Yh observed" plus per-bucket observed hours.
+- `classify_temp()` became a real engine entry point (previously an AttributeError swallowed by a broad except, so verdicts were always empty).
+- `ai_context` ("what have you learned about my PC") rewritten to present the learned state; +45 natural PL/EN phrases across ai_context, compare_baseline, sensor_report and thermal_prediction.
+
+### AUTO features always-on
+**`core/auto_optimizer.py` (new), `startup.py`, `ui/pages/optimization_services.py`**
+- The Auto RAM Flush watcher lived inside the Optimization page and ran only while the page was open; after an app restart the AUTO pill looked on but the watcher was dead. New always-on daemon started from `startup.py`, driven by saved prefs, runs with no UI open; the page is now a configurator plus status listener. TURBO coupling added (`ram_on_turbo`). The `ram_flush()` primitive moved to core with the anti-cheat and user-exclusion guard.
+
+### Startup Manager - disables that stick
+**`ui/pages/startup_manager.py`**
+- Disable now writes the `StartupApproved` flag Windows itself respects (the Task Manager mechanism), so apps that re-create their Run keys on every launch (OneDrive, Advanced SystemCare) stay disabled anyway. The scan also reads that flag, so entries disabled in Task Manager display correctly.
+
+### hck_GPT - 20 DeepMonitor handlers
+**`hck_gpt/responses/builder.py`, `hck_gpt/intents/vocabulary.py`**
+- 16 intents had trigger patterns but no handler: the parser matched them with full confidence and users got silence. All 16 implemented plus 4 new, reading live sensor data (voltages, fan RPM, thermal history, morning brief). First stateful multi-message coaching: `tuneup_guide` walks a 4-step plan with the machine's own numbers. Vocabulary is now 90 intents.
+
+### Store / UI pass
+- Desktop-shortcut button in Settings for Store installs, adaptive process-row count for small laptops, contrast audit (60 fixes across 11 files), subprocess output decoding hardened repo-wide (`errors="replace"`).
+
+### Tests
+- 21 -> 42: anti-cheat guard regression, intent-handler parity (the "silent intent" class cannot ship again), APP_DIR/MSIX path resolution with a real write probe, thermal baseline v3 on both LHM and no-LHM machines.
+
 ## [1.8.0] - 2026-06-22
 
 ### Post-release patch - 2026-06-28
