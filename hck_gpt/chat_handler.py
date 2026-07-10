@@ -479,10 +479,13 @@ class ChatHandler:
                 last_topic = session_memory.current_topic()
                 _hw_topics = {"hw_cpu", "hw_gpu", "hw_ram", "hw_storage",
                               "hw_motherboard", "hw_all", "health_check",
-                              "temperature", "performance"}
+                              "temperature", "performance",
+                              # tune-up guide: 'dalej'/'next' advances the step
+                              "tuneup_guide"}
                 _short_followup_words = frozenset({
                     "a", "i", "to", "no", "ok", "and", "also", "more",
                     "what", "jak", "jaki", "jaka", "dalej", "jeszcze",
+                    "next", "done", "gotowe", "zrobione", "kontynuuj",
                 })
                 msg_tokens = [t for t in lower.split() if t not in _short_followup_words]
                 if (last_topic in _hw_topics
