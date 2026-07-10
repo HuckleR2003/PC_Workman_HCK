@@ -50,10 +50,12 @@ class TestNormalProcessesNotProtected(unittest.TestCase):
 
     NORMAL = [
         "chrome.exe", "discord.exe", "steam.exe", "spotify.exe",
-        "notepad.exe", "python.exe", "svchost.exe", "explorer.exe",
+        "notepad.exe", "teams.exe", "slack.exe", "obs64.exe",
         # the GAMES themselves are not anti-cheats - they may be optimized
         "LeagueClient.exe", "VALORANT.exe", "cs2.exe", "FortniteClient.exe",
     ]
+    # NB: python.exe / svchost.exe / explorer.exe are intentionally NOT here -
+    # they are OS-critical / self and must be protected (see the freeze fix).
 
     def test_normal_apps_not_protected(self):
         for name in self.NORMAL:
@@ -65,6 +67,47 @@ class TestNormalProcessesNotProtected(unittest.TestCase):
         self.assertFalse(is_protected(""))
         self.assertFalse(is_protected("", ""))
         self.assertFalse(is_protected(None))
+
+
+class TestSystemCriticalAndSelfProtected(unittest.TestCase):
+    """Regression for the 'total system freeze after 5-15 min' bug: App
+    Hibernation could suspend an OS-critical process or PC Workman itself.
+    Freezing dwm.exe/explorer.exe white-screens the desktop."""
+
+    CRITICAL = [
+        "explorer.exe", "dwm.exe", "System", "csrss.exe", "winlogon.exe",
+        "services.exe", "lsass.exe", "svchost.exe", "wininit.exe",
+        "RuntimeBroker.exe", "MsMpEng.exe", "audiodg.exe",
+    ]
+    SELF = ["PC Workman HCK.exe", "python.exe", "pythonw.exe"]
+
+    def test_os_critical_are_protected(self):
+        from core.protected_processes import is_protected
+        for name in self.CRITICAL + self.SELF:
+            with self.subTest(name=name):
+                self.assertTrue(is_protected(name), f"{name} must be protected")
+
+    def test_critical_full_path(self):
+        from core.protected_processes import is_protected
+        self.assertTrue(is_protected(r"C:\Windows\explorer.exe"))
+        self.assertTrue(is_protected(r"C:\Windows\System32\dwm.exe"))
+
+    def test_is_self_pid(self):
+        import os
+        from core.protected_processes import is_self
+        self.assertTrue(is_self(os.getpid()))
+        self.assertFalse(is_self(999999))
+
+    def test_hibernation_refuses_self_and_critical(self):
+        import os
+        from core.hibernation_manager import hibernation_manager as H
+        self.assertFalse(H.sleep_app(os.getpid(), "python.exe", "", "freeze"),
+                         "sleep_app suspended ITSELF")
+        self.assertFalse(H.sleep_app(999901, "explorer.exe",
+                                     r"C:\Windows\explorer.exe", "freeze"),
+                         "sleep_app suspended explorer")
+        self.assertFalse(H.sleep_app(999902, "dwm.exe", "", "low"),
+                         "sleep_app idle-prioritised dwm")
 
 
 if __name__ == "__main__":
