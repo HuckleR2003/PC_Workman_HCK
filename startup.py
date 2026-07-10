@@ -1,10 +1,10 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.8.0
+Entry point for PC Workman HCK v1.8.2
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
-APP_VERSION   = "1.8.0"
+APP_VERSION   = "1.8.2"
 HELPER_VERSION = "1.6.3"
 
 # ============================================
@@ -43,6 +43,58 @@ if sys.platform == "win32":
             pass
 
 print("[+] Python environment ready")
+
+
+# ============================================
+# OPTIONAL ADMIN ELEVATION (opt-in, Settings -> "Run as administrator")
+# ============================================
+# Some actions (HKLM startup entries, certain services, power plans) need
+# Administrator. Rather than fail silently, the user can tick one Settings box
+# and PC Workman re-launches itself elevated at startup (a single UAC prompt).
+# Must run BEFORE the single-instance mutex and any tk.Tk(). Declining UAC is
+# fine - the app just continues without admin. Never loops: an elevated process
+# passes the IsUserAnAdmin() check and returns immediately.
+def _maybe_elevate() -> None:
+    if sys.platform != "win32":
+        return
+    try:
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            return                                   # already elevated
+    except Exception:
+        return
+    # read the opt-in pref
+    try:
+        import json
+        from utils.paths import APP_DIR
+        _sf = os.path.join(APP_DIR, "settings", "app_settings.json")
+        with open(_sf, encoding="utf-8") as _f:
+            if not json.load(_f).get("run_as_admin", False):
+                return
+    except Exception:
+        return
+    exe = sys.executable
+    # Microsoft Store / MSIX: the exe is a virtualized WindowsApps path; a
+    # "runas" relaunch of it is unreliable and against Store guidance. Skip -
+    # the app works fine without elevation there.
+    if "windowsapps" in exe.lower():
+        return
+    try:
+        if getattr(sys, "frozen", False):
+            target, params = exe, " ".join(f'"{a}"' for a in sys.argv[1:])
+        else:
+            target = exe
+            params = " ".join(f'"{a}"' for a in
+                              [os.path.abspath(sys.argv[0])] + sys.argv[1:])
+        rc = ctypes.windll.shell32.ShellExecuteW(None, "runas", target,
+                                                 params, None, 1)
+        if rc > 32:                                  # elevated instance launched
+            sys.exit(0)                              # quit the non-elevated one
+    except Exception:
+        pass                                         # UAC declined -> run as-is
+
+
+_maybe_elevate()
+
 print("[~] Loading core systems...")
 
 # ============================================
@@ -175,9 +227,22 @@ def run_demo():
 
     # --- Step 3d: DeepMonitor persistent metrics store ---
     try:
+        # Single always-on sensor producer — feeds live_sensors app-wide so the
+        # overlay, Monitoring, hck_GPT and the snapshots below work without any
+        # UI page being open (root-cause fix for "--" / "Collecting data…").
+        from core.live_collector import live_collector as _collector
+        _collector.start()
+        log("Live sensor collector started (2s tick)", "OK")
+
         from hck_gpt.data.metrics_store import metrics_store as _dm_store
         _dm_store.start()
         log("DeepMonitor metrics store started (snapshot every 5 min)", "OK")
+
+        # Always-on AUTO optimizations (RAM Flush watcher etc.) — driven by saved
+        # prefs, runs whether or not the Optimization page is ever opened.
+        from core.auto_optimizer import auto_optimizer as _auto_opt
+        _auto_opt.start()
+        log("Auto-optimizer started (AUTO features run in background)", "OK")
     except Exception as e:
         log(f"DeepMonitor metrics store skipped: {e}", "WARN")
 
