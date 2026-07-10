@@ -650,7 +650,7 @@ class ResponseBuilder:
         try:
             from core.thermal_baseline import thermal_baseline
             thermal_baseline.maybe_rebuild()
-            block = thermal_baseline.format_for_chat(cpu_temp, cpu_load, gpu_load, lang).split("\n")
+            block = thermal_baseline.format_for_chat(cpu_temp, cpu_load, gpu_load, lang, gpu_temp=gpu_temp).split("\n")
             block[0] = f"{self.PREFIX} {block[0].lstrip()}"
             lines.extend(block)
         except Exception:
@@ -948,7 +948,7 @@ class ResponseBuilder:
             import subprocess
             result = subprocess.run(
                 ["powercfg", "/getactivescheme"],
-                capture_output=True, text=True, timeout=3
+                capture_output=True, text=True, errors="replace", timeout=3
             )
             line = result.stdout.strip()
             if "(" in line:
@@ -1585,7 +1585,7 @@ class ResponseBuilder:
         # Power plan
         try:
             rp = subprocess.run(["powercfg", "/getactivescheme"],
-                                capture_output=True, text=True, timeout=3)
+                                capture_output=True, text=True, errors="replace", timeout=3)
             ln = rp.stdout.strip()
             plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else "Unknown"
             if "High Performance" not in plan and "Ultimate" not in plan:
@@ -2351,7 +2351,7 @@ class ResponseBuilder:
         try:
             import subprocess
             rp = subprocess.run(["powercfg", "/getactivescheme"],
-                                capture_output=True, text=True, timeout=3)
+                                capture_output=True, text=True, errors="replace", timeout=3)
             ln = rp.stdout.strip()
             plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else ""
             if plan:
@@ -3889,7 +3889,7 @@ class ResponseBuilder:
         try:
             result = subprocess.run(
                 ["powershell", "-NoProfile", "-Command", ps_cmd],
-                capture_output=True, text=True, timeout=8
+                capture_output=True, text=True, errors="replace", timeout=8
             )
             import json as _json
             raw = result.stdout.strip()
@@ -5332,7 +5332,7 @@ class ResponseBuilder:
             )
             res = subprocess.run(
                 ["powershell", "-NoProfile", "-Command", ps_ram],
-                capture_output=True, text=True, timeout=7,
+                capture_output=True, text=True, errors="replace", timeout=7,
             )
             import json as _json
             raw = res.stdout.strip()
@@ -5353,7 +5353,7 @@ class ResponseBuilder:
                     )
                     res2 = subprocess.run(
                         ["powershell", "-NoProfile", "-Command", ps_sticks],
-                        capture_output=True, text=True, timeout=7,
+                        capture_output=True, text=True, errors="replace", timeout=7,
                     )
                     sticks = []
                     try:
@@ -5717,6 +5717,835 @@ class ResponseBuilder:
                 "  💬 Check: 'stats' · 'temperature' · 'specs'"))
 
         return lines
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # DeepMonitor-driven intents (2026-07-02)
+    # 16 intents below had INTENT_PATTERNS but NO handler since they were added
+    # — the parser matched them with full confidence and the user got the dumb
+    # fallback ("confidence 1.00 is silence", same bug class as v1.7.6).
+    # All of them + 4 new ones now read live DeepMonitor data:
+    # live_sensors (2 s), metrics_store (5 min snapshots), thermal_baseline,
+    # voltage_analyzer, hardware_sensors (LHM fans).
+    # ═══════════════════════════════════════════════════════════════════════
+
+    @staticmethod
+    def _dm_live() -> dict:
+        """Fresh live-sensor snapshot ({} on any failure)."""
+        try:
+            from hck_gpt.data import live_sensors
+            return live_sensors.snapshot()
+        except Exception:
+            return {}
+
+    @staticmethod
+    def _dm_val(v, suffix="", nd=0):
+        """Format a sensor value, '—' when the sensor reports -1/None."""
+        try:
+            if v is None or float(v) < 0:
+                return "—"
+            return f"{float(v):.{nd}f}{suffix}"
+        except Exception:
+            return "—"
+
+    def _resp_fan_speed(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            from core.hardware_sensors import get_hardware_sensors
+            fans = [s for s in get_hardware_sensors().get_flat_sensor_list()
+                    if "rpm" in str(s.get("unit", "")).lower()
+                    or "fan" in str(s.get("type", "")).lower()]
+        except Exception:
+            fans = []
+        if not fans:
+            return [_t(lang,
+                f"{self.PREFIX} Nie widzę odczytów wentylatorów. Do RPM potrzebny jest "
+                "LibreHardwareMonitor (uruchomiony w tle) — psutil ich nie podaje.",
+                f"{self.PREFIX} No fan readings available. RPM needs LibreHardwareMonitor "
+                "running in the background — psutil doesn't expose them."),
+                _t(lang, "  Sprawdź też: 'temperatura' · 'najgorętszy podzespół'",
+                         "  Also try: 'temperature' · 'hottest component'")]
+        lines = [_t(lang, f"{self.PREFIX} Wentylatory teraz:",
+                          f"{self.PREFIX} Fans right now:")]
+        for s in fans[:6]:
+            lines.append(f"  {str(s.get('sensor_name','?'))[:30]:<30} {s.get('value','—')}")
+        return lines
+
+    def _resp_thermal_history(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            rows = metrics_store.get_history(hours=12)
+        except Exception:
+            rows = []
+        cpu = [x["cpu_temp"] for x in rows if (x.get("cpu_temp") or -1) >= 0]
+        gpu = [x["gpu_temp"] for x in rows if (x.get("gpu_temp") or -1) >= 0]
+        if not cpu and not gpu:
+            return [_t(lang,
+                f"{self.PREFIX} Za mało zapisanych temperatur (DeepMonitor zbiera migawki "
+                "co 5 min — daj mi trochę czasu po starcie).",
+                f"{self.PREFIX} Not enough recorded temperatures yet (DeepMonitor snapshots "
+                "every 5 min — give me a little time after startup).")]
+        lines = [_t(lang, f"{self.PREFIX} Temperatury z ostatnich 12 h "
+                          f"({len(rows)} migawek DeepMonitor):",
+                          f"{self.PREFIX} Temperatures over the last 12 h "
+                          f"({len(rows)} DeepMonitor snapshots):")]
+        if cpu:
+            lines.append(f"  CPU   min {min(cpu):.0f}°C · avg {sum(cpu)/len(cpu):.0f}°C · max {max(cpu):.0f}°C")
+        if gpu:
+            lines.append(f"  GPU   min {min(gpu):.0f}°C · avg {sum(gpu)/len(gpu):.0f}°C · max {max(gpu):.0f}°C")
+        try:
+            from core.thermal_baseline import thermal_baseline
+            ls = self._dm_live()
+            verdict = thermal_baseline.format_for_chat(
+                ls.get("cpu_temp", -1), ls.get("cpu_load", -1),
+                ls.get("gpu_load", -1), lang,
+                gpu_temp=ls.get("gpu_temp", -1)).split("\n")[0]
+            lines += ["", verdict]
+        except Exception:
+            pass
+        return lines
+
+    def _resp_thermal_prediction(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        try:
+            from core.thermal_baseline import thermal_baseline
+            bucket = thermal_baseline.classify(ls.get("cpu_load", -1) or 0,
+                                               ls.get("gpu_load", 0) or 0)
+            rng = thermal_baseline.bucket_range(bucket) if hasattr(thermal_baseline, "bucket_range") else None
+        except Exception:
+            bucket, rng = None, None
+        cur = self._dm_val(ls.get("cpu_temp"), "°C")
+        if not bucket:
+            return [_t(lang,
+                f"{self.PREFIX} Jeszcze uczę się Twoich temperatur — wróć po kilku "
+                "sesjach, wtedy przewidzę zakres dla każdego obciążenia.",
+                f"{self.PREFIX} Still learning your temperatures — come back after a "
+                "few sessions and I'll predict the range for each workload.")]
+        head = _t(lang,
+            f"{self.PREFIX} Przy obecnym obciążeniu ({bucket}) Twoje CPU zwykle trzyma:",
+            f"{self.PREFIX} At your current workload ({bucket}) your CPU usually holds:")
+        lines = [head]
+        if rng:
+            lines.append(f"  {rng[0]:.0f}–{rng[1]:.0f}°C  ·  " +
+                         _t(lang, f"teraz: {cur}", f"now: {cur}"))
+        else:
+            try:
+                from core.thermal_baseline import thermal_baseline as _tb
+                lines += _tb.format_for_chat(ls.get("cpu_temp", -1),
+                                             ls.get("cpu_load", -1),
+                                             ls.get("gpu_load", -1), lang,
+                                             gpu_temp=ls.get("gpu_temp", -1)).split("\n")
+            except Exception:
+                lines.append(_t(lang, f"  teraz: {cur}", f"  now: {cur}"))
+        lines.append(_t(lang,
+            "  Nauczone na Twoich danych (Welford) — nie z tabelki producenta.",
+            "  Learned from your own data (Welford) — not a vendor spec sheet."))
+        return lines
+
+    def _resp_morning_brief(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            ext = metrics_store.last_session_extremes()
+        except Exception:
+            ext = {}
+        ls = self._dm_live()
+        lines = [_t(lang, f"{self.PREFIX} Dzień dobry! Szybki brief:",
+                          f"{self.PREFIX} Good morning! Quick brief:")]
+        y = (ext or {}).get("yesterday") or {}
+        if y:
+            lines.append(_t(lang,
+                f"  Wczoraj: CPU max {self._dm_val(y.get('cpu_max'),'%')} · "
+                f"temp max {self._dm_val(y.get('cpu_temp_max'),'°C')} · "
+                f"RAM max {self._dm_val(y.get('ram_max'),'%')}",
+                f"  Yesterday: CPU max {self._dm_val(y.get('cpu_max'),'%')} · "
+                f"temp max {self._dm_val(y.get('cpu_temp_max'),'°C')} · "
+                f"RAM max {self._dm_val(y.get('ram_max'),'%')}"))
+        lines.append(_t(lang,
+            f"  Teraz: CPU {self._dm_val(ls.get('cpu_load'),'%')} · "
+            f"{self._dm_val(ls.get('cpu_temp'),'°C')} · "
+            f"GPU {self._dm_val(ls.get('gpu_temp'),'°C')}",
+            f"  Now: CPU {self._dm_val(ls.get('cpu_load'),'%')} · "
+            f"{self._dm_val(ls.get('cpu_temp'),'°C')} · "
+            f"GPU {self._dm_val(ls.get('gpu_temp'),'°C')}"))
+        try:
+            from core.voltage_analyzer import voltage_analyzer
+            score = voltage_analyzer.overall_health_score()
+            lines.append(_t(lang, f"  Zasilanie: {score}/100 wg Twojej normy",
+                                  f"  Power health: {score}/100 vs your baseline"))
+        except Exception:
+            pass
+        lines.append(_t(lang, "  Miłego dnia — pilnuję wszystkiego w tle. ✅",
+                              "  Have a good one — I'm watching everything. ✅"))
+        return lines
+
+    def _resp_session_digest(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        hist = ls.get("session_hist") or {}
+        try:
+            from hck_gpt.memory.session_memory import session_memory
+            dur = session_memory.session_duration_str()
+        except Exception:
+            dur = "—"
+        lines = [_t(lang, f"{self.PREFIX} Podsumowanie tej sesji ({dur}):",
+                          f"{self.PREFIX} This session's digest ({dur}):")]
+        label = {"cpu_load": "CPU %", "cpu_temp": "CPU °C",
+                 "gpu_load": "GPU %", "gpu_temp": "GPU °C",
+                 "cpu_power": "CPU W", "gpu_power": "GPU W"}
+        shown = 0
+        for k, lab in label.items():
+            mm = hist.get(k)
+            if mm and mm[0] >= 0:
+                lines.append(f"  {lab:<7} min {mm[0]:.0f} · max {mm[1]:.0f}")
+                shown += 1
+        if not shown:
+            lines.append(_t(lang, "  Sesja dopiero się rozkręca — spytaj za parę minut.",
+                                  "  Session just warming up — ask again in a few minutes."))
+        return lines
+
+    def _resp_weekly_trends(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            days = metrics_store.daily_summary(days=7)
+        except Exception:
+            days = []
+        if len(days) < 2:
+            return [_t(lang,
+                f"{self.PREFIX} Potrzebuję co najmniej 2 dni danych na trend tygodnia "
+                "(DeepMonitor zapisuje historię lokalnie).",
+                f"{self.PREFIX} I need at least 2 days of data for a weekly trend "
+                "(DeepMonitor stores history locally).")]
+        lines = [_t(lang, f"{self.PREFIX} Trend z {len(days)} dni (avg / max):",
+                          f"{self.PREFIX} Trend across {len(days)} days (avg / max):")]
+        for d in days[:7]:
+            lines.append(
+                f"  {d.get('date_str','?')}  CPU {self._dm_val(d.get('cpu_avg'),'%')}/"
+                f"{self._dm_val(d.get('cpu_max'),'%')}  ·  "
+                f"temp {self._dm_val(d.get('cpu_temp_max'),'°C')}  ·  "
+                f"RAM {self._dm_val(d.get('ram_max'),'%')}")
+        newest, oldest = days[0], days[-1]
+        try:
+            dt = (newest.get("cpu_temp_max") or 0) - (oldest.get("cpu_temp_max") or 0)
+            if abs(dt) >= 3:
+                arrow = "↑" if dt > 0 else "↓"
+                lines += ["", _t(lang,
+                    f"  {arrow} Max temperatura CPU {'wzrosła' if dt>0 else 'spadła'} o {abs(dt):.0f}°C w tym okresie.",
+                    f"  {arrow} Max CPU temperature went {'up' if dt>0 else 'down'} {abs(dt):.0f}°C over this period.")]
+        except Exception:
+            pass
+        return lines
+
+    def _resp_compare_baseline(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        try:
+            from core.thermal_baseline import thermal_baseline
+            thermal_baseline.maybe_rebuild()
+            block = thermal_baseline.format_for_chat(
+                ls.get("cpu_temp", -1), ls.get("cpu_load", -1),
+                ls.get("gpu_load", -1), lang,
+                gpu_temp=ls.get("gpu_temp", -1)).split("\n")
+        except Exception:
+            block = []
+        head = _t(lang, f"{self.PREFIX} Teraz vs Twoja nauczona norma:",
+                        f"{self.PREFIX} Now vs your learned baseline:")
+        if not block:
+            return [head, _t(lang,
+                "  Baza jeszcze się uczy — każda godzina pracy poprawia dokładność.",
+                "  Baseline still learning — every hour of use improves accuracy.")]
+        return [head] + [f"  {b}" for b in block if b.strip()]
+
+    def _resp_game_ready(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        checks = []
+        def _chk(ok, pl, en):
+            checks.append(("✅" if ok else "⚠️") + " " + _t(lang, pl, en))
+        ct, gt = ls.get("cpu_temp", -1), ls.get("gpu_temp", -1)
+        _chk(ct < 0 or ct < 75, f"CPU {self._dm_val(ct,'°C')} — chłodne na start",
+                                f"CPU {self._dm_val(ct,'°C')} — cool to start")
+        _chk(gt < 0 or gt < 70, f"GPU {self._dm_val(gt,'°C')} — gotowe",
+                                f"GPU {self._dm_val(gt,'°C')} — ready")
+        try:
+            import psutil
+            ram = psutil.virtual_memory().percent
+            _chk(ram < 80, f"RAM {ram:.0f}% — jest zapas",
+                           f"RAM {ram:.0f}% — headroom available")
+        except Exception:
+            pass
+        vram = ls.get("gpu_vram_pct", -1)
+        if vram >= 0:
+            _chk(vram < 70, f"VRAM {vram:.0f}%", f"VRAM {vram:.0f}%")
+        bad = sum(1 for c in checks if c.startswith("⚠"))
+        head = _t(lang,
+            f"{self.PREFIX} Gotowość do grania: " + ("PEŁNA 🎮" if bad == 0 else f"{bad} rzecz(y) do sprawdzenia"),
+            f"{self.PREFIX} Game readiness: " + ("ALL CLEAR 🎮" if bad == 0 else f"{bad} thing(s) to check"))
+        return [head] + [f"  {c}" for c in checks]
+
+    def _resp_gaming_session(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        try:
+            from core.thermal_baseline import thermal_baseline
+            bucket = thermal_baseline.classify(ls.get("cpu_load", 0) or 0,
+                                               ls.get("gpu_load", 0) or 0)
+        except Exception:
+            bucket = "?"
+        hist = ls.get("session_hist") or {}
+        gmax = (hist.get("gpu_temp") or [-1, -1])[1]
+        lines = [_t(lang, f"{self.PREFIX} Sesja gamingowa — stan:",
+                          f"{self.PREFIX} Gaming session — status:")]
+        lines.append(_t(lang,
+            f"  Tryb obciążenia: {bucket} · GPU {self._dm_val(ls.get('gpu_load'),'%')} "
+            f"@ {self._dm_val(ls.get('gpu_temp'),'°C')} · clock {self._dm_val(ls.get('gpu_clk_gr'),' MHz')}",
+            f"  Workload bucket: {bucket} · GPU {self._dm_val(ls.get('gpu_load'),'%')} "
+            f"@ {self._dm_val(ls.get('gpu_temp'),'°C')} · clock {self._dm_val(ls.get('gpu_clk_gr'),' MHz')}"))
+        if gmax and gmax >= 0:
+            lines.append(_t(lang, f"  Szczyt GPU w tej sesji: {gmax:.0f}°C",
+                                  f"  GPU peak this session: {gmax:.0f}°C"))
+        lines.append(_t(lang,
+            "  Nakładka In-Game: My PC → GAMING (FPS przez RTSS).",
+            "  In-Game overlay: My PC → GAMING (FPS via RTSS)."))
+        return lines
+
+    def _resp_process_deep_dive(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            import psutil
+            target = None
+            ent = getattr(r, "entities", None) or {}
+            wanted = str(ent.get("process", "") or "").lower()
+            procs = []
+            for p in psutil.process_iter(["name", "cpu_percent", "memory_info",
+                                          "num_threads", "create_time"]):
+                try:
+                    procs.append(p)
+                except Exception:
+                    continue
+            if wanted:
+                target = next((p for p in procs
+                               if wanted in (p.info.get("name") or "").lower()), None)
+            if target is None:
+                live = [p for p in procs
+                        if (p.info.get("name") or "").lower() not in _IDLE_PROC_NAMES]
+                target = max(live, key=lambda p: p.info.get("cpu_percent") or 0,
+                             default=None)
+            if target is None:
+                raise RuntimeError
+            import time as _tm
+            nm  = target.info.get("name") or "?"
+            cpu = target.info.get("cpu_percent") or 0
+            ram = (target.info.get("memory_info").rss / (1024**2)
+                   if target.info.get("memory_info") else 0)
+            thr = target.info.get("num_threads") or 0
+            up  = (_tm.time() - (target.info.get("create_time") or _tm.time())) / 60
+            lines = [_t(lang, f"{self.PREFIX} Pod lupą: {nm}",
+                              f"{self.PREFIX} Deep dive: {nm}")]
+            lines.append(f"  CPU {cpu:.1f}% · RAM {ram:.0f} MB · "
+                         + _t(lang, f"wątki {thr} · działa {up:.0f} min",
+                                    f"threads {thr} · running {up:.0f} min"))
+            try:
+                from hck_gpt.process_library import process_library
+                info = process_library.get(nm.lower())
+                if info and info.get("description"):
+                    lines.append(f"  ℹ {info['description'][:90]}")
+            except Exception:
+                pass
+            lines.append(_t(lang, "  Tożsamość: napisz 'czy to wirus " + nm + "'",
+                                  "  Identity: type 'is " + nm + " a virus'"))
+            return lines
+        except Exception:
+            return [_t(lang,
+                f"{self.PREFIX} Nie złapałem procesu do analizy — spróbuj 'top procesy'.",
+                f"{self.PREFIX} Couldn't grab a process to analyse — try 'top processes'.")]
+
+    def _resp_process_kill(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        # Safety by design: chat never kills anything — it points to the tools.
+        lines = [_t(lang,
+            f"{self.PREFIX} Nie zabijam procesów z czatu — jedno złe kill potrafi "
+            "wywalić system. Bezpieczniejsze opcje:",
+            f"{self.PREFIX} I don't kill processes from chat — one bad kill can "
+            "take the system down. Safer options:")]
+        lines.append(_t(lang,
+            "  · App Hibernation usypia zamiast zabijać [-> Optimization]",
+            "  · App Hibernation suspends instead of killing [-> Optimization]"))
+        lines.append(_t(lang,
+            "  · 'top procesy' pokaże co naprawdę zjada zasoby",
+            "  · 'top processes' shows what actually eats resources"))
+        try:
+            import psutil
+            top = max((p for p in psutil.process_iter(["name", "cpu_percent"])
+                       if (p.info.get("name") or "").lower() not in _IDLE_PROC_NAMES),
+                      key=lambda p: p.info.get("cpu_percent") or 0, default=None)
+            if top is not None:
+                lines.append(_t(lang,
+                    f"  Największy teraz: {top.info.get('name')} "
+                    f"({top.info.get('cpu_percent') or 0:.0f}% CPU)",
+                    f"  Biggest right now: {top.info.get('name')} "
+                    f"({top.info.get('cpu_percent') or 0:.0f}% CPU)"))
+        except Exception:
+            pass
+        return lines
+
+    def _resp_ram_flush(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        try:
+            import psutil
+            vm = psutil.virtual_memory()
+            now = f"{vm.percent:.0f}% ({vm.used/(1024**3):.1f}/{vm.total/(1024**3):.0f} GB)"
+        except Exception:
+            now = "—"
+        return [
+            _t(lang, f"{self.PREFIX} RAM teraz: {now}",
+                     f"{self.PREFIX} RAM right now: {now}"),
+            _t(lang,
+               "  Auto RAM Flush działa w [-> Optimization]: czeka aż presja "
+               "utrzyma się >75% przez 30 s i dopiero wtedy zwalnia cache "
+               "(SetSystemFileCacheSize + EmptyWorkingSet).",
+               "  Auto RAM Flush lives in [-> Optimization]: it waits for "
+               "sustained >75% pressure for 30 s, then releases cache "
+               "(SetSystemFileCacheSize + EmptyWorkingSet)."),
+            _t(lang, "  Sztuczka to nie flush — to wiedzieć, kiedy NIE flushować.",
+                     "  The real trick isn't the flush — it's knowing when NOT to."),
+        ]
+
+    def _resp_overclock_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        mhz, boost = ls.get("cpu_mhz", -1), ls.get("cpu_boost", -1)
+        lines = [_t(lang, f"{self.PREFIX} Zegary i zasilanie:",
+                          f"{self.PREFIX} Clocks & power:")]
+        lines.append(
+            f"  CPU {self._dm_val(mhz,' MHz')}"
+            + (f"  (boost {self._dm_val(boost,' MHz')})" if boost and boost > 0 else ""))
+        if ls.get("gpu_clk_gr", -1) >= 0:
+            lines.append(f"  GPU {self._dm_val(ls.get('gpu_clk_gr'),' MHz')} core · "
+                         f"{self._dm_val(ls.get('gpu_clk_mem'),' MHz')} mem")
+        v12 = ls.get("mb_volt_12v", -1)
+        if v12 and v12 > 0:
+            state = "OK" if 11.4 <= v12 <= 12.6 else "⚠"
+            lines.append(f"  12V rail: {v12:.2f} V {state}")
+        try:
+            if mhz > 0 and boost > 0:
+                over = mhz > boost * 1.03
+                lines.append(_t(lang,
+                    "  Wygląda na OC ponad profil boost." if over else
+                    "  Zegary w granicach profilu — brak śladów OC.",
+                    "  Looks overclocked beyond the boost profile." if over else
+                    "  Clocks within profile — no OC signs."))
+        except Exception:
+            pass
+        return lines
+
+    def _resp_symptom_freeze(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        finds = []
+        try:
+            import psutil
+            vm, sw = psutil.virtual_memory(), psutil.swap_memory()
+            if vm.percent >= 88:
+                finds.append(_t(lang, f"RAM {vm.percent:.0f}% — system dusi się pamięcią",
+                                      f"RAM {vm.percent:.0f}% — memory pressure"))
+            if sw.percent >= 60:
+                finds.append(_t(lang, f"SWAP {sw.percent:.0f}% — dysk ratuje RAM (lagi)",
+                                      f"SWAP {sw.percent:.0f}% — disk backing RAM (stutter)"))
+        except Exception:
+            pass
+        ct = ls.get("cpu_temp", -1)
+        if ct >= 92:
+            finds.append(_t(lang, f"CPU {ct:.0f}°C — throttling bardzo prawdopodobny",
+                                  f"CPU {ct:.0f}°C — throttling very likely"))
+        head = _t(lang, f"{self.PREFIX} Zawiesza się? Sprawdziłem typowych winnych:",
+                        f"{self.PREFIX} Freezing? I checked the usual suspects:")
+        if not finds:
+            return [head,
+                _t(lang, "  ✅ RAM, SWAP i temperatury wyglądają zdrowo TERAZ.",
+                         "  ✅ RAM, SWAP and temps look healthy RIGHT NOW."),
+                _t(lang, "  Jeśli zwiesza się przy starcie gry → 'gotowy do gry'. "
+                         "Historia: 'temperatury dzisiaj'.",
+                         "  If it freezes at game launch → 'game ready'. "
+                         "History: 'temps today'.")]
+        return [head] + [f"  ⚠ {f}" for f in finds] + [
+            _t(lang, "  Szybka pomoc: [-> Optimization] (RAM Flush / Hibernation).",
+                     "  Quick help: [-> Optimization] (RAM Flush / Hibernation).")]
+
+    def _resp_symptom_noisy(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        ct, gt = ls.get("cpu_temp", -1), ls.get("gpu_temp", -1)
+        cause_pl, cause_en = "nie widzę gorącego podzespołu — możliwy kurz/łożysko wentylatora", \
+                             "no hot component visible — possibly dust or a fan bearing"
+        if gt >= 75:
+            cause_pl = f"GPU {gt:.0f}°C — to jego wentylatory słyszysz"
+            cause_en = f"GPU {gt:.0f}°C — that's its fans you hear"
+        elif ct >= 80:
+            cause_pl = f"CPU {ct:.0f}°C — chłodzenie procesora pracuje na wysokich obrotach"
+            cause_en = f"CPU {ct:.0f}°C — the CPU cooler is spinning hard"
+        return [
+            _t(lang, f"{self.PREFIX} Głośno? Najpewniej: {cause_pl}.",
+                     f"{self.PREFIX} Noisy? Most likely: {cause_en}."),
+            _t(lang, f"  CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')} · "
+                     "RPM: napisz 'wentylatory' (wymaga LHM).",
+                     f"  CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')} · "
+                     "RPM: type 'fans' (needs LHM)."),
+            _t(lang, "  Utrzymuje się przy bezczynności? 'top procesy' znajdzie winnego.",
+                     "  Persists at idle? 'top processes' finds the culprit."),
+        ]
+
+    def _resp_ai_context(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        lines = [_t(lang,
+            f"{self.PREFIX} Czego nauczyłem się o TWOIM komputerze (wszystko lokalnie):",
+            f"{self.PREFIX} What I've learned about YOUR machine (all local):")]
+        _bpl = {"idle": "bezczynność", "light": "lekki", "medium": "średni",
+                "heavy": "intensywny", "gaming": "gaming"}
+        try:
+            from core.thermal_baseline import thermal_baseline as tb
+            pm     = tb.primary_metric()
+            plabel = tb.metric_label(pm, lang)
+            unit   = tb.metric_unit(pm)
+            since  = tb.learning_since_str(lang)
+            hrs    = tb.total_observed_hours()
+            pct    = tb.overall_training_pct()
+            lines.append(_t(lang,
+                f"  ⏱ Uczę się od {since} · {hrs:.0f}h obserwacji · {pct}% skalibrowane",
+                f"  ⏱ Learning for {since} · {hrs:.0f}h observed · {pct}% calibrated"))
+            status  = tb.training_status(pm)
+            learned = [(b, status[b]) for b in ("idle", "light", "medium", "heavy", "gaming")
+                       if status.get(b, {}).get("n", 0) >= 20]
+            if learned:
+                lines.append(_t(lang, f"  Nauczone zakresy ({plabel}):",
+                                      f"  Learned ranges ({plabel}):"))
+                for b, info in learned:
+                    bn = _bpl.get(b, b) if lang == "pl" else b
+                    lines.append(f"    {bn:<11} {info['p5']:.0f}–{info['p95']:.0f}{unit}")
+            else:
+                lines.append(_t(lang,
+                    "  Zbieram dane — zakresy pojawią się przy 20+ próbkach na tryb.",
+                    "  Gathering data — ranges appear at 20+ samples per workload."))
+            if "cpu_temp" not in tb.available_metrics():
+                lines.append(_t(lang,
+                    "  (temp. CPU: uruchom LibreHardwareMonitor, by ją odblokować)",
+                    "  (CPU temp: run LibreHardwareMonitor to unlock it)"))
+        except Exception:
+            pass
+        try:
+            from core.voltage_analyzer import voltage_analyzer
+            rails = len(voltage_analyzer.get_rail_stats() or {})
+            if rails:
+                lines.append(_t(lang,
+                    f"  · {rails} szyn zasilania z medianą/MAD i regułami Nelsona",
+                    f"  · {rails} voltage rails watched with median/MAD + Nelson rules"))
+        except Exception:
+            pass
+        try:
+            from hck_gpt.data.metrics_store import metrics_store
+            n = len(metrics_store.get_history(hours=24 * 30))
+            if n:
+                lines.append(_t(lang,
+                    f"  · {n} zapisanych migawek DeepMonitor (do 6 miesięcy wstecz)",
+                    f"  · {n} stored DeepMonitor snapshots (up to 6 months of history)"))
+        except Exception:
+            pass
+        lines.append(_t(lang,
+            "  Zero chmury — pełny obraz w Learning Center (Monitoring & Alerts).",
+            "  Zero cloud — the full picture is in the Learning Center (Monitoring & Alerts)."))
+        return lines
+
+    # ── 4 brand-new DeepMonitor intents ──────────────────────────────────────
+
+    def _resp_sensor_report(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        hist = ls.get("session_hist") or {}
+        def mm(k):
+            v = hist.get(k)
+            return f" (min {v[0]:.0f} / max {v[1]:.0f})" if v and v[0] >= 0 else ""
+        lines = [_t(lang, f"{self.PREFIX} Raport czujników (DeepMonitor, na żywo):",
+                          f"{self.PREFIX} Sensor report (DeepMonitor, live):")]
+        lines.append(f"  CPU  {self._dm_val(ls.get('cpu_load'),'%')} · "
+                     f"{self._dm_val(ls.get('cpu_temp'),'°C')}{mm('cpu_temp')} · "
+                     f"{self._dm_val(ls.get('cpu_mhz'),' MHz')} · "
+                     f"{self._dm_val(ls.get('cpu_power'),' W')}")
+        lines.append(f"  GPU  {self._dm_val(ls.get('gpu_load'),'%')} · "
+                     f"{self._dm_val(ls.get('gpu_temp'),'°C')}{mm('gpu_temp')} · "
+                     f"VRAM {self._dm_val(ls.get('gpu_vram_pct'),'%')} · "
+                     f"{self._dm_val(ls.get('gpu_power'),' W')}")
+        mbs, mbv = ls.get("mb_temp_sys", -1), ls.get("mb_temp_vrm", -1)
+        if mbs >= 0 or mbv >= 0:
+            lines.append(f"  MB   sys {self._dm_val(mbs,'°C')} · VRM {self._dm_val(mbv,'°C')}")
+        v12, v5, v33 = ls.get("mb_volt_12v", -1), ls.get("mb_volt_5v", -1), ls.get("mb_volt_33v", -1)
+        if any(v and v > 0 for v in (v12, v5, v33)):
+            lines.append(f"  PWR  12V {self._dm_val(v12,' V',2)} · "
+                         f"5V {self._dm_val(v5,' V',2)} · 3.3V {self._dm_val(v33,' V',2)}")
+        if not ls.get("mb_source"):
+            lines.append(_t(lang,
+                "  (płyta/napięcia wymagają LibreHardwareMonitor w tle)",
+                "  (motherboard/voltages need LibreHardwareMonitor running)"))
+        return lines
+
+    def _resp_hottest_component(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        cands = [(_t(lang, "CPU", "CPU"), ls.get("cpu_temp", -1)),
+                 (_t(lang, "GPU", "GPU"), ls.get("gpu_temp", -1)),
+                 (_t(lang, "Płyta (sys)", "Motherboard (sys)"), ls.get("mb_temp_sys", -1)),
+                 ("VRM", ls.get("mb_temp_vrm", -1))]
+        cands = [(n, t) for n, t in cands if t is not None and t >= 0]
+        if not cands:
+            return [_t(lang, f"{self.PREFIX} Brak odczytów temperatur — uruchom "
+                             "LibreHardwareMonitor dla pełnych danych.",
+                             f"{self.PREFIX} No temperature readings — run "
+                             "LibreHardwareMonitor for full data.")]
+        name, temp = max(cands, key=lambda x: x[1])
+        try:
+            from core.thermal_baseline import thermal_baseline
+            verdict = thermal_baseline.classify_temp(temp)
+        except Exception:
+            verdict = ""
+        vmap = {"normal": _t(lang, "w Twojej normie", "within your normal"),
+                "elevated": _t(lang, "podwyższona, ale bez dramatu", "elevated, not dramatic"),
+                "high": _t(lang, "wysoka — obserwuj", "high — keep an eye on it"),
+                "critical": _t(lang, "KRYTYCZNA dla Twojej normy", "CRITICAL vs your normal")}
+        lines = [_t(lang, f"{self.PREFIX} Najgorętszy teraz: {name} — {temp:.0f}°C",
+                          f"{self.PREFIX} Hottest right now: {name} — {temp:.0f}°C")]
+        if verdict in vmap:
+            lines.append(f"  {vmap[verdict]}")
+        others = " · ".join(f"{n} {t:.0f}°C" for n, t in cands if n != name)
+        if others:
+            lines.append(f"  {others}")
+        return lines
+
+    def _resp_cpu_clock(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        mhz, boost = ls.get("cpu_mhz", -1), ls.get("cpu_boost", -1)
+        if mhz < 0:
+            try:
+                import psutil
+                f = psutil.cpu_freq()
+                mhz = f.current if f else -1
+            except Exception:
+                pass
+        lines = [_t(lang, f"{self.PREFIX} Zegar CPU: {self._dm_val(mhz,' MHz')}",
+                          f"{self.PREFIX} CPU clock: {self._dm_val(mhz,' MHz')}")]
+        if boost and boost > 0 and mhz and mhz > 0:
+            pct = mhz / boost * 100
+            lines.append(_t(lang, f"  {pct:.0f}% profilu boost ({boost:.0f} MHz)",
+                                  f"  {pct:.0f}% of boost profile ({boost:.0f} MHz)"))
+            if pct < 55:
+                lines.append(_t(lang,
+                    "  Nisko przy pracy? Sprawdź plan zasilania: 'power plan'.",
+                    "  Low under load? Check the power plan: 'power plan'."))
+        return lines
+
+    def _resp_vram_usage(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        ls = self._dm_live()
+        pct, mb = ls.get("gpu_vram_pct", -1), ls.get("gpu_vram_mb", -1)
+        if pct < 0 and mb < 0:
+            return [_t(lang,
+                f"{self.PREFIX} Brak danych VRAM — pełne odczyty daje karta NVIDIA "
+                "(nvidia-smi) lub LHM.",
+                f"{self.PREFIX} No VRAM data — full readings come from NVIDIA "
+                "(nvidia-smi) or LHM.")]
+        name = ls.get("gpu_name") or "GPU"
+        lines = [_t(lang,
+            f"{self.PREFIX} VRAM ({name}): {self._dm_val(mb,' MB')} "
+            f"= {self._dm_val(pct,'%')}",
+            f"{self.PREFIX} VRAM ({name}): {self._dm_val(mb,' MB')} "
+            f"= {self._dm_val(pct,'%')}")]
+        if pct >= 90:
+            lines.append(_t(lang,
+                "  ⚠ Prawie pełny — w grach to częsty powód stutteru. Zmniejsz "
+                "tekstury o jeden poziom.",
+                "  ⚠ Nearly full — a common stutter cause in games. Drop textures "
+                "one notch."))
+        elif pct >= 0:
+            lines.append(_t(lang, "  Zapas jest — VRAM nie jest wąskim gardłem.",
+                                  "  Headroom available — VRAM isn't the bottleneck."))
+        return lines
+    # ── Cooling advice + guided tune-up (2026-07-02) ──────────────────────────
+
+    def _resp_cooling_advice(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """'How do I cool my PC' — advice ranked by what is ACTUALLY hot here."""
+        ls = self._dm_live()
+        ct, gt = ls.get("cpu_temp", -1), ls.get("gpu_temp", -1)
+        lines = [_t(lang, f"{self.PREFIX} Plan chłodzenia pod TWOJE odczyty "
+                          f"(CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')}):",
+                          f"{self.PREFIX} Cooling plan based on YOUR readings "
+                          f"(CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')}):")]
+        tips = []
+        if ct >= 80:
+            tips.append(_t(lang,
+                "1. CPU grzeje najmocniej — kurz z radiatora i sprawdź pastę "
+                "(po 3+ latach potrafi dać -10°C).",
+                "1. CPU is the hot one — dust the heatsink and check the paste "
+                "(3+ year old paste can cost you 10°C)."))
+        if gt >= 75:
+            tips.append(_t(lang,
+                f"{len(tips)+1}. GPU wysoko — zrób miejsce na przepływ powietrza, "
+                "rozważ krzywą wentylatorów.",
+                f"{len(tips)+1}. GPU running high — clear airflow around the card, "
+                "consider a fan curve."))
+        if not tips:
+            try:
+                from core.thermal_baseline import thermal_baseline
+                verdict = thermal_baseline.classify_temp(ct) if ct >= 0 else "normal"
+            except Exception:
+                verdict = "normal"
+            if verdict in ("normal", "elevated"):
+                tips.append(_t(lang,
+                    "1. Dobra wiadomość: temperatury są w Twojej normie — "
+                    "nie ma pożaru do gaszenia. Profilaktycznie:",
+                    "1. Good news: temps are within your normal — nothing on "
+                    "fire. Preventively:"))
+        tips.append(_t(lang,
+            f"{len(tips)+1}. Zmniejsz obciążenie tła: 'top procesy' pokaże "
+            "żarłoków, App Hibernation uśpi nieaktywne [-> Optimization].",
+            f"{len(tips)+1}. Cut background load: 'top processes' finds the "
+            "hogs, App Hibernation freezes idle ones [-> Optimization]."))
+        tips.append(_t(lang,
+            f"{len(tips)+1}. Laptop? Podnieś tył o 2 cm — najtańszy upgrade "
+            "chłodzenia świata.",
+            f"{len(tips)+1}. Laptop? Raise the back 2 cm — the cheapest "
+            "cooling upgrade in existence."))
+        lines += [f"  {t}" for t in tips]
+        lines.append(_t(lang,
+            "  Kontrola za tydzień: napisz 'trend tygodnia' — zobaczysz, czy pomogło.",
+            "  Check back in a week: type 'weekly trends' to see if it helped."))
+        return lines
+
+    # ── Guided tune-up: a stateful, multi-message plan the user walks through.
+    #    Start: "podrasuj mój komputer" / "tune up my pc".
+    #    Advance: "dalej"/"next"/"gotowe" — context carry-over (chat_handler 7b,
+    #    tuneup_guide whitelisted) re-fires this handler; state lives below.
+    _GUIDE_TTL = 1800   # 30 min — stale guide state never hijacks a later 'dalej'
+
+    def _resp_tuneup_guide(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        import time as _tm
+        raw = (getattr(r, "raw_text", "") or "").lower()
+        fresh_words = ("podrasuj", "podrasować", "przewodnik", "krok po kroku",
+                       "tune up", "guide", "step by step", "plan optymalizacji",
+                       "poprowadź", "wyciśnij", "squeeze", "zacznij")
+        step = getattr(self, "_guide_step", None)
+        ts   = getattr(self, "_guide_ts", 0)
+        expired = (_tm.time() - ts) > self._GUIDE_TTL
+        if step is None or expired or any(w in raw for w in fresh_words):
+            step = 0
+        else:
+            step += 1
+        self._guide_step = step
+        self._guide_ts   = _tm.time()
+
+        nxt = _t(lang, "➡ Napisz 'dalej', gdy będziesz gotowy.",
+                       "➡ Type 'next' when you're ready.")
+
+        if step == 0:
+            # Live mini-diagnosis to open with real numbers
+            flagged = total = -1
+            try:
+                from ui.pages.startup_manager import _read_startup_entries
+                ents = _read_startup_entries()
+                total = len(ents)
+                flagged = len([e for e in ents
+                               if e.get("rec") in ("disable", "delay")
+                               and e.get("impact") in ("high", "medium")])
+            except Exception:
+                pass
+            try:
+                import psutil
+                ram = f"{psutil.virtual_memory().percent:.0f}%"
+            except Exception:
+                ram = "—"
+            head = _t(lang,
+                f"{self.PREFIX} Tuning krok po kroku — prowadzę Cię przez 4 kroki, "
+                "każdy na TWOICH danych:",
+                f"{self.PREFIX} Step-by-step tune-up — I'll walk you through 4 steps, "
+                "each based on YOUR data:")
+            diag = _t(lang,
+                f"  Szybka diagnoza: RAM {ram}"
+                + (f" · autostart: {total} wpisów, {flagged} wartych wyłączenia" if total >= 0 else ""),
+                f"  Quick diagnosis: RAM {ram}"
+                + (f" · startup: {total} entries, {flagged} worth disabling" if total >= 0 else ""))
+            plan = _t(lang,
+                "  1️⃣ Autostart → 2️⃣ Usługi → 3️⃣ Funkcje auto (RAM Flush, plan "
+                "zasilania, hibernacja) → 4️⃣ Weryfikacja",
+                "  1️⃣ Startup → 2️⃣ Services → 3️⃣ Auto features (RAM Flush, power "
+                "plan, hibernation) → 4️⃣ Verify")
+            return [head, diag, plan, nxt]
+
+        if step == 1:
+            flagged_names = []
+            try:
+                from ui.pages.startup_manager import _read_startup_entries
+                ents = _read_startup_entries()
+                flagged_names = [e["name"] for e in ents
+                                 if e.get("rec") in ("disable", "delay")
+                                 and e.get("impact") in ("high", "medium")][:4]
+            except Exception:
+                pass
+            lines = [_t(lang, f"{self.PREFIX} KROK 1/4 — Autostart 🚀",
+                              f"{self.PREFIX} STEP 1/4 — Startup 🚀")]
+            if flagged_names:
+                lines.append(_t(lang,
+                    "  U Ciebie warte wyłączenia: " + ", ".join(flagged_names),
+                    "  Worth disabling on your machine: " + ", ".join(flagged_names)))
+            lines.append(_t(lang,
+                "  Otwórz [-> Startup Manager], klikaj wpisy (zbiorą się na dole) "
+                "i Zatwierdź. Wszystko odwracalne w zakładce Disabled.",
+                "  Open [-> Startup Manager], click entries (they queue at the "
+                "bottom) and confirm. Fully reversible in the Disabled tab."))
+            return lines + [nxt]
+
+        if step == 2:
+            return [
+                _t(lang, f"{self.PREFIX} KROK 2/4 — Usługi Windows ⚙",
+                         f"{self.PREFIX} STEP 2/4 — Windows services ⚙"),
+                _t(lang,
+                   "  W [-> Services Manager] sekcja 'Unneeded' u góry to "
+                   "najbezpieczniejsze wyłączenia. Klikasz Wyłącz → Zatwierdź. "
+                   "Chipy G/E/M przypną usługę do trybu Gaming/Economy.",
+                   "  In [-> Services Manager] the 'Unneeded' tier at the top is "
+                   "the safest to stop. Click Disable → Confirm. G/E/M chips pin "
+                   "a service to Gaming/Economy modes."),
+                _t(lang,
+                   "  Zasada: Essential ma kłódkę — tego nie ruszamy nigdy.",
+                   "  Rule: Essential is locked — we never touch those."),
+                nxt,
+            ]
+
+        if step == 3:
+            try:
+                import psutil
+                ram = psutil.virtual_memory().percent
+                ram_note = _t(lang,
+                    f"  RAM teraz {ram:.0f}% — " +
+                    ("Flush będzie miał co robić." if ram >= 70 else
+                     "spokojnie, ale Flush przyda się przy grach."),
+                    f"  RAM now {ram:.0f}% — " +
+                    ("Flush will have work to do." if ram >= 70 else
+                     "calm now, but Flush earns its keep in games."))
+            except Exception:
+                ram_note = ""
+            lines = [
+                _t(lang, f"{self.PREFIX} KROK 3/4 — Automaty, które pilnują za Ciebie 🤖",
+                         f"{self.PREFIX} STEP 3/4 — Automations that watch for you 🤖"),
+                _t(lang,
+                   "  W [-> Optimization] włącz: Auto RAM Flush (>75% przez 30 s), "
+                   "Turbo Power Plan (auto przy grze) i App Hibernation "
+                   "(zamraża nieaktywne po 15-30 min).",
+                   "  In [-> Optimization] enable: Auto RAM Flush (>75% for 30 s), "
+                   "Turbo Power Plan (auto on game launch) and App Hibernation "
+                   "(freezes idle apps after 15-30 min)."),
+            ]
+            if ram_note:
+                lines.append(ram_note)
+            return lines + [nxt]
+
+        # step >= 4 — finale + reset
+        self._guide_step = None
+        return [
+            _t(lang, f"{self.PREFIX} KROK 4/4 — Weryfikacja ✅",
+                     f"{self.PREFIX} STEP 4/4 — Verify ✅"),
+            _t(lang,
+               "  Restart i sprawdzamy: 'health check' (ogólna forma), "
+               "'raport czujników' (parametry), a za kilka dni 'trend tygodnia' "
+               "— zobaczysz różnicę w danych, nie w obietnicach.",
+               "  Restart, then check: 'health check' (overall shape), "
+               "'sensor report' (parameters), and in a few days 'weekly trends' "
+               "— you'll see the difference in data, not promises."),
+            _t(lang,
+               "  Tuning zakończony. Gdyby coś się pogorszyło — wszystko jest "
+               "odwracalne (Disabled tab / przełączniki funkcji). 🖤",
+               "  Tune-up complete. If anything gets worse — everything is "
+               "reversible (Disabled tab / feature toggles). 🖤"),
+        ]
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────
