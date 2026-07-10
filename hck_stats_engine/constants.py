@@ -10,9 +10,16 @@ import sys
 # PATHS - frozen-safe (onefile / onedir / dev)
 # ============================================================
 def _base_dir() -> str:
-    if getattr(sys, "frozen", False):
-        return os.path.dirname(sys.executable)
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Single source of truth: utils.paths handles MSIX/Store installs, where
+    # the dir next to the exe (WindowsApps) is READ-ONLY — APP_DIR redirects
+    # to %LOCALAPPDATA%\PC_Workman_HCK there.
+    try:
+        from utils.paths import APP_DIR
+        return APP_DIR
+    except Exception:
+        if getattr(sys, "frozen", False):
+            return os.path.dirname(sys.executable)
+        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BASE_DIR = _base_dir()
 DATA_DIR = os.path.join(BASE_DIR, "data")
