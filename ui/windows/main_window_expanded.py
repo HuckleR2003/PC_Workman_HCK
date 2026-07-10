@@ -6,8 +6,6 @@ Full-featured interface with modern dark theme
 """
 
 import tkinter as tk
-from tkinter import ttk
-import threading
 import time
 import os
 
@@ -26,7 +24,7 @@ except ImportError:
     psutil = None
 
 from ui.theme import THEME
-from ui.components.led_bars import LEDSegmentBar, AnimatedBar
+from ui.components.led_bars import AnimatedBar
 from ui.components.sidebar_nav import SidebarNav
 from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_stats_page
 
@@ -166,7 +164,7 @@ class ExpandedMainWindow:
         # Create root window
         self.root = tk.Tk()
         _uis.init(self.root)  # detect screen size → set SCALE
-        self.root.title("PC Workman HCK  v1.8.0")
+        self.root.title("PC Workman HCK  v1.8.1")
         self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
         self.root.configure(bg=THEME["bg_main"])
         self.root.resizable(False, False)
@@ -462,14 +460,14 @@ class ExpandedMainWindow:
             text=_max_sym,
             font=(_HDR, 10),
             bg="#090c14",      # matches gradient at y≈8
-            fg="#2d3d56",
+            fg="#6f86a3",
             cursor="hand2",
             padx=10,
         )
         max_btn.place(relx=1.0, y=8, anchor="ne", x=-8)
         max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
         max_btn.bind("<Enter>",    lambda e: max_btn.config(fg="#8b5cf6"))
-        max_btn.bind("<Leave>",    lambda e: max_btn.config(fg="#2d3d56"))
+        max_btn.bind("<Leave>",    lambda e: max_btn.config(fg="#6f86a3"))
 
         return container
 
@@ -723,6 +721,10 @@ class ExpandedMainWindow:
                     "Startup Manager",
                     lambda: self._switch_to_page("startup_manager")
                 )
+                self.gpt_panel.register_nav_callback(
+                    "Services Manager",
+                    lambda: self._switch_to_page("services_manager")
+                )
 
                 def _open_stability_from_chat():
                     # Stability Tests lives inside the "My PC" page -> show it, then
@@ -786,7 +788,7 @@ class ExpandedMainWindow:
         try:
             from startup import APP_VERSION as _AV
         except ImportError:
-            _AV = "1.8.0"
+            _AV = "1.8.1"
 
         badge = tk.Label(
             left_frame,
@@ -804,7 +806,7 @@ class ExpandedMainWindow:
             text=_t("dashboard.subtitle"),
             font=(_BODY, 9),
             bg=_BG,
-            fg="#334155",
+            fg="#74839a",
         )
         subtitle.pack(side="left", padx=(8, 0), pady=16)
         self._header_subtitle_lbl = subtitle
@@ -892,7 +894,11 @@ class ExpandedMainWindow:
         body = tk.Frame(self.content_area, bg=_BG)
         body.pack(fill="both", expand=True, padx=14, pady=(6, 0))
 
-        self._proc_limit = 15
+        # Row count adapts to the real screen height: FHD+ still fits 15, but
+        # small laptops (720/768p) get ~8 — the hardcoded 15 used to cram rows
+        # and clip the usage bars there. ~44 px per 2-line row, ~380 px chrome.
+        _scr_h = self.root.winfo_screenheight() or 1080
+        self._proc_limit = max(6, min(15, (_scr_h - 380) // 44))
 
         # ── LEFT COLUMN: user processes ───────────────────────────────────────
         left_col = tk.Frame(body, bg=_PANEL, width=280)
@@ -3271,14 +3277,14 @@ class ExpandedMainWindow:
             text="✕",
             font=(_BODY, 10),
             bg="#080b10",
-            fg="#2d3d56",
+            fg="#6f86a3",
             cursor="hand2",
             padx=12,
         )
         close_btn.place(relx=1.0, y=8, anchor="ne", x=-4)
         close_btn.bind("<Button-1>", lambda e: self._close_overlay())
         close_btn.bind("<Enter>", lambda e: close_btn.config(fg="#ef4444"))
-        close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#2d3d56"))
+        close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#6f86a3"))
 
         _ov_max_sym = "⊡" if self._is_maximized else "⤢"
         ov_max_btn = tk.Label(
@@ -3286,14 +3292,14 @@ class ExpandedMainWindow:
             text=_ov_max_sym,
             font=(_HDR, 10),
             bg="#090c14",
-            fg="#2d3d56",
+            fg="#6f86a3",
             cursor="hand2",
             padx=10,
         )
         ov_max_btn.place(relx=1.0, y=8, anchor="ne", x=-38)
         ov_max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
         ov_max_btn.bind("<Enter>",    lambda e: ov_max_btn.config(fg="#8b5cf6"))
-        ov_max_btn.bind("<Leave>",    lambda e: ov_max_btn.config(fg="#2d3d56"))
+        ov_max_btn.bind("<Leave>",    lambda e: ov_max_btn.config(fg="#6f86a3"))
 
         # Content area with scrollbar
         content_frame = tk.Frame(self.overlay_frame, bg="#0f1117")
