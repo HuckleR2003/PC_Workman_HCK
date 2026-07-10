@@ -90,7 +90,7 @@ def _get_nested(data: Dict, key_path: str) -> Optional[str]:
 
 # ── Public API ─────────────────────────────────────────────────────────────────
 
-def t(key: str, **kwargs: Any) -> str:
+def t(key: str, default: Optional[str] = None, **kwargs: Any) -> str:
     """
     Translate *key* (dotted path) in the current language.
 
@@ -108,9 +108,9 @@ def t(key: str, **kwargs: Any) -> str:
         en_catalog = _load_catalog(_DEFAULT_LANG)
         value = _get_nested(en_catalog, key)
 
-    # Last resort - return the key itself
+    # Last resort - the caller's default, or the bare key (never crash the UI)
     if value is None:
-        return key
+        return default if default is not None else key
 
     if kwargs:
         try:
