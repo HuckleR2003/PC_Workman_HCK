@@ -99,6 +99,17 @@ class HibernationManager:
         if behavior not in ("low", "freeze"):
             behavior = "low"
 
+        # HARD SAFETY: never sleep ourselves, an OS-critical process, or an
+        # anti-cheat. Freezing dwm.exe/explorer.exe white-screens the desktop;
+        # freezing our own process hangs the whole app. (This was the cause of
+        # the "total freeze after 5-15 min" report.)
+        try:
+            from core.protected_processes import is_protected, is_self
+            if is_self(pid) or is_protected(name, exe):
+                return False
+        except Exception:
+            pass
+
         try:
             proc = psutil.Process(pid)
             original_nice = proc.nice()

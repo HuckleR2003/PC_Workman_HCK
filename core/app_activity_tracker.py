@@ -275,6 +275,14 @@ class AppActivityTracker:
 
     @staticmethod
     def _is_protected(name: str, exe: str) -> bool:
+        # Central guard first (anti-cheat + OS-critical + PC Workman itself) so
+        # the "Unused Apps" list never even offers to sleep a critical process.
+        try:
+            from core.protected_processes import is_protected as _central
+            if _central(name, exe):
+                return True
+        except Exception:
+            pass
         if name in _PROTECTED_NAMES:
             return True
         nl = name.lower()
