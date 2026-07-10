@@ -1424,7 +1424,7 @@ class HCKGPTPanel:
                  font=("Consolas", 8, "bold"),
                  bg="#0d0f14", fg="#6b7280", anchor="w").pack(side="left")
         tk.Label(hdr, text="✕",
-                 font=("Consolas", 9), bg="#0d0f14", fg="#374151",
+                 font=("Consolas", 9), bg="#0d0f14", fg="#74839a",
                  cursor="hand2").pack(side="right")
         hdr.winfo_children()[-1].bind("<Button-1>", lambda e: pop.destroy())
 
@@ -1859,6 +1859,17 @@ class HCKGPTPanel:
         if not text:
             return
 
+        # ── Hidden easter-egg scenes (opt-in: exact secret triggers only) ─────
+        try:
+            from hck_gpt import easter_eggs as _eggs
+            _scene = _eggs.match(text)
+        except Exception:
+            _scene = None
+        if _scene is not None:
+            self.entry.delete(0, "end")
+            self._play_easter_egg(_scene)
+            return
+
         self.entry.delete(0, "end")
 
         # ── Record turn start for background grouping ─────────────────────────
@@ -1904,6 +1915,123 @@ class HCKGPTPanel:
         # Also dismiss both strips so the cleared state looks consistent
         self._remove_active_tip()
         self._clear_hot()
+
+    def _play_easter_egg(self, timeline):
+        """Hidden meme scene: a silent alien/laser strip across the TOP ~30% of the
+        chat, while the lyric 'words' arrive as hck_GPT messages below (with dynamic
+        background colour). Ends with a confused greeting + the normal command list.
+        Silent by design — audio is added later in video editing; only rhythm matters."""
+        from hck_gpt import easter_eggs as _eggs
+        try:
+            self.clear_chat()
+            self._egg_configure_tags()
+            self._egg_base_bg = self.log.cget("bg")
+            W = self.log.winfo_width() or 360
+            H = self.log.winfo_height() or 200
+            # Compact alien band pinned at the top, capped so the EXPANDED window
+            # doesn't get a huge strip swallowing the chat.
+            strip_h = max(48, min(int(H * 0.30), 84))
+            # Top gap: enough blank lines that the lyric messages always start
+            # BELOW the alien band — in both the normal and the expanded window
+            # (proportional to the strip, so text is never clipped under it).
+            pad_lines = max(4, strip_h // 15 + 2)
+            for _ in range(pad_lines):
+                try:
+                    self.add_message("")
+                except Exception:
+                    pass
+            cv = tk.Canvas(self.log.master, bg=THEME["bg_panel"],
+                           highlightthickness=0, bd=0)
+            cv.place(in_=self.log, relx=0, rely=0, relwidth=1.0, height=strip_h)
+            cv.update_idletasks()
+        except Exception:
+            return
+        self._egg_canvas = cv
+
+        def on_word(txt):
+            self._egg_say(str(txt))
+
+        def on_poop():
+            self._egg_say("💩 💩 💩")
+
+        def on_end():
+            try:
+                if cv.winfo_exists():
+                    cv.destroy()
+            except Exception:
+                pass
+            try:
+                self.log.config(bg=getattr(self, "_egg_base_bg", THEME["bg_panel"]))
+            except Exception:
+                pass
+            self._egg_reset()
+
+        try:
+            _eggs.play(cv, timeline, on_word=on_word, on_poop=on_poop,
+                       on_end=on_end, width=W, height=strip_h)
+        except Exception:
+            on_end()
+
+    def _egg_configure_tags(self):
+        """One-time vivid background tags for the meme messages (chat-style bg)."""
+        if getattr(self, "_egg_tags_done", False):
+            return
+        bgs = ["#3a0a2a", "#0a2a3a", "#22330a", "#3a200a", "#10103a", "#2a0a0a"]
+        for i, c in enumerate(bgs):
+            try:
+                self.log.tag_configure(f"egg_bg_{i}", background=c)
+            except Exception:
+                pass
+        self._egg_tags_done = True
+
+    def _egg_say(self, txt):
+        """Add a meme line as an hck_GPT message with a random coloured background,
+        and pulse the whole chat background for chaos."""
+        import random
+        try:
+            self.log.config(state="normal")
+            start = self.log.index("end-1c")
+        except Exception:
+            start = None
+        try:
+            self.add_message(f"hck_GPT: {txt}")
+        except Exception:
+            return
+        try:
+            if start is not None:
+                end = self.log.index("end-1c")
+                self.log.tag_add(f"egg_bg_{random.randint(0, 5)}", start, end)
+            self.log.config(state="disabled")
+            self.log.see("end")
+            self.log.config(bg=random.choice(["#100018", "#001018", "#0a1800", "#180600"]))
+        except Exception:
+            pass
+
+    def _egg_reset(self):
+        """Confused greeting ('Uff... what was that') + the normal command list."""
+        try:
+            self.clear_chat()
+        except Exception:
+            pass
+        lang = getattr(self, "_ui_lang", "en")
+        if lang == "auto":
+            try:
+                from utils.i18n import get_lang
+                lang = get_lang()
+            except Exception:
+                lang = "en"
+        if lang == "pl":
+            self.add_message("hck_GPT: Uff... co to bylo 😵‍💫")
+        else:
+            self.add_message("hck_GPT: Uff... what was that 😵‍💫")
+        self.add_message("")
+        try:
+            self._add_welcome_tables()
+        except Exception:
+            try:
+                self._welcome()
+            except Exception:
+                pass
 
     def _start_service_setup(self):
         """Start the Service Setup wizard via button"""
