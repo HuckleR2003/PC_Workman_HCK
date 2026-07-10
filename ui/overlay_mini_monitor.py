@@ -414,8 +414,20 @@ class OverlayMiniMonitor:
 
     # ── Process actions ───────────────────────────────────────────────────────
 
+    @staticmethod
+    def _is_anticheat(pid: int) -> bool:
+        try:
+            from core.protected_processes import is_protected
+            p = psutil.Process(pid)
+            return is_protected(p.name(), p.exe() if hasattr(p, "exe") else "")
+        except Exception:
+            return False
+
     def _kill_process(self, pid: int, row: dict):
         if not psutil or not pid:
+            return
+        if self._is_anticheat(pid):
+            row["frame"].config(bg="#1a0f00")   # anti-cheat: refuse, flash amber
             return
         try:
             psutil.Process(pid).kill()
@@ -426,6 +438,9 @@ class OverlayMiniMonitor:
 
     def _freeze_process(self, pid: int, row: dict):
         if not psutil or not pid:
+            return
+        if self._is_anticheat(pid):
+            row["frame"].config(bg="#1a0f00")
             return
         try:
             proc   = psutil.Process(pid)
