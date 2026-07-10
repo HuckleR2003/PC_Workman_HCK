@@ -281,7 +281,7 @@ class ProcessGuard:
                 "Write-Output (\"{0}|{1}\" -f $s.Status, $subj)",
             ]
             out = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=8,
+                cmd, capture_output=True, text=True, errors="replace", timeout=8,
                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
             )
             raw = (out.stdout or "").strip()

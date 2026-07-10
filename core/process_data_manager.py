@@ -11,7 +11,11 @@ import time
 from datetime import datetime
 from collections import defaultdict, deque
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'process_info')
+try:
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:
+    _APP_DIR = os.path.dirname(os.path.dirname(__file__))
+DATA_DIR = os.path.join(_APP_DIR, 'data', 'process_info')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 PROCESS_HISTORY_FILE = os.path.join(DATA_DIR, 'process_history.json')

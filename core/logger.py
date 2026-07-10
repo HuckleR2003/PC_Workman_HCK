@@ -12,7 +12,11 @@ import os, csv, time
 from collections import deque
 from datetime import datetime
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'logs')
+try:
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:
+    _APP_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.join(_APP_DIR, 'data', 'logs')
 os.makedirs(BASE_DIR, exist_ok=True)
 
 RAW_CSV = os.path.join(BASE_DIR, 'raw_usage.csv')       # per-second raw
