@@ -630,6 +630,13 @@ class TurboProcessSuspender:
             self.resume(pid)
 
     def _is_whitelisted(self, name: str, exe: str) -> bool:
+        # Anti-cheat first — the one category we must never suspend.
+        try:
+            from core.protected_processes import is_protected
+            if is_protected(name, exe):
+                return True
+        except Exception:
+            pass
         if name in _PROC_WHITELIST_NAMES:
             return True
         nl = name.lower()

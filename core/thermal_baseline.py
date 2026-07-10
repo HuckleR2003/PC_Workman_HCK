@@ -65,6 +65,13 @@ import time
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 def _base_dir() -> str:
+    # Single source of truth: utils.paths is MSIX-aware (Store installs are
+    # read-only next to the exe -> APP_DIR = %LOCALAPPDATA%\PC_Workman_HCK).
+    try:
+        from utils.paths import APP_DIR
+        return APP_DIR
+    except Exception:
+        pass
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
     return os.path.normpath(
@@ -91,8 +98,29 @@ _P_Z          = 1.645
 TEMP_MIN      = 10.0
 TEMP_MAX      = 110.0
 
-# v2: per-bucket Welford accumulator {n, mean, M2} + last_ts (was windowed batch)
-VERSION       = 2
+# ── Learned metrics ───────────────────────────────────────────────────────────
+# v3: learn EVERY real signal per workload bucket, not just CPU temperature.
+# Why: cpu_temp needs LibreHardwareMonitor (most users don't run it) — before
+# this, those machines learned nothing and the Learning Center sat at 0% forever.
+# gpu_temp (nvidia-smi) and cpu_load (psutil) are real on virtually every
+# machine, so learning is now visibly accumulating for everyone. The engine
+# picks a "primary" metric (best real signal available) for headline display
+# and chat, in priority order below.
+_METRICS = {
+    "cpu_temp": {"lo": TEMP_MIN, "hi": TEMP_MAX, "unit": "°C",
+                 "en": "CPU temp",  "pl": "temp. CPU"},
+    "gpu_temp": {"lo": TEMP_MIN, "hi": TEMP_MAX, "unit": "°C",
+                 "en": "GPU temp",  "pl": "temp. GPU"},
+    "cpu_load": {"lo": 0.0,      "hi": 100.0,    "unit": "%",
+                 "en": "CPU load",  "pl": "obc. CPU"},
+}
+_METRIC_PRIORITY = ("cpu_temp", "gpu_temp", "cpu_load")
+
+# v3: per-bucket, PER-METRIC Welford accumulators {n, mean, M2} + last_ts.
+# A version bump discards the old single-metric JSON; rebuild() re-folds the
+# whole DeepMonitor history (rows survive up to the retention window), so no
+# learning is permanently lost - it re-accumulates on the next rebuild.
+VERSION       = 3
 
 
 # ── BaselineRange (immutable result object) ───────────────────────────────────
@@ -207,11 +235,12 @@ class ThermalBaseline:
 
     # ── Public query API ──────────────────────────────────────────────────────
 
-    def get_range(self, bucket: str) -> BaselineRange:
-        """Return the learned range for a workload bucket. Always returns safely.
-        sigma and the p5/p95 band are derived live from the running mean + M2."""
+    def get_range(self, bucket: str, metric: str = "cpu_temp") -> BaselineRange:
+        """Learned range for one (bucket, metric). Always returns safely.
+        sigma and the p5/p95 band are derived live from the running mean + M2.
+        Default metric = cpu_temp keeps every existing caller working."""
         with self._lock:
-            bd = dict(self._raw.get("buckets", {}).get(bucket, {}))
+            bd = dict(self._raw.get("buckets", {}).get(bucket, {}).get(metric, {}))
         n    = int(bd.get("n", 0))
         mean = float(bd.get("mean", 50.0))
         if n >= 2:
@@ -228,113 +257,180 @@ class ThermalBaseline:
             p95    = mean + _P_Z * sigma,
         )
 
-    def overall_training_pct(self) -> int:
-        """0–100 % — rough overall training completeness across all buckets."""
-        # Single lock acquisition for all buckets (avoids 5 separate lock/unlock cycles)
+    def _metric_total(self, metric: str) -> int:
         with self._lock:
-            raw_buckets = self._raw.get("buckets", {})
-        total  = sum(raw_buckets.get(b, {}).get("n", 0) for b in BUCKETS)
-        target = len(BUCKETS) * T_CALIBRATED
-        return min(100, int(total / target * 100))
+            bkts = self._raw.get("buckets", {})
+            return sum(int(bkts.get(b, {}).get(metric, {}).get("n", 0))
+                       for b in BUCKETS)
 
-    def training_status(self) -> dict[str, dict]:
+    def primary_metric(self) -> str:
+        """The best real signal this machine actually produces, in priority
+        order cpu_temp -> gpu_temp -> cpu_load. cpu_load is the guaranteed
+        fallback (always real), so the Learning Center is never empty."""
+        for m in _METRIC_PRIORITY:
+            if self._metric_total(m) >= T_INIT:
+                return m
+        return "cpu_load"
+
+    def metric_unit(self, metric: str) -> str:
+        return _METRICS.get(metric, {}).get("unit", "")
+
+    def metric_label(self, metric: str, lang: str = "en") -> str:
+        cfg = _METRICS.get(metric, {})
+        return cfg.get(lang, cfg.get("en", metric))
+
+    def available_metrics(self) -> list:
+        """Metrics that have any learned data (for honest UI hints)."""
+        return [m for m in _METRIC_PRIORITY if self._metric_total(m) > 0]
+
+    def classify_temp(self, temp: float, metric: str = None,
+                      cpu_load: float = None, gpu_load: float = None) -> str:
+        """Engine-level 'normal|elevated|high|critical' for a live reading,
+        judged against the learned range. Picks the workload bucket from load
+        when given, else the best-learned bucket for the metric. (The heavy
+        lifting lives on BaselineRange; this is the convenience entry point
+        callers like the hck_GPT 'hottest component' handler expect.)"""
+        metric = metric or self.primary_metric()
+        if cpu_load is not None:
+            bucket = self.classify(cpu_load, gpu_load or 0.0)
+        else:
+            bucket = max(BUCKETS, key=lambda b: self.get_range(b, metric).n)
+        br = self.get_range(bucket, metric)
+        return br.classify_temp(temp) if br.is_usable else "unknown"
+
+    def overall_training_pct(self, metric: str = None) -> int:
+        """0–100 % overall training completeness for the primary (or given)
+        metric across all buckets. Uses the primary metric so it reflects
+        whatever this machine can actually learn."""
+        metric = metric or self.primary_metric()
+        total  = self._metric_total(metric)
+        target = len(BUCKETS) * T_CALIBRATED
+        return min(100, int(total / target * 100)) if target else 0
+
+    def training_status(self, metric: str = None) -> dict[str, dict]:
         """
-        Per-bucket training summary suitable for UI display:
-            { "idle": {"level": "trained", "n": 72, "mean": 36.4, "sigma": 2.1}, … }
+        Per-bucket training summary for the primary (or given) metric:
+            { "idle": {"level": "trained", "n": 72, "mean": 36.4, …}, … }
+        Defaults to the primary metric so the Learning Center is populated on
+        every machine (cpu_load always has data, gpu_temp on NVIDIA, etc.).
         """
+        metric = metric or self.primary_metric()
         result = {}
         for b in BUCKETS:
-            r = self.get_range(b)
+            r = self.get_range(b, metric)
             result[b] = {
-                "level":       r.training_level,
+                "level":        r.training_level,
                 "training_pct": r.training_pct,
-                "n":           r.n,
-                "mean":        r.mean,
-                "sigma":       r.sigma,
-                "p5":          r.p5,
-                "p95":         r.p95,
+                "n":            r.n,
+                "mean":         r.mean,
+                "sigma":        r.sigma,
+                "p5":           r.p5,
+                "p95":          r.p95,
             }
         return result
 
     def format_for_chat(self, cpu_temp: float = 0.0,
                         cpu_load: float = 0.0,
                         gpu_load: float = 0.0,
-                        lang: str = "en") -> str:
+                        lang: str = "en",
+                        gpu_temp: float = -1.0) -> str:
         """
-        Return a chat-ready string with workload-aware temperature context.
+        Chat-ready, workload-aware verdict. Reports the best REAL signal this
+        machine produces right now: CPU temp when a sensor exists, otherwise
+        GPU temp (nvidia-smi), so the answer is grounded on every machine
+        instead of stalling when LibreHardwareMonitor isn't running.
         Used by hck_gpt/responses/builder.py.
-
-        Parameters
-        ----------
-        cpu_temp : current CPU temperature in °C (0 = unknown)
-        cpu_load : current CPU utilisation % (for bucket classification)
-        gpu_load : current GPU utilisation % (for gaming detection)
-        lang     : "en" | "pl"
         """
+        _PL = lang == "pl"
         bucket = self.classify(cpu_load, gpu_load)
-        br     = self.get_range(bucket)
+        _bucket_pl = {"idle": "bezczynność", "light": "lekki", "medium": "średni",
+                      "heavy": "intensywny", "gaming": "gaming"}
+        bn = _bucket_pl.get(bucket, bucket) if _PL else bucket
 
-        # ── Not yet trained ──────────────────────────────────────────────────
+        # pick the reported metric: a real current reading, priority CPU->GPU
+        reading = None
+        for m, v in (("cpu_temp", cpu_temp), ("gpu_temp", gpu_temp)):
+            if v is not None and v > 0:
+                reading = (m, float(v))
+                break
+
+        if reading is None:
+            # No live temperature at all - report progress on the primary metric
+            pm = self.primary_metric()
+            br = self.get_range(bucket, pm)
+            lbl = self.metric_label(pm, lang)
+            if _PL:
+                return (f"🌡 Uczę się Twojego systemu przez {lbl} "
+                        f"({br.training_level}: {br.n}/{T_CALIBRATED} próbek, tryb: {bn}).\n"
+                        "  Brak żywego odczytu temperatury (uruchom LibreHardwareMonitor, "
+                        "by odblokować temperaturę CPU).")
+            return (f"🌡 Learning your system via {lbl} "
+                    f"({br.training_level}: {br.n}/{T_CALIBRATED} samples, workload: {bn}).\n"
+                    "  No live temperature reading (run LibreHardwareMonitor to unlock CPU temp).")
+
+        metric, value = reading
+        br   = self.get_range(bucket, metric)
+        unit = self.metric_unit(metric)
+        head = self.metric_label(metric, lang).upper()
+
         if not br.is_usable:
-            if lang == "pl":
-                return (
-                    f"🌡 Uczę się Twojego systemu "
-                    f"({br.training_level}: {br.n}/{T_CALIBRATED} próbek).\n"
-                    "  Potrzebuję więcej danych by ocenić temperaturę w kontekście."
-                )
-            return (
-                f"🌡 Still learning your system "
-                f"({br.training_level}: {br.n}/{T_CALIBRATED} samples).\n"
-                "  Need more data to evaluate temperature in workload context."
-            )
+            if _PL:
+                return (f"🌡 {value:.0f}{unit} ({head}, tryb: {bn}) - jeszcze się uczę "
+                        f"Twojej normy ({br.training_level}: {br.n}/{T_CALIBRATED} próbek).")
+            return (f"🌡 {value:.0f}{unit} ({head}, workload: {bn}) - still learning "
+                    f"your normal ({br.training_level}: {br.n}/{T_CALIBRATED} samples).")
 
-        # ── Classification ───────────────────────────────────────────────────
-        if cpu_temp > 0:
-            classification = br.classify_temp(cpu_temp)
-            context        = br.context_label(cpu_temp)
-        else:
-            classification = "unknown"
-            context        = ""
-
-        _icons = {"normal": "✓", "elevated": "⚠", "high": "🔴",
-                  "critical": "🔴", "unknown": "·"}
+        classification = br.classify_temp(value)
+        _icons = {"normal": "✓", "elevated": "⚠", "high": "🔴", "critical": "🔴"}
         icon = _icons.get(classification, "·")
+        context = br.context_label(value)
 
-        if lang == "pl":
-            _bucket_pl = {
-                "idle": "bezczynność", "light": "lekki", "medium": "średni",
-                "heavy": "intensywny", "gaming": "gaming",
-            }
-            bn = _bucket_pl.get(bucket, bucket)
-            lines = [
-                f"🌡 TEMPERATURA CPU  (tryb: {bn})",
-                f"  {icon} {cpu_temp:.1f}°C — {classification}" if cpu_temp else
-                "  Brak odczytu temperatury",
-                f"  Zakres normalny: {br.p5:.0f}–{br.p95:.0f}°C "
-                f"(σ={br.sigma:.1f}°C)",
-            ]
+        if _PL:
+            lines = [f"🌡 {head}  (tryb: {bn})",
+                     f"  {icon} {value:.1f}{unit} — {classification}",
+                     f"  Zakres normalny: {br.p5:.0f}–{br.p95:.0f}{unit} (σ={br.sigma:.1f}{unit})"]
             if context:
                 lines.append(f"  {context}")
-            lines.append(
-                f"\n  Kalibracja: {br.training_level} "
-                f"({br.n}/{T_CALIBRATED} próbek)"
-            )
+            lines.append(f"\n  Kalibracja: {br.training_level} "
+                         f"({br.n}/{T_CALIBRATED} próbek, nauczone z Twoich danych)")
         else:
-            lines = [
-                f"🌡 CPU TEMPERATURE  (workload: {bucket})",
-                f"  {icon} {cpu_temp:.1f}°C — {classification}" if cpu_temp else
-                "  No temperature reading",
-                f"  Normal range: {br.p5:.0f}–{br.p95:.0f}°C "
-                f"(σ={br.sigma:.1f}°C)",
-            ]
+            lines = [f"🌡 {head}  (workload: {bn})",
+                     f"  {icon} {value:.1f}{unit} — {classification}",
+                     f"  Normal range: {br.p5:.0f}–{br.p95:.0f}{unit} (σ={br.sigma:.1f}{unit})"]
             if context:
                 lines.append(f"  {context}")
-            lines.append(
-                f"\n  Calibration: {br.training_level} "
-                f"({br.n}/{T_CALIBRATED} samples)"
-            )
-
+            lines.append(f"\n  Calibration: {br.training_level} "
+                         f"({br.n}/{T_CALIBRATED} samples, learned from your own data)")
         return "\n".join(lines)
+
+    # Each DeepMonitor snapshot = one sample; metrics_store writes one every
+    # 5 minutes, so N samples ≈ N × 5 min of your machine actually observed.
+    SAMPLE_INTERVAL_MIN = 5.0
+
+    def total_observed_hours(self, metric: str = None) -> float:
+        """Rough hours of real machine time behind the learning (primary metric)."""
+        metric = metric or self.primary_metric()
+        return self._metric_total(metric) * self.SAMPLE_INTERVAL_MIN / 60.0
+
+    def observed_hours(self, bucket: str, metric: str = None) -> float:
+        metric = metric or self.primary_metric()
+        return self.get_range(bucket, metric).n * self.SAMPLE_INTERVAL_MIN / 60.0
+
+    def learning_since_str(self, lang: str = "en") -> str:
+        """How long PC Workman has been observing this machine, e.g. '3 days'."""
+        ts = float(self._raw.get("started_ts", 0.0) or 0.0)
+        if not ts:
+            # reads cleanly after "Uczę się od {x}" / "Learning for {x}"
+            return "niedawna" if lang == "pl" else "a short while"
+        delta = time.time() - ts
+        if delta < 3600:
+            v = max(1, int(delta / 60));  return f"{v} min"
+        if delta < 86400:
+            v = int(delta / 3600);        return f"{v} h"
+        v = int(delta / 86400)
+        if lang == "pl":
+            return f"{v} {'dzień' if v == 1 else 'dni'}"
+        return f"{v} {'day' if v == 1 else 'days'}"
 
     def last_update_str(self) -> str:
         """Human-readable timestamp of last successful rebuild."""
@@ -379,11 +475,14 @@ class ThermalBaseline:
         try:
             with self._lock:
                 last_ts = float(self._raw.get("last_ts", 0.0) or 0.0)
-                buckets = {
-                    b: dict(self._raw.get("buckets", {}).get(
-                        b, {"n": 0, "mean": 0.0, "M2": 0.0}))
-                    for b in BUCKETS
-                }
+                # buckets[bucket][metric] = {n, mean, M2}
+                buckets = {}
+                for b in BUCKETS:
+                    src = self._raw.get("buckets", {}).get(b, {})
+                    buckets[b] = {
+                        m: dict(src.get(m, {"n": 0, "mean": 0.0, "M2": 0.0}))
+                        for m in _METRICS
+                    }
 
             rows = self._query_db_since(last_ts)
             if not rows:
@@ -391,24 +490,36 @@ class ThermalBaseline:
                 return 0
 
             max_ts    = last_ts
+            min_ts    = 0.0
             processed = 0
             for row in rows:
                 ts = float(row.get("ts", 0.0) or 0.0)
                 if ts > max_ts:
                     max_ts = ts
-                cpu_t = float(row.get("cpu_temp", -1.0) or -1.0)
-                if cpu_t < TEMP_MIN or cpu_t > TEMP_MAX:
-                    continue   # reject invalid / estimated-before-data readings
-                cpu_l = float(row.get("cpu_load", 0.0) or 0.0)
-                gpu_l = float(row.get("gpu_load", 0.0) or 0.0)
-                self._welford_add(buckets[self.classify(cpu_l, gpu_l)], cpu_t)
-                processed += 1
+                if ts > 0 and (min_ts == 0.0 or ts < min_ts):
+                    min_ts = ts
+                cpu_l  = float(row.get("cpu_load", -1.0) or -1.0)
+                gpu_l  = float(row.get("gpu_load", -1.0) or -1.0)
+                bucket = self.classify(max(cpu_l, 0.0), max(gpu_l, 0.0))
+                folded = False
+                for m, cfg in _METRICS.items():
+                    v = float(row.get(m, -1.0) or -1.0)
+                    if v < cfg["lo"] or v > cfg["hi"]:
+                        continue   # metric absent/invalid this row - skip it only
+                    self._welford_add(buckets[bucket][m], v)
+                    folded = True
+                if folded:
+                    processed += 1
 
             with self._lock:
                 self._raw["buckets"]     = buckets
                 self._raw["last_ts"]     = max_ts
                 self._raw["last_update"] = time.time()
                 self._raw["version"]     = VERSION
+                # when did we first start observing this machine? (earliest
+                # snapshot ever folded — powers the "learning for X days" counter)
+                if processed and not self._raw.get("started_ts") and min_ts:
+                    self._raw["started_ts"] = min_ts
                 self._last_rebuild       = time.time()
 
             self._save_json()
@@ -428,14 +539,16 @@ class ThermalBaseline:
     # ── Internal helpers ──────────────────────────────────────────────────────
 
     def _query_db_since(self, last_ts: float) -> list[dict]:
-        """Load ts/cpu_temp/cpu_load/gpu_load for snapshots newer than last_ts."""
+        """Load every learnable signal for snapshots newer than last_ts.
+        No cpu_temp filter: we fold whatever is real per row (gpu_temp/cpu_load
+        exist even when cpu_temp is absent), each metric gated on its own."""
         try:
             con = sqlite3.connect(_DB_PATH, timeout=5)
             con.row_factory = sqlite3.Row
             rows = con.execute(
-                "SELECT ts, cpu_temp, cpu_load, gpu_load "
+                "SELECT ts, cpu_temp, gpu_temp, cpu_load, gpu_load "
                 "FROM deepmonitor_snapshots "
-                "WHERE ts > ? AND cpu_temp > 0 "
+                "WHERE ts > ? "
                 "ORDER BY ts",
                 (last_ts,),
             ).fetchall()

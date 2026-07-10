@@ -57,6 +57,13 @@ from dataclasses import dataclass
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 def _base_dir() -> str:
+    # Single source of truth: utils.paths is MSIX-aware (Store installs are
+    # read-only next to the exe -> APP_DIR = %LOCALAPPDATA%\PC_Workman_HCK).
+    try:
+        from utils.paths import APP_DIR
+        return APP_DIR
+    except Exception:
+        pass
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
     return os.path.normpath(
