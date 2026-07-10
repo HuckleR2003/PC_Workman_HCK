@@ -64,10 +64,12 @@ _GEN_TEXT  = "#fae8ff"   # light lavender text
 _GEN_SEP   = "#3b0764"   # dark violet separator
 _GEN_BADGE = "#3b0764"   # badge background
 
-_SETTINGS_FILE = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "settings", "app_settings.json"
-)
+try:
+    # MSIX/Store-safe: the app dir next to the exe is read-only there
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:
+    _APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+_SETTINGS_FILE = os.path.join(_APP_DIR, "settings", "app_settings.json")
 
 # ── Persistence ───────────────────────────────────────────────────────────────
 
@@ -960,6 +962,115 @@ class SettingsPage:
             bg=BG, border=BD,
         )
 
+        # ── 3a. Run as administrator (asks via UAC at next launch) ────────────
+        as_admin = self._settings.get("run_as_admin", False)
+
+        def _on_admin(v):
+            self._settings["run_as_admin"] = v
+            _save_settings(self._settings)
+
+        _setting_row(
+            card,
+            _t("settings.general.admin_label", default="Uruchamiaj jako administrator"),
+            _t("settings.general.admin_desc",
+               default="Przy starcie poproś o podniesienie uprawnień (UAC). "
+                       "Potrzebne dla wpisów HKLM, niektórych usług i planów zasilania. "
+                       "Nie dotyczy instalacji z Microsoft Store."),
+            right_widget_factory=lambda r: _ToggleSquare(r, as_admin, _on_admin, bg=BG),
+            separator=True,
+            bg=BG, border=BD,
+        )
+
+        # ── 3b. Create desktop shortcut ───────────────────────────────────────
+        # Store/MSIX installs live in WindowsApps where users can't right-click
+        # -> "create shortcut", so we do it for them. Works for the ZIP .exe and
+        # dev runs too. MSIX needs the AUMID link (shell:AppsFolder\PFN!AppId).
+        def _create_desktop_shortcut() -> bool:
+            import sys, subprocess
+            # Real Desktop path (handles OneDrive-redirected desktops)
+            desktop = ""
+            try:
+                import winreg as _wr
+                k = _wr.OpenKey(_wr.HKEY_CURRENT_USER,
+                                r"Software\Microsoft\Windows\CurrentVersion"
+                                r"\Explorer\User Shell Folders")
+                desktop = os.path.expandvars(_wr.QueryValueEx(k, "Desktop")[0])
+                _wr.CloseKey(k)
+            except Exception:
+                pass
+            if not desktop or not os.path.isdir(desktop):
+                desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+
+            lnk = os.path.join(desktop, "PC Workman.lnk")
+            exe = sys.executable
+            if "windowsapps" in exe.lower():
+                # Microsoft Store install — launch via the app's AUMID
+                target = os.path.join(os.environ.get("WINDIR", r"C:\Windows"),
+                                      "explorer.exe")
+                args = (r"shell:AppsFolder\MarcinHCKFirmuga.PCWorkman"
+                        r"_4hekbcs2ddfbc!PCWorkmanHCK")
+            elif getattr(sys, "frozen", False):
+                target, args = exe, ""                      # portable .exe
+            else:
+                target = exe                                # dev: python + script
+                args = f'"{os.path.abspath(sys.argv[0])}"'
+
+            def _q(s):   # single-quote for PowerShell ('' escapes ')
+                return s.replace("'", "''")
+
+            ps = (f"$w=New-Object -ComObject WScript.Shell;"
+                  f"$s=$w.CreateShortcut('{_q(lnk)}');"
+                  f"$s.TargetPath='{_q(target)}';"
+                  + (f"$s.Arguments='{_q(args)}';" if args else "")
+                  + f"$s.IconLocation='{_q(exe)},0';$s.Save()")
+            try:
+                r = subprocess.run(
+                    ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                    capture_output=True, timeout=20,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                return r.returncode == 0 and os.path.isfile(lnk)
+            except Exception:
+                return False
+
+        def _build_shortcut_btn(row):
+            btn = tk.Label(
+                row, text=_t("settings.general.shortcut_btn", default="Utwórz"),
+                font=(_MONO, 8, "bold"),
+                bg="#001a2e", fg="#38bdf8",
+                padx=10, pady=5, cursor="hand2",
+                relief="flat", highlightthickness=1,
+                highlightbackground="#0369a1",
+            )
+            btn.pack(side="right", padx=(8, 0))
+
+            def _do(_=None):
+                ok = _create_desktop_shortcut()
+                if ok:
+                    btn.config(text=_t("settings.general.shortcut_done",
+                                       default="✓ Skrót na pulpicie"),
+                               fg="#10b981", highlightbackground="#10b981")
+                else:
+                    btn.config(text=_t("settings.general.shortcut_fail",
+                                       default="Nie udało się"),
+                               fg="#f43f5e", highlightbackground="#be123c")
+                btn.after(2600, lambda: btn.config(
+                    text=_t("settings.general.shortcut_btn", default="Utwórz"),
+                    fg="#38bdf8", highlightbackground="#0369a1"))
+
+            btn.bind("<Button-1>", _do)
+            return btn
+
+        _setting_row(
+            card,
+            _t("settings.general.shortcut_label", default="Skrót na pulpicie"),
+            _t("settings.general.shortcut_desc",
+               default="Utwórz klasyczny skrót do PC Workmana na pulpicie "
+                       "(działa też dla instalacji z Microsoft Store)."),
+            right_widget_factory=_build_shortcut_btn,
+            separator=True,
+            bg=BG, border=BD,
+        )
+
         # ── 4. Auto-hide sidebar ──────────────────────────────────────────────
         auto_hide = self._settings.get("sidebar_auto_hide", False)
 
@@ -1025,7 +1136,7 @@ class SettingsPage:
         tk.Label(
             left_d, text=_t("settings.general.debug_desc"),
             font=(_BODY, 7),
-            bg="#140006", fg="#6b1a2a", anchor="w",
+            bg="#140006", fg="#a84a5e", anchor="w",
         ).pack(anchor="w")
 
         btn_dbg = tk.Label(
@@ -1127,7 +1238,7 @@ class SettingsPage:
         tk.Label(
             title_row, text=f" 🔒 {_t('settings.hck_gpt.ollama_badge_locked')} ",
             font=(_BODY, 7, "bold"),
-            bg="#1f2937", fg="#4b5563",
+            bg="#1f2937", fg="#8593a8",
             padx=5, pady=1,
         ).pack(side="left", padx=(4, 0))
 
