@@ -113,7 +113,7 @@ def _build_file_integrity_panel(parent):
             size = os.path.getsize(full_path)
             size_str = f"{size:,}B" if size < 10000 else f"{size//1024}KB"
             tk.Label(row, text=size_str, font=(_MONO, 6),
-                     bg=PANEL, fg="#475569").pack(side="right", padx=4)
+                     bg=PANEL, fg="#74839a").pack(side="right", padx=4)
 
 
 def _build_log_viewer_panel(parent):

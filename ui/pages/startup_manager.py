@@ -69,14 +69,24 @@ _SRC_COLOR = {
     "TASK":         "#5a3a1a",
     "UWP":          "#1a3a5a",
 }
+# Human labels — users kept asking what "HKCU / HKLM / Task" means
 _SRC_LABEL = {
-    "HKCU":         "HKCU",
-    "HKLM":         "HKLM",
-    "HKLM32":       "HKLM32",
-    "STARTUP_USER": "📁 User",
-    "STARTUP_SYS":  "📁 Sys",
-    "TASK":         "⏰ Task",
+    "HKCU":         "👤 Twoje konto",
+    "HKLM":         "🖥 Wszyscy",
+    "HKLM32":       "🖥 Wszyscy (32)",
+    "STARTUP_USER": "📁 Autostart",
+    "STARTUP_SYS":  "📁 Autostart sys",
+    "TASK":         "⏰ Harmonogram",
     "UWP":          "⊞ Store",
+}
+_SRC_HINT = {
+    "HKCU":         "Wpis rejestru — startuje tylko dla Twojego konta (HKCU\\...\\Run)",
+    "HKLM":         "Wpis rejestru — startuje dla wszystkich użytkowników (HKLM\\...\\Run)",
+    "HKLM32":       "Wpis rejestru 32-bit — dla wszystkich użytkowników (WOW6432Node)",
+    "STARTUP_USER": "Skrót w folderze Autostart Twojego konta",
+    "STARTUP_SYS":  "Skrót w folderze Autostart wszystkich użytkowników",
+    "TASK":         "Zadanie Harmonogramu zadań Windows (logon/boot)",
+    "UWP":          "Aplikacja z Microsoft Store z zadaniem startowym",
 }
 
 # Exe fragments that warrant a critical warning before disabling
@@ -188,6 +198,7 @@ def _read_startup_entries() -> list[dict]:
 
     # ── Registry Run keys ─────────────────────────────────────────────────────
     for hive, path, hive_label in _REG_PATHS:
+        sa_state = _read_startup_approved(hive_label)   # Task-Manager on/off flags
         try:
             key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
         except OSError:
@@ -205,7 +216,10 @@ def _read_startup_entries() -> list[dict]:
             impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
             entries.append({"id": kid, "name": name, "value": value, "exe": exe,
                             "hive": hive_label, "hive_const": hive, "reg_path": path,
-                            "impact": impact, "rec": rec, "desc": desc})
+                            "impact": impact, "rec": rec, "desc": desc,
+                            # real Windows state: False if disabled via StartupApproved
+                            # (by us OR by Task Manager) — was invisible before
+                            "_enabled": sa_state.get(name.lower(), True)})
         winreg.CloseKey(key)
 
     # ── Startup folders (.lnk shortcuts) ──────────────────────────────────────
@@ -313,6 +327,62 @@ def _restore_startup_entry(hive_const, path: str, name: str, value: str) -> bool
         key = winreg.OpenKey(hive_const, path, 0,
                              winreg.KEY_SET_VALUE | winreg.KEY_CREATE_SUB_KEY)
         winreg.SetValueEx(key, name, 0, winreg.REG_SZ, value)
+        winreg.CloseKey(key)
+        return True
+    except OSError:
+        return False
+
+
+# ── StartupApproved — the Task-Manager way of disabling a Run entry ────────────
+# Deleting a Run value doesn't stick: apps like OneDrive or Advanced SystemCare
+# simply re-create it on their next launch. Task Manager instead writes a flag in
+# ...\Explorer\StartupApproved\Run — Windows then SKIPS the Run entry at logon
+# even if the app re-adds it. We disable the same way, so it finally sticks.
+# Binary format: 12 bytes; first byte even (0x02) = enabled, odd (0x03) = disabled.
+
+_SA_MAP = {
+    "HKCU":   (winreg.HKEY_CURRENT_USER  if _HAS_WINREG else None,
+               r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"),
+    "HKLM":   (winreg.HKEY_LOCAL_MACHINE if _HAS_WINREG else None,
+               r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"),
+    "HKLM32": (winreg.HKEY_LOCAL_MACHINE if _HAS_WINREG else None,
+               r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32"),
+} if _HAS_WINREG else {}
+
+
+def _read_startup_approved(hive_label: str) -> dict:
+    """Return {value_name_lower: enabled_bool} from StartupApproved for a hive."""
+    out = {}
+    info = _SA_MAP.get(hive_label)
+    if not info or not _HAS_WINREG:
+        return out
+    try:
+        key = winreg.OpenKey(info[0], info[1], 0, winreg.KEY_READ)
+    except OSError:
+        return out
+    i = 0
+    while True:
+        try:
+            name, data, _t = winreg.EnumValue(key, i); i += 1
+        except OSError:
+            break
+        try:
+            out[name.lower()] = not (data and data[0] % 2 == 1)   # odd = disabled
+        except Exception:
+            pass
+    winreg.CloseKey(key)
+    return out
+
+
+def _set_startup_approved(hive_label: str, name: str, enable: bool) -> bool:
+    """Write the Task-Manager style enable/disable flag for a Run entry."""
+    info = _SA_MAP.get(hive_label)
+    if not info or not _HAS_WINREG:
+        return False
+    data = bytes([2 if enable else 3] + [0] * 11)
+    try:
+        key = winreg.CreateKeyEx(info[0], info[1], 0, winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, name, 0, winreg.REG_BINARY, data)
         winreg.CloseKey(key)
         return True
     except OSError:
@@ -615,15 +685,19 @@ def _compact_row(parent, entry: dict, prefs: dict,
                  bg="#052e16", fg="#22c55e",
                  padx=4, pady=1).pack(side="right", padx=(0, 4))
 
-    # Source badge — where this entry comes from (HKCU / HKLM / 📁)
+    # Source badge — where this entry comes from (👤 / 🖥 / ⏰ / ⊞ / 📁)
     if show_on_badge and not is_dis:
         hive = entry.get("hive", "")
         src_col = _SRC_COLOR.get(hive, "#1a2530")
         src_txt = _SRC_LABEL.get(hive, hive[:6])
         if src_txt:
-            tk.Label(line1, text=src_txt,
-                     font=(_F, 7), bg=src_col, fg="#6a8aaa",
-                     padx=3, pady=1).pack(side="right", padx=(0, 3))
+            src_badge = tk.Label(line1, text=src_txt,
+                                 font=(_F, 7), bg=src_col, fg="#6a8aaa",
+                                 padx=3, pady=1)
+            src_badge.pack(side="right", padx=(0, 3))
+            hint = _SRC_HINT.get(hive)
+            if hint:
+                _Tooltip(src_badge, hint)
 
     # Line 2: exe
     exe_lbl = tk.Label(body,
@@ -669,78 +743,9 @@ def _compact_row(parent, entry: dict, prefs: dict,
     return row, sep
 
 
-# ── Drawer helpers ────────────────────────────────────────────────────────────
-
-DRAWER_H = 100   # drawer height in pixels when visible
-
-
-def _build_drawer_content(drawer: tk.Frame, queue: list[dict],
-                          on_confirm, on_back):
-    """Rebuild drawer content from queue list."""
-    for w in drawer.winfo_children():
-        w.destroy()
-
-    # Top bordeau line
-    tk.Frame(drawer, bg=BORDEAU, height=1).pack(fill="x")
-
-    body = tk.Frame(drawer, bg=DRAWER_BG)
-    body.pack(fill="both", expand=True, padx=0, pady=0)
-
-    # ── Left: queue list ──────────────────────────────────────────────────────
-    left = tk.Frame(body, bg=DRAWER_BG)
-    left.pack(side="left", fill="both", expand=True, padx=(14, 6), pady=8)
-
-    has_critical = any(_is_critical(e["exe"]) for e in queue)
-
-    for e in queue:
-        crit = _is_critical(e["exe"])
-        col  = AMBER if crit else "#c8d8e8"
-        icon = "⚠ " if crit else "- "
-        tk.Label(left,
-                 text=f"{icon}WYŁĄCZ z Startup:  {e['name'][:32]}",
-                 font=(_F, 8), bg=DRAWER_BG, fg=col,
-                 anchor="w").pack(anchor="w")
-
-    if has_critical:
-        tk.Label(left,
-                 text="⚠  Uwaga: wykryto sterownik lub narzędzie systemowe - wyłącz z ostrożnością.",
-                 font=(_F, 7), bg=DRAWER_BG, fg=AMBER,
-                 anchor="w").pack(anchor="w", pady=(5, 0))
-
-    # ── Vertical bordeau separator ────────────────────────────────────────────
-    tk.Frame(body, bg=BORDEAU, width=1).pack(side="left", fill="y", pady=8)
-
-    # ── Right: action buttons ─────────────────────────────────────────────────
-    right = tk.Frame(body, bg=DRAWER_BG)
-    right.pack(side="left", padx=16, pady=0, fill="y")
-
-    # centre buttons vertically
-    spacer_top = tk.Frame(right, bg=DRAWER_BG)
-    spacer_top.pack(fill="y", expand=True)
-
-    confirm = tk.Label(right, text="Zatwierdź",
-                       font=(_F, 9, "bold"), fg=BORDEAU_LIGHT, bg=BORDEAU_MID,
-                       padx=14, pady=5, cursor="hand2")
-    confirm.pack()
-    confirm.bind("<Button-1>", lambda e: on_confirm())
-    confirm.bind("<Enter>",    lambda e: confirm.config(fg=TEXT))
-    confirm.bind("<Leave>",    lambda e: confirm.config(fg=BORDEAU_LIGHT))
-
-    tk.Frame(right, bg=BORDEAU, height=1).pack(fill="x", pady=5)
-
-    back = tk.Label(right, text="Wróć",
-                    font=(_F, 9), fg=SUB, bg=DRAWER_BG,
-                    padx=14, pady=3, cursor="hand2")
-    back.pack()
-    back.bind("<Button-1>", lambda e: on_back())
-    back.bind("<Enter>",    lambda e: back.config(fg=TEXT))
-    back.bind("<Leave>",    lambda e: back.config(fg=SUB))
-
-    spacer_bot = tk.Frame(right, bg=DRAWER_BG)
-    spacer_bot.pack(fill="y", expand=True)
-
-
 # ── Panel builders ────────────────────────────────────────────────────────────
+# (The old inline drawer lived here — replaced by the shared OperatorDrawer,
+#  the single confirm mechanism used across Startup and Services Manager.)
 
 def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
                                   prefs: dict, on_queue, queued_ids: set):
@@ -766,7 +771,7 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
                  text="To tutaj nie przegapisz potencjalnej złośliwej\n"
                       "aplikacji, która potajemnie chciała wejść\n"
                       "w działanie systemu przy starcie.",
-                 font=(_F, 8), bg=BG, fg="#2a4a5f",
+                 font=(_F, 8), bg=BG, fg="#6f86a3",
                  justify="left", anchor="w").pack(anchor="w")
         return
 
@@ -779,8 +784,7 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
 
 
 def _build_all_active_panel(parent: tk.Frame, active: list[dict],
-                             prefs: dict, on_queue, queued_ids: set,
-                             on_toggle=None):
+                             prefs: dict, on_queue, queued_ids: set):
     """Right panel — ALL active startup entries with ON badge + source indicator.
     Shows everything that starts with Windows (registry + startup folders).
     Subtly styled — secondary info, all clickable to queue for disable.
@@ -816,8 +820,8 @@ def _build_all_active_panel(parent: tk.Frame, active: list[dict],
 
     for e in active:
         if e.get("_task") or e.get("_uwp"):
-            # Scheduled task / Store app — inline on/off toggle
-            _actionable_row(inner, e, on_toggle, running_set=_running)
+            # Scheduled task / Store app — same click-to-queue as registry rows
+            _actionable_row(inner, e, on_queue, queued_ids, running_set=_running)
         elif e.get("_folder"):
             # Startup folder shortcut — managed via Explorer (read-only)
             _folder_row(inner, e, prefs, running_set=_running)
@@ -883,54 +887,61 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
     tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
 
 
-def _actionable_row(parent: tk.Frame, entry: dict, on_toggle, running_set: set = None):
-    """Row for a scheduled task / UWP startup item with an inline on/off toggle.
-    Unlike registry rows (queue + confirm), these flip state directly."""
+def _actionable_row(parent: tk.Frame, entry: dict, on_queue, queued_ids: set,
+                    running_set: set = None):
+    """Row for a scheduled task / UWP startup item. Click-to-queue, exactly like
+    registry rows — ONE confirm mechanism (the bottom operator drawer) for all."""
     name    = entry["name"]
     exe     = entry.get("exe") or "-"
     hive    = entry.get("hive", "")
     enabled = entry.get("_enabled", True)
+    in_q    = entry["id"] in queued_ids
     accent  = "#5a3a1a" if entry.get("_task") else "#1d3a5a"
+    row_bg  = QUEUED_BG if in_q else SURFACE
 
-    row = tk.Frame(parent, bg=SURFACE)
+    row = tk.Frame(parent, bg=row_bg, cursor="hand2")
     row.pack(fill="x")
-    bar = tk.Frame(row, bg=accent, width=2)
+    bar = tk.Frame(row, bg=BORDEAU if in_q else accent, width=2)
     bar.pack(side="left", fill="y")
     bar.pack_propagate(False)
 
-    body = tk.Frame(row, bg=SURFACE)
+    body = tk.Frame(row, bg=row_bg)
     body.pack(side="left", fill="both", expand=True, padx=(7, 4), pady=(4, 3))
-    line1 = tk.Frame(body, bg=SURFACE)
+    line1 = tk.Frame(body, bg=row_bg)
     line1.pack(fill="x")
 
-    tk.Label(line1, text=name[:30] + ("…" if len(name) > 30 else ""),
-             font=(_F, 9, "bold"), bg=SURFACE, fg=TEXT if enabled else MUTED,
-             anchor="w").pack(side="left")
+    name_l = tk.Label(line1, text=name[:30] + ("…" if len(name) > 30 else ""),
+                      font=(_F, 9, "bold"), bg=row_bg,
+                      fg=BORDEAU_LIGHT if in_q else (TEXT if enabled else MUTED),
+                      anchor="w")
+    name_l.pack(side="left")
     if running_set is not None and exe.lower() in running_set:
         tk.Label(line1, text="● ACTIVE NOW", font=(_F, 7, "bold"),
                  bg="#052e16", fg="#22c55e", padx=4, pady=1).pack(side="left", padx=(4, 0))
 
-    # Inline toggle button (disable if on, enable if off)
-    btn = tk.Label(line1, text="Wyłącz" if enabled else "Włącz",
-                   font=(_F, 7, "bold"), cursor="hand2", padx=8, pady=2,
-                   bg="#1a1030" if enabled else "#08220f",
-                   fg="#c4b5fd" if enabled else "#86efac")
-    btn.pack(side="right", padx=(0, 4))
-    if on_toggle:
-        btn.bind("<Button-1>", lambda e, en=entry: on_toggle(en, not enabled))
+    if in_q:
+        tk.Label(line1, text="✓ w kolejce", font=(_F, 7, "bold"),
+                 bg=row_bg, fg=BORDEAU_LIGHT, padx=4).pack(side="right", padx=(0, 4))
 
     tk.Label(line1, text="ON" if enabled else "OFF", font=(_F, 7, "bold"),
-             bg="#052e16" if enabled else SURFACE, fg="#22c55e" if enabled else MUTED,
+             bg="#052e16" if enabled else row_bg, fg="#22c55e" if enabled else MUTED,
              padx=4, pady=1).pack(side="right", padx=(0, 4))
     tk.Label(line1, text=_SRC_LABEL.get(hive, hive), font=(_F, 7),
              bg=_SRC_COLOR.get(hive, "#1a2530"), fg="#8aa0bc",
              padx=3, pady=1).pack(side="right", padx=(0, 3))
 
-    tk.Label(body, text=exe[:34], font=(_F, 7), bg=SURFACE, fg=MUTED,
-             anchor="w").pack(anchor="w")
+    exe_l = tk.Label(body, text=exe[:34], font=(_F, 7), bg=row_bg, fg=MUTED,
+                     anchor="w")
+    exe_l.pack(anchor="w")
 
-    kind = "Scheduled task" if entry.get("_task") else "Microsoft Store app"
-    _Tooltip(row, f"{kind} — toggled directly (reversible).\n{entry.get('reg_path','')}")
+    kind = "Zadanie Harmonogramu (⏰)" if entry.get("_task") else "Aplikacja Microsoft Store (⊞)"
+    _Tooltip(row, f"{kind} — kliknij, aby dodać do wyłączenia.\n"
+                  f"W pełni odwracalne w zakładce Disabled.\n{entry.get('reg_path','')}")
+
+    def _click(e, _entry=entry):
+        on_queue(_entry)
+    for w in (row, body, line1, name_l, exe_l):
+        w.bind("<Button-1>", _click)
     tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
 
 
@@ -1004,20 +1015,29 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                     r.destroy()
                     on_restore_done()
                     return
-                # Write entry back to registry so Windows actually starts it again
+                # Registry entry: reverse whichever mechanism disabled it.
+                pdata  = prefs.get(entry["id"], {})
+                method = pdata.get("method", "deleted")
+                sa_off = not entry.get("_enabled", True)   # StartupApproved says OFF
                 hc  = entry.get("hive_const")
                 rp  = entry.get("reg_path", "")
                 val = entry.get("value", "")
-                if hc and rp and val:
+                ok  = True
+                if sa_off or method == "startupapproved":
+                    # Flip the Task-Manager flag back to enabled (works even for
+                    # entries disabled in Task Manager itself, not by us)
+                    ok = _set_startup_approved(entry.get("hive", ""), entry["name"], True)
+                elif hc and rp and val:
+                    # Old delete method — write the Run value back
                     ok = _restore_startup_entry(hc, rp, entry["name"], val)
-                    if not ok:
-                        import tkinter.messagebox as _mb
-                        _mb.showerror(
-                            "Nie udało się przywrócić",
-                            f"Nie można wpisać '{entry['name']}' z powrotem do rejestru.\n"
-                            "Uruchom PC Workman jako Administrator."
-                        )
-                        return
+                if not ok:
+                    import tkinter.messagebox as _mb
+                    _mb.showerror(
+                        "Nie udało się przywrócić",
+                        f"Nie można przywrócić '{entry['name']}'.\n"
+                        "Uruchom PC Workman jako Administrator."
+                    )
+                    return
                 # Remove from prefs entirely — entry will appear as active next scan
                 prefs.pop(entry["id"], None)
                 _save_prefs(prefs)
@@ -1077,9 +1097,12 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     def _get_derived():
         def _is_on(e):
             # Task / UWP entries carry their real on/off state from the system;
-            # registry & folder entries use the app's prefs (disabled-by-user).
+            # registry entries combine the StartupApproved flag (real Windows state,
+            # set by us or Task Manager) with the app's prefs (old delete method).
             if e.get("_task") or e.get("_uwp"):
                 return e.get("_enabled", True)
+            if not e.get("_enabled", True):
+                return False
             return prefs.get(e["id"], {}).get("status", "active") == "active"
 
         active  = [e for e in entries if _is_on(e)]
@@ -1115,9 +1138,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     active, flagged, disabled = _get_derived()
     n_high = len([e for e in entries if e["impact"] == "high"])
 
-    # Queue state (shared mutable)
-    queue:      list[dict] = []
-    queued_ids: set        = set()
+    # Queue state — the OperatorDrawer owns the queue; this set only mirrors it
+    # so rows can paint their "queued" tint.
+    queued_ids: set = set()
 
     # ── Page layout (grid: 0=header, 1=content, 2=drawer) ────────────────────
     page.grid_rowconfigure(0, weight=0)
@@ -1153,12 +1176,12 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     _nav_cb = getattr(host, "_switch_to_page", None) if host else None
     if _nav_cb:
         _back_sm = tk.Label(title_row, text="‹ Dashboard",
-                            font=(_F, 7), bg=BG, fg="#2d3d56",
+                            font=(_F, 7), bg=BG, fg="#6f86a3",
                             cursor="hand2", padx=8)
         _back_sm.pack(side="right", fill="y")
         _back_sm.bind("<Button-1>", lambda e: _nav_cb("dashboard"))
         _back_sm.bind("<Enter>", lambda e: _back_sm.config(fg="#8b5cf6"))
-        _back_sm.bind("<Leave>", lambda e: _back_sm.config(fg="#2d3d56"))
+        _back_sm.bind("<Leave>", lambda e: _back_sm.config(fg="#6f86a3"))
 
     chips_row = tk.Frame(title_row, bg=BG)
     chips_row.pack(side="right", fill="y")
@@ -1225,23 +1248,6 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
         # Re-run render with fresh entries (host propagated from outer _render scope)
         _render(page, new_entries, prefs, host=host)
 
-    def _on_toggle_startup(entry, enable):
-        """Flip a scheduled-task / UWP startup item on or off, then refresh."""
-        if entry.get("_task"):
-            ok = _set_task_enabled(entry["reg_path"], enable)
-        elif entry.get("_uwp"):
-            ok = _set_uwp_enabled(entry["reg_path"], enable)
-        else:
-            ok = False
-        if not ok:
-            messagebox.showerror(
-                "Nie udało się",
-                f"Nie można zmienić '{entry['name']}'.\n"
-                "Niektóre zadania wymagają uprawnień Administratora."
-            )
-            return
-        _full_refresh()
-
     # Two tabs only: Startup Menu + Disabled
     for key, lbl, col in [
         ("split",    f"Startup Menu  {len(active)}",  TEXT),
@@ -1256,100 +1262,90 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     # ── Banner ────────────────────────────────────────────────────────────────
     banner = tk.Frame(header_block, bg=BANNER_BG)
     banner.pack(fill="x", padx=0, pady=(4, 0))
-    tk.Label(banner, text="  Click a process to disable on Startup",
+    tk.Label(banner,
+             text="  Kliknij wpis, aby dodać do wyłączenia   ·   "
+                  "👤 Twoje konto  ·  🖥 wszyscy użytkownicy  ·  "
+                  "⏰ Harmonogram zadań  ·  ⊞ aplikacja Store",
              font=(_F, 8), bg=BANNER_BG, fg="#5a7a96",
              anchor="w", pady=4).pack(fill="x", padx=16)
 
-    # ── Row 2: Confirmation drawer (initially 0 height) ───────────────────────
-    drawer_outer = tk.Frame(page, bg=DRAWER_BG, height=0)
-    drawer_outer.grid(row=2, column=0, sticky="ew")
-    drawer_outer.grid_propagate(False)
+    # ── Row 2: shared operator drawer (ONE confirm mechanism for everything) ──
+    from ui.components.operator_drawer import OperatorDrawer
 
-    # ── Queue management ──────────────────────────────────────────────────────
-
-    def _show_drawer():
-        drawer_outer.config(height=DRAWER_H)
-        _build_drawer_content(drawer_outer, queue, _on_confirm, _on_back)
-
-    def _hide_drawer():
-        drawer_outer.config(height=0)
-        for w in drawer_outer.winfo_children():
-            w.destroy()
-
-    def _on_queue(entry: dict):
-        eid = entry["id"]
-        if eid in queued_ids:
-            # Toggle off
-            queued_ids.discard(eid)
-            queue[:] = [e for e in queue if e["id"] != eid]
+    def _disable_entry(e) -> bool:
+        """Disable one queued entry, dispatching on its source type."""
+        if e.get("_task"):
+            return _set_task_enabled(e["reg_path"], False)
+        if e.get("_uwp"):
+            return _set_uwp_enabled(e["reg_path"], False)
+        # Registry Run entry — StartupApproved flag first (Task-Manager style:
+        # survives the app re-creating its Run key, e.g. OneDrive / ASC).
+        if _set_startup_approved(e.get("hive", ""), e["name"], False):
+            method = "startupapproved"
+        elif _delete_startup_entry(e["hive_const"], e["reg_path"], e["name"]):
+            method = "deleted"                      # legacy fallback
         else:
-            queued_ids.add(eid)
-            queue.append(entry)
+            return False
+        from datetime import datetime as _dt
+        prefs.setdefault(e["id"], {}).update({
+            "status":      "disabled",
+            "method":      method,
+            "name":        e["name"],
+            "value":       e.get("value", ""),
+            "exe":         e.get("exe", ""),
+            "hive":        e.get("hive", "HKCU"),
+            "impact":      e.get("impact", "low"),
+            "desc":        e.get("desc", ""),
+            "disabled_by": "UŻYTKOWNIK",
+            "disabled_at": _dt.now().strftime("%Y-%m-%d %H:%M"),
+        })
+        return True
 
-        if queue:
-            _show_drawer()
-        else:
-            _hide_drawer()
-
-        # Refresh current content to update visual state
-        _switch_view(_view.get())
-
-    def _on_confirm():
-        if not queue:
-            _hide_drawer()
+    def _apply_queue(items: list):
+        if not items:
             return
-
-        # Build confirmation message
-        names_str = "\n".join(f"  • {e['name']}" for e in queue[:8])
-        has_crit  = any(_is_critical(e["exe"]) for e in queue)
-        extra     = "\n\n⚠ Jeden z procesów wygląda jak sterownik/narzędzie systemowe.\nWyłącz tylko jeśli jesteś pewien." if has_crit else ""
-        msg = (f"Wyłączyć ze startu {len(queue)} {'wpis' if len(queue)==1 else 'wpisów'}?\n\n"
+        names_str = "\n".join(f"  • {it['label']}" for it in items[:8])
+        has_crit  = any(it.get("warn") for it in items)
+        extra     = ("\n\n⚠ Jeden z procesów wygląda jak sterownik/narzędzie systemowe."
+                     "\nWyłącz tylko jeśli jesteś pewien." if has_crit else "")
+        msg = (f"Wyłączyć ze startu {len(items)} {'wpis' if len(items)==1 else 'wpisów'}?\n\n"
                f"{names_str}{extra}\n\nZmiany wejdą w życie po ponownym uruchomieniu.")
-
-        ans = messagebox.askyesno("Potwierdź wyłączenie", msg, icon="warning")
-        if not ans:
+        if not messagebox.askyesno("Potwierdź wyłączenie", msg, icon="warning"):
             return
 
         failed = []
-        for e in list(queue):
-            ok = _delete_startup_entry(e["hive_const"], e["reg_path"], e["name"])
-            if ok:
-                # Save full entry data so we can show it in Disabled tab
-                # and restore it to registry later even if it's no longer there
-                from datetime import datetime as _dt
-                prefs.setdefault(e["id"], {}).update({
-                    "status":      "disabled",
-                    "name":        e["name"],
-                    "value":       e.get("value", ""),
-                    "exe":         e.get("exe", ""),
-                    "hive":        e.get("hive", "HKCU"),
-                    "impact":      e.get("impact", "low"),
-                    "desc":        e.get("desc", ""),
-                    "disabled_by": "UŻYTKOWNIK",
-                    "disabled_at": _dt.now().strftime("%Y-%m-%d %H:%M"),
-                })
-            else:
-                failed.append(e["name"])
+        for it in items:
+            if not _disable_entry(it["payload"]):
+                failed.append(it["label"])
 
         _save_prefs(prefs)
-        queue.clear()
         queued_ids.clear()
-        _hide_drawer()
+        drawer.clear()
 
         if failed:
             messagebox.showerror(
                 "Część operacji nie powiodła się",
-                "Nie udało się usunąć:\n" + "\n".join(f"  • {n}" for n in failed) +
+                "Nie udało się wyłączyć:\n" + "\n".join(f"  • {n}" for n in failed) +
                 "\n\nUruchom PC Workman jako Administrator."
             )
+        _full_refresh()
 
-        _switch_view(_view.get())
-
-    def _on_back():
-        queue.clear()
+    def _sync_rows():
+        # Keep row tint in sync with the drawer queue (Wróć clears everything)
         queued_ids.clear()
-        _hide_drawer()
+        queued_ids.update(it["id"] for it in drawer.items())
         _switch_view(_view.get())
+
+    drawer = OperatorDrawer(page, grid_row=2,
+                            on_confirm=_apply_queue, on_change=_sync_rows)
+
+    def _on_queue(entry: dict):
+        drawer.toggle({
+            "id":      entry["id"],
+            "label":   entry["name"],
+            "warn":    _is_critical(entry.get("exe", "")),
+            "payload": entry,
+        })
 
     # ── Split view builder ────────────────────────────────────────────────────
 
@@ -1371,8 +1367,7 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
         active_now, fl, _ = _get_derived()
         _build_needs_attention_panel(left_panel, fl, prefs, _on_queue, queued_ids)
-        _build_all_active_panel(right_panel, active_now, prefs, _on_queue, queued_ids,
-                                on_toggle=_on_toggle_startup)
+        _build_all_active_panel(right_panel, active_now, prefs, _on_queue, queued_ids)
 
     # ── Initial content render ────────────────────────────────────────────────
     cf_init = tk.Frame(page, bg=BG)
