@@ -64,7 +64,7 @@ class MainWindow:
         # mainloop only services one). `master` is the Expanded root; tk.Tk() stays
         # only as a fallback for a hypothetical standalone launch.
         self.root = tk.Toplevel(master) if master is not None else tk.Tk()
-        self.root.title("PC Workman – HCK_Labs v1.8.0")
+        self.root.title("PC Workman – HCK_Labs v1.8.1")
         self.root.configure(bg=THEME["bg_main"])
 
         # Window settings
@@ -1462,12 +1462,12 @@ class MainWindow:
             import subprocess
             # Get total services count
             result = subprocess.run(['sc', 'query', 'type=', 'service', 'state=', 'all'],
-                                  capture_output=True, text=True, timeout=2)
+                                  capture_output=True, text=True, errors="replace", timeout=2)
             total = result.stdout.count('SERVICE_NAME:')
 
             # Get active services count
             result_active = subprocess.run(['sc', 'query', 'type=', 'service'],
-                                         capture_output=True, text=True, timeout=2)
+                                         capture_output=True, text=True, errors="replace", timeout=2)
             active = result_active.stdout.count('SERVICE_NAME:')
 
             self.opt_services_label.config(text=f"Services active: {active}/{total}")
