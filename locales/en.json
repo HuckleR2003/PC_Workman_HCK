@@ -123,7 +123,14 @@
       "debug_dialog_prompt": "Authorization key:",
       "debug_denied": "⛔  Access denied — invalid authorization key",
       "debug_cancel": "Cancel",
-      "debug_unlock": "Unlock  🔓"
+      "debug_unlock": "Unlock  🔓",
+      "shortcut_label": "Desktop shortcut",
+      "shortcut_desc": "Create a classic PC Workman shortcut on your desktop (works for Microsoft Store installs too).",
+      "shortcut_btn": "Create",
+      "shortcut_done": "✓ Shortcut created",
+      "shortcut_fail": "Failed",
+      "admin_label": "Run as administrator",
+      "admin_desc": "Ask for elevation (UAC) at startup. Needed for HKLM startup entries, some services and power plans. Does not apply to Microsoft Store installs."
     },
     "turbo": {
       "threshold_label": "Guard idle threshold",
@@ -252,26 +259,80 @@
     "btn_run": "RUN",
     "btn_view": "VIEW",
     "quick_actions": {
-      "startup":  { "label": "Startup Apps",       "sub": "Manager" },
-      "services": { "label": "Services",           "sub": "Manager" },
-      "defrag":   { "label": "Disk",               "sub": "Defragmenter" },
-      "report":   { "label": "Weekly Performance", "sub": "Report" }
+      "startup": {
+        "label": "Startup Apps",
+        "sub": "Manager"
+      },
+      "services": {
+        "label": "Services",
+        "sub": "Manager"
+      },
+      "defrag": {
+        "label": "Disk",
+        "sub": "Defragmenter"
+      },
+      "report": {
+        "label": "Weekly Performance",
+        "sub": "Report"
+      }
     },
     "features": {
-      "ram_flush":       { "title": "Auto RAM Flush",        "desc": "Free working-set memory when usage is high" },
-      "turbo_pp":        { "title": "Turbo Power Plan",      "desc": "Auto-switch to custom 'Turbo PC' plan on demand" },
-      "turbo_svc":       { "title": "TURBO Service Stop",    "desc": "Kill non-essential services by profile" },
-      "proc_guard":      { "title": "Process Guard",         "desc": "Suspend idle background processes" },
-      "app_hibernation": { "title": "App Hibernation",       "desc": "Suspend apps idle for X minutes" },
-      "cpu_throttle":    { "title": "CPU Throttle Guard",    "desc": "Prevent thermal throttling automatically" },
-      "browser_cache":   { "title": "Browser Cache Cleaner", "desc": "Periodically clear browser cache files" },
-      "bg_limiter":      { "title": "Background Limiter",    "desc": "Cap CPU for non-foreground processes" },
-      "net_reset":       { "title": "Network Adapter Reset", "desc": "Reset adapter stack on connectivity issues" },
-      "reg_clean":       { "title": "Registry Junk Cleaner", "desc": "Remove orphaned registry keys" },
-      "gpu_watchdog":    { "title": "GPU Driver Watchdog",   "desc": "Detect and restart hung GPU driver" },
-      "log_rotate":      { "title": "Log File Rotation",     "desc": "Auto-prune old log files to save disk space" },
-      "dns_nightly":     { "title": "DNS Auto-Flush",        "desc": "Nightly DNS cache flush on schedule" },
-      "fw_monitor":      { "title": "Firewall Health",       "desc": "Verify Windows Firewall is active and healthy" }
+      "ram_flush": {
+        "title": "Auto RAM Flush",
+        "desc": "Free working-set memory when usage is high"
+      },
+      "turbo_pp": {
+        "title": "Turbo Power Plan",
+        "desc": "Auto-switch to custom 'Turbo PC' plan on demand"
+      },
+      "turbo_svc": {
+        "title": "TURBO Service Stop",
+        "desc": "Kill non-essential services by profile"
+      },
+      "proc_guard": {
+        "title": "Process Guard",
+        "desc": "Suspend idle background processes"
+      },
+      "app_hibernation": {
+        "title": "App Hibernation",
+        "desc": "Suspend apps idle for X minutes"
+      },
+      "cpu_throttle": {
+        "title": "CPU Throttle Guard",
+        "desc": "Prevent thermal throttling automatically"
+      },
+      "browser_cache": {
+        "title": "Browser Cache Cleaner",
+        "desc": "Periodically clear browser cache files"
+      },
+      "bg_limiter": {
+        "title": "Background Limiter",
+        "desc": "Cap CPU for non-foreground processes"
+      },
+      "net_reset": {
+        "title": "Network Adapter Reset",
+        "desc": "Reset adapter stack on connectivity issues"
+      },
+      "reg_clean": {
+        "title": "Registry Junk Cleaner",
+        "desc": "Remove orphaned registry keys"
+      },
+      "gpu_watchdog": {
+        "title": "GPU Driver Watchdog",
+        "desc": "Detect and restart hung GPU driver"
+      },
+      "log_rotate": {
+        "title": "Log File Rotation",
+        "desc": "Auto-prune old log files to save disk space"
+      },
+      "dns_nightly": {
+        "title": "DNS Auto-Flush",
+        "desc": "Nightly DNS cache flush on schedule"
+      },
+      "fw_monitor": {
+        "title": "Firewall Health",
+        "desc": "Verify Windows Firewall is active and healthy"
+      }
     }
   },
   "operator": {
@@ -279,7 +340,7 @@
     "empty": "Select items to add them to confirmation",
     "confirm": "Confirm",
     "back": "Back",
-        "details": "DETAILS",
+    "details": "DETAILS",
     "warn_critical": "⚠  A system component was detected — confirm with care."
   },
   "dashboard": {
