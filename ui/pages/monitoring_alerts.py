@@ -91,6 +91,14 @@ def build_monitoring_alerts_page(self, parent):
 
     def _wheel(event):
         try:
+            # Interactive charts (Temperature / Voltage-Load) zoom on the wheel
+            # via their own canvas binding. bind_all fires IN ADDITION to that
+            # widget binding, so without this guard the page scrolled while the
+            # chart zoomed - wheel felt broken over charts. If the widget under
+            # the cursor handles the wheel itself, leave it alone.
+            w = event.widget
+            if isinstance(w, tk.Canvas) and w.bind("<MouseWheel>"):
+                return
             if canvas.winfo_exists():
                 canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         except Exception:
@@ -148,24 +156,12 @@ def _build_page_header(parent):
 
     # Pack RIGHT items first so left block fills remaining space correctly
 
-    # ── Far right: health rings ───────────────────────────────────────────────
-    rings_size = 80
-    rings_cv = tk.Canvas(body, width=rings_size, height=rings_size,
+    # ── Far right: health score (arc gauge + labeled component bars) ─────────
+    rings_cv = tk.Canvas(body, width=214, height=84,
                          bg=PANEL, highlightthickness=0)
     rings_cv.pack(side="right", padx=(0, 10))
     score_ref = [90]
-    _draw_health_rings(rings_cv, rings_size, 90, 70, 55)
-
-    # ── Legend (left of rings) ────────────────────────────────────────────────
-    leg = tk.Frame(body, bg=PANEL)
-    leg.pack(side="right", padx=(0, 14), anchor="center")
-    for label, col in [("Thermal", TEMP_C), ("Memory", RAM_C), ("Load", LOAD_C)]:
-        r = tk.Frame(leg, bg=PANEL)
-        r.pack(anchor="e")
-        tk.Label(r, text="━", font=(_MONO, 8),
-                 bg=PANEL, fg=col).pack(side="left")
-        tk.Label(r, text=f" {label}", font=(_BODY, 8),
-                 bg=PANEL, fg=MUTED).pack(side="left")
+    _draw_health_rings(rings_cv, 84, 90, 70, 55)
 
     # ── Centre: HEALTH + ANOMALIES mini badges (stacked vertically) ──────────
     mid = tk.Frame(body, bg=PANEL)
@@ -232,35 +228,56 @@ def _build_page_header(parent):
 
 
 def _draw_health_rings(canvas, size, thermal, memory, load):
-    """Three concentric arc gauges drawn outer-to-inner."""
+    """Health score widget: one clean arc gauge (overall) + three labeled
+    component bars. Replaced the three concentric rings, which overlapped
+    into an unreadable blob at 80 px."""
     canvas.delete("all")
-    cx = cy = size // 2
+    W = canvas.winfo_width()
+    if W <= 1:
+        W = int(canvas["width"])
+    H = canvas.winfo_height()
+    if H <= 1:
+        H = int(canvas["height"])
 
-    rings = [
-        (thermal, TEMP_C,  cx - 6,  8),   # outer - thermal
-        (memory,  RAM_C,   cx - 14, 8),   # mid   - memory
-        (load,    LOAD_C,  cx - 22, 8),   # inner - load
-    ]
+    avg   = int(round((thermal + memory + load) / 3))
+    a_col = OK_C if avg >= 80 else WARN_C if avg >= 55 else CRIT_C
 
-    for score, col, r, thick in rings:
-        # Background arc (muted rail)
-        canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
-                          start=225, extent=-270,
-                          outline=DIM, width=thick, style="arc")
-        # Score arc
-        ext    = -(270 * max(0, min(100, score)) / 100)
-        s_col  = OK_C if score >= 80 else WARN_C if score >= 55 else CRIT_C
-        canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
-                          start=225, extent=ext,
-                          outline=s_col, width=thick, style="arc")
+    # ── Left: single arc gauge with the overall score ─────────────────────────
+    r  = 28
+    cx = 10 + r
+    cy = H // 2
+    canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
+                      start=225, extent=-270,
+                      outline="#1c2433", width=7, style="arc")
+    canvas.create_arc(cx - r, cy - r, cx + r, cy + r,
+                      start=225,
+                      extent=-(270 * max(0, min(100, avg)) / 100),
+                      outline=a_col, width=7, style="arc")
+    canvas.create_text(cx, cy - 3, text=str(avg),
+                       font=(_MONO, 15, "bold"), fill=a_col)
+    canvas.create_text(cx, cy + 15, text="SCORE",
+                       font=(_MONO, 6), fill=DIM)
 
-    # Centre score text
-    avg_score = int((thermal + memory + load) / 3)
-    s_col = OK_C if avg_score >= 80 else WARN_C if avg_score >= 55 else CRIT_C
-    canvas.create_text(cx, cy - 4, text=str(avg_score),
-                       font=(_MONO, 14, "bold"), fill=s_col)
-    canvas.create_text(cx, cy + 10, text="SCORE",
-                       font=(_MONO, 7), fill=DIM)
+    # ── Right: three labeled component bars ───────────────────────────────────
+    bx = cx + r + 16
+    bw = W - bx - 8
+    rows = [("Thermal", thermal, TEMP_C),
+            ("Memory",  memory,  RAM_C),
+            ("Load",    load,    LOAD_C)]
+    for i, (name, val, base_col) in enumerate(rows):
+        y = cy - 24 + i * 24
+        v = max(0, min(100, int(val)))
+        v_col = OK_C if v >= 80 else WARN_C if v >= 55 else CRIT_C
+        canvas.create_text(bx, y, text=name, anchor="w",
+                           font=(_BODY, 7), fill=MUTED)
+        canvas.create_text(W - 8, y, text=str(v), anchor="e",
+                           font=(_MONO, 8, "bold"), fill=v_col)
+        canvas.create_rectangle(bx, y + 6, bx + bw, y + 11,
+                                fill="#161c28", outline="")
+        fw = int(bw * v / 100)
+        if fw > 0:
+            canvas.create_rectangle(bx, y + 6, bx + fw, y + 11,
+                                    fill=base_col, outline="")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -618,13 +635,26 @@ def _build_learning_center(parent):
 
 
 def _lc_thermal(parent):
-    tk.Label(parent, text="THERMAL  ·  per workload", font=(_MONO, 7, "bold"),
-             bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
     if not _HAS_THERMAL_BL:
-        tk.Label(parent, text="thermal engine unavailable", font=(_BODY, 7),
+        tk.Label(parent, text="LEARNING  ·  per workload", font=(_MONO, 7, "bold"),
+                 bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
+        tk.Label(parent, text="learning engine unavailable", font=(_BODY, 7),
                  bg=PANEL, fg=MUTED).pack(anchor="w")
         return
-    status = _thermal_bl.training_status()
+    # The primary metric is whatever this machine can actually learn:
+    # CPU temp (needs LHM) -> GPU temp (NVIDIA) -> CPU load (always). So the bars
+    # fill for EVERYONE, not just users running LibreHardwareMonitor.
+    try:
+        pm   = _thermal_bl.primary_metric()
+        unit = _thermal_bl.metric_unit(pm)
+        head = _thermal_bl.metric_label(pm).upper()
+        avail = _thermal_bl.available_metrics()
+    except Exception:
+        pm, unit, head, avail = "cpu_temp", "°C", "CPU TEMP", []
+
+    tk.Label(parent, text=f"{head}  ·  per workload", font=(_MONO, 7, "bold"),
+             bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
+    status = _thermal_bl.training_status(pm)
     for bk, label in _LC_BUCKETS:
         info  = status.get(bk, {})
         level = info.get("level", "no_data")
@@ -636,18 +666,34 @@ def _lc_thermal(parent):
         row.pack(fill="x", pady=1)
         tk.Label(row, text=label, font=(_MONO, 7), bg=PANEL, fg=TEXT,
                  width=7, anchor="w").pack(side="left")
-        cv = tk.Canvas(row, width=64, height=8, bg=PANEL, highlightthickness=0)
+        cv = tk.Canvas(row, width=96, height=8, bg=PANEL, highlightthickness=0)
         cv.pack(side="left", padx=(0, 6))
-        cv.create_rectangle(0, 2, 64, 7, fill="#161c28", outline="")
-        fw = int(64 * min(max(tp, 0), 100) / 100)
+        cv.create_rectangle(0, 2, 96, 7, fill="#161c28", outline="")
+        fw = int(96 * min(max(tp, 0), 100) / 100)
         if fw > 0:
             cv.create_rectangle(0, 2, fw, 7, fill=fg_c, outline="")
-        detail = (f"{info.get('p5', 0):.0f}–{info.get('p95', 0):.0f}°C"
-                  if n >= 20 else f"{n} smp")
+        detail = (f"{info.get('p5', 0):.0f}–{info.get('p95', 0):.0f}{unit}"
+                  if n >= 20 else f"{n * 5 / 60:.1f}h obs")
         tk.Label(row, text=detail, font=(_MONO, 7), bg=PANEL, fg=MUTED,
                  width=9, anchor="w").pack(side="left")
         tk.Label(row, text=level, font=(_MONO, 7), bg=PANEL, fg=fg_c,
                  anchor="w").pack(side="left")
+
+    # Time counter: how long we've been observing + hours of real machine time
+    try:
+        since = _thermal_bl.learning_since_str()
+        hrs   = _thermal_bl.total_observed_hours()
+        tk.Label(parent,
+                 text=f"⏱ Learning for {since}  ·  {hrs:.0f}h of your machine observed",
+                 font=(_BODY, 7), bg=PANEL, fg="#8aa0bc", anchor="w").pack(anchor="w", pady=(3, 0))
+    except Exception:
+        pass
+
+    # Honest unlock hint when the richest signal (CPU temp) isn't available
+    if "cpu_temp" not in avail:
+        tk.Label(parent,
+                 text="↳ CPU temp: run LibreHardwareMonitor to unlock",
+                 font=(_BODY, 6), bg=PANEL, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 0))
 
 
 def _lc_voltage(parent):
@@ -1208,6 +1254,41 @@ def _build_alerts_log(parent):
                  padx=12, pady=10).pack(fill="x")
 
 
+_EVT_METRIC_LBL = {"cpu": "CPU", "ram": "RAM", "gpu": "GPU",
+                   "cpu_temp": "CPU temp", "gpu_temp": "GPU temp",
+                   "disk": "Disk", "network": "Network"}
+
+
+def _event_message(evt: dict) -> str:
+    """Human-readable line for an event row.
+
+    The DB column is `description` - the old code read a non-existent
+    `message` key, so every event rendered as "Unknown event" while the
+    full type/metric/value/baseline sat unused in the dict.
+    """
+    etype  = (evt.get("event_type") or "").strip().lower()
+    metric = (evt.get("metric") or "").strip().lower()
+    val    = evt.get("value")
+    base   = evt.get("baseline")
+    m_lbl  = _EVT_METRIC_LBL.get(metric, metric.upper())
+    unit   = "°C" if "temp" in metric else "%"
+
+    # Spikes: compose a clean line from the structured columns
+    if etype == "spike" and metric and val is not None:
+        txt = f"{m_lbl} spike: {val:.0f}{unit}"
+        if base is not None:
+            txt += f"  (usual {base:.0f}{unit}, +{val - base:.0f})"
+        return txt
+
+    desc = (evt.get("description") or "").strip()
+    if desc:
+        return desc
+    if etype:
+        nice = etype.replace("_", " ").capitalize()
+        return f"{nice} · {m_lbl}" if metric else nice
+    return "System event"
+
+
 def _render_event_row(parent, evt: dict):
     sev        = evt.get("severity", "info")
     sev_colors = {"info": LOAD_C, "warning": WARN_C, "critical": CRIT_C}
@@ -1215,7 +1296,7 @@ def _render_event_row(parent, evt: dict):
     ts         = evt.get("timestamp", 0)
     time_str   = datetime.fromtimestamp(ts).strftime("%H:%M") if ts else "--:--"
     day_str    = datetime.fromtimestamp(ts).strftime("%a") if ts else "---"
-    message    = evt.get("message", "Unknown event")[:60]
+    message    = _event_message(evt)[:64]
 
     row = tk.Frame(parent, bg=PANEL2)
     row.pack(fill="x", pady=1)

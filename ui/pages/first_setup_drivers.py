@@ -404,13 +404,13 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
         except Exception: pass
 
     dm_btn = tk.Label(btn_row, text="Open Device Manager",
-                      font=(_MONO, 8), bg="#0d1117", fg="#4b5563",
+                      font=(_MONO, 8), bg="#0d1117", fg="#8593a8",
                       cursor="hand2", padx=10, pady=5,
                       highlightbackground="#1f2937", highlightthickness=1)
     dm_btn.pack(side="left", padx=(0, 6))
     dm_btn.bind("<Button-1>", _do_dm)
     dm_btn.bind("<Enter>", lambda e: dm_btn.config(fg=BLUE))
-    dm_btn.bind("<Leave>", lambda e: dm_btn.config(fg="#4b5563"))
+    dm_btn.bind("<Leave>", lambda e: dm_btn.config(fg="#8593a8"))
 
     if inst_id:
         def _do_remove(e=None):
@@ -1180,12 +1180,12 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
         except Exception: pass
 
     action = tk.Label(rf, text="⟶ Device Manager",
-                      font=(_MONO, 7), bg=PANEL2, fg="#4b5563",
+                      font=(_MONO, 7), bg=PANEL2, fg="#8593a8",
                       cursor="hand2")
     action.pack()
     action.bind("<Button-1>", _open_dm)
     action.bind("<Enter>", lambda e: action.config(fg=BLUE))
-    action.bind("<Leave>", lambda e: action.config(fg="#4b5563"))
+    action.bind("<Leave>", lambda e: action.config(fg="#8593a8"))
 
     # Expand toggle button — shown only after scan with extra devices
     expand_btn = tk.Label(rf, text="", font=(_MONO, 7),
@@ -1296,7 +1296,7 @@ def _build_bottom_row(parent, refs):
     foot_l = tk.Frame(left, bg=PANEL)
     foot_l.pack(fill="x", padx=8, pady=(0, 6))
     tk.Label(foot_l, text="⟶ More tools in Optimization tab",
-             font=(_MONO, 7), bg=PANEL, fg="#4b5563").pack(side="right")
+             font=(_MONO, 7), bg=PANEL, fg="#8593a8").pack(side="right")
 
     # Startup Programs
     right = tk.Frame(wrap, bg=PANEL, highlightthickness=1,
@@ -1320,12 +1320,12 @@ def _build_bottom_row(parent, refs):
         rf = tk.Frame(su_body, bg=PANEL2, highlightthickness=1,
                       highlightbackground=BORDER)
         rf.pack(fill="x", pady=1)
-        dot = tk.Label(rf, text="●", font=(_MONO, 8), bg=PANEL2, fg="#374151")
+        dot = tk.Label(rf, text="●", font=(_MONO, 8), bg=PANEL2, fg="#74839a")
         dot.pack(side="left", padx=(6, 4), pady=3)
         n_l = tk.Label(rf, text="-", font=(_MONO, 8), bg=PANEL2,
                        fg=MUTED, anchor="w")
         n_l.pack(side="left", fill="x", expand=True)
-        src = tk.Label(rf, text="", font=(_MONO, 6), bg=PANEL2, fg="#374151")
+        src = tk.Label(rf, text="", font=(_MONO, 6), bg=PANEL2, fg="#74839a")
         src.pack(side="right", padx=(0, 8))
         rf.pack_forget()
         rows.append({"frame": rf, "dot": dot, "name": n_l, "src": src})
@@ -1339,11 +1339,11 @@ def _build_bottom_row(parent, refs):
         except Exception: pass
 
     lnk2 = tk.Label(foot_r, text="⟶ Open Startup Settings",
-                    font=(_MONO, 7), bg=PANEL, fg="#4b5563", cursor="hand2")
+                    font=(_MONO, 7), bg=PANEL, fg="#8593a8", cursor="hand2")
     lnk2.pack(side="right")
     lnk2.bind("<Button-1>", lambda e: _open_startup())
     lnk2.bind("<Enter>", lambda e: lnk2.config(fg=GREEN))
-    lnk2.bind("<Leave>", lambda e: lnk2.config(fg="#4b5563"))
+    lnk2.bind("<Leave>", lambda e: lnk2.config(fg="#8593a8"))
 
 
 # ─── Setup Checklist ──────────────────────────────────────────────────────────

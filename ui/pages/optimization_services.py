@@ -4,7 +4,6 @@ import threading
 import os
 import json
 import time
-import atexit
 
 try:
     from core.turbo_manager import (
@@ -96,27 +95,20 @@ _RAM = {
     "result_lbl": None, "prog_lbl": None,
 }
 
+# Anti-cheat guard — never memory-trim an anti-cheat, even outside the exclude list
+try:
+    from core.protected_processes import is_protected as _is_protected
+except Exception:
+    def _is_protected(name, exe=""):   # noqa: E704
+        return False
+
 # ── RAM Flush exclusion list — exe names (lowercase) that are never flushed ──
 _RAM_EXCLUDE: set = set()
-
-# ── Turbo Power Plan state ────────────────────────────────────────────────────
-_TPP = {
-    "active":       False,   # currently using Turbo PC plan
-    "auto":         False,   # auto-monitor on
-    "on_turbo":     False,   # trigger on TURBO mode
-    "stop_flag":    False,
-    "original_guid": None,
-    "turbo_guid":    None,
-    "status_lbl":    None,
-}
-_TURBO_PC_NAME = "Turbo PC"
 
 def _init():
     o = _load_prefs().get("optimization", {})
     _RAM["active"]    = bool(o.get("ram_auto", False))
     _RAM["threshold"] = int(o.get("ram_threshold", 75))
-    _TPP["auto"]      = bool(o.get("tpp_auto", False))
-    _TPP["on_turbo"]  = bool(o.get("tpp_on_turbo", False))
     saved = o.get("ram_flush_exclude", [])
     _RAM_EXCLUDE.update(n.lower() for n in saved if isinstance(n, str))
 
@@ -125,6 +117,12 @@ _init()
 
 def _save_exclude():
     _save_opt(ram_flush_exclude=sorted(_RAM_EXCLUDE))
+    # push the change to the always-on daemon so AUTO flushes honor it live
+    try:
+        from core.auto_optimizer import auto_optimizer
+        auto_optimizer.set_exclude(_RAM_EXCLUDE)
+    except Exception:
+        pass
 _ACTION_BTNS: dict = {}
 
 
@@ -140,178 +138,22 @@ def _is_admin() -> bool:
     except Exception:
         return False
 
-def _pp_list() -> dict:
-    """Return {name: guid} of all available power plans (language-agnostic).
-    Binary mode + safe UTF-8 decode avoids Polish OEM codepage issues."""
-    plans = {}
-    try:
-        r = subprocess.run(
-            ["powercfg", "/list"],
-            capture_output=True, timeout=5,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        for line in r.stdout.decode("utf-8", errors="replace").splitlines():
-            parts = line.strip().split()
-            for i, p in enumerate(parts):
-                if len(p) == 36 and p.count("-") == 4:
-                    # Everything after the GUID, strip parens / asterisk
-                    name_part = " ".join(parts[i+1:]).strip("()*").strip()
-                    if name_part:
-                        plans[name_part] = p
-                    break   # one GUID per line
-    except Exception:
-        pass
-    return plans
+def _tpp_run() -> tuple:
+    """Activate the Turbo PC plan - delegates to the always-on daemon
+    (core.auto_optimizer owns the powercfg primitives and the state)."""
+    from core.auto_optimizer import auto_optimizer
+    return auto_optimizer.tpp_activate()
 
-def _pp_active_guid() -> str | None:
-    try:
-        r = subprocess.run(
-            ["powercfg", "/getactivescheme"],
-            capture_output=True, timeout=5,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        for p in r.stdout.decode("utf-8", errors="replace").split():
-            if len(p) == 36 and p.count("-") == 4:
-                return p
-    except Exception:
-        pass
-    return None
+def _tpp_restore() -> tuple:
+    """Restore the original power plan - delegates to the daemon."""
+    from core.auto_optimizer import auto_optimizer
+    return auto_optimizer.tpp_restore()
 
-def _pp_set(guid: str) -> bool:
-    try:
-        r = subprocess.run(
-            ["powercfg", "/setactive", guid],
-            capture_output=True, timeout=5,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        return r.returncode == 0
-    except Exception:
-        return False
+def _tpp_is_active() -> bool:
+    from core.auto_optimizer import auto_optimizer
+    return auto_optimizer.tpp_is_active()
 
-def _pp_create_turbo() -> str | None:
-    """
-    Duplicate High Performance (or Ultimate Performance) plan and rename
-    it to 'Turbo PC'.  Returns the new GUID or None on failure.
-    Requires admin rights on Windows.
-    """
-    # Try HP first, fall back to Ultimate Performance
-    CANDIDATE_GUIDS = [
-        "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",   # High Performance
-        "e9a42b02-d5df-448d-aa00-03f14749eb61",    # Ultimate Performance
-    ]
-    try:
-        # Already exists?
-        plans = _pp_list()
-        if _TURBO_PC_NAME in plans:
-            return plans[_TURBO_PC_NAME]
 
-        new_guid = None
-        for src_guid in CANDIDATE_GUIDS:
-            r = subprocess.run(
-                ["powercfg", "/duplicatescheme", src_guid],
-                capture_output=True, timeout=8,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            )
-            for tok in r.stdout.decode("utf-8", errors="replace").split():
-                if len(tok) == 36 and tok.count("-") == 4 and tok.lower() != src_guid.lower():
-                    new_guid = tok
-                    break
-            if new_guid:
-                break
-
-        if not new_guid:
-            return None
-
-        # Rename to "Turbo PC"
-        subprocess.run(
-            ["powercfg", "/changename", new_guid, _TURBO_PC_NAME,
-             "PC Workman - custom high-performance profile"],
-            capture_output=True, timeout=5,
-            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-        )
-        return new_guid
-    except Exception:
-        return None
-
-def _tpp_run() -> tuple[bool, str]:
-    """Activate Turbo PC plan. Creates it if needed."""
-    # Admin check
-    if not _is_admin():
-        return False, "Needs admin - restart as Administrator"
-
-    # Save original plan
-    if not _TPP["original_guid"]:
-        _TPP["original_guid"] = _pp_active_guid()
-
-    # Get or create Turbo PC plan
-    if not _TPP["turbo_guid"]:
-        # Maybe it was created in a previous session
-        plans = _pp_list()
-        if _TURBO_PC_NAME in plans:
-            _TPP["turbo_guid"] = plans[_TURBO_PC_NAME]
-        else:
-            guid = _pp_create_turbo()
-            if not guid:
-                return False, "Plan creation failed"
-            _TPP["turbo_guid"] = guid
-
-    ok = _pp_set(_TPP["turbo_guid"])
-    if ok:
-        _TPP["active"] = True
-        # ── Apply hibernation turbo behaviors ─────────────────────────────────
-        try:
-            from import_core import COMPONENTS
-            hibm = COMPONENTS.get("core.hibernation_manager")
-            if hibm:
-                hibm.apply_turbo_behaviors()
-        except Exception:
-            pass
-        return True, "Turbo PC  active ✓"
-    return False, "Activation failed"
-
-def _tpp_restore() -> tuple[bool, str]:
-    """Restore original power plan."""
-    guid = _TPP["original_guid"] or "381b4222-f694-41f0-9685-ff5bb260df2e"
-    ok = _pp_set(guid)
-    if ok:
-        _TPP["active"] = False
-        # ── Restore hibernation-slept apps ────────────────────────────────────
-        try:
-            from import_core import COMPONENTS
-            hibm = COMPONENTS.get("core.hibernation_manager")
-            if hibm:
-                hibm.restore_turbo_apps()
-        except Exception:
-            pass
-        return True, "Balanced restored ✓"
-    return False, "Restore failed"
-
-def _tpp_monitor_loop(status_lbl):
-    """Background monitor: activate Turbo PC when TURBO mode is on."""
-    while not _TPP["stop_flag"]:
-        try:
-            if _TPP["on_turbo"]:
-                # Check TURBO flag from prefs
-                turbo_on = bool(_load_prefs().get("turbo_active", False))
-                if turbo_on and not _TPP["active"]:
-                    ok, msg = _tpp_run()
-                    if status_lbl and status_lbl.winfo_exists():
-                        status_lbl.after(0, lambda m=msg: status_lbl.config(
-                            text=m, fg=EMERALD if "active" in m else RED))
-                elif not turbo_on and _TPP["active"]:
-                    ok, msg = _tpp_restore()
-                    if status_lbl and status_lbl.winfo_exists():
-                        status_lbl.after(0, lambda m=msg: status_lbl.config(
-                            text=m, fg=MUTED))
-        except Exception:
-            pass
-        time.sleep(5)
-
-# Restore on app exit
-def _tpp_atexit():
-    if _TPP["active"]:
-        _tpp_restore()
-atexit.register(_tpp_atexit)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -326,6 +168,15 @@ def _set_turbo_flag(on: bool) -> None:
         p["turbo_active"] = bool(on)
         with open(_PREFS_PATH, "w", encoding="utf-8") as f:
             json.dump(p, f, indent=2)
+    except Exception:
+        pass
+    # Inform the always-on daemon immediately, so RAM-on-TURBO and the TPP
+    # reconcile react on the spot instead of on the next 10 s tick. (The
+    # daemon's set_turbo existed but nothing ever called it - the RAM-on-TURBO
+    # coupling was silently dead until now.)
+    try:
+        from core.auto_optimizer import auto_optimizer
+        auto_optimizer.set_turbo(bool(on))
     except Exception:
         pass
 
@@ -349,9 +200,9 @@ def set_turbo_active(on: bool) -> dict:
 
     # Turbo Power Plan (also applies hibernation turbo behaviors via _tpp_run)
     if o.get("tpp_on_turbo", False):
-        if on and not _TPP["active"]:
+        if on and not _tpp_is_active():
             ok, _ = _tpp_run();     applied.append(("Turbo Power Plan", ok))
-        elif not on and _TPP["active"]:
+        elif not on and _tpp_is_active():
             ok, _ = _tpp_restore(); applied.append(("Turbo Power Plan", ok))
 
     return {"on": on, "applied": applied, "admin": _is_admin()}
@@ -2102,16 +1953,26 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
     def _toggle_auto(e=None):
         auto_state["on"] = not auto_state["on"]
         _pill_cv(auto_pill, auto_state["on"], 32, 15, EMERALD)
-        _RAM["active"] = auto_state["on"]
         _save_opt(ram_auto=auto_state["on"])
-        if auto_state["on"]:
-            _RAM["stop_flag"] = False
-            threading.Thread(
-                target=_ram_monitor_loop,
-                args=(status_lbl, status_lbl),
-                daemon=True).start()
-        else:
-            _RAM["stop_flag"] = True
+        # Tell the always-on daemon — it owns the watcher now, so AUTO keeps
+        # running after this page (or the whole app) is reopened.
+        from core.auto_optimizer import auto_optimizer
+        auto_optimizer.set_ram_auto(auto_state["on"])
+
+    # Live status from the daemon -> the card's label (guarded against teardown)
+    def _on_status(text):
+        try:
+            if status_lbl.winfo_exists():
+                status_lbl.after(0, lambda t=text: status_lbl.config(
+                    text=t, fg=AMBER if "high" in t else EMERALD))
+        except Exception:
+            pass
+    try:
+        from core.auto_optimizer import auto_optimizer as _ao
+        _ao.register_status_listener(_on_status)
+        status_lbl.bind("<Destroy>", lambda e: _ao.unregister_status_listener(_on_status))
+    except Exception:
+        pass
 
     run_btn.bind("<Button-1>", _run)
     auto_pill.bind("<Button-1>", _toggle_auto)
@@ -2126,15 +1987,31 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
 
 def _wire_turbo_pp(run_btn, auto_pill, auto_state,
                    turbo_pill, turbo_state, status_lbl, run_color):
-    """Wire Turbo Power Plan card controls."""
-    auto_state["on"]   = _TPP["auto"]
-    turbo_state["on"]  = _TPP["on_turbo"]
-    _TPP["status_lbl"] = status_lbl
+    """Wire Turbo Power Plan card controls.
+
+    The card is a CONFIGURATOR only: the reconcile loop lives in
+    core.auto_optimizer (one always-on daemon). The old page-bound monitor
+    spawned a new infinite thread on every page visit, each polling a
+    destroyed widget from a background thread - the root cause of the
+    "UI freezes after wandering the sidebar" report."""
+    try:
+        from core.auto_optimizer import auto_optimizer as _ao
+    except Exception:
+        _ao = None
+
+    o = _load_prefs().get("optimization", {})
+    auto_state["on"]  = bool(o.get("tpp_auto", False))
+    turbo_state["on"] = bool(o.get("tpp_on_turbo", False))
     _pill_cv(auto_pill,  auto_state["on"],  32, 15, EMERALD)
     _pill_cv(turbo_pill, turbo_state["on"], 32, 15, BORD_L)
 
+    # Reflect a plan the daemon may have activated before this page opened
+    if _ao and _ao.tpp_is_active():
+        run_btn.config(text="DEACTIVATE", fg=EMERALD,
+                       highlightbackground=EMERALD, bg="#061210")
+
     def _run(e=None):
-        if _TPP["active"]:
+        if _tpp_is_active():
             run_btn.config(text="...", fg=MUTED)
             def _bg_restore():
                 ok, msg = _tpp_restore()
@@ -2164,35 +2041,37 @@ def _wire_turbo_pp(run_btn, auto_pill, auto_state,
 
     def _toggle_auto(e=None):
         auto_state["on"] = not auto_state["on"]
-        _TPP["auto"] = auto_state["on"]
         _pill_cv(auto_pill, auto_state["on"], 32, 15, EMERALD)
         _save_opt(tpp_auto=auto_state["on"])
-        if auto_state["on"]:
-            _TPP["stop_flag"] = False
-            threading.Thread(
-                target=_tpp_monitor_loop,
-                args=(status_lbl,),
-                daemon=True).start()
-        else:
-            _TPP["stop_flag"] = True
+        if _ao:
+            _ao.set_tpp_auto(auto_state["on"])
 
     def _toggle_turbo(e=None):
         turbo_state["on"] = not turbo_state["on"]
-        _TPP["on_turbo"] = turbo_state["on"]
         _pill_cv(turbo_pill, turbo_state["on"], 32, 15, BORD_L)
         _save_opt(tpp_on_turbo=turbo_state["on"])
+        if _ao:
+            _ao.set_tpp_on_turbo(turbo_state["on"])
+
+    # Live status from the daemon -> the card's label (guarded, auto-unhooked)
+    def _on_tpp_status(text):
+        try:
+            if status_lbl.winfo_exists():
+                status_lbl.after(0, lambda t=text: status_lbl.config(
+                    text=t, fg=EMERALD if "active" in t else MUTED))
+        except Exception:
+            pass
+    if _ao:
+        _ao.register_status_listener(_on_tpp_status, kind="tpp")
+        status_lbl.bind("<Destroy>",
+                        lambda e: _ao.unregister_status_listener(_on_tpp_status))
 
     run_btn.bind("<Button-1>", _run)
     auto_pill.bind("<Button-1>", _toggle_auto)
     turbo_pill.bind("<Button-1>", _toggle_turbo)
     run_btn.bind("<Enter>", lambda e: run_btn.config(fg="#ffffff"))
     run_btn.bind("<Leave>", lambda e: run_btn.config(
-        fg=EMERALD if _TPP["active"] else run_color))
-
-    # Start auto-monitor if it was on from prefs
-    if _TPP["auto"]:
-        threading.Thread(
-            target=_tpp_monitor_loop, args=(status_lbl,), daemon=True).start()
+        fg=EMERALD if _tpp_is_active() else run_color))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -2230,80 +2109,13 @@ def build_optimization_page(self, parent):
 # RAM FLUSH LOGIC  (unchanged)
 # ═════════════════════════════════════════════════════════════════════════════
 
+# The RAM-flush primitive AND the always-on AUTO watcher now live in
+# core.auto_optimizer (single source of truth, runs without this page open).
+# These thin wrappers keep the page's manual button and any external callers
+# working, but delegate the real work to the daemon.
 def _do_ram_flush():
-    import psutil, ctypes
-    before = int(psutil.virtual_memory().available / 1048576)
-    try:
-        cmd = ctypes.c_int(4)
-        ctypes.windll.ntdll.NtSetSystemInformation(
-            80, ctypes.byref(cmd), ctypes.sizeof(cmd))
-    except Exception:
-        pass
-    try:
-        ctypes.windll.kernel32.SetSystemFileCacheSize(
-            ctypes.c_size_t(0xFFFFFFFF), ctypes.c_size_t(0xFFFFFFFF), 0)
-    except Exception:
-        pass
-    count = skipped = 0
-    try:
-        for proc in psutil.process_iter(["pid", "name"]):
-            pid  = proc.pid
-            name = (proc.info.get("name") or "").lower()
-            if pid <= 4:
-                continue
-            if name and name in _RAM_EXCLUDE:
-                skipped += 1
-                continue
-            try:
-                h = ctypes.windll.kernel32.OpenProcess(0x0100 | 0x0400, False, pid)
-                if h:
-                    ctypes.windll.psapi.EmptyWorkingSet(h)
-                    ctypes.windll.kernel32.CloseHandle(h)
-                    count += 1
-            except Exception:
-                pass
-    except Exception:
-        pass
-    time.sleep(0.8)
-    after = int(psutil.virtual_memory().available / 1048576)
-    freed = after - before
-    skip_note = f"  ·  {skipped} protected" if skipped else ""
-    if freed > 0:
-        return True, f"Freed {freed} MB  ({count} procs{skip_note})", before, after
-    elif count > 0:
-        return True, f"Flushed {count} procs (limited perms{skip_note})", before, after
-    return False, "No effect - admin rights needed", before, after
-
-
-def _ram_monitor_loop(result_lbl, prog_lbl):
-    import psutil
-    TRIGGER, STEP = 30, 10
-    while not _RAM["stop_flag"]:
-        try:
-            pct = psutil.virtual_memory().percent
-            if pct > _RAM["threshold"]:
-                _RAM["consecutive_high"] = min(_RAM["consecutive_high"] + STEP, TRIGGER)
-                s = _RAM["consecutive_high"]
-                if prog_lbl and prog_lbl.winfo_exists():
-                    prog_lbl.after(0, lambda v=s: prog_lbl.config(
-                        text=f"high  {v}s/{TRIGGER}s", fg=AMBER))
-                if _RAM["consecutive_high"] >= TRIGGER:
-                    _RAM["consecutive_high"] = 0
-                    ok, msg, before, after = _do_ram_flush()
-                    freed = after - before
-                    d = f"Freed {freed} MB" if freed > 0 else msg
-                    if result_lbl and result_lbl.winfo_exists():
-                        result_lbl.after(0, lambda v=d: result_lbl.config(
-                            text=v, fg=EMERALD if freed > 0 else MUTED))
-                    if prog_lbl and prog_lbl.winfo_exists():
-                        prog_lbl.after(0, lambda: prog_lbl.config(text=""))
-            else:
-                _RAM["consecutive_high"] = 0
-                if prog_lbl and prog_lbl.winfo_exists():
-                    prog_lbl.after(0, lambda: prog_lbl.config(text=""))
-        except Exception:
-            pass
-        time.sleep(STEP)
+    from core.auto_optimizer import auto_optimizer
+    return auto_optimizer.flush_now()
 
 
 # ═════════════════════════════════════════════════════════════════════════════
