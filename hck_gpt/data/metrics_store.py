@@ -33,6 +33,13 @@ log = logging.getLogger("metrics_store")
 
 # ── Paths (mirrors hck_stats_engine.constants pattern) ───────────────────────
 def _base_dir() -> str:
+    # Single source of truth: utils.paths is MSIX-aware (Store installs are
+    # read-only next to the exe -> APP_DIR = %LOCALAPPDATA%\PC_Workman_HCK).
+    try:
+        from utils.paths import APP_DIR
+        return APP_DIR
+    except Exception:
+        pass
     if getattr(sys, "frozen", False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,7 +48,7 @@ _DATA_DIR = os.path.join(_base_dir(), "data", "logs")
 _DB_PATH  = os.path.join(_DATA_DIR, "hck_stats.db")   # shared with stats engine
 
 SNAPSHOT_INTERVAL = 300   # 5 minutes between snapshots
-RETENTION_DAYS    = 90    # auto-prune rows older than this
+RETENTION_DAYS    = 183   # ~6 months of look-back history (was 90)
 
 
 # ── Schema migration (adds table if absent; never drops existing tables) ──────
@@ -161,7 +168,9 @@ class MetricsStore:
             now,
             date_str,
             ls.get("cpu_load",    -1.0),
-            ls.get("cpu_temp",    -1.0),
+            # estimated temps never enter history/learning — real sensors only
+            (ls.get("cpu_temp", -1.0)
+             if ls.get("cpu_temp_src") == "sensor" else -1.0),
             ls.get("cpu_mhz",     -1.0),
             ls.get("cpu_power",   -1.0),
             ls.get("gpu_temp",    -1.0),
@@ -245,7 +254,8 @@ class MetricsStore:
                 "ram_pct":  [row["ram_lo"] or 0, row["ram_hi"] or 100],
             }
             _ls.update({
-                "session_hist": hist,
+                # merge — the live_collector daemon owns per-session extremes
+                "session_hist": {**(_ls.get("session_hist") or {}), **hist},
                 "_hist_cpu_avg_7d": round(row["cpu_av"] or 0, 1),
                 "_hist_ram_avg_7d": round(row["ram_av"] or 0, 1),
                 "_hist_rows_7d":    row["n"],
