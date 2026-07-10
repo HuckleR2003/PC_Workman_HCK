@@ -52,6 +52,9 @@ hiddenimports = [
     'core.network',
     'core.telemetry',
     'core.hibernation_manager',
+    'core.protected_processes',
+    'core.live_collector',
+    'core.auto_optimizer',
     'core.process_definitions',
     # ── Stats Engine ──────────────────────────────────────────────────────────
     'hck_stats_engine',
@@ -71,6 +74,7 @@ hiddenimports = [
     'hck_gpt.process_library',
     'hck_gpt.services_manager',
     'hck_gpt.service_setup_wizard',
+    'hck_gpt.easter_eggs',
     # intents
     'hck_gpt.intents',
     'hck_gpt.intents.parser',
@@ -194,5 +198,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=False,
-    name='PC_Workman_HCK_1.8.0',
+    name='PC_Workman_HCK_1.8.2',
 )
