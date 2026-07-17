@@ -192,7 +192,6 @@ PC_Workman/
 - Direct inter-module communication
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
--
 
 ## What's New [1.8.0] - `2026-06-22` - CURRENT
 
@@ -718,7 +717,7 @@ Click any process to see more details.
 - All monitoring runs locally on your machine
 - Open source, the code is auditable
 - Network access is optional and off-able in Settings (off = firewall-verifiable zero traffic)
--
+
 ## Versioning
 
 | Version | Status | Key Features |
@@ -757,7 +756,7 @@ Click any process to see more details.
 - Follow existing code style
 - Include tests for new features
 - Update documentation
--
+
 ## System Requirements
 
 **Minimum:**
@@ -775,14 +774,14 @@ Click any process to see more details.
 **For Gaming Analytics:**
 - NVIDIA/AMD GPU drivers updated
 - DirectX 12 compatible system
--
+
 ## Documentation
 
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Installation & setup guide
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history & updates
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
 - **[docs/TECHNICAL.md](./docs/TECHNICAL.md)** - Architecture deep dive (coming)
--
+
 ## About
 
 **Marcin Firmuga** | Software Engineer
