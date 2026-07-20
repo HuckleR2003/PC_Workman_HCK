@@ -26,7 +26,7 @@ import threading
 import time
 from typing import Callable, List, Optional
 
-from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+from import_core import register_component, STATUS_OK
 
 try:
     import winreg
