@@ -1,8 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PCWorkman.spec — v1.7.7 build configuration
+# PCWorkman.spec — build configuration
 import os
+import re
 block_cipher = None
 project_root = os.path.dirname(os.path.abspath(SPEC))
+
+# ── ONE version source ────────────────────────────────────────────────────────
+# The dist folder name follows utils/app_version.py automatically - bump the
+# version there and the build renames itself. Read by regex (not import) so
+# the spec stays independent of the project's import state.
+with open(os.path.join(project_root, 'utils', 'app_version.py'),
+          encoding='utf-8') as _vf:
+    APP_VERSION = re.search(r'APP_VERSION\s*=\s*["\']([^"\']+)["\']',
+                            _vf.read()).group(1)
 
 # ── Data files bundled into the exe package ───────────────────────────────────
 datas = [
@@ -56,6 +66,8 @@ hiddenimports = [
     'core.live_collector',
     'core.auto_optimizer',
     'core.process_definitions',
+    'core.hardware_compat',
+    'core.hardware_compat_db',
     # ── Stats Engine ──────────────────────────────────────────────────────────
     'hck_stats_engine',
     'hck_stats_engine.avg_calculator',
@@ -85,6 +97,7 @@ hiddenimports = [
     # responses
     'hck_gpt.responses',
     'hck_gpt.responses.builder',
+    'hck_gpt.responses.r_upgrade',
     # memory
     'hck_gpt.memory',
     'hck_gpt.memory.session_memory',
@@ -113,8 +126,6 @@ hiddenimports = [
     'ui.components.charts',
     'ui.components.process_tooltip',
     'ui.components.sensor_tree',
-    'ui.components.sensor_kb',
-    'ui.components.hardware_graphs',
     'ui.components.fan_curve_editor',
     'ui.components.fan_dashboard',
     'ui.components.pro_info_table',
@@ -137,8 +148,12 @@ hiddenimports = [
     'ui.pages.fan_control.usage_stats',
     'ui.pages.startup_manager',
     'ui.pages.services_manager',
+    'ui.pages.upgrade_readiness',
     # ── Utils ─────────────────────────────────────────────────────────────────
     'utils',
+    'utils.app_version',
+    'utils.freeze_watchdog',
+    'utils.crash_log',
     'utils.fonts',
     'utils.i18n',
     'utils.paths',
@@ -198,5 +213,5 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=False,
-    name='PC_Workman_HCK_1.8.2',
+    name=f'PC_Workman_HCK_{APP_VERSION}',
 )
