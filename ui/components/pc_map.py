@@ -48,7 +48,7 @@ _SSAA = 2     # super-sampling: draw at 2x, scale down
 _CW = 680
 _CH = 540
 
-# Draw-space origin of 3D (0,0,0) — PC tower centered in canvas
+# Draw-space origin of 3D (0,0,0) - PC tower centered in canvas
 # _OY raised by 40 px so the floor stays visible without scrolling
 _OX = int((_CW // 2 - 18) * _SSAA)   # 644
 _OY = int((_CH - 115)      * _SSAA)  # 850  (was 930)
@@ -277,7 +277,7 @@ def _thermal_aware_cpu_heat(cpu_pct: float, cpu_temp: float,
     Falls back to the classic formula if baseline is unavailable.
 
     Innovation: the heat colour reflects whether a temperature is *actually*
-    abnormal for the current workload — not just a fixed threshold.
+    abnormal for the current workload - not just a fixed threshold.
     E.g. 72°C during heavy gaming is "normal" (cool colour) while 72°C at
     idle is "hot" (amber/red).
     """
@@ -438,7 +438,7 @@ def _desktop_scene(data: Dict, pulse: float) -> List[_Box]:
     boxes.append(_Box(7.38, 0, 0, 0.12, 4, 15,  edge_c, "", edge_out, 1, 0.55, 0.42, 0.32))
     # Top lid
     boxes.append(_Box(0, 0, 14.88, 7.5, 4, 0.14, edge_c, "", edge_out, 1, 0.7, 0.55, 0.44))
-    # Front opening corner rails (thin structural frame — no solid panel blocking internals)
+    # Front opening corner rails (thin structural frame - no solid panel blocking internals)
     # Bottom-front horizontal rail
     boxes.append(_Box(0, 0, 0,     7.5, 0.1, 0.15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
     # Top-front horizontal rail
@@ -673,7 +673,7 @@ def _draw_labels(draw: "ImageDraw.ImageDraw", boxes: List[_Box],
         draw.line([(line_ex, ly), (tick_end, ly)],
                   fill=_shade(col_t, 0.65), width=_SSAA)
 
-        # Label text — no `anchor` param (not supported by PIL default font)
+        # Label text - no `anchor` param (not supported by PIL default font)
         pad = 4 * _SSAA
         lbl_fill = tuple(int(c) for c in _shade(col_t, 1.25))
         if side == "right":
@@ -731,7 +731,7 @@ def _draw_glow_ring(img: "Image.Image", cx: float, cy: float,
 # ─────────────────────────────────────────────────────────────────────────────
 class PCMapView(tk.Frame):
     """
-    2.5D Isometric hardware map — Desktop PC + Laptop modes.
+    2.5D Isometric hardware map - Desktop PC + Laptop modes.
     Pillow-rendered, live-updating with hover tooltips.
     """
 
@@ -746,7 +746,7 @@ class PCMapView(tk.Frame):
         self._hovered    = None
         self._tooltip_win: Optional[tk.Toplevel] = None
         self._last_render_time = 0.0
-        # Cached PIL fonts — loaded once, reused every frame
+        # Cached PIL fonts - loaded once, reused every frame
         self._font_sm = None
         self._font_xs = None
 
@@ -755,7 +755,7 @@ class PCMapView(tk.Frame):
                      font=(_BODY, 11), bg="#0a0e14", fg="#ef4444").pack(expand=True)
             return
 
-        # Page switches destroy this widget via the PARENT's destroy() — the
+        # Page switches destroy this widget via the PARENT's destroy() - the
         # Python-level destroy() override below is never called then, so the
         # 3 s data thread would leak (one per page visit). <Destroy> always fires.
         self.bind("<Destroy>", self._on_tk_destroy, add="+")
@@ -915,7 +915,7 @@ class PCMapView(tk.Frame):
 
             self._hit_rects = hit
 
-            # Fonts — load once and cache; loading from disk every 120ms is expensive
+            # Fonts - load once and cache; loading from disk every 120ms is expensive
             if self._font_sm is None:
                 try:
                     self._font_sm = ImageFont.truetype(
@@ -928,7 +928,7 @@ class PCMapView(tk.Frame):
             font_sm = self._font_sm
             font_xs = self._font_xs
 
-            # Labels — wrapped separately so label failure doesn't blank the canvas
+            # Labels - wrapped separately so label failure doesn't blank the canvas
             try:
                 _draw_labels(draw, scene, label_map, self._live_data,
                              font_sm, font_xs, ox, oy)
@@ -954,7 +954,7 @@ class PCMapView(tk.Frame):
             except Exception:
                 pass
 
-            # Downscale (SSAA anti-aliasing) — handle Pillow 9 vs 10 LANCZOS API
+            # Downscale (SSAA anti-aliasing) - handle Pillow 9 vs 10 LANCZOS API
             _lanczos = getattr(getattr(Image, "Resampling", Image), "LANCZOS",
                                getattr(Image, "LANCZOS", 1))
             out = img.resize((_CW, _CH), _lanczos)
