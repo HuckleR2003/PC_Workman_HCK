@@ -117,7 +117,16 @@ def build_yourpc_page(self, parent):
     self.yourpc_content_frame = tk.Frame(main, bg="#0a0e14")
     self.yourpc_content_frame.pack(fill="both", expand=True)
 
-    _show_tab(self, "central")
+    # Sidebar deep-link (e.g. My PC -> Components) - set by
+    # _handle_sidebar_navigation, consumed once, defaults to central.
+    _initial = getattr(self, "_yourpc_initial_tab", None) or "central"
+    if _initial not in self.yourpc_tabs:
+        _initial = "central"
+    try:
+        self._yourpc_initial_tab = None
+    except Exception:
+        pass
+    _show_tab(self, _initial)
 
 
 def _create_tab(self, parent, text, tab_id):
@@ -131,31 +140,82 @@ def _create_tab(self, parent, text, tab_id):
     tab.bind("<Leave>", lambda e: tab.config(fg="#6b7280", bg="#0f1117") if self.yourpc_active_tab != tab_id else None)
 
 
+# Tabs kept alive after the first build (Phase 2, 2026-07-18): the heavy
+# ones - central (~160 ms of widgets), map (~415 ms), components. Cheap or
+# staleness-prone tabs (health, efficiency, startup) rebuild as before, so
+# e.g. the startup list is always fresh after edits in Startup Manager.
+_KEEPALIVE_TABS = frozenset({"central", "components", "map"})
+
+
+def _rebind_tab_wheel(host):
+    """Re-attach the global mouse-wheel to a kept tab's scroll canvas.
+    bind_all is a single global slot - any page visited in between overwrote
+    it, so a cached tab would stop scrolling without this."""
+    for c in host.winfo_children():
+        if isinstance(c, tk.Canvas):
+            def _mw(e, cv=c):
+                try:
+                    if cv.winfo_exists():
+                        cv.yview_scroll(int(-1 * (e.delta / 120)), "units")
+                except Exception:
+                    pass
+            c.bind_all("<MouseWheel>", _mw)
+            return
+
+
 def _show_tab(self, tab_id):
     if self.yourpc_active_tab:
         self.yourpc_tabs[self.yourpc_active_tab].config(fg="#6b7280", bg="#0f1117")
     self.yourpc_active_tab = tab_id
     self.yourpc_tabs[tab_id].config(fg="#ffffff", bg="#3b82f6")
 
+    if not hasattr(self, "yourpc_tab_frames"):
+        self.yourpc_tab_frames = {}
+
+    # Hide kept tabs, destroy the rest (Phase 2 keep-alive)
+    kept = set(self.yourpc_tab_frames.values())
     for w in self.yourpc_content_frame.winfo_children():
-        w.destroy()
+        try:
+            if w in kept:
+                w.pack_forget()
+            else:
+                w.destroy()
+        except Exception:
+            pass
+
+    cached = self.yourpc_tab_frames.get(tab_id)
+    if cached is not None:
+        try:
+            if cached.winfo_exists():
+                cached.pack(fill="both", expand=True)
+                _rebind_tab_wheel(cached)
+                return
+        except Exception:
+            pass
+        self.yourpc_tab_frames.pop(tab_id, None)
+
+    host = tk.Frame(self.yourpc_content_frame, bg="#0a0e14")
+    host.pack(fill="both", expand=True)
 
     if tab_id == "central":
-        _build_central(self, self.yourpc_content_frame)
+        _build_central(self, host)
     elif tab_id == "health":
-        _build_health(self, self.yourpc_content_frame)
+        _build_health(self, host)
     elif tab_id == "components":
-        _build_components(self, self.yourpc_content_frame)
+        _build_components(self, host)
     elif tab_id == "efficiency":
-        _build_efficiency(self, self.yourpc_content_frame)
+        _build_efficiency(self, host)
     elif tab_id == "startup":
-        _build_startup(self, self.yourpc_content_frame)
+        _build_startup(self, host)
     elif tab_id == "map":
-        _build_map(self, self.yourpc_content_frame)
+        _build_map(self, host)
     else:
-        tk.Label(self.yourpc_content_frame,
+        tk.Label(host,
                 text=_t("my_pc.coming_soon_tab", tab=tab_id.upper()),
                 font=(_BODY, 12), bg="#0a0e14", fg="#6b7280").pack(pady=50)
+
+    if tab_id in _KEEPALIVE_TABS:
+        self.yourpc_tab_frames[tab_id] = host
 
 
 def _build_central(self, parent):
@@ -276,7 +336,47 @@ def _build_central(self, parent):
     _build_hey_user_table(self, right)
 
 
+import time as _mtime
+
+# ── Services/Startup metric cache ─────────────────────────────────────────────
+# `sc query` (services) is slow (~1-2 s), so the FIRST Optimization / My PC
+# open used to stall. These are cached with a short TTL and warmed during the
+# splash by warm_metrics_cache(), so the first open is instant. Values change
+# slowly, so a 60 s staleness window is imperceptible.
+_METRICS_CACHE: dict = {}
+_METRICS_TTL = 60.0
+
+
+def _cached_metric(key, compute):
+    now = _mtime.time()
+    hit = _METRICS_CACHE.get(key)
+    if hit and (now - hit[0]) < _METRICS_TTL:
+        return hit[1]
+    val = compute()
+    _METRICS_CACHE[key] = (now, val)
+    return val
+
+
 def _get_startup_metrics():
+    return _cached_metric("startup", _scan_startup_metrics)
+
+
+def _get_services_metrics():
+    return _cached_metric("services", _scan_services_metrics)
+
+
+def warm_metrics_cache():
+    """Warm the services/startup metric caches (called from startup.py during
+    the splash) so the first Optimization / My PC open never waits on a scan.
+    Pure subprocess/registry work - safe on a background thread."""
+    for fn in (_get_services_metrics, _get_startup_metrics):
+        try:
+            fn()
+        except Exception:
+            pass
+
+
+def _scan_startup_metrics():
     """Return (count_optimize, count_disable) from Windows startup registry keys."""
     count_all = 0
     try:
@@ -309,7 +409,7 @@ def _get_startup_metrics():
     return count_optimize, count_disable
 
 
-def _get_services_metrics():
+def _scan_services_metrics():
     """Return count of potentially unnecessary running services."""
     _UNNECESSARY = {
         "diagtrack", "wmpnetworksvc", "fax", "xblauthmanager",
@@ -1062,7 +1162,7 @@ def _build_gaming_configurator(self, parent):
 
         _rebuild_form()
 
-        # ── STYLE — size / theme / opacity (live, applied to preview + overlay) ──
+        # ── STYLE - size / theme / opacity (live, applied to preview + overlay) ──
         from ui.components.ingame_overlay import DEFAULT_STYLE as _DSTYLE
         tk.Label(body, text=_t("gaming.style", default="Style"), font=(_HDR, 9),
                  bg=BG, fg="#e5e7eb").pack(anchor="w", pady=(14, 4))
@@ -1153,7 +1253,7 @@ def _build_gaming_configurator(self, parent):
         inner.columnconfigure(1, weight=1)
         inner.columnconfigure(2, weight=0)
 
-        # LEFT — title / done / All-Time label
+        # LEFT - title / done / All-Time label
         lc = tk.Frame(inner, bg="#11131c")
         lc.grid(row=0, column=0, sticky="nw")
         tk.Label(lc, text=_t("gaming.cfg_title", default="OVERLAY In-Game"),
@@ -1169,14 +1269,14 @@ def _build_gaming_configurator(self, parent):
                  font=(_BODY, 7), bg="#11131c", fg="#6b7280", anchor="w",
                  wraplength=170, justify="left").pack(anchor="w")
 
-        # CENTRE — current overlay preview
+        # CENTRE - current overlay preview
         cc = tk.Frame(inner, bg="#11131c")
         cc.grid(row=0, column=1)
         tk.Label(cc, text=_t("gaming.current", default="Current overlay:"),
                  font=(_BODY, 7), bg="#11131c", fg="#6b7280").pack()
         _preview(cc, metrics, _gaming_load_cfg().get("style")).pack(pady=(3, 0))
 
-        # RIGHT — CHANGE + All-Time ON/OFF
+        # RIGHT - CHANGE + All-Time ON/OFF
         rc = tk.Frame(inner, bg="#11131c")
         rc.grid(row=0, column=2, sticky="ne")
         chg = tk.Label(rc, text=_t("gaming.change", default="CHANGE"),
@@ -1208,7 +1308,7 @@ def _build_gaming_configurator(self, parent):
         at_sw.bind("<Button-1>", _flip_at)
         _paint_at()
 
-        # Below the panel — show/hide the live overlay + MiniOverlay control.
+        # Below the panel - show/hide the live overlay + MiniOverlay control.
         ctl = tk.Frame(body, bg=BG)
         ctl.pack(fill="x", pady=(12, 0))
         ov_btn = tk.Label(ctl, text="", font=(_BODY, 9, "bold"), padx=16, pady=8,
@@ -1456,7 +1556,7 @@ def _badge_w(w: float, tdp: float) -> tuple:
     if w >= tdp * 0.85:    return "HIGH", _CYL
     return "OK", _COK
 
-# ── GPU / MB sensor fetchers — moved to core.live_collector (single data
+# ── GPU / MB sensor fetchers - moved to core.live_collector (single data
 #    machine, 2026-07-04). Imported here so this page stays a thin consumer.
 from core.live_collector import (          # noqa: E402
     fetch_gpu_smi as _fetch_gpu_smi,
@@ -1472,7 +1572,6 @@ def _build_hey_user_table(self, parent):
     Writes collected data to hck_gpt.data.live_sensors on every cycle.
     """
     import socket
-    import subprocess as _sp
 
     BG  = "#0a0e27"
     BG2 = "#0f1420"
@@ -1486,15 +1585,32 @@ def _build_hey_user_table(self, parent):
         _ls = None
         _HAS_LS = False
 
-    # ── Detect CPU name + profile ─────────────────────────────────────────────
+    # ── CPU name from the ALREADY-WARMED identity, never a fresh wmic ─────────
+    # `wmic cpu get name` on the UI thread with a 3 s timeout was the main
+    # cause of My PC "loading forever" (2026-07-18): wmic is slow and
+    # deprecated on Win11 24H2. The name is already cached by the live
+    # collector and hardware_detector (warmed at startup), so read that.
+    _cpu_name = ""
     try:
-        _r = _sp.run(["wmic", "cpu", "get", "name"],
-                     capture_output=True, text=True, timeout=3,
-                     creationflags=getattr(_sp, "CREATE_NO_WINDOW", 0))
-        _cpu_name = _r.stdout.strip().splitlines()[-1].strip() if _r.stdout else "Unknown CPU"
+        from hck_gpt.data import live_sensors as _ls_cpu
+        _cpu_name = (_ls_cpu.snapshot().get("cpu_name") or "").strip()
     except Exception:
-        import platform
-        _cpu_name = platform.processor() or "Unknown CPU"
+        pass
+    if not _cpu_name:
+        try:
+            from core.hardware_detector import get_hardware_detector
+            _det = get_hardware_detector()
+            if getattr(_det, "is_ready", False):
+                _cpu_name = ((_det.get_data().get("cpu") or {})
+                             .get("name") or "").strip()
+        except Exception:
+            pass
+    if not _cpu_name:
+        try:
+            import platform
+            _cpu_name = platform.processor() or "Unknown CPU"
+        except Exception:
+            _cpu_name = "Unknown CPU"
 
     _cpu_prof = _match_cpu(_cpu_name)
 
@@ -1783,22 +1899,19 @@ def _build_hey_user_table(self, parent):
                  fg="#8593a8", font=(_HDR, 7),
                  anchor="center").grid(row=0, column=col_i, sticky="ew", padx=1, pady=1)
 
-    # Fetch disk models once
+    # Disk models from the warmed hardware identity - the second blocking
+    # `wmic` in this build path (2026-07-18), same 3 s timeout on the UI
+    # thread. hardware_detector already enumerated the drives at startup.
     _disk_models: dict = {}
     try:
-        _dm = _sp.run(["wmic", "diskdrive", "get", "model,index"],
-                      capture_output=True, text=True, timeout=3,
-                      creationflags=getattr(_sp, "CREATE_NO_WINDOW", 0))
-        for _ln in (_dm.stdout or "").splitlines():
-            _ln = _ln.strip()
-            if _ln and "Model" not in _ln and _ln:
-                parts_m = _ln.split()
-                if parts_m:
-                    idx_s = parts_m[-1]
-                    if idx_s.isdigit():
-                        _disk_models[int(idx_s)] = " ".join(parts_m[:-1])[:16]
-                    else:
-                        _disk_models[0] = " ".join(parts_m)[:16]
+        from core.hardware_detector import get_hardware_detector as _ghd
+        _det2 = _ghd()
+        if getattr(_det2, "is_ready", False):
+            _drv = (_det2.get_data().get("storage") or {}).get("drives", [])
+            for _i, _d in enumerate(_drv):
+                _m = (_d.get("model") or "").strip()
+                if _m:
+                    _disk_models[_i] = _m[:16]
     except Exception:
         pass
 
@@ -1857,6 +1970,12 @@ def _build_hey_user_table(self, parent):
     def _refresh():
         try:
             if not body.winfo_exists():
+                return
+            # Keep-alive (Phase 2): the frame EXISTS while hidden - skip the
+            # sensor work and idle at 3 s until it is viewable again. Data
+            # catches up on the first visible tick.
+            if not body.winfo_viewable():
+                parent.after(3000, _refresh)
                 return
 
             # ── CPU data ──────────────────────────────────────────────────
@@ -2081,38 +2200,20 @@ def _build_hey_user_table(self, parent):
 
             # ── Push to live_sensors bridge ───────────────────────────────
             if _HAS_LS:
-                _n_p = psutil.cpu_count(logical=False) or _cpu_prof["cores"]
-                _n_l = psutil.cpu_count(logical=True) or _n_p * 2
-                _gpu_ok = smi.get("ok", False) if smi else False
+                # CONSUMER-ONLY RULE: core.live_collector is the single
+                # producer of live sensor keys (cpu_load/temp+src, gpu_*,
+                # mb_*, disks). This page used to push its ESTIMATED cpu_t
+                # onto the bus WITHOUT the cpu_temp_src honesty flag, racing
+                # the collector every 2 s - estimated temps could leak past
+                # the honesty guard into history/learning while My PC was
+                # open. The page now contributes ONLY the spec enrichment
+                # that comes from its CPU/GPU knowledge base (no live
+                # metric ever), plus the documented session_hist merge.
                 _ls.update({
-                    "cpu_load":    cpu_load,
-                    "cpu_temp":    cpu_t,
-                    "cpu_mhz":     cur_mhz,
-                    "cpu_boost":   boost_mhz,
-                    "cpu_power":   cpu_w,
                     "cpu_tdp":     float(tdp),
                     "cpu_pl2":     float(pl2),
-                    "cpu_cores_p": _n_p,
-                    "cpu_cores_l": _n_l,
                     "cpu_name":    _cpu_name,
-                    "gpu_temp":    smi.get("temp",    -1.0) if _gpu_ok else -1.0,
-                    "gpu_load":    smi.get("usage",   -1.0) if _gpu_ok else -1.0,
-                    "gpu_vram_pct": (smi.get("mem_used", 0) / max(smi.get("mem_total", 1), 1) * 100)
-                                    if _gpu_ok else -1.0,
-                    "gpu_vram_mb": float(smi.get("mem_used", -1)) if _gpu_ok else -1.0,
-                    "gpu_power":   smi.get("power",   -1.0) if _gpu_ok else -1.0,
                     "gpu_tdp":     float(_gpu_prof["tdp"]),
-                    "gpu_clk_gr":  float(smi.get("clk_gr",  -1)) if _gpu_ok else -1.0,
-                    "gpu_clk_mem": float(smi.get("clk_mem", -1)) if _gpu_ok else -1.0,
-                    "gpu_name":    smi.get("name", _gpu_name),
-                    "gpu_ok":      _gpu_ok,
-                    "mb_volt_12v": mb_data.get("volt_12v", -1.0),
-                    "mb_volt_5v":  mb_data.get("volt_5v",  -1.0),
-                    "mb_volt_33v": mb_data.get("volt_33v", -1.0),
-                    "mb_temp_sys": mb_data.get("temp_sys", -1.0),
-                    "mb_temp_vrm": mb_data.get("temp_vrm", -1.0),
-                    "mb_source":   mb_data.get("source",   ""),
-                    "disks":       disk_snap,
                     "session_hist": {**(_ls.get("session_hist") or {}),
                                      **{k: list(v) for k, v in _SESSION_HIST.items()}},
                 })
@@ -2368,12 +2469,31 @@ def _make_scroll_frame(parent):
     return sf, canvas
 
 
+def _empty_state(parent, icon, title, subtitle=""):
+    """Professional centered empty/degraded-state card. Used when a tab has
+    no data to show (clean system, failed probe) so it never renders blank."""
+    BG = "#0a0e14"
+    wrap = tk.Frame(parent, bg=BG)
+    wrap.pack(fill="both", expand=True, pady=44)
+    inner = tk.Frame(wrap, bg="#0f1522",
+                     highlightbackground="#1e2535", highlightthickness=1)
+    inner.pack(pady=6, ipadx=26, ipady=20)
+    tk.Label(inner, text=icon, font=(_BODY, 26), bg="#0f1522",
+             fg="#3b4a63").pack()
+    tk.Label(inner, text=title, font=(_HDR, 11, "bold"), bg="#0f1522",
+             fg="#cbd5e1").pack(pady=(8, 2))
+    if subtitle:
+        tk.Label(inner, text=subtitle, font=(_BODY, 8), bg="#0f1522",
+                 fg="#6b7280", wraplength=320, justify="center").pack()
+    return wrap
+
+
 def _sec_hdr(parent, text):
     """Section divider with bold Inter heading."""
     row = tk.Frame(parent, bg="#0a0e14")
     row.pack(fill="x", padx=8, pady=(7, 2))
     tk.Label(row, text=text, font=(_BODY, 7, "bold"),
-             bg="#0a0e14", fg="#64748b", letterSpacing=1).pack(side="left")
+             bg="#0a0e14", fg="#64748b").pack(side="left")
     tk.Frame(row, bg="#1e2535", height=1).pack(side="left", fill="x", expand=True, padx=8)
 
 
@@ -2534,6 +2654,13 @@ def _build_health(self, parent):
     # ── Live refresh loop ──────────────────────────────────
     def _refresh():
         if not parent.winfo_exists():
+            return
+        try:
+            # Keep-alive (Phase 2): idle while the frame is hidden
+            if not parent.winfo_viewable():
+                parent.after(3000, _refresh)
+                return
+        except Exception:
             return
         try:
             _health_refresh(refs)
@@ -2758,9 +2885,15 @@ def _build_components(self, parent):
     loading_lbl.pack(pady=20)
 
     def _on_scan_done(data):
-        if not parent.winfo_exists():
-            return
-        parent.after(0, lambda: _render_components(sf, loading_lbl, data))
+        # Runs on the scanner's background thread: schedule the render on the
+        # main thread and check widget existence THERE (winfo_exists from a
+        # worker thread is a cross-thread Tk call). after() is the one hop.
+        try:
+            parent.after(0, lambda: _render_components(sf, loading_lbl, data,
+                                                       win=self)
+                         if parent.winfo_exists() else None)
+        except Exception:
+            pass
 
     try:
         from core.hardware_detector import get_hardware_detector
@@ -2773,7 +2906,23 @@ def _build_components(self, parent):
         loading_lbl.config(text=f"Hardware scan failed: {ex}", fg="#ef4444")
 
 
-def _render_components(sf, loading_lbl, data):
+def _upgrade_btn(card_inner, win, focus, bg="#1a1d24"):
+    """Small 'UPGRADE READINESS' link at the bottom-right of a component
+    card. Navigates to the compatibility page with the quick-pick chips
+    pre-sorted for that part (spec: the button lives AT the component)."""
+    if win is None or not hasattr(win, "open_upgrade_readiness"):
+        return
+    row = tk.Frame(card_inner, bg=bg)
+    row.pack(fill="x", padx=6)
+    b = tk.Label(row, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
+                 bg=bg, fg="#10b981", cursor="hand2")
+    b.pack(side="right")
+    b.bind("<Enter>", lambda e: b.config(fg="#34d399"))
+    b.bind("<Leave>", lambda e: b.config(fg="#10b981"))
+    b.bind("<Button-1>", lambda e, f=focus: win.open_upgrade_readiness(f))
+
+
+def _render_components(sf, loading_lbl, data, win=None):
     """Render component cards after scan completes."""
     try:
         if loading_lbl.winfo_exists():
@@ -2787,6 +2936,38 @@ def _render_components(sf, loading_lbl, data):
     ram = data.get("ram", {})
     storage = data.get("storage", {})
     mb = data.get("motherboard", {})
+
+    # Degraded-state guard: if the scan returned nothing usable, show a clean
+    # empty state instead of a wall of "N/A" cards.
+    if not any((cpu.get("name"), gpu.get("name"), ram.get("total_gb"))):
+        _empty_state(sf, "🧩",
+                     _t("my_pc.components_empty_title",
+                        default="Hardware details unavailable"),
+                     _t("my_pc.components_empty_sub",
+                        default="The hardware scan came back empty. On Windows 11 24H2+ "
+                                "this can need a moment - reopen this tab, or run the app "
+                                "as administrator for full detail."))
+        return
+
+    # ── Motherboard (top banner) ───────────────────────────
+    # The card's own red "Motherboard" title is the heading - no extra
+    # section header. Model + Version sit side by side.
+    mb_row0 = tk.Frame(sf, bg=BG)
+    mb_row0.pack(fill="x", padx=8, pady=(2, 4))
+    mb_outer, mb_inner = _card(mb_row0, "Motherboard", "⚡", "#ef4444")
+    mb_outer.pack(fill="x")
+    mb_name = " ".join(filter(None, [mb.get("manufacturer", ""),
+                                     mb.get("product", "")])) or "N/A"
+    mb_cols = tk.Frame(mb_inner, bg="#1a1d24")
+    mb_cols.pack(fill="x")
+    mb_left = tk.Frame(mb_cols, bg="#1a1d24")
+    mb_left.pack(side="left", fill="x", expand=True, padx=(0, 10))
+    mb_right = tk.Frame(mb_cols, bg="#1a1d24")
+    mb_right.pack(side="left", fill="x", expand=True)
+    _spec_row(mb_left,  "Model",   mb_name)
+    _spec_row(mb_right, "Version", mb.get("version", "N/A") or "N/A")
+    _upgrade_btn(mb_inner, win, "cpu")
+    tk.Frame(mb_inner, bg="#1a1d24", height=4).pack()
 
     # ── CPU + GPU row ──────────────────────────────────────
     _sec_hdr(sf, "PROCESSOR  ·  GRAPHICS")
@@ -2804,6 +2985,7 @@ def _render_components(sf, loading_lbl, data):
     _spec_row(cpu_inner, "Freq (cur / max)",
               f"{freq_cur} / {freq_max} MHz" if freq_cur else "N/A")
     _spec_row(cpu_inner, "Arch", cpu.get("architecture", "N/A"))
+    _upgrade_btn(cpu_inner, win, "cpu")
     tk.Frame(cpu_inner, bg="#1a1d24", height=3).pack()
 
     gpu_outer, gpu_inner = _card(row1, "GPU", "🖥", "#8b5cf6")
@@ -2813,6 +2995,7 @@ def _render_components(sf, loading_lbl, data):
     _spec_row(gpu_inner, "VRAM", f"{vram / 1024:.1f} GB" if vram else "N/A")
     _spec_row(gpu_inner, "Driver ver", gpu.get("driver_version", "N/A") or "N/A")
     _spec_row(gpu_inner, "Driver date", gpu.get("driver_date", "N/A") or "N/A")
+    _upgrade_btn(gpu_inner, win, "gpu")
     tk.Frame(gpu_inner, bg="#1a1d24", height=3).pack()
 
     # ── RAM + Storage row ──────────────────────────────────
@@ -2830,6 +3013,7 @@ def _render_components(sf, loading_lbl, data):
     _spec_row(ram_inner, "Form factor", ram.get("form_factor", "N/A") or "N/A")
     slots = ram.get("slots_used", 0)
     _spec_row(ram_inner, "Modules", f"{slots} slot(s) used" if slots else "N/A")
+    _upgrade_btn(ram_inner, win, "ram")
     tk.Frame(ram_inner, bg="#1a1d24", height=3).pack()
 
     st_outer, st_inner = _card(row2, "Storage", "🗄", "#f59e0b")
@@ -2852,17 +3036,6 @@ def _render_components(sf, loading_lbl, data):
             _spec_row(st_inner, dev, f"{pct:.0f}%  {free:.1f} GB free",
                       value_color=_pct_color_str(pct))
     tk.Frame(st_inner, bg="#1a1d24", height=3).pack()
-
-    # ── Motherboard ────────────────────────────────────────
-    _sec_hdr(sf, "MOTHERBOARD")
-    mb_row = tk.Frame(sf, bg=BG)
-    mb_row.pack(fill="x", padx=8, pady=2)
-    mb_outer, mb_inner = _card(mb_row, "Motherboard", "⚡", "#ef4444")
-    mb_outer.pack(fill="x")
-    mb_name = " ".join(filter(None, [mb.get("manufacturer", ""), mb.get("product", "")])) or "N/A"
-    _spec_row(mb_inner, "Model", mb_name)
-    _spec_row(mb_inner, "Version", mb.get("version", "N/A") or "N/A")
-    tk.Frame(mb_inner, bg="#1a1d24", height=4).pack()
 
 
 def _pct_color_str(pct: float) -> str:
@@ -3029,9 +3202,11 @@ def _build_efficiency(self, parent):
                 name = line[-30:] if line else "N/A"
         except Exception:
             name = "N/A"
-        if parent.winfo_exists():
+        try:   # worker thread -> hop to main thread, check existence there
             parent.after(0, lambda: pwr_lbl.config(text=name)
                          if pwr_lbl.winfo_exists() else None)
+        except Exception:
+            pass
 
     import threading as _thr
     _thr.Thread(target=_load_power_plan, daemon=True).start()
@@ -3039,6 +3214,13 @@ def _build_efficiency(self, parent):
     # ── Live refresh ───────────────────────────────────────────────────────
     def _refresh():
         if not parent.winfo_exists():
+            return
+        try:
+            # Keep-alive (Phase 2): idle while the frame is hidden
+            if not parent.winfo_viewable():
+                parent.after(3000, _refresh)
+                return
+        except Exception:
             return
         try:
             _efficiency_refresh(refs)
@@ -3283,8 +3465,11 @@ def _build_startup(self, parent):
 
     def _load():
         entries = _read_startup_registry()
-        if parent.winfo_exists():
-            parent.after(0, lambda: _render_startup(sf, loading_lbl, entries, self))
+        try:   # worker thread -> main thread; existence checked in the callback
+            parent.after(0, lambda: _render_startup(sf, loading_lbl, entries, self)
+                         if parent.winfo_exists() else None)
+        except Exception:
+            pass
 
     import threading as _thr
     _thr.Thread(target=_load, daemon=True).start()
@@ -3334,6 +3519,13 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
 
     BG = "#0a0e14"
     count = len(entries)
+    if count == 0:
+        _empty_state(sf, "🚀",
+                     _t("my_pc.startup_empty_title", default="No startup programs"),
+                     _t("my_pc.startup_empty_sub",
+                        default="Nothing extra launches with Windows - a clean boot. "
+                                "Rare, and exactly what you want."))
+        return
     color = "#ef4444" if count > 12 else "#f59e0b" if count > 8 else "#10b981"
 
     # Count badge row
