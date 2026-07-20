@@ -1383,7 +1383,7 @@
     "name": "Kerbal Space Program",
     "vendor": "Squad / Private Division",
     "category": "gaming",
-    "description": "Space flight simulation. Physics engine is single-threaded — CPU pegs one core with large vessels.",
+    "description": "Space flight simulation. Physics engine is single-threaded - CPU pegs one core with large vessels.",
     "power_usage": "high",
     "safety": "safe",
     "typical_cpu": "30-90%",
@@ -2353,7 +2353,7 @@
     "name": "FurMark GPU Stress Test",
     "vendor": "Geeks3D",
     "category": "utility",
-    "description": "Maximizes GPU to 100% load for stability and thermal testing. Not for regular use — extreme heat generator.",
+    "description": "Maximizes GPU to 100% load for stability and thermal testing. Not for regular use - extreme heat generator.",
     "power_usage": "very_high",
     "safety": "caution",
     "typical_cpu": "5-30%",
@@ -3728,5 +3728,1125 @@
     "safety": "safe",
     "typical_cpu": "20-50%",
     "typical_ram": "12-16GB"
+  },
+  "socialclubhelper.exe": {
+    "name": "Rockstar Social Club Helper",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Background helper for the Rockstar Social Club overlay and sign-in.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "50-150MB"
+  },
+  "rockstarerrorhandler.exe": {
+    "name": "Rockstar Error Handler",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Crash reporter that runs alongside Rockstar games.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-30MB"
+  },
+  "launcher.exe": {
+    "name": "Rockstar Games Launcher",
+    "vendor": "Rockstar Games",
+    "category": "gaming",
+    "description": "Store and launcher for GTA and Red Dead titles.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "150-400MB"
+  },
+  "steamwebhelper.exe": {
+    "name": "Steam Web Helper",
+    "vendor": "Valve",
+    "category": "gaming",
+    "description": "Chromium renderer for the Steam client UI - several instances are normal.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "100-300MB"
+  },
+  "steamservice.exe": {
+    "name": "Steam Client Service",
+    "vendor": "Valve",
+    "category": "gaming",
+    "description": "Elevated service handling installs and anti-cheat setup for Steam.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "epicwebhelper.exe": {
+    "name": "Epic Web Helper",
+    "vendor": "Epic Games",
+    "category": "gaming",
+    "description": "Embedded browser process for the Epic Games Launcher UI.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-250MB"
+  },
+  "riotclientux.exe": {
+    "name": "Riot Client UI",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "User interface renderer of the Riot Client.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "150-350MB"
+  },
+  "leagueclientux.exe": {
+    "name": "League Client UI",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "League of Legends lobby and shop interface.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "300-700MB"
+  },
+  "galaxyclientservice.exe": {
+    "name": "GOG Galaxy Service",
+    "vendor": "GOG (CD Projekt)",
+    "category": "gaming",
+    "description": "Background install/update service for GOG Galaxy.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "galaxycommunication.exe": {
+    "name": "GOG Galaxy Communication",
+    "vendor": "GOG (CD Projekt)",
+    "category": "gaming",
+    "description": "Inter-process bridge used by GOG Galaxy features.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "uplaywebcore.exe": {
+    "name": "Ubisoft Connect Web Core",
+    "vendor": "Ubisoft",
+    "category": "gaming",
+    "description": "Embedded web renderer for Ubisoft Connect.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-6%",
+    "typical_ram": "100-250MB"
+  },
+  "agent.exe": {
+    "name": "Blizzard Update Agent",
+    "vendor": "Blizzard Entertainment",
+    "category": "gaming",
+    "description": "Downloads and patches Battle.net games; busy only during updates.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-40%",
+    "typical_ram": "50-200MB"
+  },
+  "battle.net helper.exe": {
+    "name": "Battle.net Helper",
+    "vendor": "Blizzard Entertainment",
+    "category": "gaming",
+    "description": "Renderer process of the Battle.net launcher.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-300MB"
+  },
+  "curseforge.exe": {
+    "name": "CurseForge",
+    "vendor": "Overwolf",
+    "category": "gaming",
+    "description": "Mod manager for Minecraft and other games.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-500MB"
+  },
+  "prismlauncher.exe": {
+    "name": "Prism Launcher",
+    "vendor": "Prism Launcher community",
+    "category": "gaming",
+    "description": "Open-source Minecraft instance launcher.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-4%",
+    "typical_ram": "80-200MB"
+  },
+  "tlauncher.exe": {
+    "name": "TLauncher",
+    "vendor": "TLauncher",
+    "category": "gaming",
+    "description": "Third-party Minecraft launcher.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "1-5%",
+    "typical_ram": "150-350MB"
+  },
+  "lunarclient.exe": {
+    "name": "Lunar Client",
+    "vendor": "Moonsworth",
+    "category": "gaming",
+    "description": "Modded Minecraft client with built-in performance tweaks.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "1-3GB"
+  },
+  "wemod.exe": {
+    "name": "WeMod",
+    "vendor": "WeMod",
+    "category": "gaming",
+    "description": "Single-player game trainer platform - never use online.",
+    "power_usage": "low",
+    "safety": "caution",
+    "typical_cpu": "1-6%",
+    "typical_ram": "150-400MB"
+  },
+  "medal.exe": {
+    "name": "Medal",
+    "vendor": "Medal.tv",
+    "category": "gaming",
+    "description": "Clip recorder capturing gameplay in the background.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "300-800MB"
+  },
+  "easyanticheat_eos.exe": {
+    "name": "Easy Anti-Cheat (EOS)",
+    "vendor": "Epic Games",
+    "category": "security",
+    "description": "EOS variant of Easy Anti-Cheat bundled with newer games.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "beservice.exe": {
+    "name": "BattlEye Service",
+    "vendor": "BattlEye Innovations",
+    "category": "security",
+    "description": "Anti-cheat engine used by many shooters. Never terminate during play.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "15-50MB"
+  },
+  "vgc.exe": {
+    "name": "Riot Vanguard Service",
+    "vendor": "Riot Games",
+    "category": "security",
+    "description": "Kernel-assisted anti-cheat required by Valorant.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "vgtray.exe": {
+    "name": "Riot Vanguard Tray",
+    "vendor": "Riot Games",
+    "category": "security",
+    "description": "Tray icon controlling the Vanguard anti-cheat.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-30MB"
+  },
+  "nvsphelper64.exe": {
+    "name": "NVIDIA ShadowPlay Helper",
+    "vendor": "NVIDIA",
+    "category": "media",
+    "description": "Hotkey listener for ShadowPlay capture.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "20-50MB"
+  },
+  "nvidia app.exe": {
+    "name": "NVIDIA App",
+    "vendor": "NVIDIA",
+    "category": "utility",
+    "description": "Unified driver, overlay and optimization hub (GeForce Experience successor).",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "150-400MB"
+  },
+  "nvidia overlay.exe": {
+    "name": "NVIDIA Overlay",
+    "vendor": "NVIDIA",
+    "category": "media",
+    "description": "In-game overlay renderer for the NVIDIA App.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "100-250MB"
+  },
+  "radeonsoftware.exe": {
+    "name": "AMD Radeon Software",
+    "vendor": "AMD",
+    "category": "utility",
+    "description": "Adrenalin control panel for Radeon GPUs.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "150-400MB"
+  },
+  "atieclxx.exe": {
+    "name": "AMD External Events",
+    "vendor": "AMD",
+    "category": "system",
+    "description": "Listens for display events (hotkeys, HDMI plug) on Radeon systems.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-30MB"
+  },
+  "rtss.exe": {
+    "name": "RivaTuner Statistics Server",
+    "vendor": "Guru3D",
+    "category": "utility",
+    "description": "FPS counter and frame limiter used with MSI Afterburner - PC Workman reads FPS from it.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "lghub_agent.exe": {
+    "name": "Logitech G HUB Agent",
+    "vendor": "Logitech",
+    "category": "utility",
+    "description": "Background agent applying G HUB device profiles.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-4%",
+    "typical_ram": "100-250MB"
+  },
+  "lghub_updater.exe": {
+    "name": "Logitech G HUB Updater",
+    "vendor": "Logitech",
+    "category": "utility",
+    "description": "Update checker for G HUB.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "30-80MB"
+  },
+  "armourycrate.service.exe": {
+    "name": "ASUS Armoury Crate Service",
+    "vendor": "ASUS",
+    "category": "utility",
+    "description": "Backend for ASUS RGB/fan control - a known heavy suite.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "150-400MB"
+  },
+  "lightingservice.exe": {
+    "name": "ASUS Aura Lighting",
+    "vendor": "ASUS",
+    "category": "utility",
+    "description": "Aura Sync RGB lighting service.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-4%",
+    "typical_ram": "50-150MB"
+  },
+  "nzxt cam.exe": {
+    "name": "NZXT CAM",
+    "vendor": "NZXT",
+    "category": "utility",
+    "description": "Monitoring and RGB suite for NZXT hardware.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-10%",
+    "typical_ram": "300-700MB"
+  },
+  "rtkauduservice64.exe": {
+    "name": "Realtek Audio Service",
+    "vendor": "Realtek",
+    "category": "system",
+    "description": "Audio driver background service.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-40MB"
+  },
+  "ravbg64.exe": {
+    "name": "Realtek Audio Background",
+    "vendor": "Realtek",
+    "category": "system",
+    "description": "Realtek HD Audio background processing.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "15-50MB"
+  },
+  "msedgewebview2.exe": {
+    "name": "Edge WebView2",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Embedded web renderer used by many apps (Widgets, Office, Teams). Multiple instances are normal.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "50-300MB"
+  },
+  "mousocoreworker.exe": {
+    "name": "MoUSO Core Worker",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Update session orchestrator - wakes around Windows Update activity.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "20-80MB"
+  },
+  "waasmedicagent.exe": {
+    "name": "Update Medic Agent",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Repairs Windows Update components in the background.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "20-60MB"
+  },
+  "uhssvc.exe": {
+    "name": "Update Health Service",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Microsoft Update Health tools service.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "aggregatorhost.exe": {
+    "name": "Aggregator Host",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Windows insider/diagnostics aggregation host.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "phoneexperiencehost.exe": {
+    "name": "Phone Link",
+    "vendor": "Microsoft",
+    "category": "communication",
+    "description": "Syncs an Android/iPhone with Windows (messages, photos, calls).",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-6%",
+    "typical_ram": "100-300MB"
+  },
+  "widgets.exe": {
+    "name": "Windows Widgets",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Windows 11 widgets board host.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "100-300MB"
+  },
+  "widgetservice.exe": {
+    "name": "Widget Service",
+    "vendor": "Microsoft",
+    "category": "system",
+    "description": "Backend feeding the Windows 11 widgets board.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "50-150MB"
+  },
+  "nissrv.exe": {
+    "name": "Defender Network Inspection",
+    "vendor": "Microsoft",
+    "category": "security",
+    "description": "Network traffic inspection arm of Microsoft Defender.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "vmcompute.exe": {
+    "name": "Hyper-V Host Compute",
+    "vendor": "Microsoft",
+    "category": "virtualization",
+    "description": "Host service for Hyper-V/WSL2 containers and VMs.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "vmmemwsl": {
+    "name": "WSL2 VM Memory",
+    "vendor": "Microsoft",
+    "category": "virtualization",
+    "description": "Pseudo-process for the WSL2 virtual machine's memory.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-80%",
+    "typical_ram": "0.5-8GB"
+  },
+  "wslservice.exe": {
+    "name": "WSL Service",
+    "vendor": "Microsoft",
+    "category": "virtualization",
+    "description": "Manages Windows Subsystem for Linux lifecycles.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "wslhost.exe": {
+    "name": "WSL Host",
+    "vendor": "Microsoft",
+    "category": "virtualization",
+    "description": "Hosts interop between Windows and a WSL distro.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "10-40MB"
+  },
+  "com.docker.backend.exe": {
+    "name": "Docker Desktop Backend",
+    "vendor": "Docker Inc.",
+    "category": "development",
+    "description": "Engine backend for Docker Desktop on Windows.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-15%",
+    "typical_ram": "200-800MB"
+  },
+  "windsurf.exe": {
+    "name": "Windsurf",
+    "vendor": "Codeium",
+    "category": "development",
+    "description": "AI-assisted code editor (VS Code fork).",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "2-25%",
+    "typical_ram": "0.5-2GB"
+  },
+  "zed.exe": {
+    "name": "Zed",
+    "vendor": "Zed Industries",
+    "category": "development",
+    "description": "Fast native collaborative code editor.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-600MB"
+  },
+  "mongodbcompass.exe": {
+    "name": "MongoDB Compass",
+    "vendor": "MongoDB Inc.",
+    "category": "development",
+    "description": "GUI for MongoDB databases (Electron).",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "300-700MB"
+  },
+  "insomnia.exe": {
+    "name": "Insomnia",
+    "vendor": "Kong",
+    "category": "development",
+    "description": "REST/GraphQL API client.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "200-500MB"
+  },
+  "bun.exe": {
+    "name": "Bun",
+    "vendor": "Oven",
+    "category": "development",
+    "description": "Fast JavaScript runtime and package manager.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-50%",
+    "typical_ram": "100-500MB"
+  },
+  "deno.exe": {
+    "name": "Deno",
+    "vendor": "Deno Land",
+    "category": "development",
+    "description": "Secure TypeScript/JavaScript runtime.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-50%",
+    "typical_ram": "100-500MB"
+  },
+  "messenger.exe": {
+    "name": "Messenger",
+    "vendor": "Meta",
+    "category": "communication",
+    "description": "Facebook Messenger desktop app.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "150-400MB"
+  },
+  "tidal.exe": {
+    "name": "TIDAL",
+    "vendor": "TIDAL",
+    "category": "media",
+    "description": "Hi-fi music streaming client.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-6%",
+    "typical_ram": "200-500MB"
+  },
+  "deezer.exe": {
+    "name": "Deezer",
+    "vendor": "Deezer",
+    "category": "media",
+    "description": "Music streaming desktop app.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-6%",
+    "typical_ram": "200-450MB"
+  },
+  "itunes.exe": {
+    "name": "iTunes",
+    "vendor": "Apple",
+    "category": "media",
+    "description": "Apple media player and device sync.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-600MB"
+  },
+  "potplayermini64.exe": {
+    "name": "PotPlayer",
+    "vendor": "Kakao",
+    "category": "media",
+    "description": "Feature-rich video player.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "80-300MB"
+  },
+  "plex.exe": {
+    "name": "Plex",
+    "vendor": "Plex Inc.",
+    "category": "media",
+    "description": "Media streaming client for a Plex server.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-500MB"
+  },
+  "plexmediaserver.exe": {
+    "name": "Plex Media Server",
+    "vendor": "Plex Inc.",
+    "category": "media",
+    "description": "Serves and transcodes your media library - heavy while transcoding.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "1-70%",
+    "typical_ram": "200MB-1GB"
+  },
+  "stremio.exe": {
+    "name": "Stremio",
+    "vendor": "Stremio",
+    "category": "media",
+    "description": "Streaming aggregation player.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "200-500MB"
+  },
+  "capcut.exe": {
+    "name": "CapCut",
+    "vendor": "ByteDance",
+    "category": "media",
+    "description": "Consumer video editor.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-50%",
+    "typical_ram": "0.5-2GB"
+  },
+  "streamlabs obs.exe": {
+    "name": "Streamlabs Desktop",
+    "vendor": "Logitech",
+    "category": "media",
+    "description": "Streaming studio built on OBS - noticeably heavier than plain OBS.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "10-40%",
+    "typical_ram": "0.5-2GB"
+  },
+  "anki.exe": {
+    "name": "Anki",
+    "vendor": "Ankitects",
+    "category": "productivity",
+    "description": "Spaced-repetition flashcard app.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "150-350MB"
+  },
+  "todoist.exe": {
+    "name": "Todoist",
+    "vendor": "Doist",
+    "category": "productivity",
+    "description": "Task manager desktop app.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "100-250MB"
+  },
+  "powerlauncher.exe": {
+    "name": "PowerToys Run",
+    "vendor": "Microsoft",
+    "category": "utility",
+    "description": "Alt+Space quick launcher from PowerToys.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "50-150MB"
+  },
+  "flow.launcher.exe": {
+    "name": "Flow Launcher",
+    "vendor": "Flow Launcher team",
+    "category": "utility",
+    "description": "Open-source quick launcher.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "80-200MB"
+  },
+  "ditto.exe": {
+    "name": "Ditto",
+    "vendor": "Ditto community",
+    "category": "utility",
+    "description": "Clipboard history manager.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "10-50MB"
+  },
+  "balenaetcher.exe": {
+    "name": "balenaEtcher",
+    "vendor": "balena",
+    "category": "utility",
+    "description": "USB/SD image flasher (Electron).",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-30%",
+    "typical_ram": "200-500MB"
+  },
+  "hwmonitor.exe": {
+    "name": "HWMonitor",
+    "vendor": "CPUID",
+    "category": "utility",
+    "description": "Hardware voltages/temps monitor.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "cinebench.exe": {
+    "name": "Cinebench",
+    "vendor": "Maxon",
+    "category": "utility",
+    "description": "CPU rendering benchmark - pins all cores while running.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "0-100%",
+    "typical_ram": "300-800MB"
+  },
+  "gpu-z.exe": {
+    "name": "GPU-Z",
+    "vendor": "TechPowerUp",
+    "category": "utility",
+    "description": "GPU information and sensor viewer.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "cpu-z.exe": {
+    "name": "CPU-Z",
+    "vendor": "CPUID",
+    "category": "utility",
+    "description": "CPU/board information tool.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "samsung magician.exe": {
+    "name": "Samsung Magician",
+    "vendor": "Samsung",
+    "category": "utility",
+    "description": "SSD health, firmware and performance suite.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-4%",
+    "typical_ram": "100-300MB"
+  },
+  "bdagent.exe": {
+    "name": "Bitdefender Agent",
+    "vendor": "Bitdefender",
+    "category": "security",
+    "description": "Desktop agent of Bitdefender security suite.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "50-200MB"
+  },
+  "egui.exe": {
+    "name": "ESET GUI",
+    "vendor": "ESET",
+    "category": "security",
+    "description": "User interface of ESET security products.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "30-100MB"
+  },
+  "nortonsecurity.exe": {
+    "name": "Norton Security",
+    "vendor": "Gen Digital",
+    "category": "security",
+    "description": "Norton 360 core protection process.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-8%",
+    "typical_ram": "100-400MB"
+  },
+  "tailscaled.exe": {
+    "name": "Tailscale Daemon",
+    "vendor": "Tailscale",
+    "category": "network",
+    "description": "WireGuard-based mesh VPN backend.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "30-100MB"
+  },
+  "tailscale-ipn.exe": {
+    "name": "Tailscale Tray",
+    "vendor": "Tailscale",
+    "category": "network",
+    "description": "Tray UI for Tailscale.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-1%",
+    "typical_ram": "20-60MB"
+  },
+  "cloudflare warp.exe": {
+    "name": "Cloudflare WARP",
+    "vendor": "Cloudflare",
+    "category": "network",
+    "description": "1.1.1.1 VPN/DNS client.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "50-150MB"
+  },
+  "openvpn-gui.exe": {
+    "name": "OpenVPN GUI",
+    "vendor": "OpenVPN project",
+    "category": "network",
+    "description": "Classic OpenVPN tunnel manager.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-3%",
+    "typical_ram": "20-80MB"
+  },
+  "creative cloud.exe": {
+    "name": "Adobe Creative Cloud",
+    "vendor": "Adobe",
+    "category": "cloud",
+    "description": "Adobe app hub - brings several background helpers with it.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "300-700MB"
+  },
+  "ccxprocess.exe": {
+    "name": "Adobe CCX Process",
+    "vendor": "Adobe",
+    "category": "cloud",
+    "description": "Creative Cloud content/sync helper - safe to disable from startup.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-4%",
+    "typical_ram": "100-250MB"
+  },
+  "adobeipcbroker.exe": {
+    "name": "Adobe IPC Broker",
+    "vendor": "Adobe",
+    "category": "cloud",
+    "description": "Inter-process broker for Adobe apps.",
+    "power_usage": "very_low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "20-60MB"
+  },
+  "adobe desktop service.exe": {
+    "name": "Adobe Desktop Service",
+    "vendor": "Adobe",
+    "category": "cloud",
+    "description": "Install/update backend of Creative Cloud.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "100-300MB"
+  },
+  "icloudservices.exe": {
+    "name": "iCloud Services",
+    "vendor": "Apple",
+    "category": "cloud",
+    "description": "Windows sync for iCloud Drive and Photos.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "50-200MB"
+  },
+  "synologydrive.exe": {
+    "name": "Synology Drive",
+    "vendor": "Synology",
+    "category": "cloud",
+    "description": "NAS folder sync client.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "100-300MB"
+  },
+  "fortniteclient-win64-shipping.exe": {
+    "name": "Fortnite",
+    "vendor": "Epic Games",
+    "category": "gaming",
+    "description": "Fortnite game client.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "4-10GB"
+  },
+  "valorant-win64-shipping.exe": {
+    "name": "VALORANT",
+    "vendor": "Riot Games",
+    "category": "gaming",
+    "description": "Valorant game client (requires Vanguard).",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "20-70%",
+    "typical_ram": "2-5GB"
+  },
+  "bg3.exe": {
+    "name": "Baldur's Gate 3",
+    "vendor": "Larian Studios",
+    "category": "gaming",
+    "description": "Baldur's Gate 3 game process.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "6-12GB"
+  },
+  "palworld-win64-shipping.exe": {
+    "name": "Palworld",
+    "vendor": "Pocketpair",
+    "category": "gaming",
+    "description": "Palworld game client.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "6-12GB"
+  },
+  "factorygame.exe": {
+    "name": "Satisfactory",
+    "vendor": "Coffee Stain",
+    "category": "gaming",
+    "description": "Satisfactory game process - RAM grows with factory size.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "4-12GB"
+  },
+  "rustclient.exe": {
+    "name": "Rust",
+    "vendor": "Facepunch",
+    "category": "gaming",
+    "description": "Rust game client - famously RAM hungry.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "6-14GB"
+  },
+  "robloxplayerbeta.exe": {
+    "name": "Roblox",
+    "vendor": "Roblox Corp.",
+    "category": "gaming",
+    "description": "Roblox game client.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "10-60%",
+    "typical_ram": "1-4GB"
+  },
+  "chatgpt.exe": {
+    "name": "ChatGPT Desktop",
+    "vendor": "OpenAI",
+    "category": "productivity",
+    "description": "ChatGPT desktop client.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "1-10%",
+    "typical_ram": "300-700MB"
+  },
+  "ollama.exe": {
+    "name": "Ollama",
+    "vendor": "Ollama",
+    "category": "development",
+    "description": "Local LLM runtime - heavy CPU/GPU and RAM while a model is answering.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "5-95%",
+    "typical_ram": "2-16GB"
+  },
+  "lm studio.exe": {
+    "name": "LM Studio",
+    "vendor": "LM Studio",
+    "category": "development",
+    "description": "Local LLM playground - resource use scales with the loaded model.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "5-90%",
+    "typical_ram": "2-16GB"
+  },
+  "wallpaper32.exe": {
+    "name": "Wallpaper Engine (32-bit)",
+    "vendor": "Kristjan Skutta",
+    "category": "media",
+    "description": "Animated wallpaper renderer - pauses during fullscreen games.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-400MB"
+  },
+  "wallpaper64.exe": {
+    "name": "Wallpaper Engine",
+    "vendor": "Kristjan Skutta",
+    "category": "media",
+    "description": "Animated wallpaper renderer - pauses during fullscreen games.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-8%",
+    "typical_ram": "100-400MB"
+  },
+  "fivem.exe": {
+    "name": "FiveM",
+    "vendor": "Cfx.re",
+    "category": "gaming",
+    "description": "GTA V multiplayer modification client.",
+    "power_usage": "very_high",
+    "safety": "safe",
+    "typical_cpu": "30-90%",
+    "typical_ram": "6-14GB"
+  },
+  "geforcenow.exe": {
+    "name": "GeForce NOW",
+    "vendor": "NVIDIA",
+    "category": "gaming",
+    "description": "Cloud gaming client - video decode, light local load.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "300-700MB"
+  },
+  "moonlight.exe": {
+    "name": "Moonlight",
+    "vendor": "Moonlight project",
+    "category": "gaming",
+    "description": "Open-source game streaming client for NVIDIA hosts.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "5-20%",
+    "typical_ram": "100-300MB"
+  },
+  "zen.exe": {
+    "name": "Zen Browser",
+    "vendor": "Zen team",
+    "category": "browser",
+    "description": "Firefox-based browser with vertical tabs.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-20%",
+    "typical_ram": "300MB-2GB"
+  },
+  "minecraftlauncher.exe": {
+    "name": "Minecraft Launcher",
+    "vendor": "Mojang (Microsoft)",
+    "category": "gaming",
+    "description": "Official Minecraft launcher.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "150-400MB"
+  },
+  "voicemod.exe": {
+    "name": "Voicemod",
+    "vendor": "Voicemod",
+    "category": "media",
+    "description": "Real-time voice changer - adds constant audio-thread load.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "3-15%",
+    "typical_ram": "200-500MB"
+  },
+  "krisp.exe": {
+    "name": "Krisp",
+    "vendor": "Krisp",
+    "category": "media",
+    "description": "AI noise cancellation for calls.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-12%",
+    "typical_ram": "150-400MB"
+  },
+  "vrserver.exe": {
+    "name": "SteamVR Server",
+    "vendor": "Valve",
+    "category": "gaming",
+    "description": "SteamVR compositor backbone - runs while VR is active.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "300-800MB"
+  },
+  "parsecd.exe": {
+    "name": "Parsec Daemon",
+    "vendor": "Parsec (Unity)",
+    "category": "remote",
+    "description": "Low-latency remote desktop / game streaming host.",
+    "power_usage": "medium",
+    "safety": "safe",
+    "typical_cpu": "2-15%",
+    "typical_ram": "100-300MB"
+  },
+  "sunshine.exe": {
+    "name": "Sunshine",
+    "vendor": "LizardByte",
+    "category": "remote",
+    "description": "Open-source game stream host for Moonlight clients.",
+    "power_usage": "high",
+    "safety": "safe",
+    "typical_cpu": "5-30%",
+    "typical_ram": "150-400MB"
   }
 }
