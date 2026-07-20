@@ -36,10 +36,12 @@ LIVE: dict = {
     "gpu_clk_mem": -1.0,   # MHz memory clock
     "gpu_name":    "",
     "gpu_ok":      False,  # True when nvidia-smi returned valid data
-    # Motherboard (real values available only with LHM/OHM running)
+    # Motherboard + core rails (real values only with LHM/OHM running)
     "mb_volt_12v": -1.0,
     "mb_volt_5v":  -1.0,
     "mb_volt_33v": -1.0,
+    "mb_volt_vcore": -1.0,   # CPU core voltage (2026-07-17)
+    "mb_volt_gpu":   -1.0,   # GPU core voltage (2026-07-17)
     "mb_temp_sys": -1.0,
     "mb_temp_vrm": -1.0,
     "mb_source":   "",     # "" | "ohm" | "lhm" - which daemon provided the data
@@ -112,6 +114,7 @@ def disk_summary() -> dict:
 
 def mb_summary() -> dict:
     keys = ("mb_volt_12v", "mb_volt_5v", "mb_volt_33v",
+            "mb_volt_vcore", "mb_volt_gpu",
             "mb_temp_sys", "mb_temp_vrm", "mb_source")
     with _lock:
         return {k: LIVE[k] for k in keys}
