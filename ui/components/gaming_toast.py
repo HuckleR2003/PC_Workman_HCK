@@ -1,11 +1,11 @@
 # ui/components/gaming_toast.py
 """
-Gaming launch toast — subtle 2-second notification when a game is detected.
+Gaming launch toast - subtle 2-second notification when a game is detected.
 
 Shows in bottom-right corner, no buttons, auto-dismisses with a progress bar.
 Can be disabled from Settings -> Notifications -> Gaming launch reminders.
 
-Per-game messages are bilingual (pl/en) and may carry MULTIPLE variants — one is
+Per-game messages are bilingual (pl/en) and may carry MULTIPLE variants - one is
 picked at random each launch, so the same game can greet you differently.
 
 Public API
@@ -527,7 +527,7 @@ class GamingToastWatcher:
             pass
 
 
-# Singleton watcher — imported and started from startup.py
+# Singleton watcher - imported and started from startup.py
 gaming_watcher = GamingToastWatcher()
 
 
