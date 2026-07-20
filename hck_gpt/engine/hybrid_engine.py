@@ -32,7 +32,7 @@ import json
 import threading
 import time
 from typing import Any, Dict, List, Optional
-from import_core import register_component, update_status, STATUS_OK, STATUS_IDLE, STATUS_WARN
+from import_core import register_component, STATUS_IDLE
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 OLLAMA_HOST        = "localhost"
