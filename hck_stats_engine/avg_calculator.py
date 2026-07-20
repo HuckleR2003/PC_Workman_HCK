@@ -3,7 +3,6 @@ Utilities to compute hourly -> daily -> weekly aggregations.
 """
 from import_core import register_component
 import csv, os, statistics
-from datetime import datetime
 
 import sys as _sys
 _base = os.path.dirname(_sys.executable) if getattr(_sys, "frozen", False) else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
