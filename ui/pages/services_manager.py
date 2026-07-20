@@ -10,7 +10,7 @@ except Exception:
     turbo_services, RECOMMENDED = None, []
     _HAS_TURBO = False
 
-# Shared "operator" drawer — the single confirm/queue mechanism (also used by
+# Shared "operator" drawer - the single confirm/queue mechanism (also used by
 # Startup Manager). One component, no duplicated drawers.
 from ui.components.operator_drawer import OperatorDrawer
 
@@ -44,7 +44,7 @@ BORDER  = "#14202e"
 SEP     = "#141d28"
 TEXT    = "#cdd8e8"
 SUB     = "#8693a6"   # readable secondary (was #66788f)
-MUTED   = "#93a1b5"   # readable muted (was #344256 — barely visible on dark)
+MUTED   = "#93a1b5"   # readable muted (was #344256 - barely visible on dark)
 ACCENT  = "#7c3aed"
 AMBER   = "#d97706"
 GREEN   = "#16a34a"
@@ -122,10 +122,7 @@ except Exception:
 _SVC_LOG     = os.path.join(_APP_DIR, "data", "logs", "service_changes.log")
 
 
-def _is_admin() -> bool:
-    try: return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except: return False
-
+from utils.admin import is_admin as _is_admin  # single source of truth
 
 def _sc_run(args: list[str]) -> tuple[bool, str]:
     try:
@@ -179,7 +176,7 @@ def _get_statuses_batch(names: list[str]) -> dict[str, str]:
     for n in names:
         st = statuses.get(n.lower(), None)
         if st is None:
-            # Service not returned by sc query — likely disabled at StartType level
+            # Service not returned by sc query - likely disabled at StartType level
             st = _get_start_type(n)
         result[n] = st
     return result
@@ -266,19 +263,19 @@ class _Tooltip:
 def _hover_row(row: tk.Frame, children: list):
     def _on(e):
         try: row.config(bg=HOVER)
-        except: pass
+        except Exception: pass
         for w in children:
             try: w.config(bg=HOVER)
-            except: pass
+            except Exception: pass
     def _off(e):
         sx, sy = row.winfo_pointerxy()
         rx, ry = row.winfo_rootx(), row.winfo_rooty()
         if not (rx <= sx <= rx + row.winfo_width() and ry <= sy <= ry + row.winfo_height()):
             try: row.config(bg=SURFACE)
-            except: pass
+            except Exception: pass
             for w in children:
                 try: w.config(bg=SURFACE)
-                except: pass
+                except Exception: pass
     for w in [row, *children]:
         w.bind("<Enter>", _on, add="+")
         w.bind("<Leave>", _off, add="+")
@@ -478,7 +475,7 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
         sync = (lambda: None)
 
         if status == "disabled":
-            # Disabled at system level — nothing to queue.
+            # Disabled at system level - nothing to queue.
             dis_lbl = tk.Label(right, text="DISABLED", font=(_M, 7, "bold"),
                                bg=SURFACE, fg="#4b5563")
             dis_lbl.pack(side="left", padx=(0, 8))
@@ -486,7 +483,7 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
                               "Start it first before enabling here.")
             all_labels.append(dis_lbl)
         elif locked:
-            # Essential — never queued for stopping.
+            # Essential - never queued for stopping.
             lock = tk.Label(right, text="⛒", font=(_F, 10), bg=SURFACE, fg=LOCK)
             lock.pack(side="left", padx=4)
             _Tooltip(lock, "Essential service - cannot be stopped safely.")
@@ -513,7 +510,7 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
             _style()
             sync = _style
 
-            # Mode chips — pick which TURBO / Features modes stop this service.
+            # Mode chips - pick which TURBO / Features modes stop this service.
             mc = tk.Frame(right, bg=SURFACE)
             mc.pack(side="left", padx=(8, 0))
             all_labels.append(mc)
@@ -538,7 +535,7 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
 
 def _quick_card(strip, item, answers, on_answer, after_answer):
     """One Quick-setup tile. Persists its TAK/NIE answer and shows a corner ZMIEŃ
-    to flip it later — the layout never shifts (header reserves the corner slot)."""
+    to flip it later - the layout never shifts (header reserves the corner slot)."""
     label = item["label"]
     card = tk.Frame(strip, bg=SURFACE, highlightthickness=1, highlightbackground=BORDER)
     card.pack(side="left", padx=(0, 6), pady=2)
@@ -576,12 +573,12 @@ def _quick_card(strip, item, answers, on_answer, after_answer):
         if used:
             tk.Label(content, text="TAK", font=(_F, 8, "bold"),
                      bg=SURFACE, fg=GREEN).pack(side="left")
-            tk.Label(content, text=" — zostawiam", font=(_F, 7),
+            tk.Label(content, text=" - zostawiam", font=(_F, 7),
                      bg=SURFACE, fg=MUTED).pack(side="left")
         else:
             tk.Label(content, text="NIE", font=(_F, 8, "bold"),
                      bg=SURFACE, fg=RED).pack(side="left")
-            tk.Label(content, text=" — dodano do MANAGER", font=(_F, 7),
+            tk.Label(content, text=" - dodano do MANAGER", font=(_F, 7),
                      bg=SURFACE, fg=GREEN).pack(side="left")
         change.config(text="ZMIEŃ", fg=SUB)
         change.bind("<Button-1>", lambda e: _buttons())
@@ -764,7 +761,7 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
     running = sum(1 for s in statuses.values() if s == "running")
     total   = len(seen)
 
-    # Compact header — no subtitle
+    # Compact header - no subtitle
     header = tk.Frame(page, bg=BG)
     header.pack(fill="x", padx=16, pady=(6, 0))
 
@@ -968,7 +965,7 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                          svc_prefs=svc_prefs, row_apis=row_apis)
 
         if overflow:
-            # Overflow frame — hidden by default, shown by expand banner
+            # Overflow frame - hidden by default, shown by expand banner
             overflow_frame = tk.Frame(body, bg=BG)
             _exp_open = [False]
 
@@ -1017,7 +1014,7 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
     tk.Frame(inner, bg=BG, height=10).pack()
 
-    # ── Shared operator drawer — always visible at the very bottom ───────────
+    # ── Shared operator drawer - always visible at the very bottom ───────────
     drawer = OperatorDrawer(
         page, pack_side="bottom",
         on_confirm=_apply_changes,
@@ -1048,7 +1045,7 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                     try:
                         if q in (w.cget("text") or "").lower():
                             match = True; break
-                    except: pass
+                    except Exception: pass
                 if match: child.pack(fill="x"); any_visible = True
                 else:     child.pack_forget()
             if any_visible: b.pack(fill="x")
