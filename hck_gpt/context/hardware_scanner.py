@@ -14,7 +14,6 @@ psutil covers everything else.
 """
 from __future__ import annotations
 
-import os
 import platform
 import time
 
@@ -73,55 +72,66 @@ def _scan_psutil(uk) -> None:
 # ── WMI scan (Windows only, richer names) ─────────────────────────────────────
 
 def _scan_wmi(uk) -> None:
+    """Hardware identity via core.hardware_detector (ONE identity source).
+
+    This function used to `import wmi` - a package that was never installed
+    nor bundled, so the whole scan failed silently on EVERY machine since
+    day one (swallowed by the except below). hck_GPT never learned the
+    motherboard, RAM or disk models it was supposed to know.
+    core.hardware_detector is the working scanner (PowerShell CIM, survives
+    Win11 24H2 where wmic is gone, cached on its singleton), so the whole
+    app now agrees on what machine it is looking at.
+    """
     try:
-        import wmi
-        w = wmi.WMI()
+        try:
+            from import_core import COMPONENTS
+            det = COMPONENTS.get("core.hardware_detector")
+        except Exception:
+            det = None
+        if det is None:
+            from core.hardware_detector import get_hardware_detector
+            det = get_hardware_detector()
+        d = det.ensure_data() or {}
 
-        # CPU model
-        for cpu in w.Win32_Processor():
-            name = (cpu.Name or "").strip()
-            if name:
-                uk.set_hardware("cpu_model", name)
-            break
+        cpu = d.get("cpu") or {}
+        if cpu.get("name"):
+            uk.set_hardware("cpu_model", str(cpu["name"]).strip())
 
-        # GPU model + VRAM
-        for gpu in w.Win32_VideoController():
-            name = (gpu.Name or "").strip()
-            if name and "Microsoft" not in name and "Basic" not in name:
-                uk.set_hardware("gpu_model", name)
-                vram = gpu.AdapterRAM
-                if vram and vram > 0:
-                    uk.set_hardware("gpu_vram_gb", round(vram / 1_073_741_824, 1))
-                break
+        gpu  = d.get("gpu") or {}
+        name = (gpu.get("name") or "").strip()
+        if name and "Microsoft" not in name and "Basic" not in name:
+            uk.set_hardware("gpu_model", name)
+            vram_mb = gpu.get("vram_mb")
+            if vram_mb and float(vram_mb) > 0:
+                uk.set_hardware("gpu_vram_gb", round(float(vram_mb) / 1024, 1))
 
-        # Motherboard
-        for board in w.Win32_BaseBoard():
-            mfr  = (board.Manufacturer or "").strip()
-            prod = (board.Product      or "").strip()
-            if prod and mfr and mfr.lower() not in ("to be filled by o.e.m.",
-                                                      "default string"):
-                uk.set_hardware("motherboard_model", f"{mfr} {prod}")
-            break
+        mb   = d.get("motherboard") or {}
+        mfr  = (mb.get("manufacturer") or "").strip()
+        prod = (mb.get("product") or "").strip()
+        ver  = (mb.get("version") or "").strip()
+        # CSV quirk: a comma inside the manufacturer ("...Co., Ltd.") shifts
+        # the board name into `version` - prefer whichever field looks real.
+        board = prod if len(prod) > 5 and prod.lower() not in ("ltd.", "inc.") else ver
+        if mfr and board and mfr.lower() not in ("to be filled by o.e.m.",
+                                                 "default string"):
+            uk.set_hardware("motherboard_model",
+                            f"{mfr.split(',')[0].strip()} {board}".strip())
 
-        # RAM speed + part number (first populated DIMM)
-        for mem in w.Win32_PhysicalMemory():
-            speed = mem.Speed
-            if speed:
-                uk.set_hardware("ram_speed_mhz", int(speed))
-            part = (getattr(mem, "PartNumber", None) or "").strip()
-            if part and part.lower() not in ("", "unknown", "to be filled by o.e.m."):
-                uk.set_hardware("ram_model", part)
-            break
+        ram = d.get("ram") or {}
+        if ram.get("speed_mhz"):
+            uk.set_hardware("ram_speed_mhz", int(ram["speed_mhz"]))
+        mods = ram.get("modules") or []
+        if mods and (mods[0].get("manufacturer") or "").strip():
+            uk.set_hardware("ram_model", str(mods[0]["manufacturer"]).strip())
 
-        # Primary disk model (first non-optical physical drive)
-        for disk in w.Win32_DiskDrive():
-            model = (getattr(disk, "Model", None) or "").strip()
+        for dr in (d.get("storage") or {}).get("drives") or []:
+            model = (dr.get("model") or "").strip()
             if model and "cd" not in model.lower() and "dvd" not in model.lower():
                 uk.set_hardware("disk_model", model)
                 break
 
     except Exception:
-        # WMI unavailable or failed - silently skip
+        # detector unavailable - psutil pass above still covers the basics
         pass
 
 
