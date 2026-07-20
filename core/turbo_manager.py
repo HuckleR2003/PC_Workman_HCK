@@ -25,7 +25,7 @@ import time
 from typing import Optional
 
 import psutil
-from import_core import register_component, update_status, STATUS_OK, STATUS_IDLE
+from import_core import register_component, STATUS_IDLE
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 try:
@@ -55,12 +55,7 @@ def _log(tag: str, msg: str) -> None:
         pass
 
 
-def _is_admin() -> bool:
-    try:
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
-        return False
-
+from utils.admin import is_admin as _is_admin  # single source of truth
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  SERVICE PROFILES
@@ -143,13 +138,13 @@ PROFILES: dict[str, dict] = {
         "desc": "Deep savings - stops all non-essential including Update & BT.",
     },
     # User-composed custom profile, built in the Services Manager. White-themed,
-    # starts empty — the user picks exactly which services it stops.
+    # starts empty - the user picks exactly which services it stops.
     "manager": {
         "label":    "Manager",
         "color":    "#e5e7eb",   # near-white
         "bg":       "#101014",
         "services": [],
-        "desc":     "Your custom set — pick exactly which services stop. Edit in Services Manager.",
+        "desc":     "Your custom set - pick exactly which services stop. Edit in Services Manager.",
     },
 }
 
@@ -630,7 +625,7 @@ class TurboProcessSuspender:
             self.resume(pid)
 
     def _is_whitelisted(self, name: str, exe: str) -> bool:
-        # Anti-cheat first — the one category we must never suspend.
+        # Anti-cheat first - the one category we must never suspend.
         try:
             from core.protected_processes import is_protected
             if is_protected(name, exe):
