@@ -9,7 +9,7 @@ Dev / onedir:  oba = katalog główny projektu
 Onefile EXE:   APP_DIR  = os.path.dirname(sys.executable)   (obok .exe)
                BUNDLE_DIR = sys._MEIPASS                     (temp extraction)
 MSIX (Store):  exe mieszka w C:\\Program Files\\WindowsApps\\... które jest
-               READ-ONLY — każdy zapis tam pada. APP_DIR przenosi się wtedy do
+               READ-ONLY - każdy zapis tam pada. APP_DIR przenosi się wtedy do
                %LOCALAPPDATA%\\PC_Workman_HCK (ta sama lokalizacja, której już
                używa user_knowledge.db). Dodatkowo robimy realny test zapisu,
                więc każda inna nie-zapisywalna lokalizacja też się przeniesie.

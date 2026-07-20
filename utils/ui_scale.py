@@ -71,7 +71,7 @@ def wide_panel_w() -> int:
 def wide_proc_limit() -> int:
     """How many processes to display in maximize mode."""
     if SCALE >= 2.0:
-        return 15    # 4K — plenty of vertical space
+        return 15    # 4K - plenty of vertical space
     elif SCALE >= 1.35:
         return 12    # 2K
     else:
@@ -79,7 +79,7 @@ def wide_proc_limit() -> int:
 
 
 def wide_chart_h() -> int:
-    """Chart height in maximize mode — proportional, never comical.
+    """Chart height in maximize mode - proportional, never comical.
     Roughly 2× compact height (140px), scaled per screen tier."""
     if SCALE >= 2.0:
         return 520   # 4K
@@ -91,7 +91,7 @@ def wide_chart_h() -> int:
 
 def wide_mid_padx() -> int:
     """Horizontal padding for session-averages section in maximize mode.
-    Reduces visible width to ~65% of content area — avoids overstretching.
+    Reduces visible width to ~65% of content area - avoids overstretching.
     On 1080P content area ≈ 1740px → padx 304px each side → middle ≈ 1132px."""
     return scale(304)
 
