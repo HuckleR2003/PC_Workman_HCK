@@ -702,7 +702,7 @@ class SettingsPage:
         BG = _GEN_PANEL
         BD = _GEN_SEP
 
-        # ── 1. Anonymous telemetry (ON by default this release) — INFO + TURN ──
+        # ── 1. Anonymous telemetry (ON by default this release) - INFO + TURN ──
         _net_box = {}
 
         def _kick_send():
@@ -801,18 +801,18 @@ class SettingsPage:
                 justify="left", wraplength=470).pack(fill="x", pady=(8, 12))
 
             for en, plt in [
-                ("Anonymous — a random ID, never your name, machine or IP.",
-                 "Anonimowo — losowy identyfikator, nigdy nazwa, maszyna ani IP."),
-                ("Minimal — hardware models, OS and session time only. No files, no "
+                ("Anonymous - a random ID, never your name, machine or IP.",
+                 "Anonimowo - losowy identyfikator, nigdy nazwa, maszyna ani IP."),
+                ("Minimal - hardware models, OS and session time only. No files, no "
                  "process names, no content.",
-                 "Minimalnie — tylko modele sprzętu, OS i czas sesji. Żadnych plików, "
+                 "Minimalnie - tylko modele sprzętu, OS i czas sesji. Żadnych plików, "
                  "nazw procesów ani treści."),
-                ("Verifiable — the exact data is shown below, the code is open-source, "
+                ("Verifiable - the exact data is shown below, the code is open-source, "
                  "and OFF means zero traffic (check with a firewall).",
-                 "Sprawdzalnie — dokładne dane masz niżej, kod jest open-source, a WYŁ "
+                 "Sprawdzalnie - dokładne dane masz niżej, kod jest open-source, a WYŁ "
                  "= zero ruchu (sprawdź firewallem)."),
-                ("Reversible — turn it off anytime.",
-                 "Odwracalnie — wyłączysz w każdej chwili."),
+                ("Reversible - turn it off anytime.",
+                 "Odwracalnie - wyłączysz w każdej chwili."),
             ]:
                 rf = tk.Frame(wrap, bg="#0a0e14")
                 rf.pack(fill="x", pady=1)
@@ -1004,7 +1004,7 @@ class SettingsPage:
             lnk = os.path.join(desktop, "PC Workman.lnk")
             exe = sys.executable
             if "windowsapps" in exe.lower():
-                # Microsoft Store install — launch via the app's AUMID
+                # Microsoft Store install - launch via the app's AUMID
                 target = os.path.join(os.environ.get("WINDIR", r"C:\Windows"),
                                       "explorer.exe")
                 args = (r"shell:AppsFolder\MarcinHCKFirmuga.PCWorkman"
@@ -1327,7 +1327,7 @@ class SettingsPage:
             ("toast_new_process",    _t("settings.notifications.new_proc_label"),    _t("settings.notifications.new_proc_desc"),   False),
             ("toast_gaming_recap",   _t("settings.notifications.gaming_label"),      _t("settings.notifications.gaming_desc"),     True),
             ("gaming_launch_toast",  _t("settings.notifications.gaming_launch_label", default="Gaming launch reminders"),
-                                     _t("settings.notifications.gaming_launch_desc",  default='Subtle 2s tip when a game starts — "Good luck!", custom messages per game'),
+                                     _t("settings.notifications.gaming_launch_desc",  default='Subtle 2s tip when a game starts - "Good luck!", custom messages per game'),
                                      True),
         ]
 
