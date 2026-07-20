@@ -104,6 +104,24 @@ class IntentParser:
             text, kw_intent, kw_conf
         )
 
+        # ── Domain rule: Upgrade Readiness (2026-07) ─────────────────────────
+        # A concrete part model ("i5 11400f", "rtx 4070", "ddr5") next to
+        # fit/swap wording beats any generic hw_* token score - the part name
+        # sits mid-sentence, so phrase patterns alone cannot catch it.
+        if final_intent not in ("upgrade_compat", "ram_compat"):
+            forced = self._upgrade_compat_override(folded_text)
+            if forced:
+                final_intent = forced
+                final_conf   = max(final_conf, 0.9)
+
+        # ── Domain rule: Fan Dashboard consult (2026-07-18) ──────────────────
+        # The chart's [AI] button pastes a fixed greeting-flavoured question;
+        # an over-confident ML greeting guess must never eat it.
+        if final_intent != "fan_consult" and (
+                ("konfigurowa" in folded_text and "wentylator" in folded_text)
+                or ("configure" in folded_text and "fan" in folded_text)):
+            final_intent, final_conf = "fan_consult", max(final_conf, 0.9)
+
         entities = self._extract_entities(tokens, clean_text)
 
         return ParseResult(
@@ -113,6 +131,27 @@ class IntentParser:
             tokens=tokens,
             raw_text=text,
         )
+
+    # ── Upgrade Readiness override ────────────────────────────────────────────
+
+    _RX_PART_MODEL = re.compile(
+        r"\b(i[3579][- ]?\d{4,5}[a-z]{0,2}|ryzen\s?[3579]\s?\d{4}[a-z0-9]{0,3}"
+        r"|ultra\s?[579]\s?\d{3}[a-z]{0,2}|fx[- ]?\d{4}"
+        r"|rtx\s?\d{4}|gtx\s?\d{3,4}|rx\s?\d{3,4}|arc\s?[ab]\d{3}|ddr[2345])\b")
+    _UPGRADE_WORDS = (
+        "pasuje", "pasowa", "wejdzie", "wymien", "wymian", "zmien", "zmian",
+        "kupic", "kupie", "zakup", "upgrade", "kompatybil", "socket",
+        "zadziala", "fit", "compatible", "compatib", "swap", "replace")
+
+    def _upgrade_compat_override(self, folded_text: str):
+        """'upgrade_compat'/'ram_compat' when a concrete part model appears
+        next to fit/swap wording, else None. Runs on folded text."""
+        m = self._RX_PART_MODEL.search(folded_text)
+        if not m:
+            return None
+        if not any(w in folded_text for w in self._UPGRADE_WORDS):
+            return None
+        return "ram_compat" if m.group(1).startswith("ddr") else "upgrade_compat"
 
     # ── ML integration ────────────────────────────────────────────────────────
 
