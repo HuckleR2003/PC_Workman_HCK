@@ -111,7 +111,7 @@ class DeepMonitorTable(tk.Frame):
         self._store: dict = {}   # iid -> {current, min, max, type}
         self._pause_btn  = None
 
-        # Parent-driven destruction skips the destroy() override below —
+        # Parent-driven destruction skips the destroy() override below -
         # <Destroy> always fires, so the 2 s update loop can't outlive the page.
         self.bind("<Destroy>",
                   lambda e: self._stop_ev.set() if e.widget is self else None,
@@ -433,24 +433,19 @@ class DeepMonitorTable(tk.Frame):
                     self._set("gpu_util", float(u), "util")
         except Exception:
             pass
-        # VRAM via nvidia-smi
+        # VRAM via the collector's shared fetcher (cached ~1.5 s) - no extra
+        # nvidia-smi subprocess per refresh; ONE-producer rule.
         try:
-            r = subprocess.run(
-                ["nvidia-smi",
-                 "--query-gpu=memory.used,memory.total,utilization.memory",
-                 "--format=csv,noheader,nounits"],
-                capture_output=True, text=True, errors="replace", timeout=2,
-                creationflags=0x08000000,
-            )
-            if r.returncode == 0:
-                parts = r.stdout.strip().split(",")
-                if len(parts) >= 3:
-                    used_mb  = float(parts[0].strip())
-                    total_mb = float(parts[1].strip())
-                    mem_pct  = float(parts[2].strip())
+            from core.live_collector import fetch_gpu_smi
+            smi = fetch_gpu_smi()
+            if smi.get("ok"):
+                used_mb  = float(smi.get("mem_used", -1))
+                total_mb = float(smi.get("mem_total", -1))
+                if used_mb >= 0 and total_mb > 0:
                     self._set("gpu_mem_used",  used_mb,  "mb")
                     self._set("gpu_mem_total", total_mb, "mb")
-                    self._set("gpu_mem_pct",   mem_pct,  "util")
+                    self._set("gpu_mem_pct",
+                              used_mb / total_mb * 100.0, "util")
         except Exception:
             pass
 
