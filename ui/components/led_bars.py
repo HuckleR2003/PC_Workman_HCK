@@ -134,5 +134,5 @@ class LEDSegmentBar:
         # redraw
         try:
             self.canvas.update_idletasks()
-        except:
+        except Exception:
             pass
