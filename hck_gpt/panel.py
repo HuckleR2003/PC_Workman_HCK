@@ -1,12 +1,10 @@
 # hck_gpt/panel.py
 
 import tkinter as tk
-from tkinter import ttk
 from ui.theme import THEME
-import os
 import time
 import re
-from import_core import register_component, update_status, STATUS_OK
+from import_core import register_component, STATUS_OK
 
 try:
     from hck_gpt.chat_handler import ChatHandler
@@ -53,7 +51,7 @@ _SB_BD_H   = "#be123c"   # border hover
 # ── Component / hardware-brand highlighter ────────────────────────────────────
 # When a bot message names a real device or brand (Intel, RTX 4070, DDR5,
 # Samsung, Ryzen…), the matched token is tagged "purple" so hardware pops out
-# visually in chat. Curated + distinctive tokens only — lookarounds (not \b) so
+# visually in chat. Curated + distinctive tokens only - lookarounds (not \b) so
 # it runs cleanly under Python re. Case-insensitive; model numbers attach to
 # their family (e.g. "RTX 3060", "i5-10400F") so the whole name lights up.
 _COMPONENT_RE = re.compile(
@@ -88,12 +86,12 @@ class HCKGPTPanel:
         self.total_h = collapsed_h + expanded_h
         self.current_mode = "normal"  # normal, maximized
 
-        # Window-mode height scaling — the main window sets these when it
+        # Window-mode height scaling - the main window sets these when it
         # toggles maximized view (taller window → taller chat panel).
         self._h_scale_open = 1.0   # scales expanded_h (default open height)
         self._h_scale_max  = 1.0   # scales max_h (chat "Maximize" height)
 
-        # Visibility gate — callable set by the main window; returns False on
+        # Visibility gate - callable set by the main window; returns False on
         # pages that must not show the banner. Checked in _on_resize so a
         # stray <Configure>/deferred call can't resurrect a hidden panel.
         self._visibility_gate = None
@@ -516,7 +514,7 @@ class HCKGPTPanel:
         # HOT strip is driven exclusively by proactive_monitor via register_hot().
         # The panel had its own duplicate monitor (_start_hot_monitor) that
         # conflicted with proactive_monitor at overlapping thresholds and also
-        # contained broken Polish diacritics — removed.
+        # contained broken Polish diacritics - removed.
 
         parent.bind("<Configure>", self._on_resize)
 
@@ -525,7 +523,7 @@ class HCKGPTPanel:
         """Gradient strips with sine-wave shimmer. Tagged 'grad' - UI layer raised on top.
 
         Strips are created ONCE per width and recoloured via itemconfig on
-        every shimmer tick — delete+create of ~350 rects at 10 fps was a
+        every shimmer tick - delete+create of ~350 rects at 10 fps was a
         constant CPU drain on the Tk main thread.
         """
         import math
@@ -598,7 +596,7 @@ class HCKGPTPanel:
         try:
             if not self.banner.winfo_exists():
                 return
-            # Panel hidden (other page via place_forget) — idle cheaply
+            # Panel hidden (other page via place_forget) - idle cheaply
             # instead of animating an invisible gradient at 10 fps.
             if not self.frame.winfo_ismapped():
                 self.banner.after(500, self._do_banner_sweep)
@@ -1082,7 +1080,7 @@ class HCKGPTPanel:
         if not self._hot_active:
             # HOT sits above TIP when TIP is visible; otherwise above entry.
             # IMPORTANT: before= requires the reference widget to be currently
-            # managed by pack — _tip_strip is hidden by default (pack_forget'd),
+            # managed by pack - _tip_strip is hidden by default (pack_forget'd),
             # so we must fall back to _entry_container when TIP is not active.
             _ref = self._tip_strip if self._tip_active else self._entry_container
             self._hot_strip.pack(fill="x", padx=8, pady=(0, 1), before=_ref)
@@ -1570,9 +1568,9 @@ class HCKGPTPanel:
                 rank_tag = "accent" if i == 1 else "muted"
                 self.add_colored(f"  {i}. ", rank_tag)
                 self.add_colored(f"{name:<20s}", "bold")
-                self.add_colored(f" CPU ", "muted")
+                self.add_colored(" CPU ", "muted")
                 self.add_colored(f"{cpu:4.1f}%", "cpu")
-                self.add_colored(f"  RAM ", "muted")
+                self.add_colored("  RAM ", "muted")
                 self.add_colored(f"{ram:.0f}MB\n", "ram")
 
         # SECTION 4: TOP APPS
@@ -1782,7 +1780,7 @@ class HCKGPTPanel:
             width=self.width,
             height=target_h
         )
-        # Dashboard rebuilds create new siblings above this place()'d frame —
+        # Dashboard rebuilds create new siblings above this place()'d frame -
         # keep the panel on top of the stacking order or it becomes unclickable.
         self.frame.lift()
 
@@ -1854,6 +1852,21 @@ class HCKGPTPanel:
         anim()
 
     # SEND
+    def ask(self, text: str) -> None:
+        """Programmatically submit a question as if the user typed it.
+        Used by feature pages (e.g. the Fan Dashboard's hck_GPT [AI] button)
+        to hand a ready-made consult question to the chat."""
+        try:
+            if not self.entry.winfo_exists():
+                return
+            if not getattr(self, "is_open", True):
+                self.open()          # unfold the banner so the answer is seen
+            self.entry.delete(0, "end")
+            self.entry.insert(0, text)
+            self._send()
+        except Exception:
+            pass
+
     def _send(self):
         text = self.entry.get().strip()
         if not text:
@@ -1920,7 +1933,7 @@ class HCKGPTPanel:
         """Hidden meme scene: a silent alien/laser strip across the TOP ~30% of the
         chat, while the lyric 'words' arrive as hck_GPT messages below (with dynamic
         background colour). Ends with a confused greeting + the normal command list.
-        Silent by design — audio is added later in video editing; only rhythm matters."""
+        Silent by design - audio is added later in video editing; only rhythm matters."""
         from hck_gpt import easter_eggs as _eggs
         try:
             self.clear_chat()
@@ -1932,7 +1945,7 @@ class HCKGPTPanel:
             # doesn't get a huge strip swallowing the chat.
             strip_h = max(48, min(int(H * 0.30), 84))
             # Top gap: enough blank lines that the lyric messages always start
-            # BELOW the alien band — in both the normal and the expanded window
+            # BELOW the alien band - in both the normal and the expanded window
             # (proportional to the strip, so text is never clipped under it).
             pad_lines = max(4, strip_h // 15 + 2)
             for _ in range(pad_lines):
