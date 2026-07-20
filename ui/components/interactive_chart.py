@@ -1,5 +1,5 @@
 """
-InteractiveChart — PC Workman HCK  v1.7.8
+InteractiveChart - PC Workman HCK  v1.7.8
 ==========================================
 Professional interactive line-chart widget built on tkinter.Canvas.
 
