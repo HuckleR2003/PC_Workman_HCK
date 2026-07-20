@@ -1,26 +1,26 @@
 """
-core/auto_optimizer.py — the always-on engine behind AUTO optimizations.
+core/auto_optimizer.py - the always-on engine behind AUTO optimizations.
 
 Root-cause fix (2026-07-05): the Auto RAM Flush watcher lived inside the
 Optimization *page* (`ui/pages/optimization_services.py`) and was only started
 when the user clicked the AUTO pill. So a user who enabled AUTO, closed the app
-and reopened it had the pill lit but the watcher DEAD — it only ran while the
+and reopened it had the pill lit but the watcher DEAD - it only ran while the
 page was open and toggled. Same class of bug as the page-bound sensor pipeline.
 
 Now ONE daemon owns it, started from startup.py, driven by saved prefs, running
 whether or not any page is open. The page becomes a configurator + status view.
 
 Currently drives:
-  · Auto RAM Flush — waits for sustained pressure, then trims working sets
+  · Auto RAM Flush - waits for sustained pressure, then trims working sets
     (SetSystemFileCacheSize + EmptyWorkingSet), skipping user-excluded AND
     anti-cheat processes (core.protected_processes).
-  · TURBO coupling — when TURBO is on and the user ticked "run on TURBO",
+  · TURBO coupling - when TURBO is on and the user ticked "run on TURBO",
     the flush watcher activates for the duration of TURBO.
-  · Turbo Power Plan (TPP) — creates/activates the "Turbo PC" power plan and
+  · Turbo Power Plan (TPP) - creates/activates the "Turbo PC" power plan and
     reconciles it with the master TURBO flag. Migrated from the Optimization
     page (2026-07-10): the old page-bound monitor spawned a NEW infinite
     thread on every page visit, each polling a destroyed widget's
-    winfo_exists() from a background thread every 5 s — N leaked threads
+    winfo_exists() from a background thread every 5 s - N leaked threads
     hammering Tcl deadlocked the interpreter (UI frozen, process alive).
 
 Design mirrors core.live_collector: single producer, prefs-driven, UI is a
@@ -77,13 +77,7 @@ _TURBO_PC_NAME = "Turbo PC"
 _NO_WINDOW     = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 
-def _is_admin() -> bool:
-    try:
-        import ctypes
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
-        return False
-
+from utils.admin import is_admin as _is_admin  # single source of truth
 
 def _pp_active_guid() -> str | None:
     try:
@@ -292,6 +286,12 @@ class AutoOptimizer:
             self._turbo_on = bool(on)
             if not on:
                 self._high_secs = 0
+
+    def set_ram_on_turbo(self, on: bool) -> None:
+        """Arm/disarm RAM flushing on the master TURBO switch (the page pill
+        delegates here, mirroring set_tpp_on_turbo)."""
+        with self._lock:
+            self._ram_on_turbo = bool(on)
 
     def _ram_watch_active(self) -> bool:
         return self._ram_auto or (self._ram_on_turbo and self._turbo_on)
