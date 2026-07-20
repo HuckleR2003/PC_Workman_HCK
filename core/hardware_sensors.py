@@ -1,7 +1,7 @@
 import psutil
 import platform
 import time
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from import_core import register_component, update_status, STATUS_OK
 
 # Try GPU monitoring
@@ -40,7 +40,7 @@ class HardwareSensors:
             try:
                 info = cpuinfo.get_cpu_info()
                 return info.get('brand_raw', 'Unknown CPU')
-            except:
+            except Exception:
                 pass
 
         # Fallback
@@ -52,7 +52,7 @@ class HardwareSensors:
                 gpus = GPUtil.getGPUs()
                 if gpus:
                     return gpus[0].name
-            except:
+            except Exception:
                 pass
 
         return "GPU (Not detected / Integrated)"
@@ -61,7 +61,7 @@ class HardwareSensors:
         try:
             total_bytes = psutil.virtual_memory().total
             return round(total_bytes / (1024**3), 1)  # Convert to GB
-        except:
+        except Exception:
             return 0.0
 
     def get_sensor_tree(self, force_update: bool = False) -> Dict[str, Any]:
