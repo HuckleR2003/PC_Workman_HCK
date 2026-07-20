@@ -35,8 +35,19 @@ except Exception:
         return default if default is not None else key
 
 # Page-level navigation callback (set in build_optimization_page) so nested card
-# builders can jump to another page — e.g. the MANAGER 'i' -> Services Manager.
+# builders can jump to another page - e.g. the MANAGER 'i' -> Services Manager.
 _NAV = {"cb": None}
+_ARMED_UI: dict = {"refresh": None}   # Quick Actions TURBO panel refresher
+
+
+def _refresh_armed_ui() -> None:
+    """Ping the TURBO armed panel after an ON TURBO pill changes."""
+    fn = _ARMED_UI.get("refresh")
+    if fn:
+        try:
+            fn()
+        except Exception:
+            pass
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 BG      = "#080b10"
@@ -47,8 +58,8 @@ BORDER  = "#161d2c"
 BORDER2 = "#1e2840"
 LINE    = "#141826"
 TEXT    = "#c4cfdf"
-MUTED   = "#93a1b5"   # readable muted (was #3d4a60 — barely visible on dark)
-DIM     = "#74839a"   # readable dim   (was #1e2838 — nearly invisible)
+MUTED   = "#93a1b5"   # readable muted (was #3d4a60 - barely visible on dark)
+DIM     = "#74839a"   # readable dim   (was #1e2838 - nearly invisible)
 AMBER   = "#f59e0b"
 EMERALD = "#10b981"
 VIOLET  = "#8b5cf6"
@@ -57,7 +68,7 @@ RED     = "#ef4444"
 BORD    = "#991b1b"   # bordeaux for "ON TURBO" slider
 BORD_L  = "#c62828"   # bordeaux light
 
-_TOTAL  = 14   # +1 Background App Hibernation
+_TOTAL  = 15   # +1 Background App Hibernation, +1 Upgrade Advisor
 
 try:
     from utils.paths import APP_DIR as _APP_DIR
@@ -95,14 +106,14 @@ _RAM = {
     "result_lbl": None, "prog_lbl": None,
 }
 
-# Anti-cheat guard — never memory-trim an anti-cheat, even outside the exclude list
+# Anti-cheat guard - never memory-trim an anti-cheat, even outside the exclude list
 try:
     from core.protected_processes import is_protected as _is_protected
 except Exception:
     def _is_protected(name, exe=""):   # noqa: E704
         return False
 
-# ── RAM Flush exclusion list — exe names (lowercase) that are never flushed ──
+# ── RAM Flush exclusion list - exe names (lowercase) that are never flushed ──
 _RAM_EXCLUDE: set = set()
 
 def _init():
@@ -130,13 +141,7 @@ _ACTION_BTNS: dict = {}
 # TURBO POWER PLAN LOGIC
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _is_admin() -> bool:
-    """Return True if the process has admin/elevated privileges."""
-    try:
-        import ctypes
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
-        return False
+from utils.admin import is_admin as _is_admin  # single source of truth
 
 def _tpp_run() -> tuple:
     """Activate the Turbo PC plan - delegates to the always-on daemon
@@ -188,7 +193,7 @@ def is_turbo_active() -> bool:
 
 def set_turbo_active(on: bool) -> dict:
     """Master TURBO switch. Persists the flag and directly activates / restores
-    every feature the user set to fire on TURBO — works whether or not the
+    every feature the user set to fire on TURBO - works whether or not the
     Optimization page is open (idempotent; safe to call repeatedly).
 
     Returns {'on': bool, 'applied': [(feature, ok), ...], 'admin': bool}.
@@ -198,14 +203,73 @@ def set_turbo_active(on: bool) -> dict:
     applied: list[tuple[str, bool]] = []
     o = _load_prefs().get("optimization", {})
 
-    # Turbo Power Plan (also applies hibernation turbo behaviors via _tpp_run)
+    # Turbo Power Plan
     if o.get("tpp_on_turbo", False):
         if on and not _tpp_is_active():
             ok, _ = _tpp_run();     applied.append(("Turbo Power Plan", ok))
         elif not on and _tpp_is_active():
             ok, _ = _tpp_restore(); applied.append(("Turbo Power Plan", ok))
 
+    # App Hibernation + TURBO Services - BOTH fully off the main thread
+    # (2026-07-18 freeze lesson: apply_turbo_behaviors iterates and suspends
+    # EVERY matching process; on the UI thread that can stall the whole app.
+    # The master switch must stay instant - all process/service work goes to
+    # one worker).
+    def _turbo_workers(_on=on):
+        try:
+            from import_core import COMPONENTS
+            hibm = COMPONENTS.get("core.hibernation_manager")
+            if hibm is not None and hibm.turbo_behaviors:
+                if _on:
+                    hibm.apply_turbo_behaviors()
+                else:
+                    hibm.restore_turbo_apps()
+        except Exception:
+            pass
+        try:
+            from core.turbo_manager import turbo_services
+            prof = turbo_services.get_active_profile()
+            if prof and turbo_services.get_profile_services(prof):
+                if _on:
+                    turbo_services.stop_profile(prof)
+                else:
+                    turbo_services.restore_all()
+        except Exception:
+            pass
+    threading.Thread(target=_turbo_workers, daemon=True,
+                     name="turbo-apply").start()
+    applied.append(("App Hibernation + Services", True))
+
     return {"on": on, "applied": applied, "admin": _is_admin()}
+
+
+def turbo_armed_summary() -> list[tuple[str, bool]]:
+    """Which features fire on the master TURBO switch and whether each is
+    armed right now. ONE source for the Quick Actions X/N display - the
+    denominator is len() of this list, so new turbo-capable features extend
+    the counter automatically."""
+    o = _load_prefs().get("optimization", {})
+    out = [
+        ("Turbo Power Plan", bool(o.get("tpp_on_turbo", False))),
+        ("RAM Flush",        bool(o.get("ram_on_turbo", False))),
+    ]
+    svc = False
+    try:
+        from core.turbo_manager import turbo_services
+        prof = turbo_services.get_active_profile()
+        svc = bool(prof and turbo_services.get_profile_services(prof))
+    except Exception:
+        pass
+    out.append(("Service Stop", svc))
+    hib = False
+    try:
+        from import_core import COMPONENTS
+        hibm = COMPONENTS.get("core.hibernation_manager")
+        hib = bool(hibm is not None and hibm.turbo_behaviors)
+    except Exception:
+        pass
+    out.append(("App Hibernation", hib))
+    return out
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -331,7 +395,7 @@ def _build_hero_header(parent, back_fn=None):
         hero.create_text(W - 49, 32,
                           text=f"2 / {_TOTAL}  active",
                           font=(_M, 6), fill=DIM)
-        # Back link — quiet, bottom-right (only when back_fn provided)
+        # Back link - quiet, bottom-right (only when back_fn provided)
         if back_fn:
             hero.create_text(W - 10, 57, text="‹ Dashboard",
                              anchor="e", font=(_F, 7), fill="#6b7a90",
@@ -439,6 +503,48 @@ def _build_quick_actions(parent, nav_callback=None):
       4. Weekly Perf Report    -> open report Toplevel
     """
     _section_label(parent, t("optimization.section_quick_actions", default="QUICK ACTIONS"))
+
+    # ── TURBO armed panel (2026-07-18): what the master TURBO switch will
+    #    actually fire, as X/N + per-feature dots. ONE source of truth:
+    #    turbo_armed_summary(). Refreshes when the ON TURBO pills change.
+    tw = tk.Frame(parent, bg="#120a10",
+                  highlightbackground=BORD_L, highlightthickness=1)
+    tw.pack(fill="x", pady=(4, 6))
+    thead = tk.Frame(tw, bg="#120a10")
+    thead.pack(fill="x", padx=10, pady=(7, 2))
+    tk.Label(thead, text="⚡ TURBO", font=(_M, 8, "bold"),
+             bg="#120a10", fg=BORD_L).pack(side="left")
+    armed_lbl = tk.Label(thead, text="", font=(_M, 9, "bold"),
+                         bg="#120a10", fg=MUTED)
+    armed_lbl.pack(side="right")
+    trows = tk.Frame(tw, bg="#120a10")
+    trows.pack(fill="x", padx=10, pady=(0, 7))
+
+    def _refresh_armed():
+        try:
+            if not trows.winfo_exists():
+                return
+        except Exception:
+            return
+        for w in trows.winfo_children():
+            w.destroy()
+        feats = turbo_armed_summary()
+        n_on = sum(1 for _, a in feats if a)
+        armed_lbl.config(
+            text=f"{n_on}/{len(feats)} " + t("optimization.turbo_armed",
+                                             default="armed"),
+            fg=(MUTED if n_on == 0 else AMBER if n_on < len(feats) else "#f43f5e"))
+        for name, armed in feats:
+            r = tk.Frame(trows, bg="#120a10")
+            r.pack(fill="x")
+            tk.Label(r, text="●" if armed else "○", font=(_M, 7),
+                     bg="#120a10", fg=EMERALD if armed else DIM
+                     ).pack(side="left")
+            tk.Label(r, text=" " + name, font=(_F, 7),
+                     bg="#120a10", fg=TEXT if armed else MUTED
+                     ).pack(side="left")
+    _ARMED_UI["refresh"] = _refresh_armed
+    _refresh_armed()
 
     wrap = tk.Frame(parent, bg=CARD,
                     highlightbackground=BORDER, highlightthickness=1)
@@ -731,7 +837,7 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
         _chips[pkey] = (ch, pcol, pdata.get("bg", _BG))
         ch.bind("<Button-1>", lambda e, k=pkey: _sel_profile(k))
         if is_mgr:
-            # Clickable info badge — jumps to the Services Manager configurator
+            # Clickable info badge - jumps to the Services Manager configurator
             info = tk.Label(top, text="ⓘ", font=(_HDR, 7), bg=_BG,
                             fg="#8b5cf6", cursor="hand2")
             info.pack(side="left", padx=(0, 2))
@@ -1017,7 +1123,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     """
     _BG    = "#090c14"
     _BD    = "#1a2540"   # slightly lighter border for contrast
-    _MUT   = "#4d6888"   # readable muted (was #334560 — nearly invisible)
+    _MUT   = "#4d6888"   # readable muted (was #334560 - nearly invisible)
     _SOFT  = "#6b85a0"   # secondary text (readable on dark)
     _DARK  = "#060910"
     _TEAL  = "#14b8a6"
@@ -1144,7 +1250,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     page_unused = tk.Frame(parent, bg=_BG)
 
     summary_lbl = tk.Label(page_unused,
-                           text="Aplikacje nieaktywne od dłuższego czasu — możesz je uśpić lub skonfigurować tryb Turbo.",
+                           text="Aplikacje nieaktywne od dłuższego czasu - możesz je uśpić lub skonfigurować tryb Turbo.",
                            font=(_F, 6), bg=_BG, fg=_SOFT,
                            anchor="w", justify="left")
     summary_lbl.pack(fill="x", padx=10, pady=(4, 2))
@@ -1268,7 +1374,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                     btn.bind("<Leave>", lambda e, b=btn: b.config(fg=_fg))
                     return btn
 
-                _make_beh_btn(btn_f, "—",             "none")
+                _make_beh_btn(btn_f, "-",             "none")
                 _make_beh_btn(btn_f, "LOW PRIORITY",  "low")
                 _make_beh_btn(btn_f, "FREEZE",        "freeze")
 
@@ -1343,7 +1449,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     page_ignored = tk.Frame(parent, bg=_BG)
 
     ign_header = tk.Label(page_ignored,
-                          text="Aplikacje oznaczone jako ignorowane — nie będą proponowane do uśpienia.",
+                          text="Aplikacje oznaczone jako ignorowane - nie będą proponowane do uśpienia.",
                           font=(_F, 6), bg=_BG, fg=_SOFT,
                           anchor="w", justify="left")
     ign_header.pack(fill="x", padx=10, pady=(4, 2))
@@ -1400,6 +1506,127 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
 # FEATURE CARD BUILDER  - 2-column grid, [i] expandable panel
 # ═════════════════════════════════════════════════════════════════════════════
 
+def _build_upgrade_advisor_expand(parent: tk.Frame, card: tk.Frame) -> None:
+    """
+    Upgrade Advisor expanded panel - the Optimization Center's own take on
+    Upgrade Readiness. The Components page asks "will THIS part fit"; this
+    card answers "WHAT is worth upgrading", read from the user's own 14-day
+    load history (query_api), then hands concrete same-socket picks from the
+    offline library and a jump into the full checker.
+    """
+    _BG   = "#090c14"
+    _MUT  = "#4d6888"
+    _SOFT = "#6b85a0"
+
+    body = tk.Frame(parent, bg=_BG)
+    body.pack(fill="x", padx=10, pady=(8, 10))
+    loading = tk.Label(body, text=t("optimization.features.upgrade_advisor.reading",
+                                    default="Reading your 14-day load history..."),
+                       font=(_F, 8), bg=_BG, fg=_SOFT)
+    loading.pack(anchor="w")
+
+    def _line(txt, fg="#cbd5e1", font=None, pady=1):
+        tk.Label(body, text=txt, font=font or (_F, 8), bg=_BG, fg=fg,
+                 anchor="w", justify="left", wraplength=640).pack(
+            fill="x", pady=pady)
+
+    def _render(summ, plat, sug):
+        try:
+            if not body.winfo_exists():
+                return
+        except Exception:
+            return
+        try:
+            loading.destroy()
+        except Exception:
+            pass
+
+        cpu_avg = float(summ.get("cpu_avg") or 0)
+        cpu_max = float(summ.get("cpu_max") or 0)
+        gpu_avg = float(summ.get("gpu_avg") or 0)
+        ram_avg = float(summ.get("ram_avg") or 0)
+        ram_max = float(summ.get("ram_max") or 0)
+        days    = int(summ.get("days_with_data") or 0)
+
+        if not days or cpu_avg <= 0:
+            _line(t("optimization.features.upgrade_advisor.no_data",
+                    default="Not enough history yet - let PC Workman run a "
+                            "day or two in the background, then reopen."),
+                  fg=_SOFT)
+        else:
+            _line(f"{days}d:  CPU avg {cpu_avg:.0f}% (peak {cpu_max:.0f}%)"
+                  + (f"  ·  GPU avg {gpu_avg:.0f}%" if gpu_avg > 0 else "")
+                  + f"  ·  RAM avg {ram_avg:.0f}%",
+                  fg=_MUT, font=(_M, 7))
+            has_gpu = gpu_avg > 0
+            if ram_avg >= 80 or ram_max >= 97:
+                verdict = t("optimization.features.upgrade_advisor.v_ram",
+                            default="RAM is the pressure point - adding memory "
+                                    "is the cheapest, surest win.")
+            elif (cpu_avg >= 70 or cpu_max >= 99) and has_gpu and gpu_avg < 55:
+                verdict = t("optimization.features.upgrade_advisor.v_cpu",
+                            default="CPU is the bottleneck - it runs near its "
+                                    "limit while the GPU has spare power.")
+            elif has_gpu and gpu_avg >= 70 and cpu_avg < 50:
+                verdict = t("optimization.features.upgrade_advisor.v_gpu",
+                            default="GPU is the bottleneck - it runs flat out "
+                                    "while the CPU has headroom.")
+            else:
+                verdict = t("optimization.features.upgrade_advisor.v_ok",
+                            default="No screaming bottleneck - upgrade only "
+                                    "when a specific app or game feels slow.")
+            _line(verdict, fg="#e2e8f0", font=(_HDR, 9), pady=(4, 2))
+
+        picks = [x["label"] for x in (sug.get("cpu") or [])[:2]]
+        picks += [x["label"] for x in (sug.get("gpu") or [])[:2]]
+        if picks:
+            _line(t("optimization.features.upgrade_advisor.picks",
+                    default="Sensible directions for your platform "
+                            "({plat}):").format(
+                plat=(plat or "?")), fg=_MUT, pady=(6, 1))
+            for p in picks:
+                _line(f"  -  {p}", fg="#cbd5e1", font=(_M, 8))
+
+        btn = tk.Label(body, text="OPEN UPGRADE READINESS ->",
+                       font=(_M, 8, "bold"), bg=EMERALD, fg="#04110b",
+                       padx=10, pady=5, cursor="hand2")
+        btn.pack(anchor="w", pady=(8, 0))
+        btn.bind("<Enter>", lambda e: btn.config(bg="#34d399"))
+        btn.bind("<Leave>", lambda e: btn.config(bg=EMERALD))
+
+        def _go(_e=None):
+            win = _NAV.get("win")
+            if win is not None and hasattr(win, "open_upgrade_readiness"):
+                win.open_upgrade_readiness()
+            elif _NAV.get("cb"):
+                _NAV["cb"]("upgrade_readiness")
+        btn.bind("<Button-1>", _go)
+
+    def _load():
+        # Worker thread: gather everything, then one after(0) hop to the UI.
+        summ, plat_lbl, sug = {}, "", {}
+        try:
+            from hck_stats_engine.query_api import query_api
+            summ = query_api.get_summary_stats(days=14) or {}
+        except Exception:
+            pass
+        try:
+            from core import hardware_compat as hc
+            plat = hc.current_platform()
+            plat_lbl = hc.platform_label(plat)
+            sug = hc.suggest_upgrades(plat)
+        except Exception:
+            pass
+        try:
+            parent.after(0, lambda: _render(summ, plat_lbl, sug))
+        except Exception:
+            pass
+
+    import threading
+    threading.Thread(target=_load, daemon=True,
+                     name="UpgradeAdvisorLoad").start()
+
+
 def _build_features_grid(parent):
     """
     Build feature cards in a 2-column responsive grid.
@@ -1421,31 +1648,22 @@ def _build_features_grid(parent):
         {
             "key":     "ram_flush",
             "title":   "Auto RAM Flush",
-            "desc":    "Free working-set memory when usage is high",
+            "desc":    t("optimization.features.ram_flush.desc", default="Free working-set memory when usage is high"),
             "color":   VIOLET,
             "icon":    _ico_ram,
             "ready":   True,
-            "info":    (
-                "Forces Windows to trim the working set of all running processes,\n"
-                "releasing unused physical memory back to the system pool.\n"
-                "Triggers automatically when RAM stays above threshold for 30 s."
-            ),
+            "info":    t("optimization.features.ram_flush.info"),
             "run_label": "FLUSH  RAM",
             "run_color": VIOLET,
         },
         {
             "key":     "turbo_pp",
             "title":   "Turbo Power Plan",
-            "desc":    "Auto-switch to custom 'Turbo PC' plan on demand",
+            "desc":    t("optimization.features.turbo_pp.desc", default="Auto-switch to custom 'Turbo PC' plan on demand"),
             "color":   BORD_L,
             "icon":    _ico_bolt,
             "ready":   True,
-            "info":    (
-                "Creates a custom 'Turbo PC' plan based on High Performance.\n"
-                "CPU stays at max frequency - no throttling.\n"
-                "App exit auto-restores your original plan.\n"
-                "Requires Administrator rights."
-            ),
+            "info":    t("optimization.features.turbo_pp.info"),
             "run_label": "ACTIVATE",
             "run_color": BORD_L,
         },
@@ -1453,7 +1671,7 @@ def _build_features_grid(parent):
         {
             "key":   "turbo_svc",
             "title": "TURBO Service Stop",
-            "desc":  "Kill non-essential services by profile",
+            "desc":  t("optimization.features.turbo_svc.desc", default="Kill non-essential services by profile"),
             "color": BORD_L,
             "icon":  _ico_power,
             "ready": True,
@@ -1465,7 +1683,7 @@ def _build_features_grid(parent):
         {
             "key":   "proc_guard",
             "title": "Process Guard",
-            "desc":  "Suspend idle background processes",
+            "desc":  t("optimization.features.proc_guard.desc", default="Suspend idle background processes"),
             "color": VIOLET,
             "icon":  _ico_globe,
             "ready": True,
@@ -1477,7 +1695,7 @@ def _build_features_grid(parent):
         {
             "key":   "app_hibernation",
             "title": "App Hibernation",
-            "desc":  "Uśpij aplikacje nieużywane od X minut",
+            "desc":  t("optimization.features.app_hibernation.desc", default="Sleep apps unused for X minutes"),
             "color": "#14b8a6",
             "icon":  _ico_power,
             "ready": True,
@@ -1486,54 +1704,67 @@ def _build_features_grid(parent):
             "run_color": "#14b8a6",
             "custom_expand": _build_hibernation_expand,
         },
+        {
+            "key":   "upgrade_advisor",
+            "title": "Upgrade Advisor",
+            "desc":  t("optimization.features.upgrade_advisor.desc",
+                       default="What to upgrade, read from your own load history"),
+            "color": EMERALD,
+            "icon":  _ico_arrow,
+            "ready": True,
+            "info":  "",
+            "run_label": "",
+            "run_color": EMERALD,
+            "custom_expand": _build_upgrade_advisor_expand,
+        },
         # ── SOON ──────────────────────────────────────────────────────────────
         {"key": "cpu_throttle", "title": "CPU Throttle Guard",
-         "desc": "Prevent thermal throttling automatically",
+         "desc": t("optimization.features.cpu_throttle.desc", default="Prevent thermal throttling automatically"),
          "color": AMBER,   "icon": _ico_power, "ready": False,
-         "info": "Monitors CPU frequency ratio and adjusts TDP limits\nto keep clocks stable during sustained workloads.",
+         "info": t("optimization.features.cpu_throttle.info"),
          "run_label": "RUN", "run_color": AMBER},
         {"key": "browser_cache", "title": "Browser Cache Cleaner",
-         "desc": "Periodically clear browser cache files",
+         "desc": t("optimization.features.browser_cache.desc", default="Periodically clear browser cache files"),
          "color": BLUE,    "icon": _ico_glob_feat, "ready": False,
-         "info": "Auto-clears Chrome, Firefox and Edge disk cache\nafter configurable idle period to reclaim disk space.",
+         "info": t("optimization.features.browser_cache.info"),
          "run_label": "RUN", "run_color": BLUE},
         # startup_opt -> moved to Quick Actions (Startup Manager)
         {"key": "bg_limiter",   "title": "Background Limiter",
-         "desc": "Cap CPU for non-foreground processes",
+         "desc": t("optimization.features.bg_limiter.desc", default="Cap CPU for non-foreground processes"),
          "color": VIOLET,  "icon": _ico_arrow, "ready": False,
-         "info": "Uses Windows job objects to throttle background process\nCPU share, freeing headroom for the active app.",
+         "info": t("optimization.features.bg_limiter.info"),
          "run_label": "RUN", "run_color": VIOLET},
         # defrag_mon -> moved to Quick Actions (Disk Defragmenter)
         {"key": "net_reset",    "title": "Network Adapter Reset",
-         "desc": "Reset adapter stack on connectivity issues",
+         "desc": t("optimization.features.net_reset.desc", default="Reset adapter stack on connectivity issues"),
          "color": BLUE,    "icon": _ico_glob_feat, "ready": False,
-         "info": "Runs netsh winsock reset and flushes DNS to resolve\nstale network states without a full reboot.",
+         "info": t("optimization.features.net_reset.info"),
          "run_label": "RUN", "run_color": BLUE},
         {"key": "reg_clean",    "title": "Registry Junk Cleaner",
-         "desc": "Remove orphaned registry keys",
+         "desc": t("optimization.features.reg_clean.desc", default="Remove orphaned registry keys"),
          "color": RED,     "icon": _ico_trash, "ready": False,
-         "info": "Scans for invalid uninstall records and broken file\ntype associations. Preview before applying.",
+         "info": t("optimization.features.reg_clean.info"),
          "run_label": "RUN", "run_color": RED},
         {"key": "gpu_watchdog", "title": "GPU Driver Watchdog",
-         "desc": "Detect and restart hung GPU driver",
+         "desc": t("optimization.features.gpu_watchdog.desc", default="Detect and restart hung GPU driver"),
          "color": AMBER,   "icon": _ico_power, "ready": False,
-         "info": "Polls GPU state via nvidia-smi / WMI and triggers\na TDR reset if the driver stops responding.",
+         "info": t("optimization.features.gpu_watchdog.info"),
          "run_label": "RUN", "run_color": AMBER},
         {"key": "log_rotate",   "title": "Log File Rotation",
-         "desc": "Auto-prune old log files to save disk space",
+         "desc": t("optimization.features.log_rotate.desc", default="Auto-prune old log files to save disk space"),
          "color": "#6b7280", "icon": _ico_trash, "ready": False,
-         "info": "Monitors the app log folder and compresses / deletes\nentries older than the configured retention period.",
+         "info": t("optimization.features.log_rotate.info"),
          "run_label": "RUN", "run_color": "#6b7280"},
         {"key": "dns_nightly",  "title": "DNS Auto-Flush",
-         "desc": "Nightly DNS cache flush on schedule",
+         "desc": t("optimization.features.dns_nightly.desc", default="Nightly DNS cache flush on schedule"),
          "color": BLUE,    "icon": _ico_glob_feat, "ready": False,
-         "info": "Schedules a silent DNS flush every night at 03:00\nto prevent stale cache entries from breaking browsing.",
+         "info": t("optimization.features.dns_nightly.info"),
          "run_label": "RUN", "run_color": BLUE},
         # perf_report -> moved to Quick Actions (Weekly Perf Report)
         {"key": "fw_monitor",   "title": "Firewall Health",
-         "desc": "Verify Windows Firewall is active and healthy",
+         "desc": t("optimization.features.fw_monitor.desc", default="Verify Windows Firewall is active and healthy"),
          "color": RED,     "icon": _ico_power, "ready": False,
-         "info": "Queries netsh advfirewall state and alerts if any\nprofile (Domain / Private / Public) is disabled.",
+         "info": t("optimization.features.fw_monitor.info"),
          "run_label": "RUN", "run_color": RED},
     ]
 
@@ -1574,21 +1805,38 @@ def _build_features_grid(parent):
     grid_frame.columnconfigure(1, weight=1, uniform="feat")
 
     # Expanding a card makes it span BOTH columns (takes the neighbour's slot) and
-    # the rest re-flow around it — far more room for the expanded content.
+    # the rest re-flow around it - far more room for the expanded content.
     _cards: list = []
 
     def _relayout():
+        # Expanding a card makes it span BOTH columns and its pair-neighbour
+        # reflows below it. The old code only did this cleanly for LEFT-column
+        # cards; a RIGHT-column (c==1) expand jumped to a fresh row and left an
+        # empty col-1 slot beside the lone left card - the "big gap" the user
+        # saw. Now a right-column expand claims its OWN row full-width and
+        # bumps the lone left card down, so both columns behave identically.
         r = c = 0
+        last_closed = None            # (outer,) most recent lone col-0 card
         for outer, state in _cards:
             if state["open"]:
-                if c == 1:                 # start the full-width card on a fresh row
+                if c == 1 and last_closed is not None:
+                    # A lone closed card sits at (r, 0): give this open card that
+                    # whole row and drop the lone card to the next row.
+                    outer.grid(row=r, column=0, columnspan=2,
+                               sticky="nsew", padx=0, pady=4)
+                    r += 1
+                    last_closed.grid(row=r, column=0, columnspan=1,
+                                     sticky="nsew", padx=(0, 4), pady=4)
+                    c = 1             # next closed card fills (r, 1)
+                else:
+                    outer.grid(row=r, column=0, columnspan=2,
+                               sticky="nsew", padx=0, pady=4)
                     r += 1; c = 0
-                outer.grid(row=r, column=0, columnspan=2,
-                           sticky="nsew", padx=0, pady=4)
-                r += 1; c = 0
+                    last_closed = None
             else:
                 outer.grid(row=r, column=c, columnspan=1, sticky="nsew",
                            padx=(0, 4) if c == 0 else 0, pady=4)
+                last_closed = outer if c == 0 else None
                 c += 1
                 if c == 2:
                     c = 0; r += 1
@@ -1929,6 +2177,22 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
     prefs = _load_prefs().get("optimization", {})
     auto_state["on"] = bool(prefs.get("ram_auto", False))
     _pill_cv(auto_pill, auto_state["on"], 32, 15, EMERALD)
+    # ON TURBO pill: was drawn but never bound (2026-07-18 audit) - clicking
+    # it did nothing and ram_on_turbo could never be set from the UI.
+    turbo_state["on"] = bool(prefs.get("ram_on_turbo", False))
+    _pill_cv(turbo_pill, turbo_state["on"], 32, 15, BORD_L)
+
+    def _toggle_ram_turbo(e=None):
+        turbo_state["on"] = not turbo_state["on"]
+        _pill_cv(turbo_pill, turbo_state["on"], 32, 15, BORD_L)
+        _save_opt(ram_on_turbo=turbo_state["on"])
+        try:
+            from core.auto_optimizer import auto_optimizer
+            auto_optimizer.set_ram_on_turbo(turbo_state["on"])
+        except Exception:
+            pass
+        _refresh_armed_ui()
+    turbo_pill.bind("<Button-1>", _toggle_ram_turbo)
 
     def _run(e=None):
         run_btn.config(text="...", fg=MUTED, bg="#0a0d14")
@@ -1954,7 +2218,7 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
         auto_state["on"] = not auto_state["on"]
         _pill_cv(auto_pill, auto_state["on"], 32, 15, EMERALD)
         _save_opt(ram_auto=auto_state["on"])
-        # Tell the always-on daemon — it owns the watcher now, so AUTO keeps
+        # Tell the always-on daemon - it owns the watcher now, so AUTO keeps
         # running after this page (or the whole app) is reopened.
         from core.auto_optimizer import auto_optimizer
         auto_optimizer.set_ram_auto(auto_state["on"])
@@ -2052,6 +2316,7 @@ def _wire_turbo_pp(run_btn, auto_pill, auto_state,
         _save_opt(tpp_on_turbo=turbo_state["on"])
         if _ao:
             _ao.set_tpp_on_turbo(turbo_state["on"])
+        _refresh_armed_ui()
 
     # Live status from the daemon -> the card's label (guarded, auto-unhooked)
     def _on_tpp_status(text):
@@ -2084,6 +2349,7 @@ def build_optimization_page(self, parent):
 
     _nav = getattr(self, "_switch_to_page", None)
     _NAV["cb"] = _nav
+    _NAV["win"] = self          # Upgrade Advisor card navigates through this
     _back_fn = (lambda: _nav("dashboard")) if _nav else None
     _build_hero_header(root_frame, back_fn=_back_fn)
     _build_snapshot_strip(root_frame)
