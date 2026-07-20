@@ -61,6 +61,12 @@ class Monitor:
 
         # PID 0 = System Idle Process (represents idle CPU time, not a real workload)
         _SKIP_NAMES = {"system idle process", "idle"}
+        # psutil per-process cpu_percent is scaled to ONE core (0..100*n).
+        # Undivided, a single busy thread on a 12-thread CPU reads "100%"
+        # while the machine sits at 8% - dashboards ranked it absurdly and
+        # proactive spike alerts fired for nothing (2026-07-18 fix). Divide
+        # so every consumer sees % of the WHOLE machine, same scale as total.
+        n_cores = psutil.cpu_count(logical=True) or 1
         procs = []
         for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info']):
             try:
@@ -68,7 +74,7 @@ class Monitor:
                 name = (info.get('name') or '').strip()
                 if info.get('pid') == 0 or name.lower() in _SKIP_NAMES:
                     continue
-                cpu_p = info.get('cpu_percent') or 0.0
+                cpu_p = (info.get('cpu_percent') or 0.0) / n_cores
                 mem_info = info.get('memory_info')
                 ram_mb = (mem_info.rss / (1024*1024)) if mem_info else 0.0
                 procs.append({
