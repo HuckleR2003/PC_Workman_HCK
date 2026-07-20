@@ -2,7 +2,7 @@
 from __future__ import annotations
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
-from import_core import register_component, update_status, STATUS_OK, STATUS_IDLE
+from import_core import register_component, STATUS_OK
 
 try:
     from .insights import InsightsEngine
@@ -326,6 +326,17 @@ class ChatHandler:
         # ── 1. Service wizard takes priority ──────────────────────────────────
         if self.wizard.is_active():
             return self.wizard.process_input(msg)
+
+        # ── 1b. Active guided flow (FlowEngine) - navigation words advance it;
+        # anything else falls through to normal routing (flow stays paused).
+        try:
+            from hck_gpt.engine.flow_engine import flow_engine
+            if flow_engine.is_active() and HAS_AI_LAYER:
+                _flow_out = flow_engine.process_input(msg, response_builder)
+                if _flow_out is not None:
+                    return _flow_out
+        except Exception:
+            pass
 
         # ── 2. Hard-route service/insights commands (bypass AI layer) ─────────
         if any(kw in lower for kw in _LEGACY_ONLY_KEYWORDS):
@@ -827,7 +838,7 @@ class ChatHandler:
         # ── Try the hybrid engine one more time with lower confidence bar ───────
         if HAS_AI_LAYER and HAS_HYBRID:
             try:
-                # Parse fresh here — _default_response runs in its own scope and
+                # Parse fresh here - _default_response runs in its own scope and
                 # has no access to process_message's local parse result.
                 _late_result = intent_parser.parse(msg)
                 if _late_result.confidence >= 0.18:   # lower floor than normal 0.20
