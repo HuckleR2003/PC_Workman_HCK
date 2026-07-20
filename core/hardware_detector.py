@@ -137,7 +137,7 @@ class HardwareDetector:
         """Return scanned hardware, running a SYNCHRONOUS scan first if it hasn't
         been done yet. For background consumers (telemetry) that can't assume the
         user ever opened the My PC -> Components tab. Safe to call off the UI
-        thread only — the scan shells out to wmic/PowerShell and can take seconds.
+        thread only - the scan shells out to wmic/PowerShell and can take seconds.
         Result is cached on the singleton, so later get_data() calls are instant."""
         with self._lock:
             if self._ready and self._data:
