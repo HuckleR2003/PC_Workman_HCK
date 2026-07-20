@@ -58,7 +58,7 @@ class ProcessDataManager:
             try:
                 with open(PROCESS_STATS_FILE, 'r', encoding='utf-8') as f:
                     return json.load(f)
-            except:
+            except Exception:
                 pass
         return {
             'total_runtime_seconds': 0,
@@ -72,7 +72,7 @@ class ProcessDataManager:
             try:
                 with open(DAILY_SUMMARY_FILE, 'r', encoding='utf-8') as f:
                     return json.load(f)
-            except:
+            except Exception:
                 pass
         return {}
 
