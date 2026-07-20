@@ -215,7 +215,7 @@ def _get_pnp_connected_names(class_guid: str) -> set:
     lists only devices whose hardware is physically present.
     Phantom drivers (card removed, driver still installed) are excluded.
 
-    Falls back to empty set on failure — caller uses count-based heuristic.
+    Falls back to empty set on failure - caller uses count-based heuristic.
     """
     try:
         result = subprocess.run(
@@ -285,12 +285,12 @@ def _check_ghost(dev_name: str, connected_names: set, all_devs_count: int) -> bo
     """
     Ghost = driver installed in registry but hardware NOT physically present.
 
-    connected_names comes from pnputil /connected — only hardware currently
+    connected_names comes from pnputil /connected - only hardware currently
     plugged in. If GT 1030 was replaced and its driver was never cleanly
     uninstalled, it appears in the registry but NOT in connected_names.
 
     - connected_names empty: pnputil unavailable, fall back to count >= 2.
-    - connected_names has results: authoritative — not found = phantom ghost.
+    - connected_names has results: authoritative - not found = phantom ghost.
     """
     name_lower = dev_name.lower()
 
@@ -331,7 +331,7 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
     """Toplevel info + optional uninstall for a ghost/unused driver."""
     from tkinter import messagebox as _mb
     win = tk.Toplevel(root)
-    win.title("Ghost Driver — Check Info")
+    win.title("Ghost Driver - Check Info")
     win.configure(bg="#0a0e14")
     win.resizable(False, False)
     win.geometry("460x320")
@@ -348,7 +348,7 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
 
     hdr = tk.Frame(win, bg="#150508")
     hdr.pack(fill="x", pady=(0, 0))
-    tk.Label(hdr, text=f"  ⚠  {category} — Ghost Driver Detected",
+    tk.Label(hdr, text=f"  ⚠  {category} - Ghost Driver Detected",
              font=(_HDR, 10), bg="#150508", fg=GHOST_MARK, pady=8).pack(side="left")
 
     body = tk.Frame(win, bg=_W)
@@ -425,7 +425,7 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
             status_lbl.config(text="Removing…", fg=AMBER)
             win.update()
             ok, msg = _remove_pnp_device(inst_id)
-            status_lbl.config(text=msg, fg=EMERALD if ok else RED)
+            status_lbl.config(text=msg, fg=GREEN if ok else RED)
 
         rm_btn = tk.Label(btn_row, text="🗑 Remove Driver",
                           font=(_MONO, 8, "bold"), bg="#1a0508", fg=GHOST_MARK,
@@ -513,7 +513,7 @@ def _build_ext_device_row(parent, dev: dict, pnp_entry: dict, category: str,
 
 def _build_see_everything_view(parent, all_lists: list, ghost_sets: list,
                                 pnp_lists: list) -> tk.Frame:
-    """Extended view — all devices across all categories."""
+    """Extended view - all devices across all categories."""
     wrap = tk.Frame(parent, bg=PANEL2)
     wrap.pack(fill="x", padx=10, pady=(4, 8))
 
@@ -550,7 +550,7 @@ def _build_see_everything_view(parent, all_lists: list, ghost_sets: list,
 
 def _build_see_outdated_view(parent, all_lists: list, ghost_sets: list,
                               pnp_lists: list) -> tk.Frame:
-    """Extended view — only drivers >= 730 days (24 months), oldest first."""
+    """Extended view - only drivers >= 730 days (24 months), oldest first."""
     wrap = tk.Frame(parent, bg=PANEL2)
     wrap.pack(fill="x", padx=10, pady=(4, 8))
 
@@ -575,7 +575,7 @@ def _build_see_outdated_view(parent, all_lists: list, ghost_sets: list,
     if not aged:
         tk.Label(wrap,
                  text="  No drivers older than 24 months detected.",
-                 font=(_F, 8), bg=PANEL2, fg=MUTED, pady=12).pack(fill="x")
+                 font=(_BODY, 8), bg=PANEL2, fg=MUTED, pady=12).pack(fill="x")
         return wrap
 
     for days, dev, pnp_match, cat_name, accent, is_g in aged:
@@ -755,6 +755,17 @@ def build_first_setup_page(win_self, parent):
 
     refs = {}
     _build_header(sf, refs)
+
+    # Upgrade Readiness entry (2026-07): this page lists the machine's parts
+    # and drivers, so the compatibility check is one click away.
+    _ur = tk.Frame(sf, bg=BG)
+    _ur.pack(fill="x", padx=16)
+    _lnk = tk.Label(_ur, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
+                    bg=BG, fg="#10b981", cursor="hand2")
+    _lnk.pack(side="right")
+    _lnk.bind("<Enter>", lambda e: _lnk.config(fg="#34d399"))
+    _lnk.bind("<Leave>", lambda e: _lnk.config(fg="#10b981"))
+    _lnk.bind("<Button-1>", lambda e: win_self.open_upgrade_readiness("cpu"))
     _build_hero(sf, refs)
     _build_driver_section(sf, refs)
     _build_bottom_row(sf, refs)
@@ -779,7 +790,7 @@ def build_first_setup_page(win_self, parent):
         all_drivers_primary = [lst[0] for lst in all_lists]
 
         # ── pnputil /connected: which devices are physically present ─────────
-        # Win32_VideoController (WMI) returns phantom cards too — unreliable.
+        # Win32_VideoController (WMI) returns phantom cards too - unreliable.
         # pnputil /connected filters to hardware that is currently plugged in.
         ghost_sets = []
         for idx, (guid, cat, wmi_cls, _) in enumerate(_CAT_META):
@@ -1133,7 +1144,7 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     ab = tk.Frame(row, bg="#374151", width=4)
     ab.pack(side="left", fill="y")
 
-    # Category column — wider + larger fonts for readability
+    # Category column - wider + larger fonts for readability
     cf = tk.Frame(row, bg=PANEL2, width=96)
     cf.pack(side="left", fill="y")
     cf.pack_propagate(False)
@@ -1187,12 +1198,12 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     action.bind("<Enter>", lambda e: action.config(fg=BLUE))
     action.bind("<Leave>", lambda e: action.config(fg="#8593a8"))
 
-    # Expand toggle button — shown only after scan with extra devices
+    # Expand toggle button - shown only after scan with extra devices
     expand_btn = tk.Label(rf, text="", font=(_MONO, 7),
                           bg=PANEL2, fg="#6b7280", cursor="hand2")
     expand_btn.pack(pady=(4, 0))
 
-    # Expand panel — shows all detected devices in this class
+    # Expand panel - shows all detected devices in this class
     _EXP_BG = "#0a0e17"
     expand_panel = tk.Frame(outer, bg=_EXP_BG)
     _exp_state = {"open": False}
@@ -1200,7 +1211,7 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     def _toggle_expand(e=None):
         if _exp_state["open"]:
             expand_panel.pack_forget()
-            # Restore collapsed label — update arrow, keep count
+            # Restore collapsed label - update arrow, keep count
             lbl = expand_btn.cget("text")
             expand_btn.config(
                 text=lbl.replace("▲ zwiń", "▼ pokaż wszystkie"),
@@ -1220,12 +1231,12 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     expand_btn.bind("<Leave>", lambda e: expand_btn.config(
         fg=accent if _exp_state["open"] else "#4b5563"))
 
-    # Ghost badge — hidden by default, shown by _fill_card when ghosts detected
+    # Ghost badge - hidden by default, shown by _fill_card when ghosts detected
     ghost_badge = tk.Label(rf, text="",
                            font=(_MONO, 7, "bold"),
                            bg=GHOST_BG, fg=GHOST_MARK,
                            padx=7, pady=3)
-    # NOT packed here — _fill_card shows/hides it
+    # NOT packed here - _fill_card shows/hides it
 
     return {
         "frame": outer, "bar": ab,
@@ -1538,7 +1549,7 @@ def _fill_card(card, data, ghost_names: set = None):
             card["frame"].config(highlightbackground=GHOST_BD, bg=GHOST_BG)
             card["bar"].config(bg=GHOST_MARK)
             n = "ghost" if ghost_count == 1 else "ghosts"
-            # Override the main status badge — most visible right-side slot
+            # Override the main status badge - most visible right-side slot
             card["badge"].config(
                 text=f"  ⚠ {ghost_count} {n}  ",
                 bg=GHOST_BG, fg=GHOST_MARK,
@@ -1560,7 +1571,7 @@ def _fill_card(card, data, ghost_names: set = None):
     except Exception:
         pass
 
-    # Secondary ghost badge — age info below the main badge
+    # Secondary ghost badge - age info below the main badge
     try:
         gb = card.get("ghost_badge")
         if gb:
@@ -1600,7 +1611,7 @@ def _fill_expand_panel(card, all_devs: list, ghost_names: set = None):
             if d.get("name", "").lower() in (ghost_names or set())
         )
 
-        # Update expand button — show count + ghost warning if applicable
+        # Update expand button - show count + ghost warning if applicable
         btn_lbl = f"▼ pokaż wszystkie ({len(all_devs)})"
         btn_fg  = "#8a9db8"
         if ghost_count_in_list:
