@@ -52,7 +52,37 @@ class FanAIEngine:
     """AI Engine for generating fan curves"""
     @staticmethod
     def generate_curve(profile: str) -> List[FanCurvePoint]:
-        """Generate predefined curve based on profile"""
+        """Generate predefined curve based on profile. The "ai" profile
+        (shown as "hck_GPT - AI") is shaped by the LEARNED thermal baseline:
+        the curve's knee lands just above this machine's usual gaming p95,
+        so fans stay quiet inside YOUR normal and ramp exactly where this
+        PC historically starts running hot."""
+        if profile == "ai":
+            knee = 74.0                       # sensible fallback knee
+            try:
+                from core.thermal_baseline import thermal_baseline as _tb
+                pm = _tb.primary_metric()
+                if "temp" in pm:              # only temp metrics make a knee
+                    st = _tb.training_status(pm)
+                    for bucket in ("gaming", "heavy", "medium"):
+                        info = st.get(bucket, {})
+                        if int(info.get("n", 0)) >= 20:
+                            knee = min(88.0, max(55.0,
+                                                 float(info.get("p95", 74))))
+                            break
+            except Exception:
+                pass
+            k = int(knee)
+            pts = [(20, 22), (40, 30), (max(41, k - 14), 42),
+                   (k, 62), (min(99, k + 8), 84), (100, 100)]
+            # keep temps strictly increasing after the clamps above
+            out, last = [], -10
+            for t, s in pts:
+                t = max(t, last + 3)
+                out.append((min(t, 100), s))
+                last = t
+            return [FanCurvePoint(t, s) for t, s in out]
+
         curves = {
             "silent": [(20, 20), (40, 25), (60, 40), (80, 60), (100, 75)],
             "balanced": [(20, 25), (40, 35), (60, 50), (80, 70), (100, 90)],
@@ -63,180 +93,285 @@ class FanAIEngine:
 
 
 class CompactFanCurveGraph(tk.Canvas):
-    """Beautiful fan curve graph with purple gradient fill (like screenshot)"""
-    def __init__(self, parent, width=550, height=150, on_curve_change=None):
-        super().__init__(parent, bg="#0a0e27", width=width, height=height, highlightthickness=0)
-        self.width = width
-        self.height = height
+    """Modern fan-curve chart (2026-07-18 redesign).
+
+    - dark->bright-red gradient under the curve: the fill follows the curve
+      height, so pushing points up literally heats the chart up
+    - dual axes: % (left) and the resulting RPM (right, follows MAX FAN SPEED)
+    - points are monotonic in temperature: they cannot overlap or slide
+      behind their neighbours
+    - view-first safety: the chart opens LOCKED. Hovering shows a quiet grey
+      padlock with "Click"; clicking unlocks editing and reveals the
+      hck_GPT [AI] consult button in the top-right corner.
+    """
+
+    PAD_L, PAD_R, PAD_T, PAD_B = 44, 56, 18, 26
+    MIN_GAP = 3          # deg C between neighbouring points
+
+    def __init__(self, parent, width=550, height=170, on_curve_change=None,
+                 get_max_rpm=None, get_min_pct=None, get_set_rpm=None,
+                 on_ai_consult=None):
+        super().__init__(parent, bg="#0b0e1a", width=width, height=height,
+                         highlightthickness=1, highlightbackground="#1d2436")
+        self.width, self.height = width, height
         self.on_curve_change = on_curve_change
+        self.get_max_rpm = get_max_rpm or (lambda: 2400)
+        self.get_min_pct = get_min_pct or (lambda: 0)
+        self.get_set_rpm = get_set_rpm or (lambda: 0)
+        self.on_ai_consult = on_ai_consult
 
-        # Default curve points
-        self.points = [
-            FanCurvePoint(0, 25),
-            FanCurvePoint(20, 30),
-            FanCurvePoint(40, 40),
-            FanCurvePoint(60, 55),
-            FanCurvePoint(80, 75),
-            FanCurvePoint(100, 90),
-        ]
+        self.points = [FanCurvePoint(t, s) for t, s in
+                       [(0, 25), (20, 30), (40, 40), (60, 55), (80, 75), (100, 90)]]
 
+        self.locked = True
+        self._hover = False
+        self._live_temp = None
+        self._ai_btn = None
         self.dragging_point = None
+
         self.bind("<Button-1>", self._on_click)
         self.bind("<B1-Motion>", self._on_drag)
         self.bind("<ButtonRelease-1>", self._on_release)
-
+        self.bind("<Enter>", lambda e: self._set_hover(True))
+        self.bind("<Leave>", lambda e: self._set_hover(False))
         self._draw()
 
+    # ── Geometry helpers ─────────────────────────────────────────────────────
+    def _gw(self):
+        return self.width - self.PAD_L - self.PAD_R
+
+    def _gh(self):
+        return self.height - self.PAD_T - self.PAD_B
+
+    def _px(self, temp):
+        return self.PAD_L + self._gw() * temp / 100.0
+
+    def _py(self, speed):
+        return self.PAD_T + self._gh() * (1 - speed / 100.0)
+
+    def speed_at(self, temp: float) -> float:
+        """Linear interpolation of the curve, clamped to the MIN FAN SPEED
+        floor - feeds the live fan cards AND the gradient fill, so moving
+        the MIN slider visibly lifts the whole chart floor."""
+        try:
+            floor = float(self.get_min_pct() or 0)
+        except Exception:
+            floor = 0.0
+        pts = sorted(self.points, key=lambda p: p.temp)
+        if not pts:
+            return floor
+        if temp <= pts[0].temp:
+            return max(floor, float(pts[0].speed))
+        for a, b in zip(pts, pts[1:]):
+            if temp <= b.temp:
+                span = max(b.temp - a.temp, 1e-6)
+                f = (temp - a.temp) / span
+                return max(floor, a.speed + (b.speed - a.speed) * f)
+        return max(floor, float(pts[-1].speed))
+
+    def set_live_temp(self, temp) -> None:
+        self._live_temp = temp
+        self._draw()
+
+    # ── Colors ───────────────────────────────────────────────────────────────
+    @staticmethod
+    def _blend(c1, c2, t):
+        t = max(0.0, min(1.0, t))
+        a = tuple(int(c1[i:i + 2], 16) for i in (1, 3, 5))
+        b = tuple(int(c2[i:i + 2], 16) for i in (1, 3, 5))
+        return "#%02x%02x%02x" % tuple(
+            int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+    def _heat(self, speed):
+        """Fill color for a given speed: deep dark red -> bright alarm red."""
+        return self._blend("#2a0b10", "#ef4444", (speed / 100.0) ** 1.25)
+
+    # ── Drawing ──────────────────────────────────────────────────────────────
     def _draw(self):
-        """Draw beautiful graph with gradient fill"""
         self.delete("all")
-        margin_left = 40
-        margin_right = 20
-        margin_top = 15
-        margin_bottom = 25
+        gw, gh = self._gw(), self._gh()
+        max_rpm = int(self.get_max_rpm() or 2400)
 
-        graph_width = self.width - margin_left - margin_right
-        graph_height = self.height - margin_top - margin_bottom
+        self.create_rectangle(0, 0, self.width, self.height,
+                              fill="#0b0e1a", outline="")
+        self.create_rectangle(self.PAD_L, self.PAD_T, self.PAD_L + gw,
+                              self.PAD_T + gh, fill="#0d1120",
+                              outline="#182036")
 
-        # Background - dark navy
-        self.create_rectangle(0, 0, self.width, self.height, fill="#0a0e27", outline="")
-
-        # GRID LINES (horizontal - 0%, 25%, 50%, 75%, 100%)
         for i in range(0, 101, 25):
-            y = margin_top + graph_height * (1 - i / 100)
-            self.create_line(margin_left, y, margin_left + graph_width, y,
-                           fill="#1e293b", width=1, dash=(2, 2))
+            y = self._py(i)
+            self.create_line(self.PAD_L, y, self.PAD_L + gw, y,
+                             fill="#16203a", width=1, dash=(2, 3))
+        for t in range(0, 101, 20):
+            x = self._px(t)
+            self.create_line(x, self.PAD_T, x, self.PAD_T + gh,
+                             fill="#131b30", width=1)
 
-        # VERTICAL LINES (temperature markers: 0°, 20°, 40°, 60°, 80°, 100°)
-        for temp in range(0, 101, 20):
-            x = margin_left + graph_width * (temp / 100)
-            self.create_line(x, margin_top, x, margin_top + graph_height,
-                           fill="#1e293b", width=1)
+        # gradient area under the curve: vertical strips whose color follows
+        # the interpolated speed (dark red low -> bright red high)
+        pts = sorted(self.points, key=lambda p: p.temp)
+        step = 3
+        for sx in range(0, int(gw), step):
+            temp = (sx / gw) * 100.0
+            sp = self.speed_at(temp)
+            x0 = self.PAD_L + sx
+            y0 = self._py(sp)
+            base = self._heat(sp)
+            self.create_rectangle(x0, y0, x0 + step, self.PAD_T + gh,
+                                  fill=base, outline="")
+            self.create_rectangle(x0, y0, x0 + step,
+                                  min(y0 + 5, self.PAD_T + gh),
+                                  fill=self._blend(base, "#f87171", 0.45),
+                                  outline="")
 
-        # PURPLE GRADIENT FILL (area under curve)
-        if len(self.points) > 1:
-            # Create polygon points for gradient area
-            polygon_points = []
+        if len(pts) > 1:
+            coords = []
+            for p in pts:
+                coords += [self._px(p.temp), self._py(p.speed)]
+            self.create_line(*coords, fill="#f87171", width=2, smooth=True)
 
-            # Add curve points from left to right
-            for point in self.points:
-                x = margin_left + graph_width * (point.temp / 100)
-                y = margin_top + graph_height * (1 - point.speed / 100)
-                polygon_points.extend([x, y])
+        # MIN floor line (green) and SET manual-override line (cyan)
+        try:
+            floor = float(self.get_min_pct() or 0)
+        except Exception:
+            floor = 0.0
+        if floor > 0:
+            fy = self._py(floor)
+            self.create_line(self.PAD_L, fy, self.PAD_L + gw, fy,
+                             fill="#10b981", width=1, dash=(5, 3))
+            self.create_text(self.PAD_L + 4, fy - 2, text="MIN",
+                             fill="#10b981", font=(_MONO, 6, "bold"),
+                             anchor="sw")
+        try:
+            set_rpm = float(self.get_set_rpm() or 0)
+        except Exception:
+            set_rpm = 0.0
+        if set_rpm > 0 and max_rpm > 0:
+            sp_pct = min(100.0, set_rpm / max_rpm * 100.0)
+            sy = self._py(sp_pct)
+            self.create_line(self.PAD_L, sy, self.PAD_L + gw, sy,
+                             fill="#22d3ee", width=1, dash=(6, 3))
+            self.create_text(self.PAD_L + gw - 4, sy - 2,
+                             text=f"SET {int(set_rpm)}",
+                             fill="#22d3ee", font=(_MONO, 6, "bold"),
+                             anchor="se")
 
-            # Close polygon at bottom
-            polygon_points.extend([margin_left + graph_width, margin_top + graph_height])
-            polygon_points.extend([margin_left, margin_top + graph_height])
+        if self._live_temp is not None and 0 <= self._live_temp <= 100:
+            lx = self._px(self._live_temp)
+            self.create_line(lx, self.PAD_T, lx, self.PAD_T + gh,
+                             fill="#f59e0b", width=1, dash=(4, 3))
+            self.create_text(lx, self.PAD_T + 2,
+                             text=f"{self._live_temp:.0f}\u00b0",
+                             fill="#f59e0b", font=(_BODY, 7, "bold"),
+                             anchor="s")
 
-            # Draw purple gradient fill (multiple layers for gradient effect)
-            for i in range(50):
-                alpha = 1 - (i / 50)
-                shade = int(139 + (30 - 139) * (i / 50))  # Darker at bottom
-                color = f"#{shade:02x}5cf6"
+        for p in pts:
+            x, y = self._px(p.temp), self._py(p.speed)
+            self.create_oval(x - 7, y - 7, x + 7, y + 7,
+                             outline=self._heat(min(p.speed + 25, 100)),
+                             width=2)
+            self.create_oval(x - 4, y - 4, x + 4, y + 4,
+                             fill="#fca5a5", outline="#ffffff", width=1)
 
-                # Offset polygon slightly for gradient
-                offset_y = i * 0.5
-                offset_points = []
-                for j in range(0, len(polygon_points), 2):
-                    offset_points.append(polygon_points[j])
-                    offset_points.append(polygon_points[j + 1] + offset_y)
-
-                self.create_polygon(offset_points, fill=color, outline="",
-                                  stipple="gray50" if i > 25 else "")
-
-        # PURPLE CURVE LINE
-        if len(self.points) > 1:
-            for i in range(len(self.points) - 1):
-                x1 = margin_left + graph_width * (self.points[i].temp / 100)
-                y1 = margin_top + graph_height * (1 - self.points[i].speed / 100)
-                x2 = margin_left + graph_width * (self.points[i + 1].temp / 100)
-                y2 = margin_top + graph_height * (1 - self.points[i + 1].speed / 100)
-                self.create_line(x1, y1, x2, y2, fill="#a855f7", width=3, smooth=True)
-
-        # INTERACTIVE POINTS (circles with white outline)
-        for point in self.points:
-            x = margin_left + graph_width * (point.temp / 100)
-            y = margin_top + graph_height * (1 - point.speed / 100)
-
-            # Outer glow
-            self.create_oval(x - 8, y - 8, x + 8, y + 8, fill="", outline="#8b5cf6", width=2)
-            # Main circle
-            self.create_oval(x - 5, y - 5, x + 5, y + 5, fill="#c084fc", outline="#ffffff", width=2, tags="point")
-
-        # AXIS LABELS
-        # Y-axis labels (0%, 25%, 50%, 75%, 100%)
+        self.create_text(self.PAD_L - 8, self.PAD_T - 9, text="%",
+                         fill="#8aa0bc", font=(_MONO, 7, "bold"), anchor="e")
+        self.create_text(self.PAD_L + gw + 8, self.PAD_T - 9, text="RPM",
+                         fill="#8aa0bc", font=(_MONO, 7, "bold"), anchor="w")
         for i in range(0, 101, 25):
-            y = margin_top + graph_height * (1 - i / 100)
-            self.create_text(margin_left - 10, y, text=f"{i}%",
-                           fill="#64748b", font=(_BODY, 7), anchor="e")
+            y = self._py(i)
+            self.create_text(self.PAD_L - 8, y, text=f"{i}",
+                             fill="#64748b", font=(_MONO, 7), anchor="e")
+            self.create_text(self.PAD_L + gw + 8, y,
+                             text=f"{int(max_rpm * i / 100)}",
+                             fill="#64748b", font=(_MONO, 7), anchor="w")
+        for t in range(0, 101, 20):
+            self.create_text(self._px(t), self.PAD_T + gh + 10,
+                             text=f"{t}\u00b0", fill="#64748b",
+                             font=(_MONO, 7), anchor="n")
 
-        # X-axis labels (0°, 20°, 40°, 60°, 80°, 100°)
-        for temp in range(0, 101, 20):
-            x = margin_left + graph_width * (temp / 100)
-            self.create_text(x, margin_top + graph_height + 10, text=f"{temp}°",
-                           fill="#64748b", font=(_BODY, 7), anchor="n")
+        ref_t = self._live_temp if self._live_temp is not None else pts[-1].temp
+        sp = self.speed_at(ref_t)
+        self.create_text(self.PAD_L + gw - 6, self.PAD_T + 6,
+                         text=(f"{ref_t:.0f}\u00b0C \u2192 {sp:.0f}%  "
+                               f"\u00b7  {int(max_rpm * sp / 100)} RPM"),
+                         fill="#f87171", font=(_MONO, 8, "bold"), anchor="ne")
 
-        # Top right label (current temp/speed indicator)
-        if self.points:
-            last_point = self.points[-1]
-            self.create_text(self.width - 10, 10,
-                           text=f"{int(last_point.temp)}°C -> {int(last_point.speed)}%",
-                           fill="#a855f7", font=(_BODY, 9, "bold"), anchor="ne")
+        if self.locked and self._hover:
+            self.create_rectangle(self.PAD_L, self.PAD_T, self.PAD_L + gw,
+                                  self.PAD_T + gh, fill="#05070d",
+                                  outline="", stipple="gray50")
+            cx = self.PAD_L + gw / 2
+            cy = self.PAD_T + gh / 2 - 8
+            g = "#94a3b8"
+            self.create_arc(cx - 9, cy - 16, cx + 9, cy + 2, start=0,
+                            extent=180, style="arc", outline=g, width=2)
+            self.create_rectangle(cx - 12, cy - 4, cx + 12, cy + 12,
+                                  fill="#1a2130", outline=g, width=2)
+            self.create_oval(cx - 2, cy + 1, cx + 2, cy + 5, fill=g,
+                             outline=g)
+            self.create_text(cx, cy + 24, text="Click", fill=g,
+                             font=(_MONO, 8), anchor="n")
 
+    def _set_hover(self, on):
+        if self._hover != on:
+            self._hover = on
+            if self.locked:
+                self._draw()
+
+    def _show_ai_button(self):
+        if self._ai_btn is not None:
+            return
+        b = tk.Label(self, text=" hck_GPT  [AI] ", font=(_MONO, 8, "bold"),
+                     bg="#161b2c", fg="#a5b4fc", cursor="hand2",
+                     highlightbackground="#31395c", highlightthickness=1,
+                     padx=6, pady=3)
+        b.place(relx=1.0, x=-10, y=8, anchor="ne")
+        b.bind("<Enter>", lambda e: b.config(fg="#e0e7ff", bg="#1d2440"))
+        b.bind("<Leave>", lambda e: b.config(fg="#a5b4fc", bg="#161b2c"))
+        b.bind("<Button-1>",
+               lambda e: self.on_ai_consult() if self.on_ai_consult else None)
+        self._ai_btn = b
+
+    # ── Interaction ──────────────────────────────────────────────────────────
     def _on_click(self, event):
-        """Handle click"""
-        margin_left = 40
-        margin_top = 15
-        margin_bottom = 25
-        graph_width = self.width - margin_left - 20
-        graph_height = self.height - margin_top - margin_bottom
-
-        for i, point in enumerate(self.points):
-            x = margin_left + graph_width * (point.temp / 100)
-            y = margin_top + graph_height * (1 - point.speed / 100)
-            if abs(event.x - x) < 10 and abs(event.y - y) < 10:
+        if self.locked:
+            self.locked = False
+            self._show_ai_button()
+            self._draw()
+            return
+        for i, p in enumerate(self.points):
+            if (abs(event.x - self._px(p.temp)) < 10
+                    and abs(event.y - self._py(p.speed)) < 10):
                 self.dragging_point = i
-                break
+                return
 
     def _on_drag(self, event):
-        """Handle drag"""
-        if self.dragging_point is not None:
-            margin_left = 40
-            margin_top = 15
-            margin_bottom = 25
-            graph_width = self.width - margin_left - 20
-            graph_height = self.height - margin_top - margin_bottom
-
-            # Calculate new speed (vertical drag)
-            speed = max(0, min(100, (1 - (event.y - margin_top) / graph_height) * 100))
-            self.points[self.dragging_point].speed = int(speed)
-
-            # Calculate new temp (horizontal drag)
-            temp = max(0, min(100, ((event.x - margin_left) / graph_width) * 100))
-            self.points[self.dragging_point].temp = int(temp)
-
-            self._draw()
+        if self.locked or self.dragging_point is None:
+            return
+        i = self.dragging_point
+        speed = (1 - (event.y - self.PAD_T) / max(self._gh(), 1)) * 100
+        temp = ((event.x - self.PAD_L) / max(self._gw(), 1)) * 100
+        # monotonic X: a point can never pass its neighbours
+        lo = self.points[i - 1].temp + self.MIN_GAP if i > 0 else 0
+        hi = (self.points[i + 1].temp - self.MIN_GAP
+              if i < len(self.points) - 1 else 100)
+        self.points[i].temp = int(max(lo, min(hi, temp)))
+        self.points[i].speed = int(max(0, min(100, speed)))
+        self._draw()
 
     def _on_release(self, event):
-        """Handle release"""
         if self.dragging_point is not None:
             self.dragging_point = None
             if self.on_curve_change:
                 self.on_curve_change(self.points)
 
-    def load_curve(self, points: List[FanCurvePoint]):
-        """Load curve from points"""
-        self.points = points
+    def load_curve(self, points):
+        self.points = sorted(points, key=lambda p: p.temp)
         self._draw()
 
-    def update_realtime_data(self, current_temp: float, temps: List[float]):
-        """Update real-time data."""
-        pass
+    def update_realtime_data(self, current_temp, temps):
+        self.set_live_temp(current_temp)
 
-
-# ============================================================
-# VERTICAL GRADIENT SLIDER (Heat Metaphor: Green->Red)
-# ============================================================
 
 class VerticalGradientSlider(tk.Canvas):
     """
@@ -749,8 +884,143 @@ class FanDashboardUltimate:
             "min_speed": 20,
             "max_speed": 100,
         }
+        self.slider_vals: dict = {}     # slider label -> value (live/EDITING)
+        self._slider_ctl: dict = {}     # slider label -> setter (repaints)
+        self._fan_cards: dict = {}
+        # THE APPLY RULE (2026-07-18): the chart+sliders are an EDITING draft;
+        # the fan cards always show the APPLIED state. Touching anything
+        # enters config mode (yellow cards, "FANS - configuring" title);
+        # Apply/Revert exits it, re-locks the chart, snaps cards back.
+        self._applied: dict = {}        # {"curve": [(t,s)...], "sliders": {}}
+        self._config_mode = False
+        self._suppress_config = False   # True while loading/exiting
 
         self._build_ui()
+        self._load_applied()     # restore the last APPLIED curve/sliders
+        if not self._applied:    # first run: current defaults ARE the applied
+            self._applied = self._snapshot_editing()
+
+        # Live ring refresh + chat hook: hck_GPT can apply the learned
+        # "hck_GPT - AI" profile on request ("zmień profil wentylatorów").
+        try:
+            from import_core import register_component
+            register_component("ui.fan_dashboard", self)
+        except Exception:
+            pass
+        try:
+            self.parent.after(800, self._tick_cards)
+        except Exception:
+            pass
+
+    # ── Config-mode state machine (THE APPLY RULE) ───────────────────────────
+    def _snapshot_editing(self) -> dict:
+        return {"curve": [(p.temp, p.speed) for p in self.graph.points],
+                "sliders": dict(self.slider_vals)}
+
+    def _enter_config_mode(self):
+        if self._config_mode or self._suppress_config:
+            return
+        self._config_mode = True
+        try:
+            self._fans_title.config(
+                text=self._txt("FANS - wartości podczas konfiguracji",
+                               "FANS - values while configuring"),
+                fg="#f59e0b")
+        except Exception:
+            pass
+        for refs in self._fan_cards.values():
+            try:
+                refs["card"].config(highlightbackground="#f59e0b")
+                refs["accent"].config(bg="#f59e0b")
+            except Exception:
+                pass
+        self._update_live()
+
+    def _exit_config_mode(self):
+        self._config_mode = False
+        try:
+            self._fans_title.config(text="FANS", fg="#e2e8f0")
+        except Exception:
+            pass
+        for refs in self._fan_cards.values():
+            try:
+                refs["card"].config(highlightbackground="#1e2535")
+                refs["accent"].config(bg="#ef4444")
+            except Exception:
+                pass
+        # the padlock comes back: viewing is safe, editing needs a click
+        try:
+            self.graph.locked = True
+            if self.graph._ai_btn is not None:
+                self.graph._ai_btn.destroy()
+                self.graph._ai_btn = None
+            self.graph._draw()
+        except Exception:
+            pass
+        self._update_live()    # cards snap to the applied values instantly
+
+    def _active_state(self):
+        """(curve, sliders) the FAN CARDS should reflect: the editing draft
+        in config mode (live preview), the APPLIED state otherwise."""
+        if self._config_mode or not self._applied:
+            return ([(p.temp, p.speed) for p in self.graph.points],
+                    dict(self.slider_vals))
+        return (self._applied.get("curve", []),
+                self._applied.get("sliders", {}))
+
+    def _pct_at(self, temp: float) -> float:
+        curve, sl = self._active_state()
+        floor = float(sl.get("MIN FAN SPEED", 0) or 0)
+        pts = sorted(curve)
+        if not pts:
+            return floor
+        if temp <= pts[0][0]:
+            return max(floor, float(pts[0][1]))
+        for (t1, s1), (t2, s2) in zip(pts, pts[1:]):
+            if temp <= t2:
+                f = (temp - t1) / max(t2 - t1, 1e-6)
+                return max(floor, s1 + (s2 - s1) * f)
+        return max(floor, float(pts[-1][1]))
+
+    def _active_max_rpm(self) -> int:
+        _, sl = self._active_state()
+        return int(sl.get("MAX FAN SPEED", 2400) or 2400)
+
+    @staticmethod
+    def _txt(pl: str, en: str) -> str:
+        try:
+            from utils.i18n import get_lang
+            return pl if get_lang() == "pl" else en
+        except Exception:
+            return pl
+
+    def apply_ai_profile(self) -> bool:
+        """Switch to the learned hck_GPT - AI profile AND apply it (chat
+        asked for a real plan change, not a draft). Marshalled to the main
+        thread - chat handlers may run off it."""
+        try:
+            def _do():
+                self._on_profile_change("ai")
+                self._apply(silent=True)
+            self.parent.after(0, _do)
+            return True
+        except Exception:
+            return False
+
+    def _consult_ai(self):
+        """hck_GPT [AI] button: unfold the chat banner and hand it the
+        consult question in the app's language."""
+        q = self._txt("Hej, czy moje temperatury są w porządku? "
+                      "Chyba będę konfigurować wentylatory ;)",
+                      "Hey, are my temperatures okay? "
+                      "I think I'm about to configure my fans ;)")
+        try:
+            from import_core import COMPONENTS
+            panel = COMPONENTS.get("hck_gpt.panel")
+            if panel is not None and hasattr(panel, "ask"):
+                panel.ask(q)
+        except Exception:
+            pass
 
     def _build_ui(self):
         """Build ULTIMATE layout"""
@@ -781,57 +1051,55 @@ class FanDashboardUltimate:
         label_frame = tk.Frame(section, bg="#0f1117")
         label_frame.pack(side="left", padx=10, pady=(5, 0))
 
-        profiles_lbl = tk.Label(label_frame, text="PROFILES", font=(_BODY, 9, "bold"),
-                               bg="#0f1117", fg="#ffffff")
+        profiles_lbl = tk.Label(label_frame, text="PROFILES", font=(_MONO, 9, "bold"),
+                               bg="#0f1117", fg="#e2e8f0")
         profiles_lbl.pack()
 
         # Underline (red line beneath PROFILES)
         underline = tk.Frame(label_frame, bg="#ef4444", height=2)
         underline.pack(fill="x", pady=(2, 0))
 
-        # Buttons container
+        # Modern flat chips (2026-07-18): filled accent when active, outlined
+        # when idle. Replaces the trapezoid canvases - crisper at any DPI.
         buttons_frame = tk.Frame(section, bg="#0f1117")
         buttons_frame.pack(side="left", padx=20, pady=(5, 0))
 
         profiles = [
-            ("Default", "default"),
-            ("Silent", "silent"),
-            ("AI", "ai"),
-            ("P1", "profile1"),
-            ("P2", "profile2"),
+            ("Default",      "default",  "#64748b"),
+            ("Silent",       "silent",   "#10b981"),
+            ("Performance",  "performance", "#f59e0b"),
+            ("hck_GPT - AI", "ai",       "#8b5cf6"),
         ]
 
         self.profile_buttons = {}
-        for label, profile_id in profiles:
-            btn = TrapezoidalProfileButton(buttons_frame, label, profile_id,
-                                          self._on_profile_change)
-            btn.pack(side="left", padx=1)
-            self.profile_buttons[profile_id] = btn
+        self._profile_accent = {pid: c for _, pid, c in profiles}
+        for label, profile_id, accent in profiles:
+            chip = tk.Label(buttons_frame, text=label, font=(_MONO, 8, "bold"),
+                            bg="#151926", fg="#94a3b8", cursor="hand2",
+                            padx=12, pady=5,
+                            highlightbackground="#232b40",
+                            highlightthickness=1)
+            chip.pack(side="left", padx=3)
+            chip.bind("<Button-1>",
+                      lambda e, p=profile_id: self._on_profile_change(p))
+            chip.bind("<Enter>", lambda e, c=chip, a=accent:
+                      c.config(fg="#e2e8f0", highlightbackground=a)
+                      if not getattr(c, "_active", False) else None)
+            chip.bind("<Leave>", lambda e, c=chip:
+                      c.config(fg="#94a3b8", highlightbackground="#232b40")
+                      if not getattr(c, "_active", False) else None)
+            self.profile_buttons[profile_id] = chip
 
-        # Set default active
-        self.profile_buttons["default"].set_active(True)
+        self._set_profile_chip_active("default")
 
-    def _create_arrow_button(self, parent, text, bg_color):
-        """Create button with red arrow section on left"""
-        container = tk.Frame(parent, bg="#0a0e27")
-        container.pack(fill="x", padx=5, pady=3)
-
-        # Button frame
-        btn = tk.Frame(container, bg=bg_color, cursor="hand2")
-        btn.pack(fill="x")
-
-        # Left: Red arrow section (10px width)
-        arrow_section = tk.Frame(btn, bg="#ef4444", width=12)
-        arrow_section.pack(side="left", fill="y")
-        arrow_section.pack_propagate(False)
-
-        # Arrow symbol
-        tk.Label(arrow_section, text="->", font=(_BODY, 10, "bold"),
-                bg="#ef4444", fg="#ffffff").pack(expand=True)
-
-        # Right: Button text
-        tk.Label(btn, text=text, font=(_BODY, 8, "bold"),
-                bg=bg_color, fg="#ffffff", pady=8, padx=10, anchor="w").pack(side="left", fill="x", expand=True)
+    def _set_profile_chip_active(self, active_id):
+        for pid, chip in self.profile_buttons.items():
+            accent = self._profile_accent.get(pid, "#64748b")
+            on = (pid == active_id)
+            chip._active = on
+            chip.config(bg=accent if on else "#151926",
+                        fg="#0b0e14" if on else "#94a3b8",
+                        highlightbackground=accent if on else "#232b40")
 
     def _build_left_panel(self, parent):
         """Build left panel with FAN INFO + MODERN SLIDERS"""
@@ -839,149 +1107,256 @@ class FanDashboardUltimate:
         left.pack(side="left", fill="y", padx=(0, 10))
         left.pack_propagate(False)
 
-        # === TOP BUTTONS (with arrow style) ===
-        # Button 1: ALL FANS
-        self._create_arrow_button(left, "ALL FANS / Expanded Controls", "#2563eb")
-
-        # Button 2: Temperature Statistics
-        self._create_arrow_button(left, "Your PC - Temperature Statistics", "#1e3a8a")
+        # (2026-07-18: the two old "arrow buttons" here were dead UI - no
+        # bindings at all - removed; the space feeds the bigger fan cards.)
+        self._fans_title = tk.Label(left, text="FANS", font=(_MONO, 9, "bold"),
+                                    bg="#0a0e27", fg="#e2e8f0")
+        self._fans_title.pack(anchor="w", padx=8, pady=(8, 2))
 
         # === FAN STATUS CARDS (4 fans in a grid - 2x2) ===
         fans_container = tk.Frame(left, bg="#0a0e27")
         fans_container.pack(fill="x", padx=5, pady=(5, 5))
 
+        # Real component names (hardcoded "i5-13600K"/"RTX 4070" placeholders
+        # showed OTHER PEOPLE'S hardware until 2026-07-18)
+        cpu_model = gpu_model = ""
+        try:
+            from hck_gpt.memory.user_knowledge import user_knowledge
+            hw = user_knowledge.get_all_hardware() or {}
+            cpu_model = (hw.get("cpu_model") or "")[:16]
+            gpu_model = (hw.get("gpu_model") or "")[:16]
+        except Exception:
+            pass
         fan_info = [
-            ("CPU FAN", "i5-13600K", 1450),
-            ("GPU FAN", "RTX 4070", 1820),
-            ("FAN 1", "Noctua", 980),
-            ("FAN 2", "Corsair", 1100),
+            ("CPU FAN", cpu_model or "CPU cooler"),
+            ("GPU FAN", gpu_model or "GPU cooler"),
+            ("FAN 1", "Case front"),
+            ("FAN 2", "Case rear"),
         ]
 
-        # Create 2x2 grid
-        for i, (fan_name, model, rpm) in enumerate(fan_info):
-            row = i // 2
-            col = i % 2
-
+        self._fan_cards = {}
+        for i, (fan_name, model) in enumerate(fan_info):
+            row, col = i // 2, i % 2
             card_frame = tk.Frame(fans_container, bg="#0a0e27")
             card_frame.grid(row=row, column=col, padx=2, pady=2, sticky="nsew")
-
-            self._create_fan_card(card_frame, fan_name, model, rpm)
+            self._create_fan_card(card_frame, fan_name, model, 0)
 
         # Configure grid weights for equal distribution
         fans_container.grid_columnconfigure(0, weight=1)
         fans_container.grid_columnconfigure(1, weight=1)
 
-        # Neon separator line
-        tk.Frame(left, bg="#ef4444", height=2).pack(fill="x", padx=5, pady=8)
-
-        # === MODERN HORIZONTAL SLIDERS ===
-        sliders_section = tk.Frame(left, bg="#0a0e27")
-        sliders_section.pack(fill="x", padx=10, pady=(5, 10))
-
-        # Slider 1: Max FAN Speed
-        self._create_modern_slider(sliders_section, "MAX FAN SPEED", 0, 3000, 2400, "RPM")
-
-        # Slider 2: Set FAN Speed
-        self._create_modern_slider(sliders_section, "SET FAN SPEED", 0, 3000, 1450, "RPM")
-
-        # === APPLY & DEFAULT BUTTONS (very small height) ===
-        buttons_row = tk.Frame(sliders_section, bg="#0a0e27")
-        buttons_row.pack(fill="x", pady=(10, 0))
-
-        apply_btn = tk.Label(buttons_row, text="APPLY", font=(_BODY, 7, "bold"),
-                            bg="#047857", fg="#ffffff", cursor="hand2", pady=4)
-        apply_btn.pack(side="left", fill="x", expand=True, padx=(0, 3))
-
-        default_btn = tk.Label(buttons_row, text="DEFAULT", font=(_BODY, 7, "bold"),
-                              bg="#374151", fg="#ffffff", cursor="hand2", pady=4)
-        default_btn.pack(side="left", fill="x", expand=True, padx=(3, 0))
-
-        # Store for compatibility
-        self.sliders = {}
+        # Sliders moved UNDER the chart (2026-07-18) - they shape the graph,
+        # so they now live right next to it, side by side.
+        self.sliders = {}    # legacy dict kept for SaveProfileDialog
 
     def _create_fan_card(self, parent, name, model, rpm):
-        """Create mini fan status card with horizontal layout"""
-        card = tk.Frame(parent, bg="#1a1d24", height=60)
+        """Mini fan card (2026-07-18): accent header, live smooth ring.
+        The old version drew the ring ONCE at build with hardcoded RPM - it
+        never refreshed and the 3px arc pixelated. Refs go to _fan_cards and
+        _tick_cards() redraws every 2 s from the live curve."""
+        card = tk.Frame(parent, bg="#131722", height=96,
+                        highlightbackground="#1e2535", highlightthickness=1)
         card.pack(fill="both", expand=True)
         card.pack_propagate(False)
 
-        # HEADER: Fan name (highlighted background, full width)
-        header_bg = "#374151" if rpm > 0 else "#1f2937"
-        tk.Label(card, text=name, font=(_BODY, 8, "bold"),
-                bg=header_bg, fg="#e5e7eb", pady=2).pack(fill="x")
+        hdr = tk.Frame(card, bg="#181d2b")
+        hdr.pack(fill="x")
+        accent = tk.Frame(hdr, bg="#ef4444", width=3)
+        accent.pack(side="left", fill="y")
+        tk.Label(hdr, text=" " + name, font=(_MONO, 9, "bold"),
+                 bg="#181d2b", fg="#e5e7eb", pady=3).pack(side="left")
 
-        # CONTENT ROW: Left (status + model) | Right (RPM circle)
-        content_row = tk.Frame(card, bg="#1a1d24")
-        content_row.pack(fill="both", expand=True, padx=3, pady=2)
+        content_row = tk.Frame(card, bg="#131722")
+        content_row.pack(fill="both", expand=True, padx=5, pady=3)
 
-        # LEFT SIDE: Status and Model (vertical stack)
-        left_info = tk.Frame(content_row, bg="#1a1d24")
+        left_info = tk.Frame(content_row, bg="#131722")
         left_info.pack(side="left", fill="y", expand=True)
+        status_lbl = tk.Label(left_info, text="curve", font=(_MONO, 9, "bold"),
+                              bg="#131722", fg="#10b981", anchor="w")
+        status_lbl.pack(fill="x", pady=(4, 0))
+        tk.Label(left_info, text=model, font=(_BODY, 8),
+                 bg="#131722", fg="#8593a8", anchor="w",
+                 wraplength=88, justify="left").pack(fill="x")
 
-        # Status: Connected / Not available
-        status_color = "#10b981" if rpm > 0 else "#6b7280"
-        status_text = "Connected" if rpm > 0 else "Not available"
-        tk.Label(left_info, text=status_text, font=(_BODY, 7),
-                bg="#1a1d24", fg=status_color, anchor="w").pack(fill="x")
-
-        # Model (under status)
-        tk.Label(left_info, text=model, font=(_BODY, 6),
-                bg="#1a1d24", fg="#9ca3af", anchor="w").pack(fill="x")
-
-        # RIGHT SIDE: RPM Circle
-        canvas = tk.Canvas(content_row, bg="#1a1d24", width=40, height=40, highlightthickness=0)
+        canvas = tk.Canvas(content_row, bg="#131722", width=62, height=62,
+                           highlightthickness=0)
         canvas.pack(side="right", padx=2)
+        self._fan_cards[name] = {"cv": canvas, "status": status_lbl,
+                                 "card": card, "accent": accent}
+        self._draw_fan_ring(canvas, 0.0, 0)
 
-        # Draw circular progress (based on RPM %)
-        rpm_percent = min((rpm / 2000) * 100, 100)
-        extent = int((rpm_percent / 100) * 360)
+    def _draw_fan_ring(self, canvas, pct, rpm):
+        """Smooth red progress ring: layered 5px arcs on a 62px canvas with a
+        soft outer glow - replaces the pixelated single 3px arc."""
+        try:
+            canvas.delete("all")
+        except Exception:
+            return
+        pct = max(0.0, min(100.0, float(pct)))
+        # track
+        canvas.create_oval(6, 6, 56, 56, outline="#232b3d", width=5)
+        if pct > 0:
+            ext = -pct / 100.0 * 359.9
+            col = "#f87171" if pct >= 75 else "#ef4444" if pct >= 40 else "#b91c1c"
+            # glow underlay then crisp arc on top
+            canvas.create_arc(5, 5, 57, 57, start=90, extent=ext,
+                              outline="#3f1016", width=8, style="arc")
+            canvas.create_arc(6, 6, 56, 56, start=90, extent=ext,
+                              outline=col, width=5, style="arc")
+        canvas.create_text(31, 26, text=f"{pct:.0f}%",
+                           font=(_MONO, 11, "bold"), fill="#ffffff")
+        canvas.create_text(31, 41, text=f"{rpm}",
+                           font=(_MONO, 8), fill="#8593a8")
 
-        # Background circle
-        canvas.create_oval(5, 5, 35, 35, outline="#374151", width=2)
-        # Progress arc (red)
-        if rpm > 0:
-            canvas.create_arc(5, 5, 35, 35, start=90, extent=-extent,
-                             outline="#ef4444", width=3, style="arc")
+    def _tick_cards(self):
+        """Live refresh loop (2 s) - the work lives in _update_live so the
+        Apply/Revert transitions can refresh the cards instantly too."""
+        try:
+            if not self.parent.winfo_exists():
+                return
+        except Exception:
+            return
+        self._update_live()
+        try:
+            self.parent.after(2000, self._tick_cards)
+        except Exception:
+            pass
 
-        # RPM value in center
-        canvas.create_text(20, 20, text=str(rpm), font=(_BODY, 8, "bold"), fill="#ffffff")
+    def _update_live(self):
+        """One refresh pass: real temps from live_sensors; the ring percent
+        comes from the APPLIED curve (or the editing draft in config mode),
+        so the cards show what the fans are actually asked to do."""
+        cpu_t = gpu_t = None
+        s = {}
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _ls
+            s = _ls()
+            v = s.get("cpu_temp");  cpu_t = float(v) if v and v > 0 else None
+            v = s.get("gpu_temp");  gpu_t = float(v) if v and v > 0 else None
+        except Exception:
+            pass
+        max_rpm = self._active_max_rpm()
+        temps = {"CPU FAN": cpu_t, "GPU FAN": gpu_t,
+                 "FAN 1": cpu_t, "FAN 2": (gpu_t or cpu_t)}
+        for name, refs in self._fan_cards.items():
+            t = temps.get(name)
+            try:
+                if t is None:
+                    self._draw_fan_ring(refs["cv"], 0, 0)
+                    refs["status"].config(text="no sensor", fg="#6b7280")
+                else:
+                    pct = self._pct_at(t)
+                    self._draw_fan_ring(refs["cv"], pct,
+                                        int(max_rpm * pct / 100))
+                    refs["status"].config(
+                        text=f"{t:.0f}°C",
+                        fg="#f59e0b" if self._config_mode else "#10b981")
+            except Exception:
+                return
+        # live temp marker on the chart follows the CPU (or GPU) sensor
+        try:
+            self.graph.set_live_temp(cpu_t if cpu_t is not None else gpu_t)
+        except Exception:
+            pass
+        # component tiles (BOARD / CPU / GPU / FAN) follow live sensors too
+        try:
+            mb_t = None
+            try:
+                v = s.get("mb_temp_sys")
+                mb_t = float(v) if v and v > 0 else None
+            except Exception:
+                pass
+            ref_t = cpu_t if cpu_t is not None else gpu_t
+            fan_pct = self._pct_at(ref_t) if ref_t is not None else None
+            tiles = getattr(self, "_temp_tiles", {})
+            vals = {"BOARD": mb_t, "CPU": cpu_t, "GPU": gpu_t}
+            for name, t_val in vals.items():
+                if name in tiles:
+                    tiles[name]["val"].config(
+                        text=f"{t_val:.0f}°C" if t_val is not None else "--")
+            if "FAN" in tiles:
+                tiles["FAN"]["val"].config(
+                    text=f"{fan_pct:.0f}%" if fan_pct is not None else "--")
+        except Exception:
+            pass
 
-    def _create_modern_slider(self, parent, label, min_val, max_val, default, unit):
-        """Create modern horizontal slider (red track)"""
+    def _create_modern_slider(self, parent, label, min_val, max_val, default,
+                              unit, width=210):
+        """Interactive slider (2026-07-18): the old one was a static drawing
+        with no bindings at all - dragging did nothing. Now: click/drag
+        anywhere on the track, heat-gradient fill, live value box; values
+        land in self.slider_vals and reshape the chart live."""
         container = tk.Frame(parent, bg="#0a0e27")
         container.pack(fill="x", pady=5)
+        tk.Label(container, text=label, font=(_MONO, 7, "bold"),
+                 bg="#0a0e27", fg="#94a3b8").pack(anchor="w", pady=(0, 3))
 
-        # Label (left)
-        tk.Label(container, text=label, font=(_BODY, 7, "bold"),
-                bg="#0a0e27", fg="#94a3b8").pack(anchor="w", pady=(0, 3))
-
-        # Slider + value display row
         slider_row = tk.Frame(container, bg="#0a0e27")
         slider_row.pack(fill="x")
+        W, H = width, 22
+        track = tk.Canvas(slider_row, bg="#0a0e27", width=W, height=H,
+                          highlightthickness=0)
+        track.pack(side="left", padx=(0, 6))
 
-        # Slider track (canvas)
-        track = tk.Canvas(slider_row, bg="#0a0e27", height=20, highlightthickness=0)
-        track.pack(side="left", fill="x", expand=True, padx=(0, 5))
-
-        # Draw slider background (dark gray)
-        track.create_rectangle(0, 8, 220, 12, fill="#374151", outline="")
-
-        # Draw red progress (based on value)
-        progress_width = int((default / max_val) * 220)
-        track.create_rectangle(0, 8, progress_width, 12, fill="#ef4444", outline="")
-
-        # Slider handle (circle)
-        handle = track.create_oval(progress_width-6, 4, progress_width+6, 16,
-                                   fill="#ffffff", outline="#ef4444", width=2)
-
-        # Value display (right - rectangle with value)
-        value_box = tk.Frame(slider_row, bg="#374151", width=60, height=20)
+        value_box = tk.Frame(slider_row, bg="#161b28", width=66, height=H,
+                             highlightbackground="#232b40",
+                             highlightthickness=1)
         value_box.pack(side="right")
         value_box.pack_propagate(False)
-
-        value_label = tk.Label(value_box, text=f"{default} {unit}",
-                              font=(_BODY, 7, "bold"), bg="#374151", fg="#ffffff")
+        value_label = tk.Label(value_box, text="", font=(_MONO, 7, "bold"),
+                               bg="#161b28", fg="#ffffff")
         value_label.pack(expand=True)
+
+        self.slider_vals[label] = default
+
+        def _blend(c1, c2, t):
+            t = max(0.0, min(1.0, t))
+            a = tuple(int(c1[i:i + 2], 16) for i in (1, 3, 5))
+            b = tuple(int(c2[i:i + 2], 16) for i in (1, 3, 5))
+            return "#%02x%02x%02x" % tuple(
+                int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+        def _paint():
+            track.delete("all")
+            val = self.slider_vals[label]
+            f = (val - min_val) / max(max_val - min_val, 1)
+            px = int(6 + f * (W - 12))
+            track.create_rectangle(6, 9, W - 6, 13, fill="#1c2334",
+                                   outline="")
+            seg = 6
+            for x in range(6, px, seg):
+                ft = (x - 6) / max(W - 12, 1)
+                track.create_rectangle(x, 9, min(x + seg, px), 13,
+                                       fill=_blend("#5b1220", "#ef4444", ft),
+                                       outline="")
+            track.create_oval(px - 6, 5, px + 6, 17, fill="#e5e7eb",
+                              outline="#ef4444", width=2)
+            value_label.config(text=f"{val} {unit}")
+
+        def _set_from_x(x):
+            f = max(0.0, min(1.0, (x - 6) / max(W - 12, 1)))
+            step = 50 if max_val > 500 else 1
+            val = min_val + f * (max_val - min_val)
+            self.slider_vals[label] = int(round(val / step) * step)
+            _paint()
+            self._enter_config_mode()   # touching a slider = configuring
+            try:
+                self.graph._draw()      # axes/floor/SET line follow live
+            except Exception:
+                pass
+
+        track.bind("<Button-1>", lambda e: _set_from_x(e.x))
+        track.bind("<B1-Motion>", lambda e: _set_from_x(e.x))
+
+        def _set_val(v):
+            self.slider_vals[label] = int(v)
+            _paint()
+            try:
+                self.graph._draw()
+            except Exception:
+                pass
+        self._slider_ctl[label] = _set_val
+        _paint()
 
     def _build_center_panel(self, parent):
         """Build center panel: Graph + Action Buttons + Temperature Icons"""
@@ -992,18 +1367,39 @@ class FanDashboardUltimate:
         graph_frame = tk.Frame(center, bg="#0a0e27")
         graph_frame.pack(fill="x", pady=(5, 10))
 
-        # Black header bar (connected to purple graph border)
-        header_bar = tk.Frame(graph_frame, bg="#1a1d24", height=30)
-        header_bar.pack(fill="x", pady=(0, 3))  # 3px spacing to graph
+        # Header bar with a red accent tick
+        header_bar = tk.Frame(graph_frame, bg="#12151f", height=30)
+        header_bar.pack(fill="x", pady=(0, 3))
         header_bar.pack_propagate(False)
+        tk.Frame(header_bar, bg="#ef4444", width=3).pack(side="left", fill="y")
+        tk.Label(header_bar, text=" FAN CURVE", font=(_BODY, 10, "bold"),
+                 bg="#12151f", fg="#ffffff").pack(side="left", padx=(8, 0), pady=5)
+        tk.Label(header_bar, text="hover to unlock editing",
+                 font=(_MONO, 7), bg="#12151f", fg="#64748b").pack(
+            side="right", padx=10)
 
-        tk.Label(header_bar, text="FAN CURVE - Setup", font=(_BODY, 10, "bold"),
-                bg="#1a1d24", fg="#ffffff").pack(side="left", padx=15, pady=5)
-
-        # Graph (very close to header - 3px spacing)
-        self.graph = CompactFanCurveGraph(graph_frame, width=550, height=150,
-                                         on_curve_change=self._on_curve_change)
+        # Graph: view-first (locked), dual %/RPM axes, red heat gradient
+        self.graph = CompactFanCurveGraph(
+            graph_frame, width=550, height=170,
+            on_curve_change=self._on_curve_change,
+            get_max_rpm=lambda: self.slider_vals.get("MAX FAN SPEED", 2400),
+            get_min_pct=lambda: self.slider_vals.get("MIN FAN SPEED", 0),
+            get_set_rpm=lambda: self.slider_vals.get("SET FAN SPEED", 0),
+            on_ai_consult=self._consult_ai)
         self.graph.pack(pady=0)
+
+        # Sliders side by side, directly under the chart they shape:
+        # MIN raises the curve floor, MAX rescales the RPM axis, SET (>0)
+        # draws the manual override line. All three redraw the graph live.
+        srow = tk.Frame(center, bg="#0a0e27")
+        srow.pack(fill="x", pady=(6, 0))
+        for lab, mn, mx, dv, unit in (
+                ("MIN FAN SPEED", 0, 100, 20, "%"),
+                ("MAX FAN SPEED", 600, 3000, 2400, "RPM"),
+                ("SET FAN SPEED", 0, 3000, 0, "RPM")):
+            col = tk.Frame(srow, bg="#0a0e27")
+            col.pack(side="left", fill="x", expand=True, padx=4)
+            self._create_modern_slider(col, lab, mn, mx, dv, unit, width=132)
 
         # ACTION BUTTONS (directly under graph with exact spacing from screenshot)
         self._build_action_buttons_inline(center)
@@ -1046,142 +1442,111 @@ class FanDashboardUltimate:
             make_hover(btn, color)
 
     def _build_temperature_icons(self, parent):
-        """Build 4 temperature icons below action buttons (EXACT from screenshot)"""
+        """Component tiles (2026-07-18): the old raster PNGs (body_temp.png
+        etc.) never matched the dark UI - replaced with crisp vector icons
+        drawn straight on canvas. Live values arrive via _tick_cards; the
+        FAN rotor spins with lightweight canvas math (no PIL rotation)."""
         icons_section = tk.Frame(parent, bg="#0a0e27")
-        icons_section.pack(fill="x", pady=(15, 10))
-
-        # Icon data: (filename, label, temp_value)
-        # fan_temp.png gets animation instead of temperature
-        icon_data = [
-            ("body_temp.png", "BOARD", "43"),
-            ("cpu_temp.png", "CPU", "65"),
-            ("gpu_temp.png", "GPU", "58"),
-            ("fan_temp.png", "FAN", None),  # None = animated fan
-        ]
-
-        # Container for centering icons
+        icons_section.pack(fill="x", pady=(12, 8))
         icons_container = tk.Frame(icons_section, bg="#0a0e27")
         icons_container.pack(expand=True)
 
-        self.fan_rotation = 0  # For animation
-        self.fan_canvas = None  # Will store fan canvas reference
+        self._temp_tiles = {}
+        self._fan_angle = 0.0
+        for label, accent in (("BOARD", "#3b82f6"), ("CPU", "#ef4444"),
+                              ("GPU", "#10b981"), ("FAN", "#8b5cf6")):
+            tile = tk.Frame(icons_container, bg="#10131f",
+                            highlightbackground="#1d2436", highlightthickness=1)
+            tile.pack(side="left", padx=8)
+            cv = tk.Canvas(tile, bg="#10131f", width=96, height=38,
+                           highlightthickness=0)
+            cv.pack(padx=12, pady=(7, 0))
+            self._draw_vector_icon(cv, label, accent)
+            val = tk.Label(tile, text="--", font=(_MONO, 10, "bold"),
+                           bg="#10131f", fg="#e2e8f0")
+            val.pack()
+            tk.Label(tile, text=label, font=(_MONO, 7, "bold"),
+                     bg="#10131f", fg=accent).pack(pady=(0, 7))
+            self._temp_tiles[label] = {"cv": cv, "val": val, "accent": accent}
 
-        for filename, label, temp in icon_data:
-            icon_frame = tk.Frame(icons_container, bg="#0a0e27")
-            icon_frame.pack(side="left", padx=20)
+        self._spin_fan_icon()
 
-            # Load icon image
-            icon_path = os.path.join("data", "icons", filename)
-            if os.path.exists(icon_path) and Image:
-                try:
-                    # Load and resize icon (small size like in screenshot)
-                    img = Image.open(icon_path)
-                    img = img.resize((80, 80), Image.Resampling.LANCZOS)
+    def _draw_vector_icon(self, cv, kind, accent):
+        """Mono-line vector icons on a wide 96x38 canvas (2026-07-18:
+        Marcin's sizing - shorter, 50% wider)."""
+        cv.delete("all")
+        line = "#8593a8"
+        if kind == "BOARD":
+            cv.create_rectangle(26, 4, 70, 34, outline=accent, width=2)
+            cv.create_line(34, 34, 34, 22, 46, 22, fill=line)
+            cv.create_line(62, 4, 62, 14, 52, 14, fill=line)
+            for x, y in ((36, 10), (48, 28), (58, 26), (40, 16)):
+                cv.create_oval(x - 2, y - 2, x + 2, y + 2,
+                               outline=line, fill="#10131f")
+        elif kind == "CPU":
+            cv.create_rectangle(34, 6, 62, 32, outline=accent, width=2)
+            cv.create_rectangle(42, 13, 54, 25, outline=line, width=1)
+            for i in range(4):                       # pins on all four sides
+                ox = 37 + i * 7
+                oy = 8 + i * 6
+                cv.create_line(ox, 1, ox, 6, fill=line, width=2)
+                cv.create_line(ox, 32, ox, 37, fill=line, width=2)
+                cv.create_line(29, oy, 34, oy, fill=line, width=2)
+                cv.create_line(62, oy, 67, oy, fill=line, width=2)
+        elif kind == "GPU":
+            cv.create_rectangle(14, 8, 82, 28, outline=accent, width=2)
+            cv.create_oval(56, 10, 74, 28, outline=line, width=2)
+            cv.create_oval(63, 17, 67, 21, outline=line)
+            cv.create_line(14, 32, 58, 32, fill=line, width=3)  # PCIe finger
+        elif kind == "FAN":
+            self._draw_fan_rotor(cv, 0.0, accent)
 
-                    # Create canvas for icon + temperature overlay
-                    canvas = tk.Canvas(icon_frame, bg="#0a0e27", width=80, height=80, highlightthickness=0)
-                    canvas.pack()
+    def _draw_fan_rotor(self, cv, angle, accent):
+        """3-blade rotor drawn from arcs - rotated by shifting start angles."""
+        cv.delete("all")
+        cv.create_oval(31, 2, 65, 36, outline="#232b3d", width=2)
+        for k in range(3):
+            cv.create_arc(34, 5, 62, 33, start=(angle + k * 120) % 360,
+                          extent=70, fill=accent, outline="")
+        cv.create_oval(43, 14, 53, 24, fill="#10131f", outline=accent, width=2)
 
-                    # If this is the fan icon, save reference for animation
-                    if filename == "fan_temp.png":
-                        self.fan_canvas = canvas
-                        self.fan_image_pil = img  # Store PIL image for rotation
-                        # Initial draw
-                        photo = ImageTk.PhotoImage(img)
-                        canvas.image = photo  # Keep reference
-                        canvas.create_image(40, 40, image=photo, tags="fan_icon")
-                    else:
-                        # Static icon with temperature
-                        photo = ImageTk.PhotoImage(img)
-                        canvas.image = photo  # Keep reference
-                        canvas.create_image(40, 40, image=photo)
-
-                        # Temperature text overlay (centered in icon with black outline for visibility)
-                        if temp:
-                            # Draw black outline for better visibility
-                            for dx, dy in [(-1,-1), (-1,1), (1,-1), (1,1)]:
-                                canvas.create_text(40+dx, 40+dy, text=f"{temp}°C",
-                                                 font=(_BODY, 14, "bold"),
-                                                 fill="#000000", tags="temp_outline")
-
-                            # White text on top
-                            canvas.create_text(40, 40, text=f"{temp}°C",
-                                             font=(_BODY, 14, "bold"),
-                                             fill="#ffffff", tags="temp_text")
-
-                except Exception as e:
-                    print(f"[Error] Failed to load icon {filename}: {e}")
-                    # Fallback: simple colored circle
-                    self._create_fallback_icon(icon_frame, label, temp)
-            else:
-                # Fallback if image not found
-                self._create_fallback_icon(icon_frame, label, temp)
-
-            # Label below icon
-            tk.Label(icon_frame, text=label, font=(_BODY, 8, "bold"),
-                    bg="#0a0e27", fg="#8b5cf6").pack(pady=(3, 0))
-
-        # Start fan animation
-        if self.fan_canvas:
-            self._animate_fan()
-
-    def _create_fallback_icon(self, parent, label, temp):
-        """Fallback icon if image not found"""
-        canvas = tk.Canvas(parent, bg="#0a0e27", width=80, height=80, highlightthickness=0)
-        canvas.pack()
-
-        # Draw colored circle
-        colors = {"BOARD": "#3b82f6", "CPU": "#ef4444", "GPU": "#10b981", "FAN": "#8b5cf6"}
-        color = colors.get(label, "#64748b")
-
-        canvas.create_oval(10, 10, 70, 70, fill=color, outline="")
-
-        if temp:
-            canvas.create_text(40, 40, text=f"{temp}°C",
-                             font=(_BODY, 12, "bold"), fill="#ffffff")
-
-    def _animate_fan(self):
-        """Animate fan rotation (optimized for performance)"""
-        if not self.fan_canvas or not hasattr(self, 'fan_image_pil'):
+    def _spin_fan_icon(self):
+        """Lightweight rotor spin; speed follows the current curve percent."""
+        tile = getattr(self, "_temp_tiles", {}).get("FAN")
+        if not tile:
             return
-
         try:
-            # Rotate fan image (larger steps = less frequent updates)
-            self.fan_rotation = (self.fan_rotation + 20) % 360
-            rotated = self.fan_image_pil.rotate(self.fan_rotation, resample=Image.Resampling.BILINEAR)
-
-            # Update canvas
-            photo = ImageTk.PhotoImage(rotated)
-            self.fan_canvas.delete("fan_icon")
-            self.fan_canvas.create_image(40, 40, image=photo, tags="fan_icon")
-            self.fan_canvas.image = photo  # Keep reference
-
-            # Continue animation (slower = 100ms for better performance)
-            self.fan_canvas.after(100, self._animate_fan)
-        except Exception as e:
-            print(f"[Error] Fan animation failed: {e}")
+            if not tile["cv"].winfo_exists():
+                return
+        except Exception:
+            return
+        pct = 30.0
+        try:
+            lt = self.graph._live_temp
+            if lt is not None:
+                pct = max(10.0, self.graph.speed_at(lt))
+        except Exception:
+            pass
+        self._fan_angle = (self._fan_angle - (6 + pct / 5)) % 360
+        self._draw_fan_rotor(tile["cv"], self._fan_angle, tile["accent"])
+        try:
+            tile["cv"].after(120, self._spin_fan_icon)
+        except Exception:
+            pass
 
     # ============================================================
     # CALLBACKS
     # ============================================================
 
     def _on_profile_change(self, profile_id):
-        """Handle profile change"""
-        print(f"[Ultimate] Profile: {profile_id}")
+        """Handle profile change (a draft until APPLY confirms it)"""
         self.current_profile = profile_id
-
-        # Update active state
-        for pid, btn in self.profile_buttons.items():
-            btn.set_active(pid == profile_id)
+        self._set_profile_chip_active(profile_id)
+        self._enter_config_mode()
 
         # Load curve based on profile
         if profile_id == "ai":
-            # AI: adaptive based on temperature
-            avg_temp = sum([f.temp for f in self.fans.values()]) / len(self.fans)
-            if avg_temp > 70:
-                curve = FanAIEngine.generate_curve("performance")
-            else:
-                curve = FanAIEngine.generate_curve("balanced")
+            curve = FanAIEngine.generate_curve("ai")
         elif profile_id.startswith("profile"):
             # P1/P2: load from saved file if exists
             slot_num = profile_id[-1]
@@ -1210,8 +1575,8 @@ class FanDashboardUltimate:
         self.graph.load_curve(curve)
 
     def _on_curve_change(self, points):
-        """Handle curve change"""
-        print(f"[Ultimate] Curve updated: {len(points)} points")
+        """Dragging curve points = configuring: yellow preview mode."""
+        self._enter_config_mode()
 
     def _on_slider_change(self, label, value):
         """Handle slider change"""
@@ -1223,16 +1588,75 @@ class FanDashboardUltimate:
         print(f"[Ultimate] Advanced: {option} = {value}")
         self.options[option.lower().replace(" ", "_")] = value
 
-    def _apply(self):
-        """Apply curve"""
-        print("[Ultimate] Applying curve...")
-        messagebox.showinfo("Apply", "✅ Fan curve applied successfully!\nAll settings saved.")
+    # ── Persistence (2026-07-18): Apply used to show "applied successfully"
+    #    while saving NOTHING. Now it persists curve+profile+sliders to
+    #    settings/fan_dashboard.json, which is reloaded on every open.
+    _STATE_PATH = os.path.join("settings", "fan_dashboard.json")
+
+    def _apply(self, silent: bool = False):
+        """THE APPLY RULE: confirm the editing draft as the new applied
+        state, persist it, exit config mode and re-lock the chart."""
+        try:
+            data = {"profile": self.current_profile,
+                    **self._snapshot_editing()}
+            os.makedirs(os.path.dirname(self._STATE_PATH), exist_ok=True)
+            with open(self._STATE_PATH, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+            self._applied = {"curve": data["curve"],
+                             "sliders": data["sliders"]}
+            self._exit_config_mode()
+            if not silent:
+                messagebox.showinfo(
+                    "Apply", "Applied ✓  This is now the active fan plan -\n"
+                             "the cards follow it and it reloads on open.")
+        except Exception as e:
+            if not silent:
+                messagebox.showerror("Apply", f"Save failed: {e}")
+
+    def _load_applied(self) -> None:
+        """Restore the last APPLIED state (curve + sliders + profile).
+        Loading is NOT configuring - config-mode triggers are suppressed."""
+        try:
+            with open(self._STATE_PATH, encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            return
+        self._suppress_config = True
+        try:
+            curve = [FanCurvePoint(t, s) for t, s in data.get("curve", [])]
+            if len(curve) >= 2:
+                self.graph.load_curve(curve)
+            prof = data.get("profile")
+            if prof in getattr(self, "profile_buttons", {}):
+                self.current_profile = prof
+                self._set_profile_chip_active(prof)
+            for lab, v in (data.get("sliders") or {}).items():
+                setter = self._slider_ctl.get(lab)
+                if setter:
+                    setter(v)
+            self._applied = {"curve": [(p.temp, p.speed)
+                                       for p in self.graph.points],
+                             "sliders": dict(self.slider_vals)}
+        except Exception:
+            pass
+        finally:
+            self._suppress_config = False
 
     def _revert(self):
-        """Revert curve"""
-        print("[Ultimate] Reverting...")
-        self._on_profile_change(self.current_profile)
-        messagebox.showinfo("Revert", "↩️ Settings reverted to last saved state.")
+        """Throw the draft away: back to the last APPLIED state."""
+        if os.path.exists(self._STATE_PATH):
+            self._load_applied()
+        else:
+            self._suppress_config = True
+            try:
+                self.current_profile = "default"
+                self._set_profile_chip_active("default")
+                self.graph.load_curve(FanAIEngine.generate_curve("balanced"))
+            finally:
+                self._suppress_config = False
+        self._exit_config_mode()
+        messagebox.showinfo("Revert", "Draft discarded - back to the "
+                                      "applied fan plan.")
 
     def _save_profile(self):
         """Open Save Profile Dialog with graph preview"""
@@ -1243,41 +1667,23 @@ class FanDashboardUltimate:
         data = {
             "curve": [(p.temp, p.speed) for p in self.graph.points],
             "options": self.options,
-            "sliders": {name: slider.value for name, slider in self.sliders.items()}
+            "sliders": dict(self.slider_vals),
         }
         export_path = os.path.join("settings", "fan_settings_ultimate.json")
         os.makedirs("settings", exist_ok=True)
         with open(export_path, "w") as f:
             json.dump(data, f, indent=2)
-        messagebox.showinfo("Export", f"📤 Settings exported to {export_path}")
+        messagebox.showinfo("Export", f"Settings exported to {export_path}")
 
     def _reset(self):
-        """Reset to defaults"""
-        print("[Ultimate] Resetting to defaults...")
-        self._on_profile_change("balanced")
-        for slider_name, slider in self.sliders.items():
-            if slider_name == "Hysteresis":
-                slider.set_value(3)
-            elif slider_name == "Target°C":
-                slider.set_value(70)
-            elif slider_name == "Min Speed":
-                slider.set_value(20)
-            elif slider_name == "Max Speed":
-                slider.set_value(100)
-        messagebox.showinfo("Reset", "🔄 All settings reset to defaults.")
-
-    def update_realtime(self):
-        """Update real-time data"""
-        import random
-        for fan_name, fan_data in self.fans.items():
-            fan_data.update(
-                rpm=random.randint(800, 1800),
-                percent=random.randint(40, 80),
-                temp=random.uniform(35, 75)
-            )
-
-        avg_temp = sum([f.temp for f in self.fans.values()]) / len(self.fans)
-        self.graph.update_realtime_data(avg_temp, [f.temp for f in self.fans.values()])
+        """Reset to defaults (curve + all three sliders)."""
+        self._on_profile_change("default")
+        for lab, dv in (("MIN FAN SPEED", 20), ("MAX FAN SPEED", 2400),
+                        ("SET FAN SPEED", 0)):
+            setter = self._slider_ctl.get(lab)
+            if setter:
+                setter(dv)
+        messagebox.showinfo("Reset", "All settings reset to defaults.")
 
 
 # ============================================================
