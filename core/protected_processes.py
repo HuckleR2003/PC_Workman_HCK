@@ -1,16 +1,16 @@
 """
-core/protected_processes.py — the ONE authoritative "never touch" list.
+core/protected_processes.py - the ONE authoritative "never touch" list.
 
 A tester got kicked from League while PC Workman was running and suspected our
 optimizer had frozen Riot Vanguard. Suspending, idle-prioritising or trimming
 the memory of an anti-cheat process can crash the game or trip the anti-cheat
-into thinking the system is being tampered with — a possible ban. So this is a
+into thinking the system is being tampered with - a possible ban. So this is a
 hard safety rule, not a preference.
 
 Before this module the protection lists were scattered (TURBO had its own,
 hibernation had none, RAM Flush had a user list only). Now every mutation
-primitive — hibernation_manager.sleep_app, turbo_manager suspension,
-optimization RAM-flush EmptyWorkingSet, the overlay kill/suspend — calls
+primitive - hibernation_manager.sleep_app, turbo_manager suspension,
+optimization RAM-flush EmptyWorkingSet, the overlay kill/suspend - calls
 `is_protected()` and refuses. Defense in depth: guarded at the lowest level so
 no caller can bypass it.
 
