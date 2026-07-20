@@ -287,7 +287,7 @@ class ServiceSetupWizard:
         messages.extend([
             "",
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
-            f"✨ Optimization Complete!",
+            "✨ Optimization Complete!",
             f"   {success_count} services optimized",
         ])
 
