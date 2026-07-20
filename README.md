@@ -82,8 +82,19 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - hck_GPT chat scales with the window: +12% default height, +35% in chat-Maximize
 - Gaming-HUD chart tooltip: hover to inspect any bar at 72% opacity, click to pin, the pin follows the live buffer and its age keeps ticking
 
+### Upgrade Readiness *(new in 1.8.4)*
+- Type a planned purchase ("i5 11400F", "RTX 4070", "DDR5 6000") and get a clear verdict: fits, fits after a BIOS update, or wrong socket with what a swap costs you (board, RAM, cooler mount)
+- 320-entry offline hardware library: 174 desktop CPUs, 79 GPUs, 58 chipsets with per-generation support - it knows the traps (B460 cannot run 11th gen, LGA1151 v1 vs v2, B550 blocks Ryzen 1000/2000)
+- Quick-pick suggestions filtered to what YOUR chipset actually runs; entry buttons at each part in My PC > Components
+- Ask it in chat too: "will a 5800X3D work on my board?", "what RAM fits?" - and the Optimization Center's Upgrade Advisor reads your own 14-day load history to say what is worth buying first
+
+### Fan Dashboard *(rebuilt in 1.8.4)*
+- Curve chart with a heat gradient that brightens to red as you raise values, dual % / RPM axes, monotonic drag-safe points and a live temperature marker
+- The APPLY rule: chart and sliders are a draft (cards preview in amber); Apply persists the plan and re-locks the chart behind a hover padlock
+- hck_GPT [AI] button on the chart: a temperature health check from your learned history, then the learned "hck_GPT - AI" profile chat can apply for you
+
 ### Intelligence (hck_GPT)
-- **90 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade/privacy
+- **96 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade/privacy
 - **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions, 100% offline, no API key needed
 - **Bilingual**: Polish and English, auto-detected per message
 - **Session memory**: conversation context, CPU/RAM trend buffers, cross-response data store
@@ -192,6 +203,7 @@ PC_Workman/
 - Direct inter-module communication
 - Designed for future expansion
 - Educational value (demonstrates Python best practices)
+-
 
 ## What's New [1.8.0] - `2026-06-22` - CURRENT
 
@@ -225,7 +237,7 @@ PC_Workman/
 ### hck_GPT
 - **Process Suspect Guard** mini-AV: author (Authenticode) verification, typosquat/homoglyph detection (svhost, ciaude…) and masquerade checks, wired into "virus check" and process identity.
 - Natural-language routing overhaul (everyday phrasings hit the right intent) and purple highlighting of hardware names in chat.
-- **Four new data-driven answers:** *"what should I upgrade?"* (the real bottleneck from your own load + temperature history), *"do you spy / what do you collect?"* (honest, local-only, links to Stability Tests), greetings that name your favourite app (*"Fancy CS2 again today?"*), and *"what starts with Windows?"* (your real startup list, links straight to the Manager). Vocabulary now **90 intents**.
+- **Four new data-driven answers:** *"what should I upgrade?"* (the real bottleneck from your own load + temperature history), *"do you spy / what do you collect?"* (honest, local-only, links to Stability Tests), greetings that name your favourite app (*"Fancy CS2 again today?"*), and *"what starts with Windows?"* (your real startup list, links straight to the Manager). Vocabulary now **92 intents**.
 
 ## What's New [1.7.9] - `2026-06-11` *(previous)*
 
@@ -717,7 +729,7 @@ Click any process to see more details.
 - All monitoring runs locally on your machine
 - Open source, the code is auditable
 - Network access is optional and off-able in Settings (off = firewall-verifiable zero traffic)
-
+-
 ## Versioning
 
 | Version | Status | Key Features |
@@ -739,7 +751,8 @@ Click any process to see more details.
 | v1.7.8-monitoring | Released | Thermal Baseline Engine, Voltage Rail Analyzer (SPC + Nelson rules), interactive pan/zoom charts, proactive voltage alerts, 6-module code-quality pass |
 | v1.7.9 | Released | Maximized View Mode redesign, gaming-HUD chart tooltip, hck_GPT on MY PC / Fan tabs, 1326 dead lines removed, 10+ resource leaks fixed |
 | **v1.8.0** | Released | **Smart Learning (Welford accumulator, workload-aware temps, voltage SPC), GAMING in-game overlay + configurator, live FPS via RTSS, 40+ game greetings, 4 new hck_GPT intents, Process Suspect Guard** |
-| **v1.8.1** | **Current** | General fixes from Users feedback |
+| **v1.8.1** | Released | Data machine, anti-cheat guard, learning v3, always-on AUTO |
+| **v1.8.2** | **Current** | Critical freeze fix, admin elevation, scaling, hck_GPT expansion |
 | v2.0.0 | **Q2 2026** | Microsoft Store, long-term drift, Smart User Activity |
 
 **[Full Changelog](./CHANGELOG.md)**
@@ -756,7 +769,7 @@ Click any process to see more details.
 - Follow existing code style
 - Include tests for new features
 - Update documentation
-
+-
 ## System Requirements
 
 **Minimum:**
@@ -774,14 +787,14 @@ Click any process to see more details.
 **For Gaming Analytics:**
 - NVIDIA/AMD GPU drivers updated
 - DirectX 12 compatible system
-
+-
 ## Documentation
 
 - **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Installation & setup guide
 - **[CHANGELOG.md](./CHANGELOG.md)** - Version history & updates
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
 - **[docs/TECHNICAL.md](./docs/TECHNICAL.md)** - Architecture deep dive (coming)
-
+-
 ## About
 
 **Marcin Firmuga** | Software Engineer

@@ -1,6 +1,98 @@
 # HCK_Labs - PC_Workman_HCK - Changelog
 _All notable changes are documented here._
 
+## [1.8.4] - 2026-07-17
+
+### Upgrade Readiness - offline part compatibility
+**`core/hardware_compat_db.py` (new), `core/hardware_compat.py` (new), `ui/pages/upgrade_readiness.py` (new)**
+- New offline hardware library: 320 entries (174 desktop CPUs from Intel 4th gen to Core Ultra 200S and AMD FX to Ryzen 9000, 79 GPUs from GTX 700 to RTX 50 / RX 500 to RX 9000 / Arc, 58 chipsets, 9 sockets). No network calls.
+- The engine knows per-chipset CPU-generation support, not just sockets: B460 cannot run 11th gen at all, Z490 needs a BIOS update, LGA1151 100/200 vs 300 boards are electrically incompatible, B550 never supported Ryzen 1000/2000, B450 runs a 5800X3D only after a BIOS flash. Cross-socket verdicts include RAM carry-over (resolved from your actual module speed on DDR4/DDR5 boards) and cooler-mount compatibility.
+- New Upgrade Readiness page: type a planned purchase ("i5 11400F", "RTX 4070", "DDR5 6000"), get a green/amber/red verdict with reasons. Quick-pick chips suggest same-socket CPUs your chipset actually runs and GPU classes above your current card. Entry buttons sit at each part in My PC > Components and on First Setup & Drivers and Monitoring & Alerts.
+- GPU checks report the class delta versus your current card (honest about sidegrades and downgrades), VRAM change, recommended PSU wattage and a CPU-pairing note for old platforms.
+
+### Optimization Center - Upgrade Advisor card
+**`ui/pages/optimization_services.py`, `locales/pl.json`, `locales/en.json`**
+- New expandable card. Different question than the checker: reads your own 14-day load history and says WHAT is worth upgrading (CPU-bound / GPU-bound / RAM pressure / balanced), then lists concrete same-socket picks and jumps into the full checker.
+
+### hck_GPT v2.1.x
+**`hck_gpt/responses/r_upgrade.py` (new), `hck_gpt/intents/vocabulary.py`, `hck_gpt/intents/parser.py`**
+- Two new intents: `upgrade_compat` ("czy i5 11400F bedzie pasowac do mojej plyty", "will an i5 13600K fit my board") and `ram_compat` ("czy DDR5 zadziala", "what RAM fits"). Fully bilingual answers composed from engine facts, with a clickable [-> Upgrade Readiness] nav link.
+- Parser gained a domain rule: a concrete part model (i5-11400F, RTX 4070, DDR5...) next to fit/swap wording routes to the upgrade intents even when the model name sits mid-sentence. Neighbouring intents (temperature, game_can_run, hw_ram, upgrade_feasibility) verified untouched.
+- `r_hardware.py` was approaching the monolith limit; the Upgrade Readiness handlers live in their own `r_upgrade.py` mixin (94 intents total).
+
+### One version source
+**`utils/app_version.py` (new), `startup.py`, `core/telemetry.py`, `hck_gpt/responses/builder.py`, `ui/windows/main_window_expanded.py`, `ui/windows/main_window.py`, `PCWorkman.spec`**
+- The app version now lives in exactly one file: `utils/app_version.py`. Window titles, the HCK_Labs badge, "What's new", the Build info table, the startup banner, telemetry payloads, the hck_GPT about answer and the PyInstaller dist folder name all read it. Bump one line, everything follows.
+- This fixed three real bugs the audit surfaced: (1) the main window titled itself v1.8.1 while the single-instance code searched for a v1.8.2 title, so focusing the already-running app on a second launch was silently dead; (2) telemetry and the chat about-answer read `startup.py` as a file, which is not shipped inside the frozen build, so they reported a stale "1.8.0" in release builds; (3) the Build info table still said 1.7.2.
+- A repo-wide test now fails if any source file hardcodes a version literal again, and fails a version bump that ships without its changelog section.
+
+### hck_GPT - builder split into mixins
+**`hck_gpt/responses/builder.py`, `r_hardware.py`, `r_thermal.py`, `r_gaming.py`, `r_system.py`, `r_performance.py`, `r_insights.py`, `r_assistant.py`, `common.py` (new files)**
+- The 6,533-line builder monolith is now a facade over seven category mixins plus shared helpers; dispatch (`_resp_<intent>` via MRO) is unchanged. builder.py itself is under 600 lines.
+- A guard test fired all handlers through both languages after the split and caught the one real casualty: the module-level singleton had been dropped, which switched the whole AI layer off with no crash and no log. Restored, and a permanent AI-layer-alive test guards it.
+- A monolith-guard test caps every response module at 1,600 lines, so the split cannot quietly grow back.
+
+### hck_GPT - guided flows and context memory
+**`hck_gpt/engine/flow_engine.py` (new), `hck_gpt/responses/flows.py` (new), `hck_gpt/memory/session_memory.py`**
+- FlowEngine: stateful multi-step guides inside the chat. "Optimize my PC" walks measure -> startup -> services -> confirmed RAM flush -> verify, and the verify step reports the measured delta ("RAM 82% -> 61%, -21 pp"). Any other question pauses the flow, gets answered, and the flow waits. PL and EN navigation words (dalej/next, pomiń/skip, stop).
+- Response ledger: every data answer leaves its headline in session memory, so "ile to było?" / "what was that number" recalls any earlier answer, not just flow steps.
+- Vocabulary grew to 94 intents; a self-consistency test parses every declared phrase and fails on cross-intent collisions (3,100+ phrases checked, collisions deduplicated).
+
+### Sidebar restructure
+**`ui/components/sidebar_nav.py`, `ui/windows/main_window_expanded.py`**
+- FANS Hardware Info and Usage Statistics merged into one page with an internal toggle; Health / Efficiency / Statistics tabs retired; Components joined My PC with a sidebar deep-link; Optimization now points at three real destinations (Center, Startup Manager, Services Manager). Legacy sidebar ids still route.
+
+### Stability and fixes
+**`ui/windows/main_window_expanded.py`, `ui/components/yourpc_page.py`, `ui/pages/optimization_services.py`, `ui/pages/fan_control/usage_stats.py`**
+- CRITICAL regression caught by a click-test and fixed the same day: a console-cleanup pass converted trace prints to a gated `_dbg()` that rejected print kwargs, and the resulting TypeError on the first line of the navigation handler sent every sidebar click back to the dashboard. Fixed, and a new test now builds the real main window and fires every navigation item, so a break of this class cannot pass CI again.
+- Console de-spam: routine trace prints are silent unless debug mode is on.
+- Optimization Center: expanding a right-column card no longer strands an empty slot in the grid; all card open/close combinations verified.
+- Fan Usage "NOW" chart: samples arrive every 5 s but the code divided by 60, so the live window held a single point. Now 12 points.
+- My PC Components: motherboard banner moved to the top with model and version side by side; clean empty-state cards when a scan returns nothing; three async loaders fixed to marshal onto the main thread before touching widgets; per-tab metric scans cached for 60 s and warmed during the splash.
+- Guide page rebuilt as a 3x2 tile grid (plus a Smart Learning tile) and the Live Guide gained a 6th step; hero buttons and headers de-emojied.
+
+### Monitoring & Learning
+**`ui/pages/monitoring_alerts.py`, `core/voltage_analyzer.py`, `core/live_collector.py`, `hck_gpt/data/metrics_store.py`, `hck_gpt/memory/proactive_monitor.py`**
+- Page header simplified: the duplicate gradient banner is gone, one quiet line explains the tab, the Learning Center moved from 6-7pt to readable 8pt type and every string went through locales (learning levels are translated: skalibrowany/wytrenowany/podstawowy).
+- Voltage learning now covers CPU VCore and GPU core, not just the board rails (12V/5V/3.3V): unit-aware LHM tree parsing, new snapshot columns with an automatic migration for existing installs, SPC baselines per rail. Needs LibreHardwareMonitor's web server, honestly labeled when absent.
+- Learned-baseline anomalies finally land in the Events log WITH context: "82°C in gaming workload (normal 57-71°C)", voltage events carry the learned band. Before, the log held only shutdowns and raw spikes.
+
+### Fan Dashboard rebuilt
+**`ui/components/fan_dashboard.py`, `hck_gpt/panel.py`, `hck_gpt/responses/r_thermal.py`**
+- New curve chart: dark-to-bright-red heat gradient that follows the curve height, dual % / RPM axes, monotonic points (cannot pass neighbours), live temperature marker. Three sliders sit under the chart and visibly shape it: MIN lifts the floor, MAX rescales the RPM axis, SET draws the manual-override line.
+- THE APPLY RULE: chart and sliders are a draft. Touching anything turns the fan cards amber ("FANS - values while configuring"); Apply persists the plan (reloaded on every open) and re-locks the chart behind the hover padlock; Revert discards the draft. Apply previously claimed success while saving nothing.
+- Fan cards are live now (real temps, smooth 62px rings) - the old ones drew a pixelated ring once, with hardcoded someone-else's hardware names. Component tiles are vector icons drawn on canvas (the raster PNGs are gone), with a spinning rotor that follows the curve.
+- The chart's hck_GPT [AI] button unfolds the chat and asks a consult question in the app's language; the answer covers temps now, the learned history, gentle tuning advice and the learned "hck_GPT - AI" profile - which chat can apply for real on request.
+
+### TURBO armed panel + master-switch fixes
+**`ui/pages/optimization_services.py`, `core/auto_optimizer.py`**
+- Quick Actions shows what the master TURBO switch will actually fire: X/N armed with per-feature dots, one source of truth. The audit behind it closed three real holes: the RAM card's ON TURBO pill was never bound, hibernation turbo behaviors fired only through the power plan, and the master switch never touched the services profile. All process/service work now runs off the UI thread.
+
+### Diagnostics that leave evidence
+**`utils/freeze_watchdog.py` (new), `utils/crash_log.py` (new)**
+- Freeze watchdog: a heartbeat from the UI thread plus a daemon that dumps every thread's stack to `data/logs/freeze_dump.txt` after 15 s of silence - the next hard freeze names its exact line.
+- Global error log: Tk callback exceptions (previously swallowed into a hidden console), worker-thread exceptions and uncaught errors all land with full tracebacks in `data/logs/errors.log`.
+
+### Performance - My PC opens fast
+**`ui/windows/main_window_expanded.py`, `ui/components/yourpc_page.py`**
+- My PC (and other full-cover overlays) no longer builds the entire dashboard underneath just to cover it. Measured ~26% of the entry cost was this wasted build; it now happens only when the overlay is closed, to reveal it.
+- Removed the two blocking `wmic` calls from the My PC build path (CPU name, disk models), each with a 3-second timeout on the UI thread. On Windows 11 24H2, where `wmic` is slow and deprecated, these were the main cause of "My PC loads forever". The names now come from the hardware identity already warmed at startup.
+- Keep-alive (Phase 2): My PC is built ONCE per session and then hidden/shown instead of destroyed/rebuilt. Re-entering takes 1-17 ms (was ~990 ms at the start of the day); switching back to a visited tab (Central, Components, Map) is instant. Refresh loops are visibility-aware - they idle at 3 s while the page is hidden and resume when shown. The cache is honestly invalidated on language change and window maximize (old strings/geometry never linger), and staleness-prone tabs (Startup, Health, Efficiency) still rebuild fresh every visit.
+- Fixed a pre-existing animation race where a still-running overlay slide could grab and drag the WRONG overlay after a quick page switch - both animations now capture their frame.
+- Result in profiling: central tab build ~590 -> ~160 ms, first entry ~990 -> ~350 ms, every later entry 1-17 ms. Ratchet tests guard the build path (no `wmic`), the cache lifecycle and the loop guards.
+
+### Diagnostics
+**`utils/crash_log.py` (new)**
+- Global error capture: Tk callback exceptions (previously swallowed into an auto-hidden console), worker-thread exceptions and uncaught errors all land with full tracebacks in `data/logs/errors.log`.
+
+### Accuracy
+**`core/monitor.py`, `hck_gpt/memory/proactive_monitor.py`, `data/process_library.json`**
+- Per-process CPU is now on the whole-machine scale. Raw psutil values are per-core, so one busy thread on a 12-thread CPU read "100%" while the machine idled at 8% - top-process lists ranked it absurdly and the 30% proactive spike alert fired for nothing.
+- Process library grew from 373 to 485 definitions: the Rockstar/Social Club family, anti-cheat services, launcher helpers, vmmem and other often-asked Windows processes, local AI runtimes, flagship games.
+
+### Tests
+- 55 -> 177 since 1.8.2. New guard families: version single-source, real-window navigation and page builds, hardware library integrity, 20+ compatibility-verdict cases including every known trap, routing matrix in both directions, phrase self-consistency, AI-layer-alive, monolith caps, voltage-rail pipeline, fan-curve math and the APPLY rule, TURBO armed wiring, CPU-scale ratchets.
+
 ## [1.8.2] - 2026-07-09
 
 ### CRITICAL - total system freeze fix

@@ -24,7 +24,7 @@ Welcome! This guide covers installation and basic usage.
 ### Step 1: Download
 
 1. Go to [GitHub Releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases)
-2. Download the latest `PC_Workman_HCK_1.8.0.zip` (~95 MB)
+2. Download the latest `PC_Workman_HCK_1.8.2.zip` (~95 MB)
 3. Extract the folder anywhere you like
 
 ### Step 2: Run
