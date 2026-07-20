@@ -1,5 +1,5 @@
 """
-Thermal Baseline Engine — PC Workman HCK
+Thermal Baseline Engine - PC Workman HCK
 ========================================
 Learns CPU temperature natural ranges per workload context using Welford's
 online algorithm (numerically stable incremental mean + variance).
@@ -8,7 +8,7 @@ WHY an online accumulator (and not a windowed re-scan)
 ------------------------------------------------------
 Each rebuild folds ONLY the snapshots recorded since the last one into a
 per-bucket running accumulator (count + mean + M2). Learning therefore
-ACCUMULATES over the whole life of the install — the running stats persist
+ACCUMULATES over the whole life of the install - the running stats persist
 in JSON and survive even after the raw snapshots are pruned at 90 days. A
 fixed "last N days" window can never know your long-term normal; this can.
 
@@ -27,12 +27,12 @@ Workload buckets (classified per snapshot):
     (gaming takes priority over cpu classification)
 
 Data source:
-    deepmonitor_snapshots.cpu_temp   (°C — real from LHM or estimated)
-    deepmonitor_snapshots.cpu_load   (%) — for workload bucket
-    deepmonitor_snapshots.gpu_load   (%) — for gaming detection
+    deepmonitor_snapshots.cpu_temp   (°C - real from LHM or estimated)
+    deepmonitor_snapshots.cpu_load   (%) - for workload bucket
+    deepmonitor_snapshots.gpu_load   (%) - for gaming detection
 
 Persistence:
-    data/cache/thermal_baseline.json  — per-bucket {n, mean, M2} + last_ts;
+    data/cache/thermal_baseline.json  - per-bucket {n, mean, M2} + last_ts;
     auto-created, version-checked (a version bump discards the old format).
     sigma and the p5/p95 band are derived live from mean + M2.
 
@@ -100,7 +100,7 @@ TEMP_MAX      = 110.0
 
 # ── Learned metrics ───────────────────────────────────────────────────────────
 # v3: learn EVERY real signal per workload bucket, not just CPU temperature.
-# Why: cpu_temp needs LibreHardwareMonitor (most users don't run it) — before
+# Why: cpu_temp needs LibreHardwareMonitor (most users don't run it) - before
 # this, those machines learned nothing and the Learning Center sat at 0% forever.
 # gpu_temp (nvidia-smi) and cpu_load (psutil) are real on virtually every
 # machine, so learning is now visibly accumulating for everyone. The engine
@@ -387,7 +387,7 @@ class ThermalBaseline:
 
         if _PL:
             lines = [f"🌡 {head}  (tryb: {bn})",
-                     f"  {icon} {value:.1f}{unit} — {classification}",
+                     f"  {icon} {value:.1f}{unit} - {classification}",
                      f"  Zakres normalny: {br.p5:.0f}–{br.p95:.0f}{unit} (σ={br.sigma:.1f}{unit})"]
             if context:
                 lines.append(f"  {context}")
@@ -395,7 +395,7 @@ class ThermalBaseline:
                          f"({br.n}/{T_CALIBRATED} próbek, nauczone z Twoich danych)")
         else:
             lines = [f"🌡 {head}  (workload: {bn})",
-                     f"  {icon} {value:.1f}{unit} — {classification}",
+                     f"  {icon} {value:.1f}{unit} - {classification}",
                      f"  Normal range: {br.p5:.0f}–{br.p95:.0f}{unit} (σ={br.sigma:.1f}{unit})"]
             if context:
                 lines.append(f"  {context}")
@@ -461,7 +461,7 @@ class ThermalBaseline:
         Fold any new DeepMonitor snapshots into the per-bucket Welford
         accumulators (running n + mean + M2). Only rows newer than the last
         processed timestamp are read, so learning ACCUMULATES across the whole
-        life of the install — never recomputed from a fixed window, and it
+        life of the install - never recomputed from a fixed window, and it
         survives even after the raw rows are pruned at 90 days.
 
         Returns the number of new valid samples folded in this pass. Throttled
@@ -517,7 +517,7 @@ class ThermalBaseline:
                 self._raw["last_update"] = time.time()
                 self._raw["version"]     = VERSION
                 # when did we first start observing this machine? (earliest
-                # snapshot ever folded — powers the "learning for X days" counter)
+                # snapshot ever folded - powers the "learning for X days" counter)
                 if processed and not self._raw.get("started_ts") and min_ts:
                     self._raw["started_ts"] = min_ts
                 self._last_rebuild       = time.time()
