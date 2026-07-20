@@ -1,10 +1,12 @@
 """
 startup.py
-Entry point for PC Workman HCK v1.8.2
+Entry point for PC Workman HCK.
 Includes Diagnostic Console Helper that auto-hides on successful UI launch.
 """
 
-APP_VERSION   = "1.8.2"
+# ONE version source (utils/app_version.py) - bump it there, never here.
+from utils.app_version import APP_VERSION, MAIN_WINDOW_TITLE
+
 HELPER_VERSION = "1.6.3"
 
 # ============================================
@@ -27,9 +29,9 @@ import os
 import ctypes
 from typing import Optional, Any
 
-# ── High-DPI awareness — MUST run before any tk.Tk() is created ────────────────
+# ── High-DPI awareness - MUST run before any tk.Tk() is created ────────────────
 # Without this, Windows bitmap-stretches the whole UI on displays scaled above
-# 100% (125% / 150% — standard on laptops), making every label blurry and hard
+# 100% (125% / 150% - standard on laptops), making every label blurry and hard
 # to read. Per-Monitor-Aware-V2 gives crisp native rendering; the app then sees
 # the REAL screen resolution, so utils.ui_scale picks the correct SCALE tier
 # instead of a stretched-down one. This is THE fix for "blurry / unreadable text".
@@ -187,7 +189,7 @@ def run_demo():
     try:
         import core.process_classifier
         import core.process_data_manager
-    except:
+    except Exception:
         pass
 
     try:
@@ -227,7 +229,7 @@ def run_demo():
 
     # --- Step 3d: DeepMonitor persistent metrics store ---
     try:
-        # Single always-on sensor producer — feeds live_sensors app-wide so the
+        # Single always-on sensor producer - feeds live_sensors app-wide so the
         # overlay, Monitoring, hck_GPT and the snapshots below work without any
         # UI page being open (root-cause fix for "--" / "Collecting data…").
         from core.live_collector import live_collector as _collector
@@ -238,11 +240,41 @@ def run_demo():
         _dm_store.start()
         log("DeepMonitor metrics store started (snapshot every 5 min)", "OK")
 
-        # Always-on AUTO optimizations (RAM Flush watcher etc.) — driven by saved
+        # Always-on AUTO optimizations (RAM Flush watcher etc.) - driven by saved
         # prefs, runs whether or not the Optimization page is ever opened.
         from core.auto_optimizer import auto_optimizer as _auto_opt
         _auto_opt.start()
         log("Auto-optimizer started (AUTO features run in background)", "OK")
+
+        # Warm the hardware-identity cache while the splash is on screen:
+        # the CIM scan takes seconds, so doing it now means the first
+        # My PC -> Components open and hck_GPT hardware answers are instant.
+        # (Data warm-up only - never pre-build widgets during the splash.)
+        try:
+            import threading as _warm_thr
+            from import_core import COMPONENTS as _C
+
+            def _warm_all():
+                # Hardware identity (CIM scan, seconds).
+                _det = _C.get("core.hardware_detector")
+                if _det is not None:
+                    try:
+                        _det.ensure_data()
+                    except Exception:
+                        pass
+                # Services/startup metrics (sc query is slow) so the first
+                # Optimization / My PC open is instant, not a stall.
+                try:
+                    from ui.components.yourpc_page import warm_metrics_cache
+                    warm_metrics_cache()
+                except Exception:
+                    pass
+
+            _warm_thr.Thread(target=_warm_all, daemon=True,
+                             name="splash-warmup").start()
+            log("Splash warm-up started (hardware + service/startup metrics)", "OK")
+        except Exception:
+            pass
     except Exception as e:
         log(f"DeepMonitor metrics store skipped: {e}", "WARN")
 
@@ -313,11 +345,11 @@ def run_demo():
                 if self.expanded_window:
                     try:
                         self.expanded_window.root.withdraw()
-                    except:
+                    except Exception:
                         pass
                 if self.minimal_window is None:
                     # Pass the Expanded root as master so Minimal is a Toplevel of
-                    # the single app root — never a second tk.Tk() (that crashed
+                    # the single app root - never a second tk.Tk() (that crashed
                     # Expanded <-> Minimal switching).
                     self.minimal_window = main_window_module.MainWindow(
                         switch_to_expanded_callback=self.switch_to_expanded,
@@ -346,7 +378,7 @@ def run_demo():
                         log(f"switch_to_expanded: minimal withdraw failed: {e}", "WARN")
                 if self.expanded_window:
                     try:
-                        # restore_window() re-applies the tracked window state —
+                        # restore_window() re-applies the tracked window state -
                         # plain deiconify() can come back 'zoomed' on Windows
                         # after a maximize round-trip.
                         if hasattr(self.expanded_window, "restore_window"):
@@ -366,7 +398,7 @@ def run_demo():
                         if self.expanded_window.tray_manager:
                             self.expanded_window.tray_manager.stop()
                         self.expanded_window.root.quit()
-                    except:
+                    except Exception:
                         pass
                 if self.minimal_window:
                     try:
@@ -374,7 +406,7 @@ def run_demo():
                         if hasattr(self.minimal_window, 'tray_manager') and self.minimal_window.tray_manager:
                             self.minimal_window.tray_manager.stop()
                         self.minimal_window.root.quit()
-                    except:
+                    except Exception:
                         pass
 
         # Splash screen
@@ -490,7 +522,7 @@ def run_demo():
     if scheduler:
         try:
             scheduler.stop()
-        except:
+        except Exception:
             pass
 
     # Flush Stats Engine v2 on shutdown
@@ -498,7 +530,7 @@ def run_demo():
         from hck_stats_engine.aggregator import aggregator as _agg
         _agg.flush_on_shutdown()
     except Exception:
-        pass
+        pass 
 
     try:
         from hck_stats_engine.events import event_detector as _evt
@@ -526,9 +558,11 @@ def _acquire_single_instance_lock():
         handle = ctypes.windll.kernel32.CreateMutexW(None, True, _MUTEX_NAME)
         err    = ctypes.windll.kernel32.GetLastError()
         if err == 183:   # ERROR_ALREADY_EXISTS
-            # Bring existing window to front
+            # Bring existing window to front. MAIN_WINDOW_TITLE is the SAME
+            # constant the window sets (utils/app_version.py) - hardcoding it
+            # here once drifted (v1.8.1 vs v1.8.2) and this lookup went dead.
             try:
-                hwnd = ctypes.windll.user32.FindWindowW(None, f"PC Workman HCK  v{APP_VERSION}")
+                hwnd = ctypes.windll.user32.FindWindowW(None, MAIN_WINDOW_TITLE)
                 if hwnd:
                     ctypes.windll.user32.ShowWindow(hwnd, 9)   # SW_RESTORE
                     ctypes.windll.user32.SetForegroundWindow(hwnd)
