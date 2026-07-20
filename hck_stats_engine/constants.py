@@ -11,7 +11,7 @@ import sys
 # ============================================================
 def _base_dir() -> str:
     # Single source of truth: utils.paths handles MSIX/Store installs, where
-    # the dir next to the exe (WindowsApps) is READ-ONLY — APP_DIR redirects
+    # the dir next to the exe (WindowsApps) is READ-ONLY - APP_DIR redirects
     # to %LOCALAPPDATA%\PC_Workman_HCK there.
     try:
         from utils.paths import APP_DIR
