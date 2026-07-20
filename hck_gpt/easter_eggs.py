@@ -5,12 +5,12 @@ Hidden, opt-in meme scenes for hck_GPT.
 
 Typing a secret trigger ("surprise 1", "sauce", "ketchup", ...) plays a scene:
   • a SILENT alien/laser animation in a small strip at the TOP of the chat
-    (~30% height) — a funny top add-on,
+    (~30% height) - a funny top add-on,
   • the lyric "words" arriving as normal hck_GPT chat MESSAGES at the bottom,
     in sync, with dynamic background colouring,
 then a confused greeting + the normal command list.
 
-The app stays SILENT — the viral audio is added later in video editing; only the
+The app stays SILENT - the viral audio is added later in video editing; only the
 RHYTHM of this TIMELINE has to match the track. Tune by editing the ms offsets.
 
 Scene 1 timings tapped against `meme_pro.mp3` (14 s).
@@ -42,14 +42,14 @@ _SURPRISE_1 = [
     (7403,  "word", "OHHHH"),         # ideal (kept)
     (8461,  "word", "The"),           # ideal (kept)
     (8825,  "word", "tingles."),      # ideal (kept)
-    # RIGHT x3 — real cluster 9174-9344
+    # RIGHT x3 - real cluster 9174-9344
     (9174,  "laser", "R"), (9244, "laser", "R"), (9344, "laser", "R"),
     (9873,  "word", "AND A"),
-    # LEFT x6 — real cluster 10227-10756
+    # LEFT x6 - real cluster 10227-10756
     (10227, "laser", "L"), (10312, "laser", "L"), (10401, "laser", "L"),
     (10561, "laser", "L"), (10656, "laser", "L"), (10756, "laser", "L"),
     (11010, "word", "HA"),
-    # RIGHT x4 — real cluster 11224-11459
+    # RIGHT x4 - real cluster 11224-11459
     (11224, "laser", "R"), (11284, "laser", "R"), (11364, "laser", "R"), (11459, "laser", "R"),
     # ── chaotic finale: lasers + 💩 alternating across 11.6-16.2s (real onsets),
     #    including the 14-16s stretch that was empty before ──
