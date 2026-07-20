@@ -60,7 +60,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
-    "monitoring": "MONITORING & ALERTS",
+    "monitoring": "Monitoring & Learning",
     "monitoring_temperature": "Temperature",
     "monitoring_voltage": "Voltage",
     "monitoring_alerts": "Center & Alerts",
@@ -84,7 +84,12 @@
     "statistics_monthly": "Monthly",
     "settings": "Settings",
     "pinned": "Pinned",
-    "back_dashboard": "Dashboard"
+    "back_dashboard": "Dashboard",
+    "my_pc_components": "Components",
+    "fan_control_hw_usage": "Hardware & Usage",
+    "optimization_center": "Optimization Center",
+    "optimization_startup_mgr": "Startup Manager",
+    "optimization_services_mgr": "Services Manager"
   },
   "settings": {
     "page_title": "Settings",
@@ -279,11 +284,13 @@
     "features": {
       "ram_flush": {
         "title": "Auto RAM Flush",
-        "desc": "Free working-set memory when usage is high"
+        "desc": "Free working-set memory when usage is high",
+        "info": "Forces Windows to trim the working set of all running processes,\nreleasing unused physical memory back to the system pool.\nTriggers automatically when RAM stays above threshold for 30 s."
       },
       "turbo_pp": {
         "title": "Turbo Power Plan",
-        "desc": "Auto-switch to custom 'Turbo PC' plan on demand"
+        "desc": "Auto-switch to custom 'Turbo PC' plan on demand",
+        "info": "Creates a custom 'Turbo PC' plan based on High Performance.\nCPU stays at max frequency - no throttling.\nApp exit auto-restores your original plan.\nRequires Administrator rights."
       },
       "turbo_svc": {
         "title": "TURBO Service Stop",
@@ -295,43 +302,63 @@
       },
       "app_hibernation": {
         "title": "App Hibernation",
-        "desc": "Suspend apps idle for X minutes"
+        "desc": "Sleep apps unused for X minutes"
+      },
+      "upgrade_advisor": {
+        "title": "Upgrade Advisor",
+        "desc": "What to upgrade, read from your own load history",
+        "reading": "Reading your 14-day load history...",
+        "no_data": "Not enough history yet - let PC Workman run a day or two in the background, then reopen.",
+        "v_ram": "RAM is the pressure point - adding memory is the cheapest, surest win.",
+        "v_cpu": "CPU is the bottleneck - it runs near its limit while the GPU has spare power.",
+        "v_gpu": "GPU is the bottleneck - it runs flat out while the CPU has headroom.",
+        "v_ok": "No screaming bottleneck - upgrade only when a specific app or game feels slow.",
+        "picks": "Sensible directions for your platform ({plat}):"
       },
       "cpu_throttle": {
         "title": "CPU Throttle Guard",
-        "desc": "Prevent thermal throttling automatically"
+        "desc": "Prevent thermal throttling automatically",
+        "info": "Monitors CPU frequency ratio and adjusts TDP limits\nto keep clocks stable during sustained workloads."
       },
       "browser_cache": {
         "title": "Browser Cache Cleaner",
-        "desc": "Periodically clear browser cache files"
+        "desc": "Periodically clear browser cache files",
+        "info": "Auto-clears Chrome, Firefox and Edge disk cache\nafter configurable idle period to reclaim disk space."
       },
       "bg_limiter": {
         "title": "Background Limiter",
-        "desc": "Cap CPU for non-foreground processes"
+        "desc": "Cap CPU for non-foreground processes",
+        "info": "Uses Windows job objects to throttle background process\nCPU share, freeing headroom for the active app."
       },
       "net_reset": {
         "title": "Network Adapter Reset",
-        "desc": "Reset adapter stack on connectivity issues"
+        "desc": "Reset adapter stack on connectivity issues",
+        "info": "Runs netsh winsock reset and flushes DNS to resolve\nstale network states without a full reboot."
       },
       "reg_clean": {
         "title": "Registry Junk Cleaner",
-        "desc": "Remove orphaned registry keys"
+        "desc": "Remove orphaned registry keys",
+        "info": "Scans for invalid uninstall records and broken file\ntype associations. Preview before applying."
       },
       "gpu_watchdog": {
         "title": "GPU Driver Watchdog",
-        "desc": "Detect and restart hung GPU driver"
+        "desc": "Detect and restart hung GPU driver",
+        "info": "Polls GPU state via nvidia-smi / WMI and triggers\na TDR reset if the driver stops responding."
       },
       "log_rotate": {
         "title": "Log File Rotation",
-        "desc": "Auto-prune old log files to save disk space"
+        "desc": "Auto-prune old log files to save disk space",
+        "info": "Monitors the app log folder and compresses / deletes\nentries older than the configured retention period."
       },
       "dns_nightly": {
         "title": "DNS Auto-Flush",
-        "desc": "Nightly DNS cache flush on schedule"
+        "desc": "Nightly DNS cache flush on schedule",
+        "info": "Schedules a silent DNS flush every night at 03:00\nto prevent stale cache entries from breaking browsing."
       },
       "fw_monitor": {
         "title": "Firewall Health",
-        "desc": "Verify Windows Firewall is active and healthy"
+        "desc": "Verify Windows Firewall is active and healthy",
+        "info": "Queries netsh advfirewall state and alerts if any\nprofile (Domain / Private / Public) is disabled."
       }
     }
   },
@@ -402,7 +429,28 @@
     "threshold_label": "Threshold",
     "sensor_label": "Sensor",
     "condition_above": "above",
-    "condition_below": "below"
+    "condition_below": "below",
+    "desc": "Watches temperatures, load and voltages, learns this machine's normal, and flags what breaks the pattern.",
+    "learn": {
+      "header": "WHAT PC WORKMAN HAS LEARNED",
+      "info": "ℹ The longer it runs, the better it knows YOUR normal - and the smarter the temperature & voltage alerts become.",
+      "per_workload": "per workload",
+      "learning_for": "⏱ Learning for {since}  ·  {hrs}h of your machine observed",
+      "unlock_cpu": "↳ CPU temp: run LibreHardwareMonitor to unlock",
+      "needs_lhm": "⚡ Needs LibreHardwareMonitor to learn rails",
+      "learning": "learning…",
+      "snapshots": "{n} snapshots learned",
+      "pct": "{p}% learned",
+      "rebuilt": "rebuilt {t}",
+      "level": {
+        "no_data": "no data",
+        "initializing": "initializing",
+        "learning": "learning",
+        "basic": "basic",
+        "trained": "trained",
+        "calibrated": "calibrated"
+      }
+    }
   },
   "my_pc": {
     "page_title": "MY PC",
@@ -518,7 +566,11 @@
     "tooltip_setup": [
       "Driver health  ·  Startup control",
       "Registry-based scan  ·  No admin needed"
-    ]
+    ],
+    "startup_empty_title": "No startup programs",
+    "startup_empty_sub": "Nothing extra launches with Windows - a clean boot. Rare, and exactly what you want.",
+    "components_empty_title": "Hardware details unavailable",
+    "components_empty_sub": "The hardware scan came back empty. On Windows 11 24H2+ this can need a moment - reopen this tab, or run the app as administrator for full detail."
   },
   "statistics": {
     "page_title": "Statistics",
