@@ -176,7 +176,7 @@ class OverlayMiniMonitor:
 
         self.root.title("")
         self.root.overrideredirect(True)
-        # topmost removed — was causing interference with games and fullscreen apps
+        # topmost removed - was causing interference with games and fullscreen apps
         self.root.attributes("-alpha",      0.86)   # ~8 % more transparent than before
         self.root.attributes("-toolwindow", True)   # hide from taskbar
 
