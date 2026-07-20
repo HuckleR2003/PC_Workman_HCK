@@ -281,7 +281,7 @@ class DayStatsPage:
                 running = len(psutil.pids())
                 max_services = 220  # Typical max services on Windows
                 self.services_value.value_label.config(text=f"{running}/{max_services}")
-            except:
+            except Exception:
                 self.services_value.value_label.config(text="N/A")
 
             # Get average usage - prefer SQLite stats engine, fallback to logger
