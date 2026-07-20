@@ -6,10 +6,9 @@ SQLite database lifecycle, schema creation, thread-safe connections
 import sqlite3
 import threading
 import os
-import time
 
 from hck_stats_engine.constants import DB_PATH, LOGS_DIR, SCHEMA_VERSION
-from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+from import_core import register_component, STATUS_OK
 
 
 class StatsDBManager:
@@ -59,7 +58,7 @@ class StatsDBManager:
         if hasattr(self._local, 'conn') and self._local.conn:
             try:
                 self._local.conn.close()
-            except:
+            except Exception:
                 pass
             self._local.conn = None
 
