@@ -1,5 +1,5 @@
 """
-Voltage Rail Analyzer — PC Workman HCK  v1.7.8
+Voltage Rail Analyzer - PC Workman HCK  v1.7.8
 ===============================================
 Applies Statistical Process Control (SPC) to motherboard voltage rails
 to distinguish natural noise from genuine anomalies.
@@ -17,7 +17,7 @@ inherits that robustness.
     → |M| > 3.5  :  anomaly   (< 0.03 % probability under Gaussian noise)
     → |M| > 2.5  :  warning   (worth watching)
 
-Context suppression — 12 V rail:
+Context suppression - 12 V rail:
     During GPU load transitions (|Δgpu_load| > 25 % in one 5-min step)
     a 12 V transient is physically expected and is downgraded to "info"
     rather than "warning/critical".
@@ -28,9 +28,9 @@ Anomaly decay:
     its severity is reduced by one tier.
 
 Rails monitored:
-    12 V  — ATX spec ±5 %  → [11.40 V, 12.60 V]
-     5 V  — ATX spec ±5 %  → [ 4.75 V,  5.25 V]
-     3.3V — ATX spec ±5 %  → [ 3.14 V,  3.47 V]
+    12 V  - ATX spec ±5 %  → [11.40 V, 12.60 V]
+     5 V  - ATX spec ±5 %  → [ 4.75 V,  5.25 V]
+     3.3V - ATX spec ±5 %  → [ 3.14 V,  3.47 V]
 
 Data availability:
     Requires LibreHardwareMonitor (LHM) or OpenHardwareMonitor (OHM).
@@ -73,7 +73,9 @@ def _base_dir() -> str:
 _DB_PATH    = os.path.join(_base_dir(), "data", "logs",  "hck_stats.db")
 _PREFS_PATH = os.path.join(_base_dir(), "data", "cache", "voltage_baseline.json")
 
-VERSION = 2
+# v3 (2026-07-17): + CPU VCore and GPU core rails - voltage learning now
+# covers CPU / GPU / MB. Version bump invalidates the old 3-rail cache.
+VERSION = 3
 
 # ── Rail metadata ─────────────────────────────────────────────────────────────
 
@@ -100,6 +102,25 @@ RAILS: dict[str, dict] = {
         "atx_lo":  3.135,
         "atx_hi":  3.465,
         "color":   "#10b981",
+        "unit":    "V",
+    },
+    # Core rails (2026-07-17). These have no ATX norm - VCore legitimately
+    # swings ~0.6-1.45 V with load - so lo/hi are wide SANITY bounds only;
+    # the learned SPC band (median ± MAD) is what actually judges them.
+    "mb_volt_vcore": {
+        "label":   "VCore",
+        "nominal": 1.200,
+        "atx_lo":  0.350,
+        "atx_hi":  1.700,
+        "color":   "#ec4899",
+        "unit":    "V",
+    },
+    "mb_volt_gpu": {
+        "label":   "GPU",
+        "nominal": 0.900,
+        "atx_lo":  0.350,
+        "atx_hi":  1.350,
+        "color":   "#f97316",
         "unit":    "V",
     },
 }
@@ -142,7 +163,7 @@ class RailStats:
 
     @property
     def normal_band(self) -> tuple[float, float]:
-        """±Z_WATCH × K × MAD — tight "expected" operating band."""
+        """±Z_WATCH × K × MAD - tight "expected" operating band."""
         w = Z_WATCH * _K * self.mad
         return (self.median - w, self.median + w)
 
@@ -480,7 +501,7 @@ class VoltageAnalyzer:
                     evt.severity = "warning"
                 elif evt.severity == "warning":
                     evt.severity = "info"
-                note = f"Repeats {similar}× — may be your hardware's normal"
+                note = f"Repeats {similar}× - may be your hardware's normal"
                 evt.reason = (evt.reason + "  ·  " + note
                               if evt.reason else note)
 
@@ -554,8 +575,8 @@ class VoltageAnalyzer:
 
         self._save_cache()
 
-        # anomaly_count must reflect GENUINE anomalies — Nelson-rule events that
-        # survived GPU-transient suppression and recurrence decay — not the ~1.2%
+        # anomaly_count must reflect GENUINE anomalies - Nelson-rule events that
+        # survived GPU-transient suppression and recurrence decay - not the ~1.2%
         # Gaussian tail beyond 2.5σ. Counting raw tail crossings over a 7-day window
         # made the count grow purely with sample size, so every healthy rail read
         # "crit" once enough snapshots accumulated. health_label() reads this field.
@@ -648,9 +669,9 @@ class VoltageAnalyzer:
         """
         if not self.is_data_available():
             if lang == "pl":
-                return ("⚡ Brak danych napięć — wymagany LibreHardwareMonitor.\n"
+                return ("⚡ Brak danych napięć - wymagany LibreHardwareMonitor.\n"
                         "Po uruchomieniu LHM program zacznie zbierać dane szyn 12V/5V/3.3V.")
-            return ("⚡ No voltage data — LibreHardwareMonitor required.\n"
+            return ("⚡ No voltage data - LibreHardwareMonitor required.\n"
                     "Once LHM is running, PC Workman will start learning your rail patterns.")
 
         summary = self.get_anomaly_summary()
@@ -757,8 +778,9 @@ class VoltageAnalyzer:
             con.execute("PRAGMA journal_mode=WAL")
             con.execute("PRAGMA busy_timeout=5000")
             con.row_factory = sqlite3.Row
+            rail_cols = ", ".join(RAILS)          # columns follow the RAILS map
             rows  = con.execute(
-                "SELECT ts, mb_volt_12v, mb_volt_5v, mb_volt_33v, gpu_load "
+                f"SELECT ts, {rail_cols}, gpu_load "
                 "FROM deepmonitor_snapshots "
                 "WHERE ts >= ? "
                 "ORDER BY ts",
