@@ -1,6 +1,6 @@
 # core/app_activity_tracker.py
 """
-AppActivityTracker — tracks which user-visible applications have keyboard/mouse
+AppActivityTracker - tracks which user-visible applications have keyboard/mouse
 focus (foreground window) and surfaces idle candidates for hibernation.
 
 Detection logic (multi-signal, avoids false positives):
@@ -17,14 +17,13 @@ from __future__ import annotations
 
 import ctypes
 import ctypes.wintypes
-import os
 import threading
 import time
 from typing import Dict, List, Optional
 
 import psutil
 
-from import_core import register_component, STATUS_IDLE, STATUS_OK
+from import_core import register_component, STATUS_IDLE
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -33,7 +32,7 @@ CPU_IDLE_PCT      = 3.0    # max avg CPU% to consider "idle" (not actively worki
 CPU_SAMPLES_NEED  = 3      # number of samples required before declaring idle
 MIN_RUNTIME_MIN   = 5      # ignore processes running < 5 min (just launched)
 
-# ── Protected processes — never surfaced as hibernation candidates ─────────────
+# ── Protected processes - never surfaced as hibernation candidates ─────────────
 
 _PROTECTED_NAMES: frozenset[str] = frozenset({
     # Windows kernel / core
@@ -152,12 +151,12 @@ class AppActivityTracker:
                 if idle_s < threshold_s:
                     continue
 
-                # Min runtime guard — skip apps launched less than MIN_RUNTIME_MIN ago
+                # Min runtime guard - skip apps launched less than MIN_RUNTIME_MIN ago
                 runtime_s = now - (info.get("create_time") or now)
                 if runtime_s < MIN_RUNTIME_MIN * 60:
                     continue
 
-                # CPU guard — need enough samples and must be below threshold
+                # CPU guard - need enough samples and must be below threshold
                 if len(samples) < CPU_SAMPLES_NEED:
                     continue
                 cpu_avg = sum(samples[-CPU_SAMPLES_NEED:]) / CPU_SAMPLES_NEED
