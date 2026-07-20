@@ -59,12 +59,16 @@ class MainWindow:
 
         # SINGLE-ROOT RULE: the Minimal window is a Toplevel of the one app root
         # (the Expanded window's tk.Tk()). A second tk.Tk() spins up a second Tcl
-        # interpreter — that is exactly what crashed Expanded <-> Minimal switching
+        # interpreter - that is exactly what crashed Expanded <-> Minimal switching
         # (after() callbacks, images and variables don't cross interpreters, and
         # mainloop only services one). `master` is the Expanded root; tk.Tk() stays
         # only as a fallback for a hypothetical standalone launch.
         self.root = tk.Toplevel(master) if master is not None else tk.Tk()
-        self.root.title("PC Workman – HCK_Labs v1.8.1")
+        try:
+            from utils.app_version import APP_VERSION as _av
+        except ImportError:
+            _av = "?"
+        self.root.title(f"PC Workman – HCK_Labs v{_av}")
         self.root.configure(bg=THEME["bg_main"])
 
         # Window settings
@@ -190,21 +194,21 @@ class MainWindow:
         if self.data_manager:
             try:
                 self.data_manager.save_statistics()
-            except:
+            except Exception:
                 pass
 
         # Stop tray
         if self.tray_manager:
             try:
                 self.tray_manager.stop()
-            except:
+            except Exception:
                 pass
 
         # Destroy window
         try:
             self.root.quit()
             self.root.destroy()
-        except:
+        except Exception:
             pass
 
     def _build_style(self):
@@ -671,7 +675,7 @@ class MainWindow:
                     gpu_name = gpus[0].name
                     if len(gpu_name) > 25:
                         gpu_name = gpu_name[:22] + "..."
-            except:
+            except Exception:
                 pass
 
             # Update labels
@@ -887,7 +891,7 @@ class MainWindow:
         btn_height = 51  # 40% less than 85px (85 * 0.6 = 51)
 
         # NOTE: the "back to Expanded view" control moved to a modern button
-        # pinned in the top-right corner — see _build_expand_control(), built on
+        # pinned in the top-right corner - see _build_expand_control(), built on
         # self.root so it stays visible on every Minimal page (not just Dashboard).
 
         # OPTIMIZATION OPTIONS button
@@ -1076,7 +1080,7 @@ class MainWindow:
             self.chart.clear_selection()
             try:
                 self.canvas.draw_idle()
-            except:
+            except Exception:
                 self.canvas.draw()
 
         print("[TimeTravel] MODE DISABLED - Returned to live updates")
@@ -1195,7 +1199,7 @@ class MainWindow:
                     return last[-1]
             if self.monitor and hasattr(self.monitor, "read_snapshot"):
                 return self.monitor.read_snapshot()
-        except:
+        except Exception:
             pass
 
         # Fallback (if psutil available)
@@ -1207,7 +1211,7 @@ class MainWindow:
                     "ram_percent": psutil.virtual_memory().percent,
                     "gpu_percent": 0.0
                 }
-            except:
+            except Exception:
                 pass
         return None
 
@@ -1218,7 +1222,7 @@ class MainWindow:
                 samples = self.logger.get_last_seconds(30)
                 if samples:
                     return samples
-        except:
+        except Exception:
             pass
         return []
 
@@ -1239,10 +1243,10 @@ class MainWindow:
                             "cpu_percent": info.get("cpu_percent") or 0.0,
                             "ram_MB": (mem_info.rss / 1024 / 1024) if mem_info else 0.0
                         })
-                    except:
+                    except Exception:
                         continue
                 procs.sort(key=lambda r: (r.get("cpu_percent", 0.0) + (r.get("ram_MB", 0.0)/1000.0)), reverse=True)
-        except:
+        except Exception:
             procs = []
 
         # Record snapshot for data manager
@@ -1550,7 +1554,7 @@ class MainWindow:
                         self.chart.update(samples)
                         try:
                             self.canvas.draw_idle()
-                        except:
+                        except Exception:
                             self.canvas.draw()
 
                     # Only update process lists if NOT in TIME TRAVEL mode
@@ -1645,7 +1649,7 @@ class MainWindow:
         try:
             w = int(self.sidebar.place_info().get("width", THEME["sidebar_collapsed"]))
             return (0 <= sx <= w)
-        except:
+        except Exception:
             return False
 
     def _noop(self):
