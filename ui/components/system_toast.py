@@ -567,7 +567,7 @@ def show_app_install_toast(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Welcome Toast  — shown once per app launch
+# Welcome Toast  - shown once per app launch
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _detect_system_lang() -> str:
