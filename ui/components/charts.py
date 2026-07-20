@@ -186,7 +186,7 @@ class EnhancedMainChart:
         # Adjust xlim
         try:
             self.ax.set_xlim(min(x), max(x))
-        except:
+        except Exception:
             pass
 
         # Redraw selection marker if exists
@@ -244,7 +244,7 @@ class EnhancedMainChart:
         if self.selection_marker:
             try:
                 self.selection_marker.remove()
-            except:
+            except Exception:
                 pass
 
         if self.selected_timestamp is None:
@@ -266,7 +266,7 @@ class EnhancedMainChart:
         if self.info_annotation:
             try:
                 self.info_annotation.remove()
-            except:
+            except Exception:
                 pass
             self.info_annotation = None
 
@@ -313,14 +313,14 @@ class EnhancedMainChart:
             try:
                 self.selection_marker.remove()
                 self.selection_marker = None
-            except:
+            except Exception:
                 pass
 
         if self.info_annotation:
             try:
                 self.info_annotation.remove()
                 self.info_annotation = None
-            except:
+            except Exception:
                 pass
 
     def get_selected_data(self):
