@@ -130,7 +130,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Chromium-based browser with built-in ad and tracker blocking. Fast and privacy-focused.',
         'purpose': 'Privacy-first web browsing',
         'normal_behavior': 'Moderate RAM (150-600MB), lower than Chrome due to less tracking',
-        'warning': 'Chromium-based — still RAM-hungry with many tabs',
+        'warning': 'Chromium-based - still RAM-hungry with many tabs',
         'developer': 'Brave Software Inc.'
     },
     'vivaldi.exe': {
@@ -148,7 +148,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Chromium-based browser with a built-in VPN, ad blocker, and sidebar apps.',
         'purpose': 'Web browsing with integrated tools',
         'normal_behavior': 'Moderate RAM (150-500MB)',
-        'warning': 'Free built-in VPN is limited — not a full privacy solution',
+        'warning': 'Free built-in VPN is limited - not a full privacy solution',
         'developer': 'Opera Software AS'
     },
     # ── Communication (extended) ──────────────────────────────────────────────
@@ -286,7 +286,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Godot 4.x with Vulkan rendering, improved 3D, and new scripting system.',
         'purpose': 'Modern game development with Vulkan graphics',
         'normal_behavior': 'High RAM (300-1200MB), high GPU usage in editor',
-        'warning': 'Vulkan-only — requires modern GPU with updated drivers',
+        'warning': 'Vulkan-only - requires modern GPU with updated drivers',
         'developer': 'Godot Engine Community'
     },
     'unreal.exe': {
@@ -323,7 +323,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Free and open-source raster image editor. Alternative to Photoshop.',
         'purpose': 'Photo editing, retouching, compositing',
         'normal_behavior': 'Moderate RAM (100-500MB), high CPU during filters',
-        'warning': 'Single-threaded for most operations — can feel slow on large files',
+        'warning': 'Single-threaded for most operations - can feel slow on large files',
         'developer': 'GNOME Project'
     },
     'photoshop.exe': {
@@ -332,7 +332,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Industry-standard raster image editor by Adobe.',
         'purpose': 'Professional photo editing and graphic design',
         'normal_behavior': 'High RAM (500-2000MB), moderate-high CPU',
-        'warning': 'Allocates large scratch disk space — ensure sufficient free storage',
+        'warning': 'Allocates large scratch disk space - ensure sufficient free storage',
         'developer': 'Adobe Inc.'
     },
     'krita.exe': {
@@ -359,7 +359,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Industry-standard professional video editing software.',
         'purpose': 'Professional video editing and color grading',
         'normal_behavior': 'Very high RAM (1-4GB), high GPU for preview rendering',
-        'warning': 'Media cache can grow very large — clear periodically',
+        'warning': 'Media cache can grow very large - clear periodically',
         'developer': 'Adobe Inc.'
     },
     'resolve.exe': {
@@ -368,7 +368,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Professional color grading and video editing software. Free version is powerful.',
         'purpose': 'Video editing, color correction, audio post-production',
         'normal_behavior': 'Very high RAM (2-8GB), GPU-intensive',
-        'warning': 'Requires dedicated GPU for smooth performance — integrated graphics not ideal',
+        'warning': 'Requires dedicated GPU for smooth performance - integrated graphics not ideal',
         'developer': 'Blackmagic Design'
     },
     'audacity.exe': {
@@ -415,7 +415,7 @@ PROCESS_DEFINITIONS = {
         'description': 'Microsoft email client and personal information manager.',
         'purpose': 'Email, calendar, contacts, tasks',
         'normal_behavior': 'High RAM (300-800MB), moderate CPU during indexing',
-        'warning': 'OST file can grow very large — can slow down if over 20GB',
+        'warning': 'OST file can grow very large - can slow down if over 20GB',
         'developer': 'Microsoft Corporation'
     },
     'winword.exe': {
@@ -451,7 +451,7 @@ PROCESS_DEFINITIONS = {
         'description': 'All-in-one workspace for notes, databases, tasks, and wikis. Electron-based.',
         'purpose': 'Note-taking, project management, knowledge base',
         'normal_behavior': 'Moderate RAM (200-500MB)',
-        'warning': 'Electron-based — higher RAM than a native app. Slow to load with many pages.',
+        'warning': 'Electron-based - higher RAM than a native app. Slow to load with many pages.',
         'developer': 'Notion Labs Inc.'
     },
     'obsidian.exe': {
