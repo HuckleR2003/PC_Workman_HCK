@@ -1,5 +1,5 @@
 """
-Startup Manager - PC Workman HCK 1.7.3
+Startup Manager - PC Workman HCK
 Redesigned UX:
   · Split layout: Needs attention (left 50%) + All entries 2-col grid (right 50%)
   · Subtle "click to queue" banner below tab bar
@@ -36,7 +36,7 @@ BORDER     = "#14202e"
 SEP        = "#141d28"
 TEXT       = "#cdd8e8"
 SUB        = "#8693a6"   # readable secondary (was #66788f)
-MUTED      = "#93a1b5"   # readable muted (was #344256 — barely visible on dark)
+MUTED      = "#93a1b5"   # readable muted (was #344256 - barely visible on dark)
 ACCENT     = "#7c3aed"
 AMBER      = "#d97706"
 GREEN      = "#16a34a"
@@ -69,7 +69,7 @@ _SRC_COLOR = {
     "TASK":         "#5a3a1a",
     "UWP":          "#1a3a5a",
 }
-# Human labels — users kept asking what "HKCU / HKLM / Task" means
+# Human labels - users kept asking what "HKCU / HKLM / Task" means
 _SRC_LABEL = {
     "HKCU":         "👤 Twoje konto",
     "HKLM":         "🖥 Wszyscy",
@@ -80,9 +80,9 @@ _SRC_LABEL = {
     "UWP":          "⊞ Store",
 }
 _SRC_HINT = {
-    "HKCU":         "Wpis rejestru — startuje tylko dla Twojego konta (HKCU\\...\\Run)",
-    "HKLM":         "Wpis rejestru — startuje dla wszystkich użytkowników (HKLM\\...\\Run)",
-    "HKLM32":       "Wpis rejestru 32-bit — dla wszystkich użytkowników (WOW6432Node)",
+    "HKCU":         "Wpis rejestru - startuje tylko dla Twojego konta (HKCU\\...\\Run)",
+    "HKLM":         "Wpis rejestru - startuje dla wszystkich użytkowników (HKLM\\...\\Run)",
+    "HKLM32":       "Wpis rejestru 32-bit - dla wszystkich użytkowników (WOW6432Node)",
     "STARTUP_USER": "Skrót w folderze Autostart Twojego konta",
     "STARTUP_SYS":  "Skrót w folderze Autostart wszystkich użytkowników",
     "TASK":         "Zadanie Harmonogramu zadań Windows (logon/boot)",
@@ -176,17 +176,17 @@ def _extract_exe(value: str) -> str:
         return ""
     v = value.strip()
     if v.startswith('"'):
-        # Quoted path — everything between first and second quote
+        # Quoted path - everything between first and second quote
         end = v.find('"', 1)
         path = v[1:end] if end > 1 else v[1:]
     else:
-        # Unquoted — find .exe boundary (handles paths with spaces)
+        # Unquoted - find .exe boundary (handles paths with spaces)
         v_lower = v.lower()
         exe_idx = v_lower.find('.exe')
         if exe_idx >= 0:
             path = v[:exe_idx + 4]
         else:
-            # No .exe found — fall back to first token
+            # No .exe found - fall back to first token
             path = v.split()[0] if v else ""
     return os.path.basename(path).lower()
 
@@ -218,7 +218,7 @@ def _read_startup_entries() -> list[dict]:
                             "hive": hive_label, "hive_const": hive, "reg_path": path,
                             "impact": impact, "rec": rec, "desc": desc,
                             # real Windows state: False if disabled via StartupApproved
-                            # (by us OR by Task Manager) — was invisible before
+                            # (by us OR by Task Manager) - was invisible before
                             "_enabled": sa_state.get(name.lower(), True)})
         winreg.CloseKey(key)
 
@@ -333,10 +333,10 @@ def _restore_startup_entry(hive_const, path: str, name: str, value: str) -> bool
         return False
 
 
-# ── StartupApproved — the Task-Manager way of disabling a Run entry ────────────
+# ── StartupApproved - the Task-Manager way of disabling a Run entry ────────────
 # Deleting a Run value doesn't stick: apps like OneDrive or Advanced SystemCare
 # simply re-create it on their next launch. Task Manager instead writes a flag in
-# ...\Explorer\StartupApproved\Run — Windows then SKIPS the Run entry at logon
+# ...\Explorer\StartupApproved\Run - Windows then SKIPS the Run entry at logon
 # even if the app re-adds it. We disable the same way, so it finally sticks.
 # Binary format: 12 bytes; first byte even (0x02) = enabled, odd (0x03) = disabled.
 
@@ -399,7 +399,7 @@ _CREATE_NO_WINDOW = 0x08000000
 
 def _read_scheduled_tasks() -> list[dict]:
     # Use Get-ScheduledTask (not schtasks CSV) because its CIM trigger class
-    # names and State enum are language-neutral — schtasks column headers are
+    # names and State enum are language-neutral - schtasks column headers are
     # localized and would break enumeration on non-English Windows.
     if os.name != "nt":
         return []
@@ -654,7 +654,7 @@ def _compact_row(parent, entry: dict, prefs: dict,
                         anchor="w")
     name_lbl.pack(side="left")
 
-    # "ACTIVE NOW" badge — green — if exe is currently running
+    # "ACTIVE NOW" badge - green - if exe is currently running
     if not is_dis and running_set is not None:
         exe_l = (entry.get("exe") or "").lower()
         if exe_l and exe_l in running_set:
@@ -678,14 +678,14 @@ def _compact_row(parent, entry: dict, prefs: dict,
         tk.Label(line1, text="✓", font=(_F, 8, "bold"),
                  bg=base_bg, fg=ACCENT).pack(side="right", padx=(0, 4))
 
-    # "ON" badge — subtle green — shown in the all-active panel
+    # "ON" badge - subtle green - shown in the all-active panel
     if show_on_badge and not is_dis and not in_q:
         tk.Label(line1, text="ON",
                  font=(_F, 7, "bold"),
                  bg="#052e16", fg="#22c55e",
                  padx=4, pady=1).pack(side="right", padx=(0, 4))
 
-    # Source badge — where this entry comes from (👤 / 🖥 / ⏰ / ⊞ / 📁)
+    # Source badge - where this entry comes from (👤 / 🖥 / ⏰ / ⊞ / 📁)
     if show_on_badge and not is_dis:
         hive = entry.get("hive", "")
         src_col = _SRC_COLOR.get(hive, "#1a2530")
@@ -744,12 +744,12 @@ def _compact_row(parent, entry: dict, prefs: dict,
 
 
 # ── Panel builders ────────────────────────────────────────────────────────────
-# (The old inline drawer lived here — replaced by the shared OperatorDrawer,
+# (The old inline drawer lived here - replaced by the shared OperatorDrawer,
 #  the single confirm mechanism used across Startup and Services Manager.)
 
 def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
                                   prefs: dict, on_queue, queued_ids: set):
-    """Startup Menu panel — flagged entries (single column, compact rows)."""
+    """Startup Menu panel - flagged entries (single column, compact rows)."""
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
@@ -785,9 +785,9 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
 
 def _build_all_active_panel(parent: tk.Frame, active: list[dict],
                              prefs: dict, on_queue, queued_ids: set):
-    """Right panel — ALL active startup entries with ON badge + source indicator.
+    """Right panel - ALL active startup entries with ON badge + source indicator.
     Shows everything that starts with Windows (registry + startup folders).
-    Subtly styled — secondary info, all clickable to queue for disable.
+    Subtly styled - secondary info, all clickable to queue for disable.
     """
     # Build running exe set for ACTIVE NOW badge
     _running: set = set()
@@ -820,10 +820,10 @@ def _build_all_active_panel(parent: tk.Frame, active: list[dict],
 
     for e in active:
         if e.get("_task") or e.get("_uwp"):
-            # Scheduled task / Store app — same click-to-queue as registry rows
+            # Scheduled task / Store app - same click-to-queue as registry rows
             _actionable_row(inner, e, on_queue, queued_ids, running_set=_running)
         elif e.get("_folder"):
-            # Startup folder shortcut — managed via Explorer (read-only)
+            # Startup folder shortcut - managed via Explorer (read-only)
             _folder_row(inner, e, prefs, running_set=_running)
         else:
             row_w, sep_w = _compact_row(
@@ -839,7 +839,7 @@ def _build_all_active_panel(parent: tk.Frame, active: list[dict],
 
 
 def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = None):
-    """Read-only row for startup folder (.lnk) items — shown but not queue-able."""
+    """Read-only row for startup folder (.lnk) items - shown but not queue-able."""
     name  = entry["name"]
     exe   = entry["exe"] or "-"
     hive  = entry.get("hive", "")
@@ -881,7 +881,7 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
              bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
 
     # Tooltip explaining it's a startup folder item
-    _Tooltip(row, f"Startup folder shortcut — managed via Windows Explorer.\n"
+    _Tooltip(row, f"Startup folder shortcut - managed via Windows Explorer.\n"
                   f"Location: {entry.get('reg_path','')}")
 
     tk.Frame(parent, bg=SEP, height=1).pack(fill="x")
@@ -890,7 +890,7 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
 def _actionable_row(parent: tk.Frame, entry: dict, on_queue, queued_ids: set,
                     running_set: set = None):
     """Row for a scheduled task / UWP startup item. Click-to-queue, exactly like
-    registry rows — ONE confirm mechanism (the bottom operator drawer) for all."""
+    registry rows - ONE confirm mechanism (the bottom operator drawer) for all."""
     name    = entry["name"]
     exe     = entry.get("exe") or "-"
     hive    = entry.get("hive", "")
@@ -935,7 +935,7 @@ def _actionable_row(parent: tk.Frame, entry: dict, on_queue, queued_ids: set,
     exe_l.pack(anchor="w")
 
     kind = "Zadanie Harmonogramu (⏰)" if entry.get("_task") else "Aplikacja Microsoft Store (⊞)"
-    _Tooltip(row, f"{kind} — kliknij, aby dodać do wyłączenia.\n"
+    _Tooltip(row, f"{kind} - kliknij, aby dodać do wyłączenia.\n"
                   f"W pełni odwracalne w zakładce Disabled.\n{entry.get('reg_path','')}")
 
     def _click(e, _entry=entry):
@@ -982,7 +982,7 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                  bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
         tk.Label(body, text=exe, font=(_F, 7), bg=SURFACE, fg=MUTED, anchor="w").pack(anchor="w")
 
-        # "Kto: UŻYTKOWNIK · data" — show if saved
+        # "Kto: UŻYTKOWNIK · data" - show if saved
         pdata   = prefs.get(eid, {})
         dis_by  = pdata.get("disabled_by", "")
         dis_at  = pdata.get("disabled_at", "")
@@ -1028,7 +1028,7 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                     # entries disabled in Task Manager itself, not by us)
                     ok = _set_startup_approved(entry.get("hive", ""), entry["name"], True)
                 elif hc and rp and val:
-                    # Old delete method — write the Run value back
+                    # Old delete method - write the Run value back
                     ok = _restore_startup_entry(hc, rp, entry["name"], val)
                 if not ok:
                     import tkinter.messagebox as _mb
@@ -1038,7 +1038,7 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                         "Uruchom PC Workman jako Administrator."
                     )
                     return
-                # Remove from prefs entirely — entry will appear as active next scan
+                # Remove from prefs entirely - entry will appear as active next scan
                 prefs.pop(entry["id"], None)
                 _save_prefs(prefs)
                 r.destroy()
@@ -1059,13 +1059,7 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
 # ── Main entry point ──────────────────────────────────────────────────────────
 
-def _is_admin() -> bool:
-    try:
-        import ctypes
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
-        return False
-
+from utils.admin import is_admin as _is_admin  # single source of truth
 
 def build_startup_manager_page(host, parent: tk.Frame):
     prefs = _load_prefs()
@@ -1138,7 +1132,7 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     active, flagged, disabled = _get_derived()
     n_high = len([e for e in entries if e["impact"] == "high"])
 
-    # Queue state — the OperatorDrawer owns the queue; this set only mirrors it
+    # Queue state - the OperatorDrawer owns the queue; this set only mirrors it
     # so rows can paint their "queued" tint.
     queued_ids: set = set()
 
@@ -1152,18 +1146,18 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     header_block = tk.Frame(page, bg=BG)
     header_block.grid(row=0, column=0, sticky="ew")
 
-    # Admin notice — inside header_block so it survives _full_refresh
+    # Admin notice - inside header_block so it survives _full_refresh
     if not _is_admin():
         _adm = tk.Frame(header_block, bg="#1a0f00", height=28)
         _adm.pack(fill="x")
         _adm.pack_propagate(False)
         tk.Label(_adm,
-                 text="  ⚠  Not running as Administrator — HKLM startup entries cannot be modified.  "
+                 text="  ⚠  Not running as Administrator - HKLM startup entries cannot be modified.  "
                       "Right-click PC Workman → Run as administrator for full control.",
                  font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER,
                  padx=8).pack(side="left", fill="y")
 
-    # Compact title row — no subtitle, minimal vertical padding
+    # Compact title row - no subtitle, minimal vertical padding
     title_row = tk.Frame(header_block, bg=BG)
     title_row.pack(fill="x", padx=16, pady=(6, 0))
 
@@ -1198,7 +1192,7 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
     tk.Frame(header_block, bg=BORDER, height=1).pack(fill="x", padx=16, pady=(6, 0))
 
-    # ── Tab bar — only 2 tabs: Startup Menu + Disabled ───────────────────────
+    # ── Tab bar - only 2 tabs: Startup Menu + Disabled ───────────────────────
     tab_bar = tk.Frame(header_block, bg=BG)
     tab_bar.pack(fill="x", padx=12, pady=(4, 0))
 
@@ -1278,7 +1272,7 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
             return _set_task_enabled(e["reg_path"], False)
         if e.get("_uwp"):
             return _set_uwp_enabled(e["reg_path"], False)
-        # Registry Run entry — StartupApproved flag first (Task-Manager style:
+        # Registry Run entry - StartupApproved flag first (Task-Manager style:
         # survives the app re-creating its Run key, e.g. OneDrive / ASC).
         if _set_startup_approved(e.get("hive", ""), e["name"], False):
             method = "startupapproved"
@@ -1353,9 +1347,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
         """Split: LEFT = Startup Menu (flagged, needs action),
                   RIGHT = All active entries with ON badge."""
         cf.grid_rowconfigure(0, weight=1)
-        cf.grid_columnconfigure(0, weight=2)   # Startup Menu — narrower
+        cf.grid_columnconfigure(0, weight=2)   # Startup Menu - narrower
         cf.grid_columnconfigure(1, weight=0)   # divider
-        cf.grid_columnconfigure(2, weight=3)   # All active — wider
+        cf.grid_columnconfigure(2, weight=3)   # All active - wider
 
         left_panel = tk.Frame(cf, bg=BG)
         left_panel.grid(row=0, column=0, sticky="nsew")
