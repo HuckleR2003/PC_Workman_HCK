@@ -130,7 +130,7 @@ class SystemTrayManager:
         # Add small labels below bars
         try:
             font = ImageFont.truetype("consola.ttf", 7)
-        except:
+        except Exception:
             font = ImageFont.load_default()
 
         # Labels
@@ -279,7 +279,7 @@ class SystemTrayManager:
         if self.icon:
             try:
                 self.icon.stop()
-            except:
+            except Exception:
                 pass
 
     def is_running(self):
@@ -366,7 +366,7 @@ class ToastNotification:
                     toast.update()
                     time.sleep(0.02)
                 toast.destroy()
-            except:
+            except Exception:
                 pass
 
         toast.after(duration_ms, close_toast)
