@@ -73,6 +73,8 @@ CREATE TABLE IF NOT EXISTS deepmonitor_snapshots (
     mb_volt_12v   REAL,
     mb_volt_5v    REAL,
     mb_volt_33v   REAL,
+    mb_volt_vcore REAL,                        -- CPU core V (2026-07-17)
+    mb_volt_gpu   REAL,                        -- GPU core V (2026-07-17)
     disk_json     TEXT,                        -- JSON: {mountpoint: {used_gb,free_gb,pct}}
     mb_source     TEXT DEFAULT ''             -- '' | 'ohm' | 'lhm'
 );
@@ -101,6 +103,14 @@ class MetricsStore:
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA busy_timeout=5000")
             conn.executescript(_SCHEMA_SQL)
+            # CREATE IF NOT EXISTS does not add columns to an EXISTING table -
+            # older installs need the 2026-07-17 rails added explicitly.
+            have = {r[1] for r in conn.execute(
+                "PRAGMA table_info(deepmonitor_snapshots)")}
+            for col in ("mb_volt_vcore", "mb_volt_gpu"):
+                if col not in have:
+                    conn.execute(f"ALTER TABLE deepmonitor_snapshots "
+                                 f"ADD COLUMN {col} REAL")
             conn.commit()
             conn.close()
             return True
@@ -168,7 +178,7 @@ class MetricsStore:
             now,
             date_str,
             ls.get("cpu_load",    -1.0),
-            # estimated temps never enter history/learning — real sensors only
+            # estimated temps never enter history/learning - real sensors only
             (ls.get("cpu_temp", -1.0)
              if ls.get("cpu_temp_src") == "sensor" else -1.0),
             ls.get("cpu_mhz",     -1.0),
@@ -185,6 +195,8 @@ class MetricsStore:
             ls.get("mb_volt_12v", -1.0),
             ls.get("mb_volt_5v",  -1.0),
             ls.get("mb_volt_33v", -1.0),
+            ls.get("mb_volt_vcore", -1.0),
+            ls.get("mb_volt_gpu",   -1.0),
             json.dumps(ls.get("disks", {})),
             ls.get("mb_source",   ""),
         )
@@ -194,8 +206,9 @@ class MetricsStore:
              gpu_temp, gpu_load, gpu_vram_pct, gpu_power,
              ram_pct, ram_used_gb, swap_pct,
              mb_temp_sys, mb_temp_vrm, mb_volt_12v, mb_volt_5v, mb_volt_33v,
+             mb_volt_vcore, mb_volt_gpu,
              disk_json, mb_source)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         """
         with self._get_conn() as conn:
             conn.execute(sql, row)
@@ -254,7 +267,7 @@ class MetricsStore:
                 "ram_pct":  [row["ram_lo"] or 0, row["ram_hi"] or 100],
             }
             _ls.update({
-                # merge — the live_collector daemon owns per-session extremes
+                # merge - the live_collector daemon owns per-session extremes
                 "session_hist": {**(_ls.get("session_hist") or {}), **hist},
                 "_hist_cpu_avg_7d": round(row["cpu_av"] or 0, 1),
                 "_hist_ram_avg_7d": round(row["ram_av"] or 0, 1),
