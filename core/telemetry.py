@@ -45,22 +45,17 @@ def _country() -> str:
 
 
 def _resolve_version(app_version: str = "") -> str:
-    """Use the caller's version, else read APP_VERSION from startup.py (tracks the
-    real version in dev and frozen builds), else a safe fallback. Stops empty
-    app_version="" payloads from the Settings 'send on enable' path."""
+    """Use the caller's version, else the ONE version source
+    (utils/app_version.py). The old approach read startup.py as a FILE, which
+    does not exist inside a frozen dist - the Settings 'send on enable' path
+    silently reported the stale fallback there."""
     if app_version:
         return app_version
     try:
-        import os, re
-        from utils.paths import BUNDLE_DIR
-        with open(os.path.join(BUNDLE_DIR, "startup.py"), encoding="utf-8") as f:
-            for line in f:
-                m = re.match(r'\s*APP_VERSION\s*=\s*["\']([^"\']+)["\']', line)
-                if m:
-                    return m.group(1)
+        from utils.app_version import APP_VERSION
+        return APP_VERSION
     except Exception:
-        pass
-    return "1.8.0"
+        return "unknown"
 
 
 def build_payload(app_version: str = "") -> dict:
