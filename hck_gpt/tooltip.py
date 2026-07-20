@@ -71,7 +71,7 @@ class ProcessTooltip:
         if self.tooltip_window:
             try:
                 self.tooltip_window.destroy()
-            except:
+            except Exception:
                 pass
             self.tooltip_window = None
             self.current_process = None
