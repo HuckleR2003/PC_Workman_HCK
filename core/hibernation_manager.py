@@ -1,13 +1,13 @@
 # core/hibernation_manager.py
 """
-HibernationManager — sleep / wake user applications to reclaim resources.
+HibernationManager - sleep / wake user applications to reclaim resources.
 
 Two behaviors, per-app configurable:
-  "low"    — SetPriorityClass(IDLE_PRIORITY_CLASS)
+  "low"    - SetPriorityClass(IDLE_PRIORITY_CLASS)
              Process still runs, gets CPU scraps. Safe for everything.
-  "freeze" — psutil.Process.suspend() (NtSuspendProcess internally)
+  "freeze" - psutil.Process.suspend() (NtSuspendProcess internally)
              Process stops executing entirely. User opts in per-app.
-  "none"   — no action (default, fully active)
+  "none"   - no action (default, fully active)
 
 Settings persisted in:
   data/cache/hibernation_prefs.json
@@ -27,7 +27,7 @@ import json
 import os
 import threading
 import time
-from typing import Dict, Optional
+from typing import Dict
 
 import psutil
 
@@ -153,7 +153,7 @@ class HibernationManager:
                 _set_priority(pid, NORMAL_PRIORITY_CLASS)
             return True
         except psutil.NoSuchProcess:
-            # Process already exited — consider it successfully "woken"
+            # Process already exited - consider it successfully "woken"
             return True
         except Exception:
             return False
