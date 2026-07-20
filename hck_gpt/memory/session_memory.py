@@ -18,7 +18,7 @@ from __future__ import annotations
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, Dict, List, Optional, Any, Tuple
+from typing import Deque, Dict, List, Optional, Any
 
 
 # ── Data classes ──────────────────────────────────────────────────────────────
@@ -203,10 +203,18 @@ class SessionMemory:
             })
         """
         self._session_data[intent] = {"recorded_at": time.time(), **data}
-        # Keep session store bounded — evict oldest when over 40 intents
+        # Keep session store bounded - evict oldest when over 40 intents
         if len(self._session_data) > 40:
             oldest = min(self._session_data, key=lambda k: self._session_data[k].get("recorded_at", 0))
             del self._session_data[oldest]
+
+    def last_recorded(self, n: int = 3) -> list:
+        """Most recent (intent, data) pairs from the response ledger,
+        newest first. Powers 'what was that number?' recall."""
+        items = sorted(self._session_data.items(),
+                       key=lambda kv: kv[1].get("recorded_at", 0),
+                       reverse=True)
+        return items[:n]
 
     def get_response_data(self, intent: str) -> dict:
         """
