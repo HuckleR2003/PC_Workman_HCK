@@ -51,6 +51,13 @@ _HDR  = "Segoe UI Semibold"
 _BODY = _UIF
 _MONO = _MONOF
 
+# ── i18n (guarded, per convention) ────────────────────────────────────────────
+try:
+    from utils.i18n import t as _t
+except ImportError:
+    def _t(key, default="", **kw):
+        return (default or key).format(**kw) if kw else (default or key)
+
 # ── Palette ────────────────────────────────────────────────────────────────────
 BG      = "#060911"
 PANEL   = "#0c1018"
@@ -58,7 +65,7 @@ PANEL2  = "#10151e"
 BORDER  = "#1a2030"
 TEXT    = "#e2e8f0"
 MUTED   = "#6b7280"
-DIM     = "#74839a"   # readable dim (was #374151 — barely visible on dark)
+DIM     = "#74839a"   # readable dim (was #374151 - barely visible on dark)
 
 TEMP_C  = "#f59e0b"    # amber  - temperature
 LOAD_C  = "#3b82f6"    # blue   - CPU load
@@ -112,6 +119,17 @@ def build_monitoring_alerts_page(self, parent):
 
     # ── Header (contains HEALTH + ANOMALIES badges) ───────────────────────────
     rings_cv, score_ref, health_lbl, anom_lbl = _build_page_header(sf)
+
+    # Upgrade Readiness entry (2026-07): components are charted here, so the
+    # compatibility check is one click away.
+    _ur = tk.Frame(sf, bg=BG)
+    _ur.pack(fill="x", padx=16)
+    _lnk = tk.Label(_ur, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
+                    bg=BG, fg="#10b981", cursor="hand2")
+    _lnk.pack(side="right")
+    _lnk.bind("<Enter>", lambda e: _lnk.config(fg="#34d399"))
+    _lnk.bind("<Leave>", lambda e: _lnk.config(fg="#10b981"))
+    _lnk.bind("<Button-1>", lambda e: self.open_upgrade_readiness("cpu"))
 
     # ── Learning status bar ───────────────────────────────────────────────────
     _build_learning_center(sf)
@@ -197,9 +215,14 @@ def _build_page_header(parent):
     top_row.pack(anchor="w")
     tk.Label(top_row, text="◈", font=(_BODY, 14),
              bg=PANEL, fg=TEMP_C).pack(side="left")
-    tk.Label(top_row, text="  MONITORING & ALERTS",
+    title_col = tk.Frame(top_row, bg=PANEL)
+    title_col.pack(side="left")
+    tk.Label(title_col, text="  MONITORING & LEARNING",
              font=(_MONO, 12, "bold"),
-             bg=PANEL, fg=TEXT).pack(side="left")
+             bg=PANEL, fg=TEXT, pady=0, bd=0).pack(anchor="w")
+    tk.Label(title_col, text="      CENTER",
+             font=(_MONO, 8, "bold"),
+             bg=PANEL, fg=TEMP_C, pady=0, bd=0).pack(anchor="w")
 
     engine_ok    = False
     record_count = 0
@@ -222,6 +245,15 @@ def _build_page_header(parent):
         tk.Label(left,
                  text=f"Time-Travel Statistics Center  ·  {record_count:,} data points",
                  font=(_BODY, 8), bg=PANEL, fg=MUTED).pack(anchor="w")
+    # One quiet line saying what this tab IS (2026-07-17 request)
+    tk.Label(left,
+             text=_t("monitoring.desc",
+                     default="Watches temperatures, load and voltages, learns "
+                             "this machine's normal, and flags what breaks "
+                             "the pattern."),
+             font=(_BODY, 8), bg=PANEL, fg="#8aa0bc",
+             anchor="w", wraplength=520, justify="left").pack(
+        anchor="w", pady=(2, 0))
 
     tk.Frame(parent, bg=BORDER, height=1).pack(fill="x")
     return rings_cv, score_ref, health_lbl, anom_lbl
@@ -356,7 +388,7 @@ def _build_temperature_section(parent):
         # Keep legacy refs so existing code that checks _chart_canvas still works
         section._chart_canvas = ic.canvas
         section._chart_data   = []
-        # No separate timeline strip needed — anomalies shown as markers on chart
+        # No separate timeline strip needed - anomalies shown as markers on chart
         section._timeline_cv  = None
     else:
         chart_cv = tk.Canvas(chart_frame, bg="#050809", height=128, highlightthickness=0)
@@ -542,6 +574,11 @@ _LC_BUCKETS = [("idle", "Idle"), ("light", "Light"), ("medium", "Medium"),
                ("heavy", "Heavy"), ("gaming", "Gaming")]
 
 
+def _level_label(level: str) -> str:
+    """Localized display name for a learning level (engine keys stay EN)."""
+    return _t(f"monitoring.learn.level.{level}", default=level)
+
+
 def _build_learning_center(parent):
     """At-a-glance view of what PC Workman has learned: thermal baselines per
     workload + voltage SPC baselines + overall progress. The Rebuild button is a
@@ -555,8 +592,9 @@ def _build_learning_center(parent):
     hdr = tk.Frame(section, bg=PANEL)
     hdr.pack(fill="x", padx=12, pady=(8, 2))
     tk.Label(hdr, text="🧠", font=(_BODY, 11), bg=PANEL).pack(side="left")
-    tk.Label(hdr, text=" WHAT PC WORKMAN HAS LEARNED", font=(_HDR, 9),
-             bg=PANEL, fg="#a5b4fc").pack(side="left")
+    tk.Label(hdr, text=" " + _t("monitoring.learn.header",
+                                default="WHAT PC WORKMAN HAS LEARNED"),
+             font=(_HDR, 10), bg=PANEL, fg="#a5b4fc").pack(side="left")
 
     pct_lbl = tk.Label(hdr, text="", font=(_MONO, 8, "bold"), bg=PANEL, fg=DIM)
     pct_lbl.pack(side="right", padx=(8, 0))
@@ -572,9 +610,11 @@ def _build_learning_center(parent):
     body.pack(fill="x", padx=12, pady=(2, 4))
 
     tk.Label(section,
-             text="ℹ The longer it runs, the better it knows YOUR normal — "
-                  "and the smarter the temperature & voltage alerts become.",
-             font=(_BODY, 7), bg=PANEL, fg=MUTED, anchor="w",
+             text=_t("monitoring.learn.info",
+                     default="ℹ The longer it runs, the better it knows YOUR "
+                             "normal - and the smarter the temperature & "
+                             "voltage alerts become."),
+             font=(_BODY, 8), bg=PANEL, fg=MUTED, anchor="w",
              wraplength=720, justify="left").pack(fill="x", padx=12, pady=(0, 8))
 
     def _populate():
@@ -593,9 +633,12 @@ def _build_learning_center(parent):
         _lc_voltage(right)
         if _HAS_THERMAL_BL:
             p = _thermal_bl.overall_training_pct()
-            pct_lbl.config(text=f"{p}% learned",
+            pct_lbl.config(text=_t("monitoring.learn.pct",
+                                   default="{p}% learned", p=p),
                            fg=OK_C if p >= 80 else WARN_C if p >= 40 else "#6366f1")
-            upd_lbl.config(text=f"rebuilt {_thermal_bl.last_update_str()}")
+            upd_lbl.config(text=_t("monitoring.learn.rebuilt",
+                                   default="rebuilt {t}",
+                                   t=_thermal_bl.last_update_str()))
         if _HAS_VOLT_AZ and _volt_az.is_data_available():
             try:
                 hs = _volt_az.overall_health_score()
@@ -636,9 +679,9 @@ def _build_learning_center(parent):
 
 def _lc_thermal(parent):
     if not _HAS_THERMAL_BL:
-        tk.Label(parent, text="LEARNING  ·  per workload", font=(_MONO, 7, "bold"),
-                 bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
-        tk.Label(parent, text="learning engine unavailable", font=(_BODY, 7),
+        tk.Label(parent, text="LEARNING  ·  per workload", font=(_MONO, 8, "bold"),
+                 bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 4))
+        tk.Label(parent, text="learning engine unavailable", font=(_BODY, 8),
                  bg=PANEL, fg=MUTED).pack(anchor="w")
         return
     # The primary metric is whatever this machine can actually learn:
@@ -652,8 +695,11 @@ def _lc_thermal(parent):
     except Exception:
         pm, unit, head, avail = "cpu_temp", "°C", "CPU TEMP", []
 
-    tk.Label(parent, text=f"{head}  ·  per workload", font=(_MONO, 7, "bold"),
-             bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 3))
+    tk.Label(parent,
+             text=f"{head}  ·  " + _t("monitoring.learn.per_workload",
+                                      default="per workload"),
+             font=(_MONO, 8, "bold"),
+             bg=PANEL, fg=TEMP_C).pack(anchor="w", pady=(0, 4))
     status = _thermal_bl.training_status(pm)
     for bk, label in _LC_BUCKETS:
         info  = status.get(bk, {})
@@ -663,69 +709,84 @@ def _lc_thermal(parent):
         _, fg_c = _LEVEL_COLORS.get(level, _LEVEL_COLORS["no_data"])
 
         row = tk.Frame(parent, bg=PANEL)
-        row.pack(fill="x", pady=1)
-        tk.Label(row, text=label, font=(_MONO, 7), bg=PANEL, fg=TEXT,
-                 width=7, anchor="w").pack(side="left")
-        cv = tk.Canvas(row, width=96, height=8, bg=PANEL, highlightthickness=0)
-        cv.pack(side="left", padx=(0, 6))
-        cv.create_rectangle(0, 2, 96, 7, fill="#161c28", outline="")
-        fw = int(96 * min(max(tp, 0), 100) / 100)
+        row.pack(fill="x", pady=2)
+        tk.Label(row, text=label, font=(_MONO, 8), bg=PANEL, fg=TEXT,
+                 width=8, anchor="w").pack(side="left")
+        cv = tk.Canvas(row, width=110, height=9, bg=PANEL, highlightthickness=0)
+        cv.pack(side="left", padx=(0, 8))
+        cv.create_rectangle(0, 2, 110, 8, fill="#161c28", outline="")
+        fw = int(110 * min(max(tp, 0), 100) / 100)
         if fw > 0:
-            cv.create_rectangle(0, 2, fw, 7, fill=fg_c, outline="")
-        detail = (f"{info.get('p5', 0):.0f}–{info.get('p95', 0):.0f}{unit}"
+            cv.create_rectangle(0, 2, fw, 8, fill=fg_c, outline="")
+        detail = (f"{info.get('p5', 0):.0f}-{info.get('p95', 0):.0f}{unit}"
                   if n >= 20 else f"{n * 5 / 60:.1f}h obs")
-        tk.Label(row, text=detail, font=(_MONO, 7), bg=PANEL, fg=MUTED,
-                 width=9, anchor="w").pack(side="left")
-        tk.Label(row, text=level, font=(_MONO, 7), bg=PANEL, fg=fg_c,
-                 anchor="w").pack(side="left")
+        tk.Label(row, text=detail, font=(_MONO, 8), bg=PANEL, fg=MUTED,
+                 width=10, anchor="w").pack(side="left")
+        tk.Label(row, text=_level_label(level), font=(_MONO, 8, "bold"),
+                 bg=PANEL, fg=fg_c, anchor="w").pack(side="left")
 
     # Time counter: how long we've been observing + hours of real machine time
     try:
         since = _thermal_bl.learning_since_str()
         hrs   = _thermal_bl.total_observed_hours()
         tk.Label(parent,
-                 text=f"⏱ Learning for {since}  ·  {hrs:.0f}h of your machine observed",
-                 font=(_BODY, 7), bg=PANEL, fg="#8aa0bc", anchor="w").pack(anchor="w", pady=(3, 0))
+                 text=_t("monitoring.learn.learning_for",
+                         default="⏱ Learning for {since}  ·  {hrs}h of your "
+                                 "machine observed",
+                         since=since, hrs=f"{hrs:.0f}"),
+                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc",
+                 anchor="w").pack(anchor="w", pady=(4, 0))
     except Exception:
         pass
 
     # Honest unlock hint when the richest signal (CPU temp) isn't available
     if "cpu_temp" not in avail:
         tk.Label(parent,
-                 text="↳ CPU temp: run LibreHardwareMonitor to unlock",
-                 font=(_BODY, 6), bg=PANEL, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 0))
+                 text=_t("monitoring.learn.unlock_cpu",
+                         default="↳ CPU temp: run LibreHardwareMonitor "
+                                 "to unlock"),
+                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc",
+                 anchor="w").pack(anchor="w", pady=(3, 0))
 
 
 def _lc_voltage(parent):
-    tk.Label(parent, text="VOLTAGE  ·  SPC baselines", font=(_MONO, 7, "bold"),
-             bg=PANEL, fg=VOLT_C).pack(anchor="w", pady=(0, 3))
+    tk.Label(parent, text="VOLTAGE  ·  SPC baselines", font=(_MONO, 8, "bold"),
+             bg=PANEL, fg=VOLT_C).pack(anchor="w", pady=(0, 4))
     if not (_HAS_VOLT_AZ and _volt_az.is_data_available()):
-        tk.Label(parent, text="⚡ Needs LibreHardwareMonitor to learn rails",
-                 font=(_BODY, 7), bg=PANEL, fg=MUTED).pack(anchor="w", pady=4)
+        tk.Label(parent,
+                 text=_t("monitoring.learn.needs_lhm",
+                         default="⚡ Needs LibreHardwareMonitor to learn rails"),
+                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc").pack(
+            anchor="w", pady=4)
         return
     stats = _volt_az.get_rail_stats()
     for key, meta in _VOLT_RAILS.items():
         rs  = stats.get(key)
         row = tk.Frame(parent, bg=PANEL)
-        row.pack(fill="x", pady=1)
-        tk.Label(row, text=meta["label"], font=(_MONO, 7), bg=PANEL, fg=TEXT,
-                 width=5, anchor="w").pack(side="left")
+        row.pack(fill="x", pady=2)
+        tk.Label(row, text=meta["label"], font=(_MONO, 8), bg=PANEL, fg=TEXT,
+                 width=6, anchor="w").pack(side="left")
         if rs and rs.has_data:
             _, sev = rs.health_label()
             _, scol = _SEVERITY_BADGE.get(sev, _SEVERITY_BADGE["none"])
             band = rs.normal_band
             half = (band[1] - band[0]) / 2 if band else 0
-            tk.Label(row, text="●", font=(_MONO, 7), bg=PANEL,
+            tk.Label(row, text="●", font=(_MONO, 8), bg=PANEL,
                      fg=scol).pack(side="left", padx=(0, 4))
-            tk.Label(row, text=f"{rs.median:.3f}V", font=(_MONO, 7, "bold"),
+            tk.Label(row, text=f"{rs.median:.3f}V", font=(_MONO, 8, "bold"),
                      bg=PANEL, fg=VOLT_C).pack(side="left")
-            tk.Label(row, text=f"  ±{half:.3f}", font=(_MONO, 7),
+            tk.Label(row, text=f"  ±{half:.3f}", font=(_MONO, 8),
                      bg=PANEL, fg=MUTED).pack(side="left")
         else:
-            tk.Label(row, text="learning…", font=(_MONO, 7),
-                     bg=PANEL, fg=DIM).pack(side="left", padx=(0, 4))
-    tk.Label(parent, text=f"{_volt_az.snapshot_count():,} snapshots learned",
-             font=(_MONO, 7), bg=PANEL, fg=DIM).pack(anchor="w", pady=(2, 0))
+            tk.Label(row, text=_t("monitoring.learn.learning",
+                                  default="learning…"),
+                     font=(_MONO, 8), bg=PANEL, fg=DIM).pack(
+                side="left", padx=(0, 4))
+    tk.Label(parent,
+             text=_t("monitoring.learn.snapshots",
+                     default="{n} snapshots learned",
+                     n=f"{_volt_az.snapshot_count():,}"),
+             font=(_MONO, 8), bg=PANEL, fg=DIM).pack(anchor="w", pady=(3, 0))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -756,7 +817,7 @@ def _build_voltage_section(parent):
 
     hdr_body = tk.Frame(hdr, bg="#0a0f1a")
     hdr_body.pack(fill="x", padx=10, pady=6)
-    tk.Label(hdr_body, text="⚡  VOLTAGE RAILS  —  Statistical Process Control",
+    tk.Label(hdr_body, text="⚡  VOLTAGE RAILS  -  Statistical Process Control",
              font=(_MONO, 9, "bold"),
              bg="#0a0f1a", fg=VOLT_C).pack(side="left")
 
@@ -793,7 +854,7 @@ def _build_voltage_section(parent):
     if _HAS_VOLT_AZ:
         tk.Label(learn_bar, text="⚗", font=(_BODY, 8), bg=PANEL).pack(side="left")
         tk.Label(learn_bar,
-                 text="Learns your hardware's natural voltage variance — "
+                 text="Learns your hardware's natural voltage variance - "
                       "flags only statistically unusual deviations",
                  font=(_BODY, 7), bg=PANEL, fg="#94a3b8").pack(side="left", padx=(4, 8))
         section._volt_badge = tk.Label(
@@ -821,7 +882,7 @@ def _build_voltage_no_data(parent):
              font=(_BODY, 8), bg=PANEL, fg=MUTED,
              justify="left").pack(anchor="w", pady=(6, 0))
     tk.Label(pad,
-             text="DeepMonitor stores a snapshot every 5 minutes — baseline learning is fully automatic.",
+             text="DeepMonitor stores a snapshot every 5 minutes - baseline learning is fully automatic.",
              font=(_BODY, 7, "italic"), bg=PANEL, fg=DIM
              ).pack(anchor="w", pady=(4, 0))
 
@@ -1896,20 +1957,20 @@ def _update_temp_stats(section, data):
         if lbl:
             lbl.config(text=val, **kw)
 
-    # Workload badge — shows workload context
+    # Workload badge - shows workload context
     wl, wl_col = _classify_workload(data)
     bucket_name = getattr(section, "_current_workload", "unknown").title()
     if hasattr(section, "_workload_lbl"):
         section._workload_lbl.config(
             text=f"Workload: {wl}  ·  Context: {bucket_name}", fg=wl_col)
 
-    # Status badge — uses baseline context when trained, else fixed thresholds
+    # Status badge - uses baseline context when trained, else fixed thresholds
     if hasattr(section, "_temp_badge"):
         if bl_rng and bl_rng.is_usable:
             cl = bl_rng.classify_temp(cur)
             if cl == "critical":
                 section._temp_badge.config(
-                    text=f"Critical — {bl_rng.context_label(cur)}",
+                    text=f"Critical - {bl_rng.context_label(cur)}",
                     bg="#2a0a0a", fg=CRIT_C)
             elif cl == "high":
                 section._temp_badge.config(
