@@ -49,7 +49,7 @@ SESSION_WINDOW_S    = 1800   # 30-minute window
 
 # Process anomaly - new heavy process threshold
 PROC_SPIKE_PCT      = 30.0   # single process using >30% CPU -> spike alert
-PROC_SPIKE_MIN_GAP  = 3600   # 1 h cooldown per process name (was 10 min — caused spam)
+PROC_SPIKE_MIN_GAP  = 3600   # 1 h cooldown per process name (was 10 min - caused spam)
 
 # Processes that should NEVER trigger spike alerts.
 # System Idle Process = Windows idle time counter (high CPU% = CPU is idle).
@@ -170,7 +170,7 @@ _MSGS: dict[str, dict[str, list[str]]] = {
     # New heavy process appeared
     "process_spike": {
         "pl": [
-            # Note: no "Wpisz 'co to {val}'" — tooltip on process name handles that
+            # Note: no "Wpisz 'co to {val}'" - tooltip on process name handles that
             "hck_GPT: 🔍 {val} pojawił się i zużywa dużo CPU. Najedź na nazwę po szczegóły.",
             "hck_GPT: ⚠ {val} wskoczył na listę top obciążeń. Normalnie go tu nie ma.",
             "hck_GPT: Wykryłem {val} - zużywa znaczną część CPU. Przypadkowe czy zaplanowane?",
@@ -221,21 +221,21 @@ _MSGS: dict[str, dict[str, list[str]]] = {
         "pl": [
             "hck_GPT: ⚡ Wykryto anomalię napięcia na szynie {val}. Wpisz 'napięcia' po szczegóły.",
             "hck_GPT: ⚠ Szyna {val} wykazuje nieregularne wartości. Sprawdź zakładkę Monitoring.",
-            "hck_GPT: Anomalia napięcia ({val}) — SPC wykrył odchylenie poza granicami kontrolnymi.",
+            "hck_GPT: Anomalia napięcia ({val}) - SPC wykrył odchylenie poza granicami kontrolnymi.",
         ],
         "en": [
             "hck_GPT: ⚡ Voltage anomaly on {val} rail detected. Type 'voltage status' for details.",
             "hck_GPT: ⚠ {val} rail shows irregular readings. Check the Monitoring tab.",
-            "hck_GPT: Voltage anomaly on {val} — SPC found readings outside control limits.",
+            "hck_GPT: Voltage anomaly on {val} - SPC found readings outside control limits.",
         ],
     },
     "voltage_trend": {
         "pl": [
-            "hck_GPT: 📉 Szyna {val} wykazuje trend zmiany — może wskazywać na starzenie PSU lub obciążenie.",
+            "hck_GPT: 📉 Szyna {val} wykazuje trend zmiany - może wskazywać na starzenie PSU lub obciążenie.",
             "hck_GPT: Monotoniczna zmiana napięcia na szynie {val}. Wpisz 'napięcia' by zbadać.",
         ],
         "en": [
-            "hck_GPT: 📉 {val} rail shows a sustained trend — may indicate PSU aging or load shift.",
+            "hck_GPT: 📉 {val} rail shows a sustained trend - may indicate PSU aging or load shift.",
             "hck_GPT: Monotonic voltage drift on {val} rail. Type 'voltage status' for analysis.",
         ],
     },
@@ -530,7 +530,7 @@ class ProactiveMonitor:
         while self._running:
             try:
                 # Fold new snapshots into the learning engines every cycle so the
-                # baselines accumulate continuously while the app runs — not only
+                # baselines accumulate continuously while the app runs - not only
                 # when the user opens Monitoring or asks hck_GPT about temps.
                 self._learning_tick()
                 self._check_system()
@@ -539,7 +539,7 @@ class ProactiveMonitor:
                 # DeepMonitor sensor check every 3 main cycles (~2 min 15 sec)
                 if self._dm_check_tick % DM_CHECK_INTERVAL == 0:
                     self._check_deepmonitor()
-                # Voltage check every 4 cycles (~3 min — less frequent, heavy DB query)
+                # Voltage check every 4 cycles (~3 min - less frequent, heavy DB query)
                 self._volt_check_tick += 1
                 if self._volt_check_tick % 4 == 0:
                     self._check_voltage_rails()
@@ -601,7 +601,7 @@ class ProactiveMonitor:
             pass
 
     def _check_learning_milestones(self) -> None:
-        """Announce ONCE when a workload bucket reaches full calibration — a
+        """Announce ONCE when a workload bucket reaches full calibration - a
         positive, trust-building note that the learned baseline is now reliable.
         Persisted so it never repeats across restarts."""
         try:
@@ -628,7 +628,7 @@ class ProactiveMonitor:
             self._alert("learning_milestone", val)
             announced[bucket] = level
             self._save_milestones()
-            return   # one per check — avoids same-event gap hiding the next
+            return   # one per check - avoids same-event gap hiding the next
 
     # ── System checks ─────────────────────────────────────────────────────────
 
@@ -643,7 +643,7 @@ class ProactiveMonitor:
         # accumulate in this dict indefinitely. Prune entries older than 1 h.
         now_prune = time.time()
         if self._proc_spike_last:
-            # Keep entries for 4 h (was 1 h — too short, caused cooldown resets
+            # Keep entries for 4 h (was 1 h - too short, caused cooldown resets
             # that let System Idle Process spam every hour of a long session)
             self._proc_spike_last = {
                 k: v for k, v in self._proc_spike_last.items()
@@ -709,7 +709,7 @@ class ProactiveMonitor:
         else:
             if self._ram_crit_cnt >= 2:
                 self._clear_hot()   # RAM back to normal -> clear HOT strip
-            # Reset immediately — decrementing 1-per-tick caused a multi-minute
+            # Reset immediately - decrementing 1-per-tick caused a multi-minute
             # recovery delay if RAM had been critical for a long time.
             self._ram_crit_cnt = 0
 
@@ -736,16 +736,20 @@ class ProactiveMonitor:
             pass
 
         # Process anomaly - new heavy process detection
-        # System Idle Process and kernel pseudo-processes are filtered out —
+        # System Idle Process and kernel pseudo-processes are filtered out -
         # their high CPU% is normal/meaningless and would spam the user.
         try:
             import psutil as _ps
             now = time.time()
+            # Whole-machine scale (2026-07-18): raw cpu_percent is per-core,
+            # so one busy thread on a 12-thread CPU read "100%" and tripped
+            # the 30% spike alert while the machine idled at 8%.
+            _nc = _ps.cpu_count(logical=True) or 1
             for proc in _ps.process_iter(["name", "pid", "cpu_percent"]):
                 try:
                     pid   = proc.info["pid"] or 0
                     pname = proc.info["name"] or ""
-                    pcpu  = proc.info["cpu_percent"] or 0.0
+                    pcpu  = (proc.info["cpu_percent"] or 0.0) / _nc
                     # Filter: PID 0 and known non-actionable processes
                     if pid == 0 or pname.lower() in _PROC_SPIKE_IGNORE:
                         continue
@@ -797,7 +801,7 @@ class ProactiveMonitor:
     # ── Alert dispatch ────────────────────────────────────────────────────────
 
     def _push_hot_ram(self, ram: float) -> None:
-        """Send RAM critical alert to HOT strip only — never to chat."""
+        """Send RAM critical alert to HOT strip only - never to chat."""
         lang = self._lang
         if lang == "pl":
             if ram >= 95:
@@ -991,7 +995,7 @@ class ProactiveMonitor:
     def _thermal_verdict(self, cpu_temp):
         """Workload-aware CPU temp verdict from the learned baseline.
         Returns (verdict, context) where verdict is normal/elevated/high/critical,
-        or (None, "") when that workload bucket isn't trained yet — the caller then
+        or (None, "") when that workload bucket isn't trained yet - the caller then
         falls back to fixed thresholds. This is what stops false alarms during
         normal gaming: 82°C is critical at idle but normal under a GPU load."""
         if not cpu_temp:
@@ -1020,6 +1024,24 @@ class ProactiveMonitor:
             return verdict, ctx
         except Exception:
             return None, ""
+
+    def _log_thermal_event(self, severity: str, ctx: str, temp: float) -> None:
+        """Persist a learned-baseline thermal anomaly to the Events log with
+        its workload context ('82°C in gaming workload, normal 57-71°C'), so
+        the log explains WHY something was flagged. Rate-limited to one per
+        10 minutes so a long hot session doesn't flood the table."""
+        now = time.time()
+        if now - getattr(self, "_thermal_event_last", 0.0) < 600:
+            return
+        self._thermal_event_last = now
+        try:
+            from hck_stats_engine.events import event_detector
+            event_detector.log_custom_event(
+                "temp_anomaly", severity,
+                ctx or f"CPU {temp:.0f}°C above the learned baseline",
+                metric="cpu_temp", value=temp)
+        except Exception:
+            pass
 
     def _check_deepmonitor(self) -> None:
         """
@@ -1050,7 +1072,7 @@ class ProactiveMonitor:
         except Exception:
             pass
 
-        # CPU temperature — workload-aware via the learned baseline; fixed-threshold
+        # CPU temperature - workload-aware via the learned baseline; fixed-threshold
         # fallback until that workload bucket is trained.
         if cpu_temp is not None:
             verdict, ctx = self._thermal_verdict(cpu_temp)
@@ -1060,10 +1082,12 @@ class ProactiveMonitor:
                     if self._dm_cpu_temp_crit_cnt >= 2:
                         self._alert("cpu_temp_crit", f"{cpu_temp:.0f}", urgent=True)
                         self._dm_healthy_report_due = True
+                        self._log_thermal_event("critical", ctx, cpu_temp)
                 elif verdict == "high":
                     self._dm_cpu_temp_crit_cnt = max(0, self._dm_cpu_temp_crit_cnt - 1)
                     self._alert("cpu_temp_warn", f"{cpu_temp:.0f}")
                     self._dm_healthy_report_due = True
+                    self._log_thermal_event("warning", ctx, cpu_temp)
                 elif verdict == "elevated":
                     self._dm_cpu_temp_crit_cnt = max(0, self._dm_cpu_temp_crit_cnt - 1)
                     self._alert("thermal_insight", ctx)
@@ -1181,7 +1205,7 @@ class ProactiveMonitor:
             return
 
         # "New normal" (#3): a previously-flagged spike has recurred enough to
-        # decay into your hardware's normal — surface that learning, once per rail.
+        # decay into your hardware's normal - surface that learning, once per rail.
         try:
             for e in events:
                 if (e.decayed and not e.suppressed
@@ -1208,7 +1232,7 @@ class ProactiveMonitor:
 
         # Only alert on first occurrence in this check window (not on every tick)
         if self._was_volt_anomaly:
-            return   # already alerted in this run — wait for clear
+            return   # already alerted in this run - wait for clear
 
         self._was_volt_anomaly = True
 
@@ -1223,6 +1247,23 @@ class ProactiveMonitor:
             self._alert("voltage_trend", label)
         else:
             self._alert("voltage_spike", label)
+
+        # Learned-baseline anomalies also land in the Events log with the
+        # learned band as context - before 2026-07-17 the log held only
+        # shutdowns and raw CPU spikes, so there was nothing to explain.
+        try:
+            from hck_stats_engine.events import event_detector
+            st = _va.get_rail_stats().get(alert_evt.rail)
+            band = ""
+            if st is not None and st.is_usable:
+                lo, hi = st.normal_band
+                band = f" (your learned band: {lo:.3f}-{hi:.3f}V)"
+            event_detector.log_custom_event(
+                "voltage_anomaly", alert_evt.severity,
+                alert_evt.reason_for_chat("en") + band,
+                metric=label, value=alert_evt.value)
+        except Exception:
+            pass
 
     # ── Push helper ───────────────────────────────────────────────────────────
 
