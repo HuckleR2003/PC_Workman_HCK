@@ -164,6 +164,16 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "quick health check", "how's the pc",
     ],
     "temperature": [
+        # colloquial variants (2026-07-16 pass)
+        "mocno się grzeje",
+        "laptop parzy",
+        "gorący laptop",
+        "komp się przegrzewa",
+        "wysoka temperatura",
+        "pc is overheating",
+        "my pc is burning up",
+        "computer gets really hot",
+
         # warm/hot phrasings (Samanta report 2026-07-06)
         "dlaczego mój laptop jest ciepły",
         "czemu laptop jest ciepły",
@@ -184,7 +194,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why is it so hot",
         "why is my laptop heating up",
         "my laptop is warm",
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "przegrzany", "czy przegrzany", "komputer przegrzany",
         "czy mój komputer jest przegrzany", "komputer jest przegrzany",
         "czy się przegrzewa", "przegrzewa się", "za gorący",
@@ -200,7 +210,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "temp check", "too hot", "running hot",
     ],
     "throttle_check": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "czy coś throttluje", "coś throttluje", "throttluje wydajność",
         "czy coś throttluje wydajność", "czy coś dławi wydajność",
         # Tokens
@@ -233,7 +243,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what's the current load", "show system load",
     ],
     "stats": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "średnie obciążenie", "dzisiejsze obciążenie", "jakie mam dzisiaj średnie",
         "średnie zużycie", "obciążenie dzisiaj", "dzisiaj średnie obciążenie",
         "moje średnie", "jakie mam dzisiaj średnie obciążenie",
@@ -254,7 +264,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "how long", "session uptime",
     ],
     "processes": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "najbardziej obciąża", "co najbardziej obciąża", "co obciąża teraz",
         "co najbardziej obciąża pc", "co najbardziej obciąża mój pc",
         "co żre", "co żre pamięć", "co żre ram", "co zżera", "co zjada pamięć",
@@ -277,7 +287,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Tokens
         "optymalizacja", "optimization", "optimize",
         # Multi-word
-        "optymalizuj komputer", "jak przyspieszyć", "jak zoptymalizować",
+        "jak przyspieszyć", "jak zoptymalizować",
         "wyczyść komputer", "speed up pc",
         "make it faster", "improve performance",
         "jak poprawić wydajność",
@@ -355,7 +365,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Upgrade advice - what part to replace/upgrade ─────────────────────────
     "upgrade_advice": [
-        # natural phrasings — routing audit 2026-07-02
+        # natural phrasings - routing audit 2026-07-02
         "czy mam stary sprzęt",
         "stary sprzęt",
         "czy mój sprzęt jest stary",
@@ -365,6 +375,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "is my pc outdated",
         "do i have old hardware",
         # Polish - multi-word (high bonus)
+        "co warto wymienić w komputerze", "co warto wymienic",
+        "co warto wymienić", "warto wymienić w komputerze",
         "czy mam coś do wymiany", "co mam wymienić", "czy jakąś część wymienić",
         "czy jakąś część mam wymienić", "co mam rozbudować", "co rozbudować",
         "co ulepszyć w komputerze", "co kupić by komputer był lepszy",
@@ -406,7 +418,14 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Security / virus check ────────────────────────────────────────────────
     "virus_check": [
-        # Natural phrasings — routing audit 2026-06
+        # colloquial variants (2026-07-16 pass)
+        "chyba mam wirusa",
+        "podejrzany proces",
+        "coś podejrzanego działa",
+        "something feels infected",
+        "suspicious process running",
+
+        # Natural phrasings - routing audit 2026-06
         "coś podejrzanego", "coś podejrzanego w tle", "czy coś podejrzanego chodzi",
         "czy coś podejrzanego chodzi w tle", "podejrzanego chodzi w tle",
         "czy discord jest bezpieczny", "czy discord bezpieczny",
@@ -434,7 +453,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Background / unnecessary programs ─────────────────────────────────────
     "unnecessary_programs": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "co wyłączyć z tła", "wyłączyć coś z tła", "bezpiecznie wyłączyć",
         "co mogę wyłączyć", "co mogę bezpiecznie wyłączyć",
         "czy mogę bezpiecznie wyłączyć coś z tła", "co wyłączyć żeby szybszy",
@@ -487,7 +506,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Speed up PC / FPS ─────────────────────────────────────────────────────
     "speed_up_pc": [
-        # natural phrasings — routing audit 2026-07-02
+        # natural phrasings - routing audit 2026-07-02
         "co zrobić by lepiej chodził",
         "co zrobic by lepiej chodzil",
         "co zrobić by komputer szybciej chodził",
@@ -502,16 +521,16 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "co wylaczyc zeby szybszy", "co wylaczyc zeby pc szybciej dzialal",
         "jak przyspieszyc przez wylaczenie", "co wylaczyc dla wydajnosci",
         # Polish
-        "jak przyspieszyć komputer", "przyspiesz komputer",
+        "jak przyspieszyć komputer", 
         "jak mieć więcej fps", "komputer działa wolno",
         "jak poprawić fps", "jak przyspieszyć gry",
         "wolny komputer co zrobić", "co zrobić żeby komputer był szybszy",
-        "przyspieszenie komputera", "jak zoptymalizować komputer",
+        "przyspieszenie komputera", 
         "jak przyspieszyć windows", "komputer chodzi wolno",
         "co zrobić z wolnym komputerem", "przyspiesz pc",
         "jak poprawić wydajność komputera",
         # English
-        "how to speed up pc", "speed up my computer",
+        "how to speed up pc", 
         "how to get more fps", "pc is slow what to do",
         "how to make pc faster", "pc runs slow",
         "how to improve fps", "make games run faster",
@@ -525,9 +544,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # greeting-style small talk (higher score so rule fallback works)
         "jak się masz", "co słychać", "co u ciebie", "jak leci",
         "co tam stary", "co tam", "jak tam", "jak tam u ciebie", "co porabiasz",
-        "dobry wieczór", "dobry ranek", "dzień dobry",
+        
         "jakie masz rady", "co mi radzisz", "co dziś polecasz",
-        "how are you", "what's up", "good evening", "good morning",
+        "how are you", "what's up", 
         "any tips for today", "what do you recommend",
         # deliberate open-ended (Ollama handles better)
         "powiedz", "opowiedz", "zastanów", "jak myślisz",
@@ -553,7 +572,35 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Why slow / lag ────────────────────────────────────────────────────────
     "why_slow": [
-        # natural phrasings — routing audit 2026-07-02
+        # guidance & context variants (round 2)
+        "czemu komputer tak wolno działa",
+        "dlaczego wszystko tak długo trwa",
+        "why does my pc take forever",
+        "why is everything taking so long",
+
+        # colloquial variants (2026-07-16 pass)
+        "komp muli",
+        "laptop zamula",
+        "komputer zamula",
+        "wszystko zamula",
+        "komputer laguje",
+        "pc laguje",
+        "wszystko się tnie",
+        "komp się przycina",
+        "strasznie muli",
+        "czemu tak zamula",
+        "komputer strasznie wolny",
+        "komp zwalnia",
+        "wszystko wolno chodzi",
+        "my pc is lagging",
+        "computer keeps lagging",
+        "everything is slow",
+        "pc feels sluggish",
+        "why is everything so laggy",
+        "my pc is crawling",
+        "computer is so laggy",
+
+        # natural phrasings - routing audit 2026-07-02
         "laptop się zacina",
         "czemu mój laptop się zacina",
         "laptop sie zacina",
@@ -567,15 +614,15 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "laptop is stuttering",
         "my laptop stutters",
         "pc runs slow",
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "dlaczego komputer chodzi wolno", "komputer chodzi wolno", "chodzi wolno",
         "dlaczego wolno", "dlaczego tak wolno", "czemu komputer chodzi wolno",
-        "dlaczego komputer jest wolny", "czemu tak wolno",
+        "dlaczego komputer jest wolny", 
         # Polish - ASCII variants (key: "dlaczego wolno chodzi" vs "wolny komputer")
         "dlaczego komputer tak wolno chodzi", "dlaczego tak wolno chodzi",
         "dlaczego pc wolno chodzi", "co sprawia ze chodzi wolno",
         # Polish
-        "dlaczego laguje", "dlaczego wolno", "dlaczego komputer wolno działa",
+        "dlaczego laguje", "dlaczego komputer wolno działa",
         "co spowalnia", "co spowalnia komputer", "co spowalnia pc",
         "komputer się zacina", "lagi na pc", "lagi w grze",
         "dlaczego jest lag", "co powoduje lagi", "co powoduje spowolnienie",
@@ -613,6 +660,17 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── RAM why high ──────────────────────────────────────────────────────────
     "ram_why_high": [
+        # colloquial variants (2026-07-16 pass)
+        "ram na maksa",
+        "pamięć się kończy",
+        "brakuje pamięci",
+        "brakuje ramu",
+        "mało ramu",
+        "ram is full",
+        "out of memory",
+        "running out of ram",
+        "memory maxed out",
+
         # Polish
         "dlaczego ram jest wysoki", "dlaczego ram jest pełny",
         "dlaczego ram jest na 90", "dlaczego ram jest zajęty",
@@ -670,7 +728,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Startup programs check ───────────────────────────────────────────────
     "startup_check": [
-        # natural phrasings — routing audit 2026-07-02
+        # colloquial variants (2026-07-16 pass)
+        "za dużo programów na starcie",
+        "co się włącza przy starcie",
+        "what launches at boot",
+
+        # natural phrasings - routing audit 2026-07-02
         "czy coś mam niepotrzebnego w startupie",
         "niepotrzebne w autostarcie",
         "co niepotrzebnego włącza się z windowsem",
@@ -701,7 +764,14 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── High disk usage diagnosis ─────────────────────────────────────────────
     "disk_usage_why": [
-        # Natural phrasings — routing audit 2026-06
+        # colloquial variants (2026-07-16 pass)
+        "dysk pełny",
+        "brak miejsca na dysku",
+        "kończy się miejsce na dysku",
+        "disk is full",
+        "no space left on disk",
+
+        # Natural phrasings - routing audit 2026-06
         "co zapisuje na dysk", "co najbardziej zapisuje", "co pisze na dysk",
         "co zapisuje dysk", "co najbardziej zapisuje na dysk",
         "dlaczego dysk zajęty", "dysk cały czas zajęty",
@@ -722,6 +792,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Battery / power drain ─────────────────────────────────────────────────
     "battery_drain": [
+        # colloquial variants (2026-07-16 pass)
+        "bateria szybko pada",
+        "bateria szybko się rozładowuje",
+        "battery dies fast",
+        "battery drains too quickly",
+
         # Polish
         "który proces zużywa baterię", "co niszczy baterię",
         "co rozładowuje baterię", "bateria szybko się rozładowuje dlaczego",
@@ -744,7 +820,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Performance change / delta ────────────────────────────────────────────
     "perf_change": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "co się zmieniło w wydajności", "zmieniło w wydajności",
         "co się zmieniło w wydajności w tym tygodniu", "zmiana wydajności w tygodniu",
         "wydajność w tym tygodniu", "co zmieniło się w wydajności",
@@ -752,7 +828,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "wolniej niż zwykle", "gorzej niż normalnie", "czy komputer chodzi gorzej",
         "czy działa gorzej", "czy komputer chodzi gorzej niż zwykle",
         # Polish
-        "co się zmieniło w wydajności", "co się zmieniło od ostatniego uruchomienia",
+        "co się zmieniło od ostatniego uruchomienia",
         "czy jest gorzej niż ostatnio", "od kiedy jest wolniej",
         "kiedy zaczęło być wolniej", "co się zmieniło od startu",
         "dlaczego dziś jest wolniej niż wczoraj", "co nowego obciąża komputer",
@@ -839,11 +915,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── What changed on my PC since yesterday ────────────────────────────────
     "pc_changes": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "co się zmieniło od wczoraj", "co się zmieniło w moim pc od wczoraj",
         "zmieniło w moim pc od wczoraj", "co nowego od wczoraj", "co się zmieniło w pc",
         # Polish
-        "co się zmieniło od wczoraj", "co nowego na pc",
+        "co nowego na pc",
         "co zmieniło się w systemie", "jakie zmiany od wczoraj",
         "co jest inne niż wczoraj", "co nowego od ostatniego razu",
         "zmiany systemowe", "co się pojawiło nowego w systemie",
@@ -862,7 +938,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── System risk assessment ────────────────────────────────────────────────
     "system_risk": [
-        # natural phrasings — routing audit 2026-07-02
+        # natural phrasings - routing audit 2026-07-02
         "czy mój komputer jest bezpieczny",
         "czy komputer jest bezpieczny",
         "czy jestem bezpieczny",
@@ -919,7 +995,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── RAM usage comparison between sessions / experiments ──────────────────
     "ram_compare": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "ram bardziej zajęty", "bardziej zajęty niż", "ram bardziej zajęty niż zwykle",
         "czy ram jest bardziej zajęty niż w zeszłym tygodniu", "więcej ramu niż zwykle",
         "ram vs zeszły tydzień", "ram więcej niż wcześniej",
@@ -961,7 +1037,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which processes are taking up a lot of swap space and slowing me down",
         "what is using swap space", "swap usage high", "pagefile full",
         "what processes use swap", "swap space analysis",
-        "virtual memory usage", "pagefile overflow",
+        "virtual memory usage", 
         "too much swap being used", "swap is slow",
         "processes using pagefile", "why is swap full",
         "how to reduce swap usage", "ram out pagefile used",
@@ -1052,7 +1128,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "czy moje napięcie jest bezpieczne", "jakie napięcie ma cpu",
         "pokaż napięcie", "vcore teraz", "napięcie ddr",
         # English tokens
-        "vcore", "vcpu", "vddr",
+        "vcpu", "vddr",
         # English multi-word
         "what is my cpu voltage", "what's my vcore", "show voltage",
         "is my vcore normal", "is my voltage safe", "cpu voltage check",
@@ -1221,6 +1297,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Loud fan / noisy PC ───────────────────────────────────────────────────
     "symptom_noisy": [
+        # colloquial variants (2026-07-16 pass)
+        "wentylatory szaleją",
+        "głośno wieje z komputera",
+        "fans going crazy",
+        "pc sounds like a jet",
+
         # Polish
         "komputer hałasuje", "pc hałasuje", "głośny wentylator",
         "głośny komputer", "glosny komputer", "głośny pc",
@@ -1273,7 +1355,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Game-ready check ─────────────────────────────────────────────────────
     "game_ready": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "gotowy do grania", "gotowy do gry", "czy gotowy do grania",
         "pc gotowy do grania", "czy pc gotowy do grania", "gotowy na granie",
         "czy mogę teraz grać", "czy mogę grać teraz", "czy pc jest gotowy do grania teraz",
@@ -1359,7 +1441,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak zamknąć zawieszony program",
         "jak zakończyć zablokowany program",
         # English
-        "kill chrome", "kill process", "force close chrome",
+        "kill chrome", "force close chrome",
         "force quit discord", "end task for x",
         "how to force close a program", "program won't close",
         "kill unresponsive app", "force kill process",
@@ -1402,7 +1484,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "uwolnij pamięć",
         # English
         "free up ram", "flush ram", "clear memory",
-        "ram flush", "clear ram", "free memory",
+        "clear ram", "free memory",
         "how to free up ram", "empty standby list",
         "memory flush", "release memory",
         "how to clear ram", "optimize memory",
@@ -1426,7 +1508,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "czy mam podkrecony cpu", "czy jest oc na cpu",
         # English
         "is my cpu overclocked", "is it overclocked",
-        "oc check", "overclock status", "is gpu overclocked",
+        "overclock status", "is gpu overclocked",
         "am i running overclocked", "oc detection",
         "should i overclock", "is overclocking safe",
         "how to overclock safely", "can i overclock",
@@ -1475,7 +1557,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Fan noise history - is fan louder than usual? ────────────────────────
     "fan_noise_history": [
-        # Natural phrasings — routing audit 2026-06 (plural / "głośno chodzą")
+        # Natural phrasings - routing audit 2026-06 (plural / "głośno chodzą")
         "wentylatory głośno", "głośno chodzą", "wentylatory tak głośno chodzą",
         "dlaczego wentylatory tak głośno chodzą", "dlaczego wentylatory głośno chodzą",
         "wentylatory hałasują", "głośne wentylatory", "wentylatory chodzą głośno",
@@ -1503,7 +1585,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Driver status - installed drivers and update dates ───────────────────
     "driver_status": [
-        # natural phrasings — routing audit 2026-07-02
+        # natural phrasings - routing audit 2026-07-02
         "czy moje sterowniki wymagają aktualizacji",
         "sterowniki wymagają aktualizacji",
         "czy sterowniki są aktualne",
@@ -1524,7 +1606,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "kiedy ostatnio sterowniki byly aktualizowane",
         "kiedy zaktualizowane sterowniki", "ostatnia aktualizacja sterownikow",
         "jakie sterowniki są zainstalowane", "lista sterowników",
-        "czy sterowniki są aktualne", "sprawdź sterowniki",
+        "sprawdź sterowniki",
         "sterowniki graficzne", "sterowniki gpu", "sterowniki nvidia",
         "sterowniki amd", "sterowniki intel", "status sterowników",
         "kiedy ostatnio zaktualizowałem sterowniki",
@@ -1538,7 +1620,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "nvidia driver version", "amd driver version",
         "intel driver version", "driver check",
         "when was my graphics driver last updated",
-        "are my drivers outdated", "driver update date",
+        "driver update date",
         "how old are my drivers", "driver info",
         "which drivers are installed",
     ],
@@ -1663,11 +1745,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Startup slowdown - what slows boot the most ──────────────────────────
     "startup_slowdown": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "co spowalnia start", "spowalnia start windowsa", "co spowalnia uruchamianie",
         "spowalnia uruchamianie", "co najbardziej spowalnia start",
         "wolny start windowsa", "spowalnia start", "co spowalnia start windowsa",
-        "co najbardziej spowalnia start windowsa", "spowalnia start windowsa",
+        "co najbardziej spowalnia start windowsa", 
         # Polish
         "co najbardziej zwalnia komputer podczas uruchamiania",
         "co spowalnia boot", "co hamuje uruchamianie",
@@ -1749,7 +1831,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Game hardware stress - which game stresses hardware most ─────────────
     "game_hardware_stress": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "która gra najbardziej obciąża", "która gra obciąża sprzęt",
         "która gra najbardziej obciąża sprzęt", "która gra najbardziej obciąża mój sprzęt",
         "która gra męczy", "która gra najbardziej męczy", "co najbardziej męczy sprzęt",
@@ -1782,7 +1864,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Battery drain rate - % lost during gaming/work ───────────────────────
     "battery_drain_rate": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "bateria szybko spada", "szybko spada bateria", "dlaczego bateria spada",
         "czemu bateria spada", "bateria się rozładowuje", "szybko się rozładowuje",
         "dlaczego bateria tak szybko spada", "tak szybko spada",
@@ -1828,7 +1910,13 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Can my PC run game X ──────────────────────────────────────────────────
     "game_can_run": [
-        # Natural phrasings — routing audit 2026-06
+        # colloquial variants (2026-07-16 pass)
+        "czy pociągnie grę",
+        "czy uciągnie tę grę",
+        "will my pc handle the game",
+        "can my pc handle it",
+
+        # Natural phrasings - routing audit 2026-06
         "da radę odpalić", "czy odpali", "czy pójdzie", "karta da radę odpalić",
         "da radę odpalić cyberpunka", "czy moja karta da radę odpalić",
         "czy moja karta da radę odpalić cyberpunka", "czy uruchomię", "pociągnie grę",
@@ -1894,7 +1982,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── How much RAM do I use during gaming ──────────────────────────────────
     "gaming_ram_usage": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "ram podczas grania", "ile ramu podczas grania", "zużywam podczas grania",
         "ram w grach", "ile ram w grach", "pamięć podczas grania",
         "ile ramu w grach", "ile ramu zazwyczaj zużywam podczas grania",
@@ -1907,13 +1995,13 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "ile ramu kiedy gram w minecraft", "ile ramu przy grach",
         "typowe zużycie ram podczas grania",
         "ile pamięci gry zajmują średnio",
-        "ram w sesji gamingowej", "ile ramu w grach",
+        "ram w sesji gamingowej", 
         "zużycie pamięci podczas grania", "ile ram gra zużywa",
         # Polish ASCII fallback - key uniquifiers with "gram" / "grania" context
         "ile ramu uzywam podczas grania", "ile ram uzywam podczas grania",
         "ile pamieci uzywam podczas grania", "ile ram podczas grania",
         "ile ram kiedy gram", "ile ramu kiedy gram",
-        "ram kiedy gram", "ram podczas grania",
+        "ram kiedy gram", 
         "ile pamieci kiedy gram", "ile pamieci podczas grania",
         "pamieci kiedy gram", "ram gaming session",
         # English
@@ -1955,12 +2043,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── How long will battery last for activity X ─────────────────────────────
     "battery_estimate": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "wytrzyma bateria", "jak długo wytrzyma bateria", "ile wytrzyma bateria",
         "ile zostało baterii", "na ile starczy baterii", "jak długo bateria",
         "ile czasu na baterii", "jak długo jeszcze wytrzyma bateria",
         # Polish (with ł)
-        "jak długo wytrzyma bateria", "ile mi zostało baterii",
+        "ile mi zostało baterii",
         "ile czasu wytrzyma bateria kiedy piszę",
         "jak długo wytrzyma bateria przy pisaniu projektu",
         "ile godzin zostało mi baterii", "jak długo laptop pociągnie",
@@ -1978,7 +2066,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "ile czasu wytrzyma bateria kiedy pisze",
         "jak dlugo wytrzyma bateria przy pisaniu projektu",
         "ile godzin zostalo mi baterii", "jak dlugo laptop pociagnie",
-        "jak dlugo bateria", "wytrzyma bateria",
+        "jak dlugo bateria", 
         "jak dlugo bateria pracy", "ile godzin bateria",
         "szacowany czas bateria", "bateria ile czasu",
         # English
@@ -2003,14 +2091,14 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Can I upgrade RAM or storage on this machine ──────────────────────────
     "upgrade_feasibility": [
-        # Natural phrasings — routing audit 2026-06
+        # Natural phrasings - routing audit 2026-06
         "dołożyć ramu", "dołożyć więcej ram", "dołożyć ram", "więcej ramu",
         "czy mogę dołożyć ram", "dołożyć ram do laptopa", "czy mogę dołożyć więcej ramu",
         "wymienić dysk", "wymienić dysk na większy", "większy dysk",
         "czy da się wymienić dysk", "wymiana dysku", "rozbudować komputer",
         "czy mogę rozbudować", "czy da się wymienić dysk na większy",
         # Polish (with ł/ó/ę etc.)
-        "czy mogę dołożyć ram", "czy mogę rozbudować ram",
+        "czy mogę rozbudować ram",
         "czy da się dołożyć ram do tego laptopa",
         "czy laptop ma możliwość rozbudowy ramu",
         "czy mogę zainstalować więcej ramu",
@@ -2050,8 +2138,120 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what can i upgrade on this pc", "upgrade my laptop",
     ],
 
+    # ── Upgrade Readiness: will a SPECIFIC part fit this machine ──────────────
+    # (upgrade_advice = "what should I upgrade", upgrade_feasibility = slots;
+    #  this one = "czy i5 11400F wejdzie na moją płytę" - socket/chipset check)
+    "upgrade_compat": [
+        # Polish - phrase CORES first: the part name sits mid-sentence
+        # ("czy i5 11400f bedzie pasowac..."), so patterns must not assume
+        # the question word is adjacent to the verb.
+        "będzie pasować do", "bedzie pasowac do",
+        "będzie pasował do", "bedzie pasowal do",
+        "pasuje do mojej płyty", "pasuje do mojej plyty",
+        "pasuje do płyty głównej", "pasuje do plyty glownej",
+        "pasuje do mojego zestawu", "pasuje do mojego komputera",
+        "wymiana procesora na", "wymiana karty na",
+        "zmiana procesora na", "zmiana karty na",
+        "wymiana cpu na", "wymiana gpu na",
+        "czy będzie pasować", "czy bedzie pasowac", "czy będzie pasował",
+        "czy pasuje do mojej płyty", "czy pasuje do plyty",
+        "czy pasuje do mojego komputera", "czy zadziała na mojej płycie",
+        "czy zadziala na mojej plycie", "czy zadziała w moim komputerze",
+        "czy mogę włożyć procesor", "czy moge wlozyc procesor",
+        # ASCII twin loses to hw_motherboard; the accented pattern also
+        # matches unaccented input via the parser's fold pass.
+        "czy wejdzie na moją płytę",
+        "kompatybilny z moją płytą", "kompatybilny z moja plyta",
+        "kompatybilność procesora", "kompatybilnosc procesora",
+        "kompatybilność części", "kompatybilnosc czesci",
+        "sprawdź kompatybilność", "sprawdz kompatybilnosc",
+        "wymienić procesor na", "wymienic procesor na",
+        "zmienić procesor na", "zmienic procesor na",
+        "wymienić kartę na", "wymienic karte na",
+        "wymiana procesora na nowszy", "upgrade procesora do",
+        "planuję kupić procesor", "planuje kupic procesor",
+        "zamierzam kupić procesor", "chcę kupić procesor",
+        "nowy procesor do mojej płyty", "nowa karta do mojego zestawu",
+        "jaki mam socket", "jaki socket mam", "socket mojej płyty",
+        "socket mojej plyty", "jaki socket ma moja płyta",
+        "czy potrzebna nowa płyta",
+        "czy muszę wymienić płytę główną",
+        # English - phrase cores (part name sits mid-sentence)
+        "fit my board", "fit my motherboard", "fit in my pc",
+        "work with my board", "work on my motherboard",
+        "compatible with my board",
+        "will it fit my", "will it work with my motherboard",
+        "will it work on my board", "compatible with my motherboard",
+        "compatible with my pc", "cpu compatibility check",
+        "gpu compatibility check", "check compatibility",
+        "upgrade my cpu to", "upgrade my gpu to",
+        "swap my cpu for", "replace my cpu with", "replace my gpu with",
+        "planning to buy a cpu", "planning to buy a gpu",
+        "does it fit my board", "will this cpu fit",
+        "what socket do i have", "what socket is my motherboard",
+        "do i need a new motherboard for",
+    ],
+
+    # ── Upgrade Readiness: RAM type/speed vs the platform ─────────────────────
+    # (upgrade_feasibility = free slots/max GB; this one = DDR gen + MHz fit)
+    "ram_compat": [
+        # Polish
+        "jaki ram pasuje", "jaki ram pasuje do mojej płyty",
+        "jaki ram do mojej płyty", "jaki ram do mojej plyty",
+        "jaka pamięć pasuje", "jaka pamiec pasuje",
+        "jaki typ ram mam", "jaki typ pamięci mam",
+        "czy ddr5 zadziała", "czy ddr5 zadziala", "czy ddr5 pasuje",
+        "czy ddr4 zadziała", "czy ddr4 zadziala", "czy ddr4 pasuje",
+        "kompatybilność ram", "kompatybilnosc ram",
+        "jaka prędkość ram mogę", "jaka predkosc ram",
+        "jaki ram kupić do tej płyty", "jaki ram kupic do tej plyty",
+        "ram do mojej płyty głównej", "ram do plyty glownej",
+        "jakie kości ram pasują", "jakie kosci ram pasuja",
+        # English
+        "what ram fits", "which ram fits my", "what ram fits my motherboard",
+        "ram compatibility", "will ddr5 work", "will ddr4 work",
+        "what memory fits", "ram for my motherboard",
+        "which ddr do i have", "what ddr is my pc",
+        "what ram speed can i use", "which ram should i buy for this board",
+    ],
+
+    # ── Fan Dashboard consult (chart's hck_GPT [AI] button pastes this) ──────
+    "fan_consult": [
+        # Polish - the exact pasted question + natural variants
+        "chyba będę konfigurować wentylatory", "będę konfigurować wentylatory",
+        "bede konfigurowac wentylatory", "konfiguruję wentylatory",
+        "zanim ustawię wentylatory", "chcę ustawić krzywą wentylatorów",
+        "czy mogę podkręcić wentylatory", "sprawdź temperatury przed wentylatorami",
+        # English
+        "about to configure my fans", "before i tune my fans",
+        "i will configure the fans", "check temps before fan tuning",
+        "are my temps ok for fan tuning",
+    ],
+
+    # ── Apply the learned hck_GPT - AI fan profile from chat ─────────────────
+    "fan_apply_ai": [
+        # Polish
+        "ustaw profil ai wentylatorów", "ustaw profil ai wentylatorow",
+        "włącz profil ai wentylatorów", "wlacz profil ai wentylatorow",
+        "zmień profil wentylatorów na ai", "przełącz wentylatory na ai",
+        "ustaw wyuczony profil wentylatorów", "profil hck_gpt ai wentylatory",
+        "zmień plan wentylatorów", "zmien plan wentylatorow",
+        # English
+        "apply the ai fan profile", "apply ai fan profile",
+        "switch fans to the ai profile", "set the learned fan profile",
+        "change my fan plan to ai", "enable the hck_gpt fan profile",
+    ],
+
     # ── Which process eats most disk or RAM ───────────────────────────────────
     "top_resource_hog": [
+        # colloquial variants (2026-07-16 pass)
+        "co tak obciąża komputer",
+        "co zżera zasoby",
+        "co obciąża system",
+        "what is hogging my pc",
+        "what is using everything",
+        "what is taking all my resources",
+
         # Polish tokens - unique verbs that DON'T appear in hw_ram/hw_storage
         "zjada", "pozera", "zeżera", "kradnie", "pochłania",
         # Polish
@@ -2157,15 +2357,80 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "lower my temperatures", "how do i reduce temperatures",
         "improve cooling", "my pc runs hot what to do",
     ],
+    "optimize_guide": [
+        # guidance & context variants (round 2)
+        "pomóż mi przyspieszyć komputer",
+        "pomóż mi zoptymalizować komputer",
+        "pomóż z optymalizacją",
+        "co mam zrobić krok po kroku",
+        "przeprowadź mnie krok po kroku",
+        "pokaż mi co zrobić po kolei",
+        "help me optimize my pc",
+        "help me speed up my computer",
+        "what should i do step by step",
+        "take me through it step by step",
+
+        # colloquial variants (2026-07-16 pass)
+        "ogarnij mi komputer",
+        "ogarnij komputer",
+        "zrób coś z tym komputerem",
+        "zrób porządek na komputerze",
+        "tune my pc",
+        "fix my slow pc",
+
+        # Polish - the master 5-step flow (FlowEngine)
+        # how-to inflections (diacritic folding covers ascii input)
+        "jak zoptymalizować komputer", "jak zoptymalizować mój komputer",
+        "jak zoptymalizować pc", "jak zoptymalizować mój pc",
+        "jak zoptymalizować laptopa", "jak zoptymalizować system",
+        "zoptymalizować komputer", "zoptymalizować pc",
+        "chcę zoptymalizować komputer", "poprowadź mnie przez optymalizację",
+        "poprowadź przez optymalizację", "poprowadź mnie",
+        "zoptymalizuj mój komputer", "zoptymalizuj komputer", "zoptymalizuj mi komputer",
+        "optymalizacja komputera", "przyspiesz mój komputer", "przyspiesz komputer",
+        "napraw wydajność", "popraw wydajność komputera", "zrób porządek z komputerem",
+        "komputer do optymalizacji", "pełna optymalizacja", "optymalizuj wszystko",
+        "przeprowadź mnie przez optymalizację", "pokaż jak przyspieszyć komputer",
+        # English
+        "optimize my pc", "optimize my computer", "optimize this pc",
+        "speed up my pc", "speed up my computer", "make my pc faster",
+        "make my computer faster", "full optimization", "fix my performance",
+        "clean up my pc", "walk me through optimization",
+        "how do i speed up my computer", "improve my pc performance",
+        "how to optimize my computer", "how to optimize my pc",
+        "how can i optimize my pc", "how do i optimize my computer",
+        "guide me through optimization",
+    ],
+    "recall_numbers": [
+        # guidance & context variants (round 2)
+        "wróć do tego",
+        "wróć do tematu",
+        "co mówiłeś wcześniej",
+        "o czym rozmawialiśmy",
+        "przypomnij co pokazałeś",
+        "go back to that",
+        "what did we talk about",
+        "what were we discussing",
+        "remind me what you showed",
+
+        # Polish - response-ledger recall
+        "ile to było", "ile to wynosiło", "powtórz liczby", "powtórz wyniki",
+        "przypomnij wyniki", "przypomnij te liczby", "jakie były wyniki",
+        "co mi wcześniej pokazałeś", "wróć do tamtych liczb",
+        # English
+        "what was that number", "what were the numbers", "repeat the numbers",
+        "remind me the results", "what did you show me before",
+        "what were the results", "recall the numbers",
+    ],
     "tuneup_guide": [
         # Polish
         "podrasuj mój komputer", "podrasować komputer", "chcę podrasować sprzęt",
         "przewodnik optymalizacji", "optymalizacja krok po kroku",
-        "popraw wydajność krok po kroku", "poprowadź mnie przez optymalizację",
+        "popraw wydajność krok po kroku", 
         "wyciśnij więcej z komputera", "plan optymalizacji", "zacznij tuning",
         # English
         "tune up my pc", "pc tune up guide", "optimize my pc step by step",
-        "walk me through optimization", "optimization guide",
+        "optimization guide",
         "make my pc faster guide", "squeeze more out of my pc",
     ],
 
