@@ -16,7 +16,7 @@ Provides:
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 class SystemContext:
@@ -30,7 +30,7 @@ class SystemContext:
     _TREND_PUSH_INTERVAL  = 30.0
     # LLM context cache TTL
     _LLM_CONTEXT_CACHE_TTL = 5.0
-    # snapshot() cache TTL — multiple handlers in one response cycle share the same data
+    # snapshot() cache TTL - multiple handlers in one response cycle share the same data
     # 1 s is short enough to always be "live" from user perspective
     _SNAPSHOT_CACHE_TTL = 1.0
 
