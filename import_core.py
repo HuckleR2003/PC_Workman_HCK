@@ -74,6 +74,8 @@ STARTUP_MANIFEST: list = [
     ( 20, "hck_gpt.proactive_monitor"),
     ( 21, "core.app_activity_tracker"),
     ( 22, "core.hibernation_manager"),
+    ( 23, "core.live_collector"),      # always-on sensor producer (1.8.1)
+    ( 24, "core.auto_optimizer"),      # always-on AUTO daemon (1.8.1)
 ]
 
 
