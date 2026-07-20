@@ -5,7 +5,7 @@ Per-process usage accumulation and aggregation to SQLite
 
 import time
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime
 
 from hck_stats_engine.constants import SECONDS_PER_HOUR, SECONDS_PER_DAY
 from hck_stats_engine.db_manager import db_manager
