@@ -6,7 +6,6 @@ minute -> hour -> day -> week -> month with automatic boundary detection and pru
 import time
 import os
 import csv
-import tempfile
 from datetime import datetime, timezone
 
 from hck_stats_engine.constants import (
@@ -15,7 +14,7 @@ from hck_stats_engine.constants import (
     LOGS_DIR
 )
 from hck_stats_engine.db_manager import db_manager
-from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+from import_core import register_component, STATUS_OK
 
 
 class StatsAggregator:
@@ -410,7 +409,7 @@ class StatsAggregator:
             # Prune raw CSV
             self._prune_raw_csv()
 
-            print(f"[StatsAggregator] Pruning completed")
+            print("[StatsAggregator] Pruning completed")
 
         except Exception as e:
             print(f"[StatsAggregator] Pruning error: {e}")
