@@ -120,6 +120,23 @@ _STEPS = [
         "body":       "Sections, settings and modes. Click ⚙ Settings to personalize.",
         "target_key": "sidebar",
     },
+    {
+        # Targetless summary step (no spotlight) that hands the user off to the
+        # deeper sections - the "learn more" the note asked for. _get_spotlight
+        # returns None for "mypc", so the card centres on the dimmed screen.
+        "step":       6,
+        "accent":     "#3b82f6",
+        "title":      "My PC - and everything else",
+        "body":       ("My PC holds your machine: Central (the overview), "
+                       "Components (real hardware detail) and Sensors (live "
+                       "temperatures & voltages).\n\n"
+                       "From the sidebar you also get Monitoring & Learning "
+                       "(where PC Workman learns YOUR normal), Optimization "
+                       "(Center · Startup · Services) and Fans. Every section "
+                       "is one click away - and hck_GPT can take you straight "
+                       "there if you just ask."),
+        "target_key": "mypc",
+    },
 ]
 
 _HOVER = {
