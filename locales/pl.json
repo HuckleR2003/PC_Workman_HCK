@@ -60,7 +60,7 @@
   },
   "nav": {
     "dashboard": "Panel główny",
-    "monitoring": "MONITOROWANIE I ALERTY",
+    "monitoring": "Monitoring & Learning",
     "monitoring_temperature": "Temperatura",
     "monitoring_voltage": "Napięcie",
     "monitoring_alerts": "Centrum i alerty",
@@ -84,7 +84,12 @@
     "statistics_monthly": "Miesięczne",
     "settings": "Ustawienia",
     "pinned": "Przypięte",
-    "back_dashboard": "Dashboard"
+    "back_dashboard": "Dashboard",
+    "my_pc_components": "Komponenty",
+    "fan_control_hw_usage": "Sprzęt i użycie",
+    "optimization_center": "Centrum Optymalizacji",
+    "optimization_startup_mgr": "Menedżer Autostartu",
+    "optimization_services_mgr": "Menedżer Usług"
   },
   "settings": {
     "page_title": "Ustawienia",
@@ -279,59 +284,81 @@
     "features": {
       "ram_flush": {
         "title": "Auto RAM Flush",
-        "desc": "Zwolnij pamięć roboczą, gdy użycie jest wysokie"
+        "desc": "Zwalniaj pamięć working-set przy wysokim użyciu",
+        "info": "Wymusza przycięcie working setu wszystkich procesów, oddając\nnieużywaną pamięć fizyczną do puli systemu. Uruchamia się\nautomatycznie, gdy RAM utrzymuje się nad progiem przez 30 s."
       },
       "turbo_pp": {
         "title": "Turbo Power Plan",
-        "desc": "Przełącz na własny plan 'Turbo PC' na żądanie"
+        "desc": "Automatyczne przełączanie na własny plan 'Turbo PC'",
+        "info": "Tworzy własny plan 'Turbo PC' na bazie Wysokiej wydajności.\nCPU trzyma maksymalne taktowanie - bez throttlingu.\nPrzy wyjściu z aplikacji wraca Twój oryginalny plan.\nWymaga uprawnień administratora."
       },
       "turbo_svc": {
         "title": "TURBO Service Stop",
-        "desc": "Zatrzymaj zbędne usługi według profilu"
+        "desc": "Zatrzymuj zbędne usługi według profilu"
       },
       "proc_guard": {
         "title": "Process Guard",
-        "desc": "Wstrzymaj bezczynne procesy w tle"
+        "desc": "Usypiaj bezczynne procesy w tle"
       },
       "app_hibernation": {
         "title": "App Hibernation",
         "desc": "Uśpij aplikacje nieużywane od X minut"
       },
+      "upgrade_advisor": {
+        "title": "Upgrade Advisor",
+        "desc": "Co warto wymienić, na bazie Twojej historii obciążeń",
+        "reading": "Czytam Twoją 14-dniową historię obciążeń...",
+        "no_data": "Za mało historii - daj PC Workmanowi popracować dzień-dwa w tle i otwórz ponownie.",
+        "v_ram": "RAM jest pod presją - dołożenie pamięci to najtańszy i najpewniejszy zysk.",
+        "v_cpu": "Procesor jest wąskim gardłem - pracuje na granicy, a GPU ma zapas mocy.",
+        "v_gpu": "Karta graficzna jest wąskim gardłem - pracuje na maksa, a CPU ma zapas.",
+        "v_ok": "Brak wyraźnego wąskiego gardła - wymieniaj dopiero, gdy konkretny program zwalnia.",
+        "picks": "Sensowne kierunki dla Twojej platformy ({plat}):"
+      },
       "cpu_throttle": {
         "title": "CPU Throttle Guard",
-        "desc": "Automatycznie zapobiegaj throttlingowi termicznemu"
+        "desc": "Automatycznie zapobiegaj throttlingowi termicznemu",
+        "info": "Monitoruje taktowanie CPU i koryguje limity TDP,\nby utrzymać stabilne zegary przy długim obciążeniu."
       },
       "browser_cache": {
         "title": "Browser Cache Cleaner",
-        "desc": "Okresowo czyść pliki cache przeglądarki"
+        "desc": "Okresowo czyść pliki cache przeglądarek",
+        "info": "Automatycznie czyści cache dyskowy Chrome, Firefox i Edge\npo zadanym czasie bezczynności, odzyskując miejsce na dysku."
       },
       "bg_limiter": {
         "title": "Background Limiter",
-        "desc": "Ogranicz CPU dla procesów spoza pierwszego planu"
+        "desc": "Ogranicz CPU procesów działających w tle",
+        "info": "Używa windowsowych job objects, by przyciąć udział CPU\nprocesów w tle i oddać zapas aktywnej aplikacji."
       },
       "net_reset": {
         "title": "Network Adapter Reset",
-        "desc": "Zresetuj stos sieciowy przy problemach z połączeniem"
+        "desc": "Resetuj stos sieciowy przy problemach z połączeniem",
+        "info": "Uruchamia netsh winsock reset i czyści DNS, usuwając\nzawieszone stany sieci bez restartu systemu."
       },
       "reg_clean": {
         "title": "Registry Junk Cleaner",
-        "desc": "Usuń osierocone klucze rejestru"
+        "desc": "Usuwaj osierocone klucze rejestru",
+        "info": "Skanuje nieprawidłowe wpisy deinstalacji i uszkodzone\nskojarzenia typów plików. Podgląd przed zastosowaniem."
       },
       "gpu_watchdog": {
         "title": "GPU Driver Watchdog",
-        "desc": "Wykryj i zrestartuj zawieszony sterownik GPU"
+        "desc": "Wykrywaj i restartuj zawieszony sterownik GPU",
+        "info": "Odpytuje stan GPU (nvidia-smi / WMI) i wyzwala reset TDR,\ngdy sterownik przestaje odpowiadać."
       },
       "log_rotate": {
         "title": "Log File Rotation",
-        "desc": "Automatycznie usuwaj stare logi, by zwolnić miejsce"
+        "desc": "Automatycznie czyść stare pliki logów",
+        "info": "Monitoruje folder logów aplikacji i kompresuje / usuwa\nwpisy starsze niż skonfigurowany okres przechowywania."
       },
       "dns_nightly": {
         "title": "DNS Auto-Flush",
-        "desc": "Nocne czyszczenie cache DNS wg harmonogramu"
+        "desc": "Nocne czyszczenie cache DNS według harmonogramu",
+        "info": "Planuje ciche czyszczenie DNS każdej nocy o 03:00,\nby stary cache nie psuł przeglądania."
       },
       "fw_monitor": {
         "title": "Firewall Health",
-        "desc": "Sprawdź, czy zapora Windows jest aktywna i sprawna"
+        "desc": "Pilnuj, by Zapora Windows była aktywna",
+        "info": "Sprawdza stan netsh advfirewall i alarmuje, gdy którykolwiek\nprofil (Domena / Prywatny / Publiczny) jest wyłączony."
       }
     }
   },
@@ -402,7 +429,28 @@
     "threshold_label": "Próg",
     "sensor_label": "Czujnik",
     "condition_above": "powyżej",
-    "condition_below": "poniżej"
+    "condition_below": "poniżej",
+    "desc": "Obserwuje temperatury, obciążenie i napięcia, uczy się normy TEJ maszyny i oznacza to, co łamie wzorzec.",
+    "learn": {
+      "header": "CZEGO NAUCZYŁ SIĘ PC WORKMAN",
+      "info": "ℹ Im dłużej działa, tym lepiej zna TWOJĄ normę - i tym mądrzejsze stają się alerty temperatur i napięć.",
+      "per_workload": "wg obciążenia",
+      "learning_for": "⏱ Uczy się od {since}  ·  {hrs}h obserwacji Twojej maszyny",
+      "unlock_cpu": "↳ Temp. CPU: uruchom LibreHardwareMonitor, by odblokować",
+      "needs_lhm": "⚡ Wymaga LibreHardwareMonitor, by uczyć się szyn napięć",
+      "learning": "uczę się…",
+      "snapshots": "{n} próbek nauczonych",
+      "pct": "{p}% nauczone",
+      "rebuilt": "przebudowano {t}",
+      "level": {
+        "no_data": "brak danych",
+        "initializing": "start",
+        "learning": "uczy się",
+        "basic": "podstawowy",
+        "trained": "wytrenowany",
+        "calibrated": "skalibrowany"
+      }
+    }
   },
   "my_pc": {
     "page_title": "MÓJ PC",
@@ -518,7 +566,11 @@
     "tooltip_setup": [
       "Stan sterowników  ·  Kontrola autostartu",
       "Skan rejestru  ·  Bez praw admina"
-    ]
+    ],
+    "startup_empty_title": "Brak programów startowych",
+    "startup_empty_sub": "Nic dodatkowego nie startuje z Windowsem - czysty boot. Rzadkość, i dokładnie to, czego chcesz.",
+    "components_empty_title": "Brak szczegółów sprzętu",
+    "components_empty_sub": "Skan sprzętu wrócił pusty. Na Windows 11 24H2+ może potrzebować chwili - otwórz zakładkę ponownie lub uruchom aplikację jako administrator, by zobaczyć pełne dane."
   },
   "statistics": {
     "page_title": "Statystyki",
