@@ -1,18 +1,18 @@
 """
-core/live_collector.py — THE single always-on producer for live sensor data.
+core/live_collector.py - THE single always-on producer for live sensor data.
 
 Root-cause fix (2026-07-04): live_sensors used to be fed by UI pages (My PC,
-Fan Dashboard) — so the In-Game Overlay showed "--", Monitoring said
+Fan Dashboard) - so the In-Game Overlay showed "--", Monitoring said
 "Collecting data…" forever and the learning engines got zero samples unless
 the right page happened to be open. This daemon runs from startup, every
 2 seconds, no UI required. Pages become consumers (their own writes remain
 harmless: same fetchers, same caches, same values).
 
 Data intake per tick:
-  · psutil        — CPU load / freq / core counts, RAM, disks (every 5th tick)
-  · nvidia-smi    — GPU temp/load/VRAM/power/clocks (self-cached 1.5 s)
-  · OHM/LHM web   — motherboard volts + temps (ports 8085/8086, cached 4 s)
-  · LHM via WMI   — CPU temperature (hardware_sensors); falls back to an
+  · psutil        - CPU load / freq / core counts, RAM, disks (every 5th tick)
+  · nvidia-smi    - GPU temp/load/VRAM/power/clocks (self-cached 1.5 s)
+  · OHM/LHM web   - motherboard volts + temps (ports 8085/8086, cached 4 s)
+  · LHM via WMI   - CPU temperature (hardware_sensors); falls back to an
                     ESTIMATE (35 + load*0.5) flagged with cpu_temp_src="est"
                     so history/learning can stay honest and skip it.
 
@@ -73,12 +73,52 @@ def fetch_gpu_smi() -> dict:
 
 # ── OHM/LHM motherboard sensors (moved from ui/components/yourpc_page.py) ─────
 _MB_CACHE: dict = {"volt_12v": -1.0, "volt_5v": -1.0, "volt_33v": -1.0,
+                   "volt_vcore": -1.0, "volt_gpu": -1.0,
                    "temp_sys": -1.0, "temp_vrm": -1.0, "source": ""}
 _MB_CACHE_TS: float = 0.0
 
 
+def _walk_sensor_tree(node: dict, acc: dict) -> None:
+    """Fold one OHM/LHM data.json node (recursively) into `acc`.
+    Module-level so tests can feed it synthetic trees without a web server.
+
+    "CPU Core"/"GPU Core" exist under Temperatures AND Voltages in the LHM
+    tree - the unit in Value ("1.224 V" vs "45.0 °C") is the only reliable
+    discriminator, so the voltage branches require a V-suffixed value."""
+    text  = node.get("Text", "")
+    value = node.get("Value", "")
+    try:
+        num = float(value.split()[0])
+    except Exception:
+        num = None
+    if num is not None:
+        tl = text.lower()
+        is_volt = isinstance(value, str) and value.strip().endswith("V") \
+            and not value.strip().endswith("mV")
+        if is_volt and ("vcore" in tl.replace(" ", "")
+                        or ("cpu" in tl and "core" in tl)):
+            acc["volt_vcore"] = num
+        elif is_volt and "gpu" in tl and ("core" in tl or tl == "gpu"):
+            acc["volt_gpu"] = num
+        elif "+12" in tl:
+            acc["volt_12v"] = num
+        elif "+5" in tl and "12" not in tl:
+            acc["volt_5v"] = num
+        elif "+3.3" in tl or "3.3v" in tl:
+            acc["volt_33v"] = num
+        elif "vrm" in tl and "temp" not in tl:
+            acc["temp_vrm"] = num
+        elif ("motherboard" in tl or "system" in tl or "systin" in tl
+              or "temp1" in tl):
+            acc["temp_sys"] = num
+    for child in node.get("Children", []):
+        _walk_sensor_tree(child, acc)
+
+
 def fetch_mb_sensors() -> dict:
-    """Probe OHM (8085) then LHM (8086) web servers for MB volts/temps.
+    """Probe OHM (8085) then LHM (8086) web servers for volts/temps.
+    Rails: MB 12V/5V/3.3V + CPU VCore + GPU core (2026-07-17, so voltage
+    learning covers CPU / GPU / MB, not just the board).
     Returns floats, -1.0 when missing; 'source' is ''/'ohm'/'lhm'. Cached 4 s."""
     global _MB_CACHE, _MB_CACHE_TS
     if time.time() - _MB_CACHE_TS < 4.0:
@@ -86,30 +126,8 @@ def fetch_mb_sensors() -> dict:
     _MB_CACHE_TS = time.time()
 
     result = {"volt_12v": -1.0, "volt_5v": -1.0, "volt_33v": -1.0,
+              "volt_vcore": -1.0, "volt_gpu": -1.0,
               "temp_sys": -1.0, "temp_vrm": -1.0, "source": ""}
-
-    def _walk(node: dict, acc: dict):
-        text  = node.get("Text", "")
-        value = node.get("Value", "")
-        try:
-            num = float(value.split()[0])
-        except Exception:
-            num = None
-        if num is not None:
-            tl = text.lower()
-            if "+12" in tl:
-                acc["volt_12v"] = num
-            elif "+5" in tl and "12" not in tl:
-                acc["volt_5v"] = num
-            elif "+3.3" in tl or "3.3v" in tl:
-                acc["volt_33v"] = num
-            elif "vrm" in tl and "temp" not in tl:
-                acc["temp_vrm"] = num
-            elif ("motherboard" in tl or "system" in tl or "systin" in tl
-                  or "temp1" in tl):
-                acc["temp_sys"] = num
-        for child in node.get("Children", []):
-            _walk(child, acc)
 
     try:
         import urllib.request, json
@@ -119,7 +137,7 @@ def fetch_mb_sensors() -> dict:
                         f"http://localhost:{port}/data.json", timeout=0.8) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                 acc: dict = {}
-                _walk(data, acc)
+                _walk_sensor_tree(data, acc)
                 if any(v > 0 for v in acc.values() if isinstance(v, float)):
                     result.update(acc)
                     result["source"] = src
@@ -134,7 +152,7 @@ def fetch_mb_sensors() -> dict:
 
 
 def _cpu_temp(cpu_load: float) -> tuple:
-    """(temp_c, src) — real sensor via LHM when available, else flagged estimate."""
+    """(temp_c, src) - real sensor via LHM when available, else flagged estimate."""
     try:
         from core.hardware_sensors import get_hardware_sensors
         cpu = get_hardware_sensors()._get_cpu_sensors()
@@ -242,11 +260,13 @@ class LiveCollector:
         patch["mb_volt_12v"] = mb.get("volt_12v", -1.0)
         patch["mb_volt_5v"]  = mb.get("volt_5v", -1.0)
         patch["mb_volt_33v"] = mb.get("volt_33v", -1.0)
+        patch["mb_volt_vcore"] = mb.get("volt_vcore", -1.0)
+        patch["mb_volt_gpu"]   = mb.get("volt_gpu", -1.0)
         patch["mb_temp_sys"] = mb.get("temp_sys", -1.0)
         patch["mb_temp_vrm"] = mb.get("temp_vrm", -1.0)
         patch["mb_source"]   = mb.get("source", "")
 
-        # Disks — cheap but not free; every 5th tick (10 s)
+        # Disks - cheap but not free; every 5th tick (10 s)
         if self._tick % 5 == 1:
             try:
                 import psutil
