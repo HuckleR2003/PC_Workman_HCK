@@ -1,11 +1,11 @@
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 from hck_stats_engine.constants import (
-    SECONDS_PER_HOUR, SECONDS_PER_DAY, SECONDS_PER_WEEK
+    SECONDS_PER_HOUR, SECONDS_PER_DAY
 )
 from hck_stats_engine.db_manager import db_manager
-from import_core import register_component, update_status, STATUS_OK, STATUS_STARTING
+from import_core import register_component, STATUS_OK
 
 
 class StatsQueryAPI:
@@ -432,12 +432,10 @@ class StatsQueryAPI:
             """, (cutoff,)).fetchall()
 
             daily_uptime_min = 0
-            daily_samples = 0
             daily_days = 0
 
             if rows:
                 daily_uptime_min = sum(r['uptime_minutes'] or 0 for r in rows)
-                daily_samples = sum(r['sample_count'] for r in rows)
                 daily_days = len(rows)
 
             # --- Supplement: hourly_stats (hours not yet rolled into daily) ---
