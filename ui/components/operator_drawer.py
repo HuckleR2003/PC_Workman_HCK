@@ -2,7 +2,7 @@
 ui/components/operator_drawer.py
 
 The single shared "operator" drawer for queue + confirm actions.
-Used by Startup Manager and Services Manager (and any future bulk operation) —
+Used by Startup Manager and Services Manager (and any future bulk operation) -
 ONE component, no duplicated drawers.
 
 How a page uses it
@@ -24,7 +24,7 @@ How a page uses it
 
 Visuals: bordeaux / hck_GPT style, queued items in a 2-column grid (~4 left +
 4 right) that grows DOWNWARD as more are selected; right side = Zatwierdź / Wróć.
-Always visible — empty state is a thin prompt bar, so it's a persistent operator.
+Always visible - empty state is a thin prompt bar, so it's a persistent operator.
 """
 import math
 import tkinter as tk
@@ -63,7 +63,7 @@ class OperatorDrawer:
                  confirm_text=None, back_text=None):
         """Mount the drawer into *parent*.
 
-        Geometry — pass exactly one:
+        Geometry - pass exactly one:
             grid_row=N      -> placed with .grid(row=N, column=0, sticky="ew")
             pack_side="bottom" (or "top") -> placed with .pack(side=…, fill="x")
         Default (both None) -> .pack(side="bottom", fill="x").
@@ -132,7 +132,7 @@ class OperatorDrawer:
 
         n = len(self._queue)
 
-        # Empty state — thin, always-visible prompt bar
+        # Empty state - thin, always-visible prompt bar
         if n == 0:
             self._expanded = False
             self.outer.config(height=_EMPTY_H)
@@ -208,7 +208,7 @@ class OperatorDrawer:
             row_warn = math.ceil(len(self._queue) / 2) + 1
             tk.Label(grid,
                      text=_t("operator.warn_critical",
-                             default="⚠  Wykryto element systemowy — zatwierdzaj z ostrożnością."),
+                             default="⚠  Wykryto element systemowy - zatwierdzaj z ostrożnością."),
                      font=(_UIF, 8), bg=_BG, fg=_AMBER, anchor="w"
                      ).grid(row=row_warn, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
@@ -218,7 +218,7 @@ class OperatorDrawer:
             avail = self.outer.winfo_toplevel().winfo_height()
         except Exception:
             avail = 0
-        if avail < 120:                 # window not realised yet — sensible default
+        if avail < 120:                 # window not realised yet - sensible default
             avail = 540
         return max(_MIN_EXPANDED, min(int(avail * 0.40), _MAX_EXPANDED))
 
