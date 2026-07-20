@@ -40,10 +40,11 @@ class SidebarNav:
         "text": "#9ca3af",         # Gray text
         "text_hover": "#e5e7eb",   # Lighter hover text
         "text_active": "#ffffff",  # Active text
-        "accent": "#f472b6",       # Pink accent (Snyk-like)
-        "accent_icon": "#ec4899",  # Accent icon color
+        "accent": "#8b5cf6",       # PC Workman violet accent
+        "accent_icon": "#7c3aed",  # Accent icon color (violet)
         "separator": "#1f2937",    # Separator
         "subitem_bg": "#0d0f12",   # Subcategory background
+        "bg_expanded": "#2a0f18",  # Bordeaux while a category is expanded
     }
 
     def __init__(self, parent, width=180, on_navigate=None):
@@ -148,6 +149,7 @@ class SidebarNav:
             {
                 "id": "monitoring_alerts",
                 "label": t("nav.monitoring"),
+                "sub_caption": "CENTER",
                 "icon": "⚠",
                 "subitems": [
                     ("temperature", t("nav.monitoring_temperature")),
@@ -160,10 +162,11 @@ class SidebarNav:
                 "label": t("nav.my_pc"),
                 "icon": "▣",
                 "subitems": [
+                    # Health / Efficiency removed (2026-07 restructure):
+                    # not finished / not working - back when they earn it.
                     ("central",    t("nav.my_pc_central")),
-                    ("efficiency", t("nav.my_pc_efficiency")),
+                    ("components", t("nav.my_pc_components", default="Components")),
                     ("sensors",    t("nav.my_pc_sensors")),
-                    ("health",     t("nav.my_pc_health")),
                 ]
             },
             {
@@ -177,9 +180,10 @@ class SidebarNav:
                 "label": t("nav.fan_control"),
                 "icon": "❊",
                 "subitems": [
-                    ("fan_dashboard",    t("nav.fan_control_dashboard")),
-                    ("fans_hardware",    t("nav.fan_control_hardware")),
-                    ("usage_statistics", t("nav.fan_control_usage")),
+                    # Hardware Info + Usage Statistics merged into one page
+                    ("fan_dashboard", t("nav.fan_control_dashboard")),
+                    ("hw_usage",      t("nav.fan_control_hw_usage",
+                                        default="Hardware & Usage")),
                 ]
             },
             {
@@ -187,21 +191,18 @@ class SidebarNav:
                 "label": t("nav.optimization"),
                 "icon": "⚡",
                 "subitems": [
-                    ("services", t("nav.optimization_services")),
-                    ("startup",  t("nav.optimization_startup")),
-                    ("wizard",   t("nav.optimization_wizard")),
+                    # Re-pointed to the three real destinations (was
+                    # services/startup/wizard aliases of one page).
+                    ("center",       t("nav.optimization_center",
+                                       default="Optimization Center")),
+                    ("startup_mgr",  t("nav.optimization_startup_mgr",
+                                       default="Startup Manager")),
+                    ("services_mgr", t("nav.optimization_services_mgr",
+                                       default="Services Manager")),
                 ]
             },
-            {
-                "id": "statistics",
-                "label": t("nav.statistics"),
-                "icon": "▤",
-                "subitems": [
-                    ("stats_today",   t("nav.statistics_today")),
-                    ("stats_weekly",  t("nav.statistics_weekly")),
-                    ("stats_monthly", t("nav.statistics_monthly")),
-                ]
-            },
+            # "Statistics" tab removed entirely (2026-07 restructure) -
+            # its data lives in Monitoring & Alerts.
         ]
 
     def _build_navigation(self):
@@ -227,6 +228,10 @@ class SidebarNav:
         btn = tk.Frame(item_frame, bg=self.COLORS["bg"], cursor="hand2")
         btn.pack(fill="x", padx=8, pady=1)
 
+        # Active accent bar (3px, colored only for the active item)
+        accent = tk.Frame(btn, bg=self.COLORS["bg"], width=3)
+        accent.pack(side="left", fill="y")
+
         # Inner container with padding
         inner = tk.Frame(btn, bg=self.COLORS["bg"])
         inner.pack(fill="x", padx=10, pady=8)
@@ -242,16 +247,31 @@ class SidebarNav:
         )
         icon_label.pack(side="left")
 
-        # Text
+        # Text (optionally a two-line column: label + tight tiny caption)
+        text_col = tk.Frame(inner, bg=self.COLORS["bg"])
+        text_col.pack(side="left", padx=(5, 0), fill="x", expand=True)
         text_label = tk.Label(
-            inner,
+            text_col,
             text=item["label"],
             font=(_BODY, 10),
             bg=self.COLORS["bg"],
             fg=self.COLORS["text"],
             anchor="w"
         )
-        text_label.pack(side="left", padx=(5, 0), fill="x", expand=True)
+        text_label.pack(anchor="w")
+        caption_label = None
+        if item.get("sub_caption"):
+            caption_label = tk.Label(
+                text_col,
+                text=item["sub_caption"],
+                font=(_MONO, 8, "bold"),
+                bg=self.COLORS["bg"],
+                fg=self.COLORS["accent"],
+                anchor="w",
+                pady=0, bd=0,
+            )
+            # tight: flush against the bottom of the label above
+            caption_label.pack(anchor="w", pady=(0, 0), ipady=0)
 
         # Expand arrow (if subitems exist)
         arrow_label = None
@@ -277,9 +297,12 @@ class SidebarNav:
         # Store references
         self.item_widgets[item_id] = {
             "btn": btn,
+            "accent": accent,
             "inner": inner,
             "icon": icon_label,
             "text": text_label,
+            "text_col": text_col,
+            "caption": caption_label,
             "arrow": arrow_label,
             "subitems_frame": subitems_frame,
             "has_subitems": has_subitems
@@ -296,7 +319,8 @@ class SidebarNav:
             self._handle_item_hover(iid, False)
 
         # Bind events to all item widgets
-        for widget in [btn, inner, icon_label, text_label]:
+        extra = [w for w in (text_col, caption_label) if w is not None]
+        for widget in [btn, inner, icon_label, text_label] + extra:
             widget.bind("<Button-1>", on_click)
             widget.bind("<Enter>", on_enter)
             widget.bind("<Leave>", on_leave)
@@ -313,8 +337,11 @@ class SidebarNav:
         btn = tk.Frame(parent, bg=self.COLORS["bg"], cursor="hand2")
         btn.pack(fill="x", padx=8, pady=1)
 
+        accent = tk.Frame(btn, bg=self.COLORS["bg"], width=3)
+        accent.pack(side="left", fill="y")
+
         inner = tk.Frame(btn, bg=self.COLORS["bg"])
-        inner.pack(fill="x", padx=(30, 10), pady=6)  # Increased left padding
+        inner.pack(fill="x", padx=(27, 10), pady=6)  # Increased left padding
 
         # Subitem label
         text_label = tk.Label(
@@ -330,6 +357,7 @@ class SidebarNav:
         # Store references
         self.item_widgets[full_id] = {
             "btn": btn,
+            "accent": accent,
             "inner": inner,
             "text": text_label,
             "is_subitem": True
@@ -378,6 +406,23 @@ class SidebarNav:
         if self.on_navigate:
             self.on_navigate(parent_id, sub_id)
 
+    def _paint_item(self, item_id, bg, fg=None):
+        """Recolor every widget of a top-level item (bg + optional fg)."""
+        w = self.item_widgets.get(item_id)
+        if not w:
+            return
+        for key in ("btn", "inner", "text", "text_col", "icon", "arrow"):
+            if w.get(key):
+                w[key].config(bg=bg)
+        if fg:
+            w["text"].config(fg=fg)
+            if w.get("icon"):
+                w["icon"].config(fg=fg)
+            if w.get("arrow"):
+                w["arrow"].config(fg=fg)
+        if w.get("caption"):
+            w["caption"].config(bg=bg)   # caption keeps its accent fg
+
     def _expand_category(self, item_id):
         """Expand category, auto-collapsing any other currently-open section."""
         # Collapse all other expanded categories first
@@ -392,6 +437,10 @@ class SidebarNav:
         self.expanded_categories.add(item_id)
         widgets["subitems_frame"].pack(fill="x")
 
+        # Bordeaux highlight while expanded (cleared on collapse)
+        self._paint_item(item_id, self.COLORS["bg_expanded"],
+                         self.COLORS["text_hover"])
+
         # Rotate arrow
         if widgets["arrow"]:
             widgets["arrow"].config(text="⌄")
@@ -404,6 +453,7 @@ class SidebarNav:
 
         self.expanded_categories.discard(item_id)
         widgets["subitems_frame"].pack_forget()
+        self._paint_item(item_id, self.COLORS["bg"], self.COLORS["text"])
 
         # Restore arrow
         if widgets["arrow"]:
@@ -426,6 +476,8 @@ class SidebarNav:
             widgets["inner"].config(bg=bg)
             widgets["text"].config(bg=bg, fg=fg)
 
+            if widgets.get("accent"):
+                widgets["accent"].config(bg=self.COLORS["accent"])
             if widgets.get("icon"):
                 widgets["icon"].config(bg=bg, fg=self.COLORS["accent"])
             if widgets.get("arrow"):
@@ -440,11 +492,22 @@ class SidebarNav:
             widgets["btn"].config(bg=bg)
             widgets["inner"].config(bg=bg)
             widgets["text"].config(bg=bg, fg=fg)
+            if widgets.get("accent"):
+                widgets["accent"].config(bg=bg)
 
             if widgets.get("icon"):
                 widgets["icon"].config(bg=bg, fg=fg)
             if widgets.get("arrow"):
                 widgets["arrow"].config(bg=bg, fg=fg)
+            if widgets.get("caption"):
+                widgets["caption"].config(bg=bg)
+            if widgets.get("text_col"):
+                widgets["text_col"].config(bg=bg)
+
+        # expanded categories keep their bordeaux highlight
+        for item_id in self.expanded_categories:
+            self._paint_item(item_id, self.COLORS["bg_expanded"],
+                             self.COLORS["text_hover"])
 
     def _handle_item_hover(self, item_id, entering):
         """Handle hover on top-level item."""
@@ -455,21 +518,20 @@ class SidebarNav:
         if not widgets:
             return
 
+        expanded = item_id in self.expanded_categories
         if entering:
             bg = self.COLORS["bg_hover"]
+            fg = self.COLORS["text_hover"]
+        elif expanded:
+            bg = self.COLORS["bg_expanded"]
             fg = self.COLORS["text_hover"]
         else:
             bg = self.COLORS["bg"]
             fg = self.COLORS["text"]
 
-        widgets["btn"].config(bg=bg)
-        widgets["inner"].config(bg=bg)
-        widgets["text"].config(bg=bg, fg=fg)
-
-        if widgets.get("icon"):
-            widgets["icon"].config(bg=bg, fg=fg if not entering else self.COLORS["accent_icon"])
-        if widgets.get("arrow"):
-            widgets["arrow"].config(bg=bg, fg=fg)
+        self._paint_item(item_id, bg, fg)
+        if widgets.get("icon") and entering:
+            widgets["icon"].config(fg=self.COLORS["accent_icon"])
 
     def _handle_subitem_hover(self, full_id, entering):
         """Handle hover on subitem."""
@@ -492,7 +554,7 @@ class SidebarNav:
         widgets["text"].config(bg=bg, fg=fg)
 
     def _build_bottom_section(self):
-        """Build bottom sidebar section — Settings only (Pinned removed)."""
+        """Build bottom sidebar section - Settings only (Pinned removed)."""
         # Separator
         sep = tk.Frame(self.frame, bg=self.COLORS["separator"], height=1)
         sep.pack(fill="x", padx=12, pady=10, side="bottom")
@@ -627,7 +689,7 @@ class SidebarNav:
         Enable / disable mouse-leave auto-collapse.
         Collapses to 48 px icon rail after delay_ms (default 500 ms)
         of the cursor being outside the sidebar frame.
-        Activates immediately on enable — no need to switch pages first.
+        Activates immediately on enable - no need to switch pages first.
         """
         self._auto_hide       = enabled
         self._auto_hide_delay = delay_ms
