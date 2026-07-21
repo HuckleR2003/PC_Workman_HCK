@@ -75,7 +75,13 @@ class TestMonitorSnapshot(unittest.TestCase):
         self.assertEqual(len(procs), 2)
         self.assertEqual(procs[0]['name'], 'chrome.exe')
         self.assertAlmostEqual(procs[0]['ram_MB'], 200.0, places=0)
-        self.assertEqual(procs[1]['cpu_percent'], 5.0)
+        # 2026-07-18: per-process CPU is normalized to the WHOLE machine
+        # (raw psutil value / logical cores) - raw 5.0 on this test host
+        # divides by the real core count, so assert the scale, not a literal.
+        import psutil as _ps
+        _nc = _ps.cpu_count(logical=True) or 1
+        self.assertAlmostEqual(procs[1]['cpu_percent'], round(5.0 / _nc, 2),
+                               places=2)
 
     @patch('psutil.process_iter')
     @patch('psutil.virtual_memory')

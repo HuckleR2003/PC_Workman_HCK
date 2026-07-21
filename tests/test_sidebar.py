@@ -155,5 +155,55 @@ class TestRoutingIntegrity(unittest.TestCase):
         self.assertIn("create_fans_usage_stats_page", body)
 
 
+class TestSidebarLazySubitems(unittest.TestCase):
+    """Startup perf (2026-07): subitems are built on first expand, not at
+    init - ~90 invisible widgets deferred. Deep-links and expand still work.
+    A FRESH sidebar per test (setUp) so one test's expand does not leak into
+    the 'nothing built at init' assertion."""
+
+    def setUp(self):
+        import tkinter as tk
+        try:
+            self.root = tk.Tk()
+            self.root.withdraw()
+        except tk.TclError:
+            raise unittest.SkipTest("no display available")
+        from ui.components.sidebar_nav import SidebarNav
+        self.sb = SidebarNav(self.root, on_navigate=lambda p, s=None: None)
+        self.root.update_idletasks()
+
+    def tearDown(self):
+        try:
+            self.root.destroy()
+        except Exception:
+            pass
+
+    def _built_subitems(self):
+        return sum(1 for v in self.sb.item_widgets.values()
+                   if v.get("is_subitem"))
+
+    def test_no_subitems_built_at_init(self):
+        self.assertEqual(self._built_subitems(), 0,
+                         "subitems must be lazy - none built at startup")
+
+    def test_expand_builds_subitems(self):
+        cat = next(k for k, v in self.sb.item_widgets.items()
+                   if v.get("has_subitems"))
+        self.sb._expand_category(cat)
+        self.root.update_idletasks()
+        self.assertGreater(self._built_subitems(), 0)
+
+    def test_deep_link_builds_and_highlights_collapsed_section(self):
+        # a subitem in a section never expanded must still be reachable
+        parent = next(k for k, v in self.sb.item_widgets.items()
+                      if v.get("has_subitems") and v.get("subitems_spec")
+                      and k not in self.sb.expanded_categories)
+        sub = f"{parent}.{self.sb.item_widgets[parent]['subitems_spec'][0][0]}"
+        self.sb._set_active(sub)
+        self.root.update_idletasks()
+        self.assertIn(sub, self.sb.item_widgets,
+                      "deep-link did not build the target subitem")
+
+
 if __name__ == "__main__":
     unittest.main()

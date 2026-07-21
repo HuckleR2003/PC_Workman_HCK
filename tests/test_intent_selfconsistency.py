@@ -29,6 +29,11 @@ ALLOWED = {
     ("is this process safe", "process_identity"),
     ("jak poprawić fps", "speed_up_pc"),
     ("komputer chodzi wolno", "speed_up_pc"),
+    # ł-fold fix (2026-07-21) folds wyłączyć->wylaczyc, so these "what can I
+    # disable to be faster" phrases now tie to unnecessary_programs (the
+    # what-to-disable list) - a precise, sensible answer for that phrasing.
+    ("co moge wylaczyc zeby pc byl szybszy", "speed_up_pc"),
+    ("co wylaczyc zeby szybszy", "speed_up_pc"),
     ("pc runs slow", "why_slow"),
     ("pre-gaming optimization", "game_ready"),
     ("problemy z dyskiem", "disk_health"),

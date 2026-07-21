@@ -282,6 +282,37 @@ class TestRamVerdicts(unittest.TestCase):
         self.assertIn("DDR5", v["headline"])
 
 
+class TestAutocomplete(unittest.TestCase):
+    """Live part search for the Upgrade Readiness box (2026-07)."""
+
+    def test_partial_queries_return_matches(self):
+        for q, needle in [("i5", "i5-"), ("rtx 40", "RTX 40"),
+                          ("5800", "5800"), ("rx 7", "RX 7"),
+                          ("ryzen 9", "Ryzen 9")]:
+            res = hc.search_parts(q, limit=8)
+            self.assertTrue(res, f"no matches for {q!r}")
+            self.assertTrue(any(needle.lower() in r["label"].lower()
+                                for r in res), f"{q!r} -> {res}")
+
+    def test_empty_query_returns_nothing(self):
+        self.assertEqual(hc.search_parts(""), [])
+        self.assertEqual(hc.search_parts("   "), [])
+
+    def test_results_carry_kind_and_meta(self):
+        res = hc.search_parts("rtx 4070", limit=3)
+        self.assertTrue(res)
+        for r in res:
+            self.assertIn(r["kind"], ("cpu", "gpu"))
+            self.assertTrue(r["label"] and r["meta"])
+
+    def test_gibberish_returns_nothing(self):
+        self.assertEqual(hc.search_parts("zzzqqq123"), [])
+
+    def test_all_parts_covers_full_library(self):
+        s = hc.db_stats()
+        self.assertEqual(len(hc.all_parts()), s["cpus"] + s["gpus"])
+
+
 class TestDispatcher(unittest.TestCase):
 
     def test_routes_by_part_kind(self):
