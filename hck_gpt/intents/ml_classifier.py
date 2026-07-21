@@ -54,7 +54,7 @@ def _ascii_fold(text: str) -> str:
 
 # ── Naive Bayes Classifier ─────────────────────────────────────────────────────
 
-# Laplace smoothing — single source of truth used by NB and cross-validation
+# Laplace smoothing - single source of truth used by NB and cross-validation
 NB_SMOOTHING: float = 0.5
 
 
@@ -282,7 +282,7 @@ class MLIntentClassifier:
     def get_top_k(self, text: str, k: int = 5) -> List[Tuple[str, float]]:
         """
         Return top-k (intent, confidence) pairs sorted by confidence descending.
-        Useful for debugging intent routing — shows what the model is "thinking".
+        Useful for debugging intent routing - shows what the model is "thinking".
         Returns empty list if model is not ready.
         """
         probs = self.predict_proba(text)
