@@ -34,6 +34,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
     <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
 
     <script type="application/ld+json">
@@ -73,15 +74,26 @@
 </head>
 <body class="page-monday">
 
-    <header class="topbar">
-        <a class="brand" href="../../index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
-        <nav>
-            <a href="../">All guides</a>
-            <a href="../../download/">Download</a>
-            <a href="../../blog/">Blog</a>
-            <a href="index_pl.html">PL</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero">
         <span class="day-badge day-tech">Technology &middot; PRO</span>
@@ -157,7 +169,7 @@
         <p><b>It learns the norm per unit.</b> Not "for an RTX 4070" — for <i>your</i> RTX 4070, in your room, on your PSU. Your idle, your gaming, your real rail variance. Not the spec — observation.</p>
         <p><b>The baseline is conditional, not absolute.</b> "CPU 78&deg;C" means something completely different at idle than in a game. So every snapshot lands in one of five load buckets — idle, light, medium, heavy, gaming — and each bucket has its own learned norm. An 80&deg;C threshold for everything is lazy. 72&deg;C while gaming on a mid-tower is fine. The same 72&deg;C at idle on a thin laptop is a sign something's off.</p>
         <p><b>Detection is temporal.</b> "This fan spins 200 rpm faster than it did under identical load three months ago" — that's not information any threshold can give you. It's a trend. And a trend that says: dust or paste, deal with it before it gets hot.</p>
-        <p><b>All local, all offline.</b> Your "hardware fingerprint" — exactly how your specific machine behaves — never leaves your machine. Zero telemetry, zero phone-home, zero latency. The opposite of cloud "optimal settings" that phone home on the side.</p>
+        <p><b>All local.</b> Your "hardware fingerprint" — exactly how your specific machine behaves — never leaves your machine. No cloud round-trip, no phone-home for "optimal settings", no latency. The opposite of cloud tools that decide for you and ping home on the side.</p>
 
         <h2>Where it actually beats a threshold</h2>
         <p><b>Predictive maintenance</b> (this is the killer feature). Voltage drift caught by MAD and Nelson rules = tired capacitors. A systematic temperature climb of +3–5&deg;C over a few weeks = paste due for a change, caught before the CPU starts throttling. A falling RPM-to-temperature efficiency = dust in the heatsink. <span class="hl-green">Catching problems before they become problems.</span> A threshold can't do this by definition — it waits until things are already bad.</p>
@@ -180,7 +192,7 @@
         <p>We stopped needing a tool that shows. We need one that understands — and does the work for us. Locally. Quietly.</p>
 
         <div class="guide-cta">
-            <b>This isn't a roadmap — it's working code.</b> The Thermal Baseline Learning and Voltage SPC described above ship in <span class="hl-green">PC Workman v1.7.9</span> — free and open-source. You can check every line.
+            <b>This isn't a roadmap — it's working code.</b> The Thermal Baseline Learning and Voltage SPC described above ship in <span class="hl-green">PC Workman v1.8.0</span> — free and open-source. You can check every line.
             <a href="../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
             Related: <a href="../normal-cpu-temperature/">what's a normal CPU temperature</a> &middot; <a href="../../blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/">how thermal baseline works</a>.
         </div>
@@ -205,5 +217,6 @@
         <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>

@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
 
     <script type="application/ld+json">
     {
@@ -75,15 +76,26 @@
 </head>
 <body>
 
-    <header class="topbar">
-        <a class="brand" href="../index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
-        <nav>
-            <a href="../index_en.html">Home</a>
-            <a href="../download/">Download</a>
-            <a href="../blog/">Blog</a>
-            <a href="index_pl.html">PL</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero compact">
         <span class="day-badge day-wednesday">Articles &amp; guides</span>
@@ -109,12 +121,12 @@
                     <p>Inside the Learning Center and the Welford accumulator that learns your machine for the life of the install — and survives 90-day data pruning. New in v1.8.0.</p>
                     <span class="tt-go">Read the deep-dive &rarr;</span>
                 </a>
-                <div class="tech-tile soon">
+                <a class="tech-tile" href="breaking-up-the-monolith/">
                     <span class="tt-badge">PRO &middot; #3</span>
-                    <h3>In the works</h3>
-                    <p>The next Technology deep-dive is being written.</p>
-                    <span class="tt-go">Soon</span>
-                </div>
+                    <h3>6,500 lines in one file. The day I admitted that wasn't fine.</h3>
+                    <p>PC Workman hit the Microsoft Store, so I finally split the 6,533-line hck_GPT builder into eight modules behind a facade, and wrote two tests to keep it that way. New in v1.8.5.</p>
+                    <span class="tt-go">Read the deep-dive &rarr;</span>
+                </a>
             </div>
         </div>
 
@@ -223,5 +235,6 @@
         <p>© 2026 HCK_Labs · <a href="../index_en.html">PC Workman</a> · <a href="../blog/">Blog</a> · <a href="../download/">Download</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>

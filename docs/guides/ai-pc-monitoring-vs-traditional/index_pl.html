@@ -34,6 +34,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
     <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
 
     <script type="application/ld+json">
@@ -73,15 +74,26 @@
 </head>
 <body class="page-monday">
 
-    <header class="topbar">
-        <a class="brand" href="../../index.html">PC<span>_</span>Workman <span>/ technology</span></a>
-        <nav>
-            <a href="../index_pl.html">Wszystkie poradniki</a>
-            <a href="../../download/index_pl.html">Pobierz</a>
-            <a href="../../blog/index_pl.html">Blog</a>
-            <a href="./">EN</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero">
         <span class="day-badge day-tech">Technology &middot; PRO</span>
@@ -157,7 +169,7 @@
         <p><b>Uczy się normy per egzemplarz.</b> Nie „dla RTX 4070" — dla <i>twojego</i> RTX 4070, w twoim pokoju, przy twoim zasilaczu. Twój idle, twój gaming, twoja realna wariancja szyn. Nie spec, tylko obserwacja.</p>
         <p><b>Baseline jest warunkowy, nie absolutny.</b> „CPU 78&deg;C" znaczy coś zupełnie innego na idle niż w grze. Dlatego każdy snapshot ląduje w jednym z pięciu kubełków obciążenia — idle, light, medium, heavy, gaming — i każdy kubełek ma swoją osobną nauczoną normę. Próg 80&deg;C dla wszystkiego jest leniwy. 72&deg;C w gamingu na mid-towerze jest spoko. Te same 72&deg;C na idle na cienkim laptopie to już sygnał, że coś jest nie tak.</p>
         <p><b>Detekcja jest czasowa.</b> „Ten wentylator kręci się o 200 obr./min szybciej niż przy identycznym obciążeniu trzy miesiące temu" — to nie jest informacja, którą da ci jakikolwiek próg. To trend. I to trend, który mówi: kurz albo pasta, zajmij się tym, zanim zrobi się gorąco.</p>
-        <p><b>Wszystko lokalnie, offline.</b> Twój „odcisk sprzętu" — czyli dokładnie to, jak zachowuje się twoja konkretna maszyna — nie wychodzi z twojej maszyny. Zero telemetrii, zero phone-home, zero latencji. Przeciwieństwo chmurowych „optymalnych ustawień", które przy okazji dzwonią do domu.</p>
+        <p><b>Wszystko lokalnie.</b> Twój „odcisk sprzętu" — czyli dokładnie to, jak zachowuje się twoja konkretna maszyna — nie wychodzi z twojej maszyny. Żadnego okrążenia przez chmurę, żadnego phone-home po „optymalne ustawienia", zero latencji. Przeciwieństwo chmurowych narzędzi, które decydują za ciebie i przy okazji dzwonią do domu.</p>
 
         <h2>Gdzie to realnie wygrywa z progiem</h2>
         <p><b>Konserwacja predykcyjna</b> (to jest killer feature). Dryf napięcia wyłapany przez MAD i reguły Nelsona = zmęczone kondensatory. Systematyczny wzrost temperatur o te +3–5&deg;C przez kilka tygodni = pasta do wymiany, wykryta zanim CPU zacznie throttlować. Spadek sprawności w relacji RPM-do-temperatury = kurz w radiatorze. <span class="hl-green">Łapanie problemów zanim staną się problemami.</span> Próg tego nie umie z definicji — on czeka, aż będzie już źle.</p>
@@ -180,7 +192,7 @@
         <p>Przestaliśmy potrzebować narzędzia, które pokazuje. Potrzebujemy takiego, które rozumie — i robotę odwala za nas. Lokalnie. Po cichu.</p>
 
         <div class="guide-cta">
-            <b>To nie roadmapa — to działający kod.</b> Thermal Baseline Learning i Voltage SPC opisane wyżej działają w <span class="hl-green">PC Workman v1.7.9</span> — darmowym, open-source. Możesz sprawdzić każdą linię.
+            <b>To nie roadmapa — to działający kod.</b> Thermal Baseline Learning i Voltage SPC opisane wyżej działają w <span class="hl-green">PC Workman v1.8.0</span> — darmowym, open-source. Możesz sprawdzić każdą linię.
             <a href="../../download/index_pl.html">Pobierz</a> lub <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przejrzyj kod</a>.
             Powiązane: <a href="../ktore-uslugi-windows-wylaczyc/">które usługi wyłączyć</a> &middot; <a href="../../blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/">jak działa thermal baseline</a>.
         </div>
@@ -205,5 +217,6 @@
         <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>
