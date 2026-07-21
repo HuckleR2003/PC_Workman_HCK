@@ -302,6 +302,21 @@ CPUS = {
     "ryzen 9 9900x3d": ("AM5", 9, 12, 24, 120, True),
     "ryzen 9 9950x": ("AM5", 9, 16, 32, 170, True),
     "ryzen 9 9950x3d": ("AM5", 9, 16, 32, 170, True),
+    # ── Additions (2026-07): budget/mainstream people actually search ──
+    "ryzen 3 4100": ("AM4", 3, 4, 8, 65, False),
+    "ryzen 5 4500": ("AM4", 3, 6, 12, 65, False),
+    "ryzen 5 5500gt": ("AM4", 5, 6, 12, 65, True),
+    "ryzen 5 5600gt": ("AM4", 5, 6, 12, 65, True),
+    "ryzen 5 8400f": ("AM5", 8, 6, 12, 65, False),
+    "ryzen 5 8500g": ("AM5", 8, 6, 12, 65, True),
+    "ryzen 5 9600": ("AM5", 9, 6, 12, 65, True),
+    "ryzen 7 9700": ("AM5", 9, 8, 16, 65, True),
+    "i5-11600": ("LGA1200", 11, 6, 12, 65, True),
+    "i5-12600": ("LGA1700", 12, 6, 12, 65, True),
+    "i9-12900": ("LGA1700", 12, 16, 24, 65, True),
+    "i9-13900": ("LGA1700", 13, 24, 32, 65, True),
+    "i9-14900": ("LGA1700", 14, 24, 32, 65, True),
+    "ultra 5 235": ("LGA1851", 15, 14, 14, 65, True),
 }
 
 # ── GPUs: key -> (vram_gb, tdp_w, recommended_psu_w, perf_index, year) ───────
@@ -392,6 +407,12 @@ GPUS = {
     "arc a770": (16, 225, 600, 20, 2022),
     "arc b570": (10, 150, 500, 20, 2024),
     "arc b580": (12, 190, 600, 24, 2024),
+    # ── Additions (2026-07): common budget + newer cards (all reachable) ──
+    "arc a580": (8, 175, 550, 17, 2023),
+    "gtx 1050": (2, 75, 300, 3, 2016),
+    "gtx 1630": (4, 75, 300, 4, 2022),
+    "rx 6400": (4, 53, 400, 8, 2022),
+    "rx 9060": (8, 150, 500, 30, 2025),
 }
 
 GPU_NOTES = {

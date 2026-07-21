@@ -605,6 +605,56 @@ def suggest_upgrades(platform: Optional[dict] = None,
     return out
 
 
+def all_parts() -> list:
+    """Every CPU and GPU in the library as {label, kind, key, meta} - the
+    source for the Upgrade Readiness autocomplete."""
+    out = []
+    for k in CPUS:
+        r = cpu_record(k)
+        out.append({"label": r["label"], "kind": "cpu", "key": k,
+                    "meta": f"{r['socket']} · {r['cores']}C/{r['threads']}T · "
+                            f"{r['tdp']} W"})
+    for k in GPUS:
+        r = gpu_record(k)
+        out.append({"label": r["label"], "kind": "gpu", "key": k,
+                    "meta": f"{r['vram_gb']} GB · {r['tdp']} W · {r['year']}"})
+    return out
+
+
+_PARTS_CACHE: list = []
+
+
+def search_parts(text: str, limit: int = 10) -> list:
+    """Live autocomplete: parts whose label contains every typed token.
+    Prefix matches rank first, then shorter labels (closer match). Returns
+    [{label, kind, key, meta}]."""
+    global _PARTS_CACHE
+    q = (text or "").lower().strip()
+    if len(q) < 1:
+        return []
+    if not _PARTS_CACHE:
+        _PARTS_CACHE = all_parts()
+    toks = [t for t in re.split(r"[\s-]+", q) if t]
+    if not toks:
+        return []
+    scored = []
+    for p in _PARTS_CACHE:
+        hay = p["label"].lower().replace("-", " ")
+        if all(t in hay for t in toks):
+            first = toks[0]
+            # 0 = label starts with the query, 1 = a word starts with it,
+            # 2 = contained somewhere. Then prefer shorter (tighter) labels.
+            if hay.startswith(first):
+                rank = 0
+            elif any(w.startswith(first) for w in hay.split()):
+                rank = 1
+            else:
+                rank = 2
+            scored.append((rank, len(p["label"]), p["label"], p))
+    scored.sort(key=lambda x: (x[0], x[1], x[2]))
+    return [p for _, _, _, p in scored[:limit]]
+
+
 def db_stats() -> dict:
     """Coverage numbers for the UI footer / diagnostics."""
     stats = db_counts()
