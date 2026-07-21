@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Pobierz PC Workman — darmowy, open-source'owy monitor systemu Windows z wbudowanym offline'owym asystentem AI. Jeden ZIP, bez instalatora, bez konta, bez telemetrii. Windows 10/11.">
+    <meta name="description" content="Pobierz PC Workman — darmowy, open-source'owy monitor systemu Windows z wbudowanym offline'owym asystentem AI. Jeden ZIP, bez instalatora, bez konta. Windows 10/11.">
     <meta name="keywords" content="pobierz PC Workman, PC Workman exe, darmowy monitor systemu, narzędzie monitorujące Windows, alternatywa HWMonitor pobierz, monitor systemu z AI">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/download/index_pl.html">
@@ -16,7 +16,7 @@
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/download/index_pl.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/download/">
     <meta property="og:title" content="Pobierz PC Workman — najnowsza wersja, za darmo">
-    <meta property="og:description" content="Jeden ZIP, bez instalatora, bez konta, bez telemetrii. Open-source'owy monitor systemu Windows z offline'owym AI. Aktualna linia wersji: 1.7.9.">
+    <meta property="og:description" content="Jeden ZIP, bez instalatora, bez konta. Open-source'owy monitor systemu Windows z offline'owym AI. Aktualna linia wersji: 1.8.0.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/download/index_pl.html">
     <meta property="og:locale" content="pl_PL">
@@ -30,6 +30,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
     <style>
         .dl-btn {
             display: inline-block;
@@ -71,7 +72,7 @@
       "@type": "SoftwareApplication",
       "name": "PC_Workman",
       "alternateName": "PC Workman HCK",
-      "softwareVersion": "1.7.9",
+      "softwareVersion": "1.8.0",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
@@ -104,29 +105,40 @@
 </head>
 <body>
 
-    <header class="topbar">
-        <a class="brand" href="../index.html">PC<span>_</span>Workman <span>/ pobierz</span></a>
-        <nav>
-            <a href="../index.html">Strona główna</a>
-            <a href="../blog/index_pl.html">Blog</a>
-            <a href="../SECURITY_report.html">Bezpieczeństwo</a>
-            <a href="index.html">EN</a>
-        </nav>
-    </header>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ pobierz</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" data-lang="en">EN</a>
+        </span>
+    </nav>
 
     <section class="hero">
         <span class="day-badge day-friday">Za darmo · Open Source · MIT</span>
         <h1>Pobierz PC Workman</h1>
         <p class="tagline">
-            Jeden ZIP. Bez instalatora, bez konta, bez telemetrii.
-            Monitor systemu Windows z asystentem AI działającym w 100% offline.
+            Jeden ZIP. Bez instalatora, bez konta.
+            Monitor systemu Windows z asystentem AI działającym w całości na Twoim komputerze — bez klucza API.
         </p>
         <a class="dl-btn" href="https://github.com/HuckleR2003/PC_Workman_HCK/releases" target="_blank" rel="noopener">⬇ Pobierz najnowsze wydanie</a>
-        <p class="dl-sub">Aktualna linia wersji: 1.7.9 · hosting na GitHub Releases</p>
+        <p class="dl-sub">Aktualna linia wersji: 1.8.0 · hosting na GitHub Releases</p>
         <div class="stats">
             <div class="stat"><b>0 zł</b><span>za darmo na zawsze</span></div>
-            <div class="stat"><b>82</b><span>intencje AI offline</span></div>
-            <div class="stat"><b>0</b><span>wywołań telemetrii</span></div>
+            <div class="stat"><b>84</b><span>intencje AI offline</span></div>
+            <div class="stat"><b>0</b><span>danych osobowych</span></div>
         </div>
     </section>
 
@@ -177,5 +189,6 @@
         <p>© 2026 HCK_Labs · <a href="../index.html">PC Workman</a> · <a href="../blog/index_pl.html">Blog</a> · <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">GitHub</a></p>
     </footer>
 
+    <script src="/assets/js/topnav.js"></script>
 </body>
 </html>
