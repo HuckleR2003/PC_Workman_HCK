@@ -22,6 +22,16 @@ _HDR  = "Segoe UI Semibold"
 _BODY = _UIF
 _MONO = _MONOF
 
+# Resolve bundled assets through the shared path module so the logo is found
+# in the frozen / MSIX build too (sys._MEIPASS). A bare relative path silently
+# failed there and dropped the splash to the ugly text fallback.
+try:
+    from utils.paths import BUNDLE_DIR
+except Exception:
+    BUNDLE_DIR = os.path.abspath(".")
+
+_BRAND_RED = "#c0182a"   # app bordeaux accent, matches the sidebar / logo
+
 
 class SplashScreen:
     """Animated splash screen with fade-in and fade-out effects"""
@@ -78,55 +88,35 @@ class SplashScreen:
         self.root.after(50, self._start_animation)
 
     def _load_logo(self):
-        """Load HCK_Labs logo"""
-        logo_path = os.path.join("data", "icons", "app_icon.png")
+        """Draw the branded splash: a red accent bar top and bottom, the PC
+        Workman brand mark (app_icon.png) in the middle. Resolved via BUNDLE_DIR
+        so it shows in the frozen / MSIX build, not just in dev."""
+        # Red brand bars, top and bottom edges
+        tk.Frame(self.root, bg=_BRAND_RED, height=8).pack(fill="x", side="top")
+        tk.Frame(self.root, bg=_BRAND_RED, height=8).pack(fill="x", side="bottom")
 
-        if not os.path.exists(logo_path):
-            # Fallback: display text if logo not found
-            tk.Label(
-                self.root,
-                text="HCK_Labs",
-                font=(_BODY, 48, "bold"),
-                bg="#000000",
-                fg="#8b5cf6"
-            ).pack(expand=True)
-            return
+        mid = tk.Frame(self.root, bg="#000000")
+        mid.pack(expand=True, fill="both")
 
-        try:
-            if Image and ImageTk:
-                # Load with PIL for better quality
-                img = Image.open(logo_path)
+        logo_path = os.path.join(BUNDLE_DIR, "data", "icons", "app_icon.png")
+        if os.path.exists(logo_path):
+            try:
+                if Image and ImageTk:
+                    img = Image.open(logo_path)
+                    img.thumbnail((440, 440), Image.Resampling.LANCZOS)
+                    self.logo_image = ImageTk.PhotoImage(img)
+                else:
+                    self.logo_image = PhotoImage(file=logo_path)
+                tk.Label(mid, image=self.logo_image, bg="#000000").pack(expand=True)
+                return
+            except Exception as e:
+                print(f"[Splash] Error loading logo: {e}")
 
-                # Resize to fit window (max 450x450)
-                img.thumbnail((450, 450), Image.Resampling.LANCZOS)
-
-                self.logo_image = ImageTk.PhotoImage(img)
-
-                # Display logo
-                tk.Label(
-                    self.root,
-                    image=self.logo_image,
-                    bg="#000000"
-                ).pack(expand=True)
-            else:
-                # Fallback to PhotoImage
-                self.logo_image = PhotoImage(file=logo_path)
-                tk.Label(
-                    self.root,
-                    image=self.logo_image,
-                    bg="#000000"
-                ).pack(expand=True)
-
-        except Exception as e:
-            print(f"[Splash] Error loading logo: {e}")
-            # Fallback text
-            tk.Label(
-                self.root,
-                text="HCK_Labs",
-                font=(_BODY, 48, "bold"),
-                bg="#000000",
-                fg="#8b5cf6"
-            ).pack(expand=True)
+        # On-brand text fallback (never the bare purple word again)
+        tk.Label(mid, text="PC Workman", font=(_HDR, 40, "bold"),
+                 bg="#000000", fg="#ffffff").pack(expand=True, pady=(90, 0))
+        tk.Label(mid, text="HCK_Labs", font=(_BODY, 20),
+                 bg="#000000", fg="#22d3ee").pack(pady=(0, 90))
 
     def _start_animation(self):
         """Start the fade animation"""
