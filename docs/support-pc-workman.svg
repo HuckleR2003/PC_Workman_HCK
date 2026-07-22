@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60" role="img" aria-label="Support PC Workman">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11161d"/>
+      <stop offset="58%" stop-color="#151a22"/>
+      <stop offset="100%" stop-color="#35050b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7a0000"/>
+      <stop offset="100%" stop-color="#c1121f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="199" height="59" rx="8" fill="url(#bg)" stroke="#343b46"/>
+  <rect x="0.5" y="0.5" width="5" height="59" rx="3" fill="url(#accent)"/>
+
+  <g transform="translate(16 14)" filter="url(#shadow)">
+    <path d="M14.8 1.9c-2.4 0-4.2 1.3-5.3 3-1.1-1.7-2.9-3-5.3-3C1.7 1.9 0 3.8 0 6.4c0 4.2 4.1 7.3 9.5 12 5.4-4.7 9.5-7.8 9.5-12 0-2.6-1.7-4.5-4.2-4.5z" fill="#ef233c"/>
+    <path d="M24 4.5h9.5v8.2c0 3.2-2.3 5.8-5.2 5.8s-5.3-2.6-5.3-5.8V4.5z" fill="none" stroke="#f8fafc" stroke-width="1.8"/>
+    <path d="M33.5 7h2.3c2.1 0 3.7 1.4 3.7 3.4 0 2.1-1.6 3.5-3.7 3.5h-2.3" fill="none" stroke="#f8fafc" stroke-width="1.8"/>
+    <path d="M25.7 1.7c1.2.7 1.6 1.6 1.2 2.7M29.2 1.1c1.2.7 1.6 1.6 1.2 2.7" fill="none" stroke="#ef233c" stroke-width="1.4" stroke-linecap="round"/>
+  </g>
+
+  <text x="63" y="24" fill="#c9d1d9" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.3">
+    SUPPORT
+  </text>
+  <text x="63" y="43" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" letter-spacing=".35">
+    PC WORKMAN
+  </text>
+
+  <circle cx="187" cy="30" r="3.5" fill="#ef233c"/>
+</svg>
