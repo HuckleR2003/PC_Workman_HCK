@@ -242,13 +242,21 @@ class IntentParser:
             text = re.sub(r'\b' + re.escape(stripped) + r'\b', accented, text)
         return text
 
+    # NFD strips ą/ę/ó/ś/ż/ź/ć/ń, but ł/Ł have NO canonical decomposition and
+    # survive it untouched - so "było" never folded to "bylo" and every ł-word
+    # typed without the stroke (byl, wylacz, plyta, chlodzenie) missed. Map the
+    # non-decomposing letters explicitly after the NFD pass.
+    _FOLD_EXTRA = str.maketrans({"ł": "l", "Ł": "L", "ø": "o", "Ø": "O",
+                                 "đ": "d", "Đ": "D"})
+
     def _ascii_fold(self, text: str) -> str:
-        """Remove diacritics for fuzzy matching (ą->a, ę->e, etc.)."""
+        """Remove diacritics for fuzzy matching (ą->a, ę->e, ł->l, etc.)."""
         import unicodedata
-        return "".join(
+        stripped = "".join(
             c for c in unicodedata.normalize("NFD", text)
             if unicodedata.category(c) != "Mn"
         )
+        return stripped.translate(self._FOLD_EXTRA)
 
     def _tokenize(self, text: str) -> List[str]:
         text = re.sub(r"[^\w\s]", " ", text)
