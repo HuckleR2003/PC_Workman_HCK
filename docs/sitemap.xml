@@ -506,4 +506,12 @@
     <priority>0.8</priority>
   </url>
 
+  <!-- Roadmap to v2.1.0 -->
+  <url>
+    <loc>https://pcworkman.dev/roadmap/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
