@@ -1683,6 +1683,22 @@ body {
     background-color: var(--darker-bg);
 }
 
+.newsletter-link {
+    display: inline-block;
+    padding: 0.875rem 1.25rem;
+    background-color: var(--dark-bg);
+    color: #ffffff;
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.newsletter-link:hover {
+    background-color: var(--darker-bg);
+    transform: translateY(-2px);
+}
+
 .story-posts h4 {
     font-size: 1.25rem;
     margin-bottom: 1.5rem;
@@ -1983,6 +1999,22 @@ body {
 }
 
 .footer-newsletter button:hover {
+    transform: translateY(-2px);
+}
+
+.footer-newsletter-link {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    background: var(--gradient-primary);
+    color: var(--dark-bg);
+    border-radius: var(--border-radius-sm);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+
+.footer-newsletter-link:hover {
     transform: translateY(-2px);
 }
 
