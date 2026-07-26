@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 108" width="760" height="108" fill="none" role="img" aria-label="Marcin HCK Firmuga">
+  <defs>
+    <linearGradient id="hckGrad" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#3b82e0"/>
+      <stop offset="0.55" stop-color="#7b5bff"/>
+      <stop offset="1" stop-color="#b23df0"/>
+    </linearGradient>
+  </defs>
+  <text x="380" y="74" text-anchor="middle"
+        font-family="'Segoe UI Semibold','Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif"
+        font-size="60" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#1b2130">Marcin </tspan><tspan fill="url(#hckGrad)">HCK</tspan><tspan fill="#1b2130"> Firmuga</tspan>
+  </text>
+</svg>

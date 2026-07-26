@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 112" width="560" height="112" fill="none" role="img" aria-label="PC_Workman">
+  <defs>
+    <linearGradient id="hckGrad" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#4f9dff"/>
+      <stop offset="0.55" stop-color="#8b7bff"/>
+      <stop offset="1" stop-color="#c869ff"/>
+    </linearGradient>
+  </defs>
+  <text x="280" y="78" text-anchor="middle"
+        font-family="'Segoe UI Semibold','Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif"
+        font-size="74" font-weight="800" letter-spacing="-2">
+    <tspan fill="#eef2f7">PC_</tspan><tspan fill="url(#hckGrad)">Workman</tspan>
+  </text>
+</svg>
