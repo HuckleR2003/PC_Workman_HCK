@@ -238,20 +238,6 @@ faqItems.forEach(item => {
     });
 });
 
-// === NEWSLETTER FORMS ===
-const newsletterForms = document.querySelectorAll('.newsletter-form, .footer-newsletter');
-
-newsletterForms.forEach(form => {
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = form.querySelector('input[type="email"]').value;
-        
-        // Simulate newsletter signup
-        alert(`🎉 Dzięki! ${email} został dodany do listy. Sprawdź maila za kilka minut!`);
-        form.reset();
-    });
-});
-
 // === INTERSECTION OBSERVER FOR ANIMATIONS ===
 const observerOptions = {
     threshold: 0.1,
