@@ -56,9 +56,14 @@
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "What is a normal CPU temperature? It depends on the workload", "url": "https://pcworkman.dev/guides/normal-cpu-temperature/" },
           { "@type": "ListItem", "position": 2, "name": "Ghost drivers in Windows: what they are and how to remove them", "url": "https://pcworkman.dev/guides/ghost-drivers-windows/" },
-          { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer z Windows — bez mitów", "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/" },
-          { "@type": "ListItem", "position": 4, "name": "Które usługi Windows można bezpiecznie wyłączyć", "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/" },
-          { "@type": "ListItem", "position": 5, "name": "What your PC has learned about itself", "url": "https://pcworkman.dev/guides/what-your-pc-learned/" }
+          { "@type": "ListItem", "position": 3, "name": "How to speed up a Windows PC without the usual myths", "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html" },
+          { "@type": "ListItem", "position": 4, "name": "Which Windows services can you turn off safely?", "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html" },
+          { "@type": "ListItem", "position": 5, "name": "What your PC has learned about itself", "url": "https://pcworkman.dev/guides/what-your-pc-learned/" },
+          { "@type": "ListItem", "position": 6, "name": "What is this process in Task Manager? Real Windows process vs malware", "url": "https://pcworkman.dev/guides/what-is-this-process/" },
+          { "@type": "ListItem", "position": 7, "name": "Will this CPU work with my motherboard? Socket, chipset, BIOS and power", "url": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/" },
+          { "@type": "ListItem", "position": 8, "name": "Why is my RAM usage so high? Sleep background apps without breaking Windows", "url": "https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/" },
+          { "@type": "ListItem", "position": 9, "name": "Is my Windows PC healthy? A 5-minute check without benchmarks or jargon", "url": "https://pcworkman.dev/guides/is-my-pc-healthy/" },
+          { "@type": "ListItem", "position": 10, "name": "Why are my PC fans so loud? Build a quiet fan curve without hiding heat", "url": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/" }
         ]
       }
     }
@@ -73,6 +78,49 @@
       ]
     }
     </script>
+
+    <style>
+    /* Problem search, using the survival accent from the roadmap. */
+    .find{ max-width: 880px; margin: 1.6rem auto .4rem; padding: 0 1.5rem; }
+    .find-inner{
+        position: relative;
+        background: linear-gradient(180deg, #16090b 0%, #0c0708 100%);
+        border: 1px solid rgba(192,24,42,.38);
+        padding: 1.35rem 1.35rem 1.15rem;
+        clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    .find-label{
+        font-family: var(--font-mono); font-size:.7rem; letter-spacing:2px;
+        text-transform:uppercase; color:#e11d2f; margin-bottom:.65rem;
+    }
+    .find-label b{ color:#a3e635; }
+    #guideSearch{
+        width:100%; font-family: var(--font-mono); font-size:.95rem;
+        background:#050505; color:#fff; border:1px solid rgba(192,24,42,.45);
+        padding:.8rem 1rem; outline:none; border-radius:2px;
+    }
+    #guideSearch:focus{ border-color:#a3e635; box-shadow:0 0 0 2px rgba(163,230,53,.14); }
+    #guideSearch::placeholder{ color:#6b6b6b; }
+    .find-hint{ font-size:.74rem; color:var(--text-dim); margin-top:.6rem; }
+    .find-results{ margin-top:.85rem; display:flex; flex-direction:column; gap:.5rem; }
+    .fr-item{
+        display:flex; align-items:center; gap:.8rem; text-decoration:none;
+        background:#0f0c0d; border:1px solid var(--border); border-left:3px solid #c0182a;
+        padding:.68rem .9rem; transition:.15s ease;
+    }
+    .fr-item:hover{ background:#151011; border-left-color:#a3e635; text-decoration:none; transform:translateX(3px); }
+    .fr-item.soon{ opacity:.52; pointer-events:none; border-left-color:#3a2a2c; }
+    .fr-txt h4{ font-size:.9rem; color:#fff; font-weight:700; line-height:1.25; }
+    .fr-txt p{ font-size:.78rem; color:var(--text-secondary); margin:.15rem 0 0; }
+    .fr-cat{
+        margin-left:auto; flex-shrink:0; font-family:var(--font-mono); font-size:.6rem;
+        letter-spacing:1px; text-transform:uppercase; color:#a3e635;
+        border:1px solid rgba(163,230,53,.3); padding:.2rem .5rem; border-radius:999px;
+    }
+    .fr-item.soon .fr-cat{ color:var(--text-dim); border-color:var(--border); }
+    .fr-empty{ font-size:.82rem; color:var(--text-dim); padding:.35rem 0; }
+    @media (max-width:560px){ .fr-cat{ display:none; } }
+    </style>
 </head>
 <body>
 
@@ -91,7 +139,7 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/guides/index_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
             <a href="/index_en.html" class="active" data-lang="en">EN</a>
         </span>
@@ -101,6 +149,17 @@
         <span class="day-badge day-wednesday">Articles &amp; guides</span>
         <h1>Windows performance, explained honestly</h1>
         <p class="tagline">Practical articles to read — from real sensor data, not recycled myths.</p>
+    </section>
+
+    <section class="find" aria-label="Search guides by problem">
+        <div class="find-inner">
+            <div class="find-label">Have a problem <b>right now?</b></div>
+            <input id="guideSearch" type="search" autocomplete="off" spellcheck="false"
+                   placeholder="high RAM, loud fans, unknown process, will this CPU fit..."
+                   aria-label="Describe your problem in a few words">
+            <div id="guideResults" class="find-results" role="list"></div>
+            <div class="find-hint">Type a symptom, not a title. Matched by the problem each guide solves. Press Enter to open the top result.</div>
+        </div>
     </section>
 
     <main class="wrap">
@@ -135,7 +194,7 @@
             <div class="tg-cluster">
                 <div class="tg-label">Optimization</div>
                 <div class="tg-tiles">
-                    <a class="tg-tile tg-opt" href="ktore-uslugi-windows-wylaczyc/"><span class="tg-ic">⚙</span><h4>Services to disable</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-opt" href="ktore-uslugi-windows-wylaczyc/index_en.html"><span class="tg-ic">⚙</span><h4>Services to disable</h4><span class="tg-go">Read →</span></a>
                     <div class="tg-tile tg-opt soon"><span class="tg-ic">▣</span><h4>100% disk usage</h4><span class="tg-go">Soon</span></div>
                     <div class="tg-tile tg-opt soon"><span class="tg-ic">⤓</span><h4>Startup apps</h4><span class="tg-go">Soon</span></div>
                 </div>
@@ -143,22 +202,42 @@
             <div class="tg-cluster">
                 <div class="tg-label">Speed-up</div>
                 <div class="tg-tiles">
-                    <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/"><span class="tg-ic">⚡</span><h4>Speed up your PC</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/index_en.html"><span class="tg-ic">⚡</span><h4>Speed up your PC</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-spd" href="normal-cpu-temperature/"><span class="tg-ic">◷</span><h4>Normal CPU temp</h4><span class="tg-go">Read →</span></a>
-                    <div class="tg-tile tg-spd soon"><span class="tg-ic">▤</span><h4>How much RAM</h4><span class="tg-go">Soon</span></div>
+                    <a class="tg-tile tg-spd" href="why-is-my-ram-usage-so-high/"><span class="tg-ic">▤</span><h4>High RAM usage</h4><span class="tg-go">Read →</span></a>
                 </div>
             </div>
             <div class="tg-cluster">
                 <div class="tg-label">PC Workman</div>
                 <div class="tg-tiles">
+                    <a class="tg-tile tg-pcw" href="what-is-this-process/"><span class="tg-ic">◉</span><h4>What's this process?</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-pcw" href="ghost-drivers-windows/"><span class="tg-ic">⬡</span><h4>Ghost drivers</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-pcw" href="../download/"><span class="tg-ic">⬇</span><h4>What PC Workman does</h4><span class="tg-go">Download →</span></a>
+                </div>
+            </div>
+            <div class="tg-cluster">
+                <div class="tg-label">Upgrades</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-pcw" href="will-this-cpu-fit-motherboard/"><span class="tg-ic">▤</span><h4>Will this CPU fit?</h4><span class="tg-go">Read →</span></a>
+                    <div class="tg-tile tg-pcw soon"><span class="tg-ic">◫</span><h4>RAM or SSD?</h4><span class="tg-go">Soon</span></div>
                 </div>
             </div>
         </div>
 
         <div class="section-label">Featured guides</div>
         <div class="series-grid">
+            <a class="series-card monday" href="what-is-this-process/">
+                <span class="day-badge day-monday">Processes</span>
+                <h3>What is this process in Task Manager?</h3>
+                <p>A familiar name proves almost nothing. Tell a real Windows process from malware by its path, signature and parent, with a reference table for svchost, RuntimeBroker and COM Surrogate.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="will-this-cpu-fit-motherboard/">
+                <span class="day-badge day-friday">Upgrades</span>
+                <h3>Will this CPU work with my motherboard?</h3>
+                <p>The socket matches and the PC still will not boot. The five layers of compatibility, the three traps a spec sheet hides, and the Compatibility Receipt that says "do not install yet" for a reason.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
             <a class="series-card wednesday" href="normal-cpu-temperature/">
                 <span class="day-badge day-wednesday">Temperatures</span>
                 <h3>What's a normal CPU temperature?</h3>
@@ -171,17 +250,35 @@
                 <p>Your old GPU's driver is still in Windows — hidden by Device Manager. How to find and remove ghosts with pnputil, step by step.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
-            <a class="series-card friday" href="jak-przyspieszyc-komputer/">
-                <span class="day-badge day-friday">PL · Optymalizacja</span>
-                <h3>Jak przyspieszyć komputer — bez mitów</h3>
-                <p>Co naprawdę spowalnia Windows i co realnie pomaga: autostart, usługi, dyski, RAM. Konkretna kolejność działań zamiast 50 przypadkowych trików.</p>
-                <span class="go">Czytaj poradnik -&gt;</span>
+            <a class="series-card friday" href="jak-przyspieszyc-komputer/index_en.html">
+                <span class="day-badge day-friday">Optimization</span>
+                <h3>How to speed up a Windows PC without the usual myths</h3>
+                <p>A useful order of work for startup apps, background processes, services, storage, RAM and temperatures.</p>
+                <span class="go">Read the guide -&gt;</span>
             </a>
-            <a class="series-card friday" href="ktore-uslugi-windows-wylaczyc/">
-                <span class="day-badge day-friday">PL · Usługi</span>
-                <h3>Które usługi Windows można bezpiecznie wyłączyć</h3>
-                <p>Lista usług, które realnie można zatrzymać — i tych, których nie wolno ruszać. Na bazie profili Gaming/Work/Economy z PC Workmana.</p>
-                <span class="go">Czytaj poradnik -&gt;</span>
+            <a class="series-card friday" href="ktore-uslugi-windows-wylaczyc/index_en.html">
+                <span class="day-badge day-friday">Services</span>
+                <h3>Which Windows services can you turn off safely?</h3>
+                <p>A conditional list, the 33-service no-touch guard and a reversible way to test every change.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="is-my-pc-healthy/">
+                <span class="day-badge day-friday">Health</span>
+                <h3>Is my Windows PC healthy?</h3>
+                <p>Five plain questions that separate a normal busy machine from a real problem, without a benchmark score.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="why-is-my-ram-usage-so-high/">
+                <span class="day-badge day-wednesday">Memory</span>
+                <h3>Why is my RAM usage so high?</h3>
+                <p>Read Available memory and hard faults, then reclaim memory without killing the apps you use.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card monday" href="why-are-my-pc-fans-so-loud/">
+                <span class="day-badge day-monday">Cooling</span>
+                <h3>Why are my PC fans so loud?</h3>
+                <p>Most fan noise is a twitchy curve chasing spikes, not real heat. Build a quiet curve that still cools, and cap it where more RPM stops buying degrees.</p>
+                <span class="go">Read the guide -&gt;</span>
             </a>
         </div>
 
@@ -217,7 +314,7 @@
             <a class="avatar-link" href="../blog/profile.html"><div class="avatar">MF</div></a>
             <div>
                 <h4><a href="../blog/profile.html">Marcin Firmuga</a></h4>
-                <div class="role">Solo developer · HCK_Labs · 18 months of sensor data behind every guide</div>
+                <div class="role">Solo developer · HCK_Labs · Guides grounded in PC Workman's sensor pipeline</div>
                 <p>I write these from what PC Workman's sensors actually show across real machines —
                    including the 2014 laptop at 94°C this project started on.</p>
                 <div class="author-links">
@@ -236,5 +333,82 @@
     </footer>
 
     <script src="/assets/js/topnav.js"></script>
+    <script>
+    /* Offline problem-search over the guide library. No backend, no request. */
+    (function(){
+      var IDX = [
+        {t:"What is this process in Task Manager?", u:"what-is-this-process/", cat:"Processes", live:1, d:"Real Windows process vs malware: path, signature, parent.", k:"unknown process svchost runtimebroker com surrogate dllhost conhost csrss is this a virus malware task manager suspicious safe"},
+        {t:"What is a normal CPU temperature?", u:"normal-cpu-temperature/", cat:"Thermals", live:1, d:"Per-workload ranges, and when a normal number is a warning.", k:"cpu temperature hot overheating gaming temp idle how hot is too hot throttle heat celsius"},
+        {t:"Ghost drivers in Windows", u:"ghost-drivers-windows/", cat:"Drivers", live:1, d:"Find and remove leftover drivers Device Manager hides.", k:"ghost drivers old nvidia amd leftover device manager hidden pnputil uninstall remove"},
+        {t:"How to speed up a Windows PC", u:"jak-przyspieszyc-komputer/index_en.html", cat:"Speed", live:1, d:"A diagnostic order for startup, load, storage and heat.", k:"slow pc speed up optimization startup lag background storage heat"},
+        {t:"Which Windows services can I disable?", u:"ktore-uslugi-windows-wylaczyc/index_en.html", cat:"Services", live:1, d:"Conditional service changes and a no-touch list.", k:"windows services disable safe sysmain superfetch diagtrack xbox spooler"},
+        {t:"What your PC has learned about itself", u:"what-your-pc-learned/", cat:"PRO", live:1, d:"The Learning Center and the Welford accumulator.", k:"learning baseline welford anomaly self statistical what pc learned"},
+        {t:"Stop optimizing the average PC", u:"ai-pc-monitoring-vs-traditional/", cat:"PRO", live:1, d:"Why generic thresholds fail your specific hardware.", k:"afterburner hwinfo ccleaner statistical process control average thresholds generic"},
+        {t:"6,500 lines in one file", u:"breaking-up-the-monolith/", cat:"PRO", live:1, d:"Splitting the hck_GPT builder into eight modules.", k:"refactor hck_gpt modules facade tests architecture monolith"},
+        {t:"Is my Windows PC healthy?", u:"is-my-pc-healthy/", cat:"Health", live:1, d:"A 5-minute check without benchmarks or jargon.", k:"is my pc healthy check health slow jargon benchmark five minute"},
+        {t:"Why is my RAM usage so high?", u:"why-is-my-ram-usage-so-high/", cat:"Memory", live:1, d:"Sleep idle background apps without breaking Windows.", k:"high ram usage memory background apps discord chrome eating hibernate sleep windows 11 pressure paging"},
+        {t:"Which startup apps can I disable?", u:"", cat:"Startup", live:0, d:"A safe decision guide for slow boots.", k:"startup programs slow boot disable safe apps boot time login autostart"},
+        {t:"Why are my PC fans so loud?", u:"why-are-my-pc-fans-so-loud/", cat:"Cooling", live:1, d:"Build a quiet fan curve without hiding heat.", k:"loud fans noisy pc quiet fan curve noise pwm rpm hysteresis fan control"},
+        {t:"Why does my CPU or GPU clock drop under load?", u:"", cat:"Throttle", live:0, d:"Thermal throttling vs power limits, told apart.", k:"throttling cpu gpu downclock clock drop thermal power limit under load"},
+        {t:"Can software tell if your PSU is dying?", u:"", cat:"Power", live:0, d:"What 12V readings can and cannot prove.", k:"psu power supply dying 12v rail voltage failing random restart shutdown"},
+        {t:"Will this CPU work with my motherboard?", u:"will-this-cpu-fit-motherboard/", cat:"Upgrade", live:1, d:"Socket, chipset, BIOS and power explained.", k:"cpu motherboard compatibility socket chipset bios will this cpu fit upgrade lga am4 am5"},
+        {t:"Więcej RAM czy SSD?", u:"", cat:"PL / Upgrade", live:0, d:"Sprawdź, co naprawdę spowalnia komputer.", k:"ram czy ssd upgrade wiecej ramu dysk bottleneck waskie gardlo slow"},
+        {t:"Your FPS is high, why does the game stutter?", u:"", cat:"Gaming", live:0, d:"Read frame times and 1% lows.", k:"game stuttering fps high stutter frame time 1% low micro stutter lag"}
+      ];
+      var box = document.getElementById('guideSearch');
+      var out = document.getElementById('guideResults');
+      if(!box || !out) return;
+      function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+      function fold(s){
+        return String(s).toLowerCase()
+          .replace(/[ąàáâ]/g,'a').replace(/[ćç]/g,'c').replace(/[ęèéê]/g,'e')
+          .replace(/ł/g,'l').replace(/ń/g,'n').replace(/[óòô]/g,'o')
+          .replace(/ś/g,'s').replace(/[żź]/g,'z').replace(/[üûù]/g,'u').replace(/[íî]/g,'i');
+      }
+      var STOP = {the:1,a:1,an:1,is:1,are:1,am:1,my:1,me:1,i:1,it:1,its:1,to:1,of:1,in:1,on:1,for:1,and:1,or:1,so:1,why:1,what:1,how:1,does:1,do:1,did:1,can:1,could:1,will:1,would:1,should:1,your:1,you:1,this:1,that:1,these:1,those:1,with:1,at:1,be:1,been:1,being:1,as:1,by:1,but:1,if:1,then:1,pc:1,computer:1,komputer:1,windows:1,help:1};
+      function toTerms(q){
+        var raw = fold(q).split(/[^a-z0-9%]+/), t = [];
+        for(var i=0;i<raw.length;i++){ var w = raw[i]; if(w && w.length>=2 && !STOP[w]) t.push(w); }
+        return t;
+      }
+      function score(it, ts){
+        var hay = fold(it.t + ' ' + it.k + ' ' + it.cat), title = fold(it.t), s = 0;
+        for(var i=0;i<ts.length;i++){
+          var w = ts[i];
+          if(title.indexOf(w) >= 0) s += 5;
+          if(hay.indexOf(w) >= 0) s += 2;
+        }
+        return s;
+      }
+      function render(){
+        var ts = toTerms(box.value.trim());
+        if(!ts.length){ out.innerHTML = ''; return; }
+        var hits = [];
+        for(var i=0;i<IDX.length;i++){ var s = score(IDX[i], ts); if(s>0) hits.push([s, IDX[i]]); }
+        hits.sort(function(a,b){ return (b[0] - a[0]) || (b[1].live - a[1].live); });
+        if(!hits.length){
+          out.innerHTML = '<div class="fr-empty">No guide matches that yet. It may be one we are still writing. Try a simpler word: RAM, fans, temperature, process, startup, CPU.</div>';
+          return;
+        }
+        var html = '';
+        for(var j=0;j<Math.min(hits.length,6);j++){
+          var it = hits[j][1];
+          if(it.live){
+            html += '<a class="fr-item" href="'+it.u+'"><div class="fr-txt"><h4>'+esc(it.t)+'</h4><p>'+esc(it.d)+'</p></div><span class="fr-cat">'+esc(it.cat)+'</span></a>';
+          } else {
+            html += '<div class="fr-item soon"><div class="fr-txt"><h4>'+esc(it.t)+'</h4><p>'+esc(it.d)+'</p></div><span class="fr-cat">soon</span></div>';
+          }
+        }
+        out.innerHTML = html;
+      }
+      box.addEventListener('input', render);
+      box.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          var first = out.querySelector('a.fr-item');
+          if(first){ window.location.href = first.getAttribute('href'); }
+        }
+      });
+    })();
+    </script>
 </body>
 </html>
