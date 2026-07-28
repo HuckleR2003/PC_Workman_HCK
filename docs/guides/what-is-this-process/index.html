@@ -1,0 +1,369 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: what is this process in Task Manager -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A familiar process name proves almost nothing. Learn to tell a real Windows process from malware by its path, signature, parent process and behaviour, with a reference table for svchost.exe, RuntimeBroker, COM Surrogate and the other names people panic about.">
+    <meta name="keywords" content="what is this process, is svchost.exe a virus, unknown process Windows, RuntimeBroker, COM Surrogate, dllhost, conhost, Task Manager processes explained, process masquerading, is this process safe">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-is-this-process/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-is-this-process/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-is-this-process/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-is-this-process/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:title" content="What is this process in Task Manager? Real process vs malware">
+    <meta property="og:description" content="The name is the weakest evidence. Where it runs, who signed it and what launched it are what actually tell you whether to trust a process.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-is-this-process/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>What Is This Process in Task Manager? How to Tell a Real Windows Process From Malware | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What is this process in Task Manager? How to tell a real Windows process from malware",
+      "description": "A familiar process name is not evidence. How to read a process by its path, digital signature, parent process and live behaviour, with a reference table for the Windows processes people most often panic about.",
+      "url": "https://pcworkman.dev/guides/what-is-this-process/",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "What is this process", "item": "https://pcworkman.dev/guides/what-is-this-process/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is svchost.exe a virus?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually not. svchost.exe is a normal Windows process that hosts system services, and several copies running at once is expected. The genuine file lives in C:\\Windows\\System32. A file using the same name from a user folder such as AppData, Temp or Downloads, or a misspelling like svch0st.exe, is the case worth investigating." }
+        },
+        {
+          "@type": "Question",
+          "name": "How can I tell if a process is real or malware?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The name alone is not enough. Check four things: the full path the file runs from, its digital signature and publisher, the parent process that launched it, and whether its resource use matches what it claims to be. A system name running from an unexpected folder, or with a missing or invalid signature, is the strongest warning." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Process Passport visual (the "how PC Workman helps" graphic) */
+    .passport{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .passport.unknown{ border-left-color:#c0182a; }
+    .pp-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .pp-head .pp-tag{ color:#a3e635; }
+    .passport.unknown .pp-head .pp-tag{ color:#e11d2f; }
+    .pp-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .pp-row .k{ color:var(--text-dim); width:132px; flex-shrink:0; }
+    .pp-row .v{ color:#e6eef6; word-break:break-word; }
+    .pp-row .v.ok{ color:#a3e635; }
+    .pp-row .v.warn{ color:#e11d2f; }
+    .pp-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        display:flex; align-items:center; gap:.6rem; font-size:.82rem; color:var(--text-secondary);
+    }
+    .pp-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; }
+    .pp-verdict .badge.known{ color:#a3e635; border:1px solid rgba(163,230,53,.42); }
+    .pp-verdict .badge.unk{ color:#e11d2f; border:1px solid rgba(225,29,47,.42); }
+    @media (max-width:520px){ .pp-row{ flex-direction:column; gap:0; } .pp-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/what-is-this-process/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Processes · Guide</span>
+        <h1>What is this process in Task Manager?</h1>
+        <p class="tagline">A familiar name proves almost nothing. Where it runs, who signed it, and what launched it prove a lot.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-25</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            Open Task Manager, sort by name, and you will likely find half a dozen copies of
+            <code>svchost.exe</code> staring back at you. From the name alone, you cannot tell which ones are
+            Windows doing its job, and which, if any, are malware wearing that name as a disguise.
+        </p>
+        <p>
+            That is the catch with Task Manager. It is very good at showing you that a process exists, and much
+            worse at telling you whether to trust it. A familiar name is not evidence. The genuine
+            <code>svchost.exe</code> is a normal part of Windows. A file that copies the name and runs from a
+            folder it has no business being in is not.
+        </p>
+        <p>
+            The useful questions are not only what a process is called. They are where it lives, who signed it,
+            what started it, and what it is doing right now. This guide walks through those checks by hand,
+            using tools you already have, then shows how PC Workman collects the same evidence locally so you
+            can read it in one place.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#name">Why the name is the weakest evidence</a></li>
+                <li><a href="#evidence">Five pieces of evidence that actually matter</a></li>
+                <li><a href="#check">How to check each one by hand</a></li>
+                <li><a href="#panic">The processes people panic about (reference table)</a></li>
+                <li><a href="#passport">How PC Workman reads a process</a></li>
+                <li><a href="#verdict">What a tool should and should not claim</a></li>
+            </ol>
+        </div>
+
+        <h2 id="name">Why the name is the weakest evidence</h2>
+        <p>
+            Windows ships with dozens of background processes that have cryptic names. Malware authors know
+            this, and they know your first move is to search the name and relax when it looks official. Two
+            old tricks exploit exactly that reflex:
+        </p>
+        <ul>
+            <li><strong>Masquerading</strong>: use a real system name, such as <code>svchost.exe</code> or
+                <code>csrss.exe</code>, but run the file from the wrong folder. The name in Task Manager looks
+                perfect. The location does not.</li>
+            <li><strong>Typosquatting</strong>: a name one character off from the real one, like
+                <code>svch0st.exe</code> (zero instead of the letter o), <code>scvhost.exe</code>, or
+                <code>svchosts.exe</code>. Sorted alphabetically, the fake sits one row from the genuine
+                process and reads as identical at a glance.</li>
+        </ul>
+        <p>
+            The fix is to stop treating the name as a verdict and start treating it as a lookup key. The name
+            tells you what a process <em>claims</em> to be. Everything that follows is how you check the claim.
+        </p>
+
+        <h2 id="evidence">Five pieces of evidence that actually matter</h2>
+        <ol>
+            <li><strong>The exact name</strong>, read character by character. Watch for zeros standing in for
+                the letter o, and for an extra letter on the end.</li>
+            <li><strong>The full path</strong> it runs from. Genuine Windows processes live in
+                <code>C:\Windows\System32</code>, <code>C:\Windows\SysWOW64</code>, or a signed program folder
+                under <code>Program Files</code>. A copy of a Windows process name running from
+                <code>AppData</code>, <code>Temp</code>, <code>Downloads</code> or a user profile folder is the
+                single biggest red flag on this list.</li>
+            <li><strong>The digital signature and publisher</strong>. Genuine Windows processes are signed by
+                Microsoft Windows. A missing, invalid, or unexpected signer on a file claiming to be a system
+                component is a strong warning.</li>
+            <li><strong>The parent process</strong>, meaning what launched it. <code>services.exe</code> starts
+                <code>svchost.exe</code>. <code>explorer.exe</code> starts the apps you open by hand. A
+                system-looking process launched by a random installer, a browser, or an unfamiliar program is
+                out of place even if the file itself looks fine.</li>
+            <li><strong>The startup source and current behaviour</strong>. Does it add itself at boot through a
+                Run key or a scheduled task? Is its CPU, memory and disk use in line with what it claims to be?
+                A permission broker that pins a core at 40 percent for an hour has earned a closer look.</li>
+        </ol>
+
+        <h2 id="check">How to check each one by hand</h2>
+        <p>
+            You do not need to install anything to run most of these checks. Everything below ships with
+            Windows or comes free from Microsoft.
+        </p>
+        <p>
+            <strong>Task Manager (Details tab).</strong> Switch from the friendly Processes view to the Details
+            tab. Right-click any entry and choose <em>Open file location</em> to see the real path, and
+            <em>Properties then Digital Signatures</em> to see who signed it. The Startup tab lists boot-time
+            entries with a rough impact rating.
+        </p>
+        <p>
+            <strong>Sysinternals (free, from Microsoft).</strong> Process Explorer shows the full parent and
+            child tree, the verified publisher of each file, and can check a file's hash against VirusTotal
+            without uploading the file itself. Autoruns lists every autostart location on the system, not only
+            the short list Task Manager shows, and it can hide all Microsoft-signed entries so only third-party
+            software remains. From the command line, sigcheck reports the signature and version of any file.
+        </p>
+        <p>
+            <strong>When the evidence points to a real problem</strong>, meaning a system name from a user
+            folder, an unsigned or wrongly signed file, a process spawning children it should not, or one that
+            refuses to close, run a full offline scan. Microsoft Defender Offline restarts the machine into a
+            clean environment and scans before Windows finishes loading, which catches things that hide while
+            the system is running normally.
+        </p>
+
+        <div class="callout warn">
+            <b>One check settles most cases.</b> If you only have time for one, it is the path. A process
+            wearing a Windows name while running from anywhere other than <code>System32</code>,
+            <code>SysWOW64</code> or a legitimate <code>Program Files</code> folder is the pattern that turns a
+            vague worry into something specific to act on.
+        </div>
+
+        <h2 id="panic">The processes people panic about</h2>
+        <p>
+            These are the names that send people to a search box at two in the morning. Every one of them is a
+            normal part of Windows when it runs from the path shown. The reason to know them is not to relax on
+            sight, it is to know the correct location so a fake in the wrong folder stands out.
+        </p>
+        <pre><code>process                    real role                          genuine path
+svchost.exe                hosts Windows services             C:\Windows\System32
+RuntimeBroker.exe          manages app permissions            C:\Windows\System32
+dllhost.exe (COM Surrogate) hosts COM components              C:\Windows\System32
+conhost.exe                console window host                C:\Windows\System32
+ctfmon.exe                 text input, handwriting            C:\Windows\System32
+WmiPrvSE.exe               WMI provider host                  C:\Windows\System32\wbem
+csrss.exe                  client and server runtime          C:\Windows\System32
+Secure System / Registry   kernel-side, part of the system    (no file path shown)</code></pre>
+        <p>
+            A few things that look alarming but are normal: several copies of <code>svchost.exe</code> at once,
+            <code>Secure System</code> and <code>Registry</code> showing no file path at all (they are part of
+            the kernel, not a file on disk), and <code>csrss.exe</code> refusing to be ended (Windows protects
+            it on purpose). What is <em>not</em> normal is any of these names running from a path other than the
+            one listed above. If yours match, the context is normal. If a high idle load led you here, the
+            cause is more often a background app than an infection, and our guide on
+            <a href="../normal-cpu-temperature/">why a normal-looking temperature can be a warning</a> covers
+            how to trace that.
+        </p>
+
+        <h2 id="passport">How PC Workman reads a process</h2>
+        <p>
+            You can run every check above by hand for one suspicious process. Repeating it across a busy process
+            list is where it stops being practical. PC Workman v1.8.5 keeps an offline library of 485 known
+            Windows and common third-party processes. Its Process Suspect Guard compares a requested process
+            with that library, the executable path and, when the running file is available, its Authenticode
+            signature:
+        </p>
+        <div class="passport">
+            <div class="pp-head"><span>Process identity</span><span class="pp-tag">local check</span></div>
+            <div class="pp-row"><span class="k">Name</span><span class="v">RuntimeBroker.exe</span></div>
+            <div class="pp-row"><span class="k">Library</span><span class="v">known Windows process</span></div>
+            <div class="pp-row"><span class="k">Location</span><span class="v ok">Windows system directory</span></div>
+            <div class="pp-row"><span class="k">Publisher</span><span class="v">Microsoft Windows</span></div>
+            <div class="pp-row"><span class="k">Signature</span><span class="v ok">valid</span></div>
+            <div class="pp-verdict"><span class="badge known">trusted</span><span>the reasons are listed with the verdict</span></div>
+        </div>
+        <p>
+            For a process it does not recognise, it says so plainly rather than guessing:
+        </p>
+        <div class="passport unknown">
+            <div class="pp-head"><span>Process identity</span><span class="pp-tag">no match</span></div>
+            <div class="pp-row"><span class="k">Name</span><span class="v">(unrecognised)</span></div>
+            <div class="pp-row"><span class="k">Offline match</span><span class="v warn">none found</span></div>
+            <div class="pp-row"><span class="k">Note</span><span class="v">unknown does not mean malicious</span></div>
+            <div class="pp-row"><span class="k">Next</span><span class="v">check path, signature and parent process</span></div>
+            <div class="pp-verdict"><span class="badge unk">not recognised</span><span>evidence to gather, not a verdict</span></div>
+        </div>
+        <p>
+            The whole point is that the library never leaves your machine. Nothing about your running processes
+            is sent anywhere to be identified. The same offline library is what powers PC Workman's other
+            process-aware features, from
+            <a href="../ghost-drivers-windows/">tracing leftover driver services</a> to labelling what is
+            actually loading your system.
+        </p>
+
+        <h2 id="verdict">What a tool should and should not claim</h2>
+        <div class="callout warn">
+            <b>A tool should not promise that a process is safe.</b> A name, path and signature cannot prove
+            that. PC Workman reports a local verdict with the reasons that produced it. It flags known-system
+            names outside their expected directory, lookalike names, risky locations and invalid signatures.
+            An unknown process is not treated as malicious by default.
+        </div>
+        <p>
+            So the next time a name in Task Manager makes you uneasy, do not stop at the name. Open the file
+            location, check the signer, look at what launched it, and watch what it does. Four questions,
+            about two minutes, and almost every "is this a virus" scare resolves itself, one way or the other.
+        </p>
+
+        <div class="guide-cta">
+            <b>Check a process with the evidence attached.</b> PC Workman compares its name, path and available
+            signature data with an offline library of 485 entries, then lists the reasons behind the verdict.
+            Process data is not sent to an external identification service.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: something is holding your memory and you are not sure what.
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>Building a system monitor in public since 2025. Every guide is based on what the sensors and the process library actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

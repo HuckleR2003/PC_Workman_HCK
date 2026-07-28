@@ -1,0 +1,261 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: co to za proces -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Znana nazwa procesu nie dowodzi, że plik jest prawdziwy. Sprawdź ścieżkę, podpis cyfrowy, proces nadrzędny i zachowanie. Tabela svchost.exe, RuntimeBroker, COM Surrogate i innych procesów Windows.">
+    <meta name="keywords" content="co to za proces Windows, svchost.exe wirus, nieznany proces Menedżer zadań, RuntimeBroker, COM Surrogate, dllhost.exe, jak sprawdzić proces, fałszywy proces Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-is-this-process/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-is-this-process/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-is-this-process/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-is-this-process/">
+    <meta property="og:title" content="Co to za proces w Menedżerze zadań? Jak odróżnić prawdziwy plik od podszywającego się">
+    <meta property="og:description" content="Nazwa jest najsłabszym dowodem. Ścieżka, podpis, proces nadrzędny i bieżące zachowanie pokazują znacznie więcej.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-is-this-process/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Co to za proces w Menedżerze zadań? Jak sprawdzić, czy plik jest prawdziwy | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog po polsku" href="../../blog/feed_pl.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Co to za proces w Menedżerze zadań? Jak sprawdzić, czy plik jest prawdziwy",
+      "description": "Jak oceniać proces na podstawie ścieżki, podpisu cyfrowego, procesu nadrzędnego i zachowania oraz które procesy systemowe najczęściej budzą niepotrzebny niepokój.",
+      "url": "https://pcworkman.dev/guides/what-is-this-process/index_pl.html",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/what-is-this-process/",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Co to za proces", "item": "https://pcworkman.dev/guides/what-is-this-process/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy svchost.exe to wirus?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Zwykle nie. svchost.exe jest składnikiem Windows obsługującym usługi systemowe, dlatego kilka kopii naraz jest normalne. Prawdziwy plik znajduje się w C:\\Windows\\System32. Ten sam napis w folderze użytkownika, AppData, Temp albo Downloads oraz literówki takie jak svch0st.exe wymagają sprawdzenia."}
+        },
+        {
+          "@type": "Question",
+          "name": "Jak sprawdzić, czy proces jest prawdziwy, czy podszywa się pod systemowy?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Nazwa nie wystarcza. Sprawdź pełną ścieżkę uruchomionego pliku, jego podpis cyfrowy i wydawcę, proces nadrzędny oraz to, czy bieżące zużycie zasobów pasuje do deklarowanej roli. Systemowa nazwa w nieoczekiwanym folderze albo nieprawidłowy podpis są ważnymi sygnałami ostrzegawczymi."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .passport{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #a3e635;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .passport.unknown{border-left-color:#c0182a}.pp-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}
+    .pp-head .pp-tag{color:#a3e635}.passport.unknown .pp-head .pp-tag{color:#e11d2f}
+    .pp-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.pp-row .k{color:var(--text-dim);width:132px;flex-shrink:0}.pp-row .v{color:#e6eef6;word-break:break-word}
+    .pp-row .v.ok{color:#a3e635}.pp-row .v.warn{color:#e11d2f}.pp-verdict{margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-secondary)}
+    .pp-verdict .badge{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:.22rem .6rem;border-radius:999px}.pp-verdict .known{color:#a3e635;border:1px solid rgba(163,230,53,.42)}.pp-verdict .unk{color:#e11d2f;border:1px solid rgba(225,29,47,.42)}
+    @media(max-width:520px){.pp-row{flex-direction:column;gap:0}.pp-row .k{width:auto}}
+    </style>
+</head>
+<body class="page-monday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/what-is-this-process/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/what-is-this-process/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-monday">Procesy &middot; Poradnik</span>
+        <h1>Co to za proces w Menedżerze zadań?</h1>
+        <p class="tagline">Znana nazwa prawie niczego nie dowodzi. Ścieżka, podpis i proces nadrzędny mówią znacznie więcej.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-25</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Otwórz Menedżera zadań i posortuj listę według nazwy. Prawdopodobnie zobaczysz kilka procesów
+            <code>svchost.exe</code>. Z samej nazwy nie ustalisz, które są zwykłą częścią Windows, ani czy któryś
+            plik tylko podszywa się pod proces systemowy.
+        </p>
+        <p>
+            Menedżer zadań dobrze pokazuje, że proces istnieje. Gorzej tłumaczy, czy można mu zaufać. Prawdziwy
+            <code>svchost.exe</code> jest potrzebny systemowi. Plik kopiujący tę nazwę, ale uruchomiony z folderu,
+            w którym nie powinien się znajdować, wymaga kontroli. Liczy się dokładna nazwa, lokalizacja, podpis
+            cyfrowy, źródło uruchomienia i bieżące zachowanie.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#nazwa">Dlaczego nazwa jest najsłabszym dowodem</a></li>
+                <li><a href="#dowody">Pięć informacji, które mają znaczenie</a></li>
+                <li><a href="#recznie">Jak sprawdzić proces ręcznie</a></li>
+                <li><a href="#tabela">Procesy, których ludzie najczęściej się obawiają</a></li>
+                <li><a href="#paszport">Jak PC Workman opisuje proces</a></li>
+                <li><a href="#granica">Czego narzędzie nie powinno obiecywać</a></li>
+            </ol>
+        </div>
+        <h2 id="nazwa">Dlaczego nazwa jest najsłabszym dowodem</h2>
+        <p>Windows uruchamia wiele procesów o nieczytelnych nazwach. Dwa proste sposoby wykorzystują pośpiech użytkownika:</p>
+        <ul>
+            <li><strong>Podszywanie się.</strong> Plik używa prawdziwej nazwy, na przykład <code>svchost.exe</code> albo <code>csrss.exe</code>, ale działa z nieprawidłowego katalogu. Lista procesów wygląda poprawnie. Ścieżka już nie.</li>
+            <li><strong>Literówka podobna do oryginału.</strong> <code>svch0st.exe</code> używa zera zamiast litery „o”, <code>scvhost.exe</code> przestawia litery, a <code>svchosts.exe</code> dodaje jedną na końcu. W długiej liście różnica jest łatwa do przeoczenia.</li>
+        </ul>
+        <p>
+            Traktuj nazwę jako deklarację, nie werdykt. Informuje, za co plik chce uchodzić. Kolejne kroki
+            pozwalają sprawdzić tę deklarację.
+        </p>
+        <h2 id="dowody">Pięć informacji, które mają znaczenie</h2>
+        <ol>
+            <li><strong>Dokładna nazwa.</strong> Czytaj znak po znaku. Zwróć uwagę na zero zamiast litery „o” oraz dodatkowe litery.</li>
+            <li><strong>Pełna ścieżka.</strong> Procesy Windows działają z katalogów takich jak <code>C:\Windows\System32</code> i <code>C:\Windows\SysWOW64</code>. Programy innych firm zwykle pochodzą z podpisanego katalogu w <code>Program Files</code>. Systemowa nazwa w <code>AppData</code>, <code>Temp</code>, <code>Downloads</code> lub bezpośrednio w profilu użytkownika jest mocnym sygnałem ostrzegawczym.</li>
+            <li><strong>Podpis cyfrowy i wydawca.</strong> Prawdziwe składniki Windows są podpisane przez Microsoft Windows. Brak podpisu, podpis nieważny albo inny wydawca wymaga wyjaśnienia.</li>
+            <li><strong>Proces nadrzędny.</strong> To program, który uruchomił sprawdzany proces. <code>services.exe</code> uruchamia <code>svchost.exe</code>, a <code>explorer.exe</code> wiele aplikacji otwieranych ręcznie. Systemowo wyglądający proces uruchomiony przez przypadkowy instalator lub przeglądarkę nie pasuje do zwykłego łańcucha.</li>
+            <li><strong>Autostart i bieżące zachowanie.</strong> Sprawdź, czy plik dodaje się do rejestru albo Harmonogramu zadań, oraz czy CPU, pamięć i dysk odpowiadają jego roli. Broker uprawnień zajmujący 40 procent CPU przez godzinę zasługuje na dalszą diagnostykę.</li>
+        </ol>
+        <h2 id="recznie">Jak sprawdzić proces ręcznie</h2>
+        <p>
+            W karcie Szczegóły Menedżera zadań kliknij proces prawym przyciskiem i wybierz „Otwórz lokalizację
+            pliku”. We właściwościach pliku znajdziesz kartę Podpisy cyfrowe. Karta Uruchamianie pokazuje krótszą
+            listę wpisów startujących z systemem.
+        </p>
+        <p>
+            Bezpłatny Process Explorer z pakietu Microsoft Sysinternals pokazuje pełne drzewo procesów,
+            zweryfikowanego wydawcę i relacje rodzic-dziecko. Autoruns zbiera wiele miejsc autostartu, których
+            Menedżer zadań nie pokazuje, i może ukryć podpisane wpisy Microsoftu. Narzędzie <code>sigcheck</code>
+            sprawdza podpis oraz wersję pliku z wiersza poleceń.
+        </p>
+        <p>
+            Jeżeli systemowa nazwa działa z folderu użytkownika, plik ma niewłaściwy podpis, tworzy nietypowe
+            procesy potomne albo nie pozwala się zamknąć, uruchom pełne skanowanie. Microsoft Defender Offline
+            restartuje komputer do czystego środowiska i skanuje przed pełnym uruchomieniem Windows.
+        </p>
+        <div class="callout warn">
+            <b>Jeśli masz sprawdzić jedną rzecz, sprawdź ścieżkę.</b> Systemowa nazwa działająca poza właściwym
+            katalogiem zamienia ogólny niepokój w konkretną niezgodność, którą można dalej zbadać.
+        </div>
+        <h2 id="tabela">Procesy, których ludzie najczęściej się obawiają</h2>
+        <pre><code>proces                      rola                               prawidłowa ścieżka
+svchost.exe                 host usług Windows                C:\Windows\System32
+RuntimeBroker.exe           broker uprawnień aplikacji        C:\Windows\System32
+dllhost.exe (COM Surrogate) host składników COM               C:\Windows\System32
+conhost.exe                 host okna konsoli                 C:\Windows\System32
+ctfmon.exe                  tekst i pismo odręczne            C:\Windows\System32
+WmiPrvSE.exe                host dostawcy WMI                 C:\Windows\System32\wbem
+csrss.exe                   środowisko klient-serwer          C:\Windows\System32
+Secure System / Registry    składniki jądra systemu           brak zwykłej ścieżki</code></pre>
+        <p>
+            Kilka kopii <code>svchost.exe</code> jest normalne. Procesy Secure System i Registry mogą nie
+            pokazywać ścieżki, ponieważ nie są zwykłymi plikami użytkownika. Windows celowo chroni
+            <code>csrss.exe</code> przed zakończeniem. Nie zakładaj jednak bezpieczeństwa po samej nazwie.
+            Porównaj lokalizację z oczekiwanym katalogiem.
+        </p>
+        <h2 id="paszport">Jak PC Workman opisuje proces</h2>
+        <p>
+            Ręczna kontrola jednego wpisu trwa chwilę. Powtarzanie jej dla całej listy staje się mało praktyczne.
+            PC Workman 1.8.5 zawiera lokalną bazę 485 znanych procesów Windows i popularnych programów innych firm.
+            Process Suspect Guard porównuje wskazany proces z bazą, ścieżką pliku oraz, gdy uruchomiony plik jest
+            dostępny, jego podpisem Authenticode:
+        </p>
+        <div class="passport">
+            <div class="pp-head"><span>Identyfikacja procesu</span><span class="pp-tag">lokalna kontrola</span></div>
+            <div class="pp-row"><span class="k">Nazwa</span><span class="v">RuntimeBroker.exe</span></div>
+            <div class="pp-row"><span class="k">Baza</span><span class="v">znany proces Windows</span></div>
+            <div class="pp-row"><span class="k">Lokalizacja</span><span class="v ok">katalog systemowy Windows</span></div>
+            <div class="pp-row"><span class="k">Wydawca</span><span class="v">Microsoft Windows</span></div>
+            <div class="pp-row"><span class="k">Podpis</span><span class="v ok">ważny</span></div>
+            <div class="pp-verdict"><span class="badge known">zaufany</span><span>powody są podane razem z werdyktem</span></div>
+        </div>
+        <p>Gdy baza nie zna procesu, program nie zgaduje:</p>
+        <div class="passport unknown">
+            <div class="pp-head"><span>Identyfikacja procesu</span><span class="pp-tag">brak dopasowania</span></div>
+            <div class="pp-row"><span class="k">Nazwa</span><span class="v">(nierozpoznana)</span></div>
+            <div class="pp-row"><span class="k">Baza offline</span><span class="v warn">brak wpisu</span></div>
+            <div class="pp-row"><span class="k">Uwaga</span><span class="v">nieznany nie znaczy złośliwy</span></div>
+            <div class="pp-row"><span class="k">Następny krok</span><span class="v">sprawdź ścieżkę, podpis i proces nadrzędny</span></div>
+            <div class="pp-verdict"><span class="badge unk">nierozpoznany</span><span>potrzebne dowody, nie wyrok</span></div>
+        </div>
+        <p>Lista procesów i informacje o uruchomionych programach nie są wysyłane do zewnętrznej usługi w celu identyfikacji.</p>
+        <h2 id="granica">Czego narzędzie nie powinno obiecywać</h2>
+        <div class="callout warn">
+            <b>Narzędzie nie powinno obiecywać, że proces jest bezpieczny.</b> Nazwa, ścieżka i podpis nie dają
+            takiej gwarancji. PC Workman podaje lokalny werdykt razem z powodami. Oznacza znaną nazwę systemową
+            poza właściwym katalogiem, nazwę podobną do zaufanej, ryzykowną lokalizację i nieprawidłowy podpis.
+            Nierozpoznany proces nie jest automatycznie uznawany za złośliwy.
+        </div>
+        <p>
+            Gdy kolejna nazwa wzbudzi niepokój, nie kończ sprawdzania na wyszukiwarce. Otwórz lokalizację pliku,
+            sprawdź wydawcę, zobacz, co go uruchomiło, i porównaj zachowanie z deklarowaną rolą.
+        </p>
+        <div class="guide-cta">
+            <b>Sprawdź proces razem z dowodami.</b> PC Workman porównuje nazwę, ścieżkę i dostępne dane podpisu
+            z lokalną bazą 485 wpisów, a następnie pokazuje powody werdyktu. Dane procesu nie są wysyłane do
+            zewnętrznej usługi identyfikacyjnej.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję monitor systemu publicznie od 2025 roku. Poradniki opieram na danych, które program rzeczywiście potrafi pokazać.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
