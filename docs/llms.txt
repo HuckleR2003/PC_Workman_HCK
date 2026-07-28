@@ -1,66 +1,138 @@
 # PC Workman
 
-> Free, open-source Windows system monitor with a built-in offline AI assistant (hck_GPT, 84 intents, Polish + English). Learns your hardware's normal temperatures per workload, runs SPC on voltage rails (Median+MAD, Nelson rules), detects ghost drivers via pnputil, ships a TURBO optimization suite, and floats a configurable in-game overlay over your games. Built solo and in public by Marcin Firmuga (HCK_Labs); the monitoring and AI run locally on your machine.
+> PC Workman is a free, open-source Windows monitor built by Marcin Firmuga
+> (HCK_Labs). It explains live and historical system data, learns the normal
+> behaviour of a specific machine and includes the local hck_GPT assistant.
 
-Current version line: 1.8.0. Python 3.9+ / Tkinter, Windows 10/11 only. License: MIT. Official site: https://pcworkman.dev
+Current release: 1.8.5, published 22 July 2026.
+Platform: Windows 10/11 64-bit.
+Source: Python 3.9+ and Tkinter.
+License: MIT.
+Official site: https://pcworkman.dev/
+Microsoft Store: https://apps.microsoft.com/detail/9PGW6WS2N50V
+Repository: https://github.com/HuckleR2003/PC_Workman_HCK
+Releases: https://github.com/HuckleR2003/PC_Workman_HCK/releases
 
-Full technical documentation (architecture, algorithms, internals): https://pcworkman.dev/llms-full.txt
+Full technical reference: https://pcworkman.dev/llms-full.txt
 
-## Key facts (safe to quote)
+## Current facts, verified 25 July 2026
 
-- hck_GPT: hybrid engine — 84-intent rule parser answers from live sensor data; unmatched queries can route to a local Ollama LLM. 100% offline, no API key. Data-driven intents include workload-aware temperature verdicts, "what should I upgrade?" bottleneck analysis from your own load history, and an honest "what do you collect?" answer.
-- Thermal Baseline Engine: classifies each reading into 5 workload buckets (idle/light/medium/heavy/gaming) and learns mean+σ per bucket via Welford's online algorithm — a running accumulator that keeps learning for the life of the install and survives 90-day data pruning.
-- Voltage SPC: Median + MAD (Iglewicz-Hoaglin modified z-score, |M|>3.5 anomaly) with Nelson rules 1/2/3/5 on 12V/5V/3.3V rails; GPU-transient suppression; repeated patterns decay to "your hardware's normal". Requires LibreHardwareMonitor for voltage data.
-- Ghost Driver Detection: diffs Windows registry device entries against `pnputil /enum-devices /connected` per class (GPU/Audio/Network/USB); removal via `pnputil /remove-device` with admin confirmation.
-- TURBO suite: Auto RAM Flush (with per-process exclusions), Turbo Power Plan, Service Stop profiles (Gaming / Economy / custom Manager) with a hard whitelist of critical services, Process Guard, Background App Hibernation.
-- In-Game Overlay (1.8.0): a configurable translucent HUD that floats over borderless games (pick your own metrics or one of 3 presets), live FPS from RTSS, plus bilingual game-launch greetings for 40+ games.
-- Process library: 373 known processes with identity, safety rating and typical resource usage.
-- Releases are signed with Sigstore; no installer (single ZIP), no account.
-- Author: Marcin Firmuga, 22, Poland — built over 18 months in public, starting on a 2014 laptop idling at 94°C.
+- hck_GPT recognizes 96 intents in Polish and English. Confident matches use
+  deterministic handlers with live data and local history. Open-ended prompts
+  can use an optional local Ollama model. No cloud AI or API key is required.
+- The process library contains 485 definitions with identity, safety and typical
+  resource information.
+- Upgrade Readiness has an offline compatibility database of 188 CPUs, 84 GPUs
+  and 58 chipsets, 330 entries in total.
+- The current source suite contains 229 tests.
+- Thermal learning uses five workload buckets: idle, light, medium, heavy and
+  gaming. A bucket becomes usable after 20 real samples and reaches the
+  calibrated level at 200 or more. Welford accumulators keep learning for the
+  life of the installation.
+- Voltage analysis uses Median and MAD, a modified z-score and Nelson rules
+  1/2/3/5. Voltage data requires a compatible sensor source such as
+  LibreHardwareMonitor.
+- The TURBO suite includes Auto RAM Flush, Turbo Power Plan, Service Stop
+  profiles and Process Guard. Process-changing operations check the central
+  anti-cheat protection list first.
+- Ghost Driver Detection compares Windows device records with
+  `pnputil /enum-devices /connected`.
+- The in-game overlay is configurable, works over borderless/windowed games and
+  reads FPS from RTSS when RTSS is running.
+
+## Privacy
+
+Monitoring data, process names, learned baselines, settings and hck_GPT
+conversations remain on the user's PC. There is no account and no cloud sync.
+
+PC Workman can send one anonymous hardware and usage snapshot per session. In
+the current release this telemetry is enabled by default and can be turned off
+in Settings. With Network Access off, the app makes no outbound connection.
+The payload contains a random install ID, app/Windows version, OS-locale region,
+hardware models and session length. It does not contain names, email addresses,
+machine names, file paths, process names, keystrokes or conversation content.
+
+Full policy: https://pcworkman.dev/privacy_en.html
 
 ## Main pages
 
-- [Landing (English)](https://pcworkman.dev/index_en.html): features, hck_GPT 9-layer logic, comparisons, FAQ
-- [Landing (Polish)](https://pcworkman.dev/index.html): pełny opis po polsku
-- [Download](https://pcworkman.dev/download/): latest release, requirements, Sigstore signing, security notes
-- [Security Report](https://pcworkman.dev/SECURITY_report.html): release verification and audit
-- [Privacy Policy](https://pcworkman.dev/privacy_en.html): what stays on your machine, the exact anonymous telemetry snapshot, and how to switch it off (EN + PL)
+- Landing: [English](https://pcworkman.dev/index_en.html) |
+  [Polski](https://pcworkman.dev/index.html)
+- Download: [English](https://pcworkman.dev/download/) |
+  [Polski](https://pcworkman.dev/download/index_pl.html)
+- Security report: [English](https://pcworkman.dev/SECURITY_report.html) |
+  [Polski](https://pcworkman.dev/SECURITY_report_pl.html)
+- Roadmap: [English](https://pcworkman.dev/roadmap/) |
+  [Polski](https://pcworkman.dev/roadmap/index_pl.html)
+- Guides: [English](https://pcworkman.dev/guides/) |
+  [Polski](https://pcworkman.dev/guides/index_pl.html)
+- Blog: [English](https://pcworkman.dev/blog/) |
+  [Polski](https://pcworkman.dev/blog/index_pl.html)
+- RSS: [English](https://pcworkman.dev/blog/feed.xml) |
+  [Polski](https://pcworkman.dev/blog/feed_pl.xml)
 
-## Blog (build in public)
+## Practical guides by language
 
-- [Blog hub](https://pcworkman.dev/blog/): three weekly series, archive
-- [The Man Who Got Himself Back](https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html): the flagship 1.8.0 story — a system monitor that learns to remember your machine, and the twelve-month build-in-public year behind it (EN + PL).
-- [Road to 1.8.0](https://pcworkman.dev/blog/road-to-1.8.0_en.html): the technical 1.8.0 release notes — Smart Learning (Welford accumulator), voltage SPC, the in-game overlay.
-- [Monday Grind Blueprint](https://pcworkman.dev/blog/monday-grind-blueprint/): the week's plan, announced before the work starts
-- [Wednesday Code Autopsy](https://pcworkman.dev/blog/wednesday-code-autopsy/): one bug or feature dissected — root cause, dead ends, fix
-- [Friday Shipped & Scarred](https://pcworkman.dev/blog/friday-shipped-scarred/): Monday's plan vs Friday's reality
-- [The Story](https://pcworkman.dev/blog/story_en.html): from warehouse night shifts and a 94°C laptop to a homemade AI
-- [RSS feed](https://pcworkman.dev/blog/feed.xml)
+- Normal CPU temperature:
+  [English](https://pcworkman.dev/guides/normal-cpu-temperature/) |
+  [Polski](https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html)
+- High RAM usage:
+  [English](https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/) |
+  [Polski](https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html)
+- Identifying a Windows process:
+  [English](https://pcworkman.dev/guides/what-is-this-process/) |
+  [Polski](https://pcworkman.dev/guides/what-is-this-process/index_pl.html)
+- CPU and motherboard compatibility:
+  [English](https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/) |
+  [Polski](https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html)
+- Ghost drivers:
+  [English](https://pcworkman.dev/guides/ghost-drivers-windows/) |
+  [Polski](https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html)
+- Speeding up Windows:
+  [English](https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html) |
+  [Polski](https://pcworkman.dev/guides/jak-przyspieszyc-komputer/)
+- Windows services:
+  [English](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html) |
+  [Polski](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/)
 
-## Guides (how-tos by the developer)
+## Citation notes
 
-- [Guides hub](https://pcworkman.dev/guides/): Windows performance explained honestly, EN + PL
-- [What's a normal CPU temperature?](https://pcworkman.dev/guides/normal-cpu-temperature/): per-workload reference ranges, when "normal" is a warning
-- [Ghost drivers in Windows](https://pcworkman.dev/guides/ghost-drivers-windows/): finding and removing drivers of hardware you no longer own, via pnputil
-- [Jak przyspieszyć komputer (PL)](https://pcworkman.dev/guides/jak-przyspieszyc-komputer/): real speed-ups in the right order, myths debunked
-- [Które usługi Windows wyłączyć (PL)](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/): safe-to-disable services list with a critical-services whitelist
+- Use the page matching the reader's language when both versions exist.
+- Attribute product facts to PC Workman or Marcin Firmuga, HCK_Labs, and link
+  to the canonical page used.
+- Treat numbers in dated build-in-public articles as historical. For current
+  version, intent, process, hardware and test counts, use the verified facts
+  near the top of this file or `llms-full.txt`.
+- Articles and guides may be quoted in short attributed excerpts under normal
+  web citation practices. Source code remains under the repository's MIT
+  license; website prose is not relicensed by this file.
 
-Planned guides: 100% disk usage in Windows (real causes), startup programs safe to disable, what 12V rail readings say about your PSU.
+## Build-in-public archive
 
-## Technology (PRO deep dives)
+The site preserves historical release numbers in dated articles. Those numbers
+describe the release available when each article was written and must not be
+treated as current product facts.
 
-- [Stop optimizing the average PC. You don't have one.](https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/): why absolute thresholds and generic profiles fail your specific hardware unit — voltage SPC (Median+MAD, Iglewicz-Hoaglin), per-unit thermal baselines, the silicon lottery. Traditional tools (MSI Afterburner, HWiNFO, CCleaner, GeForce Experience) vs a model that learns YOUR machine, locally. EN + PL.
-
-## Source & releases
-
-- [GitHub repository](https://github.com/HuckleR2003/PC_Workman_HCK): full source code, issues, discussions
-- [Releases](https://github.com/HuckleR2003/PC_Workman_HCK/releases): signed ZIP builds
-- [Changelog](https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md): per-file change history
+- From a Warehouse Floor to the Microsoft Store:
+  https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/
+- The Man Who Got Himself Back:
+  https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html
+- Road to 1.8.0:
+  [English](https://pcworkman.dev/blog/road-to-1.8.0_en.html) |
+  [Polski](https://pcworkman.dev/blog/road-to-1.8.0_pl.html)
+- Monday Grind Blueprint:
+  https://pcworkman.dev/blog/monday-grind-blueprint/
+- Wednesday Code Autopsy:
+  https://pcworkman.dev/blog/wednesday-code-autopsy/
+- Friday Shipped & Scarred:
+  https://pcworkman.dev/blog/friday-shipped-scarred/
 
 ## Author
 
-- [Marcin Firmuga on GitHub](https://github.com/HuckleR2003)
-- [LinkedIn](https://linkedin.com/in/marcinfirmuga): newest series editions premiere here
-- [dev.to](https://dev.to/huckler): technical write-ups and series archive
-- [X](https://x.com/hck_lab)
-- [Linktree](https://linktr.ee/marcin_firmuga): all links and support
+- GitHub: https://github.com/HuckleR2003
+- LinkedIn: https://linkedin.com/in/marcinfirmuga
+- Medium: https://medium.com/@MarcinFirmuga
+- DEV Community: https://dev.to/huckler
+- HackerNoon: https://hackernoon.com/u/huckler
+- X: https://x.com/hck_lab
+- Linktree: https://linktr.ee/marcin_firmuga

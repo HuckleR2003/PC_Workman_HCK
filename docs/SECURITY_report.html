@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://pcworkman.dev/SECURITY_report.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/SECURITY_report_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:url" content="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:type" content="website">
     <meta property="og:title" content="PC Workman — Security Policy">
@@ -49,7 +52,7 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/SECURITY_report_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
             <a href="/index_en.html" class="active" data-lang="en">EN</a>
         </span>
@@ -58,13 +61,13 @@
     <main class="article">
         <p class="kicker">Security Policy</p>
         <h1>Security Policy</h1>
-        <p class="updated">Last updated 26 June 2026 — version 1.5</p>
+        <p class="updated">Last updated 25 July 2026, document revision 1.6</p>
 
-        <p class="lead">PC Workman needs administrative privileges to read hardware sensors and control fan speeds. That level of access deserves rigorous, verifiable security. This page summarises how every release is protected and how you can verify it yourself — you don't have to take my word for any of it. The full policy lives in <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+        <p class="lead">PC Workman monitors low-level system data and can perform elevated actions such as changing power plans, managing services and applying supported fan controls. Basic monitoring does not require administrator rights. That access deserves verifiable security. This page summarises how releases are protected and how you can check them yourself. The full policy lives in <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md">SECURITY.md</a>.</p>
 
         <div class="sec-badges">
             <figure><img src="assets/images/codeql.png" alt="CodeQL">          <figcaption>CodeQL</figcaption></figure>
-            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 0/70</figcaption></figure>
+            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 0/70, v1.8.5</figcaption></figure>
             <figure><img src="assets/images/github_security.png" alt="Sigstore"> <figcaption>Sigstore signed</figcaption></figure>
             <figure><img src="assets/images/openssf.png" alt="OpenSSF">          <figcaption>OpenSSF (in progress)</figcaption></figure>
         </div>
@@ -72,7 +75,7 @@
         <h2>How every release is protected</h2>
         <ul>
             <li><b>Sigstore digital signatures</b> — cryptographic proof that a release is authentic, active since January 20, 2026.</li>
-            <li><b>VirusTotal scanning</b> — every <code>.exe</code> is checked against 70+ antivirus engines before release (currently 0/70).</li>
+            <li><b>VirusTotal scanning</b>: every <code>.exe</code> is checked against 70+ antivirus engines before release. Version 1.8.5 returned 0/70 detections.</li>
             <li><b>CodeQL</b> — automated security scanning on every commit to <code>main</code>.</li>
             <li><b>Private vulnerability reporting</b> + Dependabot alerts on GitHub.</li>
             <li><b>Documented testing</b> — version, date and results recorded publicly; source tagged and archived per release.</li>
@@ -88,17 +91,17 @@
         <p><b>2. Check the SHA256 hash</b> against the value in the release notes</p>
         <pre><code>Get-FileHash PC_Workman_HCK_&lt;version&gt;.exe -Algorithm SHA256</code></pre>
         <p><b>3. Scan it on <a href="https://www.virustotal.com">VirusTotal</a></b> (expected: 0 detections) and <b>read the source</b> — every line is on GitHub.</p>
-        <div class="callout warn"><b>Download only from official sources:</b> <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a>, <a href="https://pcworkman.dev">pcworkman.dev</a>, or <a href="https://sourceforge.net/projects/pc-workman-hck/">SourceForge</a>. Executables received by email, Discord or third-party download sites should be treated as untrusted.</div>
+        <div class="callout warn"><b>Download only from official sources:</b> <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V">Microsoft Store</a>, <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a>, or <a href="https://pcworkman.dev">pcworkman.dev</a>. Executables received by email, Discord or third-party download sites should be treated as untrusted.</div>
 
         <h2>Privacy &amp; data</h2>
-        <p>PC Workman is local-first: all system-monitoring data, learned baselines, the offline hck_GPT assistant and your history stay on your device. The only data that can leave is an <b>optional, anonymous hardware &amp; usage snapshot</b> (component models, OS, region from your locale, app version, session length — never your name, IP, files or process names), used to fix hardware incompatibilities and controllable in Settings.</p>
+        <p>PC Workman is local-first: all system-monitoring data, learned baselines, the offline hck_GPT assistant and your history stay on your device. An <b>anonymous hardware &amp; usage snapshot</b> can be sent to help fix hardware incompatibilities. It is enabled by default and can be turned off in Settings. The payload includes component models, OS, region from your language setting, app version and session length. It never includes your name, IP address, files or process names.</p>
         <p>Full details: <a href="privacy_en.html">Privacy Policy</a> (EN + PL) and <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/PRIVACY.md">PRIVACY.md</a>.</p>
 
         <h2>Supported versions</h2>
         <table>
             <thead><tr><th>Version</th><th>Supported</th><th>Security updates</th></tr></thead>
             <tbody>
-                <tr><td>1.8.0 (latest stable)</td><td>Yes</td><td>Best — current release</td></tr>
+                <tr><td>1.8.x (latest stable: 1.8.5)</td><td>Yes</td><td>Current release line</td></tr>
                 <tr><td>1.7.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
                 <tr><td>1.6.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
                 <tr><td>&lt; 1.6</td><td>No</td><td>End of life</td></tr>
@@ -118,7 +121,7 @@
             <thead><tr><th>Measure</th><th>Status</th></tr></thead>
             <tbody>
                 <tr><td>Sigstore signatures</td><td>Active (since Jan 20, 2026)</td></tr>
-                <tr><td>VirusTotal</td><td>0/70 clean — last scanned v1.8.0 (June 22, 2026)</td></tr>
+                <tr><td>VirusTotal</td><td>0/70 detections, v1.8.5 scanned July 21, 2026</td></tr>
                 <tr><td>CodeQL</td><td>Clean on every commit</td></tr>
                 <tr><td>OpenSSF Best Practices</td><td>In progress (~25%)</td></tr>
             </tbody>

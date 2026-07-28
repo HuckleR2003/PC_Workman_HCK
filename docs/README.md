@@ -1,153 +1,89 @@
-# PC_Workman Landing Page
+# pcworkman.dev
 
-Modern, SEO-optimized landing page for PC_Workman - an AI-powered system monitoring and optimization tool.
-**Version:** 2.0.0
-**Style:** Dark mode, minimalist design
-**Framework:** Vanilla HTML/CSS/JavaScript
--
-## Project Structure
-```
+Static bilingual website for PC Workman. The site is served from `docs/` and
+uses plain HTML, CSS and JavaScript.
+
+## Current product facts
+
+Check these against the source before every content update:
+
+- Version: `utils/app_version.py -> APP_VERSION`
+- hck_GPT intents: `hck_gpt/intents/vocabulary.py`
+- Process definitions: `data/process_library.json`
+- Hardware compatibility: `core/hardware_compat_db.py`
+- Privacy and telemetry: `core/network.py` and `core/telemetry.py`
+- Release notes: `README.md` and GitHub Releases
+
+Historical blog articles keep the facts and counters that were true when each
+article was published. Current facts belong on landing, download, profile,
+roadmap and `llms*.txt` pages.
+
+## Main files
+
+```text
 docs/
-├── index.html                      # Main landing page
-├── index_en.html                   # Main landing page EN
-├── /ASSETS
-|   ├── /CSS
-|       ├── styles.css              # Stylesheet (dark theme, responsive)
-|       ├── story-button.css        # Style
-|   ├── /JS
-|       ├── script.js               # Interactive features (quiz, accordion, animations)
-|   ├── /IMAGES...
-|
-|
-|
-├── story.html              # Build in public story page
-├── story-button.css        # Story button styles
-├── sitemap.xml            
-└── README.md               # This file
-```
--
-## Features
-
-### Design
-- **Dark-first theme** with neon accents (#00FF99, #00D9FF, #FF0066)
-- **X (Twitter) inspired** left sticky sidebar navigation
-- **Responsive design** with mobile-first approach
-- **Geometric icon system** - Custom CSS shapes with animations
-- **Smooth scroll** with active section highlighting
-- **Parallax effects** on hero background
-
-### Interactive Elements
-- **Typing animation** in hero section with blinking cursor
-- **Interactive quiz** demonstrating hck_GPT AI capabilities
-- **FAQ accordion** with expand/collapse functionality
-- **Newsletter signup forms** (story section + footer)
-- **Mobile menu toggle** for responsive navigation
-- **Konami Code easter egg** for engaged users
-
-### SEO Optimization
-- **Schema.org markup** (SoftwareApplication, Organization, FAQPage)
-- **Open Graph tags** for social media sharing
-- **Twitter Cards** for enhanced X previews
-- **Semantic HTML5** structure
-- **Meta tags** with targeted keywords
-- **Mobile-first indexing** ready
--
-
--
-
-## Technical Details
-
-### Responsive Breakpoints
-- **Desktop:** 1200px+ (full sidebar)
-- **Tablet:** 768px-1199px (compact sidebar)
-- **Mobile:** <768px (hamburger menu)
-
-### Color Scheme
-Edit CSS variables in `styles.css`:
-
-```css
-:root {
-    --neon-green: #00FF99;
-    --neon-cyan: #00D9FF;
-    --neon-red: #FF0066;
-    --dark-bg: #0A192F;
-}
+├── index.html                 # Polish landing
+├── index_en.html              # English landing
+├── download/                  # English and Polish download pages
+├── privacy.html               # Polish privacy policy
+├── privacy_en.html            # English privacy policy
+├── SECURITY_report.html       # Security and release verification
+├── roadmap/                   # Public roadmap
+├── blog/                      # Blog hub, three series and RSS
+├── guides/                    # Evergreen guides
+├── assets/css/                # Shared styles
+├── assets/js/                 # Shared interactions
+├── assets/images/             # Screenshots and social images
+├── llms.txt                   # Short AI/search reference
+├── llms-full.txt              # Full technical reference
+├── sitemap.xml
+├── robots.txt
+└── 404.html
 ```
 
-### Adding Quiz Responses
+## Integrity audit
 
-Edit `quizResponses` object in `script.js`:
+Run from the repository root:
 
-```javascript
-'keyword': {
-    answer: 'Your AI response here...',
-    suggestions: [
-        'Suggestion 1',
-        'Suggestion 2'
-    ]
-}
+```powershell
+python scripts/audit_site.py
 ```
 
-### Adding New Sections
+The audit checks all HTML files for:
 
-1. Add `<section id="new-section">` in `index.html`
-2. Add navigation link in sidebar `<nav>`
-3. Style in `styles.css`
-4. Section auto-highlights on scroll
+- required language, title, description and canonical metadata;
+- one H1 per page;
+- duplicate IDs and missing image alt text;
+- broken local files and fragments;
+- unsafe `target="_blank"` links;
+- JSON-LD and XML parsing;
+- sitemap targets, sitemap completeness and RSS integrity;
+- current source-derived version, intent, process and hardware counts;
+- stale learning-duration, telemetry and author-profile claims;
+- forms without a real action.
 
--
+For a network-dependent check of all unique outbound links:
 
-## Performance
+```powershell
+python scripts/audit_site.py --external
+```
 
-### Optimizations
-- Lazy loading for images
-- DNS prefetch for external resources
-- GPU-accelerated CSS animations
-- Minified production assets recommended
+HTTP 401, 403 and 429 responses are reported as warnings because some services
+block automated probes even when the public link works.
 
-### Analytics Recommendations
-- Bounce rate target: <50%
-- Time on page target: >2 minutes
-- Track: CTA clicks, quiz submissions, newsletter signups
-- Monitor scroll depth to optimize content placement
+## Content rules
 
--
+- Keep Polish and English current pages in sync.
+- Do not claim that the whole app has zero network traffic. Monitoring and
+  hck_GPT are local, while the current release can send a documented anonymous
+  hardware snapshot. The switch is in Settings.
+- Do not add a newsletter form unless it is connected to a real backend.
+- Use dated labels for mutable GitHub and social counters.
+- Add new pages to `sitemap.xml` and update relevant hreflang links.
+- Preserve the existing design and shared navigation unless a redesign is the
+  explicit task.
 
-## Browser Support
+## Local preview
 
-- Chrome/Edge: Latest 2 versions
-- Opera: Latest 5 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Mobile browsers: iOS Safari 12+, Chrome Mobile
-
--
-
-## Contributing
-
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
--
-
-## License
-
-MIT License - See [LICENSE](LICENSE) file for details
-
--
-
-## Links
-
-- **GitHub Repository:** [PC_Workman](https://github.com/HuckleR2003)
-
--
-
-## Support
-
-For issues or questions:
-- Open an issue on GitHub
-- Contact: marcin.firmuga.s@gmail.com
+Serve `docs/` through any static HTTP server. Do not open the files directly
+when testing root-relative links such as `/assets/...`.

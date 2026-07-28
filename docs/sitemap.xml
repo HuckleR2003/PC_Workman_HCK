@@ -1,150 +1,278 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Pages only: no #fragments (ignored by crawlers), no cross-domain URLs
-     (Google drops them and they lower trust in the file).
-     Domain migration: search & replace the host below. -->
+<!-- Generated from indexable HTML canonicals by scripts/build_sitemap.py. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-  <!-- Landing — English (default) -->
-  <url>
-    <loc>https://pcworkman.dev/index_en.html</loc>
-    <lastmod>2026-06-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
-  </url>
-
-  <!-- Landing — Polish -->
   <url>
     <loc>https://pcworkman.dev/index.html</loc>
-    <lastmod>2026-06-26</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/index_en.html"/>
   </url>
 
-  <!-- Download -->
   <url>
-    <loc>https://pcworkman.dev/download/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <loc>https://pcworkman.dev/index_en.html</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/download/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/download/index_pl.html</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/index_en.html"/>
   </url>
 
-  <!-- Blog hub -->
   <url>
     <loc>https://pcworkman.dev/blog/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/"/>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/index_pl.html</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Blog series -->
-  <url>
-    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/</loc>
-    <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Guides -->
-  <url>
-    <loc>https://pcworkman.dev/guides/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/"/>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/download/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/download/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/download/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/download/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/download/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/download/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/guides/index_pl.html</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/"/>
   </url>
+
   <url>
-    <loc>https://pcworkman.dev/guides/normal-cpu-temperature/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <loc>https://pcworkman.dev/roadmap/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/roadmap/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/roadmap/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/roadmap/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/roadmap/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/roadmap/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/breaking-up-the-monolith/</loc>
+    <lastmod>2026-07-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/guides/ghost-drivers-windows/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ghost-drivers-windows/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ghost-drivers-windows/"/>
   </url>
+
   <url>
-    <loc>https://pcworkman.dev/guides/jak-przyspieszyc-komputer/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <loc>https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ghost-drivers-windows/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ghost-drivers-windows/"/>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/is-my-pc-healthy/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-pc-healthy/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-pc-healthy/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-pc-healthy/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-pc-healthy/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/jak-przyspieszyc-komputer/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html"/>
   </url>
 
-  <!-- Technology · PRO articles -->
   <url>
-    <loc>https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html</loc>
-    <lastmod>2026-06-15</lastmod>
+    <loc>https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html"/>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/normal-cpu-temperature/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/normal-cpu-temperature/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/normal-cpu-temperature/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/normal-cpu-temperature/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/normal-cpu-temperature/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/what-is-this-process/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-is-this-process/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-is-this-process/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-is-this-process/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/what-is-this-process/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-is-this-process/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-is-this-process/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-is-this-process/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/guides/what-your-pc-learned/</loc>
     <lastmod>2026-06-19</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-your-pc-learned/"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-your-pc-learned/"/>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html</loc>
     <lastmod>2026-06-19</lastmod>
@@ -154,257 +282,484 @@
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-your-pc-learned/"/>
   </url>
+
   <url>
-    <loc>https://pcworkman.dev/guides/breaking-up-the-monolith/</loc>
-    <lastmod>2026-07-21</lastmod>
+    <loc>https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/breaking-up-the-monolith/"/>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/"/>
   </url>
 
+  <url>
+    <loc>https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/"/>
+  </url>
 
-  <!-- Blog posts (series episodes) -->
+  <url>
+    <loc>https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/friday-shipped-scarred/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/friday-shipped-scarred/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/friday-shipped-scarred/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/01-git-force-deleted-130-commits/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-03-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/02-plan-vs-reality/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/03-three-issues-four-hours-sleep/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/04-built-a-whole-menu-instead/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/05-built-my-own-ai-engine/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/06-startup-services-managers-shipped/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/07-twelve-intents-deepmonitor/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/08-turbo-suite-and-mini-antivirus/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/09-from-26-to-58-stars/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/10-v176-biggest-update/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/11-maintenance-week-two-accidental-features/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/12-maximized-mode-and-1326-dead-lines/</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/13-plugged-in-the-brain/</loc>
     <lastmod>2026-06-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/14-microsoft-store-said-no/</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/friday-shipped-scarred/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/friday-shipped-scarred/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/friday-shipped-scarred/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html</loc>
+    <lastmod>2026-07-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/monday-grind-blueprint/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/monday-grind-blueprint/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/monday-grind-blueprint/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/01-process-library-and-timestamps/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-03-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/02-three-roadmap-issues/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/03-shipped-before-lunch/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/04-ram-optimizer-and-fonts/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/05-most-devs-never-ship-an-exe/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/06-google-ai-cert-and-intent-expansion/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/07-turbo-suite-and-fake-process-detection/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/08-full-polish-localization/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/09-building-what-28-people-asked-for/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/10-biggest-release-then-tester-bugs/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/11-google-ai-cert-exam-maximized-mode/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/12-llms-txt-open-to-ai-crawlers/</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/monday-grind-blueprint/13-gaming-overlay-shows-nothing/</loc>
     <lastmod>2026-06-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/monday-grind-blueprint/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/monday-grind-blueprint/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/monday-grind-blueprint/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/profile.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/profile_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/profile.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/profile_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/profile_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/profile.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/road-to-1.8.0_en.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/road-to-1.8.0_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/road-to-1.8.0_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/road-to-1.8.0_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/story.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/story_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/story_en.html</loc>
+    <lastmod>2026-06-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/story_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/wednesday-code-autopsy/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/wednesday-code-autopsy/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/wednesday-code-autopsy/"/>
+  </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/01-your-pc-baseline/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-03-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/02-memory-not-snapshots/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/03-schema-invisible-to-ai/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/04-tkinter-canvas-arc/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/05-automatic-ram-flush/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/06-nine-layer-routing-engine/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-04-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/07-stateless-memory-by-design/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/09-intent-aware-temperature/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/10-context-window-dictionary/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/11-snapshot-cache-19-calls/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-03</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/12-thermal-baseline-five-contexts/</loc>
-    <lastmod>2026-06-12</lastmod>
+    <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/13-python-314-hid-broken-import/</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/</loc>
     <lastmod>2026-06-24</lastmod>
@@ -412,106 +767,54 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Long reads -->
   <url>
-    <loc>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/</loc>
-    <lastmod>2026-07-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html</loc>
-    <lastmod>2026-07-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/story.html</loc>
-    <lastmod>2026-06-08</lastmod>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/story_en.html</loc>
-    <lastmod>2026-06-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/story.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/story_en.html"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/profile.html</loc>
-    <lastmod>2026-06-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/wednesday-code-autopsy/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/wednesday-code-autopsy/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/wednesday-code-autopsy/"/>
   </url>
 
-  <!-- Security report -->
   <url>
     <loc>https://pcworkman.dev/SECURITY_report.html</loc>
-    <lastmod>2026-06-05</lastmod>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/SECURITY_report_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html"/>
   </url>
 
-  <!-- Privacy Policy -->
   <url>
-    <loc>https://pcworkman.dev/privacy_en.html</loc>
-    <lastmod>2026-06-26</lastmod>
+    <loc>https://pcworkman.dev/SECURITY_report_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html"/>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/SECURITY_report_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html"/>
   </url>
+
   <url>
     <loc>https://pcworkman.dev/privacy.html</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/privacy_en.html"/>
   </url>
 
-  <!-- Blog — The Man Who Got Himself Back (flagship 1.8.0 story) -->
   <url>
-    <loc>https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html</loc>
-    <lastmod>2026-06-23</lastmod>
+    <loc>https://pcworkman.dev/privacy_en.html</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html"/>
-  </url>
-  <url>
-    <loc>https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html</loc>
-    <lastmod>2026-06-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_en.html"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-man-who-got-himself-back_pl.html"/>
-  </url>
-
-  <!-- Blog — Road to 1.8.0 (technical release story, EN) -->
-  <url>
-    <loc>https://pcworkman.dev/blog/road-to-1.8.0_en.html</loc>
-    <lastmod>2026-06-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Roadmap to v2.1.0 -->
-  <url>
-    <loc>https://pcworkman.dev/roadmap/</loc>
-    <lastmod>2026-07-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/privacy_en.html"/>
   </url>
 
 </urlset>

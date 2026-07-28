@@ -1,0 +1,150 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman polityka bezpieczeństwa -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="description" content="Polityka bezpieczeństwa PC Workmana: podpisy Sigstore, skan VirusTotal, CodeQL, weryfikacja pliku i sumy SHA256, obsługiwane wersje oraz prywatne zgłaszanie luk.">
+    <meta name="author" content="Marcin Firmuga, HCK_Labs">
+    <link rel="canonical" href="https://pcworkman.dev/SECURITY_report_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/SECURITY_report_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html">
+    <meta property="og:title" content="Polityka bezpieczeństwa PC Workmana">
+    <meta property="og:description" content="Jak sprawdzić autentyczność wydania: podpis Sigstore, suma SHA256, VirusTotal i publiczny kod. Zasady prywatnego zgłaszania luk.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pcworkman.dev/SECURITY_report_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Polityka bezpieczeństwa | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Polityka bezpieczeństwa PC Workmana",
+      "description": "Sposób zabezpieczania i weryfikowania wydań PC Workmana oraz kanały prywatnego zgłaszania luk.",
+      "url": "https://pcworkman.dev/SECURITY_report_pl.html",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/SECURITY_report.html",
+      "author": {"@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/blog/profile_pl.html"},
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+</head>
+<body class="page-wednesday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ bezpieczeństwo</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html" aria-current="page">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/SECURITY_report_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/SECURITY_report.html" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-wednesday">Dokument &middot; Rewizja 1.6</span>
+        <h1>Polityka bezpieczeństwa</h1>
+        <p class="tagline">Jak chronione są wydania PC Workmana i jak samodzielnie sprawdzić pobrany plik.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Ostatnia aktualizacja: 25 lipca 2026</span><span>&middot;</span><span>Wersja dokumentu 1.6</span>
+        </div>
+        <p class="lead">
+            PC Workman odczytuje niskopoziomowe dane systemu i może wykonywać działania wymagające podwyższonych
+            uprawnień, między innymi zmieniać plan zasilania, zarządzać usługami i stosować obsługiwane ustawienia
+            wentylatorów. Podstawowy monitoring nie wymaga praw administratora. Takie możliwości wymagają
+            bezpieczeństwa, które można samodzielnie sprawdzić.
+        </p>
+        <p>Pełny dokument techniczny znajduje się w publicznym pliku <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+        <h2>Jak chronione jest wydanie</h2>
+        <ul>
+            <li><strong>Podpis Sigstore.</strong> Kryptograficzne potwierdzenie pochodzenia wydania działa od 20 stycznia 2026.</li>
+            <li><strong>Skan VirusTotal.</strong> Plik wykonywalny jest sprawdzany przed wydaniem. Wersja 1.8.5 uzyskała wynik 0/70 wykryć.</li>
+            <li><strong>CodeQL.</strong> Automatyczna analiza bezpieczeństwa działa dla zmian trafiających do gałęzi <code>main</code>.</li>
+            <li><strong>Prywatne zgłaszanie luk i Dependabot.</strong> Zgłoszenie dotyczące bezpieczeństwa nie musi być ujawnione publicznie przed poprawką.</li>
+            <li><strong>Publiczne źródła i wyniki.</strong> Wydanie ma oznaczoną wersję, datę, kod źródłowy i zapis testów.</li>
+        </ul>
+        <h2>Jak sprawdzić plik przed uruchomieniem</h2>
+        <p><strong>1. Zweryfikuj podpis Sigstore:</strong></p>
+        <pre><code>sigstore verify github \
+  PC_Workman_HCK_&lt;wersja&gt;.exe \
+  --bundle sigstore.bundle</code></pre>
+        <p>Jeżeli weryfikacja nie powiedzie się, nie uruchamiaj pliku i zgłoś problem.</p>
+        <p><strong>2. Porównaj sumę SHA256</strong> z wartością podaną przy wydaniu:</p>
+        <pre><code>Get-FileHash PC_Workman_HCK_&lt;wersja&gt;.exe -Algorithm SHA256</code></pre>
+        <p>
+            <strong>3. Sprawdź plik w <a href="https://www.virustotal.com" target="_blank" rel="noopener">VirusTotal</a></strong>
+            i w razie wątpliwości przejrzyj publiczny kod źródłowy.
+        </p>
+        <div class="callout warn">
+            <b>Pobieraj tylko z oficjalnych źródeł:</b>
+            <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V">Microsoft Store</a>,
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a> albo
+            <a href="https://pcworkman.dev">pcworkman.dev</a>. Plik przesłany e-mailem, przez komunikator lub
+            nieznany katalog z programami traktuj jako niezaufany.
+        </div>
+        <h2>Prywatność i dane</h2>
+        <p>
+            Monitoring systemu, nauczone linie bazowe, historia i odpowiedzi lokalnego hck_GPT pozostają na
+            urządzeniu. Anonimowy zrzut sprzętu i użycia może zostać wysłany, aby pomagać w diagnozowaniu
+            niezgodności sprzętowych. Funkcja jest domyślnie włączona i można ją wyłączyć w Ustawieniach.
+            Dane obejmują modele podzespołów, system, region wynikający z ustawionego języka, wersję aplikacji
+            i długość sesji. Nie obejmują nazwiska, plików ani nazw procesów.
+        </p>
+        <p>Pełne zasady: <a href="privacy.html">Polityka prywatności</a> oraz publiczny plik <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/PRIVACY.md">PRIVACY.md</a>.</p>
+        <h2>Obsługiwane wersje</h2>
+        <table>
+            <thead><tr><th>Wersja</th><th>Status</th><th>Aktualizacje bezpieczeństwa</th></tr></thead>
+            <tbody>
+                <tr><td>1.8.x, najnowsza stabilna 1.8.5</td><td>Tak</td><td>Bieżąca linia</td></tr>
+                <tr><td>1.7.x</td><td>Ograniczone</td><td>Tylko krytyczne, zalecana aktualizacja</td></tr>
+                <tr><td>1.6.x</td><td>Ograniczone</td><td>Tylko krytyczne, zalecana aktualizacja</td></tr>
+                <tr><td>Poniżej 1.6</td><td>Nie</td><td>Koniec wsparcia</td></tr>
+            </tbody>
+        </table>
+        <h2>Zgłaszanie luki</h2>
+        <p>Problemu bezpieczeństwa nie publikuj od razu w zwykłym zgłoszeniu:</p>
+        <ul>
+            <li><strong>Zalecane:</strong> karta <a href="https://github.com/HuckleR2003/PC_Workman_HCK/security">Security w repozytorium</a>, następnie „Report a vulnerability”.</li>
+            <li><strong>Alternatywnie:</strong> wiadomość na <code>firmuga.marcin.s@gmail.com</code> z tematem <code>[SECURITY] PC Workman</code>.</li>
+        </ul>
+        <p>
+            Plan odpowiedzi: potwierdzenie w ciągu 24 godzin, weryfikacja i ocena w ciągu 72 godzin, poprawka
+            problemu krytycznego, CVSS 7.0 lub wyżej, w ciągu 7 dni. Autor zgłoszenia otrzymuje publiczne
+            podziękowanie, chyba że wybierze anonimowość.
+        </p>
+        <h2>Stan w skrócie</h2>
+        <table>
+            <thead><tr><th>Zabezpieczenie</th><th>Stan</th></tr></thead>
+            <tbody>
+                <tr><td>Podpisy Sigstore</td><td>Aktywne od 20 stycznia 2026</td></tr>
+                <tr><td>VirusTotal</td><td>0/70 dla 1.8.5, skan 21 lipca 2026</td></tr>
+                <tr><td>CodeQL</td><td>Analiza zmian w gałęzi głównej</td></tr>
+                <tr><td>OpenSSF Best Practices</td><td>W trakcie</td></tr>
+            </tbody>
+        </table>
+    </main>
+    <footer class="foot">
+        <p>PC Workman &middot; <a href="blog/profile_pl.html">Marcin Firmuga</a> &middot; MIT &middot; <a href="privacy.html">Prywatność</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
