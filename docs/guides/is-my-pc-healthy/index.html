@@ -1,0 +1,282 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: is my PC healthy -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A healthy PC is not one with low numbers, it is one that behaves normally for the work it is doing. A five-minute health check in five plain questions, no benchmarks or jargon, plus how to read trends the built-in tools miss.">
+    <meta name="keywords" content="is my PC healthy, check PC health Windows, PC health check, is my computer dying, Windows performance health, device performance and health, computer health check no benchmark">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-pc-healthy/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-pc-healthy/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-pc-healthy/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:title" content="Is my Windows PC healthy? A 5-minute check without benchmarks or jargon">
+    <meta property="og:description" content="Health is not a number you read once. It is whether the machine behaves normally for what it is doing. Five plain questions to check it.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-pc-healthy/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Is My Windows PC Healthy? A 5-Minute Check Without Benchmarks or Jargon | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Is my Windows PC healthy? A 5-minute check without benchmarks or jargon",
+      "description": "Health is whether a machine behaves normally for its current workload, not whether its numbers are low. Five plain questions to check a PC, and how to read the trends point-in-time tools miss.",
+      "url": "https://pcworkman.dev/guides/is-my-pc-healthy/",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Is my PC healthy", "item": "https://pcworkman.dev/guides/is-my-pc-healthy/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How can I tell if my PC is healthy without a benchmark?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Ask whether the machine behaves normally for what it is doing. Does it respond without lag, is anything loading the CPU, RAM or disk at idle, do temperatures match the current workload, does Windows report hardware or storage errors, and has anything got worse than earlier weeks. A benchmark score is not needed to answer those." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is 80 degrees Celsius bad for my PC?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the workload. 80 C on the CPU or GPU while gaming or rendering is usually normal, because the hardware is designed to run hot under load. The same 80 C, or even 55 C, while the machine sits idle on the desktop is a warning that something changed, such as a stuck background process or degraded cooling." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Health Verdict card (human verdict first, then the data) */
+    .hv{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .hv-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.6rem;
+    }
+    .hv-head .hv-tag{ color:#a3e635; }
+    .hv-overall{ font-size:.95rem; color:#a3e635; font-weight:700; margin-bottom:.5rem; }
+    .hv-sec{ font-size:.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); margin:.55rem 0 .15rem; }
+    .hv-item{ font-size:.82rem; line-height:1.5; color:#e6eef6; padding:.06rem 0; }
+    .hv-item .m{ display:inline-block; width:1.1rem; font-weight:700; }
+    .hv-item.ok .m{ color:#a3e635; }
+    .hv-item.chk .m{ color:#f59e0b; }
+    .hv-item.dim{ color:var(--text-dim); }
+    .hv-item.dim .m{ color:var(--text-dim); }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/is-my-pc-healthy/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Health · Guide</span>
+        <h1>Is my PC healthy?</h1>
+        <p class="tagline">Health is not a number you read once. It is whether the machine behaves normally for what it is doing.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-25</span><span>·</span><span>7 min read</span>
+        </div>
+
+        <p>
+            Someone tells you their PC is "fine". You glance at Task Manager and the CPU is pinned near 100
+            percent on an empty desktop, doing nothing. Someone else swears theirs is dying, and every reading
+            looks textbook. Neither person is wrong, because health is not a single number you read once. It is
+            whether the machine behaves normally for what it is being asked to do.
+        </p>
+        <p>
+            A healthy PC is not a PC with low numbers. It is a predictable one. 80&nbsp;C on the CPU while gaming
+            can be perfectly healthy. The same 80&nbsp;C, or even 55&nbsp;C, while the machine sits idle is a
+            warning that something changed. You do not need a benchmark score to tell the difference. You need
+            five minutes and the right five questions.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#five">The five questions</a></li>
+                <li><a href="#tools">The built-in checks that answer them</a></li>
+                <li><a href="#score">Why a single health score misleads</a></li>
+                <li><a href="#verdict">How PC Workman answers it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="five">The five questions</h2>
+        <p>
+            Ask these in order. The first two need no tools at all, and most problems reveal themselves before
+            you reach the fifth.
+        </p>
+        <ol>
+            <li><strong>Does it respond normally?</strong> Open a few apps, switch windows, type. Lag, stutter or
+                a freeze is a symptom worth trusting before any number, because it is the thing you actually feel.</li>
+            <li><strong>Is anything always loading the CPU, RAM or disk?</strong> Leave the desktop idle for a
+                minute and look at Task Manager. Something sitting at heavy load while you do nothing is the most
+                common cause of a "slow" machine. If a name looks unfamiliar,
+                <a href="../what-is-this-process/">check what the process actually is</a> before acting, and if
+                memory is the worry, <a href="../why-is-my-ram-usage-so-high/">read what high RAM usage really
+                means</a> first.</li>
+            <li><strong>Do temperatures match the current work?</strong> Hot under load is normal; hot at idle is
+                not. The full picture, per workload, is in our guide on
+                <a href="../normal-cpu-temperature/">what a normal CPU temperature is</a>.</li>
+            <li><strong>Does Windows report any hardware, security or storage errors?</strong> Windows already
+                tracks this. Open Windows Security, choose Device performance &amp; health, and it reports
+                storage, battery, apps and the Windows Time service. Microsoft's own
+                <a href="https://support.microsoft.com/en-us/windows/how-to-use-the-pc-health-check-app-9c8abd9b-03ba-4e67-81ef-36f37caa7844" target="_blank" rel="noopener">PC Health Check app</a>
+                and Reliability Monitor (search "reliability") add a timeline of recent faults.</li>
+            <li><strong>Has behaviour got worse than earlier weeks?</strong> This is the question the built-in
+                tools cannot answer, and the most important one. Same workload, but the boot takes longer, the
+                idle temperature crept up, or a new startup entry appeared. A single snapshot looks fine. The
+                trend is where trouble shows up first.</li>
+        </ol>
+
+        <h2 id="tools">The built-in checks that answer them</h2>
+        <p>
+            You can run the whole check with what ships in Windows. Task Manager answers questions one and two.
+            Windows Security's Device performance &amp; health page and the PC Health Check app answer question
+            four. What none of them do well is question five: they take a photograph, not a history. They can
+            tell you today's storage looks fine. They cannot show how boot time changed since last month unless
+            an earlier measurement was retained for comparison.
+        </p>
+
+        <h2 id="score">Why a health score is a summary, not a diagnosis</h2>
+        <p>
+            One number cannot tell you which part of the machine needs attention. A good headline can help you
+            triage, but only when the tool also shows which readings changed the verdict. CPU load, RAM use,
+            temperatures, throttling and free disk space must stay visible. Treat the score as an index into
+            those checks, never as proof that every component is healthy.
+        </p>
+
+        <h2 id="verdict">How PC Workman answers it</h2>
+        <p>
+            The hck_GPT <code>health check</code> command calculates a live headline from current CPU and RAM
+            use, CPU and GPU temperature when sensors are available, CPU throttling and free disk space. It then
+            lists every condition that reduced the score. Historical views and learned temperature baselines
+            remain separate tools, so the live check does not pretend that it proved a long-term trend:
+        </p>
+
+        <div class="hv">
+            <div class="hv-head"><span>System health</span><span class="hv-tag">live snapshot</span></div>
+            <div class="hv-overall">Headline: verdict and score</div>
+            <div class="hv-sec">Read now</div>
+            <div class="hv-item ok"><span class="m">&check;</span>CPU and RAM use</div>
+            <div class="hv-item ok"><span class="m">&check;</span>CPU and GPU temperature, when available</div>
+            <div class="hv-sec">Conditions checked</div>
+            <div class="hv-item chk"><span class="m">!</span>CPU throttling</div>
+            <div class="hv-item chk"><span class="m">!</span>Low free disk space</div>
+            <div class="hv-sec">Reported separately</div>
+            <div class="hv-item dim"><span class="m">?</span>Historical trends and learned baselines</div>
+        </div>
+
+        <div class="callout warn">
+            <b>The score is not the evidence.</b> It is generated from explicit thresholds in the application.
+            Read the issue list and the live values underneath it. For a trend question, open the historical
+            view or ask the matching hck_GPT question instead of stretching one snapshot beyond what it knows.
+        </div>
+        <p>
+            So to answer the question you came with: your PC is healthy when it behaves the way it normally does
+            for the work in front of it. Run the five questions once, and you will know which of them, if any,
+            deserves a closer look. That is the whole check, and it takes about five minutes.
+        </p>
+
+        <div class="guide-cta">
+            <b>Get the headline, then read its inputs.</b> PC Workman checks live CPU, RAM, temperatures,
+            throttling and free disk space, and keeps historical evidence available for separate comparison.
+            The analysis stays on your PC. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: one reading looked off. Is it a real trend, or just noise?
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>Building a system monitor in public since 2025, on a 2014 laptop that idled at 94&nbsp;C. Every guide is based on what real machines actually do.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
