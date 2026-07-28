@@ -8,15 +8,15 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Praktyczne poradniki wydajności Windows od twórcy PC Workmana: temperatury procesora per obciążenie, ghost drivers, usługi do wyłączenia, realne przyspieszanie. Bez mitów i bloatware'u.">
-    <meta name="keywords" content="poradniki wydajność Windows, temperatura procesora poradnik, ghost drivers Windows, jak przyspieszyć komputer, usługi Windows wyłączyć, optymalizacja komputera poradniki">
+    <meta name="description" content="Praktyczne poradniki wydajności Windows od twórcy PC Workmana: temperatury zależne od obciążenia, sterowniki widma, usługi i mierzalne przyspieszanie.">
+    <meta name="keywords" content="poradniki wydajność Windows, temperatura procesora poradnik, sterowniki widma Windows, jak przyspieszyć komputer, usługi Windows wyłączyć, optymalizacja komputera poradniki">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/index_pl.html">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/">
     <meta property="og:title" content="Poradniki PC Workmana — wydajność Windows bez mitów">
-    <meta property="og:description" content="Temperatury CPU per obciążenie, ghost drivers, usługi warte wyłączenia, realne przyspieszanie. Od twórcy open-source'owego monitora systemu.">
+    <meta property="og:description" content="Temperatury CPU zależne od obciążenia, sterowniki widma, usługi i mierzalne przyspieszanie. Od twórcy otwartoźródłowego monitora systemu.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/guides/index_pl.html">
     <meta property="og:locale" content="pl_PL">
@@ -57,8 +57,8 @@
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Jak przyspieszyć komputer z Windows — bez mitów", "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/" },
           { "@type": "ListItem", "position": 2, "name": "Które usługi Windows można bezpiecznie wyłączyć", "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/" },
-          { "@type": "ListItem", "position": 3, "name": "What is a normal CPU temperature?", "url": "https://pcworkman.dev/guides/normal-cpu-temperature/" },
-          { "@type": "ListItem", "position": 4, "name": "Ghost drivers in Windows", "url": "https://pcworkman.dev/guides/ghost-drivers-windows/" },
+          { "@type": "ListItem", "position": 3, "name": "Jaka temperatura procesora jest prawidłowa?", "url": "https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html" },
+          { "@type": "ListItem", "position": 4, "name": "Sterowniki widma w Windows", "url": "https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html" },
           { "@type": "ListItem", "position": 5, "name": "Czego Twój komputer nauczył się o sobie", "url": "https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html" }
         ]
       }
@@ -79,10 +79,10 @@
 
     <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
         <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
-        <a class="gt-link gt-blog" href="/blog/">Blog</a>
-        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
-        <a class="gt-link gt-white" href="/download/">Download</a>
-        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
@@ -94,7 +94,7 @@
         <span class="gt-lang">
             <a href="/index.html" class="active" data-lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" data-lang="en">EN</a>
+            <a href="/guides/" data-lang="en" lang="en">EN</a>
         </span>
     </nav>
 
@@ -107,7 +107,7 @@
     <main class="wrap">
 
         <div class="tech-zone">
-            <div class="section-label center">Technology &middot; PRO</div>
+            <div class="section-label center">Technologia &middot; PRO</div>
             <p class="tech-sub" style="text-align:center;">Głębokie analizy, jak AI zmienia możliwości monitora systemu. Długie teksty, prawdziwy kod, zero waty.</p>
             <div class="tech-grid">
                 <a class="tech-tile" href="ai-pc-monitoring-vs-traditional/index_pl.html">
@@ -122,16 +122,16 @@
                     <p>Wnętrze Learning Center i akumulator Welforda, który uczy się Twojej maszyny przez całe życie instalacji — i przeżywa przycięcie danych po 90 dniach. Nowość w v1.8.0.</p>
                     <span class="tt-go">Czytaj analizę &rarr;</span>
                 </a>
-                <div class="tech-tile soon">
+                <a class="tech-tile" href="breaking-up-the-monolith/index_pl.html">
                     <span class="tt-badge">PRO &middot; #3</span>
-                    <h3>W przygotowaniu</h3>
-                    <p>Kolejna analiza Technology już powstaje.</p>
-                    <span class="tt-go">Wkrótce</span>
-                </div>
+                    <h3>6533 linie w jednym pliku</h3>
+                    <p>Jak builder hck_GPT został podzielony na osiem modułów za fasadą bez zmiany publicznego API, oraz dwa testy pilnujące granic.</p>
+                    <span class="tt-go">Czytaj analizę &rarr;</span>
+                </a>
             </div>
         </div>
 
-        <div class="section-label center">TOP poradniki</div>
+        <div class="section-label center">Najważniejsze poradniki</div>
         <div class="top-guides">
             <div class="tg-cluster">
                 <div class="tg-label">Optymalizacja</div>
@@ -145,15 +145,23 @@
                 <div class="tg-label">Przyspieszenie</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/"><span class="tg-ic">⚡</span><h4>Jak przyspieszyć PC</h4><span class="tg-go">Czytaj →</span></a>
-                    <a class="tg-tile tg-spd" href="normal-cpu-temperature/"><span class="tg-ic">◷</span><h4>Normalna temp. CPU</h4><span class="tg-go">Czytaj →</span></a>
-                    <div class="tg-tile tg-spd soon"><span class="tg-ic">▤</span><h4>Ile RAM</h4><span class="tg-go">Wkrótce</span></div>
+                    <a class="tg-tile tg-spd" href="normal-cpu-temperature/index_pl.html"><span class="tg-ic">◷</span><h4>Temperatura CPU</h4><span class="tg-go">Czytaj →</span></a>
+                    <a class="tg-tile tg-spd" href="why-is-my-ram-usage-so-high/index_pl.html"><span class="tg-ic">▤</span><h4>Wysokie użycie RAM</h4><span class="tg-go">Czytaj →</span></a>
                 </div>
             </div>
             <div class="tg-cluster">
                 <div class="tg-label">PC Workman</div>
                 <div class="tg-tiles">
-                    <a class="tg-tile tg-pcw" href="ghost-drivers-windows/"><span class="tg-ic">⬡</span><h4>Ghost drivers</h4><span class="tg-go">Czytaj →</span></a>
+                    <a class="tg-tile tg-pcw" href="what-is-this-process/index_pl.html"><span class="tg-ic">◉</span><h4>Co to za proces?</h4><span class="tg-go">Czytaj →</span></a>
+                    <a class="tg-tile tg-pcw" href="ghost-drivers-windows/index_pl.html"><span class="tg-ic">⬡</span><h4>Sterowniki widma</h4><span class="tg-go">Czytaj →</span></a>
                     <a class="tg-tile tg-pcw" href="../download/index_pl.html"><span class="tg-ic">⬇</span><h4>Co robi PC Workman</h4><span class="tg-go">Pobierz →</span></a>
+                </div>
+            </div>
+            <div class="tg-cluster">
+                <div class="tg-label">Modernizacja</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-pcw" href="will-this-cpu-fit-motherboard/index_pl.html"><span class="tg-ic">▤</span><h4>Czy CPU pasuje?</h4><span class="tg-go">Czytaj →</span></a>
+                    <a class="tg-tile tg-pcw" href="is-my-pc-healthy/index_pl.html"><span class="tg-ic">✓</span><h4>Czy PC jest sprawny?</h4><span class="tg-go">Czytaj →</span></a>
                 </div>
             </div>
         </div>
@@ -169,20 +177,44 @@
             <a class="series-card friday" href="ktore-uslugi-windows-wylaczyc/">
                 <span class="day-badge day-friday">Usługi</span>
                 <h3>Które usługi Windows można bezpiecznie wyłączyć</h3>
-                <p>Lista usług, które realnie można zatrzymać — i tych, których nie wolno ruszać. Na bazie profili Gaming/Work/Economy z PC Workmana.</p>
+                <p>Warunkowa lista usług oraz 33-elementowa ochrona składników krytycznych. Zgodna z profilami Gaming, Economy i własną listą Manager.</p>
                 <span class="go">Czytaj poradnik -&gt;</span>
             </a>
-            <a class="series-card wednesday" href="normal-cpu-temperature/">
-                <span class="day-badge day-wednesday">EN · Temperatury</span>
-                <h3>What's a normal CPU temperature?</h3>
-                <p>72°C w grze to norma. Te same 72°C w idle to ostrzeżenie. Dlaczego jeden próg dla każdego PC to mit — z tabelą per obciążenie.</p>
-                <span class="go">Read the guide -&gt;</span>
+            <a class="series-card wednesday" href="normal-cpu-temperature/index_pl.html">
+                <span class="day-badge day-wednesday">Temperatury</span>
+                <h3>Jaka temperatura procesora jest prawidłowa?</h3>
+                <p>72°C w grze może być normą. Te same 72°C w spoczynku to ostrzeżenie. Zakresy dla różnych rodzajów obciążenia zamiast jednego progu.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
             </a>
-            <a class="series-card monday" href="ghost-drivers-windows/">
-                <span class="day-badge day-monday">EN · Sterowniki</span>
-                <h3>Ghost drivers: sprzęt, który wymieniłeś lata temu</h3>
-                <p>Sterownik starego GPU dalej siedzi w Windowsie — ukryty przez Menedżera urządzeń. Jak znaleźć i usunąć ghosty przez pnputil, krok po kroku.</p>
-                <span class="go">Read the guide -&gt;</span>
+            <a class="series-card monday" href="ghost-drivers-windows/index_pl.html">
+                <span class="day-badge day-monday">Sterowniki</span>
+                <h3>Sterowniki widma: sprzęt, który wymieniłeś lata temu</h3>
+                <p>Sterownik starego GPU może pozostać w Windows i nie być widoczny w Menedżerze urządzeń. Jak znaleźć i usuwać takie wpisy przez pnputil.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card monday" href="what-is-this-process/index_pl.html">
+                <span class="day-badge day-monday">Procesy</span>
+                <h3>Co to za proces w Menedżerze zadań?</h3>
+                <p>Sprawdź ścieżkę, podpis, proces nadrzędny i zachowanie, zamiast ufać samej nazwie.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card friday" href="will-this-cpu-fit-motherboard/index_pl.html">
+                <span class="day-badge day-friday">Modernizacja</span>
+                <h3>Czy ten procesor będzie działał z moją płytą?</h3>
+                <p>Gniazdo to dopiero pierwsza warstwa. Sprawdź chipset, BIOS, zasilanie i pozostałe koszty zmiany platformy.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card friday" href="is-my-pc-healthy/index_pl.html">
+                <span class="day-badge day-friday">Kondycja</span>
+                <h3>Czy mój komputer jest sprawny?</h3>
+                <p>Pięć pytań, które oddzielają normalnie zajętą maszynę od rzeczywistego problemu.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="why-is-my-ram-usage-so-high/index_pl.html">
+                <span class="day-badge day-wednesday">Pamięć</span>
+                <h3>Dlaczego użycie RAM jest tak wysokie?</h3>
+                <p>Pamięć dostępna i błędy stronicowania mówią więcej niż sam procent zajęcia.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
             </a>
         </div>
 
@@ -209,16 +241,17 @@
         </div>
 
         <div class="guide-cta">
-            <b>Te poradniki wyrastają z prawdziwego narzędzia.</b> PC Workman monitoruje temperatury per obciążenie,
-            znajduje ghost drivery i zarządza usługami automatycznie — za darmo, open source, offline.
+            <b>Te poradniki wyrastają z działającego narzędzia.</b> PC Workman porównuje temperatury według
+            obciążenia, wykrywa sterowniki widma i pozwala zarządzać usługami z ochroną składników krytycznych.
+            Program jest darmowy i otwartoźródłowy.
             <a href="../download/index_pl.html">Pobierz tutaj</a>.
         </div>
 
         <div class="author-card">
-            <a class="avatar-link" href="../blog/profile.html"><div class="avatar">MF</div></a>
+            <a class="avatar-link" href="../blog/profile_pl.html"><div class="avatar">MF</div></a>
             <div>
-                <h4><a href="../blog/profile.html">Marcin Firmuga</a></h4>
-                <div class="role">Solo developer · HCK_Labs · 18 miesięcy danych z czujników za każdym poradnikiem</div>
+                <h4><a href="../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer · HCK_Labs · Poradniki oparte na systemie czujników PC Workman</div>
                 <p>Piszę je na podstawie tego, co czujniki PC Workmana faktycznie pokazują na prawdziwych maszynach —
                    łącznie z laptopem z 2014 roku przy 94°C, na którym ten projekt powstał.</p>
                 <div class="author-links">
