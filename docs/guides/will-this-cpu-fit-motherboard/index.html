@@ -1,0 +1,342 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: will this CPU fit my motherboard -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A matching socket does not mean a CPU will work in your motherboard. The five layers of compatibility (socket, generation, chipset, BIOS, power), the traps a spec sheet hides, and how to check before you buy instead of after the black screen.">
+    <meta name="keywords" content="will this CPU fit my motherboard, CPU socket compatibility, CPU motherboard compatibility, chipset support, BIOS update CPU, LGA1700 AM4 AM5 compatibility, CPU support list, does this CPU work with my motherboard">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:title" content="Will this CPU work with my motherboard? Socket is not the whole story">
+    <meta property="og:description" content="The socket matches and the PC still will not boot. The five layers of CPU compatibility, and how to check before you buy.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Will This CPU Work With My Motherboard? Socket, Chipset, BIOS and Power Explained | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Will this CPU work with my motherboard? Socket, chipset, BIOS and power explained",
+      "description": "A matching socket is necessary but not sufficient. The five layers of CPU-to-motherboard compatibility, the traps a spec sheet flattens into one green check, and how to verify before you buy.",
+      "url": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Will this CPU fit my motherboard", "item": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does a matching socket mean a CPU is compatible with my motherboard?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. A matching socket is required but not enough on its own. The chipset has to support the CPU, the motherboard needs a BIOS version that recognises it, and the board has to deliver enough power. LGA1151 shipped in two electrically different versions, and several AMD boards need a BIOS update before a newer Ryzen will even start." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I check if a CPU will work in my motherboard before buying?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Identify the exact motherboard model, check its installed BIOS version, and open the board maker's official CPU support list for that model. The support list tells you whether the CPU is supported at all, and from which BIOS version. Do that before you buy, not after the machine fails to post." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Compatibility Receipt visual (the "how PC Workman helps" graphic) */
+    .receipt{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #f59e0b;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .rc-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .rc-head .rc-tag{ color:#f59e0b; }
+    .rc-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .rc-row .k{ color:var(--text-dim); width:140px; flex-shrink:0; }
+    .rc-row .v{ color:#e6eef6; word-break:break-word; }
+    .rc-row .v.ok{ color:#a3e635; }
+    .rc-row .v.hold{ color:#f59e0b; }
+    .rc-row .v.dim{ color:var(--text-dim); }
+    .rc-list{
+        margin:.7rem 0 .2rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        font-size:.8rem; color:var(--text-secondary); line-height:1.65;
+    }
+    .rc-list .n{ color:#f59e0b; }
+    .rc-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        display:flex; align-items:center; gap:.6rem; font-size:.82rem; color:var(--text-secondary);
+    }
+    .rc-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; color:#f59e0b; border:1px solid rgba(245,158,11,.45); }
+    @media (max-width:520px){ .rc-row{ flex-direction:column; gap:0; } .rc-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/will-this-cpu-fit-motherboard/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Upgrades · Guide</span>
+        <h1>Will this CPU work with my motherboard?</h1>
+        <p class="tagline">The socket matches. The PC still may not boot. That is the trap most shopping pages flatten into one green check.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-25</span><span>·</span><span>9 min read</span>
+        </div>
+
+        <p>
+            You matched the socket. AM4 to AM4, or LGA1700 to LGA1700. The listing showed a green tick, you
+            bought the CPU, seated it, pressed the power button, and got a black screen or a single lit debug
+            LED. Nothing wrong with the chip. Nothing wrong with the board. The socket was just never the whole
+            story.
+        </p>
+        <p>
+            "Same socket" is where compatibility starts, not where it ends. A processor and a motherboard have
+            to agree on four more things before the machine will post, and a product page almost never shows
+            you those four. This guide lays out all five layers, the three traps that catch the most people,
+            and how to confirm a pairing before you spend money, whether you do it by hand or let PC Workman
+            check it against an offline library first.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#socket">Layer one: the socket, and why it is not enough</a></li>
+                <li><a href="#layers">The five layers of compatibility</a></li>
+                <li><a href="#traps">Three traps a spec sheet hides</a></li>
+                <li><a href="#check">How to check before you buy</a></li>
+                <li><a href="#receipt">How PC Workman checks it</a></li>
+                <li><a href="#verdict">The honest verdict: do not install yet</a></li>
+            </ol>
+        </div>
+
+        <h2 id="socket">Layer one: the socket, and why it is not enough</h2>
+        <p>
+            The socket is the physical interface: the pin layout the CPU drops into. AMD's AM4, AMD's newer AM5,
+            Intel's LGA1700, and so on. If the socket does not match, the chip does not physically fit, so this
+            is the first filter and the easiest one to check. It is also the only layer most buyers ever look at,
+            which is exactly why the other four cause so much grief.
+        </p>
+        <p>
+            A socket is a handshake about shape. It says nothing about whether the board's chipset understands
+            this specific processor, whether its firmware has ever heard of it, or whether it can feed it enough
+            clean power. Two chips can share a socket and still be electrically and logically incompatible.
+        </p>
+
+        <h2 id="layers">The five layers of compatibility</h2>
+        <p>
+            Think of it as five gates. A CPU has to clear all five, in order, before your machine reaches the
+            desktop.
+        </p>
+        <ol>
+            <li><strong>Physical socket.</strong> Does the chip fit the pins at all. Necessary, never sufficient.</li>
+            <li><strong>Generation and revision.</strong> Sockets are sometimes reused across processor
+                generations that are not cross-compatible. The same slot does not guarantee the same silicon
+                contract.</li>
+            <li><strong>Chipset.</strong> The chipset on the board (B450, B550, B760, Z490, and the rest) decides
+                which processors it officially supports. A budget chipset often supports a narrower list than a
+                premium one on the identical socket.</li>
+            <li><strong>BIOS version.</strong> Even a supported CPU needs firmware that recognises it. A board
+                that shipped before your CPU existed usually needs a BIOS update first, and it may need an older,
+                supported CPU present to perform that update, unless the board has BIOS flashback.</li>
+            <li><strong>Power, cooling and the hidden bill.</strong> The board's power delivery (VRM) has to
+                sustain the CPU under load, the cooler has to handle its heat output, and the RAM generation has
+                to match. Jumping platforms can quietly mean new RAM and a new cooler mount, which is a real part
+                of the cost.</li>
+        </ol>
+
+        <h2 id="traps">Three traps a spec sheet hides</h2>
+        <p>
+            These are not edge cases. They are three of the most common ways a "compatible" purchase turns into
+            a black screen.
+        </p>
+        <div class="callout warn">
+            <b>Trap 1 — B460 and an 11th-gen Intel CPU.</b> The socket (LGA1200) matches, so the listing looks
+            fine. But Intel's B460 and H410 chipsets did not officially support 11th-generation Rocket Lake
+            processors, while Z490 and H470 boards did after a BIOS update. Same socket, different chipset,
+            different answer.
+        </div>
+        <div class="callout warn">
+            <b>Trap 2 — two different LGA1151 sockets.</b> LGA1151 shipped in two electrically different
+            versions. The first carried 6th and 7th-gen Intel CPUs (100 and 200-series chipsets); the second
+            carried 8th and 9th-gen (300-series). They look identical and share a name, but a 8th-gen chip will
+            not run in a 200-series board, and a 7th-gen chip will not run in a 300-series board.
+        </div>
+        <div class="callout warn">
+            <b>Trap 3 — B450 and a Ryzen 7 5800X3D.</b> The AM4 socket matches and the chipset supports Ryzen
+            5000, but a B450 board that has never been updated needs a newer BIOS before the CPU will post. If
+            your only CPU is the new one, you can be stuck: you need an older supported CPU, or BIOS flashback,
+            to do the update in the first place.
+        </div>
+
+        <h2 id="check">How to check before you buy</h2>
+        <p>
+            Every trap above is avoidable with three checks, none of which need the new CPU in hand:
+        </p>
+        <ol>
+            <li><strong>Identify the exact motherboard model.</strong> Not "a B450 board", the full model string,
+                because support differs board to board even within one chipset. On a running machine, System
+                Information (msinfo32) lists the baseboard product, or you can read it off the PCB.</li>
+            <li><strong>Find the installed BIOS version.</strong> msinfo32 shows it as "BIOS Version/Date". You
+                need this to compare against the version a given CPU requires.</li>
+            <li><strong>Open the board maker's official CPU support list</strong> for that exact model. It states
+                whether the CPU is supported at all, and the minimum BIOS version that supports it. This one page
+                settles most questions the shopping listing cannot.</li>
+        </ol>
+        <p>
+            After a successful swap there is one more step people forget: the driver stack for the old CPU's
+            integrated graphics or the previous platform can linger. Our guide on
+            <a href="../ghost-drivers-windows/">removing ghost drivers</a> covers clearing those leftovers so the
+            new hardware starts clean.
+        </p>
+
+        <h2 id="receipt">How PC Workman checks it</h2>
+        <p>
+            Doing those three checks by hand is entirely possible. The friction is that the answers live in three
+            different places, in a naming scheme (chipsets, sockets, generations, BIOS strings) that assumes you
+            already know it. PC Workman's Upgrade Readiness detects your current chipset and matches a proposed
+            CPU against an offline library of 188 processors and 58 chipsets, then returns one of three plain
+            verdicts instead of a green tick: it fits, it fits after a BIOS update, or it does not fit and here is
+            why. For the B450 and 5800X3D pairing above, that looks like this:
+        </p>
+
+        <div class="receipt">
+            <div class="rc-head"><span>Compatibility Receipt</span><span class="rc-tag">offline check</span></div>
+            <div class="rc-row"><span class="k">CPU</span><span class="v">Ryzen 7 5800X3D</span></div>
+            <div class="rc-row"><span class="k">Board chipset</span><span class="v">B450</span></div>
+            <div class="rc-row"><span class="k">Socket</span><span class="v ok">compatible (AM4)</span></div>
+            <div class="rc-row"><span class="k">Chipset</span><span class="v ok">supports Ryzen 5000</span></div>
+            <div class="rc-row"><span class="k">BIOS</span><span class="v hold">update required</span></div>
+            <div class="rc-row"><span class="k">Current BIOS</span><span class="v dim">unknown, verify on the board</span></div>
+            <div class="rc-list">
+                Before you buy:<br>
+                <span class="n">1</span>&nbsp; identify the exact motherboard model<br>
+                <span class="n">2</span>&nbsp; check the installed BIOS version<br>
+                <span class="n">3</span>&nbsp; confirm the vendor CPU support list<br>
+                <span class="n">4</span>&nbsp; update BIOS before removing the old CPU
+            </div>
+            <div class="rc-verdict"><span class="badge">hold</span><span>Potentially compatible. Do not install yet.</span></div>
+        </div>
+
+        <h2 id="verdict">The honest verdict: do not install yet</h2>
+        <div class="callout warn">
+            <b>An offline tool cannot see the BIOS flashed on a board it has never met.</b> That is the honest
+            limit, and it is why PC Workman does not hand you a bare "yes" on a pairing that depends on firmware.
+            It knows the socket rules, the chipset support, and the CPU library, so it can tell you the pairing
+            is possible and exactly what to verify. It says "potentially compatible, do not install yet" and
+            lists the three things to confirm, rather than pretending to certify a board it cannot inspect. A
+            green check that is wrong costs you a return and a weekend. A verdict that tells you what to check
+            costs you five minutes and gets it right.
+        </div>
+        <p>
+            So before the next upgrade, do not stop at the socket. Read the chipset, read the BIOS requirement,
+            and open the support list for your exact board. The socket tells you the chip will fit. The other
+            four layers tell you it will actually run.
+        </p>
+
+        <div class="guide-cta">
+            <b>Check a CPU against your board before it ships.</b> PC Workman's Upgrade Readiness matches your
+            detected chipset against an offline library of 188 CPUs and 58 chipsets and returns one honest
+            verdict of three: it fits, it fits after a BIOS update, or it does not fit and why. The
+            compatibility check runs locally. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: you have the budget for one part, RAM or an SSD, and you want the one that actually helps.
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>Building a system monitor in public since 2025. The compatibility library behind this guide is the same one that ships in the app.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

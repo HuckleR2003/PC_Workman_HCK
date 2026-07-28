@@ -1,0 +1,244 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: zgodność CPU z płytą główną -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Czy procesor będzie działał z płytą główną? Zgodny socket to dopiero początek. Sprawdź generację, chipset, wersję BIOS, zasilanie i ukryte koszty przed zakupem CPU.">
+    <meta name="keywords" content="czy procesor pasuje do płyty głównej, zgodność CPU płyta główna, socket procesora, chipset, aktualizacja BIOS CPU, lista obsługiwanych procesorów, AM4 AM5 LGA1700">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
+    <meta property="og:title" content="Czy ten procesor będzie działał z moją płytą? Socket to nie wszystko">
+    <meta property="og:description" content="Socket pasuje, a komputer nadal może się nie uruchomić. Pięć warstw zgodności CPU z płytą i trzy kontrole przed zakupem.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Czy procesor pasuje do płyty głównej? Socket, chipset, BIOS i zasilanie | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog po polsku" href="../../blog/feed_pl.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Czy ten procesor będzie działał z moją płytą? Socket, chipset, BIOS i zasilanie",
+      "description": "Pięć warstw zgodności procesora z płytą główną, typowe pułapki oraz trzy kontrole, które warto wykonać przed zakupem.",
+      "url": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Zgodność procesora z płytą", "item": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy ten sam socket oznacza, że procesor będzie zgodny z płytą główną?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Nie. Zgodny socket jest konieczny, ale nie wystarcza. Chipset musi obsługiwać procesor, płyta potrzebuje odpowiedniej wersji BIOS, a układ zasilania musi poradzić sobie z poborem mocy. Przykładem jest LGA1151, który występował w dwóch niezgodnych elektrycznie wersjach."}
+        },
+        {
+          "@type": "Question",
+          "name": "Jak sprawdzić zgodność CPU z płytą przed zakupem?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Ustal dokładny model płyty i zainstalowaną wersję BIOS, a następnie otwórz oficjalną listę obsługiwanych procesorów producenta dla tego modelu. Lista podaje, czy CPU jest wspierany oraz od której wersji BIOS."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .receipt{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #f59e0b;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .rc-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.rc-head .rc-tag{color:#f59e0b}
+    .rc-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.rc-row .k{color:var(--text-dim);width:140px;flex-shrink:0}.rc-row .v{color:#e6eef6;word-break:break-word}.rc-row .v.ok{color:#a3e635}.rc-row .v.hold{color:#f59e0b}.rc-row .v.dim{color:var(--text-dim)}
+    .rc-list{margin:.7rem 0 .2rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.8rem;color:var(--text-secondary);line-height:1.65}.rc-list .n{color:#f59e0b}
+    .rc-verdict{margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--text-secondary)}.rc-verdict .badge{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:.22rem .6rem;border-radius:999px;color:#f59e0b;border:1px solid rgba(245,158,11,.45)}
+    @media(max-width:520px){.rc-row{flex-direction:column;gap:0}.rc-row .k{width:auto}}
+    </style>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/will-this-cpu-fit-motherboard/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/will-this-cpu-fit-motherboard/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Modernizacja &middot; Poradnik</span>
+        <h1>Czy ten procesor będzie działał z moją płytą?</h1>
+        <p class="tagline">Socket pasuje, a komputer nadal może się nie uruchomić. Zgodność ma jeszcze cztery warstwy.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-25</span><span>&middot;</span><span>9 min czytania</span>
+        </div>
+        <p>
+            Dopasowałeś socket: AM4 do AM4 albo LGA1700 do LGA1700. Sklep pokazał zielone potwierdzenie,
+            procesor został zamontowany, po naciśnięciu przycisku zasilania pojawił się jednak czarny ekran.
+            Procesor może być sprawny. Płyta również. Wspólna nazwa gniazda nie przesądza jeszcze, że komputer
+            przejdzie procedurę POST.
+        </p>
+        <p>
+            Socket jest początkiem kontroli zgodności. Procesor i płyta muszą uzgodnić generację, chipset,
+            wersję firmware oraz zasilanie. Karta produktu rzadko pokazuje te warunki w jednym miejscu.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#socket">Dlaczego zgodny socket nie wystarcza</a></li>
+                <li><a href="#warstwy">Pięć warstw zgodności</a></li>
+                <li><a href="#pulapki">Trzy częste pułapki</a></li>
+                <li><a href="#sprawdzenie">Jak sprawdzić zestaw przed zakupem</a></li>
+                <li><a href="#protokol">Jak sprawdza to PC Workman</a></li>
+                <li><a href="#granica">Uczciwa granica sprawdzenia offline</a></li>
+            </ol>
+        </div>
+        <h2 id="socket">Dlaczego zgodny socket nie wystarcza</h2>
+        <p>
+            Socket jest fizycznym interfejsem i układem styków. Jeżeli nie pasuje, CPU nie da się poprawnie
+            zamontować. To pierwszy i najłatwiejszy filtr. Nie mówi jednak, czy chipset rozumie dany procesor,
+            czy BIOS zawiera jego mikrokod ani czy sekcja zasilania płyty utrzyma go pod obciążeniem.
+        </p>
+        <p>
+            Wspólne gniazdo potwierdza głównie zgodność kształtu. Dwa procesory mogą mieścić się w tej samej
+            rodzinie socketu, a mimo to być logicznie albo elektrycznie niezgodne z daną płytą.
+        </p>
+        <h2 id="warstwy">Pięć warstw zgodności</h2>
+        <ol>
+            <li><strong>Fizyczny socket.</strong> Czy procesor ma właściwy układ styków. Warunek konieczny, nigdy wystarczający.</li>
+            <li><strong>Generacja i rewizja.</strong> Ta sama nazwa gniazda bywa używana dla generacji, które nie współpracują ze sobą.</li>
+            <li><strong>Chipset.</strong> B450, B550, B760, Z490 i pozostałe chipsety mają własne listy oficjalnie obsługiwanych CPU. Dwie płyty z tym samym socketem mogą dać inny wynik.</li>
+            <li><strong>Wersja BIOS.</strong> Płyta wyprodukowana przed premierą CPU zwykle potrzebuje aktualizacji. Bez funkcji BIOS Flashback aktualizacja może wymagać starszego, już obsługiwanego procesora.</li>
+            <li><strong>Zasilanie, chłodzenie i pozostałe koszty.</strong> Sekcja VRM musi utrzymać procesor pod obciążeniem, chłodzenie odprowadzić ciepło, a generacja RAM pasować do platformy. Zmiana platformy może oznaczać także nową pamięć i mocowanie coolera.</li>
+        </ol>
+        <h2 id="pulapki">Trzy częste pułapki</h2>
+        <div class="callout warn">
+            <b>B460 i Intel 11. generacji.</b> LGA1200 pasuje fizycznie, ale chipsety B460 i H410 nie dostały
+            oficjalnej obsługi procesorów Rocket Lake. Z490 i H470 mogły ją otrzymać po aktualizacji BIOS.
+        </div>
+        <div class="callout warn">
+            <b>Dwie wersje LGA1151.</b> Pierwsza współpracowała z Intelem 6. i 7. generacji oraz chipsetami serii
+            100/200. Druga z 8. i 9. generacją oraz serią 300. Gniazda wyglądają tak samo i dzielą nazwę,
+            ale procesory nie są między nimi wymienne.
+        </div>
+        <div class="callout warn">
+            <b>B450 i Ryzen 7 5800X3D.</b> Socket AM4 i chipset wspierają Ryzen 5000, lecz starszy BIOS może nie
+            rozpoznać CPU. Jeśli nowy procesor jest jedynym dostępnym, do aktualizacji potrzebujesz funkcji
+            Flashback albo starszego obsługiwanego CPU.
+        </div>
+        <h2 id="sprawdzenie">Jak sprawdzić zestaw przed zakupem</h2>
+        <ol>
+            <li><strong>Ustal dokładny model płyty.</strong> Nie tylko „B450”, lecz pełną nazwę producenta i model. W uruchomionym Windows znajdziesz ją w Informacjach o systemie, pole Produkt płyty bazowej, albo bezpośrednio na laminacie.</li>
+            <li><strong>Sprawdź zainstalowaną wersję BIOS.</strong> <code>msinfo32</code> pokazuje pole Wersja/data systemu BIOS. Porównasz ją z minimum wymaganym dla CPU.</li>
+            <li><strong>Otwórz oficjalną listę obsługiwanych procesorów</strong> dla dokładnie tego modelu płyty. Producent podaje, czy CPU jest wspierany i od której wersji BIOS.</li>
+        </ol>
+        <p>
+            Zrób to przed zakupem, nie dopiero po czarnym ekranie. Po udanej zmianie platformy warto również
+            sprawdzić pozostałości sterowników zintegrowanej grafiki i poprzednich urządzeń. Opisuje to poradnik
+            o <a href="../ghost-drivers-windows/index_pl.html">sterownikach widmach</a>.
+        </p>
+        <h2 id="protokol">Jak sprawdza to PC Workman</h2>
+        <p>
+            Upgrade Readiness wykrywa chipset i porównuje proponowany procesor z lokalną biblioteką 188 CPU
+            i 58 chipsetów. Zwraca jeden z trzech wniosków: zgodny, zgodny po aktualizacji BIOS albo niezgodny
+            z podaniem powodu. Dla zestawu B450 i Ryzen 7 5800X3D wynik wygląda tak:
+        </p>
+        <div class="receipt">
+            <div class="rc-head"><span>Protokół zgodności</span><span class="rc-tag">sprawdzenie offline</span></div>
+            <div class="rc-row"><span class="k">Procesor</span><span class="v">Ryzen 7 5800X3D</span></div>
+            <div class="rc-row"><span class="k">Chipset płyty</span><span class="v">B450</span></div>
+            <div class="rc-row"><span class="k">Socket</span><span class="v ok">zgodny, AM4</span></div>
+            <div class="rc-row"><span class="k">Chipset</span><span class="v ok">obsługuje Ryzen 5000</span></div>
+            <div class="rc-row"><span class="k">BIOS</span><span class="v hold">może wymagać aktualizacji</span></div>
+            <div class="rc-row"><span class="k">Bieżący BIOS</span><span class="v dim">sprawdź na tej płycie</span></div>
+            <div class="rc-list">
+                Przed zakupem:<br>
+                <span class="n">1</span>&nbsp; ustal dokładny model płyty<br>
+                <span class="n">2</span>&nbsp; sprawdź wersję BIOS<br>
+                <span class="n">3</span>&nbsp; potwierdź listę CPU producenta<br>
+                <span class="n">4</span>&nbsp; zaktualizuj BIOS przed wyjęciem starego CPU
+            </div>
+            <div class="rc-verdict"><span class="badge">wstrzymaj montaż</span><span>Potencjalnie zgodny. Najpierw potwierdź BIOS.</span></div>
+        </div>
+        <h2 id="granica">Uczciwa granica sprawdzenia offline</h2>
+        <div class="callout warn">
+            <b>Program offline nie zna wersji BIOS na płycie, której nie może poprawnie odczytać.</b> Może
+            potwierdzić zasady socketu, chipset i dane CPU, a następnie wskazać dokładnie, co trzeba sprawdzić.
+            Nie powinien udawać certyfikacji konkretnej sztuki sprzętu, jeśli brakuje informacji o firmware.
+        </div>
+        <p>
+            Przed modernizacją nie zatrzymuj się na socketcie. Sprawdź chipset, wymagany BIOS i oficjalną listę
+            dla dokładnego modelu płyty. Gniazdo mówi, czy procesor się zmieści. Pozostałe warstwy mówią, czy
+            komputer rzeczywiście się uruchomi.
+        </p>
+        <div class="guide-cta">
+            <b>Sprawdź procesor przed zamówieniem.</b> PC Workman porównuje chipset z lokalną biblioteką 188 CPU
+            i 58 chipsetów, pokazując zgodność, wymaganą aktualizację BIOS albo konkretny powód niezgodności.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Biblioteka zgodności opisana w poradniku jest tą samą biblioteką, która działa w aplikacji.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
