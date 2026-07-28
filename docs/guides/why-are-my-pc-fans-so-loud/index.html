@@ -1,0 +1,310 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: why are my PC fans so loud -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A loud PC is often a nervous one, with fans chasing every two-degree spike. How a fan curve actually works (start point, minimum PWM, ramp delays, hysteresis, sensor choice), how to build a quiet curve that still cools, and where higher RPM stops lowering temperature.">
+    <meta name="keywords" content="why are my PC fans so loud, quiet fan curve, reduce fan noise, fan control Windows, fan curve hysteresis, PWM fan, noisy PC fans, fan ramp delay">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/">
+    <meta property="og:title" content="Why are my PC fans so loud? Build a quiet curve without hiding heat">
+    <meta property="og:description" content="Most fan noise is a twitchy curve chasing spikes, not real heat. How to build a quiet curve that still cools, and where more RPM stops buying degrees.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-26">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Why Are My PC Fans So Loud? Build a Quiet Fan Curve Without Hiding Heat | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Why are my PC fans so loud? Build a quiet fan curve without hiding heat",
+      "description": "Most fan noise is a curve chasing transient spikes, not sustained heat. How a fan curve works, how to build a quiet one that still cools, and where higher RPM stops lowering temperature.",
+      "url": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/",
+      "datePublished": "2026-07-26",
+      "dateModified": "2026-07-26",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Why are my PC fans so loud", "item": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why are my PC fans so loud all of a sudden?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually because the fan curve is reacting to short temperature spikes instead of sustained heat. A background task blips the CPU, the temperature jumps a couple of degrees, and a twitchy curve spins the fans up hard, then down, then up again. Adding hysteresis and a ramp-down delay stops the surging. A sudden, constant increase at the same workload instead points to dust or dried thermal paste raising the baseline." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it bad to run PC fans at a lower speed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not if temperatures stay in a safe range for the workload. Cooling is not linear: past a certain fan speed, more RPM adds a lot of noise for barely a degree of improvement. Running below that point on purpose is quieter and still safe, as long as the fans still ramp up for genuine sustained load." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Fan Response Calibration visual (the "how PC Workman helps" graphic) */
+    .fancal{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .fc-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.6rem;
+    }
+    .fc-head .fc-tag{ color:#a3e635; }
+    .fc-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; align-items:baseline; }
+    .fc-row .k{ color:var(--text-dim); width:110px; flex-shrink:0; }
+    .fc-row .v{ color:#e6eef6; }
+    .fc-row .note{ margin-left:auto; font-size:.72rem; }
+    .fc-row.knee{ border-left:2px solid #a3e635; padding-left:.5rem; margin-left:-.5rem; }
+    .fc-row.knee .note{ color:#a3e635; }
+    .fc-row.waste .note{ color:#f59e0b; }
+    .fc-foot{ margin-top:.6rem; padding-top:.55rem; border-top:1px solid #1c222b; font-size:.8rem; color:var(--text-secondary); }
+    .fc-foot b{ color:#a3e635; }
+    @media (max-width:520px){ .fc-row{ flex-wrap:wrap; } .fc-row .note{ margin-left:0; width:100%; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Cooling · Guide</span>
+        <h1>Why are my PC fans so loud?</h1>
+        <p class="tagline">A loud PC is not always a hot one. More often it is a nervous one, chasing spikes instead of heat.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-26</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            A loud PC is not always an overheating PC. More often, it is a nervous one. You open a browser tab,
+            the CPU blips, the temperature jumps two degrees, and the fans sprint like something is on fire. A
+            second later the temperature drops, the fans wind down, and thirty seconds after that the whole cycle
+            repeats. That up-and-down whine, not raw heat, is what most people are actually hearing.
+        </p>
+        <p>
+            The fix is not running the fans flat out, and it is not letting the machine cook. It is a fan curve
+            that ignores meaningless spikes and only spins up when heat actually builds. This guide explains how
+            a fan curve really works, how to build a quiet one that still cools, and where extra fan speed stops
+            buying you anything. Then how PC Workman shows you that exact trade-off on your own hardware.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#why">Why fans get loud in the first place</a></li>
+                <li><a href="#knobs">The knobs of a fan curve, in plain language</a></li>
+                <li><a href="#quiet">Building a quiet curve that still cools</a></li>
+                <li><a href="#knee">Where higher RPM stops helping</a></li>
+                <li><a href="#dashboard">How PC Workman shows the trade-off</a></li>
+            </ol>
+        </div>
+
+        <h2 id="why">Why fans get loud in the first place</h2>
+        <p>
+            A fan follows a sensor. If the curve maps every small temperature rise straight to a big jump in
+            speed, then every background blip, a tab opening, an update check, a cloud sync, makes the fans
+            surge. The heat behind it was trivial. The noise was not. What you hear is the curve overreacting.
+        </p>
+        <p>
+            Two causes are worth separating before you touch anything:
+        </p>
+        <ul>
+            <li><strong>Genuine sustained heat.</strong> Under a real load, a game or a render, the fans ramping
+                up is correct. That is the cooler doing its job, and quieting it there just moves the problem to
+                the thermals.</li>
+            <li><strong>A twitchy curve chasing transients.</strong> Short spikes at idle and light use that
+                trigger a full surge. This is the fixable noise, and it is what most "my fans are so loud"
+                complaints actually are.</li>
+        </ul>
+        <p>
+            One more baseline check first: if the fans got louder at the <em>same</em> workload over weeks, that
+            is usually dust or dried thermal paste raising your temperatures, a hardware fix covered in our guide
+            on <a href="../normal-cpu-temperature/">what a normal CPU temperature is</a>. Assuming the cooling
+            itself is healthy, the curve is the lever.
+        </p>
+
+        <h2 id="knobs">The knobs of a fan curve, in plain language</h2>
+        <p>
+            Every fan-control tool exposes some of these. You do not need all of them, but knowing what each one
+            does turns curve editing from guesswork into a few deliberate choices.
+        </p>
+        <ul>
+            <li><strong>Start point:</strong> the temperature below which fans stay at their minimum, or off. Set
+                it too low and they never get to rest.</li>
+            <li><strong>Minimum stable speed:</strong> the slowest a fan spins reliably. Below it, fans stall or
+                buzz, so this is your quiet floor, not zero.</li>
+            <li><strong>Ramp-up delay:</strong> how long a high temperature must persist before the fan speeds
+                up. A short delay chases spikes; a few seconds of delay ignores them.</li>
+            <li><strong>Ramp-down delay:</strong> how long a low temperature must persist before slowing down.
+                Too short, and the fan surges up and down constantly.</li>
+            <li><strong>Hysteresis:</strong> a deliberate gap between the speed-up temperature and the slow-down
+                temperature, so the fan does not flutter around a single threshold. This is the single most
+                effective anti-noise setting there is.</li>
+            <li><strong>Which sensor drives it:</strong> CPU, GPU, or a motherboard and case sensor. Tying quiet
+                case fans to a jumpy CPU package sensor makes them twitch; a steadier sensor calms them.</li>
+        </ul>
+
+        <h2 id="quiet">Building a quiet curve that still cools</h2>
+        <ol>
+            <li><strong>Flatten the low end.</strong> Hold the fans at one steady low speed across idle and light
+                load, instead of reacting to every blip.</li>
+            <li><strong>Add hysteresis and a ramp-down delay.</strong> A brief spike should not be able to trigger
+                a surge. This alone removes most of the whine.</li>
+            <li><strong>Ramp up only where heat sustains.</strong> Climb smoothly into higher speeds under real,
+                lasting load, not in a single cliff at one temperature.</li>
+            <li><strong>Cap the top where returns vanish</strong> (the next section shows how to find that point).</li>
+            <li><strong>Match each fan to the right sensor.</strong> Case fans on a steady sensor, the CPU cooler
+                on the CPU.</li>
+        </ol>
+        <p>
+            The goal in one line: your fans should react to a ten-minute render, not to a one-second
+            notification.
+        </p>
+
+        <h2 id="knee">Where higher RPM stops helping</h2>
+        <p>
+            Cooling is not linear. From a low speed, a little more airflow drops temperatures a lot. Past a
+            certain point, doubling the fan speed, and the noise, buys you a single degree. That point is where a
+            quiet everyday curve should top out, and you can find it by holding a steady load and reading the
+            stable temperature at each fan speed.
+        </p>
+        <p>
+            Here is the shape it usually takes: the temperature-versus-speed line falls steeply, then flattens.
+            The flat part is noise you are paying for with almost no cooling in return.
+        </p>
+
+        <h2 id="dashboard">How PC Workman shows the trade-off</h2>
+        <p>
+            PC Workman's Fan Dashboard reads your real sensors, lets you drag curve points, and keeps the curve
+            you are editing visually separate from the one currently applied, so you can experiment without
+            committing to anything. hck_GPT can suggest a starting profile from the temperature history it has
+            already learned for your machine. What it adds on top is the trade-off made visible, the thermal
+            return for each step of fan speed:
+        </p>
+
+        <div class="fancal">
+            <div class="fc-head"><span>Fan Response Calibration</span><span class="fc-tag">steady load, stepped</span></div>
+            <div class="fc-row"><span class="k">Fan 40%</span><span class="v">71C stable</span></div>
+            <div class="fc-row"><span class="k">Fan 55%</span><span class="v">67C stable</span></div>
+            <div class="fc-row knee"><span class="k">Fan 70%</span><span class="v">65C stable</span><span class="note">knee, quiet ceiling</span></div>
+            <div class="fc-row waste"><span class="k">Fan 85%</span><span class="v">64C stable</span><span class="note">much louder, only 1C gained</span></div>
+            <div class="fc-foot"><b>Finding:</b> above 70%, fan speed rises sharply while temperature improves by about 1C. For daily use, 70% is the honest ceiling; 85%+ is for rare sustained stress, not an afternoon.</div>
+        </div>
+
+        <div class="callout warn">
+            <b>What this is, and what it is not.</b> This is a thermal-return analysis, where more fan speed
+            stops lowering temperature, not a noise measurement. Reading actual loudness in decibels needs a
+            calibrated microphone, and PC Workman does not claim to do that. It shows you the number you can act
+            on: the point where extra RPM buys you nothing, so you can go quiet without hiding real heat.
+        </div>
+        <p>
+            So before you resign yourself to a jet engine or a slow cook, listen to what your fans are reacting
+            to. Nine times out of ten it is spikes, not heat, and a curve with a little patience built in fixes
+            it: a low steady floor, some hysteresis, and a ceiling set where the extra noise stops buying you
+            degrees. If your fans sit at maximum even after all that, that is a
+            <a href="../is-my-pc-healthy/">health signal worth checking</a>, not a curve to fight.
+        </p>
+
+        <div class="guide-cta">
+            <b>Tune it on your own hardware.</b> PC Workman's Fan Dashboard reads your real sensors, lets you
+            shape the curve safely with a live preview, and shows where more RPM stops lowering temperature, so
+            you can go quiet without hiding heat. Free, open source, 100% offline.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: the fans are fine, but is the machine actually healthy?
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public, on machines that ranged from silent to a jet engine. Every guide is based on what the sensors actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
