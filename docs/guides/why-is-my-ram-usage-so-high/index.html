@@ -1,0 +1,320 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: why is my RAM usage so high -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="High RAM usage is usually normal: used memory is not wasted memory. What Task Manager's active, standby, committed and available numbers really mean, how to spot genuine memory pressure with hard faults, and how to sleep idle background apps in Windows 11 without breaking anything.">
+    <meta name="keywords" content="why is my RAM usage so high, high memory usage Windows 11, free up RAM, memory pressure, hard faults, background apps RAM, standby memory, committed memory, available memory">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:title" content="Why is my RAM usage so high? Used memory is not wasted memory">
+    <meta property="og:description" content="The percentage bar is not the number that matters. Read Available memory and hard faults instead, then sleep idle apps without killing them.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Why Is My RAM Usage So High? Sleep Background Apps Without Breaking Windows 11 | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Why is my RAM usage so high? Sleep background apps without breaking Windows 11",
+      "description": "Used memory is not wasted memory. What the active, standby, committed and available figures mean, how hard faults reveal genuine memory pressure, and how to suspend idle apps instead of killing them.",
+      "url": "https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/",
+      "datePublished": "2026-07-25",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Why is my RAM usage so high", "item": "https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is high RAM usage bad?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not on its own. Windows deliberately fills unused memory with cached data because empty RAM does no work, so seeing 70 to 85 percent usage is normal. What matters is the Available figure and whether anything is waiting for memory it cannot get. If Available memory stays healthy and hard faults are low, high usage is the system working as designed." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I fix high memory usage in Windows 11 without breaking apps?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Find the real consumer in Task Manager's Details tab by the Commit size column, limit background permission for apps you do not need syncing or notifying (Settings, Apps, Installed apps, Advanced options, Background apps permissions, Never), and avoid RAM cleaner tools that empty the standby cache and cause a burst of hard faults right after. Suspending an idle app keeps its state while freeing its memory, which is safer than ending it." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Hibernation Receipt visual (before / after, the "how PC Workman helps" graphic) */
+    .hib{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .hib-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.55rem;
+    }
+    .hib-head .hib-tag{ color:#a3e635; }
+    .hib-seg{ margin:.55rem 0 .1rem; }
+    .hib-seg .seg{ font-size:.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); }
+    .hib-row{ display:flex; gap:1rem; font-size:.82rem; padding:.16rem 0; line-height:1.4; }
+    .hib-row .k{ color:var(--text-dim); width:150px; flex-shrink:0; }
+    .hib-row .v{ color:#e6eef6; }
+    .hib-row .v.bad{ color:#e11d2f; }
+    .hib-row .v.good{ color:#a3e635; }
+    .hib-div{ border-top:1px solid #1c222b; margin:.55rem 0 0; }
+    .hib-foot{ margin-top:.55rem; padding-top:.55rem; border-top:1px solid #1c222b; font-size:.8rem; color:var(--text-secondary); }
+    .hib-foot b{ color:#a3e635; }
+    @media (max-width:520px){ .hib-row{ flex-direction:column; gap:0; } .hib-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/why-is-my-ram-usage-so-high/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Memory · Guide</span>
+        <h1>Why is my RAM usage so high?</h1>
+        <p class="tagline">Before you end half of Task Manager: used memory is not the same as wasted memory.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-25</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            Your memory sits at 82 percent and you have barely opened anything. The instinct is to open Task
+            Manager and start closing things until the number falls. Hold on a second, because that number is
+            not the problem you think it is.
+        </p>
+        <p>
+            Empty RAM helps nobody. Memory that sits idle is memory doing no work, so Windows deliberately fills
+            it with cached data from recent apps and files it expects you to open next. High usage, on its own,
+            is the system working as designed. The question worth asking is not how full your RAM is. It is
+            whether anything is actually waiting for memory it cannot get.
+        </p>
+        <p>
+            This guide explains what Task Manager's memory numbers really mean, how to tell genuine memory
+            pressure from a healthy full cache, and how to reclaim memory without breaking the apps you use.
+            Then it shows how PC Workman does the same thing and prints its working.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#numbers">What the memory numbers actually mean</a></li>
+                <li><a href="#pressure">When high usage is a real problem</a></li>
+                <li><a href="#fix">Reclaim memory without breaking things</a></li>
+                <li><a href="#hibernate">The smarter move: suspend, do not kill</a></li>
+                <li><a href="#receipt">How PC Workman does it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="numbers">What the memory numbers actually mean</h2>
+        <p>
+            The percentage bar counts everything, including memory Windows can hand back the instant an app asks.
+            Four terms separate a scary-looking bar from a genuine problem:
+        </p>
+        <ul>
+            <li><strong>Active (In use)</strong>: memory doing work for the apps running right now.</li>
+            <li><strong>Standby (Cached)</strong>: data kept on the chance you need it again. It is released
+                instantly when an app needs the space. A large standby cache is good, not bad. It is the reason
+                a program you used earlier reopens quickly.</li>
+            <li><strong>Committed</strong>: the memory Windows has promised to apps, backed by physical RAM plus
+                the pagefile. Task Manager shows it as a pair, for example 18 / 32 GB.</li>
+            <li><strong>Available</strong>: the number that actually matters. It is free memory plus the standby
+                cache Windows can reclaim on demand. A machine at 85 percent with 6 GB Available is not short of
+                memory, whatever the bar suggests.</li>
+        </ul>
+
+        <h2 id="pressure">When high usage is a real problem</h2>
+        <p>
+            Two signals tell you the difference between a full cache and real pressure, and neither is the
+            percentage:
+        </p>
+        <ul>
+            <li><strong>Available memory staying low</strong>, roughly under 1 to 2 GB, while you are working.
+                That is the cache already spent and nothing left to reclaim.</li>
+            <li><strong>Hard faults climbing.</strong> A hard fault, or hard page fault, is Windows going to disk
+                because the memory it needed was not in RAM. A handful per second is normal background noise.
+                Hundreds per second, while you wait, is memory pressure you can feel as stutter and slow app
+                switching. Open Resource Monitor (run <code>resmon</code>), go to the Memory tab, and watch the
+                Hard Faults/sec graph while you work.</li>
+        </ul>
+        <p>
+            This distinction is what stops you from closing the wrong thing. A browser holding 4 GB across forty
+            tabs is using memory because it is doing work for you; closing it frees memory you were actually
+            using. A tiny helper that wakes the CPU every few seconds costs you far more in interruptions than
+            it ever shows in megabytes. To confirm what a suspicious process even is before you touch it, our
+            guide on <a href="../what-is-this-process/">reading a process by its evidence</a> walks through the
+            checks.
+        </p>
+
+        <div class="callout warn">
+            <b>Used is not wasted.</b> Judge memory by Available and hard faults, not by the height of the bar.
+            A full bar with healthy Available memory is a well-fed cache. A half-full bar with hundreds of hard
+            faults a second is a machine in trouble. The percentage alone cannot tell them apart.
+        </div>
+
+        <h2 id="fix">Reclaim memory without breaking things</h2>
+        <ol>
+            <li><strong>Find the real consumer.</strong> In Task Manager, open the Details tab, right-click the
+                column header, choose Select columns, and add <em>Commit size</em>. Sort by it. That shows what
+                has actually reserved memory, which is more honest than the momentary working set the Processes
+                tab shows.</li>
+            <li><strong>Trim what runs in the background.</strong> In Windows 11: Settings, Apps, Installed apps,
+                open an app's menu, Advanced options, then under Background apps permissions set <em>Let this app
+                run in the background</em> to Never. The default is "Power optimized", which lets Windows manage
+                it. Set Never only for apps you do not need syncing, updating or notifying while closed, because
+                that is exactly what background permission buys.</li>
+            <li><strong>Skip the RAM cleaners.</strong> A tool that "frees" memory on demand usually just empties
+                the standby cache, and the cache refills within seconds as your apps pull the same data back from
+                disk. You trade a lower number now for a burst of hard faults right after. The bar looks better.
+                The machine does not.</li>
+        </ol>
+
+        <h2 id="hibernate">Suspending and closing solve different problems</h2>
+        <p>
+            Closing an app releases its memory but throws away its state, so reopening it costs time and disk
+            reads. Suspending an idle app stops it from receiving CPU time and keeps its state. Windows may page
+            out inactive memory when pressure rises, but suspension does not release the app's allocation and
+            must not be advertised as freed RAM. Use suspension to stop unwanted background work. Close or
+            restart an app when its memory use is the actual problem.
+        </p>
+
+        <h2 id="receipt">How PC Workman does it</h2>
+        <p>
+            PC Workman's App Hibernation lists applications that have not been in the foreground for the selected
+            10, 15 or 30 minute threshold. Sleep uses idle process priority by default. A separate TURBO setting
+            can assign Low Priority or Freeze to a chosen executable. The current app, protected Windows
+            processes and anti-cheat engines are rejected before either action:
+        </p>
+
+        <div class="hib">
+            <div class="hib-head"><span>App Hibernation</span><span class="hib-tag">reversible</span></div>
+            <div class="hib-seg"><span class="seg">Candidate</span></div>
+            <div class="hib-row"><span class="k">Source</span><span class="v">local foreground activity</span></div>
+            <div class="hib-row"><span class="k">Idle threshold</span><span class="v">10, 15 or 30 minutes</span></div>
+            <div class="hib-seg"><span class="seg">Action</span></div>
+            <div class="hib-row"><span class="k">Sleep default</span><span class="v">idle process priority</span></div>
+            <div class="hib-row"><span class="k">TURBO option</span><span class="v">low priority or freeze</span></div>
+            <div class="hib-seg"><span class="seg">Safety</span></div>
+            <div class="hib-row"><span class="k">Protected targets</span><span class="v good">blocked</span></div>
+            <div class="hib-row"><span class="k">Undo</span><span class="v good">Wake restores the process</span></div>
+            <div class="hib-row"><span class="k">RAM released</span><span class="v">not claimed</span></div>
+            <div class="hib-foot"><b>No synthetic savings number.</b> Suspension preserves state. It is not the same operation as closing an app.</div>
+        </div>
+
+        <div class="callout warn">
+            <b>What the app will not claim.</b> Lower priority or suspension can stop background CPU work, but
+            neither proves that a specific amount of RAM was released. Check Available memory and hard faults
+            separately. If one application keeps growing, save your work and close or restart that application.
+        </div>
+        <p>
+            So the next time the bar reads 85 percent, do not reach for End task. Look at Available, and if you
+            are curious, the hard-fault counter. If both look healthy, your RAM is doing its job. If they do not,
+            you now know which lever to pull and which ones to leave alone.
+        </p>
+
+        <div class="guide-cta">
+            <b>Diagnose memory before changing anything.</b> PC Workman shows live resource use and can park
+            selected idle applications through low priority or suspension. It does not present suspension as
+            released RAM. The analysis and action stay local.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: is the machine actually healthy, or just busy?
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>Building a system monitor in public since 2025. Every guide is based on what the sensors and counters actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
