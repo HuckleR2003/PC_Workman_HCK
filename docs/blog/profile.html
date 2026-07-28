@@ -2,17 +2,24 @@
 <!-- HCK_Labs -> PC_Workman -->
 <!-- STABLE -->
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://pcworkman.dev/blog/profile.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/profile_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/profile.html">
     <meta property="og:url" content="https://pcworkman.dev/blog/profile.html">
     <meta property="og:type" content="profile">
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-    <meta name="description" content="HCK_Labs - Marcin HCK Firmuga, indie developer building AI-powered tools. Author of PC_Workman system monitor.">
-    <meta name="keywords" content="HCK_Labs, Marcin Firmuga, indie developer, PC_Workman, build in public, AI developer">
-    <title>HCK_Labs - Marcin HCK Firmuga | Developer Profile</title>
+    <meta name="description" content="Marcin HCK Firmuga, creator and maintainer of PC Workman, an open-source Windows monitor with local hck_GPT. Public work, profiles and contact links.">
+    <meta name="keywords" content="Marcin Firmuga, HCK_Labs, PC Workman, Windows developer, Python, build in public">
+    <meta property="og:title" content="Marcin HCK Firmuga | Creator of PC Workman">
+    <meta property="og:description" content="Software engineer building PC Workman in public: Microsoft Store distribution, 96 hck_GPT intents, 485 process definitions and 229 tests in the current source suite.">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Marcin HCK Firmuga | Creator of PC Workman</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,6 +81,25 @@
             background: rgba(255, 215, 0, 0.1);
             border-color: var(--accent-gold);
             transform: translateX(-5px);
+        }
+
+        .lang-button {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 700;
+            z-index: 1000;
+        }
+
+        .lang-button:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
         }
 
         .back-arrow {
@@ -455,10 +481,11 @@
 <body>
 
     <!-- Back Button -->
-    <a href="story.html" class="back-button">
+    <a href="/blog/" class="back-button">
         <span class="back-arrow">←</span>
-        <span>Back to Story</span>
+        <span>Back to Blog</span>
     </a>
+    <a href="profile_pl.html" class="lang-button" lang="pl" hreflang="pl">PL</a>
 
     <!-- Main Container -->
     <div class="container">
@@ -467,34 +494,36 @@
         <section class="profile-header fade-in">
             <div class="profile-logo">HCK</div>
             <div class="profile-info">
-                <h1 class="profile-name">HCK_Labs</h1>
+                <h1 class="profile-name">Marcin HCK Firmuga</h1>
                 <div>
-                    <strong class="profile-title">Marcin HCK Firmuga</strong>
-                    <span class="profile-role">Author</span>
+                    <strong class="profile-title">Software Engineer</strong>
+                    <span class="profile-role">PC Workman creator and maintainer</span>
                 </div>
                 <p class="profile-bio">
-                    Indie developer building <strong>AI-powered tools</strong> while working warehouse shifts.
-                    Creator of <strong>PC_Workman</strong> system monitor. Building in public on a 10-year-old laptop.
-                    Netherlands → Poland. Solo developer, stubborn optimizer, coffee enthusiast.
+                    I build <strong>PC Workman</strong>, an open-source Windows monitor that explains live data,
+                    learns a machine's workload-specific baseline and ships with the local hck_GPT assistant.
+                    The project started after warehouse shifts in the Netherlands and is now distributed through
+                    Microsoft Store, GitHub and SourceForge.
                 </p>
                 <div class="profile-stats">
                     <div class="stat">
-                        <div class="stat-value">680+</div>
-                        <div class="stat-label">Hours Coded</div>
+                        <div class="stat-value">1,079</div>
+                        <div class="stat-label">Repo Commits</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Public Posts</div>
+                        <div class="stat-value">76</div>
+                        <div class="stat-label">GitHub Stars</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">4</div>
-                        <div class="stat-label">Rebuilds</div>
+                        <div class="stat-value">96</div>
+                        <div class="stat-label">hck_GPT Intents</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-value">94°C</div>
-                        <div class="stat-label">Laptop Peak</div>
+                        <div class="stat-value">Store</div>
+                        <div class="stat-label">Windows Distribution</div>
                     </div>
                 </div>
+                <p style="margin-top:.8rem;color:var(--text-secondary);font-size:.8rem;">Product and GitHub figures checked 25 July 2026.</p>
             </div>
         </section>
 
@@ -504,97 +533,105 @@
             <!-- COLUMN 1: Most Read Posts -->
             <div class="column fade-in">
                 <div class="column-header">
-                    <h2 class="column-title">Most Read Posts</h2>
-                    <p class="column-subtitle">My Story - Top 10</p>
+                    <h2 class="column-title">Selected public work</h2>
+                    <p class="column-subtitle">Articles and milestones, no invented view counter</p>
                 </div>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="from-a-warehouse-floor-to-the-microsoft-store/" class="post-item">
                     <span class="post-rank">1</span>
-                    <div class="post-title-small">I Built in Public for 5 Months. Then I Got Fired.</div>
+                    <div class="post-title-small">From a Warehouse Floor to the Microsoft Store</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~42 views</span>
+                        <span>PC Workman blog</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="the-man-who-got-himself-back_en.html" class="post-item">
                     <span class="post-rank">2</span>
-                    <div class="post-title-small">365 Days. One Question: Did You Start?</div>
+                    <div class="post-title-small">The Man Who Got Himself Back</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~38 views</span>
+                        <span>HackerNoon top story</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://hackernoon.com/680-hours-4-rebuilds-and-getting-fired-how-i-built-software-while-working-warehouse-shifts"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">3</span>
-                    <div class="post-title-small">Reality Check: 4.5 Months of Building</div>
+                    <div class="post-title-small">680 Hours, 4 Rebuilds, and Getting Fired</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~35 views</span>
+                        <span>HackerNoon</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://hackernoon.com/pc-workman-earns-a-58-proof-of-usefulness-score-by-building-a-real-time-system-monitor-that-explains-why-your-pc-is-slow"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">4</span>
-                    <div class="post-title-small">December 22nd. Lost My Job.</div>
+                    <div class="post-title-small">PC Workman: 58 Proof of Usefulness</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~31 views</span>
+                        <span>HackerNoon editorial</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://dev.to/huckler/how-i-built-an-offline-ai-assistant-in-python-no-openai-no-langchain-no-dependencies-4523"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">5</span>
-                    <div class="post-title-small">Building on 2014 Laptop at 90°C</div>
+                    <div class="post-title-small">How I Built an Offline AI Assistant in Python</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~28 views</span>
+                        <span>DEV Community</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://medium.com/@MarcinFirmuga/sigstore-made-easy-how-i-prove-pc-workman-is-actually-from-me-1e110ba856e6"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">6</span>
-                    <div class="post-title-small">What Should PC Optimization Software Have?</div>
+                    <div class="post-title-small">Sigstore Made Easy</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~25 views</span>
+                        <span>Medium</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://medium.com/@MarcinFirmuga/the-first-exe-when-6-months-of-obsession-suddenly-feels-real-build-in-public-a83a6e893468"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">7</span>
-                    <div class="post-title-small">I Made Something Crazy - HCK_Labs AI Testing</div>
+                    <div class="post-title-small">The First EXE</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~22 views</span>
+                        <span>Medium</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://dev.to/huckler/i-built-an-ai-powered-pc-monitor-in-python-28-strangers-shaped-its-brain-pc-workman-176-l4d"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">8</span>
-                    <div class="post-title-small">A Few Hours. One Idea. Everything Changed.</div>
+                    <div class="post-title-small">28 Strangers Shaped Its Brain</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~20 views</span>
+                        <span>DEV Community</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://medium.com/@MarcinFirmuga/someone-tried-to-audit-my-exe-for-malware-it-backfired-pc-workman-v1-7-2-security-release-db7e3e9646a9"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">9</span>
-                    <div class="post-title-small">Text Widgets Are Lying to You</div>
+                    <div class="post-title-small">Someone Audited My EXE for Malware</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~18 views</span>
+                        <span>Medium</span>
                     </div>
                 </a>
 
-                <a href="story.html#linkedin" class="post-item">
+                <a href="https://dev.to/huckler/friday-shipped-scarred-1-the-day-git-force-deleted-130-pc-workman-commits-i-got-90-back-1947"
+                   target="_blank" rel="noopener" class="post-item">
                     <span class="post-rank">10</span>
-                    <div class="post-title-small">Security: Are We Overcomplicating It?</div>
+                    <div class="post-title-small">The Day git --force Deleted 130 Commits</div>
                     <div class="post-views">
                         <span class="views-icon">👁</span>
-                        <span>~15 views</span>
+                        <span>DEV Community</span>
                     </div>
                 </a>
             </div>
@@ -609,19 +646,20 @@
                 <div class="contact-section">
                     <h3 class="contact-title">Primary Contact</h3>
 
-                    <a href="https://m.me/hck.labs" target="_blank" class="contact-button">
-                        <span class="contact-icon">💬</span>
-                        <span>Messenger</span>
+                    <a href="mailto:firmuga.marcin.s@gmail.com" class="contact-button">
+                        <span class="contact-icon">@</span>
+                        <span>Email</span>
                     </a>
 
-                    <a href="https://discord.gg/hck_labs" target="_blank" class="contact-button">
-                        <span class="contact-icon">🎮</span>
-                        <span>Discord</span>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener" class="contact-button">
+                        <span class="contact-icon">in</span>
+                        <span>LinkedIn</span>
                     </a>
 
-                    <a href="https://steamcommunity.com/id/hck_labs" target="_blank" class="contact-button">
-                        <span class="contact-icon">🎯</span>
-                        <span>Steam</span>
+                    <a href="https://github.com/HuckleR2003/PC_Workman_HCK/discussions"
+                       target="_blank" rel="noopener" class="contact-button">
+                        <span class="contact-icon">GH</span>
+                        <span>GitHub Discussions</span>
                     </a>
                 </div>
 
@@ -631,15 +669,13 @@
                     <h3 class="contact-title">Social Media</h3>
 
                     <div class="social-grid">
-                        <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" class="social-button">LinkedIn</a>
-                        <a href="https://github.com/HuckleR2003" target="_blank" class="social-button">GitHub</a>
-                        <a href="https://medium.com/@firmuga.marcin.s" target="_blank" class="social-button">Medium</a>
-                        <a href="https://x.com/hck_lab" target="_blank" class="social-button">X (Twitter)</a>
-                        <a href="https://reddit.com/user/hck_lab" target="_blank" class="social-button">Reddit</a>
-                        <a href="https://dev.to/huckler" target="_blank" class="social-button">Dev.to</a>
-                        <a href="https://hackernoon.com/@hck_lab" target="_blank" class="social-button">HackerNoon</a>
-                        <a href="https://indiehackers.com/hck_lab" target="_blank" class="social-button">IndieHackers</a>
-                        <a href="https://facebook.com/hck.labs" target="_blank" class="social-button">Facebook</a>
+                        <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="noopener" class="social-button">LinkedIn</a>
+                        <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener" class="social-button">GitHub</a>
+                        <a href="https://medium.com/@MarcinFirmuga" target="_blank" rel="noopener" class="social-button">Medium</a>
+                        <a href="https://dev.to/huckler" target="_blank" rel="noopener" class="social-button">DEV</a>
+                        <a href="https://hackernoon.com/u/huckler" target="_blank" rel="noopener" class="social-button">HackerNoon</a>
+                        <a href="https://x.com/hck_lab" target="_blank" rel="noopener" class="social-button">X</a>
+                        <a href="https://linktr.ee/marcin_firmuga" target="_blank" rel="noopener" class="social-button">Linktree</a>
                     </div>
                 </div>
             </div>
@@ -647,41 +683,41 @@
             <!-- COLUMN 3: GitHub -->
             <div class="column fade-in">
                 <div class="column-header">
-                    <h2 class="column-title">GitHub Activity</h2>
-                    <p class="column-subtitle">Contributions & Stats</p>
+                    <h2 class="column-title">PC Workman today</h2>
+                    <p class="column-subtitle">Current product scope, checked 25 July 2026</p>
                 </div>
 
                 <div class="github-widget">
                     <div class="github-contributions">
                         <p class="github-placeholder">
-                            GitHub contributions graph będzie tutaj.<br>
-                            Wklej swój screenshot lub użyj iframe z GitHub:
+                            Windows 10/11 monitor distributed through Microsoft Store and signed GitHub releases.<br>
+                            Local hck_GPT, workload-aware learning, reversible optimization and a public test suite.
                         </p>
                         <code style="color: var(--text-secondary); font-size: 0.85rem; display: block; margin-top: 1rem;">
-                            https://github.com/HuckleR2003
+                            github.com/HuckleR2003/PC_Workman_HCK
                         </code>
                     </div>
 
-                    <a href="https://github.com/HuckleR2003" target="_blank" class="github-link">
-                        View GitHub Profile →
+                    <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener" class="github-link">
+                        View source and issues →
                     </a>
 
                     <div class="github-stats">
                         <div class="github-stat">
-                            <div class="github-stat-value">680+</div>
-                            <div class="github-stat-label">Commits</div>
+                            <div class="github-stat-value">485</div>
+                            <div class="github-stat-label">Process Definitions</div>
                         </div>
                         <div class="github-stat">
-                            <div class="github-stat-value">12</div>
-                            <div class="github-stat-label">Repositories</div>
+                            <div class="github-stat-value">330</div>
+                            <div class="github-stat-label">Compatibility Entries</div>
                         </div>
                         <div class="github-stat">
-                            <div class="github-stat-value">4</div>
-                            <div class="github-stat-label">Projects</div>
+                            <div class="github-stat-value">229</div>
+                            <div class="github-stat-label">Current Source Tests</div>
                         </div>
                         <div class="github-stat">
-                            <div class="github-stat-value">2025</div>
-                            <div class="github-stat-label">Active Year</div>
+                            <div class="github-stat-value">1.8.5</div>
+                            <div class="github-stat-label">Current Release</div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,224 @@
+<!-- Marcin HCK Firmuga · HCK_Labs · PC_Workman -->
+<!-- Historia wydania 1.8.0 po polsku -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="description" content="Historia PC Workmana 1.8.0: zamknięta roadmapa, monitor uczący się własnej maszyny i pięć tygodni pracy równolegle z certyfikatem programu Google.">
+    <meta name="keywords" content="PC Workman 1.8.0, build in public, solo developer, monitoring Windows, Smart Learning, Welford, hck_GPT, Skills of Tomorrow">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/road-to-1.8.0_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/road-to-1.8.0_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/road-to-1.8.0_en.html">
+    <meta property="og:title" content="1.8.0: wydanie, które pamięta">
+    <meta property="og:description" content="Pięć tygodni, zamknięta roadmapa i certyfikat Google. Wydanie, w którym monitor systemu dostał prawdziwą pamięć.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/road-to-1.8.0_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/PCWorkman180Dashboard.gif">
+    <meta property="article:published_time" content="2026-06-22">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>1.8.0: wydanie, które pamięta | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog po polsku" href="feed_pl.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "1.8.0: wydanie, które pamięta",
+      "description": "Historia pięciu tygodni pracy nad PC Workmanem 1.8.0, lokalną pamięcią zachowania sprzętu i ukończeniem programu Skills of Tomorrow 3.0 AI.",
+      "url": "https://pcworkman.dev/blog/road-to-1.8.0_pl.html",
+      "datePublished": "2026-06-22",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/blog/road-to-1.8.0_en.html",
+      "image": "https://pcworkman.dev/assets/images/PCWorkman180Dashboard.gif",
+      "author": {"@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/blog/profile_pl.html"},
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ historia wydania</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/road-to-1.8.0_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/road-to-1.8.0_en.html" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Build in public &middot; Historia wydania</span>
+        <h1>1.8.0: wydanie, które pamięta</h1>
+        <p class="tagline">Pięć tygodni. Jedna zamknięta roadmapa. Jeden certyfikat Google. Wydanie, w którym monitor systemu wreszcie dostał pamięć.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin „HCK” Firmuga</span><span>&middot;</span><span>22 czerwca 2026</span><span>&middot;</span><span>9 min czytania</span>
+        </div>
+        <p class="lead">Tego dnia zrobiłem dwie rzeczy, które zapamiętam na długo.</p>
+        <p>
+            Opublikowałem PC Workmana 1.8.0, największe wydanie projektu. Kilka godzin wcześniej trzymałem
+            certyfikat Skills of Tomorrow 3.0 AI po pięciotygodniowym programie Google.
+        </p>
+        <p>
+            Dwa kamienie milowe zakończyły się tego samego dnia i trwały dokładnie pięć tygodni. Jeden program
+            został ułożony dla mnie. Drugi musiałem ułożyć sam, publicznie, na dziesięcioletnim laptopie, który
+            nadal pracuje cieplej, niż bym chciał. Przez pięć tygodni byłem uczony i przez pięć tygodni uczyłem
+            program. Oba procesy domknęły się jednego popołudnia.
+        </p>
+        <img src="../assets/images/PCWorkman180Dashboard.gif" alt="Pulpit PC Workmana 1.8.0">
+        <h2>Nie dostarczyłem funkcji. Zamknąłem całą tablicę</h2>
+        <p>
+            Większość wydań można opisać jedną funkcją. To było całą roadmapą. Przez tygodnie tablica projektu
+            na GitHubie miała kolumnę zgłoszeń prowadzących do jednego celu. Wersja 1.8.0 jest tym, co zostało
+            po przeciągnięciu każdego z nich do kolumny Gotowe.
+        </p>
+        <p>
+            Lokalna kontrola procesów oparta na podpisie i ścieżce. Startup Manager znajdujący wpisy pomijane
+            przez prostsze narzędzia. Konfigurowalny Services Manager. Zestaw TURBO zatrzymujący wskazane usługi,
+            zawieszający bezczynne aplikacje, zarządzający pamięcią i przełączający plan zasilania. W końcu
+            poprawiłem też jego główny przełącznik, który przez miesiące zmieniał flagę, jakiej reszta kodu
+            nigdy nie odczytywała. Routing asystenta został przebudowany, DeepMonitor zaczął pamiętać, a pod
+            całością znalazła się rzecz, do której projekt od dawna zmierzał: monitor z własną historią.
+        </p>
+        <h2>Dlaczego monitor potrzebuje pamięci</h2>
+        <p>
+            Zamknij monitor czujników i wróć do niego jutro. Większość narzędzi nie pamięta, jak zachowywała się
+            Twoja maszyna. Rysują 78°C względem tego samego progu dla każdego komputera. Przez długi czas PC
+            Workman nie był dużo lepszy. Co gorsza, miał dwa mechanizmy nauki, których asystent nigdy nie
+            importował. Miesiące danych pozostawały poza jego zasięgiem.
+        </p>
+        <p>
+            Wersja 1.8.0 naprawiła to u podstaw. Każdy prawdziwy pomiar temperatury trafia do jednego z pięciu
+            profili: spoczynek, lekkie, średnie i ciężkie obciążenie albo gra. Każdy profil przechowuje własną
+            nauczoną normę. Ta sama liczba dostaje więc dwa przeciwne znaczenia:
+        </p>
+        <div class="callout">
+            <b>82°C podczas gry:</b> może być normalne.<br>
+            <b>82°C w spoczynku:</b> krytyczne.<br>
+            Ten sam odczyt, inny werdykt, bo porównanie odbywa się z właściwym rodzajem pracy, a nie stałą linią 85°C.
+        </div>
+        <p>
+            Pamięć także zaczęła się kumulować. Stary mechanizm patrzył na ruchome okno czternastu dni i zapominał
+            wszystko, co było starsze. Takie okno słabo wykrywa długotrwały dryf: powolne wysychanie pasty,
+            gromadzenie kurzu albo starzenie kondensatorów. Przepisałem statystyki na akumulator Welforda.
+            Dla każdego profilu wystarczą trzy wartości: liczba próbek, średnia i M2. Są aktualizowane przy
+            każdym pomiarze bez ponownego czytania całej historii i przetrwają usuwanie surowych rekordów po
+            90 dniach.
+        </p>
+        <p>
+            Learning Center pokazuje postęp bez udawania pewności. Rzadko używany profil z dwunastoma próbkami
+            wyświetla „12 próbek”, nie pewną diagnozę. Napięcia są oceniane inaczej: przez medianę, MAD,
+            zmodyfikowany Z-score i cztery reguły kontroli procesu Nelsona. To stare, przewidywalne metody.
+            Właśnie dlatego ufam im bardziej niż efektownej etykiecie.
+        </p>
+        <img src="../assets/images/PCWorkman180MonitoringAlerts.gif" alt="Learning Center w PC Workmanie 1.8.0">
+        <h2>Nakładka, która na początku nie pokazuje niczego</h2>
+        <p>
+            Wiele narzędzi do gier samo wybiera metryki i zasypuje ekran danymi. Nakładka PC Workmana zaczyna
+            pusta. Użytkownik wybiera temperatury, FPS i położenie albo sięga po jeden z trzech presetów.
+            Wynik ma być widoczny jednym spojrzeniem i zniknąć z uwagi, gdy nie jest potrzebny.
+        </p>
+        <p>
+            FPS pochodzi z pamięci współdzielonej RTSS, bez wstrzykiwania kodu i bez praw administratora.
+            Nakładka działa nad grami bezramkowymi i nie przejmuje fokusu. Program rozpoznaje też uruchomienie
+            gry i pokazuje krótkie, dopasowane powitanie.
+        </p>
+        <img src="../assets/images/gaming-overlay-custom.gif" alt="Presety nakładki w grze">
+        <h2>Asystent również dostał pamięć</h2>
+        <p>
+            hck_GPT w wydaniu 1.8.0 obsługiwał 84 intencje, działał offline i nie wymagał klucza API. W tej
+            wersji przestał opierać porady wyłącznie na ogólnych regułach. Pytanie „co powinienem ulepszyć”
+            mogło korzystać z czternastu dni historii obciążenia. Jeżeli CPU stale osiągał 100 procent, gdy GPU
+            pozostawał przy 55, odpowiedź wskazywała wąskie gardło z liczbami. Gdy podzespół był gorący, ale nie
+            w pełni obciążony, asystent sugerował sprawdzenie chłodzenia przed wydaniem pieniędzy.
+        </p>
+        <p>
+            Na pytanie o prywatność odpowiedź była równie konkretna: monitoring i historia sprzętu pozostają
+            lokalne, a program nie czyta plików użytkownika. Powitanie mogło odwołać się do gry wykrytej
+            wcześniej w historii. Nie był to chatbot doklejony do wykresu. To warstwa językowa nad danymi
+            z konkretnego komputera.
+        </p>
+        <h2>Blizny, których nie ukrywam</h2>
+        <p>
+            Wydanie powstało po audycie wszystkich intencji w obu językach. Najgorsze błędy nie krzyczały.
+            Jeden fragment próbował użyć zmiennej należącej do innej funkcji. Każde wywołanie kończyło się
+            wyjątkiem, a szerokie <code>except: pass</code> po cichu go połykało. Ścieżka kończąca odpowiedź
+            przez model językowy była martwa przez miesiące, ale aplikacja się nie zawieszała, więc problem
+            pozostawał niewidoczny.
+        </p>
+        <p>
+            Zapytanie o temperatury żądało dwóch kolumn, których nigdy nie było w bazie. Funkcja zwracała pusty
+            wynik po złapaniu wyjątku. Siedmiodniowe porównania temperatur wyglądały jak obsługiwane, choć
+            uprzejmie nie zwracały niczego.
+        </p>
+        <div class="callout warn">
+            <b>Publikuję te błędy celowo.</b> Co piątek porównuję plan z poniedziałku z tym, co rzeczywiście
+            trafiło do kodu. Dziennik pokazujący tylko sukcesy byłby reklamą z dodatkowymi krokami.
+        </div>
+        <h2>Nauka podczas dostarczania</h2>
+        <p>
+            Zawodowo zgrzewam plastik. Wcześniej pracowałem na nocnych zmianach. W pracy z materiałem nikt nie
+            przekazuje gotowego „oka”. Uczysz się barwy, temperatury i chwili, w której poszedłeś za daleko,
+            przez powtarzalne doświadczenie. Po czasie liczby w głowie stają się Twoje, a nie pożyczone z tabeli.
+            Tego samego chciałem od monitora systemu.
+        </p>
+        <p>
+            Tak wyglądał też program Google od środka. Nie jak pobranie wiedzy, lecz jej kumulowanie.
+            Bieżąca średnia składana z kolejnych doświadczeń. Nie wiem, czy dotrę tam, gdzie chcę. Dwanaście
+            projektów przed tym umarło. Wiara w siebie rosła jednak tak samo jak linia bazowa: powoli, cicho,
+            przechodząc przez kolejne czyszczenia surowych danych. Tego dnia certyfikat i wydanie pojawiły się
+            jednego popołudnia. Po raz pierwszy własny wykres w głowie pokazał „wytrenowany” zamiast „nadal się uczy”.
+        </p>
+        <img src="../assets/images/Google-SkillsOfTomorrow-3.0.png" alt="Certyfikat Google Skills of Tomorrow 3.0 AI">
+        <h2>Wersja 1.8.0 w liczbach</h2>
+        <table>
+            <thead><tr><th>Wartość</th><th>Stan w dniu wydania</th></tr></thead>
+            <tbody>
+                <tr><td>1.8.0</td><td>Największe stabilne wydanie w tamtym momencie</td></tr>
+                <tr><td>84</td><td>Intencje hck_GPT</td></tr>
+                <tr><td>40+</td><td>Gry z rozpoznawanym powitaniem</td></tr>
+                <tr><td>373</td><td>Znane procesy</td></tr>
+                <tr><td>21/21</td><td>Zielone testy wydania</td></tr>
+                <tr><td>około rok</td><td>Wiek projektu</td></tr>
+                <tr><td>12</td><td>Projekty, które zakończyły się wcześniej</td></tr>
+                <tr><td>100%</td><td>Lokalne działanie hck_GPT</td></tr>
+            </tbody>
+        </table>
+        <p>
+            To są liczby historyczne z dnia wydania 1.8.0, nie stan bieżącej wersji. PC Workman ma teraz 1.8.5,
+            96 intencji, 485 procesów i 229 testów w bieżącym kodzie. Historia pozostaje jednak historią wersji, która
+            wreszcie zaczęła pamiętać zachowanie maszyny.
+        </p>
+        <p class="lead">O co zapytałbyś swój komputer, gdyby potrafił odpowiedzieć na podstawie własnej historii?</p>
+        <div class="guide-cta">
+            <b>Aktualny PC Workman jest darmowy, otwartoźródłowy i działa lokalnie.</b>
+            <a href="../download/index_pl.html">Pobierz bieżącą wersję</a> albo
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">zobacz repozytorium</a>.
+        </div>
+    </main>
+    <footer class="foot">
+        <p>Marcin „HCK” Firmuga &middot; HCK_Labs &middot; Polska &middot; <a href="index_pl.html">Blog</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

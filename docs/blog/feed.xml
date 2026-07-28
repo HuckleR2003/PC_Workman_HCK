@@ -7,7 +7,47 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Thu, 02 Jul 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Sat, 25 Jul 2026 12:00:00 GMT</lastBuildDate>
+
+  <item>
+    <title>Is My PC Healthy? A Five-Minute Check</title>
+    <link>https://pcworkman.dev/guides/is-my-pc-healthy/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/is-my-pc-healthy/</guid>
+    <pubDate>Sat, 25 Jul 2026 12:00:00 GMT</pubDate>
+    <description>Five checks that separate a normally busy PC from a real problem, without reducing system health to one synthetic score.</description>
+  </item>
+
+  <item>
+    <title>Why Is My RAM Usage So High?</title>
+    <link>https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/</guid>
+    <pubDate>Sat, 25 Jul 2026 11:50:00 GMT</pubDate>
+    <description>Available memory and page faults explain more than a percentage alone. Learn when Windows memory use is normal and when to act.</description>
+  </item>
+
+  <item>
+    <title>What Is This Process in Task Manager?</title>
+    <link>https://pcworkman.dev/guides/what-is-this-process/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/what-is-this-process/</guid>
+    <pubDate>Sat, 25 Jul 2026 11:40:00 GMT</pubDate>
+    <description>File path, digital signature, parent process and behavior are stronger evidence than a process name by itself.</description>
+  </item>
+
+  <item>
+    <title>Will This CPU Work With My Motherboard?</title>
+    <link>https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/</guid>
+    <pubDate>Sat, 25 Jul 2026 11:30:00 GMT</pubDate>
+    <description>Socket is only the first compatibility layer. Check generation, chipset, BIOS support and power delivery before buying.</description>
+  </item>
+
+  <item>
+    <title>6,533 Lines in One File: Breaking Up the Monolith Without Changing Its API</title>
+    <link>https://pcworkman.dev/guides/breaking-up-the-monolith/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/breaking-up-the-monolith/</guid>
+    <pubDate>Tue, 21 Jul 2026 12:00:00 GMT</pubDate>
+    <description>The hck_GPT response builder was split into eight mixins behind one facade. Two tests keep the files from growing back into a monolith.</description>
+  </item>
 
   <item>
     <title>From a Warehouse Floor to the Microsoft Store</title>

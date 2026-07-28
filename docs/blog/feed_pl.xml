@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PC Workman Blog po polsku</title>
+    <link>https://pcworkman.dev/blog/index_pl.html</link>
+    <description>Polskie artykuły techniczne, poradniki Windows i historie wydań PC Workmana.</description>
+    <language>pl</language>
+    <lastBuildDate>Sat, 25 Jul 2026 12:00:00 +0200</lastBuildDate>
+    <atom:link href="https://pcworkman.dev/blog/feed_pl.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Czy mój komputer jest sprawny? Kontrola w pięć minut</title>
+      <link>https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html</guid>
+      <pubDate>Sat, 25 Jul 2026 11:50:00 +0200</pubDate>
+      <description>Pięć prostych pytań oddzielających normalnie zajętą maszynę od rzeczywistego problemu, bez benchmarków i jednego sztucznego wyniku.</description>
+    </item>
+    <item>
+      <title>Dlaczego użycie RAM jest tak wysokie?</title>
+      <link>https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/index_pl.html</guid>
+      <pubDate>Sat, 25 Jul 2026 11:40:00 +0200</pubDate>
+      <description>Pamięć dostępna i błędy stronicowania mówią więcej niż procent zajęcia. Jak odzyskać pamięć bez zabijania używanych aplikacji.</description>
+    </item>
+    <item>
+      <title>Co to za proces w Menedżerze zadań?</title>
+      <link>https://pcworkman.dev/guides/what-is-this-process/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/what-is-this-process/index_pl.html</guid>
+      <pubDate>Sat, 25 Jul 2026 11:30:00 +0200</pubDate>
+      <description>Ścieżka, podpis cyfrowy, proces nadrzędny i zachowanie są mocniejszym dowodem niż sama nazwa pliku.</description>
+    </item>
+    <item>
+      <title>Czy ten procesor będzie działał z moją płytą?</title>
+      <link>https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/index_pl.html</guid>
+      <pubDate>Sat, 25 Jul 2026 11:20:00 +0200</pubDate>
+      <description>Socket jest pierwszą z pięciu warstw zgodności. Przed zakupem sprawdź także generację, chipset, BIOS i zasilanie.</description>
+    </item>
+    <item>
+      <title>6533 linie w jednym pliku. Jak rozbiłem monolit bez zmiany API</title>
+      <link>https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html</guid>
+      <pubDate>Tue, 21 Jul 2026 12:00:00 +0200</pubDate>
+      <description>Builder 96 odpowiedzi hck_GPT został podzielony na osiem mixinów za fasadą. Dwa testy pilnują, aby pliki ponownie nie urosły w monolit.</description>
+    </item>
+    <item>
+      <title>Od podłogi magazynu do Microsoft Store</title>
+      <link>https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/blog/from-a-warehouse-floor-to-the-microsoft-store/index_pl.html</guid>
+      <pubDate>Tue, 21 Jul 2026 10:00:00 +0200</pubDate>
+      <description>Historia roku pracy nad PC Workmanem, od zmian magazynowych i starego laptopa do publikacji w Microsoft Store.</description>
+    </item>
+    <item>
+      <title>1.8.0: wydanie, które pamięta</title>
+      <link>https://pcworkman.dev/blog/road-to-1.8.0_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/blog/road-to-1.8.0_pl.html</guid>
+      <pubDate>Mon, 22 Jun 2026 12:00:00 +0200</pubDate>
+      <description>Pięć tygodni pracy, zamknięta roadmapa i certyfikat Google. Historia wersji, w której monitor systemu dostał pamięć.</description>
+    </item>
+    <item>
+      <title>Jaka temperatura procesora jest prawidłowa?</title>
+      <link>https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html</guid>
+      <pubDate>Fri, 12 Jun 2026 12:00:00 +0200</pubDate>
+      <description>Zakresy temperatur dla spoczynku, lekkiej pracy, pełnego obciążenia i gier oraz sygnały, których nie pokaże jeden uniwersalny próg.</description>
+    </item>
+    <item>
+      <title>Sterowniki widma w Windows</title>
+      <link>https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html</guid>
+      <pubDate>Fri, 12 Jun 2026 11:50:00 +0200</pubDate>
+      <description>Jak porównać listę urządzeń znanych Windows z listą sprzętu obecnie podłączonego i usuwać stare wpisy pojedynczo.</description>
+    </item>
+    <item>
+      <title>Jak przyspieszyć komputer bez mitów</title>
+      <link>https://pcworkman.dev/guides/jak-przyspieszyc-komputer/</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/jak-przyspieszyc-komputer/</guid>
+      <pubDate>Fri, 12 Jun 2026 11:30:00 +0200</pubDate>
+      <description>Autostart, procesy, usługi, dysk, RAM i temperatury w kolejności wynikającej z mierzalnych wąskich gardeł.</description>
+    </item>
+    <item>
+      <title>Które usługi Windows można bezpiecznie wyłączyć?</title>
+      <link>https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/</guid>
+      <pubDate>Fri, 12 Jun 2026 11:20:00 +0200</pubDate>
+      <description>Warunkowa lista usług, 33-elementowa lista krytyczna i odwracalny sposób testowania zmian.</description>
+    </item>
+  </channel>
+</rss>
