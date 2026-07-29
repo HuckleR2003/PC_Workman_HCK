@@ -1,0 +1,300 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: 100% disk usage -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Task Manager says your disk is at 100% but barely moving any data. That number is a time measurement, not a speed one. What actually causes it, why response time matters more than the percentage, and the fixes that work in order.">
+    <meta name="keywords" content="100% disk usage, disk usage Windows 11, disk at 100 percent fix, high disk usage, SysMain, search indexing disk, disk response time, slow HDD Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/">
+    <meta property="og:title" content="Why is my disk at 100% in Windows? The number does not mean what you think">
+    <meta property="og:description" content="100% active time is a measure of time, not throughput. Read response time instead, then fix the real cause.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Why Is My Disk at 100% in Windows? The Real Causes and What Actually Fixes It | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Why is my disk at 100% in Windows? The real causes and what actually fixes it",
+      "description": "100% disk active time measures time spent working, not throughput. How to read response time instead, the real causes behind sustained 100%, and the fixes in the order worth trying.",
+      "url": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Disk at 100 percent", "item": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does Task Manager show 100% disk usage with only 2 MB/s?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because the percentage measures time, not speed. It shows the share of the last interval during which the drive had at least one request in flight. A mechanical hard drive handling many small scattered reads can be busy 100 percent of the time while moving only a few megabytes per second. The number to judge instead is response time, the average wait per request." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I fix 100% disk usage in Windows?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Find what is actually queuing the requests before changing settings. Open Resource Monitor, sort by disk activity and read response time. Common causes are a first-run search indexing pass, Windows Update or Delivery Optimization, an antivirus scan, SysMain prefetching on an old drive, and memory pressure forcing paging. Let one-off passes finish, and only then consider disabling a service." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Disk Pressure visual (the "how PC Workman helps" graphic) */
+    .dp{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #f59e0b;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .dp-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .dp-head .dp-tag{ color:#f59e0b; }
+    .dp-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .dp-row .k{ color:var(--text-dim); width:150px; flex-shrink:0; }
+    .dp-row .v{ color:#e6eef6; }
+    .dp-row .v.ok{ color:#a3e635; }
+    .dp-row .v.warn{ color:#f59e0b; }
+    .dp-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        font-size:.82rem; color:var(--text-secondary); line-height:1.5;
+    }
+    .dp-verdict b{ color:#f59e0b; }
+    @media (max-width:520px){ .dp-row{ flex-direction:column; gap:0; } .dp-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Storage · Guide</span>
+        <h1>Why is my disk at 100%?</h1>
+        <p class="tagline">Task Manager says 100%. The transfer rate says 2 MB/s. Both are correct, and that is the whole misunderstanding.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            Your machine crawls. You open Task Manager and the Disk column glows red at 100%, while the transfer
+            rate underneath reads something insulting like 1.8 MB/s. A hundred percent of what, exactly? It is
+            clearly not moving a hundred percent of anything.
+        </p>
+        <p>
+            Here is the thing almost every guide skips: <strong>that percentage is a measure of time, not
+            speed.</strong> It shows the share of the last interval in which the drive had at least one request
+            in flight. A mechanical drive shuffling thousands of tiny scattered reads can be busy every single
+            millisecond while barely moving data. So 100% does not mean your disk is full, broken, or maxed out.
+            It means it never got a moment off.
+        </p>
+        <p>
+            Which changes the whole approach. This guide covers the number that actually matters, the real causes
+            in order of likelihood, and the fixes worth trying, plus how PC Workman reads disk pressure instead of
+            just repeating the scary percentage.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#number">The number that actually matters</a></li>
+                <li><a href="#causes">The real causes, most likely first</a></li>
+                <li><a href="#fix">What to do, in order</a></li>
+                <li><a href="#pressure">How PC Workman reads it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="number">The number that actually matters</h2>
+        <p>
+            Forget the percentage for a second and look at <strong>response time</strong> (Windows calls it
+            average response time, measured in milliseconds). That is how long a request waits before the drive
+            answers it. It is the number you actually feel:
+        </p>
+        <ul>
+            <li><strong>Under about 20 ms</strong>: fine, even at 100% active time. The drive is busy but keeping
+                up.</li>
+            <li><strong>Hundreds of milliseconds, or seconds</strong>: this is the machine you are cursing at.
+                Requests are stacking into a queue and everything waits behind them.</li>
+        </ul>
+        <p>
+            To see it: press Ctrl+Shift+Esc, or better, run <code>resmon</code> and open the Disk tab. Sort by
+            "Response Time (ms)" and you get both the offender and the severity in one view. A drive at 100% with
+            10 ms response is doing its job. A drive at 100% with 900 ms response is drowning.
+        </p>
+        <div class="callout warn">
+            <b>Old mechanical drives sit at 100% constantly.</b> An HDD manages roughly 80 to 150 random
+            operations per second. Modern Windows, a browser and an antivirus routinely ask for more than that,
+            so the drive is saturated by design. On that hardware, 100% is not a bug to fix. It is the honest
+            reason people say an SSD "made the whole PC feel new".
+        </div>
+
+        <h2 id="causes">The real causes, most likely first</h2>
+        <ol>
+            <li><strong>A one-off pass that has not finished.</strong> Search indexing after a fresh install or a
+                big file move, a Windows Update download, or Delivery Optimization sharing updates. These are
+                temporary by nature. Leave the machine on for an hour and check again before you disable
+                anything.</li>
+            <li><strong>An antivirus or Defender scan.</strong> A full scan reads everything you own. It should
+                finish; if a third-party scanner does this constantly, that is worth investigating.</li>
+            <li><strong>Memory pressure forcing paging.</strong> This one hides well. When RAM runs short,
+                Windows moves pages to disk, and your "disk problem" is really a memory problem. If you have not
+                checked, our guide on <a href="../why-is-my-ram-usage-so-high/">what high RAM usage really
+                means</a> shows how to read hard faults, the exact signal that connects the two.</li>
+            <li><strong>SysMain (formerly Superfetch) on a slow drive.</strong> It preloads what it thinks you
+                will open. Genuinely useful on an SSD, sometimes counterproductive on an old HDD.</li>
+            <li><strong>One badly behaved application.</strong> A sync client re-hashing a huge folder, a game
+                launcher verifying files, a logger writing in a loop. Sort by response time and the name is right
+                there. If you do not recognise it, check
+                <a href="../what-is-this-process/">what that process actually is</a> before you touch it.</li>
+            <li><strong>A failing drive.</strong> Rare compared to the rest, but real. Read errors force retries,
+                and retries look exactly like a busy disk. If the percentage comes with clicking, freezes or
+                errors in Event Viewer, treat it as a hardware question, not a tuning one.</li>
+        </ol>
+
+        <h2 id="fix">What to do, in order</h2>
+        <ol>
+            <li><strong>Identify before you change anything.</strong> Resource Monitor, Disk tab, sort by response
+                time. Ten seconds of looking beats an hour of disabling services at random.</li>
+            <li><strong>Let one-off work finish.</strong> Indexing and updates end. Killing them mid-pass usually
+                means they restart later.</li>
+            <li><strong>Fix memory first if hard faults are high.</strong> Freeing memory pressure removes the
+                paging that was hammering the disk.</li>
+            <li><strong>Only then consider services.</strong> On an old HDD, turning off SysMain or narrowing
+                the search index can genuinely help. Change one, restart, measure. Do not turn off six things at
+                once, or you will never know which one mattered.</li>
+            <li><strong>Skip the myths.</strong> Registry cleaners and "disk optimizers" do nothing for this.
+                Never defragment an SSD, Windows already handles it correctly.</li>
+        </ol>
+
+        <h2 id="pressure">How PC Workman reads it</h2>
+        <p>
+            The reason the built-in percentage misleads people is that it answers the wrong question. PC Workman
+            watches the pair that tells the real story, how hard the disk is being asked to work and how long
+            requests are actually waiting, and names the process at the front of the queue:
+        </p>
+
+        <div class="dp">
+            <div class="dp-head"><span>Disk Pressure</span><span class="dp-tag">live</span></div>
+            <div class="dp-row"><span class="k">Active time</span><span class="v warn">100%</span></div>
+            <div class="dp-row"><span class="k">Throughput</span><span class="v">1.8 MB/s</span></div>
+            <div class="dp-row"><span class="k">Response time</span><span class="v warn">640 ms average</span></div>
+            <div class="dp-row"><span class="k">Top consumer</span><span class="v">SearchIndexer.exe</span></div>
+            <div class="dp-row"><span class="k">Drive type</span><span class="v">HDD</span></div>
+            <div class="dp-row"><span class="k">Memory pressure</span><span class="v ok">normal, not paging</span></div>
+            <div class="dp-verdict"><b>Saturated, not failing.</b> An indexing pass on a mechanical drive. Expect it to finish. If it repeats daily, narrow the indexed folders.</div>
+        </div>
+
+        <div class="callout warn">
+            <b>100% is a symptom, never a diagnosis.</b> The honest reading needs three things together: how long
+            requests wait, what is causing them, and whether memory is quietly pushing pages to disk. A tool that
+            only shows you the red percentage has told you exactly what you already knew, that something is slow.
+        </div>
+        <p>
+            So next time that column goes red, do not start disabling services. Look at the response time, find
+            the name at the top of the queue, and check whether memory is the real culprit. Most of the time the
+            answer is patience, sometimes it is a setting, and occasionally it is a
+            <a href="../is-my-pc-healthy/">health signal worth taking seriously</a>.
+        </p>
+
+        <div class="guide-cta">
+            <b>See what is actually queuing your disk.</b> PC Workman reads active time, response time and the
+            process at the front of the queue together, so you can tell a saturated drive from a failing one.
+            Free, open source, 100% offline. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: is the drive itself actually healthy?
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public. Every guide is based on what the counters actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
