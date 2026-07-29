@@ -1,0 +1,325 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: is my PSU dying (12V rail) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A software reading of 11.8V on your 12V rail does not mean your power supply is dying. What the ATX voltage spec actually allows, why motherboard sensors are not lab instruments, the real signs of a failing PSU, and how to read a trend instead of panicking over one number.">
+    <meta name="keywords" content="is my PSU dying, failing power supply signs, 12V rail low, PSU voltage tolerance, ATX 12V spec, power supply failure symptoms, random PC shutdown PSU, PSU 11.4V">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/">
+    <meta property="og:title" content="Can software tell if your PSU is dying? What 12V readings can and cannot prove">
+    <meta property="og:description" content="Software can reveal a pattern over time. It cannot certify a power supply. How to read your 12V rail like an engineer, not a panic button.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Can Software Tell If Your PSU Is Dying? What 12V Readings Can and Cannot Prove | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Can software tell if your PSU is dying? What 12V readings can and cannot prove",
+      "description": "The ATX 12V spec, why motherboard sensors are not lab instruments, the real signs of a failing power supply, and how statistical process control reads a trend instead of one noisy number.",
+      "url": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Is my PSU dying", "item": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is 11.8V on the 12V rail bad?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not by itself. The ATX spec allows the +12V rail to range plus or minus 5 percent, from 11.40V to 12.60V, so 11.8V is within spec. Motherboard sensors are also only accurate to within a few percent, so the true value could be slightly different. What matters is whether the reading is stable over time or sagging further under load, not a single number." }
+        },
+        {
+          "@type": "Question",
+          "name": "What are the signs of a failing power supply?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Random shutdowns or restarts, especially under load, a machine that fails to power on, unexpected Kernel-Power (Event 41) errors, a burning smell or coil whine, and a 12V rail that sags toward or below 11.4V under load or swings erratically. A burning smell or repeated failure to power on means you stop and stop using it, not keep testing." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Voltage Trend / SPC card (the "how PC Workman helps" graphic) */
+    .spc{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #f59e0b;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .spc-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .spc-head .spc-tag{ color:#f59e0b; }
+    .spc-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .spc-row .k{ color:var(--text-dim); width:150px; flex-shrink:0; }
+    .spc-row .v{ color:#e6eef6; word-break:break-word; }
+    .spc-row .v.ok{ color:#a3e635; }
+    .spc-row .v.warn{ color:#f59e0b; }
+    .spc-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        font-size:.82rem; color:var(--text-secondary); line-height:1.5;
+    }
+    .spc-verdict b{ color:#f59e0b; }
+    @media (max-width:520px){ .spc-row{ flex-direction:column; gap:0; } .spc-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Power · Guide</span>
+        <h1>Can software tell if your PSU is dying?</h1>
+        <p class="tagline">It can reveal a pattern. It cannot certify a power supply. Those are two very different things.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>9 min read</span>
+        </div>
+
+        <div class="callout warn">
+            <b>Read this first.</b> If you smell burning, see smoke or sparks, hear repeated clicking, or the
+            machine shuts off and will not power back on, stop. Shut it down at the wall and do not open the
+            power supply. PSU capacitors can hold a dangerous charge long after it is unplugged. This is the one
+            part inside a PC you do not open.
+        </div>
+
+        <p>
+            Somewhere in a monitoring app, your +12V rail reads 11.86V, and your stomach drops. Before you add a
+            new power supply to your cart, read this. That number is probably fine, and even if something is
+            wrong, the app on your screen cannot prove it.
+        </p>
+        <p>
+            A motherboard voltage sensor is not a lab instrument. It can be noisy, it can be mislabelled, and it
+            is routinely off by a few percent. Software can reveal a pattern over time. It cannot certify a
+            power supply. Confusing those two is how people replace a perfectly healthy PSU, or keep running a
+            dying one because a single reading looked fine. This guide is how to read the rail like an engineer,
+            then how PC Workman does the same on your own machine's history.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#spec">What a "normal" 12V reading actually is</a></li>
+                <li><a href="#single">Why one low number is not a verdict</a></li>
+                <li><a href="#signs">The real signs a power supply is failing</a></li>
+                <li><a href="#confirm">How to actually confirm it</a></li>
+                <li><a href="#spc">How PC Workman reads the trend</a></li>
+                <li><a href="#verdict">What software can and cannot claim</a></li>
+            </ol>
+        </div>
+
+        <h2 id="spec">What a "normal" 12V reading actually is</h2>
+        <p>
+            The ATX specification allows each rail a tolerance of plus or minus 5 percent. For the +12V rail that
+            means anything from <strong>11.40V to 12.60V is in spec</strong>. So 11.8V, the number that made
+            your stomach drop, is comfortably inside the allowed range.
+        </p>
+        <p>
+            Two more facts change how you should read that number:
+        </p>
+        <ul>
+            <li><strong>The sensor itself is only accurate to a few percent.</strong> Motherboard voltage
+                sensors typically carry a 2 to 5 percent margin of error, so a software reading of 11.5V might
+                truly be 11.3V, or 11.7V. Trust the trend and the stability far more than the third decimal.</li>
+            <li><strong>Ripple matters, and software cannot see it.</strong> A healthy supply keeps voltage
+                ripple within the ATX limit of about 120mV on the +12V rail. A degrading one can push ripple into
+                the 400 to 600mV range. That is a real failure signal, but reading it needs an oscilloscope, not
+                a sensor value on screen.</li>
+        </ul>
+
+        <h2 id="single">Why one low number is not a verdict</h2>
+        <p>
+            Modern hardware draws power in sharp bursts. When your GPU spikes, the rail can dip for a fraction of
+            a second and recover. The newer ATX 3.0 spec even permits brief +12V dips to around 11.16V during
+            those transient spikes. A momentary flicker on a graph is not a dying PSU.
+        </p>
+        <p>
+            The difference that matters is transient versus sustained. A dip that snaps back is the supply doing
+            its job under a sudden load. A rail that <em>settles</em> lower and lower over weeks, or sags and
+            stays sagged whenever the machine works hard, is the pattern worth acting on. One reading is a photo.
+            You need the film.
+        </p>
+
+        <h2 id="signs">The real signs a power supply is failing</h2>
+        <p>
+            Voltage on a screen is the least reliable of these. The symptoms that actually point at a PSU are
+            behavioural:
+        </p>
+        <ul>
+            <li><strong>Random shutdowns or restarts, especially under load.</strong> The machine cuts out when
+                you start a game or a render, then boots fine at idle.</li>
+            <li><strong>Failure to power on, or powering on then dying instantly.</strong> Sometimes with a
+                repeated click as the supply tries and gives up.</li>
+            <li><strong>Kernel-Power, Event 41 in Event Viewer.</strong> Windows logs this when the system loses
+                power without a clean shutdown. A cluster of them under load is a strong hint.</li>
+            <li><strong>A 12V rail that sags toward or below 11.40V under load</strong>, or swings around
+                erratically rather than sitting steady.</li>
+            <li><strong>Coil whine that gets worse, or any burning smell.</strong> The smell is not a
+                "monitor it" symptom. It is a "stop now" symptom, as in the box at the top.</li>
+        </ul>
+        <p>
+            Notice that a single low idle reading is not on this list. The rail behaving badly <em>under load,
+            over time,</em> is what tells the story, which is exactly what a
+            <a href="../is-my-pc-healthy/">health check that watches trends</a> is built to catch.
+        </p>
+
+        <h2 id="confirm">How to actually confirm it</h2>
+        <p>
+            If the behaviour above shows up, software has done its job by pointing you at the PSU. Confirming it
+            is hardware work:
+        </p>
+        <ol>
+            <li><strong>Measure it directly.</strong> A multimeter on the PSU's connectors while the system is
+                under load gives a far more accurate reading than any sensor. If the rail holds near 12V under
+                load on a meter, the software number was noise.</li>
+            <li><strong>Cross-check the source.</strong> Compare the motherboard reading against a second sensor
+                or tool. Two independent readings agreeing is worth more than one alarming one.</li>
+            <li><strong>For a real verdict, load-test it.</strong> A proper PSU test uses adjustable loads and an
+                oscilloscope to check ripple and transient response. That is the lab-grade answer software can
+                never give.</li>
+        </ol>
+
+        <h2 id="spc">How PC Workman reads the trend</h2>
+        <p>
+            A single voltage number is close to useless. A pattern in your own machine's history is where the
+            real signal lives, and that is what PC Workman watches. Instead of a fixed threshold, it applies
+            statistical process control to your voltage rails: the median and MAD (median absolute deviation), a
+            modified z-score, and Nelson rules, the same industrial method used to catch a process drifting out
+            of control. It is looking for a trend, not a magic line:
+        </p>
+
+        <div class="spc">
+            <div class="spc-head"><span>Voltage Trend, your +12V rail</span><span class="spc-tag">30-day SPC</span></div>
+            <div class="spc-row"><span class="k">In-spec range</span><span class="v">11.40 to 12.60 V (ATX plus/minus 5%)</span></div>
+            <div class="spc-row"><span class="k">Current median</span><span class="v ok">11.92 V, within range</span></div>
+            <div class="spc-row"><span class="k">30 days ago</span><span class="v">12.08 V</span></div>
+            <div class="spc-row"><span class="k">Trend</span><span class="v warn">median down 0.16 V in 34 days</span></div>
+            <div class="spc-row"><span class="k">Variance</span><span class="v warn">up 2.8x</span></div>
+            <div class="spc-row"><span class="k">Abnormal drops</span><span class="v warn">7, during load transitions</span></div>
+            <div class="spc-verdict"><b>Unusual trend detected.</b> This is not a PSU diagnosis. Confirm with a second sensor source or a multimeter under load.</div>
+        </div>
+
+        <p>
+            Every value stays inside the ATX range, so a threshold-based tool would say nothing. The trend, a
+            median quietly falling and variance climbing, is what a good monitor surfaces months before a rail
+            actually fails.
+        </p>
+
+        <h2 id="verdict">What software can and cannot claim</h2>
+        <div class="callout warn">
+            <b>Software reveals a pattern. It does not certify a PSU.</b> PC Workman is deliberate about the
+            wording. It reports "unusual trend detected", not "your power supply is failing", because a
+            motherboard sensor cannot prove that and pretending otherwise would send people to buy parts they do
+            not need. It gives you an early, honest signal and tells you exactly how to confirm it in hardware.
+            An alarmist tool that cries "PSU FAILING" over one noisy reading gets muted in a day, and then it
+            protects nothing.
+        </div>
+        <p>
+            So the next time a rail reads 11.8V, do not panic and do not order a replacement. Check the spec
+            (you are in it), watch whether it is stable or sagging under load over days, and look for the real
+            symptoms, the shutdowns and the Event 41s. Software points. Hardware proves.
+        </p>
+
+        <div class="guide-cta">
+            <b>Watch the rail, not a single number.</b> PC Workman records your voltage rails over time and
+            flags a genuine trend with statistical process control, median, MAD and Nelson rules, so real drift
+            shows up early without crying wolf over one noisy reading. It always tells you to confirm in
+            hardware. Free, open source, 100% offline. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: the machine restarts under load, and you are not sure if it is heat or power.
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public. The voltage SPC behind this guide is the same engine that ships in the app.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
