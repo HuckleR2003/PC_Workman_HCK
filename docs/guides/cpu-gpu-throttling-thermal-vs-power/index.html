@@ -1,0 +1,294 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: CPU/GPU throttling thermal vs power -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Your CPU or GPU clock dropped under load. That does not automatically mean it is overheating. How to tell thermal throttling from a power limit from a plain bottleneck, by reading temperature, power and utilisation together instead of one chart.">
+    <meta name="keywords" content="CPU throttling, GPU downclocking under load, thermal throttling vs power limit, why is my GPU clock dropping, CPU throttle fix, power limit throttling, is my CPU throttling">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <meta property="og:title" content="Why does my CPU or GPU clock drop under load? Thermal vs power limits">
+    <meta property="og:description" content="A clock drop and a warm chip prove nothing on their own. Read temperature, power and utilisation together to find the real limit.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Why Does My CPU or GPU Clock Drop Under Load? Thermal Throttling vs Power Limits | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Why does my CPU or GPU clock drop under load? Thermal throttling vs power limits",
+      "description": "How to tell thermal throttling from a power limit from a plain bottleneck by reading temperature, power and utilisation together, not one chart.",
+      "url": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "CPU and GPU throttling", "item": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does a clock drop under load mean my CPU or GPU is overheating?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not necessarily. Clocks can drop because the chip hit a temperature limit, a configured power limit, a current or voltage limit, or simply because another component cannot feed it work. Only if the temperature is at or near the chip's limit is it thermal throttling. If temperatures are comfortable and the power draw is pinned at its ceiling, it is power-limited by design, not overheating." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I know if my GPU is thermal throttling or power limited?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Watch three numbers together at the moment the clock drops: temperature, power draw, and utilisation. Temperature at the chip's limit means thermal throttling. Temperature well below the limit while power sits at its ceiling means power-limited. Utilisation below about 97 percent means the chip is waiting for another part and is not throttling at all." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Limiting Factor visual (the "how PC Workman helps" graphic) */
+    .lf{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #f59e0b;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .lf-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .lf-head .lf-tag{ color:#f59e0b; }
+    .lf-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .lf-row .k{ color:var(--text-dim); width:150px; flex-shrink:0; }
+    .lf-row .v{ color:#e6eef6; }
+    .lf-row .v.ok{ color:#a3e635; }
+    .lf-row .v.warn{ color:#f59e0b; }
+    .lf-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        display:flex; align-items:center; gap:.6rem; font-size:.82rem; color:var(--text-secondary);
+    }
+    .lf-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; color:#f59e0b; border:1px solid rgba(245,158,11,.45); }
+    @media (max-width:520px){ .lf-row{ flex-direction:column; gap:0; } .lf-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Performance · Guide</span>
+        <h1>Why does my CPU or GPU clock drop under load?</h1>
+        <p class="tagline">Clock speed fell, temperature rose. That still does not prove heat caused the drop.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            You are mid-game, the frame rate dips, and you check the numbers. Your GPU clock just fell from 2600
+            to 2400 MHz, and the temperature reads 78&nbsp;C. Case closed, it is overheating. Right?
+        </p>
+        <p>
+            Not necessarily. A clock drop and a warm chip, together, prove almost nothing. Modern CPUs and GPUs
+            are always negotiating against several limits at once: temperature, power, current, voltage, or
+            simply waiting for another part to feed them work. Any one of those pulls the clocks down, and on a
+            single chart they look identical. Reading the wrong one is how people repaste a cooler that was never
+            the problem. This guide shows how to tell them apart, then how PC Workman names the limit for you.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#limits">The limits a chip throttles against</a></li>
+                <li><a href="#tell">How to tell which one it is</a></li>
+                <li><a href="#thermalpower">Thermal throttling vs a power limit, plainly</a></li>
+                <li><a href="#headroom">How PC Workman names the limit</a></li>
+            </ol>
+        </div>
+
+        <h2 id="limits">The limits a chip throttles against</h2>
+        <p>
+            A processor does not have one speed. It constantly boosts as high as it can until it bumps into a
+            ceiling, then backs off. There are four ceilings worth knowing:
+        </p>
+        <ul>
+            <li><strong>Temperature.</strong> The chip reaches its thermal limit (Tj&nbsp;Max, often 90 to
+                100&nbsp;C) and reduces clocks to protect itself. This is the one people call "throttling", and
+                it is a cooling problem. Our guide on <a href="../normal-cpu-temperature/">what a normal CPU
+                temperature is</a> covers where those limits actually sit.</li>
+            <li><strong>Power.</strong> The chip hits a configured power ceiling: a CPU power limit (PL1/PL2 or
+                TDP) or a GPU power limit. Clocks drop to stay inside that budget, and the temperature can be
+                perfectly cool while it happens. This is by design, not damage.</li>
+            <li><strong>Current or voltage.</strong> Less common, but the chip can cap itself to stay inside safe
+                electrical limits, which looks the same on a clock graph.</li>
+            <li><strong>Nothing, it is just waiting.</strong> Sometimes the clocks are not being held down at
+                all. The chip is idling because another component cannot feed it work fast enough, so it has
+                nothing to run at full speed.</li>
+        </ul>
+
+        <h2 id="tell">How to tell which one it is</h2>
+        <p>
+            The trick is to stop staring at the clock speed and watch three numbers at the same moment it drops:
+        </p>
+        <ul>
+            <li><strong>Temperature</strong>: is it at the limit (say 95&nbsp;C), or comfortably below it?</li>
+            <li><strong>Power draw</strong>: is it pinned at a ceiling and refusing to go higher?</li>
+            <li><strong>Utilisation</strong>: is the chip at 99 percent (working flat out), or lower (waiting)?</li>
+        </ul>
+        <p>
+            Those three turn a mystery into a diagnosis:
+        </p>
+        <ul>
+            <li><strong>Temperature at the limit</strong> &rarr; thermal throttling. The cooler cannot keep up.
+                The fix lives in airflow and paste, and often in a smarter fan curve, which is why an
+                <a href="../why-are-my-pc-fans-so-loud/">over-nervous fan curve</a> and thermal throttling are
+                two ends of the same problem.</li>
+            <li><strong>Temperature well below the limit, power at its ceiling</strong> &rarr; power-limited. The
+                chip is respecting its power budget. Nothing is wrong; it simply will not clock higher on that
+                budget.</li>
+            <li><strong>Utilisation below about 97 percent</strong> &rarr; not throttling at all. Something else,
+                usually the CPU, cannot feed the GPU, so it coasts. That is a bottleneck, a different story with
+                a different fix.</li>
+        </ul>
+
+        <h2 id="thermalpower">Thermal throttling vs a power limit, plainly</h2>
+        <p>
+            These two get confused constantly, so here they are side by side. <strong>Thermal throttling</strong>
+            is a safety reflex: the silicon got too hot and pulled back to survive. It means your cooling is the
+            bottleneck. <strong>Power-limit throttling</strong> is a budget: the chip was told "draw no more than
+            X watts", and it obeys, even when it is ice cold. A laptop CPU or an efficiency-tuned graphics card
+            will happily sit at a power cap and never clock higher, and that is the design working as intended,
+            not a fault to fix.
+        </p>
+        <div class="callout warn">
+            <b>The tell in one line:</b> if the temperature is at the limit, cool it. If the temperature is fine
+            but power is capped, that is the ceiling you configured, not a failure. Repasting a chip that was
+            power-limited changes nothing, because heat was never the thing holding it back.
+        </div>
+
+        <h2 id="headroom">How PC Workman names the limit</h2>
+        <p>
+            You can watch three graphs at once and reason it out in the moment. Doing that during a game, while
+            you are trying to play, is where it falls apart. PC Workman's OVERCLOCK Headroom Lab reads those same
+            values, and it is strictly read-only, it never writes a clock or a voltage. At the instant a clock
+            drops, it lines the numbers up and names the limiting factor:
+        </p>
+
+        <div class="lf">
+            <div class="lf-head"><span>Limiting Factor</span><span class="lf-tag">at 21:43:18</span></div>
+            <div class="lf-row"><span class="k">Clock</span><span class="v">dropped 2600 to 2400 MHz</span></div>
+            <div class="lf-row"><span class="k">Temperature</span><span class="v ok">78 C, below your limit</span></div>
+            <div class="lf-row"><span class="k">GPU power</span><span class="v warn">at the configured ceiling</span></div>
+            <div class="lf-row"><span class="k">GPU utilisation</span><span class="v">99%</span></div>
+            <div class="lf-verdict"><span class="badge">power-limited</span><span>Clock drop followed the power limit, not temperature. Not thermal throttling.</span></div>
+        </div>
+
+        <div class="callout warn">
+            <b>It diagnoses, it does not overclock.</b> The name says OVERCLOCK, but there is no write path
+            anywhere in it, on purpose. It measures your real headroom and tells you the one thing the
+            number-vomit tools never do, whether temperature, power, or nothing at all is holding your clocks
+            back. What you do with that is your call.
+        </div>
+        <p>
+            So the next time your clocks sag under load, do not assume heat and reach for thermal paste. Read the
+            temperature, the power and the utilisation together. Nine times out of ten the answer is written
+            plainly across those three numbers, and half the time it is not the villain you expected. If you are
+            still unsure whether the machine is even behaving abnormally, our
+            <a href="../is-my-pc-healthy/">five-minute health check</a> is a good place to start.
+        </p>
+
+        <div class="guide-cta">
+            <b>See what is actually holding your clocks back.</b> PC Workman's OVERCLOCK Headroom Lab reads your
+            temperature, power and utilisation and names the limiting factor, thermal, power, or nothing, all
+            read-only, never touching a clock. Free, open source, 100% offline.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: high FPS on average, but the game still stutters.
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public. Every guide is based on what the sensors actually show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
