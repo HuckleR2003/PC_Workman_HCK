@@ -1,0 +1,309 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: is my SSD dying / drive health -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Which drive health numbers actually predict failure, which ones people panic over for no reason, and why a passing SMART check is not a promise. How to read percentage used, reallocated and pending sectors, and what to do before a drive takes your data with it.">
+    <meta name="keywords" content="is my SSD dying, SSD health check, SMART attributes explained, drive failure signs, percentage used SSD, reallocated sectors, TBW endurance, hard drive failing symptoms">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <meta property="og:title" content="Is my SSD dying? How to read drive health instead of guessing">
+    <meta property="og:description" content="A few SMART values predict failure. Most of the others are noise. And a clean report is never a guarantee, which is exactly why backups exist.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Is My SSD Dying? How to Read Drive Health Instead of Guessing | PC Workman Guides</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Is my SSD dying? How to read drive health instead of guessing",
+      "description": "The handful of SMART values that actually predict drive failure, the ones people panic over needlessly, why a passing check is not a promise, and what to do when the numbers turn.",
+      "url": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Is my SSD dying", "item": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I know if my SSD is failing?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Check a small number of health values rather than the whole SMART table. On an SSD or NVMe drive, watch Percentage Used and Available Spare. On a mechanical drive, watch Reallocated Sectors and Current Pending Sectors, where any value climbing above zero is the real warning. Behaviour matters too: files that vanish, a drive that turns read-only, freezes when reading certain folders, or a drive that disappears from the BIOS." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does a passing SMART check mean my drive is safe?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. SMART is useful early warning, not a guarantee. A meaningful share of drives fail without ever raising a SMART flag, especially from sudden electronic or controller faults. Treat a clean report as good news about the trend, and treat backups as the only actual protection for your data." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Drive Health Card (the "how PC Workman helps" graphic) */
+    .dh{
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .dh-head{
+        display:flex; align-items:center; justify-content:space-between;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.65rem;
+    }
+    .dh-head .dh-tag{ color:#a3e635; }
+    .dh-row{ display:flex; gap:1rem; font-size:.82rem; padding:.2rem 0; line-height:1.4; }
+    .dh-row .k{ color:var(--text-dim); width:160px; flex-shrink:0; }
+    .dh-row .v{ color:#e6eef6; }
+    .dh-row .v.ok{ color:#a3e635; }
+    .dh-row .v.warn{ color:#f59e0b; }
+    .dh-verdict{
+        margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
+        display:flex; align-items:center; gap:.6rem; font-size:.82rem; color:var(--text-secondary);
+    }
+    .dh-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; color:#a3e635; border:1px solid rgba(163,230,53,.42); }
+    @media (max-width:520px){ .dh-row{ flex-direction:column; gap:0; } .dh-row .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Storage · Guide</span>
+        <h1>Is my SSD dying?</h1>
+        <p class="tagline">A drive health tool shows you forty numbers. Four of them matter, and none of them is a promise.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>8 min read</span>
+        </div>
+
+        <p>
+            You install a drive health tool because something felt off, and it hands you a wall of forty SMART
+            attributes with names like "Seek Error Rate" and raw values in the millions. Somewhere in there is
+            the answer to the only question you have: do I need to buy a drive this week or not?
+        </p>
+        <p>
+            Good news, most of that table is noise for your purposes. A handful of values genuinely predict
+            failure, a few more are famously alarming and completely harmless, and the whole report comes with a
+            catch worth knowing before you trust it. Here is how to read your drive without a computer science
+            degree, and how PC Workman boils it down to a verdict you can act on.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#matter">The values that actually matter</a></li>
+                <li><a href="#wear">SSD wear, and why it worries people more than it should</a></li>
+                <li><a href="#behaviour">The symptoms that beat any number</a></li>
+                <li><a href="#catch">The catch nobody mentions</a></li>
+                <li><a href="#card">How PC Workman reports it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="matter">The values that actually matter</h2>
+        <p>
+            Different drive types report health differently, so start by knowing which kind you have.
+        </p>
+        <p>
+            <strong>On an SSD or NVMe drive</strong>, two values carry most of the signal.
+            <em>Percentage Used</em> (or Media Wearout Indicator) estimates how much of the flash endurance you
+            have consumed, and it counts up from 0. <em>Available Spare</em> shows the reserve blocks the drive
+            keeps to replace worn ones, and it counts down from 100 percent. Spare dropping toward its threshold
+            is the serious one. Also worth a glance: any Critical Warning flag, and Media or Data Integrity
+            Errors, which should stay at zero.
+        </p>
+        <p>
+            <strong>On a mechanical hard drive</strong>, the classics still hold.
+            <em>Reallocated Sectors Count</em> counts sectors the drive gave up on and replaced from spare.
+            <em>Current Pending Sector Count</em> counts sectors it cannot read reliably and has not yet
+            reassigned. <em>Uncorrectable Sector Count</em> counts the ones it failed on outright. All three
+            should be <strong>zero</strong>. Any of them rising, especially over weeks, is the clearest software
+            warning a hard drive gives you.
+        </p>
+        <div class="callout warn">
+            <b>Ignore the ones that scare everyone.</b> On many Seagate drives, Raw Read Error Rate and Seek
+            Error Rate show enormous raw numbers by design, because the manufacturer encodes several counters
+            into one field. A raw value of 180 million there is not 180 million errors. Judge these by the
+            normalised value against its threshold, or better, ignore them and watch the four above.
+        </div>
+
+        <h2 id="wear">SSD wear, and why it worries people more than it should</h2>
+        <p>
+            Every SSD ships with an endurance rating, usually expressed as TBW (terabytes written). A typical
+            consumer 1 TB drive is rated somewhere in the hundreds of TBW. That number sounds finite and
+            frightening until you compare it with how much you actually write.
+        </p>
+        <p>
+            A normal desktop user writes a few terabytes a year. Even a heavy one, with games installed and
+            removed constantly and large video files moving around, rarely gets close to the rating inside the
+            drive's practical lifetime. Percentage Used climbing by a couple of points a year is completely
+            ordinary. If yours is at 4 percent after two years, you are on pace to replace that machine long
+            before the flash gives out.
+        </p>
+        <p>
+            Wear is worth watching, not worrying about, and it is one of those numbers where the
+            <em>trend across months</em> tells you far more than today's reading, exactly like
+            <a href="../is-my-psu-dying-12v-rail/">reading a voltage rail over time</a> rather than panicking at
+            one sample.
+        </p>
+
+        <h2 id="behaviour">The symptoms that beat any number</h2>
+        <p>
+            Sometimes the drive tells you before SMART does. Treat these as urgent regardless of what a health
+            tool says:
+        </p>
+        <ul>
+            <li><strong>Files or folders that vanish, or come back corrupted.</strong></li>
+            <li><strong>The drive turns read-only.</strong> Some SSDs do this deliberately at end of life to
+                protect what is still on them. It is a final courtesy, not a glitch.</li>
+            <li><strong>Freezes when reading a specific folder</strong>, while the rest of the system is fine.
+                Often paired with a disk that pins at 100% with terrible response times, which our guide on
+                <a href="../why-is-my-disk-at-100-percent/">what 100% disk usage actually means</a> covers.</li>
+            <li><strong>The drive disappears from BIOS or Explorer</strong>, then reappears after a reboot.</li>
+            <li><strong>Clicking or beeping from a mechanical drive.</strong> Power it down and recover the data,
+                do not run tests on it.</li>
+            <li><strong>Disk errors in Event Viewer</strong>, especially repeated ones from the same drive.</li>
+        </ul>
+
+        <h2 id="catch">The catch nobody mentions</h2>
+        <div class="callout warn">
+            <b>A clean SMART report is not a promise.</b> Large-scale studies of drive failures have consistently
+            found that a meaningful share of drives fail with no prior SMART warning at all, because controller
+            and electronic faults can kill a drive instantly with nothing to gradually count. SMART is an early
+            warning system for the failures that happen slowly. It cannot see the ones that happen all at once.
+            Which means the health check is worth running, and your backup is the thing that actually saves you.
+        </div>
+        <p>
+            So the practical rule: if the numbers turn, act early and calmly. Copy your data off first, then
+            decide about replacing. Do not run long stress tests on a drive you suspect, because the test is
+            itself the load that finishes it off.
+        </p>
+
+        <h2 id="card">How PC Workman reports it</h2>
+        <p>
+            The gap between a forty-row SMART table and "should I be worried" is where most people give up. PC
+            Workman reads the values that matter for your specific drive type and states the verdict in plain
+            language first, with the readings underneath:
+        </p>
+
+        <div class="dh">
+            <div class="dh-head"><span>Drive Health</span><span class="dh-tag">Samsung SSD, NVMe</span></div>
+            <div class="dh-row"><span class="k">Percentage used</span><span class="v ok">4%</span></div>
+            <div class="dh-row"><span class="k">Available spare</span><span class="v ok">100%</span></div>
+            <div class="dh-row"><span class="k">Critical warnings</span><span class="v ok">none</span></div>
+            <div class="dh-row"><span class="k">Media errors</span><span class="v ok">0</span></div>
+            <div class="dh-row"><span class="k">Power-on hours</span><span class="v">7,180</span></div>
+            <div class="dh-row"><span class="k">Wear trend</span><span class="v">about 2% per year at your usage</span></div>
+            <div class="dh-verdict"><span class="badge">healthy</span><span>No action needed. Wear is normal for the hours on this drive.</span></div>
+        </div>
+
+        <p>
+            And when something does turn, the honest version says what it can and cannot know: which value moved,
+            over what period, and that a passing check is never a substitute for a backup. That is the same
+            boundary we hold everywhere in the app, including the
+            <a href="../is-my-pc-healthy/">five-minute health check</a>: report the evidence, name the trend,
+            never fake certainty.
+        </p>
+
+        <div class="guide-cta">
+            <b>Know your drive before it surprises you.</b> PC Workman reads the health values that actually
+            matter for your drive type, tracks the wear trend over time, and gives you a plain verdict instead of
+            a wall of raw SMART numbers. Free, open source, 100% offline.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Next question: the drive is fine, so why does the machine take a minute to boot?
+            <a href="../">Browse the rest of the guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <p>18 months of building a system monitor in public. Every guide is based on what the sensors actually report.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
