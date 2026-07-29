@@ -94,6 +94,42 @@ Full policy: https://pcworkman.dev/privacy_en.html
 - Windows services:
   [English](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html) |
   [Polski](https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/)
+- Loud PC fans and quiet fan curves:
+  [English](https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/) |
+  [Polski](https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html)
+- PSU warning signs and 12 V rail readings:
+  [English](https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/) |
+  [Polski](https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html)
+- CPU and GPU clock drops, thermal throttling and power limits:
+  [English](https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/) |
+  [Polski](https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html)
+- Disk at 100 percent active time:
+  [English](https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/) |
+  [Polski](https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html)
+- SSD, NVMe and SMART drive health:
+  [English](https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/) |
+  [Polski](https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html)
+- Safe startup app decisions:
+  [English](https://pcworkman.dev/guides/which-startup-apps-can-i-disable/) |
+  [Polski](https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html)
+- High FPS with stutter, frame time and 1% lows:
+  [English](https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/) |
+  [Polski](https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html)
+- Slow PC with normal Task Manager percentages:
+  [English](https://pcworkman.dev/guides/pc-slow-but-task-manager-looks-normal/) |
+  [Polski](https://pcworkman.dev/guides/pc-slow-but-task-manager-looks-normal/index_pl.html)
+- VRAM for games, shared GPU memory and local AI:
+  [English](https://pcworkman.dev/guides/how-much-vram-do-i-need/) |
+  [Polski](https://pcworkman.dev/guides/how-much-vram-do-i-need/index_pl.html)
+- Upgrade priority from measured RAM, storage, CPU and GPU evidence:
+  [English](https://pcworkman.dev/guides/what-should-i-upgrade-first/) |
+  [Polski](https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html)
+- Gaming restarts, Kernel-Power 41 fields and crash evidence:
+  [English](https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/) |
+  [Polski](https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html)
+- XMP and EXPO crashes, memory profiles and RAM stability testing:
+  [English](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/) |
+  [Polski](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html)
 
 ## Citation notes
 
