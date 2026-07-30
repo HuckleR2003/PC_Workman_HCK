@@ -12,6 +12,9 @@
     <meta name="keywords" content="jak przyspieszyć komputer, jak przyspieszyć laptopa, wolny komputer co zrobić, optymalizacja Windows 11, optymalizacja Windows 10, komputer wolno działa, przyspieszenie komputera za darmo">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
     <meta property="og:title" content="Jak przyspieszyć komputer — bez mitów">
     <meta property="og:description" content="Co naprawdę spowalnia Windows i co realnie pomaga. Konkretna kolejność działań zamiast 50 przypadkowych trików — od twórcy open-source'owego monitora systemu.">
     <meta property="og:type" content="article">
@@ -39,8 +42,13 @@
       "description": "Co naprawdę spowalnia Windows i co realnie pomaga: autostart, usługi, dysk, RAM, temperatury. Konkretna kolejność działań.",
       "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/",
       "datePublished": "2026-06-12",
-      "dateModified": "2026-06-12",
+      "dateModified": "2026-07-25",
       "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/compatibility/startup-apps",
+        "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/hard-faults"
+      ],
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
       "author": {
         "@type": "Person",
@@ -59,6 +67,31 @@
         { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
         { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
         { "@type": "ListItem", "position": 3, "name": "Jak przyspieszyć komputer", "item": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak przyspieszyc komputer z Windows?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Zacznij od diagnozy, nie od zmian. Sprawdz, co obciaza procesor, pamiec i dysk w stanie bezczynnosci, przejrzyj autostart, sprawdz czy temperatury odpowiadaja obciazeniu i czy dysk nie jest wysycony. Najwieksze realne zyski daja zwykle: usuniecie zbednych programow z autostartu, wymiana dysku HDD na SSD oraz usuniecie problemu z brakiem pamieci, ktory wymusza zapis na dysk."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy czyszczenie rejestru przyspiesza komputer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nie. Czyszczenie rejestru nie daje mierzalnego przyrostu wydajnosci na wspolczesnych wersjach Windows, a niesie ryzyko usuniecia wpisow potrzebnych do dzialania programow. To samo dotyczy wiekszosci narzedzi typu booster i cleaner. Realna poprawa pochodzi z ograniczenia pracy, ktora komputer musi wykonac, a nie z kosmetycznych zmian w rejestrze."
+          }
+        }
       ]
     }
     </script>
@@ -82,7 +115,7 @@
         <span class="gt-lang">
             <a href="/index.html" class="active" data-lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" data-lang="en">EN</a>
+            <a href="/guides/jak-przyspieszyc-komputer/index_en.html" data-lang="en" lang="en">EN</a>
         </span>
     </nav>
 
@@ -138,7 +171,7 @@
             to klasyka: zawieszony aktualizator, indeksowanie, skan antywirusa albo przeglądarka
             z 40 kartami. Jeśli nazwa procesu nic ci nie mówi — sprawdź ją, zanim zabijesz.
             Identyfikacja procesów (czym jest, czy jest bezpieczny, ile zwykle zużywa) to jedna z głównych
-            funkcji <a href="../../index.html">PC Workmana</a> — baza opisuje 373 znane procesy.
+            funkcji <a href="../../index.html">PC Workmana</a> — baza w wersji 1.8.5 opisuje 485 znanych procesów.
         </p>
 
         <h2 id="uslugi">Krok 3: Usługi — ostrożnie, ale skutecznie</h2>
@@ -180,8 +213,8 @@
 
         <div class="guide-cta">
             <b>Wszystkie te kroki w jednym narzędziu.</b> PC Workman ma Startup Manager z oceną wpływu na boot,
-            identyfikację procesów, profile usług Gaming/Work/Economy i monitoring temperatur per obciążenie —
-            za darmo, open source, offline. <a href="../../download/index_pl.html">Pobierz tutaj</a>.
+            identyfikację procesów, profile usług Gaming, Economy i Manager oraz monitoring temperatur zależny
+            od obciążenia. Program jest darmowy i otwartoźródłowy. <a href="../../download/index_pl.html">Pobierz tutaj</a>.
         </div>
 
         <div class="author-card">
@@ -189,7 +222,7 @@
             <div>
                 <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Twórca PC Workmana · HCK_Labs</div>
-                <p>18 miesięcy budowy monitora systemu w public — każdy poradnik oparty na tym, co realnie pokazują czujniki.</p>
+                <p>Publiczna budowa monitora systemu od 2025 roku. Każdy poradnik opiera się na tym, co realnie pokazują czujniki.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
                     <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>

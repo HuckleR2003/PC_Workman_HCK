@@ -1,0 +1,223 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: speed up Windows without myths -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="How to speed up a Windows PC without registry myths or booster software. A useful order of work: startup, background processes, services, storage, RAM and temperatures.">
+    <meta name="keywords" content="how to speed up Windows PC, slow computer fix, Windows 11 optimization, speed up laptop, startup apps, background processes, SSD upgrade, CPU throttling">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
+    <meta property="og:title" content="How to speed up a Windows PC without the usual myths">
+    <meta property="og:description" content="Five checks in a useful order, instead of fifty random tweaks: startup, background load, services, storage and temperatures.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>How to Speed Up a Windows PC Without Registry Myths or Booster Software | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "How to speed up a Windows PC without the usual myths",
+      "description": "A useful diagnostic order for startup apps, background processes, services, storage, RAM and temperatures, plus the common tweaks that do not help.",
+      "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html"},
+        {"@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/"},
+        {"@type": "ListItem", "position": 3, "name": "Speed up a Windows PC", "item": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How can I actually speed up a Windows PC?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Start with diagnosis, not changes. Check what is loading the CPU, memory and disk while the machine is idle, review what starts with Windows, confirm temperatures match the current workload, and check whether the drive is saturated. The changes that reliably help are trimming startup entries, moving from a mechanical drive to an SSD, and resolving memory shortage that forces Windows to page to disk."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does cleaning the registry speed up a computer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Registry cleaning produces no measurable performance gain on modern Windows, and it carries a real risk of removing entries applications need. The same applies to most booster and cleaner tools. Real improvement comes from reducing the work the machine has to do, not from cosmetic changes to the registry."
+          }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/jak-przyspieszyc-komputer/" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/jak-przyspieszyc-komputer/index_en.html" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Optimization &middot; Guide</span>
+        <h1>How to speed up a Windows PC<br>without the usual myths</h1>
+        <p class="tagline">Five checks in the right order are worth more than fifty unrelated tweaks.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-06-12</span><span>&middot;</span><span>7 min read</span>
+        </div>
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#diagnose">Diagnose before cleaning</a></li>
+                <li><a href="#startup">Step 1: startup apps</a></li>
+                <li><a href="#processes">Step 2: background processes</a></li>
+                <li><a href="#services">Step 3: Windows services</a></li>
+                <li><a href="#storage">Step 4: storage and memory</a></li>
+                <li><a href="#temperatures">Step 5: temperatures</a></li>
+                <li><a href="#myths">What not to do</a></li>
+            </ol>
+        </div>
+        <h2 id="diagnose">Diagnose before cleaning</h2>
+        <p>
+            Many speed-up lists begin with deleting temporary files. That can recover storage, but temporary
+            files do not make the CPU calculate more slowly. A Windows PC usually feels slow for one of four
+            measurable reasons: too many programs launch at sign-in, something keeps CPU or memory busy in the
+            background, storage is the bottleneck, or heat makes the hardware lower its clock speed.
+        </p>
+        <p>
+            Open Task Manager with Ctrl+Shift+Esc before changing anything. Watch CPU, Memory and Disk while the
+            machine is idle, then while you reproduce the slowdown. A useful fix starts with the resource that
+            is actually waiting.
+        </p>
+        <h2 id="startup">Step 1: startup apps</h2>
+        <p>
+            Every startup entry adds work to sign-in and usually leaves a background process in memory. Open
+            Task Manager, Startup apps, and disable anything you do not need during the first minute after
+            turning the PC on. Store clients, music apps and updaters can start when you choose to open them.
+        </p>
+        <ul>
+            <li>Keep audio, touchpad, security and hardware-control software unless you know exactly what the entry does.</li>
+            <li>Check the list after major app updates. Some programs enable their startup entry again.</li>
+            <li>Change a few entries at a time so a regression has an obvious cause.</li>
+        </ul>
+        <h2 id="processes">Step 2: background processes</h2>
+        <p>
+            Sort the Processes tab by CPU, then by Memory. A process holding 15 to 30 percent CPU for minutes
+            on an idle desktop is a better lead than a generic cleaner. It may be a stuck updater, indexing,
+            an antivirus scan or a browser with many active tabs. Identify an unfamiliar name before ending it.
+            PC Workman 1.8.5 contains an offline library of 485 known process entries and shows the expected role,
+            path and live use. The separate guide on <a href="../what-is-this-process/">checking a Windows
+            process</a> explains the evidence to verify by hand.
+        </p>
+        <h2 id="services">Step 3: services, carefully</h2>
+        <p>
+            Windows runs services that a particular home PC may not need, such as fax support or Xbox services
+            on a machine that never uses Game Pass. The realistic gain is less background work and some memory,
+            not a dramatic FPS increase. Prefer a Manual startup type to Disabled, record every change and keep
+            critical networking, update, audio and security services untouched. The full list and its conditions
+            are in <a href="../ktore-uslugi-windows-wylaczyc/index_en.html">the Windows services guide</a>.
+        </p>
+        <h2 id="storage">Step 4: storage and memory</h2>
+        <ul>
+            <li><strong>Moving Windows from an HDD to an SSD is still the largest single responsiveness upgrade</strong> for an HDD-based machine. Software tuning does not match that change.</li>
+            <li><strong>Leave free space on the system drive.</strong> A drive that is nearly full leaves less room for updates, temporary work and SSD wear management.</li>
+            <li><strong>Defragment only rotating HDDs.</strong> Windows handles SSD optimization with TRIM.</li>
+            <li><strong>Judge RAM by pressure, not only percentage.</strong> Cached memory is useful. Check Available memory and hard faults before using End task. The <a href="../why-is-my-ram-usage-so-high/">RAM guide</a> shows how.</li>
+        </ul>
+        <h2 id="temperatures">Step 5: temperatures</h2>
+        <p>
+            An overheating processor lowers its own frequency to stay inside its thermal limit. The computer then
+            slows down even though no software setting changed. Dust, a stopped fan and old thermal paste are
+            common causes. PC Workman began on a 2014 laptop that sat at 94°C while idle. Cleaning and repasting
+            brought the same machine down to 61°C. If the fans run hard during light work, check load and cooling
+            before reinstalling Windows. Use the <a href="../normal-cpu-temperature/">temperature guide</a> to
+            compare the reading with the current workload.
+        </p>
+        <h2 id="myths">What not to do</h2>
+        <ul>
+            <li><strong>Do not clean the registry for speed.</strong> The performance gain is not measurable, while deleting the wrong entry can break software or Windows.</li>
+            <li><strong>Do not buy a generic booster before finding the bottleneck.</strong> Many only repeat Task Manager actions and add another background process.</li>
+            <li><strong>Do not disable the pagefile.</strong> It is part of Windows memory management. Removing it can turn pressure into crashes.</li>
+            <li><strong>Do not empty RAM on a timer.</strong> Windows uses spare memory as a cache. Clearing it often causes the same data to be read from disk again.</li>
+        </ul>
+        <div class="callout">
+            <b>The order matters:</b> startup, background processes, services, storage and RAM, then temperatures.
+            The first checks are free and reversible. Run them before buying hardware.
+        </div>
+        <div class="guide-cta">
+            <b>Measure the bottleneck before changing the machine.</b> PC Workman combines startup inspection,
+            process identification, service profiles and temperature baselines in one local Windows tool.
+            <a href="../../download/">Download PC Workman</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building a system monitor in public since 2025. The order in this guide comes from faults measured on real Windows machines.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
