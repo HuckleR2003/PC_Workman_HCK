@@ -8,15 +8,15 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Practical Windows performance guides by the developer of PC Workman: CPU temperatures per workload, ghost drivers, safe service tweaks, real speed-ups. No bloatware, no myths.">
-    <meta name="keywords" content="Windows performance guides, CPU temperature guide, ghost drivers Windows, speed up PC guide, Windows services safe to disable, PC optimization tutorials">
+    <meta name="description" content="Practical Windows performance guides by the developer of PC Workman: frame-time stutter, hidden bottlenecks, VRAM, temperatures, storage, memory and safe optimization.">
+    <meta name="keywords" content="Windows performance guides, high FPS game stutters, PC slow Task Manager normal, how much VRAM, CPU temperature guide, ghost drivers Windows, PC optimization tutorials">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/">
     <meta property="og:title" content="PC Workman Guides — Windows performance, explained honestly">
-    <meta property="og:description" content="CPU temperatures per workload, ghost drivers, services worth disabling, real speed-ups. Written by the developer of an open-source system monitor.">
+    <meta property="og:description" content="Frame-time stutter, hidden Windows bottlenecks, VRAM, temperatures, storage and safe optimization. Written by the developer of an open-source system monitor.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/guides/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
@@ -63,7 +63,18 @@
           { "@type": "ListItem", "position": 7, "name": "Will this CPU work with my motherboard? Socket, chipset, BIOS and power", "url": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/" },
           { "@type": "ListItem", "position": 8, "name": "Why is my RAM usage so high? Sleep background apps without breaking Windows", "url": "https://pcworkman.dev/guides/why-is-my-ram-usage-so-high/" },
           { "@type": "ListItem", "position": 9, "name": "Is my Windows PC healthy? A 5-minute check without benchmarks or jargon", "url": "https://pcworkman.dev/guides/is-my-pc-healthy/" },
-          { "@type": "ListItem", "position": 10, "name": "Why are my PC fans so loud? Build a quiet fan curve without hiding heat", "url": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/" }
+          { "@type": "ListItem", "position": 10, "name": "Why are my PC fans so loud? Build a quiet fan curve without hiding heat", "url": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/" },
+          { "@type": "ListItem", "position": 11, "name": "Can software tell if your PSU is dying? What 12V readings can and cannot prove", "url": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/" },
+          { "@type": "ListItem", "position": 12, "name": "Why does my CPU or GPU clock drop under load? Thermal throttling vs power limits", "url": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/" },
+          { "@type": "ListItem", "position": 13, "name": "Why is my disk at 100% in Windows? The real causes and what actually fixes it", "url": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/" },
+          { "@type": "ListItem", "position": 14, "name": "Is my SSD dying? How to read drive health instead of guessing", "url": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/" },
+          { "@type": "ListItem", "position": 15, "name": "Which startup apps can I disable in Windows 11?", "url": "https://pcworkman.dev/guides/which-startup-apps-can-i-disable/" },
+          { "@type": "ListItem", "position": 16, "name": "High FPS but the game still stutters? Frame time, 1% lows and the real causes", "url": "https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/" },
+          { "@type": "ListItem", "position": 17, "name": "PC slow but Task Manager looks normal? Six bottlenecks the percentages hide", "url": "https://pcworkman.dev/guides/pc-slow-but-task-manager-looks-normal/" },
+          { "@type": "ListItem", "position": 18, "name": "How much VRAM do you actually need? Games, shared memory and local AI", "url": "https://pcworkman.dev/guides/how-much-vram-do-i-need/" },
+          { "@type": "ListItem", "position": 19, "name": "What should you upgrade first: RAM, SSD, CPU or GPU?", "url": "https://pcworkman.dev/guides/what-should-i-upgrade-first/" },
+          { "@type": "ListItem", "position": 20, "name": "PC restarts while gaming with no blue screen: what Kernel-Power 41 means", "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/" },
+          { "@type": "ListItem", "position": 21, "name": "XMP or EXPO crashes games? How to test RAM stability", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" }
         ]
       }
     }
@@ -195,8 +206,8 @@
                 <div class="tg-label">Optimization</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-opt" href="ktore-uslugi-windows-wylaczyc/index_en.html"><span class="tg-ic">⚙</span><h4>Services to disable</h4><span class="tg-go">Read →</span></a>
-                    <div class="tg-tile tg-opt soon"><span class="tg-ic">▣</span><h4>100% disk usage</h4><span class="tg-go">Soon</span></div>
-                    <div class="tg-tile tg-opt soon"><span class="tg-ic">⤓</span><h4>Startup apps</h4><span class="tg-go">Soon</span></div>
+                    <a class="tg-tile tg-opt" href="why-is-my-disk-at-100-percent/"><span class="tg-ic">▣</span><h4>100% disk usage</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-opt" href="which-startup-apps-can-i-disable/"><span class="tg-ic">⤓</span><h4>Startup apps</h4><span class="tg-go">Read →</span></a>
                 </div>
             </div>
             <div class="tg-cluster">
@@ -219,13 +230,49 @@
                 <div class="tg-label">Upgrades</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-pcw" href="will-this-cpu-fit-motherboard/"><span class="tg-ic">▤</span><h4>Will this CPU fit?</h4><span class="tg-go">Read →</span></a>
-                    <div class="tg-tile tg-pcw soon"><span class="tg-ic">◫</span><h4>RAM or SSD?</h4><span class="tg-go">Soon</span></div>
+                    <a class="tg-tile tg-pcw" href="what-should-i-upgrade-first/"><span class="tg-ic">◫</span><h4>What to upgrade first?</h4><span class="tg-go">Read →</span></a>
                 </div>
             </div>
         </div>
 
         <div class="section-label">Featured guides</div>
         <div class="series-grid">
+            <a class="series-card monday" href="what-should-i-upgrade-first/">
+                <span class="day-badge day-monday">Upgrade</span>
+                <h3>RAM, SSD, CPU or GPU: what should you upgrade first?</h3>
+                <p>Make the component earn its place on the shopping list. Match storage latency, memory pressure and CPU/GPU headroom to the task that feels slow.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="pc-restarts-while-gaming-kernel-power-41/">
+                <span class="day-badge day-friday">Crash diagnosis</span>
+                <h3>PC restarts while gaming with no blue screen?</h3>
+                <p>Kernel-Power 41 records an unclean shutdown, not its cause. Read BugcheckCode, dumps and the minute before the restart.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="xmp-expo-crashes-ram-stability/">
+                <span class="day-badge day-wednesday">RAM stability</span>
+                <h3>XMP or EXPO crashes games?</h3>
+                <p>Compare a clean JEDEC baseline with the memory profile, test outside Windows and stop treating a successful boot as proof of stability.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="game-stutters-high-fps-frame-time/">
+                <span class="day-badge day-wednesday">Gaming</span>
+                <h3>High FPS, but the game still stutters?</h3>
+                <p>Read the frame-time pattern. Separate shader compilation, asset streaming, VRAM pressure, a saturated CPU thread and a background interruption.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="pc-slow-but-task-manager-looks-normal/">
+                <span class="day-badge day-friday">Diagnosis</span>
+                <h3>PC slow, but Task Manager looks normal?</h3>
+                <p>Low percentages can hide one full CPU thread, a short stall, storage latency, a hard fault, low clocks or driver interference.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card monday" href="how-much-vram-do-i-need/">
+                <span class="day-badge day-monday">GPU memory</span>
+                <h3>How much VRAM do you actually need?</h3>
+                <p>Dedicated versus shared memory, Windows budgets, game texture pools and the real memory cost of a local AI model.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
             <a class="series-card monday" href="what-is-this-process/">
                 <span class="day-badge day-monday">Processes</span>
                 <h3>What is this process in Task Manager?</h3>
@@ -280,28 +327,36 @@
                 <p>Most fan noise is a twitchy curve chasing spikes, not real heat. Build a quiet curve that still cools, and cap it where more RPM stops buying degrees.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
-        </div>
-
-        <div class="section-label">Coming next</div>
-        <div class="series-grid">
-            <div class="series-card soon">
-                <span class="day-badge day-monday">Disk</span>
-                <h3>100% disk usage in Windows — the real causes</h3>
-                <p>Indexing, diagnostics telemetry, antivirus scans. How to identify which one is eating your disk.</p>
-                <span class="go">Coming soon</span>
-            </div>
-            <div class="series-card soon">
-                <span class="day-badge day-wednesday">Startup</span>
-                <h3>Startup programs: what's safe to disable</h3>
-                <p>Boot impact ratings and the entries that quietly re-add themselves.</p>
-                <span class="go">Coming soon</span>
-            </div>
-            <div class="series-card soon">
-                <span class="day-badge day-friday">PSU</span>
-                <h3>What 12V rail readings say about your power supply</h3>
-                <p>Reading voltage rails like an engineer — spikes, sustained sag and what's physically normal.</p>
-                <span class="go">Coming soon</span>
-            </div>
+            <a class="series-card friday" href="is-my-psu-dying-12v-rail/">
+                <span class="day-badge day-friday">Power</span>
+                <h3>Can software tell if your PSU is dying?</h3>
+                <p>An 11.8V reading is not a death sentence. The ATX spec, why sensors lie, the real signs of a failing PSU, and reading a trend with SPC instead of panicking over one number.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card monday" href="cpu-gpu-throttling-thermal-vs-power/">
+                <span class="day-badge day-monday">Performance</span>
+                <h3>Why does my CPU or GPU clock drop under load?</h3>
+                <p>A clock drop and a warm chip prove nothing on their own. How to read temperature, power and utilisation together to tell thermal throttling from a power limit from a plain bottleneck.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card monday" href="why-is-my-disk-at-100-percent/">
+                <span class="day-badge day-monday">Storage</span>
+                <h3>Why is my disk at 100%?</h3>
+                <p>Active time measures time, not speed. Read response time, find the process building the queue, then fix the real cause in the right order.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="is-my-ssd-dying-drive-health/">
+                <span class="day-badge day-wednesday">Drive health</span>
+                <h3>Is my SSD dying?</h3>
+                <p>The SMART and NVMe values that matter, the raw numbers that often mislead, and why a clean report never replaces a backup.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="which-startup-apps-can-i-disable/">
+                <span class="day-badge day-friday">Startup</span>
+                <h3>Which startup apps can I disable?</h3>
+                <p>Decide by what an entry does, not its brand or impact label. Find hidden locations, make reversible changes and measure the result.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
         </div>
 
         <div class="guide-cta">
@@ -347,13 +402,19 @@
         {t:"6,500 lines in one file", u:"breaking-up-the-monolith/", cat:"PRO", live:1, d:"Splitting the hck_GPT builder into eight modules.", k:"refactor hck_gpt modules facade tests architecture monolith"},
         {t:"Is my Windows PC healthy?", u:"is-my-pc-healthy/", cat:"Health", live:1, d:"A 5-minute check without benchmarks or jargon.", k:"is my pc healthy check health slow jargon benchmark five minute"},
         {t:"Why is my RAM usage so high?", u:"why-is-my-ram-usage-so-high/", cat:"Memory", live:1, d:"Sleep idle background apps without breaking Windows.", k:"high ram usage memory background apps discord chrome eating hibernate sleep windows 11 pressure paging"},
-        {t:"Which startup apps can I disable?", u:"", cat:"Startup", live:0, d:"A safe decision guide for slow boots.", k:"startup programs slow boot disable safe apps boot time login autostart"},
+        {t:"Which startup apps can I disable?", u:"which-startup-apps-can-i-disable/", cat:"Startup", live:1, d:"A safe, reversible decision guide for slow boots.", k:"startup programs slow boot disable safe apps boot time login autostart"},
+        {t:"Why is my disk at 100%?", u:"why-is-my-disk-at-100-percent/", cat:"Storage", live:1, d:"Read active time, response time and the process building the queue.", k:"100 disk usage active time response latency slow hdd sysmain indexing windows 11"},
+        {t:"Is my SSD dying?", u:"is-my-ssd-dying-drive-health/", cat:"Drive health", live:1, d:"Read the SMART and NVMe values that matter.", k:"ssd dying drive health smart nvme percentage used available spare media errors wear backup"},
         {t:"Why are my PC fans so loud?", u:"why-are-my-pc-fans-so-loud/", cat:"Cooling", live:1, d:"Build a quiet fan curve without hiding heat.", k:"loud fans noisy pc quiet fan curve noise pwm rpm hysteresis fan control"},
-        {t:"Why does my CPU or GPU clock drop under load?", u:"", cat:"Throttle", live:0, d:"Thermal throttling vs power limits, told apart.", k:"throttling cpu gpu downclock clock drop thermal power limit under load"},
-        {t:"Can software tell if your PSU is dying?", u:"", cat:"Power", live:0, d:"What 12V readings can and cannot prove.", k:"psu power supply dying 12v rail voltage failing random restart shutdown"},
+        {t:"Why does my CPU or GPU clock drop under load?", u:"cpu-gpu-throttling-thermal-vs-power/", cat:"Throttle", live:1, d:"Thermal throttling vs power limits, told apart.", k:"throttling cpu gpu downclock clock drop thermal power limit under load"},
+        {t:"Can software tell if your PSU is dying?", u:"is-my-psu-dying-12v-rail/", cat:"Power", live:1, d:"What 12V readings can and cannot prove.", k:"psu power supply dying 12v rail voltage failing random restart shutdown atx"},
         {t:"Will this CPU work with my motherboard?", u:"will-this-cpu-fit-motherboard/", cat:"Upgrade", live:1, d:"Socket, chipset, BIOS and power explained.", k:"cpu motherboard compatibility socket chipset bios will this cpu fit upgrade lga am4 am5"},
-        {t:"Więcej RAM czy SSD?", u:"", cat:"PL / Upgrade", live:0, d:"Sprawdź, co naprawdę spowalnia komputer.", k:"ram czy ssd upgrade wiecej ramu dysk bottleneck waskie gardlo slow"},
-        {t:"Your FPS is high, why does the game stutter?", u:"", cat:"Gaming", live:0, d:"Read frame times and 1% lows.", k:"game stuttering fps high stutter frame time 1% low micro stutter lag"}
+        {t:"High FPS, but the game still stutters?", u:"game-stutters-high-fps-frame-time/", cat:"Gaming", live:1, d:"Frame time, 1% lows and the fingerprints of each cause.", k:"game stuttering fps high stutter frame time frametime 1% low micro stutter shader compilation asset streaming hitch"},
+        {t:"PC slow, but Task Manager looks normal?", u:"pc-slow-but-task-manager-looks-normal/", cat:"Diagnosis", live:1, d:"Find the bottleneck hidden behind harmless averages.", k:"slow pc low cpu memory disk task manager normal one core hard faults latency dpc isr clock windows lag"},
+        {t:"How much VRAM do I need?", u:"how-much-vram-do-i-need/", cat:"GPU memory", live:1, d:"Games, shared GPU memory and local AI explained.", k:"vram video memory 8gb 12gb 16gb 24gb shared dedicated gpu local ai llm model kv cache textures"},
+        {t:"What should I upgrade first: RAM, SSD, CPU or GPU?", u:"what-should-i-upgrade-first/", cat:"Upgrade", live:1, d:"Match the purchase to measured memory, storage, CPU and GPU evidence.", k:"upgrade first ram ssd cpu gpu bottleneck slow pc computer upgrade priority what part buy"},
+        {t:"PC restarts while gaming with no blue screen?", u:"pc-restarts-while-gaming-kernel-power-41/", cat:"Crash", live:1, d:"Read Kernel-Power 41 fields, dumps and the timeline before the restart.", k:"restart reboot gaming game kernel power 41 event id no blue screen bsod power supply crash dump"},
+        {t:"XMP or EXPO crashes games?", u:"xmp-expo-crashes-ram-stability/", cat:"RAM stability", live:1, d:"Compare default memory with the profile and prove stability outside Windows.", k:"xmp expo crash game unstable ram memory ddr5 memtest whea blue screen profile"}
       ];
       var box = document.getElementById('guideSearch');
       var out = document.getElementById('guideResults');
