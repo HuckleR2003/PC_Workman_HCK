@@ -1,0 +1,288 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman artykuł techniczny: rozbicie monolitu -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Jedna klasa w Pythonie urosła do 6533 linii. Jak rozbiłem builder odpowiedzi hck_GPT na osiem mixinów za fasadą bez zmiany publicznego API i jak dwa testy pilnują, aby monolit nie odrósł.">
+    <meta name="keywords" content="refaktoryzacja Python, god object, monolit, mixiny Python, wzorzec fasada, MRO Python, duży plik Python, test architektury, hck_GPT">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/breaking-up-the-monolith/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/breaking-up-the-monolith/">
+    <meta property="og:title" content="6533 linie w jednym pliku. Dzień, w którym przestałem udawać, że to jest w porządku">
+    <meta property="og:description" content="Osiem modułów, jedna fasada i publiczne wywołanie bez żadnej zmiany. Refaktoryzacja serca hck_GPT po wejściu PC Workmana do Microsoft Store.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-07-21">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Jak rozbiłem plik Pythona z 6533 liniami na moduły bez zepsucia API | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog po polsku" href="../../blog/feed_pl.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "6533 linie w jednym pliku. Dzień, w którym przestałem udawać, że to jest w porządku",
+      "description": "Jak podzieliłem builder 96 odpowiedzi hck_GPT na osiem mixinów za fasadą bez zmiany publicznego wywołania oraz dodałem dwa testy pilnujące granic modułów.",
+      "url": "https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html",
+      "datePublished": "2026-07-21",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/breaking-up-the-monolith/",
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 4, "name": "Rozbicie monolitu", "item": "https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html"}
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/breaking-up-the-monolith/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/breaking-up-the-monolith/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; PRO</span>
+        <h1>6533 linie w jednym pliku.<br>Dzień, w którym przestałem udawać, że to jest w porządku.</h1>
+        <p class="tagline">PC Workman trafił do Microsoft Store. Skrypt do pilnowania mojego komputera stał się programem, który uruchamiają inni. Po tym przyszło sprzątanie.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-21</span><span>&middot;</span><span>9 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+        <p>
+            Zawodowo zgrzewam plastik. Nie w czystym laboratorium z reklamy, tylko nad gorącym pistoletem,
+            w pomieszczeniu, które już samo z siebie jest za ciepłe. Łączę części, które po pracy nie mają się
+            rozpaść. Wieczór jest drugą połową dnia. Wtedy powstaje PC Workman.
+        </p>
+        <p>
+            Projekt zaczął się od małego skryptu obserwującego przegrzewający się komputer. Nie było pieniędzy
+            na zgadywanie, dlaczego laptop obniża taktowanie. Później doszedł lokalny asystent hck_GPT, model
+            temperatur uczący się konkretnej maszyny i w końcu publikacja w Microsoft Store.
+        </p>
+        <h2>Sklep nie zmienił kodu. Zmienił sposób, w jaki go czytałem</h2>
+        <p>
+            W dniu publikacji żaden plik w repozytorium nie poruszył się sam. Nadal były te same funkcje i ten
+            sam autor. Zmieniła się odpowiedzialność. Ktoś w innym kraju mógł nacisnąć Instaluj i uruchomić
+            program na własnym zasilaczu, własnym CPU i własnych temperaturach. Projekt przestał być prywatną
+            zabawką.
+        </p>
+        <p>
+            Z takim momentem przychodzi rachunek. Gdy widzisz kod jako coś, od czego zależy obca osoba, trudniej
+            po raz kolejny przewinąć plik omijany od roku.
+        </p>
+        <h2>Plik, którego nie chciałem otwierać</h2>
+        <p>
+            Nazywał się <code>builder.py</code>. Jedna klasa, <code>ResponseBuilder</code>, miała 6533 linie.
+            Była sercem asystenta: otrzymywała rozpoznaną intencję, na przykład pytanie o temperaturę albo
+            możliwość uruchomienia gry, i budowała dwujęzyczną odpowiedź z bieżących danych. Istniało 96
+            handlerów, po jednym dla każdej intencji. Wszystkie mieszkały w tej samej klasie i w tym samym pliku.
+        </p>
+        <p>
+            Nie stało się to wskutek jednej złej decyzji. Każda nowa odpowiedź dodawała kilkanaście lub
+            kilkadziesiąt linii. Taka zmiana nigdy nie wygląda groźnie. Powtórzona wiele razy kończy się plikiem,
+            przy którego otwieraniu edytor zatrzymuje się na chwilę.
+        </p>
+        <p>
+            Koszt monolitu nie jest widoczny na ekranie aplikacji. Każda zmiana dotyka ściany niepowiązanego
+            kodu, więc część potrzebnych zmian odkładasz. Dwie osoby, albo jedna osoba i jej kod sprzed pół roku,
+            częściej wchodzą sobie w drogę. Błąd łatwo ukrywa się w miejscu, którego nikt nie potrafi objąć jednym
+            czytaniem.
+        </p>
+        <p class="lead">Plik, którego boisz się otworzyć, jest plikiem, który już przestałeś ulepszać.</p>
+        <h2>Fasada ukrywa, gdzie naprawdę mieszka kod</h2>
+        <p>
+            Cała aplikacja rozmawiała z builderem przez jedno wywołanie:
+            <code>response_builder.build(result, lang)</code>. Używał go panel czatu, monitor proaktywny i testy.
+            Nie chciałem zmieniać tego kontraktu. Refaktoryzacja wymagająca poprawienia każdego klienta byłaby
+            osobnym projektem.
+        </p>
+        <p>
+            Klasa została więc na swoim miejscu, ale jej ciało przeniosło się do mniejszych modułów.
+            <code>builder.py</code> stał się fasadą, która nadal odpowiada na każde stare wywołanie:
+        </p>
+        <pre><code>class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses,
+                      GamingResponses, SystemResponses, PerformanceResponses,
+                      InsightsResponses, AssistantResponses):
+    """Builds bilingual responses for every parsed intent."""</code></pre>
+        <p>
+            Każdy rodzic jest mixinem zawierającym jedną kategorię odpowiedzi. <code>HardwareResponses</code>
+            obsługuje CPU, GPU, RAM i dyski. <code>ThermalResponses</code> skupia temperatury, wentylatory oraz
+            linie bazowe napięć. Dziedziczenie składa je w jedną klasę, więc z zewnątrz
+            <code>ResponseBuilder</code> nadal ma wszystkie 96 metod.
+        </p>
+        <h2>Dispatch nie zmienił ani jednego znaku</h2>
+        <p>Sposób zamiany intencji na odpowiedź pozostał ten sam:</p>
+        <pre><code>intent  = self._INTENT_ALIASES.get(result.intent, result.intent)
+handler = getattr(self, f"_resp_{intent}", None)
+if handler is None:
+    return None
+out = handler(result, lang)</code></pre>
+        <p>
+            <code>getattr</code> wyszukuje metodę po nazwie w trakcie działania. Nie interesuje go plik, w którym
+            metoda została zapisana. Kolejność rozwiązywania metod Pythona przechodzi przez mixiny i znajduje
+            właściwy handler. Intencja <code>temperature</code> nadal trafia do
+            <code>_resp_temperature</code>, choć metoda przeniosła się do <code>r_thermal.py</code>.
+            Dla wywołujących zmiana jest niewidoczna.
+        </p>
+        <h2>Podział według odpowiedzialności, nie liczby linii</h2>
+        <p>
+            Nie ciąłem pliku na równe kawałki. Handlery trafiły do grup odpowiadających temu, jak szukam ich
+            podczas pracy:
+        </p>
+        <table>
+            <thead><tr><th>Moduł</th><th>Handlery</th><th>Zakres</th></tr></thead>
+            <tbody>
+                <tr><td><code>r_hardware.py</code></td><td>25</td><td>CPU, GPU, RAM, dyski, płyta i pełna specyfikacja</td></tr>
+                <tr><td><code>r_insights.py</code></td><td>15</td><td>trendy, porównania, podsumowania sesji i zmiany</td></tr>
+                <tr><td><code>r_performance.py</code></td><td>13</td><td>obciążenie, throttling i przyczyny spowolnień</td></tr>
+                <tr><td><code>r_system.py</code></td><td>13</td><td>kondycja, procesy, autostart i bezpieczeństwo</td></tr>
+                <tr><td><code>r_thermal.py</code></td><td>11</td><td>temperatury, wentylatory i napięcia</td></tr>
+                <tr><td><code>r_assistant.py</code></td><td>11</td><td>powitania, pomoc, informacje i pamięć odpowiedzi</td></tr>
+                <tr><td><code>r_gaming.py</code></td><td>6</td><td>wymagania gier oraz czas gry i pracy</td></tr>
+                <tr><td><code>r_upgrade.py</code></td><td>2</td><td>lokalna zgodność podzespołów</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Wspólne funkcje pomocnicze trafiły do <code>common.py</code>, a rozmowy prowadzone krok po kroku do
+            <code>flows.py</code>. Dawny plik z 6533 liniami ma teraz mniej niż 600 i robi jedną rzecz:
+            składa mixiny oraz kieruje żądania.
+        </p>
+        <p>
+            Najmłodszy <code>r_upgrade.py</code> dostał własny moduł od pierwszej linii. Ma dziś dwa handlery
+            i miejsce na rozwój. Wcześniej wkleiłbym nową funkcję do pliku, który akurat był otwarty. Tym razem
+            funkcja od początku dostała adres.
+        </p>
+        <h2>Dwa testy, aby monolit nie odrósł</h2>
+        <p>
+            Sam podział trwał jedno popołudnie. Utrzymanie granic jest trudniejsze, bo presja, która stworzyła
+            pierwszy monolit, nie zniknęła. Kolejny handler zawsze łatwiej wkleić niż zastanowić się nad miejscem.
+            Dlatego dwie reguły zatrzymują build, zamiast liczyć na pamięć autora.
+        </p>
+        <p>Pierwsza ogranicza każdy moduł odpowiedzi do 1600 linii:</p>
+        <pre><code>def test_monolith_guard(self):
+    for p in glob.glob(_RESPONSES_GLOB):
+        n = _read(p).count("\n") + 1
+        self.assertLess(n, 1600,
+            f"{os.path.basename(p)} has {n} lines - split it "
+            f"instead of growing another monolith")</code></pre>
+        <p>
+            Po przekroczeniu granicy test nie tylko zgłasza błąd. Mówi przyszłemu autorowi, co ma zrobić:
+            podzielić moduł, zamiast budować następny monolit.
+        </p>
+        <p>
+            Drugi test pilnuje ostrej krawędzi mixinów. Gdy dwa z nich zdefiniują metodę o tej samej nazwie,
+            jeden może cicho wygrać przez kolejność dziedziczenia. Test zbiera definicje
+            <code>_resp_*</code> ze wszystkich modułów i odrzuca duplikaty:
+        </p>
+        <pre><code>all_defs = []
+for p in glob.glob(_RESPONSES_GLOB):
+    all_defs += re.findall(r'def (_resp_[a-z0-9_]+)\(', _read(p))
+dupes = {d for d in all_defs if all_defs.count(d) > 1}
+self.assertEqual(dupes, set())</code></pre>
+        <div class="callout">
+            <b>Podział zajął jedno popołudnie.</b> Dwa testy są powodem, dla którego za rok nadal będzie
+            podziałem. Refaktoryzacja bez mechanizmu blokującego regresję tylko odsuwa problem.
+        </div>
+        <h2>To nie była jedyna dojrzałościowa zmiana</h2>
+        <p>
+            Strona Mój PC otwierała się przez około dwie sekundy. Po zmianie wraca w 1-17 ms. Przyczyną były dwa
+            wywołania <code>wmic</code> wykonywane na wątku interfejsu, każde z limitem trzech sekund. Tożsamość
+            sprzętu jest teraz pobierana raz przy uruchomieniu, a strona pozostaje zbudowana zamiast powstawać
+            od nowa przy każdym wejściu.
+        </p>
+        <p>
+            Elementy podrzędne paska bocznego powstają dopiero przy pierwszym otwarciu sekcji. Zimny start okna
+            spadł do około 190 ms. Numer wersji, wcześniej powielony w ośmiu plikach i już niespójny, znajduje się
+            teraz w jednym źródle. Test odrzuca każdą nową, wpisaną na sztywno kopię. Zestaw testów wzrósł
+            z 21 w czerwcu do 194.
+        </p>
+        <p>
+            Nie są to funkcje widoczne na zrzucie ekranu. Są pracą, która obniża koszt każdej następnej zmiany.
+            Refaktoryzacja ma też cenę: przez kilka tygodni użytkownik nie zobaczy nowego przycisku, a przeniesienie
+            sześciu tysięcy linii może wprowadzić błąd właśnie dlatego, że ma nie zmieniać zachowania. Każdy etap
+            przeszedł więc przez testy publicznego wywołania.
+        </p>
+        <p>
+            Nie ufam własnej pamięci dotyczącej pliku z 6533 liniami. Ufam małym, sprawdzalnym krokom. Alternatywą
+            był plik rosnący do momentu, w którym nikt nie chce go dotknąć, wewnątrz programu instalowanego przez
+            obcych ludzi.
+        </p>
+        <p>
+            Przy zgrzewaniu dobra robota rzadko jest efektowną częścią. To połączenie, które później się nie
+            rozpada. W oprogramowaniu jest podobnie. Najważniejsza zmiana tej wersji nie zostawia śladu na ekranie:
+            6533 linie stały się ośmioma modułami, które można otworzyć bez pauzy i zmieniać bez strachu.
+        </p>
+        <p class="lead">Microsoft Store nie zrobił z PC Workmana prawdziwego projektu. Pokazał mi tylko lustro, a ja w końcu posprzątałem to, co w nim zobaczyłem.</p>
+        <div class="guide-cta">
+            <b>To działający kod.</b> Podział buildera, oba testy granic i przyspieszenie strony Mój PC są częścią
+            PC Workmana 1.8.5. Projekt jest darmowy i otwartoźródłowy.
+            <a href="../../download/index_pl.html">Pobierz program</a> albo
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przeczytaj kod</a>.
+            Powiązane: <a href="../what-your-pc-learned/index_pl.html">czego komputer nauczył się o sobie</a> i
+            <a href="../ai-pc-monitoring-vs-traditional/index_pl.html">dlaczego stałe progi nie wystarczają</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; publicznie buduje PC Workmana</div>
+                <p>Piszę o tym, co faktycznie trafiło do kodu, z liczbami i fragmentami, które można sprawdzić. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw kawę</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed_pl.xml">RSS PL</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
