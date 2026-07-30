@@ -1,0 +1,284 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: które programy wyłączyć z autostartu -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Które programy można bezpiecznie wyłączyć z autostartu Windows 11? Decyduj według roli programu, sprawdź ukryte wpisy i zmierz czas od logowania do gotowego pulpitu.">
+    <meta name="keywords" content="co wyłączyć z autostartu Windows 11, programy startowe Windows, przyspieszenie uruchamiania komputera, menedżer autostartu, wyłączenie aplikacji przy starcie, Autoruns, wolny start Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/which-startup-apps-can-i-disable/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/which-startup-apps-can-i-disable/">
+    <meta property="og:title" content="Które programy można wyłączyć z autostartu Windows 11? Bezpieczna metoda">
+    <meta property="og:description" content="Wysoki wpływ nie oznacza, że program jest zbędny. Podziel wpisy według funkcji, zmieniaj po kilka i mierz rzeczywisty czas uruchamiania.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Które programy wyłączyć z autostartu Windows 11? Bezpieczny poradnik | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Które programy można wyłączyć z autostartu Windows 11? Bezpieczna metoda",
+      "description": "Jak oceniać wpisy autostartu według ich roli, gdzie znaleźć wpisy spoza Menedżera zadań i jak sprawdzić, czy zmiana naprawdę przyspieszyła uruchamianie.",
+      "url": "https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/which-startup-apps-can-i-disable/",
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/compatibility/startup-apps",
+        "https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Programy w autostarcie Windows", "item": "https://pcworkman.dev/guides/which-startup-apps-can-i-disable/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Które programy można bezpiecznie wyłączyć z autostartu?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Zwykle można wyłączyć launchery gier, osobne aktualizatory i pomocnicze ikony programów używanych sporadycznie. Zostaw programy bezpieczeństwa, szyfrowanie, narzędzia dostępności, sterowniki i wszystko, od czego zależy logowanie lub VPN."}
+        },
+        {
+          "@type": "Question",
+          "name": "Czy wyłączenie programu z autostartu odinstaluje go?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Nie. Wyłączenie wpisu tylko zatrzymuje automatyczne uruchamianie po zalogowaniu. Program nadal można otworzyć ręcznie, a wpis ponownie włączyć w kilka sekund."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .sd{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #22d3ee;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .sd-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.sd-head .sd-tag{color:#22d3ee}.sd-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.sd-row .k{color:var(--text-dim);width:175px;flex-shrink:0}.sd-row .v{color:#e6eef6}.sd-row .v.ok{color:#a3e635}.sd-row .v.warn{color:#f59e0b}.sd-verdict{display:flex;gap:.7rem;align-items:center;margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.82rem;color:var(--text-secondary)}.sd-verdict .badge{color:#071014;background:#a3e635;padding:.18rem .45rem;border-radius:2px;font-weight:700;text-transform:uppercase;font-size:.66rem}.sd-boot{margin-top:.65rem;padding:.55rem .65rem;background:#10151c;color:var(--text-secondary);font-size:.78rem}.sd-boot b{color:#22d3ee}
+    @media (max-width:520px){.sd-row{flex-direction:column;gap:0}.sd-row .k{width:auto}.sd-verdict{align-items:flex-start;flex-direction:column}}
+    </style>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/which-startup-apps-can-i-disable/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/which-startup-apps-can-i-disable/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Autostart &middot; Poradnik</span>
+        <h1>Które programy mogę wyłączyć z autostartu?</h1>
+        <p class="tagline">Wpis oznaczony jako „duży wpływ” nie zawsze jest tym, który warto wyłączyć.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-29</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Program na szczycie listy autostartu świeci czerwonym napisem „duży wpływ”, ale być może otwierasz go
+            jako pierwszy każdego ranka. Trzy wiersze niżej uruchamia się pomocnik, którego nazwy nie znasz, który
+            startuje od 2023 roku i nigdy nie zrobił niczego, co dało się zauważyć.
+        </p>
+        <p>
+            Wpływ na uruchamianie mierzy ilość pracy wykonywanej podczas startu. Nie mówi, czy tej aplikacji
+            potrzebujesz. To najczęstszy błąd podczas porządkowania autostartu: ktoś sortuje listę według wpływu,
+            wyłącza pięć pierwszych pozycji, a później zastanawia się, dlaczego przestało działać oprogramowanie
+            myszy, choć komputer nadal uruchamia się wolno.
+        </p>
+        <p>
+            Poniżej znajdziesz metodę, która nie starzeje się razem z nazwami programów. Ocenia ich rolę, pokazuje
+            miejsca niewidoczne w Menedżerze zadań i pozwala sprawdzić, czy zmiana naprawdę coś dała.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#safe">Najpierw uspokajająca część</a></li>
+                <li><a href="#classes">Decyduj według roli, nie marki</a></li>
+                <li><a href="#hidden">Gdzie ukrywają się pozostałe wpisy</a></li>
+                <li><a href="#measure">Mierz zamiast zgadywać</a></li>
+                <li><a href="#card">Jak PC Workman podejmuje decyzję</a></li>
+            </ol>
+        </div>
+        <h2 id="safe">Najpierw uspokajająca część</h2>
+        <p>
+            Wyłączenie wpisu autostartu <strong>nie odinstalowuje programu</strong>. Nie usuwa plików ani nie
+            zmienia aplikacji. Mówi jedynie systemowi Windows, aby nie uruchamiał jej automatycznie po zalogowaniu.
+            Program nadal można otworzyć normalnie, a wpis włączyć ponownie w kilka sekund.
+        </p>
+        <p>
+            Dzięki temu porządkowanie autostartu jest jedną z najbezpieczniejszych optymalizacji, o ile zostawisz
+            w spokoju kilka naprawdę ważnych kategorii.
+        </p>
+        <h2 id="classes">Decyduj według roli, nie marki</h2>
+        <p>
+            Listy „10 programów do wyłączenia” tracą aktualność, gdy tylko aplikacja zmieni nazwę. Role pozostają
+            takie same. Przypisz każdy wpis do jednej z trzech grup.
+        </p>
+        <p><strong>Zwykle zostaw.</strong> Te rzeczy powinny działać, zanim pomyślisz o ich ręcznym otwarciu:</p>
+        <ul>
+            <li>oprogramowanie bezpieczeństwa i antywirus,</li>
+            <li>szyfrowanie dysku,</li>
+            <li>narzędzia dostępności,</li>
+            <li>sterowniki i oprogramowanie urządzeń, na przykład touchpada, grafiki lub dźwięku,</li>
+            <li>wszystko, od czego zależy służbowy VPN albo logowanie.</li>
+        </ul>
+        <p><strong>To zależy od Ciebie.</strong> Dla jednej osoby są niezbędne, dla innej tylko zużywają zasoby:</p>
+        <ul>
+            <li>Synchronizacja chmury, na przykład OneDrive, Dropbox i Google Drive. Zostaw ją, jeśli pliki mają
+                synchronizować się bez myślenia. Wyłącz, jeśli robisz to ręcznie.</li>
+            <li>Komunikatory, takie jak Discord, Slack i Teams. Zostaw, jeśli ludzie muszą móc skontaktować się
+                od chwili, gdy siadasz do komputera. W przeciwnym razie uruchom je wtedy, kiedy chcesz.</li>
+            <li>Programy do RGB i sterowania wentylatorami. Zostaw, jeśli podczas startu stosują potrzebny profil,
+                co często dotyczy ustawionej <a href="../why-are-my-pc-fans-so-loud/index_pl.html">cichej krzywej
+                wentylatorów</a>.</li>
+            <li>Menedżery haseł, jeżeli chcesz mieć je gotowe przed pierwszym logowaniem.</li>
+        </ul>
+        <p><strong>Zwykle można bezpiecznie wyłączyć.</strong> Te programy prawie zawsze działają poprawnie po ręcznym uruchomieniu:</p>
+        <ul>
+            <li>Launchery gier, na przykład Steam, Epic, Ubisoft i EA. I tak startują razem z grą.</li>
+            <li>Osobne aktualizatory Adobe, Javy, drukarki lub sterowników. Aktualizacje nadal pojawią się po
+                otwarciu właściwego programu.</li>
+            <li>Pomocnicze ikony programów używanych kilka razy w miesiącu.</li>
+            <li>Oprogramowanie dodane przez producenta laptopa, którego nigdy świadomie nie wybrałeś.</li>
+        </ul>
+        <div class="callout warn">
+            <b>Jedna nazwa na raz.</b> Nie wyłączaj ośmiu wpisów podczas jednego podejścia. Zmień dwa lub trzy,
+            uruchom ponownie komputer i używaj go przez dzień. Jeśli coś przestanie działać, dokładnie wiesz,
+            której zmiany dotyczy problem. Gdy nazwa nic Ci nie mówi, najpierw sprawdź,
+            <a href="../what-is-this-process/index_pl.html">czym jest dany proces</a>.
+        </div>
+        <h2 id="hidden">Gdzie ukrywają się pozostałe wpisy</h2>
+        <p>
+            Karta Uruchamianie w Menedżerze zadań albo Ustawienia, Aplikacje, Autostart to wejście, nie cały dom.
+            Oprogramowanie może uruchamiać się również z:
+        </p>
+        <ul>
+            <li><strong>kluczy Run w rejestrze</strong>, osobno dla użytkownika i całego komputera,</li>
+            <li><strong>folderu Autostart</strong>, starego, lecz nadal używanego miejsca na skróty,</li>
+            <li><strong>Harmonogramu zadań</strong> z wyzwalaczem przy logowaniu lub uruchamianiu systemu. Tu działa
+                wiele aktualizatorów niewidocznych na zwykłej liście,</li>
+            <li><strong>zadań startowych aplikacji ze Sklepu</strong>, rejestrowanych przez pakiety UWP,</li>
+            <li><strong>usług</strong>, które startują jeszcze przed zalogowaniem.</li>
+        </ul>
+        <p>
+            Bezpłatny Autoruns z pakietu Microsoft Sysinternals pokazuje te miejsca razem i potrafi ukryć wpisy
+            podpisane przez Microsoft, aby zostało oprogramowanie zewnętrzne. Jeżeli zwykła lista jest już czysta,
+            a komputer nadal startuje wolno, pozostała odpowiedź często znajduje się właśnie tam. Można też
+            zauważyć pomocnik, który po każdej aktualizacji ponownie dodaje własny wpis.
+        </p>
+        <h2 id="measure">Mierz zamiast zgadywać</h2>
+        <p>
+            „Chyba jest szybciej” nie jest dowodem. Łatwo w ten sposób wmówić sobie, że wyłączenie ważnego programu
+            było dobrą decyzją. Zmierz jedną uczciwą wartość: <strong>czas od zalogowania do pulpitu gotowego do
+            pracy</strong>. Użyj telefonu, wykonaj dwa pomiary przed zmianą i dwa po niej. To wynik, który naprawdę
+            Cię interesuje i który pokaże, czy zmiana była warta zachodu.
+        </p>
+        <p>
+            Warto też ustawić oczekiwania. Na komputerze z SSD porządkowanie autostartu zwykle oszczędza sekundy,
+            nie minuty. Jeżeli start trwa dwie minuty, wąskim gardłem może być sam nośnik. Więcej znajdziesz w
+            poradnikach o <a href="../why-is-my-disk-at-100-percent/index_pl.html">nasyceniu dysku</a> i
+            <a href="../is-my-ssd-dying-drive-health/index_pl.html">jego stanie</a>.
+        </p>
+        <h2 id="card">Jak PC Workman podejmuje decyzję</h2>
+        <p>
+            Ręczna analiza jest uciążliwa, bo potrzebne informacje leżą w czterech miejscach: czym jest wpis,
+            skąd się uruchamia, czy rzeczywiście go używasz i co przestanie działać po wyłączeniu. Startup Manager
+            w PC Workmanie odczytuje wszystkie cztery i nigdy nie usuwa wpisu bez Twojego potwierdzenia:
+        </p>
+        <div class="sd">
+            <div class="sd-head"><span>Decyzja o autostarcie</span><span class="sd-tag">odwracalna</span></div>
+            <div class="sd-row"><span class="k">Wpis</span><span class="v">Adobe Updater</span></div>
+            <div class="sd-row"><span class="k">Źródło</span><span class="v">klucz Run w rejestrze</span></div>
+            <div class="sd-row"><span class="k">Wydawca</span><span class="v">Adobe, poprawny podpis</span></div>
+            <div class="sd-row"><span class="k">Wpływ na start</span><span class="v warn">średni</span></div>
+            <div class="sd-row"><span class="k">Użycie po logowaniu</span><span class="v">ani razu w ostatnich 14 sesjach</span></div>
+            <div class="sd-row"><span class="k">Wymagany do uruchomienia</span><span class="v ok">nie</span></div>
+            <div class="sd-row"><span class="k">Skutek wyłączenia</span><span class="v">aktualizacje pojawią się po otwarciu programu Adobe</span></div>
+            <div class="sd-verdict"><span class="badge">można wyłączyć</span><span>To rekomendacja, nie działanie. Ty potwierdzasz.</span></div>
+            <div class="sd-boot"><b>Czas do gotowego pulpitu:</b> 48,2 s przed zmianą, 34,7 s po niej. Pomiar, nie obietnica.</div>
+        </div>
+        <div class="callout warn">
+            <b>Wyłączony nie znaczy usunięty.</b> PC Workman zachowuje pełne dane wpisu po jego wyłączeniu.
+            Pozostają dostępne nawet wtedy, gdy aplikacja później usunie własny klucz rejestru. Wpis nadal widzisz
+            na liście Wyłączone i możesz go przywrócić. Optymalizacja, której nie da się cofnąć, jest zakładem.
+        </div>
+        <p>
+            Przed kolejnym porządkowaniem na chwilę zignoruj kolumnę wpływu. Przypisz każdy wpis do jednej z grup,
+            zmień dwa albo trzy i zmierz start. To cała metoda. Jest skuteczniejsza od listy nazw, która za rok
+            straci aktualność.
+        </p>
+        <div class="guide-cta">
+            <b>Decyduj na podstawie danych, nie zgadywania.</b> Startup Manager w PC Workmanie widzi wpisy ukryte
+            przed Menedżerem zadań, w tym Harmonogram zadań i aplikacje ze Sklepu, pokazuje koszt każdego z nich
+            oraz mierzy rzeczywisty czas startu przed zmianą i po niej. Nic nie zmienia bez Twojego potwierdzenia.
+            Program jest bezpłatny, ma otwarty kod, a analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            System startuje już szybko, ale gry nadal się zacinają?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu. Na moim komputerze 5 widocznych wpisów autostartu zmieniło się w 20, gdy zajrzałem we właściwe miejsca.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
