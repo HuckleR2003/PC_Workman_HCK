@@ -1,0 +1,273 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: dlaczego wentylatory komputera są głośne -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Głośny komputer często nie jest gorący. Jego wentylatory reagują na każdy krótki skok temperatury. Jak ustawić cichą krzywą, dobrać histerezę i znaleźć punkt, powyżej którego wyższe obroty niemal nic nie dają.">
+    <meta name="keywords" content="głośne wentylatory komputera, cicha krzywa wentylatorów, zmniejszenie hałasu komputera, sterowanie wentylatorami Windows, histereza wentylatora, PWM, głośny komputer">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/">
+    <meta property="og:title" content="Dlaczego wentylatory komputera są tak głośne? Ustaw cichą krzywą bez ukrywania ciepła">
+    <meta property="og:description" content="Najczęściej hałas powoduje nerwowa krzywa reagująca na krótkie skoki, a nie rzeczywiste przegrzewanie. Zobacz, jak ją uspokoić bez pogorszenia chłodzenia.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-26">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Dlaczego wentylatory komputera są tak głośne? Cicha krzywa wentylatorów | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Dlaczego wentylatory komputera są tak głośne? Cicha krzywa bez ukrywania ciepła",
+      "description": "Jak działa krzywa wentylatorów, jak ograniczyć reakcje na krótkie skoki temperatury i znaleźć obroty, powyżej których dodatkowy hałas prawie nie poprawia chłodzenia.",
+      "url": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html",
+      "datePublished": "2026-07-26",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/",
+      "citation": [
+        "https://github.com/rem0o/fancontrol.releases",
+        "https://dlcdnets.asus.com/pub/ASUS/mb/13MANUAL/PRIME_PROART_TUF_GAMING_AMD_AM5_Series_BIOS_EM_WEB_SC.pdf"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Głośne wentylatory komputera", "item": "https://pcworkman.dev/guides/why-are-my-pc-fans-so-loud/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego wentylatory komputera nagle stały się głośne?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Najczęściej krzywa wentylatorów reaguje na krótkie skoki temperatury zamiast na utrzymujące się ciepło. Pomaga histereza oraz opóźnienie zmniejszania obrotów. Jeżeli hałas stale wzrósł przy tym samym obciążeniu, sprawdź kurz, przepływ powietrza i pastę termoprzewodzącą."}
+        },
+        {
+          "@type": "Question",
+          "name": "Czy obniżenie obrotów wentylatorów jest bezpieczne?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Tak, jeśli temperatury pozostają bezpieczne dla danego obciążenia. Powyżej pewnej prędkości dodatkowe obroty dają dużo hałasu i niewielką poprawę temperatury. Wentylatory nadal powinny przyspieszać podczas długiego, dużego obciążenia."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .fancal{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #a3e635;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .fc-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.6rem}
+    .fc-head .fc-tag{color:#a3e635}.fc-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4;align-items:baseline}.fc-row .k{color:var(--text-dim);width:110px;flex-shrink:0}.fc-row .v{color:#e6eef6}.fc-row .note{margin-left:auto;font-size:.72rem}.fc-row.knee{border-left:2px solid #a3e635;padding-left:.5rem;margin-left:-.5rem}.fc-row.knee .note{color:#a3e635}.fc-row.waste .note{color:#f59e0b}.fc-foot{margin-top:.6rem;padding-top:.55rem;border-top:1px solid #1c222b;font-size:.8rem;color:var(--text-secondary)}.fc-foot b{color:#a3e635}
+    @media (max-width:520px){.fc-row{flex-wrap:wrap}.fc-row .note{margin-left:0;width:100%}}
+    </style>
+</head>
+<body class="page-monday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/why-are-my-pc-fans-so-loud/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/why-are-my-pc-fans-so-loud/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-monday">Chłodzenie &middot; Poradnik</span>
+        <h1>Dlaczego wentylatory komputera są tak głośne?</h1>
+        <p class="tagline">Głośny komputer nie zawsze jest gorący. Częściej nerwowo goni każdy skok temperatury.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-26</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Głośny komputer nie zawsze się przegrzewa. Częściej jego sterowanie jest po prostu zbyt nerwowe.
+            Otwierasz kartę w przeglądarce, procesor na chwilę dostaje więcej pracy, temperatura rośnie o dwa
+            stopnie, a wentylatory ruszają tak, jakby coś się paliło. Sekundę później temperatura spada, obroty
+            maleją, a po trzydziestu sekundach cały cykl zaczyna się od nowa. Najbardziej męczy właśnie to wycie
+            w górę i w dół, nie sam poziom temperatury.
+        </p>
+        <p>
+            Rozwiązaniem nie jest stała praca na maksymalnych obrotach ani pozwolenie, by komputer się gotował.
+            Potrzebna jest krzywa, która ignoruje nieistotne skoki i przyspiesza dopiero wtedy, gdy ciepło naprawdę
+            się gromadzi. Poniżej wyjaśniam, jak taka krzywa działa, jak ustawić ją cicho i bezpiecznie oraz gdzie
+            dodatkowe obroty przestają przynosić zauważalny efekt. Na końcu pokazuję, jak PC Workman przedstawia
+            ten kompromis na Twoim sprzęcie.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#why">Skąd bierze się hałas wentylatorów</a></li>
+                <li><a href="#knobs">Najważniejsze ustawienia krzywej</a></li>
+                <li><a href="#quiet">Cicha krzywa, która nadal chłodzi</a></li>
+                <li><a href="#knee">Kiedy wyższe obroty przestają pomagać</a></li>
+                <li><a href="#dashboard">Jak PC Workman pokazuje ten kompromis</a></li>
+            </ol>
+        </div>
+        <h2 id="why">Skąd bierze się hałas wentylatorów</h2>
+        <p>
+            Wentylator reaguje na wskazanie czujnika. Jeżeli krzywa zamienia każdy mały wzrost temperatury w duży
+            skok obrotów, zwykłe zadanie w tle, otwarcie karty, sprawdzanie aktualizacji albo synchronizacja plików,
+            wywołuje nagłe przyspieszenie. Ilość ciepła była znikoma, ale hałas już nie. Słyszysz zbyt gwałtowną
+            reakcję krzywej.
+        </p>
+        <p>Przed zmianą ustawień rozdziel dwie sytuacje:</p>
+        <ul>
+            <li><strong>Rzeczywiste, długotrwałe ciepło.</strong> Podczas gry albo renderowania wzrost obrotów jest
+                prawidłowy. Chłodzenie wykonuje swoją pracę. Wyciszenie go w tym momencie tylko przeniesie problem
+                na temperatury.</li>
+            <li><strong>Nerwowa krzywa ścigająca krótkie skoki.</strong> Chwilowe wzrosty w spoczynku i podczas
+                lekkiej pracy uruchamiają pełny podmuch. Taki hałas da się usunąć i właśnie on stoi za większością
+                pytań o zbyt głośne wentylatory.</li>
+        </ul>
+        <p>
+            Jest jeszcze jeden test bazowy. Jeśli przy tym samym obciążeniu komputer przez kolejne tygodnie staje
+            się coraz głośniejszy, najczęściej temperaturę podnosi kurz albo wyschnięta pasta. To problem sprzętowy,
+            opisany w poradniku o <a href="../normal-cpu-temperature/index_pl.html">prawidłowej temperaturze
+            procesora</a>. Jeżeli samo chłodzenie jest sprawne, właściwym narzędziem jest krzywa.
+        </p>
+        <h2 id="knobs">Najważniejsze ustawienia krzywej, bez żargonu</h2>
+        <p>
+            Programy do sterowania wentylatorami pokazują część lub wszystkie poniższe opcje. Nie musisz używać
+            każdej z nich. Warto jednak wiedzieć, co robią, aby strojenie przestało być zgadywaniem.
+        </p>
+        <ul>
+            <li><strong>Punkt startowy:</strong> temperatura, poniżej której wentylator utrzymuje minimum albo
+                zatrzymuje się. Zbyt niski próg nie pozwala mu odpocząć.</li>
+            <li><strong>Minimalna stabilna prędkość:</strong> najniższe obroty, przy których wentylator pracuje
+                pewnie. Poniżej tej wartości może się zatrzymywać albo buczeć. To cicha podłoga, nie zero.</li>
+            <li><strong>Opóźnienie przyspieszania:</strong> czas, przez który wysoka temperatura musi się utrzymać,
+                zanim obroty wzrosną. Krótkie opóźnienie goni skoki, kilka sekund pozwala je zignorować.</li>
+            <li><strong>Opóźnienie zwalniania:</strong> czas utrzymywania się niższej temperatury przed spadkiem
+                obrotów. Zbyt krótki powoduje ciągłe przyspieszanie i zwalnianie.</li>
+            <li><strong>Histereza:</strong> celowa różnica między temperaturą przyspieszania i zwalniania. Dzięki
+                niej wentylator nie przeskakuje bez końca wokół jednego progu. To najskuteczniejsze ustawienie
+                ograniczające hałas.</li>
+            <li><strong>Czujnik sterujący:</strong> CPU, GPU albo czujnik płyty głównej czy obudowy. Podłączenie
+                spokojnych wentylatorów obudowy do skaczącej temperatury pakietu CPU sprawia, że same też stają
+                się nerwowe.</li>
+        </ul>
+        <h2 id="quiet">Jak zbudować cichą krzywą, która nadal chłodzi</h2>
+        <ol>
+            <li><strong>Spłaszcz dolny zakres.</strong> W spoczynku i przy lekkiej pracy utrzymuj jedną, niską
+                prędkość zamiast odpowiadać na każdy skok.</li>
+            <li><strong>Dodaj histerezę i opóźnienie zwalniania.</strong> Krótki wzrost nie powinien uruchamiać
+                gwałtownego podmuchu. Ta jedna zmiana usuwa większość wycia.</li>
+            <li><strong>Przyspieszaj dopiero przy utrzymującym się cieple.</strong> Pod długim obciążeniem obroty
+                powinny rosnąć płynnie, bez pionowego uskoku przy jednej temperaturze.</li>
+            <li><strong>Ustaw górny limit tam, gdzie kończą się korzyści.</strong> Sposób znalezienia tego punktu
+                opisuję w następnej części.</li>
+            <li><strong>Dopasuj wentylator do właściwego czujnika.</strong> Wentylatory obudowy do spokojniejszego
+                czujnika, chłodzenie procesora do CPU.</li>
+        </ol>
+        <p>Cel w jednym zdaniu: wentylatory mają reagować na dziesięciominutowy render, nie na sekundowe powiadomienie.</p>
+        <h2 id="knee">Kiedy wyższe obroty przestają pomagać</h2>
+        <p>
+            Chłodzenie nie skaluje się liniowo. Przy niskiej prędkości niewielki wzrost przepływu powietrza potrafi
+            mocno obniżyć temperaturę. Powyżej pewnego punktu podwojenie obrotów i hałasu daje jeden stopień
+            różnicy. Właśnie tam powinna kończyć się cicha krzywa do codziennej pracy. Ten punkt znajdziesz,
+            utrzymując stałe obciążenie i sprawdzając ustabilizowaną temperaturę przy kolejnych prędkościach.
+        </p>
+        <p>
+            Wykres zwykle ma ten sam kształt: temperatura początkowo spada szybko, a później linia się wypłaszcza.
+            Płaska część oznacza hałas, za który prawie nic nie dostajesz.
+        </p>
+        <h2 id="dashboard">Jak PC Workman pokazuje ten kompromis</h2>
+        <p>
+            Fan Dashboard w PC Workmanie odczytuje prawdziwe czujniki, pozwala przeciągać punkty krzywej i wyraźnie
+            oddziela edytowany szkic od profilu używanego obecnie. Możesz więc próbować bez zatwierdzania każdej
+            zmiany. hck_GPT potrafi zaproponować profil początkowy na podstawie historii temperatur poznanej dla
+            Twojej maszyny. Panel pokazuje też najważniejszy kompromis: ile poprawy temperatury przynosi każdy
+            kolejny krok obrotów.
+        </p>
+        <div class="fancal">
+            <div class="fc-head"><span>Kalibracja reakcji wentylatora</span><span class="fc-tag">stałe obciążenie, kolejne kroki</span></div>
+            <div class="fc-row"><span class="k">Wentylator 40%</span><span class="v">stabilne 71°C</span></div>
+            <div class="fc-row"><span class="k">Wentylator 55%</span><span class="v">stabilne 67°C</span></div>
+            <div class="fc-row knee"><span class="k">Wentylator 70%</span><span class="v">stabilne 65°C</span><span class="note">punkt załamania, cichy limit</span></div>
+            <div class="fc-row waste"><span class="k">Wentylator 85%</span><span class="v">stabilne 64°C</span><span class="note">dużo głośniej, tylko 1°C mniej</span></div>
+            <div class="fc-foot"><b>Wniosek:</b> powyżej 70% obroty rosną gwałtownie, a temperatura poprawia się o około 1°C. Do codziennej pracy uczciwym limitem jest 70%. Zakres 85% i wyżej zostaje na rzadkie, długie obciążenia.</div>
+        </div>
+        <div class="callout warn">
+            <b>Co ten pomiar pokazuje, a czego nie.</b> To analiza zysku termicznego, czyli miejsca, w którym
+            wyższe obroty przestają obniżać temperaturę. Nie jest to pomiar hałasu. Do rzetelnego wyniku w
+            decybelach potrzebny jest skalibrowany mikrofon i PC Workman nie twierdzi, że go zastępuje. Pokazuje
+            za to liczbę, na podstawie której można działać: punkt, powyżej którego dodatkowe RPM niczego już nie
+            kupują.
+        </div>
+        <p>
+            Zanim pogodzisz się z odgłosem odrzutowca albo zbyt wysoką temperaturą, sprawdź, na co wentylatory
+            naprawdę reagują. Najczęściej są to skoki, nie stałe ciepło. Pomaga spokojny dolny zakres, histereza
+            i limit ustawiony tam, gdzie dodatkowy hałas przestaje dawać kolejne stopnie. Jeżeli mimo tego
+            wentylatory stale pracują na maksimum, potraktuj to jako
+            <a href="../is-my-pc-healthy/index_pl.html">sygnał stanu komputera wymagający sprawdzenia</a>.
+        </p>
+        <div class="guide-cta">
+            <b>Dopasuj krzywą do własnego sprzętu.</b> Fan Dashboard w PC Workmanie odczytuje rzeczywiste czujniki,
+            pozwala bezpiecznie kształtować krzywą z podglądem i pokazuje, gdzie wyższe obroty przestają obniżać
+            temperaturę. Program jest bezpłatny i ma otwarty kod. Analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Wentylatory są już spokojne, ale czy cały komputer jest zdrowy?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu na komputerach, które potrafiły pracować bezgłośnie albo brzmieć jak odrzutowiec. Każdy poradnik opieram na tym, co naprawdę pokazują czujniki.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
