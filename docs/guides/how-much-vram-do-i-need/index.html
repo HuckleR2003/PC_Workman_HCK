@@ -1,0 +1,445 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: how much VRAM do I need -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="How much VRAM do games and local AI need? Compare 8, 12, 16 and 24 GB using Windows budgets, shared memory, model weights and KV cache.">
+    <meta name="keywords" content="how much VRAM do I need, 8GB vs 12GB VRAM, 16GB VRAM gaming, shared GPU memory, dedicated GPU memory, VRAM for local AI, LLM VRAM requirements, VRAM usage Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/how-much-vram-do-i-need/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/how-much-vram-do-i-need/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/how-much-vram-do-i-need/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/how-much-vram-do-i-need/">
+    <meta property="og:title" content="How much VRAM do you actually need? Games, shared memory and local AI">
+    <meta property="og:description" content="Capacity is only the first number. Learn to read the working set, Windows budget, spill to shared memory and AI model footprint.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/how-much-vram-do-i-need/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>How Much VRAM Do You Need for Games and Local AI?</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "How much VRAM do you actually need? Games, shared GPU memory and local AI",
+      "description": "How to choose a video-memory capacity from measured workload, Windows budget pressure, game texture streaming and local AI model footprint.",
+      "url": "https://pcworkman.dev/guides/how-much-vram-do-i-need/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ns-dxgi-dxgi_adapter_desc",
+        "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/ns-dxgi1_4-dxgi_query_video_memory_info",
+        "https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-1-4-improvements/",
+        "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine",
+        "https://huggingface.co/docs/transformers/kv_cache",
+        "https://huggingface.co/docs/transformers/optimization_overview"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "How much VRAM do I need", "item": "https://pcworkman.dev/guides/how-much-vram-do-i-need/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is shared GPU memory the same as VRAM?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. On a discrete graphics card, dedicated VRAM is local memory connected to the GPU. Shared GPU memory is a maximum amount of system RAM that Windows may make available to the adapter. It is not reserved in full, and using it is not equivalent to adding the same amount of local VRAM." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does 100% VRAM usage prove that I need a new GPU?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Some games allocate memory aggressively and keep reusable assets cached. Capacity, allocation and budget pressure are different measurements. A repeatable performance loss, texture fallback, eviction or growth in shared-memory use when the same workload crosses the budget is stronger evidence than a full-looking bar alone." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much VRAM is needed for a local AI model?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Start with the weight footprint: parameters multiplied by bits per weight, divided by eight. Then add quantization metadata, runtime buffers and KV cache. Context length, batch size and the amount offloaded to CPU memory can change the requirement substantially, so a model name alone is not a complete VRAM specification." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .mem-map{
+        background:linear-gradient(180deg,#0d0d14,#09090d); border:1px solid #29263a;
+        border-left:4px solid #a78bfa; border-radius:4px; padding:1rem 1.1rem; margin:1.35rem 0;
+        font-family:var(--font-mono);
+    }
+    .mem-title{ color:#a78bfa; font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        margin-bottom:.75rem; }
+    .mem-bar{ display:flex; height:38px; overflow:hidden; border:1px solid #322e44; background:#08080b; }
+    .mem-bar span{ display:flex; align-items:center; justify-content:center; min-width:0; color:#fff;
+        font-size:.66rem; white-space:nowrap; }
+    .mem-bar .work{ width:68%; background:#6d28d9; }
+    .mem-bar .head{ width:17%; background:#3f3f46; }
+    .mem-bar .free{ width:15%; color:#777; background:#111116; }
+    .mem-caption{ display:flex; flex-wrap:wrap; gap:.4rem 1rem; margin-top:.65rem;
+        color:var(--text-secondary); font-size:.7rem; }
+    .mem-caption b{ color:#fff; }
+    .tiers td:first-child{ color:#fff; font-weight:800; white-space:nowrap; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/how-much-vram-do-i-need/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/how-much-vram-do-i-need/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">GPU memory &middot; Guide</span>
+        <h1>How much VRAM do you actually need?</h1>
+        <p class="tagline">Enough for the working set, its temporary peaks and some headroom. The difficult part is knowing what each number means.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-29</span><span>&middot;</span><span>16 min read</span>
+        </div>
+
+        <p>
+            Task Manager says <strong>Dedicated GPU memory 7.8/8.0 GB</strong> and
+            <strong>Shared GPU memory 0.6/15.9 GB</strong>. Does that mean the card has 23.9 GB available? Is 8 GB
+            already obsolete? Will a 7-billion-parameter model fit because somebody called it "4-bit"?
+        </p>
+        <p>
+            Those questions mix four different things: physical capacity, memory allocated by an application,
+            the budget Windows currently allows to remain resident, and the working set the workload needs without
+            moving data elsewhere. They can be close. They are not interchangeable.
+        </p>
+        <p>
+            The useful answer is not "everyone needs 12 GB now". It is this:
+            <strong>choose enough dedicated memory to keep your real peak working set inside the operating-system
+            budget, with headroom for temporary allocations and the other applications you keep open.</strong>
+            Games and local AI build that working set differently, so we will measure them differently.
+        </p>
+
+        <div class="mem-map" aria-label="Example VRAM working set and headroom">
+            <div class="mem-title">An 8 GB card is not an 8 GB application budget</div>
+            <div class="mem-bar">
+                <span class="work">working set 5.4 GB</span>
+                <span class="head">headroom</span>
+                <span class="free">OS / variable</span>
+            </div>
+            <div class="mem-caption">
+                <span><b>Capacity:</b> fixed hardware</span>
+                <span><b>Budget:</b> assigned by Windows, can move</span>
+                <span><b>Usage:</b> changes with the scene or model</span>
+            </div>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#numbers">Dedicated, shared, usage and budget</a></li>
+                <li><a href="#full">Why a full VRAM bar is not a diagnosis</a></li>
+                <li><a href="#games">How games consume video memory</a></li>
+                <li><a href="#ai">How local AI consumes it</a></li>
+                <li><a href="#tiers">What 8, 12, 16 and 24 GB change</a></li>
+                <li><a href="#measure">The test to run before buying</a></li>
+            </ol>
+        </div>
+
+        <h2 id="numbers">Dedicated, shared, usage and budget</h2>
+        <table>
+            <thead><tr><th>Number</th><th>What it means</th><th>What it does not mean</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Dedicated GPU memory</strong></td>
+                    <td>Memory local to a discrete GPU, or a segment the driver reports as dedicated</td>
+                    <td>Not all of it is guaranteed to one game at every moment</td>
+                </tr>
+                <tr>
+                    <td><strong>Shared GPU memory</strong></td>
+                    <td>The maximum system memory Windows may make available to the adapter</td>
+                    <td>It is not all pre-reserved, and it is not equivalent to local VRAM</td>
+                </tr>
+                <tr>
+                    <td><strong>Current usage</strong></td>
+                    <td>Memory currently accounted to a process or adapter by that reporting path</td>
+                    <td>It does not by itself separate essential data from a reusable cache</td>
+                </tr>
+                <tr>
+                    <td><strong>Video-memory budget</strong></td>
+                    <td>The amount Windows tells an application to target for resident memory</td>
+                    <td>It is not fixed forever and may change as other applications wake up</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Microsoft defines SharedSystemMemory in DXGI as the maximum system memory that the adapter may consume
+            during operation. Maximum is the important word. Seeing 15.9 GB there does not mean Windows removed
+            15.9 GB from your normal RAM, and it does not turn an 8 GB graphics card into a 23.9 GB one.
+        </p>
+        <p>
+            On a discrete GPU, local VRAM has the direct path and bandwidth the card was designed around. Data
+            placed in system memory has to travel through a different path. On an integrated GPU, shared system
+            memory is normal because CPU and GPU use the same physical memory pool. Do not compare an integrated
+            GPU's labels with a discrete card as if the architecture were identical.
+        </p>
+
+        <h2 id="full">Why a full VRAM bar is not a diagnosis</h2>
+        <p>
+            Applications have a good reason to use spare memory as a cache. An empty VRAM bar is not a performance
+            goal. If the game can keep a texture around instead of loading it again, unused memory has no prize
+            waiting for it.
+        </p>
+        <p>
+            The stronger signal is <strong>pressure at the budget boundary</strong>. Microsoft's
+            <code>DXGI_QUERY_VIDEO_MEMORY_INFO</code> exposes both CurrentUsage and Budget. Its documentation warns
+            that usage above the budget can bring stutter or other performance penalties while Windows makes room
+            for competing applications. The DXGI 1.4 documentation also notes that budgets can move as background
+            processes wake, sleep or the user switches applications.
+        </p>
+        <div class="callout">
+            <b>Allocation is not proof of shortage.</b> Look for a repeatable change when the same workload crosses
+            the budget: new frame-time spikes, texture quality falling, shared-memory use growing, inference
+            slowing sharply, or an out-of-memory error. The symptom and boundary must line up.
+        </div>
+
+        <h2 id="games">How games consume video memory</h2>
+        <p>
+            A game uses video memory for more than texture files. The working set can include texture mips, meshes,
+            render targets, depth and shadow buffers, acceleration structures, shader and pipeline data, frame
+            history and temporary resources. Resolution and internal render scale affect render targets. Texture
+            quality affects which mips the engine wants resident. Ray tracing and some reconstruction techniques
+            add their own resources. The exact mix changes by engine and even by scene.
+        </p>
+        <p>
+            Unreal Engine's texture-streaming documentation makes the budget visible. The engine maintains a pool,
+            computes the resolution wanted for each texture, loads or drops mips, and can limit the pool to
+            available VRAM. That is why a game can look fine in one room and hitch while turning across a large
+            outdoor scene. The peak working set changed.
+        </p>
+        <h3>The game test that tells you something</h3>
+        <ol>
+            <li>Choose the heaviest repeatable route you actually play, not an empty tutorial room.</li>
+            <li>Run it twice. A bad first pass and clean second pass points toward caching or compilation.</li>
+            <li>Record dedicated use, shared use, frame time, GPU load and system RAM across the route.</li>
+            <li>Lower <strong>texture quality only</strong> by one step and repeat.</li>
+            <li>If the budget crossing and hitch both disappear, VRAM pressure becomes a credible cause. If only
+                average FPS changes, it was probably not the memory limit you thought it was.</li>
+        </ol>
+        <p>
+            The companion guide on <a href="../game-stutters-high-fps-frame-time/">high FPS with stuttering</a>
+            explains how to separate a memory-related streaming hitch from shader compilation and a CPU limit.
+        </p>
+
+        <h2 id="ai">How local AI consumes VRAM</h2>
+        <p>
+            Local inference starts with a more predictable floor: model weights. A rough raw-weight calculation is:
+        </p>
+        <p><code>parameter count × bits per weight ÷ 8</code></p>
+        <p>
+            Seven billion parameters at 16 bits are roughly 14 GB of raw weights. At 4 bits they are roughly
+            3.5 GB. Neither number is the complete runtime requirement. Quantized formats need scales and metadata,
+            the backend needs buffers, and generated text uses a key-value cache. Image generation adds its own
+            model components, activations and temporary tensors.
+        </p>
+        <p>
+            Context length matters because the KV cache grows as tokens are kept for attention. Batch size and the
+            number of simultaneous requests matter too. Hugging Face documents both cache offloading and
+            quantized caches specifically as memory-saving options, with a speed or latency tradeoff. That is the
+            honest model: fitting and running well are different targets.
+        </p>
+        <table>
+            <thead><tr><th>AI memory component</th><th>What makes it grow</th><th>Common way to reduce it</th></tr></thead>
+            <tbody>
+                <tr><td>Weights</td><td>Parameter count and precision</td><td>Lower-bit quantization or partial CPU offload</td></tr>
+                <tr><td>KV cache</td><td>Context length, batch and architecture</td><td>Shorter context, cache quantization or offload</td></tr>
+                <tr><td>Runtime buffers</td><td>Backend, kernels and workload</td><td>Memory-aware backend settings</td></tr>
+                <tr><td>Other open models/apps</td><td>Parallel sessions and desktop GPU use</td><td>Close them or leave explicit headroom</td></tr>
+            </tbody>
+        </table>
+        <div class="callout warn">
+            <b>"It fits" is the minimum result.</b> If half the model and every cache update travel through system
+            memory, generation may run but miss your speed target. Buy for the model, context and throughput you
+            will actually use, not for the smallest screenshot that avoided an error.
+        </div>
+
+        <h2 id="tiers">What 8, 12, 16 and 24 GB change</h2>
+        <p>
+            These are workload envelopes, not expiry dates. A well-built game at sensible settings can run inside
+            a smaller envelope for years. One oversized texture preset or a larger AI model can exceed a bigger
+            one tomorrow.
+        </p>
+        <table class="tiers">
+            <thead><tr><th>Capacity</th><th>Reasonable expectation</th><th>Main compromise to expect</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>8 GB</td>
+                    <td>Esports and many games at 1080p or adjusted textures; small quantized local models or partial GPU offload</td>
+                    <td>Less headroom for high-resolution texture packs, heavy multitasking and longer AI contexts</td>
+                </tr>
+                <tr>
+                    <td>12 GB</td>
+                    <td>More forgiving 1440p texture budgets and a wider set of quantized models kept on GPU</td>
+                    <td>Still easy to exceed with large models, high resolution plus heavy ray tracing, or multiple GPU workloads</td>
+                </tr>
+                <tr>
+                    <td>16 GB</td>
+                    <td>Useful mixed target for demanding games, content work and local AI experimentation</td>
+                    <td>Not a guarantee for large models or every ultra preset</td>
+                </tr>
+                <tr>
+                    <td>24 GB+</td>
+                    <td>Larger local models, longer contexts, high-resolution creation and fewer offload compromises</td>
+                    <td>Capacity does not replace GPU compute, bandwidth, system RAM or a suitable power supply</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            If gaming is the only job, do not buy capacity in isolation. A slower GPU with more VRAM can still
+            miss your frame-rate target. If local AI is a real workload, capacity can decide whether the model
+            remains on the GPU at all. Write down which side matters before comparing cards.
+        </p>
+
+        <h2 id="measure">The test to run before buying</h2>
+        <ol>
+            <li><strong>Define the workload.</strong> Name the games, resolution, texture target, model,
+                quantization, context and how many applications stay open.</li>
+            <li><strong>Measure a real peak.</strong> Use a heavy repeatable scene or the longest prompt and batch
+                you expect to run. A title screen and a one-line prompt are not peaks.</li>
+            <li><strong>Distinguish use from pressure.</strong> Record the symptom, dedicated use, shared use and
+                the Windows budget where your tool exposes it.</li>
+            <li><strong>Test the lever tied to memory.</strong> Lower textures in a game. Reduce context or
+                quantization size in AI. Do not change five unrelated options.</li>
+            <li><strong>Add headroom.</strong> Leave space for scene variation, temporary buffers, a browser,
+                capture software and a changing OS budget.</li>
+            <li><strong>Compare the whole card.</strong> Performance, memory bandwidth, VRAM capacity, power,
+                cooling, price and the software stack all matter.</li>
+        </ol>
+
+        <h2 id="workman">What PC Workman can tell you today</h2>
+        <p>
+            On supported NVIDIA telemetry, PC Workman reads current dedicated VRAM use and percentage through
+            <code>nvidia-smi</code>, stores the percentage beside GPU load, temperature and power, and hck_GPT can
+            answer a live VRAM-usage question. The live view also has GPU clocks. The hardware scan records the
+            card's reported capacity.
+        </p>
+        <p>
+            <strong>The current build does not expose the Windows per-process video-memory budget, shared-memory
+            residency, eviction counts or an AI model memory estimator.</strong> Use Task Manager and workload
+            tools for those values. PC Workman's useful role is preserving the dedicated-use trend beside GPU
+            load, temperature, clocks and power, without pretending one percentage proves the cause.
+        </p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Is shared GPU memory the same as VRAM?</h3>
+        <p>
+            No. On a discrete card it is system RAM Windows may make available to the adapter. It is not reserved
+            in full and does not perform like the same capacity of local VRAM.
+        </p>
+        <h3>Does 100% VRAM usage mean I need a new GPU?</h3>
+        <p>
+            Not by itself. Look for a repeatable symptom as the workload crosses its memory budget, especially
+            frame-time spikes, shared-memory growth, quality fallback or an out-of-memory error.
+        </p>
+        <h3>How much VRAM does a local AI model need?</h3>
+        <p>
+            Start with parameters multiplied by bits per weight, divided by eight. Then add quantization metadata,
+            runtime buffers and KV cache. Context and offloading can change the result substantially.
+        </p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/en-us/windows/win32/api/dxgi/ns-dxgi-dxgi_adapter_desc" rel="noopener">Microsoft DXGI adapter memory definitions</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/ns-dxgi1_4-dxgi_query_video_memory_info" rel="noopener">Microsoft: video-memory usage, budget and performance pressure</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-1-4-improvements/" rel="noopener">Microsoft DXGI 1.4: changing memory budgets</a>.</li>
+            <li><a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine" rel="noopener">Unreal Engine texture streaming and pool configuration</a>.</li>
+            <li><a href="https://huggingface.co/docs/transformers/kv_cache" rel="noopener">Hugging Face Transformers: KV cache, quantization and offloading</a>.</li>
+            <li><a href="https://huggingface.co/docs/transformers/optimization_overview" rel="noopener">Hugging Face Transformers optimization overview</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Measure the peak before you buy the capacity.</b> PC Workman stores dedicated VRAM use beside GPU
+            load, temperature and power, while the live view also shows clocks. Free and open source. Analysis
+            runs locally. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            A full memory bar is only one clue.
+            <a href="../">Browse all PC Workman guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I build the monitor, then write the guide from the counters that actually separate one fault from another.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
