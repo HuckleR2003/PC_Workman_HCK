@@ -1,0 +1,251 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: spadki taktowania CPU i GPU -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Dlaczego taktowanie CPU albo GPU spada pod obciążeniem? Jak odróżnić throttling termiczny od limitu mocy i zwykłego oczekiwania na dane, czytając temperaturę, pobór mocy i użycie razem.">
+    <meta name="keywords" content="spadki taktowania GPU, spadki taktowania CPU, thermal throttling, throttling termiczny, limit mocy GPU, power limit CPU, taktowanie spada w grze, przegrzewanie procesora">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <meta property="og:title" content="Dlaczego taktowanie CPU lub GPU spada? Temperatura kontra limit mocy">
+    <meta property="og:description" content="Spadek taktowania przy wysokiej temperaturze nie dowodzi przegrzewania. Trzeba w tej samej chwili odczytać temperaturę, moc i użycie.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Dlaczego taktowanie CPU lub GPU spada? Throttling termiczny a limit mocy | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Dlaczego taktowanie CPU lub GPU spada? Throttling termiczny a limit mocy",
+      "description": "Jak odróżnić ograniczenie termiczne, limit mocy i zwykły brak pełnego obciążenia, odczytując razem temperaturę, pobór mocy i wykorzystanie układu.",
+      "url": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/",
+      "citation": [
+        "https://docs.nvidia.com/deploy/nvidia-smi/index.html",
+        "https://www.amd.com/content/dam/amd/en/documents/products/software-tools/ryzen-master-quick-reference-guide.pdf",
+        "https://learn.microsoft.com/en-us/windows/win32/dxtecharts/top-issues-for-windows-titles"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Spadki taktowania CPU i GPU", "item": "https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego taktowanie GPU spada podczas gry?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Spadek może wynikać z temperatury, limitu mocy, ograniczenia prądowego albo braku pełnego obciążenia. Sprawdź w tej samej chwili temperaturę, pobór mocy i wykorzystanie GPU. Sam wykres taktowania nie wskazuje przyczyny."}
+        },
+        {
+          "@type": "Question",
+          "name": "Jak odróżnić throttling termiczny od limitu mocy?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Jeżeli temperatura dochodzi do limitu układu, a taktowanie spada, przyczyną jest chłodzenie. Jeżeli temperatura pozostaje bezpieczna, lecz pobór mocy zatrzymuje się na ustawionym limicie, układ jest ograniczony budżetem mocy."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .lf{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #ef4444;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .lf-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.lf-head .lf-tag{color:#ef4444}.lf-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.lf-row .k{color:var(--text-dim);width:155px;flex-shrink:0}.lf-row .v{color:#e6eef6}.lf-row .v.ok{color:#a3e635}.lf-row .v.warn{color:#f59e0b}.lf-verdict{display:flex;gap:.7rem;align-items:center;margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.82rem;color:var(--text-secondary)}.lf-verdict .badge{color:#0a0c10;background:#f59e0b;padding:.18rem .45rem;border-radius:2px;font-weight:700;text-transform:uppercase;font-size:.66rem}
+    @media (max-width:520px){.lf-row{flex-direction:column;gap:0}.lf-row .k{width:auto}.lf-verdict{align-items:flex-start;flex-direction:column}}
+    </style>
+</head>
+<body class="page-monday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/cpu-gpu-throttling-thermal-vs-power/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-monday">Wydajność &middot; Poradnik</span>
+        <h1>Dlaczego taktowanie CPU lub GPU spada pod obciążeniem?</h1>
+        <p class="tagline">Taktowanie spadło, temperatura wzrosła. To nadal nie dowodzi, że przyczyną było ciepło.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-29</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Jesteś w środku gry, liczba klatek spada i sprawdzasz parametry. Taktowanie GPU właśnie obniżyło się
+            z 2600 do 2400 MHz, a temperatura wynosi 78°C. Sprawa zamknięta, karta się przegrzewa. Prawda?
+        </p>
+        <p>
+            Niekoniecznie. Spadek taktowania i ciepły układ razem prawie niczego nie dowodzą. Współczesne CPU i GPU
+            bez przerwy negocjują kilka ograniczeń: temperaturę, moc, natężenie prądu, napięcie albo zwykłe
+            oczekiwanie, aż inny podzespół dostarczy pracę. Każde z nich może obniżyć zegary i na pojedynczym
+            wykresie wszystkie wyglądają podobnie. Błędny odczyt kończy się wymianą pasty na chłodzeniu, które
+            nigdy nie było problemem. Poniżej pokazuję, jak rozdzielić przyczyny i jak PC Workman nazywa
+            ograniczenie za Ciebie.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#limits">Ograniczenia, na które trafia układ</a></li>
+                <li><a href="#tell">Jak ustalić, które z nich zadziałało</a></li>
+                <li><a href="#thermalpower">Throttling termiczny a limit mocy</a></li>
+                <li><a href="#headroom">Jak PC Workman wskazuje ograniczenie</a></li>
+            </ol>
+        </div>
+        <h2 id="limits">Ograniczenia, na które trafia układ</h2>
+        <p>
+            Procesor nie ma jednej prędkości. Stale podnosi taktowanie tak wysoko, jak pozwalają warunki. Gdy
+            dociera do granicy, cofa się. Warto znać cztery takie granice:
+        </p>
+        <ul>
+            <li><strong>Temperatura.</strong> Układ osiąga limit termiczny, czyli Tj Max, często w pobliżu
+                90-100°C, i obniża zegary, aby się chronić. To właśnie najczęściej nazywa się throttlingiem i jest
+                problemem chłodzenia. W poradniku o <a href="../normal-cpu-temperature/index_pl.html">prawidłowej
+                temperaturze CPU</a> opisuję, gdzie leżą te granice.</li>
+            <li><strong>Moc.</strong> Układ dochodzi do ustawionego budżetu: PL1 lub PL2 i TDP dla CPU albo limitu
+                mocy GPU. Taktowanie spada, by nie przekroczyć tej wartości, nawet przy niskiej temperaturze. To
+                zachowanie zgodne z projektem, nie uszkodzenie.</li>
+            <li><strong>Prąd albo napięcie.</strong> Zdarza się rzadziej, ale układ może ograniczyć zegary, aby
+                pozostać w bezpiecznych granicach elektrycznych. Na wykresie wygląda to podobnie.</li>
+            <li><strong>Brak ograniczenia, układ po prostu czeka.</strong> Czasem nic nie trzyma taktowania w dół.
+                Procesor albo karta nie dostaje wystarczająco szybko kolejnej pracy, więc nie ma powodu działać
+                z pełną prędkością.</li>
+        </ul>
+        <h2 id="tell">Jak ustalić, które ograniczenie zadziałało</h2>
+        <p>Przestań patrzeć wyłącznie na zegar i w chwili spadku odczytaj trzy wartości:</p>
+        <ul>
+            <li><strong>Temperaturę:</strong> czy układ osiągnął swój limit, na przykład 95°C, czy pozostaje
+                wyraźnie poniżej?</li>
+            <li><strong>Pobór mocy:</strong> czy zatrzymał się na określonym pułapie i nie rośnie?</li>
+            <li><strong>Wykorzystanie:</strong> czy układ pracuje na 99%, czy ma niższe użycie i na coś czeka?</li>
+        </ul>
+        <p>Te trzy liczby zmieniają zagadkę w diagnozę:</p>
+        <ul>
+            <li><strong>Temperatura na limicie</strong> &rarr; throttling termiczny. Chłodzenie nie nadąża.
+                Rozwiązania dotyczą przepływu powietrza, pasty i często rozsądniejszej krzywej wentylatorów.
+                <a href="../why-are-my-pc-fans-so-loud/index_pl.html">Nerwowa krzywa</a> i throttling są dwoma
+                końcami tego samego problemu.</li>
+            <li><strong>Temperatura poniżej limitu, pobór mocy na pułapie</strong> &rarr; ograniczenie mocą. Układ
+                pilnuje swojego budżetu. Nic nie jest uszkodzone, po prostu przy tym limicie nie podniesie zegara.</li>
+            <li><strong>Wykorzystanie poniżej około 97%</strong> &rarr; to nie jest throttling. Inny element,
+                zwykle CPU, nie nadąża dostarczać pracy GPU. To wąskie gardło, z inną przyczyną i innym rozwiązaniem.</li>
+        </ul>
+        <h2 id="thermalpower">Throttling termiczny a limit mocy, najprościej</h2>
+        <p>
+            Te dwa zjawiska są stale mylone. <strong>Throttling termiczny</strong> to reakcja bezpieczeństwa:
+            krzem osiągnął zbyt wysoką temperaturę i zwolnił, aby się chronić. Wąskim gardłem jest chłodzenie.
+            <strong>Ograniczenie mocą</strong> jest budżetem: układ dostał polecenie, by nie pobierać więcej niż
+            określona liczba watów, i go przestrzega nawet wtedy, gdy pozostaje chłodny. Procesor laptopa albo
+            karta ustawiona pod wydajność energetyczną może stale dotykać limitu mocy. To projekt działający
+            zgodnie z założeniem, nie usterka.
+        </p>
+        <div class="callout warn">
+            <b>Rozróżnienie w jednym zdaniu:</b> jeśli temperatura osiąga limit, popraw chłodzenie. Jeśli
+            temperatura jest prawidłowa, a moc zatrzymała się na pułapie, widzisz skonfigurowany budżet, nie
+            awarię. Wymiana pasty w układzie ograniczonym mocą nic nie zmieni, bo ciepło nigdy go nie zatrzymywało.
+        </div>
+        <h2 id="headroom">Jak PC Workman wskazuje ograniczenie</h2>
+        <p>
+            Możesz obserwować trzy wykresy i samodzielnie łączyć fakty. Podczas gry szybko staje się to niewygodne.
+            OVERCLOCK Headroom Lab w PC Workmanie odczytuje te same wartości i działa wyłącznie w trybie odczytu.
+            Nigdy nie zapisuje taktowania ani napięcia. W chwili spadku zegara zestawia liczby i wskazuje czynnik
+            ograniczający:
+        </p>
+        <div class="lf">
+            <div class="lf-head"><span>Czynnik ograniczający</span><span class="lf-tag">o 21:43:18</span></div>
+            <div class="lf-row"><span class="k">Taktowanie</span><span class="v">spadek z 2600 do 2400 MHz</span></div>
+            <div class="lf-row"><span class="k">Temperatura</span><span class="v ok">78°C, poniżej limitu</span></div>
+            <div class="lf-row"><span class="k">Moc GPU</span><span class="v warn">na ustawionym pułapie</span></div>
+            <div class="lf-row"><span class="k">Wykorzystanie GPU</span><span class="v">99%</span></div>
+            <div class="lf-verdict"><span class="badge">limit mocy</span><span>Spadek zegara nastąpił przy limicie mocy, nie temperatury. To nie jest throttling termiczny.</span></div>
+        </div>
+        <div class="callout warn">
+            <b>To diagnoza, nie podkręcanie.</b> Mimo nazwy OVERCLOCK moduł celowo nie ma żadnej ścieżki zapisu.
+            Mierzy rzeczywisty zapas i odpowiada na pytanie, którego wykresy pełne liczb często nie rozstrzygają:
+            czy zegary zatrzymuje temperatura, moc, czy nic. Decyzja, co zrobisz z tą wiedzą, należy do Ciebie.
+        </div>
+        <p>
+            Gdy następnym razem taktowanie spadnie pod obciążeniem, nie zakładaj od razu, że winne jest ciepło.
+            Odczytaj razem temperaturę, moc i wykorzystanie. Najczęściej odpowiedź jest zapisana wprost w tych
+            trzech liczbach i często nie jest tym, czego się spodziewasz. Jeżeli nadal nie wiesz, czy komputer
+            zachowuje się nietypowo, zacznij od
+            <a href="../is-my-pc-healthy/index_pl.html">pięciominutowej kontroli stanu</a>.
+        </p>
+        <div class="guide-cta">
+            <b>Sprawdź, co naprawdę ogranicza taktowanie.</b> OVERCLOCK Headroom Lab w PC Workmanie czyta
+            temperaturę, moc i wykorzystanie, po czym wskazuje temperaturę, limit mocy albo brak ograniczenia.
+            Wszystko działa tylko do odczytu, bez zmiany zegarów. Program jest bezpłatny, ma otwarty kod, a analiza
+            działa lokalnie. <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Kolejne pytanie: średni FPS jest wysoki, ale gra nadal się zacina.
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu. Każdy poradnik opieram na tym, co naprawdę pokazują czujniki.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

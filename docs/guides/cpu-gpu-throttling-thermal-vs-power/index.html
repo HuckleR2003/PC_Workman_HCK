@@ -12,12 +12,18 @@
     <meta name="keywords" content="CPU throttling, GPU downclocking under load, thermal throttling vs power limit, why is my GPU clock dropping, CPU throttle fix, power limit throttling, is my CPU throttling">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
     <meta property="og:title" content="Why does my CPU or GPU clock drop under load? Thermal vs power limits">
     <meta property="og:description" content="A clock drop and a warm chip prove nothing on their own. Read temperature, power and utilisation together to find the real limit.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/cpu-gpu-throttling-thermal-vs-power/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
     <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
@@ -40,6 +46,12 @@
       "datePublished": "2026-07-29",
       "dateModified": "2026-07-29",
       "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://docs.nvidia.com/deploy/nvidia-smi/index.html",
+        "https://www.amd.com/content/dam/amd/en/documents/products/software-tools/ryzen-master-quick-reference-guide.pdf",
+        "https://learn.microsoft.com/en-us/windows/win32/dxtecharts/top-issues-for-windows-titles"
+      ],
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
@@ -125,14 +137,14 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/guides/cpu-gpu-throttling-thermal-vs-power/index_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+            <a href="/guides/cpu-gpu-throttling-thermal-vs-power/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
         </span>
     </nav>
 
     <section class="hero">
-        <span class="day-badge day-monday">Performance · Guide</span>
+        <span class="day-badge day-monday">Performance &middot; Guide</span>
         <h1>Why does my CPU or GPU clock drop under load?</h1>
         <p class="tagline">Clock speed fell, temperature rose. That still does not prove heat caused the drop.</p>
     </section>
@@ -140,7 +152,7 @@
     <main class="article">
 
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>8 min read</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-29</span><span>&middot;</span><span>8 min read</span>
         </div>
 
         <p>
@@ -259,7 +271,7 @@
         <div class="guide-cta">
             <b>See what is actually holding your clocks back.</b> PC Workman's OVERCLOCK Headroom Lab reads your
             temperature, power and utilisation and names the limiting factor, thermal, power, or nothing, all
-            read-only, never touching a clock. Free, open source, 100% offline.
+            read-only, never touching a clock. Free and open source. Analysis runs locally.
             <a href="../../download/">Download for Windows</a>.
         </div>
 
@@ -272,13 +284,13 @@
             <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
             <div>
                 <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
-                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
                 <p>18 months of building a system monitor in public. Every guide is based on what the sensors actually show.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
                     <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
                     <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
-                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
                 </div>
             </div>
         </div>
@@ -286,7 +298,7 @@
     </main>
 
     <footer class="foot">
-        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
     </footer>
 
     <script src="/assets/js/topnav.js"></script>
