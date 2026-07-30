@@ -1,0 +1,196 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: prawidłowa temperatura procesora -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Jaka temperatura procesora jest prawidłowa? Nie ma jednej bezpiecznej liczby. Zakresy dla spoczynku, pracy biurowej, pełnego obciążenia i gier oraz sygnały, których nie warto ignorować.">
+    <meta name="keywords" content="prawidłowa temperatura procesora, temperatura CPU, temperatura procesora w grach, CPU w spoczynku, bezpieczna temperatura CPU, przegrzewanie procesora">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
+    <meta property="og:title" content="Jaka temperatura procesora jest prawidłowa? To zależy od obciążenia">
+    <meta property="og:description" content="72°C podczas gry może być normalne. Te same 72°C w spoczynku to ostrzeżenie. Temperaturę zawsze czytaj razem z obciążeniem.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Jaka temperatura procesora jest prawidłowa? Zakresy dla spoczynku i gier | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog po polsku" href="../../blog/feed_pl.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Jaka temperatura procesora jest prawidłowa? To zależy od obciążenia",
+      "description": "Zakresy temperatur CPU dla spoczynku, lekkiej pracy, pełnego obciążenia i gier oraz sygnały ostrzegawcze, których nie pokaże jeden uniwersalny próg.",
+      "url": "https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/normal-cpu-temperature/",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Prawidłowa temperatura procesora", "item": "https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html"}
+      ]
+    }
+    </script>
+</head>
+<body class="page-wednesday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/normal-cpu-temperature/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/normal-cpu-temperature/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-wednesday">Temperatury &middot; Poradnik</span>
+        <h1>Jaka temperatura procesora jest prawidłowa?</h1>
+        <p class="tagline">Lepsze pytanie brzmi: prawidłowa przy jakim obciążeniu?</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-06-12</span><span>&middot;</span><span>6 min czytania</span>
+        </div>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#jeden-prog">Dlaczego jeden próg wprowadza w błąd</a></li>
+                <li><a href="#zakresy">Zakresy dla różnych obciążeń</a></li>
+                <li><a href="#ostrzezenia">Kiedy zwykła liczba jest ostrzeżeniem</a></li>
+                <li><a href="#wlasna-norma">Jak sprawdzić normę własnego komputera</a></li>
+                <li><a href="#obnizanie">Co naprawdę obniża temperaturę</a></li>
+            </ol>
+        </div>
+        <h2 id="jeden-prog">Dlaczego „poniżej 80°C jest dobrze” to za mało</h2>
+        <p>
+            W odpowiedziach na pytanie o temperaturę CPU często wraca jedna liczba: dopóki procesor nie
+            przekracza 80°C, wszystko jest w porządku. Taki próg pomija kontekst. 72°C na komputerze
+            uruchamiającym wymagającą grę jest normalnym wynikiem. Te same 72°C na pustym pulpicie oznacza,
+            że warto poszukać przyczyny: procesu obciążającego CPU, niedziałającego wentylatora, kurzu albo
+            starej pasty termoprzewodzącej.
+        </p>
+        <p>
+            Współczesne procesory celowo wykorzystują dostępny zapas temperatury. Pod obciążeniem podnoszą
+            taktowanie, dopóki nie zbliżą się do limitu Tj Max, zwykle około 95-105°C zależnie od modelu.
+            Krótki skok do 90°C podczas renderowania nie musi oznaczać awarii. Wielogodzinna praca przy tej
+            temperaturze albo stałe 70°C w spoczynku wymagają już sprawdzenia chłodzenia i obciążenia.
+        </p>
+        <h2 id="zakresy">Orientacyjne zakresy dla różnych obciążeń</h2>
+        <p>
+            Poniższe wartości są punktem odniesienia dla komputerów stacjonarnych z chłodzeniem powietrznym.
+            Laptop zwykle pracuje o 8-15°C cieplej, a cienki ultrabook może wykraczać poza te zakresy bez
+            natychmiastowego problemu. Zawsze uwzględnij konstrukcję sprzętu.
+        </p>
+        <pre><code># sposób użycia       obciążenie CPU     typowy zakres
+spoczynek             &lt;15%               30-45°C
+lekka praca           15-40%             40-55°C
+praca biurowa+        40-70%             55-70°C
+render / pełny load   &ge;70%              65-85°C
+gry                   GPU &ge;60%          60-80°C</code></pre>
+        <p>
+            Konkretny procesor, chłodzenie i obudowa tworzą węższy, własny zakres. Dlatego historia jednego
+            komputera mówi więcej niż tabela uśredniająca wszystkie modele.
+        </p>
+        <div class="callout warn">
+            <b>Przykład z początku projektu:</b> laptop z 2014 roku osiągał 94°C w spoczynku. Po usunięciu
+            kurzu i wymianie pasty ta sama maszyna utrzymywała 61°C. Wiek sprzętu nie był diagnozą. Przyczyną
+            było zaniedbane chłodzenie.
+        </div>
+        <h2 id="ostrzezenia">Kiedy zwykła liczba staje się ostrzeżeniem</h2>
+        <ul>
+            <li><strong>Temperatura w spoczynku rośnie przez kolejne tygodnie.</strong> Przy takim samym obciążeniu każdy kolejny pomiar jest nieco wyższy. To typowy ślad gromadzącego się kurzu albo pogarszającego się kontaktu chłodzenia.</li>
+            <li><strong>Wysoka temperatura w spoczynku, normalna pod obciążeniem.</strong> Najpierw sprawdź procesy w tle. Często problemem nie jest radiator, tylko program, który nie pozwala rdzeniom odpocząć.</li>
+            <li><strong>Temperatura jest jeszcze poprawna, ale wentylatory stale pracują na maksimum.</strong> Chłodzenie już kompensuje pogorszone warunki i ma mały zapas.</li>
+            <li><strong>Nagły wzrost o 10°C przy tym samym zadaniu.</strong> Sprawdź wentylatory, przepływ powietrza i mocowanie chłodzenia tego samego dnia.</li>
+        </ul>
+        <h2 id="wlasna-norma">Jak sprawdzić normę własnego komputera</h2>
+        <p>
+            Dowolny monitor czujników pokaże bieżącą temperaturę. Do oceny zdrowia potrzebna jest jeszcze
+            historia: jak ten komputer zachowuje się zwykle przy tym samym rodzaju pracy. Ręcznie możesz
+            zapisywać temperaturę raz w tygodniu, dziesięć minut po uruchomieniu, bez otwartych aplikacji.
+            Cztery porównywalne pomiary tworzą lepszy obraz niż dziesięć przypadkowych odczytów.
+        </p>
+        <p>
+            PC Workman robi to automatycznie. Każdy prawdziwy pomiar z czujnika przypisuje do jednego z pięciu
+            profili obciążenia: spoczynek, lekka praca, średnie obciążenie, pełne obciążenie albo gra.
+            Profil staje się użyteczny po 20 próbkach, a status skalibrowanego otrzymuje po 200. Wtedy zamiast
+            samej liczby widzisz na przykład: „8% powyżej normy, gaming zwykle 65-78°C”.
+        </p>
+        <h2 id="obnizanie">Co naprawdę obniża temperaturę</h2>
+        <ol>
+            <li><strong>Usunięcie kurzu.</strong> Największy efekt w stosunku do czasu. Przedmuchuj radiator na zewnątrz obudowy i zatrzymaj łopatki wentylatora, aby ich nie rozpędzać sprężonym powietrzem.</li>
+            <li><strong>Wymiana pasty.</strong> Ma sens szczególnie po kilku latach, gdy temperatury wzrosły mimo czystego radiatora.</li>
+            <li><strong>Poprawny przepływ powietrza.</strong> Jeden wentylator wtłaczający i jeden wyciągający powietrze są lepsze niż kilka wentylatorów walczących ze sobą.</li>
+            <li><strong>Mniejsze obciążenie w tle.</strong> Każdy stały procent CPU zamienia się w ciepło. Porządek w autostarcie obniża temperaturę bez dotykania sprzętu.</li>
+            <li><strong>Undervolting.</strong> Jest skuteczny, ale wymaga testów stabilności i wiedzy. Nie kopiuj cudzych ustawień w ciemno.</li>
+        </ol>
+        <p>
+            Czyszczenie rejestru, „boostery” i programy zwalniające RAM nie naprawiają chłodzenia. Oprogramowanie
+            może ograniczyć wykonywaną pracę. Nie zastąpi czystego radiatora ani sprawnego wentylatora.
+        </p>
+        <div class="guide-cta">
+            <b>Sprawdzaj temperaturę we właściwym kontekście.</b> PC Workman uczy się osobnej normy dla każdego
+            rodzaju obciążenia i pokazuje odchylenie od zachowania Twojej maszyny. Analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję monitor systemu publicznie od 2025 roku. Poradniki opieram na zachowaniu prawdziwych maszyn i danych, które można sprawdzić.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

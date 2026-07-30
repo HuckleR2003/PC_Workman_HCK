@@ -6,14 +6,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="description" content="What is a normal CPU temperature? There is no single safe number — it depends on the workload. Reference ranges for idle, office work, heavy load and gaming, plus when a 'normal' reading is actually a warning sign.">
     <meta name="keywords" content="normal CPU temperature, safe CPU temp, CPU temperature while gaming, CPU temp idle, how hot is too hot CPU, CPU temperature guide, Tj Max">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/normal-cpu-temperature/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:title" content="What's a normal CPU temperature? It depends on the workload">
-    <meta property="og:description" content="72°C while gaming is fine. The same 72°C at idle is a warning. Per-workload reference ranges from 18 months of real sensor data.">
+    <meta property="og:description" content="72°C while gaming is fine. The same 72°C at idle is a warning. Read temperatures in the context of the current workload.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/normal-cpu-temperature/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
@@ -38,8 +43,13 @@
       "description": "There is no single safe CPU temperature. Reference ranges for idle, light, medium, heavy and gaming workloads, and when a normal-looking reading is a warning.",
       "url": "https://pcworkman.dev/guides/normal-cpu-temperature/",
       "datePublished": "2026-06-12",
-      "dateModified": "2026-06-12",
+      "dateModified": "2026-07-25",
       "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor",
+        "https://docs.nvidia.com/deploy/nvidia-smi/index.html"
+      ],
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
       "author": {
         "@type": "Person",
@@ -61,6 +71,31 @@
       ]
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a normal CPU temperature?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "There is no single safe number, because normal depends on what the CPU is doing. On a desktop with air cooling, roughly 30 to 45 C at idle and 65 to 85 C under heavy load are typical, and laptops usually run 8 to 15 C higher in every range. Modern chips are designed to boost until they approach their thermal limit, often 95 to 105 C, so a brief spike under load is the processor working as intended."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is 80 C too hot for a CPU?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Under load, usually not. 80 C while gaming or rendering is normal for many processors. The same 80 C while the machine sits idle on the desktop is a warning sign, because it points to a stuck background process, dust, or thermal paste that has dried out. The number only means something once you know the workload behind it."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body class="page-wednesday">
 
@@ -79,7 +114,7 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/guides/normal-cpu-temperature/index_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
             <a href="/index_en.html" class="active" data-lang="en">EN</a>
         </span>
@@ -158,8 +193,9 @@ gaming              GPU≥60%         60–80°C</code></pre>
         <p>
             Any sensor tool gives you the current number. The baseline needs history: what does <em>this</em>
             machine usually do at <em>this</em> load? PC Workman automates exactly that — it classifies every
-            reading into a workload bucket (idle / light / medium / heavy / gaming) and learns the normal range
-            per bucket over 14 days. The chart then tells you <em>"8% above usual (Gaming: 65–78°C)"</em>
+            reading into a workload bucket (idle / light / medium / heavy / gaming) and keeps a running
+            lifetime baseline for each bucket. A bucket becomes usable after 20 real sensor samples and
+            calibrated after 200. The chart then tells you <em>"8% above usual (Gaming: 65–78°C)"</em>
             instead of leaving you to guess.
         </p>
         <p>
@@ -182,7 +218,7 @@ gaming              GPU≥60%         60–80°C</code></pre>
 
         <div class="guide-cta">
             <b>Watch your baselines automatically.</b> PC Workman learns your machine's normal temperatures
-            per workload and flags real anomalies — free, open source, 100% offline.
+            per workload and flags real anomalies. The analysis is local and uses no cloud AI.
             <a href="../../download/">Download for Windows</a>.
         </div>
 
@@ -191,7 +227,7 @@ gaming              GPU≥60%         60–80°C</code></pre>
             <div>
                 <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Developer of PC Workman · HCK_Labs</div>
-                <p>18 months of building a system monitor in public — every guide is based on what the sensors actually show.</p>
+                <p>Building a system monitor in public since 2025. Every guide is based on what the sensors actually show.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
                     <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
