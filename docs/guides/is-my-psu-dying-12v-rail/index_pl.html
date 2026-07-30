@@ -1,0 +1,277 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: czy zasilacz umiera -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Czy program może wykryć uszkodzony zasilacz? Jak czytać napięcie linii 12 V, odróżnić pojedynczy spadek od trendu i wiedzieć, kiedy pomiar trzeba potwierdzić sprzętowo.">
+    <meta name="keywords" content="czy zasilacz umiera, napięcie 12V zasilacza, objawy uszkodzonego zasilacza, linia 12V ATX, Kernel Power 41, test zasilacza komputerowego, spadki napięcia PSU">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/">
+    <meta property="og:title" content="Czy program wykryje uszkodzony zasilacz? Co naprawdę mówi linia 12 V">
+    <meta property="og:description" content="Oprogramowanie może wykryć niepokojący wzorzec, ale nie potwierdzi awarii zasilacza. Zobacz, jak czytać napięcie bez paniki i kiedy potrzebny jest pomiar sprzętowy.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Czy zasilacz umiera? Jak czytać napięcie linii 12 V bez zgadywania | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Czy program wykryje uszkodzony zasilacz? Co naprawdę mówi linia 12 V",
+      "description": "Jak czytać napięcie linii 12 V, odróżnić pojedynczy odczyt od długiego trendu i wiedzieć, czego oprogramowanie nie może potwierdzić.",
+      "url": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/",
+      "citation": [
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart",
+        "https://assets.corsair.com/image/upload/corsairmedia/sys_master/productcontent/SF_PLATINUM_User_Manual.pdf",
+        "https://edc.intel.com/content/www/us/en/design/ipla/software-development-platforms/client/platforms/alder-lake-desktop/atx-version-3-0-multi-rail-desktop-platform-power-supply-design-guide/2.0/2.01/atx12v-specific-guidelines-3-0/"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Objawy uszkodzonego zasilacza", "item": "https://pcworkman.dev/guides/is-my-psu-dying-12v-rail/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy odczyt 11,8 V na linii 12 V oznacza uszkodzony zasilacz?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Nie. Zakres 11,40-12,60 V mieści się w tolerancji plus lub minus 5 procent, a czujniki płyty głównej mają własny błąd. Ważniejsze są stabilność pod obciążeniem, zmiana w czasie i objawy komputera."}
+        },
+        {
+          "@type": "Question",
+          "name": "Czy program może potwierdzić awarię zasilacza?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Program może wykryć nietypowy trend albo spadki zbieżne z obciążeniem. Nie zmierzy jednak tętnień napięcia i nie zastąpi bezpośredniego pomiaru ani testu pod kontrolowanym obciążeniem."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .spc{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #f59e0b;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .spc-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.spc-head .spc-tag{color:#f59e0b}.spc-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.spc-row .k{color:var(--text-dim);width:165px;flex-shrink:0}.spc-row .v{color:#e6eef6}.spc-row .v.ok{color:#a3e635}.spc-row .v.warn{color:#f59e0b}.spc-verdict{margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.82rem;color:var(--text-secondary);line-height:1.5}.spc-verdict b{color:#f59e0b}
+    @media (max-width:520px){.spc-row{flex-direction:column;gap:0}.spc-row .k{width:auto}}
+    </style>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/is-my-psu-dying-12v-rail/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/is-my-psu-dying-12v-rail/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Zasilanie &middot; Poradnik</span>
+        <h1>Czy program wykryje, że zasilacz umiera?</h1>
+        <p class="tagline">Może pokazać wzorzec. Nie może certyfikować zasilacza. To dwie zupełnie różne rzeczy.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-29</span><span>&middot;</span><span>9 min czytania</span>
+        </div>
+        <div class="callout warn">
+            <b>Najpierw bezpieczeństwo.</b> Jeżeli czujesz zapach spalenizny, widzisz dym lub iskry, słyszysz
+            powtarzające się kliknięcia albo komputer wyłączył się i nie daje ponownie uruchomić, przerwij pracę.
+            Odłącz zasilanie przy gniazdku i nie otwieraj zasilacza. Kondensatory mogą przechowywać niebezpieczny
+            ładunek długo po wyjęciu wtyczki. To jedyny element komputera, którego nie należy otwierać.
+        </div>
+        <p>
+            Program monitorujący pokazuje 11,86 V na linii +12 V i od razu myślisz o nowym zasilaczu. Zanim
+            dodasz go do koszyka, zatrzymaj się. Ten wynik prawdopodobnie jest poprawny, a nawet jeżeli coś jest
+            nie tak, odczyt na ekranie nie potrafi tego udowodnić.
+        </p>
+        <p>
+            Czujnik napięcia na płycie głównej nie jest przyrządem laboratoryjnym. Bywa zaszumiony, błędnie opisany
+            i regularnie myli się o kilka procent. Oprogramowanie potrafi odkryć wzorzec w czasie, ale nie może
+            certyfikować zasilacza. Pomylenie tych dwóch rzeczy kończy się wymianą sprawnego podzespołu albo dalszą
+            pracą na uszkodzonym, bo jeden pomiar wyglądał dobrze. Ten poradnik pokazuje, jak czytać linię
+            zasilania rozsądnie i jak PC Workman robi to na podstawie historii Twojej maszyny.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#spec">Jaki odczyt 12 V jest prawidłowy</a></li>
+                <li><a href="#single">Dlaczego jedna niska liczba nie jest diagnozą</a></li>
+                <li><a href="#signs">Rzeczywiste objawy awarii zasilacza</a></li>
+                <li><a href="#confirm">Jak potwierdzić podejrzenie</a></li>
+                <li><a href="#spc">Jak PC Workman czyta trend</a></li>
+                <li><a href="#verdict">Co program może, a czego nie może stwierdzić</a></li>
+            </ol>
+        </div>
+        <h2 id="spec">Jaki odczyt 12 V jest naprawdę prawidłowy</h2>
+        <p>
+            Specyfikacja ATX dopuszcza dla każdej linii tolerancję plus lub minus 5%. Dla +12 V oznacza to, że
+            <strong>zakres od 11,40 do 12,60 V mieści się w normie</strong>. Wynik 11,8 V, który wyglądał
+            niepokojąco, pozostaje więc bezpiecznie wewnątrz dopuszczalnego przedziału.
+        </p>
+        <p>Dwie kolejne rzeczy zmieniają sposób, w jaki należy czytać tę liczbę:</p>
+        <ul>
+            <li><strong>Sam czujnik ma błąd rzędu kilku procent.</strong> Czujniki napięcia na płytach głównych
+                często mają margines 2-5%. Programowe 11,5 V może w rzeczywistości oznaczać 11,3 albo 11,7 V.
+                Trend i stabilność są znacznie ważniejsze od trzeciego miejsca po przecinku.</li>
+            <li><strong>Tętnienia są ważne, ale program ich nie widzi.</strong> Sprawny zasilacz utrzymuje
+                tętnienia linii +12 V w granicy około 120 mV. Zużywający się model może osiągać 400-600 mV.
+                To rzeczywisty sygnał usterki, lecz do jego pomiaru potrzebny jest oscyloskop, nie wartość
+                wyświetlana przez czujnik.</li>
+        </ul>
+        <h2 id="single">Dlaczego jedna niska liczba nie jest diagnozą</h2>
+        <p>
+            Współczesny sprzęt pobiera energię krótkimi, ostrymi impulsami. Gdy GPU nagle zwiększa pobór, napięcie
+            może na ułamek sekundy spaść i natychmiast wrócić. Nowsza specyfikacja ATX 3.0 dopuszcza podczas takich
+            stanów przejściowych krótkie spadki +12 V do około 11,16 V. Pojedyncze mrugnięcie na wykresie nie
+            oznacza umierającego zasilacza.
+        </p>
+        <p>
+            Liczy się różnica między zdarzeniem chwilowym i utrzymującym się. Spadek, który szybko wraca, pokazuje
+            reakcję zasilacza na nagłe obciążenie. Linia, która przez tygodnie osiada coraz niżej albo pozostaje
+            obniżona zawsze podczas ciężkiej pracy, tworzy wzorzec wymagający reakcji. Jeden odczyt jest zdjęciem.
+            Potrzebny jest film.
+        </p>
+        <h2 id="signs">Rzeczywiste objawy awarii zasilacza</h2>
+        <p>Napięcie na ekranie jest najmniej pewnym z nich. Więcej mówią objawy zachowania komputera:</p>
+        <ul>
+            <li><strong>Losowe wyłączenia lub restarty, szczególnie pod obciążeniem.</strong> Komputer gaśnie po
+                uruchomieniu gry albo renderowania, a w spoczynku działa prawidłowo.</li>
+            <li><strong>Brak uruchomienia albo natychmiastowe wyłączenie.</strong> Czasem towarzyszy temu
+                powtarzające się kliknięcie, gdy zasilacz próbuje wystartować i rezygnuje.</li>
+            <li><strong>Kernel-Power, zdarzenie 41 w Podglądzie zdarzeń.</strong> Windows zapisuje je, gdy system
+                traci zasilanie bez poprawnego zamknięcia. Seria takich wpisów pod obciążeniem jest mocną wskazówką.</li>
+            <li><strong>Linia 12 V zbliżająca się pod obciążeniem do 11,40 V lub schodząca niżej</strong>, albo
+                chaotycznie zmieniająca wartość zamiast pozostawać stabilna.</li>
+            <li><strong>Narastający pisk cewek albo zapach spalenizny.</strong> Zapach nie oznacza „obserwuj”.
+                Oznacza „zatrzymaj się teraz”, zgodnie z ostrzeżeniem na początku.</li>
+        </ul>
+        <p>
+            Na tej liście nie ma jednego niskiego odczytu w spoczynku. Historię opowiada złe zachowanie linii
+            <em>pod obciążeniem i w czasie</em>. Właśnie taki sygnał ma wychwytywać
+            <a href="../is-my-pc-healthy/index_pl.html">kontrola stanu śledząca trendy</a>.
+        </p>
+        <h2 id="confirm">Jak naprawdę potwierdzić podejrzenie</h2>
+        <p>Jeżeli występują powyższe objawy, program wykonał swoją pracę i wskazał zasilacz. Potwierdzenie wymaga sprzętu:</p>
+        <ol>
+            <li><strong>Zmierz napięcie bezpośrednio.</strong> Multimetr podłączony do złączy zasilacza podczas
+                obciążenia daje znacznie dokładniejszy wynik niż czujnik. Jeżeli miernik pokazuje stabilne okolice
+                12 V, programowy odczyt był szumem.</li>
+            <li><strong>Porównaj źródła.</strong> Zestaw wynik płyty głównej z drugim czujnikiem albo narzędziem.
+                Dwa niezależne, zgodne odczyty znaczą więcej niż jeden alarmujący.</li>
+            <li><strong>Prawdziwy werdykt daje test obciążeniowy.</strong> Fachowy test wykorzystuje regulowane
+                obciążenia i oscyloskop do sprawdzania tętnień oraz odpowiedzi na stany przejściowe. Program nie
+                zastąpi takiego pomiaru laboratoryjnego.</li>
+        </ol>
+        <h2 id="spc">Jak PC Workman czyta trend</h2>
+        <p>
+            Pojedyncza liczba jest prawie bezużyteczna. Sygnał znajduje się we wzorcu zapisanym w historii tej
+            konkretnej maszyny. PC Workman zamiast jednego progu stosuje do linii napięć statystyczną kontrolę
+            procesu: medianę i MAD, czyli medianowe odchylenie bezwzględne, zmodyfikowany wynik z oraz reguły
+            Nelsona. Tymi samymi metodami wykrywa się proces przemysłowy, który zaczyna wychodzić spod kontroli.
+            Program szuka trendu, nie magicznej granicy.
+        </p>
+        <div class="spc">
+            <div class="spc-head"><span>Trend napięcia, Twoja linia +12 V</span><span class="spc-tag">SPC z 30 dni</span></div>
+            <div class="spc-row"><span class="k">Zakres zgodny z ATX</span><span class="v">11,40-12,60 V, plus lub minus 5%</span></div>
+            <div class="spc-row"><span class="k">Bieżąca mediana</span><span class="v ok">11,92 V, w normie</span></div>
+            <div class="spc-row"><span class="k">30 dni temu</span><span class="v">12,08 V</span></div>
+            <div class="spc-row"><span class="k">Trend</span><span class="v warn">mediana niższa o 0,16 V w 34 dni</span></div>
+            <div class="spc-row"><span class="k">Zmienność</span><span class="v warn">wzrost 2,8 raza</span></div>
+            <div class="spc-row"><span class="k">Nietypowe spadki</span><span class="v warn">7, przy zmianach obciążenia</span></div>
+            <div class="spc-verdict"><b>Wykryto nietypowy trend.</b> To nie jest diagnoza zasilacza. Potwierdź wynik drugim źródłem czujnika albo multimetrem pod obciążeniem.</div>
+        </div>
+        <p>
+            Każda wartość nadal mieści się w zakresie ATX, więc narzędzie oparte wyłącznie na progu niczego by
+            nie zgłosiło. Dobry monitor wychwytuje natomiast cichy spadek mediany i rosnącą zmienność, zanim linia
+            rzeczywiście ulegnie awarii.
+        </p>
+        <h2 id="verdict">Co program może, a czego nie może stwierdzić</h2>
+        <div class="callout warn">
+            <b>Program pokazuje wzorzec. Nie certyfikuje zasilacza.</b> PC Workman celowo używa komunikatu
+            „wykryto nietypowy trend”, a nie „zasilacz ulega awarii”. Czujnik płyty głównej nie może tego
+            udowodnić, a udawanie pewności wysyłałoby ludzi po części, których nie potrzebują. Dostajesz wczesny,
+            uczciwy sygnał i dokładną informację, jak potwierdzić go sprzętowo. Alarmistyczne narzędzie krzyczące
+            o awarii po jednym zaszumionym odczycie zostaje szybko wyciszone i przestaje kogokolwiek chronić.
+        </div>
+        <p>
+            Gdy następnym razem zobaczysz 11,8 V, nie panikuj i nie zamawiaj od razu nowego zasilacza. Sprawdź
+            specyfikację, obserwuj stabilność oraz zachowanie pod obciążeniem przez kilka dni i szukaj prawdziwych
+            objawów: wyłączeń oraz zdarzeń 41. Oprogramowanie wskazuje. Sprzętowy pomiar potwierdza.
+        </p>
+        <div class="guide-cta">
+            <b>Obserwuj linię, nie pojedynczą liczbę.</b> PC Workman zapisuje napięcia w czasie i wykorzystuje
+            statystyczną kontrolę procesu, medianę, MAD oraz reguły Nelsona, aby wykryć rzeczywisty dryf bez
+            alarmu po jednym zaszumionym odczycie. Zawsze zaleca potwierdzenie sprzętowe. Program jest bezpłatny,
+            ma otwarty kod, a analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Komputer restartuje się pod obciążeniem, ale nie wiesz, czy winne jest ciepło, czy zasilanie?
+            <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">Przejdź do poradnika o Kernel-Power 41 &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu. Mechanizm SPC opisany w tym poradniku jest tym samym silnikiem, który trafia do aplikacji.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
