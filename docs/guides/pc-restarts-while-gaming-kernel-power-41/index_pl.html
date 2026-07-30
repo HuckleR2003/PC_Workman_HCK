@@ -1,0 +1,379 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: restart w grze i Kernel-Power 41 -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Komputer restartuje się w grze bez bluescreena i zapisuje Kernel-Power 41? Odczytaj BugcheckCode, PowerButtonTimestamp, dump i wpisy sprzed restartu.">
+    <meta name="keywords" content="komputer restartuje się podczas grania, Kernel Power 41, restart bez bluescreena, komputer sam się resetuje w grach, zdarzenie 41 Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <meta property="og:title" content="Komputer restartuje się w grze? Kernel-Power 41 nie jest przyczyną">
+    <meta property="og:description" content="Najpierw nastąpił restart. Zdarzenie 41 zapisano później. Jego pola wskażą następny test.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Komputer Restartuje się w Grze? Kernel-Power 41</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Komputer restartuje się podczas grania bez bluescreena: co naprawdę oznacza Kernel-Power 41",
+      "description": "Jak rozdzielić ukryty błąd Stop, twarde zawieszenie i nagłą utratę zasilania przez pola Event ID 41, konfigurację dumpu i oś czasu przed restartem.",
+      "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart",
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-stop-errors-best-practices-dump-configuration-recommendations",
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Restart w grze i Kernel-Power 41", "item": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy Kernel-Power 41 oznacza uszkodzony zasilacz?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. Zdarzenie 41 oznacza, że Windows wykrył nieprawidłowe zakończenie poprzedniej sesji. Uszkodzony lub zbyt słaby zasilacz jest jedną z możliwych przyczyn, gdy zasilanie znika zbyt szybko na zapisanie kodu Stop, ale samo zdarzenie nie dowodzi, który podzespół spowodował restart." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego komputer zrestartował się bez bluescreena?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Komputer mógł stracić zasilanie, twardo się zawiesić albo automatycznie uruchomić ponownie po błędzie Stop tak szybko, że ekran nie został zauważony. Odczytaj BugcheckCode w zdarzeniu 41, sprawdź zdarzenie BugCheck 1001, pliki dump i konfigurację pliku stronicowania." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co sprawdzić najpierw po restarcie podczas grania?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zapisz dokładną godzinę, odczytaj szczegóły zdarzenia 41 oraz zdarzenia bezpośrednio przed 6008, sprawdź Monitor niezawodności i tworzenie dumpu, przywróć domyślne taktowanie CPU, GPU i pamięci oraz loguj temperatury podczas powtarzalnego obciążenia. Zmieniaj jedną rzecz naraz." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .triage{
+        display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:1.4rem 0;
+        padding:1rem; background:#100809; border:1px solid #382126; border-left:4px solid #f43f5e;
+    }
+    .triage article{ background:#0d090a; border:1px solid #302025; padding:.9rem; }
+    .triage b{ display:block; color:#fff; font-family:var(--font-mono); font-size:.78rem; margin-bottom:.45rem; }
+    .triage code{ color:#fda4af; font-size:.7rem; }
+    .triage p{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; margin:.4rem 0 0; }
+    .field-table td:first-child{ color:#fda4af; font-family:var(--font-mono); font-size:.76rem; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:700px){ .triage{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/pc-restarts-while-gaming-kernel-power-41/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Diagnoza restartu</span>
+        <h1>Najpierw był restart. Zdarzenie 41 przyszło później.</h1>
+        <p class="tagline">Kernel-Power zapisuje nieprawidłowy koniec. Nie podaje sprawcy.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-07-30</span><span>&middot;</span><span>17 min czytania</span>
+        </div>
+
+        <p>
+            W środku gry ekran gaśnie. Wentylatory na moment milkną, wraca logo płyty głównej, a Windows startuje,
+            jakby ktoś nacisnął Reset. Nie było bluescreena ani użytecznego komunikatu. Podgląd zdarzeń pokazuje
+            jeden czerwony wpis krytyczny: <strong>Kernel-Power, identyfikator zdarzenia 41</strong>.
+        </p>
+        <p>
+            Wpis wygląda jak odpowiedź, bo jest oznaczony jako krytyczny. Nie jest nią. Windows zapisuje
+            zdarzenie 41 podczas następnego uruchomienia, gdy odkrywa, że poprzednia sesja nie zakończyła się
+            prawidłowo. Użyteczne dowody znajdują się w jego polach, ewentualnym zrzucie pamięci i sekundach przed
+            wyłączeniem. Szukanie wyłącznie „naprawy Kernel-Power 41” zaczyna śledztwo od końca historii.
+        </p>
+        <p>
+            Najpierw trzeba rozdzielić trzy awarie, które na ekranie mogą wyglądać identycznie: ukryty błąd Stop,
+            twarde zawieszenie wymuszające reset oraz utratę zasilania zbyt szybką na zapisanie przyczyny.
+        </p>
+
+        <div class="triage" aria-label="Trzy scenariusze zdarzenia 41">
+            <article>
+                <b>1. Ukryty błąd Stop</b>
+                <code>BugcheckCode &gt; 0</code>
+                <p>Windows zapisał kod bugcheck. Zamień wartość dziesiętną na szesnastkową i sprawdź dump lub zdarzenie BugCheck 1001.</p>
+            </article>
+            <article>
+                <b>2. Przytrzymany przycisk</b>
+                <code>PowerButtonTimestamp &gt; 0</code>
+                <p>Długie naciśnięcie przerwało sesję. Nadal trzeba znaleźć powód, dla którego komputer wcześniej przestał reagować.</p>
+            </article>
+            <article>
+                <b>3. Nie udało się zapisać dowodu</b>
+                <code>obie wartości = 0</code>
+                <p>Mogło zniknąć zasilanie, system mógł twardo się zawiesić albo tworzenie dumpu mogło zawieść.</p>
+            </article>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#means">Co naprawdę oznacza Kernel-Power 41</a></li>
+                <li><a href="#fields">Czytaj pola, nie czerwoną ikonę</a></li>
+                <li><a href="#timeline">Odtwórz minutę przed restartem</a></li>
+                <li><a href="#test">Bezpieczna kolejność izolowania przyczyny</a></li>
+                <li><a href="#patterns">Jak wzór restartu zmienia podejrzenia</a></li>
+                <li><a href="#workman">Gdzie pomaga PC Workman, a gdzie nie może</a></li>
+            </ol>
+        </div>
+
+        <h2 id="means">Co naprawdę oznacza Kernel-Power 41</h2>
+        <p>
+            Zdarzenie 41 mówi, że Windows uruchomił się ponownie bez ukończenia normalnego zamykania. Może pojawić
+            się po przerwaniu zasilania, błędzie Stop, wyłączeniu zawieszonego komputera przez użytkownika albo
+            resecie wykonanym przez firmware. Wspólnym faktem jest brak poprawnego zamknięcia, a nie jedna wspólna
+            przyczyna.
+        </p>
+        <p>
+            To rozróżnienie chroni przed najdroższym błędem diagnostycznym: wymianą zasilacza tylko dlatego, że
+            źródło zdarzenia zawiera słowo „Power”. Uszkodzony lub zbyt słaby PSU pozostaje możliwą przyczyną
+            nagłego zgaśnięcia, ale program nie potwierdzi jego stanu na podstawie zdarzenia 41 ani czujnika
+            napięcia na płycie. Osobny poradnik wyjaśnia,
+            <a href="../is-my-psu-dying-12v-rail/index_pl.html">co odczyt 12 V może powiedzieć o zasilaczu</a>.
+        </p>
+        <div class="callout">
+            <b>Zapisz dokładną godzinę i zachowanie fizyczne.</b> Czy zgasły diody i wentylatory? Czy dźwięk się
+            zapętlił? Czy ekran był czarny, ale komputer nadal pracował? Czy restart nastąpił natychmiast? Czy
+            klawisz Caps Lock nadal przełączał kontrolkę? Te obserwacje bywają cenniejsze niż słowo „Krytyczne”.
+        </div>
+
+        <h2 id="fields">Czytaj pola, nie czerwoną ikonę</h2>
+        <p>
+            Otwórz Podgląd zdarzeń, przejdź do <strong>Dzienniki systemu Windows → System</strong>, otwórz
+            zdarzenie 41, a następnie zakładkę Szczegóły i widok XML. Poniższe pola wybierają dalszą gałąź.
+        </p>
+        <table class="field-table">
+            <thead><tr><th>Pole lub zdarzenie</th><th>Co ustala</th><th>Następny krok</th></tr></thead>
+            <tbody>
+                <tr><td>BugcheckCode różny od zera</td><td>Windows zapisał dziesiętny kod błędu Stop.</td><td>Zamień go na zapis szesnastkowy, znajdź zdarzenie 1001 i sprawdź dump.</td></tr>
+                <tr><td>PowerButtonTimestamp różny od zera</td><td>Długie naciśnięcie przycisku przerwało sesję.</td><td>Zbadaj zawieszenie, które zmusiło do wyłączenia.</td></tr>
+                <tr><td>Obie wartości równe zero</td><td>Windows nie zapisał kodu Stop ani przycisku.</td><td>Sprawdź nagłą utratę zasilania, hard hang i nieudany dump.</td></tr>
+                <tr><td>volmgr, zdarzenie 46</td><td>Inicjalizacja zrzutu awaryjnego nie powiodła się.</td><td>Sprawdź plik stronicowania i konfigurację dumpu.</td></tr>
+                <tr><td>BugCheck, zdarzenie 1001</td><td>Zapisano błąd Stop i ścieżkę dumpu.</td><td>Dalsze szukanie oprzyj na konkretnym kodzie Stop, nie zdarzeniu 41.</td></tr>
+                <tr><td>Zdarzenie 6008</td><td>Poprzednie zamknięcie było nieoczekiwane i ma znacznik czasu.</td><td>Sprawdź dzienniki System i Aplikacja bezpośrednio przed tą chwilą.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Microsoft dokumentuje łatwy do przeoczenia szczegół: <code>BugcheckCode</code> w zdarzeniu 41 jest
+            zapisany dziesiętnie, a większość dokumentacji kodów Stop używa zapisu szesnastkowego. Wartość 159
+            staje się na przykład <code>0x0000009F</code>. Szukanie liczby dziesiętnej jak gotowego kodu Stop
+            może skierować diagnozę w zupełnie złą stronę.
+        </p>
+
+        <h3>Spraw, aby następna awaria zostawiła dowód</h3>
+        <p>
+            Bluescreen może zniknąć w sekundę, gdy działa automatyczny restart. W Zaawansowanych ustawieniach
+            systemu otwórz Uruchamianie i odzyskiwanie i na czas diagnozy wyłącz
+            <strong>Automatycznie uruchom ponownie</strong>. Potwierdź też automatyczny lub jądrowy zrzut pamięci
+            oraz systemowo zarządzany plik stronicowania na woluminie systemowym.
+        </p>
+        <p>
+            To nie zapobiega awarii. Daje Windows szansę zachować kod Stop i dump. Nie pomoże, gdy zasilanie
+            zniknie, zanim system zdąży cokolwiek zapisać. Brak zrzutu jest więc tropem do sprawdzenia, nie dowodem,
+            że nie wystąpił błąd sterownika lub systemu.
+        </p>
+
+        <h2 id="timeline">Odtwórz minutę przed restartem</h2>
+        <p>
+            Zdarzenie 41 pojawia się po fakcie. Cofnij się od jego znacznika czasu. Sprawdź dzienniki System
+            i Aplikacja tuż przed zdarzeniem 6008, a następnie uruchom Monitor niezawodności poleceniem
+            <code>perfmon /rel</code>. Pokazuje awarie aplikacji, błędy Windows, aktualizacje i instalacje
+            sterowników na jednej osi dni. Czyta się go łatwiej niż tysiące niepowiązanych wpisów.
+        </p>
+        <p>
+            Szukaj powtarzalnego sąsiada, nie dowolnej czerwonej linii. Ten sam wpis WHEA przed trzema restartami
+            ma znaczenie. Ostrzeżenie DCOM obecne codziennie również wtedy, gdy komputer jest stabilny,
+            prawdopodobnie nie ma. Zgodność czasu rozpoczyna trop. Powtórzenie przy tym samym obciążeniu zmienia
+            go w dowód.
+        </p>
+
+        <h2 id="test">Bezpieczna kolejność izolowania przyczyny</h2>
+        <ol>
+            <li><strong>Zachowaj obecne dowody.</strong> Zrób zdjęcie pól, zapisz godzinę, sprawdź dump i Monitor
+                niezawodności przed zmianą ustawień.</li>
+            <li><strong>Przywróć domyślne strojenie wydajności.</strong> Tymczasowo wyłącz OC i undervolting CPU
+                oraz GPU, a także XMP/EXPO. Profil, który uruchamia system, nie musi być stabilny.
+                Wykonaj kontrolowany test A/B z poradnika o
+                <a href="../xmp-expo-crashes-ram-stability/index_pl.html">stabilności RAM-u</a>.</li>
+            <li><strong>Loguj temperatury i taktowanie.</strong> Powtórz najmniejsze obciążenie wywołujące problem.
+                Przerwij, jeśli temperatura staje się niebezpieczna albo pojawia się zapach, iskry lub nowy
+                elektryczny dźwięk.</li>
+            <li><strong>Rozdziel obciążenie.</strong> Czy gra obciążająca GPU zawodzi, a zadanie CPU nie? Czy
+                restart zdarza się także w spoczynku? Czy dotyczy jednej gry, jednego sterownika czy każdego
+                łącznego obciążenia?</li>
+            <li><strong>Sprawdź pamięć przy ustawieniach domyślnych.</strong> Pełny test pamięci i stabilna baza
+                są mocniejsze niż losowa zmiana ustawień Windows.</li>
+            <li><strong>Sprawdź zasilanie bez otwierania PSU.</strong> Przy odłączonym komputerze popraw zewnętrzne
+                przewody, sprawdź wtyczki GPU i nie używaj jednego rozgałęzionego przewodu tam, gdzie producent
+                wymaga osobnych. Nigdy nie otwieraj zasilacza.</li>
+            <li><strong>Zmieniaj jedną rzecz.</strong> Jedna wersja sterownika, profil pamięci, układ przewodów
+                albo pożyczony sprawny podzespół. Kilka zmian naraz niszczy wynik.</li>
+        </ol>
+        <div class="callout warn">
+            <b>Nie wywołuj wielokrotnie twardej awarii tylko po to, aby „sprawdzić jeszcze raz”.</b> Najpierw
+            zabezpiecz ważne dane. Unikaj testów torturujących, gdy komputer już traci zasilanie, przegrzewa się
+            albo pokazuje ślady uszkodzenia elektrycznego. Serwis ze sprawnymi częściami zastępczymi i właściwym
+            sprzętem pomiarowym może bezpieczniej odizolować hardware.
+        </div>
+
+        <h2 id="patterns">Jak wzór restartu zmienia podejrzenia</h2>
+        <table>
+            <thead><tr><th>Wzór</th><th>Co przesuwa się wyżej</th><th>Czego to nie dowodzi</th></tr></thead>
+            <tbody>
+                <tr><td>Natychmiastowy czarny ekran przy łącznym obciążeniu CPU i GPU</td><td>Zasilanie, moc lub zabezpieczenie PSU, tor zasilania GPU, temperatura</td><td>Że zasilacz na pewno jest uszkodzony</td></tr>
+                <tr><td>BugcheckCode różny od zera albo zdarzenie 1001</td><td>Gałąź konkretnego kodu Stop i analiza dumpu</td><td>Że każda ogólna „naprawa Kernel 41” pasuje</td></tr>
+                <tr><td>Stabilnie na domyślnym BIOS-ie, niestabilnie z XMP/EXPO lub undervoltem</td><td>Utrata marginesu strojenia i stabilność pamięci lub napięcia</td><td>Że sam moduł RAM jest uszkodzony</td></tr>
+                <tr><td>Restart dopiero po pogorszeniu temperatur i taktowania</td><td>Chłodzenie, temperatura lub limit mocy</td><td>Że szybszy podzespół rozwiąże problem</td></tr>
+                <tr><td>Ekran czarny, dźwięk działa, komputer pozostaje włączony</td><td>Reset sterownika GPU, tor obrazu lub stabilność karty</td><td>Że cały komputer stracił zasilanie</td></tr>
+                <tr><td>Losowy restart w spoczynku i pod obciążeniem</td><td>Pamięć, płyta, firmware, zasilanie, sterownik lub błąd w tle</td><td>Że przyczyną jest samo granie</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="workman">Gdzie pomaga PC Workman, a gdzie nie może</h2>
+        <p>
+            PC Workman może zachować kontekst systemu: obciążenie CPU i GPU, pamięć, temperatury, taktowanie,
+            odczyty związane z mocą udostępniane przez obsługiwane czujniki oraz aktywne procesy. Historia może
+            pokazać, czy restart poprzedzało nagrzewanie, spadek taktowania, presja pamięci albo powtarzalne
+            obciążenie.
+        </p>
+        <p>
+            <strong>PC Workman nie analizuje dumpów Windows, nie dekoduje rekordów WHEA i nie wykonuje
+            elektrycznego testu zasilacza.</strong> Programowy odczyt napięcia nie zastępuje pomiaru pod
+            obciążeniem. Program nie zapisze też ostatniej próbki po zniknięciu prądu. Traktuj jego oś czasu jako
+            warstwę obok Podglądu zdarzeń, Monitora niezawodności, testu pamięci i oględzin fizycznych.
+        </p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Czy Kernel-Power 41 oznacza uszkodzony zasilacz?</h3>
+        <p>
+            Nie. Oznacza, że poprzednia sesja nie zamknęła się prawidłowo. Awaria PSU jest jedną z możliwych
+            przyczyn nagłego zgaśnięcia, ale wpis nie identyfikuje podzespołu.
+        </p>
+        <h3>Dlaczego komputer zrestartował się bez bluescreena?</h3>
+        <p>
+            Mogło zniknąć zasilanie, system mógł się twardo zawiesić albo automatyczny restart ukrył ekran Stop.
+            Odczytaj pola zdarzenia 41, sprawdź zdarzenie 1001 i konfigurację dumpu.
+        </p>
+        <h3>Co sprawdzić najpierw?</h3>
+        <p>
+            Zachowaj czas i pola, sprawdź wpisy bezpośrednio przed restartem, zweryfikuj dump, przywróć domyślne
+            strojenie i zaloguj małe powtarzalne obciążenie. Zmieniaj jedną rzecz naraz.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart" rel="noopener">Microsoft: zaawansowane rozwiązywanie problemów ze zdarzeniem 41</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-stop-errors-best-practices-dump-configuration-recommendations" rel="noopener">Microsoft: błędy Stop i zalecana konfiguracja dumpu</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon" rel="noopener">Microsoft: perfmon i Monitor niezawodności</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: WHEA_UNCORRECTABLE_ERROR 0x124</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zachowaj minutę przed restartem.</b> PC Workman zapisuje lokalną historię systemu, aby nagłe
+            uruchomienie ponowne nie zostało sprowadzone do jednej czerwonej linii. Bezpłatny i open source.
+            <a href="../../download/index_pl.html">Pobierz dla Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Jeśli komputer pozostaje włączony, a gra tylko przycina, zacznij od
+            <a href="../game-stutters-high-fps-frame-time/index_pl.html">czasu klatki i 1% low &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Granice diagnozy zapisuję wprost: historia czujników może zawęzić restart, ale nie może udawać testera zasilacza ani debuggera dumpów.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: gaming restart and Kernel-Power 41 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A gaming PC restarts with no blue screen and logs Kernel-Power 41. Read BugcheckCode, PowerButtonTimestamp, dumps and the events before the restart.">
+    <meta name="keywords" content="PC restarts while gaming, Kernel Power 41, computer restarts no blue screen, gaming PC sudden restart, Event ID 41, random restart Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <meta property="og:title" content="PC restarts while gaming? Kernel-Power 41 is not the cause">
+    <meta property="og:description" content="The restart happened first. Event 41 was written later. Use its fields to choose the next test.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>PC Restarts While Gaming? What Kernel-Power 41 Means</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "PC restarts while gaming with no blue screen: what Kernel-Power 41 actually means",
+      "description": "How to separate a hidden Stop error, hard hang and abrupt power loss by reading Event ID 41 fields, dump configuration and the timeline before the restart.",
+      "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart",
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-stop-errors-best-practices-dump-configuration-recommendations",
+        "https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Gaming restarts and Kernel-Power 41", "item": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does Kernel-Power 41 mean the power supply is bad?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Event ID 41 means Windows detected that the previous shutdown was not clean. A failed or undersized power supply is one possible cause when the machine loses power too quickly to save a Stop code, but the event by itself does not prove which component caused the restart." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why did my PC restart without showing a blue screen?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The system may have lost power, suffered a hard hang or automatically restarted after a Stop error too quickly for you to see it. Read BugcheckCode in Event ID 41, check for BugCheck event 1001 and memory dump files, and verify that the page file and dump configuration allow Windows to save evidence." }
+        },
+        {
+          "@type": "Question",
+          "name": "What should I check first after a gaming restart?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Record the exact time, inspect Event ID 41 details and the events immediately before Event ID 6008, check Reliability Monitor, verify dump creation, return CPU, GPU and memory overclocking to default, and log temperatures during a repeatable workload. Change one factor at a time." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .triage{
+        display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:1.4rem 0;
+        padding:1rem; background:#100809; border:1px solid #382126; border-left:4px solid #f43f5e;
+    }
+    .triage article{ background:#0d090a; border:1px solid #302025; padding:.9rem; }
+    .triage b{ display:block; color:#fff; font-family:var(--font-mono); font-size:.78rem; margin-bottom:.45rem; }
+    .triage code{ color:#fda4af; font-size:.7rem; }
+    .triage p{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; margin:.4rem 0 0; }
+    .field-table td:first-child{ color:#fda4af; font-family:var(--font-mono); font-size:.76rem; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:700px){ .triage{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/pc-restarts-while-gaming-kernel-power-41/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Crash diagnosis</span>
+        <h1>The crash happened first. Event 41 came later.</h1>
+        <p class="tagline">Kernel-Power records an unclean ending. It does not name the killer.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-30</span><span>&middot;</span><span>17 min read</span>
+        </div>
+
+        <p>
+            The screen goes black in the middle of a game. The fans stop for a moment, the motherboard logo
+            returns, and Windows starts as if someone pressed Reset. There was no blue screen and no useful
+            message. Event Viewer shows one red critical entry: <strong>Kernel-Power, Event ID 41</strong>.
+        </p>
+        <p>
+            That entry looks like the answer because it is marked Critical. It is not. Windows writes Event 41
+            on the next startup when it discovers that the previous session did not shut down cleanly. The
+            useful evidence is inside its fields, in a possible memory dump and in the seconds before the
+            shutdown. Searching only for “fix Kernel-Power 41” starts the investigation at the end of the story.
+        </p>
+        <p>
+            The first job is to separate three different failures that can produce the same visible restart:
+            a hidden Stop error, a hard hang that forced a reset, and a loss of power too abrupt for Windows to
+            record the cause.
+        </p>
+
+        <div class="triage" aria-label="Three Event ID 41 scenarios">
+            <article>
+                <b>1. Hidden Stop error</b>
+                <code>BugcheckCode &gt; 0</code>
+                <p>Windows detected a bug check. Convert the decimal code to hexadecimal and inspect the dump or BugCheck event 1001.</p>
+            </article>
+            <article>
+                <b>2. Forced power button</b>
+                <code>PowerButtonTimestamp &gt; 0</code>
+                <p>The long press interrupted shutdown. The unresolved question is what made the machine stop responding first.</p>
+            </article>
+            <article>
+                <b>3. Evidence could not be saved</b>
+                <code>both values = 0</code>
+                <p>Power may have vanished, the system may have hard-hung, or dump creation may have failed.</p>
+            </article>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#means">What Kernel-Power 41 actually means</a></li>
+                <li><a href="#fields">Read the fields, not the red icon</a></li>
+                <li><a href="#timeline">Build the minute before the restart</a></li>
+                <li><a href="#test">A safe isolation order</a></li>
+                <li><a href="#patterns">What each restart pattern changes</a></li>
+                <li><a href="#workman">Where PC Workman helps, and where it cannot</a></li>
+            </ol>
+        </div>
+
+        <h2 id="means">What Kernel-Power 41 actually means</h2>
+        <p>
+            Event 41 says that Windows restarted without completing the normal shutdown sequence. It can follow
+            a power interruption, a Stop error, a frozen machine switched off by the user or a reset performed
+            by firmware. The common fact is the missing clean shutdown, not a common root cause.
+        </p>
+        <p>
+            This distinction prevents the most expensive diagnostic mistake: replacing the power supply because
+            the event source contains the word “Power.” A faulty or undersized PSU remains a possible cause of
+            an instant blackout, but software cannot prove PSU health from Event 41 or a motherboard voltage
+            sensor. The separate <a href="../is-my-psu-dying-12v-rail/">PSU diagnosis guide</a> explains what
+            voltage readings can and cannot establish.
+        </p>
+        <div class="callout">
+            <b>Write down the exact time and physical behaviour.</b> Did the lights and fans die? Did audio loop?
+            Did the display go black while the PC stayed on? Did it restart instantly or wait? Did Caps Lock
+            still toggle? These observations can be more useful than the word “Critical.”
+        </div>
+
+        <h2 id="fields">Read the fields, not the red icon</h2>
+        <p>
+            Open Event Viewer, go to <strong>Windows Logs → System</strong>, open Event ID 41, then use the
+            Details tab and XML view. The following fields choose the next branch.
+        </p>
+        <table class="field-table">
+            <thead><tr><th>Field or event</th><th>What it establishes</th><th>Next step</th></tr></thead>
+            <tbody>
+                <tr><td>BugcheckCode is nonzero</td><td>Windows recorded a Stop error code, shown in decimal.</td><td>Convert it to hexadecimal, find BugCheck event 1001 and inspect the matching dump.</td></tr>
+                <tr><td>PowerButtonTimestamp is nonzero</td><td>A long power-button press interrupted the session.</td><td>Investigate the hang that made the forced shutdown necessary.</td></tr>
+                <tr><td>Both are zero</td><td>Windows did not save a Stop code or button timestamp.</td><td>Check for abrupt power loss, a hard hang and failed dump creation.</td></tr>
+                <tr><td>volmgr Event 46</td><td>Crash dump initialization failed.</td><td>Check the page file and dump configuration before concluding there was no bug check.</td></tr>
+                <tr><td>BugCheck Event 1001</td><td>A Stop error and dump path were recorded.</td><td>Use the specific stop code, not Event 41, for the next search.</td></tr>
+                <tr><td>Event 6008</td><td>The previous shutdown was unexpected and supplies a reference time.</td><td>Inspect System and Application logs immediately before that timestamp.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Microsoft documents an easy-to-miss detail: Event 41 stores <code>BugcheckCode</code> in decimal,
+            while most bug-check documentation uses hexadecimal. A decimal value of 159, for example, becomes
+            <code>0x0000009F</code>. Searching the decimal number as if it were the documented Stop code can send
+            the investigation in the wrong direction.
+        </p>
+
+        <h3>Make the next crash leave evidence</h3>
+        <p>
+            A blue screen can disappear instantly when automatic restart is enabled. In Advanced system
+            settings, open Startup and Recovery and clear <strong>Automatically restart</strong> while
+            diagnosing. Confirm that Windows is configured to write an automatic or kernel memory dump and that
+            the system-managed page file on the OS volume has not been disabled.
+        </p>
+        <p>
+            This does not prevent a crash. It gives Windows a chance to preserve the Stop code and dump. It also
+            cannot help when power vanishes before the operating system can write anything. A missing dump is
+            therefore a clue to investigate, not proof that no software or driver failure occurred.
+        </p>
+
+        <h2 id="timeline">Build the minute before the restart</h2>
+        <p>
+            Event 41 is after the event. Work backwards from its timestamp. Check the System and Application
+            logs just before Event 6008, then open Reliability Monitor with <code>perfmon /rel</code>. Reliability
+            Monitor presents application failures, Windows failures, updates and driver installations on one
+            day-by-day timeline. It is easier to read than thousands of unrelated Event Viewer entries.
+        </p>
+        <p>
+            Look for a repeated neighbour, not any red line. The same WHEA event before three restarts matters.
+            One DCOM warning that appears every day on a stable PC probably does not. Timestamp correlation is
+            the start. Repetition under the same workload turns it into evidence.
+        </p>
+
+        <h2 id="test">A safe isolation order</h2>
+        <ol>
+            <li><strong>Preserve the current evidence.</strong> Photograph the fields, note the exact time,
+                check dumps and Reliability Monitor before changing settings.</li>
+            <li><strong>Return performance tuning to default.</strong> Temporarily disable CPU and GPU
+                overclocking, undervolting and XMP/EXPO. A profile that boots is not automatically stable.
+                Use the <a href="../xmp-expo-crashes-ram-stability/">RAM stability guide</a> for a controlled
+                A/B test.</li>
+            <li><strong>Log temperatures and clocks.</strong> Repeat the smallest workload that reproduces the
+                issue. Stop if temperatures become unsafe or the machine smells, sparks or makes new electrical
+                noise.</li>
+            <li><strong>Separate the workload.</strong> Does a GPU-heavy game fail while a CPU-only task does
+                not? Does the restart happen at idle as well? Does it follow one game, one driver update or any
+                combined load?</li>
+            <li><strong>Check memory at default settings.</strong> A real memory test and a stable baseline are
+                stronger than swapping random Windows settings.</li>
+            <li><strong>Inspect physical power without opening the PSU.</strong> Reseat external power leads
+                with the PC unplugged, verify GPU connectors and avoid daisy-chained connectors where the GPU
+                vendor requires separate cables. Never open a power supply.</li>
+            <li><strong>Change one item.</strong> One driver version, one memory profile, one cable arrangement
+                or one borrowed known-good component. Several simultaneous changes destroy the result.</li>
+        </ol>
+        <div class="callout warn">
+            <b>Do not repeatedly hard-crash an unstable PC to “see if it happens again.”</b> Back up important
+            data first. Avoid torture tests when the machine already loses power, overheats or shows signs of
+            electrical damage. A repair shop with known-good parts and proper PSU test equipment can isolate
+            hardware more safely.
+        </div>
+
+        <h2 id="patterns">What each restart pattern changes</h2>
+        <table>
+            <thead><tr><th>Pattern</th><th>Moves up the list</th><th>What it does not prove</th></tr></thead>
+            <tbody>
+                <tr><td>Instant black screen and reboot under combined CPU/GPU load</td><td>Power delivery, PSU capacity or protection, GPU power path, heat</td><td>That the PSU is definitely faulty</td></tr>
+                <tr><td>Nonzero BugcheckCode or Event 1001</td><td>The documented Stop-code branch and dump analysis</td><td>That every generic “Kernel 41 fix” applies</td></tr>
+                <tr><td>Stable at BIOS defaults, unstable with XMP/EXPO or undervolt</td><td>Lost tuning margin and memory or voltage stability</td><td>That the RAM module itself is defective</td></tr>
+                <tr><td>Restart only after temperatures and clocks deteriorate</td><td>Cooling, thermal or power limits</td><td>That a faster component will solve it</td></tr>
+                <tr><td>Display black, audio continues, PC stays powered</td><td>GPU driver reset, display path or GPU stability</td><td>That the whole system lost power</td></tr>
+                <tr><td>Random restart at idle and load</td><td>Memory, board, firmware, power, driver or background failure</td><td>That the gaming workload caused it</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="workman">Where PC Workman helps, and where it cannot</h2>
+        <p>
+            PC Workman can preserve the system context around the event: CPU and GPU load, memory, temperatures,
+            clocks, power-related readings exposed by supported sensors and the active processes. That history
+            can show whether the restart followed rising heat, falling clocks, memory pressure or a repeatable
+            workload.
+        </p>
+        <p>
+            <strong>PC Workman does not analyze Windows crash dumps, decode WHEA records or electrically test a
+            power supply.</strong> Software voltage values are not a substitute for proper measurement under
+            load. It also cannot save a final sample after power has already disappeared. Use its timeline as
+            one layer beside Event Viewer, Reliability Monitor, memory testing and physical inspection.
+        </p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Does Kernel-Power 41 mean the PSU is bad?</h3>
+        <p>
+            No. It means the previous shutdown was not clean. A PSU fault is one possible cause of an abrupt
+            blackout, but the event does not identify the failed component.
+        </p>
+        <h3>Why did the PC restart without a blue screen?</h3>
+        <p>
+            Power may have vanished, the system may have hard-hung, or automatic restart may have hidden a Stop
+            screen. Read the Event 41 fields, check Event 1001 and verify dump creation.
+        </p>
+        <h3>What should I check first?</h3>
+        <p>
+            Preserve the timestamp and fields, inspect the events immediately before the restart, check dumps,
+            return tuning to default and log a small repeatable workload. Change one thing at a time.
+        </p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart" rel="noopener">Microsoft: advanced troubleshooting for Event ID 41</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-stop-errors-best-practices-dump-configuration-recommendations" rel="noopener">Microsoft: Stop errors and dump configuration recommendations</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/perfmon" rel="noopener">Microsoft: perfmon and Reliability Monitor</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: WHEA_UNCORRECTABLE_ERROR 0x124</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Keep the minute before the restart.</b> PC Workman records local system history so a sudden reboot
+            is not reduced to one red Event Viewer line. Free and open source.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            If the machine remains on but the game only hitches, start with
+            <a href="../game-stutters-high-fps-frame-time/">frame time and 1% lows &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I write the diagnostic boundary into the guide: a sensor timeline can narrow the restart, but it cannot pretend to be a PSU tester or crash-dump debugger.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
