@@ -12,12 +12,18 @@
     <meta name="keywords" content="is my SSD dying, SSD health check, SMART attributes explained, drive failure signs, percentage used SSD, reallocated sectors, TBW endurance, hard drive failing symptoms">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
     <meta property="og:title" content="Is my SSD dying? How to read drive health instead of guessing">
     <meta property="og:description" content="A few SMART values predict failure. Most of the others are noise. And a clean report is never a guarantee, which is exactly why backups exist.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
     <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
@@ -40,6 +46,12 @@
       "datePublished": "2026-07-29",
       "dateModified": "2026-07-29",
       "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://nvmexpress.org/wp-content/uploads/NVM-Express-1_1b-1.pdf",
+        "https://www.seagate.com/gb/en/support/kb/how-do-i-interpret-smart-diagnostic-utilities-results-203971en/",
+        "https://research.google.com/archive/disk_failures.html"
+      ],
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
@@ -125,14 +137,14 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/guides/is-my-ssd-dying-drive-health/index_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+            <a href="/guides/is-my-ssd-dying-drive-health/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
         </span>
     </nav>
 
     <section class="hero">
-        <span class="day-badge day-wednesday">Storage · Guide</span>
+        <span class="day-badge day-wednesday">Storage &middot; Guide</span>
         <h1>Is my SSD dying?</h1>
         <p class="tagline">A drive health tool shows you forty numbers. Four of them matter, and none of them is a promise.</p>
     </section>
@@ -140,7 +152,7 @@
     <main class="article">
 
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>·</span><span>Published 2026-07-29</span><span>·</span><span>8 min read</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-29</span><span>&middot;</span><span>8 min read</span>
         </div>
 
         <p>
@@ -274,7 +286,7 @@
         <div class="guide-cta">
             <b>Know your drive before it surprises you.</b> PC Workman reads the health values that actually
             matter for your drive type, tracks the wear trend over time, and gives you a plain verdict instead of
-            a wall of raw SMART numbers. Free, open source, 100% offline.
+            a wall of raw SMART numbers. Free and open source. Analysis runs locally.
             <a href="../../download/">Download for Windows</a>.
         </div>
 
@@ -287,13 +299,13 @@
             <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
             <div>
                 <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
-                <div class="role">Developer of PC Workman · HCK_Labs</div>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
                 <p>18 months of building a system monitor in public. Every guide is based on what the sensors actually report.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
                     <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
                     <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
-                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree ☕</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
                 </div>
             </div>
         </div>
@@ -301,7 +313,7 @@
     </main>
 
     <footer class="foot">
-        <p>© 2026 HCK_Labs · <a href="../">Guides</a> · <a href="../../index_en.html">PC Workman</a> · <a href="../../download/">Download</a></p>
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
     </footer>
 
     <script src="/assets/js/topnav.js"></script>

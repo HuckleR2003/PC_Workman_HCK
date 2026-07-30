@@ -1,0 +1,267 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: stan i zużycie SSD -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Czy SSD się zużywa? Jak czytać Percentage Used, Available Spare, błędy nośnika i najważniejsze atrybuty SMART bez paniki oraz dlaczego dobry wynik nie zastępuje kopii zapasowej.">
+    <meta name="keywords" content="czy SSD umiera, stan dysku SSD, zużycie SSD, SMART dysku, Percentage Used NVMe, Available Spare, objawy uszkodzonego dysku, zdrowie dysku Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/">
+    <meta property="og:title" content="Czy mój SSD umiera? Jak czytać stan dysku zamiast zgadywać">
+    <meta property="og:description" content="Narzędzie SMART pokazuje dziesiątki liczb. Kilka ma znaczenie, lecz żadna nie jest obietnicą. Oto wartości i objawy, które warto znać.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Czy mój SSD umiera? Jak sprawdzić stan, SMART i zużycie dysku | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Czy mój SSD umiera? Jak czytać stan dysku zamiast zgadywać",
+      "description": "Które wartości SMART i NVMe mają znaczenie, jak rozumieć zużycie SSD, jakie objawy wymagają natychmiastowej kopii danych i czego czysty raport nie może zagwarantować.",
+      "url": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/",
+      "citation": [
+        "https://nvmexpress.org/wp-content/uploads/NVM-Express-1_1b-1.pdf",
+        "https://www.seagate.com/gb/en/support/kb/how-do-i-interpret-smart-diagnostic-utilities-results-203971en/",
+        "https://research.google.com/archive/disk_failures.html"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Stan i zużycie SSD", "item": "https://pcworkman.dev/guides/is-my-ssd-dying-drive-health/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Które parametry pokazują zużycie SSD lub NVMe?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Najważniejsze są Percentage Used, które rośnie od zera wraz ze zużyciem pamięci flash, Available Spare, które pokazuje pozostałą rezerwę bloków, a także Critical Warning oraz Media and Data Integrity Errors."}
+        },
+        {
+          "@type": "Question",
+          "name": "Czy prawidłowy SMART gwarantuje, że dysk nie ulegnie awarii?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Nie. SMART pomaga ostrzegać przed usterkami rozwijającymi się stopniowo, ale awaria kontrolera lub elektroniki może nastąpić bez wcześniejszego sygnału. Dlatego raport stanu nie zastępuje aktualnej kopii zapasowej."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .dh{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #22d3ee;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .dh-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.dh-head .dh-tag{color:#22d3ee}.dh-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.dh-row .k{color:var(--text-dim);width:165px;flex-shrink:0}.dh-row .v{color:#e6eef6}.dh-row .v.ok{color:#a3e635}.dh-verdict{display:flex;gap:.7rem;align-items:center;margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.82rem;color:var(--text-secondary)}.dh-verdict .badge{color:#071014;background:#a3e635;padding:.18rem .45rem;border-radius:2px;font-weight:700;text-transform:uppercase;font-size:.66rem}
+    @media (max-width:520px){.dh-row{flex-direction:column;gap:0}.dh-row .k{width:auto}.dh-verdict{align-items:flex-start;flex-direction:column}}
+    </style>
+</head>
+<body class="page-wednesday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/is-my-ssd-dying-drive-health/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/is-my-ssd-dying-drive-health/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-wednesday">Dyski &middot; Poradnik</span>
+        <h1>Czy mój SSD umiera?</h1>
+        <p class="tagline">Narzędzie do oceny dysku pokazuje czterdzieści liczb. Cztery mają znaczenie i żadna nie jest obietnicą.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-29</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Instalujesz program do sprawdzania dysku, bo coś zaczęło działać inaczej. W odpowiedzi dostajesz ścianę
+            czterdziestu atrybutów SMART, nazwy takie jak „Seek Error Rate” i surowe wartości liczone w milionach.
+            Gdzieś w tej tabeli ma kryć się odpowiedź na jedyne ważne pytanie: czy w tym tygodniu trzeba kupić nowy
+            dysk?
+        </p>
+        <p>
+            Dobra wiadomość: do tego celu większość tabeli jest szumem. Kilka parametrów rzeczywiście pozwala
+            przewidywać część awarii, inne wyglądają groźnie, choć są całkowicie normalne. Cały raport ma też
+            ograniczenie, które warto znać, zanim mu zaufasz. Poniżej wyjaśniam stan dysku bez konieczności
+            studiowania informatyki i pokazuję, jak PC Workman sprowadza dane do werdyktu, na podstawie którego
+            można działać.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#matter">Wartości, które naprawdę mają znaczenie</a></li>
+                <li><a href="#wear">Zużycie SSD i dlaczego zwykle martwi za bardzo</a></li>
+                <li><a href="#behaviour">Objawy ważniejsze od każdej liczby</a></li>
+                <li><a href="#catch">Ograniczenie, o którym mało kto mówi</a></li>
+                <li><a href="#card">Jak PC Workman przedstawia stan dysku</a></li>
+            </ol>
+        </div>
+        <h2 id="matter">Wartości, które naprawdę mają znaczenie</h2>
+        <p>Różne rodzaje dysków inaczej opisują swój stan, dlatego najpierw ustal, z jakim nośnikiem pracujesz.</p>
+        <p>
+            <strong>W SSD albo NVMe</strong> najwięcej mówią dwie wartości. <em>Percentage Used</em>, czasem
+            Media Wearout Indicator, szacuje wykorzystaną część wytrzymałości pamięci flash i rośnie od zera.
+            <em>Available Spare</em> pokazuje rezerwowe bloki używane w miejsce zużytych i maleje od 100%.
+            Zbliżanie się rezerwy do jej progu jest poważnym sygnałem. Warto też sprawdzić flagę Critical Warning
+            oraz Media or Data Integrity Errors, które powinny pozostać na zerze.
+        </p>
+        <p>
+            <strong>W mechanicznym HDD</strong> nadal liczą się klasyczne atrybuty. <em>Reallocated Sectors
+            Count</em> zlicza sektory, z których dysk zrezygnował i zastąpił je rezerwą. <em>Current Pending Sector
+            Count</em> obejmuje sektory odczytywane niepewnie, które nie zostały jeszcze przeniesione.
+            <em>Uncorrectable Sector Count</em> zlicza całkowicie nieudane odczyty. Wszystkie trzy powinny wynosić
+            <strong>zero</strong>. Ich wzrost, szczególnie przez kolejne tygodnie, jest jednym z najwyraźniejszych
+            ostrzeżeń, jakie HDD potrafi przekazać programowi.
+        </p>
+        <div class="callout warn">
+            <b>Zignoruj parametry, które straszą prawie każdego.</b> W wielu dyskach Seagate surowe wartości Raw
+            Read Error Rate i Seek Error Rate są ogromne z założenia, bo producent umieszcza kilka liczników w
+            jednym polu. Wynik 180 milionów nie oznacza 180 milionów błędów. Porównuj wartość znormalizowaną z jej
+            progiem albo skup się na czterech wskaźnikach opisanych wyżej.
+        </div>
+        <h2 id="wear">Zużycie SSD i dlaczego zwykle martwi za bardzo</h2>
+        <p>
+            Każdy SSD ma deklarowaną wytrzymałość, najczęściej podaną jako TBW, czyli terabajty zapisanych danych.
+            Typowy konsumencki dysk 1 TB ma wynik liczony w setkach TBW. Skończona liczba brzmi groźnie, dopóki nie
+            porównasz jej z rzeczywistym zapisem.
+        </p>
+        <p>
+            Zwykły użytkownik komputera stacjonarnego zapisuje kilka terabajtów rocznie. Nawet intensywne
+            instalowanie i usuwanie gier oraz praca z dużymi plikami wideo rzadko zbliżają dysk do deklarowanej
+            wartości w czasie jego praktycznego życia. Wzrost Percentage Used o kilka punktów rocznie jest
+            normalny. Jeżeli po dwóch latach widzisz 4%, prawdopodobnie wymienisz komputer wcześniej, niż zużyje
+            się pamięć flash.
+        </p>
+        <p>
+            Zużycie warto obserwować, ale nie trzeba się go bać. To kolejna liczba, przy której
+            <em>trend z wielu miesięcy</em> mówi znacznie więcej niż dzisiejszy wynik. Tak samo należy
+            <a href="../is-my-psu-dying-12v-rail/index_pl.html">czytać napięcie zasilacza w czasie</a> zamiast
+            panikować po jednej próbce.
+        </p>
+        <h2 id="behaviour">Objawy ważniejsze od każdej liczby</h2>
+        <p>Czasem dysk ostrzega zachowaniem wcześniej niż przez SMART. Poniższe objawy są pilne niezależnie od raportu:</p>
+        <ul>
+            <li><strong>Pliki lub foldery znikają albo wracają uszkodzone.</strong></li>
+            <li><strong>Dysk przechodzi w tryb tylko do odczytu.</strong> Niektóre SSD robią to celowo u kresu
+                życia, aby chronić to, co jeszcze da się odczytać. To ostatnia uprzejmość, nie błąd programu.</li>
+            <li><strong>Komputer zamraża się podczas odczytu konkretnego folderu</strong>, choć poza nim działa
+                prawidłowo. Często towarzyszy temu 100% dysku i ogromny czas odpowiedzi. Osobny poradnik wyjaśnia,
+                <a href="../why-is-my-disk-at-100-percent/index_pl.html">co naprawdę oznacza 100% użycia dysku</a>.</li>
+            <li><strong>Dysk znika z BIOS-u albo Eksploratora</strong> i wraca po ponownym uruchomieniu.</li>
+            <li><strong>Mechaniczny dysk klika albo piszczy.</strong> Wyłącz go i odzyskaj dane. Nie uruchamiaj
+                kolejnych testów.</li>
+            <li><strong>Podgląd zdarzeń zapisuje błędy dysku</strong>, szczególnie powtarzające się dla tego samego
+                urządzenia.</li>
+        </ul>
+        <h2 id="catch">Ograniczenie, o którym mało kto mówi</h2>
+        <div class="callout warn">
+            <b>Czysty raport SMART nie jest obietnicą.</b> Badania awarii dużych flot dysków pokazują, że
+            zauważalna część nośników ulega awarii bez wcześniejszego ostrzeżenia SMART. Usterka kontrolera albo
+            elektroniki może zabić dysk natychmiast, bez licznika rosnącego przez tygodnie. SMART jest systemem
+            wczesnego ostrzegania przed awariami rozwijającymi się powoli. Nie widzi tych nagłych. Kontrolę stanu
+            warto wykonać, ale dane ratuje kopia zapasowa.
+        </div>
+        <p>
+            Praktyczna zasada jest prosta: jeśli wartości się zmieniają, działaj wcześnie i spokojnie. Najpierw
+            skopiuj dane, dopiero potem decyduj o wymianie. Nie uruchamiaj długich testów obciążeniowych na dysku,
+            który podejrzewasz. Sam test może być obciążeniem, które go dobije.
+        </p>
+        <h2 id="card">Jak PC Workman przedstawia stan dysku</h2>
+        <p>
+            Wiele osób rezygnuje gdzieś między tabelą z czterdziestoma wierszami i pytaniem „czy mam się martwić?”.
+            PC Workman odczytuje wartości istotne dla konkretnego typu dysku i najpierw podaje jasny werdykt,
+            a dopiero pod nim dane:
+        </p>
+        <div class="dh">
+            <div class="dh-head"><span>Stan dysku</span><span class="dh-tag">Samsung SSD, NVMe</span></div>
+            <div class="dh-row"><span class="k">Wykorzystane zużycie</span><span class="v ok">4%</span></div>
+            <div class="dh-row"><span class="k">Dostępna rezerwa</span><span class="v ok">100%</span></div>
+            <div class="dh-row"><span class="k">Ostrzeżenia krytyczne</span><span class="v ok">brak</span></div>
+            <div class="dh-row"><span class="k">Błędy nośnika</span><span class="v ok">0</span></div>
+            <div class="dh-row"><span class="k">Czas pracy</span><span class="v">7180 godzin</span></div>
+            <div class="dh-row"><span class="k">Trend zużycia</span><span class="v">około 2% rocznie przy Twoim użyciu</span></div>
+            <div class="dh-verdict"><span class="badge">zdrowy</span><span>Nie trzeba działać. Zużycie jest normalne dla czasu pracy tego dysku.</span></div>
+        </div>
+        <p>
+            Kiedy któraś wartość się zmieni, uczciwy komunikat mówi, co można i czego nie można wywnioskować:
+            który parametr wzrósł, w jakim czasie i dlaczego poprawny test nigdy nie zastępuje kopii zapasowej.
+            Tę samą granicę PC Workman zachowuje w
+            <a href="../is-my-pc-healthy/index_pl.html">pięciominutowej kontroli stanu</a>: pokazuje dowody,
+            nazywa trend i nie udaje pewności.
+        </p>
+        <div class="guide-cta">
+            <b>Poznaj stan dysku, zanim Cię zaskoczy.</b> PC Workman odczytuje parametry ważne dla danego typu
+            nośnika, śledzi trend zużycia i podaje prosty werdykt zamiast ściany surowych wartości SMART.
+            Program jest bezpłatny, ma otwarty kod, a analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Dysk jest zdrowy, więc dlaczego komputer uruchamia się przez minutę?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu. Każdy poradnik opieram na tym, co rzeczywiście raportują czujniki.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
