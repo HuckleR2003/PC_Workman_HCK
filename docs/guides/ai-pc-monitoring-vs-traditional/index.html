@@ -45,8 +45,9 @@
       "description": "Why traditional system monitors (MSI Afterburner, HWiNFO, CCleaner) stopped being enough, and what a monitor with a local AI that learns the norm of your specific hardware unit actually does.",
       "url": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/",
       "datePublished": "2026-06-15",
-      "dateModified": "2026-06-15",
+      "dateModified": "2026-07-25",
       "inLanguage": "en",
+      "isAccessibleForFree": true,
       "keywords": "AI system monitor, MSI Afterburner, HWiNFO, CCleaner, undervolt, silicon lottery, voltage monitoring, statistical process control, thermal baseline",
       "wordCount": 1600,
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
@@ -183,7 +184,7 @@
 
         <h2>Honestly: where it has limits</h2>
         <p>I won't sell you this as magic, because it isn't, and a piece that pretends its product has no flaws disqualifies itself.</p>
-        <p><b>The model has a cold start.</b> Fresh after install it doesn't know your norm yet — it has to gather data over weeks, realistically 6–12 months, to get through summer and winter, gaming and idle, different loads. During that time it's closer to a regular monitor than a smart one. That's the price for it later talking about your hardware, not an averaged one.</p>
+        <p><b>The model has a cold start.</b> Fresh after install it does not know your norm yet. Each workload bucket needs 20 real sensor samples before it becomes usable and 200 before it is marked calibrated. Learning then keeps accumulating for the life of the install. You do not wait months for a first baseline, but rare seasonal conditions still take real time to observe.</p>
         <p><b>The model needs good sensors</b>, and Windows can really kick you here. <code>psutil.sensors_temperatures()</code> on Windows simply returns an empty field — no temperatures, the end, thanks for playing. Hence the dependency on LibreHardwareMonitor and WMI just to have something to learn from. I know this not from the docs but because I tripped over it myself and lost an evening before I understood why the voltage chart was empty.</p>
         <p><b>And the model must not bark for no reason.</b> One false alarm now and then and you stop trusting the tool — you turn off notifications and that's that. That's why 12V spikes during GPU load changes are deliberately suppressed (they're physically expected, not a fault), and a pattern that repeats five times stops being treated as an anomaly and simply becomes your hardware's new norm. <span class="hl-cyan">Anomaly decay.</span> A tool that learns also has to be able to retract its own alarm.</p>
         <p>And one more thing, to be clear: this is not anti-HWiNFO or anti-Afterburner. Raw sensor data is still the foundation everything stands on. What changes isn't that you read data — what changes is what happens to that data next.</p>

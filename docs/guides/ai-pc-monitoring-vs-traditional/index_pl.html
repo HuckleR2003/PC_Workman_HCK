@@ -45,8 +45,9 @@
       "description": "Dlaczego tradycyjne monitory systemu (MSI Afterburner, HWiNFO, CCleaner) przestały wystarczać, i co robi monitor z lokalnym AI, które uczy się normy Twojego konkretnego egzemplarza sprzętu.",
       "url": "https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html",
       "datePublished": "2026-06-15",
-      "dateModified": "2026-06-15",
+      "dateModified": "2026-07-25",
       "inLanguage": "pl",
+      "isAccessibleForFree": true,
       "keywords": "monitor systemu AI, MSI Afterburner, HWiNFO, CCleaner, undervolt, loteria krzemowa, kontrola napięć, statistical process control, thermal baseline",
       "wordCount": 1600,
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
@@ -183,7 +184,7 @@
 
         <h2>Uczciwie: gdzie to ma granice</h2>
         <p>Nie sprzedam ci tego jako magii, bo magią nie jest, a tekst, który udaje, że jego produkt nie ma wad, sam się dyskwalifikuje.</p>
-        <p><b>Model ma cold-start.</b> Świeżo po instalacji nie zna jeszcze twojej normy — musi pozbierać dane przez tygodnie, realnie 6–12 miesięcy, żeby przejść przez lato i zimę, gaming i idle, różne obciążenia. Przez ten czas jest bliżej zwykłego monitora niż inteligentnego. To cena za to, że później mówi o twoim sprzęcie, a nie o uśrednionym.</p>
+        <p><b>Model ma cold-start.</b> Świeżo po instalacji nie zna jeszcze twojej normy. Każdy profil obciążenia potrzebuje 20 prawdziwych próbek z czujników, aby stać się użyteczny, i 200, aby uzyskać status skalibrowanego. Później uczenie kumuluje się przez całe życie instalacji. Na pierwszą linię bazową nie czekasz miesiącami, ale rzadkie warunki sezonowe wymagają czasu, aby program je zobaczył.</p>
         <p><b>Model wymaga dobrych czujników</b>, a tu Windows potrafi nieźle dokopać. <code>psutil.sensors_temperatures()</code> na Windowsie zwraca po prostu puste pole — nie ma temperatur, koniec, dziękujemy. Stąd zależność od LibreHardwareMonitor i WMI, żeby w ogóle mieć z czego się uczyć. Wiem to nie z dokumentacji, tylko stąd, że sam się o to potknąłem i straciłem wieczór, zanim zrozumiałem, czemu wykres napięć jest pusty.</p>
         <p><b>I model musi nie szczekać bez powodu.</b> Fałszywy alarm raz na jakiś czas i przestajesz ufać narzędziu — wyłączasz powiadomienia i tyle. Dlatego skoki 12V przy zmianach obciążenia GPU są celowo tłumione (są fizycznie oczekiwane, to nie awaria), a wzorzec, który powtórzy się pięć razy, przestaje być traktowany jako anomalia i staje się po prostu nową normą twojego sprzętu. <span class="hl-cyan">Anomaly decay.</span> Narzędzie, które się uczy, musi też umieć odwołać własny alarm.</p>
         <p>I jeszcze jedno, żeby było jasne: to nie jest anty-HWiNFO ani anty-Afterburner. Surowe dane z czujników to wciąż fundament, na którym wszystko stoi. Zmienia się nie to, że czytasz dane — zmienia się to, co się z tymi danymi dzieje dalej.</p>
