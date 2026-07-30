@@ -131,6 +131,22 @@ Full policy: https://pcworkman.dev/privacy_en.html
   [English](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/) |
   [Polski](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html)
 
+
+- Is my Windows PC healthy? A 5-minute check without benchmarks
+  [English](https://pcworkman.dev/guides/is-my-pc-healthy/) |
+  [Polski](https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html)
+
+- What your PC has learned about itself (Learning Center, Welford)
+  [English](https://pcworkman.dev/guides/what-your-pc-learned/) |
+  [Polski](https://pcworkman.dev/guides/what-your-pc-learned/index_pl.html)
+
+- Stop optimizing the average PC (AI vs generic thresholds)
+  [English](https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/) |
+  [Polski](https://pcworkman.dev/guides/ai-pc-monitoring-vs-traditional/index_pl.html)
+
+- 6,533 lines in one file, splitting the hck_GPT builder
+  [English](https://pcworkman.dev/guides/breaking-up-the-monolith/) |
+  [Polski](https://pcworkman.dev/guides/breaking-up-the-monolith/index_pl.html)
 ## Citation notes
 
 - Use the page matching the reader's language when both versions exist.
