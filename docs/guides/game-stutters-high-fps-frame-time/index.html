@@ -1,0 +1,415 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: high FPS but game stutters -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A game can average 180 FPS and still stutter. Use frame time and the hitch pattern to separate shaders, streaming, VRAM pressure and CPU limits.">
+    <meta name="keywords" content="high FPS but game stutters, game stuttering fix, frame time spikes, 1% low FPS, micro stutter PC, shader compilation stutter, game hitching Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <meta property="og:title" content="High FPS but the game still stutters? Read frame time, not the average">
+    <meta property="og:description" content="The shape and timing of a frame-time spike can separate shader compilation, asset streaming, VRAM pressure and a CPU bottleneck.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>High FPS but Game Stutters? Frame Time and 1% Lows</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "High FPS but the game still stutters? Frame time, 1% lows and the real causes",
+      "description": "How to identify shader compilation, asset streaming, VRAM pressure, CPU limits and background interruptions from the pattern of frame-time spikes.",
+      "url": "https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://github.com/GameTechDev/PresentMon",
+        "https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/",
+        "https://www.unrealengine.com/tech-blog/game-engines-and-shader-stuttering-unreal-engines-solution-to-the-problem",
+        "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "High FPS but game stutters", "item": "https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does a game stutter when the FPS is high?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because average FPS hides when each frame arrived. A game can render most frames quickly and still pause for one 40 or 80 millisecond frame. Shader compilation, asset streaming, a saturated CPU thread, VRAM pressure and driver interruptions can all create these isolated delays without making the average FPS look low." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do 1% lows prove what causes stuttering?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. A 1% low confirms that a meaningful group of frames was slower than the average, but it does not name the cause. The frame-time graph, the location of the spike and CPU, GPU, memory, storage and temperature data from the same moment are needed for diagnosis." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I cap FPS to reduce stuttering?",
+          "acceptedAnswer": { "@type": "Answer", "text": "An FPS cap can improve pacing when the GPU is constantly at its limit or when the frame queue is unstable. It will not remove a shader compilation hitch, a storage stall or a driver interruption. Test the cap in the same repeatable scene and keep it only if the frame-time graph becomes flatter." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .frame-strip{
+        background:#080b10; border:1px solid #222a35; border-left:4px solid #22d3ee;
+        padding:1rem 1.15rem; margin:1.35rem 0; border-radius:4px;
+        font-family:var(--font-mono);
+    }
+    .frame-head{ display:flex; justify-content:space-between; gap:1rem; color:var(--text-dim);
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:.75rem; }
+    .frame-bars{ height:92px; display:flex; align-items:flex-end; gap:4px; padding-top:6px;
+        border-bottom:1px solid #26303c; }
+    .frame-bars span{ flex:1; min-width:3px; height:18%; background:#22d3ee; opacity:.82; }
+    .frame-bars span.mid{ height:34%; background:#a3e635; }
+    .frame-bars span.bad{ height:88%; background:#f43f5e; box-shadow:0 0 14px rgba(244,63,94,.35); }
+    .frame-legend{ display:flex; flex-wrap:wrap; gap:.45rem 1.1rem; margin-top:.65rem;
+        font-size:.7rem; color:var(--text-secondary); }
+    .frame-legend b{ color:#fff; }
+    .fingerprint td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/game-stutters-high-fps-frame-time/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/game-stutters-high-fps-frame-time/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Gaming &middot; Diagnosis</span>
+        <h1>High FPS. Bad stutter.</h1>
+        <p class="tagline">The average is not lying. It is answering the wrong question.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-29</span><span>&middot;</span><span>14 min read</span>
+        </div>
+
+        <p>
+            The counter says 180 FPS. You turn the camera, the game catches for half a beat, then the counter
+            calmly returns to 180 as if nothing happened. Lowering every graphics option gives you 240 FPS and
+            the same catch. Reinstalling the driver changes nothing.
+        </p>
+        <p>
+            The contradiction disappears when you stop asking how many frames arrived in a second and ask
+            <strong>how long each individual frame took</strong>. At 60 FPS, the frame budget is 16.67 ms.
+            At 144 FPS it is 6.94 ms. Ninety-nine frames can meet that budget, while one frame takes 70 ms.
+            The average still looks excellent. Your eyes feel the 70 ms pause.
+        </p>
+        <p>
+            That pause has a shape. A hitch the first time an effect appears is not the same problem as a hitch
+            every time you cross a map boundary. A regular pulse is not the same problem as a slow decline after
+            twenty minutes. This guide uses those fingerprints to narrow the cause before you start changing
+            settings.
+        </p>
+
+        <div class="frame-strip" aria-label="Example frame-time graph with one large spike">
+            <div class="frame-head"><span>Frame time, not average FPS</span><span>one visible hitch</span></div>
+            <div class="frame-bars">
+                <span></span><span></span><span class="mid"></span><span></span><span></span><span></span>
+                <span></span><span class="bad"></span><span></span><span></span><span></span><span class="mid"></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="frame-legend">
+                <span><b>Most frames:</b> 6 to 8 ms</span>
+                <span><b>One frame:</b> 70 ms</span>
+                <span><b>Average:</b> still high</span>
+            </div>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#numbers">FPS, frame time and 1% lows</a></li>
+                <li><a href="#fingerprints">What the stutter pattern tells you</a></li>
+                <li><a href="#capture">A ten-minute test that produces useful evidence</a></li>
+                <li><a href="#fixes">Fixes matched to the cause</a></li>
+                <li><a href="#pc-workman">Where PC Workman helps, and where it does not</a></li>
+            </ol>
+        </div>
+
+        <h2 id="numbers">FPS, frame time and 1% lows are three different answers</h2>
+        <p>
+            FPS is throughput. Frame time is latency. The two are related by <code>1000 / FPS</code>, but an
+            average destroys timing information. It cannot tell you whether 120 frames arrived evenly every
+            8.33 ms or in uneven clumps.
+        </p>
+        <table>
+            <thead><tr><th>Target</th><th>Time available for one frame</th><th>What a 50 ms frame feels like</th></tr></thead>
+            <tbody>
+                <tr><td>60 FPS</td><td>16.67 ms</td><td>About three frame budgets in one</td></tr>
+                <tr><td>120 FPS</td><td>8.33 ms</td><td>About six frame budgets in one</td></tr>
+                <tr><td>144 FPS</td><td>6.94 ms</td><td>About seven frame budgets in one</td></tr>
+                <tr><td>240 FPS</td><td>4.17 ms</td><td>About twelve frame budgets in one</td></tr>
+            </tbody>
+        </table>
+        <p>
+            A 1% low is useful because it summarizes the slowest group of frames instead of the whole run.
+            Different tools calculate the displayed number slightly differently, so do not treat it as a
+            universal laboratory unit. It answers one useful question: <em>is the bad feeling visible in the
+            capture?</em> It does not answer why.
+        </p>
+        <div class="callout">
+            <b>The graph is more valuable than the score.</b> Two runs can have the same 1% low. One may contain
+            a single huge compilation hitch. The other may have smaller misses every two seconds. Those are
+            different faults and need different fixes.
+        </div>
+
+        <h2 id="fingerprints">What the stutter pattern tells you</h2>
+        <table class="fingerprint">
+            <thead><tr><th>When it happens</th><th>Most useful first suspect</th><th>Test that separates it</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Only the first time you see a spell, material or new area</td>
+                    <td>Shader or pipeline compilation</td>
+                    <td>Repeat the exact action. If the second pass is clean until caches are cleared or the driver changes, compilation moves up the list.</td>
+                </tr>
+                <tr>
+                    <td>While turning quickly or crossing the same map boundary</td>
+                    <td>Asset streaming, storage or VRAM pressure</td>
+                    <td>Repeat the route. Lower texture quality only. If the spike shrinks, investigate the texture pool and video-memory budget.</td>
+                </tr>
+                <tr>
+                    <td>GPU sits near its limit and pacing is rough everywhere</td>
+                    <td>GPU saturation and frame queue</td>
+                    <td>Apply a sensible FPS cap below the sustainable rate. A flatter graph points to headroom, not a mysterious Windows tweak.</td>
+                </tr>
+                <tr>
+                    <td>GPU usage drops during the hitch while one CPU thread is full</td>
+                    <td>CPU or game-thread bottleneck</td>
+                    <td>Show logical processors, reduce CPU-heavy settings such as crowd density or view distance, then repeat the same scene.</td>
+                </tr>
+                <tr>
+                    <td>Every few seconds, even while standing still</td>
+                    <td>Overlay, capture tool, monitoring poll, driver or background task</td>
+                    <td>Disable nonessential overlays and capture tools one at a time. A regular fault deserves a regular suspect.</td>
+                </tr>
+                <tr>
+                    <td>Only after the machine has been hot for a while</td>
+                    <td>Thermal or power limit, memory growth</td>
+                    <td>Log temperatures, clocks, power and memory from launch until the first bad interval.</td>
+                </tr>
+                <tr>
+                    <td>Only in online play</td>
+                    <td>Network or server simulation, not rendering</td>
+                    <td>Separate a visual frame hitch from rubber-banding. Record an offline or training scene before touching graphics settings.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Shader compilation stutter</h3>
+        <p>
+            Modern games combine shaders and render states into pipeline state objects. If a required combination
+            was not prepared before play, the game may have to wait while the driver compiles it. Epic describes
+            the same failure mode in its Unreal Engine work: when a needed PSO is still being compiled, the game
+            can hitch as it is requested. The important clue is novelty. A new effect hurts, its immediate repeat
+            often does not.
+        </p>
+        <p>
+            You cannot repair missing game-side precaching with a registry file. Let a legitimate compilation
+            screen finish, avoid repeatedly deleting shader caches, and check whether the developer has shipped a
+            fix. A driver update can invalidate a cache, so a short first-run regression after an update is not
+            proof that the driver is permanently bad.
+        </p>
+
+        <h3>Asset streaming and VRAM pressure</h3>
+        <p>
+            Games do not keep every full-resolution texture and mesh resident at once. They stream what the scene
+            needs. Unreal Engine's own documentation describes a texture pool with a budget and mip levels loaded
+            or dropped to stay within it. When a route through the world repeatedly triggers loading, the spike
+            can come from storage, decompression, CPU work, transfer to the GPU, or eviction because the current
+            video-memory budget is tight.
+        </p>
+        <p>
+            This is why lowering shadows may do nothing while lowering textures helps. It is also why "the game
+            allocated all my VRAM" is not enough evidence by itself. Allocation, active use and budget pressure
+            are not identical. The separate <a href="../how-much-vram-do-i-need/">VRAM guide</a> shows how to
+            read them without guessing.
+        </p>
+
+        <h3>CPU-bound does not mean 100% total CPU</h3>
+        <p>
+            A game can wait on one critical thread while the other logical processors have room. Total CPU then
+            looks harmless. During that wait the GPU may fall idle because the CPU has not produced the next
+            work in time. Microsoft's DirectX explanation is simple: a CPU-bound game leaves the GPU waiting,
+            while a GPU-bound game keeps the GPU as the limiting stage.
+        </p>
+        <p>
+            Lowering resolution mainly reduces GPU work. If the hitch is on the game thread, the result may be
+            higher average FPS with the same spikes. That is not a failed test. It is evidence.
+        </p>
+
+        <h2 id="capture">A ten-minute test that produces useful evidence</h2>
+        <ol>
+            <li><strong>Choose a repeatable scene.</strong> A save point, a training map or a 30-second route.
+                Random multiplayer is a poor benchmark because the workload changes underneath you.</li>
+            <li><strong>Warm up once.</strong> Run the route, then capture the second run. If only the first run
+                is bad, capture both and label them. That difference is evidence for compilation or caching.</li>
+            <li><strong>Record per-frame data.</strong> PresentMon is the open-source base used by several
+                capture tools and can record CPU, GPU and display frame durations. A live FPS counter alone is
+                not enough.</li>
+            <li><strong>Record system context at the same time.</strong> GPU load and memory, per-core CPU,
+                system RAM, disk activity, temperatures, clocks and power. The spike matters only when you can
+                line it up with what the rest of the machine did.</li>
+            <li><strong>Change one variable.</strong> Texture quality for a streaming suspicion. An FPS cap for
+                GPU saturation. One overlay for a periodic hitch. Repeat the same route.</li>
+            <li><strong>Keep the boring result.</strong> "No change" removes a suspect. It is not wasted time.</li>
+        </ol>
+
+        <h2 id="fixes">Fixes matched to the cause</h2>
+        <table>
+            <thead><tr><th>Evidence</th><th>Action worth testing</th><th>What not to do</th></tr></thead>
+            <tbody>
+                <tr><td>First pass bad, repeat clean</td><td>Finish shader preparation, preserve caches, update the game</td><td>Delete shader caches after every session</td></tr>
+                <tr><td>GPU pinned, graph rough</td><td>Cap FPS below the sustained rate or lower GPU-heavy settings</td><td>Apply global "latency" registry packs</td></tr>
+                <tr><td>One CPU thread full, GPU drops</td><td>Reduce simulation, crowd or view-distance load; close the proven offender</td><td>Judge only by total CPU percentage</td></tr>
+                <tr><td>Texture-only change helps</td><td>Reduce texture pool pressure; verify storage and VRAM budget</td><td>Lower every setting and lose the evidence</td></tr>
+                <tr><td>Regular pulse disappears with one overlay</td><td>Leave that integration off or change its polling/capture mode</td><td>Disable Windows security components at random</td></tr>
+                <tr><td>Problem begins hot</td><td>Fix cooling, power mode or the confirmed limit</td><td>Hide the symptom with a higher fan speed before checking clocks</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="pc-workman">Where PC Workman helps, and where it does not</h2>
+        <p>
+            PC Workman provides the system side of the story: CPU and GPU load, memory, temperatures, clocks,
+            power and the processes active around the bad interval. Its in-game overlay can read FPS through
+            RTSS when RTSS is running.
+        </p>
+        <p>
+            <strong>The current build does not capture a per-frame PresentMon trace or calculate 1% lows.</strong>
+            For that part, use PresentMon or a front end built on it. Then compare the exact bad interval with
+            PC Workman's sensor history. The split is honest and useful: one tool proves that a frame was late,
+            the other helps explain what the machine was doing when it happened.
+        </p>
+        <div class="callout warn">
+            <b>Do not optimize the average.</b> A 240 FPS result with a 70 ms spike is not smoother than a capped
+            120 FPS run with even delivery. The goal is not the largest number in the corner. It is a frame-time
+            line that stops surprising you.
+        </div>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Why does a game stutter when the FPS is high?</h3>
+        <p>
+            Because average FPS hides individual late frames. Shader compilation, streaming, a saturated CPU
+            thread, VRAM pressure or a driver interruption can pause one frame without making the average look low.
+        </p>
+        <h3>Do 1% lows prove what causes the stutter?</h3>
+        <p>
+            No. They prove that a group of frames was slower. The timeline and matching system data identify the
+            likely cause.
+        </p>
+        <h3>Should I cap FPS?</h3>
+        <p>
+            Test it when the GPU is constantly near its limit. Keep the cap if the same scene produces a flatter
+            frame-time graph. A cap will not cure compilation or storage stalls.
+        </p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul class="source-list">
+            <li><a href="https://github.com/GameTechDev/PresentMon" rel="noopener">GameTechDev PresentMon</a>, per-frame CPU, GPU and display performance capture.</li>
+            <li><a href="https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/" rel="noopener">Microsoft DirectX: CPU- and GPU-boundedness</a>.</li>
+            <li><a href="https://www.unrealengine.com/tech-blog/game-engines-and-shader-stuttering-unreal-engines-solution-to-the-problem" rel="noopener">Epic Games: shader stuttering and PSO precaching</a>.</li>
+            <li><a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine" rel="noopener">Unreal Engine texture streaming configuration</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Keep the evidence around the hitch.</b> PC Workman records the system context that an FPS average
+            leaves out, while PresentMon supplies the per-frame trace. Free and open source. Analysis runs
+            locally. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            If the whole PC feels slow while every graph looks normal, continue with
+            <a href="../pc-slow-but-task-manager-looks-normal/">the hidden bottlenecks guide &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I build the monitor, then write the guide from the counters that actually separate one fault from another.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

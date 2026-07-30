@@ -1,0 +1,415 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: wysoki FPS, ale gra przycina -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Gra może mieć średnio 180 FPS i nadal przycinać. Po czasie klatki odróżnisz kompilację shaderów, streaming, presję VRAM i limit CPU bez losowych trików.">
+    <meta name="keywords" content="wysoki FPS gra przycina, ścinanie gier, frametime, czas klatki, 1% low FPS, mikroprzycięcia, shader compilation stutter, przycinanie gier Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/">
+    <meta property="og:title" content="Wysoki FPS, a gra nadal przycina? Patrz na czas klatki, nie średnią">
+    <meta property="og:description" content="Kształt i moment skoku czasu klatki pomaga odróżnić kompilację shaderów, doczytywanie danych, brak VRAM i limit CPU.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wysoki FPS, a Gra Przycina? Czas Klatki i 1% Low</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Wysoki FPS, a gra nadal przycina? Czas klatki, 1% low i prawdziwe przyczyny",
+      "description": "Jak po wzorze skoków czasu klatki odróżnić kompilację shaderów, doczytywanie zasobów, presję VRAM, limit CPU i przerwania w tle.",
+      "url": "https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://github.com/GameTechDev/PresentMon",
+        "https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/",
+        "https://www.unrealengine.com/tech-blog/game-engines-and-shader-stuttering-unreal-engines-solution-to-the-problem",
+        "https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Wysoki FPS, ale gra przycina", "item": "https://pcworkman.dev/guides/game-stutters-high-fps-frame-time/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego gra przycina, mimo że FPS jest wysoki?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Ponieważ średni FPS ukrywa moment dostarczenia każdej klatki. Gra może renderować prawie wszystkie klatki szybko, a jedną zatrzymać na 40 lub 80 ms. Kompilacja shaderów, doczytywanie zasobów, zajęty wątek CPU, presja VRAM i przerwania sterownika mogą tworzyć takie opóźnienia bez mocnego spadku średniej." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy 1% low pokazuje przyczynę przycięć?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. 1% low potwierdza, że istotna grupa klatek była wolniejsza od średniej, ale nie wskazuje winowajcy. Do diagnozy potrzebujesz wykresu czasu klatek, miejsca wystąpienia skoku oraz danych CPU, GPU, pamięci, dysku i temperatur z tej samej chwili." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy limit FPS może zmniejszyć przycięcia?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Limit FPS może poprawić płynność, gdy GPU stale pracuje na granicy lub kolejka klatek jest niestabilna. Nie usunie przycięcia wywołanego kompilacją shaderów, dyskiem ani sterownikiem. Sprawdź limit w tej samej, powtarzalnej scenie i zostaw go tylko wtedy, gdy wykres czasu klatek staje się równiejszy." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .frame-strip{
+        background:#080b10; border:1px solid #222a35; border-left:4px solid #22d3ee;
+        padding:1rem 1.15rem; margin:1.35rem 0; border-radius:4px;
+        font-family:var(--font-mono);
+    }
+    .frame-head{ display:flex; justify-content:space-between; gap:1rem; color:var(--text-dim);
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:.75rem; }
+    .frame-bars{ height:92px; display:flex; align-items:flex-end; gap:4px; padding-top:6px;
+        border-bottom:1px solid #26303c; }
+    .frame-bars span{ flex:1; min-width:3px; height:18%; background:#22d3ee; opacity:.82; }
+    .frame-bars span.mid{ height:34%; background:#a3e635; }
+    .frame-bars span.bad{ height:88%; background:#f43f5e; box-shadow:0 0 14px rgba(244,63,94,.35); }
+    .frame-legend{ display:flex; flex-wrap:wrap; gap:.45rem 1.1rem; margin-top:.65rem;
+        font-size:.7rem; color:var(--text-secondary); }
+    .frame-legend b{ color:#fff; }
+    .fingerprint td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/game-stutters-high-fps-frame-time/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/game-stutters-high-fps-frame-time/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Gry &middot; Diagnoza</span>
+        <h1>Wysoki FPS. Mocne przycięcia.</h1>
+        <p class="tagline">Średnia nie kłamie. Po prostu odpowiada na niewłaściwe pytanie.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-07-29</span><span>&middot;</span><span>14 min czytania</span>
+        </div>
+
+        <p>
+            Licznik pokazuje 180 FPS. Obracasz kamerę, gra zatrzymuje się na ułamek sekundy, a licznik spokojnie
+            wraca do 180, jakby nic się nie stało. Obniżenie wszystkich ustawień daje 240 FPS i dokładnie to samo
+            szarpnięcie. Ponowna instalacja sterownika niczego nie zmienia.
+        </p>
+        <p>
+            Sprzeczność znika, gdy przestajesz pytać, ile klatek pojawiło się w ciągu sekundy, i sprawdzasz,
+            <strong>ile trwała każda pojedyncza klatka</strong>. Przy 60 FPS budżet wynosi 16,67 ms. Przy
+            144 FPS to 6,94 ms. Dziewięćdziesiąt dziewięć klatek może zmieścić się w budżecie, a jedna potrwać
+            70 ms. Średnia nadal wygląda świetnie. Oczy czują 70-milisekundową pauzę.
+        </p>
+        <p>
+            Taka pauza ma własny wzór. Zacięcie przy pierwszym pojawieniu się efektu nie jest tym samym problemem
+            co zacięcie na każdej granicy mapy. Równy puls co kilka sekund ma inną przyczynę niż pogarszanie się
+            gry po dwudziestu minutach. W tym poradniku użyjemy tych śladów, zanim zaczniemy przestawiać opcje.
+        </p>
+
+        <div class="frame-strip" aria-label="Przykładowy wykres czasu klatek z jednym dużym skokiem">
+            <div class="frame-head"><span>Czas klatki, nie średni FPS</span><span>jedno widoczne przycięcie</span></div>
+            <div class="frame-bars">
+                <span></span><span></span><span class="mid"></span><span></span><span></span><span></span>
+                <span></span><span class="bad"></span><span></span><span></span><span></span><span class="mid"></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="frame-legend">
+                <span><b>Większość klatek:</b> 6 do 8 ms</span>
+                <span><b>Jedna klatka:</b> 70 ms</span>
+                <span><b>Średnia:</b> nadal wysoka</span>
+            </div>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#numbers">FPS, czas klatki i 1% low</a></li>
+                <li><a href="#fingerprints">Co mówi wzór przycięć</a></li>
+                <li><a href="#capture">Dziesięciominutowy test, który daje dowody</a></li>
+                <li><a href="#fixes">Naprawy dopasowane do przyczyny</a></li>
+                <li><a href="#pc-workman">Gdzie pomaga PC Workman, a gdzie nie</a></li>
+            </ol>
+        </div>
+
+        <h2 id="numbers">FPS, czas klatki i 1% low to trzy różne odpowiedzi</h2>
+        <p>
+            FPS opisuje przepustowość. Czas klatki opisuje opóźnienie. Łączy je wzór <code>1000 / FPS</code>,
+            ale średnia usuwa informację o rozłożeniu klatek w czasie. Nie powie, czy 120 klatek nadchodziło
+            równo co 8,33 ms, czy w nierównych paczkach.
+        </p>
+        <table>
+            <thead><tr><th>Cel</th><th>Czas na jedną klatkę</th><th>Co oznacza klatka trwająca 50 ms</th></tr></thead>
+            <tbody>
+                <tr><td>60 FPS</td><td>16,67 ms</td><td>Około trzech budżetów klatki w jednym</td></tr>
+                <tr><td>120 FPS</td><td>8,33 ms</td><td>Około sześciu budżetów w jednym</td></tr>
+                <tr><td>144 FPS</td><td>6,94 ms</td><td>Około siedmiu budżetów w jednym</td></tr>
+                <tr><td>240 FPS</td><td>4,17 ms</td><td>Około dwunastu budżetów w jednym</td></tr>
+            </tbody>
+        </table>
+        <p>
+            1% low jest przydatne, ponieważ podsumowuje najwolniejszą grupę klatek zamiast całego przebiegu.
+            Różne narzędzia wyliczają wyświetlany wynik odrobinę inaczej, więc nie traktuj go jak uniwersalnej
+            jednostki laboratoryjnej. Odpowiada na jedno ważne pytanie: <em>czy złe odczucie widać w pomiarze?</em>
+            Nie mówi, dlaczego tak się stało.
+        </p>
+        <div class="callout">
+            <b>Wykres jest cenniejszy niż wynik.</b> Dwa testy mogą mieć identyczne 1% low. W pierwszym wystąpi
+            jedno ogromne przycięcie kompilacji. W drugim mniejsze skoki wracają co dwie sekundy. To różne usterki
+            i wymagają innych działań.
+        </div>
+
+        <h2 id="fingerprints">Co mówi wzór przycięć</h2>
+        <table class="fingerprint">
+            <thead><tr><th>Kiedy występuje</th><th>Najlepszy pierwszy podejrzany</th><th>Test rozdzielający przyczyny</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>Tylko przy pierwszym użyciu czaru, materiału lub wejściu do nowego miejsca</td>
+                    <td>Kompilacja shaderów albo potoku</td>
+                    <td>Powtórz tę samą czynność. Jeśli drugi przebieg jest czysty aż do usunięcia cache lub zmiany sterownika, kompilacja staje się mocnym tropem.</td>
+                </tr>
+                <tr>
+                    <td>Przy szybkim obracaniu kamerą albo przekraczaniu tej samej granicy mapy</td>
+                    <td>Doczytywanie zasobów, dysk lub presja VRAM</td>
+                    <td>Powtórz trasę. Obniż tylko jakość tekstur. Mniejszy skok kieruje uwagę na pulę tekstur i budżet pamięci GPU.</td>
+                </tr>
+                <tr>
+                    <td>GPU stale pracuje blisko limitu, a obraz szarpie wszędzie</td>
+                    <td>Nasycenie GPU i kolejka klatek</td>
+                    <td>Ustaw rozsądny limit FPS poniżej wartości, którą sprzęt potrafi stale utrzymać. Równiejszy wykres wskazuje na brak zapasu.</td>
+                </tr>
+                <tr>
+                    <td>Użycie GPU spada podczas zacięcia, a jeden wątek CPU jest pełny</td>
+                    <td>Wąskie gardło CPU lub głównego wątku gry</td>
+                    <td>Pokaż procesory logiczne, zmniejsz liczbę NPC albo zasięg widzenia i powtórz tę samą scenę.</td>
+                </tr>
+                <tr>
+                    <td>Co kilka sekund, nawet gdy postać stoi</td>
+                    <td>Nakładka, nagrywanie, odpytywanie czujników, sterownik lub proces w tle</td>
+                    <td>Wyłączaj pojedynczo zbędne nakładki i programy przechwytujące. Regularna usterka zasługuje na regularnego podejrzanego.</td>
+                </tr>
+                <tr>
+                    <td>Dopiero po dłuższym rozgrzaniu komputera</td>
+                    <td>Limit temperatury lub mocy, rosnące użycie pamięci</td>
+                    <td>Zapisuj temperatury, taktowania, moc i pamięć od uruchomienia do pierwszego złego fragmentu.</td>
+                </tr>
+                <tr>
+                    <td>Tylko w grze sieciowej</td>
+                    <td>Sieć lub symulacja serwera, nie renderowanie</td>
+                    <td>Oddziel przycięcie obrazu od teleportowania postaci. Nagraj scenę offline lub tryb treningowy, zanim ruszysz ustawienia grafiki.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Przycięcia przez kompilację shaderów</h3>
+        <p>
+            Współczesne gry łączą shadery i stany renderowania w obiekty potoku, czyli PSO. Jeśli potrzebna
+            kombinacja nie została przygotowana przed rozgrywką, gra może czekać, aż sterownik ją skompiluje.
+            Epic opisuje dokładnie taki problem w pracach nad Unreal Engine: gdy potrzebny PSO nadal się kompiluje,
+            jego natychmiastowe użycie może zatrzymać klatkę. Najważniejszym śladem jest nowość. Nowy efekt
+            przycina, a jego szybkie powtórzenie często już nie.
+        </p>
+        <p>
+            Brakującego przygotowania po stronie gry nie naprawisz plikiem rejestru. Pozwól zakończyć prawdziwy
+            ekran kompilacji, nie usuwaj bez przerwy pamięci podręcznej shaderów i sprawdź, czy producent gry wydał
+            poprawkę. Aktualizacja sterownika może unieważnić cache, więc chwilowo gorszy pierwszy start po
+            aktualizacji nie dowodzi, że sterownik jest trwale wadliwy.
+        </p>
+
+        <h3>Doczytywanie zasobów i presja VRAM</h3>
+        <p>
+            Gra nie trzyma jednocześnie wszystkich tekstur i modeli w pełnej jakości. Doczytuje to, czego wymaga
+            scena. Dokumentacja Unreal Engine opisuje pulę tekstur z budżetem oraz poziomy mip wczytywane lub
+            usuwane, aby się w nim zmieścić. Jeśli konkretna trasa po świecie za każdym razem uruchamia doczytywanie,
+            skok może pochodzić z dysku, dekompresji, pracy CPU, przesyłania do GPU albo usuwania danych z pamięci,
+            gdy bieżący budżet VRAM jest zbyt napięty.
+        </p>
+        <p>
+            Dlatego obniżenie cieni może nie zmienić nic, a obniżenie tekstur pomaga. Z tego samego powodu zdanie
+            „gra zajęła cały VRAM” nie wystarcza jako diagnoza. Rezerwacja, aktywne użycie i presja budżetu to nie
+            to samo. Osobny poradnik <a href="../how-much-vram-do-i-need/">ile VRAM naprawdę potrzebujesz</a>
+            rozdziela te wartości bez zgadywania.
+        </p>
+
+        <h3>Limit CPU nie oznacza 100% całego procesora</h3>
+        <p>
+            Gra może czekać na jeden krytyczny wątek, podczas gdy pozostałe procesory logiczne mają zapas.
+            Łączne użycie CPU wygląda wtedy niewinnie. GPU może w tej chwili zwolnić, bo procesor nie przygotował
+            kolejnej pracy na czas. Microsoft opisuje to prosto: w grze ograniczonej przez CPU karta graficzna
+            czeka, a w grze ograniczonej przez GPU to karta jest najwolniejszym etapem.
+        </p>
+        <p>
+            Zmniejszenie rozdzielczości ogranicza głównie pracę GPU. Jeśli problem tkwi w głównym wątku gry,
+            możesz otrzymać wyższą średnią i te same skoki. To nie jest nieudany test. To jest dowód.
+        </p>
+
+        <h2 id="capture">Dziesięciominutowy test, który daje użyteczne dowody</h2>
+        <ol>
+            <li><strong>Wybierz powtarzalną scenę.</strong> Zapis gry, mapa treningowa albo 30-sekundowa trasa.
+                Losowy mecz sieciowy jest słabym testem, bo obciążenie zmienia się razem z sytuacją.</li>
+            <li><strong>Wykonaj jeden przebieg rozgrzewkowy.</strong> Przejdź trasę, a potem nagraj drugi raz.
+                Jeśli źle jest tylko za pierwszym razem, zachowaj oba pomiary i opisz je. Różnica jest śladem
+                kompilacji lub cache.</li>
+            <li><strong>Zapisz dane każdej klatki.</strong> PresentMon to otwartoźródłowa podstawa kilku narzędzi
+                pomiarowych. Potrafi rejestrować czasy CPU, GPU i wyświetlenia dla każdej klatki. Sam licznik FPS
+                nie wystarczy.</li>
+            <li><strong>W tej samej chwili zbieraj kontekst systemu.</strong> Użycie i pamięć GPU, poszczególne
+                rdzenie CPU, RAM, aktywność dysku, temperatury, taktowania oraz moc. Skok nabiera znaczenia dopiero,
+                gdy możesz połączyć go z zachowaniem reszty maszyny.</li>
+            <li><strong>Zmieniaj jedną rzecz.</strong> Jakość tekstur przy podejrzeniu streamingu. Limit FPS przy
+                nasyceniu GPU. Jedna nakładka przy regularnym przycięciu. Potem ta sama trasa.</li>
+            <li><strong>Zapisuj nudne wyniki.</strong> „Bez zmian” usuwa podejrzanego z listy. To nie jest stracony czas.</li>
+        </ol>
+
+        <h2 id="fixes">Naprawy dopasowane do przyczyny</h2>
+        <table>
+            <thead><tr><th>Dowód</th><th>Działanie warte testu</th><th>Czego nie robić</th></tr></thead>
+            <tbody>
+                <tr><td>Pierwszy przebieg zły, powtórka czysta</td><td>Dokończ przygotowanie shaderów, zachowaj cache, zaktualizuj grę</td><td>Nie usuwaj cache shaderów po każdej sesji</td></tr>
+                <tr><td>GPU stale pełne, wykres nierówny</td><td>Ogranicz FPS poniżej stałej wydajności albo zmniejsz ustawienia obciążające GPU</td><td>Nie instaluj globalnych paczek „na opóźnienia”</td></tr>
+                <tr><td>Jeden wątek CPU pełny, GPU zwalnia</td><td>Zmniejsz symulację, tłum albo zasięg widzenia; zamknij potwierdzonego winowajcę</td><td>Nie oceniaj tylko łącznego procentu CPU</td></tr>
+                <tr><td>Pomaga wyłącznie zmiana tekstur</td><td>Zmniejsz presję puli tekstur, sprawdź dysk i budżet VRAM</td><td>Nie obniżaj wszystkiego naraz, bo stracisz dowód</td></tr>
+                <tr><td>Równy puls znika po wyłączeniu jednej nakładki</td><td>Zostaw tę integrację wyłączoną albo zmień sposób przechwytywania</td><td>Nie wyłączaj losowo zabezpieczeń Windows</td></tr>
+                <tr><td>Problem zaczyna się po rozgrzaniu</td><td>Napraw chłodzenie, tryb zasilania lub potwierdzony limit</td><td>Nie ukrywaj objawu samym hałasem wentylatorów bez sprawdzenia taktowań</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="pc-workman">Gdzie pomaga PC Workman, a gdzie nie</h2>
+        <p>
+            PC Workman dostarcza systemową część historii: użycie CPU i GPU, pamięć, temperatury, taktowania,
+            moc oraz procesy aktywne w okolicy złego fragmentu. Jego nakładka w grze może odczytać FPS przez RTSS,
+            jeśli RTSS jest uruchomiony.
+        </p>
+        <p>
+            <strong>Obecna wersja nie zapisuje śladu każdej klatki z PresentMon i nie liczy 1% low.</strong>
+            Do tej części użyj PresentMon albo programu zbudowanego na jego podstawie. Następnie porównaj dokładny
+            moment przycięcia z historią czujników PC Workmana. Ten podział jest uczciwy i praktyczny: jedno
+            narzędzie dowodzi, że klatka się spóźniła, drugie pokazuje, co wtedy robiła maszyna.
+        </p>
+        <div class="callout warn">
+            <b>Nie optymalizuj średniej.</b> Wynik 240 FPS z jednym skokiem do 70 ms nie jest płynniejszy niż
+            równe 120 FPS po ustawieniu limitu. Celem nie jest największa liczba w rogu. Celem jest wykres czasu
+            klatek, który przestaje zaskakiwać.
+        </div>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Dlaczego gra przycina, mimo że FPS jest wysoki?</h3>
+        <p>
+            Ponieważ średnia ukrywa pojedyncze spóźnione klatki. Kompilacja shaderów, doczytywanie, zajęty wątek
+            CPU, presja VRAM albo przerwanie sterownika mogą zatrzymać jedną klatkę bez mocnego spadku średniej.
+        </p>
+        <h3>Czy 1% low pokazuje przyczynę?</h3>
+        <p>
+            Nie. Potwierdza, że część klatek była wolniejsza. Dopiero oś czasu i odpowiadające jej dane systemu
+            wskazują najbardziej prawdopodobną przyczynę.
+        </p>
+        <h3>Czy warto ograniczyć FPS?</h3>
+        <p>
+            Sprawdź to, gdy GPU stale pracuje blisko limitu. Zostaw ograniczenie, jeśli ta sama scena daje
+            równiejszy wykres. Limit nie naprawi kompilacji ani zacięcia dysku.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne</h2>
+        <ul class="source-list">
+            <li><a href="https://github.com/GameTechDev/PresentMon" rel="noopener">GameTechDev PresentMon</a>, zapis wydajności CPU, GPU i wyświetlenia dla każdej klatki.</li>
+            <li><a href="https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/" rel="noopener">Microsoft DirectX: ograniczenie przez CPU i GPU</a>.</li>
+            <li><a href="https://www.unrealengine.com/tech-blog/game-engines-and-shader-stuttering-unreal-engines-solution-to-the-problem" rel="noopener">Epic Games: przycięcia shaderów i przygotowanie PSO</a>.</li>
+            <li><a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-streaming-configuration-in-unreal-engine" rel="noopener">Dokumentacja streamingu tekstur Unreal Engine</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zachowaj dane z chwili przycięcia.</b> PC Workman zapisuje kontekst systemu, którego nie pokazuje
+            średni FPS, a PresentMon dostarcza ślad każdej klatki. Program jest darmowy i otwartoźródłowy.
+            Analiza działa lokalnie. <a href="../../download/index_pl.html">Pobierz dla Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Jeśli cały komputer zwalnia, choć wszystkie wykresy wyglądają normalnie, przejdź do
+            <a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">poradnika o ukrytych wąskich gardłach &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Najpierw buduję monitor, później piszę poradnik na podstawie liczników, które naprawdę rozdzielają jedną usterkę od drugiej.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
