@@ -1,0 +1,262 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: użycie dysku 100 procent -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Menedżer zadań pokazuje 100% użycia dysku przy transferze 2 MB/s? Ten procent mierzy czas aktywności, nie prędkość. Sprawdź czas odpowiedzi, prawdziwe przyczyny i kolejność napraw.">
+    <meta name="keywords" content="dysk 100 procent Windows 11, użycie dysku 100, jak naprawić dysk 100%, wysoki czas odpowiedzi dysku, SysMain, indeksowanie Windows, wolny dysk HDD, duże użycie dysku">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/">
+    <meta property="og:title" content="Dlaczego dysk ma 100% użycia? Ta liczba nie oznacza tego, co myślisz">
+    <meta property="og:description" content="100% czasu aktywności nie oznacza pełnej prędkości. Odczytaj czas odpowiedzi, znajdź proces tworzący kolejkę i dopiero wtedy zmieniaj ustawienia.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Dlaczego dysk ma 100% użycia w Windows? Przyczyny i naprawa | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Dlaczego dysk ma 100% użycia w Windows? Prawdziwe przyczyny i skuteczne rozwiązania",
+      "description": "100% czasu aktywności dysku mierzy czas pracy, nie transfer. Jak czytać czas odpowiedzi, znaleźć przyczynę kolejki i naprawiać problem we właściwej kolejności.",
+      "url": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html",
+      "datePublished": "2026-07-29",
+      "dateModified": "2026-07-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/",
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-server/storage/storage-spaces/performance-history-for-drives"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
+        {"@type": "ListItem", "position": 3, "name": "Dysk ma 100 procent użycia", "item": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego Menedżer zadań pokazuje 100% dysku przy transferze 2 MB/s?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Procent mierzy czas, przez który dysk miał co najmniej jedno oczekujące żądanie, a nie ilość przenoszonych danych. Dysk HDD może przez cały czas obsługiwać małe, rozproszone operacje i pozostawać na 100% przy transferze kilku megabajtów na sekundę."}
+        },
+        {
+          "@type": "Question",
+          "name": "Jak naprawić 100% użycia dysku w Windows?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Najpierw otwórz Monitor zasobów, sprawdź czas odpowiedzi i proces tworzący kolejkę. Częstymi przyczynami są indeksowanie, Windows Update, skan antywirusa, SysMain na starym HDD i brak pamięci RAM wymuszający stronicowanie. Jednorazowym zadaniom pozwól się zakończyć, a usługi wyłączaj dopiero po potwierdzeniu przyczyny."}
+        }
+      ]
+    }
+    </script>
+    <style>
+    .dp{background:linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);border:1px solid #232a33;border-left:4px solid #f59e0b;padding:1.05rem 1.2rem;margin:1.3rem 0;border-radius:4px;font-family:var(--font-mono)}
+    .dp-head{display:flex;align-items:center;justify-content:space-between;font-size:.62rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid #1c222b;padding-bottom:.55rem;margin-bottom:.65rem}.dp-head .dp-tag{color:#f59e0b}.dp-row{display:flex;gap:1rem;font-size:.82rem;padding:.2rem 0;line-height:1.4}.dp-row .k{color:var(--text-dim);width:150px;flex-shrink:0}.dp-row .v{color:#e6eef6}.dp-row .v.ok{color:#a3e635}.dp-row .v.warn{color:#f59e0b}.dp-verdict{margin-top:.65rem;padding-top:.6rem;border-top:1px solid #1c222b;font-size:.82rem;color:var(--text-secondary);line-height:1.5}.dp-verdict b{color:#f59e0b}
+    @media (max-width:520px){.dp-row{flex-direction:column;gap:0}.dp-row .k{width:auto}}
+    </style>
+</head>
+<body class="page-monday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/why-is-my-disk-at-100-percent/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/why-is-my-disk-at-100-percent/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-monday">Dyski &middot; Poradnik</span>
+        <h1>Dlaczego dysk ma 100% użycia?</h1>
+        <p class="tagline">Menedżer zadań pokazuje 100%, a transfer wynosi 2 MB/s. Obie liczby są poprawne i właśnie stąd bierze się całe nieporozumienie.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>2026-07-29</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+        <p>
+            Komputer ledwo reaguje. Otwierasz Menedżera zadań, kolumna Dysk świeci na czerwono przy 100%, a obok
+            widzisz absurdalnie niski transfer, na przykład 1,8 MB/s. Sto procent czego? Dysk najwyraźniej nie
+            przenosi stu procent swojej możliwej ilości danych.
+        </p>
+        <p>
+            Większość poradników pomija najważniejszą rzecz: <strong>ten procent mierzy czas, nie prędkość</strong>.
+            Pokazuje część ostatniego przedziału, w której dysk miał co najmniej jedno żądanie do obsłużenia.
+            Mechaniczny HDD przekładający głowicę między tysiącami małych, rozrzuconych odczytów może być zajęty
+            w każdej milisekundzie, choć prawie nie przenosi danych. Wynik 100% nie znaczy więc, że dysk jest pełny,
+            zepsuty albo osiąga maksymalny transfer. Znaczy, że nie miał chwili przerwy.
+        </p>
+        <p>
+            To całkowicie zmienia sposób szukania przyczyny. Poniżej opisuję liczbę, która naprawdę ma znaczenie,
+            najczęstsze źródła problemu i kolejność działań, które warto podjąć. Na końcu pokazuję, jak PC Workman
+            odczytuje presję dysku zamiast powtarzać sam czerwony procent.
+        </p>
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#number">Liczba, która naprawdę ma znaczenie</a></li>
+                <li><a href="#causes">Prawdziwe przyczyny, od najczęstszych</a></li>
+                <li><a href="#fix">Co zrobić, we właściwej kolejności</a></li>
+                <li><a href="#pressure">Jak PC Workman odczytuje problem</a></li>
+            </ol>
+        </div>
+        <h2 id="number">Liczba, która naprawdę ma znaczenie</h2>
+        <p>
+            Na chwilę zapomnij o procencie i sprawdź <strong>czas odpowiedzi</strong>, który Windows podaje
+            w milisekundach. Mówi on, jak długo żądanie czeka, zanim dysk na nie odpowie. Właśnie tę wartość
+            odczuwasz podczas pracy:
+        </p>
+        <ul>
+            <li><strong>Poniżej około 20 ms:</strong> jest dobrze, nawet przy 100% czasu aktywności. Dysk ma dużo
+                pracy, ale za nią nadąża.</li>
+            <li><strong>Setki milisekund albo całe sekundy:</strong> to komputer, na który właśnie przeklinasz.
+                Żądania ustawiają się w kolejce i każde kolejne musi czekać.</li>
+        </ul>
+        <p>
+            Uruchom Menedżera zadań skrótem Ctrl+Shift+Esc albo, jeszcze lepiej, wpisz <code>resmon</code> i otwórz
+            kartę Dysk. Posortuj tabelę według czasu odpowiedzi. W jednym miejscu zobaczysz proces oraz skalę
+            problemu. Dysk na 100% z czasem 10 ms wykonuje swoją pracę. Ten sam wynik z 900 ms oznacza, że tonie
+            w kolejce.
+        </p>
+        <div class="callout warn">
+            <b>Stare dyski mechaniczne bardzo łatwo pozostają na 100%.</b> HDD obsługuje mniej więcej 80-150
+            losowych operacji na sekundę. Współczesny Windows, przeglądarka i antywirus potrafią żądać więcej,
+            więc taki dysk jest nasycony z samej swojej konstrukcji. W tym przypadku 100% nie jest błędem systemu.
+            To uczciwy powód, dla którego wymiana na SSD sprawia wrażenie nowego komputera.
+        </div>
+        <h2 id="causes">Prawdziwe przyczyny, od najczęstszych</h2>
+        <ol>
+            <li><strong>Jednorazowe zadanie, które jeszcze się nie skończyło.</strong> Indeksowanie po świeżej
+                instalacji lub przeniesieniu wielu plików, pobieranie Windows Update albo Delivery Optimization.
+                Z natury są tymczasowe. Zanim cokolwiek wyłączysz, zostaw komputer na godzinę i sprawdź ponownie.</li>
+            <li><strong>Skan antywirusa lub Defendera.</strong> Pełny skan odczytuje wszystko. Powinien się
+                zakończyć. Jeżeli zewnętrzny antywirus robi to bez przerwy, warto znaleźć przyczynę.</li>
+            <li><strong>Brak pamięci RAM wymuszający stronicowanie.</strong> Ten powód łatwo przeoczyć. Kiedy
+                brakuje RAM-u, Windows przenosi strony pamięci na dysk. Pozorny problem dysku jest wtedy problemem
+                pamięci. Poradnik o <a href="../why-is-my-ram-usage-so-high/index_pl.html">wysokim użyciu RAM-u</a>
+                wyjaśnia błędy twarde, czyli sygnał łączący oba zjawiska.</li>
+            <li><strong>SysMain, dawniej Superfetch, na wolnym dysku.</strong> Usługa wczytuje z wyprzedzeniem
+                programy, które według niej otworzysz. Na SSD bywa przydatna, na starym HDD czasem szkodzi.</li>
+            <li><strong>Jeden źle zachowujący się program.</strong> Klient chmury ponownie liczy skróty ogromnego
+                folderu, launcher sprawdza pliki gry albo logger zapisuje w pętli. Sortowanie według czasu
+                odpowiedzi pokazuje nazwę. Jeśli jej nie rozpoznajesz, sprawdź najpierw
+                <a href="../what-is-this-process/index_pl.html">czym jest ten proces</a>.</li>
+            <li><strong>Uszkadzający się dysk.</strong> Zdarza się rzadziej niż pozostałe przyczyny, ale jest
+                realne. Błędy odczytu powodują ponawianie operacji, które wygląda jak ciągła praca. Jeżeli 100%
+                towarzyszą kliknięcia, zamrożenia albo błędy w Podglądzie zdarzeń, potraktuj to jako pytanie
+                sprzętowe, nie optymalizacyjne.</li>
+        </ol>
+        <h2 id="fix">Co zrobić, we właściwej kolejności</h2>
+        <ol>
+            <li><strong>Najpierw wskaż przyczynę.</strong> Monitor zasobów, karta Dysk, sortowanie według czasu
+                odpowiedzi. Dziesięć sekund obserwacji jest warte więcej niż godzina losowego wyłączania usług.</li>
+            <li><strong>Pozwól skończyć jednorazowym zadaniom.</strong> Indeksowanie i aktualizacje mają koniec.
+                Przerwanie ich zwykle oznacza, że zaczną od nowa później.</li>
+            <li><strong>Jeśli liczba błędów twardych jest wysoka, zacznij od pamięci.</strong> Usunięcie presji RAM-u
+                ogranicza stronicowanie obciążające dysk.</li>
+            <li><strong>Dopiero wtedy rozważ usługi.</strong> Na starym HDD wyłączenie SysMain albo zawężenie
+                indeksu wyszukiwania może pomóc. Zmień jedną rzecz, uruchom ponownie i zmierz. Po sześciu zmianach
+                naraz nie ustalisz, która miała znaczenie.</li>
+            <li><strong>Pomiń mity.</strong> Czyszczenie rejestru i „optymalizatory dysku” tego nie naprawią.
+                Nie defragmentuj ręcznie SSD. Windows obsługuje jego optymalizację właściwie.</li>
+        </ol>
+        <h2 id="pressure">Jak PC Workman odczytuje problem</h2>
+        <p>
+            Wbudowany procent myli ludzi, bo odpowiada na niewłaściwe pytanie. PC Workman obserwuje parę, która
+            pokazuje prawdziwy obraz: jak intensywnie dysk pracuje i jak długo żądania czekają. Następnie wskazuje
+            proces stojący na początku kolejki:
+        </p>
+        <div class="dp">
+            <div class="dp-head"><span>Presja dysku</span><span class="dp-tag">na żywo</span></div>
+            <div class="dp-row"><span class="k">Czas aktywności</span><span class="v warn">100%</span></div>
+            <div class="dp-row"><span class="k">Transfer</span><span class="v">1,8 MB/s</span></div>
+            <div class="dp-row"><span class="k">Czas odpowiedzi</span><span class="v warn">średnio 640 ms</span></div>
+            <div class="dp-row"><span class="k">Główny proces</span><span class="v">SearchIndexer.exe</span></div>
+            <div class="dp-row"><span class="k">Typ dysku</span><span class="v">HDD</span></div>
+            <div class="dp-row"><span class="k">Presja pamięci</span><span class="v ok">normalna, bez stronicowania</span></div>
+            <div class="dp-verdict"><b>Dysk nasycony, nie uszkodzony.</b> Trwa indeksowanie na dysku mechanicznym. Powinno się zakończyć. Jeśli wraca codziennie, zawęź indeksowane foldery.</div>
+        </div>
+        <div class="callout warn">
+            <b>100% jest objawem, nigdy diagnozą.</b> Uczciwy odczyt wymaga trzech elementów: czasu oczekiwania
+            żądań, procesu, który je tworzy, oraz informacji, czy pamięć po cichu przenosi strony na dysk.
+            Narzędzie pokazujące wyłącznie czerwony procent mówi tylko to, co już wiesz: coś działa wolno.
+        </div>
+        <p>
+            Następnym razem nie zaczynaj od wyłączania usług. Sprawdź czas odpowiedzi, nazwę procesu na początku
+            kolejki i to, czy prawdziwym winowajcą nie jest pamięć. Najczęściej rozwiązaniem jest cierpliwość,
+            czasem ustawienie, a sporadycznie
+            <a href="../is-my-pc-healthy/index_pl.html">sygnał stanu wymagający poważnego sprawdzenia</a>.
+        </p>
+        <div class="guide-cta">
+            <b>Zobacz, co naprawdę tworzy kolejkę dysku.</b> PC Workman czyta razem czas aktywności, czas
+            odpowiedzi i proces stojący na początku kolejki, aby odróżnić nasycony dysk od uszkadzającego się.
+            Program jest bezpłatny, ma otwarty kod, a analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz wersję dla Windows</a>.
+        </div>
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Kolejne pytanie: czy sam dysk jest zdrowy?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Od 18 miesięcy publicznie rozwijam monitor systemu. Każdy poradnik opieram na tym, co naprawdę pokazują liczniki.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
