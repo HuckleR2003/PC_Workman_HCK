@@ -1,0 +1,206 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: Windows services -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Which Windows services can you turn off safely? A conditional list for telemetry, fax, Xbox, search and printing, plus the critical services you should leave alone.">
+    <meta name="keywords" content="Windows services to disable, unnecessary Windows 11 services, services.msc optimization, disable DiagTrack, Xbox services disable, safe Windows services, service startup manual">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
+    <meta property="og:title" content="Which Windows services can you turn off safely?">
+    <meta property="og:description" content="A conditional list of services to stop, a 33-service no-touch guard and a reversible way to test changes without guessing.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-06-12">
+    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>Which Windows Services Can You Disable Safely? Conditions and a No-Touch List | PC Workman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Which Windows services can you turn off safely?",
+      "description": "Services that can be stopped under specific conditions, the critical services that should stay untouched and a reversible way to test every change.",
+      "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html",
+      "datePublished": "2026-06-12",
+      "dateModified": "2026-07-25",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/",
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html"},
+        {"@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/"},
+        {"@type": "ListItem", "position": 3, "name": "Windows services", "item": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Which Windows services can I safely disable?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Only the ones whose function you genuinely do not use, such as print-related services when you have no printer, or fax. Never disable security, networking, audio, update or anything marked critical. Change one service at a time, restart, and verify the result, rather than turning off a dozen at once."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does disabling Windows services make a PC faster?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Usually very little. On a machine with an SSD and enough memory, most idle services consume no noticeable resources. The measurable gain appears mainly on older hardware, and even then it shows up as less disk work during startup rather than higher performance in everyday use. Every change should be reversible."
+          }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/ktore-uslugi-windows-wylaczyc/" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/ktore-uslugi-windows-wylaczyc/index_en.html" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Services &middot; Guide</span>
+        <h1>Which Windows services<br>can you turn off safely?</h1>
+        <p class="tagline">A service is safe to stop only when you understand what stops working with it.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-06-12</span><span>&middot;</span><span>7 min read</span>
+        </div>
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#rules">Three rules before changing a service</a></li>
+                <li><a href="#low-risk">Low-risk services on a home PC</a></li>
+                <li><a href="#conditional">Services that depend on how you use the machine</a></li>
+                <li><a href="#never">The no-touch list</a></li>
+                <li><a href="#reversible">How to test reversibly</a></li>
+            </ol>
+        </div>
+        <h2 id="rules">Three rules before changing a service</h2>
+        <ol>
+            <li><strong>Prefer Manual to Disabled.</strong> A manual service can still start when Windows needs it. A hard Disabled setting can break an update, printing or a device weeks later, after you have forgotten the cause.</li>
+            <li><strong>Record every change.</strong> A change without a note becomes a future question about why the camera or printer stopped. Record the service name, old startup type and date.</li>
+            <li><strong>Expect less background work, not a large FPS gain.</strong> Service tuning can reduce idle activity and memory use. It does not make the CPU or GPU faster.</li>
+        </ol>
+        <h2 id="low-risk">Low-risk services on a typical home desktop</h2>
+        <p>The condition matters. Stop these only when the feature in the description is genuinely unused:</p>
+        <ul>
+            <li><code>Fax</code>: Windows fax support.</li>
+            <li><code>DiagTrack</code>: Connected User Experiences and Telemetry. Its disk activity is more noticeable on an HDD.</li>
+            <li><code>dmwappushservice</code>: WAP push message routing, rarely useful on a home desktop.</li>
+            <li><code>RetailDemo</code>: the retail demonstration mode used on display PCs.</li>
+            <li><code>RemoteRegistry</code>: remote Registry editing, normally unnecessary on a home machine.</li>
+            <li><code>WMPNetworkSvc</code>: shares a Windows Media Player library across the network.</li>
+            <li><code>TabletInputService</code>: touch keyboard and handwriting support, only if the PC has no touch or pen input.</li>
+        </ul>
+        <h2 id="conditional">Services that depend on how you use the machine</h2>
+        <ul>
+            <li><strong>Xbox services</strong>, including <code>XblAuthManager</code>, <code>XblGameSave</code> and <code>XboxNetApiSvc</code>: leave them if you use Game Pass, the Xbox app or Xbox sign-in.</li>
+            <li><code>SysMain</code>: can create sustained disk work on an HDD. On an SSD it normally behaves well and should be left alone unless measurements show a problem.</li>
+            <li><code>WSearch</code>: stopping indexing reduces background disk use but makes Start and file search slower. Narrowing indexed locations is often a better compromise.</li>
+            <li><code>Spooler</code>: stop only on a PC that never prints, including to PDF or a shared printer.</li>
+            <li><code>bthserv</code> and <code>BTAGService</code>: stop only when Bluetooth audio and devices are not used.</li>
+        </ul>
+        <h2 id="never">The no-touch list</h2>
+        <p>
+            PC Workman's service profiles have a hard guard containing 33 critical services. The manager will
+            not stop them even if a profile contains a mistaken entry. The most important groups are:
+        </p>
+        <ul>
+            <li><code>RpcSs</code>, <code>RpcEptMapper</code>, <code>DcomLaunch</code>, <code>LSM</code> and core session services.</li>
+            <li><code>WinDefend</code>, <code>MpsSvc</code>, <code>SecurityHealthService</code>, <code>BITS</code>, <code>CryptSvc</code> and the event services.</li>
+            <li><code>Dhcp</code>, <code>Dnscache</code>, <code>NlaSvc</code>, <code>Nsi</code> and the workstation networking stack.</li>
+            <li><code>Audiosrv</code> and <code>AudioEndpointBuilder</code>.</li>
+            <li><code>Power</code> and <code>Schedule</code>.</li>
+        </ul>
+        <div class="callout warn">
+            <b>Close any guide that tells you to disable a service without explaining what it does and what will stop working.</b>
+            The service name is not enough information to make the change safely.
+        </div>
+        <h2 id="reversible">How to test reversibly</h2>
+        <p>
+            Open <code>services.msc</code>, choose the service, save its current startup type, change it to Manual
+            and stop it. Test for at least several normal work sessions. Change two or three services at a time,
+            not twenty, so a failure has a short list of possible causes.
+        </p>
+        <p>
+            PC Workman 1.8.5 ships two built-in profiles matching the current code: Gaming has 18 candidate
+            services and Economy has 21. A third Manager profile is user-composed and starts empty. The 33-entry
+            critical guard applies to every profile, state is recorded, and changes can be restored.
+        </p>
+        <div class="guide-cta">
+            <b>Use measured, reversible profiles.</b> PC Workman records service changes, applies the 33-service
+            no-touch guard and restores the previous state. The tool is free, open source and local.
+            <a href="../../download/">Download PC Workman</a>.
+        </div>
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>The profile counts and protected-service list in this guide are checked against the code that ships in PC Workman 1.8.5.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

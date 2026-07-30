@@ -8,10 +8,13 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Które usługi Windows można bezpiecznie wyłączyć w 2026? Konkretna lista: telemetria, fax, usługi Xbox — i te, których nie wolno ruszać. Na bazie profili Gaming/Work/Economy z PC Workmana.">
+    <meta name="description" content="Które usługi Windows można bezpiecznie wyłączyć w 2026? Warunkowa lista dla telemetrii, faksu i usług Xbox oraz 33-elementowa ochrona usług krytycznych.">
     <meta name="keywords" content="usługi Windows do wyłączenia, które usługi Windows wyłączyć, services.msc optymalizacja, niepotrzebne usługi Windows 11, niepotrzebne usługi Windows 10, DiagTrack wyłączyć, usługi Xbox wyłączyć">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
     <meta property="og:title" content="Które usługi Windows można bezpiecznie wyłączyć">
     <meta property="og:description" content="Konkretna lista usług do zatrzymania — i tych, których nie wolno ruszać. Z whitelistą bezpieczeństwa, na bazie profili z PC Workmana.">
     <meta property="og:type" content="article">
@@ -41,6 +44,10 @@
       "datePublished": "2026-06-12",
       "dateModified": "2026-06-12",
       "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-server/security/windows-services/security-guidelines-for-disabling-system-services-in-windows-server"
+      ],
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
       "author": {
         "@type": "Person",
@@ -59,6 +66,31 @@
         { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
         { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
         { "@type": "ListItem", "position": 3, "name": "Usługi Windows", "item": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Ktore uslugi Windows mozna bezpiecznie wylaczyc?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Bezpiecznie mozna zatrzymac tylko te uslugi, ktorych funkcji faktycznie nie uzywasz, na przyklad zwiazane z drukowaniem, gdy nie masz drukarki, lub z faksem. Nigdy nie wylaczaj uslug bezpieczenstwa, sieci, dzwieku, aktualizacji ani tych oznaczonych jako krytyczne. Zmieniaj po jednej usludze, restartuj i sprawdzaj efekt, zamiast wylaczac kilkanascie naraz."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy wylaczanie uslug Windows przyspiesza komputer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Zwykle bardzo niewiele. Na komputerze z dyskiem SSD i wystarczajaca ilescia pamieci wiekszosc uslug w stanie bezczynnosci nie zuzywa zauwazalnych zasobow. Realny zysk pojawia sie glownie na starszych maszynach, i to raczej w postaci mniejszego obciazenia dysku przy starcie niz wyzszej wydajnosci w codziennej pracy. Kazda zmiana powinna byc odwracalna."
+          }
+        }
       ]
     }
     </script>
@@ -82,7 +114,7 @@
         <span class="gt-lang">
             <a href="/index.html" class="active" data-lang="pl">PL</a>
             <span class="gt-slash">/</span>
-            <a href="/index_en.html" data-lang="en">EN</a>
+            <a href="/guides/ktore-uslugi-windows-wylaczyc/index_en.html" data-lang="en" lang="en">EN</a>
         </span>
     </nav>
 
@@ -138,8 +170,9 @@
 
         <h2 id="nietykalne">Whitelist: tego nie ruszaj</h2>
         <p>
-            Profile usług w PC Workmanie (Gaming zatrzymuje 14 usług, Work — 23, Economy — 17) działają
-            na twardej whitelistcie 33 usług krytycznych, których program nie zatrzyma nigdy. Najważniejsze z nich:
+            Profile usług w PC Workmanie 1.8.5 mają aktualnie 18 pozycji kandydujących w Gaming i 21
+            w Economy. Profil Manager zaczyna pusty i jest układany przez użytkownika. Każdy z nich działa
+            z twardą listą 33 usług krytycznych, których program nie zatrzyma nigdy. Najważniejsze z nich:
         </p>
         <ul>
             <li><code>RpcSs</code>, <code>DcomLaunch</code>, <code>LSM</code> — fundament komunikacji systemu; ich zatrzymanie = crash.</li>
@@ -169,7 +202,8 @@
 
         <div class="guide-cta">
             <b>Profile zamiast ręcznego klikania.</b> Gaming, Work albo Economy — jeden przełącznik,
-            whitelist 33 usług krytycznych, pełny revert. Za darmo, open source, offline.
+            listę ochrony 33 usług krytycznych i możliwość przywrócenia poprzedniego stanu.
+            Program jest darmowy i otwartoźródłowy.
             <a href="../../download/index_pl.html">Pobierz PC Workmana</a>.
         </div>
 
