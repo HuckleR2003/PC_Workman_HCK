@@ -1,0 +1,396 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: co wymienić najpierw -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="RAM, SSD, procesor czy karta graficzna? Dopasuj modernizację do presji pamięci, opóźnień dysku oraz zapasu CPU i GPU, zanim wydasz pieniądze.">
+    <meta name="keywords" content="co wymienić najpierw w komputerze, RAM czy SSD, procesor czy karta graficzna, modernizacja komputera, wąskie gardło PC, co ulepszyć w komputerze">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <meta property="og:title" content="Co wymienić najpierw: RAM, SSD, procesor czy kartę?">
+    <meta property="og:description" content="Najdroższa część nie zawsze jest ograniczeniem. Najpierw odczytaj obciążenie, potem wydawaj.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Co Wymienić Najpierw: RAM, SSD, Procesor czy Kartę?</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Co wymienić najpierw: RAM, SSD, procesor czy kartę graficzną?",
+      "description": "Poradnik wyboru modernizacji na podstawie presji pamięci, opóźnienia dysku, zapasu CPU i GPU, czasu klatki, temperatur oraz taktowania.",
+      "url": "https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://www.intel.com/content/www/us/en/gaming/resources/what-is-bottlenecking-my-pc.html",
+        "https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/",
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+        "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/hard-faults",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/r_hardware.py",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat.py"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Co wymienić najpierw?", "item": "https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Co wymienić najpierw: RAM czy SSD?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Wybierz RAM, gdy mała ilość dostępnej pamięci, wysokie użycie pamięci zadeklarowanej i hard faulty pokrywają się ze spowolnieniem. Wybierz SSD, gdy system lub aktywne programy nadal działają z HDD albo problemem są zmierzone opóźnienia dysku i ładowanie. Żadna z tych części nie jest zawsze pierwsza." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do gier wymienić najpierw procesor czy kartę graficzną?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Przetestuj tę samą, powtarzalną scenę. GPU stale pracujące blisko limitu i silna poprawa po zmniejszeniu rozdzielczości lub ustawień graficznych wskazują limit GPU. Zapas GPU, pełny krytyczny wątek CPU i reakcja na ustawienia symulacji, tłumu lub zasięgu widzenia wskazują limit CPU." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy kalkulator bottlenecku powie, co wymienić?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Statyczny kalkulator nie zna gry, sceny, ustawień, docelowego FPS, procesów w tle ani temperatur Twojego komputera. Może najwyżej podpowiedzieć, co sprawdzić. Powtarzalne obciążenie i pomiary z tego obciążenia są mocniejszym dowodem." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .upgrade-board{
+        display:grid; grid-template-columns:repeat(4,1fr); gap:.55rem; margin:1.4rem 0;
+        padding:1rem; background:#080b0b; border:1px solid #25302a; border-left:4px solid #a3e635;
+    }
+    .upgrade-board div{ background:#0d1110; border:1px solid #252d29; padding:.8rem; min-height:126px; }
+    .upgrade-board b{ display:block; color:#a3e635; font-family:var(--font-mono);
+        font-size:.72rem; letter-spacing:1px; margin-bottom:.45rem; }
+    .upgrade-board span{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; }
+    .evidence-table td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:760px){ .upgrade-board{ grid-template-columns:1fr 1fr; } }
+    @media(max-width:460px){ .upgrade-board{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/what-should-i-upgrade-first/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/what-should-i-upgrade-first/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Sprzęt &middot; Modernizacja</span>
+        <h1>Wymień wąskie gardło. Nie najdroższy element.</h1>
+        <p class="tagline">Najdroższa część może być tą, której Twoje obciążenie potrzebuje najmniej.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-07-30</span><span>&middot;</span><span>16 min czytania</span>
+        </div>
+
+        <p>
+            Komputer może działać wolno z czterech zupełnie różnych powodów. Jeden czeka na pliki z dysku
+            talerzowego. Drugiemu kończy się pamięć zadeklarowana, gdy razem działają gra, przeglądarka i Discord.
+            W trzecim pojedynczy wątek gry nie nadąża dostarczać pracy mocnej karcie. Czwarty renderuje każdą
+            klatkę tak szybko, jak pozwala GPU.
+        </p>
+        <p>
+            Każdy właściciel może zadać to samo pytanie: <strong>co wymienić najpierw?</strong> Odpowiedzi nie
+            da wiek komputera, cena podzespołu ani procent z kalkulatora bottlenecku. Daje ją konkretne zadanie,
+            które działa za wolno, oraz zasób, na który to zadanie naprawdę czeka.
+        </p>
+        <p>
+            Nie znajdziesz tu listy zakupów. Ceny i generacje sprzętu się zmieniają. Metoda diagnozy pozostaje:
+            odtwórz problem, zapisz stan komputera w złym momencie, zmień jedną rzecz, a zakup rób dopiero wtedy,
+            gdy ten sam dowód dwa razy wskazuje ten sam podzespół.
+        </p>
+
+        <div class="upgrade-board" aria-label="Cztery sygnały modernizacji">
+            <div><b>SSD</b><span>Ładowanie i reakcja czekają na dysk. System lub aktywny program nadal działa z HDD albo podczas pauzy rośnie opóźnienie.</span></div>
+            <div><b>RAM</b><span>Dostępna pamięć znika, pamięć zadeklarowana zbliża się do limitu, a hard faulty pokrywają się ze spowolnieniem.</span></div>
+            <div><b>CPU</b><span>Krytyczny wątek jest pełny, a GPU ma zapas. Zmiana ustawień obciążających procesor zmienia wynik.</span></div>
+            <div><b>GPU</b><span>Karta stale pracuje przy limicie. Rozdzielczość lub ustawienia graficzne od razu zmieniają wydajność.</span></div>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#question">Zamień „wolno” w jedno sprawdzalne pytanie</a></li>
+                <li><a href="#capture">Dziesięciominutowy zapis dowodów</a></li>
+                <li><a href="#parts">Sygnał dla SSD, RAM-u, CPU i GPU</a></li>
+                <li><a href="#traps">Pułapki modernizacji, które kosztują pieniądze</a></li>
+                <li><a href="#workman">Co PC Workman potrafi ocenić dzisiaj</a></li>
+                <li><a href="#verdict">Końcowa tabela decyzji</a></li>
+            </ol>
+        </div>
+
+        <h2 id="question">Zamień „wolno” w jedno sprawdzalne pytanie</h2>
+        <p>
+            „Komputer działa wolno” łączy czas uruchamiania, otwieranie programów, kompilowanie kodu, eksport
+            filmu, ładowanie gry, średni FPS i płynność klatek w jednym zdaniu. Podzespół może ograniczać jedno
+            z tych zadań i nie mieć znaczenia w drugim.
+        </p>
+        <p>
+            Zacznij od zdania, które da się zobaczyć. „Pulpit przestaje reagować podczas otwierania projektu.”
+            „Ta trzydziestosekundowa trasa w grze spada poniżej mojego celu.” „Eksport tego pliku trwa dziewięć
+            minut.” „Powrót do gry powoduje pracę dysku i pauzę.” Powtarzalny początek i koniec umożliwiają
+            prawdziwe porównanie przed zmianą i po niej.
+        </p>
+        <div class="callout">
+            <b>Modernizacja nie leczy niesprawnego komputera.</b> Jeśli wydajność spada dopiero po rozgrzaniu,
+            najpierw sprawdź chłodzenie i taktowanie. Wymiana ograniczonego temperaturą procesora na szybszy może
+            kupić droższą wersję tego samego problemu. Przed zakupem użyj poradnika o
+            <a href="../cpu-gpu-throttling-thermal-vs-power/index_pl.html">throttlingu i limitach mocy</a>.
+        </div>
+
+        <h2 id="capture">Dziesięciominutowy zapis dowodów</h2>
+        <ol>
+            <li><strong>Wybierz jedno obciążenie, które uzasadnia zakup.</strong> Nie mieszaj gry, Windows Update
+                i bezczynnego pulpitu w jedną ocenę.</li>
+            <li><strong>Przygotuj powtarzalny przebieg.</strong> Ten sam zapis gry, projekt, ustawienie eksportu
+                lub zestaw programów. W grze zanotuj rozdzielczość i ustawienia.</li>
+            <li><strong>Zapisz CPU z podziałem na procesory logiczne, obciążenie i pamięć GPU, RAM, aktywność
+                i opóźnienie dysku, temperatury oraz taktowanie.</strong> Średnie użycie CPU nie wystarczy.</li>
+            <li><strong>Zaznacz zły przedział.</strong> Znaczenie mają liczby pokrywające się z pauzą, złą
+                klatką albo długim czasem wykonania.</li>
+            <li><strong>Zmień jedną darmową rzecz.</strong> Rozdzielczość przy podejrzeniu GPU, jeden znany
+                program przy RAM-ie albo położenie programu przy podejrzeniu dysku.</li>
+            <li><strong>Powtórz.</strong> Zachowaj wynik „bez zmiany”. Właśnie usunął podejrzanego.</li>
+        </ol>
+        <p>
+            Microsoft zaleca korelowanie liczników wydajności zamiast oceniania jednego procentu. Dysk może mieć
+            wysokie opóźnienie bez imponującego transferu. Pamięć zadeklarowana opisuje inną presję niż samo
+            użycie fizycznego RAM-u. Hard fault oznacza, że Windows musiał pobrać stronę pamięci z dysku, lecz
+            pojedynczy hard fault nie jest jeszcze zleceniem zakupu. Liczy się czas i powtarzalność.
+        </p>
+
+        <h2 id="parts">Sygnał dla każdego podzespołu</h2>
+
+        <h3>Wybierz SSD, gdy komputer czeka na dane</h3>
+        <p>
+            Przeniesienie Windows i aktywnych programów z HDD na SSD jest najbardziej jednoznaczną modernizacją
+            ogólnego zastosowania z tej listy. Zmienia czas dostępu, uruchamianie aplikacji, aktualizacje i pracę
+            na wielu małych plikach. Nie podnosi automatycznie FPS w grze ograniczonej kartą, gdy potrzebne dane
+            są już w pamięci.
+        </p>
+        <p>
+            Zmierz pauzę. Jeśli podczas oczekiwania rośnie aktywność oraz opóźnienie odczytu lub zapisu, dysk
+            staje się prawdziwym podejrzanym. Gdy widzisz 100% aktywności przy małym transferze, poradnik o
+            <a href="../why-is-my-disk-at-100-percent/index_pl.html">100% użycia dysku</a> wyjaśnia różnicę.
+            Jeśli system już działa ze sprawnego NVMe, a dysk podczas problemu jest spokojny, wyższy wynik
+            benchmarku prawdopodobnie niczego nie naprawi.
+        </p>
+
+        <h3>Wybierz RAM, gdy pojemności regularnie brakuje</h3>
+        <p>
+            RAM zajęty przez cache nie jest zmarnowany, a wysoki procent sam w sobie nie jest awarią. Mocniejszy
+            wzór to mała ilość dostępnej pamięci, zadeklarowanie zbliżające się do limitu, powtarzalne hard faulty
+            podczas spowolnienia oraz poprawa po zamknięciu znanego, pamięciożernego obciążenia.
+        </p>
+        <p>
+            Pojemność musi pasować do prawdziwej sesji. Czysty benchmark gry może się mieścić, a normalny zestaw
+            gry, przeglądarki, komunikatora, nagrywania i narzędzi programistycznych już nie. Mierz sesję, którą
+            chcesz zachować. Poradnik o <a href="../why-is-my-ram-usage-so-high/index_pl.html">wysokim użyciu RAM</a>
+            rozdziela użyteczny cache, aktywne zbiory robocze i prawdziwą presję.
+        </p>
+
+        <h3>Wybierz CPU, gdy krytyczna praca nie nadąża karmić reszty</h3>
+        <p>
+            Limit CPU nie wymaga 100% całego procesora. Jeden wątek gry może wyznaczać następną klatkę, gdy
+            pozostałe procesory logiczne mają zapas. GPU może wtedy zwolnić, bo czeka na nową pracę. Zespół
+            DirectX opisuje dokładnie tę relację: CPU przygotowuje polecenia renderowania, a w aplikacji
+            ograniczonej procesorem karta pozostaje bezczynna między porcjami pracy.
+        </p>
+        <p>
+            Zmniejsz ustawienia obciążające CPU, na przykład symulację, tłum lub zasięg widzenia, nie tylko
+            rozdzielczość. Sprawdź inną reprezentatywną scenę. W pracy poza grami porównaj czas ukończenia przy
+            obserwacji rdzeni i efektywnego taktowania. Następnie potwierdź socket, chipset, BIOS, chłodzenie
+            i zasilanie w poradniku <a href="../will-this-cpu-fit-motherboard/index_pl.html">zgodności procesora</a>.
+        </p>
+
+        <h3>Wybierz GPU, gdy ograniczeniem pozostaje renderowanie</h3>
+        <p>
+            Karta pracująca blisko swojego stałego limitu wykonuje swoje zadanie. Staje się celem modernizacji,
+            gdy nadal nie osiąga ustalonej rozdzielczości, jakości lub FPS, a wynik wyraźnie reaguje na obniżenie
+            rozdzielczości albo ustawień graficznych. Ta reakcja jest ważniejsza niż statyczna tabela par CPU/GPU.
+        </p>
+        <p>
+            Oddziel wydajność od pojemności pamięci karty. Problemy z teksturami, rozmiar lokalnego modelu AI
+            i pamięć współdzielona wymagają innego testu. Wyjaśnia go poradnik
+            <a href="../how-much-vram-do-i-need/index_pl.html">ile VRAM naprawdę potrzebujesz</a>. Przy nierównej
+            płynności zbadaj czas klatki i 1% low w poradniku o
+            <a href="../game-stutters-high-fps-frame-time/index_pl.html">przycięciach mimo wysokiego FPS</a>.
+        </p>
+
+        <h2 id="traps">Pułapki modernizacji, które kosztują pieniądze</h2>
+        <table class="evidence-table">
+            <thead><tr><th>Twierdzenie</th><th>Dlaczego zawodzi</th><th>Lepszy dowód</th></tr></thead>
+            <tbody>
+                <tr><td>„Ten procesor jest stary.”</td><td>Wiek nie opisuje obciążenia ani celu.</td><td>Pełny wątek, zapas GPU i czas wykonania tego samego zadania.</td></tr>
+                <tr><td>„Kalkulator pokazuje 27% bottlenecku.”</td><td>Nie zna sceny, ustawień, tła, taktowania ani temperatur.</td><td>Powtarzalny lokalny test z jedną zmienną.</td></tr>
+                <tr><td>„RAM ma 80%, więc potrzebuję więcej.”</td><td>Windows używa wolnej pamięci jako cache. Procent nie dowodzi presji.</td><td>Pamięć dostępna, zadeklarowana, hard faulty i ten sam moment spowolnienia.</td></tr>
+                <tr><td>„Benchmark SSD jest dwa razy szybszy.”</td><td>Szczytowy transfer może nie być tym, na co czeka program.</td><td>Opóźnienie i aktywność podczas prawdziwej pauzy.</td></tr>
+                <tr><td>„GPU ma 100%, więc coś jest nie tak.”</td><td>Pełne użycie jest normalne w obciążeniu ograniczonym kartą.</td><td>Brak osiągnięcia celu i reakcja na ustawienia GPU.</td></tr>
+                <tr><td>„Kupię na przyszłość.”</td><td>Nieokreślona przyszłość nie ma mierzalnego ograniczenia.</td><td>Zakup dla nazwanego zadania, celu i ścieżki zgodności.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="workman">Co PC Workman potrafi ocenić dzisiaj</h2>
+        <p>
+            Doradca modernizacji PC Workmana czyta do czternastu dni własnej historii CPU, GPU, RAM-u i temperatur.
+            Szuka obciążenia CPU przy zapasie GPU, obciążenia GPU przy zapasie procesora, powtarzalnej presji
+            pamięci oraz wysokiej temperatury CPU. Gdy nie ma sensownej historii, mówi o tym zamiast wymyślać
+            rekomendację.
+        </p>
+        <p>
+            Upgrade Readiness sprawdza później stronę fizyczną: socket i generacje chipsetu, możliwą potrzebę
+            aktualizacji BIOS-u, generację RAM-u, konsekwencje dla chłodzenia, klasę wydajności GPU, VRAM,
+            zalecenia zasilania i złącza. Logika działa lokalnie i jest widoczna w publicznym kodzie.
+        </p>
+        <p>
+            <strong>Te sygnały nadal potrzebują konkretnego zadania.</strong> Czternastodniowa średnia może
+            mieszać pracę, granie i bezczynność. PC Workman nie zna Twojego budżetu ani tego, czy celem jest
+            60, 144 czy 240 FPS. Użyj historii do znalezienia podejrzanego, a potem odtwórz zadanie, dla którego
+            zakup ma znaczenie.
+        </p>
+
+        <h2 id="verdict">Końcowa tabela decyzji</h2>
+        <table class="evidence-table">
+            <thead><tr><th>Zaobserwowany wzór</th><th>Pierwsze działanie</th><th>Wymień tylko wtedy, gdy</th></tr></thead>
+            <tbody>
+                <tr><td>System lub programy są na HDD, a dominuje ładowanie</td><td>Przenieś aktywne obciążenie na SSD</td><td>Zmierzonym oczekiwaniem jest dysk</td></tr>
+                <tr><td>Mało dostępnej pamięci, rośnie zadeklarowanie i hard faulty</td><td>Zamknij jednego potwierdzonego winowajcę</td><td>Poprawa się powtarza, a normalna sesja musi pozostać otwarta</td></tr>
+                <tr><td>Pełny krytyczny wątek CPU, GPU ma zapas</td><td>Zmniejsz pracę CPU i sprawdź taktowanie</td><td>Zadanie reaguje, a zgodność została potwierdzona</td></tr>
+                <tr><td>GPU przy limicie, wynik reaguje na rozdzielczość lub jakość</td><td>Ustal docelową rozdzielczość i FPS</td><td>Obecna karta nie osiąga nazwanego celu</td></tr>
+                <tr><td>Taktowanie spada wraz ze wzrostem temperatury</td><td>Napraw chłodzenie lub potwierdzony limit mocy</td><td>Podzespół nadal ogranicza po przywróceniu normalnej pracy</td></tr>
+                <tr><td>Wszystko ma zapas</td><td>Znajdź prawdziwe oczekiwanie przed zakupem</td><td>Pojawi się powtarzalne wąskie gardło</td></tr>
+            </tbody>
+        </table>
+
+        <div class="callout warn">
+            <b>„Nie trzeba nic wymieniać” jest użytecznym wynikiem.</b> Chroni budżet i kieruje diagnozę z
+            powrotem do prawdziwego objawu. Podzespół musi zasłużyć dowodami na miejsce na liście zakupów.
+        </div>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Co wymienić najpierw: RAM czy SSD?</h3>
+        <p>
+            SSD, gdy system lub aktywny program czeka na HDD albo zmierzone opóźnienie dysku. RAM, gdy mała ilość
+            dostępnej pamięci, wysokie zadeklarowanie i hard faulty pokrywają się ze spowolnieniem.
+        </p>
+        <h3>Do gier wymienić procesor czy kartę?</h3>
+        <p>
+            Powtórz tę samą scenę. Pełne GPU reagujące na ustawienia graficzne wskazuje kartę. Zapas GPU i pełny
+            krytyczny wątek wskazują procesor.
+        </p>
+        <h3>Czy kalkulator bottlenecku może zdecydować?</h3>
+        <p>
+            Nie. Nie widzi gry, sceny, ustawień, procesów w tle, temperatur ani celu Twojego komputera.
+            Potraktuj go jako pomysł na test, nie werdykt zakupowy.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne i implementacja</h2>
+        <ul class="source-list">
+            <li><a href="https://www.intel.com/content/www/us/en/gaming/resources/what-is-bottlenecking-my-pc.html" rel="noopener">Intel: czym jest wąskie gardło komputera?</a></li>
+            <li><a href="https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/" rel="noopener">Microsoft DirectX: ograniczenie CPU i GPU</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows" rel="noopener">Microsoft: liczniki wydajności Windows dla dysku, pamięci i CPU</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/hard-faults" rel="noopener">Microsoft: hard faulty pamięci</a>.</li>
+            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/r_hardware.py" rel="noopener">Kod PC Workmana: doradca modernizacji oparty na historii</a>.</li>
+            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat.py" rel="noopener">Kod PC Workmana: silnik zgodności Upgrade Readiness</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Przed zakupem odczytaj własne obciążenie.</b> PC Workman przechowuje lokalną historię użycia,
+            pamięci, temperatur i taktowania, a następnie sprawdza zgodność proponowanej modernizacji. Bezpłatny
+            i open source. <a href="../../download/index_pl.html">Pobierz dla Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Jeśli komputer działa wolno, choć każdy procent wygląda niewinnie, przejdź do
+            <a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">poradnika o ukrytych ograniczeniach &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Zbudowałem doradcę modernizacji tak, aby najpierw czytał historię komputera i odmawiał rekomendacji, gdy brakuje dowodów.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: what to upgrade first -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="RAM, SSD, CPU or GPU? Match the upgrade to measured memory pressure, storage latency, frame time and CPU/GPU headroom before spending money.">
+    <meta name="keywords" content="what should I upgrade first, RAM or SSD, CPU or GPU upgrade, PC bottleneck, computer upgrade guide, gaming PC upgrade priority">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <meta property="og:title" content="What should you upgrade first: RAM, SSD, CPU or GPU?">
+    <meta property="og:description" content="The expensive part is not always the limiting part. Read the workload first, then spend.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-should-i-upgrade-first/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>What Should I Upgrade First: RAM, SSD, CPU or GPU?</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What should you upgrade first: RAM, SSD, CPU or GPU?",
+      "description": "An evidence-first guide to choosing a PC upgrade from memory pressure, storage latency, CPU and GPU headroom, frame time, temperatures and clocks.",
+      "url": "https://pcworkman.dev/guides/what-should-i-upgrade-first/",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://www.intel.com/content/www/us/en/gaming/resources/what-is-bottlenecking-my-pc.html",
+        "https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/",
+        "https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows",
+        "https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/hard-faults",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/r_hardware.py",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat.py"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "What should I upgrade first?", "item": "https://pcworkman.dev/guides/what-should-i-upgrade-first/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Should I upgrade RAM or SSD first?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Choose RAM when low available memory, a high commit charge and hard faults line up with the slowdown. Choose an SSD when the operating system or active applications are still on a hard drive, or when measured storage latency and loading are the problem. Neither upgrade is universally first." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I upgrade the CPU or GPU for gaming?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Test the same repeatable scene. A GPU that stays near its limit and responds strongly to lower resolution or GPU-heavy settings points toward a GPU limit. GPU headroom combined with a full critical CPU thread and sensitivity to simulation, crowd or view-distance settings points toward a CPU limit." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can a bottleneck calculator tell me what to upgrade?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A static calculator cannot know the game, scene, settings, target frame rate, background load or temperatures of your actual machine. Use it as a rough compatibility prompt at most. A repeatable workload and measurements from that workload are stronger evidence." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .upgrade-board{
+        display:grid; grid-template-columns:repeat(4,1fr); gap:.55rem; margin:1.4rem 0;
+        padding:1rem; background:#080b0b; border:1px solid #25302a; border-left:4px solid #a3e635;
+    }
+    .upgrade-board div{ background:#0d1110; border:1px solid #252d29; padding:.8rem; min-height:126px; }
+    .upgrade-board b{ display:block; color:#a3e635; font-family:var(--font-mono);
+        font-size:.72rem; letter-spacing:1px; margin-bottom:.45rem; }
+    .upgrade-board span{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; }
+    .evidence-table td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:760px){ .upgrade-board{ grid-template-columns:1fr 1fr; } }
+    @media(max-width:460px){ .upgrade-board{ grid-template-columns:1fr; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/what-should-i-upgrade-first/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/what-should-i-upgrade-first/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Hardware &middot; Upgrade</span>
+        <h1>Upgrade the bottleneck. Not the price tag.</h1>
+        <p class="tagline">The most expensive part may be the one your workload needs least.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-30</span><span>&middot;</span><span>16 min read</span>
+        </div>
+
+        <p>
+            A PC can feel slow for four completely different reasons. One machine waits for files on a hard
+            drive. Another runs out of committed memory with twelve browser tabs, a game and Discord open.
+            A third feeds a powerful GPU from one exhausted game thread. A fourth renders every frame as fast
+            as its graphics card can manage.
+        </p>
+        <p>
+            All four owners can ask the same question: <strong>what should I upgrade first?</strong> The answer
+            cannot come from the age of the computer, the price of the component or a percentage from a
+            bottleneck calculator. It comes from the exact task that feels slow and the resource that makes
+            that task wait.
+        </p>
+        <p>
+            This guide does not name a shopping list. Prices and product generations change. The diagnostic
+            method does not: reproduce the problem, record the system at the bad moment, change one variable,
+            then buy only when the same evidence points to the same part twice.
+        </p>
+
+        <div class="upgrade-board" aria-label="Four upgrade signals">
+            <div><b>SSD</b><span>Loading and response wait on storage. The active system or application still lives on a hard drive, or latency rises during the pause.</span></div>
+            <div><b>RAM</b><span>Available memory collapses, commit approaches its limit and hard faults coincide with the slowdown.</span></div>
+            <div><b>CPU</b><span>A critical thread is full while the GPU has headroom. CPU-heavy settings change the result.</span></div>
+            <div><b>GPU</b><span>The GPU remains at its limit. Resolution or GPU-heavy settings change performance immediately.</span></div>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#question">Turn “slow” into one testable question</a></li>
+                <li><a href="#capture">The ten-minute evidence capture</a></li>
+                <li><a href="#parts">The signal for SSD, RAM, CPU and GPU</a></li>
+                <li><a href="#traps">Upgrade traps that waste money</a></li>
+                <li><a href="#workman">What PC Workman can decide today</a></li>
+                <li><a href="#verdict">The final decision table</a></li>
+            </ol>
+        </div>
+
+        <h2 id="question">Turn “slow” into one testable question</h2>
+        <p>
+            “My PC is slow” combines boot time, opening applications, compiling code, exporting video, loading
+            a game, average FPS and frame consistency into one sentence. A component can limit one of those
+            workloads and remain irrelevant to another.
+        </p>
+        <p>
+            Start with an observable sentence. “The desktop becomes unresponsive while a project opens.”
+            “This 30-second route through the game drops below my target.” “Exporting this file takes nine
+            minutes.” “Switching back to the game causes disk activity and a pause.” A repeatable start and
+            finish makes the before-and-after comparison possible.
+        </p>
+        <div class="callout">
+            <b>An upgrade is not a health treatment.</b> If performance deteriorates only after the machine
+            becomes hot, first investigate cooling and falling clocks. Replacing a thermally limited processor
+            with a faster one can buy a more expensive version of the same problem. Use the
+            <a href="../cpu-gpu-throttling-thermal-vs-power/">thermal versus power-limit guide</a> before
+            ordering parts.
+        </div>
+
+        <h2 id="capture">The ten-minute evidence capture</h2>
+        <ol>
+            <li><strong>Choose the one workload that justifies the purchase.</strong> Do not average a game,
+                Windows Update and an idle desktop into one verdict.</li>
+            <li><strong>Prepare a repeatable run.</strong> Use the same save, project, export preset or group of
+                applications. Note the resolution and settings for a game.</li>
+            <li><strong>Record CPU by logical processor, GPU load and memory, system RAM, storage activity and
+                latency, temperatures and clocks.</strong> An overall CPU average is not enough.</li>
+            <li><strong>Mark the bad interval.</strong> The meaningful numbers are the ones aligned with the
+                pause, low frame time or long completion time.</li>
+            <li><strong>Change one cheap variable.</strong> Lower resolution for a GPU suspicion, close a known
+                memory-heavy workload for RAM, or move one application to an SSD for storage.</li>
+            <li><strong>Repeat.</strong> Keep “no change” as evidence. It removes a suspect.</li>
+        </ol>
+        <p>
+            Microsoft recommends correlating performance counters instead of judging a single percentage.
+            Storage latency can be high without spectacular transfer speed. Committed memory describes a
+            different pressure than physical RAM use. A hard fault means Windows had to retrieve a memory page
+            from disk, but one isolated hard fault is not a purchase order. The timing and persistence matter.
+        </p>
+
+        <h2 id="parts">The signal for each upgrade</h2>
+
+        <h3>Choose an SSD when storage is the wait</h3>
+        <p>
+            Moving Windows and active applications from an HDD to an SSD is the clearest general-purpose
+            upgrade in this list. It changes seek latency, application launch, updates and file-heavy work.
+            It does not turn a GPU-limited game into a higher-frame-rate game after the required assets are
+            already in memory.
+        </p>
+        <p>
+            Measure the pause. If disk active time and read or write latency rise while the interface waits,
+            storage becomes a real suspect. If the disk is at 100% active time with tiny throughput, the
+            <a href="../why-is-my-disk-at-100-percent/">100% disk guide</a> explains why active time and speed
+            are not the same number. If the machine already runs from a healthy NVMe drive and storage remains
+            quiet during the problem, a faster benchmark score is unlikely to fix it.
+        </p>
+
+        <h3>Choose RAM when capacity repeatedly runs out</h3>
+        <p>
+            Cached RAM is not wasted RAM, and a large percentage alone is not a fault. The stronger pattern is
+            low available memory, a commit charge approaching the commit limit, repeated hard faults during the
+            slowdown and recovery after closing a known memory-heavy workload.
+        </p>
+        <p>
+            Capacity also has to match the real session. A clean game benchmark can fit while the user's normal
+            combination of the game, browser, voice chat, capture software and development tools cannot. Measure
+            the session you intend to keep. The <a href="../why-is-my-ram-usage-so-high/">high RAM usage guide</a>
+            separates useful cache, active working sets and actual pressure.
+        </p>
+
+        <h3>Choose a CPU when the critical work cannot feed the rest</h3>
+        <p>
+            CPU-limited does not require 100% total CPU. One game thread can determine the next frame while
+            other logical processors remain available. In that moment the GPU may drop below full use because
+            it is waiting for new work. Microsoft's DirectX team describes this exact relationship: the CPU
+            prepares rendering instructions, and a CPU-bound application leaves the GPU idle between batches.
+        </p>
+        <p>
+            Reduce CPU-heavy variables such as simulation, crowd density or view distance, not only resolution.
+            Test another representative scene. For non-gaming work, compare completion time while checking
+            per-core load and effective clocks. Then verify the replacement's socket, chipset, BIOS, cooling
+            and power support with the <a href="../will-this-cpu-fit-motherboard/">CPU compatibility guide</a>.
+        </p>
+
+        <h3>Choose a GPU when rendering remains the limiting stage</h3>
+        <p>
+            A GPU that stays near its sustainable limit is doing its job. It becomes an upgrade target when the
+            workload still misses your resolution, quality or frame-rate goal and responds clearly to reduced
+            resolution or GPU-heavy settings. The response matters more than a static CPU/GPU pairing chart.
+        </p>
+        <p>
+            Separate compute performance from video-memory capacity. Texture problems, local AI model size and
+            shared GPU memory require a different test. The <a href="../how-much-vram-do-i-need/">VRAM guide</a>
+            covers that budget. For inconsistent motion, inspect frame time and 1% lows with the
+            <a href="../game-stutters-high-fps-frame-time/">high-FPS stutter guide</a> before blaming the card.
+        </p>
+
+        <h2 id="traps">Upgrade traps that waste money</h2>
+        <table class="evidence-table">
+            <thead><tr><th>Claim</th><th>Why it fails</th><th>Better evidence</th></tr></thead>
+            <tbody>
+                <tr><td>“This CPU is old.”</td><td>Age does not describe the workload or target.</td><td>Critical-thread load, GPU headroom and completion time in the same task.</td></tr>
+                <tr><td>“The calculator says 27% bottleneck.”</td><td>It cannot know the scene, settings, background load, clocks or temperature.</td><td>A repeatable local run with one changed variable.</td></tr>
+                <tr><td>“RAM is at 80%, so I need more.”</td><td>Windows uses available memory for cache. Percentage alone does not prove pressure.</td><td>Available memory, commit, hard faults and a matching slowdown.</td></tr>
+                <tr><td>“The SSD benchmark is twice as fast.”</td><td>Peak sequential speed may not be the wait in your application.</td><td>Latency and activity during the actual pause.</td></tr>
+                <tr><td>“GPU usage is 100%, so something is wrong.”</td><td>A fully used GPU is normal in a GPU-bound workload.</td><td>Whether it misses your goal and responds to GPU-side settings.</td></tr>
+                <tr><td>“Buy now for future proofing.”</td><td>An undefined future has no measurable bottleneck.</td><td>Buy for a named workload, target and compatibility path.</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="workman">What PC Workman can decide today</h2>
+        <p>
+            PC Workman's upgrade advisor reads up to fourteen days of its own CPU, GPU, RAM and temperature
+            history. It looks for CPU load with GPU headroom, GPU load with CPU headroom, repeated RAM pressure
+            and high CPU temperature. If it lacks meaningful history, it says so instead of inventing a
+            recommendation.
+        </p>
+        <p>
+            Upgrade Readiness then checks the physical side: CPU socket and chipset generation, possible BIOS
+            support, RAM generation, cooler implications, GPU performance class, VRAM, power recommendation and
+            connector caveats. The logic is local and visible in the public source.
+        </p>
+        <p>
+            <strong>Those signals still need the workload.</strong> A fourteen-day system average can mix work,
+            gaming and idle time. PC Workman does not know your budget or whether 60, 144 or 240 FPS is the
+            target. Use its history to find a suspect, then reproduce the task that makes the purchase matter.
+        </p>
+
+        <h2 id="verdict">The final decision table</h2>
+        <table class="evidence-table">
+            <thead><tr><th>Observed pattern</th><th>First action</th><th>Upgrade only if</th></tr></thead>
+            <tbody>
+                <tr><td>System or applications run from HDD; loading and latency dominate</td><td>Move the active workload to an SSD</td><td>The measured wait is storage</td></tr>
+                <tr><td>Available memory is low; commit and hard faults rise with the pause</td><td>Close one proven consumer and repeat</td><td>Relief is repeatable and the normal session must stay open</td></tr>
+                <tr><td>Critical CPU thread full; GPU has headroom</td><td>Reduce CPU-heavy work and verify clocks</td><td>The task responds and compatibility is confirmed</td></tr>
+                <tr><td>GPU pinned; lower resolution or quality changes the result</td><td>Define the desired resolution and frame target</td><td>The current GPU cannot meet that named target</td></tr>
+                <tr><td>Clocks fall as temperature rises</td><td>Fix cooling or the confirmed power limit</td><td>The part remains limiting after normal operation is restored</td></tr>
+                <tr><td>Everything has headroom</td><td>Find the actual wait before shopping</td><td>A repeatable bottleneck appears</td></tr>
+            </tbody>
+        </table>
+
+        <div class="callout warn">
+            <b>“No upgrade needed” is a useful verdict.</b> It protects the budget and forces the diagnosis back
+            toward the actual symptom. A component should earn its place on the shopping list with evidence.
+        </div>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Should I upgrade RAM or SSD first?</h3>
+        <p>
+            SSD first when the active system or application waits on a hard drive or measured storage latency.
+            RAM first when low available memory, high commit and hard faults coincide with the slowdown.
+        </p>
+        <h3>Should I upgrade the CPU or GPU for gaming?</h3>
+        <p>
+            Repeat the same scene. GPU saturation that responds to GPU-heavy settings points toward the GPU.
+            GPU headroom plus a full critical CPU thread points toward the CPU.
+        </p>
+        <h3>Can a bottleneck calculator decide?</h3>
+        <p>
+            No. It cannot see the game, scene, settings, background load, temperatures or target of your actual
+            computer. Treat it as a prompt to test, not a purchase verdict.
+        </p>
+
+        <h2 id="sources">Primary sources and implementation</h2>
+        <ul class="source-list">
+            <li><a href="https://www.intel.com/content/www/us/en/gaming/resources/what-is-bottlenecking-my-pc.html" rel="noopener">Intel: what is bottlenecking my PC?</a></li>
+            <li><a href="https://devblogs.microsoft.com/directx/cpu-and-gpu-boundedness/" rel="noopener">Microsoft DirectX: CPU- and GPU-boundedness</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/performance/troubleshoot-performance-problems-in-windows" rel="noopener">Microsoft: Windows performance counters for storage, memory and CPU</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/previous-versions/windows/desktop/xperf/hard-faults" rel="noopener">Microsoft: hard faults</a>.</li>
+            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/r_hardware.py" rel="noopener">PC Workman source: history-based upgrade advice</a>.</li>
+            <li><a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat.py" rel="noopener">PC Workman source: Upgrade Readiness compatibility engine</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Read your own workload before you buy.</b> PC Workman keeps local history of load, memory,
+            temperature and clocks, then checks the compatibility of a proposed upgrade. Free and open source.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            If the PC feels slow while every percentage looks harmless, continue with
+            <a href="../pc-slow-but-task-manager-looks-normal/">the hidden bottlenecks guide &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I built the upgrade advisor to read the machine's history first and refuse the recommendation when the evidence is missing.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
