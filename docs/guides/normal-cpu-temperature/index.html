@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="What is a normal CPU temperature? There is no single safe number — it depends on the workload. Reference ranges for idle, office work, heavy load and gaming, plus when a 'normal' reading is actually a warning sign.">
+    <meta name="description" content="What is a normal CPU temperature? There is no single safe number, it depends on the workload. Reference ranges for idle, office work, heavy load and gaming, plus when a 'normal' reading is actually a warning sign.">
     <meta name="keywords" content="normal CPU temperature, safe CPU temp, CPU temperature while gaming, CPU temp idle, how hot is too hot CPU, CPU temperature guide, Tj Max">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/normal-cpu-temperature/">
@@ -146,21 +146,21 @@
         <h2 id="one-number">Why "below 80°C is fine" is a myth</h2>
         <p>
             Search this question and you'll get one number repeated everywhere: keep it under 80°C and you're fine.
-            That single threshold ignores the only thing that matters — <strong>context</strong>.
+            That single threshold ignores the only thing that matters, <strong>context</strong>.
             72°C on a desktop running Cyberpunk is healthy. The same 72°C while the machine sits idle
             on the desktop means something is wrong: a stuck background process, a dead fan,
             or thermal paste that dried out years ago.
         </p>
         <p>
             CPUs are designed to run hot under load. Modern Intel and AMD chips boost until they approach
-            their thermal limit (Tj&nbsp;Max — typically 95–105°C depending on the model) and only then throttle.
+            their thermal limit (Tj&nbsp;Max, typically 95–105°C depending on the model) and only then throttle.
             A short spike to 90°C during a render is the chip doing its job. Twelve hours at 90°C is a cooling problem.
         </p>
 
         <h2 id="reference">Reference ranges per workload</h2>
         <p>
             These ranges come from sensor data collected by <a href="../../index_en.html">PC Workman</a> across
-            real machines — desktops with air cooling. Laptops typically run 8–15°C higher in every bucket;
+            real machines, desktops with air cooling. Laptops typically run 8–15°C higher in every bucket;
             thin ultrabooks even more.
         </p>
         <pre><code># workload          CPU load        typical range
@@ -170,29 +170,29 @@ medium (office+)    40–70%          55–70°C
 heavy (render)      ≥70%            65–85°C
 gaming              GPU≥60%         60–80°C</code></pre>
         <p>
-            Your own machine will have narrower ranges than these — a specific CPU with a specific cooler
+            Your own machine will have narrower ranges than these, a specific CPU with a specific cooler
             in a specific case is far more predictable than the global average. That's the whole idea behind
             learning <em>your</em> baseline instead of trusting a universal chart.
         </p>
 
         <div class="callout warn">
             <b>Laptop note:</b> the project behind this guide started on a 2014 laptop that idled at 94°C.
-            That was not "an old laptop being an old laptop" — it was six years of dust and dead thermal paste.
+            That was not "an old laptop being an old laptop", it was six years of dust and dead thermal paste.
             After cleaning and repasting, the same machine idled at 61°C.
         </div>
 
         <h2 id="warning">When a "normal" number is a warning</h2>
         <ul>
-            <li><strong>Idle temperature creeping up over weeks</strong> — same workload, +1°C every few days. That's dust accumulating or paste degrading, and it's invisible if you only check "is it under 80".</li>
-            <li><strong>High idle, normal load temps</strong> — usually a background process keeping cores awake, not a cooling problem. Check what's consuming CPU before opening the case.</li>
-            <li><strong>Gaming temps fine, but fans at maximum</strong> — the cooler is compensating. You're one dusty month away from throttling.</li>
-            <li><strong>Sudden +10°C jump at the same workload</strong> — a fan died, a heatpipe failed, or the case airflow changed. Investigate the same day.</li>
+            <li><strong>Idle temperature creeping up over weeks</strong>: same workload, +1°C every few days. That's dust accumulating or paste degrading, and it's invisible if you only check "is it under 80".</li>
+            <li><strong>High idle, normal load temps</strong>: usually a background process keeping cores awake, not a cooling problem. Check what's consuming CPU before opening the case.</li>
+            <li><strong>Gaming temps fine, but fans at maximum</strong>: the cooler is compensating. You're one dusty month away from throttling.</li>
+            <li><strong>Sudden +10°C jump at the same workload</strong>: a fan died, a heatpipe failed, or the case airflow changed. Investigate the same day.</li>
         </ul>
 
         <h2 id="check">How to check your own baseline</h2>
         <p>
             Any sensor tool gives you the current number. The baseline needs history: what does <em>this</em>
-            machine usually do at <em>this</em> load? PC Workman automates exactly that — it classifies every
+            machine usually do at <em>this</em> load? PC Workman automates exactly that, it classifies every
             reading into a workload bucket (idle / light / medium / heavy / gaming) and keeps a running
             lifetime baseline for each bucket. A bucket becomes usable after 20 real sensor samples and
             calibrated after 200. The chart then tells you <em>"8% above usual (Gaming: 65–78°C)"</em>
@@ -205,15 +205,15 @@ gaming              GPU≥60%         60–80°C</code></pre>
 
         <h2 id="lower">What actually lowers temperatures</h2>
         <ol>
-            <li><strong>Dust removal</strong> — the highest impact per minute spent. Compressed air through the heatsink, outside the case.</li>
-            <li><strong>Thermal paste</strong> — if the machine is 4+ years old and has never been repasted, expect 5–15°C improvement.</li>
-            <li><strong>Case airflow</strong> — one intake + one exhaust beats four fans fighting each other.</li>
-            <li><strong>Background load</strong> — every percent of CPU is heat. Trimming autostart and runaway processes lowers idle temps for free.</li>
-            <li><strong>Undervolting</strong> — effective but advanced; the only software-side change with hardware-level impact.</li>
+            <li><strong>Dust removal</strong>: the highest impact per minute spent. Compressed air through the heatsink, outside the case.</li>
+            <li><strong>Thermal paste</strong>: if the machine is 4+ years old and has never been repasted, expect 5–15°C improvement.</li>
+            <li><strong>Case airflow</strong>: one intake + one exhaust beats four fans fighting each other.</li>
+            <li><strong>Background load</strong>: every percent of CPU is heat. Trimming autostart and runaway processes lowers idle temps for free.</li>
+            <li><strong>Undervolting</strong>: effective but advanced; the only software-side change with hardware-level impact.</li>
         </ol>
         <p>
             What doesn't help: registry "tweaks", RAM cleaners, and most "game boosters".
-            Heat is physics — software can only reduce the work, not improve the cooling.
+            Heat is physics, software can only reduce the work, not improve the cooling.
         </p>
 
         <div class="guide-cta">

@@ -16,7 +16,7 @@
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
     <meta property="og:title" content="Które usługi Windows można bezpiecznie wyłączyć">
-    <meta property="og:description" content="Konkretna lista usług do zatrzymania — i tych, których nie wolno ruszać. Z whitelistą bezpieczeństwa, na bazie profili z PC Workmana.">
+    <meta property="og:description" content="Konkretna lista usług do zatrzymania, i tych, których nie wolno ruszać. Z whitelistą bezpieczeństwa, na bazie profili z PC Workmana.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/">
     <meta property="og:locale" content="pl_PL">
@@ -121,7 +121,7 @@
     <section class="hero">
         <span class="day-badge day-friday">Usługi · Poradnik</span>
         <h1>Które usługi Windows<br>można bezpiecznie wyłączyć</h1>
-        <p class="tagline">Konkretna lista zamiast „wyłącz wszystko, co nieznane" — z whitelistą rzeczy nietykalnych.</p>
+        <p class="tagline">Konkretna lista zamiast „wyłącz wszystko, co nieznane", z whitelistą rzeczy nietykalnych.</p>
     </section>
 
     <main class="article">
@@ -135,7 +135,7 @@
             <ol>
                 <li><a href="#zasady">Trzy zasady, zanim cokolwiek wyłączysz</a></li>
                 <li><a href="#bezpieczne">Usługi bezpieczne do wyłączenia</a></li>
-                <li><a href="#warunkowe">Usługi warunkowe — zależy, jak używasz PC</a></li>
+                <li><a href="#warunkowe">Usługi warunkowe, zależy, jak używasz PC</a></li>
                 <li><a href="#nietykalne">Whitelist: tego nie ruszaj</a></li>
                 <li><a href="#jak">Jak wyłączać odwracalnie</a></li>
             </ol>
@@ -144,28 +144,28 @@
         <h2 id="zasady">Trzy zasady, zanim cokolwiek wyłączysz</h2>
         <ol>
             <li><strong>„Ręczne" zamiast „Wyłączone".</strong> Usługa ustawiona na ręczne uruchamianie wstanie, gdy system jej potrzebuje. Twarde „Wyłączone" potrafi popsuć aktualizacje i drukowanie tygodnie później, gdy już nie pamiętasz, co zmieniłeś.</li>
-            <li><strong>Notuj zmiany.</strong> Każda zmiana bez notatki to przyszłe „czemu mi nie działa kamera". PC Workman zapisuje historię zmian automatycznie (kto, co, kiedy) — ręcznie wystarczy plik tekstowy.</li>
+            <li><strong>Notuj zmiany.</strong> Każda zmiana bez notatki to przyszłe „czemu mi nie działa kamera". PC Workman zapisuje historię zmian automatycznie (kto, co, kiedy), ręcznie wystarczy plik tekstowy.</li>
             <li><strong>Realny zysk to RAM i spokój dysku, nie FPS-y.</strong> Typowo 200–600 MB pamięci i mniej aktywności w tle. Obiecywane przez „optymalizatory" +30% wydajności nie istnieje.</li>
         </ol>
 
         <h2 id="bezpieczne">Usługi bezpieczne do wyłączenia (komputer domowy)</h2>
         <ul>
-            <li><code>Fax</code> — usługa faksu. W 2026 roku raczej komentarz zbędny.</li>
-            <li><code>DiagTrack</code> (Connected User Experiences and Telemetry) — telemetria diagnostyczna Microsoftu; jej aktywność dyskowa bywa zauważalna na HDD.</li>
-            <li><code>dmwappushservice</code> — routing wiadomości push WAP; na desktopie bezużyteczna.</li>
-            <li><code>RetailDemo</code> — tryb demo sklepowego. Tak, naprawdę działa u ludzi w domach.</li>
-            <li><code>RemoteRegistry</code> — zdalna edycja rejestru; na domowym PC to wręcz plus bezpieczeństwa, że nie działa.</li>
-            <li><code>WMPNetworkSvc</code> — udostępnianie biblioteki Windows Media Player w sieci.</li>
-            <li><code>TabletInputService</code> — pisma odręczne i klawiatura dotykowa, jeśli nie masz ekranu dotykowego.</li>
+            <li><code>Fax</code>, usługa faksu. W 2026 roku raczej komentarz zbędny.</li>
+            <li><code>DiagTrack</code> (Connected User Experiences and Telemetry), telemetria diagnostyczna Microsoftu; jej aktywność dyskowa bywa zauważalna na HDD.</li>
+            <li><code>dmwappushservice</code>, routing wiadomości push WAP; na desktopie bezużyteczna.</li>
+            <li><code>RetailDemo</code>, tryb demo sklepowego. Tak, naprawdę działa u ludzi w domach.</li>
+            <li><code>RemoteRegistry</code>, zdalna edycja rejestru; na domowym PC to wręcz plus bezpieczeństwa, że nie działa.</li>
+            <li><code>WMPNetworkSvc</code>, udostępnianie biblioteki Windows Media Player w sieci.</li>
+            <li><code>TabletInputService</code>, pisma odręczne i klawiatura dotykowa, jeśli nie masz ekranu dotykowego.</li>
         </ul>
 
-        <h2 id="warunkowe">Usługi warunkowe — zależy, jak używasz PC</h2>
+        <h2 id="warunkowe">Usługi warunkowe, zależy, jak używasz PC</h2>
         <ul>
-            <li><strong>Usługi Xbox</strong> (<code>XblAuthManager</code>, <code>XblGameSave</code>, <code>XboxNetApiSvc</code>) — jeśli nie używasz Game Pass ani logowania Xbox: wyłącz. Jeśli grasz przez aplikację Xbox — zostaw.</li>
-            <li><code>SysMain</code> (dawniej Superfetch) — na HDD potrafi generować stałą aktywność dysku; na SSD zostaw, działa poprawnie.</li>
-            <li><code>WSearch</code> (indeksowanie) — wyłączenie przyspiesza dysk, ale wyszukiwanie w menu Start zaczyna pełzać. Kompromis: zawęź zakres indeksowania zamiast wyłączać.</li>
-            <li><code>Spooler</code> — kolejka wydruku. Bez drukarki możesz wyłączyć; z drukarką — absolutnie nie.</li>
-            <li><code>Bluetooth Support Service</code> — desktop bez adaptera BT: wyłącz; laptop: zostaw.</li>
+            <li><strong>Usługi Xbox</strong> (<code>XblAuthManager</code><code>XblGameSave</code><code>XboxNetApiSvc</code>), jeśli nie używasz Game Pass ani logowania Xbox: wyłącz. Jeśli grasz przez aplikację Xbox, zostaw.</li>
+            <li><code>SysMain</code> (dawniej Superfetch), na HDD potrafi generować stałą aktywność dysku; na SSD zostaw, działa poprawnie.</li>
+            <li><code>WSearch</code> (indeksowanie), wyłączenie przyspiesza dysk, ale wyszukiwanie w menu Start zaczyna pełzać. Kompromis: zawęź zakres indeksowania zamiast wyłączać.</li>
+            <li><code>Spooler</code>, kolejka wydruku. Bez drukarki możesz wyłączyć; z drukarką, absolutnie nie.</li>
+            <li><code>Bluetooth Support Service</code>, desktop bez adaptera BT: wyłącz; laptop: zostaw.</li>
         </ul>
 
         <h2 id="nietykalne">Whitelist: tego nie ruszaj</h2>
@@ -175,33 +175,31 @@
             z twardą listą 33 usług krytycznych, których program nie zatrzyma nigdy. Najważniejsze z nich:
         </p>
         <ul>
-            <li><code>RpcSs</code>, <code>DcomLaunch</code>, <code>LSM</code> — fundament komunikacji systemu; ich zatrzymanie = crash.</li>
-            <li><code>wuauserv</code>, <code>BITS</code>, <code>CryptSvc</code> — łańcuch Windows Update; „wyłączę aktualizacje" kończy się systemem bez łatek bezpieczeństwa.</li>
-            <li><code>WinDefend</code>, <code>SecurityHealthService</code> — ochrona w czasie rzeczywistym.</li>
-            <li><code>Dhcp</code>, <code>Dnscache</code>, <code>NlaSvc</code> — bez nich „internet nie działa, a wszystko jest podłączone".</li>
-            <li><code>AudioSrv</code>, <code>AudioEndpointBuilder</code> — dźwięk.</li>
-            <li><code>Power</code>, <code>PlugPlay</code>, <code>ProfSvc</code> — zasilanie, wykrywanie sprzętu, profile użytkownika.</li>
+            <li><code>RpcSs</code><code>DcomLaunch</code><code>LSM</code>, fundament komunikacji systemu; ich zatrzymanie = crash.</li>
+            <li><code>wuauserv</code><code>BITS</code><code>CryptSvc</code>, łańcuch Windows Update; „wyłączę aktualizacje" kończy się systemem bez łatek bezpieczeństwa.</li>
+            <li><code>WinDefend</code><code>SecurityHealthService</code>, ochrona w czasie rzeczywistym.</li>
+            <li><code>Dhcp</code><code>Dnscache</code><code>NlaSvc</code>, bez nich „internet nie działa, a wszystko jest podłączone".</li>
+            <li><code>AudioSrv</code><code>AudioEndpointBuilder</code>, dźwięk.</li>
+            <li><code>Power</code><code>PlugPlay</code><code>ProfSvc</code>, zasilanie, wykrywanie sprzętu, profile użytkownika.</li>
         </ul>
 
         <div class="callout warn">
             <b>Czerwona flaga:</b> jeśli poradnik każe wyłączyć usługę, której nazwy nie tłumaczy
-            i nie mówi, co przestanie działać — zamknij ten poradnik.
+            i nie mówi, co przestanie działać, zamknij ten poradnik.
         </div>
 
         <h2 id="jak">Jak wyłączać odwracalnie</h2>
         <p>
             Ręcznie: <code>services.msc</code> → właściwości usługi → typ uruchomienia „Ręczny" → Zatrzymaj.
-            Po tygodniu bez problemów możesz rozważyć „Wyłączony". Zmieniaj 2–3 usługi naraz, nie dwadzieścia —
-            inaczej nie ustalisz, która zmiana coś popsuła.
+            Po tygodniu bez problemów możesz rozważyć „Wyłączony". Zmieniaj 2–3 usługi naraz, nie dwadzieścia, inaczej nie ustalisz, która zmiana coś popsuła.
         </p>
         <p>
             Automatycznie: <a href="../../index.html">PC Workman</a> ma trzy gotowe profile (Gaming / Work / Economy),
-            każdy z innym zestawem zatrzymywanych usług, whitelistą bezpieczeństwa i przywracaniem jednym kliknięciem —
-            stan zapisuje się do pliku, więc nawet po crashu wszystko wraca na miejsce.
+            każdy z innym zestawem zatrzymywanych usług, whitelistą bezpieczeństwa i przywracaniem jednym kliknięciem, stan zapisuje się do pliku, więc nawet po crashu wszystko wraca na miejsce.
         </p>
 
         <div class="guide-cta">
-            <b>Profile zamiast ręcznego klikania.</b> Gaming, Work albo Economy — jeden przełącznik,
+            <b>Profile zamiast ręcznego klikania.</b> Gaming, Work albo Economy, jeden przełącznik,
             listę ochrony 33 usług krytycznych i możliwość przywrócenia poprzedniego stanu.
             Program jest darmowy i otwartoźródłowy.
             <a href="../../download/index_pl.html">Pobierz PC Workmana</a>.
@@ -212,7 +210,7 @@
             <div>
                 <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Twórca PC Workmana · HCK_Labs</div>
-                <p>Profile usług z tego poradnika to dokładnie te, które PC Workman stosuje automatycznie — przetestowane na realnych maszynach.</p>
+                <p>Profile usług z tego poradnika to dokładnie te, które PC Workman stosuje automatycznie, przetestowane na realnych maszynach.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
                     <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>

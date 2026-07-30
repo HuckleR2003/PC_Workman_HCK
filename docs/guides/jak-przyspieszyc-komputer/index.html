@@ -8,15 +8,15 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Jak przyspieszyć komputer z Windows — bez mitów i bloatware'u. Konkretna kolejność działań: autostart, usługi, dysk, RAM, temperatury. Co realnie działa, a co jest stratą czasu.">
+    <meta name="description" content="Jak przyspieszyć komputer z Windows, bez mitów i bloatware'u. Konkretna kolejność działań: autostart, usługi, dysk, RAM, temperatury. Co realnie działa, a co jest stratą czasu.">
     <meta name="keywords" content="jak przyspieszyć komputer, jak przyspieszyć laptopa, wolny komputer co zrobić, optymalizacja Windows 11, optymalizacja Windows 10, komputer wolno działa, przyspieszenie komputera za darmo">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/index_en.html">
-    <meta property="og:title" content="Jak przyspieszyć komputer — bez mitów">
-    <meta property="og:description" content="Co naprawdę spowalnia Windows i co realnie pomaga. Konkretna kolejność działań zamiast 50 przypadkowych trików — od twórcy open-source'owego monitora systemu.">
+    <meta property="og:title" content="Jak przyspieszyć komputer, bez mitów">
+    <meta property="og:description" content="Co naprawdę spowalnia Windows i co realnie pomaga. Konkretna kolejność działań zamiast 50 przypadkowych trików, od twórcy open-source'owego monitora systemu.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/jak-przyspieszyc-komputer/">
     <meta property="og:locale" content="pl_PL">
@@ -26,7 +26,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Jak przyspieszyć komputer z Windows — bez mitów | Poradniki PC Workmana</title>
+    <title>Jak przyspieszyć komputer z Windows, bez mitów | Poradniki PC Workmana</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,7 +38,7 @@
     {
       "@context": "https://schema.org",
       "@type": "TechArticle",
-      "headline": "Jak przyspieszyć komputer z Windows — bez mitów",
+      "headline": "Jak przyspieszyć komputer z Windows, bez mitów",
       "description": "Co naprawdę spowalnia Windows i co realnie pomaga: autostart, usługi, dysk, RAM, temperatury. Konkretna kolejność działań.",
       "url": "https://pcworkman.dev/guides/jak-przyspieszyc-komputer/",
       "datePublished": "2026-06-12",
@@ -121,7 +121,7 @@
 
     <section class="hero">
         <span class="day-badge day-friday">Optymalizacja · Poradnik</span>
-        <h1>Jak przyspieszyć komputer<br>— bez mitów</h1>
+        <h1>Jak przyspieszyć komputer<br>bez mitów</h1>
         <p class="tagline">Pięć kroków w dobrej kolejności zamiast pięćdziesięciu przypadkowych trików.</p>
     </section>
 
@@ -146,35 +146,35 @@
 
         <h2 id="diagnoza">Najpierw diagnoza, nie czyszczenie</h2>
         <p>
-            Większość poradników zaczyna od „wyczyść pliki tymczasowe". To kosmetyka — pliki tymczasowe
+            Większość poradników zaczyna od „wyczyść pliki tymczasowe". To kosmetyka, pliki tymczasowe
             nie spowalniają procesora. Komputer wolno działa z czterech mierzalnych powodów:
             <strong>za dużo rzeczy startuje z systemem, coś zjada CPU/RAM w tle, dysk jest wąskim gardłem,
             albo sprzęt się przegrzewa i obniża taktowanie</strong>. Zanim cokolwiek „zoptymalizujesz",
             otwórz Menedżera zadań (Ctrl+Shift+Esc) i sprawdź, która z tych czterech rzeczy faktycznie występuje.
         </p>
 
-        <h2 id="autostart">Krok 1: Autostart — największy zysk za darmo</h2>
+        <h2 id="autostart">Krok 1: Autostart, największy zysk za darmo</h2>
         <p>
             Każdy program w autostarcie to dłuższy boot i stała rezydencja w RAM. Spotify, Discord, klienty
-            sklepów z grami, aktualizatory — wszystkie „chcą być ważne". W Menedżerze zadań → karta Uruchamianie
+            sklepów z grami, aktualizatory, wszystkie „chcą być ważne". W Menedżerze zadań → karta Uruchamianie
             zobaczysz wpływ każdej pozycji na start.
         </p>
         <ul>
             <li>Wyłącz wszystko, czego nie potrzebujesz <em>w pierwszej minucie</em> po włączeniu komputera.</li>
-            <li>Uwaga na wpisy, które po aktualizacji dodają się ponownie — sprawdzaj listę co kilka tygodni.</li>
+            <li>Uwaga na wpisy, które po aktualizacji dodają się ponownie, sprawdzaj listę co kilka tygodni.</li>
             <li>Nie wyłączaj sterowników audio, touchpada ani antywirusa.</li>
         </ul>
 
-        <h2 id="procesy">Krok 2: Procesy w tle — znajdź pożeracza</h2>
+        <h2 id="procesy">Krok 2: Procesy w tle, znajdź pożeracza</h2>
         <p>
             Posortuj procesy po CPU, potem po pamięci. Jeden proces trzymający stale 15–30% CPU
             to klasyka: zawieszony aktualizator, indeksowanie, skan antywirusa albo przeglądarka
-            z 40 kartami. Jeśli nazwa procesu nic ci nie mówi — sprawdź ją, zanim zabijesz.
+            z 40 kartami. Jeśli nazwa procesu nic ci nie mówi, sprawdź ją, zanim zabijesz.
             Identyfikacja procesów (czym jest, czy jest bezpieczny, ile zwykle zużywa) to jedna z głównych
-            funkcji <a href="../../index.html">PC Workmana</a> — baza w wersji 1.8.5 opisuje 485 znanych procesów.
+            funkcji <a href="../../index.html">PC Workmana</a>, baza w wersji 1.8.5 opisuje 485 znanych procesów.
         </p>
 
-        <h2 id="uslugi">Krok 3: Usługi — ostrożnie, ale skutecznie</h2>
+        <h2 id="uslugi">Krok 3: Usługi, ostrożnie, ale skutecznie</h2>
         <p>
             Windows uruchamia dziesiątki usług, z których część jest zbędna na domowym komputerze
             (fax, telemetria, usługi Xbox u osób, które nie grają). Realny zysk to zwykle 200–600 MB RAM
@@ -184,26 +184,26 @@
 
         <h2 id="dysk-ram">Krok 4: Dysk i RAM</h2>
         <ul>
-            <li><strong>HDD → SSD to nadal największe pojedyncze przyspieszenie</strong>, jakie istnieje. Żadna optymalizacja software'owa nie zbliży się do tej różnicy.</li>
-            <li><strong>Dysk systemowy zapełniony powyżej ~90%</strong> realnie spowalnia Windows — zostaw mu oddech.</li>
+            <li><strong>HDD → SSD to nadal największe pojedyncze przyspieszenie</strong>: jakie istnieje. Żadna optymalizacja software'owa nie zbliży się do tej różnicy.</li>
+            <li><strong>Dysk systemowy zapełniony powyżej ~90%</strong> realnie spowalnia Windows, zostaw mu oddech.</li>
             <li><strong>Defragmentacja dotyczy tylko HDD.</strong> Na SSD jest zbędna (Windows i tak robi TRIM automatycznie).</li>
-            <li><strong>8 GB RAM w 2026 to minimum</strong> — przy przeglądarce + Teams/Discord system zaczyna używać pliku stronicowania, a to boli najbardziej na HDD.</li>
+            <li><strong>8 GB RAM w 2026 to minimum</strong>: przy przeglądarce + Teams/Discord system zaczyna używać pliku stronicowania, a to boli najbardziej na HDD.</li>
         </ul>
 
-        <h2 id="temperatury">Krok 5: Temperatury — niewidzialny hamulec</h2>
+        <h2 id="temperatury">Krok 5: Temperatury, niewidzialny hamulec</h2>
         <p>
             Przegrzewający się procesor obniża taktowanie (throttling) i komputer „zwalnia bez powodu".
-            Kurz na radiatorze i stara pasta termoprzewodząca to najczęstsi winowajcy — projekt PC Workman
-            zaczął się na laptopie z 2014 roku, który w idle trzymał 94°C; po czyszczeniu i nowej paście — 61°C.
+            Kurz na radiatorze i stara pasta termoprzewodząca to najczęstsi winowajcy, projekt PC Workman
+            zaczął się na laptopie z 2014 roku, który w idle trzymał 94°C; po czyszczeniu i nowej paście, 61°C.
             Jeśli wentylatory wyją przy lekkiej pracy, zacznij od sprężonego powietrza, nie od reinstalacji systemu.
         </p>
 
         <h2 id="mity">Czego NIE robić</h2>
         <ul>
-            <li><strong>„Czyszczenie rejestru"</strong> — zero mierzalnego zysku wydajności, realne ryzyko uszkodzenia systemu.</li>
-            <li><strong>Płatne „boostery" i „optymalizatory"</strong> — robią to samo, co Menedżer zadań, tylko z reklamami i często z własnym procesem w tle.</li>
-            <li><strong>Wyłączanie pliku stronicowania</strong> — Windows go potrzebuje; wyłączenie powoduje crashe zamiast przyspieszenia.</li>
-            <li><strong>Ręczne „czyszczenie RAM" co godzinę</strong> — system zarządza pamięcią lepiej niż klikanie; automatyczny trim ma sens tylko przy realnej presji pamięci.</li>
+            <li><strong>„Czyszczenie rejestru"</strong>: zero mierzalnego zysku wydajności, realne ryzyko uszkodzenia systemu.</li>
+            <li><strong>Płatne „boostery" i „optymalizatory"</strong>: robią to samo, co Menedżer zadań, tylko z reklamami i często z własnym procesem w tle.</li>
+            <li><strong>Wyłączanie pliku stronicowania</strong>: Windows go potrzebuje; wyłączenie powoduje crashe zamiast przyspieszenia.</li>
+            <li><strong>Ręczne „czyszczenie RAM" co godzinę</strong>: system zarządza pamięcią lepiej niż klikanie; automatyczny trim ma sens tylko przy realnej presji pamięci.</li>
         </ul>
 
         <div class="callout">

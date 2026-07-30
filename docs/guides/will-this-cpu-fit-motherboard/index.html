@@ -116,7 +116,7 @@
         margin-top:.65rem; padding-top:.6rem; border-top:1px solid #1c222b;
         display:flex; align-items:center; gap:.6rem; font-size:.82rem; color:var(--text-secondary);
     }
-    .rc-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; color:#f59e0b; border:1px solid rgba(245,158,11,.45); }
+    .rc-verdict .badge{ font-size:.6rem; letter-spacing:1px; text-transform:uppercase; padding:.22rem .6rem; border-radius:999px; color:#f59e0b; border:1px solid rgba(245,158,11.45); }
     @media (max-width:520px){ .rc-row{ flex-direction:column; gap:0; } .rc-row .k{ width:auto; } }
     </style>
 </head>
@@ -222,19 +222,19 @@
             a black screen.
         </p>
         <div class="callout warn">
-            <b>Trap 1 — B460 and an 11th-gen Intel CPU.</b> The socket (LGA1200) matches, so the listing looks
+            <b>Trap 1, B460 and an 11th-gen Intel CPU.</b> The socket (LGA1200) matches, so the listing looks
             fine. But Intel's B460 and H410 chipsets did not officially support 11th-generation Rocket Lake
             processors, while Z490 and H470 boards did after a BIOS update. Same socket, different chipset,
             different answer.
         </div>
         <div class="callout warn">
-            <b>Trap 2 — two different LGA1151 sockets.</b> LGA1151 shipped in two electrically different
+            <b>Trap 2, two different LGA1151 sockets.</b> LGA1151 shipped in two electrically different
             versions. The first carried 6th and 7th-gen Intel CPUs (100 and 200-series chipsets); the second
             carried 8th and 9th-gen (300-series). They look identical and share a name, but a 8th-gen chip will
             not run in a 200-series board, and a 7th-gen chip will not run in a 300-series board.
         </div>
         <div class="callout warn">
-            <b>Trap 3 — B450 and a Ryzen 7 5800X3D.</b> The AM4 socket matches and the chipset supports Ryzen
+            <b>Trap 3, B450 and a Ryzen 7 5800X3D.</b> The AM4 socket matches and the chipset supports Ryzen
             5000, but a B450 board that has never been updated needs a newer BIOS before the CPU will post. If
             your only CPU is the new one, you can be stuck: you need an older supported CPU, or BIOS flashback,
             to do the update in the first place.
