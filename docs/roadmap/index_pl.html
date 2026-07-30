@@ -1,0 +1,120 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC Workman roadmap do v2.1.0 -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#07080c">
+    <meta name="description" content="Roadmapa PC Workmana do wersji 2.1.0. Dziesięć obszarów już dostarczonych i czternaście kolejnych zaplanowanych, z rozdzieleniem gotowego kodu od planów.">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/roadmap/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/roadmap/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/roadmap/">
+    <meta property="og:title" content="PC Workman: roadmapa do wersji 2.1.0">
+    <meta property="og:description" content="Co już działa w 1.8.5, co jest następne i co pozostaje planem. Publiczna roadmapa rozwijana przez jednego autora.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pcworkman.dev/roadmap/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <title>PC Workman: roadmapa do wersji 2.1.0 | HCK_Labs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "PC Workman: roadmapa do wersji 2.1.0",
+      "description": "Publiczna lista elementów dostarczonych i planowanych w PC Workmanie.",
+      "url": "https://pcworkman.dev/roadmap/index_pl.html",
+      "dateModified": "2026-07-25",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "translationOfWork": "https://pcworkman.dev/roadmap/",
+      "author": {"@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/blog/profile_pl.html"},
+      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+    }
+    </script>
+</head>
+<body class="page-friday">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ roadmapa</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/roadmap/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/roadmap/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-friday">Build in public &middot; Wersja 1.8.5</span>
+        <h1>PC Workman<br>roadmapa do 2.1.0</h1>
+        <p class="tagline">Dziesięć obszarów dostarczonych. Czternaście pozostaje planem. Gotowy kod i przyszłość są oznaczone osobno.</p>
+    </section>
+    <main class="article">
+        <div class="callout">
+            <b>Stan na 25 lipca 2026:</b> projekt jest rozwijany przez jedną osobę. Bieżąca wersja źródłowa to
+            1.8.5. Kolejność i zakres planów mogą się zmienić po testach i informacjach od użytkowników.
+        </div>
+        <h2>Dostarczone</h2>
+        <ol>
+            <li><strong>Lokalny asystent hck_GPT.</strong> 96 intencji w języku polskim i angielskim, bez wymaganej usługi chmurowej.</li>
+            <li><strong>Nauka konkretnej maszyny.</strong> Linie bazowe temperatur dla pięciu rodzajów obciążenia oraz statystyczna kontrola napięć.</li>
+            <li><strong>Upgrade Readiness.</strong> Lokalna zgodność podzespołów, 188 CPU, 84 GPU i 58 chipsetów.</li>
+            <li><strong>OVERCLOCK, Headroom Lab.</strong> Widok pokazujący ograniczenia zegarów oraz kontekst temperatur i zasilania.</li>
+            <li><strong>Fan Dashboard.</strong> Krzywa cieplna, bieżące odczyty i obsługiwane sterowanie wentylatorami.</li>
+            <li><strong>Protokoły optymalizacji.</strong> Pomiar przed i po działaniu zamiast ogólnej obietnicy przyspieszenia.</li>
+            <li><strong>Wykrywanie anomalii napięć.</strong> Mediana, MAD, zmodyfikowany Z-score i reguły kontroli procesu.</li>
+            <li><strong>Mapa podzespołów 2.5D.</strong> Widok elementów wykrytych w konkretnym komputerze.</li>
+            <li><strong>Nakładka w grze.</strong> Konfigurowalne metryki, FPS odczytywany z RTSS i brak przejmowania fokusu.</li>
+            <li><strong>Microsoft Store.</strong> Dystrybucja z polskim i angielskim interfejsem.</li>
+        </ol>
+        <h2>Następne w kolejce</h2>
+        <ol>
+            <li><strong>Pełna stabilność Fan Dashboard.</strong> Bezpieczne stosowanie ustawień i histereza.</li>
+            <li><strong>Dziesięć zbadanych optymalizacji.</strong> Każda odwracalna i opisana prostym językiem.</li>
+            <li><strong>Aktualizacje sterowników w aplikacji.</strong> Wykrycie, weryfikacja i instalacja.</li>
+            <li><strong>Sprawdzanie aktualizacji poza Microsoft Store.</strong></li>
+            <li><strong>Krzywa wentylatora proponowana przez hck_GPT</strong> na podstawie lokalnej historii temperatur.</li>
+            <li><strong>Biblioteka ciężkich aplikacji</strong> z wyjaśnieniem ich wpływu na system.</li>
+            <li><strong>Przebudowany Minimal Mode.</strong></li>
+            <li><strong>Rozszerzone ekrany nauki</strong> opisujące stan bez żargonu.</li>
+            <li><strong>Zużycie CPU poniżej 5 procent</strong> jako twardy cel dla samego monitora.</li>
+            <li><strong>1000 definicji procesów</strong>, startując z 485 w wersji 1.8.5.</li>
+            <li><strong>150 stabilnych intencji hck_GPT</strong>, jako etap w drodze do 200.</li>
+        </ol>
+        <h2>Później</h2>
+        <ol start="12">
+            <li><strong>Język niemiecki</strong> po ustabilizowaniu polskiego i angielskiego.</li>
+            <li><strong>Więcej powitań dla wykrywanych gier.</strong></li>
+            <li><strong>Więcej ukrytych reakcji hck_GPT</strong> bez ujawniania słów wyzwalających.</li>
+        </ol>
+        <p>
+            Element na tej stronie jest „dostarczony” dopiero wtedy, gdy działa w opublikowanym kodzie. Sama
+            obecność w roadmapie nie jest obietnicą daty wydania.
+        </p>
+        <div class="guide-cta">
+            <b>Sprawdź to, co działa już dziś.</b>
+            <a href="../download/index_pl.html">Pobierz PC Workmana</a> albo
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przejrzyj kod źródłowy</a>.
+        </div>
+    </main>
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../blog/profile_pl.html">Marcin Firmuga</a> &middot; <a href="../guides/index_pl.html">Poradniki</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
