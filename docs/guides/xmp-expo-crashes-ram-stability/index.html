@@ -1,0 +1,382 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: XMP EXPO and RAM stability -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Games crash with XMP or EXPO enabled? Compare a JEDEC baseline with the memory profile, test outside Windows and treat every memory error as evidence.">
+    <meta name="keywords" content="XMP crashes games, EXPO unstable, RAM stability test, XMP blue screen, EXPO game crashes, DDR5 6000 unstable, memory errors Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <meta property="og:title" content="XMP or EXPO crashes games? Booted is not the same as stable">
+    <meta property="og:description" content="Build a default baseline, enable only the memory profile and make the difference prove itself.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>XMP or EXPO Crashes Games? Test RAM Stability</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "XMP or EXPO crashes games? How to test RAM stability",
+      "description": "A controlled method for comparing default JEDEC memory settings with an XMP or EXPO profile, testing outside Windows and interpreting WHEA and application failures.",
+      "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://www.intel.com/content/www/us/en/gaming/extreme-memory-profile-xmp.html",
+        "https://www.amd.com/en/products/processors/technologies/expo.html",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/whea-hardware-error-events",
+        "https://www.memtest86.com/downloads/MemTest86_User_Guide_UEFI.pdf"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "XMP, EXPO and RAM stability", "item": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can XMP or EXPO cause games to crash?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. XMP and EXPO apply memory overclocking profiles. A system can boot and handle light work yet fail in a game, compilation job or memory test. Compare the same machine at default memory settings and with only the profile enabled before blaming the game or driver." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does one MemTest86 error matter?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Expected data and returned data should match. One reproducible memory error means the tested configuration cannot be treated as stable. It does not by itself identify the DIMM, memory controller, motherboard, firmware or profile setting responsible." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is XMP or EXPO guaranteed to work at the advertised speed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The profile and compatible modules are validated under specified conditions, but XMP and EXPO are still memory overclocking. Check the exact module part number, motherboard support list, processor memory specification and BIOS. Stability of the complete installed system must be verified." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .ab-test{
+        display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:.65rem;
+        margin:1.4rem 0; padding:1rem; background:#080b10; border:1px solid #23313a;
+        border-left:4px solid #22d3ee;
+    }
+    .ab-side{ background:#0a0f14; border:1px solid #24313b; padding:1rem; }
+    .ab-side b{ display:block; font-family:var(--font-mono); font-size:.75rem; color:#67e8f9; margin-bottom:.4rem; }
+    .ab-side span{ color:var(--text-secondary); font-size:.8rem; line-height:1.55; }
+    .ab-arrow{ display:flex; align-items:center; color:#f43f5e; font-family:var(--font-mono); font-weight:700; }
+    .stability-table td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:640px){
+        .ab-test{ grid-template-columns:1fr; }
+        .ab-arrow{ justify-content:center; transform:rotate(90deg); }
+    }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/xmp-expo-crashes-ram-stability/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/xmp-expo-crashes-ram-stability/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Memory &middot; Stability</span>
+        <h1>Booted is not the same as stable.</h1>
+        <p class="tagline">A memory profile can pass the desktop and fail the first workload that finds its weak pattern.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-07-30</span><span>&middot;</span><span>16 min read</span>
+        </div>
+
+        <p>
+            You enable XMP or EXPO, Windows starts, the memory speed finally matches the number on the box and
+            everything looks finished. Two evenings later a game closes to the desktop. A large archive fails
+            once, then extracts correctly. Another game restarts the PC after forty minutes. No single symptom
+            says “RAM.”
+        </p>
+        <p>
+            Memory instability is good at impersonating other faults because nearly every program eventually
+            trusts memory. A game can be the first application to expose the error without being its cause.
+            The useful question is not whether the system booted with the profile. It is whether the same
+            hardware remains error-free across patterns, time and the workloads you care about.
+        </p>
+        <p>
+            Do not begin by copying voltages from a forum. Begin with a baseline. If the computer is stable at
+            default memory settings and repeatedly fails after enabling only XMP or EXPO, the difference has
+            earned your attention.
+        </p>
+
+        <div class="ab-test" aria-label="Default versus memory profile A/B test">
+            <div class="ab-side">
+                <b>A · DEFAULT / JEDEC</b>
+                <span>Load BIOS defaults. Record speed, timings, BIOS version and the exact DIMM part number. Run the same memory test and real workload.</span>
+            </div>
+            <div class="ab-arrow">→</div>
+            <div class="ab-side">
+                <b>B · XMP / EXPO ONLY</b>
+                <span>Enable only the memory profile. Keep CPU and GPU tuning unchanged. Repeat the same test for the same duration.</span>
+            </div>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#profile">What XMP and EXPO change</a></li>
+                <li><a href="#symptoms">Symptoms that justify a memory test</a></li>
+                <li><a href="#baseline">Build a clean A/B baseline</a></li>
+                <li><a href="#testing">Test outside Windows and inside the real workload</a></li>
+                <li><a href="#result">Read the result without overclaiming</a></li>
+                <li><a href="#workman">What PC Workman can and cannot do</a></li>
+            </ol>
+        </div>
+
+        <h2 id="profile">What XMP and EXPO actually change</h2>
+        <p>
+            A memory module contains baseline settings intended to give the system a safe first boot. XMP on
+            Intel platforms and EXPO on AMD AM5 platforms add stored profiles with a higher data rate and their
+            associated timings and voltage. Selecting the profile asks the complete memory path to operate at
+            those settings.
+        </p>
+        <p>
+            Intel describes XMP as memory overclocking beyond standard settings. AMD describes EXPO as an
+            overclocking technology and explicitly warns that operating outside published specifications can
+            reduce performance or cause failure, data loss or corruption. “One click” describes the interface,
+            not a guarantee that every installed combination has unlimited margin.
+        </p>
+        <p>
+            Certification and support lists still matter. Check the exact part number printed on the memory,
+            not merely the brand and headline speed. Check the motherboard memory support list, the processor's
+            official memory specification and release notes for the installed BIOS. A kit being absent from a
+            support list does not prove it will fail. A listed kit means the vendor tested that exact
+            configuration under stated conditions, which is stronger evidence.
+        </p>
+        <div class="callout">
+            <b>Advertised speed and default speed can both be honest.</b> The box describes the profile the kit
+            was sold to run. The first boot uses safer baseline settings so the system can start before you
+            choose overclocking. The stability test decides whether your complete machine can keep the profile.
+        </div>
+
+        <h2 id="symptoms">Symptoms that justify a memory test</h2>
+        <table class="stability-table">
+            <thead><tr><th>Symptom</th><th>Why memory belongs on the list</th><th>Why it is not proof</th></tr></thead>
+            <tbody>
+                <tr><td>Games close to desktop without one consistent error</td><td>Bad data can reach different code paths in different runs.</td><td>Game defects and GPU drivers can look identical.</td></tr>
+                <tr><td>WHEA warning or 0x124 appears after enabling the profile</td><td>WHEA records a hardware error; Microsoft recommends disabling overclocking while isolating 0x124.</td><td>The WHEA record may point to CPU, PCIe or another source, not necessarily DIMMs.</td></tr>
+                <tr><td>Archive, installer or compiler fails inconsistently</td><td>These tasks move and verify large amounts of data.</td><td>Storage, source files and software can also be damaged.</td></tr>
+                <tr><td>PC restarts only with XMP/EXPO enabled</td><td>The profile is the controlled difference.</td><td>It does not identify the module, memory controller, board or firmware.</td></tr>
+                <tr><td>Cold boot fails, a later boot succeeds</td><td>Memory training and margin deserve investigation.</td><td>Firmware and power initialization can produce similar behaviour.</td></tr>
+                <tr><td>Everything works for hours</td><td>Intermittent errors can depend on pattern and temperature.</td><td>Long uptime alone neither proves nor disproves stability.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            WHEA is useful only when read precisely. Windows stores a hardware error record with the event. The
+            source and record matter more than the fact that the word WHEA appeared. Do not label every WHEA
+            entry a RAM fault.
+        </p>
+
+        <h2 id="baseline">Build a clean A/B baseline</h2>
+        <ol>
+            <li><strong>Back up important data.</strong> Unstable memory can corrupt data before it produces a
+                dramatic crash.</li>
+            <li><strong>Record the starting configuration.</strong> Exact DIMM part number, slot placement,
+                BIOS version, memory speed, primary timings and whether CPU or GPU tuning is active.</li>
+            <li><strong>Load BIOS defaults.</strong> Do not clear settings unless you know how to restore required
+                boot, storage and security options. If BitLocker or device encryption is active, have the
+                recovery key before firmware changes.</li>
+            <li><strong>Test the default memory configuration.</strong> Use the same tool, duration and real
+                workload planned for the profile.</li>
+            <li><strong>Enable only XMP or EXPO.</strong> Do not add a CPU undervolt, automatic motherboard boost
+                or manual timing changes to the same experiment.</li>
+            <li><strong>Repeat exactly.</strong> A failure at B after repeated clean A runs isolates the profile
+                configuration. It still does not identify the physical culprit.</li>
+        </ol>
+        <p>
+            If the default configuration also fails, stop calling it an XMP or EXPO problem. Test modules and
+            slots according to the board manual, inspect installation, update only the firmware relevant to
+            the platform and consider professional diagnosis. A bad baseline means the experiment has no clean
+            control.
+        </p>
+
+        <h2 id="testing">Test outside Windows and inside the real workload</h2>
+        <p>
+            A bootable memory test removes most drivers and applications from the equation. MemTest86 runs from
+            UEFI media and exercises available memory with multiple algorithms. Its own manual explains why a
+            single pattern is insufficient: memory errors can be pattern-sensitive and intermittent.
+        </p>
+        <p>
+            Run the complete default test, not a two-minute sample. Keep the report, exact configuration and
+            pass count. An error means expected data did not return intact. There is no acceptable number of
+            reproducible errors for a configuration you intend to trust with files.
+        </p>
+        <p>
+            A clean bootable test is necessary evidence, not an eternal warranty. Return to Windows and repeat
+            the workload that previously failed: the same game route, compilation, render or archive operation.
+            The processor's memory controller, temperatures and workload pattern can stress a path differently.
+            Stability means the machine passes both a focused test and the work it is expected to do.
+        </p>
+        <div class="callout warn">
+            <b>Do not “fix” errors by blindly raising memory-controller or DRAM voltage.</b> Safe limits depend on
+            the processor generation, board and memory. Use vendor documentation, a conservative lower profile
+            or qualified help. A slightly slower stable configuration is faster than a profile that corrupts
+            one project a month.
+        </div>
+
+        <h2 id="result">Read the result without overclaiming</h2>
+        <table class="stability-table">
+            <thead><tr><th>Result</th><th>What you can say</th><th>Next move</th></tr></thead>
+            <tbody>
+                <tr><td>Default passes repeatedly; profile fails repeatedly</td><td>The installed system is not stable at that profile configuration.</td><td>Check BIOS, vendor support, a less aggressive profile or lower data rate.</td></tr>
+                <tr><td>Default and profile both fail</td><td>The problem is broader than the profile.</td><td>Test installation, modules, slots, board, controller and firmware.</td></tr>
+                <tr><td>Both pass; one game still crashes</td><td>RAM has less evidence against it.</td><td>Investigate the game, driver, GPU and its exact error path.</td></tr>
+                <tr><td>Memory test passes; WHEA repeats</td><td>The WHEA record still needs decoding by source.</td><td>Return all tuning to default and follow the specific WHEA branch.</td></tr>
+                <tr><td>Lower memory speed passes</td><td>The previous setting lacked stable margin in this system.</td><td>Keep the stable setting or pursue vendor-supported tuning.</td></tr>
+                <tr><td>One error appears once</td><td>The run cannot be called clean.</td><td>Preserve the report and reproduce at default versus profile.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Avoid jumping from “profile unstable” to “bad RAM.” The complete path includes the DIMMs, processor
+            memory controller, motherboard traces, firmware, slot population and selected settings. The A/B
+            result tells you which configuration fails. Replacing parts requires a second isolation step.
+        </p>
+
+        <h2 id="workman">What PC Workman can and cannot do</h2>
+        <p>
+            PC Workman can identify the installed memory generation and capacity, show current system memory
+            pressure, preserve temperature and load history, and add XMP/EXPO caveats when evaluating a RAM
+            upgrade. That context helps you document the system before and during the failing workload.
+        </p>
+        <p>
+            <strong>The current PC Workman build does not perform a full RAM stability test, boot outside
+            Windows, decode WHEA error records or certify an XMP/EXPO profile.</strong> Use MemTest86 or another
+            dedicated, reputable memory test for error detection. Use PC Workman for the surrounding system
+            history, not as a replacement for that test.
+        </p>
+        <p>
+            The distinction matters. Reporting capacity and load answers “how much memory is being used?”
+            A stability test asks “did every tested value return intact?” Those are different questions.
+        </p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Can XMP or EXPO cause games to crash?</h3>
+        <p>
+            Yes. They are memory overclocking profiles. Compare repeated tests at default settings and with only
+            the profile enabled before blaming the game.
+        </p>
+        <h3>Does one MemTest86 error matter?</h3>
+        <p>
+            Yes. The tested configuration cannot be called stable. The error alone does not identify whether
+            the DIMM, controller, board, firmware or profile is responsible.
+        </p>
+        <h3>Is the advertised speed guaranteed?</h3>
+        <p>
+            The profile may be validated under specified conditions, but XMP and EXPO remain memory
+            overclocking. Check the exact kit, board, processor specification and BIOS, then test the installed
+            system.
+        </p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul class="source-list">
+            <li><a href="https://www.intel.com/content/www/us/en/gaming/extreme-memory-profile-xmp.html" rel="noopener">Intel: Extreme Memory Profile (XMP)</a>.</li>
+            <li><a href="https://www.amd.com/en/products/processors/technologies/expo.html" rel="noopener">AMD: Extended Profiles for Overclocking (EXPO)</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: WHEA_UNCORRECTABLE_ERROR 0x124</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/whea-hardware-error-events" rel="noopener">Microsoft: WHEA hardware error events and records</a>.</li>
+            <li><a href="https://www.memtest86.com/downloads/MemTest86_User_Guide_UEFI.pdf" rel="noopener">PassMark: MemTest86 User Manual</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Keep the stable baseline.</b> PC Workman records the system around the failure, while a dedicated
+            memory test checks whether the data came back intact. Free and open source.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            If instability causes a complete reboot, continue with
+            <a href="../pc-restarts-while-gaming-kernel-power-41/">the Kernel-Power 41 restart guide &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I would rather point to the correct external memory test than claim a stability feature PC Workman does not have.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

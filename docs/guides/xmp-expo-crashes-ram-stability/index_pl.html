@@ -1,0 +1,380 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: XMP EXPO i stabilność RAM -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Gry wyłączają się po włączeniu XMP lub EXPO? Porównaj ustawienia JEDEC z profilem pamięci, wykonaj test poza Windows i nie ignoruj nawet jednego błędu.">
+    <meta name="keywords" content="XMP wywala gry, EXPO niestabilne, test stabilności RAM, XMP bluescreen, EXPO restartuje komputer, DDR5 6000 niestabilne, błędy pamięci Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/">
+    <meta property="og:title" content="XMP lub EXPO wywala gry? Uruchomiony nie znaczy stabilny">
+    <meta property="og:description" content="Zbuduj bazę na ustawieniach domyślnych, włącz tylko profil pamięci i pozwól różnicy się udowodnić.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="article:published_time" content="2026-07-30">
+    <meta property="article:modified_time" content="2026-07-30">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>XMP lub EXPO Wywala Gry? Test Stabilności RAM</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "XMP lub EXPO wywala gry? Jak sprawdzić stabilność RAM-u",
+      "description": "Kontrolowana metoda porównania domyślnych ustawień JEDEC z profilem XMP lub EXPO, testowania poza Windows oraz interpretacji błędów WHEA i awarii aplikacji.",
+      "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html",
+      "datePublished": "2026-07-30",
+      "dateModified": "2026-07-30",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://www.intel.com/content/www/us/en/gaming/extreme-memory-profile-xmp.html",
+        "https://www.amd.com/en/products/processors/technologies/expo.html",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/whea-hardware-error-events",
+        "https://www.memtest86.com/downloads/MemTest86_User_Guide_UEFI.pdf"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "XMP, EXPO i stabilność RAM", "item": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy XMP lub EXPO może powodować wyłączanie gier?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak. XMP i EXPO stosują profile podkręcania pamięci. Komputer może uruchamiać się i wykonywać lekką pracę, a zawodzić w grze, kompilacji lub teście pamięci. Przed obwinieniem gry lub sterownika porównaj tę samą maszynę przy domyślnych ustawieniach RAM-u oraz po włączeniu wyłącznie profilu." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy jeden błąd w MemTest86 ma znaczenie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak. Oczekiwane i odczytane dane powinny być identyczne. Jeden powtarzalny błąd oznacza, że testowanej konfiguracji nie można uznać za stabilną. Sam błąd nie wskazuje jeszcze modułu, kontrolera pamięci, płyty, firmware ani ustawienia profilu jako winowajcy." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy XMP lub EXPO gwarantuje reklamowaną prędkość?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Profil i zgodne moduły są sprawdzane w określonych warunkach, lecz XMP i EXPO nadal są podkręcaniem pamięci. Sprawdź dokładny numer zestawu, listę obsługi płyty, oficjalną specyfikację pamięci procesora i BIOS. Stabilność całego zainstalowanego systemu trzeba zweryfikować." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    .ab-test{
+        display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:.65rem;
+        margin:1.4rem 0; padding:1rem; background:#080b10; border:1px solid #23313a;
+        border-left:4px solid #22d3ee;
+    }
+    .ab-side{ background:#0a0f14; border:1px solid #24313b; padding:1rem; }
+    .ab-side b{ display:block; font-family:var(--font-mono); font-size:.75rem; color:#67e8f9; margin-bottom:.4rem; }
+    .ab-side span{ color:var(--text-secondary); font-size:.8rem; line-height:1.55; }
+    .ab-arrow{ display:flex; align-items:center; color:#f43f5e; font-family:var(--font-mono); font-weight:700; }
+    .stability-table td:first-child{ color:#fff; font-weight:700; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:640px){
+        .ab-test{ grid-template-columns:1fr; }
+        .ab-arrow{ justify-content:center; transform:rotate(90deg); }
+    }
+    </style>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/xmp-expo-crashes-ram-stability/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/xmp-expo-crashes-ram-stability/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Pamięć &middot; Stabilność</span>
+        <h1>Uruchomiony nie znaczy stabilny.</h1>
+        <p class="tagline">Profil pamięci może przejść pulpit i polec na pierwszym obciążeniu, które trafi w jego słaby wzór.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Autor: Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-07-30</span><span>&middot;</span><span>16 min czytania</span>
+        </div>
+
+        <p>
+            Włączasz XMP lub EXPO, Windows startuje, prędkość pamięci wreszcie zgadza się z pudełkiem i temat
+            wydaje się zamknięty. Dwa wieczory później gra wyrzuca do pulpitu. Duże archiwum raz zgłasza błąd,
+            a za drugim razem rozpakowuje się poprawnie. Inna gra restartuje komputer po czterdziestu minutach.
+            Żaden pojedynczy objaw nie krzyczy „RAM”.
+        </p>
+        <p>
+            Niestabilna pamięć dobrze udaje inne awarie, bo prawie każdy program w końcu jej ufa. Gra może być
+            pierwszą aplikacją, która ujawni błąd, choć nie jest jego przyczyną. Użyteczne pytanie nie brzmi,
+            czy komputer uruchomił się z profilem. Brzmi: czy ten sam sprzęt pozostaje bezbłędny przy różnych
+            wzorach, po odpowiednio długim czasie i w zadaniach, na których Ci zależy.
+        </p>
+        <p>
+            Nie zaczynaj od kopiowania napięć z forum. Zacznij od bazy. Jeśli komputer jest stabilny na
+            domyślnych ustawieniach pamięci i wielokrotnie zawodzi po włączeniu wyłącznie XMP lub EXPO, różnica
+            zasłużyła na uwagę.
+        </p>
+
+        <div class="ab-test" aria-label="Test A/B ustawień domyślnych i profilu pamięci">
+            <div class="ab-side">
+                <b>A · DOMYŚLNE / JEDEC</b>
+                <span>Wczytaj ustawienia domyślne BIOS-u. Zapisz prędkość, timingi, wersję BIOS-u i dokładny numer modułów. Uruchom ten sam test pamięci i prawdziwe zadanie.</span>
+            </div>
+            <div class="ab-arrow">→</div>
+            <div class="ab-side">
+                <b>B · TYLKO XMP / EXPO</b>
+                <span>Włącz wyłącznie profil pamięci. Nie zmieniaj strojenia CPU i GPU. Powtórz dokładnie ten sam test przez taki sam czas.</span>
+            </div>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#profile">Co zmienia XMP i EXPO</a></li>
+                <li><a href="#symptoms">Objawy uzasadniające test pamięci</a></li>
+                <li><a href="#baseline">Zbuduj czystą bazę A/B</a></li>
+                <li><a href="#testing">Test poza Windows i w prawdziwym obciążeniu</a></li>
+                <li><a href="#result">Odczytaj wynik bez nadinterpretacji</a></li>
+                <li><a href="#workman">Co PC Workman potrafi, a czego nie</a></li>
+            </ol>
+        </div>
+
+        <h2 id="profile">Co naprawdę zmienia XMP i EXPO</h2>
+        <p>
+            Moduł pamięci zawiera ustawienia bazowe, które mają umożliwić bezpieczne pierwsze uruchomienie.
+            XMP na platformach Intela i EXPO na AMD AM5 dodają zapisane profile z wyższą szybkością transmisji
+            oraz powiązanymi timingami i napięciem. Wybranie profilu prosi całą ścieżkę pamięci o pracę z tymi
+            parametrami.
+        </p>
+        <p>
+            Intel określa XMP jako podkręcanie pamięci powyżej ustawień standardowych. AMD określa EXPO jako
+            technologię overclockingu i ostrzega, że praca poza opublikowaną specyfikacją może obniżyć wydajność
+            albo spowodować awarię, utratę lub uszkodzenie danych. „Jedno kliknięcie” opisuje interfejs, nie
+            gwarancję nieskończonego marginesu każdej złożonej konfiguracji.
+        </p>
+        <p>
+            Certyfikacja i listy obsługi nadal mają znaczenie. Sprawdź dokładny numer części wydrukowany na
+            pamięci, nie tylko markę i główną prędkość. Sprawdź listę obsługiwanych modułów płyty, oficjalną
+            specyfikację pamięci procesora oraz informacje do zainstalowanej wersji BIOS-u. Brak zestawu na
+            liście nie dowodzi awarii. Obecność oznacza, że producent przetestował dokładną konfigurację w
+            podanych warunkach, co jest mocniejszym dowodem.
+        </p>
+        <div class="callout">
+            <b>Reklamowana i domyślna prędkość mogą być jednocześnie prawdziwe.</b> Pudełko opisuje profil,
+            do którego sprzedano zestaw. Pierwszy start używa bezpieczniejszych ustawień bazowych, aby komputer
+            uruchomił się przed wyborem podkręcania. Test stabilności rozstrzyga, czy Twój cały zestaw utrzyma profil.
+        </div>
+
+        <h2 id="symptoms">Objawy uzasadniające test pamięci</h2>
+        <table class="stability-table">
+            <thead><tr><th>Objaw</th><th>Dlaczego RAM trafia na listę</th><th>Dlaczego to nie jest dowód</th></tr></thead>
+            <tbody>
+                <tr><td>Gry wracają do pulpitu bez jednego stałego błędu</td><td>Nieprawidłowe dane mogą w kolejnych uruchomieniach trafić do innych ścieżek kodu.</td><td>Błąd gry lub sterownika GPU może wyglądać identycznie.</td></tr>
+                <tr><td>Po włączeniu profilu pojawia się WHEA lub 0x124</td><td>WHEA zapisuje błąd sprzętowy, a Microsoft zaleca wyłączenie OC podczas izolowania 0x124.</td><td>Rekord może wskazywać CPU, PCIe lub inne źródło, nie moduł RAM.</td></tr>
+                <tr><td>Archiwum, instalator lub kompilator zawodzi nieregularnie</td><td>Te zadania przenoszą i weryfikują dużo danych.</td><td>Uszkodzony może być także dysk, plik źródłowy lub program.</td></tr>
+                <tr><td>Komputer restartuje się tylko z XMP/EXPO</td><td>Profil jest kontrolowaną różnicą.</td><td>Nie wskazuje modułu, kontrolera, płyty ani firmware.</td></tr>
+                <tr><td>Zimny start zawodzi, kolejny działa</td><td>Trening pamięci i margines wymagają sprawdzenia.</td><td>Firmware i inicjalizacja zasilania mogą zachowywać się podobnie.</td></tr>
+                <tr><td>Wszystko działa przez wiele godzin</td><td>Błędy przerywane mogą zależeć od wzoru i temperatury.</td><td>Długi czas pracy nie potwierdza ani nie wyklucza stabilności.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            WHEA pomaga tylko wtedy, gdy czytasz je dokładnie. Windows zapisuje wraz ze zdarzeniem rekord błędu
+            sprzętowego. Źródło i zawartość rekordu są ważniejsze niż samo pojawienie się słowa WHEA. Nie
+            nazywaj każdego wpisu WHEA awarią RAM-u.
+        </p>
+
+        <h2 id="baseline">Zbuduj czystą bazę A/B</h2>
+        <ol>
+            <li><strong>Zabezpiecz ważne dane.</strong> Niestabilna pamięć może uszkodzić dane, zanim wywoła
+                widowiskowy crash.</li>
+            <li><strong>Zapisz konfigurację początkową.</strong> Dokładny numer modułów, obsadzone sloty, wersję
+                BIOS-u, prędkość pamięci, podstawowe timingi i aktywne strojenie CPU lub GPU.</li>
+            <li><strong>Wczytaj ustawienia domyślne BIOS-u.</strong> Nie zeruj ustawień, jeśli nie wiesz, jak
+                przywrócić potrzebne opcje rozruchu, dysku i zabezpieczeń. Przy aktywnym BitLockerze lub
+                szyfrowaniu urządzenia przygotuj klucz odzyskiwania przed zmianami firmware.</li>
+            <li><strong>Przetestuj domyślną konfigurację pamięci.</strong> Użyj tego samego narzędzia, czasu
+                i prawdziwego zadania, które później sprawdzisz z profilem.</li>
+            <li><strong>Włącz wyłącznie XMP lub EXPO.</strong> Nie dodawaj do tego samego eksperymentu undervoltu
+                CPU, automatycznego boostu płyty ani ręcznych timingów.</li>
+            <li><strong>Powtórz dokładnie.</strong> Awaria B po wielokrotnie czystym A izoluje konfigurację
+                profilu. Nadal nie wskazuje fizycznego winowajcy.</li>
+        </ol>
+        <p>
+            Jeśli konfiguracja domyślna także zawodzi, przestań nazywać problem XMP lub EXPO. Sprawdź moduły
+            i sloty zgodnie z instrukcją płyty, obejrzyj montaż, aktualizuj wyłącznie firmware właściwy dla
+            platformy i rozważ profesjonalną diagnozę. Zła baza oznacza, że eksperyment nie ma czystej kontroli.
+        </p>
+
+        <h2 id="testing">Test poza Windows i w prawdziwym obciążeniu</h2>
+        <p>
+            Bootowalny test pamięci usuwa z równania większość sterowników i aplikacji. MemTest86 działa z nośnika
+            UEFI i sprawdza dostępną pamięć wieloma algorytmami. Jego instrukcja wyjaśnia, dlaczego jeden wzór nie
+            wystarcza: błędy RAM-u mogą zależeć od konkretnego wzoru danych i występować tylko czasami.
+        </p>
+        <p>
+            Uruchom pełny test domyślny, nie dwuminutową próbkę. Zachowaj raport, dokładną konfigurację i liczbę
+            przebiegów. Błąd oznacza, że odczytane dane nie zgodziły się z oczekiwanymi. Nie ma akceptowalnej
+            liczby powtarzalnych błędów dla konfiguracji, której chcesz powierzyć pliki.
+        </p>
+        <p>
+            Czysty test bootowalny jest ważnym dowodem, lecz nie wieczystą gwarancją. Wróć do Windows i powtórz
+            zadanie, które wcześniej zawodziło: tę samą trasę w grze, kompilację, render albo operację na archiwum.
+            Kontroler pamięci procesora, temperatura i wzór obciążenia mogą inaczej obciążyć ścieżkę. Stabilność
+            oznacza przejście zarówno testu skupionego na pamięci, jak i pracy, którą komputer ma wykonywać.
+        </p>
+        <div class="callout warn">
+            <b>Nie „naprawiaj” błędów przez ślepe podnoszenie napięcia RAM-u lub kontrolera.</b> Bezpieczne
+            wartości zależą od generacji procesora, płyty i pamięci. Używaj dokumentacji producenta,
+            zachowawczego niższego profilu albo pomocy osoby, która zna platformę. Trochę wolniejsza stabilna
+            konfiguracja jest szybsza niż profil uszkadzający jeden projekt w miesiącu.
+        </div>
+
+        <h2 id="result">Odczytaj wynik bez nadinterpretacji</h2>
+        <table class="stability-table">
+            <thead><tr><th>Wynik</th><th>Co możesz powiedzieć</th><th>Następny ruch</th></tr></thead>
+            <tbody>
+                <tr><td>Domyślne przechodzi, profil powtarzalnie zawodzi</td><td>Zainstalowany zestaw nie jest stabilny przy tej konfiguracji profilu.</td><td>Sprawdź BIOS, obsługę producenta, łagodniejszy profil lub niższą prędkość.</td></tr>
+                <tr><td>Domyślne i profil zawodzą</td><td>Problem jest szerszy niż profil.</td><td>Sprawdź montaż, moduły, sloty, płytę, kontroler i firmware.</td></tr>
+                <tr><td>Oba przechodzą, jedna gra nadal się wyłącza</td><td>Przeciwko RAM-owi jest mniej dowodów.</td><td>Zbadaj grę, sterownik, GPU i konkretną ścieżkę błędu.</td></tr>
+                <tr><td>Test RAM przechodzi, WHEA się powtarza</td><td>Rekord WHEA nadal wymaga odczytania według źródła.</td><td>Przywróć całe strojenie do wartości domyślnych i idź gałęzią konkretnego WHEA.</td></tr>
+                <tr><td>Niższa prędkość pamięci przechodzi</td><td>Poprzednie ustawienie nie miało stabilnego marginesu w tym zestawie.</td><td>Zostań przy stabilnym ustawieniu albo korzystaj ze strojenia wspieranego przez producenta.</td></tr>
+                <tr><td>Jeden błąd pojawił się raz</td><td>Przebiegu nie można nazwać czystym.</td><td>Zachowaj raport i odtwórz wynik na domyślnym ustawieniu oraz profilu.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Nie przeskakuj od „profil jest niestabilny” do „RAM jest uszkodzony”. Pełna ścieżka obejmuje moduły,
+            kontroler pamięci w procesorze, płytę, firmware, obsadę slotów i wybrane ustawienia. Wynik A/B mówi,
+            która konfiguracja zawodzi. Wymiana części wymaga drugiego etapu izolacji.
+        </p>
+
+        <h2 id="workman">Co PC Workman potrafi, a czego nie</h2>
+        <p>
+            PC Workman może rozpoznać generację i pojemność zainstalowanej pamięci, pokazać bieżącą presję RAM-u,
+            zachować historię temperatur i obciążenia oraz dodać uwagi o XMP/EXPO podczas oceny modernizacji.
+            Ten kontekst pomaga opisać komputer przed i w trakcie wadliwego obciążenia.
+        </p>
+        <p>
+            <strong>Obecna wersja PC Workmana nie wykonuje pełnego testu stabilności RAM-u, nie uruchamia się
+            poza Windows, nie dekoduje rekordów WHEA i nie certyfikuje profilu XMP/EXPO.</strong> Do wykrywania
+            błędów użyj MemTest86 albo innego przeznaczonego do tego, wiarygodnego testu. PC Workman służy tu do
+            historii otoczenia systemowego, nie jako zamiennik takiego narzędzia.
+        </p>
+        <p>
+            Różnica jest ważna. Raport pojemności i użycia odpowiada na pytanie „ile pamięci jest zajęte?”.
+            Test stabilności pyta „czy każda sprawdzona wartość wróciła bez zmiany?”. To dwa różne pytania.
+        </p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Czy XMP lub EXPO może wyłączać gry?</h3>
+        <p>
+            Tak. Są to profile podkręcania pamięci. Zanim obwinisz grę, porównaj powtarzalne testy na ustawieniach
+            domyślnych oraz po włączeniu wyłącznie profilu.
+        </p>
+        <h3>Czy jeden błąd w MemTest86 ma znaczenie?</h3>
+        <p>
+            Tak. Testowanej konfiguracji nie można uznać za stabilną. Sam błąd nie wskazuje jeszcze modułu,
+            kontrolera, płyty, firmware ani profilu jako przyczyny.
+        </p>
+        <h3>Czy reklamowana prędkość jest gwarantowana?</h3>
+        <p>
+            Profil może być sprawdzony w określonych warunkach, ale XMP i EXPO pozostają podkręcaniem pamięci.
+            Sprawdź dokładny zestaw, płytę, specyfikację procesora i BIOS, a potem przetestuj własny komputer.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne</h2>
+        <ul class="source-list">
+            <li><a href="https://www.intel.com/content/www/us/en/gaming/extreme-memory-profile-xmp.html" rel="noopener">Intel: Extreme Memory Profile (XMP)</a>.</li>
+            <li><a href="https://www.amd.com/en/products/processors/technologies/expo.html" rel="noopener">AMD: Extended Profiles for Overclocking (EXPO)</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: WHEA_UNCORRECTABLE_ERROR 0x124</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/whea-hardware-error-events" rel="noopener">Microsoft: zdarzenia i rekordy błędów sprzętowych WHEA</a>.</li>
+            <li><a href="https://www.memtest86.com/downloads/MemTest86_User_Guide_UEFI.pdf" rel="noopener">PassMark: instrukcja MemTest86</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zachowaj stabilną bazę.</b> PC Workman zapisuje stan systemu wokół awarii, a wyspecjalizowany test
+            pamięci sprawdza, czy dane wróciły bez zmian. Bezpłatny i open source.
+            <a href="../../download/index_pl.html">Pobierz dla Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Jeśli niestabilność kończy się pełnym restartem, przejdź do
+            <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">poradnika o Kernel-Power 41 &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Wolę wskazać właściwy zewnętrzny test pamięci niż przypisywać PC Workmanowi funkcję stabilności, której nie ma.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
