@@ -6,12 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="description" content="Ghost drivers are drivers for hardware you removed years ago — still installed, hidden by Device Manager. How to find them with pnputil /enum-devices /connected and remove them safely.">
     <meta name="keywords" content="ghost drivers Windows, remove old drivers, pnputil remove device, hidden devices Device Manager, leftover GPU driver, phantom drivers cleanup, old hardware drivers Windows">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/ghost-drivers-windows/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ghost-drivers-windows/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ghost-drivers-windows/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:title" content="Ghost drivers: the hardware you removed years ago is still in Windows">
     <meta property="og:description" content="Device Manager hides them. Most monitoring tools never see them. How to find and remove ghost drivers with pnputil — step by step.">
     <meta property="og:type" content="article">
@@ -40,6 +45,11 @@
       "datePublished": "2026-06-12",
       "dateModified": "2026-06-12",
       "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax"
+      ],
       "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
       "author": {
         "@type": "Person",
@@ -61,6 +71,31 @@
       ]
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What are ghost drivers in Windows?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Ghost drivers are driver packages and device entries left behind by hardware you no longer have installed. Windows keeps them in the driver store and the registry after the device is removed, and Device Manager hides them by default, so they stay invisible while still occupying disk space and occasionally causing conflicts with newer hardware."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it safe to remove old drivers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Removing driver packages for hardware you genuinely no longer own is generally safe, and Windows keeps the in-box drivers it needs regardless. The safe method is to enumerate the driver store with pnputil, identify packages tied to hardware that is gone, and remove them one at a time rather than in bulk. Create a restore point first, and never delete packages for devices still present in the machine."
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body class="page-monday">
 
@@ -79,7 +114,7 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index.html" data-lang="pl">PL</a>
+            <a href="/guides/ghost-drivers-windows/index_pl.html" data-lang="pl" lang="pl">PL</a>
             <span class="gt-slash">/</span>
             <a href="/index_en.html" class="active" data-lang="en">EN</a>
         </span>
