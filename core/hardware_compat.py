@@ -45,7 +45,8 @@ def _fold_cpu(text: str) -> str:
 
 
 _RX_INTEL = re.compile(r"\bi([3579])\s?(\d{4,5})([a-z]{0,2})\b")
-_RX_ULTRA = re.compile(r"\bultra\s?([579])\s?(\d{3})([a-z]{0,2})\b")
+_RX_ULTRA = re.compile(
+    r"\bultra\s?([579])\s?(\d{3})([a-z]{0,2})(?:\s?(plus))?\b")
 _RX_RYZEN = re.compile(r"\bryzen\s?([3579])\s?(\d{4})([a-z0-9]{0,3})\b")
 _RX_FX    = re.compile(r"\bfx\s?(\d{4})\b")
 _RX_PENT  = re.compile(r"\bpentium\s?(?:gold\s?)?g(\d{4})\b")
@@ -64,7 +65,10 @@ def identify_cpu(text: str) -> Optional[dict]:
         return cpu_record(f"i{m.group(1)}-{m.group(2)}{m.group(3)}")
     m = _RX_ULTRA.search(s)
     if m:
-        return cpu_record(f"ultra {m.group(1)} {m.group(2)}{m.group(3)}")
+        key = f"ultra {m.group(1)} {m.group(2)}{m.group(3)}"
+        if m.group(4):
+            key += " plus"
+        return cpu_record(key)
     m = _RX_RYZEN.search(s)
     if m:
         return cpu_record(f"ryzen {m.group(1)} {m.group(2)}{m.group(3)}")
@@ -138,7 +142,7 @@ def identify_part(text: str):
 
 # ── Current machine ──────────────────────────────────────────────────────────
 _PLAT_CACHE: dict = {"t": 0.0, "v": None}
-_RX_CHIP = re.compile(r"\b([ABHXZ]\d{2,3}[A-Z]?|760G|970|990X|990FX)\b")
+_RX_CHIP = re.compile(r"\b([ABHQWXZ]\d{2,3}[A-Z]?|760G|970|990X|990FX)\b")
 
 
 def chipset_from_board(board: str) -> Optional[str]:

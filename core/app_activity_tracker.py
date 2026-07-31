@@ -264,13 +264,8 @@ class AppActivityTracker:
 
     @staticmethod
     def _foreground_pid() -> int:
-        try:
-            hwnd = ctypes.windll.user32.GetForegroundWindow()
-            pid  = ctypes.c_ulong(0)
-            ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-            return pid.value
-        except Exception:
-            return 0
+        from utils.win_active import foreground_pid
+        return foreground_pid()
 
     @staticmethod
     def _is_protected(name: str, exe: str) -> bool:

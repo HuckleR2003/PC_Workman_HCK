@@ -305,29 +305,20 @@ class HibernationManager:
     # ── Persistence ───────────────────────────────────────────────────────────
 
     def _load_prefs(self) -> None:
-        try:
-            with open(_PREFS_PATH, encoding="utf-8") as f:
-                data = json.load(f)
-            with self._lock:
-                self._ignored         = set(data.get("ignored", []))
-                self._turbo_behaviors = dict(data.get("turbo_behaviors", {}))
-        except (FileNotFoundError, json.JSONDecodeError):
-            pass
-        except Exception:
-            pass
+        from utils.prefs_io import load_json
+        data = load_json(_PREFS_PATH, {})
+        with self._lock:
+            self._ignored         = set(data.get("ignored", []))
+            self._turbo_behaviors = dict(data.get("turbo_behaviors", {}))
 
     def _save_prefs(self) -> None:
-        try:
-            os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-            with self._lock:
-                data = {
-                    "ignored":         sorted(self._ignored),
-                    "turbo_behaviors": dict(self._turbo_behaviors),
-                }
-            with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+        from utils.prefs_io import save_json
+        with self._lock:
+            data = {
+                "ignored":         sorted(self._ignored),
+                "turbo_behaviors": dict(self._turbo_behaviors),
+            }
+        save_json(_PREFS_PATH, data)
 
 
 # ── Low-level priority helper ─────────────────────────────────────────────────

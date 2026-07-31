@@ -652,13 +652,8 @@ class TurboProcessSuspender:
 
     @staticmethod
     def _foreground_pid() -> int:
-        try:
-            hwnd = ctypes.windll.user32.GetForegroundWindow()
-            pid  = ctypes.c_ulong()
-            ctypes.windll.user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-            return pid.value
-        except Exception:
-            return 0
+        from utils.win_active import foreground_pid
+        return foreground_pid()
 
 
 # ══════════════════════════════════════════════════════════════════════════════

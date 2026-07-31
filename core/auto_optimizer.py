@@ -61,11 +61,8 @@ _DEFAULT_THR = 75          # % RAM
 
 # ── prefs (shared file with the Optimization page) ───────────────────────────
 def _load_prefs_full() -> dict:
-    try:
-        with open(_PREFS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    return load_json(_PREFS_PATH, {})
 
 
 def _load_opt() -> dict:
@@ -394,6 +391,13 @@ class AutoOptimizer:
 
     # ── manual flush (the "FLUSH RAM" button routes here too) ─────────────────
     def flush_now(self) -> tuple:
+        # Optimization Receipt: BEFORE is captured here, AFTER ~20 s later -
+        # the flush must never fail because of the receipt (fully guarded).
+        try:
+            from core.opt_receipts import record as _receipt
+            _receipt("RAM Flush")
+        except Exception:
+            pass
         with self._lock:
             exclude = set(self._exclude)
         res = ram_flush(exclude)

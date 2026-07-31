@@ -207,24 +207,17 @@ class ProcessGuard:
         return os.path.join(APP_DIR, "data", "cache", "process_guard.json")
 
     def _load_prefs(self) -> None:
-        try:
-            with open(self._prefs_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            self._whitelist = set(data.get("whitelist", []))
-            self._sig_cache = data.get("sig_cache", {})
-        except Exception:
-            pass
+        from utils.prefs_io import load_json
+        data = load_json(self._prefs_path, {})
+        self._whitelist = set(data.get("whitelist", []))
+        self._sig_cache = data.get("sig_cache", {})
 
     def _save_prefs(self) -> None:
-        try:
-            os.makedirs(os.path.dirname(self._prefs_path), exist_ok=True)
-            with open(self._prefs_path, "w", encoding="utf-8") as f:
-                json.dump({
-                    "whitelist": sorted(self._whitelist),
-                    "sig_cache": self._sig_cache,
-                }, f, indent=2)
-        except Exception:
-            pass
+        from utils.prefs_io import save_json
+        save_json(self._prefs_path, {
+            "whitelist": sorted(self._whitelist),
+            "sig_cache": self._sig_cache,
+        })
 
     # ── Whitelist ────────────────────────────────────────────────────────────
 

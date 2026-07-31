@@ -26,7 +26,7 @@ GPU perf_index is a coarse relative class (1440p raster, RTX 5090 = 100).
 It exists to say "big jump / sidegrade / downgrade", never as a benchmark.
 """
 
-DB_VERSION = "2026.07"
+DB_VERSION = "2026.07.31"
 
 # ── Sockets ──────────────────────────────────────────────────────────────────
 SOCKETS = {
@@ -83,6 +83,7 @@ CHIPSETS = {
     "Z790": _cs("LGA1700", [12, 13], bios=[14]),
     # Intel 800-series (LGA1851, Core Ultra 200S)
     "H810": _cs("LGA1851", [15]), "B860": _cs("LGA1851", [15]),
+    "Q870": _cs("LGA1851", [15]), "W880": _cs("LGA1851", [15]),
     "Z890": _cs("LGA1851", [15]),
     # AMD AM3+ (FX)
     "760G": _cs("AM3+", [0]), "970": _cs("AM3+", [0]),
@@ -231,11 +232,21 @@ CPUS = {
     "i9-14900ks": ("LGA1700", 14, 24, 32, 150, True),
     # Intel LGA1851 (Core Ultra 200S, Arrow Lake - no hyperthreading)
     "ultra 5 225": ("LGA1851", 15, 10, 10, 65, True),
+    "ultra 5 225f": ("LGA1851", 15, 10, 10, 65, False),
+    "ultra 5 235": ("LGA1851", 15, 14, 14, 65, True),
+    "ultra 5 245": ("LGA1851", 15, 14, 14, 65, True),
     "ultra 5 245k": ("LGA1851", 15, 14, 14, 125, True),
     "ultra 5 245kf": ("LGA1851", 15, 14, 14, 125, False),
+    "ultra 7 265": ("LGA1851", 15, 20, 20, 65, True),
+    "ultra 7 265f": ("LGA1851", 15, 20, 20, 65, False),
     "ultra 7 265k": ("LGA1851", 15, 20, 20, 125, True),
     "ultra 7 265kf": ("LGA1851", 15, 20, 20, 125, False),
+    "ultra 9 285": ("LGA1851", 15, 24, 24, 65, True),
     "ultra 9 285k": ("LGA1851", 15, 24, 24, 125, True),
+    # Intel Core Ultra 200S Plus (Arrow Lake Refresh, 2026)
+    "ultra 5 250k plus": ("LGA1851", 15, 18, 18, 125, True),
+    "ultra 5 250kf plus": ("LGA1851", 15, 18, 18, 125, False),
+    "ultra 7 270k plus": ("LGA1851", 15, 24, 24, 125, True),
     # AMD AM3+ (FX)
     "fx-6300": ("AM3+", 0, 6, 6, 95, False),
     "fx-8320": ("AM3+", 0, 8, 8, 125, False),
@@ -316,7 +327,6 @@ CPUS = {
     "i9-12900": ("LGA1700", 12, 16, 24, 65, True),
     "i9-13900": ("LGA1700", 13, 24, 32, 65, True),
     "i9-14900": ("LGA1700", 14, 24, 32, 65, True),
-    "ultra 5 235": ("LGA1851", 15, 14, 14, 65, True),
 }
 
 # ── GPUs: key -> (vram_gb, tdp_w, recommended_psu_w, perf_index, year) ───────

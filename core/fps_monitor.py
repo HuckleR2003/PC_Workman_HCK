@@ -47,17 +47,8 @@ def _u32(buf: bytes, off: int) -> int:
 
 def _foreground_pid() -> int:
     """PID of the window currently in focus (usually the game), or 0."""
-    try:
-        import ctypes
-        user32 = ctypes.windll.user32
-        hwnd = user32.GetForegroundWindow()
-        if not hwnd:
-            return 0
-        pid = ctypes.c_ulong(0)
-        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        return int(pid.value)
-    except Exception:
-        return 0
+    from utils.win_active import foreground_pid
+    return foreground_pid()
 
 
 def read_fps(target_pid: Optional[int] = None) -> Optional[float]:
