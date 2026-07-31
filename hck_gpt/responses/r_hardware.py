@@ -300,9 +300,16 @@ class HardwareResponses:
         throttled = snap.get("cpu_throttled", False)
 
         if mhz is None:
-            return [_t(lang,
-                       f"{self.PREFIX} Brak danych o taktowaniu CPU.",
-                       f"{self.PREFIX} No CPU frequency data available.")]
+            return [
+                _t(lang,
+                   f"{self.PREFIX} Brak danych o taktowaniu CPU.",
+                   f"{self.PREFIX} No CPU frequency data available."),
+                _t(lang,
+                   "  Otwórz [-> Overclock], aby zobaczyć zegary, limit mocy "
+                   "i temperaturę na żywo. Bez zegara nie stwierdzam throttlingu.",
+                   "  Open [-> Overclock] for live clocks, power limit and "
+                   "temperature. Without a clock reading I will not call throttling."),
+            ]
 
         ratio_str = ""
         if max_mhz:
@@ -316,14 +323,14 @@ class HardwareResponses:
                     f"  Now:    {mhz} MHz{ratio_str}",
                     f"  Max:    {max_mhz} MHz",
                     "  Likely cause: heat, power limit, or power plan.",
-                    "  Check temperatures and active power plan.",
+                    "  The OVERCLOCK tab shows live WHICH one is holding you back  [-> Overclock]",
                 ]
             return [
                 f"{self.PREFIX} ⚠ CPU THROTTLUJE!",
                 f"  Teraz:  {mhz} MHz{ratio_str}",
                 f"  Max:    {max_mhz} MHz",
                 "  Możliwe przyczyny: przegrzanie, power limit, plan zasilania.",
-                "  Sprawdź temperatury i plan zasilania.",
+                "  Zakładka OVERCLOCK pokaże na żywo, KTÓRY z nich Cię trzyma  [-> Overclock]",
             ]
 
         ok_msg = _t(lang,
@@ -331,6 +338,9 @@ class HardwareResponses:
                     f"{self.PREFIX} CPU is not throttling.")
         return [ok_msg,
                 f"  {_t(lang, 'Teraz', 'Now')}: {mhz} MHz  /  Max: {max_mhz} MHz  {ratio_str}",
+                _t(lang,
+                   "  Ciekawy pełnego headroomu (zegary/moc/temp)? Zajrzyj do  [-> Overclock]",
+                   "  Curious about your full headroom (clocks/power/temp)? See  [-> Overclock]"),
                 _followup("perf", lang)]
 
     def _resp_power_plan(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -1462,4 +1472,3 @@ class HardwareResponses:
             lines.append(_t(lang, "  Zapas jest - VRAM nie jest wąskim gardłem.",
                                   "  Headroom available - VRAM isn't the bottleneck."))
         return lines
-

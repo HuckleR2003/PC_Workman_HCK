@@ -121,6 +121,7 @@ class ThermalResponses:
         snap     = system_context.snapshot()
         cpu_load = float(snap.get("cpu_pct",  0) or 0)
         cpu_temp = float(snap.get("cpu_temp", 0) or 0)
+        cpu_src  = str(snap.get("cpu_temp_src", "") or "")
         gpu_temp = float(snap.get("gpu_temp", 0) or 0)
         gpu_load = 0.0
         try:
@@ -130,20 +131,33 @@ class ThermalResponses:
                 gpu_load = float(ls["gpu_load"])
             if cpu_temp <= 0 and (ls.get("cpu_temp", -1) or -1) > 0:
                 cpu_temp = float(ls["cpu_temp"])
+                cpu_src = str(ls.get("cpu_temp_src", "") or "")
             if gpu_temp <= 0 and (ls.get("gpu_temp", -1) or -1) > 0:
                 gpu_temp = float(ls["gpu_temp"])
         except Exception:
             pass
 
         lines: List[str] = []
-        try:
-            from core.thermal_baseline import thermal_baseline
-            thermal_baseline.maybe_rebuild()
-            block = thermal_baseline.format_for_chat(cpu_temp, cpu_load, gpu_load, lang, gpu_temp=gpu_temp).split("\n")
-            block[0] = f"{self.PREFIX} {block[0].lstrip()}"
-            lines.extend(block)
-        except Exception:
-            pass
+        if cpu_temp > 0 and cpu_src == "sensor":
+            try:
+                from core.thermal_baseline import thermal_baseline
+                thermal_baseline.maybe_rebuild()
+                block = thermal_baseline.format_for_chat(
+                    cpu_temp, cpu_load, gpu_load, lang, gpu_temp=gpu_temp
+                ).split("\n")
+                block[0] = f"{self.PREFIX} {block[0].lstrip()}"
+                lines.extend(block)
+            except Exception:
+                pass
+        elif cpu_temp > 0:
+            lines.extend([
+                _t(lang,
+                   f"{self.PREFIX} Szacowana temperatura CPU: około {cpu_temp:.0f}°C.",
+                   f"{self.PREFIX} Estimated CPU temperature: about {cpu_temp:.0f}°C."),
+                _t(lang,
+                   "  To wyliczenie z obciążenia, nie odczyt czujnika. Nie używam go do alarmów ani oceny przegrzewania.",
+                   "  This is calculated from load, not read from a sensor. I do not use it for alerts or overheating verdicts."),
+            ])
 
         if gpu_temp > 0:
             g_state = "✓" if gpu_temp <= 83 else "⚠"
@@ -160,6 +174,15 @@ class ThermalResponses:
                     f"  7-day avg: CPU {ts['cpu_temp_avg']:.0f}°C (peak {ts.get('cpu_temp_max', '-')}°C)"))
         except Exception:
             pass
+
+        if lines and not lines[0].lstrip().startswith(self.PREFIX):
+            lines.insert(0, _t(
+                lang,
+                f"{self.PREFIX} Brak bieżącego odczytu CPU. Pokazuję dostępne "
+                "dane GPU i historię, bez zgadywania temperatury procesora:",
+                f"{self.PREFIX} No live CPU reading. Showing available GPU "
+                "and historical data without guessing the processor temperature:",
+            ))
 
         if not lines:
             return [_t(lang,
@@ -450,51 +473,18 @@ class ThermalResponses:
         return lines
 
     def _resp_cooling_advice(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        """'How do I cool my PC' - advice ranked by what is ACTUALLY hot here."""
-        ls = self._dm_live()
-        ct, gt = ls.get("cpu_temp", -1), ls.get("gpu_temp", -1)
-        lines = [_t(lang, f"{self.PREFIX} Plan chłodzenia pod TWOJE odczyty "
-                          f"(CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')}):",
-                          f"{self.PREFIX} Cooling plan based on YOUR readings "
-                          f"(CPU {self._dm_val(ct,'°C')} · GPU {self._dm_val(gt,'°C')}):")]
-        tips = []
-        if ct >= 80:
-            tips.append(_t(lang,
-                "1. CPU grzeje najmocniej - kurz z radiatora i sprawdź pastę "
-                "(po 3+ latach potrafi dać -10°C).",
-                "1. CPU is the hot one - dust the heatsink and check the paste "
-                "(3+ year old paste can cost you 10°C)."))
-        if gt >= 75:
-            tips.append(_t(lang,
-                f"{len(tips)+1}. GPU wysoko - zrób miejsce na przepływ powietrza, "
-                "rozważ krzywą wentylatorów.",
-                f"{len(tips)+1}. GPU running high - clear airflow around the card, "
-                "consider a fan curve."))
-        if not tips:
-            try:
-                from core.thermal_baseline import thermal_baseline
-                verdict = thermal_baseline.classify_temp(ct) if ct >= 0 else "normal"
-            except Exception:
-                verdict = "normal"
-            if verdict in ("normal", "elevated"):
-                tips.append(_t(lang,
-                    "1. Dobra wiadomość: temperatury są w Twojej normie - "
-                    "nie ma pożaru do gaszenia. Profilaktycznie:",
-                    "1. Good news: temps are within your normal - nothing on "
-                    "fire. Preventively:"))
-        tips.append(_t(lang,
-            f"{len(tips)+1}. Zmniejsz obciążenie tła: 'top procesy' pokaże "
-            "żarłoków, App Hibernation uśpi nieaktywne [-> Optimization].",
-            f"{len(tips)+1}. Cut background load: 'top processes' finds the "
-            "hogs, App Hibernation freezes idle ones [-> Optimization]."))
-        tips.append(_t(lang,
-            f"{len(tips)+1}. Laptop? Podnieś tył o 2 cm - najtańszy upgrade "
-            "chłodzenia świata.",
-            f"{len(tips)+1}. Laptop? Raise the back 2 cm - the cheapest "
-            "cooling upgrade in existence."))
-        lines += [f"  {t}" for t in tips]
-        lines.append(_t(lang,
-            "  Kontrola za tydzień: napisz 'trend tygodnia' - zobaczysz, czy pomogło.",
-            "  Check back in a week: type 'weekly trends' to see if it helped."))
-        return lines
+        """Four-step cooling diagnosis with sensor-provenance and re-check."""
+        import hck_gpt.responses.flows  # noqa: F401
+        from hck_gpt.engine.flow_engine import flow_engine
+        out = flow_engine.start(
+            "cooling", self, lang,
+            initial_state={"raw_text": r.raw_text or ""},
+        )
+        return [f"{self.PREFIX} {out[0]}"] + out[1:] if out else [
+            self.PREFIX + _t(
+                lang,
+                " Przewodnik chłodzenia jest chwilowo niedostępny.",
+                " The cooling guide is temporarily unavailable.",
+            )
+        ]
 

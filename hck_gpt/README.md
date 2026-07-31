@@ -2,7 +2,7 @@
 
 **v2.1.0** · Part of [PC Workman HCK](https://github.com/HuckleR2003/PC_Workman_HCK)
 
-AI diagnostic assistant for Windows system monitoring. Answers natural language questions about your PC — in Polish and English — using real hardware data. No cloud. No API key.
+AI diagnostic assistant for Windows system monitoring. Answers natural language questions about your PC in Polish and English using real hardware data. No cloud. No API key.
 
 ---
 
@@ -17,7 +17,7 @@ You ask. It checks your actual hardware. It answers.
 "RAM na 91% - co powinienem zamknąć?"
 ```
 
-82 built-in intents covering hardware diagnostics, performance analysis, process identity,
+109 built-in intents covering hardware diagnostics, performance analysis, process identity,
 driver status, gaming analytics, battery, startup programs, and system health.
 
 ---
@@ -30,14 +30,18 @@ hck_gpt/
 │   └── hybrid_engine.py     # Routes messages: rule engine first, Ollama LLM fallback
 ├── intents/
 │   ├── parser.py            # Intent parser with Polish diacritic normalization
-│   ├── vocabulary.py        # 82 intents, PL+EN patterns, confidence scoring
+│   ├── semantic_rules.py    # Conservative PL/EN relationship and OOD rules
+│   ├── vocabulary.py        # 109 intents, PL+EN patterns, confidence scoring
 │   └── lang_detect.py       # Auto-detects Polish vs English per message
 ├── responses/
-│   └── builder.py           # 5600+ lines of bilingual response handlers
-│                            # Every handler uses real psutil/WMI/SQLite data
+│   ├── builder.py           # Small dispatch facade over category mixins
+│   ├── r_*.py               # 109 bilingual, intent-specific handlers
+│   └── flows.py             # Guided optimization, cooling, desktop and upgrade flows
 ├── memory/
-│   ├── session_memory.py    # Conversation context, CPU/RAM trend buffers
-│   ├── proactive_monitor.py # Background daemon: CPU/RAM/GPU/disk/temp alerts
+│   ├── session_memory.py    # References, bounded diagnostic frame, advice state
+│   ├── proactive_policy.py  # Quiet/balanced/companion value scoring
+│   ├── game_session.py      # Bounded measurements, RTSS-only FPS evidence
+│   ├── proactive_monitor.py # One daemon for alerts, check-ins and recaps
 │   └── user_knowledge.py    # SQLite user profile (hardware, usage patterns)
 ├── context/
 │   ├── system_context.py    # Live snapshot: processes, temps, averages
@@ -54,11 +58,27 @@ hck_gpt/
 
 ## How the hybrid engine works
 
-Every message hits the **intent parser** first. Known intents (82 total) go to the **rule engine** — fast, predictable, deterministic, no GPU needed.
+Every message hits the **intent parser** first. Known intents (109 total) go to the **rule engine**. This path is deterministic and needs no GPU.
+
+The parser combines exact vocabulary phrases, keyword scoring, the local
+Naive Bayes classifier and conservative semantic rules. Exact existing phrases
+keep priority. Semantic rules resolve relationships such as process + close +
+safe or temperature + comparison. Explicit non-PC tasks route to `unknown`.
 
 Low-confidence or open-ended messages get routed to **Ollama** (local LLM). The engine injects a 6-section system context into the prompt: live CPU/RAM/GPU, today's averages, top processes, temperatures, hardware profile, and conversation history.
 
-Ollama unavailable? 60-second cooldown, graceful fallback. No crashes.
+The session memory also keeps one expiring diagnostic frame. It records the
+current subject, symptom, confirmed details, missing evidence, advice state and
+before/after verification. Short replies such as "in game", "after 20 minutes"
+and "more like stutter" continue the same diagnosis.
+
+Proactive messages use a value score, a 3-per-30-minute budget and duplicate
+suppression. Quiet mode keeps critical safety messages. Balanced mode adds
+useful changes. Companion mode may add one game check-in and a measured recap.
+FPS appears only when RTSS provides a real reading.
+
+Ollama unavailable? Deterministic handlers remain available. A failed local
+model call enters a short cooldown instead of blocking the chat.
 
 ```
 User message
@@ -66,9 +86,9 @@ User message
      ▼
 Intent parser  (confidence 0.0–1.0)
      │
-     ├─ >= 0.60 ──► Rule engine handler ──► bilingual response + live hardware data
+     ├─ >= 0.65 ──► Rule engine handler ──► bilingual response + live hardware data
      │
-     └─ < 0.60  ──► Ollama LLM (local, port 11434)
+     └─ < 0.65  ──► Ollama LLM (local, port 11434)
                      + 6-section system context injected
                      │
                      └─ unavailable ──► structured fallback
@@ -90,7 +110,7 @@ Intent parser  (confidence 0.0–1.0)
 | Time-travel | "What changed since last week?", "Crash context?" | 7 |
 | Battery / power | "How fast is battery draining?" | 4 |
 | Small talk | Greetings, thanks, follow-up questions | 4 |
-| + more | optimization, security, disk, network, fun | 33 |
+| + more | optimization, security, disk, network, context, guided repair | 49 |
 
 ---
 
@@ -98,12 +118,13 @@ Intent parser  (confidence 0.0–1.0)
 
 Background daemon that watches your system and pushes alerts without being asked:
 
-- CPU sustained >88% for 30s
+- CPU sustained >85%
 - RAM critical >93% → HOT strip (red, not chat spam)
 - CPU/GPU temperature spikes
-- Disk <8 GB free on any drive
-- Session uptime >12h reminder
+- Disk <4 GB free on the system drive
+- Session uptime >8h reminder
 - New heavy process detected
+- Calm-system context tips that can name a real app or game with current metrics
 
 Alerts go to the HOT strip (red) or TIP strip (yellow) depending on severity.
 RAM critical never appears as a chat message — only in the dedicated HOT indicator.
@@ -112,10 +133,26 @@ RAM critical never appears as a chat message — only in the dedicated HOT indic
 
 ## Bilingual design
 
-Language detected **per message**, not per session. Mix Polish and English freely.
+Language is detected per message. A one-word follow-up such as `cpu` keeps the
+current conversation language instead of flipping languages.
+
+One expiring conversation frame keeps a diagnosis attached to its goal. Short
+answers can supply context, timing, symptom type, frequency, scope or a recent
+change without restarting the parser. Corrections keep a bounded revision
+record. Missing questions are selected by the lowest attempt count, so the
+assistant does not keep repeating one broad prompt while another useful detail
+is still unanswered.
 
 Polish diacritic normalization via ASCII-fold dual scoring:
 `"dzieki"` matches `"dzięki"`, `"wydajnosc"` matches `"wydajność"`.
+
+Release routing checks:
+
+```bash
+python -B scripts/audit_hck_gpt.py
+python -B scripts/audit_hck_gpt_human_queries.py
+python -B -m unittest discover tests
+```
 
 ---
 

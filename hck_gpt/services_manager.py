@@ -55,9 +55,19 @@ class ServicesManager:
         }
     }
 
-    def __init__(self, config_path="data/services_config.json"):
+    def __init__(self, config_path=None):
+        if config_path is None:
+            try:
+                from utils.paths import APP_DIR
+                config_path = os.path.join(
+                    APP_DIR, "data", "services_config.json")
+            except Exception:
+                config_path = os.path.join("data", "services_config.json")
         self.config_path = config_path
         self.disabled_services = self.load_config()
+        self.disabled_services.setdefault("disabled", [])
+        self.disabled_services.setdefault("original_start_types", {})
+        self.disabled_services.setdefault("original_running", {})
         self.is_windows = platform.system() == "Windows"
 
     def load_config(self):
@@ -68,7 +78,12 @@ class ServicesManager:
                     return json.load(f)
             except Exception as e:
                 print(f"Error loading config: {e}")
-        return {"disabled": [], "timestamp": None}
+        return {
+            "disabled": [],
+            "original_start_types": {},
+            "original_running": {},
+            "timestamp": None,
+        }
 
     def save_config(self):
         """Save current services configuration"""
@@ -77,8 +92,9 @@ class ServicesManager:
 
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
         try:
-            with open(self.config_path, 'w') as f:
-                json.dump(self.disabled_services, f, indent=2)
+            with open(self.config_path, 'w', encoding='utf-8') as f:
+                json.dump(self.disabled_services, f, indent=2,
+                          ensure_ascii=False)
             return True
         except Exception as e:
             print(f"Error saving config: {e}")
@@ -106,20 +122,43 @@ class ServicesManager:
         except Exception as e:
             return f"Error: {str(e)}"
 
+    def get_service_start_type(self, service_name):
+        """Return demand/auto/delayed-auto/disabled, or None when unknown."""
+        if not self.is_windows:
+            return None
+        try:
+            import winreg
+            path = (
+                r"SYSTEM\CurrentControlSet\Services"
+                + "\\" + service_name
+            )
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path) as key:
+                start, _ = winreg.QueryValueEx(key, "Start")
+                delayed = 0
+                try:
+                    delayed, _ = winreg.QueryValueEx(
+                        key, "DelayedAutoStart")
+                except OSError:
+                    pass
+            if int(start) == 2:
+                return "delayed-auto" if int(delayed or 0) else "auto"
+            if int(start) == 3:
+                return "demand"
+            if int(start) == 4:
+                return "disabled"
+            return None
+        except Exception:
+            return None
+
     def disable_service(self, service_name):
         """Disable a Windows service"""
         if not self.is_windows:
             return False, "Not Windows OS"
 
         try:
-            # Stop the service
-            subprocess.run(
-                ["sc", "stop", service_name],
-                capture_output=True,
-                timeout=10, creationflags=_NO_WINDOW
-            )
-
-            # Disable the service
+            # Change startup configuration first. The old order stopped the
+            # service and only then attempted this command, so an access error
+            # could leave a service stopped without a saved reversible change.
             result = subprocess.run(
                 ["sc", "config", service_name, "start=", "disabled"],
                 capture_output=True,
@@ -128,28 +167,72 @@ class ServicesManager:
             )
 
             if result.returncode == 0:
+                subprocess.run(
+                    ["sc", "stop", service_name],
+                    capture_output=True,
+                    timeout=10, creationflags=_NO_WINDOW
+                )
                 return True, f"Service {service_name} disabled successfully"
             else:
                 return False, f"Failed to disable {service_name}"
         except Exception as e:
             return False, f"Error: {str(e)}"
 
-    def enable_service(self, service_name):
-        """Enable a Windows service"""
+    def start_service(self, service_name):
+        """Start a service that was running before PC Workman changed it."""
+        if not self.is_windows:
+            return False, "Not Windows OS"
+        try:
+            result = subprocess.run(
+                ["sc", "start", service_name],
+                capture_output=True,
+                text=True, errors="replace",
+                timeout=10, creationflags=_NO_WINDOW
+            )
+            # 1056 means the service is already running.
+            already_running = (
+                "1056" in (result.stdout or "")
+                or "already running" in (result.stdout or "").lower()
+            )
+            if result.returncode == 0 or already_running:
+                return True, f"Service {service_name} started"
+            return False, f"Failed to start {service_name}"
+        except Exception as e:
+            return False, f"Error: {str(e)}"
+
+    def _restore_service_state(self, service_name):
+        original_types = self.disabled_services.setdefault(
+            "original_start_types", {})
+        original_running = self.disabled_services.setdefault(
+            "original_running", {})
+        start_type = original_types.get(service_name, "demand")
+        success, msg = self.enable_service(service_name, start_type)
+        if success and original_running.get(service_name, False):
+            success, start_msg = self.start_service(service_name)
+            msg = f"{msg}; {start_msg}"
+        return success, msg
+
+    def enable_service(self, service_name, start_type="demand"):
+        """Restore a Windows service to a validated startup type."""
         if not self.is_windows:
             return False, "Not Windows OS"
 
         try:
+            start_type = (
+                start_type if start_type in
+                ("demand", "auto", "delayed-auto") else "demand"
+            )
             # Enable the service
             result = subprocess.run(
-                ["sc", "config", service_name, "start=", "demand"],
+                ["sc", "config", service_name, "start=", start_type],
                 capture_output=True,
                 text=True, errors="replace",
                 timeout=10, creationflags=_NO_WINDOW
             )
 
             if result.returncode == 0:
-                return True, f"Service {service_name} enabled successfully"
+                return True, (
+                    f"Service {service_name} restored to {start_type}")
             else:
                 return False, f"Failed to enable {service_name}"
         except Exception as e:
@@ -168,21 +251,44 @@ class ServicesManager:
 
         services = self.SERVICES[category]["services"]
         results = []
+        original_types = self.disabled_services.setdefault(
+            "original_start_types", {})
+        original_running = self.disabled_services.setdefault(
+            "original_running", {})
 
         for service in services:
             if should_disable:
-                success, msg = self.disable_service(service)
-                if success and service not in self.disabled_services.get("disabled", []):
+                original = self.get_service_start_type(service)
+                if original == "disabled":
+                    success, msg = True, (
+                        f"Service {service} was already disabled; unchanged")
+                else:
+                    # Preserve the exact reversible state before touching it.
+                    # `demand` is the conservative fallback when Windows does
+                    # not expose the original type but the disable later works.
+                    original_types.setdefault(service, original or "demand")
+                    original_running.setdefault(
+                        service, self.get_service_status(service) == "Running")
+                    success, msg = self.disable_service(service)
+                    if not success:
+                        original_types.pop(service, None)
+                        original_running.pop(service, None)
+                if (success and original != "disabled"
+                        and service not in
+                        self.disabled_services.get("disabled", [])):
                     self.disabled_services.setdefault("disabled", []).append(service)
             else:
-                success, msg = self.enable_service(service)
+                success, msg = self._restore_service_state(service)
                 if success and service in self.disabled_services.get("disabled", []):
                     self.disabled_services["disabled"].remove(service)
+                    original_types.pop(service, None)
+                    original_running.pop(service, None)
 
             results.append((service, success, msg))
 
-        self.save_config()
-        return True, results
+        saved = self.save_config()
+        all_ok = bool(results) and all(row[1] for row in results) and saved
+        return all_ok, results
 
     def get_disabled_services_summary(self):
         """Get summary of currently disabled services"""
@@ -199,15 +305,24 @@ class ServicesManager:
 
     def restore_all_services(self):
         """Re-enable all previously disabled services"""
-        disabled = self.disabled_services.get("disabled", [])
+        disabled = list(self.disabled_services.get("disabled", []))
+        original_types = self.disabled_services.setdefault(
+            "original_start_types", {})
+        original_running = self.disabled_services.setdefault(
+            "original_running", {})
         results = []
 
         for service in disabled:
-            success, msg = self.enable_service(service)
+            success, msg = self._restore_service_state(service)
             results.append((service, success, msg))
+            if success:
+                try:
+                    self.disabled_services["disabled"].remove(service)
+                except ValueError:
+                    pass
+                original_types.pop(service, None)
+                original_running.pop(service, None)
 
-        if all(r[1] for r in results):
-            self.disabled_services["disabled"] = []
-            self.save_config()
+        self.save_config()
 
         return results

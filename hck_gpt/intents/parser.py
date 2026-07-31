@@ -61,12 +61,20 @@ class IntentParser:
     # Lazily populated once per instance on first parse() call.
     # INTENT_PATTERNS is static, so this cache is built once and reused forever.
     _folded_cache: Dict[str, List[str]] = {}
+    _canonical_patterns: set[str] = set()
 
     def _get_folded_cache(self) -> Dict[str, List[str]]:
         if not self._folded_cache:
             IntentParser._folded_cache = {
                 intent: [self._ascii_fold(p) for p in patterns]
                 for intent, patterns in INTENT_PATTERNS.items()
+            }
+            IntentParser._canonical_patterns = {
+                self._canonical_phrase(self._ascii_fold(
+                    self._normalize_accents(pattern.lower())
+                ))
+                for patterns in INTENT_PATTERNS.values()
+                for pattern in patterns
             }
         return self._folded_cache
 
@@ -98,6 +106,8 @@ class IntentParser:
             kw_conf   = min(1.0, scores[kw_intent] / 3.0)
         else:
             kw_intent, kw_conf = "unknown", 0.0
+        folded_key = self._canonical_phrase(folded_text)
+        exact_pattern_match = folded_key in self._canonical_patterns
 
         # ── ML blend ──────────────────────────────────────────────────────────
         final_intent, final_conf = self._blend_with_ml(
@@ -108,11 +118,32 @@ class IntentParser:
         # A concrete part model ("i5 11400f", "rtx 4070", "ddr5") next to
         # fit/swap wording beats any generic hw_* token score - the part name
         # sits mid-sentence, so phrase patterns alone cannot catch it.
-        if final_intent not in ("upgrade_compat", "ram_compat"):
-            forced = self._upgrade_compat_override(folded_text)
-            if forced:
-                final_intent = forced
-                final_conf   = max(final_conf, 0.9)
+        forced = self._upgrade_compat_override(folded_text)
+        if forced:
+            final_intent = forced
+            final_conf   = max(final_conf, 0.9)
+
+        # Relationship-aware PL/EN rules. These require multiple semantic cues
+        # and protect the open set from confident but irrelevant ML guesses.
+        try:
+            from hck_gpt.intents.semantic_rules import (
+                is_explicit_out_of_domain,
+                route_semantic,
+            )
+            semantic_intent = route_semantic(text)
+            if semantic_intent is not None:
+                if semantic_intent == "unknown":
+                    # A known, strong vocabulary phrase remains authoritative.
+                    # Explicit non-PC requests are the only forced rejection.
+                    if not exact_pattern_match or is_explicit_out_of_domain(text):
+                        final_intent, final_conf = "unknown", 0.0
+                elif semantic_intent == kw_intent or not exact_pattern_match:
+                    # Semantic rules fill gaps and resolve weak ambiguity. They
+                    # must not steal exact phrases from established intents.
+                    final_intent = semantic_intent
+                    final_conf = max(final_conf, 0.93)
+        except Exception:
+            pass
 
         # ── Domain rule: Fan Dashboard consult (2026-07-18) ──────────────────
         # The chart's [AI] button pastes a fixed greeting-flavoured question;
@@ -141,7 +172,8 @@ class IntentParser:
     _UPGRADE_WORDS = (
         "pasuje", "pasowa", "wejdzie", "wymien", "wymian", "zmien", "zmian",
         "kupic", "kupie", "zakup", "upgrade", "kompatybil", "socket",
-        "zadziala", "fit", "compatible", "compatib", "swap", "replace")
+        "zadziala", "zadziała", "fit", "compatible", "compatib", "swap",
+        "replace", "will work", "work with")
 
     def _upgrade_compat_override(self, folded_text: str):
         """'upgrade_compat'/'ram_compat' when a concrete part model appears
@@ -264,6 +296,11 @@ class IntentParser:
             t for t in text.split()
             if t not in STOPWORDS and len(t) > 1
         ]
+
+    @staticmethod
+    def _canonical_phrase(text: str) -> str:
+        """Normalize punctuation/spacing for exact vocabulary precedence."""
+        return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", text)).strip()
 
     def _score_intent(self, tokens: List[str], full_text: str,
                       patterns: List[str]) -> float:

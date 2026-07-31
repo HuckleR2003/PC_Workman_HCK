@@ -7,6 +7,11 @@ import re
 from import_core import register_component, STATUS_OK
 
 try:
+    from utils.fonts import UI as _UIF, MONO as _MONOF
+except ImportError:
+    _UIF, _MONOF = "Segoe UI", "Consolas"
+
+try:
     from hck_gpt.chat_handler import ChatHandler
     HAS_CHAT_HANDLER = True
 except ImportError:
@@ -1022,8 +1027,9 @@ class HCKGPTPanel:
     def _apply_nav_links(self, start_pos: str) -> None:
         """
         Scan the text just inserted at start_pos for [-> Name] patterns.
-        Each match gets a unique teal-underline tag; if a callback is registered
-        for that name the tag is also bound to <Button-1> (clickable link).
+        Explicit markers and known bare page names get a bright-purple link.
+        This lets normal answers say "open My PC" without requiring every
+        response author to remember the marker syntax.
         """
         end_pos = self.log.index("end")
         idx = start_pos
@@ -1042,9 +1048,9 @@ class HCKGPTPanel:
             self._nav_link_count += 1
             self.log.tag_configure(
                 tag,
-                foreground="#2dd4bf",
+                foreground="#c084fc",
                 underline=True,
-                font=("Consolas", 10),
+                font=(_MONOF, 10, "bold"),
             )
             self.log.tag_add(tag, pos, match_end)
             cb = self._nav_callbacks.get(link_name)
@@ -1055,6 +1061,58 @@ class HCKGPTPanel:
                 self.log.tag_bind(tag, "<Leave>",
                                   lambda e: self.log.config(cursor=""))
             idx = match_end
+
+        # Bare mentions are highlighted without changing the displayed text.
+        # Values are callback names; keys are phrases users actually see in
+        # Polish and English responses.
+        mention_targets = {
+            "Mój PC": "My PC",
+            "My PC": "My PC",
+            "Components": "Components",
+            "Podzespoły": "Components",
+            "Monitoring & Alerts": "Monitoring",
+            "Monitoring": "Monitoring",
+            "Fan Dashboard": "Fan Control",
+            "Fan Control": "Fan Control",
+            "Ustawienia": "Settings",
+            "Settings": "Settings",
+            "Dashboard": "Dashboard",
+            "Statistics": "Statistics",
+            "Statystyki": "Statistics",
+        }
+        for visible, target in sorted(
+                mention_targets.items(), key=lambda item: len(item[0]), reverse=True):
+            idx = start_pos
+            while True:
+                pos = self.log.search(
+                    visible, idx, stopindex=end_pos, nocase=True, regexp=False
+                )
+                if not pos:
+                    break
+                match_end = f"{pos}+{len(visible)}c"
+                before = self.log.get(f"{pos}-1c", pos) if self.log.compare(pos, ">", "1.0") else ""
+                after = self.log.get(match_end, f"{match_end}+1c")
+                if ((before and (before.isalnum() or before == "_"))
+                        or (after and (after.isalnum() or after == "_"))):
+                    idx = match_end
+                    continue
+                tag = f"_nav_{self._nav_link_count}"
+                self._nav_link_count += 1
+                self.log.tag_configure(
+                    tag, foreground="#c084fc", underline=True,
+                    font=(_MONOF, 10, "bold"),
+                )
+                self.log.tag_add(tag, pos, match_end)
+                cb = self._nav_callbacks.get(target)
+                if cb:
+                    self.log.tag_bind(tag, "<Button-1>", lambda e, c=cb: c())
+                    self.log.tag_bind(
+                        tag, "<Enter>", lambda e: self.log.config(cursor="hand2")
+                    )
+                    self.log.tag_bind(
+                        tag, "<Leave>", lambda e: self.log.config(cursor="")
+                    )
+                idx = match_end
 
     # ACTIVE TIP - hide the tip strip
     def _remove_active_tip(self) -> None:

@@ -69,13 +69,16 @@ class FlowEngine:
         self._state: dict = {}
         self._lang = "pl"
         self._ts = 0.0
+        self._last_transition: dict = {}
+        self._completed_state: dict = {}
 
     # ── registration ─────────────────────────────────────────────────────────
     def register(self, flow: Flow) -> None:
         self._flows[flow.id] = flow
 
     # ── lifecycle ─────────────────────────────────────────────────────────────
-    def start(self, flow_id: str, rb, lang: str = "pl") -> List[str]:
+    def start(self, flow_id: str, rb, lang: str = "pl",
+              initial_state: Optional[dict] = None) -> List[str]:
         """Begin a flow at step 0 (replaces any active flow)."""
         flow = self._flows.get(flow_id)
         if flow is None:
@@ -83,10 +86,15 @@ class FlowEngine:
         self._active = flow_id
         self._step = 0
         self._acted = False
-        self._state = {}
+        self._state = dict(initial_state or {})
         self._lang = lang
         self._ts = time.time()
-        return self._open_step(rb)
+        out = self._open_step(rb)
+        self._last_transition = {
+            "flow_id": flow_id, "event": "started",
+            "state": dict(self._state), "completed": not self.is_active(),
+        }
+        return out
 
     def abort(self) -> None:
         self._active = None
@@ -101,6 +109,10 @@ class FlowEngine:
     def active_flow_id(self) -> Optional[str]:
         return self._active if self.is_active() else None
 
+    @property
+    def last_transition(self) -> dict:
+        return dict(self._last_transition)
+
     # ── input handling (called from chat_handler BEFORE normal routing) ──────
     def process_input(self, msg: str, rb) -> Optional[List[str]]:
         """Handle a user message while a flow is active.
@@ -114,7 +126,13 @@ class FlowEngine:
         lang = self._lang
 
         if word in _ABORT:
+            flow_id = self._active
+            state = dict(self._state)
             self.abort()
+            self._last_transition = {
+                "flow_id": flow_id, "event": "aborted",
+                "state": state, "completed": True,
+            }
             return [("Przerwałem przewodnik. Wróć kiedy chcesz, "
                      "zaczniemy od nowa.") if lang == "pl" else
                     ("Guide stopped. Come back any time - "
@@ -123,6 +141,7 @@ class FlowEngine:
         is_action = step.act is not None and not self._acted
 
         if is_action and word in _CONFIRM:
+            flow_id = self._active
             self._ts = time.time()
             self._acted = True
             out = []
@@ -132,16 +151,40 @@ class FlowEngine:
                 out = ["⚠ " + ("Akcja nie powiodła się - lecimy dalej."
                                if lang == "pl" else
                                "That action failed - moving on.")]
-            return out + self._advance(rb)
+            advanced = self._advance(rb)
+            state = (dict(self._completed_state) if not self.is_active()
+                     else dict(self._state))
+            self._last_transition = {
+                "flow_id": flow_id, "event": "confirmed",
+                "state": state, "completed": not self.is_active(),
+            }
+            return out + advanced
 
         if word in _NEXT or (is_action and word in _SKIP):
+            flow_id = self._active
             self._ts = time.time()
-            return self._advance(rb)
+            event = "skipped" if is_action and word in _SKIP else "advanced"
+            out = self._advance(rb)
+            state = (dict(self._completed_state) if not self.is_active()
+                     else dict(self._state))
+            self._last_transition = {
+                "flow_id": flow_id, "event": event,
+                "state": state, "completed": not self.is_active(),
+            }
+            return out
 
         if word in _CONFIRM and not is_action:
             # "tak" on a plain step just advances
+            flow_id = self._active
             self._ts = time.time()
-            return self._advance(rb)
+            out = self._advance(rb)
+            state = (dict(self._completed_state) if not self.is_active()
+                     else dict(self._state))
+            self._last_transition = {
+                "flow_id": flow_id, "event": "advanced",
+                "state": state, "completed": not self.is_active(),
+            }
+            return out
 
         return None   # not navigation -> let normal routing answer, stay paused
 
@@ -151,6 +194,7 @@ class FlowEngine:
         self._step += 1
         self._acted = False
         if self._step >= len(flow.steps):
+            self._completed_state = dict(self._state)
             self.abort()
             return []
         return self._open_step(rb)
@@ -165,6 +209,7 @@ class FlowEngine:
             lines = []
         if self._step >= len(flow.steps) - 1 and step.act is None:
             # last plain step ends the flow after speaking
+            self._completed_state = dict(self._state)
             self.abort()
         return lines
 

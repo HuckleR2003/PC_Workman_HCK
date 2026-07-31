@@ -1,8 +1,9 @@
 """hck_gpt.responses.builder - ResponseBuilder facade.
 
-The former 6.5k-line monolith now composes seven category mixins
-(r_hardware, r_thermal, r_gaming, r_system, r_performance, r_insights,
-r_assistant); shared helpers/data live in common.py. Dispatch is unchanged:
+The former 6.5k-line monolith now composes nine category mixins
+(r_hardware, r_upgrade, r_thermal, r_gaming, r_system, r_performance,
+r_insights, r_conversation, r_assistant); shared helpers/data live in common.py.
+Dispatch is unchanged:
 getattr(self, f"_resp_{intent}") resolves through the MRO.
 """
 from hck_gpt.responses.common import (  # shared helpers/data
@@ -20,10 +21,11 @@ from hck_gpt.responses.r_system import SystemResponses
 from hck_gpt.responses.r_performance import PerformanceResponses
 from hck_gpt.responses.r_insights import InsightsResponses
 from hck_gpt.responses.r_assistant import AssistantResponses
+from hck_gpt.responses.r_conversation import ConversationResponses
 
 
-class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, GamingResponses, SystemResponses, PerformanceResponses, InsightsResponses, AssistantResponses):
-    """Builds bilingual responses for every parsed intent (92 handlers)."""
+class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, GamingResponses, SystemResponses, PerformanceResponses, InsightsResponses, ConversationResponses, AssistantResponses):
+    """Builds bilingual responses for every parsed intent (109 handlers)."""
 
     """
     Template-based bilingual response generator.
@@ -47,31 +49,17 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         self._last_pool_idx[f"{key}_{lang}"] = idx
         return pool[idx]
 
-    _INTENT_ALIASES: dict = {
-        "fan_speed":          "fan_noise_history",   # fan speed queries -> history handler
-        "session_digest":     "session_compare",     # session digest -> comparison handler
-        "thermal_history":    "temp_comparison",     # thermal history -> temp comparison
-        "symptom_freeze":     "crash_context",       # freezing symptoms -> crash context
-        "symptom_noisy":      "fan_noise_history",   # noisy PC -> fan noise
-        "compare_baseline":   "temp_comparison",     # baseline compare -> temp comparison
-        "game_ready":         "game_can_run",        # game readiness -> game_can_run
-        "morning_brief":      "stats",               # morning brief -> stats handler
-        "gaming_session":     "gaming_vs_work_time", # gaming session -> gaming vs work
-        "weekly_trends":      "perf_change",         # weekly trends -> perf change
-        "process_deep_dive":  "process_info",        # deep dive -> process info
-        "ram_flush":          "optimization",        # flush request -> optimization (actionable)
-        "overclock_check":    "temperature",         # overclock -> temps
-        "ai_context":         "explain_proactive",   # AI context -> explain proactive
-        "thermal_prediction": "temp_comparison",     # prediction -> comparison
-        "process_kill":       "process_info",        # kill request -> process info first
-    }
+    # Kept as an explicit compatibility hook for old intent names. Every
+    # vocabulary intent currently has its own handler, so no production intent
+    # should be redirected to a broader answer.
+    _INTENT_ALIASES: dict = {}
 
     def build(self, result: ParseResult, lang: str = "pl") -> Optional[List[str]]:
         """
         Returns a list of message lines, or None if the intent
         is not handled here (falls back to legacy ChatHandler).
-        Applies _INTENT_ALIASES so vocabulary intents without their own handler
-        still return a sensible response instead of silent None.
+        Applies _INTENT_ALIASES only for genuine legacy names. Current
+        vocabulary intents always reach their dedicated handlers.
         """
         intent  = self._INTENT_ALIASES.get(result.intent, result.intent)
         handler = getattr(self, f"_resp_{intent}", None)
@@ -80,6 +68,11 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         try:
             out = handler(result, lang)
             out = out if isinstance(out, list) else [out]
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.remember_turn(result, out)
+            except Exception:
+                pass
             # Conversation context memory: every answered intent leaves its
             # headline in the session ledger, so "ile to bylo?" / "wroc do
             # tego" can recall ANY earlier answer - not just guided flows.
@@ -103,6 +96,10 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
     _NO_LEDGER = frozenset({
         "greeting", "small_talk", "thanks", "help", "about_program",
         "about_author", "fun_roast", "recall_numbers", "privacy_data",
+        "correct_subject", "explain_previous_advice", "verify_after_action",
+        "compare_after_change", "continue_diagnosis", "decline_advice",
+        "explain_confidence", "compat_missing_details", "upgrade_budget",
+        "upgrade_workload", "desktop_recurrence",
     })
 
     @staticmethod
@@ -200,6 +197,7 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         "python.exe", "pythonw.exe", "pc workman hck.exe", "pcworkman.exe",
     }
 
+    # Generic teases (any rank)
     _FAV_PL = [
         "  Widzę, że {app} to Twój faworyt - dziś też lecimy? 😏",
         "  {app} króluje w Twoich statystykach. Odpalamy znowu?",
@@ -214,14 +212,46 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         "  I'd bet {app} is on the menu today too. 😉",
     ]
 
+    # Rank-aware teases - the assistant KNOWS the leaderboard position
+    _FAV_RANK_PL = [
+        "  {app} trzyma #{rank} miejsce w Twoim rankingu użycia. Bez niespodzianek? 😄",
+        "  Na podium znowu {app} - #{rank} miejsce wszech czasów. 🏆",
+        "  {app} nie schodzi z #{rank} miejsca Twojej listy. Klasyk.",
+        "  Twoje TOP-y bez zmian: {app} na #{rank}. Dziś dokładamy do wyniku? 😏",
+    ]
+
+    _FAV_RANK_EN = [
+        "  {app} holds #{rank} on your all-time usage board. No surprises? 😄",
+        "  On the podium again: {app}, #{rank} of all time. 🏆",
+        "  {app} will not let go of your #{rank} spot. A classic.",
+        "  Your top chart is stable: {app} at #{rank}. Adding to the score today? 😏",
+    ]
+
+    # Heavy-hitter teases - for apps that genuinely work the machine hard
+    _FAV_HEAVY_PL = [
+        "  {app} regularnie daje wycisk Twojemu sprzętowi. 💪 Szanuję.",
+        "  {app} to najcięższy trening, jaki dostaje ten komputer. 🏋️",
+    ]
+
+    _FAV_HEAVY_EN = [
+        "  {app} regularly gives this machine a real workout. 💪 Respect.",
+        "  {app} is the heaviest training this PC ever gets. 🏋️",
+    ]
+
     def _favorite_process(self, lang: str = "pl") -> Optional[str]:
-        """A warm, engaging one-liner about the user's most-used app, or None."""
+        """A warm, engaging one-liner about the user's most-used apps, or None.
+
+        2026-07 soul pass: picks one of the TOP-3 eligible apps (weighted to
+        #1) and can name its REAL leaderboard rank ('Claude holds #1...') or
+        call out a genuine heavy hitter - the little proofs that PC Workman
+        actually knows this machine."""
         try:
             from hck_stats_engine.query_api import query_api
             procs = query_api.get_top_processes_lifetime(top_n=12) or []
         except Exception:
             return None
         import random
+        eligible = []          # (rank, display_name, cpu_seconds)
         for p in procs:
             name = (p.get("process_name") or "").strip().lower()
             if not name or name in self._FAV_SKIP:
@@ -231,9 +261,25 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
             disp = (p.get("display_name") or p.get("process_name") or "").strip()
             if not disp:
                 continue
-            pool = self._FAV_PL if lang == "pl" else self._FAV_EN
+            eligible.append((len(eligible) + 1, disp,
+                             float(p.get("total_cpu_seconds") or 0)))
+            if len(eligible) >= 3:
+                break
+        if not eligible:
+            return None
+        # Weighted pick: #1 most often, but #2/#3 keep it fresh
+        weights = [0.6, 0.25, 0.15][:len(eligible)]
+        rank, disp, cpu_s = random.choices(eligible, weights=weights, k=1)[0]
+        roll = random.random()
+        if roll < 0.40:
+            pool = self._FAV_RANK_PL if lang == "pl" else self._FAV_RANK_EN
+            return (random.choice(pool)
+                    .replace("{app}", disp).replace("{rank}", str(rank)))
+        if roll < 0.55 and rank == 1 and cpu_s >= 3600:
+            pool = self._FAV_HEAVY_PL if lang == "pl" else self._FAV_HEAVY_EN
             return random.choice(pool).replace("{app}", disp)
-        return None
+        pool = self._FAV_PL if lang == "pl" else self._FAV_EN
+        return random.choice(pool).replace("{app}", disp)
 
     @staticmethod
     def _app_version() -> str:

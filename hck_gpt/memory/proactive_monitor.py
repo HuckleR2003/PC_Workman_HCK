@@ -29,8 +29,10 @@ import os
 import threading
 import time
 import random
-from typing import Callable, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 from import_core import register_component, STATUS_OK
+from hck_gpt.memory.game_session import GameSessionTracker
+from hck_gpt.memory.proactive_policy import ProactivePolicy
 
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
@@ -356,10 +358,10 @@ _MSGS: dict[str, dict[str, list[str]]] = {
 # Periodic tips shown when system is idle/healthy
 _IDLE_TIPS: dict[str, list[str]] = {
     "pl": [
-        "hck_GPT: 💡 Zakładka AllMonitor pokazuje historyczne min/max dla każdego zasobu.",
+        "hck_GPT: 💡 Statistics pokazuje historyczne min/max dla każdego zasobu.",
         "hck_GPT: 💡 'service setup' w chatie uruchamia kreator optymalizacji.",
         "hck_GPT: 💡 Wpisz 'stats' by zobaczyć dzisiejsze średnie użycia.",
-        "hck_GPT: 💡 Zakładka Efficiency pokazuje Top CPU i RAM procesy na żywo.",
+        "hck_GPT: 💡 My PC pokazuje procesy Top CPU i Top RAM na żywo.",
         "hck_GPT: 💡 Wiesz, że możesz zapytać 'jaki mam procesor' i podam Ci pełne dane?",
         "hck_GPT: 💡 Monitoruję Twój PC cicho w tle. Pisz jeśli chcesz coś sprawdzić.",
         "hck_GPT: 💡 Wpisz 'top procesy' by zobaczyć co teraz najbardziej obciąża system.",
@@ -372,21 +374,21 @@ _IDLE_TIPS: dict[str, list[str]] = {
         "hck_GPT: 💡 Zapytaj 'to normalne?' po każdym wyniku który wygląda dziwnie - porównam z Twoją normą.",
         "hck_GPT: 💡 TURBO ma 3 tryby: Gaming, Work, Economy. Wpisz 'turbo boost' by wybrać właściwy.",
         "hck_GPT: 💡 Zapytaj 'historia temperatur' by zobaczyć jak się zachowywało ciepło w tej sesji.",
-        "hck_GPT: 💡 Mogę wymusić zamknięcie niereagującego programu. Napisz 'kill [nazwa]'.",
+        "hck_GPT: 💡 Zapytaj „czy mogę zamknąć nazwa.exe”. Sprawdzę cel i ochronię procesy Windows oraz anti-cheat.",
         "hck_GPT: 💡 Zapytaj 'podsumowanie sesji' na koniec dnia - zestawię CPU, RAM i temperatury.",
         "hck_GPT: 💡 Ciekawi Cię co zjada internet? Wpisz 'co używa sieci'.",
         "hck_GPT: 💡 RAM na 90%? Wpisz 'zwolnij pamięć' - przeprowadzę Cię przez czyszczenie.",
-        "hck_GPT: 💡 Zakładka MAP OF COMPONENTS pokazuje Twój PC jako schemat 2.5D z danymi na żywo.",
+        "hck_GPT: 💡 My PC > Components pokazuje Twój PC jako schemat 2.5D z danymi na żywo.",
         "hck_GPT: 💡 Wpisz 'raport zdrowia' - podam ocenę liczbową każdego podzespołu.",
         "hck_GPT: 💡 Zapytaj 'kiedy ostatni restart' - sprawdzę uptime i ocenię czy warto zrestartować.",
         "hck_GPT: 💡 Wpisz 'co wiesz o moim PC' - pokażę wszystko co zebrałem o Twoim sprzęcie.",
         "hck_GPT: 💡 Temperatura CPU przekracza 80°C? Zapytaj 'czy CPU jest zbyt gorące' - ocenię sytuację.",
     ],
     "en": [
-        "hck_GPT: 💡 AllMonitor tab shows historical min/max for each resource.",
+        "hck_GPT: 💡 Statistics shows historical min/max for each resource.",
         "hck_GPT: 💡 Type 'service setup' to launch the optimization wizard.",
         "hck_GPT: 💡 Type 'stats' to see today's usage averages.",
-        "hck_GPT: 💡 The Efficiency tab shows live Top CPU and RAM processes.",
+        "hck_GPT: 💡 My PC shows live Top CPU and Top RAM processes.",
         "hck_GPT: 💡 You can ask 'what CPU do I have' and I'll give you full details.",
         "hck_GPT: 💡 I'm watching your PC silently. Ask me anything specific.",
         "hck_GPT: 💡 Type 'top processes' to see what's eating resources right now.",
@@ -400,7 +402,7 @@ _IDLE_TIPS: dict[str, list[str]] = {
         "hck_GPT: 💡 Ask 'is this normal?' after any reading that looks off - I'll compare it to your baseline.",
         "hck_GPT: 💡 TURBO has three modes: Gaming, Work, Economy. Ask 'turbo boost' to learn which fits you.",
         "hck_GPT: 💡 Ask 'thermal history' to see how temperatures behaved this session.",
-        "hck_GPT: 💡 I can force-close unresponsive apps. Just ask 'kill [app name]'.",
+        "hck_GPT: 💡 Ask “can I close name.exe”. I will check the target and protect Windows and anti-cheat processes.",
         "hck_GPT: 💡 Ask 'session digest' at the end of the day - I'll summarize CPU, RAM, and temps.",
         "hck_GPT: 💡 Wondering what's using your internet? Ask 'what is using my network'.",
         "hck_GPT: 💡 Ask 'overclock check' - I'll tell you if your CPU or RAM is running above stock.",
@@ -450,6 +452,17 @@ class ProactiveMonitor:
         # Session budget - CHI 2025: cap unsolicited alerts to avoid annoyance
         # Tracks timestamps of each push in a rolling 30-min window
         self._budget_log: List[float] = []
+        self._last_signature: Dict[str, float] = {}
+
+        # Settings are read from the existing app_settings.json. The mtime
+        # cache keeps each 45-second check cheap while making UI changes live.
+        self._settings_cache: Dict[str, Any] = {}
+        self._settings_mtime: float = -1.0
+
+        # GamingToastWatcher is the sole process detector. It sends start/end
+        # events here; this tracker only stores bounded evidence and samples.
+        self._game_sessions = GameSessionTracker()
+        self._game_lock = threading.RLock()
 
         # User-active flag - set True when panel receives user input recently
         # Allows softer alert tone when user is already in conversation
@@ -534,6 +547,7 @@ class ProactiveMonitor:
                 # when the user opens Monitoring or asks hck_GPT about temps.
                 self._learning_tick()
                 self._check_system()
+                self._update_game_sessions()
                 tip_counter += 1
                 self._dm_check_tick += 1
                 # DeepMonitor sensor check every 3 main cycles (~2 min 15 sec)
@@ -675,10 +689,11 @@ class ProactiveMonitor:
         if ram >= RAM_HIGH_PCT and ram < RAM_CRIT_PCT:
             self._alert("ram_high", f"{ram:.0f}")
 
-        # Throttling
+        # A low clock at idle is normal power saving. Only flag a severe clock
+        # deficit while total CPU load is high.
         if freq and freq.max and freq.current and freq.max > 0:
             ratio = freq.current / freq.max
-            if ratio < THROTTLE_RATIO:
+            if cpu >= 70 and ratio < THROTTLE_RATIO:
                 self._alert("throttle", f"{ratio*100:.0f}")
 
         # Disk - Windows-safe: try system drive first, fallback to partitions
@@ -721,7 +736,8 @@ class ProactiveMonitor:
             if gpu_temp and gpu_temp > 87:
                 self._alert("gpu_temp_spike", f"{gpu_temp:.0f}")
 
-            cpu_temp = snap.get("cpu_temp", None)
+            cpu_temp = (snap.get("cpu_temp", None)
+                        if snap.get("cpu_temp_src") == "sensor" else None)
             verdict, _ = self._thermal_verdict(cpu_temp) if cpu_temp else (None, "")
             _hot = ((verdict in ("high", "critical")) if verdict is not None
                     else bool(cpu_temp and cpu_temp > 82))
@@ -781,7 +797,10 @@ class ProactiveMonitor:
                     msg = (f"hck_GPT: ✓ CPU wróciło do normy - teraz {cpu:.0f}%. Problem minął."
                            if lang == "pl" else
                            f"hck_GPT: ✓ CPU back to normal - now {cpu:.0f}%. Problem resolved.")
-                    self._push(msg)
+                    self._dispatch_candidate(
+                        "recovery", msg, {"metric": "cpu", "value": cpu},
+                        count_budget=False,
+                    )
         elif cpu >= CPU_HIGH_PCT:
             self._was_cpu_high = True
             self._recovery_notified["cpu"] = False
@@ -799,6 +818,90 @@ class ProactiveMonitor:
         self._update_banner(cpu, ram)
 
     # ── Alert dispatch ────────────────────────────────────────────────────────
+
+    def _app_settings(self) -> Dict[str, Any]:
+        try:
+            from utils.paths import APP_DIR
+            path = os.path.join(APP_DIR, "settings", "app_settings.json")
+            mtime = os.path.getmtime(path)
+            if mtime != self._settings_mtime:
+                with open(path, "r", encoding="utf-8") as handle:
+                    loaded = json.load(handle)
+                self._settings_cache = loaded if isinstance(loaded, dict) else {}
+                self._settings_mtime = mtime
+        except Exception:
+            if self._settings_mtime < 0:
+                self._settings_cache = {}
+        return dict(self._settings_cache)
+
+    def proactive_mode(self) -> str:
+        return ProactivePolicy.normalize_mode(
+            str(self._app_settings().get("gpt_proactive_mode", "balanced"))
+        )
+
+    @staticmethod
+    def _message_signature(event_type: str, msg: str) -> str:
+        compact = " ".join((msg or "").lower().split())
+        return f"{event_type}|{compact[:260]}"
+
+    def _signature_is_fresh(self, signature: str,
+                            now: Optional[float] = None) -> bool:
+        ts = time.time() if now is None else now
+        self._last_signature = {
+            key: value for key, value in self._last_signature.items()
+            if ts - value < SESSION_WINDOW_S
+        }
+        return signature not in self._last_signature
+
+    def _dispatch_candidate(self, event_type: str, msg: str,
+                            context: Optional[Dict[str, Any]] = None,
+                            urgent: bool = False,
+                            count_budget: bool = True,
+                            relevance: Optional[float] = None) -> bool:
+        """Score, de-duplicate and dispatch one unsolicited message."""
+        settings = self._app_settings()
+        if event_type == "process_spike" and not settings.get(
+                "gpt_process_spike", True):
+            return False
+        if event_type == "morning_brief" and not settings.get(
+                "gpt_morning_brief", True):
+            return False
+        if event_type == "digest_suggestion" and not settings.get(
+                "gpt_digest", True):
+            return False
+
+        decision = ProactivePolicy.decide(
+            event_type=event_type,
+            mode=self.proactive_mode(),
+            enabled=bool(settings.get("gpt_proactive_alerts", True)),
+            urgent=urgent,
+            user_active=self._is_user_active(),
+            relevance=relevance,
+        )
+        if not decision.allowed:
+            return False
+        if count_budget and not self._budget_ok(decision.urgent):
+            return False
+        signature = self._message_signature(event_type, msg)
+        if not decision.urgent and not self._signature_is_fresh(signature):
+            return False
+
+        self._push(msg)
+        now = time.time()
+        self._last_signature[signature] = now
+        if count_budget and not decision.urgent:
+            self._budget_log.append(now)
+        try:
+            from hck_gpt.memory.session_memory import session_memory
+            session_memory.set_last_proactive(msg, {
+                "type": event_type,
+                "score": decision.score,
+                "mode": self.proactive_mode(),
+                **(context or {}),
+            })
+        except Exception:
+            pass
+        return True
 
     def _push_hot_ram(self, ram: float) -> None:
         """Send RAM critical alert to HOT strip only - never to chat."""
@@ -836,39 +939,30 @@ class ProactiveMonitor:
     def _alert(self, event_type: str, val: str, urgent: bool = False) -> None:
         now = time.time()
         last = self._last_alert.get(event_type, 0)
-        gap = MIN_GAP_SAME_S // 2 if urgent else MIN_GAP_SAME_S
+        effective_urgent = urgent or event_type in ProactivePolicy._URGENT
+        gap = MIN_GAP_SAME_S // 2 if effective_urgent else MIN_GAP_SAME_S
         if now - last < gap:
             return
 
-        # Session budget gate (non-urgent only)
-        if not self._budget_ok(urgent):
-            return
-
         # Context-aware: if user is actively chatting, skip non-urgent low alerts
-        if self._is_user_active() and not urgent:
+        if self._is_user_active() and not effective_urgent:
             if event_type in ("cpu_high", "ram_high", "long_session",
                               "process_spike", "temp_sustained"):
                 return  # don't interrupt active conversation with minor alerts
 
-        self._last_alert[event_type] = now
         pool = _MSGS.get(event_type, {}).get(self._lang, [])
         if not pool:
             return
 
         msg = random.choice(pool).format(val=val)
-        self._push(msg)
-        if not urgent:
-            self._budget_log.append(now)   # count against session budget
-
-        # Record in session memory + store for follow-up "explain that" queries
-        try:
-            from hck_gpt.memory.session_memory import session_memory
-            session_memory.record_event(event_type, f"{val}")
-            session_memory.set_last_proactive(
-                msg, {"type": event_type, "val": val}
-            )
-        except Exception:
-            pass
+        if self._dispatch_candidate(
+                event_type, msg, {"val": val}, urgent=effective_urgent):
+            self._last_alert[event_type] = now
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.record_event(event_type, f"{val}")
+            except Exception:
+                pass
 
     def _maybe_idle_tip(self) -> None:
         """Push a helpful tip when system is calm."""
@@ -881,24 +975,111 @@ class ProactiveMonitor:
         except Exception:
             return
 
-        # Respect session budget - tips count toward the 30-min limit
-        if not self._budget_ok(urgent=False):
+        if self._is_user_active():
             return
 
-        tips = _IDLE_TIPS.get(self._lang, _IDLE_TIPS.get("pl", []))
-        if not tips:
-            return
-        msg = tips[self._idle_tip_idx % len(tips)]
+        meta = {"type": "idle_tip"}
+        msg = None
+        # Every third calm-system tip is built from current facts. This makes
+        # proactivity mention a real app/game and real metrics without turning
+        # every 45-second sample into chat spam.
+        if self._idle_tip_idx % 3 == 0:
+            msg, context_meta = self._contextual_idle_tip(cpu, ram)
+            if context_meta:
+                meta.update(context_meta)
+        if not msg:
+            tips = _IDLE_TIPS.get(self._lang, _IDLE_TIPS.get("pl", []))
+            if not tips:
+                return
+            msg = tips[self._idle_tip_idx % len(tips)]
         self._idle_tip_idx += 1
-        self._push(msg)
-        self._budget_log.append(time.time())
+        event_type = ("context_idle_tip"
+                      if meta.get("type") == "context_idle_tip" else "idle_tip")
+        self._dispatch_candidate(event_type, msg, meta)
 
-        # Allow user to ask "what does that mean?" about the tip
+    def _contextual_idle_tip(self, cpu: float, ram: float):
+        """Return a calm, fact-backed tip about a real foreground-class app.
+
+        Processes are aggregated by executable, so ten browser subprocesses
+        become one useful number. Unknown/system processes are not surfaced.
+        """
         try:
-            from hck_gpt.memory.session_memory import session_memory
-            session_memory.set_last_proactive(msg, {"type": "idle_tip"})
+            import psutil
+            from hck_gpt.process_library import process_library
+
+            totals = {}
+            logical = psutil.cpu_count(logical=True) or 1
+            for proc in psutil.process_iter(
+                    ["name", "cpu_percent", "memory_info"]):
+                try:
+                    exe = (proc.info.get("name") or "").strip().lower()
+                    if not exe or exe in _PROC_SPIKE_IGNORE:
+                        continue
+                    known = process_library.get_process_info(exe)
+                    if not known or known.get("category") == "system":
+                        continue
+                    mem = proc.info.get("memory_info")
+                    ram_mb = (float(mem.rss) / 1_048_576) if mem else 0.0
+                    rec = totals.setdefault(exe, {
+                        "ram_mb": 0.0, "cpu": 0.0, "known": known,
+                    })
+                    rec["ram_mb"] += ram_mb
+                    rec["cpu"] += float(proc.info.get("cpu_percent") or 0) / logical
+                except Exception:
+                    continue
+            if not totals:
+                return None, {}
+            exe, rec = max(totals.items(), key=lambda item: item[1]["ram_mb"])
+            known = rec["known"]
+            category = known.get("category") or "application"
+            if rec["ram_mb"] < 150 and category != "gaming":
+                return None, {}
+            label = known.get("name") or exe
+
+            if category == "gaming":
+                gpu_bits = ""
+                try:
+                    from hck_gpt.data.live_sensors import snapshot
+                    live = snapshot() or {}
+                    gl = float(live.get("gpu_load", -1) or -1)
+                    gt = float(live.get("gpu_temp", -1) or -1)
+                    if gl >= 0:
+                        gpu_bits += f" · GPU {gl:.0f}%"
+                    if gt >= 0:
+                        gpu_bits += f" · {gt:.0f}°C"
+                except Exception:
+                    pass
+                msg = (
+                    f"hck_GPT: 💡 Widzę uruchomione {label} ({exe}). "
+                    f"System: CPU {cpu:.0f}% · RAM {ram:.0f}%{gpu_bits}. "
+                    "Jeśli zaraz grasz, zapytaj „gotowy do gry”."
+                    if self._lang == "pl" else
+                    f"hck_GPT: 💡 I can see {label} running ({exe}). "
+                    f"System: CPU {cpu:.0f}% · RAM {ram:.0f}%{gpu_bits}. "
+                    "If you are about to play, ask “game ready”."
+                )
+            else:
+                msg = (
+                    f"hck_GPT: 💡 {label} ({exe}) trzyma teraz około "
+                    f"{rec['ram_mb']:.0f} MB RAM. Cały system: CPU "
+                    f"{cpu:.0f}% · RAM {ram:.0f}%. To obserwacja, nie alarm."
+                    if self._lang == "pl" else
+                    f"hck_GPT: 💡 {label} ({exe}) currently holds about "
+                    f"{rec['ram_mb']:.0f} MB RAM. Whole system: CPU "
+                    f"{cpu:.0f}% · RAM {ram:.0f}%. This is context, not an alert."
+                )
+            return msg, {
+                "type": "context_idle_tip",
+                "process": exe,
+                "application": label,
+                "category": category,
+                "process_ram_mb": round(rec["ram_mb"]),
+                "process_cpu_pct": round(rec["cpu"], 1),
+                "cpu_pct": round(cpu, 1),
+                "ram_pct": round(ram, 1),
+            }
         except Exception:
-            pass
+            return None, {}
 
     def _update_banner(self, cpu: float, ram: float) -> None:
         if not self._banner_fn:
@@ -909,13 +1090,15 @@ class ProactiveMonitor:
             # Collect temperatures for banner (best-effort, non-blocking)
             temp_str = ""
             try:
-                from core.hardware_sensors import get_cpu_temp, get_gpu_temp
-                ct = get_cpu_temp()
-                gt = get_gpu_temp()
+                from hck_gpt.data.live_sensors import snapshot as _live_snapshot
+                live = _live_snapshot()
+                ct = live.get("cpu_temp", -1)
+                gt = live.get("gpu_temp", -1)
                 parts = []
-                if ct:
-                    parts.append(f"CPU {ct:.0f}°C")
-                if gt:
+                if ct and ct > 0:
+                    label = "CPU " if live.get("cpu_temp_src") == "sensor" else "CPU ~"
+                    parts.append(f"{label}{ct:.0f}°C")
+                if gt and gt > 0:
                     parts.append(f"GPU {gt:.0f}°C")
                 if parts:
                     temp_str = "  " + "  ".join(parts)
@@ -968,7 +1151,8 @@ class ProactiveMonitor:
         pool = _MSGS.get("morning_brief", {}).get(self._lang, [])
         if pool:
             msg = random.choice(pool).format(val=val)
-            self._push(msg)
+            self._dispatch_candidate(
+                "morning_brief", msg, {"summary": val}, relevance=0.65)
 
     def _maybe_digest_suggestion(self) -> None:
         """Suggest a session digest after 2+ hours of active use."""
@@ -988,7 +1172,10 @@ class ProactiveMonitor:
         pool = _MSGS.get("digest_suggestion", {}).get(self._lang, [])
         if pool:
             msg = random.choice(pool).format(val=f"{uptime_h:.0f}")
-            self._push(msg)
+            self._dispatch_candidate(
+                "digest_suggestion", msg,
+                {"session_hours": round(uptime_h, 1)}, relevance=0.60,
+            )
 
     # ── DeepMonitor deep-sensor check ─────────────────────────────────────────
 
@@ -1050,25 +1237,18 @@ class ProactiveMonitor:
         Monitors: CPU/GPU temperature trends, severe throttling, multi-drive
         disk space, and fires contextual bilingual alerts.
         """
-        try:
-            from core.hardware_sensors import get_cpu_temp, get_gpu_temp
-        except ImportError:
-            return
-
         cpu_temp = gpu_temp = None
 
         # ── CPU + GPU temperatures ─────────────────────────────────────────
         try:
-            t = get_cpu_temp()
-            if t:
-                cpu_temp = float(t)
-        except Exception:
-            pass
-
-        try:
-            g = get_gpu_temp()
-            if g:
-                gpu_temp = float(g)
+            from hck_gpt.data.live_sensors import snapshot as _live_snapshot
+            live = _live_snapshot()
+            t = float(live.get("cpu_temp", -1) or -1)
+            g = float(live.get("gpu_temp", -1) or -1)
+            if t > 0 and live.get("cpu_temp_src") == "sensor":
+                cpu_temp = t
+            if g > 0:
+                gpu_temp = g
         except Exception:
             pass
 
@@ -1125,7 +1305,8 @@ class ProactiveMonitor:
             freq = _ps.cpu_freq()
             if freq and freq.max and freq.current:
                 ratio = freq.current / freq.max
-                if ratio < DM_CPU_FREQ_DROP:
+                if (_ps.cpu_percent(interval=None) >= 70
+                        and ratio < DM_CPU_FREQ_DROP):
                     self._alert("cpu_freq_severe", f"{ratio*100:.0f}")
         except Exception:
             pass
@@ -1177,7 +1358,10 @@ class ProactiveMonitor:
                 pool = _MSGS.get("sensor_health_insight", {}).get(self._lang, [])
                 if pool:
                     msg = random.choice(pool).format(val=t_str)
-                    self._push(msg)
+                    self._dispatch_candidate(
+                        "sensor_health_insight", msg,
+                        {"sensor_summary": t_str}, relevance=0.55,
+                    )
         except Exception:
             pass
 
@@ -1264,6 +1448,116 @@ class ProactiveMonitor:
                 metric=label, value=alert_evt.value)
         except Exception:
             pass
+
+    # ── Game session observer ─────────────────────────────────────────────────
+
+    @staticmethod
+    def _game_metrics() -> Dict[str, Any]:
+        try:
+            from hck_gpt.memory.session_memory import SessionMemory
+            metrics = SessionMemory.collect_live_evidence()
+        except Exception:
+            metrics = {}
+        try:
+            from core.fps_monitor import read_fps
+            fps = read_fps()
+            if fps is not None:
+                metrics["fps"] = round(float(fps), 1)
+                metrics["fps_source"] = "rtss"
+        except Exception:
+            pass
+        return metrics
+
+    def on_game_event(self, event: str, exe: str, label: str = "") -> None:
+        """Receive start/end from the one existing GamingToastWatcher."""
+        if event not in ("start", "end") or not exe:
+            return
+        with self._game_lock:
+            if event == "start":
+                self._game_sessions.start(
+                    exe, label or exe, self._game_metrics(),
+                )
+                try:
+                    from hck_gpt.memory.session_memory import session_memory
+                    session_memory.record_event("game_start", exe)
+                except Exception:
+                    pass
+                return
+            summary = self._game_sessions.end(exe)
+        if summary:
+            self._maybe_game_recap(summary)
+
+    def _update_game_sessions(self) -> None:
+        with self._game_lock:
+            active = self._game_sessions.active_executables()
+            if not active:
+                return
+            metrics = self._game_metrics()
+            mode = self.proactive_mode()
+            user_active = self._is_user_active()
+            for exe in active:
+                self._game_sessions.sample(exe, metrics)
+                if user_active:
+                    continue
+                if not self._game_sessions.should_check_in(exe, mode):
+                    continue
+                fps = metrics.get("fps")
+                gpu = metrics.get("gpu_pct")
+                bits = []
+                if gpu is not None:
+                    bits.append(f"GPU {gpu:.0f}%")
+                if metrics.get("gpu_temp") is not None:
+                    bits.append(f"{metrics['gpu_temp']:.0f}°C")
+                if fps is not None and metrics.get("fps_source") == "rtss":
+                    bits.append(f"RTSS {fps:.0f} FPS")
+                facts = " · ".join(bits)
+                if self._lang == "pl":
+                    msg = (f"hck_GPT: Gram z Tobą w tle: {exe}"
+                           + (f" · {facts}." if facts else ".")
+                           + " Czy gra jest płynna, czy właśnie pojawiły się ścinki?")
+                else:
+                    msg = (f"hck_GPT: I am keeping an eye on {exe}"
+                           + (f" · {facts}." if facts else ".")
+                           + " Does it feel smooth, or have stutters started?")
+                if self._dispatch_candidate(
+                        "game_checkin", msg,
+                        {"game": exe, "metrics": metrics}, relevance=0.98):
+                    self._game_sessions.mark_checkin(exe)
+
+    def _maybe_game_recap(self, summary: Dict[str, Any]) -> None:
+        settings = self._app_settings()
+        if not settings.get("toast_gaming_recap", True):
+            return
+        if summary.get("duration_s", 0) < 300 or summary.get("sample_count", 0) < 2:
+            return
+        duration_m = max(1, int(summary["duration_s"] / 60))
+        avg = summary.get("averages") or {}
+        bits = []
+        for key, label in (("cpu_pct", "CPU"), ("ram_pct", "RAM"),
+                           ("gpu_pct", "GPU")):
+            if key in avg:
+                bits.append(f"{label} {avg[key]:.0f}%")
+        if "gpu_temp" in avg:
+            bits.append(f"GPU {avg['gpu_temp']:.0f}°C")
+        if summary.get("fps_available") and summary.get("fps_source") == "rtss":
+            bits.append(f"RTSS {avg['fps']:.0f} FPS")
+        facts = " · ".join(bits) or (
+            "brak wspólnych próbek" if self._lang == "pl" else "no shared samples"
+        )
+        if self._lang == "pl":
+            msg = (f"hck_GPT: Sesja {summary['label']} zakończona · {duration_m} min. "
+                   f"Średnie z próbek: {facts}. To zapis pomiarów, nie ocena płynności.")
+        else:
+            msg = (f"hck_GPT: {summary['label']} session ended · {duration_m} min. "
+                   f"Sample averages: {facts}. These are measurements, not a smoothness verdict.")
+        if self._dispatch_candidate(
+                "game_recap", msg, {"game_session": summary}, relevance=0.92):
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.record_event("game_end", summary["exe"])
+                session_memory.record_response_data("gaming_session", summary)
+            except Exception:
+                pass
 
     # ── Push helper ───────────────────────────────────────────────────────────
 

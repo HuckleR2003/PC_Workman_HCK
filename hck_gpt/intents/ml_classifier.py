@@ -32,6 +32,11 @@ from collections import Counter
 from typing import Dict, List, Optional, Tuple
 
 
+# Bump this whenever tokenization, augmentation or calibration changes. The
+# cache fingerprint must describe the model recipe, not only the vocabulary.
+MODEL_SCHEMA_VERSION = "2"
+
+
 # ── Text utilities ─────────────────────────────────────────────────────────────
 
 def _tokenize(text: str) -> List[str]:
@@ -45,11 +50,14 @@ def _tokenize(text: str) -> List[str]:
 
 
 def _ascii_fold(text: str) -> str:
-    """Strip diacritics: ą->a, ę->e, ó->o, ś->s, ź/ż->z, ć->c, ń->n, ł->l."""
-    return "".join(
+    """Strip diacritics, including letters without an NFD decomposition."""
+    stripped = "".join(
         c for c in unicodedata.normalize("NFD", text)
         if unicodedata.category(c) != "Mn"
     )
+    return stripped.translate(str.maketrans({
+        "ł": "l", "Ł": "L", "ø": "o", "Ø": "O", "đ": "d", "Đ": "D",
+    }))
 
 
 # ── Naive Bayes Classifier ─────────────────────────────────────────────────────
@@ -141,10 +149,43 @@ class TrainingDataBuilder:
     Augmentation strategy (per phrase):
       1. Original phrase                         (always)
       2. ASCII-folded variant (no diacritics)    (if different from original)
-      3. Individual content words from long phrases (len >= 3 words, word len >= 4)
 
-    This gives ~3000–6000 training examples from ~1500 vocabulary phrases.
+    Whole phrases remain the unit of training. Treating every word from a long
+    phrase as a separate labelled document made generic words such as "help",
+    "today" and "program" look like strong intent evidence.
     """
+
+    # Open-set examples teach the classifier that fluent text is not
+    # automatically a PC Workman command. These are deliberately broad and do
+    # not overlap with the supported casual-conversation phrases.
+    _UNKNOWN_PHRASES = (
+        "jaka będzie jutro pogoda", "czy jutro będzie padać",
+        "napisz mi przepis na naleśniki", "co ugotować na obiad",
+        "pomóż mi napisać list motywacyjny", "napisz wiadomość do szefa",
+        "przetłumacz to zdanie na hiszpański", "jak powiedzieć to po włosku",
+        "jaka jest stolica francji", "ile kilometrów jest do berlina",
+        "kto wygrał wczorajszy mecz", "podaj wynik meczu",
+        "opowiedz historię o smoku", "napisz krótki wiersz",
+        "ile to dwa plus dwa", "rozwiąż to równanie",
+        "poleć mi dobry film", "jaką książkę przeczytać",
+        "mój kot śpi na klawiaturze", "banan teleskop fioletowy",
+        "co słychać na świecie", "jakie są dziś wiadomości",
+        "zaplanuj mi wakacje", "znajdź tani hotel",
+        "what will the weather be tomorrow", "is it going to rain",
+        "write me a pancake recipe", "what should I cook for dinner",
+        "help me write a cover letter", "write an email to my manager",
+        "translate this sentence into spanish", "how do I say this in italian",
+        "what is the capital of france", "how far is berlin",
+        "who won the football match", "tell me the match score",
+        "tell me a story about a dragon", "write a short poem",
+        "what is two plus two", "solve this equation",
+        "recommend a good movie", "what book should I read",
+        "my cat is sleeping on the keyboard", "banana telescope purple",
+        "what is happening in the world", "show me today's news",
+        "plan my holiday", "find me a cheap hotel",
+        "why is the sky blue", "how old is the universe",
+        "kim był mikołaj kopernik", "dlaczego niebo jest niebieskie",
+    )
 
     def build(self) -> Tuple[List[str], List[str]]:
         from hck_gpt.intents.vocabulary import INTENT_PATTERNS
@@ -161,18 +202,11 @@ class TrainingDataBuilder:
                 if folded != phrase:
                     X.append(folded); y.append(intent)
 
-                # 3. Individual content words from long phrases
-                words = phrase.split()
-                if len(words) >= 3:
-                    for w in words:
-                        if len(w) >= 4 and _ascii_fold(w) not in {
-                            "jest", "moje", "moja", "mamy", "maja",
-                            "what", "does", "this", "that", "have", "with",
-                        }:
-                            X.append(w); y.append(intent)
-                            folded_w = _ascii_fold(w)
-                            if folded_w != w:
-                                X.append(folded_w); y.append(intent)
+        for phrase in self._UNKNOWN_PHRASES:
+            X.append(phrase); y.append("unknown")
+            folded = _ascii_fold(phrase)
+            if folded != phrase:
+                X.append(folded); y.append("unknown")
 
         return X, y
 
@@ -180,7 +214,7 @@ class TrainingDataBuilder:
         """MD5 hash of current INTENT_PATTERNS - detects vocabulary changes."""
         import hashlib
         from hck_gpt.intents.vocabulary import INTENT_PATTERNS
-        content = str(sorted(
+        content = MODEL_SCHEMA_VERSION + "|" + str(sorted(
             (k, sorted(v)) for k, v in INTENT_PATTERNS.items()
         ))
         return hashlib.md5(content.encode("utf-8")).hexdigest()[:16]

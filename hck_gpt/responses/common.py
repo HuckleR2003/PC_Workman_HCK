@@ -205,8 +205,20 @@ def _hw_profile(hw: dict) -> dict:
     Derive hardware capability flags from stored hardware data.
     Used to tailor advice to the user's actual specs rather than generic tips.
     """
-    ram_gb    = float(hw.get("ram_total_gb") or 16)
-    cpu_cores = int(hw.get("cpu_cores")      or 4)
+    ram_raw = hw.get("ram_total_gb")
+    cores_raw = hw.get("cpu_cores")
+    try:
+        import psutil
+        if not ram_raw:
+            ram_raw = psutil.virtual_memory().total / 1_073_741_824
+        if not cores_raw:
+            cores_raw = psutil.cpu_count(logical=False)
+    except Exception:
+        pass
+    # Unknown stays unknown. A guessed 16 GB / 4-core profile can produce
+    # confident but fictional upgrade advice on a machine not scanned yet.
+    ram_gb    = float(ram_raw or 0)
+    cpu_cores = int(cores_raw or 0)
     disk      = (hw.get("disk_model")        or "").upper()
 
     # SSD detection - if any SSD/NVMe keyword present -> SSD
@@ -218,10 +230,12 @@ def _hw_profile(hw: dict) -> dict:
 
     return {
         "ram_gb":       ram_gb,
-        "ram_low":      ram_gb <= 8,
-        "ram_very_low": ram_gb <= 4,
+        "ram_known":    ram_gb > 0,
+        "ram_low":      0 < ram_gb <= 8,
+        "ram_very_low": 0 < ram_gb <= 4,
         "cpu_cores":    cpu_cores,
-        "few_cores":    cpu_cores <= 4,
+        "cores_known":  cpu_cores > 0,
+        "few_cores":    0 < cpu_cores <= 4,
         "is_hdd":       is_hdd,
         "is_ssd":       is_ssd,
     }

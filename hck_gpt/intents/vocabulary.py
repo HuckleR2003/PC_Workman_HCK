@@ -39,6 +39,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which cpu", "what processor", "my processor",
         "cpu details", "processor details",
         "tell me about my cpu", "show me my processor",
+        "jaki dokładnie procesor siedzi w tym komputerze",
+        "podaj dokładny model mojego procesora",
+        "what exact processor is installed in this computer",
     ],
     "hw_gpu": [
         # Tokens
@@ -49,6 +52,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "amd gpu", "rx 6", "rx 7",
         "jaka karta", "jaka grafika", "moja karta", "mój gpu",
         "jaka mam karte", "jaka mam grafike", "jaka mam karte graficzna",
+        "jaka karte graficzna mam", "jaką kartę graficzną mam",
+        "jaka mam karte graficzną", "jaka u mnie karta graficzna",
         "karta graficzna model", "ile vram", "ile ma vram",
         "what gpu", "my gpu", "gpu info", "graphics info",
         "which graphics", "what graphics card", "what gpu do i have",
@@ -64,6 +69,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "how much ram", "my ram", "ram info",
         "ram usage", "memory info", "memory usage",
         "how much memory",
+        "ile fizycznie mam pamięci operacyjnej",
+        "ile pamięci operacyjnej jest zainstalowane",
+        "how much physical memory is installed",
     ],
     "hw_motherboard": [
         # Tokens
@@ -93,11 +101,16 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Tokens
         "spec", "specs", "podzespoły", "komponenty", "components",
         # Multi-word
-        "specyfikacja", "co mam", "mój komputer", "mój pc",
+        # 2026-07: bare "mój komputer"/"mój pc"/"my computer"/"co mam" REMOVED -
+        # they hijacked ANY sentence containing them ("mój pc laguje" got a
+        # spec sheet). A spec request needs a spec word, not just ownership.
+        "specyfikacja",
         "moje podzespoły", "jakie mam podzespoły", "jaki mam sprzęt",
         "pokaż sprzęt", "pokaż specyfikację", "pokaż podzespoły",
         "pełna specyfikacja", "parametry komputera",
-        "my specs", "my computer", "show specs", "full specs",
+        "co mam w komputerze", "co mam w pc", "co siedzi w moim komputerze",
+        "my specs", "show specs", "full specs",
+        "what is in my pc", "what is inside my computer",
         "what hardware", "hardware info", "pc info", "system info",
         "show hardware", "all specs",
         "what components", "what components i have", "which components",
@@ -139,6 +152,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── System health & diagnostics ───────────────────────────────────────────
     "health_check": [
+        "coś jest nie tak", "coś jest nie tak z komputerem",
+        "something is wrong", "something is wrong with my pc",
         # Tokens
         "zdrowie", "health", "kondycja", "diagnostyka", "diagnostics",
         # Multi-word PL <- these raise confidence significantly
@@ -205,9 +220,20 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "temperatury", "grzeje się", "przegrzanie komputera",
         "ile stopni", "jak gorący", "cpu temp", "gpu temp",
         "jakie temperatury", "temperatura procesora", "temperatura cpu",
-        "cooling system", "chłodzenie", "sprawdź temperatury",
+        "cooling system", "sprawdź temperatury",
         "how hot", "is it hot", "pc temperature", "thermal",
         "temp check", "too hot", "running hot",
+        # Natural full questions. These carry more weight than isolated words
+        # and keep the ML model from turning a thermal question into hw_all.
+        "czy z temperaturami jest teraz wszystko w porządku",
+        "czy temperatury są teraz w normie",
+        "sprawdź czy komputer się nie przegrzewa",
+        "dlaczego mój komputer tak się grzeje",
+        "dlaczego mój komp się tak grzeje",
+        "czy 85 stopni to dużo", "czy ta temperatura jest bezpieczna",
+        "are my temperatures normal right now",
+        "is this temperature safe", "is 85 degrees too hot",
+        "check whether my pc is overheating",
     ],
     "throttle_check": [
         # Natural phrasings - routing audit 2026-06
@@ -219,14 +245,21 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "wolniej działa", "wolno działa",
         "cpu throttle", "power limit", "cpu throttling",
         "czy throttluje", "czy cpu throttluje", "czy procesor throttluje",
+        "czy procesor się dławi", "czy procesor sie dlawi",
+        "czy cpu się dławi", "czy cpu sie dlawi", "procesor się dławi",
+        "cpu się dławi", "czy gpu throttluje", "is my cpu throttling",
         "is cpu throttling", "power limiting",
+        "is my processor thermal throttling right now",
+        "is my processor throttling under load",
+        "czy procek się dławi pod obciążeniem",
+        "czy procesor traci zegary pod obciążeniem",
     ],
 
     # ── Performance & usage ───────────────────────────────────────────────────
     "performance": [
         # Tokens
         "wydajność", "performance", "szybkość", "speed",
-        "fps", "lag", "laguje", "lagi", "wolno",
+        "lag", "laguje", "lagi", "wolno",
         # Multi-word PL
         "zacina się", "zacięcia ma", "działa wolno", "powolny komputer",
         "jak szybki", "aktualna wydajność", "obciążenie systemu",
@@ -267,7 +300,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Natural phrasings - routing audit 2026-06
         "najbardziej obciąża", "co najbardziej obciąża", "co obciąża teraz",
         "co najbardziej obciąża pc", "co najbardziej obciąża mój pc",
-        "co żre", "co żre pamięć", "co żre ram", "co zżera", "co zjada pamięć",
+        "co żre", "co żre pamięć", "co zżera", "co zjada pamięć",
         "najwięcej pamięci", "najwięcej zużywają", "programy zużywają ram",
         "jakie programy najwięcej zużywają ram", "które najwięcej żrą",
         "najwięcej żrą", "żre najwięcej", "top 5 procesów", "top 10 procesów",
@@ -275,7 +308,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Tokens
         "procesy", "process", "processes", "aplikacje", "programy",
         # Multi-word
-        "co zajmuje cpu", "co używa cpu", "co zużywa ram",
+        "co zajmuje cpu", "co używa cpu",
         "top procesy", "który program",
         "jaki program obciąża", "jakie aplikacje działają",
         "top apps", "top processes", "what is using cpu",
@@ -323,6 +356,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak używać", "lista komend", "jak ci pisać",
         "what can you do", "how to use", "show commands",
         "what do you know", "help me",
+        "co potrafisz i o co mogę zapytać",
+        "jak możesz mi pomóc z komputerem",
+        "what can i ask you about",
     ],
 
     # ── Program info / meta ───────────────────────────────────────────────────
@@ -334,7 +370,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "co to workman", "czym jest hck", "do czego służy program",
         "o czym jest aplikacja", "co potrafi program", "co umie program",
         "co robi ten program", "co ten program robi", "jak działa ta aplikacja",
-        "czym jest ta aplikacja", "co to za program", "do czego to służy",
+        "czym jest ta aplikacja", "do czego to służy",
         "po co jest ten program", "opowiedz o programie", "jakie funkcje ma",
         "co oferuje program", "jakie możliwości ma",
         "jak działa pc workman", "czy program dobrze chodzi",
@@ -342,7 +378,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Single tokens
         "workman", "aplikacja", "hck_gpt",
         # English
-        "how does it work", "what is this program", "what is pc workman",
+        "how does it work", "what is pc workman",
         "what does this do", "what is this software", "about this app",
         "tell me about this program", "what is this app",
         "what does pc workman do", "what does the program do",
@@ -361,6 +397,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "who built this", "who wrote this", "who developed this",
         "author of this program", "creator of pc workman",
         "who made you", "who are you made by",
+        "kim jest autor pc workmana", "kto jest autorem pc workmana",
+        "who is the author of pc workman",
     ],
 
     # ── Upgrade advice - what part to replace/upgrade ─────────────────────────
@@ -394,6 +432,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "is my cpu a bottleneck", "what's my bottleneck", "what is my bottleneck",
         "do i need a new gpu", "do i need more ram", "upgrade advice",
         "what should i replace",
+        "co powinienem wymienić jako pierwsze",
+        "co w tym komputerze ulepszyć najpierw",
+        "jaka część jest najsłabsza",
+        "which component should i upgrade first",
+        "what is the weakest part of my pc",
     ],
 
     # ── Privacy / data - do you spy / what do you collect ─────────────────────
@@ -418,6 +461,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Security / virus check ────────────────────────────────────────────────
     "virus_check": [
+        "sprawdź czy ten proces może być wirusem",
+        "czy ten proces może być wirusem",
+        "check if this process could be a virus",
         # colloquial variants (2026-07-16 pass)
         "chyba mam wirusa",
         "podejrzany proces",
@@ -447,7 +493,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "is something suspicious running", "virus scan",
         "check for viruses", "any dangerous processes",
         "is discord safe", "is discord.exe safe", "is steam safe",
-        "is this exe safe", "is this process safe",
+        "is this exe safe",
         "is it a virus", "could this be a virus",
     ],
 
@@ -487,8 +533,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak przyspieszyć dysk", "dysk wolno chodzi",
         "przyspieszenie dysku", "dysk jest wolny",
         "jak wyczyścić dysk", "dysk c pełny",
-        "wolny dysk", "problemy z dyskiem",
-        "jak zwolnić miejsce na dysku", "co zajmuje dysk",
+        "wolny dysk",
+        "jak zwolnić miejsce na dysku",
         "co zajmuje miejsce", "dysk prawie pełny",
         "szybkość dysku", "jak szybki jest dysk",
         "jak szybki jest moj dysk", "predkosc dysku",
@@ -521,18 +567,18 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "co wylaczyc zeby szybszy", "co wylaczyc zeby pc szybciej dzialal",
         "jak przyspieszyc przez wylaczenie", "co wylaczyc dla wydajnosci",
         # Polish
-        "jak przyspieszyć komputer", 
+        "jak przyspieszyć komputer",
         "jak mieć więcej fps", "komputer działa wolno",
         "jak poprawić fps", "jak przyspieszyć gry",
         "wolny komputer co zrobić", "co zrobić żeby komputer był szybszy",
-        "przyspieszenie komputera", 
-        "jak przyspieszyć windows", "komputer chodzi wolno",
+        "przyspieszenie komputera",
+        "jak przyspieszyć windows",
         "co zrobić z wolnym komputerem", "przyspiesz pc",
         "jak poprawić wydajność komputera",
         # English
-        "how to speed up pc", 
+        "how to speed up pc",
         "how to get more fps", "pc is slow what to do",
-        "how to make pc faster", "pc runs slow",
+        "how to make pc faster",
         "how to improve fps", "make games run faster",
         "boost pc performance", "how to make computer faster",
         "my pc is slow", "improve computer speed",
@@ -544,15 +590,18 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # greeting-style small talk (higher score so rule fallback works)
         "jak się masz", "co słychać", "co u ciebie", "jak leci",
         "co tam stary", "co tam", "jak tam", "jak tam u ciebie", "co porabiasz",
-        
+
         "jakie masz rady", "co mi radzisz", "co dziś polecasz",
-        "how are you", "what's up", 
+        "how are you", "what's up",
         "any tips for today", "what do you recommend",
         # deliberate open-ended (Ollama handles better)
         "powiedz", "opowiedz", "zastanów", "jak myślisz",
         "co sądzisz", "twoja opinia", "porozmawiajmy",
         "tell me", "what do you think", "your opinion",
         "co o tym", "ciekawostka", "wiesz że",
+        "pogadamy", "możemy pogadać", "mam ochotę pogadać",
+        "jak się dziś czujesz", "jesteś tam", "powiedz coś ciekawego",
+        "can we talk", "are you there", "tell me something interesting",
     ],
 
     # ── TURBO Boost ───────────────────────────────────────────────────────────
@@ -585,6 +634,23 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "wszystko zamula",
         "komputer laguje",
         "pc laguje",
+        # 2026-07: real user phrasings that used to leak to hw_all/greeting
+        "mój pc laguje", "moj pc laguje", "mój komputer laguje",
+        "laguje mi komputer", "laguje mi pc", "wszystko mi laguje",
+        "zacina mi się komputer", "zacina mi sie komputer",
+        "komputer się przycina", "komputer sie przycina",
+        "pc się zacina", "pc sie zacina", "komputer mi muli", "pc muli",
+        "pc keeps lagging", "computer keeps stuttering",
+        # 2026-07-24 wave-2 harness: natural phrasings that leaked to
+        # greeting/unknown (diminutives, word order, EN "lately")
+        "wszystko mi się tnie", "wszystko mi sie tnie",
+        "kompik zamula", "kompik muli", "kompik laguje",
+        "laptop jest wolny", "laptop jest taki wolny", "mój laptop jest wolny",
+        "moj laptop jest wolny", "laptop taki wolny", "komputer jest wolny",
+        "mój komputer jest wolny", "moj komputer jest wolny",
+        "so slow lately", "pc is slow lately",
+        "computer is slow lately", "my computer is really slow",
+        "everything is stuttering", "everything lags",
         "wszystko się tnie",
         "komp się przycina",
         "strasznie muli",
@@ -617,7 +683,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # Natural phrasings - routing audit 2026-06
         "dlaczego komputer chodzi wolno", "komputer chodzi wolno", "chodzi wolno",
         "dlaczego wolno", "dlaczego tak wolno", "czemu komputer chodzi wolno",
-        "dlaczego komputer jest wolny", 
+        "dlaczego komputer jest wolny",
         # Polish - ASCII variants (key: "dlaczego wolno chodzi" vs "wolny komputer")
         "dlaczego komputer tak wolno chodzi", "dlaczego tak wolno chodzi",
         "dlaczego pc wolno chodzi", "co sprawia ze chodzi wolno",
@@ -636,6 +702,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what's causing the slowdown", "why is everything slow",
         "why does it stutter", "why am i getting lag",
         "my pc is slow why", "what's making my pc slow",
+        "komputer od paru dni wyraźnie zamula",
+        "komputer zwolnił z dnia na dzień",
+        "od kilku dni wszystko działa wolniej",
+        "everything started stuttering this week",
+        "my pc became slow all of a sudden",
     ],
 
     # ── Process info ──────────────────────────────────────────────────────────
@@ -650,12 +721,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "do czego służy ten proces", "ten proces co robi",
         "czy mogę zabić ten proces", "czy warto wyłączyć",
         # English
-        "what is this process", "what does this process do",
+        "what is this process",
         "what is svchost", "can i disable this", "is this safe to kill",
         "can i end this process", "what is chrome.exe",
         "is this a virus", "what does svchost do",
         "should i close this process", "what is this program",
-        "is it safe to end this task",
     ],
 
     # ── RAM why high ──────────────────────────────────────────────────────────
@@ -688,6 +758,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "why is memory so high", "what uses so much ram",
         "is ram at 94 percent normal", "why is ram jumping",
         "what's consuming my memory",
+        "dlaczego pamięć jest prawie pełna",
+        "dlaczego wolnej pamięci jest tak mało",
+        "why is almost all of my memory in use",
     ],
 
     # ── GPU temperature why ───────────────────────────────────────────────────
@@ -760,6 +833,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what starts with windows", "startup check", "what launches on boot",
         "how many startup programs", "startup manager", "autostart check",
         "what runs at startup", "startup bloat",
+        "co uruchamia się razem z windowsem",
+        "pokaż co startuje razem z systemem",
+        "show what launches together with windows",
     ],
 
     # ── High disk usage diagnosis ─────────────────────────────────────────────
@@ -788,6 +864,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "disk is at 100 percent", "why disk so active", "high disk usage",
         "disk thrashing", "why is my disk so busy", "disk io why",
         "what is reading my disk", "disk activity cause",
+        "what is hammering my disk right now",
+        "what process is hitting my disk right now",
+        "co teraz tak mocno obciąża dysk",
     ],
 
     # ── Battery / power drain ─────────────────────────────────────────────────
@@ -840,6 +919,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what's new that's slowing things", "performance got worse when",
         "new processes slowing pc", "what recently started using cpu",
         "performance degraded why", "what changed recently",
+        "czy wydajność pogorszyła się od zeszłego tygodnia",
+        "czy komputer działa gorzej niż tydzień temu",
+        "has performance become worse since last week",
     ],
 
     # ── Fun / roast / personality ─────────────────────────────────────────────
@@ -934,6 +1016,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what system changes happened", "what changed on my computer",
         "what's new since last time", "what has changed",
         "what changed on pc since yesterday", "system changes today",
+        "co zmieniło się na komputerze od wczoraj",
+        "what changed on this computer since yesterday",
     ],
 
     # ── System risk assessment ────────────────────────────────────────────────
@@ -991,6 +1075,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "chrome slow why", "edge slow why", "firefox slow why",
         "browser ram usage high", "how to fix browser slowness",
         "browser consuming too much memory", "chrome tab memory",
+        "przeglądarka pożera mi całą pamięć",
+        "browser is eating nearly all my memory",
     ],
 
     # ── RAM usage comparison between sessions / experiments ──────────────────
@@ -1037,7 +1123,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which processes are taking up a lot of swap space and slowing me down",
         "what is using swap space", "swap usage high", "pagefile full",
         "what processes use swap", "swap space analysis",
-        "virtual memory usage", 
+        "virtual memory usage",
         "too much swap being used", "swap is slow",
         "processes using pagefile", "why is swap full",
         "how to reduce swap usage", "ram out pagefile used",
@@ -1105,7 +1191,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak było wczoraj", "dlaczego wczoraj było lepiej",
         "porównaj sesje", "porównaj z wczorajszym",
         "jaka była wczoraj", "ile wczoraj zużywał cpu",
-        "jak wyglądała poprzednia sesja", "co się zmieniło od wczoraj",
+        "jak wyglądała poprzednia sesja",
         "czy jest gorzej niż wczoraj", "czy jest lepiej niż wczoraj",
         "wczorajsze statystyki", "porównanie z wczorajem",
         # English
@@ -1114,6 +1200,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "session comparison", "yesterday vs today",
         "was cpu lower yesterday", "what changed",
         "compare sessions", "is today worse than yesterday",
+        "porównaj obecną sesję z poprzednią",
+        "porównaj tę sesję do poprzedniej",
+        "compare the current session with the previous one",
     ],
 
     # ── Voltage / VCore / power delivery ─────────────────────────────────────
@@ -1141,7 +1230,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     # ── Fan speed / cooling health ────────────────────────────────────────────
     "fan_speed": [
         # Polish tokens
-        "wentylator", "wentylatora", "wiatrak", "rpm", "chłodzenie",
+        "wentylator", "wentylatora", "wiatrak", "rpm",
         # Polish multi-word
         "prędkość wentylatora", "ile obrotów wentylator", "wentylator rpm",
         "czy chłodzenie działa", "czy wentylator działa",
@@ -1157,7 +1246,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what is my fan speed", "fan rpm check", "how fast are my fans",
         "is my cooling working", "why is my fan loud", "fan noise",
         "cpu fan speed", "gpu fan speed", "case fans",
-        "why is pc so loud", "fans at 100 percent",
+        "fans at 100 percent",
         "is my cpu cooler working", "check fan speed", "fan rpm",
         "cooling system check", "cpu cooler rpm", "are fans spinning",
         "why is computer so noisy", "fan running loud",
@@ -1171,12 +1260,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak było podczas grania", "podczas grania cpu",
         "jak się trzymał komputer podczas grania",
         "jak grało się na tym pc", "sesja gamingowa",
-        "czy pc wytrzyma granie", "czy mogę grać",
+        "czy pc wytrzyma granie",
         "jak radzi sobie pc podczas gry", "jak wyglądała sesja gry",
         "podsumowanie sesji gry", "co się działo podczas gry",
         "komputer grzał podczas gry", "fps drops dlaczego",
         "dlaczego fps spada", "dlaczego gra się zacina",
-        "jak poprawić fps", "więcej fps jak",
+        "więcej fps jak",
         "optymalizacja pod gry", "ustawienia pod gry",
         "czy mój pc radzi sobie z grami", "jak wydajność w grach",
         "jak mój komputer radzi sobie z grami",
@@ -1275,6 +1364,20 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     # ── PC froze / stutter symptom ───────────────────────────────────────────
     "symptom_freeze": [
         # Polish
+        # 2026-07: a SINGLE program stuttering/freezing is a freeze symptom,
+        # not a whole-PC slowdown (used to fall into greeting via ML guess)
+        "program się zacina", "program sie zacina",
+        "aplikacja się zacina", "aplikacja sie zacina",
+        "gra się zacina", "gra sie zacina",
+        "program się wiesza", "program sie wiesza",
+        "program się zawiesza", "program sie zawiesza",
+        "aplikacja się zawiesza", "aplikacja sie zawiesza",
+        "gra się zawiesza", "gra sie zawiesza",
+        "przeglądarka się wiesza", "przegladarka sie wiesza",
+        "program keeps hanging", "the app hangs", "app not responding",
+        "program przestał odpowiadać", "program przestal odpowiadac",
+        "aplikacja przestała odpowiadać", "aplikacja nie odpowiada",
+        "app keeps freezing", "program keeps freezing", "app is stuttering",
         "zamroziło się", "pc się zamroziło", "komputer się zawiesił",
         "komputer się zawiesza", "komputer sie zawiesza", "pc się zawiesza",
         "zawiesza się", "zawiesza mi się", "system się zawiesza",
@@ -1380,6 +1483,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what should i turn off before gaming",
         "gaming prep", "get ready to game",
         "is pc in good state for gaming",
+        "przygotuj komputer zanim uruchomię grę",
+        "przygotuj pc zanim zacznę grać",
+        "prepare the computer before i launch a game",
     ],
 
     # ── Morning brief / first-launch context ─────────────────────────────────
@@ -1426,6 +1532,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what did my pc do today", "wrap up today",
         "what happened this session", "today's activity",
         "session report", "pc activity report",
+        "zrób krótkie podsumowanie dzisiejszej sesji",
+        "give me a short summary of today's session",
     ],
 
     # ── Force close / kill process ────────────────────────────────────────────
@@ -1449,6 +1557,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "close frozen program", "force close frozen app",
         "how to kill background process",
         "end process force", "force terminate",
+        "czy mogę zakończyć ten proces bez uszkodzenia systemu",
+        "czy mogę bezpiecznie zamknąć ten proces",
+        "can i safely close this process",
+        "can i safely close explorer.exe",
+        "is it safe to end this task",
     ],
 
     # ── Temperature history ───────────────────────────────────────────────────
@@ -1470,6 +1583,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "max temperature today", "peak temperature",
         "temperature changes over time", "how hot did it get",
         "thermal history", "temp spikes today",
+        "czy temperatury rosną z tygodnia na tydzień",
+        "are temperatures rising week over week",
     ],
 
     # ── Free up RAM ───────────────────────────────────────────────────────────
@@ -1537,7 +1652,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "how far along is the learning",
         "how many hours observed",
         # Polish
-        "co wiesz o moim pc", "co o mnie wiesz",
+        "co wiesz o moim pc",
         "co zapamiętałeś", "co masz w pamięci o moim sprzęcie",
         "jakie dane zebrałeś", "jakie informacje masz",
         "co zebrałeś o moim komputerze", "co ci wiadomo",
@@ -1553,6 +1668,9 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "tell me what you know", "ai context dump",
         "what's in your memory about my pc",
         "summarize what you know about my system",
+        "co już wiesz o sposobie w jaki używam komputera",
+        "czego nauczyłeś się o moim sposobie używania pc",
+        "what have you learned about how i use my pc",
     ],
 
     # ── Fan noise history - is fan louder than usual? ────────────────────────
@@ -1567,7 +1685,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "dlaczego wentylator tak hałasuje", "wentylator hałasuje bardziej",
         "czy fan jest głośniejszy", "wentylator głośny teraz",
         "fan głośniejszy niż wcześniej", "czy komputer jest głośniejszy",
-        "dlaczego komputer tak huczy", "głośny wentylator",
+        "dlaczego komputer tak huczy",
         "wentylator warczy", "komputer huczy bardziej",
         "czy to normalne że wentylator tak hałasuje",
         "wentylator chodzi za mocno", "za głośny wentylator",
@@ -1623,6 +1741,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "driver update date",
         "how old are my drivers", "driver info",
         "which drivers are installed",
+        "czy sterowniki wyglądają na aktualne",
+        "do the installed drivers look up to date",
     ],
 
     # ── Gaming vs work time breakdown ────────────────────────────────────────
@@ -1645,10 +1765,14 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "gaming time stats", "time analysis on pc",
         "how much time on games vs apps",
         "gaming hours this week", "time breakdown pc",
+        "ile czasu spędzam w grach a ile w pracy",
+        "ile czasu zajmują gry w porównaniu z pracą",
     ],
 
     # ── Process identity - is this exe Windows or suspicious? ────────────────
     "process_identity": [
+        "sprawdź tożsamość tego procesu",
+        "identify this process", "check this process identity",
         # Polish
         "czy ten plik exe jest częścią windows",
         "czy ten proces jest częścią windows",
@@ -1694,6 +1818,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what apps to uninstall", "apps taking up space",
         "programs not opened recently",
         "clean up unused software",
+        "których programów praktycznie nie używam",
+        "which programs do i barely ever use",
     ],
 
     # ── FPS degradation - time-travel debugging ──────────────────────────────
@@ -1741,6 +1867,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "program works worse since recently",
         "something changed and now my app is slow",
         "why is this app suddenly different",
+        "why did this application behave differently today",
+        "dlaczego ta aplikacja zachowuje się dziś inaczej",
     ],
 
     # ── Startup slowdown - what slows boot the most ──────────────────────────
@@ -1749,7 +1877,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "co spowalnia start", "spowalnia start windowsa", "co spowalnia uruchamianie",
         "spowalnia uruchamianie", "co najbardziej spowalnia start",
         "wolny start windowsa", "spowalnia start", "co spowalnia start windowsa",
-        "co najbardziej spowalnia start windowsa", 
+        "co najbardziej spowalnia start windowsa",
         # Polish
         "co najbardziej zwalnia komputer podczas uruchamiania",
         "co spowalnia boot", "co hamuje uruchamianie",
@@ -1860,6 +1988,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which game stresses my gpu most",
         "game performance on my hardware",
         "most demanding games for my specs",
+        "która gra najmocniej obciąża kartę",
+        "which game puts the heaviest load on my gpu",
     ],
 
     # ── Battery drain rate - % lost during gaming/work ───────────────────────
@@ -1886,6 +2016,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "how much power does gaming use",
         "battery percentage drop while gaming",
         "battery life during gaming session",
+        "jak szybko rozładowuje się teraz bateria",
+        "how fast is the battery draining right now",
     ],
 
     # ── Power usage after restart ─────────────────────────────────────────────
@@ -1906,6 +2038,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "which program used most power since start",
         "power consumption since system start",
         "what has been using the most power",
+        "czy pobór energii zmienił się po restarcie",
+        "did power use change after the restart",
     ],
 
     # ── Can my PC run game X ──────────────────────────────────────────────────
@@ -1934,6 +2068,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "czy komputer nadaje się do gry", "minimalne wymagania sprzętowe",
         "czy zagram w fortnite", "czy zagram w csgo", "czy zagram w cs2",
         "czy zagram w cyberpunk", "czy zagram w minecraft",
+        "czy cyberpunk pójdzie płynnie na moim sprzęcie",
         "czy zagram w hogwarts", "czy zagram w gta",
         "czy zagram w valorant", "czy zagram w elden ring",
         "czy zagram w witcher", "czy zadziała cyberpunk",
@@ -1995,13 +2130,13 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "ile ramu kiedy gram w minecraft", "ile ramu przy grach",
         "typowe zużycie ram podczas grania",
         "ile pamięci gry zajmują średnio",
-        "ram w sesji gamingowej", 
+        "ram w sesji gamingowej",
         "zużycie pamięci podczas grania", "ile ram gra zużywa",
         # Polish ASCII fallback - key uniquifiers with "gram" / "grania" context
         "ile ramu uzywam podczas grania", "ile ram uzywam podczas grania",
         "ile pamieci uzywam podczas grania", "ile ram podczas grania",
         "ile ram kiedy gram", "ile ramu kiedy gram",
-        "ram kiedy gram", 
+        "ram kiedy gram",
         "ile pamieci kiedy gram", "ile pamieci podczas grania",
         "pamieci kiedy gram", "ram gaming session",
         # English
@@ -2015,6 +2150,8 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "how much ram when i play cs2", "how much ram fortnite uses",
         "average ram during gaming session",
         "ram usage while gaming",
+        "ile pamięci zwykle bierze granie",
+        "how much memory does gaming usually take",
     ],
 
     # ── How much RAM do I use on a daily basis ────────────────────────────────
@@ -2066,11 +2203,12 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "ile czasu wytrzyma bateria kiedy pisze",
         "jak dlugo wytrzyma bateria przy pisaniu projektu",
         "ile godzin zostalo mi baterii", "jak dlugo laptop pociagnie",
-        "jak dlugo bateria", 
+        "jak dlugo bateria",
         "jak dlugo bateria pracy", "ile godzin bateria",
         "szacowany czas bateria", "bateria ile czasu",
         # English
         "how long will my battery last", "battery life estimate",
+        "how much battery time do i have left",
         "how long will the battery last on the train",
         "how long will battery last while writing a project",
         "how many hours of battery do i have left",
@@ -2136,12 +2274,44 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "laptop upgrade options", "hardware upgrade check",
         "how much ram can i add", "ssd upgrade possible",
         "what can i upgrade on this pc", "upgrade my laptop",
+        "czy w ogóle warto rozbudowywać ten zestaw",
+        "czy ten komputer ma jeszcze sens do rozbudowy",
+        "is this machine worth upgrading at all",
     ],
 
     # ── Upgrade Readiness: will a SPECIFIC part fit this machine ──────────────
     # (upgrade_advice = "what should I upgrade", upgrade_feasibility = slots;
     #  this one = "czy i5 11400F wejdzie na moją płytę" - socket/chipset check)
     "upgrade_compat": [
+        # 2026-07: generic buy/replace phrasings WITHOUT a concrete model -
+        # zasilacz/karta/ram/cpu/gpu each route here (the handler asks for
+        # the model and links [-> Upgrade Readiness]).
+        "chcę kupić nowy zasilacz", "chce kupic nowy zasilacz",
+        "nowy zasilacz", "czy zasilacz wystarczy", "wymiana zasilacza",
+        "chcę kupić nową kartę graficzną", "chce kupic nowa karte graficzna",
+        "chcę kupić kartę graficzną", "chce kupic karte graficzna",
+        "chcę kupić nowy ram", "chce kupic nowy ram", "chcę wymienić ram",
+        "chce wymienic ram", "chcę wymienić gpu", "chce wymienic gpu",
+        "chcę wymienić procesor", "chce wymienic procesor",
+        "chcę kupić nowy procesor", "chce kupic nowy procesor",
+        "chce kupic procesor",
+        "chcę kupić nowe gpu", "chce kupic nowe gpu",
+        "i want to buy a new cpu", "i want a new processor",
+        "chcę wymienić kartę", "chce wymienic karte",
+        "nowy cpu do kupienia", "nowe gpu do kupienia",
+        "planuję upgrade", "planuje upgrade", "planuję ulepszyć komputer",
+        "chcę ulepszyć komputer", "chce ulepszyc komputer",
+        "planuję ulepszyć kompa", "planuje ulepszyc kompa",
+        "planuję ulepszyć pc", "planuje ulepszyc pc", "planuję upgrade kompa",
+        "myślę o nowej karcie graficznej", "mysle o nowej karcie graficznej",
+        "myślę o nowym procesorze", "mysle o nowym procesorze",
+        "myślę o nowym gpu", "myślę o nowej karcie", "mysle o nowej karcie",
+        "myślę nad nowym procesorem", "mysle nad nowym procesorem",
+        "thinking about a new gpu", "thinking about a new cpu",
+        "thinking of upgrading",
+        "i want to buy a new psu", "i want a new power supply",
+        "i want to buy a new gpu", "i want a new graphics card",
+        "i want to buy new ram", "planning an upgrade", "upgrade my psu",
         # Polish - phrase CORES first: the part name sits mid-sentence
         # ("czy i5 11400f bedzie pasowac..."), so patterns must not assume
         # the question word is adjacent to the verb.
@@ -2205,6 +2375,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "kompatybilność ram", "kompatybilnosc ram",
         "jaka prędkość ram mogę", "jaka predkosc ram",
         "jaki ram kupić do tej płyty", "jaki ram kupic do tej plyty",
+        "jaki ram mogę bezpiecznie dołożyć",
         "ram do mojej płyty głównej", "ram do plyty glownej",
         "jakie kości ram pasują", "jakie kosci ram pasuja",
         # English
@@ -2279,7 +2450,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         # English
         "which process uses the most ram", "which process uses the most disk",
         "what is the top ram consumer", "which app uses most memory",
-        "what is eating my disk", "what is eating my ram",
+        "what is eating my disk",
         "biggest ram hog", "biggest disk hog",
         "top disk io process", "what has highest disk usage",
         "which program hogs memory", "most ram intensive process",
@@ -2319,6 +2490,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "najgorętszy podzespół", "co jest najgorętsze", "najcieplejszy podzespół",
         "co się najbardziej grzeje", "co sie najbardziej grzeje",
         "który podzespół jest najgorętszy", "co jest najcieplejsze",
+        "który podzespół jest teraz najgorętszy",
         "co najbardziej grzeje", "najgorętszy element",
         # English
         "hottest component", "what is hottest", "which part is hottest",
@@ -2351,11 +2523,46 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak schłodzić komputer", "jak schłodzić procesor", "jak schłodzić laptopa",
         "jak obniżyć temperatury", "jak zmniejszyć temperatury",
         "jak poprawić chłodzenie", "komputer się grzeje co robić",
-        "co zrobić z temperaturami", "jak ochłodzić komputer",
+        "co zrobić z temperaturami", "jak ochłodzić komputer", "chłodzenie",
         # English
         "how to cool my pc", "how to cool down my computer",
         "lower my temperatures", "how do i reduce temperatures",
         "improve cooling", "my pc runs hot what to do",
+    ],
+    "desktop_problem": [
+        # Polish - Windows shell, taskbar, icons and display recovery
+        "pulpit zniknął", "zniknął mi pulpit", "nie mam pulpitu",
+        "pulpit nie działa", "pulpit się zawiesił", "czarny pulpit",
+        "czarny ekran z kursorem", "mam czarny ekran z kursorem",
+        "pasek zadań nie działa", "pasek zadań zniknął",
+        "menu start nie działa", "ikony pulpitu zniknęły",
+        "nie widzę ikon pulpitu", "explorer się zawiesił",
+        "eksplorator windows się zawiesił", "jak naprawić pulpit",
+        "pomóż naprawić pulpit", "ekran miga po aktualizacji",
+        # English
+        "my desktop disappeared", "desktop is gone",
+        "windows desktop is not working", "desktop is frozen",
+        "black desktop", "black screen with cursor",
+        "my taskbar is gone", "taskbar is not working",
+        "start menu is not working", "desktop icons disappeared",
+        "explorer is frozen", "windows explorer is frozen",
+        "help me fix the desktop", "how do i fix my desktop",
+        "screen flickers after update",
+    ],
+    "upgrade_plan": [
+        # Polish - evidence-first shopping and compatibility flow
+        "zaplanuj modernizację komputera", "plan modernizacji komputera",
+        "przeprowadź mnie przez modernizację", "modernizacja krok po kroku",
+        "jak zaplanować upgrade komputera", "od czego zacząć modernizację",
+        "w jakiej kolejności wymieniać części",
+        "pomóż mi wybrać części do modernizacji",
+        "ułóż mi plan ulepszenia sprzętu",
+        # English
+        "plan my pc upgrade", "make an upgrade plan",
+        "walk me through a pc upgrade", "pc upgrade step by step",
+        "where should i start upgrading", "what order should i upgrade parts",
+        "help me choose parts for an upgrade",
+        "build me a hardware upgrade plan",
     ],
     "optimize_guide": [
         # guidance & context variants (round 2)
@@ -2421,17 +2628,114 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "what was that number", "what were the numbers", "repeat the numbers",
         "remind me the results", "what did you show me before",
         "what were the results", "recall the numbers",
+        "co pamiętasz z naszej ostatniej odpowiedzi",
+        "what do you remember from your last answer",
     ],
     "tuneup_guide": [
         # Polish
         "podrasuj mój komputer", "podrasować komputer", "chcę podrasować sprzęt",
         "przewodnik optymalizacji", "optymalizacja krok po kroku",
-        "popraw wydajność krok po kroku", 
+        "popraw wydajność krok po kroku",
         "wyciśnij więcej z komputera", "plan optymalizacji", "zacznij tuning",
         # English
         "tune up my pc", "pc tune up guide", "optimize my pc step by step",
         "optimization guide",
         "make my pc faster guide", "squeeze more out of my pc",
+    ],
+    # Conversation Director: these are user controls for the existing
+    # diagnostic frame, not a second chatbot or a second flow engine.
+    "correct_subject": [
+        "nie chodzi o gpu tylko cpu", "nie ten proces tylko inny",
+        "miałem na myśli procesor", "chodzi mi o kartę graficzną",
+        "poprawka chodziło mi o ram", "pomyliłem podzespół",
+        "pomyliłem się chodziło o cpu", "pomyliłam się chodziło o gpu",
+        "nie cpu tylko gpu", "cpu zamiast gpu",
+        "i meant the cpu not the gpu", "not that process the other one",
+        "correction i meant ram", "i was talking about the graphics card",
+        "my mistake i meant the cpu", "not gpu but cpu",
+    ],
+    "explain_previous_advice": [
+        "dlaczego to radzisz", "czemu mam to zrobić",
+        "wyjaśnij poprzednią poradę", "na czym opierasz tę poradę",
+        "po co mam to zmieniać", "why do you recommend that",
+        "skąd taki krok", "czemu akurat ten krok",
+        "explain your previous advice", "what is that advice based on",
+        "why should i change it", "why this step",
+    ],
+    "verify_after_action": [
+        "zrobiłem to co dalej", "już zrobione sprawdź",
+        "wykonałem ten krok", "jest lepiej po zmianie",
+        "bez zmian po tej poradzie", "jest gorzej po zmianie",
+        "nie pomogło po wykonaniu", "i did it what next",
+        "gotowe możesz sprawdzić", "spróbowałem tej porady",
+        "done now check it", "it is better after the change",
+        "no change after that", "it got worse after the change",
+        "that did not help", "finished it what next", "i tried that advice",
+    ],
+    "compare_after_change": [
+        "porównaj stan po zmianie", "sprawdź efekt tej zmiany",
+        "co zmieniło się po wykonaniu", "porównaj teraz z wcześniej",
+        "zmierz jeszcze raz", "odczytaj ponownie po zmianie",
+        "compare after the change", "check the result of that change",
+        "what changed after i did it", "compare now with before",
+        "measure it again", "read it again after the change",
+    ],
+    "continue_diagnosis": [
+        "kontynuuj diagnozę", "idźmy dalej z diagnozą",
+        "wróćmy do rozwiązywania problemu", "mam kolejny szczegół",
+        "to dzieje się tylko w grze", "zaczyna się po dwudziestu minutach",
+        "bardziej ścina niż laguje", "continue the diagnosis",
+        "keep troubleshooting", "back to solving the problem",
+        "i have another detail", "it only happens in games",
+        "it starts after twenty minutes", "it stutters more than it lags",
+    ],
+    "decline_advice": [
+        "nie chcę tego robić", "odpuśćmy ten krok", "pomiń tę poradę",
+        "nie wykonam tej zmiany", "zaproponuj coś bez tej operacji",
+        "wolę tego nie ruszać", "tego nie zrobię daj inny sposób",
+        "i do not want to do that", "skip that step", "skip that advice",
+        "i will not make that change", "suggest something without that action",
+        "i would rather not touch it", "give me another way",
+    ],
+    "explain_confidence": [
+        "jak bardzo jesteś tego pewny", "skąd ta pewność",
+        "na ile ta diagnoza jest pewna", "czy to fakt czy hipoteza",
+        "to pewne czy zgadujesz", "ile w tym pewności",
+        "how confident are you", "how sure is that diagnosis",
+        "what makes you confident", "is that a fact or a hypothesis",
+        "is that certain or a guess", "how much certainty is there",
+    ],
+    "compat_missing_details": [
+        "czego brakuje do sprawdzenia kompatybilności",
+        "jakich danych potrzebujesz do kompatybilności",
+        "co mam podać o części", "czego jeszcze nie wiesz o zestawie",
+        "what is missing for the compatibility check",
+        "what details do you need for compatibility",
+        "what should i provide about the part",
+        "what do you still not know about my build",
+    ],
+    "upgrade_budget": [
+        "mój budżet na modernizację", "mam budżet 1500 zł",
+        "mogę wydać 500 euro", "limit pieniędzy na upgrade",
+        "uwzględnij mój budżet", "my upgrade budget is 500 dollars",
+        "i can spend 800 euros", "money limit for the upgrade",
+        "use my budget for the plan",
+    ],
+    "upgrade_workload": [
+        "komputer ma być głównie do gier", "sprzęt do montażu wideo",
+        "używam komputera do programowania", "priorytetem jest praca biurowa",
+        "zastosowanie komputera do modernizacji",
+        "the pc is mainly for gaming", "hardware for video editing",
+        "i use the computer for development", "office work is the priority",
+        "workload for the upgrade plan",
+    ],
+    "desktop_recurrence": [
+        "problem z pulpitem wrócił", "pulpit znowu się zepsuł",
+        "explorer znowu nie odpowiada", "ikony kolejny raz zniknęły",
+        "to nie pierwszy problem z paskiem zadań",
+        "the desktop problem came back", "the desktop broke again",
+        "explorer stopped responding again", "the icons disappeared again",
+        "this is not the first taskbar problem",
     ],
 
 }

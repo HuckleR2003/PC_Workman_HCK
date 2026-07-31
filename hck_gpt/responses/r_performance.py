@@ -269,6 +269,14 @@ class PerformanceResponses:
 
         cpu = float(snap.get("cpu_pct", 0) or 0)
         ram = float(snap.get("ram_pct", 0) or 0)
+        details = session_memory.conversation_details(r.raw_text)
+        gaming_context = details.get("context") == "gaming"
+        game_name = details.get("game")
+        asked_key = ""
+        try:
+            gpu = float(snap.get("gpu_load", -1) or -1)
+        except (TypeError, ValueError):
+            gpu = -1
 
         # Pull top 3 CPU hogs live
         top_procs: list[str] = []
@@ -336,27 +344,61 @@ class PerformanceResponses:
                 "  ! HDD detected - a common cause of slowdowns under heavy file activity"))
 
         if lang == "en":
-            header = f"{self.PREFIX} Why is it slow - live check:"
+            header = f"{self.PREFIX} Lag is annoying, I get it - let's find the culprit together. Live check:"
             lines  = [header]
             if not reasons:
-                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  - both look OK right now.")
-                lines.append("  Possible causes: background updates, antivirus scan, disk activity.")
+                gpu_bit = f"  GPU: {gpu:.0f}%" if gpu >= 0 else ""
+                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%{gpu_bit}  - no bottleneck is visible at this instant.")
+                if gaming_context:
+                    label = f" in {game_name}" if game_name else " while gaming"
+                    lines.append(f"  Context saved: it happens{label}. I will not ask whether it is a game or the desktop again.")
+                    if not details.get("timing"):
+                        lines.append("  Does it begin immediately, or only after several minutes of play?")
+                        asked_key = "when_during_game"
+                    elif details.get("lag_kind") in (None, "", "unclear"):
+                        lines.append("  Do FPS drop and the image stutter, or does ping rise and movement rubber-band?")
+                        asked_key = "lag_type"
+                    else:
+                        lines.append("  Reproduce it once more in the same game, then say 'check again' so I can compare live load and temperatures.")
+                else:
+                    lines.append("  So the slowdown is probably bursty: background updates, antivirus scanning, or disk activity.")
+                    lines.append("  Where does it happen: in a game, browser, at startup, or on the desktop?")
+                    asked_key = "where_it_happens"
             else:
                 lines.extend(reasons)
+                if gaming_context:
+                    lines.append("  I saved that this happens while gaming; this diagnosis stays attached to that context.")
             if top_procs:
                 lines.append(f"  Top processes: {',  '.join(top_procs)}")
-            lines.append("  💬 Type 'top processes' for full list, or 'optimization' to fix  [-> Optimization]")
+            lines.append("  💬 Type 'top processes' for the full list, or 'tune up my pc' for the 5-step guided fix  [-> Optimization]")
         else:
-            header = f"{self.PREFIX} Dlaczego jest wolno - live sprawdzenie:"
+            header = f"{self.PREFIX} Lagi potrafią zirytować - spokojnie, znajdziemy winowajcę razem. Sprawdzam na żywo:"
             lines  = [header]
             if not reasons:
-                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%  - teraz wygląda OK.")
-                lines.append("  Możliwe: aktualizacje w tle, antywirus, aktywność dysku.")
+                gpu_bit = f"  GPU: {gpu:.0f}%" if gpu >= 0 else ""
+                lines.append(f"  CPU: {cpu:.0f}%  RAM: {ram:.0f}%{gpu_bit}  - w tej chwili nie widać wąskiego gardła.")
+                if gaming_context:
+                    label = f" w {game_name}" if game_name else " podczas grania"
+                    lines.append(f"  Zapisuję kontekst: problem występuje{label}. Nie zapytam ponownie, czy chodzi o grę czy pulpit.")
+                    if not details.get("timing"):
+                        lines.append("  Czy zaczyna się od razu, czy dopiero po kilku lub kilkunastu minutach gry?")
+                        asked_key = "when_during_game"
+                    elif details.get("lag_kind") in (None, "", "unclear"):
+                        lines.append("  Czy spadają FPS i obraz przycina, czy raczej rośnie ping i postać przeskakuje?")
+                        asked_key = "lag_type"
+                    else:
+                        lines.append("  Odtwórz problem jeszcze raz w tej samej grze i napisz „sprawdź ponownie”, wtedy porównam obciążenie i temperatury.")
+                else:
+                    lines.append("  Czyli spowolnienie jest pewnie chwilowe: aktualizacje w tle, antywirus albo dysk.")
+                    lines.append("  Gdzie dokładnie to występuje: w grze, przeglądarce, przy starcie czy na pulpicie?")
+                    asked_key = "where_it_happens"
             else:
                 lines.extend(reasons)
+                if gaming_context:
+                    lines.append("  Zapisałem, że dzieje się to podczas grania; dalsza diagnoza zostaje w tym kontekście.")
             if top_procs:
                 lines.append(f"  Winowajcy: {',  '.join(top_procs)}")
-            lines.append("  💬 Wpisz 'top procesy' po pełną listę, lub napraw  [-> Optimization]")
+            lines.append("  💬 Wpisz 'top procesy' po pełną listę, albo 'zoptymalizuj komputer' - poprowadzę Cię w 5 krokach  [-> Optimization]")
 
         # ── session reference - link to previously shown RAM spec ───
         ram_sess = session_memory.get_response_data("hw_ram")
@@ -376,6 +418,11 @@ class PerformanceResponses:
                     f"  ⚠ CPU ({cpu:.0f}%) is {cpu - avg7:.0f}% above your 7-day avg ({avg7:.0f}%)."))
         except Exception:
             pass
+
+        if asked_key:
+            session_memory.mark_frame_question(
+                asked_key, goal="diagnose", intent="why_slow",
+            )
 
         return lines
 

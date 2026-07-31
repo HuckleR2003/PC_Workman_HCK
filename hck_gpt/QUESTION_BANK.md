@@ -58,7 +58,7 @@ stateful) · every set ships PL + EN phrasings, short AND complex forms.
 
 17. "czy mogę włożyć ten procesor w moją płytę" / "will a 5800X3D work on my
     board" **[DONE 2026-07-17: upgrade_compat]** - offline library shipped as
-    core/hardware_compat_db.py (320 entries), engine in core/hardware_compat.py,
+    core/hardware_compat_db.py (349 entries), engine in core/hardware_compat.py,
     handlers in r_upgrade.py, parser part-model override.
 18. "ile RAM mogę dołożyć i jaki" / "what RAM should I buy for this board"
     **[DONE 2026-07-17: ram_compat]** - DDR gen + speed vs platform, XMP/EXPO

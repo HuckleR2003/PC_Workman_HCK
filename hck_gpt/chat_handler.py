@@ -215,6 +215,12 @@ _GREETING_PREFIXES = (
     "cześć", "hej", "hejka", "siema", "witaj", "dzień dobry",
     "hi ", "hey ", "hello ",
 )
+_GREETING_TASK_CUES = (
+    "cpu", "gpu", "ram", "dysk", "disk", "temperatur", "proces",
+    "process", "lag", "ścina", "scina", "stutter", "gra", "game",
+    "wolno", "slow", "pulpit", "desktop", "upgrade", "optymal",
+    "sprawdź", "sprawdz", "check", "problem", "fps",
+)
 
 # ── "Tell me more" triggers ───────────────────────────────────────────────────
 _MORE_TRIGGERS = frozenset({
@@ -306,7 +312,8 @@ class ChatHandler:
         if ui_lang in ("en", "pl"):
             lang = ui_lang
         else:
-            lang = detect_language(msg) if HAS_AI_LAYER else "pl"
+            lang = (detect_language(msg, fallback=self._last_lang)
+                    if HAS_AI_LAYER else "pl")
         self._last_lang = lang
 
         if HAS_PROACTIVE:
@@ -334,6 +341,23 @@ class ChatHandler:
             if flow_engine.is_active() and HAS_AI_LAYER:
                 _flow_out = flow_engine.process_input(msg, response_builder)
                 if _flow_out is not None:
+                    session_memory.add_message("user", msg)
+                    for line in _flow_out:
+                        session_memory.add_message("assistant", line)
+                    transition = flow_engine.last_transition
+                    event = transition.get("event")
+                    state = transition.get("state") or {}
+                    if event == "confirmed":
+                        session_memory.set_advice_state("accepted", "waiting")
+                    if transition.get("completed") and state.get("before"):
+                        session_memory.record_verification(
+                            "measured", session_memory.collect_live_evidence())
+                    if state:
+                        session_memory.record_response_data(
+                            f"flow_{transition.get('flow_id') or 'guide'}",
+                            {"event": event, "completed": bool(
+                                transition.get("completed"))},
+                        )
                     return _flow_out
         except Exception:
             pass
@@ -349,7 +373,11 @@ class ChatHandler:
             return self._show_help(ui_lang if ui_lang in ("en", "pl") else self._last_lang)
 
         # ── 3.5. Greeting detection ───────────────────────────────────────────
-        if lower in _GREETING_EXACT or any(lower.startswith(p) for p in _GREETING_PREFIXES):
+        greeting_prefix = any(lower.startswith(p) for p in _GREETING_PREFIXES)
+        greeting_with_task = any(cue in lower for cue in _GREETING_TASK_CUES)
+        if (lower in _GREETING_EXACT
+                or (greeting_prefix and not greeting_with_task
+                    and len(lower.split()) <= 3)):
             return self._handle_greeting(lang)
 
         # ── 3.6. "Thank you" detection ────────────────────────────────────────
@@ -423,7 +451,8 @@ class ChatHandler:
         if HAS_AI_LAYER:
             try:
                 _parsed_result = intent_parser.parse(msg)
-                result = _parsed_result
+                result = session_memory.resolve_followup(msg, _parsed_result)
+                _parsed_result = result
                 session_memory.add_message("user", msg)
 
                 # Hybrid engine: rule engine (fast) OR Ollama (smart)

@@ -884,12 +884,104 @@ class SystemResponses:
                 f"{self.PREFIX} Couldn't grab a process to analyse - try 'top processes'.")]
 
     def _resp_process_kill(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        # Safety by design: chat never kills anything - it points to the tools.
+        # Safety by design: chat never kills anything. It can still identify the
+        # named target and give a concrete, protected-process-aware verdict.
+        import re
+        raw = (r.raw_text or "").lower()
+        match = re.search(r"[\w.-]+\.exe", raw)
+        proc_name = match.group(0) if match else ""
+        proc_path = ""
+        proc_cpu = proc_ram = None
+        if proc_name:
+            try:
+                import psutil
+                for proc in psutil.process_iter(
+                        ["name", "exe", "cpu_percent", "memory_info"]):
+                    if (proc.info.get("name") or "").lower() != proc_name:
+                        continue
+                    proc_path = proc.info.get("exe") or ""
+                    proc_cpu = float(proc.info.get("cpu_percent") or 0)
+                    mem = proc.info.get("memory_info")
+                    proc_ram = (mem.rss / 1_048_576) if mem else 0.0
+                    break
+            except Exception:
+                pass
+
+        critical = {
+            "csrss.exe", "lsass.exe", "wininit.exe", "winlogon.exe",
+            "services.exe", "smss.exe", "registry", "system",
+        }
+        protected = False
+        protection_kind = ""
+        if proc_name:
+            try:
+                from core.protected_processes import (
+                    PROTECTED_EXES,
+                    PROTECTED_KEYWORDS,
+                    SELF_NAMES,
+                    SYSTEM_CRITICAL,
+                    is_protected,
+                )
+                protected = bool(is_protected(proc_name, proc_path))
+                base = proc_name.rsplit("\\", 1)[-1].rsplit("/", 1)[-1]
+                if base in SYSTEM_CRITICAL or proc_name in SYSTEM_CRITICAL:
+                    protection_kind = "windows"
+                elif base in SELF_NAMES or proc_name in SELF_NAMES:
+                    protection_kind = "self"
+                elif (base in PROTECTED_EXES or proc_name in PROTECTED_EXES
+                      or any(k in proc_name or k in proc_path.lower()
+                             for k in PROTECTED_KEYWORDS)):
+                    protection_kind = "anti_cheat"
+            except Exception:
+                pass
+
+        if proc_name and (proc_name in critical or protected):
+            if proc_name in critical or protection_kind == "windows":
+                why = _t(lang, "to chroniony element Windows",
+                         "it is a protected Windows component")
+            elif protection_kind == "self":
+                why = _t(lang, "to proces PC Workmana",
+                         "it is a PC Workman process")
+            else:
+                why = _t(lang, "należy do chronionego silnika anti-cheat",
+                         "it belongs to a protected anti-cheat engine")
+            return [
+                _t(lang,
+                   f"{self.PREFIX} Nie zamykaj {proc_name}: {why}.",
+                   f"{self.PREFIX} Do not close {proc_name}: {why}."),
+                _t(lang,
+                   "  hck_GPT nie wykona tej operacji. Zamknięcie mogłoby wylogować użytkownika, zrestartować system albo przerwać grę.",
+                   "  hck_GPT will not perform this action. Closing it could sign you out, restart Windows or interrupt the game."),
+            ]
+
         lines = [_t(lang,
-            f"{self.PREFIX} Nie zabijam procesów z czatu - jedno złe kill potrafi "
-            "wywalić system. Bezpieczniejsze opcje:",
-            f"{self.PREFIX} I don't kill processes from chat - one bad kill can "
-            "take the system down. Safer options:")]
+            f"{self.PREFIX} Sprawdzam, ale nie zabijam procesów z czatu.",
+            f"{self.PREFIX} I can check it, but I do not kill processes from chat.")]
+        if proc_name:
+            if proc_cpu is not None:
+                lines.append(_t(
+                    lang,
+                    f"  {proc_name}: CPU {proc_cpu:.1f}% · RAM {proc_ram:.0f} MB.",
+                    f"  {proc_name}: CPU {proc_cpu:.1f}% · RAM {proc_ram:.0f} MB.",
+                ))
+            if proc_name == "explorer.exe":
+                lines.append(_t(
+                    lang,
+                    "  To powłoka Windows. Jej zakończenie ukryje pulpit i pasek zadań; użyj Menedżera zadań → Eksplorator Windows → Uruchom ponownie.",
+                    "  This is the Windows shell. Ending it hides the desktop and taskbar; use Task Manager → Windows Explorer → Restart.",
+                ))
+            else:
+                lines.append(_t(
+                    lang,
+                    "  Najpierw zamknij aplikację normalnie. Jeśli nie odpowiada, użyj Menedżera zadań dopiero po zapisaniu pracy.",
+                    "  Close the app normally first. If it is unresponsive, use Task Manager only after saving your work.",
+                ))
+        else:
+            lines.append(_t(
+                lang,
+                "  Podaj nazwę .exe, np. „czy mogę zamknąć discord.exe”, a sprawdzę konkretny cel.",
+                "  Include the .exe name, for example “can I close discord.exe”, and I will check that exact target.",
+            ))
         lines.append(_t(lang,
             "  · App Hibernation usypia zamiast zabijać [-> Optimization]",
             "  · App Hibernation suspends instead of killing [-> Optimization]"))
@@ -901,7 +993,7 @@ class SystemResponses:
             top = max((p for p in psutil.process_iter(["name", "cpu_percent"])
                        if (p.info.get("name") or "").lower() not in _IDLE_PROC_NAMES),
                       key=lambda p: p.info.get("cpu_percent") or 0, default=None)
-            if top is not None:
+            if top is not None and not proc_name:
                 lines.append(_t(lang,
                     f"  Największy teraz: {top.info.get('name')} "
                     f"({top.info.get('cpu_percent') or 0:.0f}% CPU)",
@@ -910,4 +1002,21 @@ class SystemResponses:
         except Exception:
             pass
         return lines
+
+    def _resp_desktop_problem(self, r: ParseResult,
+                              lang: str = "pl") -> List[str]:
+        """Guided, non-destructive Windows shell/desktop recovery."""
+        import hck_gpt.responses.flows  # noqa: F401
+        from hck_gpt.engine.flow_engine import flow_engine
+        out = flow_engine.start(
+            "desktop_repair", self, lang,
+            initial_state={"raw_text": r.raw_text or ""},
+        )
+        return [f"{self.PREFIX} {out[0]}"] + out[1:] if out else [
+            self.PREFIX + _t(
+                lang,
+                " Przewodnik naprawy pulpitu jest chwilowo niedostępny.",
+                " The desktop repair guide is temporarily unavailable.",
+            )
+        ]
 

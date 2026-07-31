@@ -83,17 +83,79 @@ class AssistantResponses:
         ]
 
     def _resp_small_talk(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        raw = (r.raw_text or "").lower()
         try:
             from hck_gpt.context.system_context import system_context
             snap = system_context.snapshot()
             cpu = f"{snap.get('cpu_pct', 0) or 0:.0f}"
             ram = f"{snap.get('ram_pct', 0) or 0:.0f}"
         except Exception:
+            snap = {}
             cpu, ram = "?", "?"
-        resp = self._pick_fresh("smalltalk", lang, self._SMALLTALK_PL, self._SMALLTALK_EN)
+
+        advice_words = (
+            "rada", "rady", "radzisz", "polecasz", "co robić", "co robic",
+            "tip", "tips", "advice", "recommend",
+        )
+        opinion_words = (
+            "co sądzisz", "co sadzisz", "jak myślisz", "jak myslisz",
+            "twoja opinia", "what do you think", "your opinion",
+        )
+        if any(word in raw for word in advice_words):
+            cpu_v = float(snap.get("cpu_pct", 0) or 0)
+            ram_v = float(snap.get("ram_pct", 0) or 0)
+            disk_free = snap.get("disk_free_gb")
+            if ram_v >= 80:
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} Jedna konkretna rada: RAM jest teraz na {ram_v:.0f}%. Sprawdź największe procesy, zanim cokolwiek wyłączysz.",
+                    f"{self.PREFIX} One concrete tip: RAM is at {ram_v:.0f}% now. Check the biggest processes before closing anything.",
+                )
+            elif cpu_v >= 75:
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} CPU pracuje teraz na {cpu_v:.0f}%. Najpierw ustalmy proces, który to powoduje, zamiast optymalizować w ciemno.",
+                    f"{self.PREFIX} CPU is at {cpu_v:.0f}% now. Let's identify the process causing it before optimizing blindly.",
+                )
+            elif isinstance(disk_free, (int, float)) and disk_free < 20:
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} Zacząłbym od dysku C:, zostało {disk_free:.1f} GB. To realny zapas do odzyskania, nie kosmetyka.",
+                    f"{self.PREFIX} I would start with drive C:, only {disk_free:.1f} GB is free. That is a real constraint, not cosmetic cleanup.",
+                )
+            else:
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} Dziś niczego nie poprawiałbym na ślepo. CPU {cpu}%, RAM {ram}% wyglądają spokojnie. Jeśli coś czujesz, opisz objaw.",
+                    f"{self.PREFIX} I would not tweak anything blindly today. CPU {cpu}% and RAM {ram}% look calm. If something feels wrong, describe the symptom.",
+                )
+        elif any(word in raw for word in opinion_words):
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                topic = session_memory.current_topic()
+            except Exception:
+                topic = None
+            if topic:
+                label = topic.replace("_", " ")
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} Jeśli pytasz o nasz poprzedni temat ({label}), wolę oprzeć opinię na kolejnym pomiarze. Napisz „a teraz?”, a porównam stan.",
+                    f"{self.PREFIX} If you mean our previous topic ({label}), I would rather base the opinion on another reading. Type “and now?” and I will compare the state.",
+                )
+            else:
+                resp = _t(
+                    lang,
+                    f"{self.PREFIX} Mam opinię, ale potrzebuję konkretu. Daj mi objaw, proces, grę albo część, a podeprę odpowiedź danymi z tego PC.",
+                    f"{self.PREFIX} I have opinions, but I need a concrete subject. Give me a symptom, process, game or part and I will ground it in this PC's data.",
+                )
+        else:
+            resp = self._pick_fresh(
+                "smalltalk", lang, self._SMALLTALK_PL, self._SMALLTALK_EN
+            )
         out = [resp.replace("{P}", self.PREFIX).replace("{cpu}", cpu).replace("{ram}", ram)]
 
-        if random.random() < 0.6:
+        if (not any(word in raw for word in advice_words + opinion_words)
+                and random.random() < 0.6):
             fav = self._favorite_process(lang)
             if fav:
                 out.append(fav)

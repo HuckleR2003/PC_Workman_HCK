@@ -1,7 +1,7 @@
 """hck_gpt.responses.r_upgrade - UpgradeResponses mixin (Upgrade Readiness).
 
 Answers "will THIS part fit my machine" from the offline library in
-core/hardware_compat.py (320 entries: CPUs, GPUs, chipsets, sockets).
+core/hardware_compat.py (CPUs, GPUs, chipsets and sockets).
 upgrade_advice (r_hardware) answers the different question "WHAT should I
 upgrade" from usage history. Composed into ResponseBuilder via MRO.
 """
@@ -91,6 +91,23 @@ class UpgradeResponses:
              else hc.check_gpu_upgrade(r.raw_text))
         return (self._ur_cpu_lines(v, lang) if kind == "cpu"
                 else self._ur_gpu_lines(v, lang))
+
+    def _resp_upgrade_plan(self, r: ParseResult,
+                           lang: str = "pl") -> List[str]:
+        """Guided evidence-first upgrade plan, without inventing missing parts."""
+        import hck_gpt.responses.flows  # noqa: F401
+        from hck_gpt.engine.flow_engine import flow_engine
+        out = flow_engine.start(
+            "upgrade_plan", self, lang,
+            initial_state={"raw_text": r.raw_text or ""},
+        )
+        return [f"{self.PREFIX} {out[0]}"] + out[1:] if out else [
+            self.PREFIX + _t(
+                lang,
+                " Planer modernizacji jest chwilowo niedostępny.",
+                " The upgrade planner is temporarily unavailable.",
+            )
+        ]
 
     def _ur_cpu_lines(self, v: dict, lang: str) -> List[str]:
         P = self.PREFIX

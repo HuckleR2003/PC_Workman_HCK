@@ -89,11 +89,14 @@ class SystemContext:
             except Exception:
                 pass
 
-            # Throttle detection: current < 60 % of max
+            # A low clock at idle is power saving, not throttling. Treat the
+            # clock ratio as evidence only while the CPU is genuinely busy.
             if ctx.get("cpu_mhz") and ctx.get("cpu_max_mhz"):
                 ratio = ctx["cpu_mhz"] / ctx["cpu_max_mhz"]
                 ctx["cpu_throttle_ratio"] = round(ratio, 2)
-                ctx["cpu_throttled"]      = ratio < 0.60
+                ctx["cpu_throttled"] = bool(
+                    ctx.get("cpu_pct", 0) >= 70 and ratio < 0.60
+                )
 
             # Top 3 processes by CPU - capped iteration, skip zombies safely
             try:
@@ -106,7 +109,11 @@ class SystemContext:
                     except Exception:
                         continue
                 procs = sorted(
-                    raw_procs,
+                    (
+                        p for p in raw_procs
+                        if (p.info.get("name") or "").lower()
+                        not in {"system idle process", "idle"}
+                    ),
                     key=lambda p: p.info.get("cpu_percent", 0) or 0,
                     reverse=True
                 )[:3]
@@ -141,25 +148,28 @@ class SystemContext:
         except Exception:
             pass
 
-        # ── Hardware-sensor temperatures (LibreHardwareMonitor via core) ───────
-        # psutil.sensors_temperatures() is usually empty on Windows.
-        # core.hardware_sensors has a proper driver-backed implementation.
+        # ── Canonical live temperatures ────────────────────────────────────────
+        # live_collector is the single producer and carries provenance for CPU:
+        # "sensor" is a real reading, "est" is only a load-based approximation.
         try:
-            from core.hardware_sensors import get_cpu_temp, get_gpu_temp
-            cpu_t = get_cpu_temp()
-            gpu_t = get_gpu_temp()
-            if cpu_t:
+            from hck_gpt.data.live_sensors import snapshot as _live_snapshot
+            live = _live_snapshot()
+            cpu_t = float(live.get("cpu_temp", -1) or -1)
+            gpu_t = float(live.get("gpu_temp", -1) or -1)
+            cpu_src = str(live.get("cpu_temp_src", "") or "")
+            if cpu_t > 0:
                 ctx["cpu_temp"] = round(float(cpu_t), 1)
-                # Enrich or replace the psutil temperatures list so the
-                # LLM context always shows at least CPU/GPU readings.
+                ctx["cpu_temp_src"] = cpu_src
                 existing = ctx.get("temperatures", [])
                 has_cpu_entry = any("cpu" in lbl.lower() or "package" in lbl.lower()
                                     for lbl, _ in existing)
                 if not has_cpu_entry:
+                    label = ("CPU Package" if cpu_src == "sensor"
+                             else "CPU estimate (not a sensor)")
                     ctx.setdefault("temperatures", []).insert(
-                        0, ("CPU Package", round(float(cpu_t), 1))
+                        0, (label, round(float(cpu_t), 1))
                     )
-            if gpu_t:
+            if gpu_t > 0:
                 ctx["gpu_temp"] = round(float(gpu_t), 1)
                 existing = ctx.get("temperatures", [])
                 has_gpu_entry = any("gpu" in lbl.lower() for lbl, _ in existing)
@@ -235,7 +245,11 @@ class SystemContext:
         if "cpu_pct" in snap:
             mhz  = f" @ {snap['cpu_mhz']} MHz" if snap.get("cpu_mhz") else ""
             thr  = "  ⚠ throttled"              if snap.get("cpu_throttled") else ""
-            temp = f"  {snap['cpu_temp']}°C"    if snap.get("cpu_temp") else ""
+            if snap.get("cpu_temp"):
+                est = "~" if snap.get("cpu_temp_src") != "sensor" else ""
+                temp = f"  {est}{snap['cpu_temp']}°C"
+            else:
+                temp = ""
             lines.append(f"CPU: {snap['cpu_pct']:.0f}%{mhz}{temp}{thr}")
 
         if "ram_pct" in snap:
@@ -422,6 +436,11 @@ class SystemContext:
         temps = snap.get("temperatures", [])
         if temps:
             temp_lines = [f"  {label:<22} {val}°C" for label, val in temps]
+            if snap.get("cpu_temp_src") == "est":
+                temp_lines.append(
+                    "  NOTE: CPU estimate is not a hardware sensor reading; "
+                    "do not use it for overheating or throttle conclusions."
+                )
             parts.append("=== Temperatures ===\n" + "\n".join(temp_lines))
 
         # ── Section 5: Hardware profile ───────────────────────────────────────

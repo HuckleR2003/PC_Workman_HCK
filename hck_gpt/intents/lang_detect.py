@@ -11,6 +11,7 @@ Determines whether a user message is Polish or English using:
 Returns: "pl" | "en"
 """
 from __future__ import annotations
+import re
 
 _PL_DIACRITICS = frozenset("ąęóśźżćńłĄĘÓŚŹŻĆŃŁ")
 
@@ -69,7 +70,14 @@ _EN_WORDS = frozenset({
 })
 
 
-def detect_language(text: str) -> str:
+_PL_GREETING = frozenset({"hej", "hejka", "czesc", "siema", "dzien"})
+_EN_GREETING = frozenset({"hi", "hello", "hey"})
+_AMBIGUOUS_TECH = frozenset({
+    "cpu", "gpu", "ram", "ssd", "pc", "windows", "stats", "temp",
+})
+
+
+def detect_language(text: str, fallback: str = "pl") -> str:
     """
     Returns 'pl' or 'en' based on content analysis.
     Fast - no external dependencies.
@@ -81,7 +89,25 @@ def detect_language(text: str) -> str:
     if any(c in _PL_DIACRITICS for c in text):
         return "pl"
 
-    tokens = set(text.lower().split())
+    ordered = re.findall(r"[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ0-9]+",
+                         text.lower())
+    tokens = set(ordered)
+    if not tokens:
+        return fallback if fallback in ("pl", "en") else "pl"
+
+    # A one-word hardware follow-up has no language of its own. Keep the
+    # conversation/UI language instead of flipping Polish "cpu" to English.
+    if tokens <= _AMBIGUOUS_TECH:
+        return fallback if fallback in ("pl", "en") else "pl"
+
+    # In mixed technical messages the opening greeting is the clearest signal
+    # of which language the user is addressing us in ("hej, check my RAM").
+    first = ordered[0]
+    if first in _PL_GREETING:
+        return "pl"
+    if first in _EN_GREETING:
+        return "en"
+
     pl_score = len(tokens & _PL_WORDS)
     en_score = len(tokens & _EN_WORDS)
 

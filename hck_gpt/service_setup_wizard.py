@@ -4,6 +4,8 @@ Service Setup Wizard
 Interactive wizard for optimizing Windows services
 """
 
+import re
+
 from .services_manager import ServicesManager
 
 class ServiceSetupWizard:
@@ -108,15 +110,36 @@ class ServiceSetupWizard:
         else:
             return ["Error: Invalid wizard state"]
 
+    @staticmethod
+    def _parse_yes_no(user_input):
+        """Return True, False or None using whole answers, never substrings.
+
+        The previous one-letter substring checks could read "not now",
+        "no thanks" or "nie teraz" as consent to change Windows services.
+        """
+        clean = re.sub(r"[^\wąćęłńóśźż]+", " ", user_input.lower()).strip()
+        positive = {
+            "yes", "y", "yeah", "yep", "yes please", "ok", "okay", "sure",
+            "confirm", "apply", "tak", "t", "jasne", "zgoda", "potwierdzam",
+        }
+        negative = {
+            "no", "n", "nope", "cancel", "no thanks", "not now",
+            "nie", "nie teraz", "anuluj", "bez zmian", "nie dziękuję",
+            "nie dziekuje",
+        }
+        if clean in negative:
+            return False
+        if clean in positive:
+            return True
+        return None
+
     def _handle_intro_response(self, user_input):
         """Handle response to intro message"""
-        positive_words = ["yes", "y", "yeah", "ok", "sure", "tak", "t"]
-        negative_words = ["no", "n", "nope", "nie"]
-
-        if any(word in user_input for word in positive_words):
+        answer = self._parse_yes_no(user_input)
+        if answer is True:
             self.state = "questions"
             return self._get_current_question()
-        elif any(word in user_input for word in negative_words):
+        elif answer is False:
             self.state = "idle"
             return [
                 "Setup cancelled.",
@@ -130,15 +153,7 @@ class ServiceSetupWizard:
 
     def _handle_question_response(self, user_input):
         """Handle response to a question"""
-        positive_words = ["yes", "y", "yeah", "ok", "sure", "tak", "t"]
-        negative_words = ["no", "n", "nope", "nie"]
-
-        # Determine user's answer
-        uses_service = None
-        if any(word in user_input for word in positive_words):
-            uses_service = True
-        elif any(word in user_input for word in negative_words):
-            uses_service = False
+        uses_service = self._parse_yes_no(user_input)
 
         if uses_service is None:
             return [
@@ -165,12 +180,10 @@ class ServiceSetupWizard:
 
     def _handle_confirmation_response(self, user_input):
         """Handle confirmation response"""
-        positive_words = ["yes", "y", "yeah", "ok", "confirm", "apply", "tak", "t"]
-        negative_words = ["no", "n", "nope", "cancel", "nie"]
-
-        if any(word in user_input for word in positive_words):
+        answer = self._parse_yes_no(user_input)
+        if answer is True:
             return self._apply_optimization()
-        elif any(word in user_input for word in negative_words):
+        elif answer is False:
             self.state = "idle"
             return [
                 "Setup cancelled. No changes were made.",
