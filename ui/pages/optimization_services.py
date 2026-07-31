@@ -68,7 +68,7 @@ RED     = "#ef4444"
 BORD    = "#991b1b"   # bordeaux for "ON TURBO" slider
 BORD_L  = "#c62828"   # bordeaux light
 
-_TOTAL  = 15   # +1 Background App Hibernation, +1 Upgrade Advisor
+_TOTAL  = 16   # +1 App Hibernation, +1 Upgrade Advisor, +1 Optimization Receipts
 
 try:
     from utils.paths import APP_DIR as _APP_DIR
@@ -81,11 +81,8 @@ _PREFS_PATH = os.path.join(_APP_DIR, "settings", "user_prefs.json")
 
 # ── Prefs helpers ─────────────────────────────────────────────────────────────
 def _load_prefs():
-    try:
-        with open(_PREFS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    return load_json(_PREFS_PATH, {})
 
 def _save_opt(**kw):
     try:
@@ -1717,20 +1714,35 @@ def _build_features_grid(parent):
             "run_color": EMERALD,
             "custom_expand": _build_upgrade_advisor_expand,
         },
-        # ── SOON ──────────────────────────────────────────────────────────────
-        {"key": "cpu_throttle", "title": "CPU Throttle Guard",
-         "desc": t("optimization.features.cpu_throttle.desc", default="Prevent thermal throttling automatically"),
-         "color": AMBER,   "icon": _ico_power, "ready": False,
+        {
+            "key":   "receipts",
+            "title": "Optimization Receipts",
+            "desc":  t("optimization.features.receipts.desc",
+                       default="Before/after proof for every action - no snake oil"),
+            "color": "#a3e635",
+            "icon":  _ico_arrow,
+            "ready": True,
+            "info":  "",
+            "run_label": "",
+            "run_color": "#a3e635",
+            "custom_expand": _build_receipts_expand,
+        },
+        # ── SOON (2026-07 research pass: leaders' lessons, safe-first) ────────
+        # LIVE: opens the OVERCLOCK Headroom Lab (the investigator itself).
+        {"key": "cpu_throttle", "title": "Thermal Throttle Investigator",
+         "desc": t("optimization.features.cpu_throttle.desc", default="Is it thermal, power or headroom? Live verdict in OVERCLOCK"),
+         "color": AMBER,   "icon": _ico_power, "ready": True,
          "info": t("optimization.features.cpu_throttle.info"),
-         "run_label": "RUN", "run_color": AMBER},
-        {"key": "browser_cache", "title": "Browser Cache Cleaner",
-         "desc": t("optimization.features.browser_cache.desc", default="Periodically clear browser cache files"),
+         "run_label": "OPEN", "run_color": AMBER},
+        {"key": "browser_cache", "title": "Safe Storage Advisor",
+         "desc": t("optimization.features.browser_cache.desc", default="Large files, duplicates, old installers - preview before delete"),
          "color": BLUE,    "icon": _ico_glob_feat, "ready": False,
          "info": t("optimization.features.browser_cache.info"),
          "run_label": "RUN", "run_color": BLUE},
         # startup_opt -> moved to Quick Actions (Startup Manager)
-        {"key": "bg_limiter",   "title": "Background Limiter",
-         "desc": t("optimization.features.bg_limiter.desc", default="Cap CPU for non-foreground processes"),
+        # Merges the old Background Limiter idea with Process Guard (one tile).
+        {"key": "bg_limiter",   "title": "Responsiveness Guard",
+         "desc": t("optimization.features.bg_limiter.desc", default="Gently deprioritize background hogs under pressure, auto-restore"),
          "color": VIOLET,  "icon": _ico_arrow, "ready": False,
          "info": t("optimization.features.bg_limiter.info"),
          "run_label": "RUN", "run_color": VIOLET},
@@ -1740,8 +1752,11 @@ def _build_features_grid(parent):
          "color": BLUE,    "icon": _ico_glob_feat, "ready": False,
          "info": t("optimization.features.net_reset.info"),
          "run_label": "RUN", "run_color": BLUE},
-        {"key": "reg_clean",    "title": "Registry Junk Cleaner",
-         "desc": t("optimization.features.reg_clean.desc", default="Remove orphaned registry keys"),
+        # Registry Junk Cleaner REMOVED (2026-07): Microsoft officially
+        # discourages registry cleaners. Replaced by App Leftover Scanner -
+        # traces of ONE uninstalled app, always with a preview.
+        {"key": "reg_clean",    "title": "App Leftover Scanner",
+         "desc": t("optimization.features.reg_clean.desc", default="Find leftovers of an uninstalled app - preview, never blind-delete"),
          "color": RED,     "icon": _ico_trash, "ready": False,
          "info": t("optimization.features.reg_clean.info"),
          "run_label": "RUN", "run_color": RED},
@@ -1750,8 +1765,10 @@ def _build_features_grid(parent):
          "color": AMBER,   "icon": _ico_power, "ready": False,
          "info": t("optimization.features.gpu_watchdog.info"),
          "run_label": "RUN", "run_color": AMBER},
-        {"key": "log_rotate",   "title": "Log File Rotation",
-         "desc": t("optimization.features.log_rotate.desc", default="Auto-prune old log files to save disk space"),
+        # Log rotation became silent internal maintenance - its tile slot now
+        # belongs to the most-requested history feature from the research.
+        {"key": "log_rotate",   "title": "What Changed?",
+         "desc": t("optimization.features.log_rotate.desc", default="Correlate slowdowns with new startup apps, services and drivers"),
          "color": "#6b7280", "icon": _ico_trash, "ready": False,
          "info": t("optimization.features.log_rotate.info"),
          "run_label": "RUN", "run_color": "#6b7280"},
@@ -1818,6 +1835,18 @@ def _build_features_grid(parent):
         r = c = 0
         last_closed = None            # (outer,) most recent lone col-0 card
         for outer, state in _cards:
+            if state.get("header") or state.get("slim"):
+                # 2026-07 redesign: SOON rows (and the divider) are quiet
+                # full-width strips below the featured grid - finish an
+                # unfinished card pair first, then take a whole row.
+                if c == 1:
+                    r += 1; c = 0
+                outer.grid(row=r, column=0, columnspan=2, sticky="nsew",
+                           padx=0,
+                           pady=(8, 2) if state.get("header") else 1)
+                r += 1
+                last_closed = None
+                continue
             if state["open"]:
                 if c == 1 and last_closed is not None:
                     # A lone closed card sits at (r, 0): give this open card that
@@ -1841,7 +1870,18 @@ def _build_features_grid(parent):
                 if c == 2:
                     c = 0; r += 1
 
+    _soon_started = False
     for feat in features:
+        if not feat["ready"] and not _soon_started:
+            # Divider between the featured grid and the quiet SOON list
+            _soon_started = True
+            hdr = tk.Frame(grid_frame, bg=BG)
+            tk.Label(hdr, text=t("optimization.features.coming_next",
+                                 default="COMING NEXT"),
+                     font=(_HDR, 7, "bold"), bg=BG, fg="#55627a"
+                     ).pack(anchor="w", padx=2)
+            tk.Frame(hdr, bg="#1a2130", height=1).pack(fill="x", pady=(2, 0))
+            _cards.append((hdr, {"open": False, "header": True}))
         outer, state = _build_feature_card(grid_frame, feat, _relayout)
         _cards.append((outer, state))
     _relayout()
@@ -1854,6 +1894,81 @@ def _ico_glob_feat(c, s, p=None, bg=CARD2):
     cv.create_line(1, s//2, s-1, s//2, fill=c, width=1)
     cv.create_line(s//2, 1, s//2, s-1, fill=c, width=1)
     return cv
+
+
+def _build_receipts_expand(expand_frame, card):
+    """Optimization Receipts - the before/after proof panel (2026-07).
+    Reads core/opt_receipts.py; every RAM Flush opens a receipt automatically."""
+    _RBG = "#090c14"
+    wrap = tk.Frame(expand_frame, bg=_RBG)
+    wrap.pack(fill="x", padx=10, pady=(8, 10))
+
+    tk.Label(wrap,
+             text=t("optimization.features.receipts.head",
+                    default="Every action gets a receipt: BEFORE at trigger, AFTER ~20 s later."),
+             font=(_F, 7), bg=_RBG, fg="#7a9cbf", anchor="w",
+             wraplength=520, justify="left").pack(anchor="w", pady=(0, 5))
+
+    rows_frame = tk.Frame(wrap, bg=_RBG)
+    rows_frame.pack(fill="x")
+
+    def _fmt(v, suffix="%"):
+        try:
+            v = float(v)
+            return f"{v:.0f}{suffix}" if v >= 0 else "-"
+        except Exception:
+            return "-"
+
+    def _delta_col(b, a):
+        try:
+            if float(b) >= 0 and float(a) >= 0:
+                return "#a3e635" if float(a) < float(b) else "#8a98ad"
+        except Exception:
+            pass
+        return "#8a98ad"
+
+    def _render():
+        for w in rows_frame.winfo_children():
+            w.destroy()
+        try:
+            from core.opt_receipts import get_receipts
+            items = get_receipts()[:5]
+        except Exception:
+            items = []
+        if not items:
+            tk.Label(rows_frame,
+                     text=t("optimization.features.receipts.empty",
+                            default="No receipts yet - run FLUSH RAM and the first one appears here."),
+                     font=(_M, 7), bg=_RBG, fg="#55627a", anchor="w"
+                     ).pack(anchor="w")
+            return
+        import datetime as _dt
+        for e in items:
+            b, a = e.get("before") or {}, e.get("after")
+            when = _dt.datetime.fromtimestamp(e.get("ts", 0)).strftime("%H:%M")
+            row = tk.Frame(rows_frame, bg=_RBG)
+            row.pack(fill="x", pady=1)
+            tk.Label(row, text=f"{e.get('action','?')} · {when}",
+                     font=(_M, 7, "bold"), bg=_RBG, fg="#9fb3cc", width=16,
+                     anchor="w").pack(side="left")
+            if a is None:
+                tk.Label(row, text=t("optimization.features.receipts.pending",
+                                     default="measuring..."),
+                         font=(_M, 7), bg=_RBG, fg="#55627a").pack(side="left")
+            else:
+                txt = (f"RAM {_fmt(b.get('ram_pct'))} → {_fmt(a.get('ram_pct'))}"
+                       f"   CPU {_fmt(b.get('cpu_load'))} → {_fmt(a.get('cpu_load'))}")
+                tk.Label(row, text=txt, font=(_M, 7), bg=_RBG,
+                         fg=_delta_col(b.get("ram_pct"), a.get("ram_pct"))
+                         ).pack(side="left")
+
+    refresh = tk.Label(wrap, text="↻ REFRESH", font=(_M, 6, "bold"),
+                       bg="#0e1520", fg="#a3e635", cursor="hand2",
+                       padx=8, pady=3,
+                       highlightbackground="#3f6212", highlightthickness=1)
+    refresh.pack(anchor="e", pady=(6, 0))
+    refresh.bind("<Button-1>", lambda e: _render())
+    _render()
 
 
 def _build_feature_card(parent, feat: dict, relayout=None):
@@ -1879,43 +1994,78 @@ def _build_feature_card(parent, feat: dict, relayout=None):
     outer = tk.Frame(parent, bg=BG)
     outer.columnconfigure(0, weight=1)
 
-    # Card frame
-    card = tk.Frame(outer, bg=CARD2,
-                    highlightbackground=BORDER, highlightthickness=1)
-    card.pack(fill="both", expand=True, padx=0)
+    # ── Two visual tiers (2026-07 redesign) ───────────────────────────────────
+    # READY features are the stars: 3px accent, colored bold title, an always-
+    # visible action chip + chevron, and the WHOLE row is clickable.
+    # SOON features are quiet slim rows - present, but never shouting.
+    if ready:
+        card_bg = CARD2
+        card = tk.Frame(outer, bg=card_bg,
+                        highlightbackground=BORDER, highlightthickness=1)
+        card.pack(fill="both", expand=True, padx=0)
+        tk.Frame(card, bg=color, height=3).pack(fill="x")
 
-    # ── Top accent bar ────────────────────────────────────────────────────────
-    tk.Frame(card, bg=color, height=2).pack(fill="x")
+        compact = tk.Frame(card, bg=card_bg)
+        compact.pack(fill="x", padx=8, pady=(7, 6))
+        tk.Frame(compact, bg=color, width=2).pack(side="left", fill="y",
+                                                  padx=(0, 7))
+        ic = icon_fn(color, 12, p=compact, bg=card_bg)
+        ic.pack(side="left", padx=(0, 6))
 
-    # ── Compact row ───────────────────────────────────────────────────────────
-    compact = tk.Frame(card, bg=CARD2)
-    compact.pack(fill="x", padx=8, pady=(6, 5))
+        txt_frame = tk.Frame(compact, bg=card_bg)
+        txt_frame.pack(side="left", fill="both", expand=True)
+        title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 10, "bold"),
+                             bg=card_bg, fg=color, anchor="w", cursor="hand2")
+        title_lbl.pack(anchor="w")
+        desc_lbl = tk.Label(txt_frame, text=desc, font=(_F, 8),
+                            bg=card_bg, fg="#9fb3cc", anchor="w",
+                            cursor="hand2")
+        desc_lbl.pack(anchor="w")
 
-    # Left accent line
-    tk.Frame(compact, bg=color, width=2).pack(side="left", fill="y", padx=(0, 7))
+        # Chevron - the expander users could never find is now unmissable
+        info_btn = tk.Label(compact, text="▾", font=(_HDR, 10, "bold"),
+                            bg="#10141f", fg=color,
+                            cursor="hand2", padx=7, pady=2,
+                            highlightbackground=color, highlightthickness=1)
+        info_btn.pack(side="right", padx=(6, 0))
 
-    # Icon - created directly inside compact with the right color and bg
-    ic_col = color if ready else MUTED
-    ic = icon_fn(ic_col, 12, p=compact, bg=CARD2)
-    ic.pack(side="left", padx=(0, 6))
+        # Action chip - names the feature's action right on the card
+        quick_btn = tk.Label(compact, text=(run_label or "OPEN"),
+                             font=(_M, 6, "bold"),
+                             bg="#0e1520", fg=color, cursor="hand2",
+                             padx=8, pady=3,
+                             highlightbackground=color, highlightthickness=1)
+        quick_btn.pack(side="right", padx=(6, 0))
+    else:
+        card_bg = "#0a0d15"
+        card = tk.Frame(outer, bg=card_bg,
+                        highlightbackground="#141a28", highlightthickness=1)
+        card.pack(fill="both", expand=True, padx=0)
 
-    # Title + desc
-    txt_frame = tk.Frame(compact, bg=CARD2)
-    txt_frame.pack(side="left", fill="both", expand=True)
-    title_col = TEXT if ready else "#8593a8"
-    tk.Label(txt_frame, text=title, font=(_HDR, 10),
-             bg=CARD2, fg=title_col, anchor="w").pack(anchor="w")
-    tk.Label(txt_frame, text=desc, font=(_F, 8),
-             bg=CARD2, fg="#8a98ad" if not ready else "#9fb3cc",
-             anchor="w").pack(anchor="w")
+        compact = tk.Frame(card, bg=card_bg)
+        compact.pack(fill="x", padx=8, pady=(3, 3))
+        tk.Frame(compact, bg="#232b3b", width=2).pack(side="left", fill="y",
+                                                      padx=(0, 7))
+        txt_frame = tk.Frame(compact, bg=card_bg)
+        txt_frame.pack(side="left", fill="both", expand=True)
+        title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 8),
+                             bg=card_bg, fg="#5d6b80", anchor="w",
+                             cursor="hand2")
+        title_lbl.pack(side="left")
+        desc_lbl = tk.Label(txt_frame, text="· " + desc, font=(_F, 7),
+                            bg=card_bg, fg="#3d4658", anchor="w",
+                            cursor="hand2")
+        desc_lbl.pack(side="left", padx=(6, 0))
 
-    # [i] button - gray, toggles highlight
-    info_btn = tk.Label(compact, text=" i ",
-                        font=(_HDR, 7),
-                        bg="#161d2c", fg="#7c8aa0",
-                        cursor="hand2", padx=5, pady=3,
-                        highlightbackground="#1e2840", highlightthickness=1)
-    info_btn.pack(side="right", padx=(6, 0))
+        tk.Label(compact, text="SOON", font=(_M, 5, "bold"),
+                 bg=card_bg, fg="#55627a", padx=5, pady=1,
+                 highlightbackground="#232b3b", highlightthickness=1
+                 ).pack(side="right", padx=(6, 0))
+        info_btn = tk.Label(compact, text="▾", font=(_HDR, 8),
+                            bg=card_bg, fg="#55627a",
+                            cursor="hand2", padx=5, pady=1)
+        info_btn.pack(side="right")
+        quick_btn = None
 
     # ── Expansion panel ───────────────────────────────────────────────────────
     expand_frame = tk.Frame(card, bg="#090c14")
@@ -1980,19 +2130,18 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         run_btn.pack(side="right")
 
     # ── State toggle logic ────────────────────────────────────────────────────
-    _expanded = {"open": False}
+    # "slim": SOON rows render as quiet full-width strips (2026-07 redesign)
+    _expanded = {"open": False, "slim": not ready}
 
     def _toggle_expand(e=None):
         if _expanded["open"]:
             sep_line.pack_forget()
             expand_frame.pack_forget()
-            info_btn.config(bg="#161d2c", fg="#7c8aa0",
-                            highlightbackground="#1e2840")
+            info_btn.config(text="▾")
         else:
             sep_line.pack(fill="x")
             expand_frame.pack(fill="x")
-            info_btn.config(bg="#1a2a40", fg="#7dd3fc",
-                            highlightbackground=BLUE)
+            info_btn.config(text="▴")
         _expanded["open"] = not _expanded["open"]
         # Re-flow the grid: an open card spans both columns (neighbour's slot)
         if relayout:
@@ -2001,10 +2150,15 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         card.update_idletasks()
 
     info_btn.bind("<Button-1>", _toggle_expand)
-    info_btn.bind("<Enter>",
-                  lambda e: info_btn.config(fg="#93c5fd") if not _expanded["open"] else None)
-    info_btn.bind("<Leave>",
-                  lambda e: info_btn.config(fg="#7c8aa0") if not _expanded["open"] else None)
+    _idle_fg = info_btn.cget("fg")
+    info_btn.bind("<Enter>", lambda e: info_btn.config(fg="#e2e8f0"))
+    info_btn.bind("<Leave>", lambda e: info_btn.config(fg=_idle_fg))
+    # 2026-07 redesign: the WHOLE compact row expands the card - no more
+    # hunting for a tiny grey "i".
+    for _w in (compact, title_lbl, desc_lbl):
+        _w.bind("<Button-1>", _toggle_expand)
+    if quick_btn is not None:
+        quick_btn.bind("<Button-1>", _toggle_expand)
 
     # ── Feature-specific logic (only for standard expand cards) ──────────────
     if not custom_fn:
@@ -2015,6 +2169,15 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         elif key == "turbo_pp":
             _wire_turbo_pp(run_btn, auto_pill, auto_state,
                            turbo_pill, turbo_state, status_lbl, run_color)
+        elif key == "cpu_throttle":
+            # Thermal Throttle Investigator IS the OVERCLOCK Headroom Lab -
+            # the tile navigates there (read-only diagnosis, no automation).
+            run_btn.bind("<Button-1>",
+                         lambda e: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
+            if quick_btn is not None:
+                # The compact-row chip goes straight there too (no expand hop)
+                quick_btn.bind("<Button-1>",
+                               lambda e: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
 
     return outer, _expanded
 

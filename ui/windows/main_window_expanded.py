@@ -222,7 +222,16 @@ class ExpandedMainWindow:
             pass
         self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
         self.root.configure(bg=THEME["bg_main"])
-        self.root.resizable(False, False)
+        # Freely resizable (2026-07): overlays fill via relwidth/relheight and
+        # charts redraw on <Configure>, so growing the window is safe. The
+        # minsize floor stops shrinking below the designed layout - that is
+        # the one direction that clips widgets.
+        self.root.resizable(True, True)
+        self.root.minsize(_uis.compact_w(), _uis.compact_h())
+        # Manual-resize watcher: when the user drags the window off the
+        # default size, the maximize glyph morphs into a small "RESET size".
+        self._resize_after_id = None
+        self.root.bind("<Configure>", self._on_root_configure)
 
         # Window / taskbar icon - new HCK brand icon (BUNDLE_DIR-aware for frozen EXE)
         try:
@@ -462,6 +471,8 @@ class ExpandedMainWindow:
             self._build_fans_usage_stats_view()
         elif page_id == "fan_control":
             self._build_fan_dashboard_view()
+        elif page_id == "overclock":
+            self._build_overclock_view()
         elif page_id == "monitoring_alerts":
             self._build_monitoring_alerts_view()
         elif page_id == "first_setup":
@@ -490,12 +501,16 @@ class ExpandedMainWindow:
             self._build_hckgpt_banner()
 
     def _build_page_header(self, title: str, subtitle: str = "",
-                            accent: str = "#8b5cf6") -> tk.Frame:
+                            accent: str = "#8b5cf6",
+                            right_title: str = None,
+                            right_sub: str = None) -> tk.Frame:
         """
         Modern gradient canvas header for direct-navigation pages.
         64 px · vertical gradient · left accent bar · title + subtitle.
         Bottom-right: ‹ Dashboard back link.
         Top-right:    ⤢ / ⊡ maximize toggle (same as dashboard header).
+        right_title/right_sub: optional two-line accent block on the right
+        (OVERCLOCK uses it for the READ-ONLY contract).
         """
         container = tk.Frame(self.content_area, bg="#080b10")
         container.pack(fill="x")
@@ -522,6 +537,13 @@ class ExpandedMainWindow:
             if subtitle:
                 cv.create_text(18, 44, text=subtitle, anchor="w",
                                font=(_BODY, 8), fill="#3d4a60")
+            # Optional right-side accent block (two lines, clears the ⤢ btn)
+            if right_title:
+                cv.create_text(W - 46, 16, text=right_title, anchor="e",
+                               font=(_HDR, 9, "bold"), fill=accent)
+                if right_sub:
+                    cv.create_text(W - 46, 33, text=right_sub, anchor="e",
+                                   font=(_BODY, 7), fill="#9f5a5a", width=430)
             # Back link - bottom-right
             cv.create_text(W - 10, 54, text=f"‹ {_t('nav.back_dashboard')}",
                            anchor="e", font=(_BODY, 7), fill="#273448",
@@ -553,9 +575,11 @@ class ExpandedMainWindow:
             padx=10,
         )
         max_btn.place(relx=1.0, y=8, anchor="ne", x=-8)
-        max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
+        max_btn.bind("<Button-1>", lambda e: self._on_max_btn_click())
         max_btn.bind("<Enter>",    lambda e: max_btn.config(fg="#8b5cf6"))
         max_btn.bind("<Leave>",    lambda e: max_btn.config(fg="#6f86a3"))
+        self._page_max_btn = max_btn
+        self._update_max_btns()
 
         return container
 
@@ -631,6 +655,35 @@ class ExpandedMainWindow:
             tk.Label(
                 content,
                 text="Fan Dashboard loading...",
+                font=(_BODY, 12),
+                bg="#0f1117",
+                fg="#6b7280"
+            ).pack(pady=50)
+
+    def _build_overclock_view(self):
+        """OVERCLOCK - Headroom Lab (read-only clocks/power/thermal analysis).
+        The page NEVER writes clocks or voltages - see ui/pages/overclock_lab."""
+        try:
+            from utils.i18n import get_lang as _gl
+            _pl = _gl() == "pl"
+        except Exception:
+            _pl = False
+        self._build_page_header(
+            "OVERCLOCK", "Headroom Lab - what limits your clocks", "#ef4444",
+            right_title="ANALIZA READ-ONLY" if _pl else "READ-ONLY ANALYSIS",
+            right_sub=("PC Workman nigdy nie zapisuje zegarów, napięć ani limitów mocy."
+                       if _pl else
+                       "PC Workman never writes clocks, voltages or power limits."))
+        try:
+            from ui.pages import overclock_lab
+            overclock_lab.build(self)
+        except Exception as e:
+            print(f"[Overclock] Error: {e}")
+            import traceback
+            traceback.print_exc()
+            tk.Label(
+                self.content_area,
+                text="Overclock Lab loading...",
                 font=(_BODY, 12),
                 bg="#0f1117",
                 fg="#6b7280"
@@ -731,6 +784,7 @@ class ExpandedMainWindow:
                 "fan_control.usage_statistics": "fans_hw_usage",   # legacy id
                 "fan_control.fan_dashboard": "fan_control",
                 "fan_control": "fan_control",
+                "overclock": "overclock",
                 "monitoring_alerts": "monitoring_alerts",
                 "monitoring_alerts.temperature": "monitoring_alerts",
                 "monitoring_alerts.voltage": "monitoring_alerts",
@@ -894,6 +948,42 @@ class ExpandedMainWindow:
                     "Upgrade Readiness",
                     lambda: self.open_upgrade_readiness()
                 )
+                self.gpt_panel.register_nav_callback(
+                    "Overclock",
+                    lambda: self._switch_to_page("overclock")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Dashboard",
+                    lambda: self._switch_to_page("dashboard")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "My PC",
+                    lambda: self._show_overlay("your_pc")
+                )
+
+                def _open_components_from_chat():
+                    self._yourpc_initial_tab = "components"
+                    self._show_overlay("your_pc")
+
+                self.gpt_panel.register_nav_callback(
+                    "Components", _open_components_from_chat
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Monitoring",
+                    lambda: self._show_overlay("sensors")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Fan Control",
+                    lambda: self._switch_to_page("fan_control")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Settings",
+                    lambda: self._show_overlay("settings")
+                )
+                self.gpt_panel.register_nav_callback(
+                    "Statistics",
+                    lambda: self._show_overlay("statistics")
+                )
 
                 def _open_stability_from_chat():
                     # Stability Tests lives inside the "My PC" page -> show it, then
@@ -1017,8 +1107,9 @@ class ExpandedMainWindow:
             pady=8
         )
         max_btn.pack(side="right", pady=12, padx=(0, 6))
-        max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
+        max_btn.bind("<Button-1>", lambda e: self._on_max_btn_click())
         self._max_btn = max_btn
+        self._update_max_btns()
 
         def on_max_enter(e):
             max_btn.config(bg="#334155", fg="#e2e8f0")
@@ -1028,11 +1119,79 @@ class ExpandedMainWindow:
         max_btn.bind("<Enter>", on_max_enter)
         max_btn.bind("<Leave>", on_max_leave)
 
+    # ── Manual resize / RESET size (2026-07) ─────────────────────────────────
+
+    def _is_default_size(self) -> bool:
+        """True when the window is at (or within a grip-jitter of) the
+        designed compact geometry."""
+        try:
+            return (abs(self.root.winfo_width()  - _uis.compact_w()) <= 8 and
+                    abs(self.root.winfo_height() - _uis.compact_h()) <= 8)
+        except Exception:
+            return True
+
+    def _on_root_configure(self, event=None):
+        """Debounced <Configure> watcher. Fires on every drag tick and on
+        window MOVES too, so it only schedules a cheap button refresh - no
+        layout work ever happens here."""
+        if event is not None and event.widget is not self.root:
+            return
+        if self._resize_after_id:
+            try:
+                self.root.after_cancel(self._resize_after_id)
+            except Exception:
+                pass
+        self._resize_after_id = self.root.after(120, self._update_max_btns)
+
+    def _update_max_btns(self):
+        """Sync both maximize buttons (main header + page header) with the
+        real window state: ⤢ maximize / ⊡ restore / ⟲ RESET size."""
+        self._resize_after_id = None
+        if self._is_maximized:
+            text, font = "⊡", (_HDR, 12)
+        elif self._is_default_size():
+            text, font = "⤢", (_HDR, 12)
+        else:
+            text, font = "⟲ RESET size", (_HDR, 9)
+        for attr, base_font in (("_max_btn", font),
+                                ("_page_max_btn", (font[0], max(8, font[1] - 2)))):
+            btn = getattr(self, attr, None)
+            if btn is None:
+                continue
+            try:
+                if btn.winfo_exists():
+                    btn.config(text=text, font=base_font)
+            except Exception:
+                pass
+
+    def _on_max_btn_click(self):
+        """One handler for both buttons - what it does depends on state:
+        maximized -> restore; manually resized -> RESET to default; else
+        -> maximize. Mirrors exactly what the glyph currently shows."""
+        if not self._is_maximized and not self._is_default_size():
+            self._reset_size()
+        else:
+            self._toggle_maximize()
+
+    def _reset_size(self):
+        """Snap a manually resized window back to the designed compact
+        geometry, centered - 'RESET size'."""
+        try:
+            if self.root.state() != "normal":
+                self.root.state("normal")
+        except Exception:
+            pass
+        self._is_maximized = False
+        self._center_window()
+        # Kept-alive frames were laid out for the stretched geometry.
+        self._invalidate_keepalive()
+        self._switch_to_page(self.current_view)
+        self._update_max_btns()
+
     def _toggle_maximize(self):
         """Switch between compact and maximized (zoomed) window state."""
         if not self._is_maximized:
             self._pre_max_geometry = self.root.geometry()  # save position for restore
-            self.root.resizable(True, True)
             self.root.state("zoomed")
             self._is_maximized = True
         else:
@@ -1043,13 +1202,15 @@ class ExpandedMainWindow:
                 self.root.geometry(geo)
             else:
                 self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
-            self.root.resizable(False, False)
             self._is_maximized = False
+        # Window stays resizable in BOTH states (2026-07) - only the minsize
+        # floor is non-negotiable.
         # Kept-alive frames were laid out for the OLD geometry - drop them
         # so the next visit rebuilds at the right size (Phase 2).
         self._invalidate_keepalive()
         # Rebuild current view with the correct layout variant
         self._switch_to_page(self.current_view)
+        self._update_max_btns()
 
     def _build_content_area_maximized(self):
         """Maximized dashboard: symmetric 3-column content area.
@@ -2477,7 +2638,6 @@ class ExpandedMainWindow:
         self.root.deiconify()
         try:
             if self._is_maximized:
-                self.root.resizable(True, True)
                 self.root.state("zoomed")
             else:
                 if self.root.state() != "normal":
@@ -2487,7 +2647,7 @@ class ExpandedMainWindow:
                     self.root.geometry(geo)
                 else:
                     self.root.geometry(f"{_uis.compact_w()}x{_uis.compact_h()}")
-                self.root.resizable(False, False)
+            # Window stays resizable in both states (2026-07 resizable rework).
         except Exception as e:
             print(f"[ExpandedMode] restore_window state error: {e}")
         self.root.lift()
@@ -3376,8 +3536,16 @@ class ExpandedMainWindow:
             if page_id in self._KEEPALIVE_OVERLAYS:
                 self._overlay_cache[page_id] = self.overlay_frame
 
-        # Animate slide-in from right - COVERS CONTENT AREA
-        self._animate_overlay_slide(_slide_x, 0, page_id)
+        # Animate slide-in from right - COVERS CONTENT AREA.
+        # Settings is a fixed 980px floating card: in a resized/maximized
+        # window it slides to the CENTER instead of hugging the left edge.
+        _end_x = 0
+        if page_id == "settings":
+            try:
+                _end_x = max(0, (self.content_area.winfo_width() - 980) // 2)
+            except Exception:
+                _end_x = 0
+        self._animate_overlay_slide(_slide_x, _end_x, page_id)
 
         # hck_GPT banner stays available on top of these overlay pages;
         # everywhere else the overlay (created later = higher) covers it.

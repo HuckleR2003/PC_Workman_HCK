@@ -293,20 +293,13 @@ def _read_startup_entries() -> list[dict]:
 
 
 def _load_prefs() -> dict:
-    try:
-        with open(_PREFS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    return load_json(_PREFS_PATH, {})
 
 
 def _save_prefs(data: dict):
-    os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-    try:
-        with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_PREFS_PATH, data)
 
 
 def _delete_startup_entry(hive_const, path: str, name: str) -> bool:

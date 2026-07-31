@@ -141,11 +141,16 @@ def build_upgrade_readiness_page(win, parent, focus=None):
     btn.bind("<Enter>", lambda e: btn.config(bg="#34d399"))
     btn.bind("<Leave>", lambda e: btn.config(bg="#10b981"))
 
+    # ── Live autocomplete list (fills as you type; invisible when empty) ──
+    suggest_box = tk.Frame(page, bg=BG)
+    suggest_box.pack(fill="x")
+
     tk.Label(page, text="Type the part you plan to buy - a CPU "
                         "(i5 11400F, Ryzen 7 5800X3D), a GPU (RTX 4070, "
-                        "RX 7800 XT) or RAM (DDR5 6000).",
-             font=(_BODY, 8), bg=BG, fg="#6b7280",
-             anchor="w").pack(fill="x", pady=(4, 0))
+                        "RX 7800 XT) or RAM (DDR5 6000). Start typing a model "
+                        "and pick it from the list.",
+             font=(_BODY, 8), bg=BG, fg="#6b7280", anchor="w",
+             wraplength=820, justify="left").pack(fill="x", pady=(4, 0))
 
     # ── Quick-pick chips ─────────────────────────────────────────────────
     chips_row = tk.Frame(page, bg=BG)
@@ -195,6 +200,38 @@ def build_upgrade_readiness_page(win, parent, focus=None):
     # ── Verdict area ─────────────────────────────────────────────────────
     result = tk.Frame(page, bg=BG)
     result.pack(fill="both", expand=True, pady=(10, 0))
+
+    def _show_legend():
+        """Placeholder shown before the first search: what the colors mean
+        and what the check actually looks at."""
+        for w in result.winfo_children():
+            w.destroy()
+        card = tk.Frame(result, bg=CARD, highlightbackground=LINE,
+                        highlightthickness=1)
+        card.pack(fill="x")
+        inner = tk.Frame(card, bg=CARD)
+        inner.pack(fill="x", padx=14, pady=12)
+        tk.Label(inner, text="WHAT THE CHECK LOOKS AT", font=(_MONO, 8, "bold"),
+                 bg=CARD, fg="#64748b", anchor="w").pack(fill="x")
+        for dot, name, desc in (
+                ("#10b981", "Fits",
+                 "same socket, your chipset runs it, drops straight in"),
+                ("#f59e0b", "One step",
+                 "same socket but needs a BIOS update, or verify the vendor list"),
+                ("#ef4444", "Won't fit",
+                 "different socket or chipset-blocked - plan a new board")):
+            row = tk.Frame(inner, bg=CARD)
+            row.pack(fill="x", pady=(6, 0))
+            tk.Label(row, text=" ", bg=dot, width=2).pack(side="left")
+            tk.Label(row, text=f"  {name}", font=(_HDR, 9, "bold"), bg=CARD,
+                     fg=dot, anchor="w", width=10).pack(side="left")
+            tk.Label(row, text=desc, font=(_BODY, 8), bg=CARD, fg="#8593a8",
+                     anchor="w").pack(side="left")
+        tk.Label(inner, text="A CPU check reads socket, chipset, RAM carry-over "
+                             "and cooler mount. A GPU check reads the class "
+                             "delta, VRAM, and recommended PSU. All offline.",
+                 font=(_BODY, 8), bg=CARD, fg="#6b7280", anchor="w",
+                 wraplength=800, justify="left").pack(fill="x", pady=(10, 0))
 
     def _render_verdict(v):
         for w in result.winfo_children():
@@ -259,8 +296,63 @@ def build_upgrade_readiness_page(win, parent, focus=None):
                  "target": None, "target_text": text}
         _render_verdict(v)
 
-    btn.bind("<Button-1>", lambda e: _run_check())
-    entry.bind("<Return>", lambda e: _run_check())
+    # ── Autocomplete behaviour ───────────────────────────────────────────
+    _KIND_TAG = {"cpu": ("CPU", "#3b82f6"), "gpu": ("GPU", "#8b5cf6")}
+
+    def _clear_suggestions():
+        for w in suggest_box.winfo_children():
+            w.destroy()
+
+    def _pick(label):
+        _clear_suggestions()
+        _run_check(label)
+
+    def _update_suggestions(_e=None):
+        # arrows/enter/escape do not re-query
+        if _e is not None and _e.keysym in (
+                "Return", "Up", "Down", "Escape", "Tab"):
+            return
+        _clear_suggestions()
+        try:
+            matches = hc.search_parts(entry.get(), limit=10)
+        except Exception:
+            matches = []
+        if not matches:
+            return
+        panel = tk.Frame(suggest_box, bg="#0d111b",
+                         highlightbackground="#2a3348", highlightthickness=1)
+        panel.pack(fill="x", pady=(3, 0))
+        for m in matches:
+            row = tk.Frame(panel, bg="#0d111b", cursor="hand2")
+            row.pack(fill="x")
+            tag, tcol = _KIND_TAG.get(m["kind"], ("", "#64748b"))
+            tk.Label(row, text=f" {tag} ", font=(_MONO, 7, "bold"),
+                     bg=tcol, fg="#0b0e14").pack(side="left", padx=(6, 8),
+                                                 pady=3)
+            tk.Label(row, text=m["label"], font=(_MONO, 9), bg="#0d111b",
+                     fg="#e2e8f0", anchor="w").pack(side="left")
+            tk.Label(row, text=m.get("meta", ""), font=(_MONO, 7),
+                     bg="#0d111b", fg="#5a6883", anchor="e").pack(
+                side="right", padx=8)
+            for w in (row,) + tuple(row.winfo_children()):
+                w.bind("<Button-1>", lambda e, lbl=m["label"]: _pick(lbl))
+                w.bind("<Enter>", lambda e, r=row: _hl(r, True))
+                w.bind("<Leave>", lambda e, r=row: _hl(r, False))
+
+    def _hl(row, on):
+        try:
+            bg = "#182034" if on else "#0d111b"
+            row.config(bg=bg)
+            for c in row.winfo_children():
+                if c.cget("bg") in ("#0d111b", "#182034"):
+                    c.config(bg=bg)
+        except Exception:
+            pass
+
+    btn.bind("<Button-1>", lambda e: (_clear_suggestions(), _run_check()))
+    entry.bind("<Return>", lambda e: (_clear_suggestions(), _run_check()))
+    entry.bind("<KeyRelease>", _update_suggestions)
+    entry.bind("<Escape>", lambda e: _clear_suggestions())
 
     # ── Footer ───────────────────────────────────────────────────────────
     try:
@@ -273,6 +365,8 @@ def build_upgrade_readiness_page(win, parent, focus=None):
     tk.Label(page, text=foot, font=(_BODY, 7), bg=BG,
              fg="#4b5563", anchor="w").pack(fill="x", side="bottom",
                                             pady=(6, 0))
+
+    _show_legend()    # explain the colors before the first search
 
     threading.Thread(target=_load_platform, daemon=True,
                      name="UpgradeReadinessScan").start()

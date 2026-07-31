@@ -176,6 +176,15 @@ class SidebarNav:
                 "subitems": None
             },
             {
+                # OVERCLOCK - Headroom Lab (2026-07). Same word in PL and EN,
+                # so no locale keys needed.
+                "id": "overclock",
+                "label": "OVERCLOCK",
+                "sub_caption": "HEADROOM LAB",
+                "icon": "▲",
+                "subitems": None
+            },
+            {
                 "id": "fan_control",
                 "label": t("nav.fan_control"),
                 "icon": "❊",
@@ -285,14 +294,14 @@ class SidebarNav:
             )
             arrow_label.pack(side="right")
 
-        # Subitems container (hidden by default)
+        # Subitems container (hidden by default). Children are built LAZILY on
+        # first expand (2026-07 perf): ~90 subitem widgets across all collapsed
+        # sections used to be created at startup, all invisible. Deferring them
+        # cuts the sidebar's share of window init.
         subitems_frame = None
         if has_subitems:
             subitems_frame = tk.Frame(item_frame, bg=self.COLORS["bg"])
-            # Deliberately not packed yet; shown on expand
-
-            for sub_id, sub_label in item["subitems"]:
-                self._create_subitem(subitems_frame, item_id, sub_id, sub_label)
+            # Deliberately not packed yet; children built by _ensure_subitems.
 
         # Store references
         self.item_widgets[item_id] = {
@@ -305,7 +314,9 @@ class SidebarNav:
             "caption": caption_label,
             "arrow": arrow_label,
             "subitems_frame": subitems_frame,
-            "has_subitems": has_subitems
+            "has_subitems": has_subitems,
+            "subitems_spec": item["subitems"] if has_subitems else None,
+            "subitems_built": False,
         }
 
         # Event handlers
@@ -329,6 +340,20 @@ class SidebarNav:
             arrow_label.bind("<Button-1>", on_click)
             arrow_label.bind("<Enter>", on_enter)
             arrow_label.bind("<Leave>", on_leave)
+
+    def _ensure_subitems(self, item_id):
+        """Build a category's subitems on demand, once. They are invisible
+        until the section expands, so there is no reason to create them for
+        every collapsed section at startup (lazy build, 2026-07 perf)."""
+        w = self.item_widgets.get(item_id)
+        if not w or not w.get("has_subitems") or w.get("subitems_built"):
+            return
+        frame = w.get("subitems_frame")
+        if frame is None:
+            return
+        for sub_id, sub_label in (w.get("subitems_spec") or []):
+            self._create_subitem(frame, item_id, sub_id, sub_label)
+        w["subitems_built"] = True
 
     def _create_subitem(self, parent, parent_id, sub_id, label):
         """Create a subcategory item."""
@@ -434,6 +459,7 @@ class SidebarNav:
         if not widgets or not widgets["subitems_frame"]:
             return
 
+        self._ensure_subitems(item_id)     # lazy build on first expand
         self.expanded_categories.add(item_id)
         widgets["subitems_frame"].pack(fill="x")
 
@@ -465,6 +491,12 @@ class SidebarNav:
         self._clear_active_states()
 
         self.active_item = item_id
+
+        # A deep-link can target a subitem in a section that was never expanded,
+        # so its widgets do not exist yet (lazy build) - build them so the
+        # highlight lands.
+        if "." in item_id:
+            self._ensure_subitems(item_id.split(".", 1)[0])
 
         # Apply new active state
         widgets = self.item_widgets.get(item_id)

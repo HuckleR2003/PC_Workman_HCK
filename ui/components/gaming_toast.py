@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import random
 import tkinter as tk
-from typing import Optional
+from typing import Callable, List, Optional
 
 # ── Font system ────────────────────────────────────────────────────────────────
 try:
@@ -463,9 +463,21 @@ class GamingToastWatcher:
 
     def __init__(self):
         self._running     = False
-        self._seen:  set  = set()   # exe names seen this session
+        self._seen:  set  = set()   # exe names already greeted this session
+        self._active: set = set()   # currently running known game executables
+        self._observers: List[Callable[[str, str, str], None]] = []
         self._root: Optional[tk.Misc] = None
         self._lang  = "pl"
+
+    def register_game_observer(
+            self, fn: Callable[[str, str, str], None]) -> None:
+        """Observe game start/end without creating another process poller.
+
+        Callback signature: ``fn(event, exe, label)`` where event is ``start``
+        or ``end``. Duplicate registration is ignored.
+        """
+        if callable(fn) and fn not in self._observers:
+            self._observers.append(fn)
 
     def start(self, root: tk.Misc, lang: str = "pl") -> None:
         if self._running:
@@ -497,20 +509,44 @@ class GamingToastWatcher:
             time.sleep(4)   # poll every 4 s
 
     def _check(self) -> None:
-        if not self._is_enabled():
-            return
         try:
             import psutil as _ps
+            running = set()
             for proc in _ps.process_iter(["name"]):
                 try:
                     name = (proc.info["name"] or "").lower()
                 except Exception:
                     continue
-                if _is_known(name) and name not in self._seen:
+                if _is_known(name):
+                    running.add(name)
+
+            started = running - self._active
+            ended = self._active - running
+            self._active = running
+            enabled = self._is_enabled()
+            for name in sorted(started):
+                self._notify("start", name)
+            if enabled:
+                # Preserve the original switch behaviour: enabling launch
+                # reminders while a game is already open may still greet it.
+                for name in sorted(running):
+                    if name in self._seen:
+                        continue
                     self._seen.add(name)
                     self._fire(name)
+            for name in sorted(ended):
+                self._notify("end", name)
         except Exception:
             pass
+
+    def _notify(self, event: str, exe_lower: str) -> None:
+        canonical = _canon(exe_lower)
+        label = canonical.rsplit(".exe", 1)[0].replace("_", " ")
+        for fn in list(self._observers):
+            try:
+                fn(event, exe_lower, label)
+            except Exception:
+                continue
 
     def _fire(self, exe_lower: str) -> None:
         if self._root is None:

@@ -399,7 +399,10 @@ class _LangSelector:
 class _SensitivityChips:
     """Low / Normal / High chips for alert sensitivity."""
     OPTIONS = [("low", "Low"), ("normal", "Normal"), ("high", "High")]
-    _COLORS  = {"low": "#3b82f6", "normal": "#f59e0b", "high": "#ef4444"}
+    _COLORS  = {
+        "low": "#3b82f6", "normal": "#f59e0b", "high": "#ef4444",
+        "quiet": "#64748b", "balanced": "#6366f1", "companion": "#c026d3",
+    }
 
     def __init__(self, parent: tk.Widget, current: str, on_change=None,
                  bg: str = _PANEL, options=None):
@@ -1270,6 +1273,28 @@ class SettingsPage:
                 separator=not last,
                 bg=_AI_BG, border=_AI_BD,
             )
+
+        mode_val = self._settings.get("gpt_proactive_mode", "balanced")
+
+        def _on_mode(value):
+            self._settings["gpt_proactive_mode"] = value
+            _save_settings(self._settings)
+
+        _setting_row(
+            card,
+            _t("settings.hck_gpt.mode_label"),
+            _t("settings.hck_gpt.mode_desc"),
+            right_widget_factory=lambda row: _SensitivityChips(
+                row, mode_val, _on_mode, bg=_AI_BG,
+                options=[
+                    ("quiet", _t("settings.hck_gpt.mode_quiet")),
+                    ("balanced", _t("settings.hck_gpt.mode_balanced")),
+                    ("companion", _t("settings.hck_gpt.mode_companion")),
+                ],
+            ),
+            separator=True,
+            bg=_AI_BG, border=_AI_BD,
+        )
 
         _ai_row(
             _t("settings.hck_gpt.proactive_label"),

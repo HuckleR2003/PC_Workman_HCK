@@ -51,6 +51,12 @@ class FansUsageStatsPage:
         "grid_color": "#1f2937",
     }
 
+    # Samples arrive every _SAMPLE_INTERVAL_S (see _add_new_data). The range
+    # windows below convert to a sample count using THIS interval - the old
+    # code divided by 60 (assuming 1 sample/min), so NOW resolved to a single
+    # point and drew an empty chart until you clicked a wider range.
+    _SAMPLE_INTERVAL_S = 5
+
     TIME_RANGES = {
         "NOW": {"label": "NOW", "seconds": 60, "description": "Last 1 minute"},
         "1HR": {"label": "1Hr", "seconds": 3600, "description": "Last 1 hour"},
@@ -78,6 +84,15 @@ class FansUsageStatsPage:
 
         self._build_page()
         self._start_updates()
+
+        # First paint AFTER layout settles: the matplotlib canvases have no
+        # real size during _build_page, so an immediate draw can come up blank
+        # until the next range switch. A deferred redraw guarantees the charts
+        # are visible the moment the page opens - no click required.
+        try:
+            self.parent.after(60, self._update_all_charts)
+        except Exception:
+            pass
 
     def _generate_initial_data(self):
         """Generate initial historical data."""
@@ -295,8 +310,11 @@ class FansUsageStatsPage:
         # Get data for selected range
         range_seconds = self.TIME_RANGES[self.current_range]["seconds"]
 
-        # Convert seconds to sample count (1 sample / minute)
-        samples_needed = min(range_seconds // 60, len(self.history_data[chart_id]))
+        # Convert seconds to sample count using the REAL sample interval, and
+        # always keep at least 2 points so a chart line is drawn (NOW would
+        # otherwise be a single dot).
+        want = max(2, range_seconds // self._SAMPLE_INTERVAL_S)
+        samples_needed = min(want, len(self.history_data[chart_id]))
 
         data = list(self.history_data[chart_id])[-samples_needed:] if samples_needed > 0 else []
 

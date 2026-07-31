@@ -3368,6 +3368,60 @@ def _efficiency_refresh(refs):
         pass
 
 
+# Process definition tooltip (2026-07): the efficiency tab lists live
+# processes; hovering a name shows what it is, from the same process library
+# the dashboard TOP 5 uses. Lazy import so a missing library never breaks the tab.
+try:
+    from hck_gpt.process_library import process_library as _PROC_LIB_YP
+    _HAS_PROC_LIB_YP = True
+except Exception:
+    _PROC_LIB_YP = None
+    _HAS_PROC_LIB_YP = False
+
+_PROC_TIP: dict = {"win": None}
+
+
+def _attach_proc_tip(widget, proc_name):
+    """Hover tooltip with the process definition. One shared popup, destroyed
+    on leave, so rebuilt rows never leak windows."""
+    if not _HAS_PROC_LIB_YP:
+        return
+
+    def _hide(_e=None):
+        w = _PROC_TIP.get("win")
+        if w is not None:
+            try:
+                w.destroy()
+            except Exception:
+                pass
+            _PROC_TIP["win"] = None
+
+    def _show(e):
+        try:
+            txt = _PROC_LIB_YP.format_tooltip_text(proc_name)
+        except Exception:
+            txt = None
+        if not txt:
+            return
+        _hide()
+        try:
+            tw = tk.Toplevel(widget)
+            tw.wm_overrideredirect(True)
+            tw.attributes("-topmost", True)
+            tk.Label(tw, text=txt, font=(_BODY, 8), bg="#0d1522",
+                     fg="#cbd5e1", justify="left", anchor="w",
+                     padx=8, pady=6, highlightbackground="#2a3348",
+                     highlightthickness=1, wraplength=300).pack()
+            tw.wm_geometry(f"+{e.x_root + 14}+{e.y_root + 12}")
+            _PROC_TIP["win"] = tw
+        except Exception:
+            pass
+
+    widget.bind("<Enter>", _show)
+    widget.bind("<Leave>", _hide)
+    widget.config(cursor="hand2")
+
+
 def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
     """Render process rows: rank badge · name · bar · current% · avg% · top-rank duration."""
     BG  = "#0f1117"
@@ -3422,10 +3476,11 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
                  bg=BG, fg=rc, width=2, anchor="center",
                  pady=2).pack(side="left", padx=(3, 0))
 
-        # Process name
-        tk.Label(row, text=name_s, font=(_BODY, 7),
-                 bg=BG, fg="#94a3b8", anchor="w").pack(
-            side="left", padx=(2, 2), fill="x", expand=True)
+        # Process name (hover shows its definition from the process library)
+        _name_lbl = tk.Label(row, text=name_s, font=(_BODY, 7),
+                             bg=BG, fg="#94a3b8", anchor="w")
+        _name_lbl.pack(side="left", padx=(2, 2), fill="x", expand=True)
+        _attach_proc_tip(_name_lbl, name)
 
         # Stats on right
         right = tk.Frame(row, bg=BG)
