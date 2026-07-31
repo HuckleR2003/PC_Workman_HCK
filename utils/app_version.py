@@ -18,7 +18,7 @@ Rules (guarded by tests/test_version.py):
     focus quietly stopped working
 """
 
-APP_VERSION = "1.8.4"
+APP_VERSION = "1.8.6"
 
 # Exact main-window title. startup.py's single-instance path looks this
 # string up via FindWindowW, so the two must be THE SAME object - never
@@ -27,5 +27,5 @@ MAIN_WINDOW_TITLE = f"PC Workman HCK  v{APP_VERSION}"
 
 
 def version_tuple():
-    """(1, 8, 4) - for numeric comparisons (update checks etc.)."""
+    """(1, 8, 5) - for numeric comparisons (update checks etc.)."""
     return tuple(int(p) for p in APP_VERSION.split("."))

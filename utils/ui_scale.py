@@ -25,20 +25,33 @@ def init(root):
     screens, doubled on 4K. One call - every point-sized font in the app obeys.
     """
     global SCALE
-    sw = root.winfo_screenwidth()
-    if sw >= 3840:       # 4K
-        SCALE = 2.0
-    elif sw >= 2560:     # 2K / QHD
-        SCALE = 1.35
-    elif sw >= 1920:     # Full HD
-        SCALE = 1.0
-    else:                # smaller laptops
-        SCALE = max(0.85, sw / 1920)
+    SCALE = _compute_scale(root.winfo_screenwidth(), root.winfo_screenheight())
 
     try:
         root.tk.call("tk", "scaling", (96.0 / 72.0) * SCALE)
     except Exception:
         pass
+
+
+def _compute_scale(sw: int, sh: int) -> float:
+    """Pure SCALE formula (unit-tested in tests/test_window_scaling.py).
+
+    Sub-FHD change (2026-07): the old branch SHRANK the window on small
+    screens (1366x768 got 0.85 -> a 986x489 window swimming in unused
+    space with 15% smaller fonts). Small screens need the opposite - fill
+    most of the screen. The window now targets ~88% of width and ~85% of
+    height, capped at the FHD baseline (1.0) so fonts never exceed their
+    designed size, floored at 0.75 for very old panels (1024x768)."""
+    if sw >= 3840:       # 4K
+        return 2.0
+    elif sw >= 2560:     # 2K / QHD
+        return 1.35
+    elif sw >= 1920:     # Full HD
+        return 1.0
+    # smaller laptops: biggest window that still fits comfortably
+    fit_w = (sw * 0.88) / _BASE_W
+    fit_h = (sh * 0.85) / _BASE_H
+    return max(0.75, min(fit_w, fit_h, 1.0))
 
 
 def compact_w() -> int:
