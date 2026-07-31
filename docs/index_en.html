@@ -106,7 +106,7 @@
           "name": "What is Ghost Driver Detection and how does it work?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Ghost Driver Detection finds driver packages left in Windows registry after you replaced hardware. For example: you swap GT 1030 for RTX 3050. The old GT 1030 driver stays installed silently. PC_Workman detects this by comparing Windows registry entries against pnputil /enum-devices /connected output — which only lists hardware physically present. The gap between those two lists is the ghost. Detected ghosts show in bordeaux with an ISSUE badge and can be removed via pnputil /remove-device with admin confirmation."
+            "text": "Ghost Driver Detection finds driver packages left in Windows registry after you replaced hardware. For example: you swap GT 1030 for RTX 3050. The old GT 1030 driver stays installed silently. PC_Workman detects this by comparing Windows registry entries against pnputil /enum-devices /connected output, which only lists hardware physically present. The gap between those two lists is the ghost. Detected ghosts show in bordeaux with an ISSUE badge and can be removed via pnputil /remove-device with admin confirmation."
           }
         },
         {
@@ -130,7 +130,7 @@
           "name": "How does voltage anomaly detection work and what is Statistical Process Control?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Voltage SPC in PC_Workman uses Median and MAD (Median Absolute Deviation) instead of the conventional mean+sigma approach. The reason: if a spike shifts the mean toward itself, the 'normal band' widens and future spikes silently pass through. Median is unaffected by outliers. The modified z-score formula is M = 0.6745 × (x − median) / MAD (Iglewicz-Hoaglin 1993). Anomaly when |M| > 3.5, warning at |M| > 2.5. Additionally, four Nelson SPC rules are checked: Rule 1 (single spike), Rule 5 (2-of-3 consecutive beyond warning), Rule 2 (9 consecutive same-side — sustained deviation), Rule 3 (6 consecutive monotonic — trend). 12V rail spikes during GPU load changes >25% are suppressed as expected transients. Events that repeat ≥5 times are considered 'your hardware's normal' and severity is reduced (anomaly decay)."
+            "text": "Voltage SPC in PC_Workman uses Median and MAD (Median Absolute Deviation) instead of the conventional mean+sigma approach. The reason: if a spike shifts the mean toward itself, the 'normal band' widens and future spikes silently pass through. Median is unaffected by outliers. The modified z-score formula is M = 0.6745 × (x − median) / MAD (Iglewicz-Hoaglin 1993). Anomaly when |M| > 3.5, warning at |M| > 2.5. Additionally, four Nelson SPC rules are checked: Rule 1 (single spike), Rule 5 (2-of-3 consecutive beyond warning), Rule 2 (9 consecutive same-side, sustained deviation), Rule 3 (6 consecutive monotonic, trend). 12V rail spikes during GPU load changes >25% are suppressed as expected transients. Events that repeat ≥5 times are considered 'your hardware's normal' and severity is reduced (anomaly decay)."
           }
         },
         {
@@ -138,7 +138,7 @@
           "name": "How is PC_Workman different from MSI Afterburner and HWMonitor?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "MSI Afterburner is focused on GPU OC and OSD — great at what it does. HWMonitor shows raw sensor data. PC_Workman does neither of those things primarily. It explains what the data means for your specific hardware, automates optimization through the TURBO suite, detects ghost drivers from replaced hardware, runs a local AI assistant (hck_GPT) that answers hardware questions without internet, and tracks long-term anomalies via a SQLite time-series pipeline. Different tool, different goal."
+            "text": "MSI Afterburner is focused on GPU OC and OSD, great at what it does. HWMonitor shows raw sensor data. PC_Workman does neither of those things primarily. It explains what the data means for your specific hardware, automates optimization through the TURBO suite, detects ghost drivers from replaced hardware, runs a local AI assistant (hck_GPT) that answers hardware questions without internet, and tracks long-term anomalies via a SQLite time-series pipeline. Different tool, different goal."
           }
         }
       ]
@@ -437,7 +437,7 @@
             line-height: 1.55;
             color: #6b7a8d;
         }
-        /* Module card — tighter layout */
+        /* Module card, tighter layout */
         .module-title {
             font-size: 13px;
             letter-spacing: -0.01em;
@@ -455,7 +455,7 @@
             font-size: 11px;
             line-height: 1.58;
         }
-        /* hck_GPT layer list — tighter, more refined */
+        /* hck_GPT layer list, tighter, more refined */
         .gpt-layer {
             font-size: 12px;
             padding: 9px 13px;
@@ -471,7 +471,7 @@
         .killer-card h3 {
             letter-spacing: -0.01em;
         }
-        /* Comparison table — tighter cells */
+        /* Comparison table, tighter cells */
         .comparison-table td,
         .comparison-table th {
             font-size: 12px;
@@ -481,7 +481,7 @@
         @media (max-width: 680px) {
             .ghost-grid { grid-template-columns: 1fr !important; }
         }
-        /* Eyebrow labels — Apple style */
+        /* Eyebrow labels, Apple style */
         .section-eyebrow {
             font-size: 10px;
             letter-spacing: 0.12em;
@@ -543,9 +543,9 @@
 
     <!-- Left Sticky Sidebar Navigation -->
     <nav class="sidebar mini" id="sidebar">
-        <a class="logo" href="index_en.html" aria-label="PC Workman — home">
+        <a class="logo" href="index_en.html" aria-label="PC Workman, home">
             <img class="logo-img" src="assets/images/pcworkman-logo.png"
-                 alt="PC Workman — local AI Windows system monitor" width="40" height="40">
+                 alt="PC Workman, local AI Windows system monitor" width="40" height="40">
             <span class="logo-text">PC Workman</span>
         </a>
         <ul class="nav-links">
@@ -557,7 +557,7 @@
                 <span>⚡ <b>Download</b> v1.8.5<span class="ns-sub">one ZIP · no account</span></span>
             </a></li>
             <li><a href="blog/" class="nav-special">
-                <span><b>My Journey</b> — Marcin Firmuga<span class="ns-sub">blog · 3 weekly series</span></span>
+                <span><b>My Journey</b>, Marcin Firmuga<span class="ns-sub">blog · 3 weekly series</span></span>
             </a></li>
             <li><a href="guides/" class="nav-special">
                 <span><b>Articles / Guides</b><span class="ns-sub">Windows performance, no myths</span></span>
@@ -646,7 +646,7 @@
             <div class="container hero-container">
                 <div class="hero-content">
                     <h1 class="hero-title">
-                        PC_Workman: not just monitoring —<br>
+                        PC_Workman: not just monitoring,<br>
                         <span class="highlight-neon typing-container">
                             <span id="typingText">An assistant that understands your hardware</span>
                             <span class="typing-cursor">|</span>
@@ -754,7 +754,7 @@
                         <div class="module-desc">
                             Navigation hub. Stats &amp; Alerts, Optimization Center,
                             Startup Manager, Services Manager, First Setup &amp; Drivers,
-                            Stability Tests, Your Account — everything in one place.
+                            Stability Tests, Your Account, everything in one place.
                         </div>
                         <img src="assets/images/mypc-buttons.png"
                              alt="My PC – navigation buttons to all modules"
@@ -784,7 +784,7 @@
                         <span class="module-tag tag-live">LIVE</span>
                         <div class="module-title">AllMonitor</div>
                         <div class="module-desc">
-                            HWMonitor in a more modern form. CPU, GPU, RAM, disks, voltages —
+                            HWMonitor in a more modern form. CPU, GPU, RAM, disks, voltages,
                             everything in real time. Data feeds the Stats &amp; Alerts engine
                             and powers hck_GPT to be more useful every day.
                         </div>
@@ -797,7 +797,7 @@
                         <div class="module-title">Fan Dashboard</div>
                         <div class="module-desc">
                             Custom RPM curves with drag-and-drop points. 2×2 fan status cards
-                            with real-time RPM. Profiles: Default, Silent, AI, P1, P2 —
+                            with real-time RPM. Profiles: Default, Silent, AI, P1, P2,
                             saved to JSON, importable. Full cooling control.
                         </div>
                         <img src="assets/images/PCWorkman-fan-dashboard.gif"
@@ -823,14 +823,14 @@
         </section>
 
         <!-- ══════════════════════════════════════════════════════
-             FEATURE SHOWCASE — Startup & Services
+             FEATURE SHOWCASE, Startup & Services
         ══════════════════════════════════════════════════════ -->
         <section id="features-deep" class="features-section showcase-section">
             <div class="container">
                 <div class="section-header">
                     <p class="section-eyebrow">Inside My PC</p>
                     <h2 class="section-title">Managers that <span class="highlight-green">actually do the job</span></h2>
-                    <p class="section-subtitle">Not dashboards for aesthetics — each one has a concrete action to perform.</p>
+                    <p class="section-subtitle">Not dashboards for aesthetics, each one has a concrete action to perform.</p>
                 </div>
 
                 <div class="showcase-grid">
@@ -842,7 +842,7 @@
                              class="showcase-img" loading="lazy">
                         <div class="showcase-body">
                             <div class="showcase-eyebrow">My PC - Startup Manager</div>
-                            <h3 class="showcase-title">What launches with Windows — and why it takes so long</h3>
+                            <h3 class="showcase-title">What launches with Windows, and why it takes so long</h3>
                             <p class="showcase-desc">
                                 Full list of processes starting with the system. See the boot impact
                                 of each entry, disable unnecessary ones with one click.
@@ -863,7 +863,7 @@
                             <p class="showcase-desc">
                                 Manual service management + three ready-made modes in Optimization Center:
                                 each stops a different set of non-essential services.
-                                Whitelist protects critical processes — no crashes.
+                                Whitelist protects critical processes, no crashes.
                                 Revert with one click, state saved to JSON.
                             </p>
                             <div class="showcase-pills">
@@ -900,12 +900,12 @@
                             <div>
                                 <h3 style="font-size:17px;font-weight:700;color:#e6eef6;margin:0 0 10px;letter-spacing:-.02em;">Ghost Driver Detection</h3>
                                 <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
-                                    You replaced a GPU years ago. The old driver is still in Windows — silently.
+                                    You replaced a GPU years ago. The old driver is still in Windows, silently.
                                     Device Manager hides it by default. Most monitors don't see it at all.
                                 </p>
                                 <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:16px;">
                                     PC_Workman compares Windows registry entries against
-                                    <code style="font-size:11px;color:#ef4444;background:rgba(239,68,68,.08);padding:1px 5px;border-radius:3px;">pnputil /connected</code> —
+                                    <code style="font-size:11px;color:#ef4444;background:rgba(239,68,68,.08);padding:1px 5px;border-radius:3px;">pnputil /connected</code>,
                                     which returns only hardware that's physically present.
                                     The gap is your ghost.
                                 </p>
@@ -937,7 +937,7 @@
                         <div style="background:#0a0e1a;border-bottom:1px solid #1a2540;padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                             <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#818cf8;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.25);padding:2px 8px;border-radius:4px;">NEW · v1.7.8</span>
                             <span style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">Monitoring &amp; Alerts</span>
-                            <span style="font-size:11px;color:#374151;margin-left:4px;">— adaptive baselines, not static thresholds</span>
+                            <span style="font-size:11px;color:#374151;margin-left:4px;">, adaptive baselines, not static thresholds</span>
                         </div>
                         <div style="padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start;" class="ghost-grid">
                             <div>
@@ -965,7 +965,7 @@
                                 </div>
                             </div>
                             <div>
-                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Voltage SPC — Median + MAD</h3>
+                                <h3 style="font-size:16px;font-weight:700;color:#e2e8f0;margin:0 0 10px;letter-spacing:-.02em;">Voltage SPC, Median + MAD</h3>
                                 <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:12px;">
                                     Mean + σ breaks on voltage data: one spike shifts the mean, widens the band,
                                     and the next spike passes silently. Median is immune. MAD inherits that.
@@ -973,7 +973,7 @@
                                 <p style="font-size:12px;color:#91a1ab;line-height:1.65;margin-bottom:14px;">
                                     Four Nelson SPC rules run on rebuild: isolated spike, 2-of-3 cluster,
                                     9-point sustained deviation, 6-point monotonic trend.
-                                    12V spikes during GPU load changes are suppressed — they're physically expected.
+                                    12V spikes during GPU load changes are suppressed, they're physically expected.
                                     Patterns that repeat ≥5× are decayed to "your hardware's normal".
                                 </p>
                                 <div style="background:#06080f;border:1px solid #1a2540;border-radius:7px;padding:11px 14px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;">
@@ -1075,7 +1075,7 @@
                     <h2 class="section-title killer-title">
                         hck_GPT: <span class="highlight-neon">9-Layer Logic</span>
                     </h2>
-                    <p class="section-subtitle">Not an LLM API. Own local decision logic — fast, offline, specific.</p>
+                    <p class="section-subtitle">Not an LLM API. Own local decision logic, fast, offline, specific.</p>
                 </div>
 
                 <div class="two-col">
@@ -1133,7 +1133,7 @@
                         </div>
 
                         <p style="font-size:12px;color:#91a1ab;margin-top:8px;">
-                            Quick aliases in both languages — type "temp", "voltage", "gaming", "weekly", "fans" and you know immediately what's going on. No waiting.
+                            Quick aliases in both languages, type "temp", "voltage", "gaming", "weekly", "fans" and you know immediately what's going on. No waiting.
                         </p>
                     </div>
 
@@ -1152,7 +1152,7 @@
                                  class="feature-screenshot-wide" loading="lazy"
                                  style="border-radius:10px;border:1px solid #1e2530;">
                             <p style="font-size:11px;color:#91a1ab;margin-top:8px;text-align:center;font-style:italic;">
-                                Real conversation — data from your hardware, not the internet
+                                Real conversation, data from your hardware, not the internet
                             </p>
                         </div>
                     </div>
@@ -1203,16 +1203,20 @@
         </section>
 
         <!-- ══════════════════════════════════════════════════════
-             NEW IN 1.8.0 — SMART LEARNING
+             NEW IN 1.8.0, SMART LEARNING
         ══════════════════════════════════════════════════════ -->
         <section id="v180" class="features-section" style="padding-top:0">
             <div class="container">
                 <div class="section-header">
                     <p class="section-eyebrow">Introduced in 1.8.0</p>
                     <h2 class="section-title">Smart Learning that <span class="highlight-green">actually accumulates</span></h2>
-                    <p class="section-subtitle">It learns YOUR machine over time — and now you can see exactly what it knows.</p>
+                    <p class="section-subtitle">It learns YOUR machine over time, and now you can see exactly what it knows.</p>
                 </div>
-                     <img class="feature-screenshot-wide" src="assets/images/learning-center.png" alt="PC Workman Learning Center"> -->
+
+                <!-- [GIF] Replace this placeholder with:
+                     <img class="feature-screenshot-wide" src="assets/images/learning-center.gif" alt="PC Workman Learning Center"> -->
+                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
+                    🧠 &nbsp;LEARNING CENTER &nbsp;·&nbsp; live view of what your PC has learned
                 </div>
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
@@ -1222,12 +1226,12 @@
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             Same number, opposite verdict. hck_GPT judges temperature against
                             your learned norm for the current workload (z-score), not a hardcoded
-                            85°C cutoff — so it stops crying wolf during normal gaming.
+                            85°C cutoff, so it stops crying wolf during normal gaming.
                         </p>
                     </div>
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
                         <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">LEARNING CENTER</div>
-                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">See what it learned — live</h3>
+                        <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">See what it learned, live</h3>
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             Per-workload training progress and learned ranges, voltage SPC baselines,
                             a live PSU health score, and a ↻ Rebuild self-check that re-thinks from
@@ -1239,7 +1243,7 @@
                         <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Welford accumulator</h3>
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             Learning accumulates for the life of the install and survives 90-day
-                            data pruning — not a 14-day window. The longer it runs, the more it
+                            data pruning, not a 14-day window. The longer it runs, the more it
                             knows your hardware. <a href="guides/what-your-pc-learned/" style="color:#34d399;">How it works →</a>
                         </p>
                     </div>
@@ -1248,16 +1252,20 @@
         </section>
 
         <!-- ══════════════════════════════════════════════════════
-             NEW IN 1.8.0 — GAMING / IN-GAME OVERLAY
+             NEW IN 1.8.0, GAMING / IN-GAME OVERLAY
         ══════════════════════════════════════════════════════ -->
         <section id="v180-gaming" class="features-section" style="padding-top:0">
             <div class="container">
                 <div class="section-header">
                     <p class="section-eyebrow">Introduced in 1.8.0</p>
                     <h2 class="section-title">An overlay that shows <span class="highlight-green">nothing until you choose</span></h2>
-                    <p class="section-subtitle">Every gaming tool decides what your overlay shows. This one starts empty — you drop in exactly what you want.</p>
+                    <p class="section-subtitle">Every gaming tool decides what your overlay shows. This one starts empty, you drop in exactly what you want.</p>
                 </div>
+
+                <!-- [GIF] Replace this placeholder with the build-and-test recording:
                      <img class="feature-screenshot-wide" src="assets/images/gaming-overlay-custom.gif" alt="Building and testing a custom in-game overlay in PC Workman"> -->
+                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
+                    🎮 &nbsp;MY PC → GAMING / IN-GAME &nbsp;·&nbsp; build your own layout, then test it live
                 </div>
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px;">
@@ -1266,7 +1274,7 @@
                         <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">You choose what it shows</h3>
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             Temps in one corner, FPS in another, nothing else. A glance when you
-                            want it, invisible when you don't — floating over borderless games
+                            want it, invisible when you don't, floating over borderless games
                             without stealing focus.
                         </p>
                     </div>
@@ -1275,7 +1283,7 @@
                         <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">Default · Compact · Pro</h3>
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             In a hurry? Pick a preset and you're done. Or open Create Custom and
-                            build it row by row — each field a dropdown, no duplicates, with a live
+                            build it row by row, each field a dropdown, no duplicates, with a live
                             preview that matches the overlay 1:1.
                         </p>
                     </div>
@@ -1284,7 +1292,7 @@
                         <h3 style="font-size:15px;color:#e2e8f0;margin:0 0 8px;">A hello when you launch</h3>
                         <p style="font-size:12.5px;color:#91a1ab;margin:0;">
                             PC Workman sees the game start and drops a one-second greeting in the
-                            corner — "Good luck at the tournament!" for CS2, "Breeding an albino
+                            corner, "Good luck at the tournament!" for CS2, "Breeding an albino
                             today?" for Planet Zoo. 40+ games, two languages.
                         </p>
                     </div>
@@ -1381,15 +1389,15 @@
                         </div>
                         <div>
                             <p style="color:#91a1ab;font-size:14px;line-height:1.7;margin-bottom:16px">
-                                Compact display mode — smaller window, key metrics on top.
+                                Compact display mode, smaller window, key metrics on top.
                                 Originally considered the main look of PC_Workman, it stepped aside
                                 for the full expanded view with 5 modules and a richer UI.
                             </p>
 
                             <div class="minimal-notice">
-                                <div class="minimal-notice-label">// STATUS — stable, lower priority</div>
+                                <div class="minimal-notice-label">// STATUS, stable, lower priority</div>
                                 <p>
-                                    Minimalistic View works reliably — it runs hck_GPT, TURBO suite, and all monitoring features
+                                    Minimalistic View works reliably, it runs hck_GPT, TURBO suite, and all monitoring features
                                     in a compact always-on-top window. Not actively extended right now;
                                     the main development focus is on the expanded view and the current roadmap.
                                     A fuller rebuild remains planned.
@@ -1502,16 +1510,16 @@
                 <div class="section-header">
                     <p class="section-eyebrow">Build in Public</p>
                     <h2 class="section-title">My Journey <span class="highlight-neon">Solo Dev</span></h2>
-                    <p class="section-subtitle">Authentic story — no startup glamour</p>
+                    <p class="section-subtitle">Authentic story, no startup glamour</p>
                 </div>
 
                 <div class="story-content">
                     <div class="story-text">
                         <h3>From Job Loss to Indie Project</h3>
                         <p>
-                            December 22nd I lost my job in the Netherlands. Came back to Poland with one thing — <strong>determination</strong>
+                            December 22nd I lost my job in the Netherlands. Came back to Poland with one thing, <strong>determination</strong>
                             to build something of my own. PC_Workman is being built on a 2014 laptop
-                            that regularly hits <strong>90°C+</strong>. Not waiting for perfect hardware — <strong>building now</strong>.
+                            that regularly hits <strong>90°C+</strong>. Not waiting for perfect hardware, <strong>building now</strong>.
                         </p>
                         <p>
                             No VC money and no team. One year of building in public, late-night refactoring,
@@ -1610,7 +1618,7 @@
             </style>
             <div class="container">
                 <div class="section-header">
-                    <p class="section-eyebrow">Build in public · MON — WED — FRI, every week</p>
+                    <p class="section-eyebrow">Build in public · MON, WED, FRI, every week</p>
                     <h2 class="section-title">Blog: <span class="highlight-green">behind the build</span></h2>
                     <p class="section-subtitle">Real numbers, real bugs, real decisions. Three series, zero sugar-coating.</p>
                 </div>
@@ -1694,9 +1702,9 @@
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p>MSI Afterburner is great for GPU OC and OSD — shows raw data.
+                            <p>MSI Afterburner is great for GPU OC and OSD, shows raw data.
                             PC_Workman explains what that data means in the context of your specific PC.
-                            There's no single "killer feature" here — it's a different tool with a different goal.
+                            There's no single "killer feature" here, it's a different tool with a different goal.
                             AB: overclocking and monitoring. PC_Workman: an assistant that learns your hardware,
                             optimizes the system and answers hardware questions locally.</p>
                         </div>
@@ -1720,10 +1728,10 @@
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p>For basic monitoring (CPU/RAM/GPU usage, temps) — no.
-                            For TURBO mode (stopping services, changing power plans, suspending processes) — yes,
+                            <p>For basic monitoring (CPU/RAM/GPU usage, temps), no.
+                            For TURBO mode (stopping services, changing power plans, suspending processes), yes,
                             those are system operations. The program only asks for privileges when needed.
-                            Full source code on GitHub — you can verify every line.</p>
+                            Full source code on GitHub, you can verify every line.</p>
                         </div>
                     </div>
 
