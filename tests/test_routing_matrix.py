@@ -22,7 +22,12 @@ class TestRoutingMatrix(unittest.TestCase):
         ("jak przyspieszyć komputer?",       "speed_up_pc"),
         ("jak przyspieszyc komputer",        "speed_up_pc"),
         ("co zrobić żeby przyspieszyć",      "speed_up_pc"),
-        ("mój komputer",                     "hw_all"),
+        # 2026-07-24: bare "mój komputer" no longer forces a spec sheet - it
+        # hijacked EVERY sentence containing those words ("mój komputer jakiś
+        # dziwny" got hardware specs). Ambiguous input now falls through
+        # gracefully; a real spec request still routes:
+        ("mój komputer",                     "unknown"),
+        ("co mam w komputerze",              "hw_all"),
         ("jaki mam sprzęt",                  "hw_all"),
         ("pokaż podzespoły",                 "hw_all"),
         ("podrasuj mój komputer",            "tuneup_guide"),
@@ -37,7 +42,9 @@ class TestRoutingMatrix(unittest.TestCase):
         ("will an i5 13600k fit my board",                "upgrade_compat"),
         ("is a ryzen 5 7600 compatible with my pc",       "upgrade_compat"),
         ("jaki mam socket",                               "upgrade_compat"),
-        ("jaki ram pasuje do mojej plyty",                "upgrade_compat"),
+        # ram_compat DECLARES this phrase and gives the same DDR answer; the
+        # ł-fold fix aligned routing with the vocabulary + self-consistency.
+        ("jaki ram pasuje do mojej plyty",                "ram_compat"),
         ("czy ddr5 6000 zadziala u mnie",                 "ram_compat"),
         ("will ddr5 work on my pc",                       "ram_compat"),
         # ...and the part regex must NOT steal neighbouring intents

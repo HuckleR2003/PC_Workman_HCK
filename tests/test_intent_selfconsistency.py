@@ -34,6 +34,10 @@ ALLOWED = {
     # what-to-disable list) - a precise, sensible answer for that phrasing.
     ("co moge wylaczyc zeby pc byl szybszy", "speed_up_pc"),
     ("co wylaczyc zeby szybszy", "speed_up_pc"),
+    # 2026-07-23: "gra się zacina" joined symptom_freeze (single-app freeze
+    # fix); the longer gaming_session phrase contains it, and a freeze answer
+    # for "why does the game stutter" is the MORE helpful of the two.
+    ("dlaczego gra się zacina", "gaming_session"),
     ("pc runs slow", "why_slow"),
     ("pre-gaming optimization", "game_ready"),
     ("problemy z dyskiem", "disk_health"),

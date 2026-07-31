@@ -24,6 +24,7 @@ NAV = [
     ("my_pc", "components"),
     ("my_pc", "sensors"),
     ("first_setup", None),
+    ("overclock", None),
     ("fan_control", "fan_dashboard"),
     ("fan_control", "hw_usage"),
     ("optimization", "center"),
@@ -33,7 +34,7 @@ NAV = [
 ]
 # Pages that replace the content area (vs. slide-in overlays).
 DIRECT = {"dashboard", "monitoring_alerts", "first_setup", "fan_control",
-          "optimization"}
+          "optimization", "overclock"}
 
 
 class TestSidebarNavigationEndToEnd(unittest.TestCase):

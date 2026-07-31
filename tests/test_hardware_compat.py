@@ -38,7 +38,7 @@ class TestLibraryIntegrity(unittest.TestCase):
             self.assertTrue(35 <= tdp <= 230, key)
             self.assertIsInstance(igpu, bool, key)
             # F/KF suffix chips must not claim integrated graphics
-            if key.endswith(("f", "kf")) and key.startswith("i"):
+            if key.endswith(("f", "kf")) and key.startswith(("i", "ultra")):
                 self.assertFalse(igpu, f"{key} is an F part but igpu=True")
 
     def test_gpu_rows_sane(self):
@@ -78,6 +78,10 @@ class TestIdentification(unittest.TestCase):
         self.assertEqual(rec["key"], "ryzen 7 5800x3d")
         rec = hc.identify_cpu("Intel(R) Core(TM) Ultra 7 265K")
         self.assertEqual(rec["key"], "ultra 7 265k")
+        rec = hc.identify_cpu("Intel Core Ultra 5 225F")
+        self.assertEqual(rec["key"], "ultra 5 225f")
+        rec = hc.identify_cpu("Intel Core Ultra 5 250KF Plus")
+        self.assertEqual(rec["key"], "ultra 5 250kf plus")
         rec = hc.identify_cpu("Pentium Gold G4560")
         self.assertEqual(rec["key"], "pentium g4560")
         rec = hc.identify_cpu("FX-8350")
@@ -126,6 +130,8 @@ class TestIdentification(unittest.TestCase):
             "ProArt X870E-CREATOR": "X870E",
             "H81M-K": "H81",
             "TUF GAMING B560M-PLUS": "B560",
+            "PRO WS W880-ACE": "W880",
+            "Q870 BUSINESS BOARD": "Q870",
         }
         for board, chip in cases.items():
             self.assertEqual(hc.chipset_from_board(board), chip, board)

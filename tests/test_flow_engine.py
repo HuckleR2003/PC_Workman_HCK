@@ -44,6 +44,9 @@ class TestFlowEngineCore(unittest.TestCase):
         self.assertEqual(out, ["done", "end"])
         self.assertEqual(log, ["ACT"])
         self.assertFalse(eng.is_active(), "flow must end after last step")
+        transition = eng.last_transition
+        self.assertEqual(transition["event"], "confirmed")
+        self.assertTrue(transition["completed"])
 
     def test_skip_action(self):
         eng, log = self._mini()
@@ -52,6 +55,7 @@ class TestFlowEngineCore(unittest.TestCase):
         out = eng.process_input("pomiń", None)
         self.assertEqual(out, ["end"])
         self.assertEqual(log, [], "skip must NOT run the action")
+        self.assertEqual(eng.last_transition["event"], "skipped")
 
     def test_interjection_pauses_not_kills(self):
         eng, _ = self._mini()
@@ -85,6 +89,24 @@ class TestFlowEngineCore(unittest.TestCase):
         out = eng.process_input("tak", None)
         self.assertTrue(any("end" in x for x in out))
         self.assertTrue(any("⚠" in x for x in out))
+
+    def test_completed_transition_preserves_flow_evidence(self):
+        eng = FlowEngine()
+
+        def _act(rb, state, lang):
+            state["before"] = {"ram_pct": 80}
+            state["after"] = {"ram_pct": 60}
+            return ["measured"]
+
+        eng.register(Flow("proof", [
+            FlowStep(lambda rb, st, lg: ["ask"], act=_act),
+            FlowStep(lambda rb, st, lg: ["done"]),
+        ]))
+        eng.start("proof", None, "en")
+        eng.process_input("yes", None)
+        transition = eng.last_transition
+        self.assertEqual(transition["state"]["before"]["ram_pct"], 80)
+        self.assertEqual(transition["state"]["after"]["ram_pct"], 60)
 
 
 class TestOptimizeFlow(unittest.TestCase):

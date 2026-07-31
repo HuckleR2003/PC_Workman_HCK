@@ -61,8 +61,9 @@ class TestSidebarStructure(unittest.TestCase):
         self.assertEqual(
             [i["id"] for i in self.structure],
             ["dashboard", "monitoring_alerts", "my_pc", "first_setup",
-             "fan_control", "optimization"],
-            "top-level nav should have exactly these 6 entries (no Statistics)")
+             "overclock", "fan_control", "optimization"],
+            "top-level nav: 7 entries - OVERCLOCK sits right above "
+            "FAN DASHBOARD (2026-07), no Statistics")
 
     def test_removed_entries_are_gone(self):
         all_subs = {s for i in self.structure if i["subitems"]
