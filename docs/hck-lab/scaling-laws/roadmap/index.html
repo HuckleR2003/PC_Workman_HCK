@@ -1,0 +1,3723 @@
+<!doctype html>
+<html lang="en" data-roadmap-version="2026.08.06-stage5">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Scaling Laws Roadmap | AI Tycoon Development | HCK Labs</title>
+  <meta name="description" content="The public Scaling Laws roadmap: model training, research, hardware, rivals, business, offices, staff, safety and release work, with strict shipped status and no fake percentages.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws Devlog RSS" href="../devlog/feed.xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Scaling Laws Roadmap">
+  <meta property="og:description" content="What is stable, playable, being built next and deliberately left for later in Scaling Laws.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-roadmap.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Scaling Laws public development roadmap">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scaling Laws Roadmap">
+  <meta name="twitter:description" content="No percentages. Foundation, playable, polish, planned and shipped.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-roadmap.png">
+  <meta name="twitter:image:alt" content="Scaling Laws public development roadmap">
+
+  <link rel="stylesheet" href="../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="../assets/css/roadmap.css">
+
+  <script defer src="../../assets/js/hck-labs.js"></script>
+  <script defer src="../assets/js/roadmap.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "sameAs": ["https://github.com/HuckleR2003"]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "founder": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"}
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
+        "name": "Scaling Laws",
+        "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
+        "genre": ["Simulation", "Strategy", "Tycoon"],
+        "author": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"},
+        "publisher": {"@id": "https://pcworkman.dev/hck-labs/#organization"}
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/roadmap/#categories",
+        "name": "Scaling Laws roadmap categories",
+        "numberOfItems": 11,
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Foundation"},{"@type": "ListItem", "position": 2, "name": "Founder & Company"},{"@type": "ListItem", "position": 3, "name": "Models & Data"},{"@type": "ListItem", "position": 4, "name": "Research & Architecture"},{"@type": "ListItem", "position": 5, "name": "Hardware & Compute"},{"@type": "ListItem", "position": 6, "name": "Rivals & Intelligence"},{"@type": "ListItem", "position": 7, "name": "Business & Capital"},{"@type": "ListItem", "position": 8, "name": "Office, Staff & World"},{"@type": "ListItem", "position": 9, "name": "Safety & Incidents"},{"@type": "ListItem", "position": 10, "name": "Interface & Presentation"},{"@type": "ListItem", "position": 11, "name": "Public Build & Release"}
+        ]
+      },
+      {
+        "@type": "CollectionPage",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/roadmap/#webpage",
+        "url": "https://pcworkman.dev/hck-labs/scaling-laws/roadmap/",
+        "name": "Scaling Laws Roadmap",
+        "description": "The public development roadmap for Scaling Laws.",
+        "dateModified": "2026-08-06",
+        "inLanguage": "en",
+        "about": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"},
+        "mainEntity": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/roadmap/#categories"}
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/roadmap/#breadcrumb",
+        "itemListElement": [
+          {"@type":"ListItem","position":1,"name":"PC Workman","item":"https://pcworkman.dev/"},
+          {"@type":"ListItem","position":2,"name":"HCK Labs","item":"https://pcworkman.dev/hck-labs/"},
+          {"@type":"ListItem","position":3,"name":"Scaling Laws","item":"https://pcworkman.dev/hck-labs/scaling-laws/"},
+          {"@type":"ListItem","position":4,"name":"Roadmap","item":"https://pcworkman.dev/hck-labs/scaling-laws/roadmap/"}
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body class="sl-page slr-page">
+  <a class="slr-skip-link" href="#roadmap">Skip to roadmap</a>
+
+  <div class="hck-shell">
+    <header class="hck-site-header">
+      <nav class="hck-nav" aria-label="Primary navigation">
+        <a class="sl-project-brand" href="../" aria-label="Scaling Laws home">
+          <span class="hck-brand__mark" aria-hidden="true"></span>
+          <span>HCK Labs</span>
+          <span class="sl-project-brand__slash" aria-hidden="true">/</span>
+          <span class="sl-project-brand__name">Scaling Laws</span>
+        </a>
+
+        <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="slr-nav-links">
+          <span class="hck-visually-hidden">Open navigation</span>
+          <span class="hck-nav__toggle-lines" aria-hidden="true"></span>
+        </button>
+
+        <div class="hck-nav__links" id="slr-nav-links" data-nav-links>
+          <a class="hck-nav__link" href="../">Game</a>
+          <a class="hck-nav__link" href="../development/">Development</a>
+          <a class="hck-nav__link is-active" href="./" aria-current="page">Roadmap</a>
+          <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="roadmap">
+      <section class="slr-hero" aria-labelledby="roadmap-title">
+        <div class="slr-hero__inner">
+          <div data-reveal>
+            <div class="slr-eyebrow">Public development line / updated 2026-08-06</div>
+            <h1 id="roadmap-title">Roadmap</h1>
+            <p class="slr-hero__lead">
+              This is the working state of Scaling Laws, not a promise list. <strong>No 82% progress bars.</strong> A feature moves from foundation to playable, polish and finally shipped only when the label actually means something.
+            </p>
+          </div>
+
+          <aside class="slr-rule-box hck-edge-shine" data-reveal>
+            <div class="slr-rule-box__label">The 101% rule</div>
+            <strong>SHIPPED means we stop making excuses for it.</strong>
+            <p>A feature is SHIPPED only when it is complete, stable and no longer needs a roadmap disclaimer.</p>
+          </aside>
+        </div>
+
+        <div class="slr-summary" data-reveal aria-label="Roadmap summary">
+          <div class="slr-summary__cell">
+            <span class="slr-summary__k">Tracked features</span>
+            <strong class="slr-summary__v">180</strong>
+            <span class="slr-summary__note">end-to-end game line</span>
+          </div>
+          <div class="slr-summary__cell">
+            <span class="slr-summary__k">Shipped</span>
+            <strong class="slr-summary__v">76</strong>
+            <span class="slr-summary__note">checked off under the strict rule</span>
+          </div>
+          <div class="slr-summary__cell">
+            <span class="slr-summary__k">Current line</span>
+            <strong class="slr-summary__v">48</strong>
+            <span class="slr-summary__note">playable, polish or active foundation</span>
+          </div>
+          <div class="slr-summary__cell">
+            <span class="slr-summary__k">Categories</span>
+            <strong class="slr-summary__v">11</strong>
+            <span class="slr-summary__note">from simulation core to release</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="slr-current" aria-labelledby="current-line-title">
+        <div class="hck-container--wide">
+          <header class="slr-current__head" data-reveal>
+            <div>
+              <div class="slr-eyebrow">On the bench now</div>
+              <h2 id="current-line-title">The next expensive decisions are becoming visible.</h2>
+            </div>
+            <p>
+              Hardware economics already exist underneath the UI. The current line is about letting the player actually rent, buy, configure and time those decisions, then tying that ownership back into the physical company.
+            </p>
+          </header>
+          <div class="slr-now-grid">
+            <article class="slr-now-card" data-reveal>
+      <div class="slr-now-card__code">Current line / 01</div>
+      <h3>Hardware purchase screen</h3>
+      <p>Turn the catalog into an actual buy decision.</p>
+    </article>
+<article class="slr-now-card" data-reveal>
+      <div class="slr-now-card__code">Current line / 02</div>
+      <h3>Server configuration</h3>
+      <p>Accelerator, CPU, memory and fabric must fit together.</p>
+    </article>
+<article class="slr-now-card" data-reveal>
+      <div class="slr-now-card__code">Current line / 03</div>
+      <h3>Hardware launch timeline</h3>
+      <p>Make waiting visible before it becomes expensive.</p>
+    </article>
+<article class="slr-now-card" data-reveal>
+      <div class="slr-now-card__code">Current line / 04</div>
+      <h3>Staff &amp; larger offices</h3>
+      <p>The starter house needs a real second rung.</p>
+    </article>
+          </div>
+        </div>
+      </section>
+
+      <div class="slr-controls-wrap">
+        <div class="slr-controls" aria-label="Roadmap filters">
+          <label class="slr-search">
+            <span class="hck-visually-hidden">Search roadmap</span>
+            <input type="search" placeholder="Search features...  /" autocomplete="off" data-roadmap-search>
+          </label>
+
+          <div class="slr-segment" aria-label="Roadmap lane">
+            <button class="slr-filter is-active" type="button" data-lane-filter="all">All</button>
+            <button class="slr-filter" type="button" data-lane-filter="now">Now</button>
+            <button class="slr-filter" type="button" data-lane-filter="next">Next</button>
+            <button class="slr-filter" type="button" data-lane-filter="later">Later</button>
+            <button class="slr-filter" type="button" data-lane-filter="shipped">Shipped</button>
+          </div>
+
+          <div class="slr-tools">
+            <button class="slr-tool" type="button" data-presentation-toggle aria-pressed="false" title="Hide chrome and show a clean screenshot view">Presentation</button>
+            <button class="slr-tool" type="button" data-copy-view>Copy view</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="slr-categories-bar">
+        <div class="slr-categories" aria-label="Roadmap categories">
+          <button class="slr-category-filter is-active" type="button" data-category-filter="all">All systems</button>
+<button class="slr-category-filter" type="button" data-category-filter="foundation">Core</button>
+<button class="slr-category-filter" type="button" data-category-filter="founder-company">Founder</button>
+<button class="slr-category-filter" type="button" data-category-filter="models-data">Models</button>
+<button class="slr-category-filter" type="button" data-category-filter="research-architecture">Research</button>
+<button class="slr-category-filter" type="button" data-category-filter="hardware-compute">Hardware</button>
+<button class="slr-category-filter" type="button" data-category-filter="rivals-intel">Rivals</button>
+<button class="slr-category-filter" type="button" data-category-filter="business-capital">Business</button>
+<button class="slr-category-filter" type="button" data-category-filter="office-staff-world">World</button>
+<button class="slr-category-filter" type="button" data-category-filter="safety">Safety</button>
+<button class="slr-category-filter" type="button" data-category-filter="interface">UI</button>
+<button class="slr-category-filter" type="button" data-category-filter="release">Release</button>
+        </div>
+      </div>
+
+      <div class="slr-body">
+        <div class="slr-results" data-roadmap-results>180 features shown</div>
+
+        <!-- GENERATED FROM assets/data/roadmap.json. Do not hand-edit cards. -->
+        
+    <section class="slr-category" id="foundation" data-roadmap-category data-category-section="foundation">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Core / 11 items</div>
+          <h2>Foundation</h2>
+        </div>
+        <p>The rules that keep every campaign reproducible, saveable and testable.</p>
+        <div class="slr-category__counts">
+          <span><strong>10</strong> shipped</span>
+          <span><strong>1</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="foundation-01"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="deterministic campaign clock campaign time advances through one gamedate timeline beginning on 1 january 2022. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Deterministic campaign clock</h3>
+      <p>Campaign time advances through one GameDate timeline beginning on 1 January 2022.</p>
+      <a class="slr-anchor" href="#foundation-01" aria-label="Link to Deterministic campaign clock">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-02"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="one ordered daily simulation tick deliveries, compute, market demand, bills, gates and solvency resolve in a fixed order. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>One ordered daily simulation tick</h3>
+      <p>Deliveries, compute, market demand, bills, gates and solvency resolve in a fixed order.</p>
+      <a class="slr-anchor" href="#foundation-02" aria-label="Link to One ordered daily simulation tick">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-03"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="saved deterministic random state the same seed and the same decisions replay to the same numbers. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Saved deterministic random state</h3>
+      <p>The same seed and the same decisions replay to the same numbers.</p>
+      <a class="slr-anchor" href="#foundation-03" aria-label="Link to Saved deterministic random state">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-04"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="simulation separated from unity economics and game rules run without unityengine so balance tests do not need a scene. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Simulation separated from Unity</h3>
+      <p>Economics and game rules run without UnityEngine so balance tests do not need a scene.</p>
+      <a class="slr-anchor" href="#foundation-04" aria-label="Link to Simulation separated from Unity">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-05"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="versioned save migrations old save shapes move forward one version at a time instead of being silently rewritten. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Versioned save migrations</h3>
+      <p>Old save shapes move forward one version at a time instead of being silently rewritten.</p>
+      <a class="slr-anchor" href="#foundation-05" aria-label="Link to Versioned save migrations">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-06"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="save sanitization loaded fields are clamped and invalid enum values fall back to legal states. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Save sanitization</h3>
+      <p>Loaded fields are clamped and invalid enum values fall back to legal states.</p>
+      <a class="slr-anchor" href="#foundation-06" aria-label="Link to Save sanitization">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-07"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="projection honesty flags estimated hardware and rival data stay distinguishable from known reference data. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Projection honesty flags</h3>
+      <p>Estimated hardware and rival data stay distinguishable from known reference data.</p>
+      <a class="slr-anchor" href="#foundation-07" aria-label="Link to Projection honesty flags">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-08"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="training projection separated from outcome a projected capability never becomes a deployed score until the run actually finishes. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Training projection separated from outcome</h3>
+      <p>A projected capability never becomes a deployed score until the run actually finishes.</p>
+      <a class="slr-anchor" href="#foundation-08" aria-label="Link to Training projection separated from outcome">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-09"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="playability campaign test a scripted multi-year company must survive and stay competitive without trivially dominating. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Playability campaign test</h3>
+      <p>A scripted multi-year company must survive and stay competitive without trivially dominating.</p>
+      <a class="slr-anchor" href="#foundation-09" aria-label="Link to Playability campaign test">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-10"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="cross-catalog consistency tests catalog sweeps catch impossible ranges, dangling references and dead research paths. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Cross-catalog consistency tests</h3>
+      <p>Catalog sweeps catch impossible ranges, dangling references and dead research paths.</p>
+      <a class="slr-anchor" href="#foundation-10" aria-label="Link to Cross-catalog consistency tests">#</a>
+    </article>
+    
+    <article class="slr-card" id="foundation-11"
+      data-roadmap-item
+      data-category="foundation"
+      data-status="polish"
+      data-lane="now"
+      data-search="scene wiring guards playmode checks protect critical visual references that editmode simulation tests cannot see. foundation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Scene wiring guards</h3>
+      <p>PlayMode checks protect critical visual references that EditMode simulation tests cannot see.</p>
+      <a class="slr-anchor" href="#foundation-11" aria-label="Link to Scene wiring guards">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="founder-company" data-roadmap-category data-category-section="founder-company">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Founder / 14 items</div>
+          <h2>Founder &amp; Company</h2>
+        </div>
+        <p>The opening choices that shape cost, research, training and where the company operates.</p>
+        <div class="slr-category__counts">
+          <span><strong>8</strong> shipped</span>
+          <span><strong>5</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="founder-company-01"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="playable"
+      data-lane="now"
+      data-search="founder creation screen create the person behind the lab before the campaign begins. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Founder creation screen</h3>
+      <p>Create the person behind the lab before the campaign begins.</p>
+      <a class="slr-anchor" href="#founder-company-01" aria-label="Link to Founder creation screen">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-02"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="seven founder skills development, management, teamwork, concept, software, data engineering and safety. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Seven founder skills</h3>
+      <p>Development, Management, Teamwork, Concept, Software, Data Engineering and Safety.</p>
+      <a class="slr-anchor" href="#founder-company-02" aria-label="Link to Seven founder skills">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-03"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="neutral skill baseline at 20 ignoring a skill is a real weakness instead of merely skipping a bonus. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Neutral skill baseline at 20</h3>
+      <p>Ignoring a skill is a real weakness instead of merely skipping a bonus.</p>
+      <a class="slr-anchor" href="#founder-company-03" aria-label="Link to Neutral skill baseline at 20">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-04"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="skill xp from completed work experience is awarded for finished runs, research, upgrades and releases, never for idle time. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Skill XP from completed work</h3>
+      <p>Experience is awarded for finished runs, research, upgrades and releases, never for idle time.</p>
+      <a class="slr-anchor" href="#founder-company-04" aria-label="Link to Skill XP from completed work">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-05"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="founder traits with downsides every opening trait trades one advantage against a real cost. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Founder traits with downsides</h3>
+      <p>Every opening trait trades one advantage against a real cost.</p>
+      <a class="slr-anchor" href="#founder-company-05" aria-label="Link to Founder traits with downsides">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-06"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="playable"
+      data-lane="now"
+      data-search="company identity choices opening company profiles change starting cash, reputation, data and default pricing. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Company identity choices</h3>
+      <p>Opening company profiles change starting cash, reputation, data and default pricing.</p>
+      <a class="slr-anchor" href="#founder-company-06" aria-label="Link to Company identity choices">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-07"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="playable"
+      data-lane="now"
+      data-search="custom company identity name and define the player&#x27;s own lab rather than taking a preset. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Custom company identity</h3>
+      <p>Name and define the player&#x27;s own lab rather than taking a preset.</p>
+      <a class="slr-anchor" href="#founder-company-07" aria-label="Link to Custom company identity">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-08"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="playable"
+      data-lane="now"
+      data-search="world region selection choose the region used to navigate the registration map. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>World region selection</h3>
+      <p>Choose the region used to navigate the registration map.</p>
+      <a class="slr-anchor" href="#founder-company-08" aria-label="Link to World region selection">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-09"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="playable"
+      data-lane="now"
+      data-search="sixteen registration countries countries differ on hardware access, tax, innovation and local competition. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Sixteen registration countries</h3>
+      <p>Countries differ on hardware access, tax, innovation and local competition.</p>
+      <a class="slr-anchor" href="#founder-company-09" aria-label="Link to Sixteen registration countries">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-10"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="corporate tax on operating profit a loss-making company is not punished with tax on turnover. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Corporate tax on operating profit</h3>
+      <p>A loss-making company is not punished with tax on turnover.</p>
+      <a class="slr-anchor" href="#founder-company-10" aria-label="Link to Corporate tax on operating profit">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-11"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="regional hardware price modifier registration changes what owned silicon costs. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Regional hardware price modifier</h3>
+      <p>Registration changes what owned silicon costs.</p>
+      <a class="slr-anchor" href="#founder-company-11" aria-label="Link to Regional hardware price modifier">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-12"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="regional innovation modifier country choice changes research and upgrade timing. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Regional innovation modifier</h3>
+      <p>Country choice changes research and upgrade timing.</p>
+      <a class="slr-anchor" href="#founder-company-12" aria-label="Link to Regional innovation modifier">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-13"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="local competition modifier registration changes the brand pressure in the market split. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Local competition modifier</h3>
+      <p>Registration changes the brand pressure in the market split.</p>
+      <a class="slr-anchor" href="#founder-company-13" aria-label="Link to Local competition modifier">#</a>
+    </article>
+    
+    <article class="slr-card" id="founder-company-14"
+      data-roadmap-item
+      data-category="founder-company"
+      data-status="planned"
+      data-lane="next"
+      data-search="founder appearance in the 3d world connect the creator identity to the physical starter home and later offices. founder &amp; company">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Founder appearance in the 3D world</h3>
+      <p>Connect the creator identity to the physical starter home and later offices.</p>
+      <a class="slr-anchor" href="#founder-company-14" aria-label="Link to Founder appearance in the 3D world">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="models-data" data-roadmap-category data-category-section="models-data">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Models / 19 items</div>
+          <h2>Models &amp; Data</h2>
+        </div>
+        <p>From a blueprint to a trained model, a shelf decision and a live product.</p>
+        <div class="slr-category__counts">
+          <span><strong>8</strong> shipped</span>
+          <span><strong>8</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="models-data-01"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="staged model creator build a model through foundation, scale, data, compute and review instead of one giant form. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Staged model creator</h3>
+      <p>Build a model through Foundation, Scale, Data, Compute and Review instead of one giant form.</p>
+      <a class="slr-anchor" href="#models-data-01" aria-label="Link to Staged model creator">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-02"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="live capability projection the creator shows how the last change moved projected capability. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Live capability projection</h3>
+      <p>The creator shows how the last change moved projected capability.</p>
+      <a class="slr-anchor" href="#models-data-02" aria-label="Link to Live capability projection">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-03"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="training-time projection the bill is not the only cost. calendar time is visible before committing the run. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Training-time projection</h3>
+      <p>The bill is not the only cost. Calendar time is visible before committing the run.</p>
+      <a class="slr-anchor" href="#models-data-03" aria-label="Link to Training-time projection">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-04"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="training-cost projection the creator prices the run against cash on hand before the player commits. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Training-cost projection</h3>
+      <p>The creator prices the run against cash on hand before the player commits.</p>
+      <a class="slr-anchor" href="#models-data-04" aria-label="Link to Training-cost projection">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-05"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="scaling-law quality model parameter count and token count feed one chinchilla-style quality function. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Scaling-law quality model</h3>
+      <p>Parameter count and token count feed one Chinchilla-style quality function.</p>
+      <a class="slr-anchor" href="#models-data-05" aria-label="Link to Scaling-law quality model">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-06"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="compute-optimal training pressure undertraining or overtraining can waste the same compute budget. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Compute-optimal training pressure</h3>
+      <p>Undertraining or overtraining can waste the same compute budget.</p>
+      <a class="slr-anchor" href="#models-data-06" aria-label="Link to Compute-optimal training pressure">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-07"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="dataset catalog eight corpora feed the data side of the training plan. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Dataset catalog</h3>
+      <p>Eight corpora feed the data side of the training plan.</p>
+      <a class="slr-anchor" href="#models-data-07" aria-label="Link to Dataset catalog">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-08"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="dataset blending rule multiple corpora combine through one normalized mechanism. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Dataset blending rule</h3>
+      <p>Multiple corpora combine through one normalized mechanism.</p>
+      <a class="slr-anchor" href="#models-data-08" aria-label="Link to Dataset blending rule">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-09"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="five audience segments consumer, developer, enterprise, creative and autonomous demand change over time. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Five audience segments</h3>
+      <p>Consumer, Developer, Enterprise, Creative and Autonomous demand change over time.</p>
+      <a class="slr-anchor" href="#models-data-09" aria-label="Link to Five audience segments">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-10"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="foundation"
+      data-lane="now"
+      data-search="five model types specialized model types trade broad reach for stronger audience fit and price tolerance. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Five model types</h3>
+      <p>Specialized model types trade broad reach for stronger audience fit and price tolerance.</p>
+      <a class="slr-anchor" href="#models-data-10" aria-label="Link to Five model types">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-11"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="shelf before release a finished run becomes a trained model on the shelf, not an automatic launch. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Shelf before release</h3>
+      <p>A finished run becomes a trained model on the shelf, not an automatic launch.</p>
+      <a class="slr-anchor" href="#models-data-11" aria-label="Link to Shelf before release">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-12"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="manual release timing the player chooses when a trained model reaches the market. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Manual release timing</h3>
+      <p>The player chooses when a trained model reaches the market.</p>
+      <a class="slr-anchor" href="#models-data-12" aria-label="Link to Manual release timing">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-13"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="per-model pricing multiple live models can carry different prices. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Per-model pricing</h3>
+      <p>Multiple live models can carry different prices.</p>
+      <a class="slr-anchor" href="#models-data-13" aria-label="Link to Per-model pricing">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-14"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="playable"
+      data-lane="now"
+      data-search="eleven model traits reasoning, knowledge, coding and other traits are measured against the market par of the day. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Eleven model traits</h3>
+      <p>Reasoning, knowledge, coding and other traits are measured against the market par of the day.</p>
+      <a class="slr-anchor" href="#models-data-14" aria-label="Link to Eleven model traits">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-15"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="trait upgrades consume time and compute model maintenance competes with training for the same calendar and infrastructure. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Trait upgrades consume time and compute</h3>
+      <p>Model maintenance competes with training for the same calendar and infrastructure.</p>
+      <a class="slr-anchor" href="#models-data-15" aria-label="Link to Trait upgrades consume time and compute">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-16"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="production serving descendant factor inference is priced as served descendants rather than the full training artifact. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Production serving descendant factor</h3>
+      <p>Inference is priced as served descendants rather than the full training artifact.</p>
+      <a class="slr-anchor" href="#models-data-16" aria-label="Link to Production serving descendant factor">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-17"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="planned"
+      data-lane="next"
+      data-search="safety stage in model creator make safety an explicit creation-stage decision before training. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Safety stage in model creator</h3>
+      <p>Make safety an explicit creation-stage decision before training.</p>
+      <a class="slr-anchor" href="#models-data-17" aria-label="Link to Safety stage in model creator">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-18"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="planned"
+      data-lane="next"
+      data-search="keep local vs release flow a finished run should branch into internal use or public release instead of one fixed path. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Keep local vs release flow</h3>
+      <p>A finished run should branch into internal use or public release instead of one fixed path.</p>
+      <a class="slr-anchor" href="#models-data-18" aria-label="Link to Keep local vs release flow">#</a>
+    </article>
+    
+    <article class="slr-card" id="models-data-19"
+      data-roadmap-item
+      data-category="models-data"
+      data-status="planned"
+      data-lane="next"
+      data-search="serving-capacity decision after training choose rented serving capacity or owned infrastructure after deciding to release. models &amp; data">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Serving-capacity decision after training</h3>
+      <p>Choose rented serving capacity or owned infrastructure after deciding to release.</p>
+      <a class="slr-anchor" href="#models-data-19" aria-label="Link to Serving-capacity decision after training">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="research-architecture" data-roadmap-category data-category-section="research-architecture">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Research / 14 items</div>
+          <h2>Research &amp; Architecture</h2>
+        </div>
+        <p>Technology unlocks, in-house architecture work and the calendar cost of getting there.</p>
+        <div class="slr-category__counts">
+          <span><strong>7</strong> shipped</span>
+          <span><strong>5</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="research-architecture-01"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="playable"
+      data-lane="now"
+      data-search="technology tree seventeen nodes gate architectures, data, model types, upgrades and compute tiers. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Technology tree</h3>
+      <p>Seventeen nodes gate architectures, data, model types, upgrades and compute tiers.</p>
+      <a class="slr-anchor" href="#research-architecture-01" aria-label="Link to Technology tree">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-02"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="playable"
+      data-lane="now"
+      data-search="four research eras foundations, scaling, autonomy and the late frontier structure the tree. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Four research eras</h3>
+      <p>Foundations, scaling, autonomy and the late frontier structure the tree.</p>
+      <a class="slr-anchor" href="#research-architecture-02" aria-label="Link to Four research eras">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-03"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="research prerequisite graph every unlock must be reachable and cannot open before its own prerequisite. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Research prerequisite graph</h3>
+      <p>Every unlock must be reachable and cannot open before its own prerequisite.</p>
+      <a class="slr-anchor" href="#research-architecture-03" aria-label="Link to Research prerequisite graph">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-04"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="calendar gates research cannot be brute-forced purely by having more cash. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Calendar gates</h3>
+      <p>Research cannot be brute-forced purely by having more cash.</p>
+      <a class="slr-anchor" href="#research-architecture-04" aria-label="Link to Calendar gates">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-05"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="cash cost on research time is hard to buy, but research still competes for company capital. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Cash cost on research</h3>
+      <p>Time is hard to buy, but research still competes for company capital.</p>
+      <a class="slr-anchor" href="#research-architecture-05" aria-label="Link to Cash cost on research">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-06"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="foundation"
+      data-lane="later"
+      data-search="artificial superintelligence node the end-state node is visible early but intentionally unreachable in the opening years. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Artificial Superintelligence node</h3>
+      <p>The end-state node is visible early but intentionally unreachable in the opening years.</p>
+      <a class="slr-anchor" href="#research-architecture-06" aria-label="Link to Artificial Superintelligence node">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-07"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="playable"
+      data-lane="now"
+      data-search="in-house architecture designer create a custom family instead of only adopting a published architecture. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>In-house architecture designer</h3>
+      <p>Create a custom family instead of only adopting a published architecture.</p>
+      <a class="slr-anchor" href="#research-architecture-07" aria-label="Link to In-house architecture designer">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-08"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="playable"
+      data-lane="now"
+      data-search="five architecture research directions sparsity, throughput, quality-per-parameter, serving cost and reasoning divide programme focus. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Five architecture research directions</h3>
+      <p>Sparsity, throughput, quality-per-parameter, serving cost and reasoning divide programme focus.</p>
+      <a class="slr-anchor" href="#research-architecture-08" aria-label="Link to Five architecture research directions">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-09"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="budget × calendar power model more money cannot fully substitute for more time, and more time cannot replace all budget. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Budget × calendar power model</h3>
+      <p>More money cannot fully substitute for more time, and more time cannot replace all budget.</p>
+      <a class="slr-anchor" href="#research-architecture-09" aria-label="Link to Budget × calendar power model">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-10"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="focus dilution a programme chasing every direction makes less depth in each one. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Focus dilution</h3>
+      <p>A programme chasing every direction makes less depth in each one.</p>
+      <a class="slr-anchor" href="#research-architecture-10" aria-label="Link to Focus dilution">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-11"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="architecture outcome variance cheap or rushed research is deliberately less predictable. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Architecture outcome variance</h3>
+      <p>Cheap or rushed research is deliberately less predictable.</p>
+      <a class="slr-anchor" href="#research-architecture-11" aria-label="Link to Architecture outcome variance">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-12"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="six custom family slots house architectures resolve through the same downstream interfaces as published families. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Six custom family slots</h3>
+      <p>House architectures resolve through the same downstream interfaces as published families.</p>
+      <a class="slr-anchor" href="#research-architecture-12" aria-label="Link to Six custom family slots">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-13"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="foundation"
+      data-lane="next"
+      data-search="iterate an owned family improve a house family more cheaply and quickly, with diminishing returns. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Iterate an owned family</h3>
+      <p>Improve a house family more cheaply and quickly, with diminishing returns.</p>
+      <a class="slr-anchor" href="#research-architecture-13" aria-label="Link to Iterate an owned family">#</a>
+    </article>
+    
+    <article class="slr-card" id="research-architecture-14"
+      data-roadmap-item
+      data-category="research-architecture"
+      data-status="polish"
+      data-lane="now"
+      data-search="research-era visual polish finish the visual language and card art around the four research eras. research &amp; architecture">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Research-era visual polish</h3>
+      <p>Finish the visual language and card art around the four research eras.</p>
+      <a class="slr-anchor" href="#research-architecture-14" aria-label="Link to Research-era visual polish">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="hardware-compute" data-roadmap-category data-category-section="hardware-compute">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Hardware / 22 items</div>
+          <h2>Hardware &amp; Compute</h2>
+        </div>
+        <p>The current active development line: rent, own, configure, wait and sometimes regret the timing.</p>
+        <div class="slr-category__counts">
+          <span><strong>10</strong> shipped</span>
+          <span><strong>5</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="hardware-compute-01"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="hardware generation catalog accelerators, host cpus, node memory and fabric carry launch dates, price, power and capacity data. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Hardware generation catalog</h3>
+      <p>Accelerators, host CPUs, node memory and fabric carry launch dates, price, power and capacity data.</p>
+      <a class="slr-anchor" href="#hardware-compute-01" aria-label="Link to Hardware generation catalog">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-02"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="known vs projected hardware flag future entries can be labelled as projections rather than blended into history. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Known vs projected hardware flag</h3>
+      <p>Future entries can be labelled as projections rather than blended into history.</p>
+      <a class="slr-anchor" href="#hardware-compute-02" aria-label="Link to Known vs projected hardware flag">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-03"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="time-based hardware depreciation owned accelerators lose resale value as calendar time passes. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Time-based hardware depreciation</h3>
+      <p>Owned accelerators lose resale value as calendar time passes.</p>
+      <a class="slr-anchor" href="#hardware-compute-03" aria-label="Link to Time-based hardware depreciation">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-04"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="successor depreciation meaningful newer parts apply another phased hit after the player&#x27;s purchase. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Successor depreciation</h3>
+      <p>Meaningful newer parts apply another phased hit after the player&#x27;s purchase.</p>
+      <a class="slr-anchor" href="#hardware-compute-04" aria-label="Link to Successor depreciation">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-05"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="performance-per-dollar aging index the fleet can be compared with what the same money buys today. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Performance-per-dollar aging index</h3>
+      <p>The fleet can be compared with what the same money buys today.</p>
+      <a class="slr-anchor" href="#hardware-compute-05" aria-label="Link to Performance-per-dollar aging index">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-06"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="rented compute in petaflops cloud rental is capacity, not a fragile count of whatever hardware generation happens to be current. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Rented compute in petaflops</h3>
+      <p>Cloud rental is capacity, not a fragile count of whatever hardware generation happens to be current.</p>
+      <a class="slr-anchor" href="#hardware-compute-06" aria-label="Link to Rented compute in petaflops">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-07"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="cloud hardware availability lag rental availability follows the hardware frontier with a delay. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Cloud hardware availability lag</h3>
+      <p>Rental availability follows the hardware frontier with a delay.</p>
+      <a class="slr-anchor" href="#hardware-compute-07" aria-label="Link to Cloud hardware availability lag">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-08"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="foundation"
+      data-lane="now"
+      data-search="three compute tiers rented cloud, colocated servers and own datacenter form the infrastructure ladder. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Three compute tiers</h3>
+      <p>Rented cloud, colocated servers and own datacenter form the infrastructure ladder.</p>
+      <a class="slr-anchor" href="#hardware-compute-08" aria-label="Link to Three compute tiers">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-09"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="owned-cluster balance factor accelerators need enough host cpu, memory and fabric to approach their nominal rating. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Owned-cluster balance factor</h3>
+      <p>Accelerators need enough host CPU, memory and fabric to approach their nominal rating.</p>
+      <a class="slr-anchor" href="#hardware-compute-09" aria-label="Link to Owned-cluster balance factor">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-10"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="training scaling-efficiency loss large accelerator counts lose efficiency as the fleet scales. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Training scaling-efficiency loss</h3>
+      <p>Large accelerator counts lose efficiency as the fleet scales.</p>
+      <a class="slr-anchor" href="#hardware-compute-10" aria-label="Link to Training scaling-efficiency loss">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-11"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="inference utilization model serving and training do not pretend to use the same hardware in the same way. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Inference utilization model</h3>
+      <p>Serving and training do not pretend to use the same hardware in the same way.</p>
+      <a class="slr-anchor" href="#hardware-compute-11" aria-label="Link to Inference utilization model">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-12"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="foundation"
+      data-lane="now"
+      data-search="hardware purchase screen turn the existing catalog and economics into a player-facing buy flow. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Hardware purchase screen</h3>
+      <p>Turn the existing catalog and economics into a player-facing buy flow.</p>
+      <a class="slr-anchor" href="#hardware-compute-12" aria-label="Link to Hardware purchase screen">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-13"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="foundation"
+      data-lane="now"
+      data-search="hardware sell flow make resale value visible before the player exits an owned batch. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Hardware sell flow</h3>
+      <p>Make resale value visible before the player exits an owned batch.</p>
+      <a class="slr-anchor" href="#hardware-compute-13" aria-label="Link to Hardware sell flow">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-14"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="foundation"
+      data-lane="now"
+      data-search="server configuration pair accelerators with host cpus, node memory and fabric instead of buying one magic server score. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Server configuration</h3>
+      <p>Pair accelerators with host CPUs, node memory and fabric instead of buying one magic server score.</p>
+      <a class="slr-anchor" href="#hardware-compute-14" aria-label="Link to Server configuration">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-15"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="foundation"
+      data-lane="now"
+      data-search="hardware launch timeline surface generation timing so waiting becomes an explicit decision rather than hidden knowledge. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Hardware launch timeline</h3>
+      <p>Surface generation timing so waiting becomes an explicit decision rather than hidden knowledge.</p>
+      <a class="slr-anchor" href="#hardware-compute-15" aria-label="Link to Hardware launch timeline">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-16"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="next"
+      data-search="colocation acquisition flow buy owned hardware with lead time before the company is ready for a full datacenter. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Colocation acquisition flow</h3>
+      <p>Buy owned hardware with lead time before the company is ready for a full datacenter.</p>
+      <a class="slr-anchor" href="#hardware-compute-16" aria-label="Link to Colocation acquisition flow">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-17"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="next"
+      data-search="own-datacenter acquisition flow turn the late compute tier into a real capital and infrastructure commitment. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Own-datacenter acquisition flow</h3>
+      <p>Turn the late compute tier into a real capital and infrastructure commitment.</p>
+      <a class="slr-anchor" href="#hardware-compute-17" aria-label="Link to Own-datacenter acquisition flow">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-18"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="next"
+      data-search="supply ramp after launch a new accelerator generation should not become infinitely available on day one. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Supply ramp after launch</h3>
+      <p>A new accelerator generation should not become infinitely available on day one.</p>
+      <a class="slr-anchor" href="#hardware-compute-18" aria-label="Link to Supply ramp after launch">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-19"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="next"
+      data-search="supply squeezes and shortages make availability another reason a technically good purchase can fail operationally. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Supply squeezes and shortages</h3>
+      <p>Make availability another reason a technically good purchase can fail operationally.</p>
+      <a class="slr-anchor" href="#hardware-compute-19" aria-label="Link to Supply squeezes and shortages">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-20"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="next"
+      data-search="physical server racks owned compute should appear in company spaces instead of living only in a table. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Physical server racks</h3>
+      <p>Owned compute should appear in company spaces instead of living only in a table.</p>
+      <a class="slr-anchor" href="#hardware-compute-20" aria-label="Link to Physical server racks">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-21"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="later"
+      data-search="datacenter power planning owned infrastructure eventually needs limits beyond purchase price. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Datacenter power planning</h3>
+      <p>Owned infrastructure eventually needs limits beyond purchase price.</p>
+      <a class="slr-anchor" href="#hardware-compute-21" aria-label="Link to Datacenter power planning">#</a>
+    </article>
+    
+    <article class="slr-card" id="hardware-compute-22"
+      data-roadmap-item
+      data-category="hardware-compute"
+      data-status="planned"
+      data-lane="later"
+      data-search="datacenter cooling constraints cooling becomes a late physical limit if the infrastructure simulation grows deep enough. hardware &amp; compute">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Datacenter cooling constraints</h3>
+      <p>Cooling becomes a late physical limit if the infrastructure simulation grows deep enough.</p>
+      <a class="slr-anchor" href="#hardware-compute-22" aria-label="Link to Datacenter cooling constraints">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="rivals-intel" data-roadmap-category data-category-section="rivals-intel">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Rivals / 16 items</div>
+          <h2>Rivals &amp; Intelligence</h2>
+        </div>
+        <p>Competitors that react to timing, plus information that can cost money and still be wrong.</p>
+        <div class="slr-category__counts">
+          <span><strong>12</strong> shipped</span>
+          <span><strong>2</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="rivals-intel-01"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="eight rival labs the active field is agent-driven rather than one static score table. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Eight rival labs</h3>
+      <p>The active field is agent-driven rather than one static score table.</p>
+      <a class="slr-anchor" href="#rivals-intel-01" aria-label="Link to Eight rival labs">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-02"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="historical release seed timeline known releases seed the 2022–2026 opening before agents diverge. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Historical release seed timeline</h3>
+      <p>Known releases seed the 2022–2026 opening before agents diverge.</p>
+      <a class="slr-anchor" href="#rivals-intel-02" aria-label="Link to Historical release seed timeline">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-03"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="patient rival waiting some rivals delay a run when better silicon is close to the planned launch window. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Patient rival waiting</h3>
+      <p>Some rivals delay a run when better silicon is close to the planned launch window.</p>
+      <a class="slr-anchor" href="#rivals-intel-03" aria-label="Link to Patient rival waiting">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-04"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="rival rush response a frontier-focused lab can ship early with a quality penalty when the player opens a large gap. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Rival rush response</h3>
+      <p>A frontier-focused lab can ship early with a quality penalty when the player opens a large gap.</p>
+      <a class="slr-anchor" href="#rivals-intel-04" aria-label="Link to Rival rush response">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-05"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="rival capability drift competitors improve between releases instead of freezing until the next launch. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Rival capability drift</h3>
+      <p>Competitors improve between releases instead of freezing until the next launch.</p>
+      <a class="slr-anchor" href="#rivals-intel-05" aria-label="Link to Rival capability drift">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-06"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="procedural post-history releases after the known timeline ends, rival strategies generate their own cadence. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Procedural post-history releases</h3>
+      <p>After the known timeline ends, rival strategies generate their own cadence.</p>
+      <a class="slr-anchor" href="#rivals-intel-06" aria-label="Link to Procedural post-history releases">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-07"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="parody rival naming labs remain recognizable as jokes without using real company names. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Parody rival naming</h3>
+      <p>Labs remain recognizable as jokes without using real company names.</p>
+      <a class="slr-anchor" href="#rivals-intel-07" aria-label="Link to Parody rival naming">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-08"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="polish"
+      data-lane="now"
+      data-search="parody rival logo set finish a consistent small-mark system that remains readable at ui scale. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Parody rival logo set</h3>
+      <p>Finish a consistent small-mark system that remains readable at UI scale.</p>
+      <a class="slr-anchor" href="#rivals-intel-08" aria-label="Link to Parody rival logo set">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-09"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="foundation"
+      data-lane="now"
+      data-search="three paid intelligence tiers information quality improves with spend without turning into perfect foresight. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Three paid intelligence tiers</h3>
+      <p>Information quality improves with spend without turning into perfect foresight.</p>
+      <a class="slr-anchor" href="#rivals-intel-09" aria-label="Link to Three paid intelligence tiers">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-10"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="real accuracy vs stated confidence a report can sound more certain than the underlying signal deserves. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Real accuracy vs stated confidence</h3>
+      <p>A report can sound more certain than the underlying signal deserves.</p>
+      <a class="slr-anchor" href="#rivals-intel-10" aria-label="Link to Real accuracy vs stated confidence">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-11"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="hardware launch signals intel can surface an upcoming generation before the player has certainty. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Hardware launch signals</h3>
+      <p>Intel can surface an upcoming generation before the player has certainty.</p>
+      <a class="slr-anchor" href="#rivals-intel-11" aria-label="Link to Hardware launch signals">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-12"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="price-collapse signals intel can warn about a market event that changes hardware economics. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Price-collapse signals</h3>
+      <p>Intel can warn about a market event that changes hardware economics.</p>
+      <a class="slr-anchor" href="#rivals-intel-12" aria-label="Link to Price-collapse signals">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-13"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="supply-squeeze signals intel can warn that availability is about to tighten. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Supply-squeeze signals</h3>
+      <p>Intel can warn that availability is about to tighten.</p>
+      <a class="slr-anchor" href="#rivals-intel-13" aria-label="Link to Supply-squeeze signals">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-14"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="rival-holding signals higher-tier intelligence can flag that a competitor may be waiting on purpose. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Rival-holding signals</h3>
+      <p>Higher-tier intelligence can flag that a competitor may be waiting on purpose.</p>
+      <a class="slr-anchor" href="#rivals-intel-14" aria-label="Link to Rival-holding signals">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-15"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="planned"
+      data-lane="next"
+      data-search="expanded intelligence report ui give evidence, history and uncertainty more room than a single note card. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Expanded intelligence report UI</h3>
+      <p>Give evidence, history and uncertainty more room than a single note card.</p>
+      <a class="slr-anchor" href="#rivals-intel-15" aria-label="Link to Expanded intelligence report UI">#</a>
+    </article>
+    
+    <article class="slr-card" id="rivals-intel-16"
+      data-roadmap-item
+      data-category="rivals-intel"
+      data-status="planned"
+      data-lane="later"
+      data-search="competitor release history view show how each lab actually moved through the campaign, not just where it stands today. rivals &amp; intelligence">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Competitor release history view</h3>
+      <p>Show how each lab actually moved through the campaign, not just where it stands today.</p>
+      <a class="slr-anchor" href="#rivals-intel-16" aria-label="Link to Competitor release history view">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="business-capital" data-roadmap-category data-category-section="business-capital">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Business / 20 items</div>
+          <h2>Business &amp; Capital</h2>
+        </div>
+        <p>Turn model quality into demand, demand into cash and cash into the next dangerous decision.</p>
+        <div class="slr-category__counts">
+          <span><strong>12</strong> shipped</span>
+          <span><strong>6</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="business-capital-01"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="per-model token pricing each live model carries its own price instead of inheriting one company-wide number. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Per-model token pricing</h3>
+      <p>Each live model carries its own price instead of inheriting one company-wide number.</p>
+      <a class="slr-anchor" href="#business-capital-01" aria-label="Link to Per-model token pricing">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-02"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="free-tier control free access can be used as a deliberate distribution decision. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Free-tier control</h3>
+      <p>Free access can be used as a deliberate distribution decision.</p>
+      <a class="slr-anchor" href="#business-capital-02" aria-label="Link to Free-tier control">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-03"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="shared market-share model the economy and ranking read from the same demand model. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Shared market-share model</h3>
+      <p>The economy and ranking read from the same demand model.</p>
+      <a class="slr-anchor" href="#business-capital-03" aria-label="Link to Shared market-share model">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-04"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="capability term in demand better models earn an advantage but do not automatically own the market. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Capability term in demand</h3>
+      <p>Better models earn an advantage but do not automatically own the market.</p>
+      <a class="slr-anchor" href="#business-capital-04" aria-label="Link to Capability term in demand">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-05"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="brand term in demand reputation changes how equal products split demand. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Brand term in demand</h3>
+      <p>Reputation changes how equal products split demand.</p>
+      <a class="slr-anchor" href="#business-capital-05" aria-label="Link to Brand term in demand">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-06"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="price term in demand price matters independently of capability. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Price term in demand</h3>
+      <p>Price matters independently of capability.</p>
+      <a class="slr-anchor" href="#business-capital-06" aria-label="Link to Price term in demand">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-07"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="model-age term in demand a model that nobody replaces gradually becomes stale. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Model-age term in demand</h3>
+      <p>A model that nobody replaces gradually becomes stale.</p>
+      <a class="slr-anchor" href="#business-capital-07" aria-label="Link to Model-age term in demand">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-08"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="audience-segment curves consumer, developer, enterprise, creative and autonomous markets change size over time. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Audience-segment curves</h3>
+      <p>Consumer, Developer, Enterprise, Creative and Autonomous markets change size over time.</p>
+      <a class="slr-anchor" href="#business-capital-08" aria-label="Link to Audience-segment curves">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-09"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="specialist price tolerance a narrower model can reach fewer people while selling to an audience that tolerates higher pricing. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Specialist price tolerance</h3>
+      <p>A narrower model can reach fewer people while selling to an audience that tolerates higher pricing.</p>
+      <a class="slr-anchor" href="#business-capital-09" aria-label="Link to Specialist price tolerance">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-10"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="company marketing programmes marketing spend acts on demand instead of being a decorative button. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Company marketing programmes</h3>
+      <p>Marketing spend acts on demand instead of being a decorative button.</p>
+      <a class="slr-anchor" href="#business-capital-10" aria-label="Link to Company marketing programmes">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-11"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="model launch push a release can receive focused marketing rather than only permanent company spend. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Model launch push</h3>
+      <p>A release can receive focused marketing rather than only permanent company spend.</p>
+      <a class="slr-anchor" href="#business-capital-11" aria-label="Link to Model launch push">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-12"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="funding valuation valuation combines frontier proximity, run rate and the sentiment of the year. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Funding valuation</h3>
+      <p>Valuation combines frontier proximity, run rate and the sentiment of the year.</p>
+      <a class="slr-anchor" href="#business-capital-12" aria-label="Link to Funding valuation">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-13"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="investor sentiment cycle the same company can be priced very differently depending on when it raises. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Investor sentiment cycle</h3>
+      <p>The same company can be priced very differently depending on when it raises.</p>
+      <a class="slr-anchor" href="#business-capital-13" aria-label="Link to Investor sentiment cycle">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-14"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="cap table and founder dilution equity rounds permanently change ownership. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Cap table and founder dilution</h3>
+      <p>Equity rounds permanently change ownership.</p>
+      <a class="slr-anchor" href="#business-capital-14" aria-label="Link to Cap table and founder dilution">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-15"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="down-round penalty raising below the previous valuation costs extra equity. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Down-round penalty</h3>
+      <p>Raising below the previous valuation costs extra equity.</p>
+      <a class="slr-anchor" href="#business-capital-15" aria-label="Link to Down-round penalty">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-16"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="debt facilities bridge, venture debt, bond and sovereign compute debt trade dilution for repayment pressure. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Debt facilities</h3>
+      <p>Bridge, venture debt, bond and sovereign compute debt trade dilution for repayment pressure.</p>
+      <a class="slr-anchor" href="#business-capital-16" aria-label="Link to Debt facilities">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-17"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="arrears and default missed payments accumulate before a public default damages standing. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Arrears and default</h3>
+      <p>Missed payments accumulate before a public default damages standing.</p>
+      <a class="slr-anchor" href="#business-capital-17" aria-label="Link to Arrears and default">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-18"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="playable"
+      data-lane="now"
+      data-search="ranking board capability, share and brand feed one sorted company board. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Ranking board</h3>
+      <p>Capability, share and brand feed one sorted company board.</p>
+      <a class="slr-anchor" href="#business-capital-18" aria-label="Link to Ranking board">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-19"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="planned"
+      data-lane="next"
+      data-search="ranking history track movement through time instead of showing only today&#x27;s order. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Ranking history</h3>
+      <p>Track movement through time instead of showing only today&#x27;s order.</p>
+      <a class="slr-anchor" href="#business-capital-19" aria-label="Link to Ranking history">#</a>
+    </article>
+    
+    <article class="slr-card" id="business-capital-20"
+      data-roadmap-item
+      data-category="business-capital"
+      data-status="planned"
+      data-lane="later"
+      data-search="contextual market events add discrete events only where they reinforce an existing market mechanism. business &amp; capital">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Contextual market events</h3>
+      <p>Add discrete events only where they reinforce an existing market mechanism.</p>
+      <a class="slr-anchor" href="#business-capital-20" aria-label="Link to Contextual market events">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="office-staff-world" data-roadmap-category data-category-section="office-staff-world">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">World / 23 items</div>
+          <h2>Office, Staff &amp; World</h2>
+        </div>
+        <p>Make company growth visible in rooms, people, cars, buildings and infrastructure.</p>
+        <div class="slr-category__counts">
+          <span><strong>1</strong> shipped</span>
+          <span><strong>5</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="office-staff-world-01"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="playable"
+      data-lane="now"
+      data-search="3d starter home the opening company site exists as a real orthographic 3d environment. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>3D starter home</h3>
+      <p>The opening company site exists as a real orthographic 3D environment.</p>
+      <a class="slr-anchor" href="#office-staff-world-01" aria-label="Link to 3D starter home">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-02"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="polish"
+      data-lane="now"
+      data-search="starter living space living room, workspace and bedroom sell the scale of the first company before expansion. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Starter living space</h3>
+      <p>Living room, workspace and bedroom sell the scale of the first company before expansion.</p>
+      <a class="slr-anchor" href="#office-staff-world-02" aria-label="Link to Starter living space">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-03"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="polish"
+      data-lane="now"
+      data-search="garage the starter site includes a garage connected to the planned travel flow. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Garage</h3>
+      <p>The starter site includes a garage connected to the planned travel flow.</p>
+      <a class="slr-anchor" href="#office-staff-world-03" aria-label="Link to Garage">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-04"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="polish"
+      data-lane="now"
+      data-search="starter car the first vehicle gives the world-map transition a physical starting point. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Starter car</h3>
+      <p>The first vehicle gives the world-map transition a physical starting point.</p>
+      <a class="slr-anchor" href="#office-staff-world-04" aria-label="Link to Starter car">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-05"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="fixed orthographic camera the scene uses a locked 2.5d presentation rather than free camera navigation. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Fixed orthographic camera</h3>
+      <p>The scene uses a locked 2.5D presentation rather than free camera navigation.</p>
+      <a class="slr-anchor" href="#office-staff-world-05" aria-label="Link to Fixed orthographic camera">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-06"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="polish"
+      data-lane="now"
+      data-search="room visual-polish pass keep refining props, lighting and composition without changing the core camera. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Room visual-polish pass</h3>
+      <p>Keep refining props, lighting and composition without changing the core camera.</p>
+      <a class="slr-anchor" href="#office-staff-world-06" aria-label="Link to Room visual-polish pass">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-07"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="wall hide / transparency remove room obstruction when the founder enters the garage or another hidden space. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Wall hide / transparency</h3>
+      <p>Remove room obstruction when the founder enters the garage or another hidden space.</p>
+      <a class="slr-anchor" href="#office-staff-world-07" aria-label="Link to Wall hide / transparency">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-08"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="founder 3d character place the created founder into the physical company view. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Founder 3D character</h3>
+      <p>Place the created founder into the physical company view.</p>
+      <a class="slr-anchor" href="#office-staff-world-08" aria-label="Link to Founder 3D character">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-09"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="founder idle animation give the opening scene life without turning movement into simulation authority. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Founder idle animation</h3>
+      <p>Give the opening scene life without turning movement into simulation authority.</p>
+      <a class="slr-anchor" href="#office-staff-world-09" aria-label="Link to Founder idle animation">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-10"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="founder waypoint walking move between fixed activity points rather than overengineering pathfinding for the camera distance. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Founder waypoint walking</h3>
+      <p>Move between fixed activity points rather than overengineering pathfinding for the camera distance.</p>
+      <a class="slr-anchor" href="#office-staff-world-10" aria-label="Link to Founder waypoint walking">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-11"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="walk to workstation training and work actions gain a short physical animation at the desk. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Walk to workstation</h3>
+      <p>Training and work actions gain a short physical animation at the desk.</p>
+      <a class="slr-anchor" href="#office-staff-world-11" aria-label="Link to Walk to workstation">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-12"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="walk to garage and car travel begins with the founder physically leaving the starter site. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Walk to garage and car</h3>
+      <p>Travel begins with the founder physically leaving the starter site.</p>
+      <a class="slr-anchor" href="#office-staff-world-12" aria-label="Link to Walk to garage and car">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-13"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="foundation"
+      data-lane="next"
+      data-search="world / location map turn location selection into a navigable world layer beyond company registration. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>World / location map</h3>
+      <p>Turn location selection into a navigable world layer beyond company registration.</p>
+      <a class="slr-anchor" href="#office-staff-world-13" aria-label="Link to World / location map">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-14"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="rent larger offices company growth should require leaving the starter house. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Rent larger offices</h3>
+      <p>Company growth should require leaving the starter house.</p>
+      <a class="slr-anchor" href="#office-staff-world-14" aria-label="Link to Rent larger offices">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-15"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="office tiers progress through larger spaces instead of one infinitely expanding room. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Office tiers</h3>
+      <p>Progress through larger spaces instead of one infinitely expanding room.</p>
+      <a class="slr-anchor" href="#office-staff-world-15" aria-label="Link to Office tiers">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-16"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="hiring employees add the team layer that turns empty office capacity into useful company capacity. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Hiring employees</h3>
+      <p>Add the team layer that turns empty office capacity into useful company capacity.</p>
+      <a class="slr-anchor" href="#office-staff-world-16" aria-label="Link to Hiring employees">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-17"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="employee skills staff quality should influence work rather than every hire being interchangeable. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Employee skills</h3>
+      <p>Staff quality should influence work rather than every hire being interchangeable.</p>
+      <a class="slr-anchor" href="#office-staff-world-17" aria-label="Link to Employee skills">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-18"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="employee salaries headcount becomes a continuing operating commitment. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Employee salaries</h3>
+      <p>Headcount becomes a continuing operating commitment.</p>
+      <a class="slr-anchor" href="#office-staff-world-18" aria-label="Link to Employee salaries">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-19"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="physical employee desks a hire should appear in the space the company is paying for. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Physical employee desks</h3>
+      <p>A hire should appear in the space the company is paying for.</p>
+      <a class="slr-anchor" href="#office-staff-world-19" aria-label="Link to Physical employee desks">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-20"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="later"
+      data-search="walking staff employees move between work points to keep larger spaces alive. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Walking staff</h3>
+      <p>Employees move between work points to keep larger spaces alive.</p>
+      <a class="slr-anchor" href="#office-staff-world-20" aria-label="Link to Walking staff">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-21"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="next"
+      data-search="owned racks populate the office the physical view reads the compute pool and shows what the company actually owns. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Owned racks populate the office</h3>
+      <p>The physical view reads the compute pool and shows what the company actually owns.</p>
+      <a class="slr-anchor" href="#office-staff-world-21" aria-label="Link to Owned racks populate the office">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-22"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="later"
+      data-search="dedicated company hq a late office tier separates the management fantasy from the starter site. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Dedicated company HQ</h3>
+      <p>A late office tier separates the management fantasy from the starter site.</p>
+      <a class="slr-anchor" href="#office-staff-world-22" aria-label="Link to Dedicated company HQ">#</a>
+    </article>
+    
+    <article class="slr-card" id="office-staff-world-23"
+      data-roadmap-item
+      data-category="office-staff-world"
+      data-status="planned"
+      data-lane="later"
+      data-search="dedicated datacenter site owned infrastructure eventually becomes a place rather than only a finance line. office, staff &amp; world">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Dedicated datacenter site</h3>
+      <p>Owned infrastructure eventually becomes a place rather than only a finance line.</p>
+      <a class="slr-anchor" href="#office-staff-world-23" aria-label="Link to Dedicated datacenter site">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="safety" data-roadmap-category data-category-section="safety">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Safety / 09 items</div>
+          <h2>Safety &amp; Incidents</h2>
+        </div>
+        <p>Safety should be a decision with tail risk, not a virtue stat that only moves brand.</p>
+        <div class="slr-category__counts">
+          <span><strong>2</strong> shipped</span>
+          <span><strong>1</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="safety-01"
+      data-roadmap-item
+      data-category="safety"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="founder safety skill founder creation already changes incident-risk pressure through the skill system. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Founder Safety skill</h3>
+      <p>Founder creation already changes incident-risk pressure through the skill system.</p>
+      <a class="slr-anchor" href="#safety-01" aria-label="Link to Founder Safety skill">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-02"
+      data-roadmap-item
+      data-category="safety"
+      data-status="playable"
+      data-lane="now"
+      data-search="model safety trait safety is one of the traits measured against the market par of the day. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Model Safety trait</h3>
+      <p>Safety is one of the traits measured against the market par of the day.</p>
+      <a class="slr-anchor" href="#safety-02" aria-label="Link to Model Safety trait">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-03"
+      data-roadmap-item
+      data-category="safety"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="safety brand effect falling behind on safety already affects how a product is received. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Safety brand effect</h3>
+      <p>Falling behind on safety already affects how a product is received.</p>
+      <a class="slr-anchor" href="#safety-03" aria-label="Link to Safety brand effect">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-04"
+      data-roadmap-item
+      data-category="safety"
+      data-status="foundation"
+      data-lane="next"
+      data-search="incident-risk multiplier foundation the simulation has the inputs needed to turn weak safety choices into tail risk. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Incident-risk multiplier foundation</h3>
+      <p>The simulation has the inputs needed to turn weak safety choices into tail risk.</p>
+      <a class="slr-anchor" href="#safety-04" aria-label="Link to Incident-risk multiplier foundation">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-05"
+      data-roadmap-item
+      data-category="safety"
+      data-status="planned"
+      data-lane="next"
+      data-search="safety stage in model creator make safety visible before training instead of burying it in later upgrades. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Safety stage in model creator</h3>
+      <p>Make safety visible before training instead of burying it in later upgrades.</p>
+      <a class="slr-anchor" href="#safety-05" aria-label="Link to Safety stage in model creator">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-06"
+      data-roadmap-item
+      data-category="safety"
+      data-status="planned"
+      data-lane="next"
+      data-search="model safety incidents a model far below the safety expectation can produce a costly event. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Model safety incidents</h3>
+      <p>A model far below the safety expectation can produce a costly event.</p>
+      <a class="slr-anchor" href="#safety-06" aria-label="Link to Model safety incidents">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-07"
+      data-roadmap-item
+      data-category="safety"
+      data-status="planned"
+      data-lane="next"
+      data-search="reputation damage from incidents incidents should hit standing that took time and money to build. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Reputation damage from incidents</h3>
+      <p>Incidents should hit standing that took time and money to build.</p>
+      <a class="slr-anchor" href="#safety-07" aria-label="Link to Reputation damage from incidents">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-08"
+      data-roadmap-item
+      data-category="safety"
+      data-status="planned"
+      data-lane="later"
+      data-search="regulatory attention serious safety failures can create pressure outside the normal demand model. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Regulatory attention</h3>
+      <p>Serious safety failures can create pressure outside the normal demand model.</p>
+      <a class="slr-anchor" href="#safety-08" aria-label="Link to Regulatory attention">#</a>
+    </article>
+    
+    <article class="slr-card" id="safety-09"
+      data-roadmap-item
+      data-category="safety"
+      data-status="planned"
+      data-lane="later"
+      data-search="incident response decisions give the player a recovery choice rather than only applying an automatic penalty. safety &amp; incidents">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Incident response decisions</h3>
+      <p>Give the player a recovery choice rather than only applying an automatic penalty.</p>
+      <a class="slr-anchor" href="#safety-09" aria-label="Link to Incident response decisions">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="interface" data-roadmap-category data-category-section="interface">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">UI / 14 items</div>
+          <h2>Interface &amp; Presentation</h2>
+        </div>
+        <p>The game needs to stay legible while the simulation gets denser.</p>
+        <div class="slr-category__counts">
+          <span><strong>0</strong> shipped</span>
+          <span><strong>9</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="interface-01"
+      data-roadmap-item
+      data-category="interface"
+      data-status="playable"
+      data-lane="now"
+      data-search="bottom control hud the main navigation lives in a bottom control bar instead of a wide left rail. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Bottom control HUD</h3>
+      <p>The main navigation lives in a bottom control bar instead of a wide left rail.</p>
+      <a class="slr-anchor" href="#interface-01" aria-label="Link to Bottom control HUD">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-02"
+      data-roadmap-item
+      data-category="interface"
+      data-status="playable"
+      data-lane="now"
+      data-search="day clock dial a half-disc shows date and day progress without controlling the simulation rules. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Day clock dial</h3>
+      <p>A half-disc shows date and day progress without controlling the simulation rules.</p>
+      <a class="slr-anchor" href="#interface-02" aria-label="Link to Day clock dial">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-03"
+      data-roadmap-item
+      data-category="interface"
+      data-status="playable"
+      data-lane="now"
+      data-search="pause / x1 / x2 / x3 time controls map cleanly onto the whole-day simulation. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Pause / X1 / X2 / X3</h3>
+      <p>Time controls map cleanly onto the whole-day simulation.</p>
+      <a class="slr-anchor" href="#interface-03" aria-label="Link to Pause / X1 / X2 / X3">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-04"
+      data-roadmap-item
+      data-category="interface"
+      data-status="playable"
+      data-lane="now"
+      data-search="skip day run exactly one day and stop, even when the game is paused. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--playable">Playable</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Skip Day</h3>
+      <p>Run exactly one day and stop, even when the game is paused.</p>
+      <a class="slr-anchor" href="#interface-04" aria-label="Link to Skip Day">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-05"
+      data-roadmap-item
+      data-category="interface"
+      data-status="polish"
+      data-lane="now"
+      data-search="unified accent gradient coral, wine and pale violet are treated as one line moving through the interface. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Unified accent gradient</h3>
+      <p>Coral, wine and pale violet are treated as one line moving through the interface.</p>
+      <a class="slr-anchor" href="#interface-05" aria-label="Link to Unified accent gradient">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-06"
+      data-roadmap-item
+      data-category="interface"
+      data-status="polish"
+      data-lane="now"
+      data-search="bottom category icon set finish the white single-weight icon language across the major screens. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Bottom category icon set</h3>
+      <p>Finish the white single-weight icon language across the major screens.</p>
+      <a class="slr-anchor" href="#interface-06" aria-label="Link to Bottom category icon set">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-07"
+      data-roadmap-item
+      data-category="interface"
+      data-status="polish"
+      data-lane="now"
+      data-search="skill icon set seven founder-skill icons are already present and being normalized as one family. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Skill icon set</h3>
+      <p>Seven founder-skill icons are already present and being normalized as one family.</p>
+      <a class="slr-anchor" href="#interface-07" aria-label="Link to Skill icon set">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-08"
+      data-roadmap-item
+      data-category="interface"
+      data-status="polish"
+      data-lane="now"
+      data-search="section banner art research, business, funding and other screens share low-contrast panoramic art. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--polish">Polish</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Section banner art</h3>
+      <p>Research, Business, Funding and other screens share low-contrast panoramic art.</p>
+      <a class="slr-anchor" href="#interface-08" aria-label="Link to Section banner art">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-09"
+      data-roadmap-item
+      data-category="interface"
+      data-status="foundation"
+      data-lane="now"
+      data-search="responsive ui toolkit layout creators and panels defend against shrink, wrap and small-window layout faults. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>Responsive UI Toolkit layout</h3>
+      <p>Creators and panels defend against shrink, wrap and small-window layout faults.</p>
+      <a class="slr-anchor" href="#interface-09" aria-label="Link to Responsive UI Toolkit layout">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-10"
+      data-roadmap-item
+      data-category="interface"
+      data-status="planned"
+      data-lane="next"
+      data-search="tooltip pass move long explanations out of cramped controls without hiding decisions. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Tooltip pass</h3>
+      <p>Move long explanations out of cramped controls without hiding decisions.</p>
+      <a class="slr-anchor" href="#interface-10" aria-label="Link to Tooltip pass">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-11"
+      data-roadmap-item
+      data-category="interface"
+      data-status="planned"
+      data-lane="next"
+      data-search="resolution and scaling pass test the game across the target window and display sizes. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Resolution and scaling pass</h3>
+      <p>Test the game across the target window and display sizes.</p>
+      <a class="slr-anchor" href="#interface-11" aria-label="Link to Resolution and scaling pass">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-12"
+      data-roadmap-item
+      data-category="interface"
+      data-status="planned"
+      data-lane="later"
+      data-search="accessibility pass review contrast, focus, motion and readability before a public release. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Accessibility pass</h3>
+      <p>Review contrast, focus, motion and readability before a public release.</p>
+      <a class="slr-anchor" href="#interface-12" aria-label="Link to Accessibility pass">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-13"
+      data-roadmap-item
+      data-category="interface"
+      data-status="planned"
+      data-lane="later"
+      data-search="audio feedback add restrained confirmation and warning sounds once the interaction language is stable. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Audio feedback</h3>
+      <p>Add restrained confirmation and warning sounds once the interaction language is stable.</p>
+      <a class="slr-anchor" href="#interface-13" aria-label="Link to Audio feedback">#</a>
+    </article>
+    
+    <article class="slr-card" id="interface-14"
+      data-roadmap-item
+      data-category="interface"
+      data-status="planned"
+      data-lane="later"
+      data-search="ui motion pass animate state changes only where motion clarifies what changed. interface &amp; presentation">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>UI motion pass</h3>
+      <p>Animate state changes only where motion clarifies what changed.</p>
+      <a class="slr-anchor" href="#interface-14" aria-label="Link to UI motion pass">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+    <section class="slr-category" id="release" data-roadmap-category data-category-section="release">
+      <header class="slr-category__head" data-reveal>
+        <div>
+          <div class="slr-category__index">Release / 18 items</div>
+          <h2>Public Build &amp; Release</h2>
+        </div>
+        <p>The public footprint around the game: source, website, roadmap, playtests and store pages.</p>
+        <div class="slr-category__counts">
+          <span><strong>6</strong> shipped</span>
+          <span><strong>1</strong> now</span>
+        </div>
+      </header>
+      <div class="slr-grid">
+        
+    <article class="slr-card" id="release-01"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="public source repository the code and engineering notes are visible while the game changes. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Public source repository</h3>
+      <p>The code and engineering notes are visible while the game changes.</p>
+      <a class="slr-anchor" href="#release-01" aria-label="Link to Public source repository">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-02"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="hck labs hub scaling laws has a permanent home beside the other hck labs work. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>HCK Labs hub</h3>
+      <p>Scaling Laws has a permanent home beside the other HCK Labs work.</p>
+      <a class="slr-anchor" href="#release-02" aria-label="Link to HCK Labs hub">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-03"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="scaling laws landing page the public game page separates current systems from planned work. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Scaling Laws landing page</h3>
+      <p>The public game page separates current systems from planned work.</p>
+      <a class="slr-anchor" href="#release-03" aria-label="Link to Scaling Laws landing page">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-04"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="development mechanism page the simulation rules and real-world references have their own crawlable technical page. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Development mechanism page</h3>
+      <p>The simulation rules and real-world references have their own crawlable technical page.</p>
+      <a class="slr-anchor" href="#release-04" aria-label="Link to Development mechanism page">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-05"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="public roadmap this page is the living status map and the json behind it is the source of truth. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Public roadmap</h3>
+      <p>This page is the living status map and the JSON behind it is the source of truth.</p>
+      <a class="slr-anchor" href="#release-05" aria-label="Link to Public roadmap">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-06"
+      data-roadmap-item
+      data-category="release"
+      data-status="shipped"
+      data-lane="shipped"
+      data-search="roadmap json data source one structured file drives the roadmap state and can feed other presentation formats. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check is-checked" aria-hidden="true">✓</span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--shipped">Shipped</span>
+          <span class="slr-lane">Shipped</span>
+        </div>
+      </div>
+      <h3>Roadmap JSON data source</h3>
+      <p>One structured file drives the roadmap state and can feed other presentation formats.</p>
+      <a class="slr-anchor" href="#release-06" aria-label="Link to Roadmap JSON data source">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-07"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="devlog index create a home for build notes that can be indexed outside social platforms. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Devlog index</h3>
+      <p>Create a home for build notes that can be indexed outside social platforms.</p>
+      <a class="slr-anchor" href="#release-07" aria-label="Link to Devlog index">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-08"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="media gallery collect screenshots, room-evolution clips and later trailers in one crawlable place. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Media gallery</h3>
+      <p>Collect screenshots, room-evolution clips and later trailers in one crawlable place.</p>
+      <a class="slr-anchor" href="#release-08" aria-label="Link to Media gallery">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-09"
+      data-roadmap-item
+      data-category="release"
+      data-status="foundation"
+      data-lane="now"
+      data-search="itch.io project page prepare the first game-specific public page and devlog channel. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--foundation">Foundation</span>
+          <span class="slr-lane">Now</span>
+        </div>
+      </div>
+      <h3>itch.io project page</h3>
+      <p>Prepare the first game-specific public page and devlog channel.</p>
+      <a class="slr-anchor" href="#release-09" aria-label="Link to itch.io project page">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-10"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="indiedb project page add a second game-specific public footprint with indexed development updates. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>IndieDB project page</h3>
+      <p>Add a second game-specific public footprint with indexed development updates.</p>
+      <a class="slr-anchor" href="#release-10" aria-label="Link to IndieDB project page">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-11"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="first public playable build move from screenshots and source to something outside testers can actually run. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>First public playable build</h3>
+      <p>Move from screenshots and source to something outside testers can actually run.</p>
+      <a class="slr-anchor" href="#release-11" aria-label="Link to First public playable build">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-12"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="closed playtest loop collect focused feedback before a wider demo. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Closed playtest loop</h3>
+      <p>Collect focused feedback before a wider demo.</p>
+      <a class="slr-anchor" href="#release-12" aria-label="Link to Closed playtest loop">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-13"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="next"
+      data-search="feedback capture give early players one clear place to report friction and balance problems. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Next</span>
+        </div>
+      </div>
+      <h3>Feedback capture</h3>
+      <p>Give early players one clear place to report friction and balance problems.</p>
+      <a class="slr-anchor" href="#release-13" aria-label="Link to Feedback capture">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-14"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="later"
+      data-search="steam coming soon page start collecting wishlists once the visual direction and core loop can sell the game honestly. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Steam Coming Soon page</h3>
+      <p>Start collecting wishlists once the visual direction and core loop can sell the game honestly.</p>
+      <a class="slr-anchor" href="#release-14" aria-label="Link to Steam Coming Soon page">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-15"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="later"
+      data-search="playable demo a public slice of the loop that proves the game beyond screenshots. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Playable demo</h3>
+      <p>A public slice of the loop that proves the game beyond screenshots.</p>
+      <a class="slr-anchor" href="#release-15" aria-label="Link to Playable demo">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-16"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="later"
+      data-search="gameplay trailer cut the strongest in-game stories once the footage can represent the real loop. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Gameplay trailer</h3>
+      <p>Cut the strongest in-game stories once the footage can represent the real loop.</p>
+      <a class="slr-anchor" href="#release-16" aria-label="Link to Gameplay trailer">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-17"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="later"
+      data-search="release candidate freeze the feature line and spend time on bugs, balance and compatibility. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Release candidate</h3>
+      <p>Freeze the feature line and spend time on bugs, balance and compatibility.</p>
+      <a class="slr-anchor" href="#release-17" aria-label="Link to Release candidate">#</a>
+    </article>
+    
+    <article class="slr-card" id="release-18"
+      data-roadmap-item
+      data-category="release"
+      data-status="planned"
+      data-lane="later"
+      data-search="commercial release ship when the game is stable enough that the roadmap no longer has to explain away missing fundamentals. public build &amp; release">
+      <div class="slr-card__top">
+        <span class="slr-check " aria-hidden="true"></span>
+        <div class="slr-card__meta">
+          <span class="slr-status slr-status--planned">Planned</span>
+          <span class="slr-lane">Later</span>
+        </div>
+      </div>
+      <h3>Commercial release</h3>
+      <p>Ship when the game is stable enough that the roadmap no longer has to explain away missing fundamentals.</p>
+      <a class="slr-anchor" href="#release-18" aria-label="Link to Commercial release">#</a>
+    </article>
+    
+      </div>
+    </section>
+    
+
+        <div class="slr-empty" data-roadmap-empty hidden>
+          Nothing matches this view. Clear the search or open another lane.
+        </div>
+      </div>
+    </main>
+
+    <footer class="hck-site-footer">
+      <div class="hck-site-footer__inner">
+        <div>
+          <div class="hck-site-footer__brand">Scaling Laws / Roadmap</div>
+          <p class="slr-footer-note">
+            The JSON file is the authoring source of truth. This page carries a generated static snapshot as well so search engines, AI crawlers and no-JS readers can see the full roadmap.
+          </p>
+        </div>
+        <nav class="hck-site-footer__links" aria-label="Footer navigation">
+          <a href="../">Scaling Laws</a>
+          <a href="../devlog/">Devlog</a>
+          <a href="../media/">Media</a>
+          <a href="../development/">Development</a>
+          <a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a>
+        </nav>
+      </div>
+      <div class="sl-footer-marker" aria-hidden="true"></div>
+    </footer>
+  </div>
+</body>
+</html>
