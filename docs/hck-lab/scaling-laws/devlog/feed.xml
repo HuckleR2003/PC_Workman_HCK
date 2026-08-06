@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Scaling Laws Devlog</title>
+    <link>https://pcworkman.dev/hck-labs/scaling-laws/devlog/</link>
+    <description>Build notes from Scaling Laws, an AI company tycoon by HCK Labs.</description>
+    <language>en</language>
+    <lastBuildDate>Thu, 06 Aug 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>I Turned a Starter House Into the First AI Lab</title>
+      <link>https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/</link>
+      <guid isPermaLink="true">https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/</guid>
+      <pubDate>Thu, 06 Aug 2026 00:00:00 GMT</pubDate>
+      <description>Why Scaling Laws begins in a small house with one desk, a cheap car and a garage instead of dropping the player into a finished tech campus.</description>
+    </item>
+    <item>
+      <title>The Best GPU Can Still Be a Bad Purchase</title>
+      <link>https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/</link>
+      <guid isPermaLink="true">https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/</guid>
+      <pubDate>Thu, 06 Aug 2026 00:00:00 GMT</pubDate>
+      <description>Scaling Laws treats AI hardware as a dated asset: it loses value with time, gets hit again by successor generations and can bottleneck on the rest of the server.</description>
+    </item>
+    <item>
+      <title>Turning Chinchilla Scaling Laws Into a Game Mechanic</title>
+      <link>https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/</link>
+      <guid isPermaLink="true">https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/</guid>
+      <pubDate>Thu, 06 Aug 2026 00:00:00 GMT</pubDate>
+      <description>How Scaling Laws turns parameter count, training tokens and compute-optimal scaling into a readable tycoon decision instead of pretending its capability score is a real benchmark.</description>
+    </item>
+  </channel>
+</rss>
