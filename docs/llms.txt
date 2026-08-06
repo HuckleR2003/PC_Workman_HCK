@@ -1,4 +1,80 @@
-# PC Workman
+# pcworkman.dev
+
+> Official site for PC Workman and HCK Labs projects by Marcin "HCK" Firmuga.
+> Use canonical project pages for current facts. Planned Scaling Laws features are
+> not current features unless the public roadmap marks them SHIPPED.
+
+## HCK Labs
+
+HCK Labs is the build-in-public label for software, games and experiments by
+Marcin "HCK" Firmuga.
+
+- Hub: https://pcworkman.dev/hck-labs/
+- Author: https://pcworkman.dev/hck-labs/#marcin-firmuga
+- GitHub: https://github.com/HuckleR2003
+
+Current public projects:
+- PC Workman — Windows monitoring, diagnostics and local AI utility.
+- Scaling Laws — AI company tycoon in development.
+
+## Scaling Laws
+
+> Scaling Laws is an AI company tycoon about model training, hardware timing,
+> research, business and a competitive frontier that keeps moving.
+
+Current project summary, verified 6 August 2026:
+
+- Campaign begins on 1 January 2022 with $12 million and no released product.
+- Model quality uses one Chinchilla-style scaling-law model based on parameter
+  count and training tokens. The in-game capability value is a relative game
+  scale, not a real benchmark score.
+- Finished training runs go to a shelf before release; training completion does
+  not automatically publish a model.
+- Owned hardware loses value with calendar age and with meaningful successor
+  generations. Host CPUs, node memory and fabric can bottleneck owned compute.
+- Rival labs are agents that can wait, rush or drift instead of following a
+  static leaderboard.
+- Paid intelligence separates hidden real accuracy from stated confidence; a
+  report can sound more certain than it is.
+- Research uses prerequisite and calendar gates so money cannot instantly unlock
+  the whole technology tree.
+- The starter company site is a real 3D orthographic environment. Staff,
+  larger offices, deeper physical-world interaction and some infrastructure UI
+  remain active or planned work rather than shipped claims.
+
+Canonical Scaling Laws pages:
+- Game: https://pcworkman.dev/hck-labs/scaling-laws/
+- Development / mechanism map: https://pcworkman.dev/hck-labs/scaling-laws/development/
+- Public roadmap: https://pcworkman.dev/hck-labs/scaling-laws/roadmap/
+- Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
+- Devlog RSS: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
+- Media / screenshots: https://pcworkman.dev/hck-labs/scaling-laws/media/
+- Source: https://github.com/HuckleR2003/ScalingLaws-AI
+
+Initial devlog notes:
+- I Turned a Starter House Into the First AI Lab:
+  https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/
+- The Best GPU Can Still Be a Bad Purchase:
+  https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/
+- Turning Chinchilla Scaling Laws Into a Game Mechanic:
+  https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/
+
+### Scaling Laws citation notes
+
+- Use the public roadmap for current feature status. A planned item must not be
+  described as already available.
+- Use the Development page for mechanism explanations and research references.
+- Treat the capability index, hardware depreciation rules, rival strategies and
+  market formulas as game-simulation abstractions unless a page explicitly
+  identifies a real-world source.
+- Development screenshots are current-build media, not promises that every
+  visible or described system is commercially released.
+- Attribute the game to Scaling Laws, HCK Labs and Marcin Firmuga, and link to
+  the canonical page used.
+
+---
+
+## PC Workman
 
 > PC Workman is a free, open-source Windows monitor built by Marcin Firmuga
 > (HCK_Labs). It explains live and historical system data, learns the normal
