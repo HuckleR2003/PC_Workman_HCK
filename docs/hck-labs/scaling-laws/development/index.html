@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Scaling Laws Works | AI Tycoon Systems | HCK Labs</title>
+  <meta name="description" content="A technical look at Scaling Laws: model training, hardware aging, compute, research, rival agents, markets, uncertainty and the tests behind the AI company tycoon.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/development/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws Devlog RSS" href="../devlog/feed.xml">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="How Scaling Laws Works">
+  <meta property="og:description" content="The mechanism map behind Scaling Laws: scaling laws, hardware, compute, research, rivals, markets, uncertainty and testing.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/development/">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="How Scaling Laws works: scaling, hardware, research and rival systems">
+  <meta property="article:author" content="Marcin Firmuga">
+  <meta property="article:modified_time" content="2026-08-06">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How Scaling Laws Works">
+  <meta name="twitter:description" content="A technical breakdown of the systems behind the AI company tycoon.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png">
+  <meta name="twitter:image:alt" content="How Scaling Laws works: scaling, hardware, research and rival systems">
+
+  <link rel="stylesheet" href="../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="../assets/css/development.css">
+  <script defer src="../../assets/js/hck-labs.js"></script>
+  <script defer src="../assets/js/development.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"Person","@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga","name":"Marcin Firmuga","alternateName":"Marcin HCK Firmuga","url":"https://pcworkman.dev/hck-labs/","sameAs":["https://github.com/HuckleR2003"]},
+      {"@type":"Organization","@id":"https://pcworkman.dev/hck-labs/#organization","name":"HCK Labs","url":"https://pcworkman.dev/hck-labs/","founder":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"}},
+      {"@type":"VideoGame","@id":"https://pcworkman.dev/hck-labs/scaling-laws/#game","name":"Scaling Laws","url":"https://pcworkman.dev/hck-labs/scaling-laws/","genre":["Simulation","Strategy","Tycoon"],"author":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"},"publisher":{"@id":"https://pcworkman.dev/hck-labs/#organization"}},
+      {"@type":"TechArticle","@id":"https://pcworkman.dev/hck-labs/scaling-laws/development/#article","headline":"How Scaling Laws Works","description":"A technical breakdown of the simulation systems behind Scaling Laws.","url":"https://pcworkman.dev/hck-labs/scaling-laws/development/","dateModified":"2026-08-06","author":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"},"publisher":{"@id":"https://pcworkman.dev/hck-labs/#organization"},"about":{"@id":"https://pcworkman.dev/hck-labs/scaling-laws/#game"},"image":"https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png","inLanguage":"en"},
+      {"@type":"BreadcrumbList","@id":"https://pcworkman.dev/hck-labs/scaling-laws/development/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"PC Workman","item":"https://pcworkman.dev/"},{"@type":"ListItem","position":2,"name":"HCK Labs","item":"https://pcworkman.dev/hck-labs/"},{"@type":"ListItem","position":3,"name":"Scaling Laws","item":"https://pcworkman.dev/hck-labs/scaling-laws/"},{"@type":"ListItem","position":4,"name":"Development","item":"https://pcworkman.dev/hck-labs/scaling-laws/development/"}]}
+    ]
+  }
+  </script>
+</head>
+<body class="sl-page sld-page">
+<a class="sld-skip-link" href="#main">Skip to content</a>
+<div class="sld-progress" aria-hidden="true"></div>
+<div class="hck-shell">
+  <header class="hck-site-header">
+    <nav class="hck-nav" aria-label="Primary navigation">
+      <a class="sl-project-brand" href="../" aria-label="Scaling Laws home">
+        <span class="hck-brand__mark" aria-hidden="true"></span><span>HCK Labs</span><span class="sl-project-brand__slash" aria-hidden="true">/</span><span class="sl-project-brand__name">Scaling Laws</span>
+      </a>
+      <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="sld-nav-links"><span class="hck-visually-hidden">Open navigation</span><span class="hck-nav__toggle-lines" aria-hidden="true"></span></button>
+      <div class="hck-nav__links" id="sld-nav-links" data-nav-links>
+        <a class="hck-nav__link" href="../">Game</a>
+        <a class="hck-nav__link is-active" href="./" aria-current="page">Development</a>
+          <a class="hck-nav__link" href="../roadmap/">Roadmap</a>
+          <a class="hck-nav__link" href="../devlog/">Devlog</a>
+          <a class="hck-nav__link" href="../media/">Media</a>
+        <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="sld-hero" aria-labelledby="development-title">
+      <div class="sld-hero__inner">
+        <div data-reveal>
+          <div class="sld-eyebrow">Development / mechanism map</div>
+          <h1 id="development-title">How Scaling Laws actually works.</h1>
+          <p class="sld-hero__lead">This is not the feature list. It is the machinery underneath it: how a model gets a score, why hardware becomes a bad asset, why research cannot be brute-forced with cash, how rivals react and which numbers are measurements versus game abstractions.</p>
+        </div>
+        <aside class="sld-spine hck-edge-shine" data-reveal>
+          <div class="sld-spine__label">The rule every system has to serve</div>
+          <blockquote>“Upgrades are not purchased. They are timed.”</blockquote>
+          <p class="sld-spine__note">The design breaks if money removes calendar pressure, if old hardware stays good forever, or if one successful release creates guaranteed income.</p>
+        </aside>
+      </div>
+      <div class="hck-container--wide">
+        <div class="sld-facts" data-reveal>
+          <div class="sld-fact"><span class="sld-fact__k">Campaign start</span><strong class="sld-fact__v">1 January 2022</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Simulation step</span><strong class="sld-fact__v">One deterministic day</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Model quality</span><strong class="sld-fact__v">Scaling law, not a random rating</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Future data</span><strong class="sld-fact__v">Projected values are labelled</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sld-body">
+      <div class="sld-layout">
+        <aside class="sld-rail" aria-label="Mechanism navigation">
+          <div class="sld-rail__label">Mechanisms</div>
+          <nav class="sld-rail__links">
+            <a class="sld-rail__link is-active" data-mechanism-link data-index="01" href="#scaling">Scaling</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="02" href="#hardware">Hardware</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="03" href="#compute">Compute</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="04" href="#research">Research</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="05" href="#rivals">Rivals</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="06" href="#market">Market</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="07" href="#honesty">Honesty</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="08" href="#testing">Testing</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="09" href="#next">Next</a>
+          </nav>
+        </aside>
+
+        <div class="sld-content">
+          <section class="sld-section" id="scaling" data-mechanism-section aria-labelledby="scaling-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">01 / Model quality</div><h2 id="scaling-title">A bigger model is not automatically a better use of compute.</h2></div><p class="sld-section__summary">Training quality comes from one parametric scaling law. Parameter count and training tokens both matter, and the same compute budget can be wasted by pushing either side too far.</p></header>
+            <div class="sld-reading" data-reveal>
+              <p>Scaling Laws uses a Chinchilla-style parametric loss form as the single place where model quality is computed. The player chooses parameter scale and data scale, then the game converts that plan into training compute and a relative capability projection.</p>
+              <div class="sld-formula"><div class="sld-formula__bar"><span>ScalingLaw / only quality function</span><span>relative simulation</span></div><div class="sld-formula__math">L(N, D) = E + A / N<sup>α</sup> + B / D<sup>β</sup></div><div class="sld-formula__foot">N is parameter count. D is training tokens. The capability score shown by the game is a relative game scale, not a benchmark score such as MMLU.</div></div>
+              <p>The compute-optimal region in the current model lands around <strong>twenty training tokens per parameter</strong>. Ten times the effective training compute is mapped to roughly ten capability points at every scale. That fixed treadmill is what lets the moving frontier remain legible to the player.</p>
+              <div class="sld-definition"><span class="sld-definition__label">Why the fit is not copied blindly</span><p>The project uses a corrected/re-derived Chinchilla fit rather than silently treating every printed constant in the 2022 paper as unquestionable. A 2024 replication attempt found that the paper's third estimation procedure was inconsistent with the first two and re-derived a compatible fit.</p></div>
+            </div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/model-creator-960.webp" srcset="../assets/images/screens/model-creator-960.webp 960w, ../assets/images/screens/model-creator-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Scaling Laws staged model creator showing foundation, scale, data, compute and review stages" loading="lazy" decoding="async"><figcaption>Current model creator. The projection reprices as the blueprint changes.</figcaption></figure>
+            <div class="sld-split"><article class="sld-card" data-reveal><div class="sld-card__kicker">Real-world reference</div><h3>What the research says</h3><p>Hoffmann et al. trained more than 400 models and argued that compute-optimal model size and training tokens should scale together. Scaling Laws uses that relationship as a design reference, not as a claim that its 0–100 capability scale is a real benchmark.</p></article><article class="sld-card sld-card--accent" data-reveal><div class="sld-card__kicker">Game abstraction</div><h3>What the player gets</h3><p>A single comprehensible number, a projected delta after each choice, a training time and a bill. The uncertainty only becomes a final capability after the run actually finishes.</p></article></div>
+          </section>
+
+          <section class="sld-section" id="hardware" data-mechanism-section aria-labelledby="hardware-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">02 / Hardware economics</div><h2 id="hardware-title">Owned compute gets older while it is still working.</h2></div><p class="sld-section__summary">Hardware value falls in two separate ways: calendar age and successor generations. A launch that happens after you buy can hurt the resale value again.</p></header>
+            <div class="sld-reading" data-reveal><p>The hardware catalog carries accelerator, host CPU, node memory and fabric data. Owned accelerators are not a permanent stat upgrade. They are dated assets. The valuation model applies time-based depreciation and a second penalty as newer generations of the same class arrive.</p></div>
+            <div class="sld-timeline" data-reveal><div class="sld-timeline__track" aria-hidden="true"><span class="sld-timeline__point sld-timeline__point--buy"><span>buy</span></span><span class="sld-timeline__point sld-timeline__point--age"><span>calendar age</span></span><span class="sld-timeline__point sld-timeline__point--successor"><span>successor launch</span></span><span class="sld-timeline__point sld-timeline__point--sell"><span>resale</span></span></div><div class="sld-timeline__legend"><div><strong>Time:</strong> value decays even if nothing new ships.</div><div><strong>Successors:</strong> meaningful newer parts apply another phased hit.</div></div></div>
+            <div class="sld-reading" data-reveal><p>This is why the hardware screen cannot become “pick the greenest card.” Waiting can preserve capital for a generation that improves performance per dollar. Waiting too long can also leave the company paying premium cloud rates while a rival trains on owned capacity.</p><p>Vendor specifications matter because accelerator performance is only part of the machine. NVIDIA's H100 SXM reference, for example, lists 80 GB of memory, 3.35 TB/s of memory bandwidth, up to 700 W TDP and 900 GB/s NVLink. Those dimensions are exactly why the game stores memory, power and interconnect data instead of reducing every part to one FLOPS number.</p></div>
+            <div class="sld-split"><article class="sld-card" data-reveal><div class="sld-card__kicker">Catalog rule</div><h3>Public specs when they exist</h3><p>Hardware entries are based on public vendor specifications and release information, rounded for the simulation. A future or estimated entry is supposed to carry a projection flag rather than masquerade as measured data.</p></article><article class="sld-card sld-card--accent" data-reveal><div class="sld-card__kicker">Player problem</div><h3>The good purchase can be the wrong purchase</h3><p>A powerful accelerator bought days before a better-value generation lands can be worse for the company than a slower cluster bought at the right point in the cycle.</p></article></div>
+          </section>
+
+          <section class="sld-section" id="compute" data-mechanism-section aria-labelledby="compute-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">03 / Compute</div><h2 id="compute-title">Renting removes one risk. Owning creates five more.</h2></div><p class="sld-section__summary">Cloud capacity arrives provisioned. Owned capacity has to be fed by host CPUs, node memory and fabric, then paid for whether the cluster is busy or not.</p></header>
+            <div class="sld-stack" data-reveal><div class="sld-stack__row"><strong class="sld-stack__name">Rented cloud</strong><span class="sld-stack__desc">Available immediately. Contracted in petaflops rather than a unit count. Expensive, flexible and provisioned for the player.</span></div><div class="sld-stack__row"><strong class="sld-stack__name">Colocated servers</strong><span class="sld-stack__desc">A middle infrastructure tier with lead time and ownership. The company buys hardware without yet operating a full datacenter.</span></div><div class="sld-stack__row"><strong class="sld-stack__name">Own datacenter</strong><span class="sld-stack__desc">Late infrastructure with a much longer lead time, large capital gates and idle-capacity risk.</span></div></div>
+            <div class="sld-reading" data-reveal><p>Support hardware is not decorative. The compute pool measures whether CPUs, memory and fabric can actually feed the owned accelerator fleet. A badly balanced cluster can run far below its nominal rating. Rented capacity does not take this penalty because the provisioning is part of what the cloud bill pays for.</p><p>Training also loses scaling efficiency as accelerator count grows. Inference is modelled differently: it is more bandwidth-constrained and does not pay the same fabric tax. The two workloads share hardware without pretending they use it identically.</p></div>
+            <div class="sld-flow" data-reveal aria-label="Daily company simulation order"><div class="sld-flow__step"><span class="sld-flow__n">01</span><span class="sld-flow__name">Deliveries land</span></div><div class="sld-flow__step"><span class="sld-flow__n">02</span><span class="sld-flow__name">Training consumes compute</span></div><div class="sld-flow__step"><span class="sld-flow__n">03</span><span class="sld-flow__name">Market splits demand</span></div><div class="sld-flow__step"><span class="sld-flow__n">04</span><span class="sld-flow__name">Bills come out</span></div><div class="sld-flow__step"><span class="sld-flow__n">05</span><span class="sld-flow__name">Gates re-check</span></div><div class="sld-flow__step"><span class="sld-flow__n">06</span><span class="sld-flow__name">Solvency checks</span></div></div>
+          </section>
+
+          <section class="sld-section" id="research" data-mechanism-section aria-labelledby="research-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">04 / Research & architecture</div><h2 id="research-title">Money is a bad technology gate. Calendar is harder to cheat.</h2></div><p class="sld-section__summary">Research unlocks architectures, datasets, model types and infrastructure. Custom architecture programmes add another trade: budget, time, focus and uncertainty.</p></header>
+            <div class="sld-reading" data-reveal><p>The technology tree exists because cash compounds. If every advanced capability is only expensive, a successful player eventually buys the rest of the game instantly. A research node costs money, prerequisites and time, and only one of those cannot be compounded away.</p><p>House architecture programmes use the same logic. A company distributes effort across sparsity, throughput, quality per parameter, serving cost and reasoning. A programme chasing every direction spreads itself thin. A short, underfunded programme carries wider outcome variance.</p></div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/research-tree-960.webp" srcset="../assets/images/screens/research-tree-960.webp 960w, ../assets/images/screens/research-tree-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Scaling Laws research tree spanning multiple technology eras" loading="lazy" decoding="async"><figcaption>The current research tree. Unlocks have both prerequisites and calendar gates.</figcaption></figure>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/architecture-program-960.webp" srcset="../assets/images/screens/architecture-program-960.webp 960w, ../assets/images/screens/architecture-program-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Scaling Laws custom architecture programme with five research directions, budget and duration" loading="lazy" decoding="async"><figcaption>An in-house architecture programme trades budget, calendar, focus and result variance.</figcaption></figure>
+          </section>
+
+          <section class="sld-section" id="rivals" data-mechanism-section aria-labelledby="rivals-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">05 / Rivals & intelligence</div><h2 id="rivals-title">The leaderboard does not wait politely for your next release.</h2></div><p class="sld-section__summary">Rival labs are agents seeded from a historical release timeline, then allowed to wait, rush and drift away from it as the campaign changes.</p></header>
+            <div class="sld-reading" data-reveal><p>A patient rival can notice that a better accelerator generation is close to its planned training window and deliberately wait. A frontier-focused rival that falls too far behind can rush, accepting a capability penalty to ship earlier. Between releases, labs continue to improve rather than remaining frozen until the next row in a table.</p><p>The player can pay for intelligence, but the game separates <strong>real accuracy</strong> from <strong>stated confidence</strong>. The cheapest rumour tier is designed to sound more certain than it actually is. A report can therefore be useful and still be wrong.</p></div>
+            <div class="sld-signal" data-reveal><div class="sld-signal__head"><span>Intelligence note / illustrative UI</span><span>Rumour desk</span></div><div class="sld-signal__body"><div><div class="sld-signal__headline">A rival may be holding its next run for incoming silicon.</div><div class="sld-signal__copy">The desk is allowed to report a plausible signal even when the underlying signal is false. The hidden truth value is never exposed to the player.</div></div><div class="sld-signal__confidence"><strong>80%</strong><span>stated confidence</span></div></div></div>
+            <div class="sld-definition" data-reveal><span class="sld-definition__label">Important distinction</span><p>In the current design, the cheap rumour tier can be right 58% of the time while presenting itself with 80% confidence. That gap is intentional. Paying for information buys a better decision surface, not omniscience.</p></div>
+          </section>
+
+          <section class="sld-section" id="market" data-mechanism-section aria-labelledby="market-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">06 / Market, audience & capital</div><h2 id="market-title">Capability matters. So do price, brand and being six months late.</h2></div><p class="sld-section__summary">Demand is not a direct conversion from model score to revenue. Live products compete on capability, brand, price and age, against both the player and rival labs.</p></header>
+            <div class="sld-market-formula" data-reveal aria-label="Main market-share factors"><div class="sld-market-term">Capability</div><div class="sld-market-plus">+</div><div class="sld-market-term">Brand</div><div class="sld-market-plus">+</div><div class="sld-market-term">Price</div><div class="sld-market-plus">+</div><div class="sld-market-term">Age</div></div>
+            <div class="sld-reading" data-reveal><p>The audience changes with time too. Consumer, developer, enterprise, creative and autonomous segments follow different size curves across the campaign. Specialist model types can reach fewer people while selling to an audience that tolerates a higher price. That is the intended trade, not a hidden multiplier.</p><p>Funding has its own timing problem. The valuation model combines proximity to the frontier with annual run rate and multiplies the result by investor sentiment. Raising in a hot market can therefore preserve far more founder ownership than raising the same amount during a cold one.</p></div>
+            <div class="sld-formula" data-reveal><div class="sld-formula__bar"><span>FundingMarket / game formula</span><span>equity timing</span></div><div class="sld-formula__math">valuation = (frontier<sup>4</sup> × 2B + ARR × 20) × sentiment</div><div class="sld-formula__foot">This is a game economy formula. It is not presented as a general startup valuation model.</div></div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/business-960.webp" srcset="../assets/images/screens/business-960.webp 960w, ../assets/images/screens/business-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Scaling Laws business screen with pricing, free tier and marketing decisions" loading="lazy" decoding="async"><figcaption>The business layer sits on the same demand model as the ranking and company economy.</figcaption></figure>
+          </section>
+
+          <section class="sld-section" id="honesty" data-mechanism-section aria-labelledby="honesty-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">07 / Data honesty</div><h2 id="honesty-title">A projection should look like a projection.</h2></div><p class="sld-section__summary">The project keeps estimated future hardware and model releases separate from known reference data, and keeps a training projection separate from a finished model.</p></header>
+            <div class="sld-honesty"><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Known reference</div><h3>Vendor and release data</h3><p>Public specifications and release information are rounded into catalogs. Known entries are treated as reference data, not guesses.</p></article><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Projection</div><h3>Future hardware and releases</h3><p>Entries beyond the known timeline carry a projection flag so the interface can label them rather than blend forecast and history together.</p></article><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Outcome</div><h3>Training projection ≠ model capability</h3><p>A projected run never silently becomes a deployed score. Only a finished run creates capability, and the result lands near the estimate rather than exactly on it.</p></article></div>
+            <div class="sld-reading" data-reveal><p>The same rule applies to this website. Planned systems are described as planned. A screen existing in Unity is not automatically called “shipped,” and an internal projection is not promoted to a historical fact because it looks plausible.</p></div>
+          </section>
+
+          <section class="sld-section" id="testing" data-mechanism-section aria-labelledby="testing-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">08 / Testing & determinism</div><h2 id="testing-title">A green build can still be wrong. So the tests attack the economy too.</h2></div><p class="sld-section__summary">The simulation is isolated from Unity, deterministic and testable without loading a scene. Separate tests then guard playability, cross-catalog consistency and scene wiring.</p></header>
+            <div class="sld-tests"><article class="sld-test" data-reveal><div class="sld-test__type">Playability</div><h3>Can an ordinary company survive?</h3><p>A scripted multi-year baseline campaign checks that an ordinary player can stay solvent and competitive without trivially dominating the field.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Consistency</div><h3>Can the catalogs contradict each other?</h3><p>Catalog sweeps look for NaN values, impossible ranges, dangling references and unlock chains that can never be reached.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Determinism</div><h3>Can the same campaign replay?</h3><p>Simulation randomness comes from a saved deterministic generator. The same seed and the same decisions produce the same numbers.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Persistence</div><h3>Can an old save move forward?</h3><p>Save migrations move one version at a time, preserve old shapes and record when a historical field had to be reconstructed.</p></article></div>
+            <div class="sld-reading" data-reveal><p>This structure has already found bugs that looked reasonable on screen. Three are especially useful because they changed the design rather than just fixing a typo:</p></div>
+            <div class="sld-bug-list" data-reveal><div class="sld-bug"><div class="sld-bug__n">01</div><div><strong>Rental cost jumped when cloud hardware generations changed.</strong><span>Renting was stored as a unit count. It is now contracted in petaflops so a vendor refresh does not triple the bill without a player decision.</span></div></div><div class="sld-bug"><div class="sld-bug__n">02</div><div><strong>Serving at full training-active parameters made capability almost irrelevant.</strong><span>Everyone became capacity-bound, so revenue collapsed into a compute equation. Production serving now uses a smaller descendant factor so model quality matters again.</span></div></div><div class="sld-bug"><div class="sld-bug__n">03</div><div><strong>A research node unlocked before its own prerequisite.</strong><span>The node looked valid in isolation and was permanently unreachable in the actual tree. A consistency test now checks the whole dependency graph.</span></div></div></div>
+          </section>
+
+          <section class="sld-section" id="next" data-mechanism-section aria-labelledby="next-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">09 / Active development line</div><h2 id="next-title">What is still becoming a game instead of a simulation.</h2></div><p class="sld-section__summary">The core economy is further ahead than the physical company layer. The next work turns existing simulation state into things the player can see, configure and walk through.</p></header>
+            <div class="sld-next"><article class="sld-next__item" data-reveal><div class="sld-next__status">In development</div><h3>Hardware purchasing and configuration</h3><p>A dedicated interface for renting or buying compute, then pairing accelerators with CPUs, memory and fabric instead of buying a magic “server score.”</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Planned layer</div><h3>Staff and larger offices</h3><p>The starter home becomes the first rung. Hires need a physical place to appear, and later offices should make company growth visible rather than only financial.</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Planned layer</div><h3>Safety incidents</h3><p>Safety already affects the model and founder systems. Incidents are the missing downside that can turn a weak safety choice into reputation and regulatory damage.</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Physical world</div><h3>Founder movement</h3><p>Walking to the workstation, garage and later company spaces is presentation over the simulation, not a new source of truth for the rules.</p></article></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <section class="hck-section sld-references" aria-labelledby="references-title">
+      <div class="hck-container--wide">
+        <header class="hck-section-head" data-reveal><div><div class="sld-eyebrow">Research & source material</div><h2 class="hck-title" id="references-title">Where the real-world parts come from.</h2></div><p class="hck-copy--soft">These sources inform the scaling-law choice or hardware reference data. They do not mean the game reproduces a real lab or datacenter one-to-one.</p></header>
+        <div class="sld-reference-list">
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Paper / 2022</div><div><strong>Training Compute-Optimal Large Language Models</strong><p>Hoffmann et al. The Chinchilla paper behind the compute-optimal scaling reference.</p></div><a href="https://arxiv.org/abs/2203.15556">Read paper</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Paper / 2024</div><div><strong>Chinchilla Scaling: A replication attempt</strong><p>Besiroglu et al. Re-examines the third fitting procedure and derives a fit compatible with the paper's first two approaches.</p></div><a href="https://arxiv.org/abs/2404.10102">Read paper</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Vendor specs</div><div><strong>NVIDIA H100 Tensor Core GPU</strong><p>Official product specifications used as an example of the memory, bandwidth, power and interconnect dimensions stored by the hardware model.</p></div><a href="https://www.nvidia.com/en-us/data-center/h100/">Open NVIDIA</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Vendor / 2024</div><div><strong>NVIDIA Blackwell platform announcement</strong><p>Public generation and system information illustrating why the hardware frontier is treated as a calendar rather than a static catalog.</p></div><a href="https://nvidianews.nvidia.com/news/nvidia-blackwell-platform-arrives-to-power-a-new-era-of-computing">Open NVIDIA</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Project source</div><div><strong>Scaling Laws source repository</strong><p>The implementation, engineering notes and development history remain public while the game changes.</p></div><a href="https://github.com/HuckleR2003/ScalingLaws-AI">Open GitHub</a></article>
+        </div>
+        <p class="sld-reference-note" data-reveal>Game formulas such as depreciation, cloud lag, investor sentiment, rival decision rules and the relative capability index are simulation design choices. Where the project uses estimated future entries, the intended UI rule is to label them as projections.</p>
+      </div>
+    </section>
+
+    <section class="hck-section sld-cta" aria-labelledby="cta-title"><div class="hck-container--wide"><div class="sld-cta__panel hck-edge-shine" data-reveal><div class="sld-eyebrow">Back to the game</div><h2 id="cta-title">The mechanism map is useful only if the decisions feel good to play.</h2><p>The public roadmap will track what has moved from foundation to playable, polish and finally shipped. Until then, the main page shows the current visual build and the repository shows the work underneath it.</p><div class="sld-cta__actions"><a class="hck-button hck-button--burgundy" href="../">Open Scaling Laws</a><a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Browse source</a></div></div></div></section>
+  </main>
+
+  <footer class="hck-site-footer"><div class="hck-site-footer__inner"><div><div class="hck-site-footer__brand">Scaling Laws / Development</div><div>Mechanics, assumptions and implementation notes.</div></div><nav class="hck-site-footer__links" aria-label="Footer navigation"><a href="../">Scaling Laws</a>
+          <a href="../devlog/">Devlog</a>
+          <a href="../media/">Media</a><a href="../../">HCK Labs</a><a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a></nav></div><div class="sl-footer-marker" aria-hidden="true"></div></footer>
+</div>
+</body>
+</html>

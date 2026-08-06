@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Scaling Laws: AI Company Tycoon | HCK Labs</title>
+  <meta name="description" content="Scaling Laws is an AI company tycoon about model training, hardware timing, research, funding and a frontier that keeps moving from January 2022 onward.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws Devlog RSS" href="devlog/feed.xml">
+  <link rel="preload" as="image" href="assets/images/screens/main-menu-1600.webp" fetchpriority="high">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Scaling Laws: AI Company Tycoon">
+  <meta property="og:description" content="January 2022. $12 million. No product. Train models, time hardware, fund research and keep up with a moving AI frontier.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Scaling Laws, an AI company tycoon by HCK Labs">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scaling Laws: AI Company Tycoon">
+  <meta name="twitter:description" content="January 2022. $12 million. No product. The frontier is already moving.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png">
+  <meta name="twitter:image:alt" content="Scaling Laws, an AI company tycoon by HCK Labs">
+
+  <link rel="stylesheet" href="../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="assets/css/scaling-laws-home.css">
+
+  <script defer src="../assets/js/hck-labs.js"></script>
+  <script defer src="assets/js/scaling-laws.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "sameAs": ["https://github.com/HuckleR2003"]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "founder": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"}
+      },
+      {
+        "@type": "VideoGame",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
+        "name": "Scaling Laws",
+        "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
+        "description": "An AI company tycoon beginning on 1 January 2022 with $12 million and no product. The player trains models, buys or rents compute, researches new capabilities and competes against a moving frontier.",
+        "genre": ["Simulation", "Strategy", "Tycoon"],
+        "author": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"},
+        "publisher": {"@id": "https://pcworkman.dev/hck-labs/#organization"},
+        "image": "https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "PC Workman",
+            "item": "https://pcworkman.dev/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "HCK Labs",
+            "item": "https://pcworkman.dev/hck-labs/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Scaling Laws",
+            "item": "https://pcworkman.dev/hck-labs/scaling-laws/"
+          }
+        ]
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#webpage",
+        "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
+        "name": "Scaling Laws: AI Company Tycoon | HCK Labs",
+        "description": "Official HCK Labs page for Scaling Laws, an AI company tycoon in development.",
+        "inLanguage": "en",
+        "mainEntity": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"},
+        "breadcrumb": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb"}
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body class="sl-page sl-home">
+  <a class="sl-skip-link" href="#main">Skip to content</a>
+
+  <div class="hck-shell">
+    <header class="hck-site-header">
+      <nav class="hck-nav" aria-label="Primary navigation">
+        <a class="sl-project-brand" href="../" aria-label="HCK Labs home">
+          <span class="hck-brand__mark" aria-hidden="true"></span>
+          <span>HCK Labs</span>
+          <span class="sl-project-brand__slash" aria-hidden="true">/</span>
+          <span class="sl-project-brand__name">Scaling Laws</span>
+        </a>
+
+        <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="sl-nav-links">
+          <span class="hck-visually-hidden">Open navigation</span>
+          <span class="hck-nav__toggle-lines" aria-hidden="true"></span>
+        </button>
+
+        <div class="hck-nav__links" id="sl-nav-links" data-nav-links>
+          <a class="hck-nav__link" href="#overview">Overview</a>
+          <a class="hck-nav__link" href="#systems">Systems</a>
+          <a class="hck-nav__link" href="development/">Development</a>
+          <a class="hck-nav__link" href="roadmap/">Roadmap</a>
+          <a class="hck-nav__link" href="#build-status">Build status</a>
+          <a class="hck-nav__link" href="#gallery">Screens</a>
+          <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="sl-home-hero" aria-labelledby="hero-title">
+        <div class="sl-home-hero__inner">
+          <div data-reveal>
+            <div class="sl-home-hero__eyebrow"><strong>An AI company tycoon</strong> / in development</div>
+            <h1 class="sl-home-wordmark" id="hero-title">
+              <span>Scaling</span>
+              <span>Laws</span>
+            </h1>
+            <p class="sl-home-hero__hook">
+              January 2022. Twelve million dollars. No product. Train models, fund research and commit real money to compute while the frontier moves whether you are ready or not. <strong>The expensive decision is rarely just what to buy. It is when.</strong>
+            </p>
+            <div class="sl-home-hero__actions">
+              <a class="hck-button hck-button--burgundy" href="#overview">See the game</a>
+              <a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Open source</a>
+            </div>
+          </div>
+
+          <div class="sl-hero-shot" data-reveal>
+            <div class="sl-hero-shot__frame hck-edge-shine">
+              <span class="sl-hero-shot__tag">Current build</span>
+              <img
+                src="assets/images/screens/main-menu-960.webp"
+                srcset="assets/images/screens/main-menu-960.webp 960w, assets/images/screens/main-menu-1600.webp 1600w"
+                sizes="(max-width: 1100px) 94vw, 52vw"
+                width="1600"
+                height="784"
+                alt="Scaling Laws main menu showing the AI company tycoon title and a model training readout"
+                decoding="async"
+                fetchpriority="high">
+            </div>
+            <div class="sl-hero-shot__caption">
+              <span>Unity / current development build</span>
+              <span>HCK Labs</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-opening" id="overview" aria-labelledby="opening-title">
+        <div class="hck-container--wide">
+          <div class="sl-opening__facts" data-reveal aria-label="Campaign starting conditions">
+            <div class="sl-opening__fact">
+              <span class="sl-opening__label">Campaign begins</span>
+              <strong class="sl-opening__value">01 Jan 2022</strong>
+            </div>
+            <div class="sl-opening__fact">
+              <span class="sl-opening__label">Starting capital</span>
+              <strong class="sl-opening__value">$12M</strong>
+            </div>
+            <div class="sl-opening__fact">
+              <span class="sl-opening__label">Released products</span>
+              <strong class="sl-opening__value">0</strong>
+            </div>
+          </div>
+
+          <h2 class="sl-opening__statement" id="opening-title" data-reveal>
+            The frontier does not wait for your roadmap. <strong>Neither does the hardware market.</strong>
+          </h2>
+        </div>
+      </section>
+
+      <section class="hck-section sl-section sl-section--panel" aria-labelledby="room-title">
+        <div class="hck-container--wide sl-room-block">
+          <div class="sl-room-copy" data-reveal>
+            <div class="sl-section__eyebrow">Starting small</div>
+            <h2 class="sl-section__title" id="room-title">It starts in a house, not a glass tower.</h2>
+            <p class="sl-section__lead">
+              The first company view is deliberately modest: a desk, a bed, a living room, a garage and a cheap car. Later company growth is meant to become visible as well as numerical, with larger offices, staff and owned infrastructure replacing the starter setup.
+            </p>
+            <div class="sl-room-copy__note">
+              Visual progression is still in development. The simulation already exists underneath it; character movement, staff population and later building tiers are part of the next physical-world pass.
+            </div>
+          </div>
+
+          <div class="sl-room-frame" data-reveal>
+            <figure
+              class="sl-room-sequence"
+              data-room-sequence
+              data-manifest="assets/data/room-sequence.json"
+              aria-label="Scaling Laws starter home development sequence">
+              <img
+                src="assets/images/screens/starter-home-960.webp"
+                srcset="assets/images/screens/starter-home-960.webp 960w, assets/images/screens/starter-home-1600.webp 1600w"
+                sizes="(max-width: 900px) 94vw, 60vw"
+                width="1600"
+                height="749"
+                alt="Scaling Laws starter home with a small office, living room, upstairs bedroom, garage and car"
+                loading="lazy"
+                decoding="async">
+              <div class="sl-room-sequence__meta" aria-hidden="true">
+                <span class="sl-room-sequence__pulse">room evolution / 200 ms frames</span>
+                <span>starter site</span>
+              </div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-loop" aria-labelledby="loop-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">The loop</div>
+              <h2 class="hck-title" id="loop-title">Research. Train. Release. Survive the bill.</h2>
+            </div>
+            <p class="hck-copy--soft">
+              Scaling Laws is built around decisions that consume both money and calendar. A better number is useful only if the company can afford the time it took to get there.
+            </p>
+          </header>
+
+          <div class="sl-loop-grid">
+            <article class="sl-loop-step" data-reveal>
+              <span class="sl-loop-step__number">01 / RESEARCH</span>
+              <h3>Unlock the option</h3>
+              <p>Architectures, corpora, model types and infrastructure sit behind research. Cash helps. It does not erase prerequisite chains or calendar time.</p>
+            </article>
+            <article class="sl-loop-step" data-reveal>
+              <span class="sl-loop-step__number">02 / TRAIN</span>
+              <h3>Commit compute</h3>
+              <p>Choose the model, scale, data and compute budget. The creator shows projected capability, training time and the cash the run is expected to burn.</p>
+            </article>
+            <article class="sl-loop-step" data-reveal>
+              <span class="sl-loop-step__number">03 / RELEASE</span>
+              <h3>Choose the day</h3>
+              <p>A finished run can sit on the shelf. Waiting may dodge a rival launch or buy time for an upgrade, but the market keeps moving while you wait.</p>
+            </article>
+            <article class="sl-loop-step" data-reveal>
+              <span class="sl-loop-step__number">04 / BUSINESS</span>
+              <h3>Make it pay</h3>
+              <p>Set pricing, manage free access, build brand and fund the next cycle. A company that ships one model and coasts is designed to fall behind.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-systems" id="systems" aria-labelledby="systems-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Systems in the current build</div>
+              <h2 class="hck-title" id="systems-title">The numbers are connected on purpose.</h2>
+            </div>
+            <p class="hck-copy--soft">
+              The UI is still moving. The underlying systems already share one simulation: the same capability, market, research and company state drive the screens instead of separate decorative scores.
+            </p>
+          </header>
+
+          <div class="sl-system-mosaic">
+            <article class="sl-feature sl-feature--wide" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/model-creator-960.webp"
+                  srcset="assets/images/screens/model-creator-960.webp 960w, assets/images/screens/model-creator-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 62vw"
+                  alt="Scaling Laws model creator with foundation, scale, data, compute and review stages"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 01</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Build the model one decision at a time</h3>
+                <p>The staged creator separates foundation, scale, data, compute and review so each choice has room to explain what it changed. Capability, training time and cash burn reprice as the blueprint changes.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/research-tree-960.webp"
+                  srcset="assets/images/screens/research-tree-960.webp 960w, assets/images/screens/research-tree-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 31vw"
+                  alt="Scaling Laws research tree arranged across technology eras"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 02</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Research costs calendar</h3>
+                <p>The technology tree gates what the company can use. Money can fund a programme, but it cannot buy back months already lost.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--half" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/architecture-program-960.webp"
+                  srcset="assets/images/screens/architecture-program-960.webp 960w, assets/images/screens/architecture-program-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 47vw"
+                  alt="Scaling Laws architecture family programme with research directions, budget, duration and likely outcome"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 03</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Design a house architecture</h3>
+                <p>Spread a research programme across sparsity, throughput, quality, serving cost and reasoning. A cheap rushed programme carries more outcome variance, and chasing every direction at once dilutes depth.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--half" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/business-960.webp"
+                  srcset="assets/images/screens/business-960.webp 960w, assets/images/screens/business-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 47vw"
+                  alt="Scaling Laws business screen with pricing, free tier and marketing controls"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 04</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Capability is not a business model</h3>
+                <p>Price, free access, brand and model age all affect demand. Several models can be live at once, so a specialist or lower-priced product can coexist with the flagship.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 05</span>
+                  <span class="sl-status sl-status--shipped">Simulation</span>
+                </div>
+                <h3>Rivals can wait on purpose</h3>
+                <p>Competitors are agents rather than a static leaderboard. Some delay a release when better silicon is close, some rush when the player gets too far ahead, and the field keeps improving between launches.</p>
+                <div class="sl-feature__datum">WAIT / RUSH / DRIFT<br>ONE SHARED FRONTIER</div>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 06</span>
+                  <span class="sl-status sl-status--development">UI next</span>
+                </div>
+                <h3>Compute is a commitment</h3>
+                <p>Renting is flexible and expensive. Owning can be cheaper per FLOP, but the hardware ages, sits on the balance sheet and depends on CPUs, memory and fabric feeding it properly.</p>
+                <div class="sl-feature__datum">RENTED CLOUD → COLOCATION → OWN DATACENTER</div>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 07</span>
+                  <span class="sl-status sl-status--shipped">Simulation</span>
+                </div>
+                <h3>Paid intelligence can still be wrong</h3>
+                <p>Intel can warn about hardware launches, price collapses, supply squeezes or a rival holding back. The cheaper desk sounds more certain than its real accuracy deserves.</p>
+                <div class="sl-feature__datum">INFORMATION HAS A PRICE<br>CERTAINTY DOES NOT</div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-mechanics" aria-labelledby="mechanics-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Under the interface</div>
+              <h2 class="hck-title" id="mechanics-title">Real rules, coarse enough to play.</h2>
+            </div>
+            <p class="hck-copy--soft">
+              Scaling Laws uses published scaling-law behaviour and public hardware data as reference points, then turns them into a game economy. Estimates and future projections are meant to stay labelled as estimates.
+            </p>
+          </header>
+
+          <div class="sl-mechanics-grid">
+            <article class="sl-mechanic" data-reveal>
+              <div class="sl-mechanic__value">~20×</div>
+              <h3>Tokens per parameter</h3>
+              <p>Compute-optimal training sits around twenty tokens per parameter in the model used by the game. Undertraining or overtraining makes the same compute budget buy a worse result.</p>
+            </article>
+
+            <article class="sl-mechanic" data-reveal>
+              <div class="sl-mechanic__value">10× → +10</div>
+              <h3>Compute treadmill</h3>
+              <p>Ten times the effective compute buys about ten capability points on the game's relative scale. The frontier therefore keeps moving even when the player's last model felt expensive.</p>
+            </article>
+
+            <article class="sl-mechanic" data-reveal>
+              <div class="sl-mechanic__value">2 ways</div>
+              <h3>Hardware loses value</h3>
+              <p>Owned hardware depreciates with time and again when meaningful successor generations arrive. Buying too early can leave capital trapped in a fleet the market has already passed.</p>
+            </article>
+          </div>
+
+          <p class="sl-source-note" data-reveal>
+            Engineering notes and source are public in the
+            <a href="https://github.com/HuckleR2003/ScalingLaws-AI">Scaling Laws repository</a>.
+          </p>
+        </div>
+      </section>
+
+      <section class="hck-section sl-build" id="build-status" aria-labelledby="build-title">
+        <div class="hck-container--wide sl-build-grid">
+          <div data-reveal>
+            <div class="sl-section__eyebrow">Current build</div>
+            <h2 class="sl-section__title" id="build-title">The foundation is playable. The world around it is catching up.</h2>
+            <p class="sl-section__lead">
+              The simulation, first creators and major management screens exist today. Visual progression and infrastructure interaction are the active gap between the current build and the fuller company-tycoon loop.
+            </p>
+
+            <div class="sl-build-list">
+              <div class="sl-build-item">
+                <strong>Model creation</strong>
+                <span>Staged blueprint creator with live projections for capability, training time and cost.</span>
+              </div>
+              <div class="sl-build-item">
+                <strong>Research</strong>
+                <span>Technology tree, architecture programmes and unlock gates tied to both money and calendar.</span>
+              </div>
+              <div class="sl-build-item">
+                <strong>Company setup</strong>
+                <span>Founder skills, traits, company identity, region and country trade-offs.</span>
+              </div>
+              <div class="sl-build-item">
+                <strong>Business layer</strong>
+                <span>Pricing, audience, market share, marketing, funding, debt, ranking and intelligence foundations.</span>
+              </div>
+              <div class="sl-build-item">
+                <strong>Physical site</strong>
+                <span>The starter home exists as a 3D orthographic scene and is being turned into a living company view.</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="sl-next-bench hck-edge-shine" data-reveal>
+            <div class="sl-next-bench__label">On the bench next</div>
+            <h3>The parts that make ownership hurt.</h3>
+            <ul>
+              <li>Renting and buying compute through a dedicated hardware interface.</li>
+              <li>Configuring accelerators with host CPUs, node memory and fabric.</li>
+              <li>Hardware launches and timing pressure in the player's purchasing flow.</li>
+              <li>Staff and larger office progression after the starter home.</li>
+              <li>Founder movement between workstation, garage and later company spaces.</li>
+              <li>Safety incidents that turn weak safety choices into real downside.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hck-section sl-gallery" id="gallery" aria-labelledby="gallery-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Current screens</div>
+              <h2 class="hck-title" id="gallery-title">Still early. Already recognisable.</h2>
+            </div>
+            <p class="hck-copy--soft">
+              These are development screenshots, not store mockups. Layout, spacing and art will continue to move as systems leave prototype state.
+            </p>
+          </header>
+
+          <div class="sl-gallery-grid">
+            <figure class="sl-gallery-shot" data-reveal>
+              <img src="assets/images/screens/founder-creator-960.webp" alt="Scaling Laws founder creator with seven skills and trait cards" loading="lazy" decoding="async">
+              <figcaption>Founder creation</figcaption>
+            </figure>
+            <figure class="sl-gallery-shot" data-reveal>
+              <img src="assets/images/screens/company-creator-960.webp" alt="Scaling Laws company setup screen with region and country selection" loading="lazy" decoding="async">
+              <figcaption>Company setup</figcaption>
+            </figure>
+            <figure class="sl-gallery-shot" data-reveal>
+              <img src="assets/images/screens/model-creator-960.webp" alt="Scaling Laws staged model creator" loading="lazy" decoding="async">
+              <figcaption>New model</figcaption>
+            </figure>
+            <figure class="sl-gallery-shot" data-reveal>
+              <img src="assets/images/screens/research-tree-960.webp" alt="Scaling Laws research tree" loading="lazy" decoding="async">
+              <figcaption>Research</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-close" aria-labelledby="close-title">
+        <div class="hck-container--wide">
+          <div class="sl-close__panel hck-edge-shine" data-reveal>
+            <div class="sl-section__eyebrow">Built in public</div>
+            <h2 class="sl-close__title" id="close-title">The game is not waiting for a reveal trailer to exist.</h2>
+            <p class="sl-close__copy">
+              Scaling Laws is being built openly by Marcin "HCK" Firmuga under HCK Labs. The source, engineering notes and development history stay visible while the game changes.
+            </p>
+            <div class="sl-close__actions">
+              <a class="hck-button hck-button--burgundy" href="roadmap/">Open the roadmap</a>
+              <a class="hck-button hck-button--quiet" href="development/">How the systems work</a>
+              <a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Browse the repository</a>
+              <a class="hck-button hck-button--quiet" href="../">Back to HCK Labs</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="hck-site-footer">
+      <div class="hck-site-footer__inner">
+        <div>
+          <div class="hck-site-footer__brand">Scaling Laws / HCK Labs</div>
+          <p class="sl-home-footer-note">
+            An AI company tycoon in development. Public pages describe the current build separately from planned systems so future features are not presented as shipped.
+          </p>
+        </div>
+        <nav class="hck-site-footer__links" aria-label="Footer navigation">
+          <a href="../">HCK Labs</a>
+          <a href="development/">Development</a>
+          <a href="roadmap/">Roadmap</a>
+          <a href="devlog/">Devlog</a>
+          <a href="media/">Media</a>
+          <a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a>
+          <a href="https://pcworkman.dev/">PC Workman</a>
+        </nav>
+      </div>
+      <div class="sl-footer-marker" aria-hidden="true"></div>
+    </footer>
+  </div>
+</body>
+</html>
