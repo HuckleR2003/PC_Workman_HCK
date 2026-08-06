@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Scaling Laws Devlog | HCK Labs</title>
+  <meta name="description" content="Build notes from Scaling Laws: the starter house, hardware timing, scaling-law mechanics and the decisions behind the AI company tycoon.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws Devlog RSS" href="feed.xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Scaling Laws Devlog">
+  <meta property="og:description" content="Build notes from Scaling Laws: the starter house, hardware timing, scaling-law mechanics and the decisions behind the AI company tycoon.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/devlog/">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-devlog.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scaling Laws Devlog">
+  <meta name="twitter:description" content="Build notes from Scaling Laws: the starter house, hardware timing, scaling-law mechanics and the decisions behind the AI company tycoon.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-devlog.png">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Blog",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/#blog",
+      "name": "Scaling Laws Devlog",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/",
+      "description": "Build notes from the development of Scaling Laws.",
+      "author": {
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+      },
+      "about": {
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"
+      },
+      "blogPost": [
+        {
+          "@id": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/#article"
+        },
+        {
+          "@id": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/#article"
+        },
+        {
+          "@id": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/#article"
+        }
+      ]
+    },
+    {
+      "@type": "Person",
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+      "name": "Marcin Firmuga",
+      "alternateName": "Marcin HCK Firmuga",
+      "url": "https://pcworkman.dev/hck-labs/"
+    },
+    {
+      "@type": "VideoGame",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
+      "name": "Scaling Laws",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="../assets/css/publishing.css">
+  <script defer src="../../assets/js/hck-labs.js"></script>
+</head>
+<body class="sl-page slp-page">
+  <a class="slp-skip-link" href="#main">Skip to devlog</a>
+  <div class="hck-shell">
+    <header class="hck-site-header">
+      <nav class="hck-nav" aria-label="Primary navigation">
+        <a class="sl-project-brand" href="../" aria-label="Scaling Laws home">
+          <span class="hck-brand__mark" aria-hidden="true"></span>
+          <span>HCK Labs</span>
+          <span class="sl-project-brand__slash" aria-hidden="true">/</span>
+          <span class="sl-project-brand__name">Scaling Laws</span>
+        </a>
+
+        <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="sl-pub-nav">
+          <span class="hck-visually-hidden">Open navigation</span>
+          <span class="hck-nav__toggle-lines" aria-hidden="true"></span>
+        </button>
+
+        <div class="hck-nav__links" id="sl-pub-nav" data-nav-links>
+          <a class="hck-nav__link" href="../">Game</a>
+          <a class="hck-nav__link" href="../development/">Development</a>
+          <a class="hck-nav__link" href="../roadmap/">Roadmap</a>
+          <a class="hck-nav__link is-active" href="../devlog/" aria-current="page">Devlog</a>
+          <a class="hck-nav__link" href="../media/">Media</a>
+          <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="slp-hero" aria-labelledby="devlog-title">
+        <div class="slp-hero__inner">
+          <div data-reveal>
+            <div class="slp-eyebrow">Scaling Laws / build notes</div>
+            <h1 id="devlog-title">Build notes, not victory laps.</h1>
+            <p class="slp-hero__lead">
+              Small technical and visual decisions from the game while they are still fresh: what changed, why it changed and which part is still unfinished.
+            </p>
+          </div>
+          <aside class="slp-hero__side hck-edge-shine" data-reveal>
+            <strong>The useful version of build in public.</strong>
+            <p>No “we are thrilled to announce.” If a garage took three rebuilds, the interesting part is why the first two were wrong.</p>
+            <a href="feed.xml">RSS / follow without an algorithm</a>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hck-section slp-index" aria-labelledby="notes-title">
+        <div class="hck-container--wide">
+          <header class="slp-index__head" data-reveal>
+            <div>
+              <div class="slp-eyebrow">Development archive</div>
+              <h2 id="notes-title">Three places the game stopped being a prototype.</h2>
+            </div>
+            <p>These first notes are retrospective on work already visible in the current build. Future entries will be added as systems cross a meaningful line.</p>
+          </header>
+
+          <div class="slp-post-list">
+          <article class="slp-post-card" data-reveal>
+            <div class="slp-post-card__media">
+              <img src="../assets/images/screens/starter-home-960.webp" alt="" loading="lazy" decoding="async">
+            </div>
+            <div class="slp-post-card__body">
+              <div class="slp-post-card__meta">Devlog 001 / 6 Aug 2026</div>
+              <h3>I Turned a Starter House Into the First AI Lab</h3>
+              <p>Why Scaling Laws begins in a small house with one desk, a cheap car and a garage instead of dropping the player into a finished tech campus.</p>
+              <a class="slp-post-card__link" href="building-the-starter-home/">Read build note</a>
+            </div>
+          </article>
+          <article class="slp-post-card" data-reveal>
+            <div class="slp-post-card__media">
+              <img src="../assets/images/screens/model-creator-960.webp" alt="" loading="lazy" decoding="async">
+            </div>
+            <div class="slp-post-card__body">
+              <div class="slp-post-card__meta">Devlog 002 / 6 Aug 2026</div>
+              <h3>The Best GPU Can Still Be a Bad Purchase</h3>
+              <p>Scaling Laws treats AI hardware as a dated asset: it loses value with time, gets hit again by successor generations and can bottleneck on the rest of the server.</p>
+              <a class="slp-post-card__link" href="best-gpu-can-be-a-bad-purchase/">Read build note</a>
+            </div>
+          </article>
+          <article class="slp-post-card" data-reveal>
+            <div class="slp-post-card__media">
+              <img src="../assets/images/screens/research-tree-960.webp" alt="" loading="lazy" decoding="async">
+            </div>
+            <div class="slp-post-card__body">
+              <div class="slp-post-card__meta">Devlog 003 / 6 Aug 2026</div>
+              <h3>Turning Chinchilla Scaling Laws Into a Game Mechanic</h3>
+              <p>How Scaling Laws turns parameter count, training tokens and compute-optimal scaling into a readable tycoon decision instead of pretending its capability score is a real benchmark.</p>
+              <a class="slp-post-card__link" href="turning-chinchilla-into-a-game-mechanic/">Read build note</a>
+            </div>
+          </article>
+          </div>
+
+          <div class="slp-about-feed" data-reveal>
+            <p>RSS contains the devlog only. PC Workman's existing blog feeds stay separate.</p>
+            <a href="feed.xml">Open feed.xml</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="hck-site-footer">
+      <div class="hck-site-footer__inner">
+        <div>
+          <div class="hck-site-footer__brand">Scaling Laws / HCK Labs</div>
+          <div>Build notes, current screenshots and the systems behind the game.</div>
+        </div>
+        <nav class="hck-site-footer__links" aria-label="Footer navigation">
+          <a href="../">Scaling Laws</a>
+          <a href="../roadmap/">Roadmap</a>
+          <a href="../devlog/">Devlog</a>
+          <a href="../media/">Media</a>
+          <a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a>
+        </nav>
+      </div>
+      <div class="sl-footer-marker" aria-hidden="true"></div>
+    </footer>
+  </div>
+</body>
+</html>
