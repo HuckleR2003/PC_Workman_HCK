@@ -47,6 +47,19 @@ def _write(kind: str, text: str) -> None:
         pass
 
 
+def log_event(kind: str, detail: str = "") -> None:
+    """
+    Record a non-fatal condition worth keeping: something the app handled but
+    that explains later behaviour on a machine we cannot reach. Same file as
+    crashes, so a tester sends one log instead of hunting for two.
+    """
+    try:
+        _write(f"EVENT: {kind}", detail or "(no detail)")
+        _trim()
+    except Exception:
+        pass
+
+
 def _trim() -> None:
     try:
         p = _path()

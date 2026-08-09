@@ -41,17 +41,30 @@ def _compute_scale(sw: int, sh: int) -> float:
     space with 15% smaller fonts). Small screens need the opposite - fill
     most of the screen. The window now targets ~88% of width and ~85% of
     height, capped at the FHD baseline (1.0) so fonts never exceed their
-    designed size, floored at 0.75 for very old panels (1024x768)."""
+    designed size, floored at 0.75 for very old panels (1024x768).
+
+    Ultrawide fix (2026-08): the tiers above 1920 read WIDTH ONLY and assumed
+    height came along proportionally. It does not on short-wide panels. A
+    3840x1080 super-ultrawide picked the 4K tier and got a 1150px-tall window
+    on a 1080px screen, so the bottom of the app sat off-screen. Every tier is
+    now clamped by the height that actually exists. Nothing changes on 1080p,
+    1440p or real 4K: their heights are already larger than the clamp, so the
+    tier value passes through untouched.
+    """
     if sw >= 3840:       # 4K
-        return 2.0
+        tier = 2.0
     elif sw >= 2560:     # 2K / QHD
-        return 1.35
+        tier = 1.35
     elif sw >= 1920:     # Full HD
-        return 1.0
-    # smaller laptops: biggest window that still fits comfortably
-    fit_w = (sw * 0.88) / _BASE_W
-    fit_h = (sh * 0.85) / _BASE_H
-    return max(0.75, min(fit_w, fit_h, 1.0))
+        tier = 1.0
+    else:
+        # smaller laptops: biggest window that still fits comfortably
+        fit_w = (sw * 0.88) / _BASE_W
+        fit_h = (sh * 0.85) / _BASE_H
+        return max(0.75, min(fit_w, fit_h, 1.0))
+
+    # Wide screen, but the window still has to fit the height of it.
+    return max(0.75, min(tier, (sh * 0.85) / _BASE_H))
 
 
 def compact_w() -> int:

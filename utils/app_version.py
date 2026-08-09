@@ -18,7 +18,7 @@ Rules (guarded by tests/test_version.py):
     focus quietly stopped working
 """
 
-APP_VERSION = "1.8.6"
+APP_VERSION = "1.8.7"
 
 # Exact main-window title. startup.py's single-instance path looks this
 # string up via FindWindowW, so the two must be THE SAME object - never
