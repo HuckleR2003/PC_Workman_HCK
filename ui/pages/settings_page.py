@@ -989,51 +989,23 @@ class SettingsPage:
         # -> "create shortcut", so we do it for them. Works for the ZIP .exe and
         # dev runs too. MSIX needs the AUMID link (shell:AppsFolder\PFN!AppId).
         def _create_desktop_shortcut() -> bool:
-            import sys, subprocess
-            # Real Desktop path (handles OneDrive-redirected desktops)
-            desktop = ""
+            """Normal shortcut. Logic lives in utils/shortcuts.py (one place:
+            the Store AUMID was wrong here once and the shortcut opened
+            nothing)."""
             try:
-                import winreg as _wr
-                k = _wr.OpenKey(_wr.HKEY_CURRENT_USER,
-                                r"Software\Microsoft\Windows\CurrentVersion"
-                                r"\Explorer\User Shell Folders")
-                desktop = os.path.expandvars(_wr.QueryValueEx(k, "Desktop")[0])
-                _wr.CloseKey(k)
-            except Exception:
-                pass
-            if not desktop or not os.path.isdir(desktop):
-                desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-
-            lnk = os.path.join(desktop, "PC Workman.lnk")
-            exe = sys.executable
-            if "windowsapps" in exe.lower():
-                # Microsoft Store install - launch via the app's AUMID
-                target = os.path.join(os.environ.get("WINDIR", r"C:\Windows"),
-                                      "explorer.exe")
-                args = (r"shell:AppsFolder\MarcinHCKFirmuga.PCWorkman"
-                        r"_4hekbcs2ddfbc!PCWorkmanHCK")
-            elif getattr(sys, "frozen", False):
-                target, args = exe, ""                      # portable .exe
-            else:
-                target = exe                                # dev: python + script
-                args = f'"{os.path.abspath(sys.argv[0])}"'
-
-            def _q(s):   # single-quote for PowerShell ('' escapes ')
-                return s.replace("'", "''")
-
-            ps = (f"$w=New-Object -ComObject WScript.Shell;"
-                  f"$s=$w.CreateShortcut('{_q(lnk)}');"
-                  f"$s.TargetPath='{_q(target)}';"
-                  + (f"$s.Arguments='{_q(args)}';" if args else "")
-                  + f"$s.IconLocation='{_q(exe)},0';$s.Save()")
-            try:
-                r = subprocess.run(
-                    ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
-                    capture_output=True, timeout=20,
-                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-                return r.returncode == 0 and os.path.isfile(lnk)
+                from utils.shortcuts import create_shortcut
+                return create_shortcut()
             except Exception:
                 return False
+
+        def _create_admin_shortcut():
+            """Elevated shortcut. Returns (ok, note); note == 'store' means the
+            install is packaged and Windows will not elevate it that way."""
+            try:
+                from utils.shortcuts import create_admin_shortcut
+                return create_admin_shortcut()
+            except Exception:
+                return False, "error"
 
         def _build_shortcut_btn(row):
             btn = tk.Label(

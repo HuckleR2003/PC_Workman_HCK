@@ -886,6 +886,14 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
             return
         stop_btn.config(text="stopping…", fg=MUTED)
         def _bg():
+            # Receipt opens BEFORE the services go down, so the comparison is
+            # honest: every optimiser claims it helped, this one prints the
+            # numbers from either side of the action.
+            try:
+                from core.opt_receipts import record as _receipt
+                _receipt(f"TURBO services: {_sel['key']}")
+            except Exception:
+                pass
             results = turbo_services.stop_profile(_sel["key"])
             ok_n = sum(1 for _, ok, _ in results if ok)
             col  = BORD_L if ok_n > 0 else MUTED
@@ -1075,6 +1083,21 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
         _pill_cv(auto_pill, _auto["on"], 32, 15, VIOLET)
         if _auto["on"]:
             turbo_processes.start(_thresh["secs"])
+            # Process suspension does nothing until something has been idle
+            # past the threshold, so the receipt waits for the threshold plus
+            # a settle window before measuring. The count is read at AFTER
+            # time, so it reports what actually got suspended.
+            try:
+                from core.opt_receipts import record as _receipt
+                _secs = int(_thresh["secs"])
+                _receipt(
+                    "TURBO process suspension",
+                    delay=_secs + 30,
+                    detail=lambda: "%d processes suspended"
+                                   % len(turbo_processes.suspended_list()),
+                )
+            except Exception:
+                pass
             mon_lbl.config(text="monitoring…", fg=VIOLET)
             sec_lbl.config(fg=EMERALD)
             _tick()
@@ -1905,7 +1928,7 @@ def _build_receipts_expand(expand_frame, card):
 
     tk.Label(wrap,
              text=t("optimization.features.receipts.head",
-                    default="Every action gets a receipt: BEFORE at trigger, AFTER ~20 s later."),
+                    default="Every action gets a receipt: BEFORE at trigger, AFTER once the action has had time to work."),
              font=(_F, 7), bg=_RBG, fg="#7a9cbf", anchor="w",
              wraplength=520, justify="left").pack(anchor="w", pady=(0, 5))
 
@@ -1932,13 +1955,13 @@ def _build_receipts_expand(expand_frame, card):
             w.destroy()
         try:
             from core.opt_receipts import get_receipts
-            items = get_receipts()[:5]
+            items = get_receipts()[:8]
         except Exception:
             items = []
         if not items:
             tk.Label(rows_frame,
                      text=t("optimization.features.receipts.empty",
-                            default="No receipts yet - run FLUSH RAM and the first one appears here."),
+                            default="No receipts yet - run FLUSH RAM or switch on TURBO and the first one appears here."),
                      font=(_M, 7), bg=_RBG, fg="#55627a", anchor="w"
                      ).pack(anchor="w")
             return
@@ -1961,6 +1984,13 @@ def _build_receipts_expand(expand_frame, card):
                 tk.Label(row, text=txt, font=(_M, 7), bg=_RBG,
                          fg=_delta_col(b.get("ram_pct"), a.get("ram_pct"))
                          ).pack(side="left")
+                # What the action actually touched, measured at AFTER time.
+                # "RAM 78 -> 61" is the result; "12 processes suspended" is
+                # the reason, and a receipt without the reason is half a proof.
+                det = e.get("detail")
+                if det:
+                    tk.Label(row, text=f"  ({det})", font=(_M, 7), bg=_RBG,
+                             fg="#55627a").pack(side="left")
 
     refresh = tk.Label(wrap, text="↻ REFRESH", font=(_M, 6, "bold"),
                        bg="#0e1520", fg="#a3e635", cursor="hand2",
