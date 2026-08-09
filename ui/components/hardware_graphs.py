@@ -8,15 +8,6 @@ from collections import deque
 from typing import Dict, List, Optional, Tuple
 import time
 
-# ── Font system ────────────────────────────────────────────────────────────────
-try:
-    from utils.fonts import UI as _UIF, MONO as _MONOF
-except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
-_BODY = _UIF
-_MONO = _MONOF
-
 
 class LiveGraph:
     """
@@ -78,7 +69,7 @@ class LiveGraph:
         self.value_label = tk.Label(
             header,
             text=f"0 {self.unit}",
-            font=(_MONO, 10, "bold"),
+            font=("Consolas", 10, "bold"),
             bg="#1a1d24",
             fg=self.color,
             anchor="e"
@@ -92,7 +83,7 @@ class LiveGraph:
         self.min_label = tk.Label(
             stats_frame,
             text="Min: 0",
-            font=(_MONO, 8),
+            font=("Consolas", 8),
             bg="#1a1d24",
             fg="#64748b"
         )
@@ -101,7 +92,7 @@ class LiveGraph:
         self.max_label = tk.Label(
             stats_frame,
             text="Max: 0",
-            font=(_MONO, 8),
+            font=("Consolas", 8),
             bg="#1a1d24",
             fg="#64748b"
         )
@@ -110,7 +101,7 @@ class LiveGraph:
         self.avg_label = tk.Label(
             stats_frame,
             text="Avg: 0",
-            font=(_MONO, 8),
+            font=("Consolas", 8),
             bg="#1a1d24",
             fg="#64748b"
         )
@@ -156,7 +147,7 @@ class LiveGraph:
                 self.graph_padding - 10, y,
                 text=str(value),
                 fill="#64748b",
-                font=(_MONO, 8),
+                font=("Consolas", 8),
                 anchor="e"
             )
 
@@ -318,7 +309,7 @@ class HardwareGraphsPanel:
         info = tk.Label(
             scrollable_frame,
             text="📊 Live graphs update every 0.2s | 150 data points (30 seconds history)",
-            font=(_BODY, 8),
+            font=("Segoe UI", 8),
             bg="#0f1117",
             fg="#64748b"
         )
@@ -365,7 +356,7 @@ def create_graphs_page(parent, monitor):
     tk.Label(
         header,
         text="MSI Afterburner Style - Real-time monitoring",
-        font=(_BODY, 9),
+        font=("Segoe UI", 9),
         bg="#1a1d24",
         fg="#64748b"
     ).pack(side="left", padx=15)
