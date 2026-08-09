@@ -73,7 +73,12 @@ SYSTEM_CRITICAL = frozenset({
 # PC Workman's own process, by name (the os.getpid() check is the robust guard;
 # these cover child/helper processes launched under a different pid).
 SELF_NAMES = frozenset({
-    "pc workman hck.exe", "pcworkman.exe", "startup.py",
+    # PyInstaller ships "PC Workman HCK.exe" (spec: EXE name). The underscore
+    # spelling is the release folder and zip name, and was the exe name in
+    # earlier builds, so both stay listed: a rename must not quietly remove
+    # the app's protection from itself.
+    "pc workman hck.exe", "pc_workman_hck.exe",
+    "pcworkman.exe", "pc_workman.exe", "startup.py",
     "python.exe", "pythonw.exe",
 })
 

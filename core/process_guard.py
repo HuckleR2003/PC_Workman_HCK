@@ -48,6 +48,15 @@ except Exception:  # pragma: no cover
     APP_DIR = BUNDLE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+# Reason codes that are genuinely about trust. Anything NOT in here is
+# advisory (performance, popularity, "unrecognised") and must never be the
+# sole cause of a security verdict.
+_SECURITY_NEGATIVE = frozenset({
+    "masquerade", "typosquat", "malware_name", "risky_path",
+    "bad_signature", "expected_signed", "publisher_mismatch",
+    "unsigned", "lib_flag",
+})
+
 # ── Critical Windows processes: must live in a system dir AND be MS-signed ─────
 # Running from anywhere else is a strong masquerade signal.
 _CRITICAL_SYSTEM = {
@@ -432,6 +441,20 @@ class ProcessGuard:
                 f.add("signed_ms",
                       f"✓ Podpis Microsoft (zaufany): {pub}.",
                       f"✓ Microsoft signature (trusted): {pub}.", 0)
+                # A confirmed Microsoft signature outranks an advisory note.
+                # `lib_caution` means "heavy or bloatware-class", which is an
+                # opinion about resource use, not a security finding, and it
+                # was leaving core Windows services (spoolsv.exe = Print
+                # Spooler, dllhost.exe = COM Surrogate) sitting under a
+                # "caution" verdict in a security scan. Step 7 could never
+                # undo it, because promotion to trusted only runs while the
+                # verdict is still "unknown". A scanner that flags the Print
+                # Spooler is a scanner people learn to ignore.
+                if f.verdict == "caution" and not any(
+                        (r.get("code") if isinstance(r, dict) else None)
+                        in _SECURITY_NEGATIVE for r in f.reasons):
+                    f.verdict = "trusted"
+                    f.score = 0
             elif f.expected_vendor and not self._vendor_matches(pub, f.expected_vendor):
                 # Not necessarily bad - signing entity often differs from the
                 # product's brand (parent company, code-signing arm). Flag softly.

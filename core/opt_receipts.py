@@ -29,6 +29,16 @@ _MAX_ENTRIES   = 20
 _lock = threading.Lock()
 
 
+_seq = 0
+
+
+def _next_seq() -> int:
+    """Monotonic counter so two receipts opened in the same nanosecond differ."""
+    global _seq
+    _seq += 1
+    return _seq
+
+
 def _store_path() -> str:
     try:
         from utils.paths import APP_DIR
@@ -77,35 +87,66 @@ def _save(entries: list) -> None:
         pass
 
 
-def record(action: str) -> None:
-    """Open a receipt for `action`: BEFORE now, AFTER in ~20 s. Never raises."""
+def record(action: str, delay: float = None, detail=None) -> None:
+    """
+    Open a receipt for `action`: BEFORE now, AFTER after `delay` seconds.
+
+    `delay` exists for TURBO. A RAM flush is done the moment it is called, so
+    20 s is a fair "after". TURBO process suspension does nothing until a
+    process has been idle past the threshold, and measuring before that would
+    print a receipt proving nothing happened. The caller knows its own timing,
+    so it passes it in.
+
+    `detail` is a callable or a string describing what the action touched
+    ("12 processes suspended"). A callable is evaluated at AFTER time, so the
+    receipt reports what was true when it measured, not what was hoped for.
+    Never raises.
+    """
     try:
+        # Unique id, not a timestamp window. Matching the AFTER callback by
+        # "within 0.5 s of ts" crossed the wires whenever two receipts opened
+        # in the same instant: one action's result was written onto another
+        # action's receipt. A receipt that reports someone else's numbers is
+        # worse than no receipt.
+        rid = "%d-%d" % (time.time_ns(), _next_seq())
         entry = {
+            "id":     rid,
             "ts":     time.time(),
             "action": str(action)[:48],
             "before": _metrics(),
             "after":  None,
+            "detail": None if callable(detail) else (
+                str(detail)[:64] if detail else None),
         }
         with _lock:
             entries = _load()
             entries.append(entry)
             _save(entries)
-        ts = entry["ts"]
 
         def _capture_after():
             try:
                 after = _metrics()
+                late = None
+                if callable(detail):
+                    try:
+                        late = str(detail())[:64]
+                    except Exception:
+                        late = None
                 with _lock:
                     items = _load()
                     for e in reversed(items):
-                        if abs(float(e.get("ts", 0)) - ts) < 0.5 and e.get("after") is None:
+                        if e.get("id") == rid and e.get("after") is None:
                             e["after"] = after
+                            if late:
+                                e["detail"] = late
                             break
                     _save(items)
             except Exception:
                 pass
 
-        t = threading.Timer(_AFTER_DELAY_S, _capture_after)
+        t = threading.Timer(
+            _AFTER_DELAY_S if not delay else max(1.0, float(delay)),
+            _capture_after)
         t.daemon = True
         t.start()
     except Exception:

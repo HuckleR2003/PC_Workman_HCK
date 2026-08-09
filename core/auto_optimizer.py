@@ -174,11 +174,14 @@ def ram_flush(exclude: set | None = None) -> tuple:
     except Exception:
         pass
     count = skipped = 0
+    our_pid = os.getpid()
     try:
         for proc in psutil.process_iter(["pid", "name"]):
             pid  = proc.pid
             name = (proc.info.get("name") or "").lower()
-            if pid <= 4:
+            # Never trim our own working set: the flush would page out the UI
+            # thread that is running the flush and stall the window mid-click.
+            if pid <= 4 or pid == our_pid:
                 continue
             if name and (name in exclude or _is_protected(name)):
                 skipped += 1
