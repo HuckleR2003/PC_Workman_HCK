@@ -1034,7 +1034,12 @@ class HCKGPTPanel:
         end_pos = self.log.index("end")
         idx = start_pos
         while True:
-            pos = self.log.search(r'\[-> [^\]]+\]', idx, stopindex=end_pos, regexp=True)
+            # Literal search, not a Tk regexp. Tcl's bracket expressions do not
+            # treat "[^\]]" the way Python does, so the pattern that worked in
+            # tests silently failed to match in the widget and every marker
+            # rendered as plain text. Find the prefix literally, parse the rest
+            # with Python's own re, which is the engine the map is written for.
+            pos = self.log.search('[-> ', idx, stopindex=end_pos)
             if not pos:
                 break
             line_text = self.log.get(pos, f"{pos} lineend")
@@ -1046,13 +1051,38 @@ class HCKGPTPanel:
             link_name  = m.group(1)
             tag        = f"_nav_{self._nav_link_count}"
             self._nav_link_count += 1
+            # Guide markers leave the app for pcworkman.dev, so they are amber
+            # instead of the purple used for in-app navigation. The colour is
+            # the only warning a user gets that a browser is about to open.
+            guide = None
+            try:
+                from hck_gpt.guide_links import slug_for_marker
+                guide = slug_for_marker(link_name)
+            except Exception:
+                guide = None
             self.log.tag_configure(
                 tag,
-                foreground="#c084fc",
+                foreground="#f59e0b" if guide else "#c084fc",
                 underline=True,
                 font=(_MONOF, 10, "bold"),
             )
             self.log.tag_add(tag, pos, match_end)
+            if guide:
+                slug, glang = guide
+                def _open_guide(_e=None, s=slug, l=glang):
+                    try:
+                        import webbrowser
+                        from hck_gpt.guide_links import url_for
+                        webbrowser.open(url_for(s, l))
+                    except Exception:
+                        pass
+                self.log.tag_bind(tag, "<Button-1>", _open_guide)
+                self.log.tag_bind(tag, "<Enter>",
+                                  lambda e: self.log.config(cursor="hand2"))
+                self.log.tag_bind(tag, "<Leave>",
+                                  lambda e: self.log.config(cursor=""))
+                idx = match_end
+                continue
             cb = self._nav_callbacks.get(link_name)
             if cb:
                 self.log.tag_bind(tag, "<Button-1>", lambda e, c=cb: c())
