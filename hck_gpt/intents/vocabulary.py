@@ -529,6 +529,11 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
 
     # ── Disk speed / optimization ─────────────────────────────────────────────
     "disk_speed": [
+        # English (2026-08-09 audit): "my disk is slow" returned nothing.
+        "my disk is slow", "my ssd is slow", "my hard drive is slow",
+        "why is my disk slow", "my drive is slow",
+        "how fast is my ssd", "disk speed test",
+
         # Polish
         "jak przyspieszyć dysk", "dysk wolno chodzi",
         "przyspieszenie dysku", "dysk jest wolny",
@@ -839,7 +844,37 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
     ],
 
     # ── High disk usage diagnosis ─────────────────────────────────────────────
+    # 23 problem-solving guides live on pcworkman.dev, free and offline-first.
+    # Asking about them returned "I don't follow" until 2026-08-09, which is a
+    # poor answer for a question the app can answer completely.
+    "guides_available": [
+        "are there any guides", "is there some articles", "is there any article",
+        "do you have guides", "do you have any articles", "any guides",
+        "where are the guides", "show me the guides", "list the guides",
+        "what guides do you have", "guides", "articles", "documentation",
+        "where can i read more", "read more about it", "any reading",
+        "do you have documentation", "help articles", "knowledge base",
+        "czy sa jakies poradniki", "czy masz poradniki", "gdzie sa poradniki",
+        "pokaz poradniki", "lista poradnikow", "jakie masz poradniki",
+        "poradniki", "artykuly", "gdzie moge poczytac", "gdzie poczytac wiecej",
+        "czy jest jakis artykul", "masz jakies artykuly", "baza wiedzy",
+    ],
+
     "disk_usage_why": [
+        # English phrasings a real person types (2026-08-09 audit).
+        # "my disk is 100%" routed to unknown before this; the semantic layer
+        # now catches the general shape, these catch the exact wording.
+        "my disk is 100", "my disk is at 100", "my disk has 100",
+        "my disk is 100%", "my disk at 100%", "disk at 100%", "disk 100%",
+        "my ssd is 100", "my ssd has 100", "my ssd have 100",
+        "my hdd is 100", "disk usage 100", "disk usage is 100",
+        "my disk usage is at 100 percent",
+        "why is my disk at 100", "why is my disk always busy",
+        "what is writing to my disk",
+        "what is using my disk", "my disk is always working",
+        "disk is maxed out", "disk is pegged", "hard drive at 100",
+        "my drive is at 100",
+
         # colloquial variants (2026-07-16 pass)
         "dysk pełny",
         "brak miejsca na dysku",
