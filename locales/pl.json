@@ -150,6 +150,11 @@
       "ollama_badge_local": "LOKALNE",
       "ollama_badge_locked": "ZABLOKOWANE",
       "ollama_desc": "Gdy PC Workman wykryje Ollama na tym komputerze,\nhck_GPT zaproponuje przełączenie na w pełni lokalny model AI.",
+      "mode_label": "Tryb proaktywności",
+      "mode_desc": "Reguluje, kiedy hck_GPT może przerwać ciszę. Krytyczne alerty zawsze mają pierwszeństwo.",
+      "mode_quiet": "Cichy",
+      "mode_balanced": "Balans",
+      "mode_companion": "Towarzysz",
       "proactive_label": "Proaktywne alerty",
       "proactive_desc": "Sprytne porady gdy PC jest bezczynny (maks. 3 na 30 min)",
       "morning_label": "Poranny raport",
@@ -317,18 +322,18 @@
       },
       "cpu_throttle": {
         "title": "CPU Throttle Guard",
-        "desc": "Automatycznie zapobiegaj throttlingowi termicznemu",
-        "info": "Monitoruje taktowanie CPU i koryguje limity TDP,\nby utrzymać stabilne zegary przy długim obciążeniu."
+        "desc": "Termika, moc czy headroom? Żywy werdykt w zakładce OVERCLOCK",
+        "info": "Zamiast automatycznie 'zapobiegać throttlingowi', PC Workman najpierw DIAGNOZUJE: czy zegary trzyma temperatura, budżet mocy (TDP/PL2), czy jest zapas. Werdykt na żywo w zakładce OVERCLOCK - Headroom Lab. Read-only, zero ryzyka."
       },
       "browser_cache": {
         "title": "Browser Cache Cleaner",
-        "desc": "Okresowo czyść pliki cache przeglądarek",
-        "info": "Automatycznie czyści cache dyskowy Chrome, Firefox i Edge\npo zadanym czasie bezczynności, odzyskując miejsce na dysku."
+        "desc": "Duże pliki, duplikaty, stare instalatory - podgląd przed usunięciem",
+        "info": "Safe Storage Advisor: znajduje duże pliki, duplikaty, stare instalatory i śmieci w Downloads. NICZEGO nie usuwa bez pełnego podglądu. Cache przeglądarki nie jest automatycznie uznawany za śmieci."
       },
       "bg_limiter": {
         "title": "Background Limiter",
-        "desc": "Ogranicz CPU procesów działających w tle",
-        "info": "Używa windowsowych job objects, by przyciąć udział CPU\nprocesów w tle i oddać zapas aktywnej aplikacji."
+        "desc": "Delikatnie ogranicza tło przy presji CPU, auto-przywraca stan",
+        "info": "Responsiveness Guard: przy realnej presji CPU tymczasowo obniża priorytet procesów w tle (Efficiency Mode), nigdy nie dotyka systemu, anti-cheatów ani aktywnej aplikacji. Stan wraca automatycznie, każda decyzja trafia do logu."
       },
       "net_reset": {
         "title": "Network Adapter Reset",
@@ -337,8 +342,8 @@
       },
       "reg_clean": {
         "title": "Registry Junk Cleaner",
-        "desc": "Usuwaj osierocone klucze rejestru",
-        "info": "Skanuje nieprawidłowe wpisy deinstalacji i uszkodzone\nskojarzenia typów plików. Podgląd przed zastosowaniem."
+        "desc": "Znajdź pozostałości po odinstalowanej aplikacji - zawsze z podglądem",
+        "info": "App Leftover Scanner: szuka śladów po KONKRETNEJ odinstalowanej aplikacji (autostart, usługi, zadania, foldery, powiązane klucze) i pokazuje podgląd przed jakimkolwiek usunięciem. Czyszczenie rejestru 'na ślepo' usunięte celowo - Microsoft je odradza."
       },
       "gpu_watchdog": {
         "title": "GPU Driver Watchdog",
@@ -347,8 +352,8 @@
       },
       "log_rotate": {
         "title": "Log File Rotation",
-        "desc": "Automatycznie czyść stare pliki logów",
-        "info": "Monitoruje folder logów aplikacji i kompresuje / usuwa\nwpisy starsze niż skonfigurowany okres przechowywania."
+        "desc": "Powiąż spowolnienia z nowymi wpisami autostartu, usługami i sterownikami",
+        "info": "What Changed?: gdy komputer zwalnia, PC Workman skoreluje to ze zmianami - nowy autostart, usługa, sterownik, aktualizacja Windows. Historia uczenia zamiast zgadywania."
       },
       "dns_nightly": {
         "title": "DNS Auto-Flush",
@@ -359,7 +364,14 @@
         "title": "Firewall Health",
         "desc": "Pilnuj, by Zapora Windows była aktywna",
         "info": "Sprawdza stan netsh advfirewall i alarmuje, gdy którykolwiek\nprofil (Domena / Prywatny / Publiczny) jest wyłączony."
-      }
+      },
+      "receipts": {
+        "desc": "Dowód przed/po dla każdej akcji - żadnego snake oil",
+        "head": "Każda akcja dostaje paragon: BEFORE w momencie uruchomienia, AFTER po ~20 s.",
+        "empty": "Brak paragonów - uruchom FLUSH RAM, a pierwszy pojawi się tutaj.",
+        "pending": "mierzę..."
+      },
+      "coming_next": "WKRÓTCE"
     }
   },
   "operator": {

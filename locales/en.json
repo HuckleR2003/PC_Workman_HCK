@@ -150,6 +150,11 @@
       "ollama_badge_local": "LOCAL",
       "ollama_badge_locked": "LOCKED",
       "ollama_desc": "When PC Workman detects Ollama on this machine,\nhck_GPT will propose switching to a fully local AI model.",
+      "mode_label": "Proactivity mode",
+      "mode_desc": "Controls when hck_GPT may break the silence. Critical alerts always take priority.",
+      "mode_quiet": "Quiet",
+      "mode_balanced": "Balanced",
+      "mode_companion": "Companion",
       "proactive_label": "Proactive alerts",
       "proactive_desc": "Smart tips when PC is idle (max 3 per 30 min)",
       "morning_label": "Morning briefing",
@@ -317,18 +322,18 @@
       },
       "cpu_throttle": {
         "title": "CPU Throttle Guard",
-        "desc": "Prevent thermal throttling automatically",
-        "info": "Monitors CPU frequency ratio and adjusts TDP limits\nto keep clocks stable during sustained workloads."
+        "desc": "Is it thermal, power or headroom? Live verdict in OVERCLOCK",
+        "info": "Instead of 'preventing throttling' automatically, PC Workman DIAGNOSES first: are the clocks held by temperature, the power budget (TDP/PL2), or is there headroom? Live verdict in the OVERCLOCK Headroom Lab. Read-only, zero risk."
       },
       "browser_cache": {
         "title": "Browser Cache Cleaner",
-        "desc": "Periodically clear browser cache files",
-        "info": "Auto-clears Chrome, Firefox and Edge disk cache\nafter configurable idle period to reclaim disk space."
+        "desc": "Large files, duplicates, old installers - preview before delete",
+        "info": "Safe Storage Advisor: finds large files, duplicates, old installers and Downloads clutter. Deletes NOTHING without a full preview. Browser cache is not automatically treated as junk."
       },
       "bg_limiter": {
         "title": "Background Limiter",
-        "desc": "Cap CPU for non-foreground processes",
-        "info": "Uses Windows job objects to throttle background process\nCPU share, freeing headroom for the active app."
+        "desc": "Gently deprioritize background hogs under pressure, auto-restore",
+        "info": "Responsiveness Guard: under real CPU pressure it temporarily lowers background process priority (Efficiency Mode), never touches the OS, anti-cheats or your active app. State restores automatically and every decision is logged."
       },
       "net_reset": {
         "title": "Network Adapter Reset",
@@ -337,8 +342,8 @@
       },
       "reg_clean": {
         "title": "Registry Junk Cleaner",
-        "desc": "Remove orphaned registry keys",
-        "info": "Scans for invalid uninstall records and broken file\ntype associations. Preview before applying."
+        "desc": "Find leftovers of an uninstalled app - preview, never blind-delete",
+        "info": "App Leftover Scanner: traces ONE uninstalled application (startup entries, services, tasks, folders, clearly linked registry keys) and previews everything before any removal. Blind registry cleaning was removed on purpose - Microsoft discourages it."
       },
       "gpu_watchdog": {
         "title": "GPU Driver Watchdog",
@@ -347,8 +352,8 @@
       },
       "log_rotate": {
         "title": "Log File Rotation",
-        "desc": "Auto-prune old log files to save disk space",
-        "info": "Monitors the app log folder and compresses / deletes\nentries older than the configured retention period."
+        "desc": "Correlate slowdowns with new startup apps, services and drivers",
+        "info": "What Changed?: when the PC slows down, PC Workman correlates it with changes - a new startup app, service, driver or Windows update. Learned history instead of guessing."
       },
       "dns_nightly": {
         "title": "DNS Auto-Flush",
@@ -359,7 +364,14 @@
         "title": "Firewall Health",
         "desc": "Verify Windows Firewall is active and healthy",
         "info": "Queries netsh advfirewall state and alerts if any\nprofile (Domain / Private / Public) is disabled."
-      }
+      },
+      "receipts": {
+        "desc": "Before/after proof for every action - no snake oil",
+        "head": "Every action gets a receipt: BEFORE at trigger, AFTER ~20 s later.",
+        "empty": "No receipts yet - run FLUSH RAM and the first one appears here.",
+        "pending": "measuring..."
+      },
+      "coming_next": "COMING NEXT"
     }
   },
   "operator": {
