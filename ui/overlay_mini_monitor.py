@@ -416,8 +416,19 @@ class OverlayMiniMonitor:
 
     @staticmethod
     def _is_anticheat(pid: int) -> bool:
+        """
+        True when this PID must never be killed or frozen from the overlay.
+
+        is_self comes FIRST and on purpose. The name list protects the app
+        under the name it ships with today, but a rename, a repackage or a
+        user copying the exe would silently remove that protection, and
+        freezing our own process hangs the app hard enough to need Task
+        Manager. A PID cannot be renamed.
+        """
         try:
-            from core.protected_processes import is_protected
+            from core.protected_processes import is_protected, is_self
+            if is_self(pid):
+                return True
             p = psutil.Process(pid)
             return is_protected(p.name(), p.exe() if hasattr(p, "exe") else "")
         except Exception:

@@ -9,15 +9,6 @@ from tkinter import font as tkfont
 import threading
 import time
 
-# ── Font system ────────────────────────────────────────────────────────────────
-try:
-    from utils.fonts import UI as _UIF, MONO as _MONOF
-except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
-_BODY = _UIF
-_MONO = _MONOF
-
 try:
     import psutil
 except ImportError:
@@ -44,7 +35,7 @@ class OverlayWidget:
         # Window configuration
         self.root.title("PC Workman Monitor")
         self.root.overrideredirect(True)  # Remove window frame
-        # topmost removed — was causing interference with games and fullscreen apps
+        self.root.attributes('-topmost', True)  # Always on top
         self.root.attributes('-alpha', 0.95)  # Slight transparency
 
         # Widget size
@@ -61,9 +52,6 @@ class OverlayWidget:
         self.dragging = False
         self.drag_start_x = 0
         self.drag_start_y = 0
-
-        # Update-thread stop flag (set False in close())
-        self._running = True
 
         self._build_ui()
         self._start_update_loop()
@@ -86,8 +74,8 @@ class OverlayWidget:
         stats_frame.pack(expand=True, fill="both", padx=8, pady=8)
 
         # Font for labels
-        label_font = tkfont.Font(family=_BODY, size=9, weight="normal")
-        value_font = tkfont.Font(family=_BODY, size=9, weight="bold")
+        label_font = tkfont.Font(family="Segoe UI", size=9, weight="normal")
+        value_font = tkfont.Font(family="Segoe UI", size=9, weight="bold")
 
         # CPU
         cpu_frame = tk.Frame(stats_frame, bg="#1a1d29")
@@ -120,7 +108,7 @@ class OverlayWidget:
         self.gpu_label.pack(side="left", padx=2)
 
         # Close button (small X in top-right)
-        close_btn = tk.Label(self.container, text="✕", font=(_BODY, 10),
+        close_btn = tk.Label(self.container, text="✕", font=("Segoe UI", 10),
                            bg="#1a1d29", fg="#64748b", cursor="hand2",
                            padx=5, pady=2)
         close_btn.place(relx=1.0, x=-5, y=2, anchor="ne")
@@ -129,7 +117,7 @@ class OverlayWidget:
         close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#64748b"))
 
         # Minimize button (small dash)
-        minimize_btn = tk.Label(self.container, text="-", font=(_BODY, 8),
+        minimize_btn = tk.Label(self.container, text="—", font=("Segoe UI", 8),
                               bg="#1a1d29", fg="#64748b", cursor="hand2",
                               padx=5, pady=2)
         minimize_btn.place(relx=1.0, x=-25, y=2, anchor="ne")
@@ -170,7 +158,7 @@ class OverlayWidget:
     def _start_update_loop(self):
         """Start background update loop"""
         def update_stats():
-            while self._running:
+            while True:
                 try:
                     # Get system stats
                     cpu = psutil.cpu_percent(interval=0.5) if psutil else 0
@@ -187,9 +175,8 @@ class OverlayWidget:
                     # Update labels (thread-safe)
                     self.root.after(0, self._update_labels, cpu, ram, gpu)
 
-                except Exception:
-                    # Window gone (closed) — stop instead of erroring every 2 s
-                    break
+                except Exception as e:
+                    print(f"[OverlayWidget] Update error: {e}")
 
                 time.sleep(2)  # Update every 2 seconds
 
@@ -235,7 +222,6 @@ class OverlayWidget:
 
     def close(self):
         """Close widget"""
-        self._running = False
         self.root.quit()
         self.root.destroy()
 
