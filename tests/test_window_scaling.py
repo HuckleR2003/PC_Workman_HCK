@@ -47,6 +47,32 @@ class TestScaleFormula(unittest.TestCase):
         for sw, sh in ((1600, 900), (1440, 900), (1366, 768), (1280, 800)):
             self.assertLessEqual(_compute_scale(sw, sh), 1.0)
 
+    def test_window_fits_on_every_common_screen(self):
+        """
+        Ratchet. The tiers above 1920 used to read width only, so a 3840x1080
+        super-ultrawide picked the 4K scale and produced a 1150px-tall window
+        on a 1080px screen: the bottom of the app was off-screen and nothing
+        reported it. No screen may ever get a window it cannot show.
+        """
+        TASKBAR = 48
+        screens = (
+            (1024, 768), (1280, 720), (1366, 768), (1440, 900), (1600, 900),
+            (1920, 1080), (1920, 1200),
+            (2560, 1080), (2560, 1440), (3440, 1440),
+            (3840, 1080), (3840, 1600), (3840, 2160), (5120, 1440),
+        )
+        for sw, sh in screens:
+            s = _compute_scale(sw, sh)
+            w, h = _BASE_W * s, _BASE_H * s
+            self.assertLessEqual(w, sw, f"window wider than {sw}x{sh}")
+            self.assertLessEqual(h + TASKBAR, sh, f"window taller than {sw}x{sh}")
+
+    def test_standard_tiers_did_not_move(self):
+        """The ultrawide clamp must not touch normal screens: 1080p stays 1:1."""
+        self.assertEqual(_compute_scale(1920, 1080), 1.0)
+        self.assertEqual(_compute_scale(2560, 1440), 1.35)
+        self.assertEqual(_compute_scale(3840, 2160), 2.0)
+
 
 class TestResizableWindow(unittest.TestCase):
 

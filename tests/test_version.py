@@ -37,9 +37,9 @@ class TestVersionSource(unittest.TestCase):
         self.assertTrue(all(isinstance(p, int) for p in vt))
         self.assertEqual(".".join(str(p) for p in vt), APP_VERSION)
 
-    def test_current_version_is_1_8_6(self):
+    def test_current_version_is_1_8_7(self):
         """Explicit pin for THIS release - bump consciously, with the file."""
-        self.assertEqual(APP_VERSION, "1.8.6")
+        self.assertEqual(APP_VERSION, "1.8.7")
 
     def test_source_module_imports_nothing(self):
         """utils/app_version.py must stay dependency-free: it is imported at
