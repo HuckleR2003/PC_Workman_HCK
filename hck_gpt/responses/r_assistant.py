@@ -742,3 +742,49 @@ class AssistantResponses:
             "  (pamiętam je tylko w tej sesji - tak ma być)",
             "  (session-only memory - by design)"))
         return lines
+
+    def _resp_guides_available(self, result, lang="pl"):
+        """
+        "are there any guides?" - answer it completely instead of shrugging.
+
+        Lists the categories rather than all 23 titles: a wall of links is not
+        an answer. The library map is the same one the per-intent offers use,
+        so this can never drift from what actually exists.
+        """
+        try:
+            from hck_gpt.guide_links import GUIDES, SITE, marker_for
+        except Exception:
+            GUIDES, SITE, marker_for = {}, "https://pcworkman.dev/guides/", None
+        n = len(GUIDES)
+        if lang == "pl":
+            out = [
+                self.PREFIX + f"Tak. Napisałem {n} poradników do realnych problemów, "
+                "za darmo i bez logowania, po polsku i angielsku.",
+                "",
+                "  Wolno działa, a Menedżer zadań pokazuje spokój",
+                "  Dysk na 100%, głośne wentylatory, restarty w grach",
+                "  Nieznany proces, zdrowie SSD, zasilacz",
+                "  Co wymienić najpierw i czy część pasuje do płyty",
+                "",
+                "Pytaj mnie o konkretny problem, a podrzucę Ci właściwy. "
+                "Cała lista jest tutaj:",
+            ]
+            slug = "is-my-pc-healthy"
+        else:
+            out = [
+                self.PREFIX + f"Yes. I wrote {n} guides for real problems, "
+                "free, no signup, in Polish and English.",
+                "",
+                "  Slow PC while Task Manager looks calm",
+                "  Disk at 100%, loud fans, restarts while gaming",
+                "  An unknown process, SSD health, the power supply",
+                "  What to upgrade first and whether a part fits your board",
+                "",
+                "Ask me about a specific problem and I will point you at the "
+                "right one. The full list is here:",
+            ]
+            slug = "is-my-pc-healthy"
+        if marker_for:
+            out.append(marker_for(slug, lang))
+        return out
+

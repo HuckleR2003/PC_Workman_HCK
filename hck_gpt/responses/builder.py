@@ -85,6 +85,17 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
                         intent, {"headline": head[:140]})
                 except Exception:
                     pass
+            # A published guide answers the same question in full. Offered
+            # once per guide per session, after the live answer, never
+            # instead of it. Map lives in hck_gpt/guide_links.py.
+            if out:
+                try:
+                    from hck_gpt.guide_links import take_offer
+                    extra = take_offer(intent, lang)
+                    if extra:
+                        out = list(out) + extra
+                except Exception:
+                    pass
             return out
         except Exception as _e:
             # Log handler errors so they appear in the diagnostic console
