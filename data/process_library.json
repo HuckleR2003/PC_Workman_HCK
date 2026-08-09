@@ -4848,5 +4848,365 @@
     "safety": "safe",
     "typical_cpu": "5-30%",
     "typical_ram": "150-400MB"
+  },
+  "comppkgsrv.exe": {
+    "name": "Component Package Support Server",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Helps Windows install and service component packages. Starts on demand.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "dashost.exe": {
+    "name": "Device Association Framework Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Pairs and connects devices such as Bluetooth and wireless displays.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "helppane.exe": {
+    "name": "Windows Help and Support",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Opens the Windows help viewer. Appears when help is requested.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "rundll32.exe": {
+    "name": "Windows Host Process (Rundll32)",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Runs code from DLL files. Legitimate from System32, a common malware disguise elsewhere.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-15%",
+    "typical_ram": "5-40MB"
+  },
+  "searchfilterhost.exe": {
+    "name": "Search Filter Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Reads file contents so Windows Search can index them. Bursts during indexing.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-25%",
+    "typical_ram": "10-80MB"
+  },
+  "searchprotocolhost.exe": {
+    "name": "Search Protocol Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Feeds files to the search indexer. Bursts after large file changes.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-20%",
+    "typical_ram": "10-70MB"
+  },
+  "securityhealthservice.exe": {
+    "name": "Windows Security Health Service",
+    "vendor": "Microsoft Corporation",
+    "category": "security",
+    "description": "Reports Windows Security status: antivirus, firewall, account protection.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "systemsettings.exe": {
+    "name": "Windows Settings",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "The Settings app. Runs while the window is open.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "40-150MB"
+  },
+  "useroobebroker.exe": {
+    "name": "User OOBE Broker",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Handles first-run and account setup screens after a sign-in or update.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "mpdefendercoreservice.exe": {
+    "name": "Microsoft Defender Core Service",
+    "vendor": "Microsoft Corporation",
+    "category": "security",
+    "description": "Part of Microsoft Defender. Do not disable it.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-20%",
+    "typical_ram": "50-300MB"
+  },
+  "wmpnetwk.exe": {
+    "name": "Windows Media Player Network Sharing",
+    "vendor": "Microsoft Corporation",
+    "category": "media",
+    "description": "Shares media libraries over the local network. Safe to disable if unused.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "gamingservicesnet.exe": {
+    "name": "Xbox Gaming Services (Network)",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Networking for Microsoft Store games and Game Pass.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "xboxpcappft.exe": {
+    "name": "Xbox App Helper",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Background helper for the Xbox app on Windows.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "gameinputredistservice.exe": {
+    "name": "GameInput Redistributable Service",
+    "vendor": "Microsoft Corporation",
+    "category": "gaming",
+    "description": "Controller and input support for games using Microsoft GameInput.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "msi.centralserver.exe": {
+    "name": "MSI Center Server",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Background service for MSI Center.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "20-120MB"
+  },
+  "msi.terminalserver.exe": {
+    "name": "MSI Center Terminal Server",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Command channel used by MSI Center features.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "msi_central_service.exe": {
+    "name": "MSI Central Service",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Core MSI Center service. Feeds fan and hardware panels.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "msi_case_service.exe": {
+    "name": "MSI Case Service",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Controls MSI case fans and case lighting.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "mystic_light_service.exe": {
+    "name": "MSI Mystic Light Service",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "RGB lighting control for MSI hardware.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "ledkeeper2.exe": {
+    "name": "MSI LedKeeper",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Keeps RGB lighting profiles applied.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "lightkeeperservice.exe": {
+    "name": "MSI LightKeeper Service",
+    "vendor": "Micro-Star INT'L CO., LTD.",
+    "category": "utility",
+    "description": "Companion service for MSI RGB lighting.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "asuscertservice.exe": {
+    "name": "ASUS Certificate Service",
+    "vendor": "ASUSTeK Computer Inc.",
+    "category": "utility",
+    "description": "Certificate handling for ASUS software such as Armoury Crate.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "jhi_service.exe": {
+    "name": "Intel Dynamic Application Loader",
+    "vendor": "Intel Corporation",
+    "category": "system",
+    "description": "Part of Intel Management Engine. Ships with chipset drivers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "wmiregistrationservice.exe": {
+    "name": "Intel ME WMI Registration",
+    "vendor": "Intel Corporation",
+    "category": "system",
+    "description": "Registers Intel Management Engine WMI providers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "discsoftbusservicelite.exe": {
+    "name": "DAEMON Tools Lite Bus Service",
+    "vendor": "Disc Soft Ltd",
+    "category": "utility",
+    "description": "Provides the virtual drive used by DAEMON Tools Lite.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "dtshellhlp.exe": {
+    "name": "DAEMON Tools Shell Helper",
+    "vendor": "Disc Soft Ltd",
+    "category": "utility",
+    "description": "Adds DAEMON Tools entries to Explorer context menus.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "elevation_service.exe": {
+    "name": "Chromium Elevation Service",
+    "vendor": "Google LLC / Opera",
+    "category": "utility",
+    "description": "Applies browser updates that need administrator rights. Idle otherwise.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "opera_crashreporter.exe": {
+    "name": "Opera Crash Reporter",
+    "vendor": "Opera Software",
+    "category": "utility",
+    "description": "Collects a report after Opera crashes.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "rvcontrolsvc.exe": {
+    "name": "Radmin VPN Control Service",
+    "vendor": "Famatech",
+    "category": "network",
+    "description": "Runs the Radmin VPN virtual network adapter.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "jetbrains.etw.collector.host.exe": {
+    "name": "JetBrains ETW Collector",
+    "vendor": "JetBrains s.r.o.",
+    "category": "development",
+    "description": "Collects Windows trace events for JetBrains profilers.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "cowork-svc.exe": {
+    "name": "Claude Cowork Service",
+    "vendor": "Anthropic",
+    "category": "development",
+    "description": "Background service for Anthropic's Claude desktop tooling.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "ascservice.exe": {
+    "name": "Advanced SystemCare Service",
+    "vendor": "IObit CO.",
+    "category": "utility",
+    "description": "Background service of Advanced SystemCare. A tune-up suite that runs constantly.",
+    "power_usage": "varies",
+    "safety": "caution",
+    "typical_cpu": "0-15%",
+    "typical_ram": "50-250MB"
+  },
+  "imsctadn.exe": {
+    "name": "IMSC TADN Helper",
+    "vendor": "IObit CO.",
+    "category": "utility",
+    "description": "Background helper installed with IObit software.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "bash.exe": {
+    "name": "Bash (Git for Windows)",
+    "vendor": "Johannes Schindelin",
+    "category": "development",
+    "description": "Unix-style shell shipped with Git for Windows.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-10%",
+    "typical_ram": "10-60MB"
+  },
+  "tail.exe": {
+    "name": "tail (Git for Windows)",
+    "vendor": "Johannes Schindelin",
+    "category": "development",
+    "description": "Command-line tool that follows the end of a file.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-5%",
+    "typical_ram": "5-60MB"
+  },
+  "codex.exe": {
+    "name": "OpenAI Codex",
+    "vendor": "OpenAI OpCo",
+    "category": "development",
+    "description": "OpenAI Codex desktop app.",
+    "power_usage": "varies",
+    "safety": "safe",
+    "typical_cpu": "0-15%",
+    "typical_ram": "100-500MB"
   }
 }
