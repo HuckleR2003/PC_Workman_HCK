@@ -4226,6 +4226,60 @@ class ExpandedMainWindow:
 
         tk.Frame(hero, bg=BORDER, height=1).pack(fill="x")
 
+        # ── GUIDES BANNER - the 23 published guides on pcworkman.dev ──────────────
+        # This page teaches the program. The website answers the problem that
+        # made someone open the program. Amber marks "this leaves the app",
+        # matching the guide links inside hck_GPT.
+        try:
+            from utils.i18n import get_lang as _gl
+            _glang = _gl()
+        except Exception:
+            _glang = "pl"
+        _is_pl = str(_glang).lower().startswith("pl")
+
+        gb = tk.Frame(sf, bg="#0a0e1a", cursor="hand2")
+        gb.pack(fill="x")
+        tk.Frame(gb, bg=AMBER, height=2).pack(fill="x")
+        gb_in = tk.Frame(gb, bg="#0a0e1a")
+        gb_in.pack(fill="x", padx=26, pady=(12, 14))
+
+        tk.Label(gb_in,
+                 text=("PORADNIKI NA PCWORKMAN.DEV" if _is_pl
+                       else "GUIDES ON PCWORKMAN.DEV"),
+                 font=(_BODY, 8, "bold"), bg="#0a0e1a", fg=AMBER
+                 ).pack(anchor="w")
+        tk.Label(gb_in,
+                 text=("23 poradniki o realnych problemach: głośne wentylatory, "
+                       "dysk na 100%, nieznany proces, wymiana podzespołów."
+                       if _is_pl else
+                       "23 guides on real problems: loud fans, disk at 100%, "
+                       "an unknown process, planning an upgrade."),
+                 font=(_BODY, 10), bg="#0a0e1a", fg=TEXT,
+                 justify="left", wraplength=760
+                 ).pack(anchor="w", pady=(3, 0))
+        tk.Label(gb_in,
+                 text=("Za darmo, bez logowania, po polsku i angielsku.  "
+                       "Otwórz w przeglądarce  →" if _is_pl else
+                       "Free, no signup, Polish and English.  "
+                       "Open in your browser  →"),
+                 font=(_BODY, 9), bg="#0a0e1a", fg=DIM
+                 ).pack(anchor="w", pady=(4, 0))
+
+        def _open_guides(_e=None):
+            try:
+                import webbrowser
+                from hck_gpt.guide_links import SITE
+                webbrowser.open(SITE if not _is_pl else SITE + "index_pl.html")
+            except Exception:
+                pass
+
+        for _w in (gb, gb_in, *gb_in.winfo_children()):
+            try:
+                _w.bind("<Button-1>", _open_guides)
+                _w.configure(cursor="hand2")
+            except Exception:
+                pass
+
         # ── What's new strip ──────────────────────────────────────────────────────
         news_strip = tk.Frame(sf, bg="#0a0e1a")
         news_strip.pack(fill="x")
@@ -4621,7 +4675,7 @@ class ExpandedMainWindow:
         # GitHub button
         def open_github():
             import webbrowser
-            webbrowser.open("https://github.com/HCK-Labs/PC-Workman/releases")
+            webbrowser.open("https://github.com/HuckleR2003/PC_Workman_HCK/releases")
 
         github_btn = tk.Button(
             content,
