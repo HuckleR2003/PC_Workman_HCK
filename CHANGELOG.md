@@ -1,14 +1,96 @@
 # HCK_Labs - PC_Workman_HCK - Changelog
 _All notable changes are documented here._
 
-## [1.8.4] - 2026-07-17
+## [1.8.7] - 2026-08-08
 
-### Upgrade Readiness - offline part compatibility
+### hck_GPT, largest rebuild so far
+**`hck_gpt/engine/`, `hck_gpt/intents/`, `hck_gpt/memory/`, `hck_gpt/responses/`, `hck_gpt/context/`, `hck_gpt/data/` (new packages)**
+- The assistant was split along responsibility lines instead of living in a few large files: routing engine, intent vocabulary and parsing, memory, response building, system context and metrics each own a package.
+- Conversation context carries across turns, so a follow-up correction works the way people actually talk: ask about the CPU, then say "I meant the GPU", and the assistant swaps the component without losing the question.
+- `QUESTION_BANK.md` added: a written bank of real user phrasings that the intent layer is tested against, instead of testing by feel.
+- `hck_gpt/easter_eggs.py`, `hck_gpt/process_library.py` and `hck_gpt/tooltip.py` split out of the panel.
+- Dead `hck_gpt/report_window.py` removed (640 lines) after it stopped being reachable.
+
+### hck_GPT, guided flows
+**`hck_gpt/engine/flow_engine.py` (new), `hck_gpt/responses/flows.py` (new)**
+- `tuneup_guide` was the only handler that could hold a conversation across several turns. That pattern is now an engine: a flow is a list of steps, and the engine owns the navigation, so every guide understands "dalej", "tak", "pomiń" and "stop" without its author writing that code again.
+- Four flows ship: **optimize**, **cooling**, **desktop_repair**, **upgrade_plan**. The optimize flow measures first, walks through startup and services, asks before it touches RAM, then verifies with the numbers it measured at the start.
+- One flow can be active at a time, and starting another ends the first. Steps reuse the existing engines rather than reimplementing them.
+- 13 tests in `tests/test_flow_engine.py`.
+
+### hck_GPT, semantic routing
+**`hck_gpt/intents/semantic_rules.py` (new)**
+- A layer between the keyword parser and the ML classifier, for the relationships a bag of words tends to drop: process plus close plus safe means "is it safe to kill this", drive plus 100% plus background means the disk question, temperature plus a time reference means a comparison and not a reading.
+- Nine route families: processes, thermals, hardware, diagnosis, history, gaming and power, upgrades, conversation control and conversation.
+- Rules ask for several independent cues before they commit. They never run an action, and returning nothing is a legal answer that hands the decision back to the parser. Out-of-domain questions are rejected openly instead of being forced into the nearest intent.
+
+### hck_GPT, conversation director
+**`hck_gpt/responses/r_conversation.py` (new), `hck_gpt/responses/r_assistant.py` (new)**
+- 11 handlers that keep a diagnosis coherent when a real conversation wanders: correcting the subject ("I meant the GPU"), supplying a detail that was missing a moment ago, coming back after trying the advice, comparing before and after, declining a suggestion, or asking why the assistant is confident.
+- These sit on top of the category handlers and the flows, they do not replace either.
+- 24 tests in `tests/test_conversation_director.py`.
+
+### hck_GPT, proactivity that can be tested
+**`hck_gpt/memory/proactive_policy.py` (new), `hck_gpt/memory/game_session.py` (new)**
+- The decision "is this worth interrupting the user for" moved out of the background daemon into a pure scoring policy, so it can be tested without starting a thread or touching Tk. `ProactiveMonitor` still owns the daemon.
+- Game sessions are tracked headlessly: no extra polling and no second detector, because `GamingToastWatcher` remains the one place that notices a game starting. FPS is recorded only when it genuinely came from RTSS, never estimated.
+- 7 tests in `tests/test_game_session_tracker.py`.
+
+### Guides inside the app
+**`hck_gpt/guide_links.py` (new), `hck_gpt/responses/builder.py`, `hck_gpt/panel.py`, `ui/windows/main_window_expanded.py`**
+- 23 guides have been published on pcworkman.dev and the app never mentioned them. Now hard questions carry an offer to the guide that answers them in full: 22 guides mapped to 54 intents, attached once in `build()` rather than in every handler.
+- The offer comes after the live answer, never instead of it, and each guide is offered once per session so a repeated question does not repeat the link.
+- Guide links are amber, because they open a browser. In-app navigation stays purple. Short alias intents like "cpu" or "ram" carry no offer at all.
+- The Guide page gained a banner to the same library.
+- `tests/test_guide_links.py` checks the target file actually exists in both languages. Two guides are Polish-first, so for them `index.html` is the Polish page and English lives at `index_en.html`, the opposite of the other 21.
+
+### Store package: links in, shortcuts that work, a splash instead of a blank wait
+**`utils/deep_link.py` (new), `utils/shortcuts.py` (new), `startup.py`, `ui/pages/settings_page.py`, `AppxManifest.xml`**
+- **`pcworkman://` links.** A guide on the website can now open the page it is talking about: `pcworkman://open/startup_manager`, `pcworkman://guide/<slug>`, `pcworkman://ask?q=...`. The app already links out to the 23 guides; this closes the loop the other way.
+- The parser is treated as a trust boundary, because a link arrives from a web page. Only page ids that exist in the router are accepted, a guide slug must look like a slug, and question text is capped and placed in the chat input rather than sent. **There is deliberately no verb that runs an optimisation**, so a link cannot flush RAM or suspend anything. `tests/test_deep_link.py` fails the build if that changes.
+- **Desktop shortcut that actually opens the app.** The Store shortcut pointed at an Application Id that does not exist in the published manifest, so it launched nothing. Shortcut logic moved into one module with the correct AUMID, and a test pins it.
+- **Optional "Run as administrator" shortcut** for portable installs, created by flipping the RunAsUser bit in the .lnk header, the same thing the Windows Advanced checkbox writes. On a Store install it is refused with a reason rather than faked, because Windows does not elevate a packaged app launched through the AppsFolder.
+- **Package assets fixed.** The MSIX shipped one 32x32 image used for every tile, including the 150x150 one, which is what the June certification rejected as blurry. All sizes now ship from `branding/store`, plus a splash screen so launch is not a blank wait.
+
+### Optimization Receipts now cover TURBO
+**`core/opt_receipts.py`, `ui/pages/optimization_services.py`**
+- TURBO suspended processes and stopped services without ever saying what it gained. Both now open a receipt, and the receipt panel in Optimization features shows all of them.
+- `record()` takes a `delay`, because the honest measuring point differs per action. A RAM flush is finished when it returns, so 20 seconds is fair. Process suspension does nothing until something has been idle past the threshold, so its receipt waits for the threshold plus 30 seconds instead of printing a proof that nothing happened.
+- Receipts carry a `detail` line saying what was touched ("12 processes suspended"), evaluated when the AFTER snapshot is taken so it reports what was true, not what was intended.
+- **Fixed a receipt that could report another action's numbers.** The AFTER callback found its own entry by "timestamp within 0.5 seconds", so two receipts opened in the same instant could be matched to each other. Entries now carry a unique id. `tests/test_opt_receipts.py` pins it.
+
+### Process library, 485 to 521 entries
+**`data/process_library.json`**
+- A scan on a normal machine returned 35 processes the app did not recognise, which is noise rather than information. Added the Windows components every user has (Search indexer hosts, Device Association host, Component Package server, Security Health, Settings, Defender core service, Xbox services, rundll32), motherboard vendor tools (MSI Center and Mystic Light, ASUS, Intel Management Engine) and common applications.
+- **Vendors are the Authenticode signers read from the binaries, not guesses.** A first pass used plausible-looking vendor names, and that was worse than saying nothing: an expected vendor that does not match the real signer raises `publisher_mismatch`, so three processes that had merely been unrecognised turned into "caution". Every vendor string was then read from the signature.
+- Same machine after the pass: 0 unrecognised, 1 caution, and that one is a tune-up suite deliberately marked worth watching.
+
+### Fixes
+- **The mini-antivirus flagged the Print Spooler.** `spoolsv.exe` and `dllhost.exe` came back as "caution" with a valid Microsoft signature and the correct System32 path, because a process-library note meaning "heavy or bloatware-class" was escalating the security verdict, and promotion to trusted only ran while the verdict was still "unknown". Advisory codes can no longer be the sole cause of a security verdict. Masquerade, homoglyph and miner detection are unchanged and pinned by `tests/test_process_guard_verdicts.py`.
+- **The in-game overlay could freeze the app itself.** It refused protected processes by name only, while `hibernation_manager` also checks `is_self(pid)`. A rename or a repackage would have silently removed that protection, and suspending our own process hangs the app hard enough to need Task Manager. The overlay now checks the PID first. `auto_optimizer` also stopped trimming its own working set.
+- **Ultrawide screens got a window taller than the screen.** Above 1920 px the scale formula read width only and assumed height followed. On a 3840x1080 super-ultrawide that picked the 4K tier and produced a 1150 px window on a 1080 px screen, with the bottom off-screen. Every tier is now clamped by the height that exists. 1080p, 1440p and 4K are unchanged. Checked against 14 screen sizes from 1024x768 to 5120x1440.
+- **The diagnostic console could stay open with no explanation.** On Windows 11 with Windows Terminal as the default, `GetConsoleWindow()` returns a hidden proxy window, so hiding it succeeds and changes nothing on screen. The app now checks the window class, and when it cannot hide the console it says so in plain language, explains that closing it closes the app, and points at the setting that fixes it. The event is written to `errors.log` through the new `crash_log.log_event()`.
+- **"CHECK UPDATE ON GITHUB" opened a 404.** It pointed at `HCK-Labs/PC-Workman`, which does not exist. Both GitHub links in the app now point at the real repository.
+
+### Shared helpers, duplication removed
+**`utils/prefs_io.py` (new), `utils/win_active.py` (new)**
+- One guarded JSON read/write pair replaces six private `_load_prefs`/`_save_prefs` copies. Reads return the default instead of raising, writes return False instead of raising.
+- One `foreground_pid()` replaces three private copies.
+- Migrated: `core/auto_optimizer.py`, `core/hibernation_manager.py`, `core/process_guard.py`, `ui/pages/optimization_services.py`, `ui/pages/startup_manager.py`, `core/app_activity_tracker.py`, `core/fps_monitor.py`, `core/turbo_manager.py`.
+
+### Tests
+- Test count from 229 to 331, all green. `tests/test_prefs_io.py` pins the dedup contract and fails the build if a private copy comes back; `tests/test_window_scaling.py` gained a ratchet that fails if any screen size would get a window it cannot show.
+
+## [1.8.5] - 2026-07-21
+
+### Upgrade Readiness - Offline part compatibility
 **`core/hardware_compat_db.py` (new), `core/hardware_compat.py` (new), `ui/pages/upgrade_readiness.py` (new)**
 - New offline hardware library: 320 entries (174 desktop CPUs from Intel 4th gen to Core Ultra 200S and AMD FX to Ryzen 9000, 79 GPUs from GTX 700 to RTX 50 / RX 500 to RX 9000 / Arc, 58 chipsets, 9 sockets). No network calls.
 - The engine knows per-chipset CPU-generation support, not just sockets: B460 cannot run 11th gen at all, Z490 needs a BIOS update, LGA1151 100/200 vs 300 boards are electrically incompatible, B550 never supported Ryzen 1000/2000, B450 runs a 5800X3D only after a BIOS flash. Cross-socket verdicts include RAM carry-over (resolved from your actual module speed on DDR4/DDR5 boards) and cooler-mount compatibility.
 - New Upgrade Readiness page: type a planned purchase ("i5 11400F", "RTX 4070", "DDR5 6000"), get a green/amber/red verdict with reasons. Quick-pick chips suggest same-socket CPUs your chipset actually runs and GPU classes above your current card. Entry buttons sit at each part in My PC > Components and on First Setup & Drivers and Monitoring & Alerts.
 - GPU checks report the class delta versus your current card (honest about sidegrades and downgrades), VRAM change, recommended PSU wattage and a CPU-pairing note for old platforms.
+- Live autocomplete: start typing a model in the search box and a list of matching parts appears (CPU/GPU tag, socket or VRAM, year) - pick one instead of remembering the exact name. Library grew to 188 CPUs and 84 GPUs. The page opens with a colour legend explaining the green/amber/red verdicts and what the check reads.
+- The My PC Efficiency tab now shows a definition tooltip when you hover a process name (the same process library the dashboard uses), and each component card in My PC > Components carries an UPGRADE READINESS link that jumps to the checker for that part.
 
 ### Optimization Center - Upgrade Advisor card
 **`ui/pages/optimization_services.py`, `locales/pl.json`, `locales/en.json`**
@@ -18,7 +100,7 @@ _All notable changes are documented here._
 **`hck_gpt/responses/r_upgrade.py` (new), `hck_gpt/intents/vocabulary.py`, `hck_gpt/intents/parser.py`**
 - Two new intents: `upgrade_compat` ("czy i5 11400F bedzie pasowac do mojej plyty", "will an i5 13600K fit my board") and `ram_compat` ("czy DDR5 zadziala", "what RAM fits"). Fully bilingual answers composed from engine facts, with a clickable [-> Upgrade Readiness] nav link.
 - Parser gained a domain rule: a concrete part model (i5-11400F, RTX 4070, DDR5...) next to fit/swap wording routes to the upgrade intents even when the model name sits mid-sentence. Neighbouring intents (temperature, game_can_run, hw_ram, upgrade_feasibility) verified untouched.
-- `r_hardware.py` was approaching the monolith limit; the Upgrade Readiness handlers live in their own `r_upgrade.py` mixin (94 intents total).
+- `r_hardware.py` was approaching the monolith limit; the Upgrade Readiness handlers live in their own `r_upgrade.py` mixin (96 intents total).
 
 ### One version source
 **`utils/app_version.py` (new), `startup.py`, `core/telemetry.py`, `hck_gpt/responses/builder.py`, `ui/windows/main_window_expanded.py`, `ui/windows/main_window.py`, `PCWorkman.spec`**
@@ -28,7 +110,7 @@ _All notable changes are documented here._
 
 ### hck_GPT - builder split into mixins
 **`hck_gpt/responses/builder.py`, `r_hardware.py`, `r_thermal.py`, `r_gaming.py`, `r_system.py`, `r_performance.py`, `r_insights.py`, `r_assistant.py`, `common.py` (new files)**
-- The 6,533-line builder monolith is now a facade over seven category mixins plus shared helpers; dispatch (`_resp_<intent>` via MRO) is unchanged. builder.py itself is under 600 lines.
+- The 6,533-line builder monolith is now a facade over eight category mixins plus shared helpers; dispatch (`_resp_<intent>` via MRO) is unchanged. builder.py itself is under 600 lines.
 - A guard test fired all handlers through both languages after the split and caught the one real casualty: the module-level singleton had been dropped, which switched the whole AI layer off with no crash and no log. Restored, and a permanent AI-layer-alive test guards it.
 - A monolith-guard test caps every response module at 1,600 lines, so the split cannot quietly grow back.
 
@@ -79,7 +161,9 @@ _All notable changes are documented here._
 - Removed the two blocking `wmic` calls from the My PC build path (CPU name, disk models), each with a 3-second timeout on the UI thread. On Windows 11 24H2, where `wmic` is slow and deprecated, these were the main cause of "My PC loads forever". The names now come from the hardware identity already warmed at startup.
 - Keep-alive (Phase 2): My PC is built ONCE per session and then hidden/shown instead of destroyed/rebuilt. Re-entering takes 1-17 ms (was ~990 ms at the start of the day); switching back to a visited tab (Central, Components, Map) is instant. Refresh loops are visibility-aware - they idle at 3 s while the page is hidden and resume when shown. The cache is honestly invalidated on language change and window maximize (old strings/geometry never linger), and staleness-prone tabs (Startup, Health, Efficiency) still rebuild fresh every visit.
 - Fixed a pre-existing animation race where a still-running overlay slide could grab and drag the WRONG overlay after a quick page switch - both animations now capture their frame.
-- Result in profiling: central tab build ~590 -> ~160 ms, first entry ~990 -> ~350 ms, every later entry 1-17 ms. Ratchet tests guard the build path (no `wmic`), the cache lifecycle and the loop guards.
+- Startup: the sidebar built ~90 subitem widgets for every collapsed section at launch, all invisible until you expand one. They are now built lazily on first expand (deep-links still reach them). Steady-state window init dropped to roughly 190 ms.
+- The splash already warms the hardware identity and the service/startup metrics off-thread, so the first My PC and hck_GPT hardware answers are instant.
+- Result in profiling: central tab build ~590 -> ~160 ms, first entry ~990 -> ~350 ms, every later entry 1-17 ms. Ratchet tests guard the build path (no `wmic`), the cache lifecycle, the loop guards and the lazy sidebar.
 
 ### Diagnostics
 **`utils/crash_log.py` (new)**

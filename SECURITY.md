@@ -57,8 +57,8 @@ If signature verification fails, do not run the executable. Report the issue imm
 **Status:** Active  
 **Started:** v1.6.3  
 **Frequency:** Every new .exe release  
-**Current Status:** 0/70 clean  
-**Last Scanned:** v1.8.2 (July 06, 2026)
+**Current Status:** 1/70  
+**Last Scanned:** v1.8.7 (August 8, 2026)
 
 Before publishing any executable, it is uploaded to VirusTotal and verified against 70+ antivirus engines. Users can verify this independently at [virustotal.com](https://www.virustotal.com).
 
@@ -206,7 +206,7 @@ Independent verification is recommended:
 2. Upload the downloaded .exe file
 3. Review scan results
 
-**Expected result:** 0/70+ detections
+**Expected result:** 1/70. The single detection is Bkav Pro, a heuristic engine known for false positives on PyInstaller-packed binaries. Any detection from a different engine should be reported
 
 Any detections should be reported immediately. False positives are possible but rare.
 

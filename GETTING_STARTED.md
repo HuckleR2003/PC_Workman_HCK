@@ -301,7 +301,7 @@ Try:
 ```
 data/
 ├── logs/
-│   └── hck_stats.db           (SQLite — minute→hour→day→week→month stats)
+│   └── hck_stats.db           (SQLite - minute→hour→day→week→month stats)
 └── cache/
     ├── thermal_baseline.json  (learned per-workload temperatures)
     └── voltage_baseline.json  (learned voltage SPC baselines)

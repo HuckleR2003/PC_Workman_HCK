@@ -108,12 +108,75 @@ def get_console_window():
         return ctypes.windll.kernel32.GetConsoleWindow()
     return None
 
-def hide_console():
-    """Hide the console window"""
-    if sys.platform == 'win32':
-        hwnd = get_console_window()
-        if hwnd:
-            ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_HIDE = 0
+# Only a real conhost window answers to ShowWindow. Windows 11 defaults the
+# terminal application to Windows Terminal, and there GetConsoleWindow() hands
+# back a hidden proxy window instead of the frame the user can see: hiding it
+# reports success and changes nothing on screen.
+_CONHOST_CLASS = "ConsoleWindowClass"
+
+
+def _console_window_class(hwnd) -> str:
+    """Win32 class name of the console window, empty string if unavailable."""
+    try:
+        buf = ctypes.create_unicode_buffer(256)
+        ctypes.windll.user32.GetClassNameW(hwnd, buf, 256)
+        return buf.value or ""
+    except Exception:
+        return ""
+
+
+def hide_console() -> bool:
+    """
+    Hide the diagnostic console. Returns True only when it is genuinely gone.
+
+    When it cannot be hidden the user gets a plain explanation in the console
+    they are still looking at, instead of an unexplained black window sitting
+    behind the app forever. A silent no-op here was reported by a tester on
+    Windows 11 and is exactly the class of bug this project keeps finding:
+    the call succeeds and does nothing.
+    """
+    if sys.platform != 'win32':
+        return False
+    hwnd = get_console_window()
+    if not hwnd:
+        return True                              # windowed build, nothing to hide
+
+    ctypes.windll.user32.ShowWindow(hwnd, 0)     # SW_HIDE = 0
+    cls = _console_window_class(hwnd)
+
+    if cls == _CONHOST_CLASS:
+        # Classic console host: verify rather than assume.
+        try:
+            if not ctypes.windll.user32.IsWindowVisible(hwnd):
+                return True
+        except Exception:
+            return True
+
+    print()
+    print("-" * 62)
+    print("  The diagnostic console stayed open. This is not a crash.")
+    print()
+    print("  PC Workman is running normally, this window just cannot be")
+    print("  hidden on your system. Windows 11 uses Windows Terminal as the")
+    print("  default terminal, and it does not let a program hide its own")
+    print("  window the way the classic console did.")
+    print(f"  (console host reported: {cls or 'unknown'})")
+    print()
+    print("  You can minimise this window and keep working. Do NOT close it:")
+    print("  closing the console closes PC Workman with it.")
+    print()
+    print("  To hide it permanently:")
+    print("    Settings > System > For developers > Terminal")
+    print("    change it to 'Windows Console Host', then restart PC Workman.")
+    print("-" * 62)
+    print()
+    try:
+        from utils.crash_log import log_event
+        log_event("console_hide_failed",
+                  f"window class: {cls or 'unknown'} (console stayed visible)")
+    except Exception:
+        pass
+    return False
 
 def show_console():
     """Show the console window"""
@@ -156,6 +219,57 @@ except Exception:
 # ============================================
 # STARTUP SEQUENCE
 # ============================================
+
+def _handle_deep_links(mode_mgr) -> None:
+    """
+    Act on any pcworkman:// argument this process was launched with.
+
+    Kept deliberately small and defensive: an unrecognised link is ignored in
+    silence, a recognised one does exactly one thing. Nothing here can be
+    reached without the user clicking a link, and nothing here performs an
+    optimisation or touches a process.
+    """
+    try:
+        from utils.deep_link import from_argv, guide_url
+    except Exception:
+        return
+    try:
+        intents = from_argv(sys.argv[1:])
+    except Exception:
+        return
+    if not intents:
+        return
+    win = getattr(mode_mgr, "expanded_window", None)
+    for it in intents:
+        try:
+            act = it.get("action")
+            if act == "open" and win is not None:
+                switch = getattr(win, "_switch_to_page", None)
+                if callable(switch):
+                    switch(it["page"])
+            elif act == "guide":
+                try:
+                    from utils.i18n import get_lang
+                    lang = "pl" if str(get_lang()).lower().startswith("pl") else "en"
+                except Exception:
+                    lang = "pl"
+                url = guide_url(it["slug"], lang)
+                if url:
+                    import webbrowser
+                    webbrowser.open(url)
+            elif act == "ask" and win is not None:
+                panel = getattr(win, "gpt_panel", None)
+                entry = getattr(panel, "entry", None) if panel else None
+                if entry is not None:
+                    # Placed in the input for the user to send. Never sent for
+                    # them: a web link must not be able to query their machine.
+                    entry.delete(0, "end")
+                    entry.insert(0, it["text"])
+                    entry.focus_set()
+        except Exception:
+            continue
+
+
 def run_demo():
     print()
     log("Starting PC Workman HCK...", "LOAD")
@@ -449,7 +563,10 @@ def run_demo():
             # Gaming launch watcher (subtle 2s notifications per game)
             try:
                 from ui.components.gaming_toast import gaming_watcher
+                from hck_gpt.memory.proactive_monitor import proactive_monitor
                 from utils.i18n import get_lang as _gl
+                gaming_watcher.register_game_observer(
+                    proactive_monitor.on_game_event)
                 gaming_watcher.start(mode_mgr.expanded_window.root, lang=_gl())
             except Exception:
                 pass
@@ -490,6 +607,12 @@ def run_demo():
                 _root = mode_mgr.expanded_window.root
                 _root.update_idletasks()                 # force a first paint
                 _root.after(500, hide_console)           # hide from inside the loop
+                # pcworkman:// deep links arrive as a command-line argument.
+                # Dispatched after the window is painted, never before, and
+                # only for intents utils/deep_link.py recognised. A link can
+                # open a page or hand a question to the chat; it can never
+                # run an action on its own.
+                _root.after(900, lambda: _handle_deep_links(mode_mgr))
             except Exception:
                 hide_console()                           # fallback: hide immediately
 

@@ -80,11 +80,12 @@ WMI code.**
 ### 3b - Upgrade Readiness (one compatibility engine)
 
 `core/hardware_compat.py` is the ONE "will this part fit" engine; its data
-lives in `core/hardware_compat_db.py` (320 entries: 174 CPUs, 79 GPUs,
-58 chipsets with per-generation native/bios/vendor/blocked support, 9 sockets).
+lives in `core/hardware_compat_db.py` (349 entries: 196 CPUs, 84 GPUs,
+60 chipsets with per-generation native/bios/vendor/blocked support, 9 sockets).
 It reads the machine through Mechanism 3 (`current_platform()`), resolves
 DDR4-vs-DDR5 on dual-gen sockets from module speed, and knows the real traps
 (B460 blocks 11th gen, LGA1151 v1/v2, B550 blocks Zen/Zen+, BIOS-flash cases).
+The current set includes Core Ultra 200S Plus desktop parts and Q870/W880.
 Consumers: `ui/pages/upgrade_readiness.py` (checker page, entry buttons in
 Components / First Setup / Monitoring), the Optimization Center's Upgrade
 Advisor card, and hck_GPT (`r_upgrade.py`: `upgrade_compat` / `ram_compat`
@@ -136,10 +137,13 @@ running with zero UI. Pages are configurators + status listeners.
 
 ```
 panel.py -> chat_handler -> hybrid_engine (rule >=0.65 conf | Ollama)
-             -> intents/parser + vocabulary (90 intents, PL/EN per message)
+             -> intents/parser + semantic_rules + vocabulary
+                (109 intents, PL/EN per message)
              -> responses/builder.ResponseBuilder  (facade)
-                 = 7 mixins: r_hardware, r_thermal, r_gaming, r_system,
-                   r_performance, r_insights, r_assistant (+ common.py)
+                 = 9 mixins: r_hardware, r_upgrade, r_thermal, r_gaming,
+                   r_system, r_performance, r_insights, r_conversation,
+                   r_assistant
+                   (+ common.py)
 ```
 - Adding an intent: phrases into `INTENT_PATTERNS` (both languages) + a
   `_resp_<intent>` method in the matching `r_*.py`. Dispatch is
@@ -147,10 +151,21 @@ panel.py -> chat_handler -> hybrid_engine (rule >=0.65 conf | Ollama)
   classifier retrains automatically on the vocabulary fingerprint change.
 - Guards: parity test (every intent has a handler), no-duplicate-handler
   test, monolith guard (no responses module may exceed 1,600 lines), and the
-  180-call harness pattern (fire every handler PL+EN) used before releases.
+  218-call harness pattern (fire every handler PL+EN) used before releases.
 - Alert routing: RAM critical -> HOT strip only; advisory tips -> TIP strip.
   Clickable `[-> Name]` markers become nav links via
   `panel.register_nav_callback`.
+- `SessionMemory` owns one expiring `ConversationFrame`. It extends the same
+  reference and response ledger instead of creating another memory manager.
+  The frame keeps subject, goal, symptom, evidence, missing facts, bounded
+  revisions, question-attempt counts, advice state, verification state and an
+  honest before snapshot. Short values are interpreted against the active goal.
+- `ProactiveMonitor` remains the only alert daemon. `ProactivePolicy` is a pure
+  scoring helper for quiet, balanced and companion modes. The existing gaming
+  watcher remains the only game process poller and forwards start/end events to
+  the monitor's bounded `GameSessionTracker`.
+- Game FPS may enter a frame or recap only with `fps_source="rtss"`. An absent
+  RTSS reading stays absent, never zero and never estimated.
 
 ## Mechanism 8 - The confirm drawer (Services / Startup pattern)
 
@@ -225,8 +240,8 @@ Partner Center, payload = the whole onedir folder.
 
 ## Test & verification toolkit
 
-- `python -m unittest discover tests` (63, headless).
-- Handler harness: fire all 90 intents PL+EN via `getattr(rb, "_resp_...")`
+- `python -m unittest discover tests` (full headless suite).
+- Handler harness: fire all 109 intents PL+EN via `getattr(rb, "_resp_...")`
   - the pre-release gate for hck_GPT.
 - Guards encode past incidents: protected-process regression, intent parity,
   monolith guard, data-pipeline invariants, MSIX path resolution,

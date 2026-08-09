@@ -98,10 +98,13 @@ hiddenimports = [
     'hck_gpt.responses',
     'hck_gpt.responses.builder',
     'hck_gpt.responses.r_upgrade',
+    'hck_gpt.responses.r_conversation',
     # memory
     'hck_gpt.memory',
     'hck_gpt.memory.session_memory',
     'hck_gpt.memory.proactive_monitor',
+    'hck_gpt.memory.proactive_policy',
+    'hck_gpt.memory.game_session',
     'hck_gpt.memory.user_knowledge',
     # context
     'hck_gpt.context',
@@ -149,6 +152,7 @@ hiddenimports = [
     'ui.pages.startup_manager',
     'ui.pages.services_manager',
     'ui.pages.upgrade_readiness',
+    'ui.pages.overclock_lab',
     # ── Utils ─────────────────────────────────────────────────────────────────
     'utils',
     'utils.app_version',
