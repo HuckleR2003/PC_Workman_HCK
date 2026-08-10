@@ -1,0 +1,151 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="My AI matched 16 questions with 100% confidence and returned nothing. The first week PC Workman was on the Microsoft Store, and the week a tester found the temperature pipeline broken.">
+    <meta name="keywords" content="Friday Shipped and Scarred, hck_GPT, silent intents, Microsoft Store, OneDrive startup, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/">
+    <meta property="og:title" content="Friday Shipped & Scarred #15: Sixteen Answers That Existed Only on Paper">
+    <meta property="og:description" content="My AI matched 16 questions with 100% confidence and returned nothing. The first week PC Workman was on the Microsoft Store, and the week a tester found the temperature pipeline broken.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-friday.png">
+    <meta property="article:published_time" content="2026-07-03">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped & Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Friday Shipped & Scarred #15: Sixteen Answers That Existed Only on Paper | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Friday Shipped & Scarred #15: Sixteen Answers That Existed Only on Paper",
+  "description": "My AI matched 16 questions with 100% confidence and returned nothing. The first week PC Workman was on the Microsoft Store, and the week a tester found the temperature pipeline broken.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/",
+  "datePublished": "2026-07-03",
+  "dateModified": "2026-07-03",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Friday Shipped & Scarred",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#15", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped & Scarred &middot; #15</span>
+        <h1>Sixteen Answers That Existed Only on Paper</h1>
+        <p class="tagline">Parser matched them with 100% confidence. Users got silence.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-07-03</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Friday Shipped & Scarred #15</span>
+        </div>
+
+        <p class="lead">My AI had 16 answers that existed only on paper.</p>
+
+<p>This is Friday Shipped &amp; Scarred 15, the first week PC Workman is available on the <span class="hl">Microsoft Store</span>.</p>
+
+<h2>Shipped this week</h2>
+<ul>
+<li><span class="hl-green">16 silent intents found and implemented, plus 4 new ones.</span> 20 handlers reading live sensor data: voltages, fan RPM, thermal history, morning briefs.</li>
+<li><span class="hl-green">hck_GPT learned to coach.</span> "Tune up my PC" walks you through a 4-step plan with YOUR numbers, one message at a time.</li>
+<li>The OneDrive mystery solved. I was deleting registry keys, OneDrive kept re-adding them. Task Manager uses a hidden flag Windows respects even when apps fight back. Now I do too.</li>
+<li>Desktop shortcuts for Store installs, small-laptop fixes, 60 contrast fixes, and a 180-call harness that now guards every release.</li>
+</ul>
+
+<div class="callout warn">
+<b>Scarred:</b> the week after launch, a tester called Adam found the temperature pipeline broken on some installs. Overlay showing "--". <span class="hl-red">A monitor that cannot see temperatures is a monitor in name only.</span>
+</div>
+
+<p>This weekend: one clean data machine. Nothing else.</p>
+
+        <div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">MicrosoftStore</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../14-microsoft-store-said-no/"><span class="pn-dir">&larr; #14</span><span class="pn-title">Microsoft Store Said No</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped & Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
