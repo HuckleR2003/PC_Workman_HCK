@@ -1,0 +1,438 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology article (EN) · silent failures -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Six real bugs that ran perfectly, passed every test and did nothing: a button that saved nothing, a check that read nothing, a shortcut that opened nothing.">
+    <meta name="keywords" content="silent failure, bug that passes tests, except pass Python, code that does nothing, testing side effects, AI generated code review, false success, regression test ratchet, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <meta property="og:title" content="The most dangerous bug does not crash. It succeeds.">
+    <meta property="og:description" content="A crash is honest. Silence is a claim, and it says everything went fine. Six failures that passed every test I owned, and the checks that finally caught them.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-10">
+    <meta property="article:modified_time" content="2026-08-10">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Silent Failures: The Bug That Passes Every Test and Does Nothing | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "The most dangerous bug does not crash. It succeeds.",
+      "description": "Six silent failures from fourteen months of building a Windows system monitor in public: a button that saved nothing, a temperature check that read nothing, a learning engine nobody called, a switch wired to nothing, a Store shortcut that opened nothing, and a scanner that accused the Print Spooler. Plus the week generated code got past a tired reviewer, and the five checks that catch this class of bug.",
+      "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/" },
+      "datePublished": "2026-08-10",
+      "dateModified": "2026-08-10",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Beginner",
+      "about": [
+        { "@type": "Thing", "name": "Silent failure" },
+        { "@type": "Thing", "name": "Software testing" },
+        { "@type": "Thing", "name": "Exception handling" },
+        { "@type": "SoftwareApplication", "name": "PC Workman", "operatingSystem": "Windows", "applicationCategory": "UtilitiesApplication" }
+      ],
+      "keywords": "silent failure, false success, bug that passes tests, except pass, testing side effects, AI generated code, regression ratchet",
+      "wordCount": 3894,
+      "citation": [
+        "https://peps.python.org/pep-0008/",
+        "https://psutil.io/api/",
+        "https://www.tcl-lang.org/man/tcl8.6/TclCmd/re_syntax.htm",
+        "https://www.tcl-lang.org/man/tcl8.6/TkCmd/text.htm",
+        "https://learn.microsoft.com/en-us/windows/win32/shell/appids",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-authenticodesignature"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Silent failures that pass every test", "item": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a silent failure in software?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A silent failure is a false claim of success. The code runs, returns normally, logs nothing and reports that the work is done, while the work never happened. It is not an absence of output. It is a reassuring output that is wrong, which is why nobody files a bug report about it and why it can survive for months in a shipped product." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is a bare except: pass dangerous in Python?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A bare except catches everything, including NameError and AttributeError from your own typos, and pass throws the evidence away. PEP 8 warns that a bare except clause also catches SystemExit and KeyboardInterrupt and can disguise other problems, and recommends naming specific exceptions instead. In a real case in PC Workman, a bare except swallowed a NameError on every single chat message for four months, so an entire learning subsystem was never called and nothing anywhere said so." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you test for a bug that already passes every test?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Assert that the work happened, not only that the outcome looked reasonable. Check the side effect: that the file exists on disk after Apply, that a reading has a value in a plausible range rather than an empty container, that the identifier in two files still matches. A useful rule of thumb is that if a test would still pass on a machine where the feature is switched off, it is not testing the feature." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Optimization Receipt card (the "how PC Workman helps" graphic).
+       Lime accent = a verified action with a measurement on both sides. */
+    .rcpt{
+        position:relative;
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem 1.55rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .rcpt-head{
+        display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.7rem;
+    }
+    .rcpt-head .rcpt-tag{ color:#a3e635; }
+    .rcpt-line{ display:flex; gap:1rem; font-size:.82rem; padding:.22rem 0; line-height:1.45; }
+    .rcpt-line .k{ color:var(--text-dim); width:104px; flex-shrink:0; }
+    .rcpt-line .v{ color:#e6eef6; }
+    .rcpt-line .v .d{ color:var(--text-dim); }
+    .rcpt-line.after .v b{ color:#a3e635; font-weight:700; }
+    .rcpt-rule{ border-top:1px dashed #232a33; margin:.6rem 0; }
+    .rcpt-verdict{
+        display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+        font-size:.82rem; color:var(--text-secondary); padding-top:.2rem;
+    }
+    .rcpt-verdict .badge{
+        font-size:.6rem; letter-spacing:1px; text-transform:uppercase;
+        padding:.22rem .6rem; border-radius:999px;
+        color:#a3e635; border:1px solid rgba(163,230,53,.42);
+    }
+    /* torn edge */
+    .rcpt::after{
+        content:""; position:absolute; left:1rem; right:1rem; bottom:.6rem; height:2px;
+        background: repeating-linear-gradient(90deg, rgba(163,230,53,.45) 0 6px, transparent 6px 12px);
+    }
+    @media (max-width:520px){ .rcpt-line{ flex-direction:column; gap:0; } .rcpt-line .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/silent-failures-that-pass-every-test/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; PRO</span>
+        <h1>The most dangerous bug<br>does not crash. It succeeds.</h1>
+        <p class="tagline">Six failures from fourteen months of shipping alone, all of which ran perfectly and did nothing. Plus the week I let an assistant write more than I read, and one claim in this article that was wrong until I checked it.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-10</span><span>&middot;</span><span>13 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">A crash is honest. It tells you something went wrong, at a line number, with a stack trace.</p>
+
+        <p>Silence is also a claim. It says everything went fine. That claim is far more expensive when it is false, and it is the one we are now producing at scale.</p>
+
+        <p>In March I ran one command and deleted 130 commits of my own history. That was not the worst thing that has happened to this project. It was loud. I knew within four seconds, spent an evening in the reflog and recovered most of it from a branch I had made by accident three weeks earlier. Loud failures announce themselves, so you fix them.</p>
+
+        <p>The ones that nearly finished me were quiet. A button that reported success and saved nothing. A temperature check that had been reading nothing for months. A learning engine nobody was calling. A desktop shortcut, shipped to real users through the Microsoft Store, that opened absolutely nothing.</p>
+
+        <p>None of them crashed. Every one of them passed every test I owned.</p>
+
+        <p>I have been building a Windows system monitor in public for fourteen months, alone, in the evenings after work. The day job has been a warehouse in the Netherlands, then welding plastic in a repair shop, and now a taxi. Everything is on GitHub from the first commit, so the log of my mistakes is not a memory. It is a record I cannot edit.</p>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#six">Six real ones, and what each taught me</a></li>
+                <li><a href="#pattern">The pattern, in one table</a></li>
+                <li><a href="#week">The week I stopped reading carefully</a></li>
+                <li><a href="#checks">Five checks that actually catch it</a></li>
+                <li><a href="#witness">Why one person misses all of this</a></li>
+                <li><a href="#receipt">What the app does about it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="six">Six real ones, and what each taught me</h2>
+        <p>Everything below happened to a real application with real users. Where I look careless, I was.</p>
+
+        <h3>1. The button that said "Applied successfully"</h3>
+        <p>There is a fan curve editor. You drag points, you click Apply, a green message appears.</p>
+        <p>The message appeared. The file was never written. Every restart threw the user's settings away in silence, and it had been doing that for two releases.</p>
+        <p>Nobody reported it, and the reason is worth sitting with: <span class="hl-red">the user cannot tell the difference between "it saved" and "it said it saved."</span> They set their curve, saw the confirmation, restarted a week later, found the defaults back, and assumed they had done something wrong.</p>
+        <div class="callout"><b>A success message is not evidence of success. It is a string.</b> The fix took ten minutes. Finding it took months.</div>
+
+        <h3>2. The check that was measuring nothing</h3>
+        <p>The proactive monitor is supposed to warn you when your machine runs hot. I wrote it, I tested it, I shipped it, and I wrote a blog post about it.</p>
+        <p>For months it was built on <code>psutil.sensors_temperatures()</code>. The check ran on schedule, found nothing to warn about, and reported all clear. Forever. The test suite was happy, because the tests asserted that the alert did <em>not</em> fire when temperatures were normal, and an alert that can never fire passes that test every time.</p>
+        <p class="lead">An empty reading is indistinguishable from a normal reading if you never assert that a reading exists.</p>
+
+        <div class="callout warn">
+            <b>Now the part that only exists in this version of the article.</b>
+            I have been telling this story for months, in a changelog, in a Friday post and in another article on this site, with the same sentence every time: "on Windows it returns an empty dictionary". While writing this piece I finally checked the claim instead of repeating it.
+            <br><br>
+            psutil's API reference gives one line for that function: <span class="hl-red">Availability: Linux, FreeBSD</span>. Not Windows. So it does not return an empty dictionary on Windows. <b>The attribute does not exist at all.</b> Calling it raises <code>AttributeError</code>. Here is the check, on the machine this article was written on, psutil 7.2.1 on Windows 10 build 19045:
+            <pre><code>&gt;&gt;&gt; import psutil
+&gt;&gt;&gt; hasattr(psutil, "sensors_temperatures")
+False</code></pre>
+            The bug is the same size. The lesson is bigger. It was never "an API politely handed me an empty result". It was <b>an exception, raised on every single call, landing inside a try block that had nothing to say about it</b>. Failure number two was standing on failure number three the whole time, and I did not see it because I kept describing it from memory. That is the entire thesis of this article, performed live at my own expense.
+        </div>
+
+        <p>The code that reads temperatures today does not guess. It asks whether the function exists before calling it, and falls back to LibreHardwareMonitor, which is where Windows temperatures actually come from:</p>
+        <pre><code># core/hardware_sensors.py
+temps = psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}</code></pre>
+
+        <h3>3. <code>except: pass</code>, and four months of a dead brain</h3>
+        <p>This is the one that still bothers me.</p>
+        <p>The application learns what is normal for your machine: temperature baselines per workload, voltage anomalies with real statistical process control. Weeks of work. It ran, it was tested, it produced correct numbers.</p>
+        <p>The chat assistant never called any of it. I found it while grepping for something else and landing on this:</p>
+        <pre><code>try:
+    ctx = build_learning_context()
+except:
+    pass</code></pre>
+        <p>Two lines above, the code referenced a variable that did not exist in that scope. A <code>NameError</code>, every time, on every message, for four months. The bare <code>except</code> swallowed it whole. No crash, no log, no warning. The assistant kept answering. It just answered like an application that had learned nothing, because from its side, it had.</p>
+        <p>PEP 8 has said the quiet part out loud for years: a bare except clause "can disguise other problems", and you should name the exceptions you actually expect. It is one of the few style rules that is really a correctness rule.</p>
+        <div class="callout warn"><b>A bare <code>except: pass</code> does not handle an error. It deletes the evidence that one occurred.</b> If you take one line away from this article, take that one. Go and grep your project for <code>except:</code> followed by <code>pass</code>. I will wait.</div>
+
+        <h3>4. The switch wired to nothing</h3>
+        <p>There was a TURBO toggle on the dashboard. You could click it. It animated.</p>
+        <p>It wrote a flag that nothing in the codebase ever read. The function that was supposed to consume it existed, was correct, and was never called by anything.</p>
+        <p>Users clicked it, felt productive, and changed exactly zero bytes of system state. I had built the feature, built the button, and never connected them, because I tested the feature by calling the function directly and I tested the button by looking at it.</p>
+        <div class="callout"><b>The two halves of a feature can both be correct and still not be a feature.</b></div>
+
+        <h3>5. The shortcut that opened nothing</h3>
+        <p>This one reached the Microsoft Store.</p>
+        <p>Packaged Windows apps live in a folder users cannot right-click into, so the app offers to make a desktop shortcut for you. That shortcut has to carry an Application User Model ID, the identifier the shell uses to tie a shortcut, a process and a window to one application. It is built from the package family name plus the Application Id declared in the manifest.</p>
+        <pre><code>manifest:        Application Id="App"
+shortcut code:   ...PCWorkman_4hekbcs2ddfbc!PCWorkmanHCK</code></pre>
+        <p>Every Store user who clicked "create desktop shortcut" got a shortcut that launched nothing. No error dialog. Windows simply found no application by that name and returned to the desktop.</p>
+        <p>Zero bug reports. Of course zero. <span class="hl-red">Nobody files a ticket about a shortcut that does nothing.</span> They double-click it twice, shrug, and never use it again, and your feature dies without leaving a body.</p>
+        <div class="callout"><b>Identifiers that must agree across two files will eventually disagree.</b> Test the agreement, not either side of it. There is now one module that builds shortcuts and one test that pins the identifier, with the reason written into the failure message.</div>
+
+        <h3>6. The scan that accused the Print Spooler</h3>
+        <p>There is a process-inspection engine in the app: Authenticode signature checks, typosquat detection, masquerade detection. It correctly catches <code>svch0st.exe</code> pretending to be <code>svchost.exe</code>.</p>
+        <p>It also flagged <code>spoolsv.exe</code>. The Windows Print Spooler. Valid Microsoft signature, correct System32 path.</p>
+        <p>The cause is the most instructive one here, and it is not a typo. The process library carries a note meaning "heavy, watch this one for resource use". That note was raising the <b>security</b> verdict. Two entirely different kinds of truth were sharing one field.</p>
+        <p>Worse, the code already knew better and could not act on it. A valid Microsoft signature is supposed to promote a process to trusted, but that promotion only ran while the verdict was still "unknown", and by the time the signature was read the advisory note had already pushed it to "caution".</p>
+        <div class="callout warn"><b>When one field carries two kinds of truth, one of them will eventually answer a question it was never asked.</b> A scanner that accuses the Print Spooler is a scanner people mute within a week. A muted scanner protects nothing.</div>
+
+        <h2 id="pattern">The pattern, in one table</h2>
+        <p>Line those six up and they are the same bug in six costumes.</p>
+        <table>
+            <thead>
+                <tr><th>What actually happened</th><th>What the system reported</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Settings never written</td><td>Applied successfully</td></tr>
+                <tr><td>Temperature never read</td><td>All clear</td></tr>
+                <tr><td>Learning never called</td><td>A confident answer</td></tr>
+                <tr><td>Feature never connected</td><td>A working button</td></tr>
+                <tr><td>Shortcut never valid</td><td>A shortcut on the desktop</td></tr>
+                <tr><td>Advisory note misread</td><td>A security verdict</td></tr>
+            </tbody>
+        </table>
+        <p>Every row is an action that did not happen and a system that said it did. That is the definition worth carrying: <span class="hl-red">a silent failure is a false claim of success.</span> Not an absence of output. A wrong output that happens to be reassuring.</p>
+        <p>And notice which layer catches none of them. Type checkers do not, because the types are fine. Linters mostly do not, because the syntax is fine. Tests do not, unless someone thought to assert the side effect. The only thing that catches this class is a check that the work happened.</p>
+
+        <h2 id="week">The week I stopped reading carefully</h2>
+        <p>I need to tell you about a specific week, because it is the reason I think this problem is going to get bigger rather than smaller.</p>
+        <p>I work with an AI assistant and I say so on every post I publish. For most of the last year that meant a conversation: I would ask, read the answer properly, argue with about a third of it, and keep what survived.</p>
+        <p>Then came a release week. Store submission, a version bump across forty-two files, fifteen new blog posts, a build, a package, and day shifts behind a steering wheel. I started accepting more and reading less. Here is what that produced, in one week.</p>
+
+        <h3>It filled a database with plausible vendor names</h3>
+        <p>The application ships a library of known processes: name, vendor, what the thing does. It has 521 entries today. To shorten a list of unrecognised processes we added thirty-five of them, and the vendor fields looked entirely reasonable. <code>bash.exe</code> was attributed to "The Git Development Community".</p>
+        <p>The real Authenticode signer on that binary is a person's name. And because the guard engine compares the expected vendor against the actual signature, a mismatch raises a warning. <span class="hl-red">Three processes that had merely been unrecognised became flagged as suspicious.</span> Confident, plausible, wrong, and worse than writing nothing at all, because "unknown" invites a check and a filled-in field does not.</p>
+        <p>The fix was to stop supplying vendor names from anywhere except the binary itself.</p>
+
+        <h3>It wrote a pattern that passed tests and failed in production</h3>
+        <p>A new feature puts clickable links into the chat window. The parser was tested and correct. In the running application, every link rendered as plain text.</p>
+        <pre><code># Passed every unit test. Never matched in the running app.
+pos = text_widget.search(r'\[-&gt; [^\]]+\]', idx, regexp=True)</code></pre>
+        <p>The unit tests used Python's <code>re</code> module. The Tk text widget's <code>search</code> does not. With <code>-regexp</code> it hands the pattern to Tcl's own regular expression engine, and in Tcl's advanced regular expressions the backslash stays special inside a bracket expression, which is exactly the opposite of what the Python pattern assumes. <span class="hl-red">Two engines, one string, no error message.</span></p>
+        <p>The fix is not a cleverer pattern. It is refusing to write a pattern for an engine I did not check:</p>
+        <pre><code>pos = text_widget.search('[-&gt; ', idx)          # literal, engine-agnostic
+m   = re.match(r'\[-&gt; ([^\]]+)\]', line_text)  # Python parses Python</code></pre>
+
+        <h3>It ran a destructive command, and a cleanup script ate 38 commas</h3>
+        <p>Cleaning up two local commits, the assistant ran <code>git reset --hard</code>, which also wiped everything uncommitted from that day. It was recoverable only because a full folder backup existed from an hour earlier.</p>
+        <p>Earlier, a punctuation pass across fifteen HTML files on this very site removed the comma after thirty-eight closing tags. "Driver conflicts, leftover GPU packages" became "Driver conflictsleftover GPU packages". Nothing crashed. Every page rendered perfectly. I caught it only because I diffed the output instead of trusting the exit code.</p>
+
+        <p>Notice what none of those did. None threw an exception. None produced a stack trace. Every one produced output that looked right, and two of them produced output that was more confidently wrong than doing nothing would have been.</p>
+        <p>That is not an argument against working this way. I still work this way, and this project moves faster because of it. It is an argument about <b>where the review has to happen.</b> Generated code is fluent by construction. It compiles, it reads well, it uses the right function names. <span class="hl-cyan">Fluency is not correctness, and fluency is exactly what makes the difference invisible.</span></p>
+        <p>If that makes this article suspect to you, good instinct. Two answers. First, the six failures above are in a public commit history with dates on them, so go and check one. Second, look again at the correction box in section two: this piece changed a claim I had published three times, because writing it forced me to run the check. That is the method working in front of you, not a promise that it always does.</p>
+
+        <h2 id="checks">Five checks that actually catch it</h2>
+        <p>None of this is clever. All of it came from being burned.</p>
+
+        <h3>1. Assert the work happened, not that the outcome looked fine</h3>
+        <pre><code># Weak: passes when the reading is empty, which IS the bug
+def test_no_false_alarm():
+    assert not monitor.check(temps={}).warned
+
+# Stronger: the reading itself is the subject
+def test_temperature_source_returns_data():
+    reading = sensors.read_cpu_temp()
+    assert reading is not None
+    assert 0 &lt; reading &lt; 150</code></pre>
+        <p>If a test would still pass on a machine where the feature is switched off, it is not testing the feature. For a save button, assert that the file exists on disk afterwards and parses back to what you wrote.</p>
+
+        <h3>2. Make silence expensive</h3>
+        <pre><code>except Exception as e:
+    log_event("learning_context_failed", repr(e))   # never silent
+    ctx = None</code></pre>
+        <p>One line. The alternative cost four months. If you genuinely want to ignore a failure, ignore a named exception, and leave a comment saying which one and why.</p>
+
+        <h3>3. Ask which engine actually runs this</h3>
+        <p>The regex passed in the test and failed in the widget because two different engines evaluated the same string. Before trusting a green test, ask whether it exercises the same runtime the user will hit. A test that mocks the boundary you are unsure about is testing your mock.</p>
+
+        <h3>4. Write the ratchet the same day</h3>
+        <p>When you find one of these, the fix is half the work. The other half is a test that fails the build if it ever comes back. I call them ratchets, because they only turn one way, and I write the reason into the failure message so my future self gets an instruction instead of a red line. Three that live in this repository:</p>
+        <ul>
+            <li><code>tests/test_navigation.py</code> builds the real main window and fires every sidebar item, because a console cleanup once broke every navigation click while the whole suite stayed green.</li>
+            <li><code>tests/test_shortcuts.py</code> pins the Store identifier that once made the desktop shortcut open nothing.</li>
+            <li><code>tests/test_version.py</code> fails the build on any hardcoded version literal, because the version used to live in eight files and had already drifted.</li>
+        </ul>
+        <p>The suite went from 21 tests in June to 331 today. Almost none of that growth came from planning. It came from bugs like the ones above.</p>
+
+        <h3>5. Click the thing, then check the output rather than the exit code</h3>
+        <p>My most humbling five minutes came after a refactor that split one large module into seven. Every automated test passed. Then I opened the application, clicked a sidebar item, and every page silently fell back to the dashboard. Not one test built the real window.</p>
+        <p>The same rule applies to any bulk change: the comma script "succeeded", the vendor entries "succeeded", all six bugs at the top of this article "succeeded". After a bulk edit, open the result and count something. Two more habits from the same family, both learned the hard way:</p>
+        <ul>
+            <li><b>Instrument the first divergence, not the damage at the end.</b> I spent three days on a replay bug measuring how far apart two runs finished. That number tells you the size of the damage and nothing else. Logging the first tick where the two runs stopped agreeing turned evenings into minutes.</li>
+            <li><b>Trust probes, not names.</b> The app has to detect a read-only install folder to decide where to keep user data. The first version checked whether the path contained <code>WindowsApps</code>. A name check is a guess about the world. A write probe is a fact about it.</li>
+        </ul>
+
+        <h2 id="witness">Why one person misses all of this</h2>
+        <p>I build alone. There is no reviewer, nobody to say "hold on, did you check that this actually saved?" The bugs above did not survive because they were subtle. Several were obvious. They survived because exactly one person could have noticed, and that person had already convinced himself the feature worked.</p>
+        <p class="lead">You do not write a test for a feature you already believe works.</p>
+        <p>That sentence is the whole article, and it is not a technical problem. It is the problem of being the only witness. I am 22, in Radom in Poland, self-taught after a technical school, and twelve projects died before this one. The laptop most of this was built on is from 2014 and reaches 94 degrees under load. You do not do careful review at midnight after a twelve-hour shift. You do the thing that feels finished, and everything in the first half of this article is what "feels finished" looks like six months later.</p>
+        <p>Three things help, and none of them is discipline.</p>
+        <p><b>Write in public.</b> I publish what shipped and what broke every week. Explaining a feature to strangers forces me to describe what it actually does, and the difference between the description and the behaviour is where these bugs live. More than one of the six above was found while writing the post about it, and the correction in section two happened while writing this one.</p>
+        <p><b>Ship to people who owe you nothing.</b> Testers found things I could not, not because they are better engineers, but because they had not decided in advance what the software does. One ran it on Windows 11, told me the diagnostic console would not close, and would not accept my explanation that it closes on my machine. He was right. The call was succeeding and doing nothing.</p>
+        <p><b>Keep the log.</b> Not for an audience, for the version of you in six months. Everything here came out of a private devlog and a public changelog, and I would have sworn under oath that half of it never happened.</p>
+        <p>My first one-star review said the interface is too technical and the learning curve is steep. I read it three times and agreed with every word. It taught me more than most of the good weeks.</p>
+
+        <h2 id="receipt">What the app does about it</h2>
+        <p>All of this leaked into the product, because an optimizer is exactly the kind of software where a silent failure is invisible by design. You click something, a bar animates, a message says done. Nobody measures. So PC Workman now takes a snapshot before the action, another one twenty seconds later, and keeps both:</p>
+
+        <div class="rcpt">
+            <div class="rcpt-head"><span>Optimization Receipt</span><span class="rcpt-tag">example</span></div>
+            <div class="rcpt-line"><span class="k">Action</span><span class="v">RAM Flush <span class="d">&middot; 87 processes trimmed, 4 protected</span></span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line"><span class="k">Before</span><span class="v">RAM 84% <span class="d">&middot;</span> CPU 12% <span class="d">&middot;</span> CPU temp 61 &deg;C</span></div>
+            <div class="rcpt-line after"><span class="k">After 20 s</span><span class="v">RAM <b>61%</b> <span class="d">&middot;</span> CPU 9% <span class="d">&middot;</span> CPU temp 59 &deg;C</span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-verdict"><span class="badge">measured</span><span>Both sides read from the same sensor pipeline. Nothing here is a claim.</span></div>
+        </div>
+
+        <p>It is twelve lines of plumbing and it changes the honesty of the whole feature. If an action does nothing, the receipt says so, and I would rather ship that than another green tick. The same rule runs through the rest of the app: the temperature verdict says which workload it compared against, the process scan says "name, path and signature match a known process" instead of "safe", and a reading that came from an estimate rather than a sensor is never allowed into the learning history.</p>
+
+        <div class="guide-cta">
+            <b>Every claim in this article is checkable.</b> PC Workman is free and open source, Windows 10 and 11, with 331 automated tests and a changelog that names the bugs above.
+            <a href="../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+            Related: <a href="../breaking-up-the-monolith/">splitting a 6,533-line file without breaking anything</a> &middot; <a href="../what-is-this-process/">how to tell a real Windows process from malware</a>.
+        </div>
+
+        <h2>Questions people ask about this</h2>
+        <h3>What is a silent failure in software?</h3>
+        <p>A silent failure is a false claim of success. The code runs, returns normally, logs nothing and reports that the work is done, while the work never happened. It is not an absence of output. It is a reassuring output that is wrong, which is why nobody files a bug report about it and why it can survive for months in a shipped product.</p>
+        <h3>Why is a bare <code>except: pass</code> dangerous in Python?</h3>
+        <p>A bare except catches everything, including NameError and AttributeError from your own typos, and pass throws the evidence away. PEP 8 warns that a bare except clause also catches SystemExit and KeyboardInterrupt and can disguise other problems, and recommends naming specific exceptions instead. In a real case in PC Workman, a bare except swallowed a NameError on every single chat message for four months, so an entire learning subsystem was never called and nothing anywhere said so.</p>
+        <h3>How do you test for a bug that already passes every test?</h3>
+        <p>Assert that the work happened, not only that the outcome looked reasonable. Check the side effect: that the file exists on disk after Apply, that a reading has a value in a plausible range rather than an empty container, that the identifier in two files still matches. A useful rule of thumb is that if a test would still pass on a machine where the feature is switched off, it is not testing the feature.</p>
+
+        <p class="lead">We are getting better at producing code that reads correctly, and faster at producing it. Neither improvement makes code more likely to do what you meant.</p>
+        <p>So the habit worth building is small and old-fashioned. <b>Do not accept an outcome as proof of an action.</b> Not from your code, not from your tools, not from anything that generates text for you, and not from yourself at midnight.</p>
+        <p class="lead">Look for the receipt.</p>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Sources checked for this article: <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a> &middot;
+            <a href="https://psutil.io/api/" target="_blank" rel="noopener">psutil API reference</a> &middot;
+            <a href="https://www.tcl-lang.org/man/tcl8.6/TclCmd/re_syntax.htm" target="_blank" rel="noopener">Tcl re_syntax</a> &middot;
+            <a href="https://www.tcl-lang.org/man/tcl8.6/TkCmd/text.htm" target="_blank" rel="noopener">Tk text search</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/windows/win32/shell/appids" target="_blank" rel="noopener">Microsoft, AppUserModelIDs</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-authenticodesignature" target="_blank" rel="noopener">Microsoft, Get-AuthenticodeSignature</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

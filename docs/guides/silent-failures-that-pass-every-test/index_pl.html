@@ -1,0 +1,437 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman artykuł techniczny: ciche awarie -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Sześć prawdziwych błędów, które działały bez zarzutu, przechodziły testy i nie robiły nic: przycisk bez zapisu, kontrola bez odczytu, skrót otwierający nic.">
+    <meta name="keywords" content="cicha awaria, błąd który przechodzi testy, except pass Python, kod który nic nie robi, testowanie efektów ubocznych, kod generowany przez AI, fałszywy sukces, test regresji, PC Workman">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/">
+    <meta property="og:title" content="Najgroźniejszy błąd nie wywala programu. On kończy się sukcesem.">
+    <meta property="og:description" content="Wysypka jest uczciwa. Cisza to też komunikat i mówi, że wszystko poszło dobrze. Sześć awarii, które przeszły każdy test, jaki miałem, i kontrole, które w końcu je złapały.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-10">
+    <meta property="article:modified_time" content="2026-08-10">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Ciche awarie: błąd, który przechodzi każdy test i nie robi nic | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Najgroźniejszy błąd nie wywala programu. On kończy się sukcesem.",
+      "description": "Sześć cichych awarii z czternastu miesięcy budowania monitora systemu w pojedynkę: przycisk, który nic nie zapisał, kontrola temperatury, która nic nie czytała, silnik uczenia, którego nikt nie wołał, przełącznik podpięty do niczego, skrót ze Store otwierający nic i skaner oskarżający usługę drukowania. Do tego tydzień, w którym generowany kod przeszedł obok zmęczonego recenzenta, i pięć kontroli, które łapią tę klasę błędów.",
+      "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html" },
+      "datePublished": "2026-08-10",
+      "dateModified": "2026-08-10",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Beginner",
+      "about": [
+        { "@type": "Thing", "name": "Cicha awaria" },
+        { "@type": "Thing", "name": "Testowanie oprogramowania" },
+        { "@type": "Thing", "name": "Obsługa wyjątków" },
+        { "@type": "SoftwareApplication", "name": "PC Workman", "operatingSystem": "Windows", "applicationCategory": "UtilitiesApplication" }
+      ],
+      "keywords": "cicha awaria, fałszywy sukces, błąd który przechodzi testy, except pass, testowanie efektów ubocznych, kod generowany przez AI, test regresji",
+      "wordCount": 3371,
+      "citation": [
+        "https://peps.python.org/pep-0008/",
+        "https://psutil.io/api/",
+        "https://www.tcl-lang.org/man/tcl8.6/TclCmd/re_syntax.htm",
+        "https://www.tcl-lang.org/man/tcl8.6/TkCmd/text.htm",
+        "https://learn.microsoft.com/en-us/windows/win32/shell/appids",
+        "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-authenticodesignature"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Ciche awarie, które przechodzą każdy test", "item": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czym jest cicha awaria w oprogramowaniu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Cicha awaria to fałszywa deklaracja sukcesu. Kod się wykonuje, kończy normalnie, nic nie loguje i melduje, że zadanie zostało wykonane, podczas gdy praca nigdy się nie odbyła. To nie jest brak wyniku, tylko wynik uspokajający i nieprawdziwy. Dlatego nikt tego nie zgłasza i dlatego taki błąd potrafi przetrwać miesiące w wydanym produkcie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego gołe except: pass jest niebezpieczne w Pythonie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Gołe except łapie wszystko, łącznie z NameError i AttributeError z własnych literówek, a pass wyrzuca dowód do kosza. PEP 8 ostrzega, że gołe except przechwytuje także SystemExit i KeyboardInterrupt oraz potrafi zamaskować inne problemy, i zaleca wskazywanie konkretnych wyjątków. W PC Workmanie takie except ukrywało NameError przy każdej wiadomości czatu przez cztery miesiące, więc cały podsystem uczenia nie był wołany, a nic nigdzie tego nie zgłosiło." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak testować błąd, który już przechodzi wszystkie testy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sprawdzaj, czy praca się wydarzyła, a nie tylko czy wynik wygląda rozsądnie. Testuj efekt uboczny: że plik istnieje na dysku po kliknięciu Zastosuj, że odczyt ma wartość w sensownym zakresie zamiast pustego kontenera, że identyfikator w dwóch plikach nadal się zgadza. Dobra zasada: jeśli test przeszedłby także na maszynie z wyłączoną funkcją, to ten test nie sprawdza tej funkcji." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+    /* Paragon optymalizacji (grafika "jak pomaga PC Workman").
+       Limonkowy akcent = działanie z pomiarem po obu stronach. */
+    .rcpt{
+        position:relative;
+        background: linear-gradient(180deg,#0e1116 0%,#0a0c10 100%);
+        border:1px solid #232a33; border-left:4px solid #a3e635;
+        padding:1.05rem 1.2rem 1.55rem; margin:1.3rem 0; border-radius:4px;
+        font-family: var(--font-mono);
+    }
+    .rcpt-head{
+        display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+        font-size:.62rem; letter-spacing:2px; text-transform:uppercase;
+        color:var(--text-dim); border-bottom:1px solid #1c222b;
+        padding-bottom:.55rem; margin-bottom:.7rem;
+    }
+    .rcpt-head .rcpt-tag{ color:#a3e635; }
+    .rcpt-line{ display:flex; gap:1rem; font-size:.82rem; padding:.22rem 0; line-height:1.45; }
+    .rcpt-line .k{ color:var(--text-dim); width:118px; flex-shrink:0; }
+    .rcpt-line .v{ color:#e6eef6; }
+    .rcpt-line .v .d{ color:var(--text-dim); }
+    .rcpt-line.after .v b{ color:#a3e635; font-weight:700; }
+    .rcpt-rule{ border-top:1px dashed #232a33; margin:.6rem 0; }
+    .rcpt-verdict{
+        display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+        font-size:.82rem; color:var(--text-secondary); padding-top:.2rem;
+    }
+    .rcpt-verdict .badge{
+        font-size:.6rem; letter-spacing:1px; text-transform:uppercase;
+        padding:.22rem .6rem; border-radius:999px;
+        color:#a3e635; border:1px solid rgba(163,230,53,.42);
+    }
+    .rcpt::after{
+        content:""; position:absolute; left:1rem; right:1rem; bottom:.6rem; height:2px;
+        background: repeating-linear-gradient(90deg, rgba(163,230,53,.45) 0 6px, transparent 6px 12px);
+    }
+    @media (max-width:520px){ .rcpt-line{ flex-direction:column; gap:0; } .rcpt-line .k{ width:auto; } }
+    </style>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/silent-failures-that-pass-every-test/index_pl.html" class="active" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/silent-failures-that-pass-every-test/" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; PRO</span>
+        <h1>Najgroźniejszy błąd nie wywala<br>programu. On kończy się sukcesem.</h1>
+        <p class="tagline">Sześć awarii z czternastu miesięcy pracy w pojedynkę. Każda działała bez zarzutu i nie robiła nic. Do tego tydzień, w którym asystent pisał więcej, niż zdążyłem przeczytać, oraz jedno zdanie z tego artykułu, które było nieprawdziwe, dopóki go nie sprawdziłem.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-08-10</span><span>&middot;</span><span>13 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">Wysypka jest uczciwa. Mówi, że coś poszło nie tak, podaje numer linii i ślad stosu.</p>
+
+        <p>Cisza to też komunikat. Mówi, że wszystko poszło dobrze. Ten komunikat kosztuje znacznie więcej, kiedy jest nieprawdziwy, i akurat ten produkujemy dziś na skalę przemysłową.</p>
+
+        <p>W marcu jedną komendą skasowałem 130 własnych commitów. To nie była najgorsza rzecz, jaka spotkała ten projekt. To było głośne. Wiedziałem po czterech sekundach, spędziłem wieczór w reflogu i odzyskałem większość z gałęzi, którą trzy tygodnie wcześniej zrobiłem przez przypadek. Głośne awarie same się zgłaszają, więc się je naprawia.</p>
+
+        <p>Te, które prawie mnie wykończyły, były ciche. Przycisk, który meldował sukces i nic nie zapisywał. Kontrola temperatury, która od miesięcy nie czytała niczego. Silnik uczenia, którego nikt nie wołał. Skrót na pulpicie, wydany prawdziwym użytkownikom przez Microsoft Store, który nie otwierał absolutnie niczego.</p>
+
+        <p>Żadna z nich nie wywaliła programu. Każda przechodziła wszystkie testy, jakie miałem.</p>
+
+        <p>Od czternastu miesięcy buduję publicznie monitor systemu na Windows, sam, wieczorami po pracy. Praca to był magazyn w Holandii, potem zgrzewanie plastiku w warsztacie, a teraz taksówka. Wszystko leży na GitHubie od pierwszego commita, więc lista moich pomyłek nie jest wspomnieniem. Jest zapisem, którego nie mogę edytować.</p>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#six">Sześć prawdziwych i czego uczy każda z nich</a></li>
+                <li><a href="#pattern">Wzorzec w jednej tabeli</a></li>
+                <li><a href="#week">Tydzień, w którym przestałem czytać uważnie</a></li>
+                <li><a href="#checks">Pięć kontroli, które naprawdę to łapią</a></li>
+                <li><a href="#witness">Dlaczego jedna osoba tego nie widzi</a></li>
+                <li><a href="#receipt">Co robi z tym program</a></li>
+            </ol>
+        </div>
+
+        <h2 id="six">Sześć prawdziwych i czego uczy każda z nich</h2>
+        <p>Wszystko poniżej wydarzyło się w prawdziwej aplikacji z prawdziwymi użytkownikami. Tam, gdzie wychodzę na niedbałego, byłem niedbały.</p>
+
+        <h3>1. Przycisk, który mówił "Zastosowano"</h3>
+        <p>Jest edytor krzywej wentylatorów. Przeciągasz punkty, klikasz Zastosuj, pojawia się zielony komunikat.</p>
+        <p>Komunikat się pojawiał. Plik nigdy nie był zapisywany. Każdy restart w ciszy wyrzucał ustawienia użytkownika i robił to przez dwa wydania.</p>
+        <p>Nikt tego nie zgłosił i warto się przy tym zatrzymać: <span class="hl-red">użytkownik nie odróżni "zapisało się" od "napisało, że się zapisało"</span>. Ustawił krzywą, zobaczył potwierdzenie, po tygodniu zrestartował komputer, zobaczył domyślne wartości i uznał, że sam coś zrobił źle.</p>
+        <div class="callout"><b>Komunikat o sukcesie nie jest dowodem sukcesu. Jest napisem.</b> Poprawka zajęła dziesięć minut. Znalezienie błędu zajęło miesiące.</div>
+
+        <h3>2. Kontrola, która nic nie mierzyła</h3>
+        <p>Monitor proaktywny ma ostrzegać, kiedy maszyna robi się gorąca. Napisałem go, przetestowałem, wydałem i napisałem o nim wpis na blogu.</p>
+        <p>Przez miesiące opierał się na <code>psutil.sensors_temperatures()</code>. Kontrola odpalała się zgodnie z harmonogramem, nie znajdowała nic, o czym warto ostrzec, i meldowała, że jest czysto. Bez końca. Testy były zadowolone, bo sprawdzały, że alert <em>nie</em> odpala przy normalnych temperaturach, a alert, który nie może odpalić nigdy, przechodzi taki test za każdym razem.</p>
+        <p class="lead">Pustego odczytu nie odróżnisz od normalnego, jeśli nigdy nie sprawdzasz, czy odczyt w ogóle istnieje.</p>
+
+        <div class="callout warn">
+            <b>Teraz fragment, który istnieje tylko w tej wersji artykułu.</b>
+            Opowiadam tę historię od miesięcy, w changelogu, w piątkowym wpisie i w innym artykule na tej stronie, zawsze tym samym zdaniem: "na Windowsie zwraca pusty słownik". Pisząc ten tekst w końcu sprawdziłem to zdanie, zamiast je powtórzyć.
+            <br><br>
+            Dokumentacja psutila daje przy tej funkcji jedną linijkę: <span class="hl-red">Availability: Linux, FreeBSD</span>. Windowsa tam nie ma. Czyli na Windowsie ta funkcja nie zwraca pustego słownika. <b>Ona w ogóle nie istnieje.</b> Wywołanie kończy się wyjątkiem <code>AttributeError</code>. Oto sprawdzenie na maszynie, na której powstał ten artykuł, psutil 7.2.1, Windows 10 build 19045:
+            <pre><code>&gt;&gt;&gt; import psutil
+&gt;&gt;&gt; hasattr(psutil, "sensors_temperatures")
+False</code></pre>
+            Błąd ma ten sam rozmiar. Wniosek jest większy. To nigdy nie było "API grzecznie oddało mi pusty wynik". To był <b>wyjątek rzucany przy każdym wywołaniu, lądujący w bloku try, który nie miał nic do powiedzenia</b>. Awaria numer dwa przez cały czas stała na awarii numer trzy, a ja tego nie widziałem, bo opisywałem ją z pamięci. To jest cała teza tego artykułu, wykonana na żywo moim kosztem.
+        </div>
+
+        <p>Kod, który dziś czyta temperatury, nie zgaduje. Najpierw pyta, czy funkcja istnieje, a potem sięga po LibreHardwareMonitor, bo stamtąd naprawdę biorą się temperatury na Windowsie:</p>
+        <pre><code># core/hardware_sensors.py
+temps = psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}</code></pre>
+
+        <h3>3. <code>except: pass</code> i cztery miesiące martwego mózgu</h3>
+        <p>To ta, która nadal mnie uwiera.</p>
+        <p>Aplikacja uczy się, co jest normą dla twojej maszyny: linie bazowe temperatur per obciążenie, anomalie napięć liczone prawdziwą kontrolą statystyczną procesu. Tygodnie pracy. Działało, było testowane, dawało poprawne liczby.</p>
+        <p>Asystent czatu nigdy tego nie wołał. Znalazłem to, szukając czegoś innego i trafiając na to:</p>
+        <pre><code>try:
+    ctx = build_learning_context()
+except:
+    pass</code></pre>
+        <p>Dwie linijki wyżej kod odwoływał się do zmiennej, której w tym zasięgu nie było. <code>NameError</code>, za każdym razem, przy każdej wiadomości, przez cztery miesiące. Gołe <code>except</code> połykało to w całości. Bez wysypki, bez logu, bez ostrzeżenia. Asystent dalej odpowiadał. Po prostu odpowiadał jak program, który niczego się nie nauczył, bo ze swojej strony faktycznie się nie nauczył.</p>
+        <p>PEP 8 mówi to wprost od lat: gołe except "potrafi zamaskować inne problemy", więc wskazuj wyjątki, których naprawdę się spodziewasz. To jedna z niewielu reguł stylu, która tak naprawdę jest regułą poprawności.</p>
+        <div class="callout warn"><b>Gołe <code>except: pass</code> nie obsługuje błędu. Ono kasuje dowód, że błąd wystąpił.</b> Jeśli masz zabrać z tego artykułu jedną linijkę, weź tę. Przeszukaj swój projekt pod kątem <code>except:</code> z <code>pass</code> poniżej. Poczekam.</div>
+
+        <h3>4. Przełącznik podpięty do niczego</h3>
+        <p>Na pulpicie aplikacji był przełącznik TURBO. Dało się go kliknąć. Animował się.</p>
+        <p>Zapisywał flagę, której nic w całym kodzie nie czytało. Funkcja, która miała ją konsumować, istniała, była poprawna i nikt jej nie wołał.</p>
+        <p>Użytkownicy klikali, czuli się produktywnie i zmieniali dokładnie zero bajtów stanu systemu. Zbudowałem funkcję, zbudowałem przycisk i nigdy ich nie połączyłem, bo funkcję testowałem wywołując ją bezpośrednio, a przycisk testowałem patrząc na niego.</p>
+        <div class="callout"><b>Obie połowy funkcji mogą być poprawne i dalej nie tworzyć funkcji.</b></div>
+
+        <h3>5. Skrót, który nic nie otwierał</h3>
+        <p>Ten trafił do Microsoft Store.</p>
+        <p>Aplikacje w paczkach MSIX leżą w folderze, w którym użytkownik nie kliknie prawym przyciskiem, więc program proponuje zrobienie skrótu na pulpicie. Taki skrót musi nieść Application User Model ID, czyli identyfikator, po którym powłoka wiąże skrót, proces i okno z jedną aplikacją. Składa się z nazwy rodziny paczki i identyfikatora aplikacji zadeklarowanego w manifeście.</p>
+        <pre><code>manifest:      Application Id="App"
+kod skrótu:    ...PCWorkman_4hekbcs2ddfbc!PCWorkmanHCK</code></pre>
+        <p>Każdy użytkownik ze Store, który kliknął "utwórz skrót na pulpicie", dostał skrót uruchamiający nic. Bez okna błędu. Windows po prostu nie znajdował aplikacji o tej nazwie i wracał na pulpit.</p>
+        <p>Zero zgłoszeń. Oczywiście zero. <span class="hl-red">Nikt nie zakłada zgłoszenia o skrócie, który nic nie robi.</span> Klika dwa razy, wzrusza ramionami i nigdy więcej go nie używa, a funkcja umiera bez zostawiania ciała.</p>
+        <div class="callout"><b>Identyfikatory, które muszą się zgadzać w dwóch plikach, prędzej czy później się rozjadą.</b> Testuj zgodność, nie jedną ze stron. Dziś jest jeden moduł, który tworzy skróty, i jeden test, który przypina identyfikator, z powodem wpisanym w treść komunikatu błędu.</div>
+
+        <h3>6. Skan, który oskarżył usługę drukowania</h3>
+        <p>W aplikacji jest silnik badania procesów: podpis Authenticode, wykrywanie literówek w nazwach, wykrywanie podszywania się. Poprawnie łapie <code>svch0st.exe</code> udające <code>svchost.exe</code>.</p>
+        <p>Oznaczył też <code>spoolsv.exe</code>. Usługę drukowania Windows. Poprawny podpis Microsoftu, właściwa ścieżka w System32.</p>
+        <p>Przyczyna jest tu najbardziej pouczająca i nie jest to literówka. Biblioteka procesów niesie adnotację o znaczeniu "ciężki, obserwuj zużycie zasobów". Ta adnotacja podnosiła werdykt <b>bezpieczeństwa</b>. Dwa zupełnie różne rodzaje prawdy dzieliły jedno pole.</p>
+        <p>Gorzej, kod już wiedział lepiej i nie mógł tego użyć. Poprawny podpis Microsoftu ma awansować proces do zaufanego, ale ten awans wykonywał się tylko dopóki werdykt był jeszcze "nieznany", a zanim doszło do odczytu podpisu, adnotacja przesuwała go już na "ostrożnie".</p>
+        <div class="callout warn"><b>Kiedy jedno pole niesie dwa rodzaje prawdy, jedna z nich w końcu odpowie na pytanie, którego nikt jej nie zadał.</b> Skaner, który oskarża usługę drukowania, to skaner wyciszany w ciągu tygodnia. Wyciszony skaner nie chroni niczego.</div>
+
+        <h2 id="pattern">Wzorzec w jednej tabeli</h2>
+        <p>Ustaw te sześć obok siebie, a zobaczysz jeden błąd w sześciu kostiumach.</p>
+        <table>
+            <thead>
+                <tr><th>Co się naprawdę wydarzyło</th><th>Co zgłosił system</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Ustawienia nigdy nie zapisane</td><td>Zastosowano pomyślnie</td></tr>
+                <tr><td>Temperatura nigdy nie odczytana</td><td>Jest czysto</td></tr>
+                <tr><td>Uczenie nigdy nie wołane</td><td>Pewna siebie odpowiedź</td></tr>
+                <tr><td>Funkcja nigdy nie podpięta</td><td>Działający przycisk</td></tr>
+                <tr><td>Skrót nigdy niepoprawny</td><td>Skrót na pulpicie</td></tr>
+                <tr><td>Adnotacja odczytana nie w tym polu</td><td>Werdykt bezpieczeństwa</td></tr>
+            </tbody>
+        </table>
+        <p>Każdy wiersz to działanie, które się nie odbyło, i system, który twierdzi, że się odbyło. Stąd definicja warta zapamiętania: <span class="hl-red">cicha awaria to fałszywa deklaracja sukcesu</span>. Nie brak wyniku. Zły wynik, który przypadkiem uspokaja.</p>
+        <p>Zwróć uwagę, która warstwa nie łapie żadnej z nich. Kontrola typów nie, bo typy są w porządku. Linter w większości nie, bo składnia jest w porządku. Testy nie, chyba że ktoś pomyślał o sprawdzeniu efektu ubocznego. Jedyne, co łapie tę klasę, to kontrola, że praca się wydarzyła.</p>
+
+        <h2 id="week">Tydzień, w którym przestałem czytać uważnie</h2>
+        <p>Muszę opowiedzieć o konkretnym tygodniu, bo to on jest powodem, dla którego uważam, że ten problem będzie rósł, a nie malał.</p>
+        <p>Pracuję z asystentem AI i piszę o tym pod każdym publikowanym wpisem. Przez większość ostatniego roku znaczyło to rozmowę: pytam, czytam odpowiedź uważnie, kłócę się z jakąś jedną trzecią i zostawiam to, co przetrwało.</p>
+        <p>Potem przyszedł tydzień wydania. Zgłoszenie do Store, podbicie wersji w czterdziestu dwóch plikach, piętnaście nowych wpisów na blogu, build, paczka i dniówki za kierownicą. Zacząłem przyjmować więcej i czytać mniej. Oto co z tego wyszło w jeden tydzień.</p>
+
+        <h3>Wypełnił bazę wiarygodnymi nazwami producentów</h3>
+        <p>Aplikacja niesie bibliotekę znanych procesów: nazwa, producent, co ta rzecz robi. Dziś ma 521 pozycji. Żeby skrócić listę nierozpoznanych procesów, dorzuciliśmy trzydzieści pięć wpisów, a pola producenta wyglądały całkowicie sensownie. <code>bash.exe</code> dostał przypisane "The Git Development Community".</p>
+        <p>Prawdziwy podpis Authenticode na tym pliku to imię i nazwisko konkretnej osoby. A ponieważ silnik porównuje oczekiwanego producenta z rzeczywistym podpisem, rozbieżność podnosi ostrzeżenie. <span class="hl-red">Trzy procesy, które wcześniej były po prostu nierozpoznane, zostały oznaczone jako podejrzane.</span> Pewne siebie, wiarygodne, błędne i gorsze niż nienapisanie niczego, bo "nieznane" zachęca do sprawdzenia, a wypełnione pole nie.</p>
+        <p>Naprawa polegała na tym, żeby nazwy producentów brać wyłącznie z samego pliku binarnego.</p>
+
+        <h3>Napisał wzorzec, który przeszedł testy i poległ w produkcji</h3>
+        <p>Nowa funkcja wstawia klikalne linki do okna czatu. Parser był przetestowany i poprawny. W działającej aplikacji każdy link renderował się jako zwykły tekst.</p>
+        <pre><code># Przechodził każdy test jednostkowy. W działającej aplikacji nie trafił nigdy.
+pos = text_widget.search(r'\[-&gt; [^\]]+\]', idx, regexp=True)</code></pre>
+        <p>Testy jednostkowe używały pythonowego modułu <code>re</code>. Widget tekstowy Tk już nie. Przy <code>-regexp</code> oddaje wzorzec własnemu silnikowi wyrażeń regularnych Tcl, a w zaawansowanych wyrażeniach Tcl backslash pozostaje znakiem specjalnym wewnątrz nawiasów kwadratowych, czyli dokładnie odwrotnie, niż zakłada pythonowy wzorzec. <span class="hl-red">Dwa silniki, jeden napis, zero komunikatu o błędzie.</span></p>
+        <p>Poprawką nie jest sprytniejszy wzorzec. Poprawką jest odmowa pisania wzorca dla silnika, którego nie sprawdziłem:</p>
+        <pre><code>pos = text_widget.search('[-&gt; ', idx)          # literał, niezależny od silnika
+m   = re.match(r'\[-&gt; ([^\]]+)\]', line_text)  # Python parsuje Pythona</code></pre>
+
+        <h3>Uruchomił destrukcyjną komendę, a skrypt czyszczący zjadł 38 przecinków</h3>
+        <p>Przy porządkowaniu dwóch lokalnych commitów asystent uruchomił <code>git reset --hard</code>, co skasowało też cały niezacommitowany dorobek tamtego dnia. Dało się to odzyskać wyłącznie dlatego, że godzinę wcześniej powstała pełna kopia folderu.</p>
+        <p>Wcześniej przebieg czyszczący interpunkcję w piętnastu plikach HTML tej właśnie strony usunął przecinek po trzydziestu ośmiu znacznikach zamykających. "Konflikty sterowników, resztki paczek GPU" zmieniło się w "Konflikty sterownikówresztki paczek GPU". Nic się nie wywaliło. Każda strona renderowała się bez zarzutu. Złapałem to tylko dlatego, że porównałem wynik, zamiast wierzyć kodowi wyjścia.</p>
+
+        <p>Zauważ, czego żadna z tych rzeczy nie zrobiła. Żadna nie rzuciła wyjątku. Żadna nie wyprodukowała śladu stosu. Każda dała wynik, który wyglądał poprawnie, a dwie dały wynik pewniej błędny, niż byłoby nierobienie niczego.</p>
+        <p>To nie jest argument przeciwko takiej pracy. Nadal tak pracuję i ten projekt idzie dzięki temu szybciej. To jest argument o tym, <b>gdzie musi odbywać się recenzja</b>. Generowany kod jest płynny z definicji. Kompiluje się, dobrze się czyta, używa właściwych nazw funkcji. <span class="hl-cyan">Płynność to nie poprawność, a to właśnie płynność sprawia, że różnica jest niewidoczna.</span></p>
+        <p>Jeśli przez to cały artykuł staje się dla ciebie podejrzany, to dobry instynkt. Dwie odpowiedzi. Po pierwsze, te sześć awarii leży w publicznej historii commitów z datami, więc sprawdź jedną. Po drugie, spójrz jeszcze raz na ramkę z korektą w sekcji drugiej: ten tekst zmienił twierdzenie, które opublikowałem trzy razy, bo pisanie go zmusiło mnie do wykonania kontroli. To jest metoda działająca na twoich oczach, a nie obietnica, że działa zawsze.</p>
+
+        <h2 id="checks">Pięć kontroli, które naprawdę to łapią</h2>
+        <p>Nic z tego nie jest sprytne. Wszystko wzięło się z poparzenia.</p>
+
+        <h3>1. Sprawdzaj, że praca się wydarzyła, a nie że wynik wygląda dobrze</h3>
+        <pre><code># Słabo: przechodzi, gdy odczyt jest pusty, czyli DOKŁADNIE przy błędzie
+def test_no_false_alarm():
+    assert not monitor.check(temps={}).warned
+
+# Mocniej: przedmiotem testu jest sam odczyt
+def test_temperature_source_returns_data():
+    reading = sensors.read_cpu_temp()
+    assert reading is not None
+    assert 0 &lt; reading &lt; 150</code></pre>
+        <p>Jeśli test przeszedłby także na maszynie z wyłączoną funkcją, to nie jest test tej funkcji. Dla przycisku zapisu sprawdzaj, że po kliknięciu plik istnieje na dysku i wczytuje się z powrotem do tego, co zapisałeś.</p>
+
+        <h3>2. Spraw, by cisza kosztowała</h3>
+        <pre><code>except Exception as e:
+    log_event("learning_context_failed", repr(e))   # nigdy po cichu
+    ctx = None</code></pre>
+        <p>Jedna linijka. Alternatywa kosztowała cztery miesiące. Jeśli naprawdę chcesz zignorować błąd, ignoruj nazwany wyjątek i zostaw komentarz, który wyjątek i dlaczego.</p>
+
+        <h3>3. Pytaj, jaki silnik naprawdę to wykonuje</h3>
+        <p>Wyrażenie regularne przeszło w teście i poległo w widgecie, bo ten sam napis oceniały dwa różne silniki. Zanim uwierzysz zielonemu testowi, zapytaj, czy sprawdza to samo środowisko uruchomieniowe, na które trafi użytkownik. Test, który zaślepia granicę budzącą twoją niepewność, testuje twoją zaślepkę.</p>
+
+        <h3>4. Napisz zapadkę tego samego dnia</h3>
+        <p>Kiedy znajdziesz taki błąd, poprawka to połowa roboty. Druga połowa to test, który wywali build, jeśli błąd kiedykolwiek wróci. Nazywam je zapadkami, bo obracają się tylko w jedną stronę, a powód wpisuję w treść komunikatu błędu, żeby przyszły ja dostał instrukcję zamiast czerwonej linii. Trzy z tego repozytorium:</p>
+        <ul>
+            <li><code>tests/test_navigation.py</code> buduje prawdziwe główne okno i klika każdą pozycję menu, bo sprzątanie konsoli zepsuło kiedyś całą nawigację, a cały zestaw testów pozostał zielony.</li>
+            <li><code>tests/test_shortcuts.py</code> przypina identyfikator ze Store, przez który skrót na pulpicie nic nie otwierał.</li>
+            <li><code>tests/test_version.py</code> wywala build przy każdym zahardkodowanym numerze wersji, bo wersja mieszkała kiedyś w ośmiu plikach i zdążyła się rozjechać.</li>
+        </ul>
+        <p>Zestaw testów urósł z 21 w czerwcu do 331 dzisiaj. Prawie żaden z nich nie wziął się z planowania. Wzięły się z błędów takich jak powyższe.</p>
+
+        <h3>5. Kliknij to, a potem sprawdź wynik zamiast kodu wyjścia</h3>
+        <p>Moje najbardziej upokarzające pięć minut przyszło po refaktoryzacji, która rozbiła jeden duży moduł na siedem. Wszystkie testy automatyczne przeszły. Potem otworzyłem aplikację, kliknąłem pozycję w menu bocznym i każda strona po cichu wracała na pulpit główny. Ani jeden test nie budował prawdziwego okna.</p>
+        <p>Ta sama zasada dotyczy każdej masowej zmiany: skrypt od przecinków "zadziałał", wpisy producentów "zadziałały", wszystkie sześć błędów z początku artykułu "zadziałało". Po masowej edycji otwórz wynik i coś policz. Dwa nawyki z tej samej rodziny, oba wyuczone boleśnie:</p>
+        <ul>
+            <li><b>Mierz pierwszą rozbieżność, nie szkodę na końcu.</b> Spędziłem trzy dni nad błędem odtwarzania, mierząc, jak daleko od siebie kończą dwa przebiegi. Ta liczba mówi tylko o rozmiarze szkody. Logowanie pierwszego ticku, w którym przebiegi przestały się zgadzać, zamieniło wieczory w minuty.</li>
+            <li><b>Ufaj sondom, nie nazwom.</b> Program musi wykryć folder instalacji tylko do odczytu, żeby wiedzieć, gdzie trzymać dane użytkownika. Pierwsza wersja sprawdzała, czy ścieżka zawiera <code>WindowsApps</code>. Sprawdzenie nazwy to domysł o świecie. Próba zapisu to fakt o świecie.</li>
+        </ul>
+
+        <h2 id="witness">Dlaczego jedna osoba tego nie widzi</h2>
+        <p>Buduję sam. Nie ma recenzenta, nie ma nikogo, kto powie "chwila, sprawdziłeś, czy to naprawdę się zapisało?". Powyższe błędy nie przetrwały dlatego, że były subtelne. Kilka było oczywistych. Przetrwały, bo mogła je zauważyć dokładnie jedna osoba, a ta osoba zdążyła się już przekonać, że funkcja działa.</p>
+        <p class="lead">Nie piszesz testu do funkcji, o której już wierzysz, że działa.</p>
+        <p>To zdanie jest całym artykułem i nie jest problemem technicznym. Jest problemem bycia jedynym świadkiem. Mam 22 lata, mieszkam w Radomiu, po technikum douczyłem się reszty sam, a przed tym projektem umarło dwanaście innych. Laptop, na którym powstała większość tego kodu, jest z 2014 roku i pod obciążeniem dochodzi do 94 stopni. Nie robi się uważnej recenzji o północy po dwunastogodzinnej zmianie. Robi się to, co daje poczucie skończenia, a wszystko z pierwszej połowy tego artykułu to jest właśnie "skończone" oglądane pół roku później.</p>
+        <p>Pomagają trzy rzeczy i żadna z nich nie jest dyscypliną.</p>
+        <p><b>Pisz publicznie.</b> Co tydzień publikuję, co wyszło i co się zepsuło. Tłumaczenie funkcji obcym ludziom zmusza mnie do opisania, co ona naprawdę robi, a różnica między opisem a zachowaniem to dokładnie miejsce, gdzie mieszkają te błędy. Więcej niż jedną z tych sześciu znalazłem, pisząc o niej wpis, a korekta z sekcji drugiej powstała przy pisaniu tego tekstu.</p>
+        <p><b>Wydawaj ludziom, którzy nic ci nie są winni.</b> Testerzy znaleźli rzeczy, których ja nie mogłem, nie dlatego, że są lepszymi inżynierami, tylko dlatego, że nie zdecydowali z góry, co ten program robi. Jeden odpalił go na Windows 11, napisał, że okno konsoli diagnostycznej się nie zamyka, i nie przyjął wyjaśnienia, że u mnie się zamyka. Miał rację. Wywołanie kończyło się sukcesem i nie robiło nic.</p>
+        <p><b>Prowadź dziennik.</b> Nie dla publiczności, tylko dla siebie za pół roku. Wszystko tutaj wyszło z prywatnego devloga i publicznego changeloga, a przysiągłbym przed sądem, że połowa tego nigdy się nie wydarzyła.</p>
+        <p>Moja pierwsza jednogwiazdkowa recenzja mówiła, że interfejs jest zbyt techniczny, a próg wejścia wysoki. Przeczytałem ją trzy razy i zgodziłem się z każdym słowem. Nauczyła mnie więcej niż większość dobrych tygodni.</p>
+
+        <h2 id="receipt">Co robi z tym program</h2>
+        <p>To wszystko przeciekło do produktu, bo optymalizator jest dokładnie takim rodzajem oprogramowania, w którym cicha awaria jest niewidoczna z definicji. Klikasz, pasek się animuje, komunikat mówi gotowe. Nikt nie mierzy. Dlatego PC Workman robi teraz zdjęcie stanu przed działaniem, drugie dwadzieścia sekund później i trzyma oba:</p>
+
+        <div class="rcpt">
+            <div class="rcpt-head"><span>Paragon optymalizacji</span><span class="rcpt-tag">przykład</span></div>
+            <div class="rcpt-line"><span class="k">Działanie</span><span class="v">RAM Flush <span class="d">&middot; 87 procesów odchudzonych, 4 chronione</span></span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line"><span class="k">Przed</span><span class="v">RAM 84% <span class="d">&middot;</span> CPU 12% <span class="d">&middot;</span> temp. CPU 61 &deg;C</span></div>
+            <div class="rcpt-line after"><span class="k">Po 20 s</span><span class="v">RAM <b>61%</b> <span class="d">&middot;</span> CPU 9% <span class="d">&middot;</span> temp. CPU 59 &deg;C</span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-verdict"><span class="badge">zmierzone</span><span>Obie strony czytane z tego samego potoku czujników. Nic tu nie jest deklaracją.</span></div>
+        </div>
+
+        <p>To dwanaście linijek hydrauliki, a zmienia uczciwość całej funkcji. Jeśli działanie nic nie dało, paragon to pokaże, i wolę wydać to niż kolejny zielony ptaszek. Ta sama zasada idzie przez resztę programu: werdykt o temperaturze mówi, z jakim obciążeniem porównał, skan procesów mówi "nazwa, ścieżka i podpis zgadzają się ze znanym procesem" zamiast "bezpieczny", a odczyt, który jest oszacowaniem, a nie pomiarem z czujnika, nigdy nie wchodzi do historii uczenia.</p>
+
+        <div class="guide-cta">
+            <b>Każde twierdzenie z tego artykułu da się sprawdzić.</b> PC Workman jest darmowy i otwarty, działa na Windows 10 i 11, ma 331 testów automatycznych i changelog, w którym powyższe błędy są nazwane po imieniu.
+            <a href="../../download/index_pl.html">Pobierz</a> albo <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">przejrzyj kod</a>.
+            Zobacz też: <a href="../breaking-up-the-monolith/index_pl.html">rozbicie pliku na 6533 linie bez psucia niczego</a> &middot; <a href="../what-is-this-process/index_pl.html">jak odróżnić prawdziwy proces Windows od złośliwego</a>.
+        </div>
+
+        <h2>Pytania, które padają przy tym temacie</h2>
+        <h3>Czym jest cicha awaria w oprogramowaniu?</h3>
+        <p>Cicha awaria to fałszywa deklaracja sukcesu. Kod się wykonuje, kończy normalnie, nic nie loguje i melduje, że zadanie zostało wykonane, podczas gdy praca nigdy się nie odbyła. To nie jest brak wyniku, tylko wynik uspokajający i nieprawdziwy. Dlatego nikt tego nie zgłasza i dlatego taki błąd potrafi przetrwać miesiące w wydanym produkcie.</p>
+        <h3>Dlaczego gołe <code>except: pass</code> jest niebezpieczne w Pythonie?</h3>
+        <p>Gołe except łapie wszystko, łącznie z NameError i AttributeError z własnych literówek, a pass wyrzuca dowód do kosza. PEP 8 ostrzega, że gołe except przechwytuje także SystemExit i KeyboardInterrupt oraz potrafi zamaskować inne problemy, i zaleca wskazywanie konkretnych wyjątków. W PC Workmanie takie except ukrywało NameError przy każdej wiadomości czatu przez cztery miesiące, więc cały podsystem uczenia nie był wołany, a nic nigdzie tego nie zgłosiło.</p>
+        <h3>Jak testować błąd, który już przechodzi wszystkie testy?</h3>
+        <p>Sprawdzaj, czy praca się wydarzyła, a nie tylko czy wynik wygląda rozsądnie. Testuj efekt uboczny: że plik istnieje na dysku po kliknięciu Zastosuj, że odczyt ma wartość w sensownym zakresie zamiast pustego kontenera, że identyfikator w dwóch plikach nadal się zgadza. Dobra zasada: jeśli test przeszedłby także na maszynie z wyłączoną funkcją, to ten test nie sprawdza tej funkcji.</p>
+
+        <p class="lead">Jesteśmy coraz lepsi w produkowaniu kodu, który się dobrze czyta, i coraz szybsi w jego produkowaniu. Żadna z tych rzeczy nie zwiększa szansy, że kod robi to, co miałeś na myśli.</p>
+        <p>Nawyk wart wyrobienia jest więc mały i staroświecki. <b>Nie przyjmuj wyniku jako dowodu działania.</b> Ani od swojego kodu, ani od swoich narzędzi, ani od czegokolwiek, co generuje dla ciebie tekst, ani od siebie samego o północy.</p>
+        <p class="lead">Poproś o paragon.</p>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Źródła sprawdzone przy pisaniu: <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a> &middot;
+            <a href="https://psutil.io/api/" target="_blank" rel="noopener">dokumentacja psutil</a> &middot;
+            <a href="https://www.tcl-lang.org/man/tcl8.6/TclCmd/re_syntax.htm" target="_blank" rel="noopener">Tcl re_syntax</a> &middot;
+            <a href="https://www.tcl-lang.org/man/tcl8.6/TkCmd/text.htm" target="_blank" rel="noopener">Tk text search</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/windows/win32/shell/appids" target="_blank" rel="noopener">Microsoft, AppUserModelIDs</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/get-authenticodesignature" target="_blank" rel="noopener">Microsoft, Get-AuthenticodeSignature</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję PC Workman publicznie</div>
+                <p>Piszę o tym, co naprawdę wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z fragmentami, które nie robiły nic. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

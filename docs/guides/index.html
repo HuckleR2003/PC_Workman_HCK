@@ -15,7 +15,7 @@
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/index_pl.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/">
-    <meta property="og:title" content="PC Workman Guides — Windows performance, explained honestly">
+    <meta property="og:title" content="PC Workman Guides - Windows performance, explained honestly">
     <meta property="og:description" content="Frame-time stutter, hidden Windows bottlenecks, VRAM, temperatures, storage and safe optimization. Written by the developer of an open-source system monitor.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/guides/">
@@ -23,7 +23,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>PC Workman Guides | Windows performance, temperatures &amp; optimization — explained honestly</title>
+    <title>PC Workman Guides | Windows performance, temperatures &amp; optimization - explained honestly</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,7 +74,8 @@
           { "@type": "ListItem", "position": 18, "name": "How much VRAM do you actually need? Games, shared memory and local AI", "url": "https://pcworkman.dev/guides/how-much-vram-do-i-need/" },
           { "@type": "ListItem", "position": 19, "name": "What should you upgrade first: RAM, SSD, CPU or GPU?", "url": "https://pcworkman.dev/guides/what-should-i-upgrade-first/" },
           { "@type": "ListItem", "position": 20, "name": "PC restarts while gaming with no blue screen: what Kernel-Power 41 means", "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/" },
-          { "@type": "ListItem", "position": 21, "name": "XMP or EXPO crashes games? How to test RAM stability", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" }
+          { "@type": "ListItem", "position": 21, "name": "XMP or EXPO crashes games? How to test RAM stability", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" },
+          { "@type": "ListItem", "position": 22, "name": "The most dangerous bug does not crash. It succeeds: six silent failures", "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/" }
         ]
       }
     }
@@ -159,7 +160,7 @@
     <section class="hero compact">
         <span class="day-badge day-wednesday">Articles &amp; guides</span>
         <h1>Windows performance, explained honestly</h1>
-        <p class="tagline">Practical articles to read — from real sensor data, not recycled myths.</p>
+        <p class="tagline">Practical articles to read - from real sensor data, not recycled myths.</p>
     </section>
 
     <section class="find" aria-label="Search guides by problem">
@@ -178,17 +179,26 @@
         <div class="tech-zone">
             <div class="section-label center">Technology &middot; PRO</div>
             <p class="tech-sub" style="text-align:center;">Deep-dives on how AI changes what a system monitor can actually do. Long reads, real code, no fluff.</p>
+
+            <a class="receipt-link" href="silent-failures-that-pass-every-test/" aria-label="Read the PRO essay: the most dangerous bug does not crash, it succeeds">
+                <span class="rl-stamp">Receipt</span>
+                <span class="rl-tag">PRO essay &middot; #4 &middot; <b>new</b></span>
+                <span class="rl-title">The most dangerous bug does not crash. It succeeds.</span>
+                <span class="rl-sub">Six real failures from fourteen months of shipping alone: a button that saved nothing, a check that measured nothing, a Store shortcut that opened nothing. All of them ran perfectly. All of them passed every test. Plus the week I let an assistant write more than I read, and one claim in the article that was wrong until I checked it.</span>
+                <span class="rl-go">Read the essay &rarr;</span>
+            </a>
+
             <div class="tech-grid">
                 <a class="tech-tile" href="ai-pc-monitoring-vs-traditional/">
                     <span class="tt-badge">PRO &middot; #1</span>
                     <h3>Stop optimizing the average PC. You don't have one.</h3>
-                    <p>Why thresholds and generic profiles fail your specific hardware — and what a local AI that learns your unit actually does. Afterburner, HWiNFO, CCleaner vs statistical process control.</p>
+                    <p>Why thresholds and generic profiles fail your specific hardware - and what a local AI that learns your unit actually does. Afterburner, HWiNFO, CCleaner vs statistical process control.</p>
                     <span class="tt-go">Read the deep-dive &rarr;</span>
                 </a>
                 <a class="tech-tile" href="what-your-pc-learned/">
                     <span class="tt-badge">PRO &middot; #2</span>
                     <h3>What your PC has learned about itself</h3>
-                    <p>Inside the Learning Center and the Welford accumulator that learns your machine for the life of the install — and survives 90-day data pruning. New in v1.8.0.</p>
+                    <p>Inside the Learning Center and the Welford accumulator that learns your machine for the life of the install - and survives 90-day data pruning. New in v1.8.0.</p>
                     <span class="tt-go">Read the deep-dive &rarr;</span>
                 </a>
                 <a class="tech-tile" href="breaking-up-the-monolith/">
@@ -288,13 +298,13 @@
             <a class="series-card wednesday" href="normal-cpu-temperature/">
                 <span class="day-badge day-wednesday">Temperatures</span>
                 <h3>What's a normal CPU temperature?</h3>
-                <p>72°C while gaming is fine. The same 72°C at idle is a warning. Why one threshold for every PC is a myth — with per-workload reference table.</p>
+                <p>72°C while gaming is fine. The same 72°C at idle is a warning. Why one threshold for every PC is a myth - with per-workload reference table.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
             <a class="series-card monday" href="ghost-drivers-windows/">
                 <span class="day-badge day-monday">Drivers</span>
                 <h3>Ghost drivers: the hardware you removed years ago</h3>
-                <p>Your old GPU's driver is still in Windows — hidden by Device Manager. How to find and remove ghosts with pnputil, step by step.</p>
+                <p>Your old GPU's driver is still in Windows - hidden by Device Manager. How to find and remove ghosts with pnputil, step by step.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
             <a class="series-card friday" href="jak-przyspieszyc-komputer/index_en.html">
@@ -361,7 +371,7 @@
 
         <div class="guide-cta">
             <b>These guides come from a real tool.</b> PC Workman monitors temperatures per workload,
-            finds ghost drivers and manages services automatically — free, open source, offline.
+            finds ghost drivers and manages services automatically - free, open source, offline.
             <a href="../download/">Download it here</a>.
         </div>
 
@@ -370,7 +380,7 @@
             <div>
                 <h4><a href="../blog/profile.html">Marcin Firmuga</a></h4>
                 <div class="role">Solo developer · HCK_Labs · Guides grounded in PC Workman's sensor pipeline</div>
-                <p>I write these from what PC Workman's sensors actually show across real machines —
+                <p>I write these from what PC Workman's sensors actually show across real machines -
                    including the 2014 laptop at 94°C this project started on.</p>
                 <div class="author-links">
                     <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
@@ -400,6 +410,7 @@
         {t:"What your PC has learned about itself", u:"what-your-pc-learned/", cat:"PRO", live:1, d:"The Learning Center and the Welford accumulator.", k:"learning baseline welford anomaly self statistical what pc learned"},
         {t:"Stop optimizing the average PC", u:"ai-pc-monitoring-vs-traditional/", cat:"PRO", live:1, d:"Why generic thresholds fail your specific hardware.", k:"afterburner hwinfo ccleaner statistical process control average thresholds generic"},
         {t:"6,500 lines in one file", u:"breaking-up-the-monolith/", cat:"PRO", live:1, d:"Splitting the hck_GPT builder into eight modules.", k:"refactor hck_gpt modules facade tests architecture monolith"},
+        {t:"The most dangerous bug does not crash. It succeeds.", u:"silent-failures-that-pass-every-test/", cat:"PRO", live:1, d:"Six silent failures that passed every test and did nothing.", k:"silent failure bug passes tests does nothing except pass python false success no error ai generated code review testing side effects ratchet regression"},
         {t:"Is my Windows PC healthy?", u:"is-my-pc-healthy/", cat:"Health", live:1, d:"A 5-minute check without benchmarks or jargon.", k:"is my pc healthy check health slow jargon benchmark five minute"},
         {t:"Why is my RAM usage so high?", u:"why-is-my-ram-usage-so-high/", cat:"Memory", live:1, d:"Sleep idle background apps without breaking Windows.", k:"high ram usage memory background apps discord chrome eating hibernate sleep windows 11 pressure paging"},
         {t:"Which startup apps can I disable?", u:"which-startup-apps-can-i-disable/", cat:"Startup", live:1, d:"A safe, reversible decision guide for slow boots.", k:"startup programs slow boot disable safe apps boot time login autostart"},
@@ -463,6 +474,11 @@
         out.innerHTML = html;
       }
       box.addEventListener('input', render);
+      // hand-off from the landing page: /guides/?q=loud+fans
+      try{
+        var qp = new URLSearchParams(window.location.search).get('q');
+        if(qp){ box.value = qp; render(); box.focus(); }
+      }catch(e){}
       box.addEventListener('keydown', function(e){
         if(e.key === 'Enter'){
           var first = out.querySelector('a.fr-item');
