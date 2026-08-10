@@ -1,0 +1,164 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="The scariest bug I caught all year, and I caught it on myself, on purpose. sleep_app was perfectly happy to freeze dwm.exe, explorer.exe, and PC Workman itself.">
+    <meta name="keywords" content="Wednesday Code Autopsy, sleep_app, dwm.exe, process guard, os.getpid, stress testing, Nosana">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/">
+    <meta property="og:title" content="Wednesday Code Autopsy #16: An Optimizer's Most Important List Is Not What It May Touch">
+    <meta property="og:description" content="The scariest bug I caught all year, and I caught it on myself, on purpose. sleep_app was perfectly happy to freeze dwm.exe, explorer.exe, and PC Workman itself.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
+    <meta property="article:published_time" content="2026-07-08">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Wednesday Code Autopsy #16: An Optimizer's Most Important List Is Not What It May Touch | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wednesday Code Autopsy #16: An Optimizer's Most Important List Is Not What It May Touch",
+  "description": "The scariest bug I caught all year, and I caught it on myself, on purpose. sleep_app was perfectly happy to freeze dwm.exe, explorer.exe, and PC Workman itself.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/",
+  "datePublished": "2026-07-08",
+  "dateModified": "2026-07-08",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Wednesday Code Autopsy",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#16", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #16</span>
+        <h1>An Optimizer's Most Important List Is Not What It May Touch</h1>
+        <p class="tagline">It is what it must never touch.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-07-08</span><span>&middot;</span><span>5 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #16</span>
+        </div>
+
+        <p class="lead">Last week, I almost froze my own computer to death.</p>
+
+<p>Best month of my life as a developer. PC Workman is on the Microsoft Store. HackerNoon approved my story about it, and it got picked up for the Decentralize AI Hackathon by Nosana and Arweave. I still catch myself grinning at my desk like an idiot.</p>
+
+<p>Let me tell you about the scariest bug I caught all year, because I caught it on myself, on purpose, before it ever reached you.</p>
+
+<p>PC Workman can suspend idle apps to free resources. One function does it: <span class="hl">sleep_app</span>. Give it a process, it freezes it. It had exactly one safety rule: never touch an anti-cheat. But that was the only rule.</p>
+
+<p>I was stress-testing before a Store update, 100% CPU, full RAM, hours-long sessions, when my screen went white and stayed white. Total freeze. Restart to recover.</p>
+
+<div class="callout warn">
+The optimizer had done its job a little too well. sleep_app was perfectly happy to freeze <span class="hl-red">dwm.exe</span>, the process that literally draws your screen. White. Forever. <span class="hl-red">explorer.exe</span>, your taskbar and desktop. Gone. And PC Workman itself, the app suspending its own process, hanging the hand that feeds it.
+</div>
+
+<p>App Hibernation fires at about 15 minutes. That is exactly when it hit. The optimizer had been quietly walking toward the one process you cannot live without.</p>
+
+<h2>The fix is not scattered if statements</h2>
+<p>It is one guard every process action already calls, taught two new truths:</p>
+<ul>
+<li>An OS-critical process is never a candidate (dwm, explorer, csrss, lsass, services, Defender).</li>
+<li>Your own PID is never a candidate: <code>if pid == os.getpid(): stop</code></li>
+</ul>
+
+<p>One list. <span class="hl-green">Four features hardened at once</span>: hibernation, TURBO, RAM flush, the overlay.</p>
+
+<p>The scary part: it passed every test I had, because my tests never told it to freeze dwm.exe. <span class="hl">You do not write a test for the thing you did not know you had to protect.</span></p>
+
+<p>An optimizer's most important list is not what it is allowed to touch. It is what it must never touch.</p>
+
+<p>Catching the white screen on my own desk, at 100% load, beats catching it in a Store review every time.</p>
+
+        <div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">Windows</span><span class="tag">Testing</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../its-live-on-the-microsoft-store/"><span class="pn-dir">&larr; #15</span><span class="pn-title">It Is Live on the Microsoft Store</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
