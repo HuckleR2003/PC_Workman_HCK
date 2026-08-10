@@ -77,7 +77,7 @@
         <h2>Jak chronione jest wydanie</h2>
         <ul>
             <li><strong>Podpis Sigstore.</strong> Kryptograficzne potwierdzenie pochodzenia wydania działa od 20 stycznia 2026.</li>
-            <li><strong>Skan VirusTotal.</strong> Plik wykonywalny jest sprawdzany przed wydaniem. Wersja 1.8.5 uzyskała wynik 0/70 wykryć.</li>
+            <li><strong>Skan VirusTotal.</strong> Plik wykonywalny jest sprawdzany przed wydaniem. Wersja 1.8.7 uzyskała wynik 1/70. Jedyne wykrycie to Bkav Pro, silnik heurystyczny znany z fałszywych alarmów na plikach pakowanych PyInstallerem; pozostałe 69 silników zgłasza czysty wynik.</li>
             <li><strong>CodeQL.</strong> Automatyczna analiza bezpieczeństwa działa dla zmian trafiających do gałęzi <code>main</code>.</li>
             <li><strong>Prywatne zgłaszanie luk i Dependabot.</strong> Zgłoszenie dotyczące bezpieczeństwa nie musi być ujawnione publicznie przed poprawką.</li>
             <li><strong>Publiczne źródła i wyniki.</strong> Wydanie ma oznaczoną wersję, datę, kod źródłowy i zapis testów.</li>
@@ -114,7 +114,7 @@
         <table>
             <thead><tr><th>Wersja</th><th>Status</th><th>Aktualizacje bezpieczeństwa</th></tr></thead>
             <tbody>
-                <tr><td>1.8.x, najnowsza stabilna 1.8.5</td><td>Tak</td><td>Bieżąca linia</td></tr>
+                <tr><td>1.8.x, najnowsza stabilna 1.8.7</td><td>Tak</td><td>Bieżąca linia</td></tr>
                 <tr><td>1.7.x</td><td>Ograniczone</td><td>Tylko krytyczne, zalecana aktualizacja</td></tr>
                 <tr><td>1.6.x</td><td>Ograniczone</td><td>Tylko krytyczne, zalecana aktualizacja</td></tr>
                 <tr><td>Poniżej 1.6</td><td>Nie</td><td>Koniec wsparcia</td></tr>
@@ -136,7 +136,7 @@
             <thead><tr><th>Zabezpieczenie</th><th>Stan</th></tr></thead>
             <tbody>
                 <tr><td>Podpisy Sigstore</td><td>Aktywne od 20 stycznia 2026</td></tr>
-                <tr><td>VirusTotal</td><td>0/70 dla 1.8.5, skan 21 lipca 2026</td></tr>
+                <tr><td>VirusTotal</td><td>1/70 dla 1.8.7, skan 8 sierpnia 2026 (jedyne trafienie: Bkav Pro, znany fałszywy alarm)</td></tr>
                 <tr><td>CodeQL</td><td>Analiza zmian w gałęzi głównej</td></tr>
                 <tr><td>OpenSSF Best Practices</td><td>W trakcie</td></tr>
             </tbody>

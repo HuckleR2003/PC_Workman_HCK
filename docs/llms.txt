@@ -80,7 +80,7 @@ Initial devlog notes:
 > (HCK_Labs). It explains live and historical system data, learns the normal
 > behaviour of a specific machine and includes the local hck_GPT assistant.
 
-Current release: 1.8.5, published 22 July 2026.
+Current release: 1.8.7, published 22 July 2026.
 Platform: Windows 10/11 64-bit.
 Source: Python 3.9+ and Tkinter.
 License: MIT.
@@ -91,16 +91,16 @@ Releases: https://github.com/HuckleR2003/PC_Workman_HCK/releases
 
 Full technical reference: https://pcworkman.dev/llms-full.txt
 
-## Current facts, verified 25 July 2026
+## Current facts, verified 8 August 2026
 
-- hck_GPT recognizes 96 intents in Polish and English. Confident matches use
+- hck_GPT recognizes 127 intents in Polish and English. Confident matches use
   deterministic handlers with live data and local history. Open-ended prompts
   can use an optional local Ollama model. No cloud AI or API key is required.
-- The process library contains 485 definitions with identity, safety and typical
+- The process library contains 521 definitions with identity, safety and typical
   resource information.
 - Upgrade Readiness has an offline compatibility database of 188 CPUs, 84 GPUs
   and 58 chipsets, 330 entries in total.
-- The current source suite contains 229 tests.
+- The current source suite contains 316 tests.
 - Thermal learning uses five workload buckets: idle, light, medium, heavy and
   gaming. A bucket becomes usable after 20 real samples and reaches the
   calibrated level at 200 or more. Welford accumulators keep learning for the
@@ -206,6 +206,10 @@ Full policy: https://pcworkman.dev/privacy_en.html
 - XMP and EXPO crashes, memory profiles and RAM stability testing:
   [English](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/) |
   [Polski](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html)
+- Silent failures: six real bugs that passed every test and did nothing,
+  what a bare except hides, and how to test that the work happened:
+  [English](https://pcworkman.dev/guides/silent-failures-that-pass-every-test/) |
+  [Polski](https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html)
 
 
 - Is my Windows PC healthy? A 5-minute check without benchmarks

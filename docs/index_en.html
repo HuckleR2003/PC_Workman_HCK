@@ -10,14 +10,14 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="PC Workman v1.8.5: a Windows monitor with local hck_GPT (96 PL/EN intents), workload-aware baselines, voltage SPC, TURBO, Upgrade Readiness, Fan Dashboard and DeepMonitor. Free and open source.">
+    <meta name="description" content="PC Workman v1.8.7: a Windows monitor with local hck_GPT (96 PL/EN intents), workload-aware baselines, voltage SPC, TURBO, Upgrade Readiness, Fan Dashboard and DeepMonitor. Free and open source.">
     <meta name="keywords" content="PC Workman monitor, hck GPT PC assistant, Windows optimization, TURBO mode PC, ghost driver detection, driver health monitor, temperature monitoring adaptive baseline, voltage anomaly detection SPC, statistical process control PC, thermal learning workload, fan dashboard, HWMonitor alternative, system monitor with AI, pnputil ghost driver, dead driver cleanup Windows">
     <meta name="author" content="HCK_Labs - Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/index_en.html">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/index.html">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/index_en.html">
-    <meta property="og:title" content="PC Workman v1.8.5 | A Windows monitor that remembers">
+    <meta property="og:title" content="PC Workman v1.8.7 | A Windows monitor that remembers">
     <meta property="og:description" content="96 PL/EN intents. Learns your hardware per workload, detects voltage deviations and explains why Windows is slow. No cloud AI or API key.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/index_en.html">
@@ -25,10 +25,10 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <meta name="twitter:title" content="PC Workman v1.8.5 | Local hck_GPT for Windows">
+    <meta name="twitter:title" content="PC Workman v1.8.7 | Local hck_GPT for Windows">
     <meta name="twitter:description" content="96 PL/EN intents, workload-aware baselines, voltage SPC, Upgrade Readiness and Ghost Driver Detection. Free and open source.">
 
-    <title>PC_Workman v1.8.5 | Adaptive Thermal Learning, Voltage SPC, hck_GPT & TURBO Suite</title>
+    <title>PC_Workman v1.8.7 | Adaptive Thermal Learning, Voltage SPC, hck_GPT & TURBO Suite</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +41,7 @@
       "@type": "SoftwareApplication",
       "name": "PC_Workman",
       "alternateName": "PC Workman HCK",
-      "version": "1.8.5",
+      "version": "1.8.7",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
@@ -82,8 +82,8 @@
         "url": "https://github.com/HuckleR2003"
       },
       "datePublished": "2025-11-08",
-      "dateModified": "2026-07-25",
-      "softwareVersion": "1.8.5",
+      "dateModified": "2026-08-08",
+      "softwareVersion": "1.8.7",
       "downloadUrl": "https://github.com/HuckleR2003/PC_Workman_HCK/releases"
     }
     </script>
@@ -492,6 +492,62 @@
             letter-spacing: 0.14em;
         }
         /* Roadmap CTA - survival/lime look matching /roadmap/ */
+        /* ── Fix-now strip: routes problem traffic into the guides ───── */
+        .fixnow-section{
+            padding: 2.6rem 0 2.2rem;
+            border-top: 1px solid rgba(0,217,255,.12);
+            border-bottom: 1px solid rgba(0,217,255,.12);
+            background: linear-gradient(180deg, rgba(0,217,255,.035), transparent 70%);
+        }
+        .fixnow-head{ max-width: 720px; }
+        .fixnow-title{
+            font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+            font-weight: 800; letter-spacing: -.5px;
+            color: var(--text-primary); margin: 0 0 .45rem;
+        }
+        .fixnow-title span{ color: var(--neon-cyan); }
+        .fixnow-sub{
+            color: var(--text-secondary); font-size: .95rem;
+            line-height: 1.6; margin: 0 0 1.35rem; max-width: 640px;
+        }
+        .fixnow-search{ display: flex; gap: .6rem; max-width: 620px; margin-bottom: 1.1rem; flex-wrap: wrap; }
+        .fixnow-search input{
+            flex: 1 1 300px; min-width: 0;
+            background: var(--darker-bg); color: var(--text-primary);
+            border: 1px solid rgba(0,217,255,.28); border-radius: 6px;
+            padding: .78rem 1rem; font-size: .95rem; font-family: inherit; outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+        .fixnow-search input::placeholder{ color: #5A6B85; }
+        .fixnow-search input:focus{
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 0 3px rgba(0,217,255,.12);
+        }
+        .fixnow-search button{
+            background: rgba(0,217,255,.1); color: var(--neon-cyan);
+            border: 1px solid rgba(0,217,255,.45); border-radius: 6px;
+            padding: .78rem 1.25rem; font-size: .9rem; font-weight: 700;
+            font-family: inherit; cursor: pointer; white-space: nowrap;
+            transition: background .15s ease, transform .15s ease;
+        }
+        .fixnow-search button:hover{ background: rgba(0,217,255,.2); transform: translateY(-1px); }
+        .fixnow-pills{ display: flex; flex-wrap: wrap; gap: .5rem; }
+        .fixnow-pills a{
+            display: inline-block; text-decoration: none;
+            background: var(--card-bg); color: var(--text-secondary);
+            border: 1px solid rgba(136,146,176,.22); border-radius: 999px;
+            padding: .42rem .95rem; font-size: .84rem;
+            transition: all .15s ease;
+        }
+        .fixnow-pills a:hover{
+            background: var(--card-hover); color: var(--text-primary);
+            border-color: rgba(0,217,255,.5); transform: translateY(-1px);
+        }
+        .fixnow-pills a.fixnow-all{ color: var(--neon-cyan); border-color: rgba(0,217,255,.35); }
+        @media (max-width: 560px){
+            .fixnow-search button{ width: 100%; }
+        }
+
         .cta-button.roadmap-cta {
             background: linear-gradient(180deg, #101219, #0a0c11);
             border: 1px solid rgba(163, 230, 53, 0.42);
@@ -514,6 +570,11 @@
             text-shadow: 0 0 14px rgba(163, 230, 53, 0.4);
         }
         .global-topnav .gt-link.gt-roadmap:hover { color: #c4f25f; }
+        .global-topnav .gt-link.gt-labs {
+            color: #e0526e;
+            text-shadow: 0 0 14px rgba(185, 44, 73, 0.45);
+        }
+        .global-topnav .gt-link.gt-labs:hover { color: #f0788d; }
     </style>
 </head>
 <body class="sidebar-docked">
@@ -526,6 +587,7 @@
         <a class="gt-link gt-white" href="download/">Download</a>
         <a class="gt-link" href="guides/">Articles / Guides</a>
         <a class="gt-link gt-roadmap" href="roadmap/">Roadmap</a>
+        <a class="gt-link gt-labs" href="hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
@@ -554,7 +616,7 @@
                 <span class="nav-text">Home</span>
             </a></li>
             <li><a href="download/" class="nav-special nav-special-dl">
-                <span>⚡ <b>Download</b> v1.8.5<span class="ns-sub">one ZIP · no account</span></span>
+                <span>⚡ <b>Download</b> v1.8.7<span class="ns-sub">one ZIP · no account</span></span>
             </a></li>
             <li><a href="blog/" class="nav-special">
                 <span><b>My Journey</b>, Marcin Firmuga<span class="ns-sub">blog · 3 weekly series</span></span>
@@ -660,7 +722,7 @@
                     <div class="hero-cta">
                         <a href="download/" class="cta-button primary">
                             <span class="cta-icon-shape"></span>
-                            Download v1.8.5 – Free
+                            Download v1.8.7 – Free
                         </a>
                         <a href="#modules" class="cta-button secondary">
                             Features &darr;
@@ -687,7 +749,7 @@
                 <div class="hero-image">
                     <div class="hero-main-visual">
                         <img src="assets/images/PCWorkman-dashboard.gif"
-                             alt="PC Workman v1.8.5 main dashboard with live system monitoring"
+                             alt="PC Workman v1.8.7 main dashboard with live system monitoring"
                              loading="eager">
                         <div class="image-glow"></div>
                     </div>
@@ -735,6 +797,32 @@
                 </a>
             </div>
         </div>
+
+        <section id="fix-now" class="fixnow-section">
+            <div class="container fixnow-wrap">
+                <div class="fixnow-head">
+                    <h2 class="fixnow-title">Something wrong with your PC <span>right now</span>?</h2>
+                    <p class="fixnow-sub">Start here, not with the download. 23 guides written from real sensor data, free, no signup. PC Workman exists because people kept asking these exact questions.</p>
+                </div>
+
+                <form class="fixnow-search" action="guides/" method="get" role="search">
+                    <input type="search" name="q" id="fixnowInput" autocomplete="off" spellcheck="false"
+                           placeholder="Describe it: high RAM, loud fans, disk at 100%..."
+                           aria-label="Describe your PC problem">
+                    <button type="submit">Find the guide &rarr;</button>
+                </form>
+
+                <div class="fixnow-pills">
+                    <a href="guides/why-is-my-disk-at-100-percent/">Disk stuck at 100%</a>
+                    <a href="guides/why-is-my-ram-usage-so-high/">RAM always full</a>
+                    <a href="guides/why-are-my-pc-fans-so-loud/">Fans too loud</a>
+                    <a href="guides/pc-restarts-while-gaming-kernel-power-41/">Restarts while gaming</a>
+                    <a href="guides/is-my-ssd-dying-drive-health/">Is my SSD dying</a>
+                    <a href="guides/what-is-this-process/">What is this process</a>
+                    <a class="fixnow-all" href="guides/">All 23 guides &rarr;</a>
+                </div>
+            </div>
+        </section>
 
         <section id="modules" class="features-section">
             <div class="container">
@@ -1308,6 +1396,34 @@
         <!-- ══════════════════════════════════════════════════════
              STATS & ALERTS + MINIMALISTIC
         ══════════════════════════════════════════════════════ -->
+        <section id="v187" class="features-section" style="padding-top:0">
+            <div class="container">
+                <div class="section-header">
+                    <p class="section-eyebrow">Introduced in 1.8.5 to 1.8.7</p>
+                    <h2 class="section-title">Three answers other tools <span class="highlight-green">will not give you</span></h2>
+                    <p class="section-subtitle">Not more numbers. Three questions a monitor is usually silent about: will this part fit, what is actually holding my clocks back, and did that optimisation change anything at all.</p>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px;">
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">UPGRADE READINESS</div>
+                        <div style="font-size:15px;color:#e6edf3;font-weight:600;margin-bottom:8px;">Will this CPU fit my board?</div>
+                        <p style="font-size:13px;color:#8b98a5;line-height:1.6;margin:0;">Type a planned purchase and get a verdict: fits, needs a BIOS update, or wrong socket with the full cost of the swap. 330 offline entries, 188 CPUs, 84 GPUs, 58 chipsets. It knows the traps a spec sheet hides, like a B460 board refusing an 11th-gen chip that shares its exact socket. No internet, nothing leaves your machine.</p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OVERCLOCK · HEADROOM LAB</div>
+                        <div style="font-size:15px;color:#e6edf3;font-weight:600;margin-bottom:8px;">A tab that refuses to overclock</div>
+                        <p style="font-size:13px;color:#8b98a5;line-height:1.6;margin:0;">There is no write path to your hardware, on purpose. It measures the headroom you already have and names the one thing the number-vomit tools never do: whether temperature, power, or nothing at all is holding your clocks back.</p>
+                    </div>
+                    <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
+                        <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OPTIMIZATION RECEIPTS</div>
+                        <div style="font-size:15px;color:#e6edf3;font-weight:600;margin-bottom:8px;">No receipt, no claim</div>
+                        <p style="font-size:13px;color:#8b98a5;line-height:1.6;margin:0;">Every optimiser on the market says your PC is faster now. This one prints the numbers from both sides of the action: RAM 78 percent before, 61 after, and what it touched to get there. RAM Flush and TURBO both leave a receipt.</p>
+                    </div>
+                </div>
+                <p style="font-size:13px;color:#5b6b78;text-align:center;margin:0;">And since 1.8.7, hck_GPT answers a hard question with your live data, then offers the free guide that explains the whole problem.</p>
+            </div>
+        </section>
+
         <section id="killer" class="features-section" style="padding-top:0">
             <div class="container">
 
@@ -1545,6 +1661,18 @@
                         <div class="post-embed">
                             <div class="post-header">
                                 <span class="post-author">@hck_lab</span>
+                                <span class="post-date">8 August 2026</span>
+                            </div>
+                            <p class="post-content">
+                                v1.8.7: hck_GPT rebuilt around guided flows and a conversation
+                                director, links to the 23 published guides from inside the chat,
+                                TURBO now prints a before and after receipt, and the process
+                                library grew from 485 to 521 entries. 316 tests, all green.
+                            </p>
+                        </div>
+                        <div class="post-embed">
+                            <div class="post-header">
+                                <span class="post-author">@hck_lab</span>
                                 <span class="post-date">22 July 2026</span>
                             </div>
                             <p class="post-content">
@@ -1615,6 +1743,35 @@
                 .lt-series { font-family:'JetBrains Mono',monospace; font-size:10px; color:#5a6a78; }
                 .lt-body h4 { font-size:13px; color:#e6eef6; margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
                 .lt-go { font-family:'JetBrains Mono',monospace; font-size:11px; white-space:nowrap; }
+
+                /* The Receipt: one standout link to the silent-failures essay */
+                .receipt-link {
+                    position:relative; display:block; text-decoration:none;
+                    max-width:620px; margin:18px auto 0; padding:18px 22px 26px;
+                    background:linear-gradient(180deg,#150a0c 0%,#0b0708 100%);
+                    border:1px solid rgba(192,24,42,.40); border-left:3px solid #c0182a;
+                    clip-path:polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+                    transition:border-color .18s ease, transform .18s ease, background .18s ease;
+                }
+                .receipt-link:hover { transform:translateY(-2px); text-decoration:none;
+                    border-color:rgba(163,230,53,.45); border-left-color:#a3e635;
+                    background:linear-gradient(180deg,#181012 0%,#0d0a0b 100%); }
+                .receipt-link .rl-tag { display:block; font-family:'JetBrains Mono',monospace; font-size:10px;
+                    letter-spacing:2px; text-transform:uppercase; color:#e11d2f; margin-bottom:8px; }
+                .receipt-link .rl-tag b { color:#a3e635; font-weight:700; }
+                .receipt-link .rl-title { display:block; font-size:17px; font-weight:700; color:#e6eef6; line-height:1.3; margin-bottom:6px; }
+                .receipt-link .rl-sub { display:block; font-size:12.5px; color:#91a1ab; line-height:1.6; }
+                .receipt-link .rl-go { display:inline-block; margin-top:12px; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:#a3e635; }
+                .receipt-link .rl-stamp { position:absolute; top:16px; right:20px; font-family:'JetBrains Mono',monospace;
+                    font-size:9px; letter-spacing:3px; text-transform:uppercase; color:rgba(224,29,47,.9);
+                    border:1px solid rgba(192,24,42,.5); padding:4px 9px; transform:rotate(-6deg);
+                    transition:color .18s ease, border-color .18s ease, transform .18s ease; }
+                .receipt-link:hover .rl-stamp { color:#a3e635; border-color:rgba(163,230,53,.55); transform:rotate(-6deg) scale(1.05); }
+                .receipt-link::after { content:""; position:absolute; left:18px; right:18px; bottom:11px; height:2px;
+                    background:repeating-linear-gradient(90deg, rgba(192,24,42,.55) 0 6px, transparent 6px 12px); }
+                .receipt-link:hover::after { background:repeating-linear-gradient(90deg, rgba(163,230,53,.55) 0 6px, transparent 6px 12px); }
+                @media (max-width:560px) { .receipt-link .rl-stamp { display:none; } .receipt-link .rl-title { font-size:15px; } }
             </style>
             <div class="container">
                 <div class="section-header">
@@ -1640,6 +1797,14 @@
                         <span class="lt-go" style="color:#00FF99;">Full series &rarr;</span>
                     </a>
                 </div>
+
+                <a class="receipt-link" href="guides/silent-failures-that-pass-every-test/" aria-label="Read the PRO essay: the most dangerous bug does not crash, it succeeds">
+                    <span class="rl-stamp">Receipt</span>
+                    <span class="rl-tag">PRO essay &middot; <b>silent failures</b></span>
+                    <span class="rl-title">The most dangerous bug does not crash. It succeeds.</span>
+                    <span class="rl-sub">Six real failures from fourteen months of shipping alone. Every one of them ran perfectly, passed every test and did nothing. Plus the week I let an assistant write more than I read.</span>
+                    <span class="rl-go">Read the essay &rarr;</span>
+                </a>
 
                 <div style="text-align:center;">
                     <a class="bl2-cta" href="blog/">Visit the PC Workman blog →</a>
@@ -1759,7 +1924,7 @@
                     <p>Monitoring, local hck_GPT, TURBO and hardware-aware learning. Open source. Free.</p>
                     <a href="download/" class="cta-button primary large">
                         <span class="cta-icon-shape"></span>
-                        Download v1.8.5 - Free
+                        Download v1.8.7 - Free
                     </a>
                 </div>
 
@@ -1806,7 +1971,7 @@
                     <div class="footer-badges">
                         <span class="footer-badge"><span class="footer-badge-icon fire-icon"></span> Build in Public</span>
                         <span class="footer-badge"><span class="footer-badge-icon ai-icon"></span> hck_GPT</span>
-                        <span class="footer-badge"><span class="footer-badge-icon star-icon"></span> v1.8.5</span>
+                        <span class="footer-badge"><span class="footer-badge-icon star-icon"></span> v1.8.7</span>
                     </div>
                 </div>
             </div>

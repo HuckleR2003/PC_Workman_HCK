@@ -5,7 +5,7 @@ engines. Historical articles on pcworkman.dev preserve the product numbers that
 were true at publication time.
 
 Verified: 25 July 2026.
-Current release: 1.8.5.
+Current release: 1.8.7.
 Platform: Windows 10/11 64-bit.
 Source runtime: Python 3.9+ and Tkinter.
 License: MIT.
@@ -26,16 +26,16 @@ hardware sensor source.
 
 ## Current measured scope
 
-- 96 hck_GPT intents in Polish and English.
-- 485 process definitions.
+- 127 hck_GPT intents in Polish and English.
+- 521 process definitions.
 - 330 offline hardware-compatibility entries: 188 CPUs, 84 GPUs and 58
   chipsets.
-- 229 tests in the current source suite.
+- 316 tests in the current source suite.
 - Five workload-learning buckets: idle, light, medium, heavy and gaming.
 - Microsoft Store product ID: `9PGW6WS2N50V`.
 
 Version literals in the application come from
-`utils/app_version.py -> APP_VERSION`. In v1.8.5 the same source also drives
+`utils/app_version.py -> APP_VERSION`. In v1.8.7 the same source also drives
 window titles, telemetry, hck_GPT's About response and the PyInstaller output
 folder.
 
@@ -219,6 +219,18 @@ Language entry points:
 - English RSS: https://pcworkman.dev/blog/feed.xml
 - Polish RSS: https://pcworkman.dev/blog/feed_pl.xml
 
+Engineering essays (Technology / PRO tier):
+
+- Silent failures: six shipped bugs that ran, passed every test and did
+  nothing, why a bare `except: pass` deletes the evidence of an error, the
+  Tcl versus Python regex engine trap, and how to test that the work happened.
+  Includes a published correction: `psutil.sensors_temperatures()` is
+  documented as available on Linux and FreeBSD only, so on Windows the
+  attribute does not exist and the call raises `AttributeError`, it does not
+  return an empty dictionary.
+  https://pcworkman.dev/guides/silent-failures-that-pass-every-test/ |
+  https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html
+
 New bilingual diagnostic guides:
 
 - Loud PC fans and quiet fan curves:
@@ -278,6 +290,45 @@ The build-in-public archive contains three dated series:
 Old articles intentionally retain the release number, intent count, process
 count and social metrics that were true when they were published. Current facts
 belong on landing, download, profile, roadmap and these LLM reference files.
+
+## HCK Labs and Scaling Laws
+
+HCK Labs is the build-in-public label for the projects of Marcin "HCK"
+Firmuga. It lives at https://pcworkman.dev/hck-labs/ and currently lists two
+projects: PC Workman, which ships, and Scaling Laws, which is in development.
+
+Scaling Laws is an AI company tycoon built in Unity. The campaign starts on
+1 January 2022 with twelve million dollars and no product. The player
+researches architectures, trains models, prices tokens and buys or rents
+compute while the frontier keeps moving.
+
+- Model quality uses the Chinchilla parametric loss with a corrected fit,
+  giving roughly twenty tokens per parameter at compute-optimal training.
+- 22 real accelerator generations with their real ship dates and launch
+  prices. Hardware loses value on two tracks: time, and each successor of the
+  same class.
+- 21 real competitor model releases between November 2022 and February 2026,
+  scored on the same capability scale as the player.
+- Entries beyond the point where real products are known are flagged as
+  projections, and the interface labels them. A training projection is a
+  different type from a deployed model, so a projection never silently
+  becomes a capability.
+- There is no guaranteed profit: price per token falls by roughly half a
+  year, demand saturates, and a company that ships one model and coasts is
+  designed to fall behind.
+
+Pages:
+
+- HCK Labs home: https://pcworkman.dev/hck-labs/
+- Scaling Laws overview: https://pcworkman.dev/hck-labs/scaling-laws/
+- How it works: https://pcworkman.dev/hck-labs/scaling-laws/development/
+- Roadmap: https://pcworkman.dev/hck-labs/scaling-laws/roadmap/
+- Screenshots: https://pcworkman.dev/hck-labs/scaling-laws/media/
+- Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
+- Devlog feed: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
+
+Scaling Laws has no playable public build yet. Screenshots show a current
+development build, not a released product.
 
 ## Author and profiles
 

@@ -5,7 +5,7 @@
 
   <url>
     <loc>https://pcworkman.dev/index.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
@@ -15,7 +15,7 @@
 
   <url>
     <loc>https://pcworkman.dev/index_en.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/index_en.html"/>
@@ -25,7 +25,7 @@
 
   <url>
     <loc>https://pcworkman.dev/blog/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/"/>
@@ -35,7 +35,7 @@
 
   <url>
     <loc>https://pcworkman.dev/blog/index_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/"/>
@@ -45,7 +45,7 @@
 
   <url>
     <loc>https://pcworkman.dev/download/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
@@ -55,7 +55,7 @@
 
   <url>
     <loc>https://pcworkman.dev/download/index_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/download/"/>
@@ -65,7 +65,7 @@
 
   <url>
     <loc>https://pcworkman.dev/guides/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
@@ -75,7 +75,7 @@
 
   <url>
     <loc>https://pcworkman.dev/guides/index_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/"/>
@@ -85,7 +85,7 @@
 
   <url>
     <loc>https://pcworkman.dev/roadmap/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/"/>
@@ -95,7 +95,7 @@
 
   <url>
     <loc>https://pcworkman.dev/roadmap/index_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/"/>
@@ -552,6 +552,25 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html</loc>
+    <lastmod>2026-08-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
+  </url>
+
+  <url>
     <loc>https://pcworkman.dev/blog/friday-shipped-scarred/</loc>
     <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
@@ -802,7 +821,7 @@
 
   <url>
     <loc>https://pcworkman.dev/blog/profile.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html"/>
@@ -812,7 +831,7 @@
 
   <url>
     <loc>https://pcworkman.dev/blog/profile_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html"/>
@@ -1000,7 +1019,7 @@
 
   <url>
     <loc>https://pcworkman.dev/SECURITY_report.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html"/>
@@ -1010,7 +1029,7 @@
 
   <url>
     <loc>https://pcworkman.dev/SECURITY_report_pl.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html"/>
@@ -1103,4 +1122,94 @@
     <priority>0.7</priority>
   </url>
 
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/two-machines-rejected-me/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/its-live-on-the-microsoft-store/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/</loc>
+    <lastmod>2026-07-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/i-broke-my-own-app-on-purpose/</loc>
+    <lastmod>2026-07-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/freeze-protection-and-a-stranger-with-a-4090/</loc>
+    <lastmod>2026-07-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/</loc>
+    <lastmod>2026-07-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/tests-green-app-broken/</loc>
+    <lastmod>2026-07-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/two-seconds-to-seventeen-milliseconds/</loc>
+    <lastmod>2026-07-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/the-person-typing-it/</loc>
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/my-first-one-star-review/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/a-bridge-not-a-leap/</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/wednesday-code-autopsy/i-ship-msix-and-blanked-on-package/</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/friday-shipped-scarred/spotify-and-fourteen-readers/</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/blog/monday-grind-blueprint/i-started-two-games/</loc>
+    <lastmod>2026-08-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

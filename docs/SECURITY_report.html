@@ -9,13 +9,13 @@
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:url" content="https://pcworkman.dev/SECURITY_report.html">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="PC Workman — Security Policy">
-    <meta property="og:description" content="How every PC Workman release is protected and how to verify it yourself: Sigstore signatures, VirusTotal 0/70, CodeQL on every commit. Open source, auditable.">
+    <meta property="og:title" content="PC Workman - Security Policy">
+    <meta property="og:description" content="How every PC Workman release is protected and how to verify it yourself: Sigstore signatures, a documented VirusTotal result, CodeQL on every commit. Open source, auditable.">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="description" content="PC Workman Security Policy — Sigstore-signed releases, VirusTotal 0/70, CodeQL on every commit. Verify signatures and hashes yourself, report vulnerabilities, and see supported versions.">
+    <meta name="description" content="PC Workman Security Policy - Sigstore-signed releases, a documented VirusTotal result, CodeQL on every commit. Verify signatures and hashes yourself, report vulnerabilities, and see supported versions.">
     <meta name="author" content="Marcin Firmuga, HCK_Labs">
-    <title>Security Policy — PC Workman</title>
+    <title>Security Policy - PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,18 +67,18 @@
 
         <div class="sec-badges">
             <figure><img src="assets/images/codeql.png" alt="CodeQL">          <figcaption>CodeQL</figcaption></figure>
-            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 0/70, v1.8.5</figcaption></figure>
+            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 1/70, v1.8.7</figcaption></figure>
             <figure><img src="assets/images/github_security.png" alt="Sigstore"> <figcaption>Sigstore signed</figcaption></figure>
             <figure><img src="assets/images/openssf.png" alt="OpenSSF">          <figcaption>OpenSSF (in progress)</figcaption></figure>
         </div>
 
         <h2>How every release is protected</h2>
         <ul>
-            <li><b>Sigstore digital signatures</b> — cryptographic proof that a release is authentic, active since January 20, 2026.</li>
-            <li><b>VirusTotal scanning</b>: every <code>.exe</code> is checked against 70+ antivirus engines before release. Version 1.8.5 returned 0/70 detections.</li>
-            <li><b>CodeQL</b> — automated security scanning on every commit to <code>main</code>.</li>
+            <li><b>Sigstore digital signatures</b> - cryptographic proof that a release is authentic, active since January 20, 2026.</li>
+            <li><b>VirusTotal scanning</b>: every <code>.exe</code> is checked against 70+ antivirus engines before release. Version 1.8.7 returned 1/70. The single detection is Bkav Pro, a heuristic engine widely known for false positives on PyInstaller-packed binaries; the other 69 engines report clean.</li>
+            <li><b>CodeQL</b> - automated security scanning on every commit to <code>main</code>.</li>
             <li><b>Private vulnerability reporting</b> + Dependabot alerts on GitHub.</li>
-            <li><b>Documented testing</b> — version, date and results recorded publicly; source tagged and archived per release.</li>
+            <li><b>Documented testing</b> - version, date and results recorded publicly; source tagged and archived per release.</li>
         </ul>
 
         <h2>Verify it yourself</h2>
@@ -87,10 +87,10 @@
         <pre><code>sigstore verify github \
   PC_Workman_HCK_&lt;version&gt;.exe \
   --bundle sigstore.bundle</code></pre>
-        <p>If verification fails, do not run the file — report it.</p>
+        <p>If verification fails, do not run the file - report it.</p>
         <p><b>2. Check the SHA256 hash</b> against the value in the release notes</p>
         <pre><code>Get-FileHash PC_Workman_HCK_&lt;version&gt;.exe -Algorithm SHA256</code></pre>
-        <p><b>3. Scan it on <a href="https://www.virustotal.com">VirusTotal</a></b> (expected: 0 detections) and <b>read the source</b> — every line is on GitHub.</p>
+        <p><b>3. Scan it on <a href="https://www.virustotal.com">VirusTotal</a></b> (expected: 0 detections) and <b>read the source</b> - every line is on GitHub.</p>
         <div class="callout warn"><b>Download only from official sources:</b> <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V">Microsoft Store</a>, <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a>, or <a href="https://pcworkman.dev">pcworkman.dev</a>. Executables received by email, Discord or third-party download sites should be treated as untrusted.</div>
 
         <h2>Privacy &amp; data</h2>
@@ -101,9 +101,9 @@
         <table>
             <thead><tr><th>Version</th><th>Supported</th><th>Security updates</th></tr></thead>
             <tbody>
-                <tr><td>1.8.x (latest stable: 1.8.5)</td><td>Yes</td><td>Current release line</td></tr>
-                <tr><td>1.7.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
-                <tr><td>1.6.x</td><td>Limited</td><td>Critical only — upgrade recommended</td></tr>
+                <tr><td>1.8.x (latest stable: 1.8.7)</td><td>Yes</td><td>Current release line</td></tr>
+                <tr><td>1.7.x</td><td>Limited</td><td>Critical only - upgrade recommended</td></tr>
+                <tr><td>1.6.x</td><td>Limited</td><td>Critical only - upgrade recommended</td></tr>
                 <tr><td>&lt; 1.6</td><td>No</td><td>End of life</td></tr>
             </tbody>
         </table>
@@ -121,7 +121,7 @@
             <thead><tr><th>Measure</th><th>Status</th></tr></thead>
             <tbody>
                 <tr><td>Sigstore signatures</td><td>Active (since Jan 20, 2026)</td></tr>
-                <tr><td>VirusTotal</td><td>0/70 detections, v1.8.5 scanned July 21, 2026</td></tr>
+                <tr><td>VirusTotal</td><td>1/70, v1.8.7 scanned 8 August 2026 (single hit: Bkav Pro, known PyInstaller false positive)</td></tr>
                 <tr><td>CodeQL</td><td>Clean on every commit</td></tr>
                 <tr><td>OpenSSF Best Practices</td><td>In progress (~25%)</td></tr>
             </tbody>
