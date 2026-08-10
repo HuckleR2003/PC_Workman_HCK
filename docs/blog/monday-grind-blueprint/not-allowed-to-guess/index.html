@@ -1,0 +1,155 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Most AI assistants are trained to sound useful. Mine is not allowed to guess. One collector, shared hardware state, and four roadmap issues built from real power-user feedback.">
+    <meta name="keywords" content="Monday Grind Blueprint, hardware compatibility, hck_GPT, snapshot unification, driver cleanup, DISM SFC">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/">
+    <meta property="og:title" content="Monday Grind Blueprint #16: My Assistant Is Not Allowed to Guess Whether That CPU Fits Your Board">
+    <meta property="og:description" content="Most AI assistants are trained to sound useful. Mine is not allowed to guess. One collector, shared hardware state, and four roadmap issues built from real power-user feedback.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-monday.png">
+    <meta property="article:published_time" content="2026-07-13">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Monday Grind Blueprint">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monday Grind Blueprint #16: My Assistant Is Not Allowed to Guess Whether That CPU Fits Your Board | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Monday Grind Blueprint #16: My Assistant Is Not Allowed to Guess Whether That CPU Fits Your Board",
+  "description": "Most AI assistants are trained to sound useful. Mine is not allowed to guess. One collector, shared hardware state, and four roadmap issues built from real power-user feedback.",
+  "url": "https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "articleSection": "Monday Grind Blueprint",
+  "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://github.com/HuckleR2003", "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"] },
+  "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+  "isPartOf": { "@type": "Blog", "name": "Monday Grind Blueprint", "url": "https://pcworkman.dev/blog/monday-grind-blueprint/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Monday Grind Blueprint", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/" },
+    { "@type": "ListItem", "position": 4, "name": "#16", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/" }
+  ]
+}
+</script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Monday Grind Blueprint &middot; #16</span>
+        <h1>My Assistant Is Not Allowed to Guess Whether That CPU Fits Your Board</h1>
+        <p class="tagline">It is not another chatbot inside a system monitor. It is a local technician that can show its work.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-07-13</span><span>&middot;</span><span>4 min read</span><span>&middot;</span><span>Monday Grind Blueprint #16</span>
+        </div>
+
+        <p class="lead">Most AI assistants are trained to sound useful. Mine is not allowed to guess whether your motherboard supports the CPU you want to buy.</p>
+
+<p>Before hck_GPT can answer "Will this CPU work with my current board?" or "Is this old GPU driver safe to remove?", every part of PC Workman has to agree on what machine it is looking at. Right now My PC, sensor monitoring, learning engines and hck_GPT still reach parts of the same data through different paths.</p>
+
+<p>It works, but it makes bugs harder to catch, results harder to explain, and the whole system harder to trust.</p>
+
+<p>So this week starts with one job: <span class="hl">one collector, shared hardware state</span>, and clearer data across My PC, voltage and usage monitoring, learning, and hck_GPT.</p>
+
+<h2>Then four new roadmap issues, built from real power-user feedback</h2>
+<ul>
+<li><span class="hl-green">Hardware Upgrade Compatibility Check</span>: CPU, motherboard, RAM, GPU and upgrade preparation.</li>
+<li><span class="hl-green">Local Hardware Compatibility Library</span>: 200+ structured entries. Offline. No web search required.</li>
+<li><span class="hl-green">Windows Repair Command Advisor</span>: DISM, SFC, Store failures, unknown devices and Event Viewer, explained before anything is touched.</li>
+<li><span class="hl-green">Driver Store Cleanup Advisor</span>: read existing PC Workman scans, find likely leftovers, explain the risk and build a safe checklist. No random PowerShell.</li>
+</ul>
+
+<div class="callout warn">
+No "100% compatible" when important data is missing, and no pretending a confident answer is the same as a correct one.
+</div>
+
+<p>The goal is not another chatbot inside a system monitor. It is a local technician that can show its work.</p>
+
+        <div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">AI</span><span class="tag">Windows</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
+            with an offline AI assistant - everything described here is real, shipped code.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../i-broke-my-own-app-on-purpose/"><span class="pn-dir">&larr; #15</span><span class="pn-title">I Spent the Weekend Trying to Break My Own App</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Monday Grind Blueprint</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
