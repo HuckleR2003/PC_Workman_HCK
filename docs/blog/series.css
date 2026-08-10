@@ -576,3 +576,57 @@ a:hover { text-decoration: underline; }
 .tg-tile .tg-go { font-family: var(--font-mono); font-size: .58rem; color: var(--text-dim); }
 .tg-tile.soon { opacity: .5; pointer-events: none; }
 @media (max-width: 560px) { .tg-tile { width: 30%; min-height: 100px; } .top-guides { gap: 1rem; } }
+
+/* ── The Receipt ─────────────────────────────────────────────
+   One standout link to the silent-failures essay. Shaped like a
+   till receipt: cut corner, torn dotted edge, a rotated stamp.
+   Bordeaux at rest, lime on hover (the site's verdict colours).
+   Used on the guides hub, inside every guide and on the blog hub.
+   ──────────────────────────────────────────────────────────── */
+.receipt-link {
+    position: relative; display: block; text-decoration: none;
+    margin: 1.9rem 0 2.3rem; padding: 1.1rem 1.35rem 1.55rem;
+    background: linear-gradient(180deg, #150a0c 0%, #0b0708 100%);
+    border: 1px solid rgba(192,24,42,.40);
+    border-left: 3px solid #c0182a;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+    transition: border-color .18s ease, transform .18s ease, background .18s ease;
+}
+.receipt-link:hover {
+    text-decoration: none; transform: translateY(-2px);
+    border-color: rgba(163,230,53,.45); border-left-color: #a3e635;
+    background: linear-gradient(180deg, #181012 0%, #0d0a0b 100%);
+}
+.receipt-link .rl-tag {
+    display: block; font-family: var(--font-mono); font-size: .62rem;
+    letter-spacing: 2px; text-transform: uppercase; color: #e11d2f; margin-bottom: .5rem;
+}
+.receipt-link .rl-tag b { color: #a3e635; font-weight: 700; }
+.receipt-link .rl-title {
+    display: block; font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+    line-height: 1.3; margin-bottom: .4rem;
+}
+.receipt-link .rl-sub { display: block; font-size: .85rem; color: #b9b9b9; line-height: 1.6; max-width: 64ch; }
+.receipt-link .rl-go {
+    display: inline-block; margin-top: .8rem; font-family: var(--font-mono);
+    font-size: .72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #a3e635;
+}
+.receipt-link .rl-stamp {
+    position: absolute; top: 1.05rem; right: 1.25rem;
+    font-family: var(--font-mono); font-size: .58rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(224,29,47,.9); border: 1px solid rgba(192,24,42,.5);
+    padding: .26rem .55rem; transform: rotate(-6deg);
+    transition: color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.receipt-link:hover .rl-stamp { color: #a3e635; border-color: rgba(163,230,53,.55); transform: rotate(-6deg) scale(1.05); }
+.receipt-link::after {
+    content: ""; position: absolute; left: 1.1rem; right: 1.1rem; bottom: .68rem; height: 2px;
+    background: repeating-linear-gradient(90deg, rgba(192,24,42,.55) 0 6px, transparent 6px 12px);
+}
+.receipt-link:hover::after {
+    background: repeating-linear-gradient(90deg, rgba(163,230,53,.55) 0 6px, transparent 6px 12px);
+}
+@media (max-width: 560px) {
+    .receipt-link .rl-stamp { display: none; }
+    .receipt-link .rl-title { font-size: 1rem; }
+}

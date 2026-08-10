@@ -7,7 +7,136 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Sat, 25 Jul 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Mon, 10 Aug 2026 12:00:00 GMT</lastBuildDate>
+  <item>
+    <title>The most dangerous bug does not crash. It succeeds.</title>
+    <link>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/guides/silent-failures-that-pass-every-test/</guid>
+    <pubDate>Mon, 10 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Six real bugs that ran perfectly, passed every test and did nothing. A bare except that hid a NameError for four months, a Store shortcut that opened nothing, a scanner that accused the Print Spooler, and a claim in the article that was wrong until I checked it.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #19: Every Guide Says Finish What You Started. This Week I Started Two Games</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/i-started-two-games/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/i-started-two-games/</guid>
+    <pubDate>Mon, 03 Aug 2026 12:00:00 GMT</pubDate>
+    <description>In the month I could least afford distraction, I opened Unity. Scaling Laws is an AI company tycoon built on the real Chinchilla scaling law and 22 real accelerator generations.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #19: My Writing Landed on Spotify. A Post I Spent an Hour On Reached 14 People</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/spotify-and-fourteen-readers/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/spotify-and-fourteen-readers/</guid>
+    <pubDate>Fri, 31 Jul 2026 12:00:00 GMT</pubDate>
+    <description>HackerNoon turned my monolith article into audio the same week a post reached 14 readers. Sixteen new guides, an offline search, the biggest hck_GPT rebuild yet, and a script that quietly ate 38 commas.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #18: I Ship a Certified MSIX Package. In an Interview I Could Not Define a Package</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/i-ship-msix-and-blanked-on-package/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/i-ship-msix-and-blanked-on-package/</guid>
+    <pubDate>Wed, 29 Jul 2026 12:00:00 GMT</pubDate>
+    <description>Asked what a package is, I described the installer and never mentioned the answer I use every week: pip install, npm install. The hole between doing and explaining.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #18: Everyone Says Take the Leap. I Am Staying in Radom and Driving a Taxi</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/a-bridge-not-a-leap/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/a-bridge-not-a-leap/</guid>
+    <pubDate>Mon, 27 Jul 2026 12:00:00 GMT</pubDate>
+    <description>Every piece of advice says move to the big city and bet on yourself. This week I am doing the opposite, on purpose, because a bridge is not a leap.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #18: My First One-Star Review, and I Agreed With Every Word</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/my-first-one-star-review/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/my-first-one-star-review/</guid>
+    <pubDate>Fri, 24 Jul 2026 12:00:00 GMT</pubDate>
+    <description>A one-star review said the GUI needs refining and the learning curve is steep. I read it three times and agreed. The same week I shipped OVERCLOCK, Optimization Receipts and a roadmap to v2.1.0.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #17: Normally I Cut Open My Code Here. Today I Want to Talk About the Person Typing It</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/the-person-typing-it/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/the-person-typing-it/</guid>
+    <pubDate>Wed, 22 Jul 2026 12:00:00 GMT</pubDate>
+    <description>I am 22, I live in Radom, and I weld plastic in a repair shop. My nights belong to PC Workman. This week it reaches v1.8.5, and I still have not been given my first job in IT.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #17: Opening One Menu Took 2 Seconds. It Now Takes 17 Milliseconds</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/two-seconds-to-seventeen-milliseconds/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/two-seconds-to-seventeen-milliseconds/</guid>
+    <pubDate>Mon, 20 Jul 2026 12:00:00 GMT</pubDate>
+    <description>Ten days of adding almost nothing, spent hunting the four places my own code had been lying to me. Plus Upgrade Readiness, which refused to wait for a calm week.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #17: My Tests Were Green. The App Was Broken. Both Were True</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/tests-green-app-broken/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/tests-green-app-broken/</guid>
+    <pubDate>Fri, 17 Jul 2026 12:00:00 GMT</pubDate>
+    <description>The engine week: a 6,533-line response layer split into seven modules, a refactor that silently switched the whole AI layer off, and a cleanup pass that sent every sidebar page back to the dashboard.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #16: My Assistant Is Not Allowed to Guess Whether That CPU Fits Your Board</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/not-allowed-to-guess/</guid>
+    <pubDate>Mon, 13 Jul 2026 12:00:00 GMT</pubDate>
+    <description>Most AI assistants are trained to sound useful. Mine is not allowed to guess. One collector, shared hardware state, and four roadmap issues built from real power-user feedback.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #16: The Optimizer Could Freeze the Desktop. Then a Stranger Sent Me 50 PLN</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/freeze-protection-and-a-stranger-with-a-4090/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/freeze-protection-and-a-stranger-with-a-4090/</guid>
+    <pubDate>Fri, 10 Jul 2026 12:00:00 GMT</pubDate>
+    <description>On Monday my optimizer could freeze the Windows desktop. By Thursday a stranger with a 7950X3D and a flashed RTX 4090 had paid me and offered his PC as a test bench.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #16: An Optimizer's Most Important List Is Not What It May Touch</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/the-list-it-must-never-touch/</guid>
+    <pubDate>Wed, 08 Jul 2026 12:00:00 GMT</pubDate>
+    <description>The scariest bug I caught all year, and I caught it on myself, on purpose. sleep_app was perfectly happy to freeze dwm.exe, explorer.exe, and PC Workman itself.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #15: I Spent the Weekend Trying to Break My Own App on Purpose</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/i-broke-my-own-app-on-purpose/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/i-broke-my-own-app-on-purpose/</guid>
+    <pubDate>Mon, 06 Jul 2026 12:00:00 GMT</pubDate>
+    <description>100% CPU, 100% RAM, thermal throttling. It broke and froze my entire computer. Good. Better me than you. v1.8.2 ships the guard that makes it impossible.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #15: Sixteen Answers That Existed Only on Paper</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/16-silent-intents-and-the-store-week/</guid>
+    <pubDate>Fri, 03 Jul 2026 12:00:00 GMT</pubDate>
+    <description>My AI matched 16 questions with 100% confidence and returned nothing. The first week PC Workman was on the Microsoft Store, and the week a tester found the temperature pipeline broken.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #15: It Is Live on the Microsoft Store</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/its-live-on-the-microsoft-store/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/its-live-on-the-microsoft-store/</guid>
+    <pubDate>Wed, 01 Jul 2026 12:00:00 GMT</pubDate>
+    <description>A year ago that sentence was the last line of a roadmap I wrote but did not believe I would reach. 12 dead projects behind me, and a 2014 laptop that hits 94 degrees.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #14: Two Machines Rejected Me This Week. Neither Read a Line of My Code</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/two-machines-rejected-me/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/two-machines-rejected-me/</guid>
+    <pubDate>Mon, 29 Jun 2026 12:00:00 GMT</pubDate>
+    <description>Microsoft bounced the app over a blurry icon and a wrong link. Then LinkedIn shadowbanned the post about it because a filename looked like a suspicious link.</description>
+  </item>
+
+
 
   <item>
     <title>Is My PC Healthy? A Five-Minute Check</title>

@@ -5,8 +5,16 @@
     <link>https://pcworkman.dev/blog/index_pl.html</link>
     <description>Polskie artykuły techniczne, poradniki Windows i historie wydań PC Workmana.</description>
     <language>pl</language>
-    <lastBuildDate>Sat, 25 Jul 2026 12:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 10 Aug 2026 12:00:00 +0200</lastBuildDate>
     <atom:link href="https://pcworkman.dev/blog/feed_pl.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Najgroźniejszy błąd nie wywala programu. On kończy się sukcesem.</title>
+      <link>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html</guid>
+      <pubDate>Mon, 10 Aug 2026 12:00:00 +0200</pubDate>
+      <description>Sześć prawdziwych błędów, które działały bez zarzutu, przechodziły każdy test i nie robiły nic. Gołe except ukrywające NameError przez cztery miesiące, skrót ze Store otwierający nic, skaner oskarżający usługę drukowania i jedno zdanie z artykułu, które było nieprawdziwe, dopóki go nie sprawdziłem.</description>
+    </item>
+
     <item>
       <title>Czy mój komputer jest sprawny? Kontrola w pięć minut</title>
       <link>https://pcworkman.dev/guides/is-my-pc-healthy/index_pl.html</link>
