@@ -1,0 +1,445 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · Blog / Build in public (PL) · czternaście miesięcy -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Czternaście miesięcy budowania aplikacji na Windows po pracy, miesiąc po miesiącu, z prawdziwymi datami i liczbami. Cztery prace w dwóch krajach, Microsoft Store i wciąż brak pracy w IT. Pełna oś czasu, łącznie z miesiącami, w których nic nie działało.">
+    <meta name="keywords" content="build in public, samouk programista, pierwsza praca w IT, brak doświadczenia komercyjnego, portfolio programisty, praca po pracy, Microsoft Store solo, Radom, zmiana zawodu programowanie, magazyn Holandia">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/fourteen-months/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/fourteen-months/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/fourteen-months/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/fourteen-months/">
+    <meta property="og:title" content="Czternaście miesięcy, cztery prace, jedna aplikacja i wciąż brak pracy w IT">
+    <meta property="og:description" content="Pełna oś czasu budowania aplikacji po pracy, miesiąc po miesiącu. Prawdziwe daty, prawdziwe liczby i te fragmenty, które nie wyszły.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/fourteen-months/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-24">
+    <meta property="article:modified_time" content="2026-08-24">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Build in public">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Czternaście miesięcy, cztery prace, jedna aplikacja i wciąż brak pracy w IT | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed_pl.xml">
+
+    <style>
+        .tl { border-left:2px solid #23262e; margin:38px 0 38px 6px; padding-left:0; }
+        .tl-month { position:relative; padding:0 0 30px 26px; }
+        .tl-month::before { content:""; position:absolute; left:-7px; top:6px; width:12px; height:12px;
+                            border-radius:50%; background:#0a0b0e; border:2px solid #c0182a; }
+        .tl-month.win::before { border-color:#a3e635; }
+        .tl-date { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.1em;
+                   text-transform:uppercase; color:#7b828f; display:block; margin-bottom:6px; }
+        .tl-h { font-weight:700; font-size:19px; color:#e8eaee; margin:0 0 10px; }
+        .tl-life { color:#c9ced8; font-size:15.5px; line-height:1.68; margin:0 0 10px; }
+        .tl-code { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.75;
+                   background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                   border-radius:5px; padding:10px 13px; color:#b9c0cc; overflow-x:auto; white-space:pre-wrap; }
+        .tl-cost { border-left:3px solid #f59e0b; background:#14110a; border-radius:5px;
+                   padding:9px 13px; margin-top:10px; color:#d8c9a8; font-size:14.5px; }
+        .stat-row { display:flex; flex-wrap:wrap; gap:10px; margin:26px 0; }
+        .stat { flex:1 1 128px; border:1px solid #23262e; border-radius:8px; background:#0d0f14; padding:13px 15px; }
+        .stat b { display:block; font-family:'JetBrains Mono',monospace; font-size:23px; color:#a3e635; }
+        .stat span { font-size:12px; color:#7b828f; letter-spacing:.04em; }
+        .figure { margin:26px 0; }
+        .figure img { width:100%; border-radius:8px; border:1px solid #23262e; display:block; }
+        .figure figcaption { font-size:13px; color:#7b828f; margin-top:8px; font-style:italic; }
+        @media (max-width:620px){ .tl-month{ padding-left:20px; } }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Czternaście miesięcy, cztery prace, jedna aplikacja i wciąż brak pracy w IT",
+      "description": "Pełny zapis miesiąc po miesiącu z budowania aplikacji na Windows w publicznym rytmie, przy czterech różnych pracach w dwóch krajach. Prawdziwe daty, prawdziwe numery wersji i uczciwe podsumowanie tego, co to dało, a czego nie.",
+      "url": "https://pcworkman.dev/blog/fourteen-months/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/fourteen-months/index_pl.html" },
+      "datePublished": "2026-08-24",
+      "dateModified": "2026-08-24",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Build in public",
+      "wordCount": 3400,
+      "keywords": "build in public, samouk programista, pierwsza praca w IT, portfolio programisty, zmiana zawodu, Microsoft Store, Radom, Polska",
+      "about": [
+        { "@type": "Thing", "name": "Building in public" },
+        { "@type": "Thing", "name": "Nauka programowania bez studiów" },
+        { "@type": "Thing", "name": "Zmiana zawodu" },
+        { "@type": "SoftwareApplication", "name": "PC Workman", "operatingSystem": "Windows", "applicationCategory": "UtilitiesApplication" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Programista",
+        "url": "https://pcworkman.dev/blog/profile_pl.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Python", "Aplikacje desktopowe Windows", "Lokalne AI", "Unity", "C#", "Testowanie oprogramowania", "Pisanie techniczne"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Czternaście miesięcy", "item": "https://pcworkman.dev/blog/fourteen-months/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Ile czasu zajmuje zbudowanie aplikacji na Windows samemu, pracując na pełen etat?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W tym udokumentowanym przypadku czternaście miesięcy od pierwszego commita do publikacji w Microsoft Store, z 23 wydanymi wersjami, przy pracy wieczorami po czterech różnych zajęciach: magazyn w Holandii, sklep, zakład napraw plastików i taksówka. Aplikacja osiągnęła 331 testów automatycznych, 110 intencji asystenta, 521 definicji procesów i około 1700 pobrań. Ograniczeniem nigdy nie był kod, tylko liczba godzin, które zostawały po dziesięcio- lub dwunastogodzinnej zmianie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy build in public pomaga zdobyć pracę w IT?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Częściowo i nie w sposób, który sugeruje większość poradników. Przez czternaście miesięcy trzy posty o największym zasięgu (46904, 23095 i 7860 wyświetleń) nie dały ani jednej rozmowy o pracę. Post o 2597 wyświetleniach, opisujący realną sytuację życiową, dał jedną rozmowę i trzy osoby, które przekazały CV dalej. Zasięg i efekt były odwrotnie proporcjonalne, bo duży zasięg przyszedł od publiczności bez żadnego związku z rekrutacją w Polsce. Uczciwy wniosek: praca publiczna tworzy szansę bycia znalezionym, ale liczbą, która się liczy, nie są wyświetlenia." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy da się nauczyć budować produkcyjne oprogramowanie bez studiów informatycznych?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Ten zapis dokumentuje jedną osobę, która zrobiła to z kwalifikacją INF.02 z technikum i bez doświadczenia komercyjnego, doprowadzając aplikację do Microsoft Store z testami automatycznymi, podpisem Sigstore, analizą CodeQL przy każdym commicie i publiczną historią wersji. Poprzedziło to dwanaście porzuconych projektów. To dowód z jednego przypadku, nie twierdzenie ogólne." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co jest najtrudniejsze w budowaniu oprogramowania po pracy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Według tego zapisu nie motywacja i nie kod. Najtrudniejszy był brak recenzenta kodu, przez co co najmniej dwadzieścia cztery ciche awarie trafiły do użytkowników niezauważone, oraz to, że regularność musi przetrwać tygodnie, w których praca zabiera wszystko. Passa dwudziestu jeden tygodni publikowania urwała się raz, po siedemdziesięciogodzinnym tygodniu za kierownicą." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/fourteen-months/" data-lang="en">EN</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/fourteen-months/index_pl.html" class="active" data-lang="pl" lang="pl">PL</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Build in public &middot; Zapis</span>
+        <h1>Czternaście miesięcy,<br>cztery prace, jedna aplikacja<br>i wciąż brak pracy w IT.</h1>
+        <p class="tagline">Pełna oś czasu, miesiąc po miesiącu, z prawdziwymi datami i prawdziwymi liczbami. Łącznie z miesiącami, w których nic nie wyszło, i z tą częścią, gdzie mówię wprost, co to wszystko dało, a czego nie.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-08-24</span><span>&middot;</span><span>~14 min czytania</span>
+        </div>
+
+        <p class="lead">Mam 22 lata, mieszkam w Radomiu i jeżdżę taksówką po dziesięć, dwanaście godzin dziennie. Wieczorami piszę oprogramowanie. Robię to od czternastu miesięcy bez ani jednego wolnego tygodnia i nigdy nie dostałem za to złotówki.</p>
+
+        <p>To jest uczciwa pozycja wyjściowa i celowo stawiam ją w pierwszym akapicie, bo większość takich tekstów zaczyna się od wyniku i cofa do początku. Tutaj nie ma jeszcze wyniku. Jest zapis.</p>
+
+        <p>Poniżej jest ten zapis: każdy miesiąc, co działo się w życiu obok tego, co działo się w kodzie, z datami, które można sprawdzić w publicznym repozytorium i publicznym changelogu. Piszę to, bo trzy lata temu szukałem dokładnie czegoś takiego i nie znalazłem. Każda relacja, na którą trafiałem, kończyła się albo ofertą pracy, przez co była opowieścią o szczęściu, albo rezygnacją, przez co była ostrzeżeniem. Prawie nikt nie publikuje środka, a środek jest miejscem, w którym większość ludzi faktycznie się znajduje.</p>
+
+        <div class="callout">
+            <b>Jedna zasada tej strony.</b> Każda liczba tutaj została odczytana ze źródła albo z analityki w dniu publikacji, nie z pamięci. Tam, gdzie czegoś nie wiem, jest to napisane wprost. Zdarzyło mi się już publicznie pomylić z pamięci, trzy razy w sprawie tego samego API, i wolę, żeby ta strona dała się sprawdzić, niż żeby robiła wrażenie.
+        </div>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#przed">Zanim cokolwiek się zaczęło: dwanaście martwych projektów</a></li>
+                <li><a href="#os">Czternaście miesięcy, miesiąc po miesiącu</a></li>
+                <li><a href="#koszt">Ile to naprawdę kosztowało</a></li>
+                <li><a href="#dzialalo">Co zadziałało, a co nie</a></li>
+                <li><a href="#teraz">Gdzie to jest teraz i czego chcę</a></li>
+            </ol>
+        </div>
+
+        <h2 id="przed">Zanim cokolwiek się zaczęło: dwanaście martwych projektów</h2>
+
+        <p>Mój tata umarł, zanim byłem dorosły. Nie załamałem się w tamtym tygodniu. Załamywałem się powoli przez następne dwa albo trzy lata i to jest ta część, przed którą nikt nie ostrzega, bo nie ma momentu, w który da się wskazać palcem i powiedzieć: tutaj.</p>
+
+        <p>Potem był pogrzeb, który przyszedł za wcześnie, i życie, które musiało ruszyć szybciej, niż byłem gotowy. Trzy lata w Wojskach Obrony Terytorialnej, od młodego wieku. Technikum, INF.02 na papierze i niewiele za tym. Taksówka. Magazyn. Cokolwiek, co płaciło.</p>
+
+        <p>Gdzieś w tym wszystkim zacząłem i porzuciłem dwanaście projektów. Tłumaczenia gier, małe narzędzia, skrypty, o które nikt nie prosił. Ciekawe jest miejsce, w którym umierały. Nie na starcie, kiedy jest trudno i nudno. <b>Wszystkie umarły gdzieś między siedemdziesiątym a osiemdziesiątym piątym procentem</b>, w tej wygodnej strefie, w której coś działa na Twojej maszynie, a myśl o pokazaniu tego drugiemu człowiekowi wydaje się niemożliwa.</p>
+
+        <p>Każdy zaczynał się od energii i kończył, kiedy energia się kończyła, bo dyscypliny nie było jeszcze na tyle, żeby ją zastąpiła.</p>
+
+        <p>Trzynasty jest tym z tej strony. I chcę być dokładny co do tego, dlaczego przeżył, bo każda historia indie, jaką czytałem, zaczyna się od pasji, a moja nie.</p>
+
+        <div class="callout warn">
+            <b>Nie miałem pasji. Byłem zdesperowany.</b> PC Workman nie był projektem z pasji, był kotwicą psychiczną: jedyną rzeczą, którą mogłem kontrolować, kiedy wszystko inne się sypało. Zbuduj coś. Zacommituj coś. Zobacz, jak pasek postępu się przesuwa. Poczuj, że nadal istniejesz. To nie jest motywacyjny plakat, tylko opis tego, czym to było.
+        </div>
+
+        <h2 id="os">Czternaście miesięcy, miesiąc po miesiącu</h2>
+
+        <p>Czerwone kropki to miesiące, w których prowadziła praca albo życie. Zielone to te, w których prowadził kod.</p>
+
+        <div class="tl">
+
+            <div class="tl-month">
+                <span class="tl-date">Wiosna 2025 &middot; Venlo, Holandia</span>
+                <div class="tl-h">Gaśnięcie, czyli część, której się nie spodziewałem</div>
+                <p class="tl-life">Przeprowadziłem się z Polski do Holandii do pracy w magazynie. Order picker. Piętnaście do dwudziestu kilometrów chodzenia na zmianę, a jednego dnia telefon pokazał 23 847 kroków. Umowa przez agencję, mieszkanie od agencji, transport od agencji. Przez dziewięć miesięcy oznaczało to cztery różne prace i siedem różnych miejsc do spania.</p>
+                <p class="tl-life">To nie praca prawie mnie wykończyła. Ciężka praca nikogo nie łamie. Łamie trwała tymczasowość, a robi to bardzo konkretnie: w pierwszym miesiącu jesteś optymistą i zaczniesz kodzić w przyszłym tygodniu. W trzecim wracasz o szóstej, siadasz na łóżku i patrzysz w ścianę przez dwadzieścia minut, a potem scrollujesz do ósmej. W piątym przestałeś otwierać GitHuba i zacząłeś myśleć, że może to po prostu dorosłość, może ambicja była naiwna.</p>
+                <p class="tl-life">Nie walczyłem ze zmęczeniem. Walczyłem z przyzwyczajeniem. Ambicja nie znika, ona przygasa, tak jak bateria degraduje się na tyle stopniowo, że zauważasz dopiero przy sześćdziesięciu procentach.</p>
+                <div class="tl-cost">Prawdziwym zagrożeniem nigdy nie była bieda ani zmęczenie. Było nim to, że zacząłem się z tym godzić.</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Czerwiec i lipiec 2025 &middot; trzynasty projekt</span>
+                <div class="tl-h">Laptop na 77 stopniach, zanim otworzę edytor</div>
+                <p class="tl-life">Zaczynam pisać wieczorami monitor systemu na laptopie z 2014 roku, który po dwóch minutach od włączenia dochodzi do 77 stopni, zanim jeszcze otworzę VS Code, ze świeżą pastą termoprzewodzącą. Do 94 dochodzi, kiedy każę mu myśleć poważnie, i robi to nieprzerwanie od czternastu miesięcy.</p>
+                <p class="tl-life">Pomysł nie jest skomplikowany. Nie mów mi, że procesor jest na 87 procentach. Powiedz mi, że Chrome bierze z tego 43, Discord 22, a w tle chodzi aktualizacja Windows, o której zapomniałem. Różnica między monitorowaniem a rozumieniem.</p>
+                <p class="tl-life">Robię to z powodu, który nie jest ambicją. Boję się zniknąć. Nie fizycznie. Tak, że gaśniesz i nikt tego nie zauważa, łącznie z Tobą.</p>
+                <div class="tl-code">pierwsze commity · Python 3.9 i Tkinter · 23:00 po dziesięciogodzinnej zmianie
+budzik na 5:00 · dziewięć kilometrów rowerem, żeby być na szóstą</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Sierpień - listopad 2025</span>
+                <div class="tl-h">Trzy przebudowy i piętnaście tysięcy skasowanych linii</div>
+                <p class="tl-life">Tutaj umierało poprzednich dwanaście projektów: nowość minęła, nic nie działa dobrze, nikt nie patrzy. Zamiast tego ten przechodzi trzy pełne przebudowy.</p>
+                <p class="tl-life">Pierwsza wersja wyglądała jak Windows 95 podczas ataku paniki. Emoji wszędzie, nieskończone przewijanie, zero hierarchii. Działała, technicznie, i byłem z niej dumny przez jakieś dwa tygodnie, aż użyłem jej jak normalny człowiek i zrozumiałem, że działające i dobre to dwa różne słowa.</p>
+                <p class="tl-life">Druga to była architektura dla samej architektury. Zdarzeniowa, modularna, profesjonalna i okropna w użyciu. Spędziłem dwa tygodnie na automatycznym sterowaniu wentylatorami z krzywymi przeciąganymi myszą, wydałem to, a potem skasowałem w całości, bo jedna zła krzywa potrafi uszkodzić sprzęt, a to jest funkcja, która dobrze brzmi na liście i fatalnie w zgłoszeniu użytkownika.</p>
+                <p class="tl-life">Trzecia zadała inne pytanie. Nie co mogę dodać, tylko co człowiek naprawdę musi zobaczyć.</p>
+                <div class="tl-code">39 000 linii -> 24 000 · 15 000 skasowanych, nie zrefaktorowanych
+29 funkcji zbudowanych i wyrzuconych, zanim ktokolwiek je zobaczył
+400+ commitów z opisami w rodzaju "fix" i "maybe this time"
+pierwszy wpis w changelogu · 2025-10-27</div>
+                <div class="tl-cost">Koszt: jakieś 150 kaw i każdy wieczór przez cztery miesiące, żeby skończyć z mniejszym programem, niż się zaczęło. To był poprawny wynik i wtedy wcale tak nie wyglądał.</div>
+            </div>
+
+            <div class="tl-month win">
+                <span class="tl-date">22 grudnia 2025</span>
+                <div class="tl-h">Zwolniony trzy dni przed świętami, razem z mieszkaniem</div>
+                <p class="tl-life">Ci sami ludzie, którzy uśmiechali się do mnie od tygodni, dalej uśmiechnięci: nie przeszedłeś okresu próbnego, jutro do widzenia i wyprowadzka. Walizki stały przy drzwiach, zanim skończyłem rozumieć to zdanie. Dwa psy czekające w innym kraju. Mniej więcej miesiąc pieniędzy. Projekt na jakichś siedemdziesięciu procentach, 680 godzin w środku.</p>
+                <p class="tl-life">Tej nocy musiałem stanąć na korytarzu i wykrzyczeć człowiekowi, że nie jestem terrorystą, bo budynek miał certyfikat, znałem swoje prawa, a on obstawiał, że ich nie znam. To najbardziej absurdalne zdanie, jakie wypowiedziałem na głos.</p>
+                <p class="tl-life">Potem wróciłem do środka, otworzyłem laptopa i zacząłem przebudowę numer cztery.</p>
+                <p class="tl-life">O drugiej w nocy dziewczyna przyniosła energetyki, a ja byłem na siódmej kromce tosta. O trzeciej kasowałem całe podsystemy zamiast je refaktorować, bo aplikacja mówiła mi wciąż to samo: nie jestem gotowa, żeby ktoś mnie używał. Zdanie, którego nie mogłem wyrzucić z głowy, brzmiało <b>gdybym był użytkownikiem, zamknąłbym to w pięć sekund</b>, a ja byłem użytkownikiem. O piątej rdzeń był przebudowany. Kiedy światło weszło do mieszkania, otworzyłem to i po raz pierwszy nie pomyślałem od razu o rzeczach do zmiany.</p>
+                <div class="tl-cost">16 000 kolejnych linii skasowanych w jedną noc. Oznaczam ten miesiąc na zielono, co przy dniu zwolnienia wygląda dziwnie. Jest zielony, bo kiedy praca zniknęła, jedyną strukturą, jaka została mi w tygodniu, była ta, którą sam zbudowałem, i okazała się nośna.</div>
+            </div>
+
+            <div class="tl-month win">
+                <span class="tl-date">Styczeń 2026 &middot; powrót do Polski</span>
+                <div class="tl-h">Najbardziej produktywny miesiąc z całych czternastu</div>
+                <p class="tl-life">Bez pracy, w domu i po raz pierwszy w stanie pracować nad tym za dnia. To jedyny miesiąc w całym zapisie, w którym projekt dostał moje najlepsze godziny zamiast ostatnich, i widać tę różnicę w logu.</p>
+                <div class="tl-code">v1.6.3   2026-01-12
+v1.6.3+  2026-01-19
+najwyższa liczba commitów z każdego miesiąca projektu</div>
+                <div class="tl-cost">Koszt: przez cały ten czas kończyły się pieniądze. Produktywność kupiona bezrobociem nie jest strategią.</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Luty 2026</span>
+                <div class="tl-h">Szybka poprawka, która zajęła trzy tygodnie</div>
+                <p class="tl-life">Plan był taki, żeby naprawić system danych wykresów w jeden dzień. Wyszła przebudowa.</p>
+                <div class="tl-code">v1.6.8   2026-02-17
+nowy potok agregacji, SQLite w trybie WAL, zapisy odporne na crash
+pierwsze prawdziwe dane historyczne zamiast atrap
+około 500 linii martwego kodu skasowanych</div>
+            </div>
+
+            <div class="tl-month win">
+                <span class="tl-date">Marzec 2026</span>
+                <div class="tl-h">Startuje seria, a ja kasuję osiem miesięcy historii</div>
+                <p class="tl-life">25 marca zaczynam publikować trzy razy w tygodniu: w poniedziałek co planuję, w środę jeden bug rozebrany porządnie, w piątek co wyszło i ile kosztowało. Od tamtej pory nie przestałem i opuściłem dokładnie jeden post.</p>
+                <p class="tl-life">Dwa dni później uruchamiam <code>git push --force</code> i zamieniam 130 commitów w jeden. Osiem miesięcy publicznej historii znika. Odzyskuję z tego około 90 z gałęzi o nazwie <code>archive</code>, którą trzy tygodnie wcześniej stworzyłem przypadkiem, żeby przechować kilka starych plików.</p>
+                <div class="tl-code">v1.7.0   marzec 2026
+pierwszy piątkowy post opowiada o katastrofie, w tym samym tygodniu</div>
+                <div class="tl-cost">Koszt: jakieś 40 commitów, bezpowrotnie. I lekcja, która wróciła pięć miesięcy później i prawie zniszczyła wszystko, bo odzyskiwanie po cichu zostawiło mój klon śledzący niewłaściwą gałąź.</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Kwiecień 2026 &middot; sklep</span>
+                <div class="tl-h">Dziewięciogodzinne zmiany i pierwszy post, który do kogoś dotarł</div>
+                <p class="tl-life">Zaczynam pracę w sklepie. Dziewięć godzin na zmianę, rower o wpół do piątej rano. Pierwszy tydzień uczy mnie czegoś, czego nie wziąłem pod uwagę: ambitne plany tygodniowe zakładają stałą energię, a nowa praca oznacza, że jej nie ma. Dowożę mniej więcej połowę tego, co obiecałem, i piszę o tym zamiast to ukrywać.</p>
+                <p class="tl-life">27 kwietnia publikuję post, który zaczyna się od zdania „Most developers never ship an .exe". Prawie go kasuję przed wysłaniem, bo wydaje mi się zbyt konfrontacyjny jak na uprzejmą bańkę technologiczną. Dociera do 25 700 osób. Wcześniej moje posty docierały do 170 do 330.</p>
+                <p class="tl-life">We wtorek rano mam już inny problem. Odświeżam analitykę co piętnaście minut zamiast pisać kod, a o jedenastej łapię się na tym, że nie zrobiłem nic poza sprawdzaniem telefonu. Patrzenie, jak licznik rośnie, jest bardziej natychmiastowe niż debugowanie czytnika rejestru, i dokładnie dlatego jest niebezpieczne. Zamykam kartę, otwieram edytor.</p>
+                <p class="tl-life">Też w kwietniu: nieznajomy pobiera mój plik wykonywalny i zanim go uruchomi, przepuszcza cały kod przez pełny audyt bezpieczeństwa. Potem przysyła mi wyniki. Chyba spodziewał się paniki. Zapytałem, czy mogę zobaczyć pełny raport. Wyszedł czysty, a on został testerem.</p>
+                <div class="tl-code">v1.7.1   2026-04-10   testy przepisane, 18 przypadków w 3 plikach
+v1.7.2   2026-04-27   podpis Sigstore, VirusTotal 0/70, CodeQL przy każdym commicie
+                      SECURITY.md na 446 linii, nie szablon</div>
+                <div class="tl-cost">Koszt: czterogodzinne noce. Działa raz, może dwa. Nie zbudujesz kariery na długu snu i szczęśliwych stanach przepływu, i napisałem to wtedy, a potem zrobiłem tak jeszcze kilka razy.</div>
+                <div class="tl-cost">Drugi koszt, nie mój: kobieta, która mnie tam wdrażała, pracowała półtora roku, przy około 190 godzinach miesięcznie na umowie skonstruowanej tak, że nie mogła wziąć zwolnienia, z dziećmi. Ta sama stawka co moja. Myślę o niej częściej niż o którejkolwiek liczbie wyświetleń z tej strony.</div>
+            </div>
+
+            <div class="tl-month win">
+                <span class="tl-date">Maj 2026</span>
+                <div class="tl-h">Miesiąc, w którym wszystko ruszyło naraz</div>
+                <p class="tl-life">Dwadzieścia osiem osób odpowiada na pytanie, co zapytaliby AI mieszkające w monitorze systemu, i każde z tych pytań staje się w tym tygodniu prawdziwym kodem. Zaczynam program Google przez SGH.</p>
+                <p class="tl-life">25 maja post dociera do 46 904 osób, co do dziś jest największą liczbą, jaką wyprodukowałem. Wrócę do tego, ile była warta.</p>
+                <div class="tl-code">v1.7.3  2026-05-02
+v1.7.4  2026-05-14
+v1.7.5  2026-05-25
+v1.7.6  2026-05-29   pełne polskie tłumaczenie, 300+ ręcznie pisanych stringów
+                     asystent rośnie do 82 rozpoznawanych intencji
+                     biblioteka procesów 241 -> 373 definicji</div>
+                <div class="tl-cost">Koszt: odkrywam, że monitorowanie temperatur, które wydałem miesiące wcześniej, nigdy nie działało. Wołało API, które na Windowsie nie istnieje, wewnątrz bloku try, który połykał błąd. Przechodziło każdy test, bo testy sprawdzały tylko, że nie ostrzega, kiedy jest dobrze, a coś, co nigdy nie może się odpalić, przechodzi taki test zawsze.</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Czerwiec 2026 &middot; zakład napraw</span>
+                <div class="tl-h">Spawanie plastików za dnia, a projekt kończy rok</div>
+                <p class="tl-life">Pieniądze znowu się kończą. Biorę pracę przy spawaniu plastików w zakładzie napraw, w pomieszczeniu, które zawsze jest za ciepłe i które czuć na ubraniach wieczorem. Praca fizyczna w dzień, kod w nocy. Ten sam rytm co w Holandii, inny kraj.</p>
+                <p class="tl-life">Ta praca nauczyła mnie czegoś, czego nie spodziewałem się przynieść do domu. <b>Dobry zgrzew plastiku jest nudny.</b> Nie pamiętasz go dlatego, że wyglądał sprytnie. Pamiętasz go, bo pół roku później element nadal się trzyma. Nie znalazłem lepszego opisu kodu, który chcę pisać.</p>
+                <p class="tl-life">W tym samym okresie: kładę się o trzeciej w nocy z tą cichą pewnością, że nikogo to nie obchodzi. To nie jest nastrój, to brzmi jak fakt. Następnego ranka post ma 44 000 wyświetleń. Godzinę wcześniej i cała ta noc wyglądałaby inaczej. Nie sprawdziłem, więc nie wyglądała. To jest ta wersja budowania w publicznym rytmie, której nikt nie publikuje.</p>
+                <p class="tl-life">Mój artykuł trafia też na pierwsze miejsce trendów na HackerNoon. Moją pierwszą myślą nie jest „udało się". Jest nią „a jeśli to przypadek".</p>
+                <div class="tl-code">v1.7.7  2026-06-02      v1.7.9  2026-06-11
+v1.7.8  2026-06-05      v1.8.0  2026-06-22
+pcworkman.dev rusza, 56 stron, schema, RSS, robots otwarty dla crawlerów AI
+roadmapa kończąca się na 1.7.9 zostaje zamknięta. każdy punkt zrobiony.</div>
+                <div class="tl-cost">Koszt: znajduję dwie funkcje z etykietą „gotowe", które nigdy nie uruchomiły się ani razu. Silnik uczenia, do którego czat nie potrafił sięgnąć, i przełącznik TURBO wpięty we flagę, której nic w kodzie nigdy nie zapisywało. Żadna się nie wysypała. Nic nie krzyczało. Po prostu tam stały.</div>
+            </div>
+
+            <div class="tl-month win">
+                <span class="tl-date">Lipiec 2026 &middot; Store, a potem taksówka</span>
+                <div class="tl-h">Ostatnia linijka roadmapy, w którą nie wierzyłem</div>
+                <p class="tl-life">1 lipca PC Workman trafia do Microsoft Store. Rok wcześniej to zdanie było ostatnią linijką roadmapy napisanej przez kogoś, kto zabił dwanaście projektów i nie wierzył, że trzynasty przeżyje. Microsoft odrzucił go wcześniej dwa razy i żadne odrzucenie nie dotyczyło kodu. Rozmyta ikona kafelka i link do polityki prywatności, który prowadził do polityki bezpieczeństwa.</p>
+                <p class="tl-life">Tego dnia nic w repozytorium się nie zmieniło. Te same pliki, te same błędy, nadal moje. Zmieniło się to, że ktoś, kogo nigdy nie spotkam, mógł nacisnąć Zainstaluj i uruchomić to na maszynie, której nigdy nie zobaczę. Przestałem czytać ten projekt jak prywatny warsztat.</p>
+                <p class="tl-life">Pierwszą rzeczą, która na mnie spojrzała, był plik na 6 533 linie z 96 handlerami odpowiedzi. Nie stał się absurdalny w jeden dramatyczny weekend. Dziesięć linii tu, piętnaście tam, helper na dole, bo i tak byłem w pliku. Żaden pojedynczy commit nie wyglądał nieodpowiedzialnie i tak właśnie wygrywa dług techniczny: przychodzi jako seria rozsądnych skrótów. I dalej działał, co było najgorsze, bo <b>zepsuty plik domaga się uwagi, a działający uczy Cię, żeby go zostawić w spokoju</b>. Plik, który boisz się otworzyć, to plik, który już przestałeś ulepszać.</p>
+                <p class="tl-life">Store nie zmienił mojego kodu. Zmienił to, co byłem gotów ignorować. Rozbiłem ten plik na siedem, a testów przybyło z 21 do 194 w dziesięć dni.</p>
+                <p class="tl-life">Później w tym samym miesiącu przychodzi pierwsza recenzja na jedną gwiazdkę: interfejs zbyt techniczny, krzywa uczenia stroma. Czytam ją trzy razy i zgadzam się z każdym słowem. Zbudowałem to dla kogoś dokładnie takiego jak ja, a większość ludzi mną nie jest.</p>
+                <p class="tl-life">28 lipca zaczynam jeździć taksówką po dziesięć, dwanaście godzin dziennie, bo to finansuje wyprowadzkę.</p>
+                <div class="tl-code">v1.8.1  2026-07-05      v1.8.5  2026-07-21
+v1.8.2  2026-07-09
+testy 21 (czerwiec) -> 194 -> 331 w sierpniu
+jedno menu z ~2 sekund otwierania schodzi do 17 milisekund
+23 poradniki diagnostyczne, po angielsku i po polsku, za darmo i bez zapisu</div>
+                <div class="tl-cost">Koszt: tydzień, w którym znalazłem cztery osobne rzeczy we własnym kodzie, które raportowały sukces i nie robiły nic. Przycisk Apply w krzywej wentylatorów, który przez dwa wydania nie zapisywał niczego. Numer wersji kłamiący w trzech miejscach. Odczyt CPU w złej skali. Przełącznik narysowany na ekranie i wpięty w nic.</div>
+            </div>
+
+            <div class="tl-month">
+                <span class="tl-date">Sierpień 2026 &middot; teraz</span>
+                <div class="tl-h">Siedemdziesiąt godzin za kierownicą i zerwana passa</div>
+                <p class="tl-life">Rezerwuję sobie siedemdziesiąt godzin jazdy w jednym tygodniu, więc weekend przed nim spędzam na tym, żeby nic, na czym mi zależy, nie potrzebowało mnie, kiedy mnie nie będzie. W piątek tamtego tygodnia kończę zmianę, siadam, otwieram plik, patrzę na niego i zamykam laptopa. Dwadzieścia jeden tygodni, sześćdziesiąt trzy posty i pierwszy, którego nie napisałem.</p>
+                <p class="tl-life">Piszę o tym w poniedziałek, zamiast cokolwiek antydatować, bo passa nie jest sensem, a udawanie jest gorsze niż opuszczenie.</p>
+                <p class="tl-life">W tym samym miesiącu odkrywam, że mój lokalny klon śledził niewłaściwą gałąź od marcowego odzyskiwania i był po cichu 1081 commitów w tyle przez pięć miesięcy. Byłem jedną komendą od skasowania 145 201 linii, które istniały wyłącznie na GitHubie.</p>
+                <div class="tl-code">v1.8.7  2026-08-08   trzeci przyjęty pakiet w Microsoft Store
+Scaling Laws start 2026-08-02, drugi projekt, w Unity
+331 testów automatycznych · 110 intencji asystenta · 521 definicji procesów</div>
+                <div class="tl-cost">Koszt: prawie powtórzyłem marcową katastrofę w dziesięciokrotnej skali, a jedynym powodem, dla którego tego nie zrobiłem, jest to, że przeczytałem ostrzeżenie, które normalnie bym pominął.</div>
+            </div>
+
+        </div>
+
+        <h2 id="koszt">Ile to naprawdę kosztowało</h2>
+
+        <p>Czternaście miesięcy, cztery prace, dwa kraje, ani jednego wolnego tygodnia. Tu jest część, którą łatwo pominąć.</p>
+
+        <p><b>Najpierw sen.</b> Bez romantyzowania. Były tygodnie czterogodzinnych nocy, które dały dobrą robotę, i pisałem wtedy, że to działa raz, może dwa, i że nie da się na tym budować. To była prawda i i tak robiłem to dalej, więcej niż dwa razy.</p>
+
+        <p><b>Ciało, które pracuje fizycznie.</b> Piętnaście kilometrów na zmianę w magazynie. Dziewięć godzin na sklepie. Pomieszczenie, które zawsze jest za ciepłe. Dwanaście godzin w samochodzie. Nic z tego nie jest metaforą dyscypliny, to po prostu było tym dniem, a kod dostawał to, co zostało.</p>
+
+        <p><b>Brak recenzenta i konkretna cena tego.</b> Umiem wskazać co najmniej dwadzieścia cztery osobne sytuacje, w których wydałem coś, co działało bez zarzutu i nie dostarczało niczego, a każda z nich była niewidoczna od środka. Nic się nie wysypało. Kolega zza biurka złapałby kilka z nich w jednym zdaniu. To nie jest narzekanie na pracę w pojedynkę, tylko realny, mierzalny koszt takiej pracy, i spisałem cały ten katalog, żeby przynajmniej komuś się przydał.</p>
+
+        <div class="stat-row">
+            <div class="stat"><b>14</b><span>miesięcy bez wolnego tygodnia</span></div>
+            <div class="stat"><b>7</b><span>adresów, dwa kraje</span></div>
+            <div class="stat"><b>4</b><span>pełne przebudowy</span></div>
+            <div class="stat"><b>23</b><span>wydane wersje</span></div>
+            <div class="stat"><b>331</b><span>testów automatycznych</span></div>
+            <div class="stat"><b>0</b><span>prac w IT</span></div>
+        </div>
+
+        <p><b>Uwaga do liczby z tytułu.</b> Cztery to liczba rodzajów pracy dziennej przez te czternaście miesięcy: magazyn, sklep, zakład napraw plastików, taksówka. Prawdziwa liczba jest wyższa, bo sama Holandia to były cztery osobne skierowania z agencji i siedem różnych adresów w dziewięć miesięcy. W tytule użyłem mniejszej liczby celowo. Zaniżanie jest jedynym kierunkiem, w którym bezpiecznie jest się mylić.</p>
+
+        <h2 id="dzialalo">Co zadziałało, a co nie</h2>
+
+        <p>Mam pięć miesięcy analityki z publicznej strony tego wszystkiego i uczciwy odczyt tych danych przeczy większości rad, jakie dostawałem.</p>
+
+        <p><b>Zasięg i efekt są u mnie odwrotnie proporcjonalne.</b> Moje trzy największe posty dotarły do 46 904, 23 095 i 7 860 osób. Ich wskaźniki zaangażowania wyniosły 0,21, 0,25 i 0,25 procent, czyli trzy najgorsze wyniki w całej mojej historii, i razem nie przyniosły niczego, co umiałbym wskazać. Post o mojej realnej sytuacji dotarł do 2 597 osób przy 4,74 procent i przyniósł jedną rozmowę o pracę oraz trzy osoby, które przekazały moje CV dalej.</p>
+
+        <p>Powód okazał się widoczny w danych, kiedy w nie spojrzałem. Ludzie, którzy mnie obserwują, są w Warszawie, Krakowie, Wrocławiu i Gdańsku, w firmach, które zatrudniają pythonowców w Polsce. Ludzie, do których dotarły viralowe posty, byli zupełnie gdzie indziej, na innym etapie kariery, na innym kontynencie. Duże liczby znalazły publiczność bez związku z tym, czego naprawdę potrzebuję.</p>
+
+        <p><b>Regularność biła jakość częściej, niż się spodziewałem.</b> Nie dlatego, że słabe posty szły dobrze, tylko dlatego, że te dobre trafiały na publiczność, która istniała, bo wcześniej pojawiałem się przez dwadzieścia tygodni.</p>
+
+        <p><b>Publikowanie porażek działało lepiej niż publikowanie sukcesów, za każdym razem.</b> Posty o katastrofach, recenzja na jedną gwiazdkę, funkcje, które nic nie robiły. Nie robiłem tego jako strategii. Robiłem to, bo alternatywa wydawała się kłamstwem. Okazało się, że to jedyna rzecz, przez którą ktokolwiek uwierzył w liczby wtedy, gdy były dobre.</p>
+
+        <p><b>Co nie zadziałało:</b> proszenie. Dwie platformy, w które włożyłem realne godziny, oddały prawie nic, a ja ciągnąłem to z uporu, nie z dowodów. I przez długi czas optymalizowałem pod zasięg, bo zasięg jest liczbą, którą łatwo zobaczyć, i dokładnie dlatego jest tą niewłaściwą.</p>
+
+        <h2 id="teraz">Gdzie to jest teraz i czego chcę</h2>
+
+        <p>PC Workman jest w Microsoft Store, na licencji MIT, podpisany przez Sigstore, z CodeQL działającym przy każdym commicie. Ma 331 testów automatycznych, w pełni lokalnego asystenta ze 110 rozpoznawanymi intencjami po polsku i angielsku, bibliotekę 521 definicji procesów, offline'ową bazę zgodności sprzętu z 340 wpisami i 25 poradników diagnostycznych w dwóch językach, darmowych i bez żadnej ściany mailowej.</p>
+
+        <p>Obok istnieje teraz drugi projekt, gra strategiczna o prowadzeniu laboratorium AI, trzy tygodnie stara, z 718 testami automatycznymi i formatem zapisu, który przemigrował 36 razy bez zepsucia żadnej kampanii.</p>
+
+        <p>I nadal nie mam doświadczenia komercyjnego. Aplikacje wychodzą. Większość milczy. Taki jest prawdziwy stan na sierpień 2026 i nie zamierzam tego ubierać, bo cała wartość tej strony polega na tym, że nie jest ubrana.</p>
+
+        <div class="callout warn">
+            <b>Czego nie straciłem.</b> Na początku 2026 powiedziałem, że w tym roku zdobędę pierwszą pracę w IT, i nadal w to wierzę. Nie jako w hasło. Jako w arytmetykę: czternaście miesięcy temu nie umiałem przekonać obcego człowieka, żeby uruchomił mój plik wykonywalny, a teraz obcy ludzie instalują go z Microsoft Store, o nic mnie nie pytając. Ta linia idzie w jedną stronę przez cały czas, a do końca roku zostały cztery miesiące.
+        </div>
+
+        <p>To, co wniósłbym do zespołu, jest na tej stronie, a nie w akapicie o moich mocnych stronach. Szukam awarii, która się nie zgłasza. Buduję narzędzie, które ją znajduje, zamiast obiecywać, że następnym razem będę uważniejszy. Zapisuję, ile to kosztowało, publicznie, z datą, łącznie z tygodniami, które poszły źle. Robię to w dwóch językach.</p>
+
+        <p>Python i aplikacje desktopowe. Lokalne AI bez zależności od chmury. Wnętrze Windowsa. Wydawanie przez Microsoft Store. Dyscyplina testowa nauczona drogą kosztowną. Otwarty na role developerskie, pythonowe, IT support i ścieżki pokrewne, zdalnie, hybrydowo albo na miejscu w Krakowie, Warszawie lub Wrocławiu.</p>
+
+        <p>Jeśli zatrudniasz za to, co ktoś potrafi zbudować, a nie za to, co już stoi w CV, wszystko tutaj da się sprawdzić, a moja skrzynka jest otwarta.</p>
+
+        <div class="guide-cta">
+            <p><b>Reszta zapisu.</b> Pełny katalog cichych awarii razem ze skryptami wykrywającymi jest <a href="../../guides/silent-failure-catalogue/">tutaj</a>. Cotygodniowe posty żyją w <a href="../monday-grind-blueprint/">poniedziałkach</a>, <a href="../wednesday-code-autopsy/">środach</a> i <a href="../friday-shipped-scarred/">piątkach</a>. Sama aplikacja jest <a href="../../download/index_pl.html">darmowa i otwartoźródłowa</a>.</p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">22 lata &middot; Radom &middot; taksówka w dzień, oprogramowanie w nocy</div>
+                <p>Piszę o tym, co naprawdę wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tymi częściami, które nie robiły nic. Czternaście miesięcy publicznie i dalej.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://hackernoon.com/u/huckler" target="_blank" rel="me noopener">HackerNoon</a>
+                    <a href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Wszędzie indziej</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Blog</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../feed_pl.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
