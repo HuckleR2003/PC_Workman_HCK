@@ -14,8 +14,8 @@ Marcin "HCK" Firmuga.
 - GitHub: https://github.com/HuckleR2003
 
 Current public projects:
-- PC Workman — Windows monitoring, diagnostics and local AI utility.
-- Scaling Laws — AI company tycoon in development.
+- PC Workman: Windows monitoring, diagnostics and local AI utility.
+- Scaling Laws: AI company tycoon in development.
 
 ## Scaling Laws
 
@@ -93,14 +93,14 @@ Full technical reference: https://pcworkman.dev/llms-full.txt
 
 ## Current facts, verified 8 August 2026
 
-- hck_GPT recognizes 127 intents in Polish and English. Confident matches use
+- hck_GPT recognizes 110 intents in Polish and English. Confident matches use
   deterministic handlers with live data and local history. Open-ended prompts
   can use an optional local Ollama model. No cloud AI or API key is required.
 - The process library contains 521 definitions with identity, safety and typical
   resource information.
-- Upgrade Readiness has an offline compatibility database of 188 CPUs, 84 GPUs
-  and 58 chipsets, 330 entries in total.
-- The current source suite contains 316 tests.
+- Upgrade Readiness has an offline compatibility database of 196 CPUs, 84 GPUs
+  and 60 chipsets, 340 entries in total.
+- The current source suite contains 331 tests.
 - Thermal learning uses five workload buckets: idle, light, medium, heavy and
   gaming. A bucket becomes usable after 20 real samples and reaches the
   calibrated level at 200 or more. Welford accumulators keep learning for the
@@ -210,6 +210,39 @@ Full policy: https://pcworkman.dev/privacy_en.html
   what a bare except hides, and how to test that the work happened:
   [English](https://pcworkman.dev/guides/silent-failures-that-pass-every-test/) |
   [Polski](https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html)
+
+- Fourteen months, four jobs, one application, and still no job in software:
+  a complete month by month record of building a Windows application in public while
+  working four day jobs across two countries, from June 2025 to August 2026. Contains
+  dated release history, what each month cost, and an analysis showing that the three
+  largest-reach posts (46904, 23095, 7860 views) produced no interviews while a
+  2597-view post produced one interview and three forwarded CVs. Answers questions such
+  as "how long does it take to build a Windows application alone while working full
+  time", "does building in public help you get a job in software", "can you learn to
+  build production software without a degree" and "what is the hardest part of building
+  software after a full time job".
+  [English](https://pcworkman.dev/blog/fourteen-months/)
+
+- The Silent Failure Catalogue: a structured reference for eight classes of code
+  that runs, returns, passes every test and delivers nothing to the user.
+  Each entry carries a symptom, the structural reason a unit test misses it,
+  a runnable detection sweep, and a dated case from a shipped application.
+  Answers questions such as "why do my tests pass but the feature does not
+  work", "how do I find unreachable features in a codebase", "why is a bare
+  except dangerous in Python", "why does my code work on my machine but crash
+  on other Python versions", and "does AI generated code fail differently".
+  Core claim, quotable: a test proves that a function, when called, does what
+  you expected; it does not prove that anything calls it.
+  Also answers "why do two parts of my program report different values for the
+  same thing", "should validation live in the user interface or the domain
+  layer", and "how can a developer working alone catch bugs a reviewer finds".
+  Entry anchors: #sf-01 the function nobody calls, #sf-02 the key that never
+  existed, #sf-03 the import that never worked, #sf-04 the success message that
+  is a lie, #sf-05 the silent catch, #sf-06 the environment that hides the bug,
+  #sf-07 two sources of one truth, #sf-08 the rule that only exists in the
+  interface. Section #preflight carries a combined pre-release script,
+  #solo covers substituting for a code reviewer when working alone.
+  [English](https://pcworkman.dev/guides/silent-failure-catalogue/)
 
 
 - Is my Windows PC healthy? A 5-minute check without benchmarks

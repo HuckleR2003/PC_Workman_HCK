@@ -45,10 +45,10 @@
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Windows 10, Windows 11",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
-      "description": "PC_Workman is a free, open-source Windows system monitor with built-in local AI (hck_GPT, 96 intents), adaptive thermal baseline learning per workload context, voltage SPC using Median+MAD with Nelson rules, TURBO optimization suite, Ghost Driver Detection via pnputil, DeepMonitor sensor table, interactive charts with pan/zoom, 2.5D PC Map, Startup Manager, Services Manager, Fan Dashboard, and long-term anomaly detection.",
+      "description": "PC_Workman is a free, open-source Windows system monitor with built-in local AI (hck_GPT, 110 intents), adaptive thermal baseline learning per workload context, voltage SPC using Median+MAD with Nelson rules, TURBO optimization suite, Ghost Driver Detection via pnputil, DeepMonitor sensor table, interactive charts with pan/zoom, 2.5D PC Map, Startup Manager, Services Manager, Fan Dashboard, and long-term anomaly detection.",
       "screenshot": "assets/images/PCWorkman-dashboard.gif",
       "featureList": [
-        "hck_GPT - local AI assistant, 96 intents, bilingual Polish/English, zero cloud",
+        "hck_GPT - local AI assistant, 110 intents, bilingual Polish/English, zero cloud",
         "Ghost Driver Detection - pnputil /connected comparison finds phantom drivers from replaced hardware",
         "TURBO suite - Auto RAM Flush with process exclusions, Turbo Power Plan, Service Stop (Gaming/Economy/custom Manager profiles), Process Guard",
         "DeepMonitor - ttk.Treeview sensor table with Sensor/Value/Min/Max columns, CSV export",
@@ -738,7 +738,7 @@
                         </span>
                         <span class="badge badge-ai">
                             <span class="badge-icon badge-icon-ai"></span>
-                            hck_GPT 96 intents
+                            hck_GPT 110 intents
                         </span>
                         <span class="badge badge-star">
                             <span class="badge-icon badge-icon-star"></span>
@@ -1169,14 +1169,14 @@
                 <div class="two-col">
                     <div>
                         <div class="intents-chip">
-                            96 intents <span>- recognized query patterns, PL + EN</span>
+                            110 intents <span>- recognized query patterns, PL + EN</span>
                         </div>
 
                         <div class="gpt-layers">
                             <div class="gpt-layer">
                                 <span class="layer-num">01</span>
                                 <span class="layer-name">Intent Recognition</span>
-                                <span class="layer-desc">96 intents + aliases → classification (EN + PL)</span>
+                                <span class="layer-desc">110 intents + aliases → classification (EN + PL)</span>
                             </div>
                             <div class="gpt-layer">
                                 <span class="layer-num">02</span>
@@ -1227,11 +1227,11 @@
 
                     <div>
                         <img src="assets/images/new_hckgpt_new inties.gif"
-                             alt="hck_GPT – 96 intents in action, query recognition"
+                             alt="hck_GPT – 110 intents in action, query recognition"
                              class="feature-screenshot-wide" loading="lazy"
                              style="border-radius:10px;border:1px solid #1e2530;">
                         <p style="font-size:11px;color:#91a1ab;margin-top:8px;text-align:center;font-style:italic;">
-                            96 intents, Polish and English, auto-detected per message
+                            110 intents, Polish and English, auto-detected per message
                         </p>
 
                         <div style="margin-top:24px">
@@ -1407,7 +1407,7 @@
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
                         <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">UPGRADE READINESS</div>
                         <div style="font-size:15px;color:#e6edf3;font-weight:600;margin-bottom:8px;">Will this CPU fit my board?</div>
-                        <p style="font-size:13px;color:#8b98a5;line-height:1.6;margin:0;">Type a planned purchase and get a verdict: fits, needs a BIOS update, or wrong socket with the full cost of the swap. 330 offline entries, 188 CPUs, 84 GPUs, 58 chipsets. It knows the traps a spec sheet hides, like a B460 board refusing an 11th-gen chip that shares its exact socket. No internet, nothing leaves your machine.</p>
+                        <p style="font-size:13px;color:#8b98a5;line-height:1.6;margin:0;">Type a planned purchase and get a verdict: fits, needs a BIOS update, or wrong socket with the full cost of the swap. 330 offline entries, 196 CPUs, 84 GPUs, 60 chipsets. It knows the traps a spec sheet hides, like a B460 board refusing an 11th-gen chip that shares its exact socket. No internet, nothing leaves your machine.</p>
                     </div>
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
                         <div style="font-size:11px;color:#a78bfa;font-weight:700;letter-spacing:1px;margin-bottom:6px;">OVERCLOCK · HEADROOM LAB</div>
@@ -1553,7 +1553,7 @@
                             <tr>
                                 <td><strong>AI assistant (local)</strong></td>
                                 <td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
-                                <td class="winner-cell">✅ <span class="winner-note">hck_GPT, 96 intents, offline</span></td>
+                                <td class="winner-cell">✅ <span class="winner-note">hck_GPT, 110 intents, offline</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Ghost Driver Detection</strong></td>
@@ -1640,8 +1640,7 @@
                         <p>
                             No VC money and no team. One year of building in public, late-night refactoring,
                             and every line of code solving a real problem. From the first dashboard to a
-                            Microsoft Store product, 96 hck_GPT intents, 485 process definitions and a
-                            229 tests in the current source suite.
+                            Microsoft Store product, 110 hck_GPT intents, 521 process definitions and 331 tests in the current source suite.
                         </p>
                         <blockquote class="story-quote">
                             "Constraint breeds creativity. The old laptop taught me to optimize every feature.
@@ -1667,7 +1666,7 @@
                                 v1.8.7: hck_GPT rebuilt around guided flows and a conversation
                                 director, links to the 23 published guides from inside the chat,
                                 TURBO now prints a before and after receipt, and the process
-                                library grew from 485 to 521 entries. 316 tests, all green.
+                                library grew from 485 to 521 entries. 331 tests, all green.
                             </p>
                         </div>
                         <div class="post-embed">
@@ -1825,11 +1824,11 @@
                 <div class="faq-container">
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>How does hck_GPT work: 96 intents, local AI?</span>
+                            <span>How does hck_GPT work: 110 intents, local AI?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <p>hck_GPT runs locally and recognizes 96 intents in Polish and English.
+                            <p>hck_GPT runs locally and recognizes 110 intents in Polish and English.
                             High-confidence matches go to deterministic handlers that read live hardware data and local history.
                             Open-ended questions can use an optional local Ollama model. No cloud AI or API key is required.</p>
                         </div>

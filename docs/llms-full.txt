@@ -26,11 +26,10 @@ hardware sensor source.
 
 ## Current measured scope
 
-- 127 hck_GPT intents in Polish and English.
+- 110 hck_GPT intents in Polish and English.
 - 521 process definitions.
-- 330 offline hardware-compatibility entries: 188 CPUs, 84 GPUs and 58
-  chipsets.
-- 316 tests in the current source suite.
+- 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
+- 331 tests in the current source suite.
 - Five workload-learning buckets: idle, light, medium, heavy and gaming.
 - Microsoft Store product ID: `9PGW6WS2N50V`.
 
@@ -77,7 +76,7 @@ read-only WindowsApps directory to the user's local app-data directory.
 
 ## hck_GPT v2.1.0
 
-hck_GPT recognizes 96 intent patterns with per-message Polish/English language
+hck_GPT recognizes 110 intent patterns with per-message Polish/English language
 detection.
 
 `hck_gpt/engine/hybrid_engine.py` routes messages:
