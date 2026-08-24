@@ -1,0 +1,662 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technology reference (EN) · silent failure catalogue -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A reference catalogue of eight classes of silent software failure: code that runs, passes every test, and delivers nothing. Each entry has the symptom, why tests pass, a runnable detection sweep, and a dated real case.">
+    <meta name="keywords" content="silent failure, unreachable code, tests pass but feature does not work, dead code detection, except pass, false success, AI generated code review, static analysis sweep, ratchet test">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <meta property="og:title" content="The Silent Failure Catalogue">
+    <meta property="og:description" content="Eight classes of code that runs, passes every test, and does nothing. Symptom, why tests pass, the sweep that finds it, and a dated case for each.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-21">
+    <meta property="article:modified_time" content="2026-08-21">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>The Silent Failure Catalogue: Code That Passes Every Test and Does Nothing | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed.xml">
+
+    <style>
+        .sf { border:1px solid #23262e; border-radius:10px; background:#0d0f14; margin:34px 0; overflow:hidden; }
+        .sf-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+                   padding:14px 18px; background:#12151c; border-bottom:1px solid #23262e; }
+        .sf-id { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+                 letter-spacing:.06em; color:#c0182a; }
+        .sf-name { font-weight:700; font-size:16px; color:#e8eaee; }
+        .sf-body { padding:6px 18px 16px; }
+        .sf-row { display:grid; grid-template-columns:130px 1fr; gap:14px; padding:11px 0;
+                  border-bottom:1px solid #191c23; }
+        .sf-row:last-child { border-bottom:0; }
+        .sf-key { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+                  text-transform:uppercase; color:#7b828f; padding-top:2px; }
+        .sf-val { color:#c9ced8; font-size:15px; line-height:1.62; }
+        .sf-val code { font-family:'JetBrains Mono',monospace; font-size:13px;
+                       background:#181b22; padding:1px 5px; border-radius:3px; color:#a3e635; }
+        .sf-sweep { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7;
+                    background:#08090c; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                    border-radius:5px; padding:12px 14px; margin:4px 0 0; overflow-x:auto;
+                    white-space:pre; color:#b9c0cc; }
+        .sf-case { border-left:3px solid #f59e0b; background:#14110a; border-radius:5px;
+                   padding:11px 14px; }
+        .sf-date { font-family:'JetBrains Mono',monospace; font-size:11px; color:#f59e0b;
+                   letter-spacing:.05em; display:block; margin-bottom:5px; }
+        .sf-fix { border-left:3px solid #a3e635; background:#0c1208; border-radius:5px;
+                  padding:11px 14px; }
+        @media (max-width:620px){ .sf-row{ grid-template-columns:1fr; gap:5px; } }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "The Silent Failure Catalogue: Code That Passes Every Test and Does Nothing",
+      "description": "A reference catalogue of eight classes of silent software failure. Each entry gives the symptom, the structural reason a test suite misses it, a runnable detection sweep, and a dated case from two shipped projects.",
+      "url": "https://pcworkman.dev/guides/silent-failure-catalogue/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/silent-failure-catalogue/" },
+      "datePublished": "2026-08-21",
+      "dateModified": "2026-08-21",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "about": [
+        { "@type": "Thing", "name": "Silent failure" },
+        { "@type": "Thing", "name": "Unreachable code" },
+        { "@type": "Thing", "name": "Software testing" },
+        { "@type": "Thing", "name": "Static analysis" },
+        { "@type": "Thing", "name": "AI assisted programming" },
+        { "@type": "SoftwareApplication", "name": "PC Workman", "operatingSystem": "Windows", "applicationCategory": "UtilitiesApplication" }
+      ],
+      "keywords": "silent failure, unreachable code, tests pass but feature broken, dead code detection, except pass, false success message, AI generated code, ratchet test, detection sweep",
+      "citation": [
+        "https://peps.python.org/pep-0649/",
+        "https://peps.python.org/pep-0008/",
+        "https://psutil.io/api/",
+        "https://docs.unity3d.com/ScriptReference/Object.Destroy.html",
+        "https://learn.microsoft.com/en-us/windows/win32/shell/appids"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "url": "https://github.com/HuckleR2003",
+        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://hackernoon.com/u/huckler"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "The Silent Failure Catalogue", "item": "https://pcworkman.dev/guides/silent-failure-catalogue/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Silent failure classes",
+      "description": "Eight classes of software failure in which code runs, returns, passes its tests, and delivers nothing to the user.",
+      "numberOfItems": 8,
+      "itemListOrder": "https://schema.org/ItemListOrderAscending",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SF-01 The function nobody calls", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-01" },
+        { "@type": "ListItem", "position": 2, "name": "SF-02 The key that never existed", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-02" },
+        { "@type": "ListItem", "position": 3, "name": "SF-03 The import that never worked", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-03" },
+        { "@type": "ListItem", "position": 4, "name": "SF-04 The success message that is a lie", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-04" },
+        { "@type": "ListItem", "position": 5, "name": "SF-05 The silent catch", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-05" },
+        { "@type": "ListItem", "position": 6, "name": "SF-06 The environment that hides the bug", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-06" },
+        { "@type": "ListItem", "position": 7, "name": "SF-07 Two sources of one truth", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-07" },
+        { "@type": "ListItem", "position": 8, "name": "SF-08 The rule that only exists in the interface", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/#sf-08" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do my tests pass but the feature does not work?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A unit test proves that a function, when called, does what you expected. It does not prove that anything calls it. If your test imports the domain layer and calls the function directly, it will stay green even when no path exists from the user interface to that function. Detect it by listing every public method in the domain layer and searching the interface layer for each name. Any method with zero callers is either dead or unreachable." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I find unreachable features in a codebase?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Run a caller sweep. Extract every public mutating method name from your domain or simulation layer, then grep the user interface layer for each name. Methods with no match are candidates. On a real project this returned 46 public mutators, 21 with no caller anywhere, and 5 that were meant to be user actions. This finds a class of bug that no assertion was looking for." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does AI generated code fail differently from human code?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In the author's experience across two shipped projects, the difference is not quality but reachability. An assistant is effective at producing a function that satisfies a description, and has no view of whether a path exists from a user action to that function, because that path lives in a different file and often a different conversation. The result is code that runs, returns, and satisfies every assertion, while the user gets nothing." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is a bare except dangerous in Python?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A bare except catches every exception, including NameError and AttributeError from code that never worked, plus SystemExit and KeyboardInterrupt, which makes clean shutdown unreliable. In one documented case a bare except swallowed a NameError on every call for four months with no crash, no log and no warning. The rule of thumb that fixed it: swallow reads, never writes. A failed read can fall back to a default. A failed write must be loud, because the user believes it happened." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my code work on my machine but crash on other Python versions?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Annotation evaluation changed. PEP 649, final in Python 3.14, defers evaluation of annotations. A module that uses a name in an annotation without importing it will run without error on 3.14 and raise on import on earlier versions. If you develop on a newer runtime than you support, your own environment hides the bug from you. Run the test suite on the oldest version you claim to support." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do two parts of my program report different values for the same thing?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because the quantity is computed in two places and nothing compares the results. Each calculation is internally correct and each has a passing test, so the disagreement has no owner. In one documented case a projection screen quoted eleven days for an operation that finished in one, and both numbers came from the same codebase. If the same quantity is computed in two places, that is not duplication, it is a future disagreement with a date on it. The fix is one function that both callers use, plus a test that fails the build when a second copy appears." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should validation live in the user interface or in the domain layer?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In the domain layer. A limit enforced only in the interface stops existing the moment a second entry point to that action appears: another screen, a loaded save file, an edited config file, or an API call. The interface should display the rule, not be the rule. Verify it with a test that bypasses the interface entirely, constructing the illegal state directly against the domain layer and asserting that it refuses. Related trap: validation that runs after the value has already been read is not validation." }
+        },
+        {
+          "@type": "Question",
+          "name": "How can a developer working alone catch bugs that a code reviewer would find?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Replace the reviewer with something mechanical, because these failures are invisible from the inside and a solo developer only asks the questions they already know to ask. Automated sweeps do not get tired, do not share your assumptions and do not skip the file they read last week. Run them as one pre-release script that prints a report rather than blocking the build, and reserve hard build failures for a narrow set of ratchets such as bare excepts, dead imports and duplicated single-source helpers. Real testers remain the strongest complement: three of them found six stability issues and seventeen non-responding features in one evening on a release that was considered finished." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Reference</span>
+        <h1>The Silent Failure Catalogue</h1>
+        <p class="tagline">Eight classes of code that runs, returns, passes every test, and delivers nothing. Each entry has the symptom, the structural reason your suite misses it, a sweep you can run today, and a dated case from a shipped application.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-21</span><span>&middot;</span><span>Living document</span>
+        </div>
+
+        <p class="lead">A crash is honest. It interrupts you, it prints a stack trace, it tells you where to look. You fix it because it insists.</p>
+
+        <p>This catalogue is about the other kind. Code that runs. Code that returns. Code that satisfies every assertion you thought to write, and hands the person using your software absolutely nothing.</p>
+
+        <p>I have shipped this class of bug at least twenty-four times across two projects: a Windows system monitor that is on the Microsoft Store, and a strategy game in development. Both are built solo and in public, so the record of these mistakes is not a memory. It is a commit history I cannot edit.</p>
+
+        <p>What follows is the taxonomy I wish someone had handed me fourteen months ago. Eight classes. Every case is real and dated. Every sweep is one I actually run.</p>
+
+        <div class="callout">
+            <b>The one sentence this whole page is built on.</b> A test proves that a function, when called, does what you expected. It does not prove that anything calls it. Almost every entry below is a variation on that gap.
+        </div>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#glance">The eight classes at a glance</a></li>
+                <li><a href="#sf-01">SF-01 &middot; The function nobody calls</a></li>
+                <li><a href="#sf-02">SF-02 &middot; The key that never existed</a></li>
+                <li><a href="#sf-03">SF-03 &middot; The import that never worked</a></li>
+                <li><a href="#sf-04">SF-04 &middot; The success message that is a lie</a></li>
+                <li><a href="#sf-05">SF-05 &middot; The silent catch</a></li>
+                <li><a href="#sf-06">SF-06 &middot; The environment that hides the bug</a></li>
+                <li><a href="#sf-07">SF-07 &middot; Two sources of one truth</a></li>
+                <li><a href="#sf-08">SF-08 &middot; The rule that only exists in the interface</a></li>
+                <li><a href="#preflight">Running all of this as one pre-release check</a></li>
+                <li><a href="#solo">Why one person misses every one of these</a></li>
+                <li><a href="#ai">Where AI assistance actually changes this</a></li>
+                <li><a href="#receipt">What the app does about it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="glance">The eight classes at a glance</h2>
+
+        <p>If you only read one thing on this page, read the middle column. Every entry below is a different answer to the same question: what does your test suite think it is proving, and what is it actually proving?</p>
+
+        <div class="sf">
+            <div class="sf-head"><span class="sf-id">INDEX</span><span class="sf-name">Symptom to class, in one step</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">SF-01</div><div class="sf-val"><b>Feature finished, user never gets it.</b> Your test calls the function. Nothing else does. <a href="#sf-01">Caller sweep</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-02</div><div class="sf-val"><b>Permanent placeholder or empty state.</b> Your fixture has the key you believe in. Production does not. <a href="#sf-02">Key diff</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-03</div><div class="sf-val"><b>Subsystem that has never run once.</b> The import fails and something eats the failure. <a href="#sf-03">Undeclared import scan</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-04</div><div class="sf-val"><b>Confirmation of work that did not happen.</b> You asserted on a return; the product is a side effect. <a href="#sf-04">Success-without-write grep</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-05</div><div class="sf-val"><b>A path raising on every call, for months.</b> The catch turned a failure into a plausible fallback. <a href="#sf-05">Bare except census</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-06</div><div class="sf-val"><b>Correct on your machine, broken on theirs.</b> Your runner is your dev box. <a href="#sf-06">Version matrix and write probe</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-07</div><div class="sf-val"><b>Two numbers that should be one number.</b> Both are computed, neither is compared. <a href="#sf-07">Duplicate computation sweep</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-08</div><div class="sf-val"><b>A limit that stops holding the moment a second entry point exists.</b> <a href="#sf-08">Domain-level enforcement test</a></div></div>
+            </div>
+        </div>
+
+        <h2 id="entries">The catalogue</h2>
+
+        <!-- SF-01 -->
+        <div class="sf" id="sf-01">
+            <div class="sf-head"><span class="sf-id">SF-01</span><span class="sf-name">The function nobody calls</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    A feature is finished, tested and documented. The user never receives it. There is no error anywhere, because the code that would produce the result is never invoked.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    The test imports the domain layer and calls the function directly. The function works. It has always worked. The missing piece is the path from a user action to that call, and no assertion in a unit test can see a path.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    List every public mutating method in the domain layer, then search the interface layer for each name. Zero callers means dead or unreachable, and you need to know which.
+                    <div class="sf-sweep">grep -rhoE "public [A-Za-z&lt;&gt;]+ (Try[A-Z]\w+|Set[A-Z]\w+|Add[A-Z]\w+)" Simulation/ \
+  | awk '{print $NF}' | sort -u \
+  | while read m; do
+      n=$(grep -rl "\b$m\b" UI/ | wc -l)
+      [ "$n" -eq 0 ] &amp;&amp; echo "UNREACHABLE  $m"
+    done</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-08-15 &middot; Scaling Laws &middot; commit 16a8774</span>
+                    A research node printed exactly what it granted: a curated corpus, a mixture-of-experts architecture. The player paid research points, cash and four months of in-game calendar. They received neither, in any campaign, ever. <span class="hl-red">526 tests passed on it</span>, because every test called <code>TryAcquireDataSource</code> and <code>TryAdoptArchitecture</code> directly and nothing in the interface layer ever did. The sweep above returned 46 public mutators, 21 with no caller anywhere, and 5 that were meant to be player actions.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">More cases</div><div class="sf-val">
+                    <b>2026-06-19.</b> Thermal baselines using Welford's algorithm and voltage anomaly detection ran for months and were fully tested. The chat assistant never imported either engine. It was answering questions while sitting on a brain it could not reach.<br>
+                    <b>2026-07-10.</b> A method called <code>set_turbo()</code> existed on the always-on optimizer daemon and had no caller in the codebase. The entire coupling it was written for was dead from the day it was written.<br>
+                    <b>2026-07-03.</b> Sixteen assistant intents matched user phrasings at full confidence and had no handler behind them. Confidence 1.00, then silence.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    Write one test per mechanism that walks the <b>whole path</b>: the action is triggered the way the product triggers it, then you read the state the product reads. The five replacement tests here are explicitly forbidden from calling the granting function. They finish the research node the way the day loop does, then assert on what the company owns afterwards.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-02 -->
+        <div class="sf" id="sf-02">
+            <div class="sf-head"><span class="sf-id">SF-02</span><span class="sf-name">The key that never existed</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    A screen renders a placeholder, a default, or an empty state, permanently. The real data is present in storage the whole time.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    The test builds its input by hand. A hand-written fixture contains the keys you believe exist, which is the exact belief under test. Meanwhile the lookup falls through to a default instead of raising, so nothing anywhere reports a problem.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Compare the keys your code reads against the columns your storage actually produces. Do it mechanically, not by reading.
+                    <div class="sf-sweep">python - &lt;&lt;'PY'
+import re, sqlite3, pathlib
+db = sqlite3.connect("data/logs/app.db")
+cols = {r[1] for r in db.execute("PRAGMA table_info(events)")}
+used = set()
+for f in pathlib.Path("ui").rglob("*.py"):
+    used |= set(re.findall(r'evt\[[\'"](\w+)[\'"]\]', f.read_text(encoding="utf-8")))
+print("read but never stored:", sorted(used - cols))
+PY</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-09 &middot; PC Workman</span>
+                    Every row in the events log rendered as <span class="hl-red">"Unknown event"</span>, for months. The database held the type, the metric, the value, the baseline and a written human-readable description. The interface read <code>evt["message"]</code>. That key did not exist in any layer of the codebase, ever. The real answer was one dictionary key away and the most informative label the product ever showed a user was the word "Unknown".
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Variant</div><div class="sf-val">
+                    <b>2026-07-05.</b> A learning engine reported that it was working and taught nothing. It learned exactly one metric, <code>cpu_temp</code>, and the query feeding it filtered <code>WHERE cpu_temp &gt; 0</code>. Reading CPU temperature on Windows needs a sensor service most people do not run, so on those machines the column was always zero and the filter excluded every row. Worth noting honestly: a correctness rule I had added the week before, never learn from an estimated temperature, is what zeroed the column. A good decision created a silent outage.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    Test against row shapes pulled from the real store, never against fixtures you typed. Where a missing key means the feature is broken, make the lookup raise instead of defaulting.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-03 -->
+        <div class="sf" id="sf-03">
+            <div class="sf-head"><span class="sf-id">SF-03</span><span class="sf-name">The import that never worked</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    An entire subsystem has never run once, on any machine, since the day it was written. Everything downstream degrades to a default that looks plausible.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    Either the subsystem is mocked in tests, or the import failure is caught and swallowed. Both leave you with a green suite and a feature that has never executed in production.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Diff every module you import against the dependencies you actually declare and bundle.
+                    <div class="sf-sweep">python - &lt;&lt;'PY'
+import ast, pathlib, sys
+declared = set(open("requirements.txt").read().split())
+std = set(sys.stdlib_module_names)
+for f in pathlib.Path(".").rglob("*.py"):
+    for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+        if isinstance(n, ast.Import):
+            for a in n.names:
+                root = a.name.split(".")[0]
+                if root not in std and root not in declared:
+                    print(f"{f}:{n.lineno}  undeclared import: {root}")
+PY</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-16 &middot; PC Workman</span>
+                    The assistant's hardware scanner had never worked, on any machine, since it was written. It ran <code>import wmi</code>, a package that was never installed and never bundled. The scan failed on every machine and the failure was caught by a bare <code>except: pass</code>. The first successful hardware identity write in the project's history happened the day I rewired it to the scanner that already worked.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Variant</div><div class="sf-val">
+                    <b>2026-08-10.</b> I published three times, in a changelog and in two articles, that <code>psutil.sensors_temperatures()</code> returns an empty dict on Windows. It does not. On Windows the attribute does not exist at all, so every call raised <code>AttributeError</code> into a try block. I only checked because I was writing an article about repeating claims from memory. The correction is on that page and this line exists so the wrong version does not outlive it.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    A test that asserts the dead import is absent from the source. Three lines, and it makes the class unshippable. For optional platform APIs, check <code>hasattr</code> explicitly and record which branch you took, so an absent sensor is visibly different from a normal reading.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-04 -->
+        <div class="sf" id="sf-04">
+            <div class="sf-head"><span class="sf-id">SF-04</span><span class="sf-name">The success message that is a lie</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    The product confirms an action it did not perform. Users do not report this, because they cannot tell the difference between "it saved" and "it said it saved". They assume they did something wrong and stop using the feature.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    The test asserts on the return value or on the message, and the message is a string sitting next to the call rather than a consequence of it. Where the real product is a side effect, a return value is decoration.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Find every success string in the interface and check that a write actually happens in the same function.
+                    <div class="sf-sweep">grep -rniE "(applied|saved|success|complete)" ui/ --include=*.py -l \
+  | xargs grep -LiE "(open\(|json\.dump|\.write\(|commit\(|save\()" \
+  | sed 's/^/CLAIMS SUCCESS, NEVER WRITES:  /'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-18 &middot; PC Workman</span>
+                    The fan curve editor had an Apply button. It flashed <span class="hl-red">"applied successfully"</span> and persisted nothing. Every restart discarded the user's curve in silence, and it had been doing that for two releases. Nobody reported it. The fix took ten minutes. Finding it took months.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">More cases</div><div class="sf-val">
+                    <b>2026-08-08.</b> The diagnostic console was meant to hide after launch. Under Windows Terminal, <code>GetConsoleWindow()</code> returns a hidden proxy window, so <code>ShowWindow(SW_HIDE)</code> succeeds, returns success, and changes nothing on screen. A tester reported it and I could not reproduce it, because my machine used a different terminal host.<br>
+                    <b>2026-08-08.</b> The Store build's "create desktop shortcut" feature wrote a shortcut pointing at an Application Id absent from the published manifest. Clicking it opened nothing. Nobody reports a shortcut like that. They stop using it.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    Never assert on a return where a side effect is the product. Read the file back. Read the window class back. If your assertion and your user are looking at two different things, only one of them is testing your software.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-05 -->
+        <div class="sf" id="sf-05">
+            <div class="sf-head"><span class="sf-id">SF-05</span><span class="sf-name">The silent catch</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    A code path has been raising on every single call for months. No crash, no log, no warning, no degraded behaviour that anyone can point at. The product simply does slightly less than it claims.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    The catch converts a hard failure into a fallback, and the fallback is often reasonable. Tests assert the reasonable outcome. A bare <code>except</code> also swallows <code>NameError</code> and <code>AttributeError</code> from code that never worked, plus <code>SystemExit</code> and <code>KeyboardInterrupt</code>, which makes clean shutdown unreliable on top of everything else.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    <div class="sf-sweep">grep -rn "except:" --include=*.py . | sed 's/^/BARE EXCEPT  /'
+grep -rn -A2 "except Exception" --include=*.py . \
+  | grep -B1 -E "^\s*(pass|continue)\s*$" \
+  | sed 's/^/SWALLOWED    /'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-06-24 &middot; PC Workman</span>
+                    A routing engine contained <code>except:</code> followed by <code>pass</code>. Two lines above it, the code read a variable belonging to a different function. <span class="hl-red">NameError, on every call, for four months.</span> The entire fallback path was dead from day one. I found it because some answers felt slightly worse than they should, which is not a debugging method.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">More cases</div><div class="sf-val">
+                    <b>2026-07-16.</b> A refactor split a 6,533 line module into seven and dropped a module-level singleton. The caller wrapped its import in a broad except, so a feature flag quietly became <code>False</code> and the product's main AI layer switched itself off. Everything ran. Tests were green. A guard test written the same day, for a blind spot I had not predicted, is the only reason I know.<br>
+                    <b>2026-07-15.</b> A repository-wide count found 53 bare <code>except:</code> clauses.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    Ban bare except in CI, then adopt one rule of thumb: <b>swallow reads, never writes.</b> A failed read can fall back to a default, because a default is a reasonable answer to "I do not know". A failed write must be loud, because the user believes it happened.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-06 -->
+        <div class="sf" id="sf-06">
+            <div class="sf-head"><span class="sf-id">SF-06</span><span class="sf-name">The environment that hides the bug</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    The code is correct on your machine and broken on the machines you ship to. This is the class that turns "works on my machine" from a joke into a warning.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    Your test runner is your development environment. If the runtime, the filesystem permissions or the host application differ in production, the suite is measuring a machine no user has.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Run the suite on the oldest runtime you claim to support, and probe the environment instead of naming it.
+                    <div class="sf-sweep">for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+  echo "=== python $v ==="
+  py -$v -m unittest discover tests -q 2&gt;&amp;1 | tail -3
+done</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-06-17 &middot; PC Workman</span>
+                    A module used <code>Optional[str]</code> in annotations and never imported <code>Optional</code>. On my machine it worked perfectly, because I develop on Python 3.14, where <a href="https://peps.python.org/pep-0649/" target="_blank" rel="noopener">PEP 649</a> defers annotation evaluation and the missing import never fires. On 3.9 through 3.13, the versions I officially support, it raised on import and the whole module silently turned itself off. <span class="hl-red">My own runtime was hiding the bug from me.</span>
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">More cases</div><div class="sf-val">
+                    <b>2026-07-04.</b> Microsoft approved the app into <code>C:\Program Files\WindowsApps</code>, which is read only. The app wrote its database, preferences and learning baselines next to its own executable, so every write failed silently on every Store install. Certification does not check this, and users do not report it, because nothing appears to go wrong. The app is simply permanently amnesiac. The rule that came out of it: <b>do not detect an environment by name, probe it.</b> A path check is a guess, a real write probe is a fact.<br>
+                    <b>2026-08-08.</b> The package manifest referenced one 32x32 image for every tile slot, including the 150x150 one. Windows stretched it. This is exactly what had been rejected as blurry two months earlier and it survived every release in between, because a manifest references files by name and nothing verifies they exist at the size the name implies.<br>
+                    <b>Scaling Laws.</b> <a href="https://docs.unity3d.com/ScriptReference/Object.Destroy.html" target="_blank" rel="noopener">Object.Destroy</a> is a no-op outside play mode. A texture cache that correctly released memory at runtime released nothing in the editor, and only a soak test building every screen in edit mode ever noticed.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    One test that resolves the writable directory using a real write probe, including the read-only redirect path. A CI matrix across every supported runtime. And for anything visual, render the frame and look at it, because no assertion has ever replaced a screenshot.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-07 -->
+        <div class="sf" id="sf-07">
+            <div class="sf-head"><span class="sf-id">SF-07</span><span class="sf-name">Two sources of one truth</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    The product states two different values for the same quantity, in two different places, and both look authoritative. Users notice before you do, because they see both screens and you wrote both formulas.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    Each calculation has a test. Each test passes, because each calculation is internally correct. Nothing in the codebase compares the two results, so the disagreement has no owner and no assertion.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Look for the same constant, unit or concept appearing in more than one module. Duplicated helper names are the cheapest signal.
+                    <div class="sf-sweep">grep -rhoE "^\s*def (_?[a-z_]+)\(" --include=*.py . \
+  | sed -E 's/.*def (_?[a-z_]+)\(/\1/' | sort | uniq -c \
+  | awk '$1 &gt; 1 {print "DUPLICATE DEF  x"$1"  "$2}'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-08-19 &middot; Scaling Laws</span>
+                    A model creator quoted the player <span class="hl-red">eleven days</span> for a training run. The run finished in <span class="hl-red">one</span>. Both numbers came out of my own code. The projection divided by a precision throughput multiplier. The daily tick never multiplied by it, and applied two bonuses the projection had never heard of. Two formulas producing one quantity, for weeks, with nothing comparing them.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">More cases</div><div class="sf-val">
+                    <b>2026-07-17.</b> The version number lived in eight files and was already wrong in three. The main window titled itself 1.8.1 while the single-instance check searched for a 1.8.2 window title, so launching the application twice stopped focusing the running copy. That shipped for two full releases and no test saw it.<br>
+                    <b>2026-07-04 and 2026-07-15.</b> The same base-directory helper existed in six copies. An administrator check existed in five.<br>
+                    <b>2026-07-18.</b> Per-process CPU load was read on a per-core scale. One busy thread on a twelve-thread machine displayed 100 percent while the machine idled at 8. Top-process lists ranked noise and the proactive alert fired at nothing.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    If the same quantity is computed in two places, that is not duplication. It is a future disagreement with a date on it. The fix is never to keep the copies in sync. It is one function both sides call, so they <b>cannot</b> drift, plus a ratchet test that fails the build when a second copy appears.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-08 -->
+        <div class="sf" id="sf-08">
+            <div class="sf-head"><span class="sf-id">SF-08</span><span class="sf-name">The rule that only exists in the interface</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Symptom</div><div class="sf-val">
+                    A limit holds perfectly until someone reaches the same action a different way: another screen, a loaded save file, an edited config, a keyboard shortcut, an API call. Then it does not exist and never did.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Why tests pass</div><div class="sf-val">
+                    The tests drive the interface, and in the interface the rule is real. The domain layer, which is where the rule has to live for it to mean anything, has never been asked to enforce it.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Detection</div><div class="sf-val">
+                    Write the test that skips your interface entirely. Construct the illegal state directly against the domain layer and assert that it refuses.
+                    <div class="sf-sweep">// deliberately does not touch any screen
+var blueprint = new Blueprint { Parameters = ceiling * 10 };
+var result    = company.TryStartTraining(blueprint);
+
+Assert.IsFalse(result.Accepted,
+  "parameter ceiling is enforced in the UI only");</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Real case</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">Scaling Laws &middot; model creator</span>
+                    A parameter ceiling was enforced inside <code>TryStartTraining</code>. But <code>Project()</code>, the function the creator screen calls on every slider movement, did not check the ceiling or the precision gates at all. The creator happily priced a run that the START button then refused, with no warning attached to anything the player had touched. I wrote a test file that never opens a panel: it builds blueprints above the ceiling directly and asserts the company says no.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Variant</div><div class="sf-val">
+                    Order of operations is the same class wearing different clothes. In one <code>Reprice()</code> the blueprint was built from the raw slider value and the ceiling was applied <em>after</em>. The slider handle snapped back and every number on screen kept the value the player had dragged to. <b>Validation that runs after the read is not validation.</b>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Fix</div><div class="sf-val"><div class="sf-fix">
+                    Every constraint that matters is enforced in the domain layer. The interface <em>displays</em> it. Tests verify it with the interface bypassed. A limit that lives in a screen is a suggestion with a nice font, and it expires the moment a second entry point to that action exists.
+                </div></div></div>
+            </div>
+        </div>
+
+        <h2 id="preflight">Running all of this as one pre-release check</h2>
+
+        <p>None of these sweeps is worth much as a thing you remember to do. Vigilance does not scale past a few thousand lines, and it fails exactly when you are tired, which is exactly when this class of bug ships.</p>
+
+        <p>What works is making them boring. Every sweep on this page runs in a single script that I fire before tagging a release, and the whole thing finishes in under a minute on a repository of about sixty thousand lines.</p>
+
+        <div class="sf-sweep">#!/usr/bin/env bash
+# preflight.sh - run before tagging. Exit code is advisory, not a gate.
+set -u
+fail=0
+
+echo "== SF-01 unreachable domain methods =="
+./tools/caller_audit.sh || fail=1
+
+echo "== SF-03 undeclared imports =="
+python tools/import_audit.py || fail=1
+
+echo "== SF-04 success strings with no write =="
+grep -rniE "(applied|saved|success)" ui/ --include=*.py -l \
+  | xargs -r grep -LiE "(open\(|json\.dump|\.write\(|commit\()" || true
+
+echo "== SF-05 bare excepts =="
+grep -rn "except:" --include=*.py . &amp;&amp; fail=1
+
+echo "== SF-06 supported runtime matrix =="
+for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+  py -$v -m unittest discover tests -q &gt;/dev/null 2&gt;&amp;1 \
+    || { echo "FAILS ON $v"; fail=1; }
+done
+
+echo "== SF-07 duplicate definitions =="
+./tools/duplicate_defs.sh
+
+exit $fail</div>
+
+        <p>The important detail is the last line of the comment. This script does not block a release. It prints a list a human reads, because half of what it finds is legitimate: internal plumbing with no user-facing caller, a helper that genuinely should exist twice, a success message on an operation that really is read-only. A check that cries wolf gets disabled within a week, and then it protects nothing.</p>
+
+        <p>The ones that must actually fail a build are narrower and there are only a handful: no bare excepts, no dead imports, no hardcoded version literals, no second copy of a helper that is supposed to be single-source. Those are ratchets. Everything else on this page is a report.</p>
+
+        <h2 id="solo">Why one person misses every one of these</h2>
+
+        <p>There is a reason this catalogue comes from a solo project rather than a team one, and it is not that I am careless, although in several of these entries I clearly was.</p>
+
+        <p>The failures here share a shape: they are all invisible from the inside. Nothing crashes. Nothing logs. Nothing looks wrong on the screen you happen to be looking at. Every single one of them requires somebody to ask a question nobody thought to ask, and when you build alone, the set of questions that get asked is exactly the set you already know to ask.</p>
+
+        <p>A reviewer supplies that for free. Not because they are smarter, but because they arrive without your assumptions. The reviewer who reads your test file has never been told that the test calls the function directly and that this is fine. They just see a test that does not resemble what a user does, and they say so.</p>
+
+        <p>Without one, you need a substitute, and the substitute has to be mechanical. That is the entire argument for the sweeps above. A grep does not get tired, does not assume, and does not politely skip the file it read last week. It is a worse reviewer than a person in every respect except the one that matters here: it is not you, and it does not share your blind spots.</p>
+
+        <p>The second substitute is a real user, and it is uncomfortable how much better they are at this than any tooling. Three testers spent five hours each on a release I considered finished and found six stability issues, seventeen intents that matched at full confidence and returned nothing, and a function calling the system snapshot nineteen times per message. None of that was in my test suite. All of it was in their first evening.</p>
+
+        <h2 id="ai">Where AI assistance actually changes this</h2>
+
+        <p>I build with an assistant, openly, and have done for over a year. The honest account of what that changed is narrower than either side of the current argument suggests.</p>
+
+        <p>It did not lower the quality of individual functions. Most of the twenty-four cases in my log are ordinary mistakes with ordinary causes, and several predate any assistant.</p>
+
+        <p>What it changed is <span class="hl-cyan">where the standard has to be enforced</span>. An assistant is extremely effective at producing a function that satisfies a description. It has no view of whether a path exists from a human hand to that function, because that path lives in another file, in another layer, usually in another conversation. Writing got faster. Verifying that anything reaches the result did not. Every entry above lives in the gap between those two speeds.</p>
+
+        <div class="callout warn">
+            <b>The incident I think about most.</b> This project keeps a written rule against generated-sounding prose and a test that fires every assistant response and fails the build on any em dash. On 17 July an automated cleanup pass removed 312 em dashes across 42 files. It also rewrote the em dash literal <b>inside the test guarding against them</b>, quietly converting that test into "does this answer contain a hyphen". The guard against automated damage was eaten by an automated pass. The fix was to write the character as <code>chr(0x2014)</code>, which no future text sweep can match, then verify with a negative control: inject an em dash into a real response and watch the test fail.
+        </div>
+
+        <p>That is the thesis in one incident. The tool did exactly what I asked, quickly and correctly on its own terms, and disabled the only thing standing between me and the problem it was hired to solve.</p>
+
+        <h2 id="limits">Limits, stated out loud</h2>
+
+        <p>This is one person and two projects. I have no data on whether it generalises to a team, and a team has review, which removes some of these entirely and creates others I have never met.</p>
+
+        <p>I also cannot cleanly separate "failures caused by AI assistance" from "failures I would have shipped anyway". Anyone claiming they can, in either direction, is selling something. What I can say is what the log shows, with dates, in public repositories.</p>
+
+        <h2 id="receipt">What the app does about it</h2>
+
+        <p>PC Workman is a Windows monitor with a local assistant, and it is built under the rules on this page rather than merely describing them. The suite went from 21 tests in June to 331 in August, and the growth that mattered was not the count. It was that every silent failure which shipped once now has a ratchet test that fails the build if the class returns: hardcoded version literals, dead imports, bare excepts, duplicate helpers, estimated sensor readings entering history, and em dashes in generated text.</p>
+
+        <p>None of that makes the software correct. It makes one specific category of wrongness unable to ship twice.</p>
+
+        <div class="rcpt">
+            <div class="rcpt-head">
+                <span class="rcpt-tag">SWEEP</span>
+                <span>caller audit &middot; Simulation to UI</span>
+            </div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line">public mutators found <span class="d">46</span></div>
+            <div class="rcpt-line">no caller anywhere <span class="d">21</span></div>
+            <div class="rcpt-line">user actions unreachable <span class="d">5</span></div>
+            <div class="rcpt-line">tests green before sweep <span class="d">526</span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line after">tests after <span class="d">531</span></div>
+            <div class="rcpt-line after">time to fix <span class="d">one afternoon</span></div>
+            <div class="rcpt-verdict">A green suite proves your code ran.<br>It does not prove anyone can reach it.</div>
+        </div>
+
+        <div class="guide-cta">
+            <p>This catalogue is free, has no signup and no email wall, and it is a living document. If you have a class of silent failure that is not here, the fastest way to reach me is <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener">GitHub</a>.</p>
+            <p>The narrative version of several of these entries, with more of the story around each, is in <a href="../silent-failures-that-pass-every-test/">the bug that does not crash</a>. If you want to see the rules applied to a real Windows application, <a href="../../download/">PC Workman</a> is open source and on the Microsoft Store.</p>
+        </div>
+
+        <p class="k"><b>Sources:</b>
+            <a href="https://peps.python.org/pep-0649/" target="_blank" rel="noopener">PEP 649, Deferred Evaluation Of Annotations</a> &middot;
+            <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a> &middot;
+            <a href="https://psutil.io/api/" target="_blank" rel="noopener">psutil API reference</a> &middot;
+            <a href="https://docs.unity3d.com/ScriptReference/Object.Destroy.html" target="_blank" rel="noopener">Unity, Object.Destroy</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/windows/win32/shell/appids" target="_blank" rel="noopener">Microsoft, AppUserModelIDs</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../blog/feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
