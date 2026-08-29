@@ -13,6 +13,13 @@
   <meta name="theme-color" content="#0a2444">
   <meta name="color-scheme" content="dark">
 
+  <!--
+    Marks the document as scripted before anything paints. Everything with [data-reveal] used to
+    start at opacity 0 unconditionally, so a renderer that skipped the IntersectionObserver graded
+    a page with most of its content invisible. Now the animation is opt-in: no script, no hiding.
+  -->
+  <script>document.documentElement.classList.add("js");</script>
+
   <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/">
   <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
   <link rel="me" href="https://github.com/HuckleR2003">
@@ -107,6 +114,7 @@
         "name": "Scaling Laws: AI Company Tycoon | HCK Labs",
         "description": "Official HCK Labs page for Scaling Laws, an AI company tycoon in development.",
         "inLanguage": "en",
+        "dateModified": "2026-08-29",
         "mainEntity": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"},
         "breadcrumb": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb"}
       }
@@ -405,6 +413,107 @@
                 <div class="sl-feature__datum">INFORMATION HAS A PRICE<br>CERTAINTY DOES NOT</div>
               </div>
             </article>
+
+            <article class="sl-feature sl-feature--wide" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/server-room-960.webp"
+                  srcset="assets/images/screens/server-room-960.webp 960w, assets/images/screens/server-room-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 62vw"
+                  alt="Scaling Laws server room with cabinets, heat and power readouts"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 08</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>A server room that heats up while you are not looking</h3>
+                <p>Four cabinet types, and they are not a ladder. More slots cost more to cool, the cheapest frame leans on the room and the immersion tank carries its own fluid. Cabinets do not age but chips get hotter, so a room filled in 2023 and never revisited is quietly throttling by 2027 and the fix costs a slot.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/investing-960.webp"
+                  srcset="assets/images/screens/investing-960.webp 960w, assets/images/screens/investing-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 31vw"
+                  alt="Scaling Laws investing screen with share prices and a ninety day chart"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 09</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Buy into your rivals, or buy one outright</h3>
+                <p>Share prices come from each lab's own published capability on the day, so the board moves for reasons you can point at. Hold half a company and you can negotiate for the rest. Buying one hands over three quarters of their following and their newest model, never all of it.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--half" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/ranking-960.webp"
+                  srcset="assets/images/screens/ranking-960.webp 960w, assets/images/screens/ranking-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 46vw"
+                  alt="Scaling Laws ranking board with fourteen competing labs"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 10</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>The board is a list of things you can do to people</h3>
+                <p>Fourteen labs with dated histories. Open one and you can see how they feel about you, who works there, and what it would take to move them. Every approach is recorded, whether or not it is traced back.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--half" data-reveal>
+              <div class="sl-feature__media">
+                <img
+                  src="assets/images/screens/save-slots-960.webp"
+                  srcset="assets/images/screens/save-slots-960.webp 960w, assets/images/screens/save-slots-1600.webp 1600w"
+                  sizes="(max-width: 1100px) 94vw, 46vw"
+                  alt="Scaling Laws save slots showing four campaigns"
+                  loading="lazy" decoding="async">
+              </div>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 11</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Four save slots, and a pause that actually pauses</h3>
+                <p>Escape opens settings, statistics and four campaigns. Overwriting one takes two clicks because nothing comes back. Autosave counts real minutes rather than game speed, and it is off by default: a game that writes to disk mid-decision has made a choice for you.</p>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 12</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>Competing dirtily has a price list</h3>
+                <p>Four tiers of paid story about a rival, and every tier is louder, dearer and more likely to be traced back than the last. Being caught costs more than landing it would have gained. A lawsuit works the same way from the other end: the more you demand, the less likely you are to get it.</p>
+                <div class="sl-feature__datum">THE CHEAP TIER IS BETTER VALUE<br>THE DEAR ONE IS FASTER</div>
+              </div>
+            </article>
+
+            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
+              <div class="sl-feature__body">
+                <div class="sl-feature__top">
+                  <span class="sl-feature__index">SYSTEM 13</span>
+                  <span class="sl-status sl-status--development">Playable</span>
+                </div>
+                <h3>There is a way to end this that is not bankruptcy</h3>
+                <p>Once the company is worth enough, somebody offers to buy it. Accepting ends the campaign with a figure attached, which is the only good ending the game has. It is blocked outright while a sovereign compute programme is outstanding, because a government does not watch its money be sold to a competitor.</p>
+                <div class="sl-feature__datum">A BUYER THAT IS BEHIND<br>PAYS MORE THAN ONE AHEAD</div>
+              </div>
+            </article>
+
           </div>
         </div>
       </section>

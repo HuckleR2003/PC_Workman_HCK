@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Report a bug or an idea | Scaling Laws</title>
+  <meta name="description" content="Send a bug report, a balance note or an idea about Scaling Laws. The form opens with your name already filled in when you arrive from inside the game.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:title" content="Report a bug or an idea | Scaling Laws">
+  <meta property="og:description" content="Tell me the exact moment you got confused. It is worth more than a hundred downloads nobody opens.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/feedback/">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/feedback/#webpage",
+        "url": "https://pcworkman.dev/hck-labs/scaling-laws/feedback/",
+        "name": "Report a bug or an idea | Scaling Laws",
+        "description": "Send a bug report, a balance note or an idea about Scaling Laws.",
+        "inLanguage": "en",
+        "dateModified": "2026-08-29",
+        "isPartOf": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#webpage"},
+        "about": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"},
+        "breadcrumb": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/feedback/#breadcrumb"}
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/feedback/#breadcrumb",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "HCK Labs",
+           "item": "https://pcworkman.dev/hck-labs/"},
+          {"@type": "ListItem", "position": 2, "name": "Scaling Laws",
+           "item": "https://pcworkman.dev/hck-labs/scaling-laws/"},
+          {"@type": "ListItem", "position": 3, "name": "Report a bug or an idea"}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <link rel="stylesheet" href="../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../assets/css/scaling-laws.css">
+
+  <script>document.documentElement.classList.add("js");</script>
+  <script defer src="../../assets/js/hck-labs.js"></script>
+
+  <style>
+  /* Scoped to this page. It is one form and it does not need a stylesheet of its own in the
+     shared folder, where it would be loaded by every other page that will never use it. */
+  .fb-wrap { max-width: 720px; margin: 0 auto; padding: 72px 24px 96px; }
+  .fb-eyebrow { font-size: 11px; letter-spacing: 3.4px; font-weight: 700;
+    text-transform: uppercase; color: var(--hck-ink-3, #6E7A92); margin-bottom: 16px; }
+  .fb-wrap h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.08; margin-bottom: 18px; }
+  .fb-lede { font-size: 17px; line-height: 1.6; color: var(--hck-ink-2, #96A2BA); }
+
+  .fb-promise { margin: 26px 0 8px; padding: 14px 18px; border-radius: 8px;
+    border-left: 3px solid #F0D060; background: rgba(240, 208, 96, .08);
+    font-size: 14px; color: #F0E0B4; }
+
+  .fb-said { display: none; margin: 22px 0 0; padding: 12px 16px; border-radius: 6px;
+    border-left: 3px solid #7ED6A4; background: rgba(126, 214, 164, .09);
+    font-size: 14px; color: #CFEFDE; }
+
+  .fb-thanks { display: none; margin-top: 28px; padding: 18px 22px; border-radius: 8px;
+    border-left: 3px solid #7ED6A4; background: rgba(126, 214, 164, .10);
+    font-size: 15px; color: #CFEFDE; }
+
+  .fb-form { margin-top: 30px; }
+  .fb-field { margin-bottom: 18px; }
+  .fb-field label { display: block; font-size: 12px; letter-spacing: 1.8px; font-weight: 700;
+    text-transform: uppercase; color: var(--hck-ink-3, #6E7A92); margin-bottom: 8px; }
+  .fb-field input, .fb-field select, .fb-field textarea {
+    width: 100%; padding: 13px 14px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.35);
+    color: #E8EEFA; font: inherit; font-size: 15px; }
+  .fb-field textarea { min-height: 170px; resize: vertical; }
+  .fb-field input:focus, .fb-field select:focus, .fb-field textarea:focus {
+    outline: 0; border-color: #E0846C; }
+  .fb-hint { margin-top: 6px; font-size: 12px; color: var(--hck-ink-3, #6E7A92); }
+  .fb-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 620px) { .fb-two { grid-template-columns: 1fr; } }
+  .fb-prefilled { border-color: #7ED6A4 !important; }
+
+  .fb-send { width: 100%; padding: 16px; border: 0; border-radius: 6px; cursor: pointer;
+    font: inherit; font-weight: 700; font-size: 15px; letter-spacing: 2px;
+    background: linear-gradient(135deg, #E0846C, #B4527A); color: #fff;
+    transition: filter .2s; }
+  .fb-send:hover { filter: brightness(1.12); }
+  .fb-small { margin-top: 16px; font-size: 12px; line-height: 1.6;
+    color: var(--hck-ink-3, #6E7A92); }
+  .fb-small a { color: var(--hck-ink-2, #96A2BA); }
+  </style>
+</head>
+<body class="sl-page">
+  <a class="sl-skip-link" href="#main">Skip to content</a>
+
+  <div class="hck-shell">
+    <header class="hck-site-header">
+      <nav class="hck-nav" aria-label="Primary navigation">
+        <a class="sl-project-brand" href="../../" aria-label="HCK Labs home">
+          <span class="hck-brand__mark" aria-hidden="true"></span>
+          <span>HCK Labs</span>
+          <span class="sl-project-brand__slash" aria-hidden="true">/</span>
+          <span class="sl-project-brand__name">Scaling Laws</span>
+        </a>
+
+        <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="fb-nav-links">
+          <span class="hck-visually-hidden">Open navigation</span>
+          <span class="hck-nav__toggle-lines" aria-hidden="true"></span>
+        </button>
+
+        <div class="hck-nav__links" id="fb-nav-links" data-nav-links>
+          <a class="hck-nav__link" href="../">Overview</a>
+          <a class="hck-nav__link" href="../development/">Development</a>
+          <a class="hck-nav__link" href="../roadmap/">Roadmap</a>
+          <a class="hck-nav__link" href="../devlog/">Devlog</a>
+          <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <div class="fb-wrap">
+        <div class="fb-eyebrow">Scaling Laws / alpha</div>
+        <h1>Tell me where you got stuck</h1>
+
+        <p class="fb-lede">
+          You have no idea how much this moves the game forward. You do not have to be polite,
+          you have to be specific: what you were doing, what you expected, and what happened
+          instead. Leave a nickname at the end and I will write you down as an official tester.
+        </p>
+
+        <div class="fb-promise">
+          Active testers get a Steam key when the game reaches that stage.
+        </div>
+
+        <p class="fb-said" id="said"></p>
+
+        <div class="fb-thanks" id="thanks">
+          Thanks, that went through. If you left a nickname I am adding you to the tester list.
+        </div>
+
+        <!--
+          =====================================================================================
+          THE ONE THING TO FILL IN ON THIS PAGE.
+
+          1. Go to https://web3forms.com
+          2. Enter firmuga.marcin.s@gmail.com and take the key out of the email.
+          3. Paste it below in place of PUT-YOUR-ACCESS-KEY-HERE.
+
+          The key is not a password: it only allows sending a message to YOUR address and
+          nothing else, which is why it can sit in page source. Your email address is not in
+          this file, so the page will not collect spam because of it.
+          =====================================================================================
+        -->
+        <form class="fb-form" id="form" method="POST" action="https://api.web3forms.com/submit">
+          <input type="hidden" name="access_key" value="PUT-YOUR-ACCESS-KEY-HERE">
+          <input type="hidden" name="from_name" value="Scaling Laws">
+          <input type="hidden" name="subject" value="Scaling Laws - report from a tester">
+          <input type="hidden" name="redirect" value="https://pcworkman.dev/hck-labs/scaling-laws/feedback/?sent=1">
+
+          <!-- A trap for bots. A person never sees it, so a person leaves it empty. -->
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none !important">
+
+          <div class="fb-two">
+            <div class="fb-field">
+              <label for="name">Name or nickname</label>
+              <input id="name" name="name" type="text" maxlength="40" required
+                     placeholder="What should I write down">
+              <div class="fb-hint" id="namehint"></div>
+            </div>
+            <div class="fb-field">
+              <label for="email">Your email</label>
+              <input id="email" name="email" type="email" required
+                     placeholder="so I can reply">
+            </div>
+          </div>
+
+          <div class="fb-two">
+            <div class="fb-field">
+              <label for="kind">What is it about</label>
+              <select id="kind" name="kind">
+                <option value="bug">A bug</option>
+                <option value="balance">Balance: too easy or too hard</option>
+                <option value="unclear">I did not understand a screen</option>
+                <option value="idea">An idea</option>
+                <option value="other">Something else</option>
+              </select>
+            </div>
+            <div class="fb-field">
+              <label for="build">Game version</label>
+              <input id="build" name="build" type="text" readonly>
+              <div class="fb-hint">Fills itself in when you arrive from the game.</div>
+            </div>
+          </div>
+
+          <div class="fb-field">
+            <label for="body">What happened</label>
+            <textarea id="body" name="message" required
+                      placeholder="What you were doing, what you expected, and what happened instead. For a bug the order of clicks helps most."></textarea>
+          </div>
+
+          <input type="hidden" name="day" id="day" value="">
+
+          <button class="fb-send" type="submit">SEND</button>
+
+          <p class="fb-small">
+            You send what you typed above, plus the game version and the in-game day if you came
+            from the game. Nothing is read off your computer. The form passes the message through
+            <a href="https://web3forms.com">Web3Forms</a> straight to the author's mailbox and
+            creates no account.
+          </p>
+        </form>
+      </div>
+    </main>
+
+    <footer class="hck-site-footer">
+      <div class="hck-site-footer__inner">
+        <div>
+          <div class="hck-site-footer__brand">Scaling Laws / HCK Labs</div>
+          <p class="sl-home-footer-note">
+            An AI company tycoon in development. Public pages describe the current build separately from planned systems so future features are not presented as shipped.
+          </p>
+        </div>
+        <nav class="hck-site-footer__links" aria-label="Footer navigation">
+          <a href="../../">HCK Labs</a>
+          <a href="../">Scaling Laws</a>
+          <a href="../roadmap/">Roadmap</a>
+          <a href="../devlog/">Devlog</a>
+          <a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a>
+          <a href="https://pcworkman.dev/">PC Workman</a>
+        </nav>
+      </div>
+      <div class="sl-footer-marker" aria-hidden="true"></div>
+    </footer>
+  </div>
+
+<script>
+/* The name, the build and the day arrive on the query string because the game put them there.
+   Reading them here is the only thing a static page can do, and it is enough: all three are
+   either typed by the player or known to the game about itself. */
+(function () {
+  var q = new URLSearchParams(window.location.search);
+
+  function put(id, value) {
+    var el = document.getElementById(id);
+    if (el && value) { el.value = value; }
+    return el;
+  }
+
+  var name = (q.get('name') || '').slice(0, 40);
+
+  if (name) {
+    var field = put('name', name);
+    if (field) { field.classList.add('fb-prefilled'); }
+
+    var hint = document.getElementById('namehint');
+    if (hint) { hint.textContent = 'Carried over from the game. You can change it.'; }
+
+    var said = document.getElementById('said');
+    if (said) {
+      said.textContent = 'Hello ' + name + '. The form already knows who you are.';
+      said.style.display = 'block';
+    }
+  }
+
+  put('build', q.get('build') || 'unknown');
+  put('day', q.get('day') || '');
+
+  /* Back from a successful send. The form is hidden rather than left sitting there, because a
+     form still on screen after it was sent reads as a form that was not. */
+  if (q.get('sent')) {
+    var thanks = document.getElementById('thanks');
+    var form = document.getElementById('form');
+
+    if (thanks) { thanks.style.display = 'block'; }
+    if (form) { form.style.display = 'none'; }
+  }
+})();
+</script>
+
+</body>
+</html>
