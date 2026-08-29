@@ -197,12 +197,18 @@ code, kbd, pre { font-family: var(--hck-font-mono); }
   border: 0 !important;
 }
 
-[data-reveal] {
+/* Scoped to .js, which an inline script in the head sets before anything paints.
+
+   Without the scope this hid every revealing element unconditionally, so anything that did not run
+   the IntersectionObserver saw a page whose content was all at zero opacity: a reader with scripts
+   off, a script error earlier in the file, and any crawler that grades the rendered page rather
+   than the source. The animation is worth having and it is not worth the content depending on it. */
+.js [data-reveal] {
   opacity: 0;
   transform: translateY(14px);
   transition: opacity 520ms ease, transform 520ms cubic-bezier(.2,.7,.2,1);
 }
-[data-reveal].is-visible { opacity: 1; transform: none; }
+.js [data-reveal].is-visible { opacity: 1; transform: none; }
 
 @media (max-width: 900px) {
   :root {
@@ -226,5 +232,5 @@ code, kbd, pre { font-family: var(--hck-font-mono); }
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  [data-reveal] { opacity: 1; transform: none; }
+  .js [data-reveal] { opacity: 1; transform: none; }
 }
