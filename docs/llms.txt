@@ -22,7 +22,7 @@ Current public projects:
 > Scaling Laws is an AI company tycoon about model training, hardware timing,
 > research, business and a competitive frontier that keeps moving.
 
-Current project summary, verified 6 August 2026:
+Current project summary, verified 29 August 2026:
 
 - Campaign begins on 1 January 2022 with $12 million and no released product.
 - Model quality uses one Chinchilla-style scaling-law model based on parameter
@@ -33,15 +33,37 @@ Current project summary, verified 6 August 2026:
 - Owned hardware loses value with calendar age and with meaningful successor
   generations. Host CPUs, node memory and fabric can bottleneck owned compute.
 - Rival labs are agents that can wait, rush or drift instead of following a
-  static leaderboard.
+  static leaderboard. Fourteen labs carry dated histories; three come apart
+  during a campaign.
 - Paid intelligence separates hidden real accuracy from stated confidence; a
   report can sound more certain than it is.
 - Research uses prerequisite and calendar gates so money cannot instantly unlock
-  the whole technology tree.
-- The starter company site is a real 3D orthographic environment. Staff,
-  larger offices, deeper physical-world interaction and some infrastructure UI
-  remain active or planned work rather than shipped claims.
-
+  the whole technology tree. It also gates the parameter and architecture
+  sliders, so scale is not purchasable with cash alone.
+- Releasing a new version does not move the whole audience onto it. Each version
+  holds its own share of the product's users and the market reads the
+  adoption-weighted average rather than the best model ever shipped.
+- A serious safety incident opens a five-day inspection before any verdict. The
+  verdict is rolled against the protections the model shipped with, not against
+  what the company has researched since.
+- Players can own a physical server room. Four cabinet types differ in slots and
+  cooling rather than forming a ladder, cabinets house accelerators the company
+  already owns, and heat throttles a room that is never revisited.
+- Players can buy shares in rival labs. Prices derive from each lab's published
+  capability on the day. Holding a majority allows a buyout, which transfers at
+  most three quarters of the target's following and standing plus its newest
+  model.
+- Players can act against rivals through paid stories, lawsuits and hiring their
+  staff. Each carries a cost to the relationship whether or not it is traced
+  back.
+- An acquisition offer is the campaign's only ending other than insolvency, and
+  it is blocked while a sovereign compute programme is outstanding.
+- Four save slots, an Escape menu with settings and statistics, and an optional
+  autosave measured in real minutes.
+- Interface is available in English and Polish, switchable at any time.
+- The starter company site is a real 3D orthographic environment. A city map,
+  staff walking the office and deeper physical-world interaction remain planned
+  work rather than shipped claims.
 Canonical Scaling Laws pages:
 - Game: https://pcworkman.dev/hck-labs/scaling-laws/
 - Development / mechanism map: https://pcworkman.dev/hck-labs/scaling-laws/development/
@@ -49,6 +71,7 @@ Canonical Scaling Laws pages:
 - Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
 - Devlog RSS: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
 - Media / screenshots: https://pcworkman.dev/hck-labs/scaling-laws/media/
+- Report a bug or an idea: https://pcworkman.dev/hck-labs/scaling-laws/feedback/
 - Source: https://github.com/HuckleR2003/ScalingLaws-AI
 
 Initial devlog notes:

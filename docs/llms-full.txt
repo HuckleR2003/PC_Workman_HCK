@@ -315,6 +315,29 @@ compute while the frontier keeps moving.
 - There is no guaranteed profit: price per token falls by roughly half a
   year, demand saturates, and a company that ships one model and coasts is
   designed to fall behind.
+- Research gates scale rather than money gating it. The parameter slider and
+  the five architecture direction sliders each start part way along and are
+  opened by research nodes, so cash alone cannot buy a larger run.
+- Releasing a new version of a product does not move the whole audience onto
+  it. Each version keeps its own share of that product's users, and the market
+  reads the adoption-weighted average rather than the best model ever shipped.
+- A serious safety incident opens a five-day inspection before any verdict,
+  and the verdict is rolled against the protections the model shipped with
+  rather than against research completed since.
+- The company can own a physical server room. Four cabinet types differ in
+  slots and cooling rather than forming a ladder, they house accelerators the
+  company already owns, and a room that is never revisited throttles as later
+  silicon runs hotter.
+- The player can buy shares in rival labs, priced from each lab's published
+  capability on the day, and can buy a company outright once holding a
+  majority. A buyout transfers at most three quarters of the target's
+  following and standing, plus its newest model.
+- The player can act against rivals through paid stories, lawsuits and hiring
+  their staff. Each costs the relationship whether or not it is traced back.
+- An acquisition offer is the only ending other than insolvency, and it is
+  blocked while a sovereign compute programme is outstanding.
+- The interface is available in English and Polish, switchable at any time,
+  with real Polish plural forms rather than a table lookup.
 
 Pages:
 
@@ -326,8 +349,12 @@ Pages:
 - Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
 - Devlog feed: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
 
-Scaling Laws has no playable public build yet. Screenshots show a current
-development build, not a released product.
+Scaling Laws is in development and playable end to end in the current build:
+the opening, a tutorial that walks the first hour, the model creator, the
+research tree, a server room the player fills, and a company that either is or
+is not still trading years later. It is an alpha rather than a released
+product, parts of the art are unfinished, and screenshots show a development
+build. Facts on this page were verified on 29 August 2026.
 
 ## Author and profiles
 
