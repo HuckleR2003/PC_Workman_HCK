@@ -65,9 +65,10 @@
      shared folder, where it would be loaded by every other page that will never use it. */
   .fb-wrap { max-width: 720px; margin: 0 auto; padding: 72px 24px 96px; }
   .fb-eyebrow { font-size: 11px; letter-spacing: 3.4px; font-weight: 700;
-    text-transform: uppercase; color: var(--hck-ink-3, #6E7A92); margin-bottom: 16px; }
-  .fb-wrap h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.08; margin-bottom: 18px; }
-  .fb-lede { font-size: 17px; line-height: 1.6; color: var(--hck-ink-2, #96A2BA); }
+    text-transform: uppercase; color: var(--hck-text-soft, #8d98a8); margin-bottom: 16px; }
+  .fb-wrap h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.08; margin-bottom: 18px;
+    color: var(--hck-text-strong, #f3f6fb); }
+  .fb-lede { font-size: 17px; line-height: 1.6; color: var(--hck-text, #c8d0dc); }
 
   .fb-promise { margin: 26px 0 8px; padding: 14px 18px; border-radius: 8px;
     border-left: 3px solid #F0D060; background: rgba(240, 208, 96, .08);
@@ -84,7 +85,7 @@
   .fb-form { margin-top: 30px; }
   .fb-field { margin-bottom: 18px; }
   .fb-field label { display: block; font-size: 12px; letter-spacing: 1.8px; font-weight: 700;
-    text-transform: uppercase; color: var(--hck-ink-3, #6E7A92); margin-bottom: 8px; }
+    text-transform: uppercase; color: var(--hck-text-soft, #8d98a8); margin-bottom: 8px; }
   .fb-field input, .fb-field select, .fb-field textarea {
     width: 100%; padding: 13px 14px; border-radius: 6px;
     border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.35);
@@ -92,7 +93,7 @@
   .fb-field textarea { min-height: 170px; resize: vertical; }
   .fb-field input:focus, .fb-field select:focus, .fb-field textarea:focus {
     outline: 0; border-color: #E0846C; }
-  .fb-hint { margin-top: 6px; font-size: 12px; color: var(--hck-ink-3, #6E7A92); }
+  .fb-hint { margin-top: 6px; font-size: 12px; color: var(--hck-text-faint, #606b7a); }
   .fb-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 620px) { .fb-two { grid-template-columns: 1fr; } }
   .fb-prefilled { border-color: #7ED6A4 !important; }
@@ -103,8 +104,8 @@
     transition: filter .2s; }
   .fb-send:hover { filter: brightness(1.12); }
   .fb-small { margin-top: 16px; font-size: 12px; line-height: 1.6;
-    color: var(--hck-ink-3, #6E7A92); }
-  .fb-small a { color: var(--hck-ink-2, #96A2BA); }
+    color: var(--hck-text-faint, #606b7a); }
+  .fb-small a { color: var(--hck-text-soft, #8d98a8); }
   </style>
 </head>
 <body class="sl-page">
