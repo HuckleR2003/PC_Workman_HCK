@@ -810,3 +810,229 @@
     transition: none;
   }
 }
+
+/* ==================================================================================================
+   RELEASED: the download button, the panoramic gameplay bands, and a tighter bottom half.
+   Added 2026-08-31, the day after the first public build.
+   ================================================================================================== */
+
+/* --- The get button ------------------------------------------------------------------------------
+   Two lines on purpose. "Download" answers what the button does; the strap under it answers the
+   three questions somebody asks before clicking one on an unknown site: what does it cost, what does
+   it run on, how big is it. A button that makes you hunt for those loses the click it just won. */
+
+.sl-get {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-height: 62px;
+  padding: 12px 26px;
+  border: 1px solid rgba(217, 74, 101, .58);
+  border-radius: var(--hck-radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .05), transparent 46%),
+    linear-gradient(120deg, var(--hck-burgundy-800), var(--hck-burgundy-600) 58%, var(--hck-burgundy-700));
+  color: var(--hck-text-strong);
+  text-decoration: none;
+  box-shadow: 0 10px 28px -16px rgba(185, 44, 73, .85);
+  transition:
+    border-color var(--hck-transition-fast),
+    transform var(--hck-transition-fast),
+    box-shadow var(--hck-transition-fast);
+}
+
+.sl-get__line {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.sl-get__strap {
+  color: rgba(255, 226, 232, .74);
+  font-family: var(--hck-font-mono);
+  font-size: .66rem;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.sl-get svg { flex: 0 0 auto; }
+
+.sl-get:hover,
+.sl-get:focus-visible {
+  border-color: rgba(238, 122, 146, .9);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -16px rgba(214, 62, 96, .95);
+}
+
+/* The sheen. A single pass across the face every few seconds, and again on hover. It is a highlight
+   travelling over a surface, not a colour cycle: anything that changes hue reads as a warning light
+   rather than as a thing worth pressing. */
+.sl-get::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -60%;
+  width: 45%;
+  pointer-events: none;
+  transform: skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, .05) 32%,
+    rgba(255, 236, 240, .30) 50%,
+    rgba(255, 255, 255, .05) 68%,
+    transparent);
+  animation: sl-get-sheen 4.6s cubic-bezier(.4, 0, .5, 1) infinite;
+}
+
+.sl-get:hover::after { animation-duration: 1.5s; }
+
+@keyframes sl-get-sheen {
+  0%   { left: -60%; }
+  38%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+.sl-get__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* --- Panoramic gameplay bands --------------------------------------------------------------------
+   Low and wide, because a 16:9 screenshot shrunk into a column is a picture of an interface nobody
+   can read. Cropping to a band keeps the part that carries the idea at a size where the numbers on
+   it are still legible, and stacks five of them without turning the page into a scroll marathon. */
+
+.sl-pano-set { display: grid; gap: 18px; margin-top: 44px; }
+
+.sl-pano {
+  overflow: hidden;
+  border: 1px solid rgba(112, 139, 171, .16);
+  border-radius: 8px;
+  background: #050b12;
+}
+
+.sl-pano__shot {
+  position: relative;
+  /* 21:7 rather than 21:8. At 8 these measured 502px tall on a 900px viewport, which is a stack of
+     screenshots rather than a set of bands. The crop is biased upward so the readout at the top of
+     each screen survives and the bottom bar, which repeats on all five, is what gets dropped. */
+  aspect-ratio: 21 / 7;
+  background: #050b12;
+}
+
+.sl-pano__shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%;
+  transition: transform 620ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.sl-pano:hover .sl-pano__shot img { transform: scale(1.014); }
+
+.sl-pano__shot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 58%, rgba(3, 8, 14, .5));
+}
+
+.sl-pano__note {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 6px 28px;
+  align-items: baseline;
+  padding: 15px 20px 17px;
+  border-top: 1px solid rgba(112, 139, 171, .13);
+  background: #08121e;
+}
+
+.sl-pano__label {
+  color: var(--sl-green, #6fd7ac);
+  font-family: var(--hck-font-mono);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.sl-pano__copy {
+  margin: 0;
+  color: #93a3b6;
+  font-size: .93rem;
+  line-height: 1.6;
+}
+
+/* --- The bottom half, tighter --------------------------------------------------------------------
+   The mechanic cards reserved 320px of height for three short lines, so the closing third of the
+   page was mostly empty box. The type is untouched and in one place larger: the point was density,
+   not smaller words. */
+
+.sl-mechanic {
+  min-height: 0;
+  padding: 20px 21px 22px;
+}
+
+.sl-mechanic h3 {
+  margin: 20px 0 9px;
+  font-size: 1.02rem;
+}
+
+.sl-mechanic p { font-size: .9rem; line-height: 1.6; }
+
+.sl-mechanics-grid { gap: 12px; margin-top: 34px; }
+
+.sl-gallery-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 34px; }
+
+.sl-gallery-shot { aspect-ratio: 16 / 9.6; }
+
+.sl-gallery-shot figcaption { font-size: .62rem; }
+
+@media (max-width: 900px) {
+  .sl-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sl-pano__shot { aspect-ratio: 16 / 9; }
+  .sl-pano__note { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}
+
+@media (max-width: 560px) {
+  .sl-gallery-grid { grid-template-columns: minmax(0, 1fr); }
+  .sl-get { width: 100%; }
+}
+
+/* Somebody who has asked their machine to stop moving things has asked for this too. */
+@media (prefers-reduced-motion: reduce) {
+  .sl-get::after { animation: none; opacity: 0; }
+  .sl-get:hover { transform: none; }
+  .sl-pano:hover .sl-pano__shot img { transform: none; }
+}
+
+/* Two classes were named from the markup before they existed here, which is the fault this project
+   has a guard for on the game side and none on the site side. Caught by grepping the sheet for
+   every new class, which is the cheap version of that guard. */
+
+.sl-panos {
+  background:
+    radial-gradient(820px 420px at 18% 0%, rgba(23, 55, 98, .16), transparent 72%),
+    #060d16;
+}
+
+.sl-next-bench__note {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(133, 38, 61, .26);
+  color: #8a97a8;
+  font-size: .84rem;
+  line-height: 1.55;
+}
