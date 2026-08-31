@@ -84,6 +84,20 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/hck-labs/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
     <loc>https://pcworkman.dev/roadmap/</loc>
     <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
@@ -1182,20 +1196,6 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/SECURITY_report_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/SECURITY_report.html"/>
-  </url>
-
-  <url>
-    <loc>https://pcworkman.dev/hck-labs/</loc>
-    <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <url>
-    <loc>https://pcworkman.dev/hck-labs/scaling-laws/</loc>
-    <lastmod>2026-08-29</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
 
   <url>
