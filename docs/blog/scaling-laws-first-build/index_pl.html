@@ -1,0 +1,478 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Scaling Laws · Blog / Build in public (PL) · pierwszy publiczny build -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Dwadzieścia dziewięć dni na grę, trzy tygodnie na przyznanie, że jest gotowa. Czym był strach, trzy usterki sześć godzin przed premierą i pierwsze liczby.">
+    <meta name="keywords" content="pierwszy build gry, strach przed wydaniem, pułapka polerowania, solo gamedev, Unity, build in public, Scaling Laws, Marcin Firmuga, HCK Labs, premiera na itch.io">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/scaling-laws-first-build/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/scaling-laws-first-build/">
+    <meta property="og:title" content="Siedziałem na skończonym buildzie przez trzy tygodnie, bo się go bałem">
+    <meta property="og:description" content="Dwadzieścia dziewięć dni na zbudowanie gry i trzy tygodnie na przyznanie, że jest gotowa. Czym był ten strach, co kosztowało wydanie i pierwsze liczby.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-09-01">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Build in public">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Bałem Się Wydać Skończony Build | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed_pl.xml">
+
+    <style>
+        .stat-row { display:flex; flex-wrap:wrap; gap:10px; margin:26px 0; }
+        .stat { flex:1 1 128px; border:1px solid #23262e; border-radius:8px; background:#0d0f14; padding:13px 15px; }
+        .stat b { display:block; font-family:'JetBrains Mono',monospace; font-size:23px; color:#a3e635; }
+        .stat span { font-size:12px; color:#7b828f; letter-spacing:.04em; }
+        .figure { margin:30px 0; }
+        .figure img { width:100%; border-radius:8px; border:1px solid #23262e; display:block; }
+        .figure figcaption { font-size:13px; color:#7b828f; margin-top:8px; font-style:italic; }
+        .pull { border-left:3px solid #f3604e; background:#140d0e; border-radius:5px;
+                padding:14px 17px; margin:26px 0; color:#e4d3d3; font-size:16.5px; line-height:1.65; }
+        .fault { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                 border-radius:6px; padding:14px 17px; margin:16px 0; }
+        .fault h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .fault p { margin:0; font-size:15px; line-height:1.65; color:#c3b394; }
+        .ledger { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .ledger th, .ledger td { border:1px solid #23262e; padding:9px 12px; text-align:left; }
+        .ledger th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .ledger td b { color:#a3e635; font-family:'JetBrains Mono',monospace; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Siedziałem na skończonym buildzie przez trzy tygodnie, bo się go bałem",
+      "description": "Zapis dwudziestu dziewięciu dni, które dały pierwszy publiczny build Scaling Laws, trzech tygodni niewydawania gotowej gry, trzech usterek znalezionych sześć godzin przed publikacją i pierwszych liczb zwrotnych.",
+      "url": "https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html" },
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Build in public",
+      "wordCount": 1714,
+      "keywords": "pierwszy build, strach przed wydaniem, pułapka polerowania, solo gamedev, Unity, build in public, Scaling Laws, HCK Labs",
+      "about": [
+        { "@type": "Thing", "name": "Tworzenie gier niezależnych" },
+        { "@type": "Thing", "name": "Wydawanie oprogramowania" },
+        { "@type": "Thing", "name": "Building in public" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Programista",
+        "url": "https://pcworkman.dev/blog/profile_pl.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Python", "Aplikacje desktopowe Windows", "Lokalne asystenty AI", "Unity", "C#", "Testowanie oprogramowania", "Pisanie techniczne"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Pierwszy build Scaling Laws", "item": "https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego samodzielni twórcy zwlekają z wydaniem gotowego builda?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo polerowanie i unikanie czuje się od środka identycznie. Jedno i drugie polega na otwarciu projektu, znalezieniu czegoś niedoskonałego, poprawieniu tego i zakończeniu wieczoru z commitami. Różnicę widać wyłącznie z zewnątrz: polerowanie poprawia to, co gracz zauważy, a unikanie poprawia to, co zobaczy wyłącznie autor. W tym udokumentowanym przypadku build był grywalny trzy tygodnie przed publikacją, a praca z tych trzech tygodni obejmowała czcionkę o dwa piksele za małą i system dotacji odpalający się mniej więcej raz na sto dni w grze." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jakie usterki najczęściej dotrwają do dnia wydania?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Te, które ukrywają przed tobą twoje własne narzędzia. Sześć godzin przed publikacją Scaling Laws znalazły się trzy usterki, których żaden test nie mógł złapać: gra otwierała się w oknie dokładnie wielkości ekranu, bo edytor Unity rysuje grę we własnym oknie i autor przez osiem miesięcy nie zobaczył tego prawdziwego; build raportował wersję 1.0, podczas gdy changelog mówił 0.1.0, a ten numer trafia na każde zgłoszenie błędu od testera; oraz zdanie w README twierdziło, że automatyczny test pilnuje liczby, której nigdy nic nie mierzyło." }
+        },
+        {
+          "@type": "Question",
+          "name": "Ilu pobrań można się spodziewać po pierwszym buildzie gry niezależnej?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Liczba pobrań jest słabszym sygnałem niż współczynnik konwersji. Scaling Laws 0.1.0 zanotował około 130 wyświetleń strony na itch.io w pierwszych dniach, z czego około 48 procent przełożyło się na pobranie. Konwersja bliska połowie oznacza, że strona opisuje grę zgodnie z prawdą tym, którzy na nią trafiają. Duża liczba wyświetleń przy niskiej konwersji oznaczałaby coś odwrotnego i byłaby gorszym wynikiem mimo większej liczby." }
+        },
+        {
+          "@type": "Question",
+          "name": "Ile trwa zbudowanie grywalnej gry w pojedynkę?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W tym przypadku dwadzieścia dziewięć dni od pierwszego commita 2 sierpnia 2026 do publicznego builda 30 sierpnia 2026, wieczorami po dziesięcio- i dwunastogodzinnych zmianach w taksówce. Dało to 174 publiczne commity, 99 872 linie C#, 888 automatycznych testów działających bez wczytywania sceny, pięćdziesiąt węzłów badań, czternaście konkurencyjnych firm i format zapisu, który zdążył zmienić się czterdzieści cztery razy. Tempo wzięło się z trzymania reguł w warstwie bez żadnych zależności od silnika, dzięki czemu cała symulacja testuje się w niecałą minutę." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/scaling-laws-first-build/" data-lang="en" lang="en">EN</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/scaling-laws-first-build/index_pl.html" class="active" data-lang="pl">PL</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Build in public &middot; Scaling Laws</span>
+        <h1>Siedziałem na skończonym buildzie<br>przez trzy tygodnie,<br>bo się go bałem.</h1>
+        <p class="tagline">Dwadzieścia dziewięć dni od pierwszego commita do publicznego builda i trzy tygodnie niewydawania czegoś, co było już gotowe. Czym naprawdę był ten strach, trzy usterki znalezione sześć godzin przed publikacją i pierwsze liczby zwrotne.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-09-01</span><span>&middot;</span><span>~11 min czytania</span>
+        </div>
+
+        <p class="lead">Scaling Laws było grywalne w drugim tygodniu sierpnia. Opublikowałem je 30 sierpnia, o wpół do czwartej w niedzielne popołudnie, po tym jak od poprzedniego poniedziałku powtarzałem ludziom, że wychodzi „dzisiaj". To jest zapis tego, co działo się pomiędzy, spisany, kiedy jeszcze jest niewygodny do spisania.</p>
+
+        <div class="callout">
+            <b>Jedna zasada na tej stronie.</b> Każda liczba tutaj została odczytana z repozytorium
+            albo ze statystyk sklepu w dniu publikacji, nie z pamięci. Tam, gdzie liczba jest
+            odczytem z pierwszych dni i będzie się zmieniać, jest to napisane.
+        </div>
+
+        <h2 id="what">Co dało dwadzieścia dziewięć dni</h2>
+
+        <p>
+            Pierwszy commit wylądował 2 sierpnia 2026. Pierwszy publiczny build wyszedł 30 sierpnia.
+            Pomiędzy były zmiany w taksówce, po dziesięć do dwunastu godzin dziennie, i wieczory po nich.
+        </p>
+
+        <div class="stat-row">
+            <div class="stat"><b>29</b><span>dni od pierwszego commita do builda</span></div>
+            <div class="stat"><b>174</b><span>publiczne commity</span></div>
+            <div class="stat"><b>99 872</b><span>linie C#</span></div>
+            <div class="stat"><b>909</b><span>testów automatycznych</span></div>
+        </div>
+
+        <p>
+            Scaling Laws to tycoon o firmie AI. Zaczynasz 1 stycznia 2022 z dwunastoma milionami
+            dolarów, bez produktu i bez zespołu, i prowadzisz laboratorium przez cztery lata, które po
+            tym nastąpiły. Dwadzieścia dwie prawdziwe generacje sprzętu niosą swoje prawdziwe daty
+            premier i ceny startowe. Akcelerator kupiony w dniu premiery jest wart mniej więcej połowę
+            tego, co za niego zapłaciłeś, tego samego dnia, i traci kolejną ćwiartkę przy każdej
+            lepszej premierze.
+        </p>
+
+        <p>
+            Ten jeden fakt jest całą grą. Nie kupujesz ulepszeń. Wyczuwasz ich moment.
+        </p>
+
+        <figure class="figure">
+            <img src="../../hck-labs/scaling-laws/assets/images/screens/model-creator-1600.webp"
+                 alt="Kreator modelu w Scaling Laws z prognozowaną zdolnością, czasem treningu i kosztem"
+                 width="1600" height="784" loading="lazy" decoding="async">
+            <figcaption>
+                Kreator modelu. Prognozowana zdolność 16,7 przy froncie już na 24,0, 43 dni treningu,
+                1,42 mln dolarów spalone. Każda liczba na nim wychodzi z symulacji.
+            </figcaption>
+        </figure>
+
+        <p>
+            Tempo wzięło się z jednej decyzji podjętej pierwszego dnia: reguły leżą w warstwie, która
+            nie importuje niczego z silnika. Żadnych typów Unity, żadnej sceny, żadnego MonoBehaviour.
+            To znaczy, że całą ekonomię da się przetestować w niecałą minutę bez otwierania edytora, i
+            jest to jedyny powód, dla którego gra o tej gęstości mogła powstać w miesiąc wieczorów.
+        </p>
+
+        <h2 id="finished">Build był gotowy w drugim tygodniu</h2>
+
+        <p>
+            Nie dopieszczony. Gotowy w tym sensie, który się liczył: gracz mógł założyć firmę,
+            zaprojektować model, wytrenować go, wydać, zobaczyć reakcję rynku, skończyć bez pieniędzy
+            i dojść do zakończenia. Cała pętla się domykała.
+        </p>
+
+        <p>
+            Nie opublikowałem tego przez kolejne trzy tygodnie.
+        </p>
+
+        <div class="pull">
+            Wmawiałem sobie, że poleruję. Naprawdę odsuwałem moment, w którym obcy ludzie dostają
+            prawo do opinii, a od środka te dwie rzeczy czuje się dokładnie tak samo. Jedno i drugie
+            polega na otwarciu projektu, znalezieniu czegoś nie tak, poprawieniu tego i pójściu spać z
+            poczuciem, że się pracowało.
+        </div>
+
+        <p>
+            Oto uczciwa lista tego, co zawierały te trzy tygodnie. Czcionka o dwa piksele za mała, a
+            potem jeszcze dwieście trzy takie same. System dotacji, który działał poprawnie i odpalał
+            się mniej więcej raz na sto dni w grze, więc większość graczy nigdy by go nie zobaczyła.
+            Samouczek, który przygasał, kiedy kursor był na tekście, który kazał przeczytać. Suwak
+            wynajmu mocy, którego pełen zakres to był dokładnie miliard użytkowników na pierwszej
+            klatce firmy, która nie miała żadnego.
+        </p>
+
+        <p>
+            Część z tego była warta zrobienia. System dotacji był naprawdę zepsuty jako projekt, a
+            suwak był bezużyteczny. Ale w trakcie nie umiałem odróżnić jednego od drugiego i to jest
+            ta część warta spisania. Wewnątrz pracy nie ma sygnału, który mówi, który rodzaj wieczoru
+            właśnie masz.
+        </p>
+
+        <figure class="figure">
+            <img src="../../hck-labs/scaling-laws/assets/images/screens/starter-home-1600.webp"
+                 alt="Startowy dom w Scaling Laws, izometryczny budynek z garażem, samochodem i antresolą"
+                 width="1600" height="784" loading="lazy" decoding="async">
+            <figcaption>
+                Miejsce, w którym firma się zaczyna. Dom, garaż, jedno biurko. Założyciel chodzi między
+                nimi, a to jest dokładnie ten rodzaj rzeczy, na którą bardzo łatwo poświęcić tydzień
+                zamiast opublikować.
+            </figcaption>
+        </figure>
+
+        <h2 id="fear">Czym naprawdę był ten strach</h2>
+
+        <p>
+            Spodziewałem się strachu, że gra jest zepsuta. To nie było to. Miałem na to 888 testów
+            automatycznych, w tym jeden, który rozgrywa pełną kampanię i wywala się, jeśli rozsądny
+            gracz nie jest w stanie jej przetrwać.
+        </p>
+
+        <p>
+            To był strach, że będzie w porządku i nikt nie przyjdzie. Zepsuty build to problem, który
+            da się naprawić. Cisza nie jest problemem, tylko odpowiedzią, i to odpowiedzią, z którą nie
+            da się dyskutować. Dopóki build siedział na moim dysku, pytanie zostawało otwarte.
+        </p>
+
+        <p>
+            To jest głupi powód, żeby odkładać premierę o trzy tygodnie, i jest prawdziwy.
+        </p>
+
+        <h2 id="hours">Sześć godzin przed publikacją, trzy usterki</h2>
+
+        <p>
+            Żadnej z nich nie mógł złapać test. Wszystkie trzy były rzeczami, które ukrywały przede
+            mną moje własne narzędzia.
+        </p>
+
+        <div class="fault">
+            <h4>Gra otwierała się w oknie dokładnie wielkości ekranu</h4>
+            <p>
+                Nie trochę za dużym. Dokładnie. Pasek tytułu siedział nad górną krawędzią ekranu, a
+                własny dolny pasek gry, ten z zegarem i wszystkimi zakładkami, za paskiem zadań
+                Windowsa. Okna nie dało się przeskalować, bo wyłączyłem to osiem miesięcy temu i nigdy
+                więcej o tym nie pomyślałem. Nie zobaczyłem tego ani razu, bo edytor Unity rysuje twoją
+                grę we własnym oknie, z własnym paskiem tytułu. Pierwsza rzecz, którą zobaczyłby każdy
+                gracz, była jedyną rzeczą, której strukturalnie nie mogłem zobaczyć.
+            </p>
+        </div>
+
+        <div class="fault">
+            <h4>Build nazywał siebie wersją 1.0</h4>
+            <p>
+                Changelog mówił 0.1.0. To nie jest księgowość: gra stempluje swoją wersję na każdym
+                zgłoszeniu błędu, które tester wysyła przez formularz w grze. Każdy raport z dnia
+                premiery trafiłby pod wydanie, które nie istnieje.
+            </p>
+        </div>
+
+        <div class="fault">
+            <h4>Zdanie w moim README nie było prawdziwe</h4>
+            <p>
+                Mówiło, że firma, która wypuści jeden model i osiądzie na laurach, bankrutuje w ciągu
+                trzech lat, i że automatyczny test wywala build, jeśli to przestanie być prawdą. Test
+                sprawdza, że firma nie handluje po ośmiu latach. Trzech lat nigdy nic nie mierzyło.
+                Powtarzałem tę liczbę publicznie tygodniami, bo napisałem ją raz i brzmiała dobrze.
+            </p>
+        </div>
+
+        <p>
+            Ta trzecia nadal mi ciąży. Dwie pierwsze to pomyłki. Trzecia to pewne siebie publiczne
+            twierdzenie bez pokrycia, wypowiedziane przez kogoś, którego cała oferta polega na tym, że
+            liczby są prawdziwe. Dokumentacja to kod, którego nikt nie testuje.
+        </p>
+
+        <h2 id="numbers">Pierwsze liczby zwrotne</h2>
+
+        <p>
+            Build wyszedł za darmo, na Windowsa, 75,9 MB, na itch.io, IndieDB, Game Jolt i jako release
+            na GitHubie.
+        </p>
+
+        <table class="ledger">
+            <thead>
+                <tr><th>Miara</th><th>Pierwsze dni</th><th>Co mi to mówi</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Wyświetlenia strony na itch.io</td><td><b>~130</b></td><td>Mało. Spodziewane. Nikt nie wie, że ta gra istnieje.</td></tr>
+                <tr><td>Konwersja wyświetleń na pobrania</td><td><b>~48%</b></td><td>Liczba, na której naprawdę mi zależy.</td></tr>
+                <tr><td>Otrzymane zgłoszenia z formularza</td><td><b>0</b></td><td>Ta, na której zależało mi najbardziej, i jest pusta.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Konwersja bliska połowie oznacza, że strona opisuje grę zgodnie z prawdą tym, którzy na nią
+            trafiają. Gdyby popatrzyło dziesięć tysięcy osób i pobrały dwa procent, byłaby to większa
+            liczba i gorszy wynik, bo znaczyłoby to, że strona obiecuje coś, czym gra nie jest.
+        </p>
+
+        <p>
+            Zero zgłoszeń to uczciwe rozczarowanie. Zbudowałem formularz, wstawiłem przycisk w menu
+            pauzy, podpiąłem go tak, żeby niósł numer builda i to, jak daleko w kampanii byłeś, i
+            napisałem na stronie sklepowej, że jedno zdanie o tym, gdzie się pogubiłeś, jest dla mnie
+            warte więcej niż stu ludzi, którzy zainstalowali i nie otworzyli. Napisałem to
+            arytmetycznie, nie grzecznościowo. Na razie skrzynka jest pusta i to też jest wynik.
+        </p>
+
+        <figure class="figure">
+            <img src="../../hck-labs/scaling-laws/assets/images/screens/server-room-1600.webp"
+                 alt="Serwerownia w Scaling Laws z szafami, odczytami temperatury i slotami na chłodzenie"
+                 width="1600" height="784" loading="lazy" decoding="async">
+            <figcaption>
+                Siedem akceleratorów i wentylator biją osiem akceleratorów, bo pełna szafa dławi się
+                własnym ciepłem. Szafy się nie starzeją. Układy robią się gorętsze.
+            </figcaption>
+        </figure>
+
+        <h2 id="before">Skąd bierze się to niepoddawanie się</h2>
+
+        <p>
+            To dwunasty projekt, który zacząłem, i drugi, który przeżył. Jedenaście sprzed PC Workmana
+            umarło w zwyczajny sposób: porzucone gdzieś między ciekawym a trudnym.
+        </p>
+
+        <p>
+            Przed Radomiem był magazyn w Holandii i wózek widłowy. Ledwo domykałem miesiąc. Dwa razy
+            wystawiono mnie z mieszkania agencyjnego praktycznie z dnia na dzień, a drugi raz był tuż
+            przed świętami. Pisałem gdzie indziej o tym, jak zostałem zwolniony 22 grudnia po pięciu
+            miesiącach budowania w publicznym, którego nikt nie oglądał. Nie zamierzam tego okresu
+            ubierać w morał. Wtedy nie budował charakteru. Było po prostu źle, a jedyną rzeczą, którą
+            miałem swoją, był katalog z kodem na laptopie chodzącym w 94 stopniach.
+        </p>
+
+        <p>
+            To, co z tego wyniosłem, jest wąskie i chyba prawdziwe: to, że praca była publiczna,
+            sprawiło, że dało się ją przeżyć. Nie dlatego, że ktoś patrzył, bo długo nie patrzył nikt.
+            Dlatego, że publiczna historia commitów jest jedyną rzeczą, której nie zabiera ci telefon z
+            agencji. Jest twoja, ma znacznik czasu i rano nadal tam jest.
+        </p>
+
+        <p>
+            To jest też powód, dla którego wszystko, co robię, jest open source. To nie jest preferencja
+            licencyjna. Zaczęło się jako jedyny sposób, żeby udowodnić samemu sobie, że ostatnie sześć
+            miesięcy naprawdę się wydarzyło.
+        </p>
+
+        <h2 id="next">Co zrobiłbym inaczej</h2>
+
+        <p>
+            Wydałbym w drugim tygodniu. Te trzy tygodnie kupiły lepsze pierwsze wrażenie i kosztowały
+            jedyną rzecz, która na tym etapie się liczy, czyli cudze ręce na tym. Nic, co w tym czasie
+            poprawiłem, nie było warte trzech tygodni niewiedzy, czy ta ekonomia jest ciekawa dla
+            kogokolwiek poza mną.
+        </p>
+
+        <p>
+            Następne jest miasto: rozplanowana bryła na 2048 metrów, domy na podzielonych działkach,
+            biura, które najpierw się wynajmuje, a dopiero potem kupuje. Nie ma tego w tym buildzie i
+            wolę napisać to tutaj, niż żeby ktoś tego szukał.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Scaling Laws 0.1.0 jest darmowe na Windowsa.</strong> Jeśli w to zagrasz,
+                przydatną rzeczą nie jest to, czy ci się podobało. Jest nią dokładna minuta, w której
+                przestałeś rozumieć, czego gra od ciebie chce.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry, pobieranie i kod źródłowy</a></p>
+        </div>
+
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Dlaczego samodzielni twórcy zwlekają z wydaniem gotowego builda?</h3>
+            <p>
+                Bo polerowanie i unikanie czuje się od środka identycznie. Jedno i drugie polega na
+                otwarciu projektu, znalezieniu czegoś niedoskonałego, poprawieniu tego i wyprodukowaniu
+                commitów. Różnicę widać wyłącznie z zewnątrz: polerowanie poprawia to, co gracz
+                zauważy, unikanie poprawia to, co zobaczy tylko autor. Tutaj build był grywalny trzy
+                tygodnie przed publikacją.
+            </p>
+
+            <h3>Jakie usterki najczęściej dotrwają do dnia wydania?</h3>
+            <p>
+                Te, które ukrywają przed tobą twoje narzędzia. Edytor Unity rysuje grę we własnym
+                oknie, więc prawdziwe okno jest jedyną rzeczą, której autor nigdy nie widzi. Trzy
+                usterki znalazły się sześć godzin przed premierą i żadnego z nich nie mógł złapać test.
+            </p>
+
+            <h3>Ilu pobrań spodziewać się po pierwszym buildzie?</h3>
+            <p>
+                Konwersja jest mocniejszym sygnałem niż liczba pobrań. Około 130 wyświetleń przy mniej
+                więcej 48 procentach konwersji mówi, że strona jest wobec gry uczciwa. Dużo wyświetleń
+                przy niskiej konwersji byłoby większą liczbą i gorszym wynikiem.
+            </p>
+
+            <h3>Ile trwa zbudowanie grywalnej gry w pojedynkę?</h3>
+            <p>
+                Tutaj dwadzieścia dziewięć dni, wieczorami po dziesięcio- i dwunastogodzinnych zmianach,
+                co dało 174 publiczne commity i 909 testów automatycznych. Tempo wzięło się z trzymania
+                reguł w warstwie, która nie importuje niczego z silnika, więc cała symulacja testuje się
+                w niecałą minutę.
+            </p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Blog</a> &middot; <a href="../../guides/index_pl.html">Poradniki</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a> &middot; <a href="../feed_pl.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

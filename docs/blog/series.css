@@ -187,6 +187,9 @@ a:hover { text-decoration: underline; }
 .page-monday    .ep:hover { border-left-color: var(--accent-cyan); }
 .page-wednesday .ep:hover { border-left-color: var(--accent-gold); }
 .page-friday    .ep:hover { border-left-color: var(--accent-green); }
+/* Scaling Laws writing. Its own accent, the game's coral, so a reader can tell at a
+   glance that a page belongs to the game rather than to the Windows tooling. */
+.page-tech      .ep:hover { border-left-color: #f3604e; }
 .ep .ep-meta {
     display: flex;
     gap: .9rem;
@@ -328,6 +331,7 @@ a:hover { text-decoration: underline; }
 .page-monday    .article .hl { color: var(--accent-cyan); }
 .page-wednesday .article .hl { color: var(--accent-gold); }
 .page-friday    .article .hl { color: var(--accent-green); }
+.page-tech      .article .hl { color: #f3968a; }
 .article .hl-cyan  { color: var(--accent-cyan);  font-weight: 600; }
 .article .hl-gold  { color: var(--accent-gold);  font-weight: 600; }
 .article .hl-green { color: var(--accent-green); font-weight: 600; }
@@ -629,4 +633,171 @@ a:hover { text-decoration: underline; }
 @media (max-width: 560px) {
     .receipt-link .rl-stamp { display: none; }
     .receipt-link .rl-title { font-size: 1rem; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   BEHIND THE GAME DEV SCENE
+   A band for the Scaling Laws writing, on the blog hub and the guides hub.
+
+   Deliberately not in the site's gold/cyan family. This is a different property
+   and it carries the game's own accent, coral through violet, the same ramp as
+   the application icon and the store art. A reader who has seen the game
+   recognises it here; a reader who has not can see at a glance that this block
+   is about something other than Windows performance.
+   ════════════════════════════════════════════════════════════ */
+
+.sl-band {
+    margin: 2.6rem 0;
+    padding: 1.9rem 1.6rem 1.6rem;
+    border: 1px solid rgba(178,158,226,.22);
+    border-radius: 14px;
+    background:
+        radial-gradient(760px 300px at 12% 0%, rgba(120,52,86,.20), transparent 70%),
+        linear-gradient(180deg, #0d1119, #090c13);
+}
+
+.sl-band__head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(178,158,226,.16);
+}
+
+.sl-band__mark { flex: 0 0 auto; }
+
+.sl-band__title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 1.32rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    line-height: 1.15;
+    color: #f3f6fb;
+}
+
+.sl-band__sub {
+    margin: .25rem 0 0;
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #b29ee2;
+}
+
+/* The feature. One row, given the room a lead story is worth. */
+.sl-lead {
+    display: block;
+    margin-top: 1.25rem;
+    padding: 1.35rem 1.4rem;
+    border: 1px solid rgba(226,120,110,.24);
+    border-radius: 11px;
+    background: linear-gradient(150deg, rgba(96,30,44,.34), rgba(14,18,26,.9) 62%);
+    color: inherit;
+    text-decoration: none;
+    transition: transform .15s, border-color .2s;
+}
+
+.sl-lead:hover {
+    transform: translateY(-2px);
+    border-color: rgba(243,150,138,.5);
+    text-decoration: none;
+}
+
+.sl-lead__kicker {
+    font-family: var(--font-mono);
+    font-size: .63rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #f3968a;
+}
+
+.sl-lead h3 {
+    margin: .55rem 0 .5rem;
+    font-size: 1.24rem;
+    line-height: 1.28;
+    color: #f3f6fb;
+}
+
+.sl-lead p { margin: 0; font-size: .9rem; color: #9aa7b8; }
+
+.sl-lead__go {
+    display: inline-block;
+    margin-top: .85rem;
+    font-family: var(--font-mono);
+    font-size: .76rem;
+    color: #f3968a;
+}
+
+/* The guides under it, on their own ground so the lead keeps its weight. */
+.sl-band__label {
+    margin: 1.6rem 0 .8rem;
+    font-family: var(--font-mono);
+    font-size: .64rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #78849a;
+}
+
+.sl-stack { display: grid; gap: .7rem; }
+
+.sl-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border: 1px solid rgba(112,139,171,.15);
+    border-radius: 9px;
+    background: #0f1521;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color .18s, background .18s, transform .15s;
+}
+
+.sl-row:hover {
+    transform: translateX(3px);
+    border-color: rgba(178,158,226,.44);
+    background: #121a29;
+    text-decoration: none;
+}
+
+.sl-row h4 {
+    margin: 0 0 .28rem;
+    font-size: .99rem;
+    line-height: 1.3;
+    color: #eaf0f8;
+}
+
+.sl-row p { margin: 0; font-size: .82rem; color: #8b97a9; }
+
+.sl-row__meta {
+    flex: 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: .63rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #6f7c90;
+    text-align: right;
+}
+
+.sl-band__foot {
+    margin: 1.35rem 0 0;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgba(178,158,226,.14);
+    font-size: .82rem;
+    color: #7d8899;
+}
+
+.sl-band__foot a { color: #b29ee2; }
+
+@media (max-width: 640px) {
+    .sl-band { padding: 1.5rem 1.1rem 1.3rem; }
+    .sl-band__head { flex-wrap: wrap; gap: .8rem; }
+    .sl-row { grid-template-columns: minmax(0, 1fr); }
+    .sl-row__meta { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sl-lead:hover, .sl-row:hover { transform: none; }
 }
