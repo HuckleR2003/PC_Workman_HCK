@@ -88,6 +88,9 @@
     <lastmod>2026-08-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/"/>
   </url>
 
   <url>
@@ -95,6 +98,9 @@
     <lastmod>2026-08-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/"/>
   </url>
 
   <url>
@@ -115,6 +121,26 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/roadmap/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/roadmap/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/ai-accelerator-depreciation/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/"/>
   </url>
 
   <url>
@@ -398,6 +424,26 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/guides/save-migration-without-breaking-saves/</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/"/>
+  </url>
+
+  <url>
     <loc>https://pcworkman.dev/guides/silent-failure-catalogue/</loc>
     <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -424,6 +470,46 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failures-that-pass-every-test/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/index_pl.html</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/unreachable-code-in-games/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unreachable-code-in-games/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unreachable-code-in-games/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unreachable-code-in-games/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unreachable-code-in-games/"/>
   </url>
 
   <url>
@@ -993,6 +1079,26 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/blog/scaling-laws-first-build/</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/scaling-laws-first-build/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/scaling-laws-first-build/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/scaling-laws-first-build/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/scaling-laws-first-build/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/scaling-laws-first-build/"/>
+  </url>
+
+  <url>
     <loc>https://pcworkman.dev/blog/story.html</loc>
     <lastmod>2026-06-08</lastmod>
     <changefreq>monthly</changefreq>
@@ -1199,10 +1305,33 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/hck-labs/index_pl.html</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/"/>
+  </url>
+
+  <url>
     <loc>https://pcworkman.dev/hck-labs/scaling-laws/development/</loc>
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/development/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/development/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/development/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/development/"/>
   </url>
 
   <url>
@@ -1210,6 +1339,9 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/"/>
   </url>
 
   <url>
@@ -1217,6 +1349,19 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/index_pl.html</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/best-gpu-can-be-a-bad-purchase/"/>
   </url>
 
   <url>
@@ -1224,6 +1369,29 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/index_pl.html</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/building-the-starter-home/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/devlog/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/"/>
   </url>
 
   <url>
@@ -1231,6 +1399,19 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/"/>
   </url>
 
   <url>
@@ -1238,6 +1419,29 @@
     <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/feedback/index_pl.html</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/feedback/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/index_pl.html</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/"/>
   </url>
 
   <url>
@@ -1245,6 +1449,19 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/media/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/media/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/media/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/media/index_pl.html</loc>
+    <lastmod>2026-07-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/media/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/media/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/media/"/>
   </url>
 
   <url>
@@ -1252,6 +1469,19 @@
     <lastmod>2026-08-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/hck-labs/scaling-laws/roadmap/index_pl.html</loc>
+    <lastmod>2026-08-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/roadmap/"/>
   </url>
 
   <url>
