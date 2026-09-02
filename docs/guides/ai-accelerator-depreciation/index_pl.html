@@ -1,0 +1,390 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · amortyzacja akceleratorów AI -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Każdy akcelerator AI od 2017 traci około 30 procent w pierwszym roku i po trzech latach jest wart około 20. Tabela i koszt za petaflopa.">
+    <meta name="keywords" content="amortyzacja akceleratorów AI, wartość H100, spadek wartości GPU, koszt za petaflopa, cena A100 B200 GB300, wartość rezydualna GPU, kiedy kupować sprzęt AI">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <meta property="og:title" content="Ile wart jest akcelerator AI rok, dwa i trzy lata później">
+    <meta property="og:description" content="Cena za sztukę wzrosła z 10 000 na 48 000 dolarów w dziewięć lat. Cena za petaflopa spadła 5,5 raza. Oba fakty są w tej samej tabeli.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-09-01">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Amortyzacja Akceleratorów AI, Rok po Roku | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .dep-wrap { overflow-x: auto; margin: 26px 0; }
+        .dep { width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px; }
+        .dep th, .dep td { border:1px solid #23262e; padding:9px 11px; text-align:left; white-space:nowrap; }
+        .dep th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                  font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; }
+        .dep td { font-family:'JetBrains Mono',monospace; color:#c2cad6; }
+        .dep td b { font-family:'Inter',sans-serif; color:#eaf0f8; }
+        .dep tr.is-proj td { color:#7d8899; }
+        .proj { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em;
+                text-transform:uppercase; color:#e4b861; margin-left:7px; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Ile wart jest akcelerator AI rok, dwa i trzy lata później",
+      "description": "Tabela referencyjna ośmiu generacji akceleratorów AI z lat 2017 do 2029, z ceną startową, kosztem za petaflopa i wartością rezydualną po roku, dwóch i trzech latach według opublikowanego modelu amortyzacji.",
+      "url": "https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html" },
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1043,
+      "keywords": "amortyzacja akceleratorów AI, koszt za petaflopa, H100, A100, B200, GB300, wartość rezydualna, moment zakupu",
+      "about": [
+        { "@type": "Thing", "name": "Akceleratory AI" },
+        { "@type": "Thing", "name": "Amortyzacja kapitału" },
+        { "@type": "Thing", "name": "Ekonomia centrów danych" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Programista",
+        "url": "https://pcworkman.dev/blog/profile_pl.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Projektowanie symulacji", "Ekonomia sprzętu"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Amortyzacja akceleratorów AI", "item": "https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak szybko akcelerator AI traci na wartości?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W modelu użytym tutaj każda generacja od V100 wzwyż zachowuje mniej więcej 68 do 71 procent ceny zakupu rok po premierze. W drugim roku nowoczesne układy schodzą do około 36 do 37 procent, a w trzecim H100, H200 i B200 lądują blisko 19 do 20 procent. Odpowiadają za to dwie siły: czas połowicznego rozpadu wartości liczony w dniach oraz kolejna ćwiartka zdejmowana za każdym razem, gdy pojawi się nowszy układ tej samej klasy, rozłożona na 180 dni, a nie naliczana w dniu premiery." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy sprzęt AI zdrożał czy staniał?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Jedno i drugie, i właśnie dlatego kupujący się mylą. Cena jednej sztuki wzrosła z około 10 000 dolarów za V100 w 2017 do około 48 000 za GB300 w 2026. W tym samym czasie koszt jednego petaflopa gęstej przepustowości BF16 spadł z około 80 000 dolarów do około 14 500, czyli mniej więcej 5,5 raza. Kto porównuje ceny na metce, dochodzi do wniosku, że sprzęt drożeje. Kto porównuje koszt jednostki pracy, dochodzi do wniosku odwrotnego." }
+        },
+        {
+          "@type": "Question",
+          "name": "Lepiej wynajmować czy kupować moc obliczeniową?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Wynajem kosztuje więcej za jednostkę pracy i nie niesie ryzyka wartości rezydualnej. Zakup to mniej więcej jedna trzecia kosztu za FLOP i przenosi amortyzację na twój bilans, naliczaną niezależnie od tego, czy klaster pracuje, czy stoi. Decyduje wykorzystanie i moment, a nie cena: kapitał zaangażowany krótko przed premierą następcy traci ćwiartkę pozostałej wartości w pół roku, więc kupno wcześnie w cyklu generacji i eksploatacja na pełnych obrotach to zupełnie inna propozycja niż kupno późno i praca na pół gwizdka." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jaka jest dolna granica wartości używanego akceleratora?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W tym modelu 8 procent ceny zakupu. Wartość opada w stronę tej podłogi i nigdy poniżej, przy założeniu, że zawsze znajdzie się ktoś, kto chce tanią krzemową moc, nawet kilka generacji za frontem. Podłoga ma największe znaczenie dla starych układów trzymanych długo: V100 kupiony na premierze jest wart 35 procent po trzech latach przy presji następców swojej epoki, a H100 kupiony na premierze dochodzi w tym samym czasie do 20 procent, bo w tym oknie pojawiło się więcej następców." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/ai-accelerator-depreciation/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/ai-accelerator-depreciation/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Materiał źródłowy</span>
+        <h1>Cena poszła w górę.<br>Cena pracy spadła<br>pięć i pół raza.</h1>
+        <p class="tagline">Osiem generacji akceleratorów AI dla centrów danych, od 2017 do 2029, z ceną startową, kosztem za petaflopa i wartością po roku, dwóch i trzech latach. Obie połowy odpowiedzi są w tej samej tabeli.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-09-01</span><span>&middot;</span><span>6 min czytania</span><span>&middot;</span><span>Materiał źródłowy</span>
+        </div>
+
+        <p class="lead">Kto porównuje ceny na metce, dochodzi do wniosku, że sprzęt AI drożeje z roku na rok. Kto porównuje koszt jednostki pracy, dochodzi do wniosku odwrotnego. Obaj czytają ten sam katalog.</p>
+
+        <div class="callout">
+            <b>Skąd te liczby.</b> Specyfikacje i ceny startowe to publiczne dane producentów,
+            zaokrąglone. Wartości rezydualne wylicza opisany niżej model amortyzacji, czyli ten sam
+            kod, który działa w grze symulacyjnej, dla której ta tabela powstała. Dwa wiersze są
+            oznaczone jako projekcja: to ekstrapolacja roadmapy, a nie wydany produkt.
+        </div>
+
+        <h2 id="table">Tabela</h2>
+
+        <p>
+            Przepustowość to gęste BF16 w petaflopach na sekundę na sztukę. Liczby FP8 i FP4, które
+            podają producenci, są inną miarą i celowo nie są tu używane. Wartość rezydualna zakłada
+            zakup w dniu premiery i jest podana jako udział w tym, co zapłacono.
+        </p>
+
+        <div class="dep-wrap">
+            <table class="dep">
+                <thead>
+                    <tr>
+                        <th>Akcelerator</th><th>Premiera</th><th>PF/s</th><th>Cena startowa</th>
+                        <th>$ za PF</th><th>Po 1 roku</th><th>Po 2 latach</th><th>Po 3 latach</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><b>V100 SXM2 32GB</b></td><td>2017-06-21</td><td>0.125</td><td>$10 000</td><td>$80 000</td><td>71%</td><td>50%</td><td>35%</td>
+                </tr>
+                <tr>
+                    <td><b>A100 SXM4 80GB</b></td><td>2020-11-16</td><td>0.312</td><td>$15 000</td><td>$48 077</td><td>71%</td><td>47%</td><td>27%</td>
+                </tr>
+                <tr>
+                    <td><b>H100 SXM5</b></td><td>2022-10-01</td><td>0.989</td><td>$30 000</td><td>$30 334</td><td>71%</td><td>37%</td><td>20%</td>
+                </tr>
+                <tr>
+                    <td><b>H200 SXM</b></td><td>2024-02-01</td><td>0.989</td><td>$32 000</td><td>$32 356</td><td>69%</td><td>37%</td><td>20%</td>
+                </tr>
+                <tr>
+                    <td><b>B200</b></td><td>2025-01-15</td><td>2.250</td><td>$40 000</td><td>$17 778</td><td>70%</td><td>36%</td><td>19%</td>
+                </tr>
+                <tr>
+                    <td><b>GB300</b></td><td>2026-03-01</td><td>3.300</td><td>$48 000</td><td>$14 545</td><td>70%</td><td>36%</td><td>23%</td>
+                </tr>
+                <tr class="is-proj">
+                    <td><b>VR200</b> <span class="proj">projekcja</span></td><td>2027-06-01</td><td>6.500</td><td>$55 000</td><td>$8 462</td><td>68%</td><td>37%</td><td>24%</td>
+                </tr>
+                <tr class="is-proj">
+                    <td><b>Następna generacja</b> <span class="proj">projekcja</span></td><td>2029-01-01</td><td>13.000</td><td>$62 000</td><td>$4 769</td><td>68%</td><td>46%</td><td>32%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="big">
+            <b>5,5x</b>
+            <span>O tyle spadł koszt za petaflopa między V100 z 2017 a GB300 z 2026, z około
+            80 000 do około 14 500 dolarów, podczas gdy cena jednej sztuki wzrosła z 10 000
+            do 48 000.</span>
+        </div>
+
+        <h2 id="firstyear">Każda generacja traci w pierwszym roku około 30 procent</h2>
+
+        <p>
+            To najbardziej konsekwentna liczba w tabeli. V100, A100, H100, H200, B200 i GB300
+            mieszczą się wszystkie między <b>68 a 71 procentem</b> ceny zakupu dwanaście miesięcy po
+            premierze, mimo dziewięciu lat i pięciokrotnej zmiany tego, ile kosztuje sztuka.
+        </p>
+
+        <p>
+            Drugi rok je rozdziela. V100 trzymał jeszcze 50 procent, bo niewiele przeciwko niemu
+            wyszło. H100, H200 i B200 lądują koło 36 procent, bo tempo premier się zagęściło i każdy
+            z nich zmierzył się z większą liczbą następców w tym samym oknie.
+        </p>
+
+        <h2 id="model">Model w trzech regułach</h2>
+
+        <p>
+            Jest celowo prosty, a każdy jego element to liczba, z którą da się dyskutować.
+        </p>
+
+        <div class="code">wartosc = cena
+        * 0.5 ^ (dni_trzymania / dni_polowicznego_rozpadu)   // czas
+        * (1 - 0.25 * ramp) za kazda nowsza generacje         // nastepcy, przez 180 dni
+wartosc = max(wartosc, cena * 0.08)                          // podloga zlomowa</div>
+
+        <p>
+            Czas połowicznego rozpadu to 730 dni dla układów do H200, 700 dla B200 i GB300 oraz 660
+            dla generacji projektowanych. Skraca się, bo tempo premier się zagęszcza.
+        </p>
+
+        <div class="trap">
+            <h4>To kara za następcę boli, nie czas</h4>
+            <p>
+                Sam czas dałoby się przeżyć. Kapitał znika naprawdę przez to, że każdy nowszy układ
+                tej samej klasy zabiera kolejną ćwiartkę tego, co zostało, i robi to przez
+                <b>180 dni</b>, a nie w dniu premiery, bo rynek wtórny przecenia się przez dwa
+                kwartały, a nie z dnia na dzień.
+            </p>
+            <p>
+                Premiera, która już się odbyła w momencie zakupu, nie jest liczona drugi raz. Była
+                wliczona w to, co zapłaciłeś.
+            </p>
+        </div>
+
+        <h2 id="meaning">Co to znaczy, jeśli naprawdę kupujesz</h2>
+
+        <p>
+            Decyzją prawie nigdy nie jest <em>co</em> kupić. W obrębie jednej generacji układy są na
+            tyle blisko siebie, że odpowiedź jest oczywista. Decyzją jest <b>kiedy</b>, a tabela
+            nadaje temu kształt.
+        </p>
+
+        <p>
+            Kapitał zaangażowany krótko przed premierą następcy traci ćwiartkę pozostałej wartości w
+            pół roku, ponad zwykły spadek z czasu. Kapitał zaangażowany wcześnie w cyklu generacji i
+            eksploatowany na wysokim obłożeniu zamienia się w pracę, zanim to nastąpi. Ten sam sprzęt,
+            ta sama cena i istotnie inny wynik w zależności od miesiąca.
+        </p>
+
+        <p>
+            Wynajem odwraca ryzyko. Kosztuje więcej za jednostkę pracy i nie niesie żadnej ekspozycji
+            na wartość rezydualną, przez co jest właściwą odpowiedzią wtedy, gdy nie umiesz
+            przewidzieć własnego obłożenia, i drogą odpowiedzią wtedy, gdy umiesz.
+        </p>
+
+        <h2 id="honest">Czym ta tabela nie jest</h2>
+
+        <p>
+            Jest modelem, nie raportem rynkowym. Prawdziwe ceny na rynku wtórnym ustala podaż,
+            kontrole eksportowe, wyprzedaże hiperskalerów i to, ile sztuk kupujący potrzebuje naraz, a
+            nic z tego tu nie ma. Czasy połowicznego rozpadu są wybrane, a nie zmierzone.
+        </p>
+
+        <p>
+            Do czego się nadaje: do kształtu decyzji. Że pierwszy rok kosztuje około trzydziestu
+            procent, cokolwiek kupisz. Że następcy znaczą więcej niż wiek. I że koszt jednostki pracy
+            poszedł w przeciwną stronę niż koszt jednostki sprzętu.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Ta tabela jest założeniem pewnej gry.</strong> Scaling Laws to tycoon o firmie
+                AI, w którym powyższa amortyzacja obciąża twój bilans każdego dnia, niezależnie od
+                tego, czy klaster pracuje, czy stoi. Jest darmowy na Windowsa, a kod jest otwarty,
+                łącznie z cytowanym tu modelem wyceny.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry i kod źródłowy</a></p>
+        </div>
+
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Jak szybko akcelerator AI traci na wartości?</h3>
+            <p>
+                Około 30 procent w pierwszym roku, konsekwentnie w każdej generacji tutaj. Około 36
+                procent zostaje po dwóch latach przy nowoczesnych układach i blisko 20 procent po
+                trzech.
+            </p>
+
+            <h3>Sprzęt AI zdrożał czy staniał?</h3>
+            <p>
+                Za sztukę zdrożał: z 10 000 na 48 000 dolarów w dziewięć lat. Za petaflopa mocno
+                staniał: z około 80 000 do około 14 500, czyli mniej więcej 5,5 raza.
+            </p>
+
+            <h3>Wynajem czy zakup?</h3>
+            <p>
+                Wynajem kosztuje więcej za jednostkę pracy i nie niesie ryzyka wartości rezydualnej.
+                Zakup to jakaś jedna trzecia kosztu za FLOP i przenosi amortyzację na twój bilans
+                niezależnie od tego, czy klaster pracuje. Decyduje obłożenie i moment, nie cena.
+            </p>
+
+            <h3>Jaka jest podłoga wartości używanego układu?</h3>
+            <p>
+                8 procent ceny zakupu w tym modelu. Wartość opada w jej stronę i nigdy poniżej, bo
+                zawsze znajdzie się ktoś, kto chce tanią krzemową moc.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co faktycznie wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nic nie robiło. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

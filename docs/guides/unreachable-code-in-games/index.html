@@ -1,0 +1,427 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · finished, tested and unreachable -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A green suite proves a function works, not that anything calls it. Twelve finished, tested, unreachable mechanisms and the script that finds them.">
+    <meta name="keywords" content="unreachable code, dead code detection, green tests false confidence, feature not wired up, unit test coverage gap, game development testing, static analysis callers, C# find unused public methods">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <meta property="og:title" content="The feature that is finished, tested, and impossible to reach">
+    <meta property="og:description" content="A test proves a function does what you expect when you call it. It proves nothing about whether anything calls it. Twelve real cases and the script that finds them.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-19">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Finished, Tested, and Impossible to Reach | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "The feature that is finished, tested, and impossible to reach",
+      "description": "Twelve mechanisms that were complete, covered by passing tests, and unreachable by any player, from a single project. The ten-line script that finds them and the reason this fault class outlives every crash.",
+      "url": "https://pcworkman.dev/guides/unreachable-code-in-games/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unreachable-code-in-games/" },
+      "datePublished": "2026-08-19",
+      "dateModified": "2026-09-01",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1391,
+      "keywords": "unreachable code, dead code, test coverage, green tests, software testing, game development, static analysis",
+      "about": [
+        { "@type": "Thing", "name": "Software testing" },
+        { "@type": "Thing", "name": "Unreachable code" },
+        { "@type": "Thing", "name": "Test coverage" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Software developer",
+        "url": "https://pcworkman.dev/blog/profile.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Software testing", "Simulation design"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Finished, tested and unreachable", "item": "https://pcworkman.dev/guides/unreachable-code-in-games/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can a feature pass all its tests and still be unreachable by users?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, and it is common. A unit test calls the function directly, so it verifies that the function does what you expect when it is called. It says nothing about whether any user-facing path calls it. In one documented project, twelve separate mechanisms were finished, covered by passing tests, and impossible for a player to reach. One of them was an entire progression system that charged research points, cash and four months of in-game calendar and delivered nothing, with 531 tests green throughout." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you find code that nothing calls?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Split your project into a layer that holds rules and a layer that holds the controls, then list every public method in the rules layer and search the controls layer for each name. Zero matches means the method is either dead or unreachable, and you have to look at which. This is a ten-line script rather than a tool, it produces false positives that a human dismisses in seconds, and it found five real gaps on its first run in one project." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do unreachable features survive so long?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because there is no signal. A crash reports itself with a stack trace and a line number. An unreachable feature produces a green suite, a clean log, and a screen that looks finished. The only witnesses are a user trying to do the thing and finding no button, and a developer who deliberately goes looking. On a solo project there is no code reviewer, so the second witness has to be a scheduled check rather than a habit." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does AI assistance make unreachable code more likely?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In one developer's documented experience, yes, for a specific reason. Assistance makes writing a function that satisfies a description much faster, and does nothing for whether anything ever calls that function. The rate of finished, correct, unwired mechanisms rises with the rate at which mechanisms get written. The countermeasure is not to write less but to run the caller sweep on a schedule instead of relying on memory." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unreachable-code-in-games/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unreachable-code-in-games/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Testing</span>
+        <h1>A test proves a function works.<br>It proves nothing about<br>whether anything calls it.</h1>
+        <p class="tagline">Twelve mechanisms that were finished, covered by passing tests, and impossible for a player to reach. What they cost, the ten-line script that finds them, and why this fault outlives every crash you will ever write.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-19</span><span>&middot;</span><span>updated 2026-09-01</span><span>&middot;</span><span>8 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">You spend research points, cash and four months of in-game calendar on a node that says it gives you curated training corpora. The points leave your account. The corpora never arrive.</p>
+
+        <p>Not once. Not intermittently. Never, in any campaign, since the day the code was written.</p>
+
+        <div class="big">
+            <b>531</b>
+            <span>automated tests were passing while that was true. They passed because every one of
+            them called the granting function directly. The function worked. It has always worked.
+            Nothing in the interface had ever called it.</span>
+        </div>
+
+        <h2 id="gap">The gap nobody has a check for</h2>
+
+        <p>
+            A unit test answers one question: does this function do what I expect when I call it?
+        </p>
+
+        <p>
+            That is a useful question and it is not the only one. The second question is whether
+            anything reaches the function on a path a user can walk, and almost no standard tooling
+            asks it. Coverage tools do not help either, because your test suite is doing the calling,
+            so the line is covered.
+        </p>
+
+        <p>
+            The result is a fault with no symptom. It does not crash. It does not log. The screen
+            looks finished, the suite is green, and the only two witnesses are a user who tries to do
+            the thing and finds no button, and a developer who deliberately goes looking.
+        </p>
+
+        <h2 id="sweep">The sweep, in ten lines</h2>
+
+        <p>
+            This works if your project has a layer that holds the rules and a layer that holds the
+            controls. In my case those are a simulation layer that imports nothing from the engine,
+            and a UI layer that consumes it.
+        </p>
+
+        <p>
+            List every public method in the rules layer. Search the controls layer for each name. Zero
+            matches means dead or unreachable, and you go and look at which.
+        </p>
+
+        <div class="code">MUTATOR = re.compile(
+    r'public\s+(?:bool|void|int|double|[A-Z]\w*)\s+'
+    r'(Try[A-Z]\w*|Set[A-Z]\w*|Buy[A-Z]\w*|Start[A-Z]\w*|Cancel[A-Z]\w*)\s*\(')
+
+for path, source in simulation_files:
+    for match in MUTATOR.finditer(source):
+        name = match.group(1)
+        if not re.search(r'\b' + name + r'\s*\(', ui_layer_text):
+            print('no caller outside the rules layer:', name, path)</div>
+
+        <p>
+            It is crude on purpose. It produces false positives, which a human dismisses in a few
+            seconds each, and it costs nothing to run. On its first execution against my project it
+            reported <b>46</b> public mutators, <b>21</b> with no caller in the interface, and five
+            that were meant to be things a person does.
+        </p>
+
+        <h2 id="cases">What it actually found</h2>
+
+        <table class="cases">
+            <thead>
+                <tr><th>What was unreachable</th><th>What the player experienced</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Research node rewards</td>
+                    <td>Paid points, cash and four months for a corpus and an architecture family that were never granted. Every campaign was locked to the starting corpus and a dense transformer, forever.</td>
+                </tr>
+                <tr>
+                    <td>Cancelling a training run</td>
+                    <td>A regretted blueprint cost the full two hundred days. There was no way to stop it.</td>
+                </tr>
+                <tr>
+                    <td>Cancelling an architecture programme</td>
+                    <td>The same shape. A committed programme blocked the next one for months with no exit.</td>
+                </tr>
+                <tr>
+                    <td>The server hall</td>
+                    <td>A complete grid system with heat, placement rules and its own passing test fixture. No way in. It had been written months earlier and connected to nothing.</td>
+                </tr>
+                <tr>
+                    <td>The hiring screen's empty state</td>
+                    <td>A blank page with one button, because every route in set a portal first and the empty case was assumed unreachable. It was reachable.</td>
+                </tr>
+                <tr>
+                    <td>Storage shelf art</td>
+                    <td>Artwork and a light grid, both finished, drawn by nothing. Still open, and deliberately so.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Twelve in total across the life of the project. The first three shipped in a build that
+            people played.
+        </p>
+
+        <h2 id="worst">The one that was worst, and why</h2>
+
+        <div class="trap">
+            <h4>The player was charged in a currency they could not refund</h4>
+            <p>
+                The research node case is the one I think about. A missing feature is disappointing. A
+                feature that takes payment and delivers nothing is a different category, because the
+                player has spent something scarce and has no way to know they were robbed. They assume
+                they misunderstood the mechanic.
+            </p>
+            <p>
+                That is the real cost of this fault class in a game specifically. In a productivity
+                tool an unreachable feature is absent. In a simulation it can be actively lying to the
+                person playing, and they will blame themselves.
+            </p>
+        </div>
+
+        <h2 id="fix">Fixing it without loosening the test</h2>
+
+        <p>
+            The tempting repair is to write a test that calls the granting function and asserts the
+            corpus arrives. That test would have passed before the fix as well, because the function
+            was never broken.
+        </p>
+
+        <p>
+            The useful repair is a test that is <b>banned from calling the function directly</b>. It
+            finishes the research node the way a real day does, by advancing the simulation, and then
+            reads what the company owns afterwards.
+        </p>
+
+        <div class="code">// Not allowed to call TryAcquireDataSource. That is the entire point.
+var simulation = CompanyWithResearchUnderway();
+
+simulation.Advance(NodeDurationDays);
+
+Assert.That(simulation.State.DataSources, Contains.Item(DataSource.CuratedCorpora),
+    "The node completed and the corpus it advertises never arrived. "
+    + "The player paid points, cash and four months of calendar for nothing.");</div>
+
+        <p>
+            Write one of those per mechanism, at the completion site, and the class of fault cannot
+            return silently.
+        </p>
+
+        <h2 id="ai">Does AI assistance make this worse?</h2>
+
+        <p>
+            In my experience, yes, and I say so on every page where it is relevant because I build
+            with assistance openly.
+        </p>
+
+        <p>
+            The honest cost is narrow and specific. Assistance makes writing a function that satisfies
+            a description much faster. It does nothing at all for whether anything ever calls that
+            function. So the rate at which finished, correct, unwired mechanisms appear goes up
+            alongside the rate at which mechanisms get written.
+        </p>
+
+        <p>
+            The countermeasure is not writing less. It is moving the caller sweep off your memory and
+            onto a schedule, where it runs whether or not you remembered to be suspicious that week.
+        </p>
+
+        <h2 id="solo">Why this is a solo-developer problem in particular</h2>
+
+        <p>
+            On a team, an unwired feature usually dies in review, because a second person reads the
+            change and asks where it is called from. That question is the whole defence, and it is
+            free when somebody else is reading.
+        </p>
+
+        <p>
+            Alone, nobody asks it. Worse, every safety net you build is also a place a failure can
+            hide: a fallback image, a default value, a bare catch, a test that never opens the real
+            window. You add them so the thing does not crash, and in doing so you delete the only
+            signal you had.
+        </p>
+
+        <p>
+            So the check has to be mechanical. Not a habit, not a rule you intend to follow. A script
+            with a number that goes in the commit message.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Every case here is from Scaling Laws</strong>, an AI company tycoon released as
+                a free public build, with the source and the guard tests open.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a> &middot;
+               <a href="../silent-failures-that-pass-every-test/">The sibling guide: bugs that succeed instead of crashing</a></p>
+        </div>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Can a feature pass all its tests and still be unreachable?</h3>
+            <p>
+                Yes, and it is common. The test calls the function directly, so it verifies behaviour
+                and says nothing about reachability. Twelve mechanisms in one project were finished,
+                tested and unreachable.
+            </p>
+
+            <h3>How do you find code that nothing calls?</h3>
+            <p>
+                List every public method in the layer that holds your rules, search the layer that
+                holds your controls for each name, and look at the zero-match list. Ten lines, crude,
+                effective.
+            </p>
+
+            <h3>Why do these survive so long?</h3>
+            <p>
+                Because there is no symptom. Green suite, clean log, finished-looking screen. Only a
+                user hunting for a button or a developer deliberately looking will notice.
+            </p>
+
+            <h3>Does AI assistance make it more likely?</h3>
+            <p>
+                It speeds up writing functions that satisfy a description and does nothing for whether
+                anything calls them, so the rate goes up with the writing rate. Run the sweep on a
+                schedule rather than from memory.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

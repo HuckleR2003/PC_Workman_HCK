@@ -1,0 +1,428 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · skończone, przetestowane i nieosiągalne -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Zielony zestaw dowodzi, że funkcja działa, nie że coś ją wywołuje. Dwanaście nieosiągalnych mechanizmów i skrypt, który je znajduje.">
+    <meta name="keywords" content="nieosiągalny kod, martwy kod, zielone testy fałszywa pewność, funkcja niepodpięta, pokrycie testami, testowanie gier, analiza statyczna, C# nieużywane metody publiczne">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
+    <meta property="og:title" content="Funkcja skończona, przetestowana i niemożliwa do osiągnięcia">
+    <meta property="og:description" content="Test dowodzi, że funkcja robi to, czego oczekujesz, gdy ją wywołasz. Nie dowodzi, że cokolwiek ją wywołuje. Dwanaście prawdziwych przypadków i skrypt, który je znajduje.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-19">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Skończone, Przetestowane i Nieosiągalne | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Funkcja skończona, przetestowana i niemożliwa do osiągnięcia",
+      "description": "Dwanaście mechanizmów, które były kompletne, pokryte przechodzącymi testami i nieosiągalne dla gracza, z jednego projektu. Dziesięciolinijkowy skrypt, który je znajduje, i powód, dla którego ta klasa błędu przeżywa każdą awarię.",
+      "url": "https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html" },
+      "datePublished": "2026-08-19",
+      "dateModified": "2026-09-01",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1171,
+      "keywords": "nieosiągalny kod, martwy kod, pokrycie testami, zielone testy, testowanie oprogramowania, tworzenie gier, analiza statyczna",
+      "about": [
+        { "@type": "Thing", "name": "Testowanie oprogramowania" },
+        { "@type": "Thing", "name": "Nieosiągalny kod" },
+        { "@type": "Thing", "name": "Pokrycie testami" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Programista",
+        "url": "https://pcworkman.dev/blog/profile_pl.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Testowanie oprogramowania", "Projektowanie symulacji"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Skończone, przetestowane i nieosiągalne", "item": "https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy funkcja może przejść wszystkie testy i nadal być nieosiągalna dla użytkownika?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak i jest to częste. Test jednostkowy wywołuje funkcję bezpośrednio, więc sprawdza, że robi ona to, czego oczekujesz, gdy zostanie wywołana. Nie mówi nic o tym, czy jakakolwiek ścieżka dostępna dla użytkownika ją wywołuje. W jednym udokumentowanym projekcie dwanaście osobnych mechanizmów było skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Jednym z nich był cały system progresji, który pobierał punkty badań, gotówkę i cztery miesiące kalendarza w grze, i nie dostarczał niczego, przy 531 zielonych testach przez cały czas." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak znaleźć kod, którego nic nie wywołuje?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Podziel projekt na warstwę z regułami i warstwę z kontrolkami, potem wypisz każdą publiczną metodę warstwy reguł i przeszukaj warstwę kontrolek pod kątem każdej nazwy. Zero trafień oznacza, że metoda jest albo martwa, albo nieosiągalna, i trzeba sprawdzić, która to opcja. To jest dziesięciolinijkowy skrypt, a nie narzędzie, generuje fałszywe trafienia, które człowiek odrzuca w kilka sekund, i przy pierwszym uruchomieniu w jednym projekcie znalazł pięć realnych luk." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego nieosiągalne funkcje przeżywają tak długo?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo nie ma sygnału. Awaria zgłasza się sama, ze stosem wywołań i numerem linii. Nieosiągalna funkcja daje zielony zestaw testów, czysty log i ekran, który wygląda na skończony. Jedynymi świadkami są użytkownik, który próbuje coś zrobić i nie znajduje przycisku, oraz programista, który celowo poszedł szukać. W projekcie jednoosobowym nie ma recenzenta kodu, więc drugi świadek musi być zaplanowanym sprawdzeniem, a nie nawykiem." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy praca z pomocą AI zwiększa ryzyko nieosiągalnego kodu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W udokumentowanym doświadczeniu jednego programisty tak, z konkretnego powodu. Pomoc AI znacznie przyspiesza pisanie funkcji spełniającej opis i nie robi nic dla tego, czy cokolwiek kiedykolwiek tę funkcję wywoła. Tempo powstawania skończonych, poprawnych i niepodpiętych mechanizmów rośnie razem z tempem pisania mechanizmów. Środkiem zaradczym nie jest pisanie mniej, tylko przeniesienie przeglądu wywołań z pamięci na harmonogram." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unreachable-code-in-games/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unreachable-code-in-games/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Testowanie</span>
+        <h1>Test dowodzi, że funkcja działa.<br>Nie dowodzi niczego o tym,<br>czy cokolwiek ją wywołuje.</h1>
+        <p class="tagline">Dwanaście mechanizmów skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Ile kosztowały, dziesięciolinijkowy skrypt, który je znajduje, i dlaczego ten błąd przeżywa każdą awarię, jaką kiedykolwiek napiszesz.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-08-19</span><span>&middot;</span><span>akt. 2026-09-01</span><span>&middot;</span><span>8 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">Wydajesz punkty badań, gotówkę i cztery miesiące kalendarza w grze na węzeł, który mówi, że daje ci wyselekcjonowane korpusy treningowe. Punkty znikają z konta. Korpusy nigdy nie przychodzą.</p>
+
+        <p>Nie raz. Nie czasami. Nigdy, w żadnej kampanii, od dnia napisania tego kodu.</p>
+
+        <div class="big">
+            <b>531</b>
+            <span>testów automatycznych przechodziło, kiedy to była prawda. Przechodziły, bo każdy z
+            nich wywoływał funkcję przyznającą bezpośrednio. Funkcja działała. Zawsze działała. Nic w
+            interfejsie nigdy jej nie wywołało.</span>
+        </div>
+
+        <h2 id="gap">Luka, na którą nikt nie ma sprawdzenia</h2>
+
+        <p>
+            Test jednostkowy odpowiada na jedno pytanie: czy ta funkcja robi to, czego oczekuję, gdy ją
+            wywołam?
+        </p>
+
+        <p>
+            To pożyteczne pytanie i nie jedyne. Drugim jest to, czy cokolwiek dociera do tej funkcji
+            ścieżką, którą użytkownik może przejść, i prawie żadne standardowe narzędzie o to nie pyta.
+            Narzędzia do pokrycia też nie pomagają, bo to twój zestaw testów wywołuje, więc linia jest
+            pokryta.
+        </p>
+
+        <p>
+            Wynikiem jest błąd bez objawu. Nie wywala się. Nie loguje. Ekran wygląda na skończony,
+            zestaw jest zielony, a jedynymi świadkami są użytkownik, który próbuje coś zrobić i nie
+            znajduje przycisku, oraz programista, który celowo poszedł szukać.
+        </p>
+
+        <h2 id="sweep">Przegląd w dziesięciu linijkach</h2>
+
+        <p>
+            Działa, jeśli projekt ma warstwę z regułami i warstwę z kontrolkami. U mnie są to warstwa
+            symulacji, która nie importuje niczego z silnika, i warstwa UI, która ją konsumuje.
+        </p>
+
+        <p>
+            Wypisz każdą publiczną metodę warstwy reguł. Przeszukaj warstwę kontrolek pod kątem każdej
+            nazwy. Zero trafień oznacza martwą albo nieosiągalną, i idziesz sprawdzić, która to.
+        </p>
+
+        <div class="code">MUTATOR = re.compile(
+    r'public\s+(?:bool|void|int|double|[A-Z]\w*)\s+'
+    r'(Try[A-Z]\w*|Set[A-Z]\w*|Buy[A-Z]\w*|Start[A-Z]\w*|Cancel[A-Z]\w*)\s*\(')
+
+for path, source in simulation_files:
+    for match in MUTATOR.finditer(source):
+        name = match.group(1)
+        if not re.search(r'\b' + name + r'\s*\(', ui_layer_text):
+            print('brak wywolania poza warstwa regul:', name, path)</div>
+
+        <p>
+            Jest celowo prymitywny. Generuje fałszywe trafienia, które człowiek odrzuca w kilka sekund
+            każde, i nic nie kosztuje. Przy pierwszym uruchomieniu na moim projekcie zgłosił
+            <b>46</b> publicznych mutatorów, <b>21</b> bez wywołania w interfejsie i pięć, które miały
+            być rzeczami, jakie robi człowiek.
+        </p>
+
+        <h2 id="cases">Co faktycznie znalazł</h2>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Co było nieosiągalne</th><th>Czego doświadczał gracz</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Nagrody z węzłów badań</td>
+                    <td>Zapłacone punkty, gotówka i cztery miesiące za korpus i rodzinę architektur, których nigdy nie przyznano. Każda kampania była na zawsze zamknięta w korpusie startowym i gęstym transformerze.</td>
+                </tr>
+                <tr>
+                    <td>Anulowanie treningu</td>
+                    <td>Żałowany projekt kosztował pełne dwieście dni. Nie było jak go zatrzymać.</td>
+                </tr>
+                <tr>
+                    <td>Anulowanie programu architektury</td>
+                    <td>Ten sam kształt. Zatwierdzony program blokował kolejny na miesiące, bez wyjścia.</td>
+                </tr>
+                <tr>
+                    <td>Serwerownia</td>
+                    <td>Kompletny system siatki z ciepłem, regułami stawiania i własnym przechodzącym zestawem testów. Żadnego wejścia. Napisana miesiące wcześniej i podpięta do niczego.</td>
+                </tr>
+                <tr>
+                    <td>Pusty stan ekranu rekrutacji</td>
+                    <td>Pusta strona z jednym przyciskiem, bo każda droga wejścia ustawiała najpierw kanał, więc pusty przypadek uznano za nieosiągalny. Był osiągalny.</td>
+                </tr>
+                <tr>
+                    <td>Grafika półki na dyski</td>
+                    <td>Grafika i siatka diod, obie skończone, rysowane przez nic. Nadal otwarte i świadomie.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Łącznie dwanaście przez całe życie projektu. Trzy pierwsze trafiły do builda, w którego
+            ludzie grali.
+        </p>
+
+        <h2 id="worst">Ten najgorszy i dlaczego</h2>
+
+        <div class="trap">
+            <h4>Gracz płacił walutą, której nie da się odzyskać</h4>
+            <p>
+                Przypadek z węzłem badań to ten, o którym myślę. Brakująca funkcja jest rozczarowaniem.
+                Funkcja, która pobiera zapłatę i nie dostarcza niczego, to inna kategoria, bo gracz
+                wydał coś rzadkiego i nie ma jak się dowiedzieć, że go okradziono. Zakłada, że źle
+                zrozumiał mechanikę.
+            </p>
+            <p>
+                To jest prawdziwy koszt tej klasy błędu akurat w grze. W narzędziu do pracy nieosiągalna
+                funkcja jest nieobecna. W symulacji potrafi aktywnie okłamywać osobę grającą, a ona
+                obwini siebie.
+            </p>
+        </div>
+
+        <h2 id="fix">Naprawa bez rozluźniania testu</h2>
+
+        <p>
+            Kuszącą naprawą jest napisanie testu, który wywoła funkcję przyznającą i sprawdzi, że
+            korpus przyszedł. Taki test przeszedłby również przed naprawą, bo funkcja nigdy nie była
+            zepsuta.
+        </p>
+
+        <p>
+            Użyteczną naprawą jest test, któremu <b>zabroniono wywoływać tę funkcję bezpośrednio</b>.
+            Kończy węzeł badań tak, jak robi to prawdziwy dzień, przez posunięcie symulacji, a potem
+            odczytuje, co firma ma po tym.
+        </p>
+
+        <div class="code">// Nie wolno wywolac TryAcquireDataSource. O to wlasnie chodzi.
+var simulation = CompanyWithResearchUnderway();
+
+simulation.Advance(NodeDurationDays);
+
+Assert.That(simulation.State.DataSources, Contains.Item(DataSource.CuratedCorpora),
+    "Wezel sie skonczyl, a korpus, ktory reklamuje, nie przyszedl. "
+    + "Gracz zaplacil punkty, gotowke i cztery miesiace kalendarza za nic.");</div>
+
+        <p>
+            Napisz jeden taki na mechanizm, w miejscu ukończenia, a ta klasa błędu nie może wrócić po
+            cichu.
+        </p>
+
+        <h2 id="ai">Czy praca z AI to pogarsza?</h2>
+
+        <p>
+            W moim doświadczeniu tak, i mówię to na każdej stronie, na której ma to znaczenie, bo
+            pracuję z pomocą AI otwarcie.
+        </p>
+
+        <p>
+            Uczciwy koszt jest wąski i konkretny. Pomoc AI znacznie przyspiesza pisanie funkcji
+            spełniającej opis. Nie robi zupełnie nic dla tego, czy cokolwiek kiedykolwiek tę funkcję
+            wywoła. Więc tempo powstawania skończonych, poprawnych i niepodpiętych mechanizmów rośnie
+            razem z tempem pisania mechanizmów.
+        </p>
+
+        <p>
+            Środkiem zaradczym nie jest pisanie mniej. Jest nim przeniesienie przeglądu wywołań z
+            pamięci na harmonogram, gdzie uruchamia się niezależnie od tego, czy w danym tygodniu
+            pamiętałeś, żeby być podejrzliwym.
+        </p>
+
+        <h2 id="solo">Dlaczego to szczególnie problem samodzielnych</h2>
+
+        <p>
+            W zespole niepodpięta funkcja zwykle umiera w code review, bo druga osoba czyta zmianę i
+            pyta, skąd to jest wywoływane. To pytanie jest całą obroną i jest darmowe, gdy ktoś inny
+            czyta.
+        </p>
+
+        <p>
+            Samemu nikt go nie zadaje. Gorzej, każda siatka bezpieczeństwa, którą budujesz, jest też
+            miejscem, gdzie awaria może się schować: zapasowy obrazek, wartość domyślna, gołe
+            przechwycenie wyjątku, zielony test, który nigdy nie otworzył prawdziwego okna. Dodajesz je,
+            żeby się nie wywaliło, i tym samym kasujesz jedyny sygnał, jaki miałeś.
+        </p>
+
+        <p>
+            Więc sprawdzenie musi być mechaniczne. Nie nawyk, nie zasada, której zamierzasz
+            przestrzegać. Skrypt z liczbą, która trafia do opisu commita.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Każdy przypadek stąd jest ze Scaling Laws</strong>, tycoona o firmie AI wydanego
+                jako darmowy publiczny build, z otwartym kodem i testami strażniczymi.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry i kod źródłowy</a> &middot;
+               <a href="../silent-failures-that-pass-every-test/index_pl.html">Poradnik siostrzany: błędy, które zamiast się wywalić, kończą się sukcesem</a></p>
+        </div>
+
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Czy funkcja może przejść wszystkie testy i być nieosiągalna?</h3>
+            <p>
+                Tak i jest to częste. Test wywołuje funkcję bezpośrednio, więc weryfikuje zachowanie i
+                nie mówi nic o osiągalności. Dwanaście mechanizmów w jednym projekcie było skończonych,
+                przetestowanych i nieosiągalnych.
+            </p>
+
+            <h3>Jak znaleźć kod, którego nic nie wywołuje?</h3>
+            <p>
+                Wypisz każdą publiczną metodę warstwy z regułami, przeszukaj warstwę z kontrolkami pod
+                kątem każdej nazwy i obejrzyj listę zerowych trafień. Dziesięć linijek, prymitywne,
+                skuteczne.
+            </p>
+
+            <h3>Dlaczego przeżywają tak długo?</h3>
+            <p>
+                Bo nie ma objawu. Zielony zestaw, czysty log, ekran wyglądający na skończony. Zauważy
+                to tylko użytkownik polujący na przycisk albo programista, który celowo poszedł szukać.
+            </p>
+
+            <h3>Czy praca z AI zwiększa ryzyko?</h3>
+            <p>
+                Przyspiesza pisanie funkcji spełniających opis i nie robi nic dla tego, czy cokolwiek je
+                wywołuje, więc tempo rośnie razem z tempem pisania. Uruchamiaj przegląd z harmonogramu,
+                a nie z pamięci.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co faktycznie wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nic nie robiło. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

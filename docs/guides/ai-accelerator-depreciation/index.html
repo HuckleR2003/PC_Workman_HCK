@@ -1,0 +1,390 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · AI accelerator depreciation reference -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Every AI accelerator since 2017 loses about 30 per cent in its first year and sits near 20 per cent by year three. The table, and the cost per petaflop.">
+    <meta name="keywords" content="AI accelerator depreciation, H100 resale value, GPU depreciation rate, cost per petaflop, A100 B200 GB300 price, datacenter GPU residual value, when to buy AI hardware">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <meta property="og:title" content="What an AI accelerator is worth one, two and three years later">
+    <meta property="og:description" content="Price per unit went from $10,000 to $48,000 in nine years. Price per petaflop fell 5.5 times. Both facts are in the same table.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/ai-accelerator-depreciation/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-09-01">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>AI Accelerator Depreciation, Year by Year | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .dep-wrap { overflow-x: auto; margin: 26px 0; }
+        .dep { width:100%; border-collapse:collapse; font-size:13.5px; min-width:720px; }
+        .dep th, .dep td { border:1px solid #23262e; padding:9px 11px; text-align:left; white-space:nowrap; }
+        .dep th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                  font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; }
+        .dep td { font-family:'JetBrains Mono',monospace; color:#c2cad6; }
+        .dep td b { font-family:'Inter',sans-serif; color:#eaf0f8; }
+        .dep tr.is-proj td { color:#7d8899; }
+        .proj { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.08em;
+                text-transform:uppercase; color:#e4b861; margin-left:7px; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What an AI accelerator is worth one, two and three years later",
+      "description": "A reference table of eight datacenter AI accelerator generations from 2017 to 2029, with launch price, cost per petaflop, and residual value after one, two and three years under a published depreciation model.",
+      "url": "https://pcworkman.dev/guides/ai-accelerator-depreciation/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/ai-accelerator-depreciation/" },
+      "datePublished": "2026-09-01",
+      "dateModified": "2026-09-01",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1102,
+      "keywords": "AI accelerator depreciation, cost per petaflop, H100, A100, B200, GB300, residual value, capital timing",
+      "about": [
+        { "@type": "Thing", "name": "AI accelerator hardware" },
+        { "@type": "Thing", "name": "Capital depreciation" },
+        { "@type": "Thing", "name": "Datacenter economics" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Software developer",
+        "url": "https://pcworkman.dev/blog/profile.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Simulation design", "Hardware economics"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "AI accelerator depreciation", "item": "https://pcworkman.dev/guides/ai-accelerator-depreciation/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How fast does an AI accelerator lose value?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Under the model used here, every generation from the V100 onward retains roughly 68 to 71 per cent of its purchase price one year after launch. By year two the modern parts sit near 36 to 37 per cent, and by year three the H100, H200 and B200 all land close to 19 to 20 per cent. Two forces produce that: a value half-life measured in days, and a further quarter knocked off each time a newer part of the same class ships, phased in over 180 days rather than applied on launch day." }
+        },
+        {
+          "@type": "Question",
+          "name": "Has AI hardware become more expensive or cheaper?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Both, and the two answers are the reason buyers get this wrong. The price of one unit rose from about 10,000 US dollars for a V100 in 2017 to about 48,000 for a GB300 in 2026. Over the same period the cost per petaflop of dense BF16 throughput fell from roughly 80,000 dollars to roughly 14,500, an improvement of about 5.5 times. Anybody comparing sticker prices concludes hardware is getting dearer. Anybody comparing cost per unit of work concludes the opposite." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it better to rent or buy AI compute?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Renting costs more per unit of work and carries no residual risk. Buying is roughly a third of the cost per FLOP and puts the depreciation on your balance sheet, charged whether the cluster is busy or idle. The deciding factor is utilisation and timing rather than price: capital committed shortly before a successor launches loses a quarter of its remaining value inside six months, so buying early in a generation and running it hot is a different proposition from buying late and running it half empty." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the floor on used AI accelerator value?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In this model, 8 per cent of the purchase price. Value decays toward that floor and never below it, on the reasoning that somebody always wants cheap silicon even when it is several generations behind the frontier. The floor matters most for old parts held a long time: a V100 bought at launch is worth 35 per cent after three years under the successor pressure of its era, while an H100 bought at launch reaches 20 per cent in the same span because more successors shipped in that window." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/ai-accelerator-depreciation/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/ai-accelerator-depreciation/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Reference</span>
+        <h1>The price went up.<br>The price of the work<br>fell five and a half times.</h1>
+        <p class="tagline">Eight datacenter AI accelerator generations, 2017 to 2029, with launch price, cost per petaflop, and what each is worth one, two and three years later. Both halves of the answer are in the same table.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-09-01</span><span>&middot;</span><span>6 min read</span><span>&middot;</span><span>Reference</span>
+        </div>
+
+        <p class="lead">Somebody comparing sticker prices concludes AI hardware is getting more expensive every year. Somebody comparing cost per unit of work concludes the opposite. Both are reading the same catalogue.</p>
+
+        <div class="callout">
+            <b>Where these numbers come from.</b> Specifications and launch prices are public vendor
+            figures, rounded. Residual values are computed by the depreciation model described below,
+            which is the same code that runs inside the simulation game this table was built for. Two
+            rows are marked as projections: they are roadmap extrapolation, not shipped product.
+        </div>
+
+        <h2 id="table">The table</h2>
+
+        <p>
+            Throughput is dense BF16 petaflop/s per unit. The FP8 and FP4 numbers vendors quote are a
+            different measurement and are deliberately not used here. Residual value assumes purchase
+            at launch and is expressed as a share of what was paid.
+        </p>
+
+        <div class="dep-wrap">
+            <table class="dep">
+                <thead>
+                    <tr>
+                        <th>Accelerator</th><th>Launch</th><th>PF/s</th><th>Launch price</th>
+                        <th>$ per PF</th><th>After 1 yr</th><th>After 2 yr</th><th>After 3 yr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><b>V100 SXM2 32GB</b></td><td>2017-06-21</td><td>0.125</td><td>$10,000</td><td>$80,000</td><td>71%</td><td>50%</td><td>35%</td>
+                </tr>
+                <tr>
+                    <td><b>A100 SXM4 80GB</b></td><td>2020-11-16</td><td>0.312</td><td>$15,000</td><td>$48,077</td><td>71%</td><td>47%</td><td>27%</td>
+                </tr>
+                <tr>
+                    <td><b>H100 SXM5</b></td><td>2022-10-01</td><td>0.989</td><td>$30,000</td><td>$30,334</td><td>71%</td><td>37%</td><td>20%</td>
+                </tr>
+                <tr>
+                    <td><b>H200 SXM</b></td><td>2024-02-01</td><td>0.989</td><td>$32,000</td><td>$32,356</td><td>69%</td><td>37%</td><td>20%</td>
+                </tr>
+                <tr>
+                    <td><b>B200</b></td><td>2025-01-15</td><td>2.250</td><td>$40,000</td><td>$17,778</td><td>70%</td><td>36%</td><td>19%</td>
+                </tr>
+                <tr>
+                    <td><b>GB300</b></td><td>2026-03-01</td><td>3.300</td><td>$48,000</td><td>$14,545</td><td>70%</td><td>36%</td><td>23%</td>
+                </tr>
+                <tr class="is-proj">
+                    <td><b>VR200</b> <span class="proj">projection</span></td><td>2027-06-01</td><td>6.500</td><td>$55,000</td><td>$8,462</td><td>68%</td><td>37%</td><td>24%</td>
+                </tr>
+                <tr class="is-proj">
+                    <td><b>Next generation</b> <span class="proj">projection</span></td><td>2029-01-01</td><td>13.000</td><td>$62,000</td><td>$4,769</td><td>68%</td><td>46%</td><td>32%</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="big">
+            <b>5.5x</b>
+            <span>The fall in cost per petaflop between the V100 in 2017 and the GB300 in 2026,
+            from about $80,000 to about $14,500, while the price of a single unit rose from
+            $10,000 to $48,000.</span>
+        </div>
+
+        <h2 id="firstyear">Every generation loses about 30 per cent in year one</h2>
+
+        <p>
+            This is the most consistent number in the table. V100, A100, H100, H200, B200 and GB300
+            all sit between <b>68 and 71 per cent</b> of purchase price twelve months after launch,
+            despite nine years and a fivefold change in what a unit costs.
+        </p>
+
+        <p>
+            Year two is where they separate. The V100 still held 50 per cent, because little shipped
+            against it. The H100, H200 and B200 land near 36 per cent, because the launch cadence
+            tightened and each of them faced more successors inside the same window.
+        </p>
+
+        <h2 id="model">The model, in three rules</h2>
+
+        <p>
+            It is deliberately simple, and every part of it is a number you can argue with.
+        </p>
+
+        <div class="code">value = price
+      * 0.5 ^ (days_held / half_life_days)     // time
+      * (1 - 0.25 * ramp) per newer generation // successors, phased over 180 days
+value = max(value, price * 0.08)               // scrap floor</div>
+
+        <p>
+            The half-life is 730 days for parts up to the H200, 700 for the B200 and GB300, and 660
+            for the projected generations. It shortens because the cadence is tightening.
+        </p>
+
+        <div class="trap">
+            <h4>The successor penalty is the one that hurts</h4>
+            <p>
+                Time alone would be survivable. What actually removes capital is that every newer
+                part of the same class takes a further quarter of what is left, and it does so over
+                <b>180 days</b> rather than on launch day, because a second-hand market reprices over
+                a couple of quarters rather than overnight.
+            </p>
+            <p>
+                A launch that had already happened when you bought is not counted again. It was
+                priced into what you paid.
+            </p>
+        </div>
+
+        <h2 id="meaning">What this means if you are actually buying</h2>
+
+        <p>
+            The decision is almost never <em>what</em> to buy. Within a generation the parts are
+            close enough that the answer is obvious. The decision is <b>when</b>, and the table gives
+            it a shape.
+        </p>
+
+        <p>
+            Capital committed shortly before a successor ships loses a quarter of its remaining value
+            inside six months on top of ordinary time decay. Capital committed early in a generation
+            and run at high utilisation converts into work before that happens. The same hardware,
+            the same price, and a materially different outcome depending on the month.
+        </p>
+
+        <p>
+            Renting inverts the risk. It costs more per unit of work and carries no residual exposure
+            at all, which makes it the correct answer when you cannot predict your own utilisation,
+            and the expensive answer when you can.
+        </p>
+
+        <h2 id="honest">What this table is not</h2>
+
+        <p>
+            It is a model, not a market report. Real second-hand prices are set by supply, export
+            controls, hyperscaler dumping and how many units a buyer needs at once, none of which are
+            here. The half-lives are chosen figures, not measured ones.
+        </p>
+
+        <p>
+            What it is good for is the shape of the decision: that the first year costs about thirty
+            per cent whatever you buy, that successors matter more than age, and that cost per unit of
+            work has moved in the opposite direction to cost per unit.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>This table is the premise of a game.</strong> Scaling Laws is an AI company
+                tycoon where the depreciation above is charged against your balance every day,
+                whether the cluster is busy or idle. It is free for Windows and the source is open,
+                including the valuation code quoted here.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a></p>
+        </div>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>How fast does an AI accelerator lose value?</h3>
+            <p>
+                About 30 per cent in the first year, consistently across every generation here. Near
+                36 per cent remaining by year two for modern parts, and close to 20 per cent by year
+                three.
+            </p>
+
+            <h3>Has AI hardware got more expensive or cheaper?</h3>
+            <p>
+                Per unit, more expensive: $10,000 to $48,000 in nine years. Per petaflop, far
+                cheaper: about $80,000 down to about $14,500, roughly 5.5 times better.
+            </p>
+
+            <h3>Rent or buy?</h3>
+            <p>
+                Renting costs more per unit of work and carries no residual risk. Buying is around a
+                third of the cost per FLOP and puts depreciation on your balance sheet whether the
+                cluster is busy or not. Utilisation and timing decide it, not price.
+            </p>
+
+            <h3>What is the floor on a used accelerator?</h3>
+            <p>
+                8 per cent of purchase price in this model. Value decays toward it and never below,
+                because somebody always wants cheap silicon.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

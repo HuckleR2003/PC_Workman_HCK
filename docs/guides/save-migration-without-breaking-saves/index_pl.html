@@ -1,0 +1,427 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · migracja zapisu bez psucia kampanii -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Format zapisu zmienił się 42 razy pod żywą grą i nie zepsuł żadnej kampanii. Jeden krok na wersję i pułapka, która złapała mnie sześć razy.">
+    <meta name="keywords" content="migracja zapisu, wersjonowanie formatu zapisu, kompatybilność zapisów, aktualizacja save, serializacja wersjonowanie, Unity system zapisu, wsteczna kompatybilność, test migracji">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <meta property="og:title" content="42 zmiany formatu zapisu i ani jedna zepsuta kampania">
+    <meta property="og:description" content="Jeden krok migracji na wersję, stare kształty zachowane dosłownie, każda rekonstrukcja zadeklarowana. I pułapka, która wygląda na wyliczaną, a jest przyczynowa.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-29">
+    <meta property="article:modified_time" content="2026-08-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>42 Zmiany Formatu Zapisu, Zero Zepsutych Save'ów | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .rules { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .rules th, .rules td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .rules th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "42 zmiany formatu zapisu i ani jedna zepsuta kampania",
+      "description": "Jak zmieniać format zapisu pod żywą grą: jeden krok migracji na wersję, stare kształty zachowane dosłownie, każda rekonstrukcja zadeklarowana i test migracji przy każdym podbiciu wersji.",
+      "url": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html" },
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1231,
+      "keywords": "migracja zapisu, wersjonowanie, serializacja, wsteczna kompatybilność, zapisy gry, Unity, testowanie",
+      "about": [
+        { "@type": "Thing", "name": "Migracja plików zapisu" },
+        { "@type": "Thing", "name": "Wersjonowanie serializacji danych" },
+        { "@type": "Thing", "name": "Wsteczna kompatybilność" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Programista",
+        "url": "https://pcworkman.dev/blog/profile_pl.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Testowanie oprogramowania", "Serializacja danych"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Migracja zapisu bez psucia save'ów", "item": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak zmienić format zapisu, nie psując istniejących save'ów?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Napisz jeden krok migracji na wersję i uruchamiaj je w pętli, nigdy jako ręcznie pisany łańcuch wywołań. Trzymaj stare kształty danych w kodzie dosłownie, żeby każdy krok czytał prawdziwą historyczną strukturę, a nie domysł na jej temat. Niech każdy krok stempluje własną wersję docelową, a nie najnowszą, żeby pole wersji zawsze opisywało to, czym dane faktycznie są. Dołączaj test migracji do każdego podbicia wersji. W jednym projekcie przeprowadziło to format zapisu przez 42 zmiany pod żywą grą bez utraty kampanii." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jaki jest najczęstszy błąd w migracji zapisu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Pole wersji, które jest zapisywane, ale nigdy odczytywane. W jednym projekcie metoda Sanitize stemplowała bieżącą wersję na każdym wczytywanym pliku, nigdy nie sprawdzając wartości, która już tam była, więc numer wersji był dekoracyjny i żadna ścieżka aktualizacji nie istniała. Działało bez zarzutu i nie robiło nic, co jest najgorszym rodzajem awarii, bo nie ma objawu aż do momentu, w którym naprawdę stary plik wreszcie wymaga aktualizacji." }
+        },
+        {
+          "@type": "Question",
+          "name": "Które pola trzeba zapisywać w grze?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Wszystko, co czyta jutro, nawet jeśli wygląda na coś, co da się przeliczyć. Niezawodnym testem jest to, czy następny tick tego używa: jeśli wczorajsze obciążenie serwerów karmi dzisiejszą reakcję klientów, to obciążenie jest stanem przyczynowym i musi być zapisane, jakkolwiek wyliczalne by wyglądało. W jednym projekcie ten sam błąd popełniono sześć razy, w tym nierozstrzygnięty werdykt, przed którym gracz mógł uciec przez wczytanie zapisu, oraz pierwotną datę premiery rywala przywracaną jako jego bieżąca zamierzona." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak sprawdzić, że wczytanie zapisu nie zmienia gry?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Rozegraj skryptowaną kampanię do pewnego momentu, zapisz, wczytaj z powrotem i graj dalej. Przebieg przerwany musi skończyć się identycznie jak przebieg, którego nikt nie przerwał. Jeśli wczytanie zmienia przyszłość, plik nie jest zapisem, tylko fotografią gry, która już nie istnieje. Gdy taki test padnie, loguj pierwszy tick, w którym oba przebiegi się rozjeżdżają, zamiast mierzyć różnicę na końcu: pierwsze rozejście wskazuje przyczynę, końcowa liczba pokazuje tylko szkodę." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/save-migration-without-breaking-saves/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/save-migration-without-breaking-saves/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Trwałość</span>
+        <h1>Plik zapisu, który przetrwał<br>42 zmiany formatu<br>pod żywą grą.</h1>
+        <p class="tagline">Jeden krok migracji na wersję, stare kształty zachowane dosłownie, każda rekonstrukcja zadeklarowana, a nie ukryta. Plus pułapka, która wygląda na wyliczaną, jest przyczynowa i złapała mnie sześć razy.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-08-29</span><span>&middot;</span><span>8 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">Plik zapisu to obietnica. Ktoś włożył w kampanię czterdzieści godzin, a ty przy każdej nowej funkcji prosisz jego plik, żeby przeżył zmianę, na którą nie wyraził zgody.</p>
+
+        <p>
+            Oto jak dotrzymuję tej obietnicy w symulacji, której model danych zmienił się
+            <b>42 razy</b>, gdy ludzie już w to grali, i cztery zasady, które robią z tego nudę
+            zamiast strachu.
+        </p>
+
+        <h2 id="origin">Zasada, która wzięła się z błędu</h2>
+
+        <p>
+            We wcześniejszym projekcie miałem system zapisu, który wyglądał nieskazitelnie. Każdy plik
+            niósł numer wersji. Była metoda <code>Sanitize</code>, która chodziła przy wczytaniu i
+            robiła wszystko poprawnym.
+        </p>
+
+        <div class="big">
+            <b>0</b>
+            <span>kroków aktualizacji istniało. Sanitize stemplowała bieżącą wersję na każdym pliku,
+            którego dotknęła, nigdy nie czytając wartości, która już tam była. Pole wersji było
+            dekoracyjne. Działało bez zarzutu i nie robiło nic.</span>
+        </div>
+
+        <p>
+            To jest najgorsza klasa awarii, bo nie ma objawu. Nic się nie wywala. Pliki się wczytują.
+            Liczba w pliku zawsze jest poprawna, bo właśnie ją zapisałeś. Dowiadujesz się wtedy, gdy
+            naprawdę stary plik wreszcie wymaga aktualizacji, a maszynerii do tego nie ma.
+        </p>
+
+        <h2 id="rules">Cztery zasady</h2>
+
+        <table class="rules">
+            <thead>
+                <tr><th>Zasada</th><th>Dlaczego</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Jeden krok na wersję, w pętli</b></td>
+                    <td>Pętla nie umie pominąć kroku. Ręcznie pisany łańcuch wywołań umie, i mój to zrobił: zatrzymał się jeden przed najnowszą wersją i zostawił późniejsze pola niezainicjowane.</td>
+                </tr>
+                <tr>
+                    <td><b>Stare kształty zachowane dosłownie</b></td>
+                    <td><code>SaveDataV1</code> nadal jest w kodzie. Ścieżka aktualizacji czyta prawdziwą historyczną strukturę, a nie twoje wspomnienie o niej.</td>
+                </tr>
+                <tr>
+                    <td><b>Każdy krok stempluje własną wersję</b></td>
+                    <td>Nie najnowszą. Krok twierdzący, że produkuje bieżącą wersję, jest pułapką dla wszystkiego, co przeczyta to pole później.</td>
+                </tr>
+                <tr>
+                    <td><b>Każde podbicie z testem migracji</b></td>
+                    <td>Test jest jedyną rzeczą, która dowodzi, że krok w ogóle się wykonuje. Bez niego napisałeś krok i masz nadzieję.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="code">// Petla liczy sama za siebie, wiec nic nie da sie pominac.
+while (data.version &lt; SaveData.CurrentVersion)
+{
+    data = Steps[data.version](data);   // kazdy krok stempluje wlasna wersje docelowa
+}</div>
+
+        <h2 id="honest">Rekonstrukcja jest deklarowana, nigdy ukrywana</h2>
+
+        <p>
+            Prędzej czy później migracja musi wymyślić wartość, której stary format nigdy nie
+            przechowywał. Wersja 1 nie zapisywała, kiedy kupiono sprzęt, a wersja 2 tej daty potrzebuje.
+        </p>
+
+        <p>
+            Masz trzy opcje i tylko jedna jest uczciwa. Możesz zgadnąć pochlebnie, co po cichu daje
+            starym graczom przewagę. Możesz zgadnąć neutralnie, co nadal jest domysłem, którego nikt
+            nie zweryfikuje. Albo wybierasz <b>najmniej pochlebne założenie, które nadal da się
+            obronić</b>, i zapisujesz, co zrobiłeś.
+        </p>
+
+        <div class="code">// v1 nigdy nie zapisywalo daty zakupu. Zaloz najstarsza sensowna i powiedz to.
+data.purchasedOn = campaignStart;
+data.lastMigrationNotes =
+    "v1 do v2: daty zakupu nie byly zapisywane. Przyjeto poczatek kampanii, "
+    + "co jest najmniej pochlebnym odczytem i zanizza wartosc floty.";</div>
+
+        <p>
+            Ta notatka kosztuje jedno pole tekstowe i sprawia, że gracz, który pyta, czemu jego sprzęt
+            wygląda na starszy, niż pamięta, dostaje odpowiedź zamiast wzruszenia ramionami.
+        </p>
+
+        <h2 id="causal">Pułapka: wygląda na wyliczane, a jest przyczynowe</h2>
+
+        <p>
+            To jest ta, która złapała mnie <b>sześć osobnych razy</b> w tym samym projekcie, i powód,
+            dla którego nie ufam już własnemu osądowi co do tego, co trzeba zapisywać.
+        </p>
+
+        <div class="trap">
+            <h4>Jeśli jutro to czyta, to jest stan</h4>
+            <p>
+                Wczorajsze obciążenie serwerów wygląda na wyliczone. To liczba, którą dałoby się
+                przeliczyć. Ale rynek czyta ją, żeby zdecydować, jak klienci czują się dzisiaj, więc
+                jest przyczynowa: usuń ją z zapisu, a dzień po wczytaniu rozegra się inaczej.
+            </p>
+            <p>
+                Ten sam kształt, jeszcze pięć razy. Udziały adopcji wersji, bo jutrzejszy dryf czyta
+                dzisiejszy podział. Otwarta kontrola regulatora, której werdykt nie został jeszcze
+                wylosowany, bo jej pominięcie pozwala graczowi wczytać się z każdej kary w grze.
+                Pierwotna planowana data premiery rywala i jego <em>bieżąca</em> zamierzona, które
+                wyglądają prawie identycznie i nie są tym samym: przywrócenie jednej jako drugiej
+                sprawiło, że każdy lab, który zdecydował się poczekać na lepszy sprzęt, zapominał tę
+                decyzję i wypuszczał zgodnie z pierwotnym planem.
+            </p>
+        </div>
+
+        <p>
+            Testem nie jest „czy dałbym radę to przeliczyć". Jest nim <b>czy cokolwiek jutro to
+            czyta</b>. Jeśli tak, idzie do pliku, jakkolwiek wyliczalne by wyglądało.
+        </p>
+
+        <h2 id="replay">Test, który łapie to wszystko</h2>
+
+        <p>
+            Jeden test robi tu więcej roboty niż cała reszta zestawu. Rozegraj skryptowaną kampanię do
+            czwartego roku. Zapisz. Wczytaj z powrotem. Rozegraj piąty rok.
+        </p>
+
+        <p>
+            Przebieg przerwany musi skończyć się <b>identycznie</b> jak przebieg, którego nikt nie
+            przerwał. Jeśli wczytanie zmienia przyszłość, plik nie jest zapisem. Jest fotografią gry,
+            która już nie istnieje.
+        </p>
+
+        <div class="code">var uninterrupted = Campaign(seed).Advance(FiveYears);
+
+var interrupted = Campaign(seed).Advance(FourYears);
+var reloaded = SaveStore.Load(SaveStore.Capture(interrupted));
+reloaded.Advance(OneYear);
+
+Assert.That(reloaded.CashUsd, Is.EqualTo(uninterrupted.CashUsd),
+    "Zapis i wczytanie zmienily przyszlosc, wiec zapis nie jest zapisem.");</div>
+
+        <p>
+            Mój padł, a sposób, w jaki go debugowałem, jest tą częścią, którą warto ukraść.
+        </p>
+
+        <div class="trap">
+            <h4>Mierz pierwsze rozejście, nie końcową różnicę</h4>
+            <p>
+                Przez trzy dni mierzyłem, jak daleko od siebie kończyły oba przebiegi. Liczby wyglądały
+                zachęcająco: 73,8, potem 75,9, potem 78,3. Myślałem, że zbliżam się do jednej przyczyny.
+                Nie zbliżałem się. To były osobne błędy w tym samym płaszczu, a jeden z nich sam
+                wprowadziłem, naprawiając inny.
+            </p>
+            <p>
+                Kiedy zacząłem logować <b>pierwszy tick, w którym oba przebiegi przestały się
+                zgadzać</b>, błędy, które zajmowały wieczory, zaczęły zajmować minuty. Pierwsze
+                rozejście wskazuje przyczynę. Końcowa liczba pokazuje tylko szkodę.
+            </p>
+        </div>
+
+        <h2 id="float">Wartość, która nie przeżyła własnego zapisu</h2>
+
+        <p>
+            Jedna awaria w tym teście nie miała nic wspólnego z brakującymi polami. Wartość wynosiła
+            <code>1.0999999999999999</code> w pamięci i <code>1.1</code> po podróży przez plik.
+        </p>
+
+        <p>
+            Nikt nigdy by tej różnicy nie zobaczył. Piąty rok zobaczył. Wielkość, która nie przeżywa
+            zapisania i odczytania, nie jest dobrze określonym stanem, tylko plotką o stanie, a
+            naprawą jest zdecydowanie, jaką precyzję naprawdę masz na myśli, i zaokrąglenie do niej
+            przed zapisem, zamiast liczenia na to, że serializator się z tobą zgodzi.
+        </p>
+
+        <h2 id="cost">Ile to kosztuje</h2>
+
+        <p>
+            Mniej więcej dwadzieścia minut na podbicie wersji: jedna metoda, jeden test, jedna linia w
+            notatkach. To cała cena.
+        </p>
+
+        <p>
+            Kupuje możliwość zmiany czegokolwiek. Przebudowałem model rynku, dodałem system
+            bezpieczeństwa, rozbiłem zapis na nowe podobiekty i niczego nie przenumerowałem, wszystko
+            w czasie, gdy ludzie mieli otwarte kampanie. Ani razu nie musiałem wybierać między
+            wydaniem funkcji a zachowaniem czyichś czterdziestu godzin.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Wszystko to pochodzi ze Scaling Laws</strong>, tycoona o firmie AI zbudowanego
+                w Unity, z systemem zapisu, krokami migracji i testem odtworzenia otwartymi w
+                repozytorium.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry i kod źródłowy</a> &middot;
+               <a href="../unreachable-code-in-games/index_pl.html">Poradnik siostrzany: skończone, przetestowane i nieosiągalne</a></p>
+        </div>
+
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Jak zmienić format zapisu, nie psując save'ów?</h3>
+            <p>
+                Jeden krok na wersję, w pętli. Trzymaj stare kształty w kodzie. Niech każdy krok
+                stempluje własną wersję. Dołączaj test migracji do każdego podbicia.
+            </p>
+
+            <h3>Jaki jest najczęstszy błąd w migracji zapisu?</h3>
+            <p>
+                Pole wersji zapisywane i nigdy nieodczytywane. Działa bez zarzutu i nie robi nic, a
+                dowiadujesz się dopiero, gdy stary plik wreszcie wymaga aktualizacji.
+            </p>
+
+            <h3>Które pola naprawdę trzeba zapisywać?</h3>
+            <p>
+                Wszystko, co czyta jutro, jakkolwiek wyliczalne by wyglądało. Jeśli wczorajsze
+                obciążenie karmi dzisiejszą reakcję, jest stanem przyczynowym i należy do pliku.
+            </p>
+
+            <h3>Jak sprawdzić, że wczytanie nie zmienia gry?</h3>
+            <p>
+                Zapisz w połowie kampanii, wczytaj, graj dalej i sprawdź, że przebieg kończy się
+                identycznie jak nieprzerwany. Gdy padnie, loguj pierwszy tick rozejścia.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co faktycznie wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nic nie robiło. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

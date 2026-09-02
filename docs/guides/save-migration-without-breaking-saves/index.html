@@ -1,0 +1,427 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · save migration without breaking a campaign -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A save format changed 42 times under a live game without breaking one campaign. One step per version, old shapes kept, and the trap that caught me six times.">
+    <meta name="keywords" content="save file migration, save format versioning, game save compatibility, save data upgrade path, serialization versioning, Unity save system, backwards compatible saves, migration test">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <meta property="og:title" content="42 save format changes, and not one broken campaign">
+    <meta property="og:description" content="One migration step per version, old shapes kept verbatim, every reconstruction declared. And the trap that looks derived and is causal.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/save-migration-without-breaking-saves/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-29">
+    <meta property="article:modified_time" content="2026-08-29">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>42 Save Format Changes, No Broken Saves | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .rules { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .rules th, .rules td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .rules th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "42 save format changes, and not one broken campaign",
+      "description": "How to change a save format under a live game: one migration step per version, old shapes kept verbatim, every reconstruction declared, and a migration test shipped with every bump.",
+      "url": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/" },
+      "datePublished": "2026-08-29",
+      "dateModified": "2026-08-29",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "wordCount": 1398,
+      "keywords": "save migration, save versioning, serialization, backwards compatibility, game saves, Unity, testing",
+      "about": [
+        { "@type": "Thing", "name": "Save file migration" },
+        { "@type": "Thing", "name": "Data serialization versioning" },
+        { "@type": "Thing", "name": "Backwards compatibility" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Software developer",
+        "url": "https://pcworkman.dev/blog/profile.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "Python", "Software testing", "Data serialization"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Save migration without breaking saves", "item": "https://pcworkman.dev/guides/save-migration-without-breaking-saves/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you change a save format without breaking existing saves?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Write one migration step per version and run them in a loop, never a chain of hand-written calls. Keep the old data shapes in the codebase verbatim so each step reads a real historical structure instead of a guess about one. Have each step stamp its own target version rather than the newest, so the version field always describes what the data actually is. Ship a migration test with every version bump. In one project this carried a save format through 42 changes under a live game without losing a campaign." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the most common save migration bug?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A version field that is written but never read. In one project a Sanitize method stamped the current version onto every file it loaded without ever inspecting the value that was already there, so the version number was decorative and no upgrade path existed at all. It worked perfectly and did nothing, which is the worst kind of failure because there is no symptom until an old file finally needs upgrading." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which fields need to be saved in a game?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Anything that tomorrow reads, even when it looks like it could be recomputed. The reliable test is whether the next tick uses it: if yesterday's server load feeds today's customer reaction, that load is causal state and must be persisted, however derived it looks. In one project this exact mistake was made six separate times, including an unrolled verdict that a player could have escaped by reloading, and a rival's original launch date being restored as its current intended one." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you test that loading a save does not change the game?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Play a scripted campaign to a point, save, load it back, and continue. The run that was interrupted must end identically to a run that was never interrupted. If loading changes the future, the file is not a save, it is a photograph of a game that no longer exists. When such a test fails, log the first tick where the two runs disagree rather than measuring the gap at the end: the first disagreement points at the cause, the final number only shows the damage." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/save-migration-without-breaking-saves/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/save-migration-without-breaking-saves/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Persistence</span>
+        <h1>A save file that survived<br>42 format changes<br>under a live game.</h1>
+        <p class="tagline">One migration step per version, old shapes kept verbatim, every reconstruction declared rather than hidden. Plus the trap that looks derived, is causal, and has caught me six separate times.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-29</span><span>&middot;</span><span>8 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">A save file is a promise. Somebody put forty hours into a campaign, and every time you add a feature you are asking their file to survive a change they did not agree to.</p>
+
+        <p>
+            This is how I keep that promise on a simulation whose data model has changed
+            <b>42 times</b> while people were playing it, and the four rules that make it boring
+            instead of frightening.
+        </p>
+
+        <h2 id="origin">The rule that came from a bug</h2>
+
+        <p>
+            On an earlier project I had a save system that looked immaculate. Every file carried a
+            version number. There was a <code>Sanitize</code> method that ran on load and made
+            everything valid.
+        </p>
+
+        <div class="big">
+            <b>0</b>
+            <span>upgrade steps existed. Sanitize stamped the current version onto every file it
+            touched without ever reading the value that was already there. The version field was
+            decorative. It worked perfectly and did nothing.</span>
+        </div>
+
+        <p>
+            That is the worst class of failure, because there is no symptom. Nothing crashes. Files
+            load. The number in the file is always correct, because you just wrote it. You find out
+            when a genuinely old file finally needs upgrading and there is no machinery to do it.
+        </p>
+
+        <h2 id="rules">Four rules</h2>
+
+        <table class="rules">
+            <thead>
+                <tr><th>Rule</th><th>Why</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>One step per version, run in a loop</b></td>
+                    <td>A loop cannot skip a step. A hand-written chain of calls can, and mine did: it stopped one short of the newest version and left later fields uninitialised.</td>
+                </tr>
+                <tr>
+                    <td><b>Old shapes kept verbatim</b></td>
+                    <td><code>SaveDataV1</code> still exists in the codebase. The upgrade path reads a real historical structure instead of your memory of one.</td>
+                </tr>
+                <tr>
+                    <td><b>Each step stamps its own version</b></td>
+                    <td>Not the newest one. A step claiming to produce the current version is a trap for whatever reads that field next.</td>
+                </tr>
+                <tr>
+                    <td><b>Every bump ships a migration test</b></td>
+                    <td>The test is the only thing that proves the step runs. Without it you have written a step and hoped.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="code">// The loop counts for itself, so nothing can be skipped.
+while (data.version &lt; SaveData.CurrentVersion)
+{
+    data = Steps[data.version](data);   // each step stamps its own target version
+}</div>
+
+        <h2 id="honest">Reconstruction is declared, never disguised</h2>
+
+        <p>
+            Sooner or later a migration has to invent a value the old format never stored. Version 1
+            did not record when hardware was purchased, and version 2 needs that date.
+        </p>
+
+        <p>
+            You have three options and only one of them is honest. You can guess flatteringly, which
+            silently hands old players an advantage. You can guess neutrally, which is still a guess
+            nobody can audit. Or you can pick <b>the least flattering assumption that is still
+            defensible</b>, and write down what you did.
+        </p>
+
+        <div class="code">// v1 never stored a purchase date. Assume the oldest plausible one, and say so.
+data.purchasedOn = campaignStart;
+data.lastMigrationNotes =
+    "v1 to v2: purchase dates were not recorded. Assumed campaign start, "
+    + "which is the least flattering reading and undervalues the fleet.";</div>
+
+        <p>
+            That note costs one string field and it means a player who asks why their hardware looks
+            older than they remember gets an answer instead of a shrug.
+        </p>
+
+        <h2 id="causal">The trap: it looks derived and it is causal</h2>
+
+        <p>
+            This is the one that has caught me <b>six separate times</b> on the same project, and it
+            is the reason I now distrust my own judgement about what needs saving.
+        </p>
+
+        <div class="trap">
+            <h4>If tomorrow reads it, it is state</h4>
+            <p>
+                Yesterday's server load looks computed. It is a number you could recalculate. But the
+                market reads it to decide how customers feel today, so it is causal: drop it from the
+                save and the day after a reload plays out differently.
+            </p>
+            <p>
+                Same shape, five more times. Version adoption shares, because tomorrow's drift reads
+                today's split. An open regulatory inspection whose verdict has not been rolled yet,
+                because dropping it lets a player reload their way out of every penalty in the game. A
+                rival's <em>original</em> planned launch date and its <em>current</em> intended one,
+                which look almost identical and are not: restoring one as the other made every lab
+                that had decided to wait for better hardware forget that decision and launch on
+                schedule anyway.
+            </p>
+        </div>
+
+        <p>
+            The test is not "could I recompute this". It is <b>does anything tomorrow read it</b>. If
+            yes, it goes in the file, however derived it looks.
+        </p>
+
+        <h2 id="replay">The test that catches all of it</h2>
+
+        <p>
+            One test does more work here than the rest of the suite combined. Play a scripted campaign
+            into year four. Save. Load it back. Play through year five.
+        </p>
+
+        <p>
+            The interrupted run must end <b>identically</b> to a run that was never interrupted. If
+            loading changes the future, the file is not a save. It is a photograph of a game that no
+            longer exists.
+        </p>
+
+        <div class="code">var uninterrupted = Campaign(seed).Advance(FiveYears);
+
+var interrupted = Campaign(seed).Advance(FourYears);
+var reloaded = SaveStore.Load(SaveStore.Capture(interrupted));
+reloaded.Advance(OneYear);
+
+Assert.That(reloaded.CashUsd, Is.EqualTo(uninterrupted.CashUsd),
+    "Saving and loading changed the future, so the save is not a save.");</div>
+
+        <p>
+            Mine failed, and the way I debugged it is the part worth stealing.
+        </p>
+
+        <div class="trap">
+            <h4>Instrument the first disagreement, not the final gap</h4>
+            <p>
+                For three days I measured how far apart the two runs ended up. The numbers looked
+                encouraging: 73.8, then 75.9, then 78.3. I thought I was converging on one root cause.
+                I was not. They were separate bugs wearing the same coat, and one of them I had
+                introduced while fixing another.
+            </p>
+            <p>
+                Once I started logging the <b>first tick where the two runs stopped agreeing</b>, bugs
+                that had been taking evenings started taking minutes. The first disagreement points at
+                the cause. The final number only shows the damage.
+            </p>
+        </div>
+
+        <h2 id="float">The value that could not survive its own save</h2>
+
+        <p>
+            One failure in that test had nothing to do with missing fields. A value was
+            <code>1.0999999999999999</code> in memory and <code>1.1</code> after a round trip through
+            the file.
+        </p>
+
+        <p>
+            Nobody would ever see that difference. Year five did. A quantity that cannot survive being
+            written down and read back is not well-defined state, it is a rumour about state, and the
+            fix is to decide the precision you actually mean and round to it before saving rather than
+            hoping the serializer agrees with you.
+        </p>
+
+        <h2 id="cost">What this costs</h2>
+
+        <p>
+            Roughly twenty minutes per version bump: one method, one test, one line in the notes. That
+            is the entire price.
+        </p>
+
+        <p>
+            What it buys is the ability to change anything. I have restructured the market model,
+            added a safety system, split a save into new sub-objects and renumbered nothing, all while
+            people had campaigns open. Not once have I had to choose between shipping a feature and
+            keeping somebody's forty hours.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>All of this is from Scaling Laws</strong>, an AI company tycoon built in Unity,
+                with the save system, the migration steps and the replay test open in the repository.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a> &middot;
+               <a href="../unreachable-code-in-games/">The sibling guide: finished, tested and unreachable</a></p>
+        </div>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>How do you change a save format without breaking saves?</h3>
+            <p>
+                One step per version, run in a loop. Keep the old shapes in the codebase. Have each
+                step stamp its own version. Ship a migration test with every bump.
+            </p>
+
+            <h3>What is the most common save migration bug?</h3>
+            <p>
+                A version field that is written and never read. It works perfectly and does nothing,
+                and you find out only when an old file finally needs upgrading.
+            </p>
+
+            <h3>Which fields actually need saving?</h3>
+            <p>
+                Anything tomorrow reads, however derived it looks. If yesterday's load feeds today's
+                reaction, it is causal state and belongs in the file.
+            </p>
+
+            <h3>How do you test that loading does not change the game?</h3>
+            <p>
+                Save mid-campaign, reload, continue, and assert the run ends identically to one that
+                was never interrupted. When it fails, log the first tick where they disagree.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

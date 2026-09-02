@@ -1,0 +1,494 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · what USS cannot do in Unity UI Toolkit -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="USS has no gradients, arcs, masks or positional selectors. The real limits of Unity UI Toolkit, what to use instead, and the rules that fail silently.">
+    <meta name="keywords" content="Unity UI Toolkit, USS limitations, USS gradient, USS last-child, Painter2D, UI Toolkit runtime theme, unity-base-slider, UI Toolkit vs uGUI, USS not working, Unity UXML USS guide">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/">
+    <meta property="og:title" content="What USS cannot do in Unity UI Toolkit, and what to use instead">
+    <meta property="og:description" content="No gradients, no arcs, no masks, no keyframes, no positional selectors. The real limits, the workarounds, and the rules that fail silently.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="article:published_time" content="2026-08-11">
+    <meta property="article:modified_time" content="2026-09-01">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>USS Is Not CSS: Unity UI Toolkit's Real Limits | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "What USS cannot do in Unity UI Toolkit, and what to use instead",
+      "description": "A field guide to the real limits of USS in Unity UI Toolkit: no gradients, no arcs, no masks, no keyframes and no positional selectors, plus the rules that parse cleanly and style nothing.",
+      "url": "https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/" },
+      "datePublished": "2026-08-11",
+      "dateModified": "2026-09-01",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, UI Toolkit runtime UI",
+      "wordCount": 1744,
+      "keywords": "Unity UI Toolkit, USS, Painter2D, runtime theme, UXML, uGUI, stylesheet, game UI",
+      "about": [
+        { "@type": "Thing", "name": "Unity UI Toolkit" },
+        { "@type": "Thing", "name": "USS stylesheets" },
+        { "@type": "Thing", "name": "Game user interface development" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Firmuga",
+        "jobTitle": "Software developer",
+        "url": "https://pcworkman.dev/blog/profile.html",
+        "address": { "@type": "PostalAddress", "addressLocality": "Radom", "addressCountry": "PL" },
+        "knowsAbout": ["Unity", "C#", "UI Toolkit", "Python", "Software testing"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga"
+        ]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://pcworkman.dev/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "What USS cannot do in Unity UI Toolkit", "item": "https://pcworkman.dev/guides/unity-ui-toolkit-uss-limitations/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does USS support gradients in Unity UI Toolkit?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. USS has no gradient background functions. The two workarounds that actually ship are baking the gradient into a small texture and stretching it as a background image, or drawing it with Painter2D in generateVisualContent. A 256x1 texture stretched across an element is the cheapest option and is what a horizontal accent bar should use. Painter2D is the right answer when the shape is not a rectangle." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does USS support :last-child, :first-child or :nth-child?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. UI Toolkit implements no positional pseudo-classes at all. A rule written with one parses, is dropped, and logs an Unknown pseudo class warning into the player log on every launch while styling nothing. In one shipped build five such rules had been dead since the day they were written. To close a trailing margin after the last item in a row, either give the container a negative margin of the same size or clear marginRight on the last child from C# once the row is filled." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my USS class do nothing in Unity UI Toolkit?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The most common cause is that the class is named from C# with AddToClassList and was never written into the stylesheet. Nothing errors. The element takes default flex, which usually means it shrinks to nothing, so entire panels disappear while every test stays green. The fix is a test that reads the stylesheet, collects every class name used in AddToClassList and EnableInClassList across the source, and fails when one has no rule." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is my Unity UI Toolkit button text not centred?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A Button given an explicit height does not centre its own label. It renders the text at the top left of the box, which reads as overflow rather than as misalignment. State -unity-text-align: middle-center on any button you give a height to. The same class of problem applies to margins: the runtime theme puts a margin on every Button, so four cards sized to fit a row can measure wider than the row and silently wrap." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I use UI Toolkit or uGUI for a game in 2026?",
+          "acceptedAnswer": { "@type": "Answer", "text": "UI Toolkit is the reasonable default for a dense, data-heavy interface built in C# rather than assembled by hand in a scene, and it is Unity's forward path. The costs are real and worth knowing before committing: the documentation is thin, forum questions frequently go unanswered, the runtime theme styles controls in ways you will have to work around, and several styling features that exist in CSS do not exist in USS. For a small number of simple screens, uGUI remains simpler." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-ui-toolkit-uss-limitations/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-ui-toolkit-uss-limitations/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Unity</span>
+        <h1>USS is not CSS,<br>and the gaps are the things<br>you reach for first.</h1>
+        <p class="tagline">No gradients. No arcs. No masks. No keyframes. No positional selectors. What is actually missing from Unity UI Toolkit, what to use instead, and the rules that parse cleanly and style nothing at all.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-11</span><span>&middot;</span><span>updated 2026-09-01</span><span>&middot;</span><span>9 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">Every example in this guide came out of one project: a dense simulation game with roughly twenty screens, all of them built in C# against a single USS file, shipped as a public build.</p>
+
+        <p>I am writing it because the official documentation does not have a concept guide, and because most UI Toolkit questions I searched for while building had no accepted answer. What follows is not a tutorial. It is the list of things that cost me an evening each.</p>
+
+        <div class="callout">
+            <b>Version note.</b> Everything here was observed on <b>Unity 6000.5</b> with runtime UI
+            Toolkit. Unity is still adding to USS, so treat this as a snapshot with a date on it
+            rather than a permanent list.
+        </div>
+
+        <h2 id="missing">What USS does not have</h2>
+
+        <p>
+            The pattern is consistent: USS covers layout and colour well, and stops at anything that
+            paints a shape or reacts to position in a list.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>What you want</th><th>Status</th><th>What to use instead</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>linear-gradient()</code></td>
+                    <td>Not available</td>
+                    <td>Bake it into a 256&times;1 texture and stretch it as a background image, or paint it with <code>Painter2D</code></td>
+                </tr>
+                <tr>
+                    <td>Arcs, rings, circles</td>
+                    <td>Not available</td>
+                    <td><code>Painter2D</code> in <code>generateVisualContent</code>. A gradient ring means stroking it in short segments, because Painter2D strokes in one colour</td>
+                </tr>
+                <tr>
+                    <td><code>clip-path</code>, masks</td>
+                    <td>Not available</td>
+                    <td>Bake the shape into the alpha channel of the image itself</td>
+                </tr>
+                <tr>
+                    <td><code>@keyframes</code></td>
+                    <td>Not available</td>
+                    <td><code>transition</code> for simple cases, or swap classes on a schedule from C#</td>
+                </tr>
+                <tr>
+                    <td><code>:last-child</code>, <code>:first-child</code>, <code>:nth-child</code></td>
+                    <td>Not available</td>
+                    <td>Negative margin on the container, or clear the last child's margin from C#</td>
+                </tr>
+                <tr>
+                    <td>Grid layout, <code>gap</code></td>
+                    <td>Not available</td>
+                    <td>Flexbox with margins on the children</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The first four are inconvenient and obvious: you find out immediately, because nothing
+            appears. The fifth is the dangerous one.
+        </p>
+
+        <h2 id="silent">The rules that parse and do nothing</h2>
+
+        <div class="trap">
+            <h4>Positional selectors fail quietly, in the player, forever</h4>
+            <p>
+                A rule like <code>.pack:last-child { margin-right: 0; }</code> is accepted by the
+                parser, dropped, and logged as <code>Unknown pseudo class "last-child"</code> in the
+                player log at every launch. Nothing in the editor tells you. The rule simply never
+                applies.
+            </p>
+            <p>
+                In the build I shipped, <b>five</b> such rules had been dead since the day they were
+                written. I found them by reading the log of the compiled player, not from any test,
+                because a test never reads a log.
+            </p>
+        </div>
+
+        <p>
+            If you want a row of items with no trailing gap, there are two honest options. Give the
+            container a negative right margin equal to the child gap, so the last item's margin is
+            absorbed. Or clear it from C# once the row is filled:
+        </p>
+
+        <div class="code">// USS has no positional selectors, so the last child is closed from here.
+var last = row.Children().LastOrDefault();
+if (last != null)
+{
+    last.style.marginRight = 0;
+}</div>
+
+        <h2 id="named">The failure that deletes half your screen</h2>
+
+        <p>
+            This is the single most expensive UI Toolkit mistake I have made, and it has no error
+            message at all.
+        </p>
+
+        <div class="trap">
+            <h4>A class named from C# that was never written into the stylesheet</h4>
+            <p>
+                <code>AddToClassList("creator-column")</code> compiles. It runs. The element takes
+                default flex, which in a column usually means it shrinks to nothing. In my case an
+                entire panel of readouts and notes was invisible on a screen I looked at every day,
+                and <b>244 automated tests</b> were green throughout.
+            </p>
+            <p>
+                Two defences. State <code>flex-shrink: 0</code> on your panel class so a missing rule
+                degrades into overflow rather than disappearance. And write a test that reads the
+                stylesheet, collects every string passed to <code>AddToClassList</code> and
+                <code>EnableInClassList</code> across your source, and fails when one has no rule.
+            </p>
+        </div>
+
+        <div class="code">// The guard, in one sentence: every class the interface names must be styled.
+var declared = ClassNamesIn(File.ReadAllText(stylesheetPath));
+
+foreach (var used in ClassNamesUsedInSource())
+{
+    Assert.That(declared.Contains(used), Is.True,
+        $"{used} is named from C# and absent from the stylesheet, so it takes "
+        + "default flex and quietly collapses what it is on.");
+}</div>
+
+        <p>
+            That guard has caught the same class of fault on this project more times than any other
+            test I own, including twice while writing the article you are reading.
+        </p>
+
+        <h2 id="theme">The runtime theme is styling your controls already</h2>
+
+        <p>
+            Sliders, toggles, text fields and dropdowns arrive pre-styled by Unity's runtime theme, in
+            a light editor idiom. On a dark game screen they show up as pale grey slabs.
+        </p>
+
+        <p>
+            The instinct is to reach into the theme's own element names and override them. That
+            instinct cost me four wrong fixes in a row.
+        </p>
+
+        <div class="trap">
+            <h4>Do not fight the theme's internals</h4>
+            <p>
+                Targeting <code>.unity-toggle__checkmark</code> to remove a white slab also removed
+                the checkmark, so the control became a box that could not show its own state.
+                Targeting <code>unity-base-slider__dragger-border</code> produced four attempts that
+                each fixed the symptom somewhere else.
+            </p>
+            <p>
+                The reliable answer is to stop overriding and start drawing. A tick is a button, a
+                drawn box and a filled block. It is fifteen lines, it cannot be broken by a theme
+                update, and it looks like the rest of your game.
+            </p>
+        </div>
+
+        <p>
+            Watch for global caps as well. A rule like <code>.unity-base-slider { max-width: 560px }</code>
+            anywhere in your sheet applies to every slider in the project. On a 1370&nbsp;pixel row my
+            sliders capped at 560 and the overlay marking their locked portion lined up with the
+            groove only by coincidence.
+        </p>
+
+        <h2 id="looks">Four things that look right and are not</h2>
+
+        <div class="trap">
+            <h4>A Button with a height does not centre its own label</h4>
+            <p>
+                It draws the text at the top left of the box. State
+                <code>-unity-text-align: middle-center</code> on any button you give an explicit
+                height to.
+            </p>
+        </div>
+
+        <div class="trap">
+            <h4>The runtime theme puts a margin on every Button</h4>
+            <p>
+                Four cards sized to fit a 1340&nbsp;pixel page measured 1352 because each inherited a
+                theme margin. The fourth wrapped to a row of its own, and it read as a deliberate
+                three-across layout rather than as an overflow. State <code>margin-left</code> and
+                <code>margin-top</code> explicitly on any styled Button.
+            </p>
+        </div>
+
+        <div class="trap">
+            <h4>Number formatting follows the machine, not the game</h4>
+            <p>
+                A raw <code>$"{value:N2}"</code> prints <code>20,00</code> on a machine with a Polish
+                locale. This is not a UI Toolkit fault, but it surfaces in UI Toolkit strings more
+                than anywhere else because that is where numbers meet the screen. Route every figure
+                through one formatter that uses <code>InvariantCulture</code>. I have been caught by
+                this three separate times on the same project.
+            </p>
+        </div>
+
+        <div class="trap">
+            <h4>A PanelSettings reference can vanish on a scene rebuild</h4>
+            <p>
+                Assigning <code>document.panelSettings</code> from editor tooling did not survive
+                being written to disk for the second scene in a build run, every time,
+                deterministically. The interface was constructed into no panel and drawn nowhere: the
+                screen was the camera's clear colour and nothing else, which looks exactly like a
+                hang. Assign serialized fields through <code>SerializedObject</code> in editor
+                tooling, and read the serialized field back rather than the property you just set.
+            </p>
+        </div>
+
+        <h2 id="see">How to see any of this</h2>
+
+        <p>
+            None of the failures above throw. Most of them are invisible to a test suite that never
+            opens a window. The only reliable method I have found is to render the interface to a
+            texture and look at the picture.
+        </p>
+
+        <p>
+            A PlayMode test that loads the scene, points the panel at a <code>RenderTexture</code>,
+            walks every screen and writes each frame to a PNG costs about eighty lines. One pass over
+            the resulting contact sheet found four faults that <b>683</b> green tests had not: every
+            styled button drawing its label at the top left, eleven tiles with no art because the
+            files were never made, a difference bar scaled by the wrong value, and money printed as
+            <code>$20,00</code>.
+        </p>
+
+        <p>
+            Assert two things about the frame so a picture cannot lie to you: that it is not one flat
+            colour, because a render texture nobody drew into is indistinguishable from a dark screen
+            that worked, and that nothing extends past the right-hand edge.
+        </p>
+
+        <h2 id="worth">Is UI Toolkit worth it anyway?</h2>
+
+        <p>
+            For this project, yes, and I would choose it again. A dense interface built in C# against
+            one stylesheet is far easier to keep consistent than the same interface assembled by hand
+            in a scene, and every screen can be built by a function that a test can call.
+        </p>
+
+        <p>
+            But go in knowing the trade. The documentation is thin, a large share of forum questions
+            have no answer, the theme styles your controls before you do, and the missing USS features
+            are the ones you reach for on day one. None of that is fatal. All of it is easier when
+            somebody has written the list down first.
+        </p>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Everything here came out of Scaling Laws</strong>, an AI company tycoon built
+                in Unity and released as a free public build. The source is open, including the
+                stylesheet and the guard tests described above.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a></p>
+        </div>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Does USS support gradients?</h3>
+            <p>
+                No. Bake the gradient into a 256&times;1 texture and stretch it, or paint it with
+                Painter2D. The texture is cheaper and is the right answer for a horizontal bar.
+            </p>
+
+            <h3>Does USS support :last-child?</h3>
+            <p>
+                No, and neither does any other positional pseudo-class. The rule parses, is dropped,
+                and warns in the player log at every launch while styling nothing.
+            </p>
+
+            <h3>Why does my USS class do nothing?</h3>
+            <p>
+                Most often because it is named from C# and was never written into the stylesheet. The
+                element takes default flex and collapses, silently. Write a test that compares the two
+                lists.
+            </p>
+
+            <h3>Why is my button text not centred?</h3>
+            <p>
+                A Button with an explicit height does not centre its own label. Set
+                <code>-unity-text-align: middle-center</code>.
+            </p>
+
+            <h3>UI Toolkit or uGUI in 2026?</h3>
+            <p>
+                UI Toolkit for a dense, data-heavy interface built in code, and it is Unity's forward
+                path. uGUI is still simpler for a handful of straightforward screens.
+            </p>
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
