@@ -1,0 +1,1227 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.08.06-stage5",
+  "title": "Roadmapa Scaling Laws",
+  "updated": "2026-08-06",
+  "rule": "Funkcja jest WYDANA tylko wtedy, gdy jest kompletna, stabilna i nie potrzebuje już zastrzeżenia na roadmapie.",
+  "lanes": [
+    {
+      "id": "now",
+      "label": "Teraz",
+      "description": "Aktualna linia prac."
+    },
+    {
+      "id": "next",
+      "label": "Następne",
+      "description": "Zatwierdzona praca po aktualnej linii."
+    },
+    {
+      "id": "later",
+      "label": "Później",
+      "description": "Kierunek, nie obietnica na najbliższy czas."
+    },
+    {
+      "id": "shipped",
+      "label": "Wydane",
+      "description": "Na tyle stabilne, żeby odhaczyć."
+    }
+  ],
+  "statuses": [
+    {
+      "id": "foundation",
+      "label": "Fundament",
+      "description": "Zasady i dane istnieją, ale przepływ widoczny dla gracza jest niekompletny."
+    },
+    {
+      "id": "playable",
+      "label": "Grywalne",
+      "description": "Da się z tego korzystać, ale to nie jest wersja ostateczna."
+    },
+    {
+      "id": "polish",
+      "label": "Szlif",
+      "description": "Działa i ma już kształt; potrzebuje stabilizacji albo przeglądu wizualnego."
+    },
+    {
+      "id": "planned",
+      "label": "Planowane",
+      "description": "Zaplanowane, jeszcze nie zbudowane."
+    },
+    {
+      "id": "shipped",
+      "label": "Wydane",
+      "description": "Kompletne, stabilne i bez zastrzeżeń."
+    }
+  ],
+  "categories": [
+    {
+      "id": "foundation",
+      "label": "Fundament",
+      "short": "Rdzeń",
+      "description": "Zasady, dzięki którym każda kampania jest odtwarzalna, zapisywalna i testowalna.",
+      "items": [
+        {
+          "title": "Deterministyczny zegar kampanii",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Czas kampanii płynie po jednej osi GameDate, zaczynając 1 stycznia 2022."
+        },
+        {
+          "title": "Jeden uporządkowany dzienny tik symulacji",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Dostawy, moc obliczeniowa, popyt rynkowy, rachunki, bramki i wypłacalność rozliczają się w stałej kolejności."
+        },
+        {
+          "title": "Zapisany deterministyczny stan losowy",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "To samo ziarno i te same decyzje odtwarzają te same liczby."
+        },
+        {
+          "title": "Symulacja oddzielona od Unity",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Ekonomia i zasady gry działają bez UnityEngine, więc testy balansu nie potrzebują sceny."
+        },
+        {
+          "title": "Wersjonowane migracje zapisu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Stare kształty zapisu idą do przodu po jednej wersji naraz, zamiast być po cichu nadpisywane."
+        },
+        {
+          "title": "Sanityzacja zapisu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wczytane pola są przycinane do zakresu, a nieprawidłowe wartości enumów wracają do legalnych stanów."
+        },
+        {
+          "title": "Flagi uczciwości prognoz",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Szacowane dane o sprzęcie i rywalach pozostają odróżnialne od znanych danych referencyjnych."
+        },
+        {
+          "title": "Prognoza treningu oddzielona od wyniku",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Prognozowana zdolność nie staje się wdrożonym wynikiem, dopóki przebieg naprawdę się nie skończy."
+        },
+        {
+          "title": "Test kampanii pod kątem grywalności",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Skryptowana, wieloletnia firma musi przetrwać i pozostać konkurencyjna, nie dominując bez wysiłku."
+        },
+        {
+          "title": "Testy spójności między katalogami",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Przeglądy katalogów wyłapują niemożliwe zakresy, wiszące odwołania i martwe ścieżki badań."
+        },
+        {
+          "title": "Zabezpieczenia podpięcia sceny",
+          "status": "polish",
+          "lane": "now",
+          "description": "Testy PlayMode chronią krytyczne odwołania wizualne, których testy symulacji w EditMode nie widzą."
+        }
+      ]
+    },
+    {
+      "id": "founder-company",
+      "label": "Założyciel i firma",
+      "short": "Założyciel",
+      "description": "Startowe wybory, które kształtują koszty, badania, trening i miejsce działania firmy.",
+      "items": [
+        {
+          "title": "Ekran tworzenia założyciela",
+          "status": "playable",
+          "lane": "now",
+          "description": "Stwórz człowieka stojącego za laboratorium, zanim zacznie się kampania."
+        },
+        {
+          "title": "Siedem umiejętności założyciela",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Programowanie, zarządzanie, praca zespołowa, koncepcja, oprogramowanie, inżynieria danych i bezpieczeństwo."
+        },
+        {
+          "title": "Neutralny poziom bazowy umiejętności na 20",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Zignorowanie umiejętności jest realną słabością, a nie tylko pominiętym bonusem."
+        },
+        {
+          "title": "Doświadczenie za skończoną pracę",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Doświadczenie przyznaje się za skończone przebiegi, badania, ulepszenia i wydania, nigdy za bezczynność."
+        },
+        {
+          "title": "Cechy założyciela z minusami",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Każda startowa cecha wymienia jedną przewagę na realny koszt."
+        },
+        {
+          "title": "Wybory tożsamości firmy",
+          "status": "playable",
+          "lane": "now",
+          "description": "Startowe profile firmy zmieniają gotówkę na start, reputację, dane i domyślne ceny."
+        },
+        {
+          "title": "Własna tożsamość firmy",
+          "status": "playable",
+          "lane": "now",
+          "description": "Nazwij i zdefiniuj własne laboratorium, zamiast brać gotowca."
+        },
+        {
+          "title": "Wybór regionu świata",
+          "status": "playable",
+          "lane": "now",
+          "description": "Wybierz region, po którym poruszasz się na mapie rejestracji."
+        },
+        {
+          "title": "Szesnaście krajów rejestracji",
+          "status": "playable",
+          "lane": "now",
+          "description": "Kraje różnią się dostępem do sprzętu, podatkami, innowacyjnością i lokalną konkurencją."
+        },
+        {
+          "title": "Podatek dochodowy od zysku operacyjnego",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Firma na stracie nie jest karana podatkiem od obrotu."
+        },
+        {
+          "title": "Regionalny modyfikator cen sprzętu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Rejestracja zmienia to, ile kosztuje własny krzem."
+        },
+        {
+          "title": "Regionalny modyfikator innowacyjności",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wybór kraju zmienia tempo badań i ulepszeń."
+        },
+        {
+          "title": "Modyfikator lokalnej konkurencji",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Rejestracja zmienia presję marki przy podziale rynku."
+        },
+        {
+          "title": "Wygląd założyciela w świecie 3D",
+          "status": "planned",
+          "lane": "next",
+          "description": "Połącz tożsamość z kreatora z fizycznym startowym domem i późniejszymi biurami."
+        }
+      ]
+    },
+    {
+      "id": "models-data",
+      "label": "Modele i dane",
+      "short": "Modele",
+      "description": "Od planu do wytrenowanego modelu, decyzji o półce i produktu na rynku.",
+      "items": [
+        {
+          "title": "Etapowy kreator modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Zbuduj model przez fundament, skalę, dane, moc i przegląd, zamiast przez jeden wielki formularz."
+        },
+        {
+          "title": "Prognoza zdolności na żywo",
+          "status": "playable",
+          "lane": "now",
+          "description": "Kreator pokazuje, jak ostatnia zmiana ruszyła prognozowaną zdolność."
+        },
+        {
+          "title": "Prognoza czasu treningu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Rachunek to nie jedyny koszt. Czas kalendarzowy jest widoczny przed zatwierdzeniem przebiegu."
+        },
+        {
+          "title": "Prognoza kosztu treningu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Kreator wycenia przebieg wobec gotówki w kasie, zanim gracz się zdecyduje."
+        },
+        {
+          "title": "Model jakości oparty na prawie skalowania",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Liczba parametrów i liczba tokenów zasilają jedną funkcję jakości w stylu Chinchilli."
+        },
+        {
+          "title": "Presja treningu optymalnego obliczeniowo",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Niedotrenowanie albo przetrenowanie potrafi zmarnować ten sam budżet mocy."
+        },
+        {
+          "title": "Katalog zbiorów danych",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Osiem korpusów zasila stronę danych w planie treningu."
+        },
+        {
+          "title": "Zasada mieszania zbiorów danych",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wiele korpusów łączy się przez jeden znormalizowany mechanizm."
+        },
+        {
+          "title": "Pięć segmentów odbiorców",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Popyt konsumencki, deweloperski, korporacyjny, kreatywny i autonomiczny zmienia się w czasie."
+        },
+        {
+          "title": "Pięć typów modeli",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Wyspecjalizowane typy modeli wymieniają szeroki zasięg na lepsze dopasowanie do odbiorcy i wyższą tolerancję ceny."
+        },
+        {
+          "title": "Półka przed wydaniem",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Skończony przebieg staje się wytrenowanym modelem na półce, a nie automatyczną premierą."
+        },
+        {
+          "title": "Ręczny moment wydania",
+          "status": "playable",
+          "lane": "now",
+          "description": "Gracz wybiera, kiedy wytrenowany model trafia na rynek."
+        },
+        {
+          "title": "Cena osobno dla każdego modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Kilka modeli na rynku może mieć różne ceny."
+        },
+        {
+          "title": "Jedenaście cech modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Rozumowanie, wiedza, kodowanie i pozostałe cechy są mierzone wobec rynkowej normy danego dnia."
+        },
+        {
+          "title": "Ulepszenia cech kosztują czas i moc",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Utrzymanie modelu konkuruje z treningiem o ten sam kalendarz i tę samą infrastrukturę."
+        },
+        {
+          "title": "Współczynnik pochodnego modelu w produkcji",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Inferencja jest wyceniana jako obsługa modeli pochodnych, a nie pełnego artefaktu treningowego."
+        },
+        {
+          "title": "Etap bezpieczeństwa w kreatorze modelu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Uczyń bezpieczeństwo wyraźną decyzją na etapie tworzenia, przed treningiem."
+        },
+        {
+          "title": "Przepływ: zostaw u siebie czy wydaj",
+          "status": "planned",
+          "lane": "next",
+          "description": "Skończony przebieg ma się rozgałęziać na użytek wewnętrzny albo publiczne wydanie, zamiast iść jedną stałą ścieżką."
+        },
+        {
+          "title": "Decyzja o mocy obsługowej po treningu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Wybierz wynajętą moc do obsługi albo własną infrastrukturę po decyzji o wydaniu."
+        }
+      ]
+    },
+    {
+      "id": "research-architecture",
+      "label": "Badania i architektura",
+      "short": "Badania",
+      "description": "Odblokowania technologii, własna praca nad architekturą i kalendarzowy koszt dojścia tam.",
+      "items": [
+        {
+          "title": "Drzewko technologii",
+          "status": "playable",
+          "lane": "now",
+          "description": "Siedemnaście węzłów bramkuje architektury, dane, typy modeli, ulepszenia i poziomy mocy."
+        },
+        {
+          "title": "Cztery epoki badań",
+          "status": "playable",
+          "lane": "now",
+          "description": "Fundamenty, skalowanie, autonomia i późna granica możliwości porządkują drzewko."
+        },
+        {
+          "title": "Graf wymagań wstępnych w badaniach",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Każde odblokowanie musi być osiągalne i nie może otworzyć się przed własnym wymaganiem."
+        },
+        {
+          "title": "Bramki kalendarzowe",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Badań nie da się przepchnąć samym posiadaniem większej gotówki."
+        },
+        {
+          "title": "Koszt gotówkowy badań",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Czas trudno kupić, ale badania i tak konkurują o kapitał firmy."
+        },
+        {
+          "title": "Węzeł sztucznej superinteligencji",
+          "status": "foundation",
+          "lane": "later",
+          "description": "Węzeł stanu końcowego jest widoczny wcześnie, ale celowo nieosiągalny w pierwszych latach."
+        },
+        {
+          "title": "Własny projektant architektury",
+          "status": "playable",
+          "lane": "now",
+          "description": "Stwórz własną rodzinę, zamiast tylko adaptować opublikowaną architekturę."
+        },
+        {
+          "title": "Pięć kierunków badań nad architekturą",
+          "status": "playable",
+          "lane": "now",
+          "description": "Rzadkość, przepustowość, jakość na parametr, koszt obsługi i rozumowanie dzielą skupienie programu."
+        },
+        {
+          "title": "Model mocy: budżet razy kalendarz",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Więcej pieniędzy nie zastąpi w pełni większej ilości czasu, a więcej czasu nie zastąpi całego budżetu."
+        },
+        {
+          "title": "Rozmycie skupienia",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Program goniący za każdym kierunkiem wchodzi w każdy z nich płycej."
+        },
+        {
+          "title": "Rozrzut wyniku architektury",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Tanie albo pospieszne badania są celowo mniej przewidywalne."
+        },
+        {
+          "title": "Sześć slotów własnych rodzin",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Własne architektury rozliczają się przez te same interfejsy niżej co rodziny opublikowane."
+        },
+        {
+          "title": "Iteracja własnej rodziny",
+          "status": "foundation",
+          "lane": "next",
+          "description": "Popraw własną rodzinę taniej i szybciej, z malejącymi zwrotami."
+        },
+        {
+          "title": "Szlif wizualny epok badań",
+          "status": "polish",
+          "lane": "now",
+          "description": "Dokończ język wizualny i grafiki kart wokół czterech epok badań."
+        }
+      ]
+    },
+    {
+      "id": "hardware-compute",
+      "label": "Sprzęt i moc obliczeniowa",
+      "short": "Sprzęt",
+      "description": "Aktualna linia prac: wynajmij, kup, skonfiguruj, poczekaj i czasem pożałuj momentu.",
+      "items": [
+        {
+          "title": "Katalog generacji sprzętu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Akceleratory, procesory hosta, pamięć węzła i sieć niosą daty premier, ceny, pobór mocy i dane o pojemności."
+        },
+        {
+          "title": "Flaga sprzętu znanego kontra prognozowanego",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Przyszłe wpisy mogą być oznaczone jako prognozy, zamiast wtapiać się w historię."
+        },
+        {
+          "title": "Amortyzacja sprzętu w czasie",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Posiadane akceleratory tracą wartość odsprzedaży wraz z upływem kalendarza."
+        },
+        {
+          "title": "Amortyzacja od następców",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Istotnie nowsze podzespoły dokładają drugie, rozłożone uderzenie już po zakupie gracza."
+        },
+        {
+          "title": "Indeks starzenia wydajności na dolara",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Flotę można porównać z tym, co za te same pieniądze kupuje się dzisiaj."
+        },
+        {
+          "title": "Wynajęta moc w petaflopsach",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wynajem w chmurze to pojemność, a nie krucha liczba sztuk akurat aktualnej generacji sprzętu."
+        },
+        {
+          "title": "Opóźnienie dostępności sprzętu w chmurze",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Dostępność wynajmu podąża za granicą sprzętową z opóźnieniem."
+        },
+        {
+          "title": "Trzy poziomy mocy",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Wynajęta chmura, serwery w kolokacji i własne centrum danych tworzą drabinę infrastruktury."
+        },
+        {
+          "title": "Współczynnik zbalansowania własnego klastra",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Akceleratory potrzebują dość procesora hosta, pamięci i sieci, żeby zbliżyć się do wartości nominalnej."
+        },
+        {
+          "title": "Strata efektywności skalowania treningu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Duża liczba akceleratorów traci efektywność wraz ze wzrostem floty."
+        },
+        {
+          "title": "Model wykorzystania przy inferencji",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Obsługa i trening nie udają, że korzystają z tego samego sprzętu w ten sam sposób."
+        },
+        {
+          "title": "Ekran zakupu sprzętu",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Zamień istniejący katalog i ekonomię w przepływ zakupu widoczny dla gracza."
+        },
+        {
+          "title": "Przepływ sprzedaży sprzętu",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Pokaż wartość odsprzedaży, zanim gracz wyjdzie z posiadanej partii."
+        },
+        {
+          "title": "Konfiguracja serwera",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Łącz akceleratory z procesorami hosta, pamięcią węzła i siecią, zamiast kupować jeden magiczny wynik serwera."
+        },
+        {
+          "title": "Oś premier sprzętu",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Pokaż czas wejścia generacji, żeby czekanie stało się jawną decyzją, a nie wiedzą ukrytą."
+        },
+        {
+          "title": "Przepływ wejścia w kolokację",
+          "status": "planned",
+          "lane": "next",
+          "description": "Kupuj własny sprzęt z czasem oczekiwania, zanim firma dojrzeje do pełnego centrum danych."
+        },
+        {
+          "title": "Przepływ budowy własnego centrum danych",
+          "status": "planned",
+          "lane": "next",
+          "description": "Zamień późny poziom mocy w realne zobowiązanie kapitałowe i infrastrukturalne."
+        },
+        {
+          "title": "Rozbieg dostaw po premierze",
+          "status": "planned",
+          "lane": "next",
+          "description": "Nowa generacja akceleratorów nie powinna być nieskończenie dostępna pierwszego dnia."
+        },
+        {
+          "title": "Napięcia i braki w dostawach",
+          "status": "planned",
+          "lane": "next",
+          "description": "Spraw, żeby dostępność była kolejnym powodem, dla którego technicznie dobry zakup może zawieść operacyjnie."
+        },
+        {
+          "title": "Fizyczne szafy serwerowe",
+          "status": "planned",
+          "lane": "next",
+          "description": "Posiadana moc powinna pojawiać się w przestrzeniach firmy, a nie żyć wyłącznie w tabeli."
+        },
+        {
+          "title": "Planowanie zasilania centrum danych",
+          "status": "planned",
+          "lane": "later",
+          "description": "Własna infrastruktura w końcu potrzebuje limitów innych niż cena zakupu."
+        },
+        {
+          "title": "Ograniczenia chłodzenia centrum danych",
+          "status": "planned",
+          "lane": "later",
+          "description": "Chłodzenie staje się późnym limitem fizycznym, jeśli symulacja infrastruktury urośnie dość głęboko."
+        }
+      ]
+    },
+    {
+      "id": "rivals-intel",
+      "label": "Rywale i wywiad",
+      "short": "Rywale",
+      "description": "Konkurenci reagujący na czas, plus informacje, które mogą kosztować i mimo to być błędne.",
+      "items": [
+        {
+          "title": "Osiem konkurencyjnych laboratoriów",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Aktywne pole jest napędzane agentami, a nie jedną statyczną tabelą wyników."
+        },
+        {
+          "title": "Historyczna oś premier jako ziarno",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Znane premiery zasiewają otwarcie z lat 2022–2026, zanim agenci zaczną się rozjeżdżać."
+        },
+        {
+          "title": "Cierpliwy rywal czeka",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Część rywali opóźnia przebieg, gdy lepszy krzem jest blisko planowanego okna premiery."
+        },
+        {
+          "title": "Reakcja rywala pod presją",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Laboratorium nastawione na granicę możliwości potrafi wydać wcześniej z karą do jakości, gdy gracz otworzy dużą przewagę."
+        },
+        {
+          "title": "Dryf zdolności rywali",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Konkurenci poprawiają się między premierami, zamiast zamarzać do kolejnego wydania."
+        },
+        {
+          "title": "Proceduralne premiery po końcu historii",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Gdy znana oś czasu się kończy, strategie rywali generują własny rytm."
+        },
+        {
+          "title": "Parodystyczne nazwy rywali",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Laboratoria pozostają rozpoznawalne jako żarty, bez używania prawdziwych nazw firm."
+        },
+        {
+          "title": "Zestaw parodystycznych logo rywali",
+          "status": "polish",
+          "lane": "now",
+          "description": "Dokończ spójny system małych znaków, czytelnych w skali interfejsu."
+        },
+        {
+          "title": "Trzy płatne poziomy wywiadu",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Jakość informacji rośnie z wydatkiem, nie zamieniając się w doskonałą przewidywalność."
+        },
+        {
+          "title": "Rzeczywista trafność kontra deklarowana pewność",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Raport może brzmieć pewniej, niż zasługuje na to sygnał u podstawy."
+        },
+        {
+          "title": "Sygnały o premierach sprzętu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wywiad potrafi wskazać nadchodzącą generację, zanim gracz ma pewność."
+        },
+        {
+          "title": "Sygnały o załamaniu cen",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wywiad potrafi ostrzec przed wydarzeniem rynkowym, które zmienia ekonomię sprzętu."
+        },
+        {
+          "title": "Sygnały o napięciach w dostawach",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wywiad potrafi ostrzec, że dostępność zaraz się zacieśni."
+        },
+        {
+          "title": "Sygnały o wstrzymaniu się rywala",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Wyższy poziom wywiadu potrafi zasygnalizować, że konkurent może czekać celowo."
+        },
+        {
+          "title": "Rozbudowany interfejs raportów wywiadu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Daj przesłankom, historii i niepewności więcej miejsca niż pojedyncza karta notatki."
+        },
+        {
+          "title": "Widok historii premier konkurentów",
+          "status": "planned",
+          "lane": "later",
+          "description": "Pokaż, jak każde laboratorium naprawdę szło przez kampanię, a nie tylko gdzie stoi dzisiaj."
+        }
+      ]
+    },
+    {
+      "id": "business-capital",
+      "label": "Biznes i kapitał",
+      "short": "Biznes",
+      "description": "Zamień jakość modelu w popyt, popyt w gotówkę, a gotówkę w kolejną niebezpieczną decyzję.",
+      "items": [
+        {
+          "title": "Cena za tokeny osobno dla modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Każdy model na rynku ma własną cenę, zamiast dziedziczyć jedną liczbę dla całej firmy."
+        },
+        {
+          "title": "Sterowanie darmowym progiem",
+          "status": "playable",
+          "lane": "now",
+          "description": "Darmowy dostęp może być świadomą decyzją dystrybucyjną."
+        },
+        {
+          "title": "Wspólny model udziału w rynku",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Ekonomia i ranking czytają z tego samego modelu popytu."
+        },
+        {
+          "title": "Człon zdolności w popycie",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Lepsze modele zyskują przewagę, ale nie przejmują rynku automatycznie."
+        },
+        {
+          "title": "Człon marki w popycie",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Reputacja zmienia to, jak równorzędne produkty dzielą popyt."
+        },
+        {
+          "title": "Człon ceny w popycie",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Cena ma znaczenie niezależnie od zdolności."
+        },
+        {
+          "title": "Człon wieku modelu w popycie",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Model, którego nikt nie zastępuje, stopniowo się starzeje."
+        },
+        {
+          "title": "Krzywe segmentów odbiorców",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Rynek konsumencki, deweloperski, korporacyjny, kreatywny i autonomiczny zmienia rozmiar w czasie."
+        },
+        {
+          "title": "Tolerancja ceny u specjalistów",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Węższy model może docierać do mniejszej liczby ludzi, sprzedając odbiorcom akceptującym wyższą cenę."
+        },
+        {
+          "title": "Firmowe programy marketingowe",
+          "status": "playable",
+          "lane": "now",
+          "description": "Wydatek na marketing działa na popyt, zamiast być ozdobnym przyciskiem."
+        },
+        {
+          "title": "Kampania startowa modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Wydanie może dostać skupiony marketing, a nie tylko stały wydatek firmowy."
+        },
+        {
+          "title": "Wycena przy finansowaniu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Wycena łączy bliskość granicy możliwości, tempo przychodów i nastroje danego roku."
+        },
+        {
+          "title": "Cykl nastrojów inwestorów",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Ta sama firma może być wyceniona zupełnie inaczej w zależności od momentu zbiórki."
+        },
+        {
+          "title": "Tabela udziałów i rozwodnienie założyciela",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Rundy kapitałowe trwale zmieniają strukturę własności."
+        },
+        {
+          "title": "Kara za rundę w dół",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Zbiórka poniżej poprzedniej wyceny kosztuje dodatkowe udziały."
+        },
+        {
+          "title": "Instrumenty dłużne",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Pożyczka pomostowa, dług venture, obligacje i dług na moc państwową wymieniają rozwodnienie na presję spłaty."
+        },
+        {
+          "title": "Zaległości i niewypłacalność",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Nieopłacone raty się kumulują, zanim publiczna niewypłacalność uderzy w pozycję firmy."
+        },
+        {
+          "title": "Tablica rankingowa",
+          "status": "playable",
+          "lane": "now",
+          "description": "Zdolność, udział i marka zasilają jedną posortowaną tablicę firm."
+        },
+        {
+          "title": "Historia rankingu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Śledź ruch w czasie, zamiast pokazywać wyłącznie dzisiejszą kolejność."
+        },
+        {
+          "title": "Kontekstowe wydarzenia rynkowe",
+          "status": "planned",
+          "lane": "later",
+          "description": "Dodawaj pojedyncze wydarzenia tylko tam, gdzie wzmacniają istniejący mechanizm rynkowy."
+        }
+      ]
+    },
+    {
+      "id": "office-staff-world",
+      "label": "Biuro, ludzie i świat",
+      "short": "Świat",
+      "description": "Spraw, żeby wzrost firmy było widać w pokojach, ludziach, autach, budynkach i infrastrukturze.",
+      "items": [
+        {
+          "title": "Startowy dom w 3D",
+          "status": "playable",
+          "lane": "now",
+          "description": "Startowa siedziba firmy istnieje jako prawdziwe ortograficzne środowisko 3D."
+        },
+        {
+          "title": "Startowa przestrzeń mieszkalna",
+          "status": "polish",
+          "lane": "now",
+          "description": "Salon, miejsce pracy i sypialnia pokazują skalę pierwszej firmy przed rozwojem."
+        },
+        {
+          "title": "Garaż",
+          "status": "polish",
+          "lane": "now",
+          "description": "Startowa siedziba ma garaż połączony z planowanym przepływem podróży."
+        },
+        {
+          "title": "Startowy samochód",
+          "status": "polish",
+          "lane": "now",
+          "description": "Pierwszy pojazd daje przejściu na mapę świata fizyczny punkt startu."
+        },
+        {
+          "title": "Nieruchoma kamera ortograficzna",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Scena używa zablokowanej prezentacji 2.5D zamiast swobodnej nawigacji kamerą."
+        },
+        {
+          "title": "Szlif wizualny pokoju",
+          "status": "polish",
+          "lane": "now",
+          "description": "Dopracowuj rekwizyty, światło i kompozycję bez zmiany podstawowego ustawienia kamery."
+        },
+        {
+          "title": "Chowanie i przezroczystość ścian",
+          "status": "planned",
+          "lane": "next",
+          "description": "Usuń zasłonięcie pokoju, gdy założyciel wchodzi do garażu albo innej ukrytej przestrzeni."
+        },
+        {
+          "title": "Postać 3D założyciela",
+          "status": "planned",
+          "lane": "next",
+          "description": "Umieść stworzonego założyciela w fizycznym widoku firmy."
+        },
+        {
+          "title": "Animacja bezczynności założyciela",
+          "status": "planned",
+          "lane": "next",
+          "description": "Ożyw scenę otwarcia, nie robiąc z ruchu źródła prawdy dla symulacji."
+        },
+        {
+          "title": "Chodzenie założyciela po punktach",
+          "status": "planned",
+          "lane": "next",
+          "description": "Poruszanie się między stałymi punktami aktywności zamiast przesadzonego szukania ścieżek jak na tę odległość kamery."
+        },
+        {
+          "title": "Podejście do stanowiska pracy",
+          "status": "planned",
+          "lane": "next",
+          "description": "Trening i praca zyskują krótką fizyczną animację przy biurku."
+        },
+        {
+          "title": "Przejście do garażu i samochodu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Podróż zaczyna się od fizycznego opuszczenia startowej siedziby przez założyciela."
+        },
+        {
+          "title": "Mapa świata i lokalizacji",
+          "status": "foundation",
+          "lane": "next",
+          "description": "Zamień wybór lokalizacji w warstwę świata, po której da się nawigować, wykraczającą poza rejestrację firmy."
+        },
+        {
+          "title": "Wynajem większych biur",
+          "status": "planned",
+          "lane": "next",
+          "description": "Wzrost firmy ma wymagać opuszczenia startowego domu."
+        },
+        {
+          "title": "Poziomy biur",
+          "status": "planned",
+          "lane": "next",
+          "description": "Awansuj przez coraz większe przestrzenie zamiast jednego pokoju rosnącego w nieskończoność."
+        },
+        {
+          "title": "Zatrudnianie pracowników",
+          "status": "planned",
+          "lane": "next",
+          "description": "Dodaj warstwę zespołu, która zamienia pustą pojemność biura w użyteczną pojemność firmy."
+        },
+        {
+          "title": "Umiejętności pracowników",
+          "status": "planned",
+          "lane": "next",
+          "description": "Jakość kadry ma wpływać na pracę, zamiast czynić każde zatrudnienie wymiennym."
+        },
+        {
+          "title": "Wynagrodzenia pracowników",
+          "status": "planned",
+          "lane": "next",
+          "description": "Liczba etatów staje się ciągłym zobowiązaniem operacyjnym."
+        },
+        {
+          "title": "Fizyczne biurka pracowników",
+          "status": "planned",
+          "lane": "next",
+          "description": "Zatrudniony ma pojawić się w przestrzeni, za którą firma płaci."
+        },
+        {
+          "title": "Chodzący pracownicy",
+          "status": "planned",
+          "lane": "later",
+          "description": "Pracownicy przemieszczają się między punktami pracy, żeby większe przestrzenie żyły."
+        },
+        {
+          "title": "Własne szafy w biurze",
+          "status": "planned",
+          "lane": "next",
+          "description": "Widok fizyczny czyta pulę mocy i pokazuje, co firma naprawdę ma."
+        },
+        {
+          "title": "Osobna siedziba firmy",
+          "status": "planned",
+          "lane": "later",
+          "description": "Późny poziom biura oddziela fantazję o zarządzaniu od startowej siedziby."
+        },
+        {
+          "title": "Osobne centrum danych",
+          "status": "planned",
+          "lane": "later",
+          "description": "Własna infrastruktura w końcu staje się miejscem, a nie tylko pozycją w finansach."
+        }
+      ]
+    },
+    {
+      "id": "safety",
+      "label": "Bezpieczeństwo i incydenty",
+      "short": "Bezpieczeństwo",
+      "description": "Bezpieczeństwo ma być decyzją z ryzykiem ogona, a nie statystyką cnoty ruszającą tylko markę.",
+      "items": [
+        {
+          "title": "Umiejętność bezpieczeństwa u założyciela",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Tworzenie założyciela już teraz zmienia presję ryzyka incydentu przez system umiejętności."
+        },
+        {
+          "title": "Cecha bezpieczeństwa modelu",
+          "status": "playable",
+          "lane": "now",
+          "description": "Bezpieczeństwo jest jedną z cech mierzonych wobec rynkowej normy danego dnia."
+        },
+        {
+          "title": "Wpływ bezpieczeństwa na markę",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Odstawanie w bezpieczeństwie już teraz wpływa na odbiór produktu."
+        },
+        {
+          "title": "Fundament mnożnika ryzyka incydentu",
+          "status": "foundation",
+          "lane": "next",
+          "description": "Symulacja ma już dane potrzebne, żeby zamienić słabe decyzje o bezpieczeństwie w ryzyko ogona."
+        },
+        {
+          "title": "Etap bezpieczeństwa w kreatorze modelu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Pokaż bezpieczeństwo przed treningiem, zamiast chować je w późniejszych ulepszeniach."
+        },
+        {
+          "title": "Incydenty bezpieczeństwa modelu",
+          "status": "planned",
+          "lane": "next",
+          "description": "Model daleko poniżej oczekiwań bezpieczeństwa może wywołać kosztowne zdarzenie."
+        },
+        {
+          "title": "Szkoda wizerunkowa po incydencie",
+          "status": "planned",
+          "lane": "next",
+          "description": "Incydenty mają uderzać w pozycję, której zbudowanie zajęło czas i pieniądze."
+        },
+        {
+          "title": "Uwaga regulatora",
+          "status": "planned",
+          "lane": "later",
+          "description": "Poważne wpadki w bezpieczeństwie mogą stworzyć presję spoza zwykłego modelu popytu."
+        },
+        {
+          "title": "Decyzje o reakcji na incydent",
+          "status": "planned",
+          "lane": "later",
+          "description": "Daj graczowi wybór naprawczy, zamiast nakładać wyłącznie automatyczną karę."
+        }
+      ]
+    },
+    {
+      "id": "interface",
+      "label": "Interfejs i prezentacja",
+      "short": "UI",
+      "description": "Gra musi pozostać czytelna, kiedy symulacja robi się gęstsza.",
+      "items": [
+        {
+          "title": "Dolny pasek sterowania",
+          "status": "playable",
+          "lane": "now",
+          "description": "Główna nawigacja mieszka w dolnym pasku zamiast w szerokiej lewej szynie."
+        },
+        {
+          "title": "Tarcza zegara dnia",
+          "status": "playable",
+          "lane": "now",
+          "description": "Półokrąg pokazuje datę i postęp dnia, nie sterując zasadami symulacji."
+        },
+        {
+          "title": "Pauza / X1 / X2 / X3",
+          "status": "playable",
+          "lane": "now",
+          "description": "Sterowanie czasem czysto mapuje się na symulację całych dni."
+        },
+        {
+          "title": "Pomiń dzień",
+          "status": "playable",
+          "lane": "now",
+          "description": "Przelicz dokładnie jeden dzień i zatrzymaj się, nawet gdy gra jest zapauzowana."
+        },
+        {
+          "title": "Wspólny gradient akcentu",
+          "status": "polish",
+          "lane": "now",
+          "description": "Koral, wino i blady fiolet są traktowane jak jedna linia przechodząca przez interfejs."
+        },
+        {
+          "title": "Zestaw ikon kategorii na dole",
+          "status": "polish",
+          "lane": "now",
+          "description": "Dokończ biały jednowagowy język ikon na najważniejszych ekranach."
+        },
+        {
+          "title": "Zestaw ikon umiejętności",
+          "status": "polish",
+          "lane": "now",
+          "description": "Siedem ikon umiejętności założyciela już jest i są normalizowane jako jedna rodzina."
+        },
+        {
+          "title": "Grafiki banerów sekcji",
+          "status": "polish",
+          "lane": "now",
+          "description": "Badania, biznes, finansowanie i pozostałe ekrany dzielą panoramiczne grafiki o niskim kontraście."
+        },
+        {
+          "title": "Responsywny układ w UI Toolkit",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Kreatory i panele bronią się przed ściśnięciem, zawijaniem i błędami układu w małym oknie."
+        },
+        {
+          "title": "Przegląd podpowiedzi",
+          "status": "planned",
+          "lane": "next",
+          "description": "Wyprowadź długie wyjaśnienia z ciasnych kontrolek, nie ukrywając decyzji."
+        },
+        {
+          "title": "Przegląd rozdzielczości i skalowania",
+          "status": "planned",
+          "lane": "next",
+          "description": "Przetestuj grę na docelowych rozmiarach okna i ekranu."
+        },
+        {
+          "title": "Przegląd dostępności",
+          "status": "planned",
+          "lane": "later",
+          "description": "Sprawdź kontrast, fokus, ruch i czytelność przed publicznym wydaniem."
+        },
+        {
+          "title": "Sprzężenie dźwiękowe",
+          "status": "planned",
+          "lane": "later",
+          "description": "Dodaj powściągliwe dźwięki potwierdzeń i ostrzeżeń, gdy język interakcji się ustabilizuje."
+        },
+        {
+          "title": "Przegląd animacji interfejsu",
+          "status": "planned",
+          "lane": "later",
+          "description": "Animuj zmiany stanu tylko tam, gdzie ruch wyjaśnia, co się zmieniło."
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "label": "Publiczny build i wydanie",
+      "short": "Wydanie",
+      "description": "Publiczny ślad wokół gry: kod, strona, roadmapa, testy i strony sklepowe.",
+      "items": [
+        {
+          "title": "Publiczne repozytorium kodu",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Kod i notatki inżynierskie są widoczne, kiedy gra się zmienia."
+        },
+        {
+          "title": "Hub HCK Labs",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Scaling Laws ma stałe miejsce obok pozostałych prac HCK Labs."
+        },
+        {
+          "title": "Strona główna Scaling Laws",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Publiczna strona gry oddziela obecne systemy od pracy planowanej."
+        },
+        {
+          "title": "Strona mechanizmów",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Zasady symulacji i odniesienia do świata rzeczywistego mają własną, indeksowalną stronę techniczną."
+        },
+        {
+          "title": "Publiczna roadmapa",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Ta strona jest żywą mapą stanu, a stojący za nią JSON jest źródłem prawdy."
+        },
+        {
+          "title": "Źródło danych roadmapy w JSON",
+          "status": "shipped",
+          "lane": "shipped",
+          "description": "Jeden plik strukturalny napędza stan roadmapy i może zasilać inne formy prezentacji."
+        },
+        {
+          "title": "Indeks devloga",
+          "status": "planned",
+          "lane": "next",
+          "description": "Stwórz miejsce dla notatek z budowy, które da się indeksować poza platformami społecznościowymi."
+        },
+        {
+          "title": "Galeria materiałów",
+          "status": "planned",
+          "lane": "next",
+          "description": "Zbierz zrzuty, klipy z ewolucji pokoju i późniejsze zwiastuny w jednym indeksowalnym miejscu."
+        },
+        {
+          "title": "Strona projektu na itch.io",
+          "status": "foundation",
+          "lane": "now",
+          "description": "Przygotuj pierwszą publiczną stronę konkretnej gry i kanał devloga."
+        },
+        {
+          "title": "Strona projektu na IndieDB",
+          "status": "planned",
+          "lane": "next",
+          "description": "Dodaj drugi publiczny ślad konkretnej gry z indeksowanymi aktualizacjami prac."
+        },
+        {
+          "title": "Pierwszy publiczny grywalny build",
+          "status": "planned",
+          "lane": "next",
+          "description": "Przejdź ze zrzutów i kodu do czegoś, co osoby spoza grona testerów naprawdę mogą uruchomić."
+        },
+        {
+          "title": "Zamknięta pętla testów",
+          "status": "planned",
+          "lane": "next",
+          "description": "Zbierz skupiony feedback przed szerszym demem."
+        },
+        {
+          "title": "Zbieranie feedbacku",
+          "status": "planned",
+          "lane": "next",
+          "description": "Daj wczesnym graczom jedno jasne miejsce na zgłaszanie tarć i problemów z balansem."
+        },
+        {
+          "title": "Strona Coming Soon na Steamie",
+          "status": "planned",
+          "lane": "later",
+          "description": "Zacznij zbierać wishlisty, gdy kierunek wizualny i pętla rozgrywki będą w stanie uczciwie sprzedać grę."
+        },
+        {
+          "title": "Grywalne demo",
+          "status": "planned",
+          "lane": "later",
+          "description": "Publiczny wycinek pętli, który dowodzi gry poza zrzutami ekranu."
+        },
+        {
+          "title": "Zwiastun z rozgrywki",
+          "status": "planned",
+          "lane": "later",
+          "description": "Zmontuj najmocniejsze historie z gry, gdy materiał będzie w stanie reprezentować prawdziwą pętlę."
+        },
+        {
+          "title": "Kandydat do wydania",
+          "status": "planned",
+          "lane": "later",
+          "description": "Zamroź linię funkcji i poświęć czas na błędy, balans i zgodność."
+        },
+        {
+          "title": "Wydanie komercyjne",
+          "status": "planned",
+          "lane": "later",
+          "description": "Wydaj, gdy gra będzie na tyle stabilna, że roadmapa nie będzie musiała tłumaczyć braków w podstawach."
+        }
+      ]
+    }
+  ],
+  "language": "pl"
+}

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jak Działa Scaling Laws | Systemy Tycoona o AI | HCK Labs</title>
+  <meta name="description" content="Jak Scaling Laws działa pod spodem: trening modeli, starzenie się sprzętu, agenci rywali, rynki i testy stojące za symulacją.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html">
+  <link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/development/">
+  <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html">
+  <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/development/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws: RSS devloga" href="../devlog/feed.xml">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="pl_PL">
+  <meta property="og:title" content="Jak działa Scaling Laws">
+  <meta property="og:description" content="Mapa mechanizmów Scaling Laws: prawa skalowania, sprzęt, moc obliczeniowa, badania, rywale, rynki, niepewność i testy.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/development/index_pl.html">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Jak działa Scaling Laws: skalowanie, sprzęt, badania i systemy rywali">
+  <meta property="article:author" content="Marcin Firmuga">
+  <meta property="article:modified_time" content="2026-08-06">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jak działa Scaling Laws">
+  <meta name="twitter:description" content="Techniczny rozbiór systemów stojących za tycoonem o firmie AI.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png">
+  <meta name="twitter:image:alt" content="Jak działa Scaling Laws: skalowanie, sprzęt, badania i systemy rywali">
+
+  <link rel="stylesheet" href="../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="../assets/css/development.css">
+  <script defer src="../../assets/js/hck-labs.js"></script>
+  <script defer src="../assets/js/development.js"></script>
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {"@type":"Person","@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga","name":"Marcin Firmuga","alternateName":"Marcin HCK Firmuga","url":"https://pcworkman.dev/hck-labs/","sameAs":["https://github.com/HuckleR2003"]},
+      {"@type":"Organization","@id":"https://pcworkman.dev/hck-labs/#organization","name":"HCK Labs","url":"https://pcworkman.dev/hck-labs/","founder":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"}},
+      {"@type":"VideoGame","@id":"https://pcworkman.dev/hck-labs/scaling-laws/#game","name":"Scaling Laws","url":"https://pcworkman.dev/hck-labs/scaling-laws/","genre":["Simulation","Strategy","Tycoon"],"author":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"},"publisher":{"@id":"https://pcworkman.dev/hck-labs/#organization"}},
+      {"@type":"TechArticle","@id":"https://pcworkman.dev/hck-labs/scaling-laws/development/#article","headline":"How Scaling Laws Works","description":"A technical breakdown of the simulation systems behind Scaling Laws.","url":"https://pcworkman.dev/hck-labs/scaling-laws/development/","dateModified":"2026-08-06","author":{"@id":"https://pcworkman.dev/hck-labs/#marcin-firmuga"},"publisher":{"@id":"https://pcworkman.dev/hck-labs/#organization"},"about":{"@id":"https://pcworkman.dev/hck-labs/scaling-laws/#game"},"image":"https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-development.png","inLanguage":"pl"},
+      {"@type":"BreadcrumbList","@id":"https://pcworkman.dev/hck-labs/scaling-laws/development/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"PC Workman","item":"https://pcworkman.dev/"},{"@type":"ListItem","position":2,"name":"HCK Labs","item":"https://pcworkman.dev/hck-labs/"},{"@type":"ListItem","position":3,"name":"Scaling Laws","item":"https://pcworkman.dev/hck-labs/scaling-laws/"},{"@type":"ListItem","position":4,"name":"Development","item":"https://pcworkman.dev/hck-labs/scaling-laws/development/"}]}
+    ]
+  }
+  </script>
+</head>
+<body class="sl-page sld-page">
+<a class="sld-skip-link" href="#main">Przejdź do treści</a>
+<div class="sld-progress" aria-hidden="true"></div>
+<div class="hck-shell">
+  <header class="hck-site-header">
+    <nav class="hck-nav" aria-label="Nawigacja główna">
+      <a class="sl-project-brand" href="../index_pl.html" aria-label="Scaling Laws: strona główna">
+        <span class="hck-brand__mark" aria-hidden="true"></span><span>HCK Labs</span><span class="sl-project-brand__slash" aria-hidden="true">/</span><span class="sl-project-brand__name">Scaling Laws</span>
+      </a>
+      <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="sld-nav-links"><span class="hck-visually-hidden">Otwórz nawigację</span><span class="hck-nav__toggle-lines" aria-hidden="true"></span></button>
+      <div class="hck-nav__links" id="sld-nav-links" data-nav-links>
+        <a class="hck-nav__link" href="../index_pl.html">Gra</a>
+        <a class="hck-nav__link is-active" href="./index_pl.html" aria-current="page">Jak działa</a>
+          <a class="hck-nav__link" href="../roadmap/index_pl.html">Roadmapa</a>
+          <a class="hck-nav__link" href="../devlog/index_pl.html">Devlog</a>
+          <a class="hck-nav__link" href="../media/index_pl.html">Media</a>
+        <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Kod</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="sld-hero" aria-labelledby="development-title">
+      <div class="sld-hero__inner">
+        <div data-reveal>
+          <div class="sld-eyebrow">Jak działa / mapa mechanizmów</div>
+          <h1 id="development-title">Jak Scaling Laws naprawdę działa.</h1>
+          <p class="sld-hero__lead">To nie jest lista funkcji. To maszyneria pod nią: jak model dostaje wynik, dlaczego sprzęt staje się złym aktywem, dlaczego badań nie da się przepchnąć samą gotówką, jak reagują rywale i które liczby są pomiarem, a które abstrakcją gry.</p>
+        </div>
+        <aside class="sld-spine hck-edge-shine" data-reveal>
+          <div class="sld-spine__label">Zasada, której musi służyć każdy system</div>
+          <blockquote>„Ulepszeń się nie kupuje. Ulepszenia się wyczuwa w czasie.”</blockquote>
+          <p class="sld-spine__note">Projekt się psuje, jeśli pieniądze zdejmują presję kalendarza, jeśli stary sprzęt zostaje dobry na zawsze albo jeśli jedno udane wydanie daje gwarantowany przychód.</p>
+        </aside>
+      </div>
+      <div class="hck-container--wide">
+        <div class="sld-facts" data-reveal>
+          <div class="sld-fact"><span class="sld-fact__k">Start kampanii</span><strong class="sld-fact__v">1 stycznia 2022</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Krok symulacji</span><strong class="sld-fact__v">Jeden deterministyczny dzień</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Jakość modelu</span><strong class="sld-fact__v">Prawo skalowania, nie losowa ocena</strong></div>
+          <div class="sld-fact"><span class="sld-fact__k">Dane o przyszłości</span><strong class="sld-fact__v">Wartości prognozowane są oznaczone</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sld-body">
+      <div class="sld-layout">
+        <aside class="sld-rail" aria-label="Nawigacja po mechanizmach">
+          <div class="sld-rail__label">Mechanizmy</div>
+          <nav class="sld-rail__links">
+            <a class="sld-rail__link is-active" data-mechanism-link data-index="01" href="#scaling">Skalowanie</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="02" href="#hardware">Sprzęt</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="03" href="#compute">Moc</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="04" href="#research">Badania</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="05" href="#rivals">Rywale</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="06" href="#market">Rynek</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="07" href="#honesty">Uczciwość</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="08" href="#testing">Testy</a>
+            <a class="sld-rail__link" data-mechanism-link data-index="09" href="#next">Dalej</a>
+          </nav>
+        </aside>
+
+        <div class="sld-content">
+          <section class="sld-section" id="scaling" data-mechanism-section aria-labelledby="scaling-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">01 / Jakość modelu</div><h2 id="scaling-title">Większy model to nie automatycznie lepsze wykorzystanie mocy.</h2></div><p class="sld-section__summary">Jakość treningu bierze się z jednego parametrycznego prawa skalowania. Liczy się i liczba parametrów, i tokeny treningowe, a ten sam budżet mocy można zmarnować, przeciągając którąkolwiek stronę.</p></header>
+            <div class="sld-reading" data-reveal>
+              <p>Scaling Laws używa parametrycznej formy straty w stylu Chinchilli jako jedynego miejsca, w którym liczona jest jakość modelu. Gracz wybiera skalę parametrów i skalę danych, a gra zamienia ten plan na moc treningową i względną prognozę zdolności.</p>
+              <div class="sld-formula"><div class="sld-formula__bar"><span>ScalingLaw / jedyna funkcja jakości</span><span>symulacja względna</span></div><div class="sld-formula__math">L(N, D) = E + A / N<sup>α</sup> + B / D<sup>β</sup></div><div class="sld-formula__foot">N to liczba parametrów. D to tokeny treningowe. Wynik zdolności pokazywany przez grę jest względną skalą gry, a nie wynikiem benchmarku w rodzaju MMLU.</div></div>
+              <p>Region optymalny obliczeniowo w obecnym modelu wypada w okolicach <strong>dwudziestu tokenów treningowych na parametr</strong>. Dziesięciokrotność efektywnej mocy treningowej mapuje się na mniej więcej dziesięć punktów zdolności na każdej skali. Ta stała bieżnia sprawia, że ruchoma granica pozostaje czytelna dla gracza.</p>
+              <div class="sld-definition"><span class="sld-definition__label">Dlaczego dopasowanie nie jest kopiowane na ślepo</span><p>Projekt używa poprawionego, ponownie wyprowadzonego dopasowania Chinchilli, zamiast po cichu traktować każdą stałą wydrukowaną w pracy z 2022 roku jako niepodważalną. Próba replikacji z 2024 roku wykazała, że trzecia procedura estymacji w tej pracy była niespójna z dwiema pierwszymi, i wyprowadziła dopasowanie zgodne z nimi.</p></div>
+            </div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/model-creator-960.webp" srcset="../assets/images/screens/model-creator-960.webp 960w, ../assets/images/screens/model-creator-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Etapowy kreator modelu w Scaling Laws: fundament, skala, dane, moc i przegląd" loading="lazy" decoding="async"><figcaption>Aktualny kreator modelu. Prognoza przelicza się na nowo, gdy zmienia się plan.</figcaption></figure>
+            <div class="sld-split"><article class="sld-card" data-reveal><div class="sld-card__kicker">Odniesienie do świata rzeczywistego</div><h3>Co mówią badania</h3><p>Hoffmann i współautorzy wytrenowali ponad 400 modeli i pokazali, że optymalny obliczeniowo rozmiar modelu i liczba tokenów treningowych powinny rosnąć razem. Scaling Laws bierze tę zależność jako odniesienie projektowe, a nie jako twierdzenie, że jego skala zdolności 0–100 jest prawdziwym benchmarkiem.</p></article><article class="sld-card sld-card--accent" data-reveal><div class="sld-card__kicker">Abstrakcja gry</div><h3>Co dostaje gracz</h3><p>Jedna zrozumiała liczba, prognozowana zmiana po każdym wyborze, czas treningu i rachunek. Niepewność zamienia się w ostateczną zdolność dopiero wtedy, gdy przebieg naprawdę się skończy.</p></article></div>
+          </section>
+
+          <section class="sld-section" id="hardware" data-mechanism-section aria-labelledby="hardware-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">02 / Ekonomia sprzętu</div><h2 id="hardware-title">Własna moc starzeje się, kiedy jeszcze pracuje.</h2></div><p class="sld-section__summary">Wartość sprzętu spada na dwa osobne sposoby: przez wiek kalendarzowy i przez generacje następców. Premiera, która wypada po twoim zakupie, potrafi drugi raz uderzyć w wartość odsprzedaży.</p></header>
+            <div class="sld-reading" data-reveal><p>Katalog sprzętu trzyma dane akceleratorów, procesorów hosta, pamięci węzła i sieci wewnętrznej. Posiadane akceleratory nie są trwałym ulepszeniem statystyki. Są aktywami z datą. Model wyceny nakłada amortyzację zależną od czasu i drugą karę, gdy pojawiają się nowsze generacje tej samej klasy.</p></div>
+            <div class="sld-timeline" data-reveal><div class="sld-timeline__track" aria-hidden="true"><span class="sld-timeline__point sld-timeline__point--buy"><span>zakup</span></span><span class="sld-timeline__point sld-timeline__point--age"><span>wiek kalendarzowy</span></span><span class="sld-timeline__point sld-timeline__point--successor"><span>premiera następcy</span></span><span class="sld-timeline__point sld-timeline__point--sell"><span>odsprzedaż</span></span></div><div class="sld-timeline__legend"><div><strong>Czas:</strong> wartość spada, nawet jeśli nic nowego nie wychodzi.</div><div><strong>Następcy:</strong> istotnie nowsze podzespoły dokładają drugie, rozłożone w czasie uderzenie.</div></div></div>
+            <div class="sld-reading" data-reveal><p>Dlatego ekran sprzętu nie może stać się „wybierz najbardziej zieloną kartę”. Czekanie potrafi zachować kapitał na generację, która poprawia wydajność na dolara. Zbyt długie czekanie potrafi też zostawić firmę przy najdroższych stawkach chmury, podczas gdy rywal trenuje na własnych zasobach.</p><p>Specyfikacje producentów mają znaczenie, bo wydajność akceleratora to tylko część maszyny. Referencyjne H100 SXM od NVIDII podaje na przykład 80 GB pamięci, 3,35 TB/s przepustowości pamięci, do 700 W TDP i 900 GB/s NVLink. Dokładnie dlatego gra przechowuje dane o pamięci, poborze mocy i połączeniach, zamiast sprowadzać każdy podzespół do jednej liczby FLOPS.</p></div>
+            <div class="sld-split"><article class="sld-card" data-reveal><div class="sld-card__kicker">Zasada katalogu</div><h3>Publiczne specyfikacje, kiedy istnieją</h3><p>Wpisy sprzętowe opierają się na publicznych specyfikacjach producentów i informacjach o premierach, zaokrąglonych na potrzeby symulacji. Wpis przyszły albo szacowany ma nosić flagę prognozy, a nie udawać danych zmierzonych.</p></article><article class="sld-card sld-card--accent" data-reveal><div class="sld-card__kicker">Problem gracza</div><h3>Dobry zakup potrafi być złym zakupem</h3><p>Mocny akcelerator kupiony kilka dni przed wejściem generacji o lepszym stosunku ceny do wydajności potrafi być dla firmy gorszy niż wolniejszy klaster kupiony w dobrym momencie cyklu.</p></article></div>
+          </section>
+
+          <section class="sld-section" id="compute" data-mechanism-section aria-labelledby="compute-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">03 / Moc obliczeniowa</div><h2 id="compute-title">Wynajem zdejmuje jedno ryzyko. Posiadanie tworzy pięć kolejnych.</h2></div><p class="sld-section__summary">Moc w chmurze przychodzi gotowa do pracy. Własną moc trzeba nakarmić procesorami hosta, pamięcią węzła i siecią, a potem płacić za nią niezależnie od tego, czy klaster ma co robić.</p></header>
+            <div class="sld-stack" data-reveal><div class="sld-stack__row"><strong class="sld-stack__name">Wynajęta chmura</strong><span class="sld-stack__desc">Dostępna od ręki. Kontraktowana w petaflopsach, a nie w liczbie sztuk. Droga, elastyczna i przygotowana za gracza.</span></div><div class="sld-stack__row"><strong class="sld-stack__name">Serwery w kolokacji</strong><span class="sld-stack__desc">Środkowy poziom infrastruktury z czasem oczekiwania i własnością. Firma kupuje sprzęt, nie prowadząc jeszcze pełnego centrum danych.</span></div><div class="sld-stack__row"><strong class="sld-stack__name">Własne centrum danych</strong><span class="sld-stack__desc">Późna infrastruktura z dużo dłuższym czasem oczekiwania, wysokimi progami kapitałowymi i ryzykiem niewykorzystanej mocy.</span></div></div>
+            <div class="sld-reading" data-reveal><p>Sprzęt pomocniczy nie jest dekoracją. Pula mocy mierzy, czy procesory, pamięć i sieć są w stanie faktycznie nakarmić posiadaną flotę akceleratorów. Źle zbalansowany klaster potrafi pracować sporo poniżej swojej nominalnej wartości. Wynajęta moc nie dostaje tej kary, bo przygotowanie środowiska jest częścią tego, za co płaci rachunek z chmury.</p><p>Trening traci też efektywność skalowania wraz ze wzrostem liczby akceleratorów. Inferencja jest modelowana inaczej: bardziej ogranicza ją przepustowość i nie płaci tego samego podatku od sieci. Oba obciążenia dzielą sprzęt, bez udawania, że korzystają z niego identycznie.</p></div>
+            <div class="sld-flow" data-reveal aria-label="Kolejność dziennej symulacji firmy"><div class="sld-flow__step"><span class="sld-flow__n">01</span><span class="sld-flow__name">Dostawy przychodzą</span></div><div class="sld-flow__step"><span class="sld-flow__n">02</span><span class="sld-flow__name">Trening zjada moc</span></div><div class="sld-flow__step"><span class="sld-flow__n">03</span><span class="sld-flow__name">Rynek dzieli popyt</span></div><div class="sld-flow__step"><span class="sld-flow__n">04</span><span class="sld-flow__name">Wychodzą rachunki</span></div><div class="sld-flow__step"><span class="sld-flow__n">05</span><span class="sld-flow__name">Bramki sprawdzają się na nowo</span></div><div class="sld-flow__step"><span class="sld-flow__n">06</span><span class="sld-flow__name">Kontrola wypłacalności</span></div></div>
+          </section>
+
+          <section class="sld-section" id="research" data-mechanism-section aria-labelledby="research-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">04 / Badania i architektura</div><h2 id="research-title">Pieniądze są słabą bramką technologiczną. Kalendarz trudniej oszukać.</h2></div><p class="sld-section__summary">Badania odblokowują architektury, zbiory danych, typy modeli i infrastrukturę. Własne programy architektoniczne dokładają kolejny kompromis: budżet, czas, skupienie i niepewność.</p></header>
+            <div class="sld-reading" data-reveal><p>Drzewko technologii istnieje, bo gotówka się kumuluje. Jeśli każda zaawansowana zdolność jest tylko droga, skuteczny gracz w końcu kupuje resztę gry od ręki. Węzeł badawczy kosztuje pieniądze, wymagania wstępne i czas, a tylko jednego z tych trzech nie da się odkumulować.</p><p>Własne programy architektoniczne działają na tej samej zasadzie. Firma rozdziela wysiłek między rzadkość, przepustowość, jakość na parametr, koszt obsługi i rozumowanie. Program goniący za każdym kierunkiem rozmienia się na drobne. Program krótki i niedofinansowany niesie szerszy rozrzut wyników.</p></div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/research-tree-960.webp" srcset="../assets/images/screens/research-tree-960.webp 960w, ../assets/images/screens/research-tree-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Drzewko badań w Scaling Laws rozpięte na kilku epokach technologicznych" loading="lazy" decoding="async"><figcaption>Aktualne drzewko badań. Odblokowania mają i wymagania wstępne, i bramki kalendarzowe.</figcaption></figure>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/architecture-program-960.webp" srcset="../assets/images/screens/architecture-program-960.webp 960w, ../assets/images/screens/architecture-program-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Własny program architektoniczny w Scaling Laws z pięcioma kierunkami badań, budżetem i czasem trwania" loading="lazy" decoding="async"><figcaption>Własny program architektoniczny wymienia budżet, kalendarz, skupienie i rozrzut wyniku.</figcaption></figure>
+          </section>
+
+          <section class="sld-section" id="rivals" data-mechanism-section aria-labelledby="rivals-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">05 / Rywale i wywiad</div><h2 id="rivals-title">Ranking nie czeka grzecznie na twoje kolejne wydanie.</h2></div><p class="sld-section__summary">Konkurencyjne laboratoria są agentami zasianymi z historycznej osi premier, a potem mogą czekać, przyspieszać i odchodzić od niej wraz ze zmianami w kampanii.</p></header>
+            <div class="sld-reading" data-reveal><p>Cierpliwy rywal potrafi zauważyć, że lepsza generacja akceleratorów wypada blisko jego planowanego okna treningowego, i świadomie poczekać. Rywal nastawiony na granicę możliwości, który zbytnio odstaje, potrafi przyspieszyć i przyjąć karę do zdolności, żeby wydać wcześniej. Między premierami laboratoria dalej się poprawiają, zamiast stać zamrożone do kolejnego wiersza w tabeli.</p><p>Gracz może zapłacić za wywiad, ale gra rozdziela <strong>rzeczywistą trafność</strong> od <strong>deklarowanej pewności</strong>. Najtańszy poziom plotek jest zaprojektowany tak, żeby brzmieć pewniej, niż jest w rzeczywistości. Raport może więc być użyteczny i mimo to błędny.</p></div>
+            <div class="sld-signal" data-reveal><div class="sld-signal__head"><span>Notatka wywiadu / poglądowy interfejs</span><span>Dział plotek</span></div><div class="sld-signal__body"><div><div class="sld-signal__headline">Rywal może wstrzymywać kolejny przebieg, czekając na nadchodzące układy.</div><div class="sld-signal__copy">Dział ma prawo zgłosić wiarygodny sygnał nawet wtedy, gdy sygnał u podstawy jest fałszywy. Ukryta wartość prawdy nigdy nie jest pokazywana graczowi.</div></div><div class="sld-signal__confidence"><strong>80%</strong><span>deklarowana pewność</span></div></div></div>
+            <div class="sld-definition" data-reveal><span class="sld-definition__label">Ważne rozróżnienie</span><p>W obecnym projekcie tani poziom plotek potrafi mieć rację w 58% przypadków, przedstawiając się z 80% pewnością. Ta różnica jest zamierzona. Płacenie za informację kupuje lepszą podstawę decyzji, a nie wszechwiedzę.</p></div>
+          </section>
+
+          <section class="sld-section" id="market" data-mechanism-section aria-labelledby="market-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">06 / Rynek, odbiorcy i kapitał</div><h2 id="market-title">Zdolność ma znaczenie. Tak samo cena, marka i sześć miesięcy spóźnienia.</h2></div><p class="sld-section__summary">Popyt nie jest prostym przeliczeniem wyniku modelu na przychód. Produkty na rynku konkurują zdolnością, marką, ceną i wiekiem, i z graczem, i z konkurencyjnymi laboratoriami.</p></header>
+            <div class="sld-market-formula" data-reveal aria-label="Główne czynniki udziału w rynku"><div class="sld-market-term">Zdolność</div><div class="sld-market-plus">+</div><div class="sld-market-term">Marka</div><div class="sld-market-plus">+</div><div class="sld-market-term">Cena</div><div class="sld-market-plus">+</div><div class="sld-market-term">Wiek</div></div>
+            <div class="sld-reading" data-reveal><p>Odbiorcy też zmieniają się w czasie. Segment konsumencki, deweloperski, korporacyjny, kreatywny i autonomiczny mają w kampanii różne krzywe wielkości. Wyspecjalizowane typy modeli potrafią docierać do mniejszej liczby ludzi, sprzedając odbiorcom, którzy akceptują wyższą cenę. To zamierzony kompromis, a nie ukryty mnożnik.</p><p>Finansowanie ma własny problem z czasem. Model wyceny łączy bliskość granicy możliwości z rocznym tempem przychodów i mnoży wynik przez nastroje inwestorów. Zbiórka na gorącym rynku potrafi więc zachować dużo więcej udziałów założyciela niż zbiórka tej samej kwoty na rynku zimnym.</p></div>
+            <div class="sld-formula" data-reveal><div class="sld-formula__bar"><span>FundingMarket / wzór z gry</span><span>moment na udziały</span></div><div class="sld-formula__math">wycena = (granica<sup>4</sup> × 2 mld + ARR × 20) × nastroje</div><div class="sld-formula__foot">To wzór z ekonomii gry. Nie jest przedstawiany jako ogólny model wyceny startupów.</div></div>
+            <figure class="sld-image" data-reveal><img src="../assets/images/screens/business-960.webp" srcset="../assets/images/screens/business-960.webp 960w, ../assets/images/screens/business-1600.webp 1600w" sizes="(max-width:1100px) 94vw,70vw" alt="Ekran biznesowy w Scaling Laws z cenami, darmowym progiem i decyzjami marketingowymi" loading="lazy" decoding="async"><figcaption>Warstwa biznesowa stoi na tym samym modelu popytu co ranking i ekonomia firmy.</figcaption></figure>
+          </section>
+
+          <section class="sld-section" id="honesty" data-mechanism-section aria-labelledby="honesty-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">07 / Uczciwość danych</div><h2 id="honesty-title">Prognoza powinna wyglądać jak prognoza.</h2></div><p class="sld-section__summary">Projekt trzyma szacowany przyszły sprzęt i premiery modeli osobno od znanych danych referencyjnych, a prognozę treningu osobno od gotowego modelu.</p></header>
+            <div class="sld-honesty"><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Znane odniesienie</div><h3>Dane producentów i premier</h3><p>Publiczne specyfikacje i informacje o premierach są zaokrąglane do katalogów. Znane wpisy są traktowane jako dane referencyjne, nie jako zgadywanie.</p></article><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Prognoza</div><h3>Przyszły sprzęt i premiery</h3><p>Wpisy wychodzące poza znaną oś czasu noszą flagę prognozy, żeby interfejs mógł je oznaczyć, zamiast mieszać przewidywanie z historią.</p></article><article class="sld-honesty__item" data-reveal><div class="sld-honesty__tag">Wynik</div><h3>Prognoza treningu ≠ zdolność modelu</h3><p>Prognozowany przebieg nigdy nie zamienia się po cichu we wdrożony wynik. Zdolność tworzy dopiero przebieg zakończony, a rezultat wypada blisko szacunku, a nie dokładnie na nim.</p></article></div>
+            <div class="sld-reading" data-reveal><p>Ta sama zasada dotyczy tej strony. Systemy planowane są opisane jako planowane. Ekran istniejący w Unity nie jest automatycznie nazywany „wydanym”, a wewnętrzna prognoza nie awansuje na fakt historyczny dlatego, że wygląda wiarygodnie.</p></div>
+          </section>
+
+          <section class="sld-section" id="testing" data-mechanism-section aria-labelledby="testing-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">08 / Testy i determinizm</div><h2 id="testing-title">Zielony build dalej może być błędny. Dlatego testy biorą się też za ekonomię.</h2></div><p class="sld-section__summary">Symulacja jest odizolowana od Unity, deterministyczna i testowalna bez ładowania sceny. Osobne testy pilnują potem grywalności, spójności między katalogami i podpięcia sceny.</p></header>
+            <div class="sld-tests"><article class="sld-test" data-reveal><div class="sld-test__type">Grywalność</div><h3>Czy zwykła firma przetrwa?</h3><p>Skryptowana, wieloletnia kampania odniesienia sprawdza, czy zwykły gracz jest w stanie utrzymać wypłacalność i konkurencyjność, nie dominując przy tym pola bez wysiłku.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Spójność</div><h3>Czy katalogi mogą sobie przeczyć?</h3><p>Przeglądy katalogów szukają wartości NaN, niemożliwych zakresów, wiszących odwołań i łańcuchów odblokowań, do których nigdy nie da się dojść.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Determinizm</div><h3>Czy tę samą kampanię da się odtworzyć?</h3><p>Losowość symulacji pochodzi z zapisanego, deterministycznego generatora. To samo ziarno i te same decyzje dają te same liczby.</p></article><article class="sld-test" data-reveal><div class="sld-test__type">Trwałość zapisu</div><h3>Czy stary zapis pójdzie dalej?</h3><p>Migracje zapisu przechodzą po jednej wersji naraz, zachowują stare kształty danych i odnotowują, kiedy historyczne pole trzeba było odtworzyć.</p></article></div>
+            <div class="sld-reading" data-reveal><p>Ta struktura znalazła już błędy, które na ekranie wyglądały sensownie. Trzy są szczególnie ciekawe, bo zmieniły projekt, a nie tylko poprawiły literówkę:</p></div>
+            <div class="sld-bug-list" data-reveal><div class="sld-bug"><div class="sld-bug__n">01</div><div><strong>Koszt wynajmu skakał przy zmianie generacji sprzętu w chmurze.</strong><span>Wynajem był trzymany jako liczba sztuk. Teraz jest kontraktowany w petaflopsach, więc odświeżenie oferty producenta nie potraja rachunku bez decyzji gracza.</span></div></div><div class="sld-bug"><div class="sld-bug__n">02</div><div><strong>Obsługa przy pełnych parametrach aktywnych w treningu sprawiała, że zdolność prawie nie miała znaczenia.</strong><span>Wszystkich ograniczała moc, więc przychód sprowadzał się do równania obliczeniowego. Obsługa produkcyjna używa teraz mniejszego współczynnika pochodnego, żeby jakość modelu znów się liczyła.</span></div></div><div class="sld-bug"><div class="sld-bug__n">03</div><div><strong>Węzeł badawczy odblokowywał się przed własnym wymaganiem wstępnym.</strong><span>W oderwaniu wyglądał poprawnie, a w prawdziwym drzewku był trwale nieosiągalny. Test spójności sprawdza teraz cały graf zależności.</span></div></div></div>
+          </section>
+
+          <section class="sld-section" id="next" data-mechanism-section aria-labelledby="next-title">
+            <header class="sld-section__head" data-reveal><div><div class="sld-section__code">09 / Aktualna linia prac</div><h2 id="next-title">Co wciąż zamienia się z symulacji w grę.</h2></div><p class="sld-section__summary">Rdzeń ekonomii jest dalej niż fizyczna warstwa firmy. Kolejna praca zamienia istniejący stan symulacji w rzeczy, które gracz może zobaczyć, ustawić i po których może chodzić.</p></header>
+            <div class="sld-next"><article class="sld-next__item" data-reveal><div class="sld-next__status">W budowie</div><h3>Kupowanie i konfiguracja sprzętu</h3><p>Osobny interfejs do wynajmu albo zakupu mocy, a potem do łączenia akceleratorów z procesorami, pamięcią i siecią, zamiast kupowania magicznego „wyniku serwera”.</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Planned layer</div><h3>Pracownicy i większe biura</h3><p>Startowy dom staje się pierwszym szczeblem. Zatrudnieni potrzebują fizycznego miejsca, w którym się pojawią, a późniejsze biura mają sprawić, że wzrost firmy będzie widoczny, a nie tylko finansowy.</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Planned layer</div><h3>Incydenty bezpieczeństwa</h3><p>Bezpieczeństwo wpływa już na systemy modelu i założyciela. Incydenty są brakującą stroną ujemną, która potrafi zamienić słabą decyzję o bezpieczeństwie w szkodę wizerunkową i regulacyjną.</p></article><article class="sld-next__item" data-reveal><div class="sld-next__status">Świat fizyczny</div><h3>Ruch założyciela</h3><p>Chodzenie do stanowiska pracy, garażu i późniejszych przestrzeni firmy jest prezentacją nałożoną na symulację, a nie nowym źródłem prawdy dla zasad.</p></article></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <section class="hck-section sld-references" aria-labelledby="references-title">
+      <div class="hck-container--wide">
+        <header class="hck-section-head" data-reveal><div><div class="sld-eyebrow">Badania i materiały źródłowe</div><h2 class="hck-title" id="references-title">Skąd biorą się elementy ze świata rzeczywistego.</h2></div><p class="hck-copy--soft">Te źródła stoją za wyborem prawa skalowania albo za danymi referencyjnymi o sprzęcie. Nie oznaczają, że gra odwzorowuje prawdziwe laboratorium czy centrum danych jeden do jednego.</p></header>
+        <div class="sld-reference-list">
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Praca naukowa / 2022</div><div><strong>Training Compute-Optimal Large Language Models</strong><p>Hoffmann i współautorzy. Praca o Chinchilli stojąca za odniesieniem do skalowania optymalnego obliczeniowo.</p></div><a href="https://arxiv.org/abs/2203.15556">Czytaj pracę</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Praca naukowa / 2024</div><div><strong>Chinchilla Scaling: A replication attempt</strong><p>Besiroglu i współautorzy. Ponownie badają trzecią procedurę dopasowania i wyprowadzają dopasowanie zgodne z dwoma pierwszymi podejściami z tamtej pracy.</p></div><a href="https://arxiv.org/abs/2404.10102">Czytaj pracę</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Specyfikacje producenta</div><div><strong>NVIDIA H100 Tensor Core GPU</strong><p>Oficjalne specyfikacje produktu użyte jako przykład wymiarów pamięci, przepustowości, poboru mocy i połączeń, które przechowuje model sprzętu.</p></div><a href="https://www.nvidia.com/en-us/data-center/h100/">Otwórz NVIDIA</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Producent / 2024</div><div><strong>NVIDIA Blackwell platform announcement</strong><p>Publiczne informacje o generacji i systemach pokazujące, dlaczego granica sprzętowa jest traktowana jak kalendarz, a nie jak statyczny katalog.</p></div><a href="https://nvidianews.nvidia.com/news/nvidia-blackwell-platform-arrives-to-power-a-new-era-of-computing">Otwórz NVIDIA</a></article>
+          <article class="sld-reference" data-reveal><div class="sld-reference__type">Kod projektu</div><div><strong>Repozytorium kodu Scaling Laws</strong><p>Implementacja, notatki inżynierskie i historia prac pozostają publiczne, kiedy gra się zmienia.</p></div><a href="https://github.com/HuckleR2003/ScalingLaws-AI">Otwórz GitHub</a></article>
+        </div>
+        <p class="sld-reference-note" data-reveal>Wzory z gry, takie jak amortyzacja, opóźnienie chmury, nastroje inwestorów, reguły decyzji rywali i względny indeks zdolności, są decyzjami projektowymi symulacji. Tam, gdzie projekt używa szacowanych wpisów o przyszłości, zasadą interfejsu jest oznaczanie ich jako prognoz.</p>
+      </div>
+    </section>
+
+    <section class="hck-section sld-cta" aria-labelledby="cta-title"><div class="hck-container--wide"><div class="sld-cta__panel hck-edge-shine" data-reveal><div class="sld-eyebrow">Wróć do gry</div><h2 id="cta-title">Mapa mechanizmów jest coś warta tylko wtedy, gdy decyzje dobrze się gra.</h2><p>Publiczna roadmapa będzie pokazywać, co przeszło z fundamentu do grywalnego, potem do dopracowanego i w końcu do wydanego. Do tego czasu strona główna pokazuje aktualny build od strony wizualnej, a repozytorium pracę pod spodem.</p><div class="sld-cta__actions"><a class="hck-button hck-button--burgundy" href="../index_pl.html">Otwórz Scaling Laws</a><a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Przejrzyj kod</a></div></div></div></section>
+  </main>
+
+  <footer class="hck-site-footer"><div class="hck-site-footer__inner"><div><div class="hck-site-footer__brand">Scaling Laws / Jak działa</div><div>Mechanika, założenia i notatki z implementacji.</div></div><nav class="hck-site-footer__links" aria-label="Nawigacja w stopce"><a href="../index_pl.html">Scaling Laws</a>
+          <a href="../devlog/index_pl.html">Devlog</a>
+          <a href="../media/index_pl.html">Media</a><a href="../../index_pl.html">HCK Labs</a><a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a></nav></div><div class="sl-footer-marker" aria-hidden="true"></div></footer>
+</div>
+</body>
+</html>

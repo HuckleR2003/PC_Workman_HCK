@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Jak zamieniłem prawa skalowania Chinchilli w mechanikę gry | Devlog Scaling Laws</title>
+  <meta name="description" content="Jak Scaling Laws zamienia liczbę parametrów, tokeny treningowe i skalowanie optymalne obliczeniowo w czytelną decyzję w tycoonie, zamiast udawać, że jego wynik zdolności to prawdziwy benchmark.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="bingbot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#0a2444">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html">
+  <link rel="alternate" hreflang="en" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/">
+  <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html">
+  <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/">
+  <link rel="sitemap" type="application/xml" href="https://pcworkman.dev/sitemap.xml">
+  <link rel="me" href="https://github.com/HuckleR2003">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="alternate" type="application/rss+xml" title="Scaling Laws: RSS devloga" href="../feed.xml">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:locale" content="pl_PL">
+  <meta property="og:title" content="Jak zamieniłem prawa skalowania Chinchilli w mechanikę gry">
+  <meta property="og:description" content="Jak Scaling Laws zamienia liczbę parametrów, tokeny treningowe i skalowanie optymalne obliczeniowo w czytelną decyzję w tycoonie, zamiast udawać, że jego wynik zdolności to prawdziwy benchmark.">
+  <meta property="og:url" content="https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/index_pl.html">
+  <meta property="og:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-turning-chinchilla-into-a-game-mechanic.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jak zamieniłem prawa skalowania Chinchilli w mechanikę gry">
+  <meta name="twitter:description" content="Jak Scaling Laws zamienia liczbę parametrów, tokeny treningowe i skalowanie optymalne obliczeniowo w czytelną decyzję w tycoonie, zamiast udawać, że jego wynik zdolności to prawdziwy benchmark.">
+  <meta name="twitter:image" content="https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-turning-chinchilla-into-a-game-mechanic.png">
+
+  <meta property="article:published_time" content="2026-08-06">
+  <meta property="article:modified_time" content="2026-08-06">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/#article",
+      "headline": "Jak zamieniłem prawa skalowania Chinchilli w mechanikę gry",
+      "description": "Jak Scaling Laws zamienia liczbę parametrów, tokeny treningowe i skalowanie optymalne obliczeniowo w czytelną decyzję w tycoonie, zamiast udawać, że jego wynik zdolności to prawdziwy benchmark.",
+      "datePublished": "2026-08-06",
+      "dateModified": "2026-08-06",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/",
+      "image": "https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-turning-chinchilla-into-a-game-mechanic.png",
+      "author": {
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+      },
+      "publisher": {
+        "@id": "https://pcworkman.dev/hck-labs/#organization"
+      },
+      "about": {
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"
+      },
+      "mainEntityOfPage": "https://pcworkman.dev/hck-labs/scaling-laws/devlog/turning-chinchilla-into-a-game-mechanic/",
+      "inLanguage": "pl"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+      "name": "Marcin Firmuga",
+      "alternateName": "Marcin HCK Firmuga",
+      "url": "https://pcworkman.dev/hck-labs/"
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://pcworkman.dev/hck-labs/#organization",
+      "name": "HCK Labs",
+      "url": "https://pcworkman.dev/hck-labs/"
+    },
+    {
+      "@type": "VideoGame",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
+      "name": "Scaling Laws",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/"
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="../../../assets/css/hck-base.css">
+  <link rel="stylesheet" href="../../../assets/css/hck-labs.css">
+  <link rel="stylesheet" href="../../assets/css/scaling-laws.css">
+  <link rel="stylesheet" href="../../assets/css/publishing.css">
+  <script defer src="../../../assets/js/hck-labs.js"></script>
+</head>
+<body class="sl-page slp-page">
+  <a class="slp-skip-link" href="#article">Przejdź do artykułu</a>
+  <div class="hck-shell">
+    <header class="hck-site-header">
+      <nav class="hck-nav" aria-label="Nawigacja główna">
+        <a class="sl-project-brand" href="../../index_pl.html" aria-label="Scaling Laws: strona główna">
+          <span class="hck-brand__mark" aria-hidden="true"></span>
+          <span>HCK Labs</span>
+          <span class="sl-project-brand__slash" aria-hidden="true">/</span>
+          <span class="sl-project-brand__name">Scaling Laws</span>
+        </a>
+
+        <button class="hck-nav__toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="sl-pub-nav">
+          <span class="hck-visually-hidden">Otwórz nawigację</span>
+          <span class="hck-nav__toggle-lines" aria-hidden="true"></span>
+        </button>
+
+        <div class="hck-nav__links" id="sl-pub-nav" data-nav-links>
+          <a class="hck-nav__link" href="../../index_pl.html">Gra</a>
+          <a class="hck-nav__link" href="../../development/index_pl.html">Jak działa</a>
+          <a class="hck-nav__link" href="../../roadmap/index_pl.html">Roadmapa</a>
+          <a class="hck-nav__link is-active" href="../../devlog/index_pl.html" aria-current="page">Devlog</a>
+          <a class="hck-nav__link" href="../../media/index_pl.html">Media</a>
+          <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Kod</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <header class="slp-article-hero">
+        <div class="slp-article-hero__inner" data-reveal>
+          <div class="slp-article-hero__meta">Devlog 003 / 6 sierpnia 2026 / Marcin “HCK” Firmuga</div>
+          <h1>Jak zamieniłem prawa skalowania Chinchilli w mechanikę gry</h1>
+          <p class="slp-article-hero__dek">Jak Scaling Laws zamienia liczbę parametrów, tokeny treningowe i skalowanie optymalne obliczeniowo w czytelną decyzję w tycoonie, zamiast udawać, że jego wynik zdolności to prawdziwy benchmark.</p>
+        </div>
+      </header>
+
+      <article class="slp-article" id="article">
+        <div class="slp-article__layout">
+          <div class="slp-prose">
+            <h2>Potrzebowałem jednej odpowiedzi na pytanie „jak dobry jest ten model?”</h2><p>Tycoon może to udawać ukrytą tabelą ocen. Nie chciałem tego. Jeśli liczba parametrów, dane i moc obliczeniowa są centralnymi decyzjami, muszą spotykać się w jednej spójnej funkcji jakości, inaczej kreator staje się teatrem.</p><p>Dlatego Scaling Laws używa parametrycznej zależności straty w stylu Chinchilli jako jedynego wyliczenia jakości modelu. Liczy się i liczba parametrów, i tokeny treningowe. Źle wydana ta sama moc potrafi dać gorszy wynik.</p><figure>
+                  <img src="../../assets/images/screens/model-creator-1600.webp" alt="Kreator modelu w Scaling Laws z etapami skali, danych, mocy i przeglądu" loading="lazy" decoding="async">
+                  <figcaption>Kreator pokazuje prognozę, zanim gracz zatwierdzi przebieg treningowy.</figcaption>
+                </figure><h2>Około dwudziestu tokenów na parametr</h2><p>Obecne dopasowanie umieszcza region optymalny obliczeniowo w okolicach dwudziestu tokenów treningowych na parametr. To jest przydatne jako projekt gry, bo tworzy widoczną równowagę. Podbij liczbę parametrów za wysoko bez wystarczających danych, a przebieg będzie niedotrenowany. Przesadź z danymi jak na rozmiar modelu, a gracz płaci za malejącą wartość.</p><p>Kreator potrafi pokazać ten kompromis na żywo, zamiast wymagać od gracza wykucia pracy naukowej.</p><h2>Wynik zdolności celowo nie jest MMLU</h2><p>Gra przelicza stratę na względną skalę zdolności. Dziesięciokrotność efektywnej mocy mapuje się na mniej więcej dziesięć punktów zdolności. To sprawia, że granica możliwości jest czytelna przez wieloletnią kampanię, ale nie jest twierdzeniem, że „72 zdolności” równa się konkretnemu wynikowi benchmarku w prawdziwym świecie.</p><p>To rozdzielenie ma znaczenie. Symulacja pożycza z badań zależność; nie pożycza naukowego autorytetu dla każdej liczby, którą wrzucam na HUD.</p><h2>Najpierw prognoza, wynik później</h2><p>Ekran nowego modelu pokazuje prognozę. Dopiero zakończenie przebiegu tworzy rzeczywisty wynik modelu w okolicach tego szacunku. Trzymam te stany osobno w kodzie, bo inaczej przewidywanie po cichu staje się pomiarem w chwili, gdy gracz kliknie Trenuj.</p><p>Ta sama zasada dotyczy przyszłych wpisów sprzętowych i premier rywali. Znane dane referencyjne i dane prognozowane mogą żyć w tej samej kampanii, ale interfejs nie powinien udawać, że pochodzą z tego samego źródła.</p><h2>Badania są odniesieniem, nie klatką</h2><p>Oryginalna praca o Chinchilli jest punktem wyjścia, a projekt śledzi też późniejszą pracę, która ponownie zbadała jedną z jej procedur dopasowania. Celem nie jest odtworzenie pracy linijka po linijce. Celem jest utrzymanie decyzji treningowej na tyle spójnej, żeby „skala” coś znaczyła za każdym razem, gdy pojawia się w grze.</p><p>Kiedy kreator modelu się zmienia, symulacja dalej powinna umieć wyjaśnić, dlaczego liczba się ruszyła. Jeśli nie potrafię tego wyjaśnić, nie chcę tego chować za ładniejszym paskiem postępu.</p>
+            
+            <h2>Źródła, z których korzystam</h2>
+            <p>
+              Odniesieniem naukowym jest praca Hoffmanna i współautorów,
+              <a href="https://arxiv.org/abs/2203.15556">Training Compute-Optimal Large Language Models</a>.
+              Obok trzymam też
+              <a href="https://arxiv.org/abs/2404.10102">próbę replikacji skalowania Chinchilli z 2024 roku</a>
+              bo bada ona ponownie trzecią procedurę dopasowania, zamiast traktować każdą wydrukowaną stałą jako nietykalną.
+            </p>
+            <p>
+              Dłuższy rozbiór implementacji leży na stronie
+              <a href="../../development/#scaling">Jak działa / Skalowanie</a>.
+            </p>
+        
+
+            <div class="slp-callout">
+              <div class="slp-callout__label">Aktualny stan</div>
+              <p>Ta notatka opisuje pracę widoczną w obecnym projekcie albo w fundamencie symulacji. Elementy planowane zostają oznaczone na publicznej roadmapie, zamiast być tutaj opisane tak, jakby już wyszły.</p>
+            </div>
+          </div>
+
+          <aside class="slp-article__aside" aria-label="Nawigacja po artykule">
+            <div class="slp-aside__label">Kop dalej</div>
+            <p>Przeczytaj notatki z implementacji albo sprawdź, czy funkcja naprawdę przekroczyła linię wydania.</p>
+            <nav>
+              <a href="../../development/index_pl.html">Jak działają systemy</a>
+              <a href="../../roadmap/index_pl.html">Publiczna roadmapa</a>
+              <a href="../../media/index_pl.html">Materiały z aktualnego builda</a>
+              <a href="../index_pl.html">Wszystkie devlogi</a>
+              <a href="https://github.com/HuckleR2003/ScalingLaws-AI">Repozytorium kodu</a>
+            </nav>
+          </aside>
+        </div>
+      </article>
+    </main>
+    <footer class="hck-site-footer">
+      <div class="hck-site-footer__inner">
+        <div>
+          <div class="hck-site-footer__brand">Scaling Laws / HCK Labs</div>
+          <div>Notatki z budowy, aktualne zrzuty i systemy stojące za grą.</div>
+        </div>
+        <nav class="hck-site-footer__links" aria-label="Nawigacja w stopce">
+          <a href="../../index_pl.html">Scaling Laws</a>
+          <a href="../../roadmap/index_pl.html">Roadmapa</a>
+          <a href="../../devlog/index_pl.html">Devlog</a>
+          <a href="../../media/index_pl.html">Media</a>
+          <a href="https://github.com/HuckleR2003/ScalingLaws-AI">GitHub</a>
+        </nav>
+      </div>
+      <div class="sl-footer-marker" aria-hidden="true"></div>
+    </footer>
+  </div>
+</body>
+</html>

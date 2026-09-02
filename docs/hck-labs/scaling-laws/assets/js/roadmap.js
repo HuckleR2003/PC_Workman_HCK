@@ -18,6 +18,19 @@
   const copyView = document.querySelector("[data-copy-view]");
   const versionNode = document.querySelector("[data-roadmap-version]");
 
+  // The Polish page is the same markup with <html lang="pl">, so the strings this file
+  // builds at runtime follow the document language instead of staying English.
+  const isPl = root.lang === "pl";
+  const t = {
+    shown: (n) => isPl
+      ? `${n} ${n === 1 ? "funkcja widoczna" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "funkcje widoczne" : "funkcji widocznych"}`
+      : `${n} feature${n === 1 ? "" : "s"} shown`,
+    category: isPl ? "kategoria" : "category",
+    lane: isPl ? "tor" : "lane",
+    search: isPl ? "szukaj" : "search",
+    copied: isPl ? "Skopiowano" : "Copied"
+  };
+
   const state = {
     category: "all",
     lane: "all",
@@ -66,10 +79,10 @@
     if (search && search.value !== state.query) search.value = state.query;
 
     if (results) {
-      const parts = [`${visibleCount} feature${visibleCount === 1 ? "" : "s"} shown`];
-      if (state.category !== "all") parts.push(`category: ${state.category}`);
-      if (state.lane !== "all") parts.push(`lane: ${state.lane}`);
-      if (state.query) parts.push(`search: “${state.query}”`);
+      const parts = [t.shown(visibleCount)];
+      if (state.category !== "all") parts.push(`${t.category}: ${state.category}`);
+      if (state.lane !== "all") parts.push(`${t.lane}: ${state.lane}`);
+      if (state.query) parts.push(`${t.search}: “${state.query}”`);
       results.textContent = parts.join(" / ");
     }
 
@@ -136,7 +149,7 @@
       try {
         await navigator.clipboard.writeText(window.location.href);
         const original = copyView.textContent;
-        copyView.textContent = "Copied";
+        copyView.textContent = t.copied;
         window.setTimeout(() => copyView.textContent = original, 1200);
       } catch {
         // Clipboard can be blocked in insecure contexts. The URL still remains shareable.

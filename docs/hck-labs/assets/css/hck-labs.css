@@ -242,3 +242,55 @@
   .hck-nav__link { min-height: 42px; }
   .hck-site-footer__inner { flex-direction: column; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   The PC Workman link in the navigation.
+
+   It used to sit as a plain nav item beside Home, Projects and About, which
+   made the flagship application look like a fourth section of this site
+   rather than the other thing the same person built. It now gets a small
+   torn plate: a dark ground with ragged vertical edges, cut with clip-path
+   because a border cannot be uneven and an image for this would be a request
+   for eleven kilobytes of nothing.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.hck-nav__link--pcw {
+  position: relative;
+  padding: 7px 15px;
+  background: linear-gradient(180deg, #0b0e13, #05070a);
+  color: #eef2f8;
+  font-weight: 700;
+  letter-spacing: .045em;
+  /* Ragged left and right edges. The deviations are small and uneven on
+     purpose: a symmetrical tear reads as a decoration, an uneven one reads
+     as a piece of something. */
+  clip-path: polygon(
+    3% 0%, 97% 0%, 100% 14%, 97.5% 31%, 100% 49%,
+    97% 67%, 99.5% 84%, 96% 100%,
+    4% 100%, 0% 85%, 2.5% 68%, 0% 50%, 2% 32%, 0% 15%);
+  transition: background .18s, color .18s, transform .18s;
+}
+
+.hck-nav__link--pcw::before {
+  /* The accent lives on an inset pseudo-element rather than on a border,
+     because clip-path cuts a border off along with everything else. */
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--hck-burgundy-500), rgba(185, 44, 73, 0));
+  opacity: .85;
+}
+
+.hck-nav__link--pcw:hover,
+.hck-nav__link--pcw:focus-visible {
+  background: linear-gradient(180deg, #12070c, #0a0407);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hck-nav__link--pcw:hover { transform: none; }
+}
