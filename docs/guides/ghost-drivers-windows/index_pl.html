@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Sterowniki po sprzęcie, którego już nie masz, nadal mogą być zainstalowane w Windows. Jak znaleźć urządzenia widma poleceniem pnputil i usunąć je bez ryzykownego czyszczenia hurtowego.">
+    <meta name="description" content="Sterowniki sprzętu usuniętego lata temu wciąż siedzą w systemie, ukryte w Menedżerze urządzeń. Jak je wypisać przez pnputil i bezpiecznie skasować.">
     <meta name="keywords" content="stare sterowniki Windows, urządzenia widma, ukryte urządzenia Menedżer urządzeń, pnputil, usuwanie starych sterowników, sterowniki po starej karcie graficznej">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html">
@@ -22,12 +22,13 @@
     <meta property="og:locale" content="pl_PL">
     <meta property="og:locale:alternate" content="en_US">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-06-12">
-    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:modified_time" content="2026-09-06">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <title>Sterowniki widma w Windows: jak znaleźć i bezpiecznie usunąć stare urządzenia | PC Workman</title>
+    <title>Duchy sterowników w Windows: jak je usunąć | PC Workman</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -42,18 +43,48 @@
       "description": "Jak porównać listę urządzeń znanych Windows z listą sprzętu obecnie podłączonego, rozpoznać stare wpisy i usuwać je pojedynczo bez ryzykownego czyszczenia.",
       "url": "https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html",
       "datePublished": "2026-06-12",
-      "dateModified": "2026-07-25",
+      "dateModified": "2026-09-06",
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-command-syntax"
+      ],
       "inLanguage": "pl",
       "isAccessibleForFree": true,
       "translationOfWork": "https://pcworkman.dev/guides/ghost-drivers-windows/",
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
-      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -61,9 +92,27 @@
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html"},
+        {"@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/"},
         {"@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html"},
         {"@type": "ListItem", "position": 3, "name": "Sterowniki widma", "item": "https://pcworkman.dev/guides/ghost-drivers-windows/index_pl.html"}
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czym są duchy sterowników w Windows?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To pakiety sterowników i wpisy urządzeń pozostawione przez sprzęt, którego już nie masz zainstalowanego. Windows trzyma je w magazynie sterowników i w rejestrze po usunięciu urządzenia, a Menedżer urządzeń domyślnie je ukrywa, więc pozostają niewidoczne, zajmując miejsce na dysku i czasem powodując konflikty z nowszym sprzętem." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy bezpiecznie jest usuwać stare sterowniki?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usuwanie pakietów sterowników dla sprzętu, którego naprawdę już nie masz, jest zwykle bezpieczne, a Windows i tak zachowuje sterowniki wbudowane, których potrzebuje. Bezpieczna metoda to wypisanie magazynu sterowników poleceniem pnputil, wskazanie pakietów przypisanych do sprzętu, którego nie ma, i usuwanie ich pojedynczo, a nie hurtem. Najpierw utwórz punkt przywracania i nigdy nie kasuj pakietów dla urządzeń, które wciąż są w maszynie." }
+        }
       ]
     }
     </script>
@@ -75,6 +124,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
         <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
             <a href="/guides/ghost-drivers-windows/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
