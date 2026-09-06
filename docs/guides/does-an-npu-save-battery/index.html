@@ -1,0 +1,395 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: measuring whether the NPU saves battery -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Comparing a laptop NPU to a desktop graphics card is not a measurement. How to measure the discharge rate on your own machine, with a task on and off the NPU.">
+    <meta name="keywords" content="NPU battery life, does NPU save power, Copilot+ battery, powercfg batteryreport, discharge rate mW, measure laptop power draw, Windows Studio Effects battery">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/does-an-npu-save-battery/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/does-an-npu-save-battery/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/does-an-npu-save-battery/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/does-an-npu-save-battery/">
+    <meta property="og:title" content="Does an NPU actually save battery? Measure it yourself">
+    <meta property="og:description" content="The marketing compares a laptop chip to a desktop graphics card. The honest comparison is one machine, one task, with the feature on and off.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/does-an-npu-save-battery/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-06">
+    <meta property="article:modified_time" content="2026-09-06">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Does an NPU Save Battery? Measure It | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Does an NPU actually save battery? A method for measuring it on your own machine",
+      "description": "Why the usual power comparison is not a comparison, the three tools Windows already has for reading power draw, and a repeatable procedure for testing one task with the NPU path on and off.",
+      "url": "https://pcworkman.dev/guides/does-an-npu-save-battery/",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/",
+        "https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby-sleepstudy",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Does an NPU save battery", "item": "https://pcworkman.dev/guides/does-an-npu-save-battery/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does an NPU really use less power than a CPU or GPU?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For the work it was designed for, yes, and the reason is architectural rather than magical: fixed-function matrix hardware running a small quantized model does far less switching than a general processor doing the same arithmetic. The saving is real on sustained, small, continuous work such as background blur or live captions. It is not a general property of the chip, and it does nothing at all for software that never asks for the NPU." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I measure my laptop's power draw in Windows?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Three tools ship with Windows. powercfg /batteryreport writes an HTML report with capacity history and recent usage. powercfg /energy runs a sixty second trace and names what is preventing idle. On many machines the battery driver also exposes an instantaneous discharge rate in milliwatts through WMI, which is the number to watch while a task runs. Task Manager's Power usage column ranks processes but does not give watts." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do NPU power comparisons quote such enormous differences?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because they usually compare a laptop NPU with a desktop graphics card, which is not a comparison of two ways to do the same job on the same machine. The number that matters to you is the difference between the NPU path and the fallback path on your own hardware, with the same task, the same screen brightness and the same battery range. That is a measurement you can take in twenty minutes." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/does-an-npu-save-battery/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/does-an-npu-save-battery/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Method</span>
+        <h1>Does an NPU actually save battery?</h1>
+        <p class="tagline">The published comparisons put a laptop chip next to a desktop graphics card. That is not a measurement. Here is one you can take on your own machine in twenty minutes.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-09-06</span><span>&middot;</span><span>8 min read</span>
+        </div>
+
+        <p>
+            Search for whether an NPU saves power and you will find the same shape of claim everywhere: a few
+            watts against a hundred and fifty, or ten times the efficiency, or a fifth of the consumption. The
+            numbers vary and the structure does not, because most of them compare a neural engine in a laptop
+            with a graphics card in a desktop.
+        </p>
+        <p>
+            <strong>Those are not two ways of doing the same job.</strong> They are two different machines with
+            two different power budgets doing two different workloads. The comparison that decides anything for
+            you is narrower and much easier: your machine, your task, with the NPU path available and then not.
+        </p>
+        <p>
+            This guide is a method rather than a verdict. Windows already ships the tools, the procedure takes
+            about twenty minutes, and at the end you have a number about your own laptop instead of somebody
+            else's slide.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#why">Why the saving is real, and where it is not</a></li>
+                <li><a href="#tools">Three tools Windows already has</a></li>
+                <li><a href="#method">The measurement, step by step</a></li>
+                <li><a href="#traps">Four ways to get a wrong answer</a></li>
+                <li><a href="#expect">What to expect from the result</a></li>
+            </ol>
+        </div>
+
+        <h2 id="why">Why the saving is real, and where it is not</h2>
+        <p>
+            The mechanism is not mysterious. A neural engine is fixed-function hardware built for one shape of
+            arithmetic, running a model quantized to small integers. A general processor doing the same
+            multiplication burns energy on everything that makes it general: fetching and decoding instructions,
+            speculating, reordering, moving data through caches designed for other work. Specialised silicon
+            doing one job does less of all that, and the difference shows up as watts.
+        </p>
+        <p>
+            So the saving exists. What the marketing tends to leave out is its shape:
+        </p>
+        <ul>
+            <li><strong>It applies to sustained small work.</strong> Background blur for an hour of meetings,
+                captions for a lecture, a wake word listening all day. Long duration, modest model, no deadline.
+                This is the case the hardware was designed for and where it wins clearly.</li>
+            <li><strong>It shrinks as the model grows.</strong> Once the job is limited by reading weights out
+                of memory rather than by arithmetic, the engine doing the arithmetic matters less, because
+                everything is waiting on the same memory. The
+                <a href="../how-much-ram-for-local-ai/">memory arithmetic</a> explains why.</li>
+            <li><strong>It is zero when nothing uses it.</strong> An NPU that no application calls saves exactly
+                nothing, and most applications do not call it. That is measurable too, and it is the first thing
+                to check before measuring anything else.</li>
+        </ul>
+
+        <h2 id="tools">Three tools Windows already has</h2>
+        <p>
+            No downloads, no meters, nothing to buy.
+        </p>
+        <p>
+            <strong>1. The battery report.</strong> From a command prompt:
+        </p>
+        <pre><code>powercfg /batteryreport /output "%USERPROFILE%\Desktop\battery.html"</code></pre>
+        <p>
+            An HTML report with design capacity against current full-charge capacity, recent usage sessions, and
+            estimated life. It is a history, not a live reading, so it is the wrong tool for a single task and
+            the right one for a claim like "this update cost me an hour a day".
+        </p>
+        <p>
+            <strong>2. The energy trace.</strong> From an administrator prompt:
+        </p>
+        <pre><code>powercfg /energy /duration 60</code></pre>
+        <p>
+            Sixty seconds of observation, then a report naming what stopped the machine idling: processes with
+            high processor use, timer resolution changes, devices blocking sleep. Useful for finding out
+            <em>what</em> is spending your battery when the answer is not obvious.
+        </p>
+        <p>
+            <strong>3. The instantaneous discharge rate.</strong> This is the one that makes the experiment
+            possible. On many laptops the battery driver reports the current drain in milliwatts, and PowerShell
+            can read it:
+        </p>
+        <pre><code>Get-CimInstance -Namespace root\wmi -ClassName BatteryStatus |
+    Select-Object -ExpandProperty DischargeRate</code></pre>
+        <p>
+            The value is milliwatts. 12000 means the machine is pulling twelve watts from the battery at that
+            instant. Not every battery driver exposes it, and it reads zero while the charger is plugged in,
+            which is why the procedure below insists on running unplugged.
+        </p>
+        <div class="callout">
+            <b>Sample it, do not glance at it.</b> One reading is noise. Take one a second for a couple of
+            minutes and average, which in PowerShell is a loop and nothing more:
+            <code>1..120 | % { (Get-CimInstance -Namespace root\wmi -ClassName BatteryStatus).DischargeRate; sleep 1 }</code>
+        </div>
+
+        <h2 id="method">The measurement, step by step</h2>
+        <p>
+            The task has to be something that genuinely reaches the NPU and can be turned off, which in practice
+            means a Windows feature rather than an application you hope uses it. Windows Studio Effects during a
+            video call is the reliable choice: it is NPU-backed on a Copilot+ machine, it runs continuously, and
+            it has a switch.
+        </p>
+        <ol>
+            <li><strong>Unplug.</strong> The discharge rate only exists on battery. Charge to somewhere between
+                80 and 60 per cent and stay in that band for both runs, because drain is not flat across a
+                charge curve.</li>
+            <li><strong>Freeze everything else.</strong> Fixed screen brightness, aeroplane mode off but nothing
+                syncing, no browser, no updates, same power mode. Every one of those moves more watts than the
+                thing you are measuring.</li>
+            <li><strong>Baseline.</strong> Sample the discharge rate for two minutes doing nothing. Write down
+                the average. This is what the machine costs to be switched on.</li>
+            <li><strong>Run A, with the feature on.</strong> Start the call, turn the effects on, confirm the
+                work is landing on the NPU with Task Manager's NPU column, and sample for two minutes.</li>
+            <li><strong>Run B, with the feature off.</strong> Same call, effects off, sample for two minutes.
+                For a fairer comparison run something equivalent on the CPU instead if you can, since "off" and
+                "done elsewhere" are different questions.</li>
+            <li><strong>Subtract the baseline from both.</strong> What is left is the cost of the work, and the
+                difference between the two is what the NPU path bought you.</li>
+            <li><strong>Repeat once.</strong> If the two attempts disagree by more than about ten per cent,
+                something else was running. Find it before believing either number.</li>
+        </ol>
+        <p>
+            Twenty minutes, and the output is a figure in watts for your machine, not a claim about somebody
+            else's.
+        </p>
+
+        <h2 id="traps">Four ways to get a wrong answer</h2>
+        <p>
+            All four have caught me, and all four look like a result rather than a mistake.
+        </p>
+        <p>
+            <strong>The screen.</strong> A laptop panel between minimum and maximum brightness moves several
+            watts, more than the whole effect you are hunting. If brightness changed between runs, the
+            experiment measured the screen.
+        </p>
+        <p>
+            <strong>The charger.</strong> Plugged in, the discharge rate reads zero and the machine also behaves
+            differently, because power and thermal limits are usually higher on mains. A measurement taken while
+            charging is not a measurement.
+        </p>
+        <p>
+            <strong>Thermal state.</strong> A cold machine and a machine that has been working for twenty
+            minutes have different fan speeds and different clocks. Let the fans settle before each run rather
+            than measuring the first two minutes of one and the tenth minute of the other.
+        </p>
+        <p>
+            <strong>Assuming the NPU was used.</strong> The biggest one. If the work quietly fell back to the
+            CPU, you measured CPU against CPU and found no difference, which is a true result about a different
+            question. Check the counter first;
+            <a href="../is-my-npu-being-used/">how to see NPU activity</a> covers exactly that, and
+            <a href="../npu-gpu-or-cpu-local-ai/">the provider guide</a> covers why the fallback happens without
+            saying anything.
+        </p>
+
+        <h2 id="expect">What to expect from the result</h2>
+        <p>
+            I am not going to print a number here and pretend it applies to your laptop, because the honest
+            range is wide and depends on the machine, the feature and what else the system was doing. What is
+            worth saying is the shape of the answer.
+        </p>
+        <p>
+            On a continuous, small, NPU-backed workload you should be able to measure a clear difference,
+            comfortably outside the noise of repeated runs. On a one-off task lasting a few seconds you will
+            measure nothing useful, because the fixed costs of having the machine on dominate. And on any task
+            that never reached the NPU you will measure zero, correctly.
+        </p>
+        <div class="callout warn">
+            <b>The result that matters most is the boring one.</b> If your measurement finds no difference,
+            check whether the NPU was used at all before concluding that NPUs do not save power. Almost every
+            "the NPU did nothing for my battery" report is a fallback nobody noticed.
+        </div>
+        <p>
+            Whatever you find, write down the conditions with the number. A power figure without brightness,
+            battery range, power mode and thermal state attached is not reproducible, including by you next
+            month.
+        </p>
+
+        <h2 id="workman">Where PC Workman fits</h2>
+        <p>
+            The discharge rate tells you what the whole machine is spending. It does not tell you where the
+            money went. PC Workman reads processor load, package power, clocks and temperatures alongside each
+            other, which is what turns "the laptop is drinking twelve watts" into "the processor is carrying a
+            workload you thought was offloaded".
+        </p>
+        <p>
+            That pairs directly with this measurement: the discharge rate is the total, and the per-component
+            reading is the explanation. Neither is much use without the other.
+        </p>
+
+        <div class="guide-cta">
+            <b>Watch the cost while it happens.</b> PC Workman reads package power, clocks, temperatures and
+            per-process load together, so the watts you measured have somewhere to point. Free and open source.
+            Analysis runs locally. <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Related: <a href="../is-my-npu-being-used/">is your NPU doing anything</a> &middot;
+            <a href="../npu-gpu-or-cpu-local-ai/">which engine runs your model</a> &middot;
+            <a href="../">all guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I build a Windows monitor with a local AI assistant, in public. Every guide is based on what the counters actually show, including the ones that show nothing.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            The commands here are standard Windows tooling: <code>powercfg</code> ships with Windows, and the
+            battery discharge rate is read from the battery driver through WMI, which not every driver exposes.
+            Platform context from Microsoft,
+            <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            (NPU-backed features, and improved battery life as the stated benefit) and
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>
+            (why work can quietly run somewhere other than the NPU). No figure in this guide is quoted as a
+            result, because a power measurement belongs to the machine it was taken on.
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
