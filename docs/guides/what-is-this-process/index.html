@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="A familiar process name proves almost nothing. Learn to tell a real Windows process from malware by its path, signature, parent process and behaviour, with a reference table for svchost.exe, RuntimeBroker, COM Surrogate and the other names people panic about.">
+    <meta name="description" content="A familiar name proves nothing. Check the path, the signature and the parent process to tell a real Windows process from something wearing its name.">
     <meta name="keywords" content="what is this process, is svchost.exe a virus, unknown process Windows, RuntimeBroker, COM Surrogate, dllhost, conhost, Task Manager processes explained, process masquerading, is this process safe">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/what-is-this-process/">
@@ -22,12 +22,13 @@
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/what-is-this-process/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-07-25">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>What Is This Process in Task Manager? How to Tell a Real Windows Process From Malware | PC Workman Guides</title>
+    <title>What Is This Process? Real Windows or Malware | PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,16 +49,43 @@
       "isAccessibleForFree": true,
       "citation": [
         "https://learn.microsoft.com/en-us/sysinternals/downloads/process-explorer",
-        "https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns"
+        "https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/process_definitions.py"
       ],
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
-      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -130,6 +158,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
@@ -290,7 +319,7 @@ Secure System / Registry   kernel-side, part of the system    (no file path show
         <h2 id="passport">How PC Workman reads a process</h2>
         <p>
             You can run every check above by hand for one suspicious process. Repeating it across a busy process
-            list is where it stops being practical. PC Workman v1.8.5 keeps an offline library of 485 known
+            list is where it stops being practical. PC Workman v1.8.7 keeps an offline library of 521 known
             Windows and common third-party processes. Its Process Suspect Guard compares a requested process
             with that library, the executable path and, when the running file is available, its Authenticode
             signature:
@@ -346,7 +375,7 @@ Secure System / Registry   kernel-side, part of the system    (no file path show
 
         <div class="guide-cta">
             <b>Check a process with the evidence attached.</b> PC Workman compares its name, path and available
-            signature data with an offline library of 485 entries, then lists the reasons behind the verdict.
+            signature data with an offline library of 521 entries, then lists the reasons behind the verdict.
             Process data is not sent to an external identification service.
             <a href="../../download/">Download for Windows</a>.
         </div>
