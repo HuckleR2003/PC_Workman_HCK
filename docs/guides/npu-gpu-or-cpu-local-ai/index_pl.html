@@ -1,0 +1,423 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: co uruchamia lokalny model -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="O tym, czy NPU uruchomi model, decyduje wersja sterownika i pobranie na żądanie, a nie układ w laptopie. Lista dostawców, przypięte wersje i jak to sprawdzić.">
+    <meta name="keywords" content="Windows ML dostawca wykonania, QNN OpenVINO VitisAI, NPU GPU CPU lokalne AI, DirectML legacy, ONNX Runtime Windows, co uruchamia model">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/">
+    <meta property="og:title" content="NPU, GPU czy CPU: co naprawdę uruchamia twój lokalny model">
+    <meta property="og:description" content="Dwóch dostawców jest przypiętych do konkretnych wersji sterownika, a jeden ma maksimum. Ścieżka przez NPU może zniknąć po aktualizacji.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-06">
+    <meta property="article:modified_time" content="2026-09-06">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>NPU, GPU czy CPU: co uruchamia model? | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "NPU, GPU czy CPU: co naprawdę uruchamia twój lokalny model na Windows",
+      "description": "Windows ML wybiera dostawcę wykonania w czasie działania. Jacy dostawcy istnieją, jakiego sprzętu i wersji sterownika wymaga każdy z nich, dlaczego dwóch jest przypiętych do konkretnych buildów i jak sprawdzić, który zadziałał.",
+      "url": "https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/index_pl.html",
+      "datePublished": "2026-09-06",
+      "dateModified": "2026-09-06",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/overview",
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "NPU, GPU czy CPU", "item": "https://pcworkman.dev/guides/npu-gpu-or-cpu-local-ai/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak Windows decyduje, czy model pójdzie na NPU, GPU czy CPU?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Windows ML odpytuje maszynę o dostępne akceleratory, wybiera najwydajniejszego dostawcę wykonania, jakiego znajdzie, ładuje go i uruchamia model. Jeśli preferowany dostawca zawiedzie albo jest niedostępny, przechodzi na kolejnego, zwykle na kartę graficzną, a potem na procesor. To przejście jest ciche: model dalej zwraca poprawną odpowiedź, tylko na innym sprzęcie i przy innym poborze mocy." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy aktualizacja sterownika może odciąć NPU od pracy AI?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak i jest to udokumentowane. Lista dostawców wykonania Microsoftu podaje dla dostawcy VitisAI od AMD zarówno minimum, jak i maksimum: Adrenalin Edition 25.6.3 ze sterownikiem NPU 32.00.0203.280 na dole i Adrenalin Edition 25.9.1 ze sterownikiem 32.00.0203.297 na górze. Dostawca MIGraphX od AMD podaje jedną wersję sterownika karty i oznacza ją jako dokładną. Sterownik nowszy niż sufit jest poza wspieranym zakresem, a nic na ekranie o tej zmianie nie poinformuje." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy do użycia NPU w lokalnym AI potrzebny jest Windows 11 24H2?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Dla dostawców pobieranych na żądanie tak. Wraz ze środowiskiem uruchomieniowym dostarczany jest tylko dostawca CPU i starszy DirectML. Dostawcy producentów dla sprzętu Qualcomm, Intel, AMD i NVIDIA są pobierani na żądanie i są udokumentowani jako dostępni na Windows 11 w wersji 24H2, kompilacja 26100 lub nowszej, zależnie od zgodności urządzenia i sterownika." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/npu-gpu-or-cpu-local-ai/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/npu-gpu-or-cpu-local-ai/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Poradnik</span>
+        <h1>NPU, GPU czy CPU: co uruchamia twój model?</h1>
+        <p class="tagline">Nie układ, który kupiłeś. Decyduje wersja sterownika i pobranie na żądanie, a jeden ze sterowników ma udokumentowany sufit, powyżej którego da się zaktualizować.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-06</span><span>&middot;</span><span>9 min czytania</span>
+        </div>
+
+        <p>
+            Uruchamiasz coś lokalnie. Odpowiada. Nic ci nie mówi, który kawałek krzemu wykonał pracę, a
+            odpowiedź jest identyczna w obu przypadkach, więc większość ludzi nigdy nie pyta. Potem laptop z
+            silnikiem neuronowym 48 TOPS robi się gorący i głośny przy zadaniu, które telefon wykonuje bezgłośnie,
+            i pytanie robi się pilne.
+        </p>
+        <p>
+            Na Windows decyduje o tym warstwa Windows ML, oparta na ONNX Runtime, która wybiera
+            <strong>dostawcę wykonania</strong> w czasie działania. I tu jest część, która zaskoczyła mnie przy
+            czytaniu specyfikacji zamiast marketingu: <strong>o tym, czy twoje NPU zostanie użyte, decyduje wersja
+            sterownika i pobranie na żądanie</strong>, a nie procesor w maszynie. A u jednego producenta
+            wspierany zakres sterowników ma udokumentowaną <em>górną</em> granicę.
+        </p>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#front">Jedne drzwi frontowe, kilka zapleczy</a></li>
+                <li><a href="#list">Dostawcy i czego wymaga każdy z nich</a></li>
+                <li><a href="#pins">Część, o której nikt nie mówi: przypięte wersje</a></li>
+                <li><a href="#fallback">Ciche przejście awaryjne i czemu jest słuszne</a></li>
+                <li><a href="#check">Jak sprawdzić, który zadziałał</a></li>
+                <li><a href="#pick">Którego silnika naprawdę chcesz</a></li>
+            </ol>
+        </div>
+
+        <h2 id="front">Jedne drzwi frontowe, kilka zapleczy</h2>
+        <p>
+            Do niedawna aplikacja, która chciała twojego GPU albo NPU, musiała wiedzieć, jaką biblioteką mówi
+            twój sprzęt, dołączyć ją i aktualizować. Windows ML to zastąpił: aplikacja prosi o uruchomienie
+            modelu, a Windows ustala, co maszyna ma.
+        </p>
+        <p>
+            Dwóch dostawców jest w środku środowiska: <strong>CPU</strong> i <strong>DirectML</strong>, który
+            własna lista Microsoftu oznacza dziś jako <em>legacy</em>. Cała reszta, czyli każda ścieżka
+            producenta sięgająca NPU albo porządnie używająca karty graficznej, jest
+            <strong>pobierana na żądanie</strong> i udokumentowana jako dostępna na Windows 11 w wersji 24H2,
+            kompilacja 26100 lub nowszej, zależnie od zgodności urządzenia i sterownika.
+        </p>
+        <div class="callout">
+            <b>Przeczytaj to jeszcze raz, bo to cały poradnik w jednym zdaniu.</b> Kodu, który pozwala twojemu
+            NPU uruchomić model, nie ma w Windowsie w momencie zakupu maszyny. Przychodzi później, jeśli twój
+            sprzęt i twój sterownik się kwalifikują.
+        </div>
+
+        <h2 id="list">Dostawcy i czego wymaga każdy z nich</h2>
+        <p>
+            Z listy dostawców wykonania Microsoftu, w wersji opublikowanej 26 sierpnia 2026. Kolumna z wymaganiami
+            jest tą ciekawą i prawie nigdzie nie jest cytowana.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Dostawca</th><th>Producent</th><th>Działa na</th><th>Czego wymaga</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>QNN</td><td>Qualcomm</td><td>NPU Hexagon</td>
+                    <td>Snapdragon X Elite albo X Plus, sterownik NPU 30.0.140.0 lub nowszy</td>
+                </tr>
+                <tr>
+                    <td>OpenVINO</td><td>Intel</td><td>CPU, GPU albo NPU</td>
+                    <td>Ścieżka CPU: Core 11. generacji lub nowszy, 8 GB. Ścieżka GPU: 12. generacja lub nowsza,
+                        16 GB. Ścieżka NPU: Core Ultra Series 1 lub nowszy, <strong>16 GB</strong></td>
+                </tr>
+                <tr>
+                    <td>VitisAI</td><td>AMD</td><td>NPU Ryzen AI</td>
+                    <td><strong>Zakres</strong> sterowników: Adrenalin 25.6.3 ze sterownikiem NPU 32.00.0203.280
+                        na dole, Adrenalin 25.9.1 ze sterownikiem 32.00.0203.297 na górze</td>
+                </tr>
+                <tr>
+                    <td>MIGraphX</td><td>AMD</td><td>Karta Radeon</td>
+                    <td>Sterownik karty 25.10.13.09, oznaczony jako <em>dokładnie</em>. Dziś nieobsługiwany dla
+                        scenariuszy generatywnych</td>
+                </tr>
+                <tr>
+                    <td>NvTensorRtRtx</td><td>NVIDIA</td><td>Karta GeForce RTX</td>
+                    <td>RTX serii 30 i wyżej, minimalny zalecany sterownik 32.0.15.5585 z CUDA 12.5</td>
+                </tr>
+                <tr>
+                    <td>DirectML</td><td>Microsoft</td><td>Dowolne GPU z DirectX 12</td>
+                    <td>Jest w systemie i jest oznaczony jako legacy</td>
+                </tr>
+                <tr>
+                    <td>CPU</td><td>Microsoft</td><td>Twój procesor</td>
+                    <td>Nic. To podłoga i zawsze działa</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Kilka rzeczy wychodzi z tej tabeli od razu. Ścieżka NPU u Intela chce 16 GB pamięci, czyli tyle samo,
+            ile stawia próg Copilot+, i przypomina, że pamięć bramkuje tu więcej niż taktowanie. AMD ma dwóch
+            dostawców, bo do jego NPU i do jego karty graficznej idzie się innym oprogramowaniem. A dostawca GPU
+            od AMD ma linijkę wartą przeczytania dwa razy: <em>dziś nieobsługiwany dla scenariuszy
+            generatywnych</em>, czyli nie jest to droga, którą idzie lokalny model językowy.
+        </p>
+
+        <h2 id="pins">Część, o której nikt nie mówi: przypięte wersje</h2>
+        <p>
+            Dwa wpisy na tej liście nie brzmią „ta wersja albo nowsza". Są węższe, a konsekwencja jest realna.
+        </p>
+        <p>
+            <strong>Dostawca VitisAI od AMD ma maksimum.</strong> Udokumentowany zakres biegnie od Adrenalin
+            Edition 25.6.3 ze sterownikiem NPU 32.00.0203.280 do Adrenalin Edition 25.9.1 ze sterownikiem
+            32.00.0203.297. Sterownik powyżej tego sufitu jest poza wspieranym oknem. Zwyczajowa rada, żeby
+            trzymać sterowniki aktualne, jest tu dokładnie złym odruchem, a Windows nie powie ci, że ścieżka NPU
+            przestała być dostępna. Twój model dalej będzie działał, na procesorze.
+        </p>
+        <p>
+            <strong>Dostawca MIGraphX od AMD podaje jedną wersję i pisze „dokładnie".</strong> Nie minimum, jeden
+            build.
+        </p>
+        <p>
+            <strong>NVIDIA i Qualcomm podają minima</strong>, które zachowują się tak, jak ludzie się spodziewają.
+        </p>
+        <div class="callout warn">
+            <b>To jest tryb awarii, o którym warto wiedzieć.</b> Akceleracja sprzętowa, która znika po
+            aktualizacji sterownika, nie daje błędu, powiadomienia ani widocznej zmiany w wyniku. Jedyne objawy
+            to cieplejszy, wolniejszy komputer z krótszym czasem pracy na baterii, a to wygląda jak sto innych
+            rzeczy. Jeśli polegasz na NPU od AMD przy lokalnym AI, zanotuj działającą wersję sterownika przed
+            aktualizacją i sprawdź potem wspierany zakres, zamiast zakładać, że nowsze znaczy lepsze.
+        </div>
+        <p>
+            Te przypięcia się zmieniają i dlatego data przy tej sekcji znaczy więcej niż liczby w niej. Traktuj
+            tabelę jako dowód, że zakres istnieje, i sprawdzaj aktualną listę przed aktualizacją sterownika, a nie
+            jako zestaw wersji do zapamiętania.
+        </p>
+
+        <h2 id="fallback">Ciche przejście awaryjne i czemu jest słuszne</h2>
+        <p>
+            Kiedy Windows ML nie może użyć dostawcy, którego chciał, przechodzi dalej: inny dostawca, potem
+            karta graficzna, potem procesor. Nic nie zgłasza błędu, a model zwraca tę samą odpowiedź.
+        </p>
+        <p>
+            To zachowanie jest słuszne. Aplikacja, która odmawia uruchomienia, bo sterownik jest o jeden build za
+            nowy, byłaby gorsza dla wszystkich. Ale to znaczy, że różnica między szybką i chłodną ścieżką a wolną
+            i gorącą jest niewidoczna od środka aplikacji. Dlatego „laptop AI grzeje się przy AI" jest tak częstą
+            i tak mylącą skargą. Praca się wykonała. Wykonała się w złym miejscu.
+        </p>
+        <p>
+            To wyjaśnia też coś, co ludzie zgłaszają akurat przy lokalnych modelach: model działa, zwraca
+            poprawny wynik, a NPU przez cały czas stoi na zerze. To działa przejście awaryjne, zgodnie z
+            projektem. Towarzyszący poradnik
+            <a href="../is-my-npu-being-used/index_pl.html">czy twoje NPU w ogóle pracuje</a> opisuje, jak czytać
+            sam licznik.
+        </p>
+
+        <h2 id="check">Jak sprawdzić, który zadziałał</h2>
+        <p>
+            Trzy sposoby, w rosnącej kolejności wysiłku i pewności.
+        </p>
+        <p>
+            <strong>Popatrz na liczniki.</strong> Kolumny NPU i GPU w Menedżerze zadań przy realnym obciążeniu
+            powiedzą ci, gdzie wylądowała praca, jeśli trwa dłużej niż sekundę czy dwie. Za darmo, natychmiast i
+            ślepo na wszystko krótsze.
+        </p>
+        <p>
+            <strong>Nagraj ślad.</strong> Windows Performance Recorder ma profil Neural Processing, a ONNX Runtime
+            emituje własne zdarzenia śledzenia. Nagrane razem dają konfigurację sesji, wybranego dostawcę, czasy
+            pojedynczych inferencji i operatory, które trwały najdłużej:
+        </p>
+        <pre><code>wpr -start NeuralProcessing -start CPU
+:: tutaj uruchom model
+wpr -stop npu.etl -compress</code></pre>
+        <p>
+            Otwórz wynik w Windows Performance Analyzer i poszukaj pozycji Neural Processing. Microsoft publikuje
+            profile nagrywania dla ONNX Runtime na pełniejszą wersję tego badania, która dokłada do tej samej osi
+            czasu konfigurację dostawcy.
+        </p>
+        <p>
+            <strong>Zapytaj środowisko.</strong> Jeśli uruchamiasz własny kod, a nie czyjąś aplikację, sesja
+            raportuje wybranego dostawcę. To jedyna metoda, która daje nazwę zamiast wniosku, i jest to jedna
+            linijka kodu.
+        </p>
+
+        <h2 id="pick">Którego silnika naprawdę chcesz</h2>
+        <table>
+            <thead>
+                <tr><th>Praca</th><th>Najlepszy silnik</th><th>Dlaczego</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Efekty tła, napisy, słowa aktywujące, wszystko działające godzinami</td>
+                    <td>NPU</td>
+                    <td>Mały model, praca ciągła, a różnica w watach jest tu całym sensem</td>
+                </tr>
+                <tr>
+                    <td>Model językowy, na który czekasz</td>
+                    <td>GPU z własną pamięcią</td>
+                    <td>Tempo ustala przepustowość, a karta graficzna ma jej kilka razy więcej</td>
+                </tr>
+                <tr>
+                    <td>Generowanie obrazów</td>
+                    <td>GPU</td>
+                    <td>Ciężka arytmetyka na danych, które się mieszczą, czyli to, do czego GPU służy</td>
+                </tr>
+                <tr>
+                    <td>Cokolwiek na maszynie bez wsparcia akceleratora</td>
+                    <td>CPU</td>
+                    <td>Wolniej, zawsze dostępne i poprawne</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Zasada pod tabelą jest krótka: <strong>NPU wygrywa watami, GPU wygrywa prędkością, a CPU wygrywa
+            tym, że zawsze działa.</strong> Jeśli wybierasz sprzęt, a nie stroisz to, co masz, arytmetyka z
+            poradnika <a href="../how-much-ram-for-local-ai/index_pl.html">ile pamięci potrzebuje lokalny
+            model</a> powie ci więcej niż jakiekolwiek porównanie TOPS.
+        </p>
+
+        <h2 id="workman">Gdzie w tym jest PC Workman</h2>
+        <p>
+            PC Workman nie wybiera dostawców wykonania i nie czyta liczników NPU. Czyta natomiast dowody na to,
+            że przejście awaryjne się wydarzyło: obciążenie procesora tam, gdzie się go nie spodziewałeś,
+            rosnący pobór mocy pakietu, temperatury i reakcję taktowań w trakcie zadania, które uważałeś za
+            przeniesione na akcelerator.
+        </p>
+        <p>
+            Przy tym konkretnym problemie to naprawdę użyteczny sygnał, bo ciche przejście nie zostawia innego
+            śladu. Lokalny model, który po cichu liczy się na twoim procesorze, wygląda dokładnie jak zajęty
+            procesor.
+        </p>
+
+        <div class="guide-cta">
+            <b>Zobacz, gdzie ląduje praca.</b> PC Workman czyta obciążenie procesora, pobór mocy pakietu,
+            temperatury i taktowania razem, więc obciążenie, które miało być przeniesione, przestaje być
+            niewidoczne. Za darmo i open source. Analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz na Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Powiązane: <a href="../is-my-npu-being-used/index_pl.html">czy twoje NPU pracuje</a> &middot;
+            <a href="../what-does-tops-mean/index_pl.html">co naprawdę mierzy TOPS</a> &middot;
+            <a href="../index_pl.html">wszystkie poradniki &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję publicznie monitor Windows z lokalnym asystentem AI. Każdy poradnik opiera się na tym, co faktycznie pokazują liczniki, łącznie z tymi, które nie pokazują nic.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            Nazwy dostawców, producenci oraz wymagania sprzętowe i sterownikowe pochodzą z Microsoftu,
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>,
+            wersja z 26 sierpnia 2026; przypięte wersje w niej się zmieniają, więc przed aktualizacją sterownika
+            sprawdź tamtą stronę, a nie liczby stąd. Zachowanie wyboru i przejścia awaryjnego za
+            <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            oraz <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/overview" target="_blank" rel="noopener">What is Windows ML</a>.
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
