@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Praktyczne poradniki wydajności Windows od twórcy PC Workmana: przycięcia przy wysokim FPS, ukryte wąskie gardła, VRAM, temperatury, dyski, pamięć i bezpieczna optymalizacja.">
+    <meta name="description" content="Poradniki pisane z danych z czujników, nie z powielanych mitów: przycięcia, wąskie gardła, VRAM, temperatury, dyski, pamięć, a teraz też AI PC i NPU.">
     <meta name="keywords" content="poradniki wydajność Windows, wysoki FPS gra przycina, wolny komputer Menedżer zadań normalny, ile VRAM, temperatura procesora, sterowniki widma, optymalizacja komputera">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/index_pl.html">
@@ -21,10 +21,11 @@
     <meta property="og:url" content="https://pcworkman.dev/guides/index_pl.html">
     <meta property="og:locale" content="pl_PL">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Poradniki PC Workmana | Wydajność Windows, temperatury i optymalizacja - bez mitów</title>
+    <title>Poradniki wydajności Windows, bez mitów | PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,16 +43,37 @@
       "inLanguage": "pl",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
         "sameAs": [
+          "https://github.com/HuckleR2003",
           "https://x.com/hck_lab",
           "https://linkedin.com/in/marcinfirmuga",
           "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
           "https://linktr.ee/marcin_firmuga"
         ]
       },
-      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      },
       "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
@@ -86,7 +108,7 @@
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index.html" },
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
         { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" }
       ]
     }
@@ -100,6 +122,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
         <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
@@ -258,6 +281,42 @@
 
         <div class="section-label">Wyróżnione poradniki</div>
         <div class="series-grid">
+            <a class="series-card wednesday" href="do-i-need-a-copilot-pc/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Czy potrzebujesz Copilot+ PC?</h3>
+                <p>Trzy wymagania sprzętowe, sześć funkcji Windows i dłuższa lista rzeczy, które działają dokładnie tak samo bez tego.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="does-an-npu-save-battery/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Czy NPU naprawdę oszczędza baterię?</h3>
+                <p>Publikowane porównania stawiają układ z laptopa obok karty desktopowej. Oto pomiar, który zrobisz na własnej maszynie w dwadzieścia minut.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="npu-gpu-or-cpu-local-ai/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>NPU, GPU czy CPU: co uruchamia model?</h3>
+                <p>Nie układ, który kupiłeś. Decyduje wersja sterownika i pobranie na żądanie, a jeden zakres ma udokumentowany sufit, powyżej którego da się zaktualizować.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="how-much-ram-for-local-ai/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Ile pamięci potrzebuje lokalny model?</h3>
+                <p>Dwa mnożenia. Jedno mówi, czy model się zmieści, drugie jak szybko może w ogóle odpowiedzieć, zanim cokolwiek pobierzesz.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="what-does-tops-mean/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>TOPS to nie specyfikacja</h3>
+                <p>Intel publikuje 120, 67 i 48 dla tego samego procesora. Wszystkie trzy są prawdziwe, a tylko jedna decyduje, czy Windows da ci funkcje AI.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="is-my-npu-being-used/index_pl.html">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Czy twoje NPU w ogóle pracuje?</h3>
+                <p>Laptop ma NPU o mocy 40 TOPS, a Menedżer zadań pokazuje 0%. Gdzie widać pracę, co jej naprawdę używa i dlaczego zero to zwykle poprawny odczyt.</p>
+                <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
             <a class="series-card monday" href="what-should-i-upgrade-first/index_pl.html">
                 <span class="day-badge day-monday">Modernizacja</span>
                 <h3>RAM, SSD, procesor czy karta: co wymienić najpierw?</h3>

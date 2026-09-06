@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Practical Windows performance guides by the developer of PC Workman: frame-time stutter, hidden bottlenecks, VRAM, temperatures, storage, memory and safe optimization.">
+    <meta name="description" content="Guides written from sensor data, not recycled myths: stutter, hidden bottlenecks, VRAM, temperatures, storage, memory, and now the AI PC and NPU questions.">
     <meta name="keywords" content="Windows performance guides, high FPS game stutters, PC slow Task Manager normal, how much VRAM, CPU temperature guide, ghost drivers Windows, PC optimization tutorials">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/">
@@ -20,10 +20,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/guides/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>PC Workman Guides | Windows performance, temperatures &amp; optimization - explained honestly</title>
+    <title>Windows Performance Guides, Explained Honestly | PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,16 +42,37 @@
       "inLanguage": "en",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
         "sameAs": [
+          "https://github.com/HuckleR2003",
           "https://x.com/hck_lab",
           "https://linkedin.com/in/marcinfirmuga",
           "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
           "https://linktr.ee/marcin_firmuga"
         ]
       },
-      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      },
       "mainEntity": {
         "@type": "ItemList",
         "itemListElement": [
@@ -144,6 +166,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
@@ -313,6 +336,42 @@
 
         <div class="section-label">Featured guides</div>
         <div class="series-grid">
+            <a class="series-card wednesday" href="do-i-need-a-copilot-pc/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Do you need a Copilot+ PC?</h3>
+                <p>Three hardware requirements, six Windows features, and a longer list of things that work exactly the same without it.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="does-an-npu-save-battery/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Does an NPU actually save battery?</h3>
+                <p>The published comparisons put a laptop chip next to a desktop graphics card. Here is a measurement you can take on your own machine in twenty minutes.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="npu-gpu-or-cpu-local-ai/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>NPU, GPU or CPU: which runs your model?</h3>
+                <p>Not the chip you bought. A driver version and an on-demand download decide it, and one driver range has a documented ceiling you can update past.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="how-much-ram-for-local-ai/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>How much memory does a local model need?</h3>
+                <p>Two multiplications. One tells you whether the model fits, the other the fastest it could possibly answer, before you download anything.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="what-does-tops-mean/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>TOPS is not a specification</h3>
+                <p>Intel publishes 120, 67 and 48 for the same processor. All three are true, and only one of them decides whether Windows gives you the AI features.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card wednesday" href="is-my-npu-being-used/">
+                <span class="day-badge day-tech">AI PC</span>
+                <h3>Is your NPU doing anything?</h3>
+                <p>Your laptop has a 40 TOPS neural processor and Task Manager shows 0%. Where the activity shows up, what actually uses it, and why zero is usually the correct reading.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
             <a class="series-card friday" href="../blog/fourteen-months/">
                 <span class="day-badge day-friday">The record</span>
                 <h3>Fourteen months, four jobs, and still no job in software</h3>
@@ -480,6 +539,12 @@
     /* Offline problem-search over the guide library. No backend, no request. */
     (function(){
       var IDX = [
+        {t:"Do you need a Copilot+ PC?", u:"do-i-need-a-copilot-pc/", cat:"AI PC", live:1, d:"What the badge gates, what is identical without it, and when to wait.", k:"copilot plus pc worth it requirements 40 tops 16gb 256gb recall studio effects live captions cocreator buy ai laptop or not upgrade wait local model"},
+        {t:"Does an NPU actually save battery?", u:"does-an-npu-save-battery/", cat:"AI PC", live:1, d:"A repeatable way to measure the discharge rate with a task on and off the NPU.", k:"npu battery life measure discharge rate mw powercfg batteryreport energy report laptop power draw watts studio effects copilot plus battery test"},
+        {t:"NPU, GPU or CPU: which one runs your model?", u:"npu-gpu-or-cpu-local-ai/", cat:"AI PC", live:1, d:"Windows ML picks a provider at run time, and driver versions decide which.", k:"windows ml execution provider qnn openvino vitisai migraphx tensorrt directml legacy npu not used driver version amd ryzen ai onnx runtime fallback cpu hot laptop"},
+        {t:"How much memory does a local AI model need?", u:"how-much-ram-for-local-ai/", cat:"AI PC", live:1, d:"Bytes per parameter for capacity, bandwidth divided by model size for speed.", k:"ram for local llm how much memory ai model quantization q4 8b 14b 70b tokens per second bandwidth slow local model ollama vram fits 16gb laptop"},
+        {t:"TOPS is not a specification", u:"what-does-tops-mean/", cat:"AI PC", live:1, d:"Platform, GPU and NPU TOPS are different numbers, and precision moves all of them.", k:"tops meaning npu tops platform tops int8 int4 sparsity 40 tops copilot plus requirement ai pc marketing compare chips specification buying laptop"},
+        {t:"Is your NPU doing anything?", u:"is-my-npu-being-used/", cat:"AI PC", live:1, d:"Where NPU activity shows up, what uses it, and why 0% is usually correct.", k:"npu 0 percent idle not used copilot plus pc task manager npu column engine neural processing unit ai pc tops windows 11 studio effects check monitor"},
         {t:"42 save format changes, no broken saves", u:"save-migration-without-breaking-saves/", cat:"Persistence", live:1, d:"One migration step per version, and the state that looks derived but is causal.", k:"save migration format version upgrade path serialization backwards compatible broken saves campaign"},
         {t:"AI accelerator depreciation, year by year", u:"ai-accelerator-depreciation/", cat:"Reference", live:1, d:"Launch price, cost per petaflop, and value after one, two and three years.", k:"gpu depreciation h100 a100 b200 gb300 resale value cost per petaflop residual accelerator price when to buy"},
         {t:"What USS cannot do in Unity UI Toolkit", u:"unity-ui-toolkit-uss-limitations/", cat:"Unity", live:1, d:"No gradients, arcs, masks or positional selectors, and what to use instead.", k:"unity ui toolkit uss gradient last-child painter2d runtime theme uxml ugui stylesheet game ui not working"},
