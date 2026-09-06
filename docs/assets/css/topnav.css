@@ -51,3 +51,15 @@ body { padding-top: var(--topnav-h); }
 .gt-brand span { color: #FFD54A; }
 .gt-brand:hover { text-decoration: none; }
 .gt-brand:hover span { filter: brightness(1.12); }
+
+/* HCK Labs — the label everything here is published under, so it sits on every page rather than on
+   the two landings it used to live on. A lighter plate rather than a second gradient pill: the blog
+   already owns that shape in gold, and two of them beside each other read as two adverts. */
+.gt-link.gt-labs {
+    color: #ef7d92; font-weight: 700;
+    background: rgba(255, 255, 255, .085);
+    border: 1px solid rgba(224, 82, 110, .30);
+    padding: .24rem .72rem; border-radius: 999px; margin: 0 .18rem;
+    flex: 0 0 auto;
+}
+.gt-link.gt-labs:hover { color: #fff; background: rgba(224, 82, 110, .24); }
