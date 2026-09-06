@@ -1,0 +1,390 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: memory for a local AI model -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Two multiplications tell you whether a local model fits and how fast it can answer: bytes per parameter for capacity, bandwidth divided by size for speed.">
+    <meta name="keywords" content="RAM for local LLM, how much memory local AI model, VRAM local LLM, quantization Q4 memory, tokens per second bandwidth, run LLM 16GB RAM">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <meta property="og:title" content="How much memory a local AI model needs, and how fast it can answer">
+    <meta property="og:description" content="Capacity is bytes per parameter. Speed is bandwidth divided by model size. Both are multiplications you can do on the machine you already own.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-05">
+    <meta property="article:modified_time" content="2026-09-05">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>How Much RAM a Local AI Model Needs | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "How much memory a local AI model needs, and how fast it can possibly answer",
+      "description": "Two multiplications settle both questions: bytes per parameter for whether it fits, and memory bandwidth divided by model size for the ceiling on tokens per second. Worked on hardware people actually own.",
+      "url": "https://pcworkman.dev/guides/how-much-ram-for-local-ai/",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Memory for a local model", "item": "https://pcworkman.dev/guides/how-much-ram-for-local-ai/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much RAM do I need to run a local AI model?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Multiply the parameter count by the bytes per parameter of the format you are using: 2 bytes at FP16, 1 byte at 8-bit, and roughly 0.5 to 0.6 bytes at common 4-bit quantization. An 8 billion parameter model is therefore about 16 GB at FP16 and about 4.5 to 5 GB at 4-bit. Add one to two gigabytes for the context cache and the runtime, and leave the operating system its own share. On a 16 GB machine an 8B model at 4-bit is comfortable and a 14B model is tight." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why is my local model slow even though my CPU is fast?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because generating a token reads the entire model out of memory, so the pace is set by memory bandwidth rather than by arithmetic. Divide the memory bandwidth by the size of the model in memory and you have the theoretical ceiling on tokens per second. A 4.5 GB model on a laptop with about 135 GB/s of system memory bandwidth cannot exceed roughly 30 tokens per second, whatever the processor or the NPU is rated at." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does an NPU make a local language model faster?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not usually in the way people expect. An NPU on a laptop generally has no memory of its own and shares system RAM, so it faces the same bandwidth limit as the CPU. Its advantage is power: the same work at a fraction of the watts, which matters for a model running continuously on battery. For raw speed on larger models a discrete GPU with its own high bandwidth memory wins by a wide margin." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/how-much-ram-for-local-ai/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/how-much-ram-for-local-ai/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Guide</span>
+        <h1>How much memory does a local model need?</h1>
+        <p class="tagline">Two multiplications answer it. One tells you whether the model fits. The other tells you the fastest it could possibly answer, before you download anything.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-09-05</span><span>&middot;</span><span>9 min read</span>
+        </div>
+
+        <p>
+            Running a language model on your own machine has stopped being exotic. The question that decides
+            whether it is pleasant or miserable is not the processor, and it is not the number of TOPS on the
+            box. It is memory, in two separate senses, and both of them are arithmetic you can do in your head
+            before downloading a nine gigabyte file.
+        </p>
+        <p>
+            <strong>Capacity decides whether it runs at all. Bandwidth decides how fast it answers.</strong>
+            Almost every disappointing local-AI experience is one of those two numbers being wrong, and neither of
+            them appears in laptop marketing.
+        </p>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#fit">Multiplication one: does it fit</a></li>
+                <li><a href="#extra">What else takes memory</a></li>
+                <li><a href="#speed">Multiplication two: how fast can it possibly be</a></li>
+                <li><a href="#hardware">The same sum on real machines</a></li>
+                <li><a href="#npu">Why the NPU does not rescue this</a></li>
+                <li><a href="#choose">What to run on what you have</a></li>
+            </ol>
+        </div>
+
+        <h2 id="fit">Multiplication one: does it fit</h2>
+        <p>
+            A model is a pile of numbers called parameters. How much space it takes is the parameter count times
+            the size of each number, and the format decides the size:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Format</th><th>Bytes per parameter</th><th>An 8B model</th><th>Quality</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>FP32</td><td>4</td><td>32 GB</td><td>The training format. Nobody runs this locally.</td></tr>
+                <tr><td>FP16 / BF16</td><td>2</td><td>16 GB</td><td>The reference. What "full precision" usually means in practice.</td></tr>
+                <tr><td>8-bit</td><td>1</td><td>8 GB</td><td>Very close to the reference for most uses.</td></tr>
+                <tr><td>4-bit (common k-quants)</td><td>~0.5 to 0.6</td><td>~4.5 to 5 GB</td><td>The usual choice. A small, measurable loss most people do not notice.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            That is the whole rule: <strong>parameters times bytes per parameter</strong>. A 3B model at 4-bit is
+            under two gigabytes. A 70B model at 4-bit is around forty. The 4-bit column is slightly above the
+            theoretical 0.5 bytes because these formats keep some values at higher precision where it matters,
+            which is why a "4-bit" 8B file on disk is nearer five gigabytes than four.
+        </p>
+
+        <h2 id="extra">What else takes memory</h2>
+        <p>
+            The weights are the big number, not the only one.
+        </p>
+        <p>
+            <strong>The context cache.</strong> As the model reads your prompt and writes its answer it keeps a
+            cache of intermediate state for every token in the conversation. It grows with the length of the
+            conversation, and on a small model with a long context it can reach a gigabyte or more. This is why a
+            model that started fine gets slower and heavier deep into a long chat, and why raising the context
+            window is not free.
+        </p>
+        <p>
+            <strong>The runtime and the operating system.</strong> Windows and a browser will happily use six to
+            eight gigabytes between them before you start. Memory that is not there gets paged to disk, and a
+            model that spills to disk does not run slowly, it stops being usable.
+        </p>
+        <div class="callout warn">
+            <b>Plan for the model plus about two gigabytes, inside what the system is not already using.</b> On a
+            16 GB laptop with a browser open, the realistic budget for a model is eight to nine gigabytes, not
+            sixteen. That is comfortable for an 8B at 4-bit and tight for a 14B.
+        </div>
+
+        <h2 id="speed">Multiplication two: how fast can it possibly be</h2>
+        <p>
+            This is the part almost nobody explains, and it predicts your experience better than any benchmark
+            list.
+        </p>
+        <p>
+            To produce <em>one</em> token, the model reads <em>all</em> of its weights. Every token. So the
+            ceiling on generation speed is simply:
+        </p>
+        <pre><code>tokens per second  =  memory bandwidth  /  model size in memory</code></pre>
+        <p>
+            A 4.5 GB model on a machine with 135 GB/s of memory bandwidth: 135 / 4.5 = <strong>30 tokens per
+            second</strong>, and that is the number you cannot exceed even with a perfect implementation. Real
+            output typically lands somewhere between half and three quarters of it.
+        </p>
+        <p>
+            Two consequences follow immediately, and both are counterintuitive until you have seen the formula.
+        </p>
+        <p>
+            <strong>A smaller model is faster in direct proportion.</strong> Halve the model and you double the
+            ceiling. That is why 4-bit quantization does not merely make a model fit, it makes it roughly twice as
+            fast as the same model at 8-bit on the same hardware.
+        </p>
+        <p>
+            <strong>A faster processor does not help.</strong> If the bottleneck is reading weights out of
+            memory, more arithmetic capacity has nothing to do. This is the single reason a laptop with an
+            impressive TOPS figure can be slower at chat than a desktop graphics card of the same age.
+        </p>
+
+        <h2 id="hardware">The same sum on real machines</h2>
+        <p>
+            Memory bandwidth is bus width times transfer rate, so you can compute it rather than look it up.
+            A 128-bit bus is 16 bytes wide, so LPDDR5X at 8533 MT/s gives 8533 &times; 16 = about 136 GB/s. A
+            384-bit GDDR6X bus is 48 bytes wide, so 21 Gbps per pin gives 48 &times; 21 = about 1008 GB/s.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Machine</th><th>Bandwidth (approx)</th><th>Ceiling on a 4.5 GB model</th><th>Ceiling on a 20 GB model</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Typical thin laptop, DDR5-5600 dual channel</td><td>~90 GB/s</td><td>~20 tok/s</td><td>does not fit in a 16 GB machine</td></tr>
+                <tr><td>Copilot+ class, LPDDR5X-8533 on 128 bits</td><td>~136 GB/s</td><td>~30 tok/s</td><td>~7 tok/s if it fits</td></tr>
+                <tr><td>Desktop card with 384-bit GDDR6X at 21 Gbps</td><td>~1008 GB/s</td><td>~220 tok/s</td><td>~50 tok/s</td></tr>
+                <tr><td>Desktop card with 512-bit GDDR7 at 28 Gbps</td><td>~1792 GB/s</td><td>~400 tok/s</td><td>~90 tok/s</td></tr>
+            </tbody>
+        </table>
+        <p>
+            The gap between the top and bottom rows is roughly twentyfold, and none of it is about how clever the
+            chip is. It is about how many bytes per second can be dragged out of memory. That is also the honest
+            answer to "should I buy an AI laptop or a graphics card": if the goal is a large model answering
+            quickly, buy bandwidth.
+        </p>
+
+        <h2 id="npu">Why the NPU does not rescue this</h2>
+        <p>
+            An NPU is very good at what it was built for, and this is not it.
+        </p>
+        <p>
+            On a laptop the NPU usually has no memory of its own. It borrows system RAM, which is why Windows
+            reports NPU Shared Memory rather than dedicated memory for most machines. Sharing the RAM means
+            sharing its bandwidth, so the ceiling above applies to the NPU exactly as it applies to the CPU.
+        </p>
+        <p>
+            What the NPU changes is the power bill. The same small model, running continuously, costs a fraction
+            of the watts it would on the CPU or the integrated GPU, and the rest of the machine stays free and
+            quiet. For a model that runs for hours in the background, that is the whole point. For a large model
+            you are waiting on, it is not the lever you need. Our guide on
+            <a href="../what-does-tops-mean/">what TOPS actually measures</a> covers why the headline number
+            never mentions any of this.
+        </p>
+        <p>
+            There is a second, more practical obstacle. A model only runs on the NPU if it has been quantized and
+            compiled for that hardware, and Windows ML falls back to the GPU or the CPU when it has not been. So
+            the honest question is not "is my NPU fast enough for this model" but "does this model exist in a
+            build for my NPU at all". Today, for most models, the answer is no.
+        </p>
+
+        <h2 id="choose">What to run on what you have</h2>
+        <table>
+            <thead>
+                <tr><th>You have</th><th>Comfortable</th><th>Possible but tight</th><th>Do not bother</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>8 GB total RAM</td><td>3B at 4-bit</td><td>7-8B at 4-bit with nothing else open</td><td>anything above 8B</td></tr>
+                <tr><td>16 GB total RAM</td><td>7-8B at 4-bit</td><td>14B at 4-bit</td><td>30B and above</td></tr>
+                <tr><td>32 GB total RAM</td><td>14B at 4-bit</td><td>30B at 4-bit, slowly</td><td>70B</td></tr>
+                <tr><td>8 GB graphics card</td><td>7-8B at 4-bit, fast</td><td>14B at 4-bit partially offloaded</td><td>anything that spills to system RAM</td></tr>
+                <tr><td>24 GB graphics card</td><td>30B at 4-bit</td><td>70B at 4-bit, partially</td><td>&mdash;</td></tr>
+            </tbody>
+        </table>
+        <p>
+            "Tight" in that table means it runs and you will feel it: less room for a long conversation, and a
+            noticeable slowdown as the context grows. Splitting a model between a graphics card and system RAM
+            works, and it runs at the speed of the slower half, which is the system RAM.
+        </p>
+        <div class="callout">
+            <b>The one-line version.</b> Capacity is parameters times bytes per parameter. Speed is bandwidth
+            divided by that. Everything else in an AI laptop specification is a detail on top of those two
+            multiplications.
+        </div>
+
+        <h2 id="workman">Where PC Workman fits</h2>
+        <p>
+            The part of this you cannot estimate from a table is what your machine is already using before the
+            model starts, and that is measurable today. PC Workman reads memory pressure, what is holding it, and
+            whether the system has started paging to disk, which is the moment a local model goes from slow to
+            unusable.
+        </p>
+        <p>
+            It does not read NPU counters and it does not benchmark models. What it can tell you is whether the
+            eight gigabytes you were planning to spend on a model are actually free on your machine, or whether a
+            browser and a launcher have already taken them.
+        </p>
+
+        <div class="guide-cta">
+            <b>Find out what your memory is actually doing.</b> PC Workman reads memory pressure, the processes
+            holding it and the point where Windows starts paging, so you know the real budget before you download
+            a model. Free and open source. Analysis runs locally.
+            <a href="../../download/">Download for Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Related: <a href="../why-is-my-ram-usage-so-high/">why is my RAM usage so high</a> &middot;
+            <a href="../how-much-vram-do-i-need/">how much VRAM you need for games</a> &middot;
+            <a href="../">all guides &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I build a Windows monitor with a local AI assistant, in public. Every guide is based on what the counters actually show, including the ones that show nothing.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            The capacity and bandwidth figures here are arithmetic you can repeat: bytes per parameter times
+            parameter count, and bus width in bytes times transfer rate. Platform context from Microsoft,
+            <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            (quantization to integer formats, NPU shared memory) and
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>
+            (provider selection and fallback to GPU or CPU).
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

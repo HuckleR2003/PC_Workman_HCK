@@ -1,0 +1,383 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: ile pamieci potrzebuje lokalny model -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Dwa mnożenia mówią, czy lokalny model się zmieści i jak szybko może odpowiedzieć. Bajty na parametr dla pojemności, przepustowość pamięci dla prędkości.">
+    <meta name="keywords" content="ile RAM lokalny model, LLM lokalnie RAM, kwantyzacja Q4 pamięć, tokeny na sekundę przepustowość, model AI 16GB RAM, lokalne AI Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/how-much-ram-for-local-ai/">
+    <meta property="og:title" content="Ile pamięci potrzebuje lokalny model i jak szybko może odpowiedzieć">
+    <meta property="og:description" content="Pojemność to bajty na parametr. Prędkość to przepustowość podzielona przez rozmiar modelu. Oba mnożenia zrobisz na maszynie, którą już masz.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-05">
+    <meta property="article:modified_time" content="2026-09-05">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Ile RAM potrzebuje lokalny model AI | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Ile pamięci potrzebuje lokalny model i jak szybko może odpowiedzieć",
+      "description": "Dwa mnożenia rozstrzygają obie sprawy: bajty na parametr decydują, czy model się zmieści, a przepustowość pamięci podzielona przez rozmiar modelu daje sufit tokenów na sekundę.",
+      "url": "https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Pamięć dla lokalnego modelu", "item": "https://pcworkman.dev/guides/how-much-ram-for-local-ai/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Ile RAM potrzeba, żeby uruchomić lokalny model AI?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Pomnóż liczbę parametrów przez liczbę bajtów na parametr w używanym formacie: 2 bajty przy FP16, 1 bajt przy 8 bitach i mniej więcej 0,5 do 0,6 bajta przy popularnej kwantyzacji 4-bitowej. Model o 8 miliardach parametrów zajmuje więc około 16 GB przy FP16 i około 4,5 do 5 GB przy 4 bitach. Dolicz jeden do dwóch gigabajtów na pamięć kontekstu i środowisko uruchomieniowe, i zostaw systemowi jego część. Na maszynie z 16 GB model 8B na 4 bitach jest wygodny, a 14B jest ciasny." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego lokalny model działa wolno, mimo że mam szybki procesor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo wygenerowanie jednego tokenu czyta z pamięci cały model, więc tempo ustala przepustowość pamięci, a nie arytmetyka. Podziel przepustowość pamięci przez rozmiar modelu w pamięci i masz teoretyczny sufit tokenów na sekundę. Model 4,5 GB na laptopie o przepustowości około 135 GB/s nie przekroczy mniej więcej 30 tokenów na sekundę, niezależnie od tego, na ile wyceniono procesor albo NPU." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy NPU przyspiesza lokalny model językowy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zwykle nie w taki sposób, jakiego ludzie oczekują. NPU w laptopie na ogół nie ma własnej pamięci i dzieli RAM systemowy, więc podlega temu samemu limitowi przepustowości co procesor. Jego przewagą jest pobór mocy: ta sama praca za ułamek watów, co ma znaczenie przy modelu działającym ciągle na baterii. Dla surowej prędkości na większych modelach dedykowana karta graficzna z własną szybką pamięcią wygrywa z dużym zapasem." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/how-much-ram-for-local-ai/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/how-much-ram-for-local-ai/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Poradnik</span>
+        <h1>Ile pamięci potrzebuje lokalny model?</h1>
+        <p class="tagline">Odpowiadają dwa mnożenia. Jedno mówi, czy model się zmieści. Drugie, jak szybko może w ogóle odpowiedzieć, zanim cokolwiek pobierzesz.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-05</span><span>&middot;</span><span>9 min czytania</span>
+        </div>
+
+        <p>
+            Uruchamianie modelu językowego na własnej maszynie przestało być egzotyką. O tym, czy będzie to
+            przyjemne czy męczące, nie decyduje procesor ani liczba TOPS na pudełku. Decyduje pamięć, w dwóch
+            osobnych znaczeniach, i oba to arytmetyka, którą zrobisz w głowie przed pobraniem dziewięciogigabajtowego
+            pliku.
+        </p>
+        <p>
+            <strong>Pojemność decyduje, czy w ogóle ruszy. Przepustowość decyduje, jak szybko odpowie.</strong>
+            Prawie każde rozczarowanie lokalnym AI to jedna z tych dwóch liczb dobrana źle, a żadna z nich nie
+            pojawia się w marketingu laptopów.
+        </p>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#fit">Mnożenie pierwsze: czy się zmieści</a></li>
+                <li><a href="#extra">Co jeszcze zajmuje pamięć</a></li>
+                <li><a href="#speed">Mnożenie drugie: jak szybko może być</a></li>
+                <li><a href="#hardware">To samo działanie na prawdziwych maszynach</a></li>
+                <li><a href="#npu">Dlaczego NPU tego nie ratuje</a></li>
+                <li><a href="#choose">Co uruchomić na tym, co masz</a></li>
+            </ol>
+        </div>
+
+        <h2 id="fit">Mnożenie pierwsze: czy się zmieści</h2>
+        <p>
+            Model to stos liczb zwanych parametrami. Ile zajmuje miejsca, to liczba parametrów razy rozmiar
+            każdej liczby, a rozmiar wynika z formatu:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Format</th><th>Bajty na parametr</th><th>Model 8B</th><th>Jakość</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>FP32</td><td>4</td><td>32 GB</td><td>Format treningowy. Nikt tego nie uruchamia lokalnie.</td></tr>
+                <tr><td>FP16 / BF16</td><td>2</td><td>16 GB</td><td>Punkt odniesienia. To zwykle znaczy „pełna precyzja".</td></tr>
+                <tr><td>8 bitów</td><td>1</td><td>8 GB</td><td>Bardzo blisko odniesienia w większości zastosowań.</td></tr>
+                <tr><td>4 bity (popularne k-quanty)</td><td>~0,5 do 0,6</td><td>~4,5 do 5 GB</td><td>Zwykły wybór. Mała, mierzalna strata, której większość ludzi nie zauważa.</td></tr>
+            </tbody>
+        </table>
+        <p>
+            To cała zasada: <strong>parametry razy bajty na parametr</strong>. Model 3B na 4 bitach to poniżej
+            dwóch gigabajtów. Model 70B na 4 bitach to około czterdziestu. Kolumna 4-bitowa jest nieco powyżej
+            teoretycznych 0,5 bajta, bo te formaty trzymają część wartości w wyższej precyzji tam, gdzie to ma
+            znaczenie, i dlatego „czterobitowy" plik 8B na dysku ma bliżej pięciu gigabajtów niż czterech.
+        </p>
+
+        <h2 id="extra">Co jeszcze zajmuje pamięć</h2>
+        <p>
+            Wagi to duża liczba, ale nie jedyna.
+        </p>
+        <p>
+            <strong>Pamięć kontekstu.</strong> Czytając twój prompt i pisząc odpowiedź, model trzyma bufor stanu
+            pośredniego dla każdego tokenu rozmowy. Rośnie z długością rozmowy i przy małym modelu z długim
+            kontekstem potrafi sięgnąć gigabajta i więcej. Dlatego model, który zaczynał dobrze, robi się cięższy
+            w głąb długiego czatu i dlatego zwiększanie okna kontekstu nie jest darmowe.
+        </p>
+        <p>
+            <strong>Środowisko uruchomieniowe i system.</strong> Windows i przeglądarka z przyjemnością zajmą
+            razem sześć do ośmiu gigabajtów, zanim zaczniesz. Pamięć, której nie ma, ląduje na dysku, a model,
+            który wylewa się na dysk, nie działa wolno, tylko przestaje nadawać się do użytku.
+        </p>
+        <div class="callout warn">
+            <b>Planuj model plus około dwóch gigabajtów, w granicach tego, czego system jeszcze nie zajął.</b> Na
+            laptopie z 16 GB i otwartą przeglądarką realny budżet na model to osiem do dziewięciu gigabajtów, a
+            nie szesnaście. To wygodne dla 8B na 4 bitach i ciasne dla 14B.
+        </div>
+
+        <h2 id="speed">Mnożenie drugie: jak szybko może być</h2>
+        <p>
+            Tej części prawie nikt nie tłumaczy, a przewiduje twoje doświadczenie lepiej niż jakakolwiek lista
+            benchmarków.
+        </p>
+        <p>
+            Żeby wyprodukować <em>jeden</em> token, model czyta <em>wszystkie</em> swoje wagi. Każdy token. Sufit
+            prędkości generowania to zatem po prostu:
+        </p>
+        <pre><code>tokeny na sekundę  =  przepustowość pamięci  /  rozmiar modelu w pamięci</code></pre>
+        <p>
+            Model 4,5 GB na maszynie o przepustowości 135 GB/s: 135 / 4,5 = <strong>30 tokenów na
+            sekundę</strong>, i tej wartości nie przekroczysz nawet przy idealnej implementacji. Realne wyjście
+            zwykle ląduje między połową a trzema czwartymi tej liczby.
+        </p>
+        <p>
+            Wynikają z tego od razu dwie rzeczy i obie są nieoczywiste, dopóki nie zobaczy się wzoru.
+        </p>
+        <p>
+            <strong>Mniejszy model jest szybszy wprost proporcjonalnie.</strong> Zmniejsz model o połowę i
+            podwoisz sufit. Dlatego kwantyzacja 4-bitowa nie tylko sprawia, że model się mieści, ale też czyni go
+            mniej więcej dwa razy szybszym niż ten sam model na 8 bitach na tym samym sprzęcie.
+        </p>
+        <p>
+            <strong>Szybszy procesor nie pomoże.</strong> Jeśli wąskim gardłem jest czytanie wag z pamięci, więcej
+            mocy obliczeniowej nie ma co robić. To jedyny powód, dla którego laptop z imponującą liczbą TOPS
+            potrafi być wolniejszy w czacie niż desktopowa karta graficzna z tego samego rocznika.
+        </p>
+
+        <h2 id="hardware">To samo działanie na prawdziwych maszynach</h2>
+        <p>
+            Przepustowość pamięci to szerokość szyny razy tempo transferu, więc możesz ją policzyć zamiast
+            szukać. Szyna 128-bitowa ma 16 bajtów, więc LPDDR5X przy 8533 MT/s daje 8533 &times; 16 = około
+            136 GB/s. Szyna GDDR6X 384-bitowa ma 48 bajtów, więc 21 Gb/s na pin daje 48 &times; 21 = około
+            1008 GB/s.
+        </p>
+        <table>
+            <thead>
+                <tr><th>Maszyna</th><th>Przepustowość (ok.)</th><th>Sufit dla modelu 4,5 GB</th><th>Sufit dla modelu 20 GB</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Typowy cienki laptop, DDR5-5600 dwukanałowo</td><td>~90 GB/s</td><td>~20 tok/s</td><td>nie mieści się w maszynie 16 GB</td></tr>
+                <tr><td>Klasa Copilot+, LPDDR5X-8533 na 128 bitach</td><td>~136 GB/s</td><td>~30 tok/s</td><td>~7 tok/s, jeśli się zmieści</td></tr>
+                <tr><td>Karta desktopowa, GDDR6X 384-bit przy 21 Gb/s</td><td>~1008 GB/s</td><td>~220 tok/s</td><td>~50 tok/s</td></tr>
+                <tr><td>Karta desktopowa, GDDR7 512-bit przy 28 Gb/s</td><td>~1792 GB/s</td><td>~400 tok/s</td><td>~90 tok/s</td></tr>
+            </tbody>
+        </table>
+        <p>
+            Różnica między górnym a dolnym wierszem to mniej więcej dwadzieścia razy i nic z tego nie wynika z
+            tego, jak sprytny jest układ. Wynika z tego, ile bajtów na sekundę da się wyciągnąć z pamięci. To też
+            jest uczciwa odpowiedź na pytanie „laptop AI czy karta graficzna": jeśli celem jest duży model
+            odpowiadający szybko, kupuj przepustowość.
+        </p>
+
+        <h2 id="npu">Dlaczego NPU tego nie ratuje</h2>
+        <p>
+            NPU jest bardzo dobre w tym, do czego je zbudowano, a to nie jest to.
+        </p>
+        <p>
+            W laptopie NPU zwykle nie ma własnej pamięci. Pożycza RAM systemowy i dlatego Windows raportuje dla
+            większości maszyn Pamięć współdzieloną NPU, a nie dedykowaną. Dzielenie RAM oznacza dzielenie jego
+            przepustowości, więc sufit z poprzedniej sekcji obowiązuje NPU dokładnie tak samo jak procesor.
+        </p>
+        <p>
+            NPU zmienia rachunek za prąd. Ten sam mały model, działający bez przerwy, kosztuje ułamek watów, jakie
+            pobrałby na procesorze albo zintegrowanej grafice, a reszta maszyny zostaje wolna i cicha. Dla modelu
+            pracującego godzinami w tle to jest cały sens. Dla dużego modelu, na który czekasz, to nie jest ta
+            dźwignia. Nasz poradnik <a href="../what-does-tops-mean/index_pl.html">co naprawdę mierzy TOPS</a>
+            opisuje, czemu nagłówkowa liczba nigdy o tym nie wspomina.
+        </p>
+        <p>
+            Jest jeszcze druga, bardziej praktyczna przeszkoda. Model uruchomi się na NPU tylko wtedy, gdy został
+            skwantyzowany i skompilowany pod ten sprzęt, a Windows ML przechodzi na GPU albo CPU, gdy tak nie
+            jest. Uczciwe pytanie nie brzmi więc „czy moje NPU jest wystarczająco szybkie do tego modelu", tylko
+            „czy ten model w ogóle istnieje w wersji pod moje NPU". Dziś, dla większości modeli, odpowiedź brzmi
+            nie.
+        </p>
+
+        <h2 id="choose">Co uruchomić na tym, co masz</h2>
+        <table>
+            <thead>
+                <tr><th>Masz</th><th>Wygodnie</th><th>Możliwe, ale ciasno</th><th>Nie ma sensu</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>8 GB RAM łącznie</td><td>3B na 4 bitach</td><td>7-8B na 4 bitach bez niczego innego</td><td>cokolwiek powyżej 8B</td></tr>
+                <tr><td>16 GB RAM łącznie</td><td>7-8B na 4 bitach</td><td>14B na 4 bitach</td><td>30B i więcej</td></tr>
+                <tr><td>32 GB RAM łącznie</td><td>14B na 4 bitach</td><td>30B na 4 bitach, powoli</td><td>70B</td></tr>
+                <tr><td>Karta graficzna 8 GB</td><td>7-8B na 4 bitach, szybko</td><td>14B na 4 bitach częściowo przeniesione</td><td>cokolwiek, co wyleje się do RAM</td></tr>
+                <tr><td>Karta graficzna 24 GB</td><td>30B na 4 bitach</td><td>70B na 4 bitach, częściowo</td><td>&mdash;</td></tr>
+            </tbody>
+        </table>
+        <p>
+            „Ciasno" w tej tabeli znaczy, że zadziała i to poczujesz: mniej miejsca na długą rozmowę i wyraźne
+            spowolnienie w miarę rośnięcia kontekstu. Dzielenie modelu między kartę graficzną a RAM systemowy
+            działa i biegnie z prędkością wolniejszej połowy, czyli RAM systemowego.
+        </p>
+        <div class="callout">
+            <b>Wersja w jednym zdaniu.</b> Pojemność to parametry razy bajty na parametr. Prędkość to
+            przepustowość podzielona przez to. Cała reszta specyfikacji laptopa AI jest szczegółem nałożonym na te
+            dwa mnożenia.
+        </div>
+
+        <h2 id="workman">Gdzie w tym jest PC Workman</h2>
+        <p>
+            Tego, czego nie oszacujesz z tabeli, jest jedno: ile twoja maszyna zajmuje, zanim model wystartuje. A
+            to da się dziś zmierzyć. PC Workman czyta presję pamięci, to, co ją trzyma, i to, czy system zaczął
+            wysyłać strony na dysk, czyli moment, w którym lokalny model przechodzi z wolnego w bezużyteczny.
+        </p>
+        <p>
+            Nie czyta liczników NPU i nie mierzy modeli. Powie ci natomiast, czy osiem gigabajtów, które
+            planowałeś przeznaczyć na model, jest u ciebie faktycznie wolne, czy zabrała je już przeglądarka i
+            launcher.
+        </p>
+
+        <div class="guide-cta">
+            <b>Sprawdź, co naprawdę robi twoja pamięć.</b> PC Workman czyta presję pamięci, procesy, które ją
+            trzymają, i moment, w którym Windows zaczyna stronicować, więc znasz realny budżet przed pobraniem
+            modelu. Za darmo i open source. Analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz na Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Powiązane: <a href="../why-is-my-ram-usage-so-high/index_pl.html">dlaczego RAM jest tak obciążony</a> &middot;
+            <a href="../how-much-vram-do-i-need/index_pl.html">ile VRAM do gier</a> &middot;
+            <a href="../index_pl.html">wszystkie poradniki &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję publicznie monitor Windows z lokalnym asystentem AI. Każdy poradnik opiera się na tym, co faktycznie pokazują liczniki, łącznie z tymi, które nie pokazują nic.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            Liczby dotyczące pojemności i przepustowości to arytmetyka, którą możesz powtórzyć: bajty na parametr
+            razy liczba parametrów oraz szerokość szyny w bajtach razy tempo transferu. Kontekst platformy za
+            Microsoftem:
+            <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            (kwantyzacja do formatów całkowitych, pamięć współdzielona NPU) oraz
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>
+            (wybór dostawcy i przejście na GPU albo CPU).
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
