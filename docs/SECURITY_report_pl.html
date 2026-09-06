@@ -8,7 +8,7 @@
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="description" content="Polityka bezpieczeństwa PC Workmana: podpisy Sigstore, skan VirusTotal, CodeQL, weryfikacja pliku i sumy SHA256, obsługiwane wersje oraz prywatne zgłaszanie luk.">
+    <meta name="description" content="Podpisy Sigstore, wynik VirusTotal i CodeQL przy każdym commicie. Jak samodzielnie zweryfikować podpis i sumę SHA256 oraz jak zgłosić lukę.">
     <meta name="author" content="Marcin Firmuga, HCK_Labs">
     <link rel="canonical" href="https://pcworkman.dev/SECURITY_report_pl.html">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/SECURITY_report.html">
@@ -21,6 +21,7 @@
     <meta property="og:locale" content="pl_PL">
     <meta property="og:locale:alternate" content="en_US">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta name="twitter:card" content="summary_large_image">
     <title>Polityka bezpieczeństwa | PC Workman</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,8 +40,39 @@
       "inLanguage": "pl",
       "isAccessibleForFree": true,
       "translationOfWork": "https://pcworkman.dev/SECURITY_report.html",
-      "author": {"@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/blog/profile_pl.html"},
-      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
 </head>
@@ -51,6 +83,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report_pl.html" aria-current="page">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
         <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
             <a href="/SECURITY_report_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>

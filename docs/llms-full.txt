@@ -29,7 +29,7 @@ hardware sensor source.
 - 110 hck_GPT intents in Polish and English.
 - 521 process definitions.
 - 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
-- 331 tests in the current source suite.
+- 330 tests in the current source suite.
 - Five workload-learning buckets: idle, light, medium, heavy and gaming.
 - Microsoft Store product ID: `9PGW6WS2N50V`.
 
@@ -212,7 +212,7 @@ than being presented as translated.
 Language entry points:
 
 - English site: https://pcworkman.dev/index_en.html
-- Polish site: https://pcworkman.dev/index.html
+- Polish site: https://pcworkman.dev/
 - English guides: https://pcworkman.dev/guides/
 - Polish guides: https://pcworkman.dev/guides/index_pl.html
 - English RSS: https://pcworkman.dev/blog/feed.xml
