@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Task Manager says your disk is at 100% but barely moving any data. That number is a time measurement, not a speed one. What actually causes it, why response time matters more than the percentage, and the fixes that work in order.">
+    <meta name="description" content="Task Manager says 100% while the drive moves 2 MB/s. That percentage measures time, not speed. Read response time instead, then fix the real cause.">
     <meta name="keywords" content="100% disk usage, disk usage Windows 11, disk at 100 percent fix, high disk usage, SysMain, search indexing disk, disk response time, slow HDD Windows">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/">
@@ -22,13 +22,14 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-07-29">
-    <meta property="article:modified_time" content="2026-07-29">
+    <meta property="article:modified_time" content="2026-09-06">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Why Is My Disk at 100% in Windows? The Real Causes and What Actually Fixes It | PC Workman Guides</title>
+    <title>Why Is My Disk at 100% in Windows? | PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +45,7 @@
       "description": "100% disk active time measures time spent working, not throughput. How to read response time instead, the real causes behind sustained 100%, and the fixes in the order worth trying.",
       "url": "https://pcworkman.dev/guides/why-is-my-disk-at-100-percent/",
       "datePublished": "2026-07-29",
-      "dateModified": "2026-07-29",
+      "dateModified": "2026-09-06",
       "inLanguage": "en",
       "isAccessibleForFree": true,
       "citation": [
@@ -53,11 +54,37 @@
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
-      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -126,6 +153,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
