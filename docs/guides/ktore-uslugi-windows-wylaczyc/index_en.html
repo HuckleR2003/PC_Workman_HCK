@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Which Windows services can you turn off safely? A conditional list for telemetry, fax, Xbox, search and printing, plus the critical services you should leave alone.">
+    <meta name="description" content="A conditional list for telemetry, fax, Xbox, search and printing, plus the critical services to leave alone. Decide by what a service does, not by its name.">
     <meta name="keywords" content="Windows services to disable, unnecessary Windows 11 services, services.msc optimization, disable DiagTrack, Xbox services disable, safe Windows services, service startup manual">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html">
@@ -22,12 +22,13 @@
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="pl_PL">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-06-12">
-    <meta property="article:modified_time" content="2026-07-25">
+    <meta property="article:modified_time" content="2026-09-06">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
-    <title>Which Windows Services Can You Disable Safely? Conditions and a No-Touch List | PC Workman</title>
+    <title>Which Windows Services Can You Disable? | PC Workman</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -42,18 +43,47 @@
       "description": "Services that can be stopped under specific conditions, the critical services that should stay untouched and a reversible way to test every change.",
       "url": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/index_en.html",
       "datePublished": "2026-06-12",
-      "dateModified": "2026-07-25",
+      "dateModified": "2026-09-06",
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-server/security/windows-services/security-guidelines-for-disabling-system-services-in-windows-server"
+      ],
       "inLanguage": "en",
       "isAccessibleForFree": true,
       "translationOfWork": "https://pcworkman.dev/guides/ktore-uslugi-windows-wylaczyc/",
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
-      "publisher": {"@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003"}
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -100,6 +130,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
             <a href="/guides/ktore-uslugi-windows-wylaczyc/" data-lang="pl" lang="pl">PL</a>
