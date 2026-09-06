@@ -1,0 +1,385 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: co naprawde znacza TOPS -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Jeden układ w laptopie ma trzy prawdziwe liczby TOPS i tylko jedna liczy się dla Copilot+. Co mierzy TOPS, czemu brakuje precyzji i jak czytać specyfikację.">
+    <meta name="keywords" content="co znaczy TOPS, TOPS NPU, TOPS platformy, 40 TOPS Copilot+, INT8 INT4 TOPS, AI PC specyfikacja, porównanie NPU">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/what-does-tops-mean/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/what-does-tops-mean/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/what-does-tops-mean/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/what-does-tops-mean/">
+    <meta property="og:title" content="TOPS to nie specyfikacja. To nagłówek.">
+    <meta property="og:description" content="Intel podaje 120, 67 i 48 TOPS dla tego samego układu. Wszystkie trzy są prawdziwe. Tylko jedna decyduje, czy Windows da ci funkcje AI.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/what-does-tops-mean/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-05">
+    <meta property="article:modified_time" content="2026-09-05">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>TOPS to nie specyfikacja | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "TOPS to nie specyfikacja. To nagłówek.",
+      "description": "Co mierzy TOPS, dlaczego ten sam układ daje kilka uczciwych liczb, względem której z nich napisano wymóg Copilot+ i pięć pytań, które zamieniają nagłówek z powrotem w specyfikację.",
+      "url": "https://pcworkman.dev/guides/what-does-tops-mean/index_pl.html",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/",
+        "https://newsroom.intel.com/artificial-intelligence/core-ultra-200v-series-mobile",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Co znaczy TOPS", "item": "https://pcworkman.dev/guides/what-does-tops-mean/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Co znaczy TOPS w laptopie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "TOPS to biliony operacji na sekundę, czyli szczytowe tempo działań arytmetycznych. To sufit, który krzem osiąga w idealnych warunkach, a nie zmierzona przepustowość, i nic nie mówi o tym, jak szybko pamięć nakarmi tę arytmetykę. Dwa układy o tym samym TOPS mogą się mocno różnić na tym samym modelu, bo większość pracy AI na komputerze osobistym czeka na pamięć, a nie na obliczenia." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego jeden układ ma kilka różnych liczb TOPS?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo mierzą różne rzeczy i wszystkie są uczciwe. Intel podaje dla serii Core Ultra 200V do 120 TOPS platformy, na które składa się do 67 TOPS układu graficznego i do 48 TOPS NPU. Precyzja przesuwa liczbę jeszcze raz: ten sam krzem wykonuje mniej więcej dwa razy więcej operacji INT4 niż INT8. Liczba bez podanej precyzji i bez nazwanego silnika nie jest porównywalna z niczyją inną liczbą." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy 40 TOPS wystarczy do Copilot+ PC?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To próg ustawiony przez Microsoft i napisany względem samego NPU, a nie sumy platformy, więc laptop reklamowany jako 120 TOPS kwalifikuje się dzięki swojemu NPU 48 TOPS, a nie dzięki 120. Wymóg obejmuje też 16 GB RAM, więc maszyna z szybkim NPU i 8 GB nie kwalifikuje się niezależnie od tego, co potrafi układ." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/what-does-tops-mean/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/what-does-tops-mean/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Materiał źródłowy</span>
+        <h1>TOPS to nie specyfikacja</h1>
+        <p class="tagline">Intel publikuje 120, 67 i 48 dla tego samego procesora. Wszystkie trzy są prawdziwe. Tylko jedna decyduje, czy Windows da ci funkcje AI.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-05</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+
+        <p>
+            Każdy laptop AI sprzedawany od 2024 roku ma na sobie liczbę. 40 TOPS, 45, 48, 50, 60, 80, a na
+            niektórych stronach marketingowych triumfalne 120. Drukuje się ją tak, jak kiedyś taktowanie: jakby
+            więcej znaczyło po prostu lepiej, a porównanie było oczywiste.
+        </p>
+        <p>
+            Nie jest oczywiste, i nie dlatego, że ktoś kłamie. Dlatego, że
+            <strong>TOPS to rodzina liczb, a nie jedna liczba</strong>, producent wybiera, którego członka rodziny
+            wydrukować, a przypis, który uczyniłby ją porównywalną, zwykle jest gdzie indziej.
+        </p>
+        <p>
+            Ten poradnik opisuje, co ta jednostka naprawdę mierzy, jakie trzy osobne liczby ma zgodnie z prawdą
+            jeden układ, co robi z nimi wszystkimi precyzja, względem której z nich napisano wymóg Copilot+ i jakie
+            pięć pytań zamienia nagłówek z powrotem w specyfikację.
+        </p>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#unit">Co mierzy ta jednostka</a></li>
+                <li><a href="#three">Trzy liczby, jeden układ</a></li>
+                <li><a href="#precision">Precyzja podwaja, i podwaja jeszcze raz</a></li>
+                <li><a href="#bar">Względem której liczby napisano próg Copilot+</a></li>
+                <li><a href="#not">Czego TOPS ci nie powie</a></li>
+                <li><a href="#ask">Pięć pytań do specyfikacji</a></li>
+            </ol>
+        </div>
+
+        <h2 id="unit">Co mierzy ta jednostka</h2>
+        <p>
+            TOPS to biliony operacji na sekundę. Dochodzi się do tej liczby tak, jak fabryka podaje moce
+            przerobowe: policz jednostki mnożąco-sumujące, pomnóż przez liczbę operacji na takt, pomnóż przez
+            taktowanie. To <strong>sufit</strong> policzony z projektu, a nie zmierzony na obciążeniu, i żaden
+            prawdziwy model go nie osiągnie.
+        </p>
+        <p>
+            Samo w sobie jest to w porządku. Taktowanie procesora to liczba tego samego rodzaju i nikt nie
+            sądzi, że procesor 5 GHz robi pięć miliardów użytecznych rzeczy na sekundę. Problem zaczyna się wtedy,
+            gdy tego samego słowa używa się dla kilku różnych sufitów na tym samym pudełku.
+        </p>
+
+        <h2 id="three">Trzy liczby, jeden układ</h2>
+        <p>
+            Weźmy serię Intel Core Ultra 200V, z liczbami, które Intel publikuje sam: do
+            <strong>120 TOPS platformy</strong>, na które składa się do <strong>67 TOPS układu graficznego</strong>
+            i do <strong>48 TOPS NPU</strong>.
+        </p>
+        <p>
+            Żadna z nich nie jest błędna. Odpowiadają na trzy różne pytania:
+        </p>
+        <table>
+            <thead>
+                <tr><th>Liczba</th><th>Odpowiada na</th><th>Do czego przydatna</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>TOPS platformy</td>
+                    <td>Ile zrobiłby cały procesor, gdyby każdy silnik pracował naraz na pełnych obrotach</td>
+                    <td>Prawie do niczego, czego doświadczysz. Żadne pojedyncze obciążenie nie działa na trzech silnikach naraz.</td>
+                </tr>
+                <tr>
+                    <td>TOPS układu graficznego</td>
+                    <td>Ile potrafi zintegrowana grafika na pracy AI</td>
+                    <td>Realna liczba, często szybsza droga dla generowania obrazów i większych modeli.</td>
+                </tr>
+                <tr>
+                    <td>TOPS NPU</td>
+                    <td>Ile potrafi dedykowany silnik neuronowy</td>
+                    <td>Ta, względem której napisano bramkowanie funkcji Windows, i ta, która działa przy niskim poborze mocy.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Czyli naklejka na laptopie z napisem „AI PC 120 TOPS" opisuje maszynę z NPU o mocy 48 TOPS. Oba
+            zdania są prawdziwe. Tylko drugie mówi ci, które funkcje dostaniesz.
+        </p>
+        <div class="callout warn">
+            <b>Pierwsze pytanie do każdej liczby TOPS brzmi: do którego silnika należy.</b> Sumy platformy i
+            wartości NPU różnią się na sprzęcie sklepowym ponad dwukrotnie, a drukuje się je tą samą czcionką.
+        </div>
+
+        <h2 id="precision">Precyzja podwaja, i podwaja jeszcze raz</h2>
+        <p>
+            Precyzja liczbowa to druga oś i przesuwa wynik mocniej, niż większość ludzi się spodziewa.
+        </p>
+        <p>
+            Akcelerator, który wykonuje stałą liczbę operacji mnożąco-sumujących na takt przy precyzji 8-bitowej
+            całkowitej, zwykle wykonuje ich <strong>około dwa razy więcej przy 4 bitach</strong>, bo ta sama
+            ścieżka danych niesie dwie mniejsze liczby tam, gdzie niosła jedną. Niektóre konstrukcje podają potem
+            kolejne podwojenie dla <em>rzadkości strukturalnej</em>, gdzie połowa wag jest wyzerowana we wzorze,
+            który sprzęt potrafi pominąć.
+        </p>
+        <p>
+            Ten sam krzem, nigdzie żadnej przesady, i do czterech prawdziwych liczb z czterokrotnym rozrzutem
+            między najmniejszą a największą. To, która trafi na stronę produktu, jest decyzją redakcyjną.
+        </p>
+        <p>
+            Dla kogokolwiek, kto uruchamia lokalne modele, nie jest to problem teoretyczny, bo
+            <strong>sam Windows oczekuje małych formatów.</strong> Wskazówki Microsoftu dla deweloperów pod
+            Copilot+ PC mówią to wprost: modele są zwykle trenowane i rozprowadzane w większych formatach, na
+            przykład FP32, „wiele urządzeń NPU obsługuje jednak wyłącznie działania na liczbach całkowitych w
+            niższym formacie bitowym, na przykład INT8", i model trzeba wobec tego najpierw skwantyzować, żeby w
+            ogóle ruszył na NPU.
+        </p>
+        <div class="callout">
+            <b>Zasada, która przeżyje każdy cykl marketingowy.</b> Liczba TOPS bez podanej precyzji i bez nazwanego
+            silnika jest porównywalna z niczym poza inną liczbą z tego samego slajdu tego samego producenta.
+            Traktuj ją jak nagłówek, nie jak specyfikację.
+        </div>
+
+        <h2 id="bar">Względem której liczby napisano próg Copilot+</h2>
+        <p>
+            Definicja komputera Copilot+ według Microsoftu to NPU zdolne wykonać ponad 40 TOPS. Napisano ją
+            względem samego silnika neuronowego, a nie sumy platformy, i właśnie dlatego maszyna może reklamować
+            liczby trzycyfrowe i zostać poza klubem, a inna ze skromnym nagłówkiem być w środku.
+        </p>
+        <p>
+            Druga połowa wymogu dostaje mniej uwagi i odrzuca więcej maszyn: <strong>16 GB RAM</strong>. Laptop z
+            8 GB i kwalifikującym się NPU nie jest komputerem Copilot+ i żadna aktualizacja tego nie zmieni, bo
+            funkcje są bramkowane na całej konfiguracji, a nie na układzie.
+        </p>
+        <p>
+            Kupujesz za to określony zestaw funkcji Windows działających na urządzeniu: Efekty Studia Windows,
+            napisy na żywo z tłumaczeniem, Recall, Click to Do, Cocreator w programie Paint, super rozdzielczość w
+            Zdjęciach. To, czy twoje własne aplikacje używają NPU, jest osobnym pytaniem, a odpowiedź brzmi dziś
+            przeważnie nie. Nasz poradnik <a href="../is-my-npu-being-used/index_pl.html">czy twoje NPU w ogóle
+            pracuje</a> pokazuje, jak to sprawdzić, zamiast zakładać.
+        </p>
+
+        <h2 id="not">Czego TOPS ci nie powie</h2>
+        <p>
+            Trzech rzeczy, a każda z nich decyduje o twoim doświadczeniu bardziej niż nagłówek.
+        </p>
+        <p>
+            <strong>Jak szybko pamięć go nakarmi.</strong> Generowanie tekstu przez model językowy czyta z pamięci
+            cały model dla każdego wyprodukowanego tokenu. To sprawia, że tempo ustala przepustowość pamięci, a nie
+            arytmetyka, a TOPS w ogóle nie opisuje pamięci. NPU w laptopie zwykle nie ma własnej pamięci i dzieli
+            RAM systemowy ze wszystkim innym. Arytmetykę tej strony obrazu opisuje
+            <a href="../how-much-vram-do-i-need/index_pl.html">poradnik o pamięci</a>.
+        </p>
+        <p>
+            <strong>Co obsługuje łańcuch narzędzi.</strong> NPU uruchamia tylko modele skompilowane pod nie, przez
+            dostawcę wykonania danego producenta. Windows ML wybiera dostawcę w czasie działania i po cichu, i
+            poprawnie, przechodzi na GPU albo CPU, gdy brakuje właściwego. Układ z większym TOPS i cieńszym
+            wsparciem modeli przegrywa z wolniejszym o dojrzałym stosie na każdym modelu, który tylko ten
+            wolniejszy potrafi uruchomić.
+        </p>
+        <p>
+            <strong>Ciągła praca kontra szczyt.</strong> TOPS to szczyt. Cienki laptop, który osiąga go przez
+            cztery sekundy, a potem osiada w limicie termicznym, to inny produkt niż sugeruje liczba. To ta sama
+            historia co boost procesora i mierzy się ją tak samo: uruchom pracę na dziesięć minut i odczytaj
+            liczniki na końcu, a nie na starcie.
+        </p>
+
+        <h2 id="ask">Pięć pytań do specyfikacji</h2>
+        <ol>
+            <li><strong>Który silnik?</strong> NPU, GPU, czy suma platformy dodająca rzeczy, które nigdy nie
+                pracują razem.</li>
+            <li><strong>Przy jakiej precyzji?</strong> INT8 to typowy punkt odniesienia. INT4 mniej więcej podwaja
+                liczbę i nie podwaja możliwości.</li>
+            <li><strong>Z rzadkością czy bez?</strong> Jeśli przypis mówi „with sparsity", liczba gęsta to około
+                połowa tego, co wydrukowano.</li>
+            <li><strong>Ile pamięci i jak szybkiej?</strong> Pojemność decyduje, które modele się zmieszczą;
+                przepustowość decyduje, jak szybko odpowiedzą.</li>
+            <li><strong>Które środowisko to obsługuje?</strong> Układ jest wart tyle, ile modeli ktoś pod niego
+                wypuścił.</li>
+        </ol>
+        <p>
+            Odpowiedz na te pięć i masz specyfikację. Nie odpowiedz na żadne i masz naklejkę.
+        </p>
+
+        <h2 id="workman">Jak to wygląda po stronie PC Workmana</h2>
+        <p>
+            PC Workman nie czyta liczników NPU i nie podaje liczby TOPS. Czyta to, co da się zmierzyć na
+            działającej maszynie: obciążenie procesora i pamięci, temperatury, pobór mocy, dyski i zachowanie
+            procesów. Powód, dla którego nie drukuje liczby TOPS, jest powodem powstania tego poradnika. Ta wartość
+            pochodzi z arkusza specyfikacji, a nie ze sprzętu, a monitor, który powtarza ci liczbę z marketingu,
+            niczego nie zmierzył.
+        </p>
+        <p>
+            Potrafi za to powiedzieć to, co jest prawdziwe na twojej własnej maszynie: czy praca, którą uważałeś za
+            przeniesioną na akcelerator, nie jest dźwigana przez procesor, ile to kosztuje w cieple i czy układ
+            trzyma taktowania, czy siedzi w limicie termicznym.
+        </p>
+
+        <div class="guide-cta">
+            <b>Mierz maszynę, nie naklejkę.</b> PC Workman czyta obciążenie, temperatury, taktowania i pobór mocy
+            z twojego sprzętu i tłumaczy, co te liczby znaczą dla twojej konfiguracji. Za darmo i open source.
+            Analiza działa lokalnie. <a href="../../download/index_pl.html">Pobierz na Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Następne pytanie: ile pamięci naprawdę potrzebuje lokalny model?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję publicznie monitor Windows z lokalnym asystentem AI. Każdy poradnik opiera się na tym, co faktycznie pokazują liczniki, łącznie z tymi, które nie pokazują nic.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            Źródła: Intel,
+            <a href="https://newsroom.intel.com/artificial-intelligence/core-ultra-200v-series-mobile" target="_blank" rel="noopener">ogłoszenie serii Core Ultra 200V</a>
+            (do 120 TOPS platformy, do 67 TOPS GPU, do 48 TOPS NPU); Microsoft,
+            <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            (definicja NPU 40+ TOPS i kwantyzacja do formatów całkowitych, na przykład INT8);
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>
+            (wybór dostawcy wykonania i tryb awaryjny).
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
