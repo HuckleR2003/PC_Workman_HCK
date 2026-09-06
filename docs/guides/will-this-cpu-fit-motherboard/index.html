@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="A matching socket does not mean a CPU will work in your motherboard. The five layers of compatibility (socket, generation, chipset, BIOS, power), the traps a spec sheet hides, and how to check before you buy instead of after the black screen.">
+    <meta name="description" content="A matching socket is not enough. Five layers decide it: socket, generation, chipset, BIOS version and power delivery, plus the traps a spec sheet hides.">
     <meta name="keywords" content="will this CPU fit my motherboard, CPU socket compatibility, CPU motherboard compatibility, chipset support, BIOS update CPU, LGA1700 AM4 AM5 compatibility, CPU support list, does this CPU work with my motherboard">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
@@ -22,12 +22,13 @@
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-07-25">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Will This CPU Work With My Motherboard? Socket, Chipset, BIOS and Power Explained | PC Workman Guides</title>
+    <title>Will This CPU Work With My Motherboard? | PC Workman</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,16 +45,46 @@
       "url": "https://pcworkman.dev/guides/will-this-cpu-fit-motherboard/",
       "datePublished": "2026-07-25",
       "dateModified": "2026-07-25",
+      "citation": [
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat.py",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/hardware_compat_db.py"
+      ],
       "inLanguage": "en",
       "isAccessibleForFree": true,
       "image": "https://pcworkman.dev/assets/images/og-default.png",
       "author": {
         "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
         "name": "Marcin Firmuga",
-        "url": "https://github.com/HuckleR2003",
-        "sameAs": ["https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://linktr.ee/marcin_firmuga"]
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
       },
-      "publisher": { "@type": "Organization", "name": "HCK_Labs", "url": "https://github.com/HuckleR2003" }
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
     }
     </script>
     <script type="application/ld+json">
@@ -128,6 +159,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
         <span class="gt-series">
             <span class="gt-series-label">SERIES:</span>
