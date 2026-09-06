@@ -1,0 +1,380 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman poradnik: czy NPU jest uzywane -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Laptop ma NPU o mocy 40 TOPS, a Menedżer zadań pokazuje 0%. Gdzie widać pracę NPU, co go naprawdę używa i dlaczego zero to zwykle poprawny odczyt.">
+    <meta name="keywords" content="NPU Windows 11, czy NPU jest używane, NPU Menedżer zadań, NPU 0 procent, Copilot+ PC, jednostka NPU, kolumna NPU">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/is-my-npu-being-used/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/is-my-npu-being-used/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/is-my-npu-being-used/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/is-my-npu-being-used/">
+    <meta property="og:title" content="Czy twoje NPU cokolwiek robi? Jak sprawdzić i dlaczego 0% jest normalne">
+    <meta property="og:description" content="NPU na poziomie 0% zwykle działa poprawnie, a nie jest zepsute. Gdzie szukać, co go faktycznie używa i jak nagrać ślad, który to rozstrzyga.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/is-my-npu-being-used/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-05">
+    <meta property="article:modified_time" content="2026-09-05">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Czy twoje NPU w ogóle pracuje? Jak sprawdzić | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Czy twoje NPU w ogóle pracuje? Jak to sprawdzić i dlaczego 0% zwykle jest poprawne",
+      "description": "Gdzie w Windows 11 widać aktywność NPU, które funkcje faktycznie z niego korzystają, trzy powody odczytu zero i jak nagrać ślad Neural Processing, który rozstrzyga sprawę.",
+      "url": "https://pcworkman.dev/guides/is-my-npu-being-used/index_pl.html",
+      "datePublished": "2026-09-05",
+      "dateModified": "2026-09-05",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows/ai/npu-devices/",
+        "https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers",
+        "https://learn.microsoft.com/en-us/windows-hardware/test/wpt/whats-new-in-the-windows-performance-toolkit-v11",
+        "https://support.microsoft.com/windows/all-about-neural-processing-units-npus-e77a5637-7705-4915-96c8-0c6a975f9db4"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": {
+          "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+        }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Czy NPU jest używane", "item": "https://pcworkman.dev/guides/is-my-npu-being-used/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego NPU stale pokazuje 0% w Menedżerze zadań?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo prawie nic o nie nie prosi. NPU nie jest ogólnym akceleratorem, na który Windows rozkłada pracę tak, jak równoważy rdzenie procesora. Uruchamia modele zbudowane, skwantyzowane i skompilowane pod to konkretne NPU, więc program korzysta z niego tylko wtedy, gdy autor dostarczył taki model. W zwykłym dniu pracy poprawnym odczytem jest zero, a wartość rośnie na kilka sekund, gdy na ekranie działa funkcja taka jak Efekty Studia Windows, napisy na żywo albo Click to Do." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak zobaczyć zużycie NPU dla poszczególnych aplikacji w Windows 11?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Otwórz Menedżer zadań, przejdź do zakładki Szczegóły lub Procesy, kliknij prawym przyciskiem nagłówek dowolnej kolumny, wybierz Wybierz kolumny i zaznacz NPU oraz Aparat NPU. Obie są domyślnie ukryte i pojawiają się tylko na komputerach z NPU. W zakładce Szczegóły dostępne są dodatkowo Dedykowana pamięć NPU i Pamięć współdzielona NPU. Zakładka Wydajność pokazuje osobny wykres NPU obok procesora, karty graficznej, pamięci i dysku." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy lokalny model AI automatycznie uruchomi się na NPU?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. Modele zwykle są w formacie zmiennoprzecinkowym, na przykład FP32 lub FP16, a większość NPU wykonuje działania na liczbach całkowitych, na przykład INT8, więc model trzeba najpierw skwantyzować i skompilować pod ten sprzęt. Gdy brakuje odpowiedniego dostawcy wykonania, Windows ML po cichu przechodzi na kartę graficzną albo procesor, a praca i tak się kończy, tylko NPU stoi bezczynnie." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/is-my-npu-being-used/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/is-my-npu-being-used/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">AI PC &middot; Poradnik</span>
+        <h1>Czy twoje NPU w ogóle pracuje?</h1>
+        <p class="tagline">Zapłaciłeś za 40 bilionów operacji na sekundę. Menedżer zadań pokazuje 0%. Ten odczyt zwykle jest poprawny, a tu jest sposób, żeby to rozstrzygnąć w obie strony.</p>
+    </section>
+
+    <main class="article">
+
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-05</span><span>&middot;</span><span>7 min czytania</span>
+        </div>
+
+        <p>
+            Kupiłeś komputer Copilot+ albo laptop z napisem AI PC na pudełku, a w środku jest jednostka NPU o
+            mocy 40, 50, 60 albo 80 TOPS. Otwierasz Menedżer zadań, żeby zobaczyć ją przy pracy. Stoi na 0%.
+            Otwierasz jeszcze raz w trakcie wideorozmowy, gdy odpowiada czat, gdy generuje się obraz. Dalej 0%.
+        </p>
+        <p>
+            Nasuwa się wniosek, że coś jest zepsute, i prawie zawsze jest on błędny.
+            <strong>Bezczynne NPU to normalny stan NPU.</strong> To nie jest ogólny akcelerator, na który Windows
+            rozkłada pracę tak, jak równoważy rdzenie procesora. Uruchamia modele przekonwertowane i skompilowane
+            specjalnie pod niego, więc program użyje twojego NPU tylko wtedy, gdy ktoś dostarczył model zbudowany
+            pod ten konkretny sprzęt. Większość tego nie zrobiła.
+        </p>
+        <p>
+            Ten poradnik pokazuje, gdzie widać aktywność, które części Windows faktycznie dziś z niej korzystają,
+            trzy powody, dla których licznik stoi na zerze, i jak nagrać ślad, który odpowiada na pytanie, zamiast
+            zgadywać z wykresu odświeżanego raz na sekundę.
+        </p>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#see">Gdzie naprawdę widać aktywność NPU</a></li>
+                <li><a href="#uses">Co dziś używa NPU</a></li>
+                <li><a href="#zero">Trzy powody odczytu zero</a></li>
+                <li><a href="#trace">Jak to udowodnić śladem</a></li>
+                <li><a href="#buying">Co z tego wynika przy zakupie</a></li>
+            </ol>
+        </div>
+
+        <h2 id="see">Gdzie naprawdę widać aktywność NPU</h2>
+        <p>
+            Są trzy miejsca, a dwa z nich są wyłączone, dopóki sam ich nie włączysz.
+        </p>
+        <p>
+            <strong>Wykres.</strong> Menedżer zadań, zakładka Wydajność. Na komputerze z NPU jest tam pozycja obok
+            procesora, pamięci, dysku, Wi-Fi i karty graficznej, a po kliknięciu dostajesz wykorzystanie, wersję
+            sterownika i lokalizację sprzętu, czyli ten sam panel co dla GPU.
+        </p>
+        <p>
+            <strong>Kolumny per proces.</strong> Tego prawie nikt nie znajduje. W zakładkach Procesy, Użytkownicy i
+            Szczegóły są kolumny <strong>NPU</strong> i <strong>Aparat NPU</strong>, domyślnie ukryte. Kliknij
+            prawym przyciskiem nagłówek dowolnej kolumny, wybierz <em>Wybierz kolumny</em> i zaznacz je. Kolumna
+            NPU pokazuje udział aktywności na proces, a Aparat NPU nazywa silnik wykonawczy wewnątrz NPU, po czym
+            rozróżnisz dwa obciążenia na tym samym urządzeniu.
+        </p>
+        <p>
+            <strong>Kolumny pamięci.</strong> Zakładka Szczegóły ma też <strong>Dedykowaną pamięć NPU</strong> i
+            <strong>Pamięć współdzieloną NPU</strong>. W większości laptopów konsumenckich NPU nie ma własnej
+            pamięci i pożycza RAM systemowy, więc liczba pojawia się przy pamięci współdzielonej. To będzie
+            ważne, gdy ktoś powie ci, że układ 40 TOPS uruchomi duży model językowy.
+        </p>
+        <div class="callout">
+            <b>Te kolumny istnieją tylko wtedy, gdy jest NPU.</b> Jeśli po kliknięciu nagłówka prawym przyciskiem
+            nie ma pozycji NPU, to komputer nie ma układu, który Windows rozpoznaje, i żadne ustawienie go nie
+            stworzy. Najpierw sprawdź zakładkę Wydajność: nie ma tam NPU, nie będzie kolumn nigdzie indziej.
+        </div>
+
+        <h2 id="uses">Co dziś używa NPU</h2>
+        <p>
+            Microsoft uzależnia konkretny zestaw funkcji Windows od NPU o mocy powyżej 40 TOPS, i to jest
+            definicja komputera Copilot+, a nie hasło marketingowe. Funkcje, które na takich maszynach trafiają na
+            NPU, to między innymi Efekty Studia Windows, napisy na żywo z tłumaczeniem, Recall, Click to Do,
+            Cocreator w programie Paint i super rozdzielczość w Zdjęciach.
+        </p>
+        <p>
+            Poza samym Windowsem lista jest krótka i warto ją znać, bo mówi, kiedy w ogóle patrzeć:
+        </p>
+        <ul>
+            <li><strong>Wideorozmowy.</strong> Rozmycie tła, kadrowanie, kontakt wzrokowy i redukcja szumów przez
+                Efekty Studia Windows to najpewniejszy sposób, żeby licznik ruszył. Zacznij rozmowę, włącz efekty
+                i patrz na wykres.</li>
+            <li><strong>Przeglądarki.</strong> Microsoft Edge używa NPU do części pracy lokalnej, na przykład do
+                rozpoznawania tekstu w plikach PDF.</li>
+            <li><strong>Aplikacje z własnym modelem.</strong> Garść narzędzi kreatywnych i do wideokonferencji ma
+                wersje pod NPU. Prawie cała reszta liczy swoje AI na procesorze, karcie graficznej albo czyimś
+                serwerze.</li>
+        </ul>
+        <p>
+            Zwróć uwagę, czego na tej liście nie ma. Czat w karcie przeglądarki to zapytanie sieciowe. Chmurowy
+            generator obrazów to zapytanie sieciowe. Żadne z nich nigdy nie dotknie twojego NPU, niezależnie od
+            tego, ile ma TOPS.
+        </p>
+
+        <h2 id="zero">Trzy powody odczytu zero</h2>
+        <p>
+            Gdy spodziewałeś się pracy, a masz płaską linię, to jeden z tych trzech powodów, w tej kolejności
+            prawdopodobieństwa.
+        </p>
+        <p>
+            <strong>1. Nic o to nie poprosiło.</strong> Przypadek domyślny i nie jest to usterka. Windows nie
+            przenosi dowolnej pracy na NPU; wybiera aplikacja.
+        </p>
+        <p>
+            <strong>2. Model był w złym formacie i zadanie wziął ktoś inny.</strong> Modele są trenowane i
+            rozprowadzane w formatach zmiennoprzecinkowych, na przykład FP32, a wiele NPU liczy na liczbach
+            całkowitych, na przykład INT8, więc model trzeba najpierw skwantyzować i skompilować pod ten sprzęt.
+            Gdy brakuje odpowiedniego dostawcy wykonania, Windows ML przechodzi na GPU albo CPU i praca kończy się
+            normalnie. Nic nie zgłasza błędu. Nic ci nie mówi. Wynik jest identyczny, pobór mocy nie.
+        </p>
+        <p>
+            <strong>3. Praca była prawdziwa, ale za krótka, żeby ją zobaczyć.</strong> Menedżer zadań próbkuje
+            mniej więcej raz na sekundę. Pojedyncza klasyfikacja obrazu albo sprawdzenie słowa aktywującego trwa
+            kilka milisekund. Dwadzieścia takich w ciągu minuty to prawdziwe użycie NPU, które próbnik sekundowy
+            narysuje jako zero przez większość tej minuty.
+        </p>
+        <div class="callout warn">
+            <b>Dlatego wykres jest złym narzędziem do tego pytania.</b> Płaska linia pasuje zarówno do „nic się
+            nie wydarzyło", jak i do „wydarzyło się wiele drobnych rzeczy między próbkami", a to są przeciwne
+            odpowiedzi. Jeśli to ważne, nagraj ślad. O tym jest następna sekcja.
+        </div>
+
+        <h2 id="trace">Jak to udowodnić śladem</h2>
+        <p>
+            Windows ma do tego gotowy profil śledzenia zdarzeń. Windows Performance Recorder dostał profil
+            <strong>Neural Processing</strong>, który zapisuje interakcje modelu sterownika z NPU, więc dostajesz
+            każde zgłoszenie pracy wraz z procesem, który je wysłał, zamiast próbkowanego procenta.
+        </p>
+        <p>
+            Z wiersza poleceń uruchomionego jako administrator:
+        </p>
+        <pre><code>wpr -start NeuralProcessing -start CPU
+:: teraz odtwórz sytuację: rozmowa z Efektami Studia, uruchomienie modelu, użycie funkcji
+wpr -stop npu.etl -compress</code></pre>
+        <p>
+            Otwórz <code>npu.etl</code> w Windows Performance Analyzer, darmowym programie z Microsoft Store, i
+            poszukaj pozycji <em>Neural Processing</em>, a w niej NPU Utilization. Zobaczysz, które procesy zgłosiły
+            pracę, kiedy i z jakich miejsc w kodzie. Jeśli ślad jest pusty, sprawa jest rozstrzygnięta: nic nie
+            poprosiło NPU o pracę w tym oknie czasu.
+        </p>
+        <p>
+            Oba narzędzia pochodzą z Windows Performance Toolkit, części Windows ADK. To ten sam instrument, który
+            Microsoft poleca własnym deweloperom, co ma znaczenie: dostajesz tę samą odpowiedź, którą dostaliby
+            ludzie od sterownika.
+        </p>
+
+        <h2 id="buying">Co z tego wynika przy zakupie</h2>
+        <p>
+            Wynikają trzy rzeczy i są warte więcej niż jakiekolwiek porównanie TOPS.
+        </p>
+        <p>
+            <strong>NPU to przede wszystkim funkcja baterii i temperatur.</strong> Wygrywa tam, gdzie trzeba
+            uruchamiać mały model bez przerwy przy niskim poborze mocy, zostawiając procesor i kartę graficzną
+            wolne i ciche: rozmycie tła przez całe spotkanie, napisy przez cały wykład. To realna korzyść i nie
+            jest to korzyść, którą sugeruje marketing.
+        </p>
+        <p>
+            <strong>To nie jest zamiennik pamięci karty graficznej.</strong> NPU w laptopie zwykle nie ma własnej
+            pamięci i pożycza RAM systemowy. TOPS opisuje tempo działań arytmetycznych, a lokalny model językowy
+            ogranicza to, jak szybko da się czytać wagi, więc duży model nie staje się praktyczny dlatego, że
+            układ na pudełku dostał większą liczbę. Stronę pamięci opisuje nasz poradnik
+            <a href="../how-much-vram-do-i-need/index_pl.html">ile naprawdę potrzeba VRAM</a>.
+        </p>
+        <p>
+            <strong>Funkcje objęte bramką potrzebują więcej niż układu.</strong> Próg Copilot+ to NPU powyżej
+            40 TOPS <em>oraz</em> 16 GB RAM. Maszyna ze sprawnym NPU i 8 GB nie kwalifikuje się i żadna
+            aktualizacja tego nie zmieni.
+        </p>
+
+        <div class="callout">
+            <b>Wersja w jednym zdaniu.</b> NPU na 0% nie jest dowodem usterki. Jest dowodem na to, że
+            oprogramowanie na twoim komputerze nie zostało jeszcze napisane pod nie, co w 2026 roku jest po prostu
+            prawdą o większości programów.
+        </div>
+
+        <h2 id="workman">Jak to wygląda po stronie PC Workmana</h2>
+        <p>
+            Wprost: <strong>PC Workman nie czyta dziś liczników NPU.</strong> Czyta procesor, pamięć, dyski,
+            temperatury, pobór mocy i zachowanie procesów, a jego asystent działa lokalnie, bez NPU i bez klucza
+            do chmury. Telemetria NPU to kandydat na <a href="../../roadmap/">roadmapę</a>, a nie funkcja, którą
+            mogę deklarować. Narzędzie monitorujące, które wymyśliłoby liczbę dla sprzętu, którego nie czyta, było
+            warte mniej niż brak liczby.
+        </p>
+        <p>
+            Pomaga za to w części, którą da się dziś zmierzyć: czy praca, o której myślisz, że jest na NPU, nie
+            jest przypadkiem opłacana przez twój procesor, i ile to kosztuje w cieple i baterii. Jeśli wentylatory
+            przyspieszają w trakcie wideorozmowy na maszynie z NPU 40 TOPS, coś liczy się w złym miejscu, a to
+            widać w licznikach, które PC Workman już czyta.
+        </p>
+
+        <div class="guide-cta">
+            <b>Zobacz, gdzie naprawdę idzie praca.</b> PC Workman czyta procesor, kartę graficzną, pamięć,
+            temperatury i pobór mocy razem, więc odróżnisz obciążenie przeniesione na akcelerator od tego, które
+            po cichu dźwiga twój procesor. Za darmo i open source. Analiza działa lokalnie.
+            <a href="../../download/index_pl.html">Pobierz na Windows</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Następne pytanie: czego lokalny model naprawdę potrzebuje od twojego komputera?
+            <a href="../index_pl.html">Zobacz pozostałe poradniki &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Buduję publicznie monitor Windows z lokalnym asystentem AI. Każdy poradnik opiera się na tym, co faktycznie pokazują liczniki, łącznie z tymi, które nie pokazują nic.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p style="color:var(--text-dim); font-size:.8rem;">
+            Źródła: Microsoft, <a href="https://learn.microsoft.com/en-us/windows/ai/npu-devices/" target="_blank" rel="noopener">Copilot+ PCs developer guide</a>
+            (wymóg 40+ TOPS, podgląd NPU w Menedżerze zadań, kwantyzacja do formatów całkowitych, profil WPR Neural Processing);
+            <a href="https://learn.microsoft.com/en-us/windows/ai/new-windows-ml/supported-execution-providers" target="_blank" rel="noopener">Windows ML execution providers</a>
+            (wybór dostawcy wykonania i tryb awaryjny);
+            <a href="https://learn.microsoft.com/en-us/windows-hardware/test/wpt/whats-new-in-the-windows-performance-toolkit-v11" target="_blank" rel="noopener">Windows Performance Toolkit v11</a>
+            (analiza NPU w WPA).
+        </p>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
