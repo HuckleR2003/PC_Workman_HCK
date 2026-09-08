@@ -5,12 +5,45 @@
 <html lang="pl">
 <head>
     <script>
-        // Auto-switch to EN only for non-Polish browsers; sessionStorage wins.
-        // (Unconditional redirect was hiding the PL page from users and crawlers.)
-        if (!sessionStorage.getItem('langPreference')
-            && !(navigator.language || '').toLowerCase().startsWith('pl')) {
-            window.location.replace('index_en.html');
-        }
+        // Send non-Polish browsers to the English page, and never send a crawler anywhere.
+        //
+        // A redirect in this head is why Search Console reported the root as "page with redirect"
+        // and read the canonical off index_en.html instead of this file. Googlebot runs JavaScript,
+        // follows the replace, and never sees the Polish homepage at all.
+        //
+        // The list is wide on purpose. robots.txt beside this file invites twenty two crawlers by
+        // name because being quotable by AI assistants is part of how this project is distributed,
+        // and nine of those names carry no "bot" in them: Claude-User, ChatGPT-User,
+        // Perplexity-User, MistralAI-User, cohere-ai, anthropic-ai, meta-externalagent,
+        // Google-Extended and GoogleOther. Checking for Googlebot alone would have fixed Google and
+        // left every one of those still being turned away.
+        (function () {
+            var agent = (navigator.userAgent || '').toLowerCase();
+
+            var isCrawler = /bot|crawl|spider|slurp|archiver|facebookexternalhit|embedly|quora link preview|showyoubot|outbrain|pinterest|vkshare|w3c_validator|whatsapp|telegram|discord|preview|lighthouse|headless|chatgpt|claude|anthropic|perplexity|mistral|cohere|google-extended|googleother|meta-externalagent|applebot|bingpreview|yandex|baidu|sogou|semrush|ahrefs|duckassist/.test(agent);
+
+            // A page opened inside a frame is usually a preview card being generated. Same reason.
+            var framed = window.top !== window.self;
+
+            if (isCrawler || framed) {
+                return;
+            }
+
+            // The reader has already chosen once in this tab, so leave them where they are.
+            var chosen;
+            try { chosen = sessionStorage.getItem('langPreference'); } catch (e) { chosen = null; }
+
+            if (chosen) {
+                return;
+            }
+
+            var speaksPolish = (navigator.languages || [navigator.language || ''])
+                .some(function (tag) { return (tag || '').toLowerCase().indexOf('pl') === 0; });
+
+            if (!speaksPolish) {
+                window.location.replace('index_en.html');
+            }
+        })();
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
