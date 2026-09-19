@@ -8,23 +8,23 @@
     <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Live Guide dims the whole app, then uses the Windows -transparentcolor trick to cut a glowing hole around the exact widget it's explaining. Pure Tkinter Canvas, no libraries.">
-    <meta name="keywords" content="Wednesday Code Autopsy, Live Guide, transparentcolor, Tkinter spotlight, onboarding, PC Workman">
+    <meta name="description" content="My README said a coasting company goes insolvent in three years. The harness says the fifth. How one unmeasured number lived for three weeks across three websites.">
+    <meta name="keywords" content="Wednesday Code Autopsy, GameDev, Documentation, Testing, BuildInPublic">
     <meta name="author" content="Marcin Firmuga">
-    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/">
-    <meta property="og:title" content="A Help Tour That Punches Holes in the Screen">
-    <meta property="og:description" content="Live Guide dims the whole app, then uses the Windows -transparentcolor trick to cut a glowing hole around the exact widget it's explaining. Pure Tkinter Canvas, no libraries.">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/">
+    <meta property="og:title" content="Nothing in Your Build Fails When Your README Starts Lying">
+    <meta property="og:description" content="My README said a coasting company goes insolvent in three years. The harness says the fifth. How one unmeasured number lived for three weeks across three websites.">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/">
     <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
     <meta property="og:site_name" content="PC Workman">
-    <meta property="article:published_time" content="2026-05-13">
+    <meta property="article:published_time" content="2026-09-02">
     <meta property="article:author" content="Marcin Firmuga">
     <meta property="article:section" content="Wednesday Code Autopsy">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>A Help Tour That Punches Holes in the Screen | Code Autopsy #8</title>
+    <title>Nothing Fails When Your README Starts Lying | Code Autopsy #23</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,14 +37,15 @@
 {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
-  "headline": "A Help Tour That Punches Holes in the Screen",
-  "description": "Live Guide dims the whole app, then uses the Windows -transparentcolor trick to cut a glowing hole around the exact widget it's explaining. Pure Tkinter Canvas, no libraries.",
-  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/",
-  "datePublished": "2026-05-13",
-  "dateModified": "2026-05-13",
+  "headline": "Nothing in Your Build Fails When Your README Starts Lying",
+  "description": "My README said a coasting company goes insolvent in three years. The harness says the fifth. How one unmeasured number lived for three weeks across three websites.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/",
+  "datePublished": "2026-09-02",
+  "dateModified": "2026-09-19",
   "inLanguage": "en",
-  "image": "https://pcworkman.dev/assets/images/PCWorkman-dashboard.gif",
+  "image": "https://pcworkman.dev/assets/images/og-wednesday.png",
   "articleSection": "Wednesday Code Autopsy",
+  "wordCount": 375,
   "author": {
     "@type": "Person",
     "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
@@ -89,7 +90,7 @@
     { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
     { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
     { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
-    { "@type": "ListItem", "position": 4, "name": "#8", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/08-live-guide-spotlight/" }
+    { "@type": "ListItem", "position": 4, "name": "#23", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/" }
   ]
 }
 </script>
@@ -119,51 +120,62 @@
     </nav>
 
     <section class="hero">
-        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #8</span>
-        <h1>A Help Tour That Punches Holes in the Screen</h1>
-        <p class="tagline">Most apps have a Help page. Mine follows you around and punches holes in the screen.</p>
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #23</span>
+        <h1>Nothing in Your Build Fails When Your README Starts Lying</h1>
+        <p class="tagline">Documentation is code that nobody runs.</p>
     </section>
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-05-13</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #8</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-09-02</span><span>&middot;</span><span>2 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #23</span>
         </div>
 
-        <p class="lead">Most apps have a Help page. Mine follows you around and punches holes in the screen.</p>
+<p class="lead">Nothing in your build fails when your README starts lying. Mine lied for three weeks, and I was the one quoting it. <span class="hl">Documentation is code that nobody runs.</span></p>
 
-<p>I got tired of building features nobody could find. So two evenings ago, after a Żabka shift, I built <span class="hl">Live Guide</span> &mdash; an interactive spotlight tour that walks new users through the dashboard step by step.</p>
+<p>Sentence stood in my README, on the store page and in the release notes:</p>
 
-<h2>How it works</h2>
-<p>A fully transparent top-level window dims the entire app with a dark overlay. Then, using pure tkinter Canvas and the <code>-transparentcolor</code> trick on Windows (one specific colour becomes truly invisible to the OS), I cut a clean glowing hole exactly around the widget I want to highlight.</p>
+<p>"A company that ships one model and coasts is insolvent inside three years, and an automated test fails the build if that stops being true."</p>
 
-<p>Three focused steps right now:</p>
-<ul>
-<li>the live chart and time filters</li>
-<li>left &amp; right navigation panels</li>
-<li>hardware cards and session averages</li>
-</ul>
+<p>Three numbers are involved there, and I published the only one nothing had measured. Measured one is five.</p>
 
-<p>Every "Next" moves the hole and updates the explanation. ESC or a click outside closes it instantly. <span class="hl">It's the first time PC Workman feels like it actually wants you to understand it.</span> This is the kind of obsessive detail that turns "another system monitor" into something people actually want to open. Still needs some text-contrast tweaks &mdash; but the core is there.</p>
+<p>A company running the probe's coasting style, with four staff, goes under in its fifth year. That is what harness what produces when you run it.</p>
 
-<p>Also this week: I published <span class="hl-green">Part 2 of my offline-AI tutorial</span> &mdash; "How I Taught My Offline AI to Remember, Watch, and Warn, Without Any Cloud." Persistent memory, proactive monitoring, and 854 lines of bilingual vocabulary. Full code included.</p>
+<p>The other two are boundaries, not results. The build fails if that company is still trading after eight years, and it fails if it dies before its second. One catches an economy gone soft, the other catches a collapse so fast the test would pass for the wrong reason.</p>
 
-<p><strong>What's the first thing you'd want highlighted if you opened PC Workman for the first time?</strong></p>
+<p>Three years was none of the three. I wrote it once, it sounded right, and I quoted myself for three weeks across three websites.</p>
 
-<div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">Tkinter</span><span class="tag">UX</span><span class="tag">OpenSource</span></div>
+<p>That is a worse feeling than finding a bug, because a bug is something you got wrong and this was something I was telling people.</p>
+
+<h2>Six more numbers</h2>
+
+<p>I found it while correcting six other numbers that had drifted. The badge at the top of the <a href="https://github.com/HuckleR2003/ScalingLaws-AI" target="_blank" rel="noopener">README</a>, the first thing anybody sees, said 793 tests. There are 888. It said 77 files. There are 88. Commits, lines, save version and the count of unreachable mechanisms were all stale, and the last one was stale by four.</p>
+
+<p>Same shape every time. <span class="hl">A number written once keeps living, and nothing ever runs it.</span></p>
+
+<p>The fix is not proofreading. Every figure in that README now comes from a script that reads the repository, and the sentence about coasting names the fifth year, with the staff count that produced it.</p>
+
+<p>I am 22, in Radom, driving a taxi, looking for my first job in software. Post above is the work: I go hunting for these in my own output, and I would rather publish them than wait for somebody else to find them.</p>
+
+<p>What is the oldest number in your documentation that nothing verifies?</p>
+
+        <div class="post-tags"><span class="tag">GameDev</span><span class="tag">Documentation</span><span class="tag">Testing</span><span class="tag">BuildInPublic</span></div>
+
+        <div class="read-next"><b>Read next</b><ul><li><a href="https://github.com/HuckleR2003/ScalingLaws-AI" target="_blank" rel="noopener">Scaling Laws on GitHub</a></li></ul></div>
 
         <div class="guide-cta">
-            <b>This is the project behind the post.</b> PC Workman is a free, open-source Windows system monitor
-            with an offline AI assistant - everything described here is real, shipped code.
-            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+            <b>This is the game behind the post.</b> Scaling Laws is a free AI company tycoon for Windows:
+            January 2022, twelve million dollars, no product. <a href="/hck-labs/scaling-laws/">See the game</a>,
+            <a href="https://hcklab.itch.io/scaling-laws" target="_blank" rel="noopener">download it on itch.io</a>
+            or read <a href="/hck-labs/scaling-laws/development/">how it works</a>.
         </div>
 
-        <div class="post-nav"><a class="pn-prev" href="../07-stateless-memory-by-design/"><span class="pn-dir">&larr; #7</span><span class="pn-title">My AI Forgets You on Purpose</span></a><a class="pn-next" href="../09-intent-aware-temperature/"><span class="pn-dir">#9 &rarr;</span><span class="pn-title">20 Temperatures in One Line</span></a></div>
+        <div class="post-nav"><a class="pn-prev" href="../the-boring-ending/"><span class="pn-dir">&larr; #22</span><span class="pn-title">Three Strangers Passed My CV On. I Heard Nothing</span></a><a class="pn-next" href="../found-through-googles-ai/"><span class="pn-dir">#24 &rarr;</span><span class="pn-title">Someone Found My Game Through Google’s AI</span></a></div>
 
         <div class="author-card">
             <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
             <div>
                 <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
-                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman in public</div>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
                 <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
                    More about me: <a href="../../story_en.html">my story</a>.</p>
                 <div class="author-links">

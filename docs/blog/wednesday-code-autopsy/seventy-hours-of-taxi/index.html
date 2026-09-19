@@ -1,0 +1,214 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Before a week of seventy hours behind the wheel, one weekend to leave everything in a state where nothing was waiting on me. A release, a game on IndieDB and a CV.">
+    <meta name="keywords" content="Wednesday Code Autopsy, BuildInPublic, OpenToWork, Python">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/">
+    <meta property="og:title" content="I Booked Myself Seventy Hours of Taxi Shifts This Week">
+    <meta property="og:description" content="Before a week of seventy hours behind the wheel, one weekend to leave everything in a state where nothing was waiting on me. A release, a game on IndieDB and a CV.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-08-12">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Seventy Hours of Taxi, and Nothing Needs Me | Code Autopsy #20</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "I Booked Myself Seventy Hours of Taxi Shifts This Week",
+  "description": "Before a week of seventy hours behind the wheel, one weekend to leave everything in a state where nothing was waiting on me. A release, a game on IndieDB and a CV.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/",
+  "datePublished": "2026-08-12",
+  "dateModified": "2026-09-19",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/og-wednesday.png",
+  "articleSection": "Wednesday Code Autopsy",
+  "wordCount": 535,
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "alternateName": "Marcin HCK Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "jobTitle": "Software developer",
+    "sameAs": [
+      "https://github.com/HuckleR2003",
+      "https://x.com/hck_lab",
+      "https://linkedin.com/in/marcinfirmuga",
+      "https://dev.to/huckler",
+      "https://hackernoon.com/u/huckler",
+      "https://medium.com/@MarcinFirmuga",
+      "https://linktr.ee/marcin_firmuga"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "alternateName": "HCK_Labs",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+      "width": 600,
+      "height": 600
+    },
+    "founder": {
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+    }
+  },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#20", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #20</span>
+        <h1>I Booked Myself Seventy Hours of Taxi Shifts This Week</h1>
+        <p class="tagline">Nothing requires you this week.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-12</span><span>&middot;</span><span>3 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #20</span>
+        </div>
+
+<p class="lead">I booked myself seventy hours of taxi shifts this week. Then I spent the entire weekend making sure that nothing I care about would need me while I was gone.</p>
+
+<p>On Friday the confirmation came through: ten to twelve hours a day, Monday to Sunday. I booked it myself, so this is nobody's fault but mine.</p>
+
+<p>What happened next was not dread. It was closer to a countdown starting.</p>
+
+<p>This project is fourteen months old. It has survived a warehouse in Netherlands, a plastics repair shop, and every evening in between. It had never had to survive a week where I genuinely did not know how much of me would be left at the end of a shift.</p>
+
+<p>So I sat down on Saturday morning and did not really get up.</p>
+
+<h2>By Sunday night</h2>
+
+<ul>
+<li>A new release built, scrubbed and submitted to the <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.</li>
+<li>Every version number aligned across the app, the site and the docs.</li>
+<li>Assistant rebuilt around guided conversations.</li>
+<li>My game submitted to <a href="https://www.indiedb.com/games/scaling-laws" target="_blank" rel="noopener">IndieDB</a> with a studio page, a logo, screenshots and recordings that did not exist on Friday.</li>
+<li>A driving CV written from scratch and an application sent.</li>
+<li>A long technical article finished. Fifteen posts wired into the site.</li>
+</ul>
+
+<p>None of that was ambition. Every item on that list bought exactly one thing: <span class="hl">ability to drive on Monday without a list running in the back of my head.</span></p>
+
+<p>I do not think we talk about that honestly. Most stories about working hard are about wanting more.</p>
+
+<p>This one was about wanting quiet. There is a specific weight in knowing that something you care about is going to sit untouched for a week, and the only way I know how to put it down is to leave it in a state where nothing is waiting on me.</p>
+
+<p>Here is the part I did not expect. I am not tired the way I thought I would be. I am tired in the good way. The way you feel after finishing something, not after carrying it.</p>
+
+<p>On Sunday I checked what was still outstanding and wrote myself one line:</p>
+
+<p><span class="hl">Nothing requires you this week.</span></p>
+
+<p>Fourteen months, and I had never once been able to say that.</p>
+
+<h2>The part I have been circling</h2>
+
+<p>Seventy hours behind a wheel funds the move out of a house I need to leave. It does not move me toward the work I actually want to do, and the maths on that is simple: every hour in the car is an hour not spent building.</p>
+
+<p>So I am looking, properly. Developer, Python developer, IT support, and I am not closing the door on any adjacent path. I have no commercial title yet.</p>
+
+<p>What I have is fourteen months of public proof: an application on the Microsoft Store, 331 automated tests, a Google AI certificate through SGH, INF.02, and a habit of writing down exactly what I broke every single week.</p>
+
+<p>I will keep driving either way. I would just rather the two things stopped competing for the same evenings.</p>
+
+<p>If you know a team that hires for what somebody can build rather than what a CV already says, <a href="../../profile.html">I am right here</a>.</p>
+
+        <div class="post-tags"><span class="tag">BuildInPublic</span><span class="tag">OpenToWork</span><span class="tag">Python</span></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free Windows system monitor
+            with an offline AI assistant, on the <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../i-ship-msix-and-blanked-on-package/"><span class="pn-dir">&larr; #18</span><span class="pn-title">I Ship MSIX, Then Could Not Define a Package in an Interview</span></a><a class="pn-next" href="../eleven-days-or-one/"><span class="pn-dir">#21 &rarr;</span><span class="pn-title">My Game Said Eleven Days. The Run Took One</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

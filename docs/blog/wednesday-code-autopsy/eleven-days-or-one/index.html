@@ -1,0 +1,216 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Two formulas in Scaling Laws computed one training time and never compared notes. Pulling them into one function told the truth, and then broke the game.">
+    <meta name="keywords" content="Wednesday Code Autopsy, GameDev, Unity, Testing, BuildInPublic">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/">
+    <meta property="og:title" content="My Game Said a Training Run Would Take Eleven Days. It Took One.">
+    <meta property="og:description" content="Two formulas in Scaling Laws computed one training time and never compared notes. Pulling them into one function told the truth, and then broke the game.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-wednesday.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-08-19">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Wednesday Code Autopsy">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>My Game Said Eleven Days. The Run Took One | Code Autopsy #21</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "My Game Said a Training Run Would Take Eleven Days. It Took One.",
+  "description": "Two formulas in Scaling Laws computed one training time and never compared notes. Pulling them into one function told the truth, and then broke the game.",
+  "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/",
+  "datePublished": "2026-08-19",
+  "dateModified": "2026-09-19",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/og-wednesday.png",
+  "articleSection": "Wednesday Code Autopsy",
+  "wordCount": 462,
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "alternateName": "Marcin HCK Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "jobTitle": "Software developer",
+    "sameAs": [
+      "https://github.com/HuckleR2003",
+      "https://x.com/hck_lab",
+      "https://linkedin.com/in/marcinfirmuga",
+      "https://dev.to/huckler",
+      "https://hackernoon.com/u/huckler",
+      "https://medium.com/@MarcinFirmuga",
+      "https://linktr.ee/marcin_firmuga"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "alternateName": "HCK_Labs",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+      "width": 600,
+      "height": 600
+    },
+    "founder": {
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+    }
+  },
+  "isPartOf": { "@type": "Blog", "name": "Wednesday Code Autopsy", "url": "https://pcworkman.dev/blog/wednesday-code-autopsy/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Wednesday Code Autopsy", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/" },
+    { "@type": "ListItem", "position": 4, "name": "#21", "item": "https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/" }
+  ]
+}
+</script>
+</head>
+<body class="page-wednesday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-wednesday">Wednesday Code Autopsy &middot; #21</span>
+        <h1>My Game Said a Training Run Would Take Eleven Days. It Took One.</h1>
+        <p class="tagline">If the same quantity is calculated in two places, that is a future disagreement with a date on it.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-19</span><span>&middot;</span><span>3 min read</span><span>&middot;</span><span>Wednesday Code Autopsy #21</span>
+        </div>
+
+<p class="lead">My game told the player a training run would take eleven days. It took one. Both numbers came out of my own code.</p>
+
+<p><a href="/hck-labs/scaling-laws/">Scaling Laws</a> has a model creator. You pick scale, data, compute budget, and the screen quotes you a training time before you commit money to it. That quote is entire basis for the decision, because the calendar is the resource the game is actually about.</p>
+
+<p>Here is how the projection computed days:</p>
+
+<pre><code>days = petaflop_days / throughput</code></pre>
+
+<p>where throughput included a precision multiplier. FP32 is slower than FP8, so the multiplier matters.</p>
+
+<p>Here is how the daily tick computed progress:</p>
+
+<pre><code>progress += base_rate * founder_skill * team_utilisation</code></pre>
+
+<p>Notice what is missing. Tick never multiplied by precision. And it applied two bonuses the projection had never heard of.</p>
+
+<p>Two formulas producing one quantity. Nothing in the codebase compared them. For weeks.</p>
+
+<h2>The lesson is structural</h2>
+
+<p>Lesson is not "I made an arithmetic mistake". Its structural: <span class="hl">if the same quantity is calculated in two places, that is not duplication. It is a future disagreement with a date on it.</span></p>
+
+<p>So I pulled both sides into one function, <code>TrainingThroughputMultiplier()</code>, and both callers now ask it. Not because it is tidier. Because now they cannot drift.</p>
+
+<h2>And then the fix broke the game</h2>
+
+<p>With training time finally telling the truth, FP32 precision started to actually cost calendar days. A company with no research was training at 0.55 throughput inside an economy balanced for 1.0. A permanent forty-five percent penalty that nobody had decided to apply.</p>
+
+<p>I found out within a minute, from a test I wrote weeks earlier. It plays a full fourteen-year campaign on every seed, and it went red with an assertion message I had written myself months ago:</p>
+
+<p><span class="hl">&quot;That is not difficulty, it is an unwinnable game.&quot;</span></p>
+
+<p>Fixing the lie required re-anchoring the entire precision ladder so that what a player gets for free sits at exactly 1.0.</p>
+
+<h2>Three things I would hand to anyone building a simulation</h2>
+
+<ul>
+<li>One. A test that plays the whole campaign is worth every second it costs. It is the only thing that catches "correct code, broken game".</li>
+<li>Two. Whatever the player has before doing anything must be your baseline. Not what is typical, not what is default. What is free.</li>
+<li>Three. Fixing a real bug can break your balance, and that is normal. What is not normal is learning about it from a player.</li>
+</ul>
+
+<p>I have made this exact class of mistake three times now. Three times a test caught it in under a minute. That ratio is the only reason I can move this fast on my own.</p>
+
+<p>What is the longest two parts of your code disagreed about the same number without either of them crashing?</p>
+
+        <div class="post-tags"><span class="tag">GameDev</span><span class="tag">Unity</span><span class="tag">Testing</span><span class="tag">BuildInPublic</span></div>
+
+        <div class="read-next"><b>Read next</b><ul><li><a href="/hck-labs/scaling-laws/development/#testing">How Scaling Laws works: testing and determinism</a></li></ul></div>
+
+        <div class="guide-cta">
+            <b>This is the game behind the post.</b> Scaling Laws is a free AI company tycoon for Windows:
+            January 2022, twelve million dollars, no product. <a href="/hck-labs/scaling-laws/">See the game</a>,
+            <a href="https://hcklab.itch.io/scaling-laws" target="_blank" rel="noopener">download it on itch.io</a>
+            or read <a href="/hck-labs/scaling-laws/development/">how it works</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../seventy-hours-of-taxi/"><span class="pn-dir">&larr; #20</span><span class="pn-title">Seventy Hours of Taxi, and Nothing Needs Me</span></a><a class="pn-next" href="../the-boring-ending/"><span class="pn-dir">#22 &rarr;</span><span class="pn-title">Three Strangers Passed My CV On. I Heard Nothing</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Wednesday Code Autopsy</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
