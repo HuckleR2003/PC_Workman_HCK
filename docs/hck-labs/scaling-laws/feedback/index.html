@@ -64,6 +64,11 @@
   <script defer src="../../assets/js/hck-labs.js"></script>
 
   <style>
+  .sl-skip-link{position:fixed;left:14px;top:12px;z-index:100;transform:translateY(-180%);padding:9px 12px;border:1px solid rgba(239,95,89,.62);border-radius:5px;background:#07111f;color:#fff;font-size:.76rem;font-weight:750;text-decoration:none;transition:transform .14s ease}
+  .sl-skip-link:focus{transform:translateY(0)}
+  .sl-project-brand{display:inline-flex;align-items:center;gap:10px;color:#e8edf4;font-weight:760;letter-spacing:.04em;text-decoration:none}
+  .sl-project-brand__slash{color:#7e8da1;font-weight:420}
+  .sl-project-brand__name{color:var(--sl-green,#6ee7a8)}
   /* Scoped to this page. It is one form and it does not need a stylesheet of its own in the
      shared folder, where it would be loaded by every other page that will never use it. */
   .fb-wrap { max-width: 720px; margin: 0 auto; padding: 72px 24px 96px; }
@@ -130,10 +135,13 @@
         </button>
 
         <div class="hck-nav__links" id="fb-nav-links" data-nav-links>
+          <a class="hck-nav__link" href="https://hcklab.itch.io/scaling-laws" rel="noopener">Download</a>
           <a class="hck-nav__link" href="../">Overview</a>
           <a class="hck-nav__link" href="../development/">Development</a>
           <a class="hck-nav__link" href="../roadmap/">Roadmap</a>
           <a class="hck-nav__link" href="../devlog/">Devlog</a>
+          <a class="hck-nav__link is-active" href="./" aria-current="page">Feedback</a>
+          <a class="hck-nav__link" href="index_pl.html" lang="pl">PL</a>
           <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Source</a>
         </div>
       </nav>
