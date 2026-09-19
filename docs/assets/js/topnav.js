@@ -19,3 +19,6 @@
         });
     });
 })();
+
+/* Steam counter pill (single source: /assets/js/steam-fund.js + /assets/data/steam-fund.json) */
+(function(){if(document.querySelector('script[data-hck-fund]'))return;var s=document.createElement('script');s.src='/assets/js/steam-fund.js';s.defer=true;s.setAttribute('data-hck-fund','');document.head.appendChild(s);})();
