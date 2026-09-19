@@ -1,0 +1,218 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Scaling Laws got a market with memory, and a save test that refused to go green: save in year four, load, play year five, end exactly like an uninterrupted run.">
+    <meta name="keywords" content="Friday Shipped &amp; Scarred, GameDev, Unity, Testing, OpenToWork">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/">
+    <meta property="og:title" content="I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.">
+    <meta property="og:description" content="Scaling Laws got a market with memory, and a save test that refused to go green: save in year four, load, play year five, end exactly like an uninterrupted run.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-friday.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-08-14">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Friday Shipped &amp; Scarred">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>I Fixed the Same Bug Four Times | Shipped &amp; Scarred #20</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.",
+  "description": "Scaling Laws got a market with memory, and a save test that refused to go green: save in year four, load, play year five, end exactly like an uninterrupted run.",
+  "url": "https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/",
+  "datePublished": "2026-08-14",
+  "dateModified": "2026-09-19",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/og-friday.png",
+  "articleSection": "Friday Shipped & Scarred",
+  "wordCount": 450,
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "alternateName": "Marcin HCK Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "jobTitle": "Software developer",
+    "sameAs": [
+      "https://github.com/HuckleR2003",
+      "https://x.com/hck_lab",
+      "https://linkedin.com/in/marcinfirmuga",
+      "https://dev.to/huckler",
+      "https://hackernoon.com/u/huckler",
+      "https://medium.com/@MarcinFirmuga",
+      "https://linktr.ee/marcin_firmuga"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "alternateName": "HCK_Labs",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+      "width": 600,
+      "height": 600
+    },
+    "founder": {
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+    }
+  },
+  "isPartOf": { "@type": "Blog", "name": "Friday Shipped & Scarred", "url": "https://pcworkman.dev/blog/friday-shipped-scarred/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Friday Shipped & Scarred", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/" },
+    { "@type": "ListItem", "position": 4, "name": "#20", "item": "https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/" }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Friday Shipped &amp; Scarred &middot; #20</span>
+        <h1>I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.</h1>
+        <p class="tagline">A value that can't survive its own save isn't well-defined state. It's a rumour about state.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-14</span><span>&middot;</span><span>3 min read</span><span>&middot;</span><span>Friday Shipped &amp; Scarred #20</span>
+        </div>
+
+<p class="lead">I fixed the same bug four times. Fifth time, I found out my third fix was part of the bug.</p>
+
+<p>This week I wanted <a href="/hck-labs/scaling-laws/">Scaling Laws</a> to stop pretending it had a market. Until now, release a better model and market share basically snapped into place. Great model on Tuesday? Congratulations, users appeared.</p>
+
+<p>Bad quarter? Apparently everyone forgot you existed by Wednesday. <span class="hl">That's not a market but a scoreboard.</span> So I gave it memory.</p>
+
+<h2>Shipped</h2>
+
+<ul>
+<li>Developers can move fast when something better appears. Enterprise customers absolutely do not care what launched on Tuesday.</li>
+<li>Users now move over time instead of teleporting between companies.</li>
+<li>Rivals finally play by the same rules too.</li>
+</ul>
+
+<p>Before this week, a competitor was basically capability + brand + price. Player's model had architecture, purpose, serving economics and more. I was comparing two different creatures and calling it competition.</p>
+
+<p>127 tests on Monday. 214 now.</p>
+
+<p>And then one test refused to die.</p>
+
+<h2>Scarred</h2>
+
+<p>Save in year 4. Load it. Play through year 5. It has to end exactly like a run that was never interrupted. Because if loading changes the future, your save isn't really a save... <span class="hl">It's a photograph of a game that no longer exists.</span> It failed.</p>
+
+<p>I found missing rival state. Fixed it. Still wrong.</p>
+
+<p>Found another. Then another.</p>
+
+<p>For a while numbers looked encouraging: 73.8 -&gt; 75.9 -&gt; 78.3. I thought I was closing in on one root cause. Nope. Separate bugs wearing the same coat.</p>
+
+<p>And the one that kept the test red the longest? I introduced it while fixing the third one. Two dates looked almost identical: the day a rival originally planned to launch, and the day it now intended to. If a lab waits three months for better hardware, one moves. The other doesn't.</p>
+
+<p>My restore code helpfully made them the same.</p>
+
+<p>So every rival that decided to wait forgot that decision after loading and launched on schedule anyway. Beautiful.</p>
+
+<p>Then this: <code>1.0999999999999999</code> saved, loaded back as: <code>1.1</code></p>
+
+<p>Nobody would ever see the difference. Year five did. A value that can't survive its own save isn't well-defined state. It's a rumour about state.</p>
+
+<p>Useful lesson wasn't about serialization. For three days I measured how far apart the two runs ended up. That told me damage, not cause. Once I started logging the first tick where they stopped agreeing, bugs that took evenings started taking minutes. First disagreement points at the cause. Final number shows the wreckage.</p>
+
+<p><span class="hl">Instrument moment it breaks, not the size of hole at the end.</span></p>
+
+<p>Driving a taxi by day. Arguing with my own save file by night. Still one red test.</p>
+
+<p>I'm keeping it red until the game deserves green.</p>
+
+        <div class="post-tags"><span class="tag">GameDev</span><span class="tag">Unity</span><span class="tag">Testing</span><span class="tag">OpenToWork</span></div>
+
+        <div class="read-next"><b>Read next</b><ul><li><a href="../../../guides/save-migration-without-breaking-saves/">42 Save Format Changes, No Broken Saves</a></li></ul></div>
+
+        <div class="guide-cta">
+            <b>This is the game behind the post.</b> Scaling Laws is a free AI company tycoon for Windows:
+            January 2022, twelve million dollars, no product. <a href="/hck-labs/scaling-laws/">See the game</a>,
+            <a href="https://hcklab.itch.io/scaling-laws" target="_blank" rel="noopener">download it on itch.io</a>
+            or read <a href="/hck-labs/scaling-laws/development/">how it works</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../spotify-and-fourteen-readers/"><span class="pn-dir">&larr; #19</span><span class="pn-title">My Writing Landed on Spotify. One Post Reached 14 People</span></a><a class="pn-next" href="../526-tests-passed-on-it/"><span class="pn-dir">#21 &rarr;</span><span class="pn-title">An Unreachable Progression System, 526 Green Tests</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Friday Shipped &amp; Scarred</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
