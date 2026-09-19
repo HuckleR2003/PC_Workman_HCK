@@ -29,7 +29,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="alternate" type="application/rss+xml" title="Scaling Laws Devlog RSS" href="devlog/feed.xml">
-  <link rel="preload" as="image" href="assets/images/screens/main-menu-1600.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/images/anim/release-shipping-poster.webp" fetchpriority="high">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HCK Labs">
@@ -58,96 +58,332 @@
   <script defer src="assets/js/scaling-laws.js"></script>
 
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
-        "name": "Marcin Firmuga",
-        "alternateName": "Marcin HCK Firmuga",
-        "url": "https://pcworkman.dev/hck-labs/",
-        "sameAs": ["https://github.com/HuckleR2003"]
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+      "name": "Marcin Firmuga",
+      "alternateName": "Marcin HCK Firmuga",
+      "url": "https://pcworkman.dev/hck-labs/",
+      "sameAs": [
+        "https://github.com/HuckleR2003",
+        "https://linkedin.com/in/marcinfirmuga",
+        "https://x.com/hck_lab",
+        "https://medium.com/@MarcinFirmuga",
+        "https://dev.to/huckler",
+        "https://hackernoon.com/u/huckler",
+        "https://linktr.ee/marcin_firmuga",
+        "https://pcworkman.dev/blog/profile.html"
+      ],
+      "jobTitle": "Independent software and game developer",
+      "homeLocation": {
+        "@type": "Place",
+        "name": "Radom, Poland"
       },
-      {
-        "@type": "Organization",
-        "@id": "https://pcworkman.dev/hck-labs/#organization",
-        "name": "HCK Labs",
-        "url": "https://pcworkman.dev/hck-labs/",
-        "founder": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"}
+      "worksFor": {
+        "@id": "https://pcworkman.dev/hck-labs/#organization"
       },
-      {
-        "@type": "VideoGame",
-        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
-        "name": "Scaling Laws",
-        "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
-        "description": "An AI company tycoon beginning on 1 January 2022 with $12 million and no product. The player trains models, buys or rents compute, researches new capabilities and competes against a moving frontier.",
-        "genre": ["Simulation", "Strategy", "Tycoon", "Management"],
-        "author": {"@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"},
-        "publisher": {"@id": "https://pcworkman.dev/hck-labs/#organization"},
-        "image": "https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png",
-        "datePublished": "2026-08-30",
-        "softwareVersion": "0.1.0",
-        "applicationCategory": "Game",
-        "gamePlatform": "PC",
-        "operatingSystem": "Windows 10, Windows 11",
-        "playMode": "SinglePlayer",
-        "inLanguage": ["en", "pl"],
-        "downloadUrl": "https://hcklab.itch.io/scaling-laws",
-        "installUrl": "https://hcklab.itch.io/scaling-laws",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
-          "url": "https://hcklab.itch.io/scaling-laws",
-          "category": "free"
-        },
-        "sameAs": [
-          "https://hcklab.itch.io/scaling-laws",
-          "https://www.indiedb.com/games/scaling-laws",
-          "https://gamejolt.com/games/scaling-laws",
-          "https://github.com/HuckleR2003/ScalingLaws-AI"
-        ]
-      },
-      {
-        "@type": "BreadcrumbList",
-        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "PC Workman",
-            "item": "https://pcworkman.dev/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "HCK Labs",
-            "item": "https://pcworkman.dev/hck-labs/"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": "Scaling Laws",
-            "item": "https://pcworkman.dev/hck-labs/scaling-laws/"
-          }
-        ]
-      },
-      {
-        "@type": "WebPage",
-        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#webpage",
-        "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
-        "name": "Scaling Laws: AI Company Tycoon | HCK Labs",
-        "description": "Official HCK Labs page for Scaling Laws, a free AI company tycoon for Windows. First public build released 30 August 2026.",
-        "inLanguage": "en",
-        "datePublished": "2026-08-06",
-        "dateModified": "2026-08-31",
-        "mainEntity": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"},
-        "breadcrumb": {"@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb"}
+      "knowsAbout": [
+        "Unity",
+        "C#",
+        "Python",
+        "Game design",
+        "Tycoon and management games",
+        "Windows system monitoring"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://pcworkman.dev/hck-labs/#organization",
+      "name": "HCK Labs",
+      "url": "https://pcworkman.dev/hck-labs/",
+      "founder": {
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
       }
-    ]
-  }
+    },
+    {
+      "@type": "VideoGame",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game",
+      "name": "Scaling Laws",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
+      "description": "An AI company tycoon beginning on 1 January 2022 with $12 million and no product. The player trains models, buys or rents compute, researches new capabilities and competes against a moving frontier.",
+      "genre": [
+        "Simulation",
+        "Strategy",
+        "Tycoon",
+        "Management"
+      ],
+      "author": {
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+      },
+      "publisher": {
+        "@id": "https://pcworkman.dev/hck-labs/#organization"
+      },
+      "image": ["https://pcworkman.dev/hck-labs/scaling-laws/assets/images/og-scaling-laws.png", "https://pcworkman.dev/hck-labs/scaling-laws/assets/images/anim/release-shipping-poster.webp"],
+      "datePublished": "2026-08-30",
+      "softwareVersion": "0.4.0",
+      "applicationCategory": "Game",
+      "gamePlatform": "PC",
+      "operatingSystem": "Windows 10, Windows 11",
+      "playMode": "SinglePlayer",
+      "inLanguage": [
+        "en",
+        "pl"
+      ],
+      "downloadUrl": "https://hcklab.itch.io/scaling-laws",
+      "installUrl": "https://hcklab.itch.io/scaling-laws",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "url": "https://hcklab.itch.io/scaling-laws",
+        "category": "free"
+      },
+      "sameAs": [
+        "https://hcklab.itch.io/scaling-laws",
+        "https://www.indiedb.com/games/scaling-laws",
+        "https://gamejolt.com/games/scaling-laws",
+        "https://github.com/HuckleR2003/ScalingLaws-AI"
+      ],
+      "dateModified": "2026-09-19",
+      "fileSize": "81 MB",
+      "license": "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/LICENSE.md",
+      "keywords": "AI company tycoon, business simulation, scaling laws, Chinchilla, GPU, compute, rival AI labs, management game, free game, Windows",
+      "character": [
+        {
+          "@type": "Organization",
+          "name": "OpenSI",
+          "description": "Consumer reach first, frontier second.",
+          "foundingDate": "2015",
+          "location": "San Francisco"
+        },
+        {
+          "@type": "Organization",
+          "name": "Antropic",
+          "description": "Safety sold as a product feature.",
+          "foundingDate": "2021",
+          "location": "San Francisco"
+        },
+        {
+          "@type": "Organization",
+          "name": "DeepThink",
+          "description": "Research lab on the largest distribution channel on earth.",
+          "foundingDate": "2010",
+          "location": "London"
+        },
+        {
+          "@type": "Organization",
+          "name": "Infinity",
+          "description": "Gives the weights away to break everyone else's moat.",
+          "foundingDate": "2013",
+          "location": "Menlo Park"
+        },
+        {
+          "@type": "Organization",
+          "name": "Astral",
+          "description": "Small, fast, open, European.",
+          "foundingDate": "2023",
+          "location": "Paris"
+        },
+        {
+          "@type": "Organization",
+          "name": "DeepSearch",
+          "description": "Frontier capability at an absurdly low cost.",
+          "foundingDate": "2023",
+          "location": "Hangzhou"
+        },
+        {
+          "@type": "Organization",
+          "name": "zAI",
+          "description": "Attention as distribution, and a huge cluster fast.",
+          "foundingDate": "2023",
+          "location": "Bay Area"
+        },
+        {
+          "@type": "Organization",
+          "name": "Swen",
+          "description": "Open weights at every size. Watches what you sell and copies it.",
+          "foundingDate": "2023",
+          "location": "Hangzhou"
+        },
+        {
+          "@type": "Organization",
+          "name": "Grob",
+          "description": "Started the same month as you, with the same money.",
+          "foundingDate": "2022",
+          "location": "Austin"
+        },
+        {
+          "@type": "Organization",
+          "name": "StableAI",
+          "description": "Huge open reach, no way to bill for it.",
+          "foundingDate": "2020",
+          "location": "London"
+        },
+        {
+          "@type": "Organization",
+          "name": "IntroduceAI",
+          "description": "One assistant, tuned for how it talks.",
+          "foundingDate": "2022",
+          "location": "Palo Alto"
+        },
+        {
+          "@type": "Organization",
+          "name": "Algho Alpha",
+          "description": "Sovereign AI for European institutions.",
+          "foundingDate": "2019",
+          "location": "Heidelberg"
+        },
+        {
+          "@type": "Organization",
+          "name": "Gohere",
+          "description": "Sells to companies, never chases consumers.",
+          "foundingDate": "2019",
+          "location": "Toronto"
+        },
+        {
+          "@type": "Organization",
+          "name": "E-Solutions",
+          "description": "Your cousin's six people above a hardware shop.",
+          "foundingDate": "2021",
+          "location": "Radom"
+        }
+      ],
+      "gameItem": [
+        {
+          "@type": "Thing",
+          "name": "Accelerator cards"
+        },
+        {
+          "@type": "Thing",
+          "name": "Server cabinets"
+        },
+        {
+          "@type": "Thing",
+          "name": "Room coolers"
+        },
+        {
+          "@type": "Thing",
+          "name": "Rented offices"
+        },
+        {
+          "@type": "Thing",
+          "name": "Rival lab shares"
+        },
+        {
+          "@type": "Thing",
+          "name": "Research nodes"
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "PC Workman",
+          "item": "https://pcworkman.dev/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "HCK Labs",
+          "item": "https://pcworkman.dev/hck-labs/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Scaling Laws",
+          "item": "https://pcworkman.dev/hck-labs/scaling-laws/"
+        }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#webpage",
+      "url": "https://pcworkman.dev/hck-labs/scaling-laws/",
+      "name": "Scaling Laws: AI Company Tycoon | HCK Labs",
+      "description": "Official HCK Labs page for Scaling Laws, a free AI company tycoon for Windows. Current build 0.4.0, released 13 September 2026.",
+      "inLanguage": "en",
+      "datePublished": "2026-08-06",
+      "dateModified": "2026-09-19",
+      "mainEntity": {
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game"
+      },
+      "breadcrumb": {
+        "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#breadcrumb"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#faq",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is Scaling Laws free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Every build so far is free for Windows on itch.io. A Steam release is planned for October to November 2026."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the current version?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Version 0.4.0, released 13 September 2026, an alpha. A city map of Bayview, rebuilt offices, a server room climate and tokenization research are finished for the next build."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which AI labs are in the game?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Fourteen parody labs: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere, and E-Solutions, the invented lab of the player's cousin in Radom. Thirteen are seeded from the real 2022 to 2026 release timeline."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I buy or attack rival labs?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can buy shares and take over a lab with a majority, hire its staff, pay for smear stories in four tiers, and sue it. Rivals can sue back. Every action changes the relationship."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are alliances or mergers in the game?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Not yet. Alliances between labs and mergers are planned and not in any build."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the source code open source?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It is source available, not open source. The code can be read on GitHub, but from 19 September 2026 it may not be redistributed. Earlier versions stay under PolyForm Noncommercial 1.0.0."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who makes Scaling Laws?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Marcin \"HCK\" Firmuga, a solo developer from Radom, Poland, publishing as HCK Labs. He also made PC Workman, a Windows monitor on the Microsoft Store."
+          }
+        }
+      ]
+    }
+  ]
+}
   </script>
 </head>
 
@@ -171,6 +407,9 @@
 
         <div class="hck-nav__links" id="sl-nav-links" data-nav-links>
           <a class="hck-nav__link" href="#get">Download</a>
+          <a class="hck-nav__link" href="#why">Why play</a>
+          <a class="hck-nav__link" href="#rivals">Rivals</a>
+          <a class="hck-nav__link" href="#author">Author</a>
           <a class="hck-nav__link" href="#overview">Overview</a>
           <a class="hck-nav__link" href="#systems">Systems</a>
           <a class="hck-nav__link" href="development/">Development</a>
@@ -187,7 +426,7 @@
       <section class="sl-home-hero" aria-labelledby="hero-title">
         <div class="sl-home-hero__inner">
           <div data-reveal>
-            <div class="sl-home-hero__eyebrow"><strong>An AI company tycoon</strong> / first public build, 30 August 2026</div>
+            <div class="sl-home-hero__eyebrow"><strong>An AI company tycoon</strong> / free alpha 0.4.0, 13 September 2026</div>
             <h1 class="sl-home-wordmark" id="hero-title">
               <span>Scaling</span>
               <span>Laws</span>
@@ -205,10 +444,10 @@
                   </svg>
                   Download on itch.io
                 </span>
-                <span class="sl-get__strap">Free / Windows / 76 MB / alpha</span>
+                <span class="sl-get__strap">Free / Windows / 81 MB / alpha 0.4.0</span>
               </a>
               <a class="hck-button hck-button--quiet" href="#overview">See the game</a>
-              <a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Open source</a>
+              <a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Read the source</a>
             </div>
           </div>
 
@@ -216,12 +455,10 @@
             <div class="sl-hero-shot__frame hck-edge-shine">
               <span class="sl-hero-shot__tag">Current build</span>
               <img
-                src="assets/images/screens/main-menu-960.webp"
-                srcset="assets/images/screens/main-menu-960.webp 960w, assets/images/screens/main-menu-1600.webp 1600w"
-                sizes="(max-width: 1100px) 94vw, 52vw"
-                width="1600"
-                height="784"
-                alt="Scaling Laws main menu showing the AI company tycoon title and a model training readout"
+                src="assets/images/anim/release-shipping.webp"
+                width="1280"
+                height="720"
+                alt="Scaling Laws 0.3.0 release screen: a model shipped, the corner banners reporting users and earnings, the founder at home"
                 decoding="async"
                 fetchpriority="high">
             </div>
@@ -229,6 +466,230 @@
               <span>Unity / current development build</span>
               <span>HCK Labs</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-why" id="why" aria-labelledby="why-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Why play</div>
+              <h2 class="hck-title" id="why-title">Twenty reasons, one screen.</h2>
+            </div>
+            <p class="hck-copy--soft">The short version. Everything marked 0.4.0 is in the free download today. Next build is finished and waiting for the next release. Planned is exactly that.</p>
+          </header>
+          <div class="sl-tiles" data-reveal>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">7 &gt; 8</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Seven cards beat eight</h3>
+              <p>Fill a cabinet and heat throttles all of it. Swap one card for a fan and the same cabinet delivers more.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">14</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Fourteen rival labs</h3>
+              <p>OpenSI, Antropic, DeepThink, Grob and ten more, seeded from the real 2022 to 2026 release timeline, then free to go their own way.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">~20:1</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>A real scaling law</h3>
+              <p>Chinchilla loss decides model quality. About twenty tokens per parameter is optimal, and ten times the compute buys about ten points.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">51%</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Buy a rival</h3>
+              <p>Shares are priced off each lab's capability on the day. Hold a majority and you can take the company over.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">4 tiers</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Compete dirtily</h3>
+              <p>Pay for stories about a rival, sue them, hire their people. Getting caught costs more than landing it gains.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">5 days</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>The regulator waits</h3>
+              <p>A serious incident opens an inspection. The verdict is rolled against the safety the model shipped with.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">$10B</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>State money</h3>
+              <p>A sovereign compute loan costs about 2.9 times what it lends. While you owe it, nobody may buy the company.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">25%</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Versions keep users</h3>
+              <p>A quarter of users take an update on day one. The rest drift over, or never come if the new version is worse.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">2x</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Hardware ages twice</h3>
+              <p>Once with the calendar, again when a successor launches. Buy a year early and the capital sits in a fleet the market has passed.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">23</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>The real world happens</h3>
+              <p>Twenty three world events land on the dates they actually happened, to you and to every rival.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">?</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Intel can lie</h3>
+              <p>Paid intelligence warns about launches and price collapses. The cheap desk sounds more certain than it is.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">EXIT</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>An ending that is not bankruptcy</h3>
+              <p>Get valuable enough and somebody offers to buy the company. A buyer who is behind pays more.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">Radom</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>A cousin in the business</h3>
+              <p>Emil walks you through the first hour, pays for your first research node and runs a small lab of his own on the board.</p>
+            </article>
+            <article class="sl-tile sl-tile--build">
+              <div class="sl-tile__top"><span class="sl-tile__big">EN / PL</span><span class="sl-tile__tag">In 0.4.0</span></div>
+              <h3>Two languages, 47 achievements</h3>
+              <p>Switch language at any time. Achievements stay yours across campaigns, bankruptcies included.</p>
+            </article>
+            <article class="sl-tile sl-tile--next">
+              <div class="sl-tile__top"><span class="sl-tile__big">1,284</span><span class="sl-tile__tag">Next build</span></div>
+              <h3>A city to grow into</h3>
+              <p>Bayview: houses, downtown, a port and a valley, with offices for rent you can find and click on the map.</p>
+            </article>
+            <article class="sl-tile sl-tile--next">
+              <div class="sl-tile__top"><span class="sl-tile__big">30 kW</span><span class="sl-tile__tag">Next build</span></div>
+              <h3>A server room with a climate</h3>
+              <p>Every cabinet heats one room. Coolers take floor space, overclocking needs a cool room, and you mount each card by hand.</p>
+            </article>
+            <article class="sl-tile sl-tile--next">
+              <div class="sl-tile__top"><span class="sl-tile__big">LV 1-2</span><span class="sl-tile__tag">Next build</span></div>
+              <h3>Offices with your name on the door</h3>
+              <p>Two rented floors rebuilt with real materials, a lobby and your company name over the entrance. Staff sit and type at their desks.</p>
+            </article>
+            <article class="sl-tile sl-tile--next">
+              <div class="sl-tile__top"><span class="sl-tile__big">-20%</span><span class="sl-tile__tag">Next build</span></div>
+              <h3>Tokenization</h3>
+              <p>Research a better tokenizer and the same sentence costs fewer tokens, so the whole fleet serves more people.</p>
+            </article>
+            <article class="sl-tile sl-tile--plan">
+              <div class="sl-tile__top"><span class="sl-tile__big">SOON</span><span class="sl-tile__tag">Planned</span></div>
+              <h3>Alliances and mergers</h3>
+              <p>Pacts with other labs and mergers between rivals. Planned, not in any build yet, and the design is not final.</p>
+            </article>
+            <article class="sl-tile sl-tile--plan">
+              <div class="sl-tile__top"><span class="sl-tile__big">STEAM</span><span class="sl-tile__tag">Planned</span></div>
+              <h3>A Steam release</h3>
+              <p>Planned for October to November 2026. Until then every build is free on itch.io.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-anims" id="in-motion" aria-labelledby="anims-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">In motion</div>
+              <h2 class="hck-title" id="anims-title">Recorded from the builds, not animated for the page.</h2>
+            </div>
+            <p class="hck-copy--soft">Six clips from 0.2.0 and 0.3.0. Every figure on screen came out of the simulation on the day it was recorded.</p>
+          </header>
+          <div class="sl-anim-grid" data-reveal>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/server-room.webp" width="1280" height="720" alt="The server room. Buy cabinets, stand them on the floor and watch the heat." loading="lazy" decoding="async">
+              <figcaption><strong>The server room</strong><span>Buy cabinets, stand them on the floor and watch the heat.</span></figcaption>
+            </figure>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/research-tree.webp" width="1280" height="720" alt="The research board. Five eras, nodes that hand over what their card promises." loading="lazy" decoding="async">
+              <figcaption><strong>The research board</strong><span>Five eras, nodes that hand over what their card promises.</span></figcaption>
+            </figure>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/vs-models.webp" width="1280" height="720" alt="Your model against the top one. Compare a run with the best model on the market before you pay for it." loading="lazy" decoding="async">
+              <figcaption><strong>Your model against the top one</strong><span>Compare a run with the best model on the market before you pay for it.</span></figcaption>
+            </figure>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/rivals.webp" width="1280" height="627" alt="Rivals and their people. Open a lab, see who works there, make an offer." loading="lazy" decoding="async">
+              <figcaption><strong>Rivals and their people</strong><span>Open a lab, see who works there, make an offer.</span></figcaption>
+            </figure>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/world-map.webp" width="1280" height="627" alt="Where the company is registered. Sixteen countries, each a trade between tax, silicon and competition." loading="lazy" decoding="async">
+              <figcaption><strong>Where the company is registered</strong><span>Sixteen countries, each a trade between tax, silicon and competition.</span></figcaption>
+            </figure>
+            <figure class="sl-anim">
+              <img src="assets/images/anim/racks-basement.webp" width="1280" height="627" alt="The basement fills up. Parts, cabinets and the first cards in a cold cellar." loading="lazy" decoding="async">
+              <figcaption><strong>The basement fills up</strong><span>Parts, cabinets and the first cards in a cold cellar.</span></figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-nextbuild" id="next-build" aria-labelledby="nextbuild-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Next build</div>
+              <h2 class="hck-title" id="nextbuild-title">Finished, tested, waiting for the release.</h2>
+            </div>
+            <p class="hck-copy--soft">Rendered from the current development build. None of this is in 0.4.0 yet.</p>
+          </header>
+          <div class="sl-next-shots" data-reveal>
+            <figure class="sl-next-shot">
+              <img src="assets/images/screens/office-small-960.webp" srcset="assets/images/screens/office-small-960.webp 960w, assets/images/screens/office-small-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="The first rented office. Ten desks, a lobby, a boss corner and your company name over the glass doors." loading="lazy" decoding="async">
+              <figcaption><strong>The first rented office</strong><span>Ten desks, a lobby, a boss corner and your company name over the glass doors.</span></figcaption>
+            </figure>
+            <figure class="sl-next-shot">
+              <img src="assets/images/screens/office-big-960.webp" srcset="assets/images/screens/office-big-960.webp 960w, assets/images/screens/office-big-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="The second floor up. Twenty desks, a street shopfront, a reception hall and a glass meeting room." loading="lazy" decoding="async">
+              <figcaption><strong>The second floor up</strong><span>Twenty desks, a street shopfront, a reception hall and a glass meeting room.</span></figcaption>
+            </figure>
+            <figure class="sl-next-shot">
+              <img src="assets/images/screens/city-map-960.webp" srcset="assets/images/screens/city-map-960.webp 960w, assets/images/screens/city-map-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="Bayview from above. The map opens on your own building and pulls back to the city around it." loading="lazy" decoding="async">
+              <figcaption><strong>Bayview from above</strong><span>The map opens on your own building and pulls back to the city around it.</span></figcaption>
+            </figure>
+            <figure class="sl-next-shot">
+              <img src="assets/images/screens/server-climate-960.webp" srcset="assets/images/screens/server-climate-960.webp 960w, assets/images/screens/server-climate-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="A server room with a climate. One room, one heat budget. Past it every cabinet cools worse at once." loading="lazy" decoding="async">
+              <figcaption><strong>A server room with a climate</strong><span>One room, one heat budget. Past it every cabinet cools worse at once.</span></figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-rivals" id="rivals" aria-labelledby="rivals-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">The rival field</div>
+              <h2 class="hck-title" id="rivals-title">Fourteen labs, and each one remembers you.</h2>
+            </div>
+            <p class="hck-copy--soft">Parodies of real labs with dated histories drawn from public record. Three of them come apart during a campaign, over the same exposures that can end yours.</p>
+          </header>
+          <div class="sl-rivals__grid">
+            <ul class="sl-labs" data-reveal>
+            <li class="sl-lab"><strong>OpenSI</strong><span class="sl-lab__meta">San Francisco / 2015</span><span>Consumer reach first, frontier second.</span></li>
+            <li class="sl-lab"><strong>Antropic</strong><span class="sl-lab__meta">San Francisco / 2021</span><span>Safety sold as a product feature.</span></li>
+            <li class="sl-lab"><strong>DeepThink</strong><span class="sl-lab__meta">London / 2010</span><span>Research lab on the largest distribution channel on earth.</span></li>
+            <li class="sl-lab"><strong>Infinity</strong><span class="sl-lab__meta">Menlo Park / 2013</span><span>Gives the weights away to break everyone else's moat.</span></li>
+            <li class="sl-lab"><strong>Astral</strong><span class="sl-lab__meta">Paris / 2023</span><span>Small, fast, open, European.</span></li>
+            <li class="sl-lab"><strong>DeepSearch</strong><span class="sl-lab__meta">Hangzhou / 2023</span><span>Frontier capability at an absurdly low cost.</span></li>
+            <li class="sl-lab"><strong>zAI</strong><span class="sl-lab__meta">Bay Area / 2023</span><span>Attention as distribution, and a huge cluster fast.</span></li>
+            <li class="sl-lab"><strong>Swen</strong><span class="sl-lab__meta">Hangzhou / 2023</span><span>Open weights at every size. Watches what you sell and copies it.</span></li>
+            <li class="sl-lab"><strong>Grob</strong><span class="sl-lab__meta">Austin / 2022</span><span>Started the same month as you, with the same money.</span></li>
+            <li class="sl-lab"><strong>StableAI</strong><span class="sl-lab__meta">London / 2020</span><span>Huge open reach, no way to bill for it.</span></li>
+            <li class="sl-lab"><strong>IntroduceAI</strong><span class="sl-lab__meta">Palo Alto / 2022</span><span>One assistant, tuned for how it talks.</span></li>
+            <li class="sl-lab"><strong>Algho Alpha</strong><span class="sl-lab__meta">Heidelberg / 2019</span><span>Sovereign AI for European institutions.</span></li>
+            <li class="sl-lab"><strong>Gohere</strong><span class="sl-lab__meta">Toronto / 2019</span><span>Sells to companies, never chases consumers.</span></li>
+            <li class="sl-lab"><strong>E-Solutions</strong><span class="sl-lab__meta">Radom / 2021</span><span>Your cousin's six people above a hardware shop.</span></li>
+            </ul>
+            <aside class="sl-relations hck-edge-shine" data-reveal>
+              <h3>What you can do to a lab</h3>
+              <ul>
+              <li>Read its dossier, founded date and chapters as they happen, never ahead of time.</li>
+              <li>Buy its shares. Hold a majority and buy it out: you get its newest model and up to three quarters of its following.</li>
+              <li>Hire its people with an offer they can refuse.</li>
+              <li>Pay for stories about it, in four tiers. A traced campaign earns a legal letter, a phone call and possibly a lawsuit.</li>
+              <li>Sue it, and watch the odds fall as the demand rises.</li>
+              <li>Every action moves how the lab feels about you, whether or not it is ever traced back.</li>
+              </ul>
+              <p class="sl-relations__next">Planned next: alliances between labs, and mergers. Not in any build yet.</p>
+            </aside>
           </div>
         </div>
       </section>
@@ -265,7 +726,7 @@
               The first company view is deliberately modest: a desk, a bed, a living room, a garage and a cheap car. Later company growth is meant to become visible as well as numerical, with larger offices, staff and owned infrastructure replacing the starter setup.
             </p>
             <div class="sl-room-copy__note">
-              Character movement, staff on the floor and later building tiers are in the build: the founder walks between the desk, the bed and the garage, offices are rented and then bought, and the basement fills with cabinets. The city those buildings will stand in is the part that is not here yet.
+              The founder walks between the desk, the bed and the garage, staff sit at their desks during the hours you give them, offices are researched, rented and then bought, and the basement fills with cabinets. The city of Bayview around those buildings is finished and ships in the next build.
             </div>
           </div>
 
@@ -696,7 +1157,7 @@
             <div class="sl-section__eyebrow">Current build</div>
             <h2 class="sl-section__title" id="build-title">The foundation is playable. The world around it is catching up.</h2>
             <p class="sl-section__lead">
-              Version 0.1.0 plays end to end, from the cold open in January 2022 to a company that is either still trading in 2026 or is not. It is an alpha and the page says so: the art is partial and several screens are still plain. What is listed below is in the build you can download today.
+              Version 0.4.0, released 13 September 2026, plays end to end, from the cold open in January 2022 through a campaign that runs for years. It is an alpha and the page says so: some screens are still plain. What is listed below is in the build you can download today.
             </p>
 
             <div class="sl-build-list">
@@ -724,6 +1185,10 @@
                 <strong>Safety and regulators</strong>
                 <span>A safety stage on every model, and an inspection that opens a file and gives you five days before it decides.</span>
               </div>
+              <div class="sl-build-item">
+                <strong>Rivals and relations</strong>
+                <span>Fourteen labs with dated histories: shares, takeovers, poaching, paid stories and lawsuits, in both directions.</span>
+              </div>
             </div>
           </div>
 
@@ -731,12 +1196,12 @@
             <div class="sl-next-bench__label">On the bench next</div>
             <h3>Not in this build, and worth saying so.</h3>
             <ul>
-              <li>The city. A surveyed blockout across 2048 metres, houses on subdivided plots with driveways to their own garages, a downtown grid, parks and four bridges.</li>
-              <li>Offices on floors you furnish yourself, rented before they can be bought.</li>
-              <li>Art on the screens that are still plain, and a visual pass over the model creator.</li>
-              <li>The world map in character creation, which is a placeholder I do not like.</li>
+              <li>The city of Bayview, both offices rebuilt, a server room climate and tokenization research. Finished, in the next build.</li>
+              <li>A larger first office with a conference table.</li>
+              <li>Alliances between labs, and mergers. Planned, and the design is not final.</li>
+              <li>A Steam release, planned for October to November 2026, and art on the screens that are still plain.</li>
             </ul>
-            <p class="sl-next-bench__note">The six things this list used to hold have all shipped. They are in the build above.</p>
+            <p class="sl-next-bench__note">The city, furnished offices, the real world map and staff in the office used to be on this list. They are built.</p>
           </aside>
         </div>
       </section>
@@ -759,7 +1224,7 @@
               <figcaption>Founder creation</figcaption>
             </figure>
             <figure class="sl-gallery-shot" data-reveal>
-              <img src="assets/images/screens/company-creator-960.webp" alt="Scaling Laws company setup screen with region and country selection" loading="lazy" decoding="async">
+              <img src="assets/images/screens/world-map-960.webp" alt="Scaling Laws company setup screen with region and country selection" loading="lazy" decoding="async">
               <figcaption>Company setup</figcaption>
             </figure>
             <figure class="sl-gallery-shot" data-reveal>
@@ -774,6 +1239,48 @@
         </div>
       </section>
 
+      <section class="hck-section sl-author" id="author" aria-labelledby="author-title">
+        <div class="hck-container--wide sl-author__grid">
+          <div data-reveal>
+            <div class="sl-section__eyebrow">Who makes it</div>
+            <h2 class="hck-title" id="author-title">One person, nights and weekends.</h2>
+            <p>Scaling Laws is made by <strong>Marcin "HCK" Firmuga</strong>, a solo developer from Radom, Poland, under the name HCK Labs. Code, design, balance, testing and this page.</p>
+            <p>Before this came PC Workman, a Windows monitor he started on a ten year old laptop between warehouse shifts in the Netherlands. It has been on the Microsoft Store since 1 July 2026.</p>
+            <p>He grew up on Game Dev Tycoon, Big Ambitions and the Tycoon games, and Scaling Laws is the one he wanted to play and could not find. It is built after a day job, in public, with AI assistance used openly and every change written into a public changelog. <a href="/blog/forty-eight-days/">The first forty-eight days are written down here</a>.</p>
+          </div>
+          <aside class="sl-author__card hck-edge-shine" data-reveal>
+            <div class="sl-author__facts">
+              <div><span>Based in</span><strong>Radom, Poland</strong></div>
+              <div><span>Studio</span><strong>HCK Labs, one person</strong></div>
+              <div><span>Also made</span><strong>PC Workman, on the Microsoft Store</strong></div>
+              <div><span>Writes</span><strong>Weekly devlogs, EN and PL</strong></div>
+            </div>
+            <nav class="sl-author__links" aria-label="Marcin Firmuga">
+              <a href="https://pcworkman.dev/blog/profile.html" rel="me noopener">Author page</a>
+              <a href="https://github.com/HuckleR2003" rel="me noopener">GitHub</a>
+              <a href="https://linkedin.com/in/marcinfirmuga" rel="me noopener">LinkedIn</a>
+              <a href="https://x.com/hck_lab" rel="me noopener">X</a>
+              <a href="https://linktr.ee/marcin_firmuga" rel="me noopener">Everywhere else</a>
+            </nav>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hck-section sl-faq" id="faq" aria-labelledby="faq-title">
+        <div class="hck-container--wide">
+          <h2 class="hck-title" id="faq-title" data-reveal>Questions people ask</h2>
+          <div class="sl-faq__list" data-reveal>
+            <details class="sl-faq__item"><summary>Is Scaling Laws free?</summary><p>Yes. Every build so far is free for Windows on itch.io. A Steam release is planned for October to November 2026.</p></details>
+            <details class="sl-faq__item"><summary>What is the current version?</summary><p>Version 0.4.0, released 13 September 2026, an alpha. A city map of Bayview, rebuilt offices, a server room climate and tokenization research are finished for the next build.</p></details>
+            <details class="sl-faq__item"><summary>Which AI labs are in the game?</summary><p>Fourteen parody labs: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere, and E-Solutions, the invented lab of the player's cousin in Radom. Thirteen are seeded from the real 2022 to 2026 release timeline.</p></details>
+            <details class="sl-faq__item"><summary>Can I buy or attack rival labs?</summary><p>Yes. You can buy shares and take over a lab with a majority, hire its staff, pay for smear stories in four tiers, and sue it. Rivals can sue back. Every action changes the relationship.</p></details>
+            <details class="sl-faq__item"><summary>Are alliances or mergers in the game?</summary><p>Not yet. Alliances between labs and mergers are planned and not in any build.</p></details>
+            <details class="sl-faq__item"><summary>Is the source code open source?</summary><p>It is source available, not open source. The code can be read on GitHub, but from 19 September 2026 it may not be redistributed. Earlier versions stay under PolyForm Noncommercial 1.0.0.</p></details>
+            <details class="sl-faq__item"><summary>Who makes Scaling Laws?</summary><p>Marcin "HCK" Firmuga, a solo developer from Radom, Poland, publishing as HCK Labs. He also made PC Workman, a Windows monitor on the Microsoft Store.</p></details>
+          </div>
+        </div>
+      </section>
+
       <section class="hck-section sl-close" aria-labelledby="close-title">
         <div class="hck-container--wide">
           <div class="sl-close__panel hck-edge-shine" data-reveal>
@@ -784,6 +1291,7 @@
             </p>
             <div class="sl-close__actions">
               <a class="hck-button hck-button--burgundy" href="https://hcklab.itch.io/scaling-laws" rel="noopener">Download the build</a>
+              <a class="hck-button hck-button--quiet" href="/blog/forty-eight-days/">How it was made: 48 days</a>
               <a class="hck-button hck-button--quiet" href="roadmap/">Open the roadmap</a>
               <a class="hck-button hck-button--quiet" href="development/">How the systems work</a>
               <a class="hck-button hck-button--quiet" href="https://linktr.ee/marcin_firmuga" rel="noopener">Everywhere else</a>
