@@ -7,6 +7,22 @@
   document.documentElement.classList.add("has-js");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+  /* A way back to pcworkman.dev: hovering the brand slides a "Main page" button out to the
+     left of the logo. It lives inside the same wrapper as the brand, so moving the pointer onto
+     it keeps it open. */
+  const brand = document.querySelector(".hck-nav > .hck-brand, .hck-nav > .sl-project-brand");
+  if (brand && !document.querySelector(".hck-home-reveal")) {
+    const polish = (document.documentElement.lang || "").toLowerCase().startsWith("pl");
+    const wrap = document.createElement("div");
+    wrap.className = "hck-brandwrap";
+    const home = document.createElement("a");
+    home.className = "hck-home-reveal";
+    home.href = polish ? "https://pcworkman.dev/" : "https://pcworkman.dev/index_en.html";
+    home.innerHTML = '<span aria-hidden="true">&larr;</span><span>' + (polish ? "Strona główna" : "Main page") + "</span>";
+    brand.parentNode.insertBefore(wrap, brand);
+    wrap.append(home, brand);
+  }
+
   const navToggle = document.querySelector("[data-nav-toggle]");
   const navLinks = document.querySelector("[data-nav-links]");
 

@@ -294,3 +294,44 @@
 @media (prefers-reduced-motion: reduce) {
   .hck-nav__link--pcw:hover { transform: none; }
 }
+
+/* ---------------------------------------------------------------- main page reveal */
+.hck-brandwrap { display: inline-flex; align-items: center; gap: 0; min-width: max-content; }
+.hck-home-reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-right: 0;
+  padding: 7px 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--hck-text-strong);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  background: rgba(103, 22, 42, .30);
+  transition: max-width 320ms cubic-bezier(.2,.7,.2,1), opacity 220ms ease, padding 320ms cubic-bezier(.2,.7,.2,1), margin 320ms cubic-bezier(.2,.7,.2,1), border-color 220ms ease;
+}
+.hck-brandwrap:hover .hck-home-reveal,
+.hck-brandwrap:focus-within .hck-home-reveal {
+  max-width: 190px;
+  opacity: 1;
+  padding: 7px 13px;
+  margin-right: 12px;
+  border-color: rgba(217, 74, 101, .55);
+}
+.hck-home-reveal:hover { background: rgba(185, 44, 73, .42); }
+.hck-brandwrap:hover .hck-brand__mark { transform: rotate(135deg); transition: transform 420ms cubic-bezier(.2,.7,.2,1); }
+.hck-brand__mark { transition: transform 420ms cubic-bezier(.2,.7,.2,1); }
+@media (hover: none) {
+  .hck-home-reveal { max-width: 190px; opacity: 1; padding: 6px 10px; margin-right: 10px; border-color: rgba(217, 74, 101, .4); font-size: .66rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hck-home-reveal, .hck-brand__mark { transition: none; }
+}
