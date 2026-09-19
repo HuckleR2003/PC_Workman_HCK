@@ -1,0 +1,213 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman blog post -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="In March git push --force ate 130 commits. The recovery left my clone on the wrong branch for five months, 1081 commits behind, and git said all was fine.">
+    <meta name="keywords" content="Monday Grind Blueprint, Git, BuildInPublic, Python, OpenToWork">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/">
+    <meta property="og:title" content="Five Months Ago One Command Deleted 130 Commits. On Friday I Was One Away From 1081">
+    <meta property="og:description" content="In March git push --force ate 130 commits. The recovery left my clone on the wrong branch for five months, 1081 commits behind, and git said all was fine.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-monday.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-08-10">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Monday Grind Blueprint">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>One Command Away From Deleting 1081 Commits | Monday Grind #20</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../feed.xml">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Five Months Ago One Command Deleted 130 Commits. On Friday I Was One Away From 1081",
+  "description": "In March git push --force ate 130 commits. The recovery left my clone on the wrong branch for five months, 1081 commits behind, and git said all was fine.",
+  "url": "https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/",
+  "datePublished": "2026-08-10",
+  "dateModified": "2026-09-19",
+  "inLanguage": "en",
+  "image": "https://pcworkman.dev/assets/images/og-monday.png",
+  "articleSection": "Monday Grind Blueprint",
+  "wordCount": 494,
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "alternateName": "Marcin HCK Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "jobTitle": "Software developer",
+    "sameAs": [
+      "https://github.com/HuckleR2003",
+      "https://x.com/hck_lab",
+      "https://linkedin.com/in/marcinfirmuga",
+      "https://dev.to/huckler",
+      "https://hackernoon.com/u/huckler",
+      "https://medium.com/@MarcinFirmuga",
+      "https://linktr.ee/marcin_firmuga"
+    ]
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "alternateName": "HCK_Labs",
+    "url": "https://pcworkman.dev/hck-labs/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+      "width": 600,
+      "height": 600
+    },
+    "founder": {
+      "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga"
+    }
+  },
+  "isPartOf": { "@type": "Blog", "name": "Monday Grind Blueprint", "url": "https://pcworkman.dev/blog/monday-grind-blueprint/" }
+}
+</script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+    { "@type": "ListItem", "position": 3, "name": "Monday Grind Blueprint", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/" },
+    { "@type": "ListItem", "position": 4, "name": "#20", "item": "https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/" }
+  ]
+}
+</script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/index.html" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-monday">Monday Grind Blueprint &middot; #20</span>
+        <h1>Five Months Ago One Command Deleted 130 Commits. On Friday I Was One Away From 1081</h1>
+        <p class="tagline">The reason git never warned me was the fix I applied in March.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-08-10</span><span>&middot;</span><span>3 min read</span><span>&middot;</span><span>Monday Grind Blueprint #20</span>
+        </div>
+
+<p class="lead">Five months ago, one command deleted 130 of my commits. On Friday I was one command away from deleting 1081. The reason git never warned me was the fix I applied in March.</p>
+
+<p>Back in March I ran <code>git push --force</code> and watched eight months of history collapse into a single commit. I recovered most of it from a branch called "archive" that I had made three weeks earlier by accident. That story was <a href="../../friday-shipped-scarred/01-git-force-deleted-130-commits/">the first post I ever wrote in this series</a>.</p>
+
+<p>Here is a part I did not know until Friday... When I recovered, my local clone quietly started tracking that archive branch instead of main. So for five months git compared my work against a frozen snapshot and reported, every single time, that everything was fine.</p>
+
+<p><span class="hl">It was fine. Against the wrong branch.</span></p>
+
+<p>Meanwhile I kept uploading files through the GitHub website, the way I always have. Real project moved on. My clone did not. Neither of them told the other.</p>
+
+<p>On Friday I finally sat down to do it properly, folder by folder, clean commits. And before pushing I ran one check I had never bothered with:</p>
+
+<pre><code>git rev-parse --abbrev-ref {u}</code></pre>
+
+<p>It said origin/archive.</p>
+
+<p>Then the numbers landed. My clone was <span class="hl">1081 commits behind</span>. Pushing it would have changed 523 files and deleted 145,201 lines that exist only on GitHub. Five months of work, uploaded by hand, evening after evening, gone in one command that git would have accepted without a word.</p>
+
+<p>I did not push.</p>
+
+<p>Then I did something dumber. Cleaning up two local commits, I ran <code>git reset --hard</code>, which also wiped the uncommitted work of that entire day. New assistant flows. Guide links. All of it.</p>
+
+<p>It came back only because I had made a full folder backup an hour earlier, for exactly this reason. Restored, verified file by file, 331 tests green.</p>
+
+<p>Five months of writing about <a href="../../../guides/silent-failures-that-pass-every-test/">tools that report success while doing nothing</a>. Then my own git status did exactly that.</p>
+
+<p>So if you take one thing from this, take the command:</p>
+
+<pre><code>git rev-parse --abbrev-ref {u}</code></pre>
+
+<p>Two seconds. Run it on your main project before you read anything else. A quiet git status proves nothing when the branch is watching the wrong remote. I would genuinely rather this post cost me some dignity and save one person their history.</p>
+
+<p>This is also what building alone actually looks like. No second pair of eyes, no reviewer, nobody to say "hold on, check your upstream first". Just you, a terminal, and whatever discipline you managed to build.</p>
+
+<h2>This week</h2>
+
+<ul>
+<li>Sync the clone properly. Backup, fetch, rebuild on top of what is there. Slowly.</li>
+<li>v1.8.7 out of the Store queue. Guided AI flows, <a href="../../../guides/">23 guides</a> reachable from inside the app, and TURBO that finally prints a receipt.</li>
+<li>The Polish guides hub still has no offline search. Last thing standing between the Polish and English sites.</li>
+</ul>
+
+<p>Taxi by day. Repairing a five-month-old mistake by night.</p>
+
+        <div class="post-tags"><span class="tag">Git</span><span class="tag">BuildInPublic</span><span class="tag">Python</span><span class="tag">OpenToWork</span></div>
+
+        <div class="read-next"><b>Read next</b><ul><li><a href="../../friday-shipped-scarred/01-git-force-deleted-130-commits/">The first post in this series: git push --force turned 130 commits into 1</a></li></ul></div>
+
+        <div class="guide-cta">
+            <b>This is the project behind the post.</b> PC Workman is a free Windows system monitor
+            with an offline AI assistant, on the <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.
+            <a href="../../../download/">Download it</a> or <a href="https://github.com/HuckleR2003/PC_Workman_HCK" target="_blank" rel="noopener">read the source</a>.
+        </div>
+
+        <div class="post-nav"><a class="pn-prev" href="../i-started-two-games/"><span class="pn-dir">&larr; #19</span><span class="pn-title">Finish What You Started? This Week I Started Two Games</span></a><a class="pn-next" href="../the-streak-broke/"><span class="pn-dir">#21 &rarr;</span><span class="pn-title">Twenty Weeks, Sixty Posts. On Friday I Missed One</span></a></div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
+                <p>Every edition is written from that week's real commits. Newest posts premiere on LinkedIn - the archive lives here.
+                   More about me: <a href="../../story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Monday Grind Blueprint</a> &middot; <a href="../../../index_en.html">PC Workman</a> &middot; <a href="../../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
