@@ -345,7 +345,7 @@
           "name": "Jakie laboratoria AI są w grze?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Czternaście parodii: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere oraz E-Solutions, wymyślona firma kuzyna gracza z Radomia. Trzynaście zasianych jest z prawdziwej osi wydań 2022-2026."
+            "text": "Czternaście parodii: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere oraz E-Solutions, wymyślona firma kuzyna gracza z Radomia. Trzynaście zaczyna tam, gdzie ich prawdziwe odpowiedniki w 2022, a potem każde idzie własną drogą."
           }
         },
         {
@@ -353,7 +353,7 @@
           "name": "Czy mogę kupić albo zaatakować rywala?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Tak. Możesz kupić akcje i przejąć laboratorium większością, podkupić mu ludzi, zapłacić za oczerniające historie w czterech progach i je pozwać. Rywale też potrafią pozwać. Każdy ruch zmienia relację."
+            "text": "Tak. Możesz kupić akcje i przejąć laboratorium większością, podkupić mu ludzi, zapłacić za oczerniające historie na czterech poziomach i je pozwać. Rywale też potrafią pozwać. Każdy ruch zmienia relację."
           }
         },
         {
@@ -407,15 +407,12 @@
 
         <div class="hck-nav__links" id="sl-nav-links" data-nav-links>
           <a class="hck-nav__link" href="#get">Pobierz</a>
-          <a class="hck-nav__link" href="#why">Dlaczego</a>
+          <a class="hck-nav__link" href="#features">Co robisz</a>
           <a class="hck-nav__link" href="#rivals">Rywale</a>
+          <a class="hck-nav__link" href="#next-build">Nowości</a>
           <a class="hck-nav__link" href="#author">Autor</a>
-          <a class="hck-nav__link" href="#overview">Przegląd</a>
-          <a class="hck-nav__link" href="#systems">Systemy</a>
           <a class="hck-nav__link" href="development/index_pl.html">Jak działa</a>
           <a class="hck-nav__link" href="roadmap/index_pl.html">Roadmapa</a>
-          <a class="hck-nav__link" href="#build-status">Status builda</a>
-          <a class="hck-nav__link" href="#gallery">Zrzuty</a>
           <a class="hck-nav__link" href="./" lang="en">EN</a>
           <a class="hck-nav__link" href="https://github.com/HuckleR2003/ScalingLaws-AI">Kod</a>
         </div>
@@ -433,7 +430,7 @@
               <span class="hck-visually-hidden">: darmowy tycoon o firmie AI, w którym liczy się moment zakupu sprzętu, a nie sam zakup</span>
             </h1>
             <p class="sl-home-hero__hook">
-              Styczeń 2022. Dwanaście milionów dolarów. Zero produktu. Trenuj modele, finansuj badania i wykładaj prawdziwe pieniądze na moc obliczeniową, kiedy front przesuwa się niezależnie od tego, czy jesteś gotowy. <strong>Kosztowna decyzja rzadko dotyczy tego, co kupić. Dotyczy tego, kiedy.</strong>
+              Styczeń 2022. Dwanaście milionów dolarów. Zero produktu. Trenuj modele, finansuj badania i płać za moc obliczeniową, a konkurencja w tym czasie nie stoi w miejscu. <strong>Kosztowna decyzja rzadko dotyczy tego, co kupić. Dotyczy tego, kiedy.</strong>
             </p>
             <div class="sl-home-hero__actions sl-get__row" id="get">
               <a class="sl-get" href="https://hcklab.itch.io/scaling-laws" rel="noopener">
@@ -446,7 +443,7 @@
                 </span>
                 <span class="sl-get__strap">Za darmo / Windows / 81 MB / alfa 0.4.0</span>
               </a>
-              <a class="hck-button hck-button--quiet" href="#overview">Zobacz grę</a>
+              <a class="hck-button hck-button--quiet" href="#features">Zobacz grę</a>
               <a class="hck-button hck-button--quiet" href="https://github.com/HuckleR2003/ScalingLaws-AI">Kod źródłowy</a>
             </div>
           </div>
@@ -470,116 +467,85 @@
         </div>
       </section>
 
-      <section class="hck-section sl-why" id="why" aria-labelledby="why-title">
+      <section class="hck-section sl-features" id="features" aria-labelledby="features-title">
         <div class="hck-container--wide">
           <header class="hck-section-head" data-reveal>
             <div>
-              <div class="sl-section__eyebrow">Dlaczego zagrać</div>
-              <h2 class="hck-title" id="why-title">Dwadzieścia powodów, jeden ekran.</h2>
+              <div class="sl-section__eyebrow">Co robisz w grze</div>
+              <h2 class="hck-title" id="features-title">Prowadzisz laboratorium AI. Oto jak to wygląda.</h2>
             </div>
-            <p class="hck-copy--soft">Wersja w skrócie. Wszystko z oznaczeniem 0.4.0 jest dziś w darmowym pobraniu. Następny build jest gotowy i czeka na wydanie. W planach znaczy dokładnie to.</p>
+            <p class="hck-copy--soft">Osiem rzeczy, które robisz od pierwszego dnia. Prawie wszystkie są już w darmowej wersji 0.4.0, reszta wchodzi w następnym buildzie.</p>
           </header>
-          <div class="sl-tiles" data-reveal>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">7 &gt; 8</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Siedem kart bije osiem</h3>
-              <p>Zapełnij szafę, a ciepło zdławi całą. Zamień jedną kartę na wentylator i ta sama szafa da więcej.</p>
+          <div class="sl-rows">
+            <article class="sl-row" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/model-creator-960.webp" alt="Kreator modelu: Zbuduj model krok po kroku" loading="lazy" decoding="async"><figcaption>Kreator modelu</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">01</span><h3>Zbuduj model krok po kroku</h3><p>Wybierasz rozmiar modelu, dane i moc obliczeniową, a gra od razu pokazuje, jak dobry wyjdzie, ile potrwa trening i ile to kosztuje. Jakość liczy prawdziwe prawo skalowania z badań nad AI.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">14</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Czternaście rywali</h3>
-              <p>OpenSI, Antropic, DeepThink, Grob i dziesięć innych, zasianych z prawdziwej osi wydań 2022-2026, a potem wolnych, by pójść własną drogą.</p>
+            <article class="sl-row sl-row--flip" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/anim/research-tree.webp" alt="Tablica badań: Badania zajmują czas" loading="lazy" decoding="async"><figcaption>Tablica badań</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">02</span><h3>Badania zajmują czas</h3><p>Pieniądze przyspieszają badania, ale kalendarza nie kupisz. Nowe architektury, lepsze dane, a nawet większe biura odblokowujesz po kolei, w swoim tempie.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">~20:1</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Prawdziwe prawo skalowania</h3>
-              <p>Jakość modelu liczy strata Chinchilli. Optimum to około dwudziestu tokenów na parametr, a dziesięć razy więcej mocy daje około dziesięciu punktów.</p>
+            <article class="sl-row" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/anim/server-room.webp" alt="Serwerownia: Zwracaj uwagę na temperaturę" loading="lazy" decoding="async"><figcaption>Serwerownia</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">03</span><h3>Zwracaj uwagę na temperaturę</h3><p>Nie zawsze osiem kart jest lepsze niż siedem. Dodatkowy wentylator zamiast karty może dać więcej mocy. Karty kupujesz sam i sam wkładasz je do szaf w piwnicy.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">51%</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Kup rywala</h3>
-              <p>Cena akcji wynika z możliwości laboratorium w danym dniu. Z większością udziałów możesz przejąć całą firmę.</p>
+            <article class="sl-row sl-row--flip" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/release-960.webp" alt="Planowanie wydania: Wydaj aktualizację" loading="lazy" decoding="async"><figcaption>Planowanie wydania</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">04</span><h3>Wydaj aktualizację</h3><p>1/4 użytkowników wchodzi w aktualizację pierwszego dnia. Ale uważaj, bo jeśli jest gorsza niż poprzednia, więcej się nie pojawią.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">4 progi</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Gra nieczysta</h3>
-              <p>Zapłać za historie o rywalu, pozwij go, podkup mu ludzi. Wpadka kosztuje więcej, niż daje sukces.</p>
+            <article class="sl-row" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/marketing-960.webp" alt="Marketing: Sprzedaj to ludziom" loading="lazy" decoding="async"><figcaption>Marketing</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">05</span><h3>Sprzedaj to ludziom</h3><p>Sam dobry model nie wystarczy. Ustalasz cenę, decydujesz, ile dać za darmo, i wybierasz reklamę: media społecznościowe, prasę, twórców albo telewizję.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">5 dni</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Regulator czeka</h3>
-              <p>Poważny incydent otwiera kontrolę. Werdykt zapada według zabezpieczeń, z którymi model wyszedł.</p>
+            <article class="sl-row sl-row--flip" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/regulator-960.webp" alt="Kontrola regulatora: Świat się dzieje" loading="lazy" decoding="async"><figcaption>Kontrola regulatora</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">06</span><h3>Świat się dzieje</h3><p>Zarówno do ciebie, jak i do twoich rywali dwadzieścia trzy newsy ze świata przychodzą w dniach, w których naprawdę się wydarzyły. Po poważnym incydencie regulator daje ci pięć dni, zanim zdecyduje o karze.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">$10 mld</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Państwowe pieniądze</h3>
-              <p>Państwowa pożyczka na moc obliczeniową kosztuje około 2,9 razy tyle, ile pożycza. Póki ją spłacasz, nikt nie może kupić firmy.</p>
+            <article class="sl-row" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/team-960.webp" alt="Zespół: Zatrudniaj ludzi" loading="lazy" decoding="async"><figcaption>Zespół</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">07</span><h3>Zatrudniaj ludzi</h3><p>Emil przeprowadzi cię przez pierwszą godzinę i zapłaci za pierwsze badanie. Ma też swoje własne małe laboratorium. Potem zatrudniasz zespół: każda osoba ma swoje oczekiwania i swoje godziny pracy.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">25%</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Wersje trzymają ludzi</h3>
-              <p>Ćwierć użytkowników bierze aktualizację pierwszego dnia. Reszta przechodzi powoli, a jeśli nowa wersja jest gorsza, wcale.</p>
+            <article class="sl-row sl-row--flip" data-reveal>
+              <figure class="sl-row__media"><img src="assets/images/screens/funding-960.webp" alt="Finansowanie: Znajdź pieniądze" loading="lazy" decoding="async"><figcaption>Finansowanie</figcaption></figure>
+              <div class="sl-row__body"><span class="sl-row__num">08</span><h3>Znajdź pieniądze</h3><p>Inwestorzy, pożyczki i granty. Każde z nich ma swoją cenę: udziały w firmie, prowizję albo warunki, których trzeba dotrzymać.</p></div>
             </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">2x</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Sprzęt starzeje się dwa razy</h3>
-              <p>Raz z kalendarzem, drugi raz, gdy wychodzi następca. Kup rok za wcześnie, a kapitał utknie we flocie, którą rynek już minął.</p>
-            </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">23</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Prawdziwy świat się dzieje</h3>
-              <p>Dwadzieścia trzy wydarzenia ze świata przychodzą w dniach, w których naprawdę się stały, do ciebie i do każdego rywala.</p>
-            </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">?</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Wywiad potrafi kłamać</h3>
-              <p>Płatny wywiad ostrzega przed premierami i spadkami cen. Tańsze biuro brzmi pewniej, niż na to zasługuje.</p>
-            </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">EXIT</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Koniec inny niż bankructwo</h3>
-              <p>Urośnij na tyle, a ktoś zaproponuje kupno firmy. Kupiec, który jest w tyle, płaci więcej.</p>
-            </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">Radom</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Kuzyn z branży</h3>
-              <p>Emil prowadzi przez pierwszą godzinę, płaci za pierwsze badanie i ma na tablicy własne małe laboratorium.</p>
-            </article>
-            <article class="sl-tile sl-tile--build">
-              <div class="sl-tile__top"><span class="sl-tile__big">EN / PL</span><span class="sl-tile__tag">W 0.4.0</span></div>
-              <h3>Dwa języki, 47 osiągnięć</h3>
-              <p>Język zmienisz w każdej chwili. Osiągnięcia zostają z tobą między kampaniami, także po bankructwie.</p>
-            </article>
-            <article class="sl-tile sl-tile--next">
-              <div class="sl-tile__top"><span class="sl-tile__big">1 284</span><span class="sl-tile__tag">Następny build</span></div>
-              <h3>Miasto, w które rośniesz</h3>
-              <p>Bayview: domy, centrum, port i dolina, a na mapie biura do wynajęcia, które można znaleźć i kliknąć.</p>
-            </article>
-            <article class="sl-tile sl-tile--next">
-              <div class="sl-tile__top"><span class="sl-tile__big">30 kW</span><span class="sl-tile__tag">Następny build</span></div>
-              <h3>Serwerownia z klimatem</h3>
-              <p>Każda szafa grzeje jedno pomieszczenie. Klimatyzatory zajmują podłogę, podkręcanie wymaga chłodnej sali, a każdą kartę montujesz ręcznie.</p>
-            </article>
-            <article class="sl-tile sl-tile--next">
-              <div class="sl-tile__top"><span class="sl-tile__big">LV 1-2</span><span class="sl-tile__tag">Następny build</span></div>
-              <h3>Biura z twoją nazwą nad drzwiami</h3>
-              <p>Dwa wynajmowane piętra od nowa, z prawdziwymi materiałami, recepcją i nazwą firmy nad wejściem. Pracownicy siedzą i piszą przy biurkach.</p>
-            </article>
-            <article class="sl-tile sl-tile--next">
-              <div class="sl-tile__top"><span class="sl-tile__big">-20%</span><span class="sl-tile__tag">Następny build</span></div>
-              <h3>Tokenizacja</h3>
-              <p>Zbadaj lepszy tokenizer, a to samo zdanie kosztuje mniej tokenów, więc cała flota obsłuży więcej ludzi.</p>
-            </article>
-            <article class="sl-tile sl-tile--plan">
-              <div class="sl-tile__top"><span class="sl-tile__big">WKRÓTCE</span><span class="sl-tile__tag">W planach</span></div>
-              <h3>Sojusze i fuzje</h3>
-              <p>Pakty z innymi laboratoriami i fuzje między rywalami. W planach, jeszcze w żadnym buildzie, projekt nie jest zamknięty.</p>
-            </article>
-            <article class="sl-tile sl-tile--plan">
-              <div class="sl-tile__top"><span class="sl-tile__big">STEAM</span><span class="sl-tile__tag">W planach</span></div>
-              <h3>Wydanie na Steam</h3>
-              <p>Planowane na październik-listopad 2026. Do tego czasu każdy build jest za darmo na itch.io.</p>
-            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="sl-state" aria-labelledby="state-title">
+        <div class="hck-container--wide sl-state__inner" data-reveal>
+          <div class="sl-state__copy">
+            <div class="sl-section__eyebrow">Programy państwowe</div>
+            <h2 id="state-title">Kiedy rząd zaczyna ci ufać</h2>
+            <p>Państwo może pożyczyć ci nawet 10 miliardów dolarów, ale oddasz mu prawie trzy razy tyle, a póki spłacasz, nikt nie może kupić twojej firmy. Po pięciu latach bez poważnych wpadek rząd może też powierzyć ci osiem sektorów kraju, od urzędów po obronność. Płacą więcej niż rynek, dopóki twój model jest w czołówce, a porażka kosztuje miliardy.</p>
+          </div>
+          <div class="sl-state__facts"><div><b>$10 mld</b><span>największa pożyczka</span></div><div><b>5 lat</b><span>czystej historii, zanim państwo zaufa</span></div><div><b>8</b><span>sektorów kraju do obsłużenia</span></div></div>
+        </div>
+      </section>
+
+      <section class="hck-section sl-rivals2" id="rivals" aria-labelledby="rivals-title">
+        <div class="hck-container--wide">
+          <header class="hck-section-head" data-reveal>
+            <div>
+              <div class="sl-section__eyebrow">Konkurencja</div>
+              <h2 class="hck-title" id="rivals-title">Nieczysta gra. Tylko uważaj, mogą się zorientować.</h2>
+            </div>
+            <p class="hck-copy--soft">Czternaście laboratoriów rośnie razem z tobą. Każde pamięta, co mu zrobiłeś, nawet jeśli nie da się tego udowodnić.</p>
+          </header>
+          <div class="sl-rivals2__grid" data-reveal>
+            <figure class="sl-rivals2__media"><img src="assets/images/anim/rivals.webp" width="1280" height="627" alt="Nieczysta gra. Tylko uważaj, mogą się zorientować." loading="lazy" decoding="async"></figure>
+            <div class="sl-moves">
+              <article class="sl-move"><h3>4 poziomy oczerniania</h3><p>Płacisz za historie o rywalu. Im droższy poziom, tym mocniej uderza, ale tym łatwiej wpaść. Jeśli cię namierzą, dostaniesz list od prawnika, telefon, a może pozew.</p></article>
+              <article class="sl-move"><h3>Pozwy</h3><p>Możesz pozwać rywala. Im więcej żądasz, tym mniejsza szansa, że wygrasz. Koszty płacisz od razu i nikt ci ich nie zwróci.</p></article>
+              <article class="sl-move"><h3>Podkupywanie ludzi</h3><p>Otwierasz laboratorium, widzisz, kto tam pracuje, i składasz lepszą ofertę. Każda taka próba psuje wasze relacje.</p></article>
+              <article class="sl-move"><h3>Przejęcia</h3><p>Kupujesz akcje rywala. Kiedy masz większość udziałów, możesz wykupić całą firmę razem z jej najnowszym modelem.</p></article>
+            </div>
+          </div>
+          <div class="sl-labs2" data-reveal>
+            <h3>Kto jest na tablicy</h3>
+            <p>Parodie prawdziwych laboratoriów i jedno wymyślone, z Radomia. Trzynaście z nich zaczyna tam, gdzie prawdziwe były w 2022, i potem każde idzie własną drogą.</p>
+            <ul><li><strong>OpenSI</strong><span>2015</span></li><li><strong>Antropic</strong><span>2021</span></li><li><strong>DeepThink</strong><span>2010</span></li><li><strong>Infinity</strong><span>2013</span></li><li><strong>Astral</strong><span>2023</span></li><li><strong>DeepSearch</strong><span>2023</span></li><li><strong>zAI</strong><span>2023</span></li><li><strong>Swen</strong><span>2023</span></li><li><strong>Grob</strong><span>2022</span></li><li><strong>StableAI</strong><span>2020</span></li><li><strong>IntroduceAI</strong><span>2022</span></li><li><strong>Algho Alpha</strong><span>2019</span></li><li><strong>Gohere</strong><span>2019</span></li><li><strong>E-Solutions</strong><span>2021</span></li></ul>
           </div>
         </div>
       </section>
@@ -599,8 +565,8 @@
               <figcaption><strong>Serwerownia</strong><span>Kupujesz szafy, stawiasz je na podłodze i patrzysz na ciepło.</span></figcaption>
             </figure>
             <figure class="sl-anim">
-              <img src="assets/images/anim/research-tree.webp" width="1280" height="720" alt="Tablica badań. Pięć er i węzły, które dają to, co obiecuje ich karta." loading="lazy" decoding="async">
-              <figcaption><strong>Tablica badań</strong><span>Pięć er i węzły, które dają to, co obiecuje ich karta.</span></figcaption>
+              <img src="assets/images/anim/research-tree.webp" width="1280" height="720" alt="Tablica badań. Pięć epok i badania, które dają dokładnie to, co obiecują." loading="lazy" decoding="async">
+              <figcaption><strong>Tablica badań</strong><span>Pięć epok i badania, które dają dokładnie to, co obiecują.</span></figcaption>
             </figure>
             <figure class="sl-anim">
               <img src="assets/images/anim/vs-models.webp" width="1280" height="720" alt="Twój model kontra najlepszy. Porównaj trening z najlepszym modelem na rynku, zanim za niego zapłacisz." loading="lazy" decoding="async">
@@ -611,8 +577,8 @@
               <figcaption><strong>Rywale i ich ludzie</strong><span>Otwórz laboratorium, zobacz, kto tam pracuje, złóż ofertę.</span></figcaption>
             </figure>
             <figure class="sl-anim">
-              <img src="assets/images/anim/world-map.webp" width="1280" height="627" alt="Gdzie rejestrujesz firmę. Szesnaście krajów, każdy to wymiana między podatkiem, krzemem i konkurencją." loading="lazy" decoding="async">
-              <figcaption><strong>Gdzie rejestrujesz firmę</strong><span>Szesnaście krajów, każdy to wymiana między podatkiem, krzemem i konkurencją.</span></figcaption>
+              <img src="assets/images/anim/world-map.webp" width="1280" height="627" alt="Gdzie rejestrujesz firmę. Szesnaście krajów, każdy z innym podatkiem, ceną sprzętu i konkurencją." loading="lazy" decoding="async">
+              <figcaption><strong>Gdzie rejestrujesz firmę</strong><span>Szesnaście krajów, każdy z innym podatkiem, ceną sprzętu i konkurencją.</span></figcaption>
             </figure>
             <figure class="sl-anim">
               <img src="assets/images/anim/racks-basement.webp" width="1280" height="627" alt="Piwnica się zapełnia. Części, szafy i pierwsze karty w zimnej piwnicy." loading="lazy" decoding="async">
@@ -645,88 +611,23 @@
               <figcaption><strong>Bayview z góry</strong><span>Mapa otwiera się na twoim budynku i odjeżdża na miasto dookoła.</span></figcaption>
             </figure>
             <figure class="sl-next-shot">
-              <img src="assets/images/screens/server-climate-960.webp" srcset="assets/images/screens/server-climate-960.webp 960w, assets/images/screens/server-climate-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="Serwerownia z klimatem. Jedno pomieszczenie, jeden budżet ciepła. Po jego przekroczeniu każda szafa chłodzi się gorzej naraz." loading="lazy" decoding="async">
-              <figcaption><strong>Serwerownia z klimatem</strong><span>Jedno pomieszczenie, jeden budżet ciepła. Po jego przekroczeniu każda szafa chłodzi się gorzej naraz.</span></figcaption>
+              <img src="assets/images/screens/server-climate-960.webp" srcset="assets/images/screens/server-climate-960.webp 960w, assets/images/screens/server-climate-1600.webp 1600w" sizes="(max-width: 900px) 94vw, 46vw" width="1600" height="900" alt="Serwerownia z klimatem. Jedno pomieszczenie, jeden limit ciepła. Kiedy go przekroczysz, wszystkie szafy chłodzą się gorzej naraz." loading="lazy" decoding="async">
+              <figcaption><strong>Serwerownia z klimatem</strong><span>Jedno pomieszczenie, jeden limit ciepła. Kiedy go przekroczysz, wszystkie szafy chłodzą się gorzej naraz.</span></figcaption>
             </figure>
           </div>
-        </div>
-      </section>
-
-      <section class="hck-section sl-rivals" id="rivals" aria-labelledby="rivals-title">
-        <div class="hck-container--wide">
-          <header class="hck-section-head" data-reveal>
-            <div>
-              <div class="sl-section__eyebrow">Konkurencja</div>
-              <h2 class="hck-title" id="rivals-title">Czternaście laboratoriów, a każde cię pamięta.</h2>
-            </div>
-            <p class="hck-copy--soft">Parodie prawdziwych laboratoriów z datowaną historią z publicznych źródeł. Trzy z nich rozpadają się w trakcie kampanii, przez te same ryzyka, które mogą skończyć twoją firmę.</p>
-          </header>
-          <div class="sl-rivals__grid">
-            <ul class="sl-labs" data-reveal>
-            <li class="sl-lab"><strong>OpenSI</strong><span class="sl-lab__meta">San Francisco / 2015</span><span>Najpierw zasięg wśród ludzi, potem front.</span></li>
-            <li class="sl-lab"><strong>Antropic</strong><span class="sl-lab__meta">San Francisco / 2021</span><span>Bezpieczeństwo sprzedawane jako cecha produktu.</span></li>
-            <li class="sl-lab"><strong>DeepThink</strong><span class="sl-lab__meta">London / 2010</span><span>Laboratorium przy największym kanale dystrybucji świata.</span></li>
-            <li class="sl-lab"><strong>Infinity</strong><span class="sl-lab__meta">Menlo Park / 2013</span><span>Rozdaje wagi, żeby zburzyć cudze fosy.</span></li>
-            <li class="sl-lab"><strong>Astral</strong><span class="sl-lab__meta">Paris / 2023</span><span>Mały, szybki, otwarty, europejski.</span></li>
-            <li class="sl-lab"><strong>DeepSearch</strong><span class="sl-lab__meta">Hangzhou / 2023</span><span>Front w cenie, która ośmiesza resztę.</span></li>
-            <li class="sl-lab"><strong>zAI</strong><span class="sl-lab__meta">Bay Area / 2023</span><span>Uwaga jako dystrybucja i wielki klaster na szybko.</span></li>
-            <li class="sl-lab"><strong>Swen</strong><span class="sl-lab__meta">Hangzhou / 2023</span><span>Otwarte wagi w każdym rozmiarze. Patrzy, co sprzedajesz, i kopiuje.</span></li>
-            <li class="sl-lab"><strong>Grob</strong><span class="sl-lab__meta">Austin / 2022</span><span>Ruszył w tym samym miesiącu co ty, z tymi samymi pieniędzmi.</span></li>
-            <li class="sl-lab"><strong>StableAI</strong><span class="sl-lab__meta">London / 2020</span><span>Ogromny otwarty zasięg, zero sposobu na fakturę.</span></li>
-            <li class="sl-lab"><strong>IntroduceAI</strong><span class="sl-lab__meta">Palo Alto / 2022</span><span>Jeden asystent, strojony pod to, jak rozmawia.</span></li>
-            <li class="sl-lab"><strong>Algho Alpha</strong><span class="sl-lab__meta">Heidelberg / 2019</span><span>Suwerenne AI dla europejskich instytucji.</span></li>
-            <li class="sl-lab"><strong>Gohere</strong><span class="sl-lab__meta">Toronto / 2019</span><span>Sprzedaje firmom, nigdy nie goni konsumenta.</span></li>
-            <li class="sl-lab"><strong>E-Solutions</strong><span class="sl-lab__meta">Radom / 2021</span><span>Sześć osób kuzyna nad sklepem komputerowym.</span></li>
-            </ul>
-            <aside class="sl-relations hck-edge-shine" data-reveal>
-              <h3>Co możesz zrobić laboratorium</h3>
-              <ul>
-              <li>Przeczytać jego teczkę: datę założenia i rozdziały w miarę jak się dzieją, nigdy z wyprzedzeniem.</li>
-              <li>Kupić jego akcje. Z większością możesz je przejąć: dostajesz najnowszy model i do trzech czwartych jego fanów.</li>
-              <li>Podkupić mu ludzi ofertą, którą mogą odrzucić.</li>
-              <li>Zapłacić za historie o nim, w czterech progach. Namierzona kampania kończy się listem prawnika, telefonem, a może pozwem.</li>
-              <li>Pozwać je i patrzeć, jak szanse spadają, gdy żądanie rośnie.</li>
-              <li>Każdy ruch zmienia to, co laboratorium o tobie myśli, nawet jeśli nikt go do ciebie nie przypisze.</li>
-              </ul>
-              <p class="sl-relations__next">W planach: sojusze między laboratoriami i fuzje. Jeszcze w żadnym buildzie.</p>
-            </aside>
-          </div>
-        </div>
-      </section>
-
-      <section class="hck-section sl-opening" id="overview" aria-labelledby="opening-title">
-        <div class="hck-container--wide">
-          <div class="sl-opening__facts" data-reveal aria-label="Warunki startowe kampanii">
-            <div class="sl-opening__fact">
-              <span class="sl-opening__label">Kampania zaczyna się</span>
-              <strong class="sl-opening__value">01 sty 2022</strong>
-            </div>
-            <div class="sl-opening__fact">
-              <span class="sl-opening__label">Kapitał startowy</span>
-              <strong class="sl-opening__value">$12M</strong>
-            </div>
-            <div class="sl-opening__fact">
-              <span class="sl-opening__label">Wydane produkty</span>
-              <strong class="sl-opening__value">0</strong>
-            </div>
-          </div>
-
-          <h2 class="sl-opening__statement" id="opening-title" data-reveal>
-            Front nie czeka na twoją roadmapę. <strong>Rynek sprzętu tym bardziej.</strong>
-          </h2>
         </div>
       </section>
 
       <section class="hck-section sl-section sl-section--panel" aria-labelledby="room-title">
         <div class="hck-container--wide sl-room-block">
           <div class="sl-room-copy" data-reveal>
-            <div class="sl-section__eyebrow">Małe początki</div>
+            <div class="sl-section__eyebrow">Skromne początki</div>
             <h2 class="sl-section__title" id="room-title">Zaczyna się w domu, nie w szklanej wieży.</h2>
             <p class="sl-section__lead">
-              Pierwszy widok firmy jest celowo skromny: biurko, łóżko, salon, garaż i tani samochód. Późniejszy rozwój ma być widoczny, a nie tylko liczbowy: większe biura, ludzie i własna infrastruktura zastępują startowy zestaw.
+              Pierwszy widok firmy jest celowo skromny: biurko, łóżko, salon, garaż i tani samochód. Późniejszy rozwój ma być widoczny gołym okiem. Rozwój gwarantuje większe biura, pracowników i własną infrastrukturę, a z czasem ktoś zaproponuje ci kupno całej firmy.
             </p>
             <div class="sl-room-copy__note">
-              Założyciel chodzi między biurkiem, łóżkiem i garażem, pracownicy siedzą przy biurkach w godzinach, które im dasz, biura się bada, wynajmuje, a potem kupuje, a piwnica zapełnia się szafami. Miasto Bayview wokół tych budynków jest gotowe i wchodzi w następnym buildzie.
+              Założyciel firmy chodzi po pomieszczeniach, pracownicy siedzą przy biurkach w wyznaczonych godzinach pracy. Nowe biura najpierw badasz, potem wynajmujesz, a na końcu możesz je kupić. Miasto Bayview wokół tych budynków jest gotowe i wchodzi w następnym buildzie.
             </div>
           </div>
 
@@ -746,7 +647,7 @@
                 loading="lazy"
                 decoding="async">
               <div class="sl-room-sequence__meta" aria-hidden="true">
-                <span class="sl-room-sequence__pulse">ewolucja pokoju / klatki co 200 ms</span>
+                <span class="sl-room-sequence__pulse">tak zmieniał się dom</span>
                 <span>siedziba startowa</span>
               </div>
             </figure>
@@ -759,263 +660,34 @@
           <header class="hck-section-head" data-reveal>
             <div>
               <div class="sl-section__eyebrow">Pętla</div>
-              <h2 class="hck-title" id="loop-title">Badaj. Trenuj. Wydawaj. Przeżyj rachunek.</h2>
+              <h2 class="hck-title" id="loop-title">Badaj. Trenuj. Wydawaj. Zarabiaj.</h2>
             </div>
             <p class="hck-copy--soft">
-              Scaling Laws jest zbudowane wokół decyzji, które zużywają i pieniądze, i kalendarz. Lepsza liczba jest przydatna tylko wtedy, gdy firmę stać na czas potrzebny, żeby ją osiągnąć.
+              Każda decyzja kosztuje tu pieniądze i czas. Lepszy model przyda się tylko wtedy, gdy firma dotrwa do dnia, w którym powstanie.
             </p>
           </header>
 
           <div class="sl-loop-grid">
             <article class="sl-loop-step" data-reveal>
-              <span class="sl-loop-step__number">01 / RESEARCH</span>
+              <span class="sl-loop-step__number">01 / BADANIA</span>
               <h3>Otwórz możliwość</h3>
-              <p>Architektury, korpusy, typy modeli i infrastruktura siedzą za badaniami. Gotówka pomaga. Nie kasuje łańcuchów wymagań ani czasu w kalendarzu.</p>
+              <p>Nowe architektury, dane i rodzaje modeli odblokowujesz badaniami. Pieniądze pomagają, ale na niektóre rzeczy po prostu trzeba poczekać.</p>
             </article>
             <article class="sl-loop-step" data-reveal>
-              <span class="sl-loop-step__number">02 / TRAIN</span>
-              <h3>Zaangażuj moc</h3>
-              <p>Wybierz model, skalę, dane i budżet mocy. Kreator pokazuje prognozowaną zdolność, czas treningu i gotówkę, którą przebieg ma spalić.</p>
+              <span class="sl-loop-step__number">02 / TRENING</span>
+              <h3>Wytrenuj model</h3>
+              <p>Wybierasz rozmiar, dane i moc obliczeniową. Kreator pokazuje, jak dobry wyjdzie model, ile potrwa trening i ile zapłacisz.</p>
             </article>
             <article class="sl-loop-step" data-reveal>
-              <span class="sl-loop-step__number">03 / RELEASE</span>
-              <h3>Wybierz dzień</h3>
-              <p>Skończony przebieg może poleżeć na półce. Czekanie może ominąć premierę rywala albo dać czas na ulepszenie, ale rynek nie stoi, kiedy czekasz.</p>
+              <span class="sl-loop-step__number">03 / PREMIERA</span>
+              <h3>Wybierz dzień premiery</h3>
+              <p>Gotowy model może poczekać. Czasem warto przeczekać premierę rywala, ale rynek w tym czasie idzie dalej.</p>
             </article>
             <article class="sl-loop-step" data-reveal>
-              <span class="sl-loop-step__number">04 / BUSINESS</span>
-              <h3>Niech na siebie zarobi</h3>
-              <p>Ustaw ceny, zarządzaj darmowym dostępem, buduj markę i finansuj kolejny cykl. Firma, która wypuści jeden model i osiądzie na laurach, ma z założenia zostać w tyle.</p>
+              <span class="sl-loop-step__number">04 / BIZNES</span>
+              <h3>Zarób na nim</h3>
+              <p>Ustalasz cenę, darmowy plan i reklamę. Firma, która wyda jeden model i przestanie się rozwijać, zostanie w tyle.</p>
             </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="hck-section sl-systems" id="systems" aria-labelledby="systems-title">
-        <div class="hck-container--wide">
-          <header class="hck-section-head" data-reveal>
-            <div>
-              <div class="sl-section__eyebrow">Systemy w aktualnym buildzie</div>
-              <h2 class="hck-title" id="systems-title">Liczby są ze sobą połączone celowo.</h2>
-            </div>
-            <p class="hck-copy--soft">
-              Interfejs jeszcze się zmienia. Systemy pod spodem dzielą już jedną symulację: te same zdolności, rynek, badania i stan firmy napędzają ekrany, zamiast osobnych dekoracyjnych wyników.
-            </p>
-          </header>
-
-          <div class="sl-system-mosaic">
-            <article class="sl-feature sl-feature--wide" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/model-creator-960.webp"
-                  srcset="assets/images/screens/model-creator-960.webp 960w, assets/images/screens/model-creator-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 62vw"
-                  alt="Kreator modelu w Scaling Laws z etapami fundamentu, skali, danych, mocy i przeglądu"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 01</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Buduj model decyzja po decyzji</h3>
-                <p>Etapowy kreator rozdziela fundament, skalę, dane, moc i przegląd, żeby każdy wybór miał miejsce na wytłumaczenie, co zmienił. Zdolność, czas treningu i spalana gotówka przeliczają się przy każdej zmianie projektu.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/research-tree-960.webp"
-                  srcset="assets/images/screens/research-tree-960.webp 960w, assets/images/screens/research-tree-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 31vw"
-                  alt="Drzewko badań w Scaling Laws rozłożone na epoki technologiczne"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 02</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Badania kosztują kalendarz</h3>
-                <p>Drzewko technologii decyduje, czego firma może użyć. Pieniądze sfinansują program, ale nie odkupią miesięcy, które już minęły.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--half" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/architecture-program-960.webp"
-                  srcset="assets/images/screens/architecture-program-960.webp 960w, assets/images/screens/architecture-program-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 47vw"
-                  alt="Program rodziny architektur w Scaling Laws z kierunkami badań, budżetem, czasem i prawdopodobnym wynikiem"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 03</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Zaprojektuj własną architekturę</h3>
-                <p>Rozłóż program badawczy między rzadkość, przepustowość, jakość, koszt serwowania i rozumowanie. Tani program w pośpiechu ma większy rozrzut wyniku, a gonienie wszystkich kierunków naraz rozwadnia głębię.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--half" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/business-960.webp"
-                  srcset="assets/images/screens/business-960.webp 960w, assets/images/screens/business-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 47vw"
-                  alt="Ekran biznesowy w Scaling Laws z cenami, darmowym progiem i marketingiem"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 04</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Zdolność to nie model biznesowy</h3>
-                <p>Cena, darmowy dostęp, marka i wiek modelu wpływają na popyt. Kilka modeli może być na rynku naraz, więc specjalista albo tańszy produkt może współistnieć z flagowcem.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 05</span>
-                  <span class="sl-status sl-status--shipped">Symulacja</span>
-                </div>
-                <h3>Rywale potrafią czekać celowo</h3>
-                <p>Konkurenci są agentami, a nie statyczną tabelą wyników. Jedni odkładają premierę, gdy blisko jest lepszy krzem, inni się spieszą, gdy gracz za bardzo odjedzie, a stawka poprawia się między premierami.</p>
-                <div class="sl-feature__datum">CZEKAJ / SPIESZ SIĘ / DRYFUJ<br>JEDEN WSPÓLNY FRONT</div>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 06</span>
-                  <span class="sl-status sl-status--development">Interfejs w kolejce</span>
-                </div>
-                <h3>Moc obliczeniowa to zobowiązanie</h3>
-                <p>Wynajem jest elastyczny i drogi. Własność bywa tańsza za FLOP, ale sprzęt się starzeje, siedzi w bilansie i zależy od tego, czy procesory, pamięć i sieć porządnie go karmią.</p>
-                <div class="sl-feature__datum">CHMURA → KOLOKACJA → WŁASNE CENTRUM DANYCH</div>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 07</span>
-                  <span class="sl-status sl-status--shipped">Symulacja</span>
-                </div>
-                <h3>Płatny wywiad też potrafi się mylić</h3>
-                <p>Wywiad ostrzeże przed premierą sprzętu, załamaniem cen, brakami w dostawach albo rywalem, który się wstrzymuje. Tańsze biuro brzmi pewniej, niż zasługuje na to jego rzeczywista trafność.</p>
-                <div class="sl-feature__datum">INFORMACJA MA CENĘ<br>PEWNOŚĆ NIE MA</div>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--wide" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/server-room-960.webp"
-                  srcset="assets/images/screens/server-room-960.webp 960w, assets/images/screens/server-room-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 62vw"
-                  alt="Serwerownia w Scaling Laws z szafami oraz odczytami ciepła i mocy"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 08</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Serwerownia, która grzeje się, kiedy nie patrzysz</h3>
-                <p>Cztery typy szaf i nie są drabinką. Więcej slotów kosztuje więcej chłodzenia, najtańsza rama opiera się na pomieszczeniu, a zbiornik immersyjny nosi własny płyn. Szafy się nie starzeją, ale układy robią się gorętsze, więc pokój zapełniony w 2023 i nietknięty od tamtej pory po cichu dławi się w 2027, a naprawa kosztuje slot.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/investing-960.webp"
-                  srcset="assets/images/screens/investing-960.webp 960w, assets/images/screens/investing-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 31vw"
-                  alt="Ekran inwestycji w Scaling Laws z kursami akcji i wykresem z dziewięćdziesięciu dni"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 09</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Wykup udziały u rywali albo cały lab</h3>
-                <p>Kursy akcji biorą się z opublikowanej zdolności każdego labu na dany dzień, więc tabela rusza się z powodów, które da się wskazać. Miej połowę firmy, a możesz negocjować resztę. Przejęcie oddaje trzy czwarte ich publiczności i ich najnowszy model, nigdy całość.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--half" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/ranking-960.webp"
-                  srcset="assets/images/screens/ranking-960.webp 960w, assets/images/screens/ranking-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 46vw"
-                  alt="Tabela rankingowa w Scaling Laws z czternastoma konkurencyjnymi labami"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 10</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Tabela to lista rzeczy, które możesz zrobić ludziom</h3>
-                <p>Czternaście labów z datowanymi historiami. Otwórz jeden, a zobaczysz, co o tobie myślą, kto tam pracuje i ile trzeba, żeby ich ruszyć. Każde podejście jest zapisane, niezależnie od tego, czy da się je wyśledzić.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--half" data-reveal>
-              <div class="sl-feature__media">
-                <img
-                  src="assets/images/screens/save-slots-960.webp"
-                  srcset="assets/images/screens/save-slots-960.webp 960w, assets/images/screens/save-slots-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 46vw"
-                  alt="Sloty zapisu w Scaling Laws z czterema kampaniami"
-                  loading="lazy" decoding="async">
-              </div>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 11</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Cztery sloty zapisu i pauza, która naprawdę pauzuje</h3>
-                <p>Escape otwiera ustawienia, statystyki i cztery kampanie. Nadpisanie jednej wymaga dwóch kliknięć, bo nic nie wraca. Autozapis liczy prawdziwe minuty, a nie prędkość gry, i jest domyślnie wyłączony: gra, która zapisuje na dysk w połowie decyzji, podjęła ją za ciebie.</p>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 12</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Nieczysta gra ma cennik</h3>
-                <p>Cztery poziomy płatnej historii o rywalu, a każdy jest głośniejszy, droższy i łatwiejszy do wyśledzenia niż poprzedni. Wpadka kosztuje więcej, niż dałoby trafienie. Pozew działa tak samo z drugiej strony: im więcej żądasz, tym mniejsza szansa, że dostaniesz.</p>
-                <div class="sl-feature__datum">TANI POZIOM MA LEPSZY STOSUNEK<br>DROGI JEST SZYBSZY</div>
-              </div>
-            </article>
-
-            <article class="sl-feature sl-feature--narrow sl-feature--text" data-reveal>
-              <div class="sl-feature__body">
-                <div class="sl-feature__top">
-                  <span class="sl-feature__index">SYSTEM 13</span>
-                  <span class="sl-status sl-status--development">Grywalne</span>
-                </div>
-                <h3>Jest zakończenie inne niż bankructwo</h3>
-                <p>Kiedy firma jest już dość warta, ktoś składa ofertę kupna. Przyjęcie kończy kampanię z konkretną kwotą i jest to jedyne dobre zakończenie, jakie ta gra ma. Jest zablokowane, dopóki wisi państwowy program mocy obliczeniowej, bo rząd nie patrzy spokojnie, jak jego pieniądze sprzedaje się konkurencji.</p>
-                <div class="sl-feature__datum">KUPUJĄCY, KTÓRY JEST W TYLE<br>PŁACI WIĘCEJ NIŻ TEN Z PRZODU</div>
-              </div>
-            </article>
-
           </div>
         </div>
       </section>
@@ -1025,10 +697,10 @@
           <header class="hck-section-head" data-reveal>
             <div>
               <div class="sl-section__eyebrow">Pod interfejsem</div>
-              <h2 class="hck-title" id="mechanics-title">Prawdziwe reguły, uproszczone na tyle, żeby dało się grać.</h2>
+              <h2 class="hck-title" id="mechanics-title">Prawdziwe zasady, podane tak, żeby dało się grać.</h2>
             </div>
             <p class="hck-copy--soft">
-              Scaling Laws bierze opublikowane prawa skalowania i publiczne dane o sprzęcie jako punkty odniesienia, a potem robi z nich ekonomię gry. Szacunki i prognozy mają zostać oznaczone jako szacunki.
+              Gra opiera się na opublikowanych badaniach nad skalowaniem AI i prawdziwych danych o sprzęcie. Tam, gdzie zgaduje przyszłość, mówi to wprost.
             </p>
           </header>
 
@@ -1036,19 +708,19 @@
             <article class="sl-mechanic" data-reveal>
               <div class="sl-mechanic__value">~20×</div>
               <h3>Tokeny na parametr</h3>
-              <p>Trening optymalny obliczeniowo leży koło dwudziestu tokenów na parametr w modelu używanym przez grę. Niedotrenowanie albo przetrenowanie sprawia, że ten sam budżet mocy kupuje gorszy wynik.</p>
+              <p>Najlepiej trenuje się model, który na każdy parametr dostaje około dwudziestu tokenów danych. Za mało albo za dużo danych i ten sam budżet daje gorszy model.</p>
             </article>
 
             <article class="sl-mechanic" data-reveal>
               <div class="sl-mechanic__value">10× → +10</div>
-              <h3>Bieżnia mocy obliczeniowej</h3>
-              <p>Dziesięciokrotność efektywnej mocy kupuje mniej więcej dziesięć punktów zdolności na względnej skali gry. Dlatego front przesuwa się dalej, nawet gdy ostatni model gracza wydawał się drogi.</p>
+              <h3>Wyścig mocy obliczeniowej</h3>
+              <p>Dziesięć razy więcej mocy daje mniej więcej dziesięć punktów jakości. Dlatego konkurencja cały czas ucieka, nawet kiedy twój ostatni model był drogi.</p>
             </article>
 
             <article class="sl-mechanic" data-reveal>
-              <div class="sl-mechanic__value">2 ways</div>
+              <div class="sl-mechanic__value">2×</div>
               <h3>Sprzęt traci na wartości</h3>
-              <p>Własny sprzęt traci z czasem i drugi raz, gdy pojawiają się istotne generacje następców. Zakup za wcześnie potrafi uwięzić kapitał we flocie, którą rynek już wyprzedził.</p>
+              <p>Karty tanieją z czasem i jeszcze raz, kiedy wychodzi nowa generacja. Kupisz za wcześnie, a pieniądze utkną w sprzęcie, który rynek już wyprzedził.</p>
             </article>
           </div>
 
@@ -1059,123 +731,31 @@
         </div>
       </section>
 
-      <section class="hck-section sl-panos" id="playing" aria-labelledby="panos-title">
-        <div class="hck-container--wide">
-          <header class="hck-section-head" data-reveal>
-            <div>
-              <div class="sl-section__eyebrow">Z builda</div>
-              <h2 class="hck-title" id="panos-title">Pięć ekranów i to, o czym każdy z nich decyduje.</h2>
-            </div>
-            <p class="hck-copy--soft">
-              Zrobione w wydanym buildzie. Każda liczba na tych zrzutach wyszła z symulacji, a nie z makiety.
-            </p>
-          </header>
-
-          <div class="sl-pano-set">
-            <figure class="sl-pano" data-reveal>
-              <div class="sl-pano__shot">
-                <img
-                  src="assets/images/screens/model-creator-960.webp"
-                  srcset="assets/images/screens/model-creator-960.webp 960w, assets/images/screens/model-creator-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 1180px"
-                  alt="Kreator modelu w Scaling Laws z prognozowaną zdolnością, czasem treningu i kosztem"
-                  loading="lazy"
-                  decoding="async">
-              </div>
-              <figcaption class="sl-pano__note">
-                <span class="sl-pano__label">Kreator modelu</span>
-                <p class="sl-pano__copy">Osiem etapów, a o wyniku decyduje głównie strona skali. Parametry przeciwko tokenom na logarytmicznym pasie, więc połowa optimum i podwójne optimum leżą w tej samej odległości od środka. Niedotrenuj albo przetrenuj, a ten sam rachunek kupi ci gorszy model.</p>
-              </figcaption>
-            </figure>
-            <figure class="sl-pano" data-reveal>
-              <div class="sl-pano__shot">
-                <img
-                  src="assets/images/screens/starter-home-960.webp"
-                  srcset="assets/images/screens/starter-home-960.webp 960w, assets/images/screens/starter-home-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 1180px"
-                  alt="Startowy dom w Scaling Laws, izometryczny budynek z garażem i biurkiem na antresoli"
-                  loading="lazy"
-                  decoding="async">
-              </div>
-              <figcaption class="sl-pano__note">
-                <span class="sl-pano__label">Gdzie jest firma</span>
-                <p class="sl-pano__copy">Dom z garażem, jedno biurko na antresoli i samochód przed wejściem. Firma jest miejscem, zanim stanie się arkuszem, a założyciel chodzi do tych jej części, do których go wyślesz.</p>
-              </figcaption>
-            </figure>
-            <figure class="sl-pano" data-reveal>
-              <div class="sl-pano__shot">
-                <img
-                  src="assets/images/screens/server-room-960.webp"
-                  srcset="assets/images/screens/server-room-960.webp 960w, assets/images/screens/server-room-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 1180px"
-                  alt="Serwerownia w Scaling Laws z szafami, odczytami ciepła i slotami na chłodzenie"
-                  loading="lazy"
-                  decoding="async">
-              </div>
-              <figcaption class="sl-pano__note">
-                <span class="sl-pano__label">Siedem kart bije osiem</span>
-                <p class="sl-pano__copy">Zapełnij szafę serwerową do końca, a ciepło zdławi w niej wszystko. Zamień jeden akcelerator na wentylator, a ta sama szafa da więcej. Szafy się nie starzeją, układy robią się gorętsze, a pokój zapełniony w 2023 po cichu traci ci przepustowość do 2027.</p>
-              </figcaption>
-            </figure>
-            <figure class="sl-pano" data-reveal>
-              <div class="sl-pano__shot">
-                <img
-                  src="assets/images/screens/release-960.webp"
-                  srcset="assets/images/screens/release-960.webp 960w, assets/images/screens/release-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 1180px"
-                  alt="Planer wydania w Scaling Laws z podziałem adopcji wersji w publiczności"
-                  loading="lazy"
-                  decoding="async">
-              </div>
-              <figcaption class="sl-pano__note">
-                <span class="sl-pano__label">Wersje zatrzymują swoich użytkowników</span>
-                <p class="sl-pano__copy">Wydanie aktualizacji nie przenosi na nią wszystkich. Jedna czwarta bierze nową wersję pierwszego dnia. Reszta dryfuje po dwanaście procent pozostałej luki dziennie, a jeśli nowa wersja jest gorsza, nie przyjdą w ogóle.</p>
-              </figcaption>
-            </figure>
-            <figure class="sl-pano" data-reveal>
-              <div class="sl-pano__shot">
-                <img
-                  src="assets/images/screens/ranking-960.webp"
-                  srcset="assets/images/screens/ranking-960.webp 960w, assets/images/screens/ranking-1600.webp 1600w"
-                  sizes="(max-width: 1100px) 94vw, 1180px"
-                  alt="Ekran rankingu w Scaling Laws z konkurencyjnymi labami AI, zdolnością i udziałem w rynku"
-                  loading="lazy"
-                  decoding="async">
-              </div>
-              <figcaption class="sl-pano__note">
-                <span class="sl-pano__label">Czternaście konkurencyjnych labów</span>
-                <p class="sl-pano__copy">Każdy niesie datowaną historię, którą możesz otworzyć, kurs akcji, w który możesz wejść, i listę pracowników, którym możesz złożyć ofertę. Trzy z nich rozpadają się w trakcie kampanii, na tych samych ekspozycjach, które mogą skończyć twoją firmę.</p>
-              </figcaption>
-            </figure>
-          </div>
-        </div>
-      </section>
-
       <section class="hck-section sl-build" id="build-status" aria-labelledby="build-title">
         <div class="hck-container--wide sl-build-grid">
           <div data-reveal>
             <div class="sl-section__eyebrow">Aktualny build</div>
-            <h2 class="sl-section__title" id="build-title">Fundament jest grywalny. Świat wokół niego nadrabia.</h2>
+            <h2 class="sl-section__title" id="build-title">Da się grać od początku do końca. Świat wokół wciąż rośnie.</h2>
             <p class="sl-section__lead">
-              Wersja 0.4.0 z 13 września 2026 gra się od początku do końca, od zimnego otwarcia w styczniu 2022 przez kampanię, która trwa latami. To alfa i strona to mówi: część ekranów jest nadal surowa. To, co poniżej, jest w buildzie do pobrania dziś.
+              Wersja 0.4.0 z 13 września 2026 prowadzi od pierwszego dnia w styczniu 2022 przez kampanię, która trwa latami. To wczesna wersja i część ekranów jest jeszcze surowa. Wszystko poniżej jest w buildzie do pobrania już dziś.
             </p>
 
             <div class="sl-build-list">
               <div class="sl-build-item">
                 <strong>Tworzenie modelu</strong>
-                <span>Etapowy kreator projektu z żywymi prognozami zdolności, czasu treningu i kosztu.</span>
+                <span>Kreator krok po kroku, który na bieżąco pokazuje jakość, czas treningu i koszt.</span>
               </div>
               <div class="sl-build-item">
                 <strong>Badania</strong>
-                <span>Drzewko technologii, programy architektur i bramki odblokowań związane i z pieniędzmi, i z kalendarzem.</span>
+                <span>Drzewko technologii i własne architektury. Każde odblokowanie kosztuje pieniądze i czas.</span>
               </div>
               <div class="sl-build-item">
                 <strong>Zakładanie firmy</strong>
-                <span>Umiejętności założyciela, cechy, tożsamość firmy oraz kompromisy regionu i kraju.</span>
+                <span>Umiejętności i cechy założyciela, nazwa firmy i kraj, a każdy kraj ma swoje plusy i minusy.</span>
               </div>
               <div class="sl-build-item">
                 <strong>Warstwa biznesowa</strong>
-                <span>Ceny, publiczność, udział w rynku, marketing, finansowanie, dług, ranking i podstawy wywiadu.</span>
+                <span>Ceny, klienci, udział w rynku, reklama, inwestorzy, pożyczki, ranking i płatny wywiad.</span>
               </div>
               <div class="sl-build-item">
                 <strong>Siedziba fizyczna</strong>
@@ -1183,18 +763,18 @@
               </div>
               <div class="sl-build-item">
                 <strong>Bezpieczeństwo i regulator</strong>
-                <span>Etap bezpieczeństwa przy każdym modelu i kontrola, która otwiera akta i daje ci pięć dni, zanim zdecyduje.</span>
+                <span>Zabezpieczenia przy każdym modelu i kontrola regulatora, która daje ci pięć dni przed decyzją.</span>
               </div>
               <div class="sl-build-item">
                 <strong>Rywale i relacje</strong>
-                <span>Czternaście laboratoriów z datowaną historią: akcje, przejęcia, podkupowanie ludzi, płatne historie i pozwy, w obie strony.</span>
+                <span>Czternaście laboratoriów: akcje, przejęcia, podkupowanie ludzi, oczernianie i pozwy, w obie strony.</span>
               </div>
             </div>
           </div>
 
           <aside class="sl-next-bench hck-edge-shine" data-reveal>
             <div class="sl-next-bench__label">Następne na warsztacie</div>
-            <h3>Nie ma tego w tym buildzie i warto to powiedzieć.</h3>
+            <h3>Tego jeszcze nie ma w buildzie.</h3>
             <ul>
               <li>Miasto Bayview, oba biura od nowa, klimat serwerowni i badania nad tokenizacją. Gotowe, w następnym buildzie.</li>
               <li>Większe pierwsze biuro ze stołem konferencyjnym.</li>
@@ -1204,38 +784,8 @@
             <p class="sl-next-bench__note">Miasto, umeblowane biura, prawdziwa mapa świata i pracownicy w biurze były kiedyś na tej liście. Są zbudowane.</p>
           </aside>
         </div>
-      </section>
-
-      <section class="hck-section sl-gallery" id="gallery" aria-labelledby="gallery-title">
         <div class="hck-container--wide">
-          <header class="hck-section-head" data-reveal>
-            <div>
-              <div class="sl-section__eyebrow">Aktualne ekrany</div>
-              <h2 class="hck-title" id="gallery-title">Wciąż wcześnie. Już rozpoznawalne.</h2>
-            </div>
-            <p class="hck-copy--soft">
-              To są zrzuty z pracy, a nie makiety sklepowe. Układ, odstępy i grafika będą się jeszcze zmieniać, w miarę jak systemy wychodzą z prototypu.
-            </p>
-          </header>
-
-          <div class="sl-gallery-grid">
-            <figure class="sl-gallery-shot" data-reveal>
-              <img src="assets/images/screens/founder-creator-960.webp" alt="Kreator założyciela w Scaling Laws z siedmioma umiejętnościami i kartami cech" loading="lazy" decoding="async">
-              <figcaption>Tworzenie założyciela</figcaption>
-            </figure>
-            <figure class="sl-gallery-shot" data-reveal>
-              <img src="assets/images/screens/world-map-960.webp" alt="Ekran zakładania firmy w Scaling Laws z wyborem regionu i kraju" loading="lazy" decoding="async">
-              <figcaption>Zakładanie firmy</figcaption>
-            </figure>
-            <figure class="sl-gallery-shot" data-reveal>
-              <img src="assets/images/screens/model-creator-960.webp" alt="Etapowy kreator modelu w Scaling Laws" loading="lazy" decoding="async">
-              <figcaption>Nowy model</figcaption>
-            </figure>
-            <figure class="sl-gallery-shot" data-reveal>
-              <img src="assets/images/screens/research-tree-960.webp" alt="Drzewko badań w Scaling Laws" loading="lazy" decoding="async">
-              <figcaption>Badania</figcaption>
-            </figure>
-          </div>
+          <div class="sl-thanks" data-reveal><b>Testerzy</b><p><strong>Natalka6456</strong> spędziła mnóstwo godzin w Scaling Laws, przejrzała tę stronę i PC Workmana, i zapisała każde miejsce, które było niejasne albo się psuło. Połowa poprawek na tej stronie jest od niej. Jest w napisach gry.</p></div>
         </div>
       </section>
 
@@ -1272,8 +822,8 @@
           <div class="sl-faq__list" data-reveal>
             <details class="sl-faq__item"><summary>Czy Scaling Laws jest darmowe?</summary><p>Tak. Każdy dotychczasowy build jest za darmo na Windows na itch.io. Wydanie na Steam planowane jest na październik-listopad 2026.</p></details>
             <details class="sl-faq__item"><summary>Jaka jest aktualna wersja?</summary><p>Wersja 0.4.0 z 13 września 2026, alfa. Mapa miasta Bayview, przebudowane biura, klimat serwerowni i badania nad tokenizacją są gotowe na następny build.</p></details>
-            <details class="sl-faq__item"><summary>Jakie laboratoria AI są w grze?</summary><p>Czternaście parodii: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere oraz E-Solutions, wymyślona firma kuzyna gracza z Radomia. Trzynaście zasianych jest z prawdziwej osi wydań 2022-2026.</p></details>
-            <details class="sl-faq__item"><summary>Czy mogę kupić albo zaatakować rywala?</summary><p>Tak. Możesz kupić akcje i przejąć laboratorium większością, podkupić mu ludzi, zapłacić za oczerniające historie w czterech progach i je pozwać. Rywale też potrafią pozwać. Każdy ruch zmienia relację.</p></details>
+            <details class="sl-faq__item"><summary>Jakie laboratoria AI są w grze?</summary><p>Czternaście parodii: OpenSI, Antropic, DeepThink, Infinity, Astral, DeepSearch, zAI, Swen, Grob, StableAI, IntroduceAI, Algho Alpha, Gohere oraz E-Solutions, wymyślona firma kuzyna gracza z Radomia. Trzynaście zaczyna tam, gdzie ich prawdziwe odpowiedniki w 2022, a potem każde idzie własną drogą.</p></details>
+            <details class="sl-faq__item"><summary>Czy mogę kupić albo zaatakować rywala?</summary><p>Tak. Możesz kupić akcje i przejąć laboratorium większością, podkupić mu ludzi, zapłacić za oczerniające historie na czterech poziomach i je pozwać. Rywale też potrafią pozwać. Każdy ruch zmienia relację.</p></details>
             <details class="sl-faq__item"><summary>Czy w grze są sojusze albo fuzje?</summary><p>Jeszcze nie. Sojusze między laboratoriami i fuzje są w planach i nie ma ich w żadnym buildzie.</p></details>
             <details class="sl-faq__item"><summary>Czy kod jest open source?</summary><p>Kod jest dostępny do wglądu, ale to nie open source. Można go czytać na GitHubie, jednak od 19 września 2026 nie wolno go rozpowszechniać. Wcześniejsze wersje zostają na PolyForm Noncommercial 1.0.0.</p></details>
             <details class="sl-faq__item"><summary>Kto tworzy Scaling Laws?</summary><p>Marcin "HCK" Firmuga, samodzielny twórca z Radomia, publikujący jako HCK Labs. Zrobił też PC Workman, monitor dla Windows w Microsoft Store.</p></details>
@@ -1285,7 +835,7 @@
         <div class="hck-container--wide">
           <div class="sl-close__panel hck-edge-shine" data-reveal>
             <div class="sl-section__eyebrow">Budowane publicznie</div>
-            <h2 class="sl-close__title" id="close-title">Ta gra nie czeka z istnieniem na zwiastun.</h2>
+            <h2 class="sl-close__title" id="close-title">Gra powstaje na oczach wszystkich.</h2>
             <p class="sl-close__copy">
               Scaling Laws buduje otwarcie Marcin "HCK" Firmuga pod szyldem HCK Labs. Kod, notatki inżynierskie i historia pracy zostają widoczne, kiedy gra się zmienia.
             </p>
