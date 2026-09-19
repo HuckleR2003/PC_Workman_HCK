@@ -175,7 +175,7 @@ const quizResponses = {
     }
 };
 
-quizForm.addEventListener('submit', (e) => {
+quizForm && quizForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
     const symptom = document.getElementById('symptom').value.toLowerCase();
