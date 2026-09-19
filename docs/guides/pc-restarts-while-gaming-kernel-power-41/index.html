@@ -285,7 +285,7 @@
             day-by-day timeline. It is easier to read than thousands of unrelated Event Viewer entries.
         </p>
         <p>
-            Look for a repeated neighbour, not any red line. The same WHEA event before three restarts matters.
+            Look for a repeated neighbour, not any red line. The same WHEA event before three restarts matters. The <a href="../whea-logger-event-17-18-19/">WHEA-Logger guide</a> explains how to read and count them.
             One DCOM warning that appears every day on a stable PC probably does not. Timestamp correlation is
             the start. Repetition under the same workload turns it into evidence.
         </p>
@@ -327,7 +327,7 @@
                 <tr><td>Nonzero BugcheckCode or Event 1001</td><td>The documented Stop-code branch and dump analysis</td><td>That every generic “Kernel 41 fix” applies</td></tr>
                 <tr><td>Stable at BIOS defaults, unstable with XMP/EXPO or undervolt</td><td>Lost tuning margin and memory or voltage stability</td><td>That the RAM module itself is defective</td></tr>
                 <tr><td>Restart only after temperatures and clocks deteriorate</td><td>Cooling, thermal or power limits</td><td>That a faster component will solve it</td></tr>
-                <tr><td>Display black, audio continues, PC stays powered</td><td>GPU driver reset, display path or GPU stability</td><td>That the whole system lost power</td></tr>
+                <tr><td>Display black, audio continues, PC stays powered</td><td>GPU driver reset, display path or GPU stability. See <a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm Event 153</a></td><td>That the whole system lost power</td></tr>
                 <tr><td>Random restart at idle and load</td><td>Memory, board, firmware, power, driver or background failure</td><td>That the gaming workload caused it</td></tr>
             </tbody>
         </table>

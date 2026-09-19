@@ -1,0 +1,426 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: nvlddmkm Event 153 / 4101, display driver stopped responding -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Ekran zgasł i wrócił? nvlddmkm 153 i 4101 znaczą, że Windows zresetował sterownik NVIDII po 2 sekundach zawieszenia karty. Jak bezpiecznie znaleźć przyczynę.">
+    <meta name="keywords" content="nvlddmkm 153, sterownik ekranu nvlddmkm przestał odpowiadać, zdarzenie 4101, czarny ekran w grze, reset sterownika NVIDIA, TDR, TdrDelay, nvlddmkm event 153, display driver nvlddmkm stopped responding and has successfully recovered, event 4101, nvlddmkm event 13 14, TDR timeout, VIDEO_TDR_FAILURE 0x116, 0x117, NVIDIA driver crash, black screen flicker game crash, TdrDelay">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <meta property="og:title" content="nvlddmkm 153: Windows zresetował kartę. Tak znajdziesz przyczynę.">
+    <meta property="og:description" content="Czarne mignięcie to dwusekundowy limit. Zdarzenie nie nazywa przyczyny. Wzorzec wokół niego tak.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-20">
+    <meta property="article:modified_time" content="2026-09-20">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>nvlddmkm 153 i 4101: dlaczego sterownik karty się resetuje</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "nvlddmkm, zdarzenie 153 i 4101: co znaczy reset sterownika ekranu i jak znaleźć przyczynę",
+      "description": "Zdarzenie 4101 i nvlddmkm 153 zapisują TDR: karta nie skończyła ani nie przerwała pracy w dwie sekundy i Windows zresetował sterownik. Jak czytać wzorzec, czego nie zmieniać i bezpieczna kolejność sprawdzania.",
+      "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "about": [
+        { "@type": "Thing", "name": "Timeout detection and recovery (TDR)" },
+        { "@type": "Thing", "name": "nvlddmkm.sys, the NVIDIA kernel mode display driver" }
+      ],
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x116---video-tdr-failure",
+        "https://docs.nvidia.com/deploy/xid-errors/index.html"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": ["https://github.com/HuckleR2003", "https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://hackernoon.com/u/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "nvlddmkm, zdarzenie 153 i 4101", "item": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Co oznacza zdarzenie nvlddmkm 153?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To własny zapis sterownika NVIDII o zawieszeniu karty i resecie sterownika. NVIDIA nie publikuje jego opisu, więc Podgląd zdarzeń pisze, że go nie znalazł. Ten sam reset Windows zapisuje jako zdarzenie Display 4101."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy to awaria sprzętu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Samo w sobie nie. Zapisuje przekroczenie limitu czasu. Wywołują je problemy ze sterownikiem, niestabilne strojenie, temperatura, zasilanie i niestabilność systemu. Zanim obwinisz kartę, sprawdź na domyślnych ustawieniach z czystym sterownikiem."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy zmieniać TdrDelay?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nie. Microsoft pisze, że użytkownicy końcowi nie powinni zmieniać kluczy TDR. Dłuższe opóźnienie ukrywa objaw i wydłuża każde zawieszenie."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dlaczego zdarza się na pulpicie, a nie w grach?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Resety w spoczynku często towarzyszą zmianom stanów zasilania albo torowi wyświetlania. Sprawdź z ustawieniem Preferuj maksymalną wydajność, innym kablem i poprzednim sterownikiem."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kiedy zmienia się w niebieski ekran?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Przy szóstym zawieszeniu w ciągu minuty Windows zatrzymuje się z 0x117. Jeśli sterownika nie da się zresetować w pięć sekund, zatrzymuje się z 0x116."
+      }
+    }
+  ]
+}
+    </script>
+
+    <style>
+    .triage{ display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:1.4rem 0; padding:1rem;
+        background:#08100a; border:1px solid #1f3824; border-left:4px solid #76b900; }
+    .triage article{ background:#090d0a; border:1px solid #20302a; padding:.9rem; }
+    .triage b{ display:block; color:#fff; font-family:var(--font-mono); font-size:.78rem; margin-bottom:.45rem; }
+    .triage code{ color:#b8e986; font-size:.7rem; }
+    .triage p{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; margin:.4rem 0 0; }
+    .field-table td:first-child{ color:#b8e986; font-family:var(--font-mono); font-size:.76rem; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    .timer{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin:1.3rem 0; border:1px solid #23262e; }
+    .timer div{ padding:.8rem .9rem; border-right:1px solid #23262e; background:#0d0f14; }
+    .timer div:last-child{ border-right:0; }
+    .timer b{ display:block; font-family:var(--font-mono); color:#76b900; font-size:1rem; }
+    .timer span{ font-size:.76rem; color:var(--text-secondary); line-height:1.45; display:block; margin-top:.25rem; }
+    @media(max-width:700px){ .triage, .timer{ grid-template-columns:1fr; } .timer div{ border-right:0; border-bottom:1px solid #23262e; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/nvlddmkm-display-driver-stopped-responding/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Awarie karty graficznej</span>
+        <h1>Ekran zgasł na dwie sekundy. Windows zresetował twoją kartę.</h1>
+        <p class="tagline">nvlddmkm 153 i Display 4101 zapisują reset. Nie zapisują powodu.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-20</span><span>&middot;</span><span>13 min czytania</span>
+        </div>
+
+        <p>
+            Gra się zawiesza. Ekran robi się czarny, czasem na sekundę, czasem na tyle długo, że wygląda, jakby
+            komputer umarł. Potem wraca pulpit, gra wyleciała albo pokazuje czarne okno, a w rogu pojawia się
+            komunikat <strong>Sterownik ekranu nvlddmkm przestał odpowiadać i został odzyskany</strong>. W
+            Podglądzie zdarzeń jest błąd ze źródła <strong>nvlddmkm</strong> o <strong>identyfikatorze 153</strong>,
+            a po otwarciu Windows pisze, że nie można znaleźć opisu tego zdarzenia.
+        </p>
+        <p>
+            Brak opisu nie znaczy, że komputer jest zepsuty jeszcze bardziej. NVIDIA po prostu nie publikuje tekstu
+            tego zdarzenia. Przydatne fakty są gdzie indziej: w tym, co zapisał sam Windows, w tym, co komputer
+            robił minutę wcześniej, i w tym, czy reset pojawia się pod obciążeniem, przy wysokiej temperaturze, w
+            spoczynku, w jednej grze czy po jednej wersji sterownika.
+        </p>
+
+        <div class="triage" aria-label="Trzy zapisy jednego resetu sterownika">
+            <article>
+                <b>Zapis Windowsa</b>
+                <code>Display, zdarzenie 4101</code>
+                <p>„Sterownik ekranu nvlddmkm przestał odpowiadać i został odzyskany”. System zresetował kartę po przekroczeniu limitu czasu.</p>
+            </article>
+            <article>
+                <b>Zapis NVIDII</b>
+                <code>nvlddmkm, zdarzenie 153 (często z 13 lub 14)</code>
+                <p>Własny wpis sterownika o tej samej chwili. Publicznie nieopisany. Traktuj go jak znacznik czasu, nie diagnozę.</p>
+            </article>
+            <article>
+                <b>Gdy odzyskanie się nie uda</b>
+                <code>Stop 0x117 albo 0x116</code>
+                <p>Za dużo resetów w minutę albo sterownik, którego nie da się zresetować, kończy się niebieskim ekranem zamiast mignięcia.</p>
+            </article>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#tdr">Co się naprawdę stało: dwusekundowy limit</a></li>
+                <li><a href="#pattern">Czytaj wzorzec, nie numer zdarzenia</a></li>
+                <li><a href="#test">Bezpieczna kolejność sprawdzania</a></li>
+                <li><a href="#tdrdelay">Dlaczego podnoszenie TdrDelay to zła naprawa</a></li>
+                <li><a href="#workman">Gdzie PC Workman pomaga, a gdzie nie</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+            </ol>
+        </div>
+
+        <h2 id="tdr">Co się naprawdę stało: dwusekundowy limit</h2>
+        <p>
+            Windows ma dla karty graficznej strażnika o nazwie <strong>Timeout Detection and Recovery (TDR)</strong>.
+            Harmonogram GPU w jądrze grafiki DirectX daje karcie pracę. Jeśli karta robi ją za długo, harmonogram
+            prosi ją o przerwanie i przełączenie. Jeśli karta w wyznaczonym czasie ani nie skończy, ani nie
+            przerwie, Windows uznaje, że GPU się zawiesił, każe sterownikowi zresetować sprzęt, czyści pamięć
+            wideo i rysuje pulpit od nowa. Microsoft opisuje, że jedynym widocznym śladem udanego odzyskania jest
+            mignięcie ekranu i ten komunikat.
+        </p>
+
+        <div class="timer" aria-label="Limity TDR opisane przez Microsoft">
+            <div><b>2 s</b><span>domyślny limit, po którym GPU uznaje się za zawieszony (TdrDelay)</span></div>
+            <div><b>5 w 60 s</b><span>tyle resetów Windows toleruje w ciągu minuty (TdrLimitCount, TdrLimitTime)</span></div>
+            <div><b>6.</b><span>zawieszenie w tej minucie zatrzymuje komputer z 0x117</span></div>
+            <div><b>5 s</b><span>na opuszczenie sterownika przez wątki, zanim pojawi się 0x116 (TdrDdiDelay)</span></div>
+        </div>
+
+        <p>
+            Zdarzenie to więc objaw ze stoperem w środku. Coś trzymało kartę zajętą, zablokowaną albo głuchą przez
+            ponad dwie sekundy. Ciężka klatka w grze ma się skończyć w milisekundach. Wszystko, co trzyma kartę przez
+            pełne dwie sekundy, to usterka gdzieś w łańcuchu: w sterowniku, w stabilności karty przy obecnych
+            zegarach i napięciu, w temperaturze, w zasilaniu, w łączu PCI Express albo w reszcie systemu, który ją
+            karmi.
+        </p>
+        <div class="callout">
+            <b>Zapisz, co widziałeś.</b> Zgasł tylko obraz, czy dźwięk też? Gra wyleciała na pulpit, czy działała
+            dalej z czarnym oknem? Działo się to w grze, w spoczynku, przy filmie, przy przełączaniu okien? Czy
+            właśnie budził się monitor? Te szczegóły lepiej wybierają następny test niż numer zdarzenia.
+        </div>
+
+        <h2 id="pattern">Czytaj wzorzec, nie numer zdarzenia</h2>
+        <p>
+            Otwórz <strong>Monitor niezawodności</strong> poleceniem <code>perfmon /rel</code> i znajdź dni z
+            resetem. Pokazuje instalacje sterowników, aktualizacje Windowsa i awarie aplikacji na jednej osi czasu,
+            więc powtarzającego się sąsiada łatwo zauważyć. Potem użyj tabeli.
+        </p>
+        <table>
+            <thead><tr><th>Kiedy się dzieje</th><th>Co idzie w górę listy</th><th>Czego to nie dowodzi</th></tr></thead>
+            <tbody>
+                <tr><td>Tylko pod dużym obciążeniem w grze, po kilku minutach</td><td>Temperatura, podkręcony rdzeń lub pamięć karty, undervolt, zasilanie</td><td>Że karta jest martwa</td></tr>
+                <tr><td>Na pulpicie, w przeglądarce, przy alt-tab, przy budzeniu monitora</td><td>Zmiany stanów zasilania, wersja sterownika, kabel lub przejściówka monitora</td><td>Że karta nie daje rady pod obciążeniem</td></tr>
+                <tr><td>Zaczęło się w dniu instalacji sterownika lub aktualizacji Windowsa</td><td>Ta wersja sterownika; spróbuj poprzedniej</td><td>Że najnowszy sterownik zawsze naprawia</td></tr>
+                <tr><td>Tylko w jednej grze lub jednym silniku</td><td>Ustawienia tej gry, jej cache shaderów, nakładka, znany błąd w notach łatki</td><td>Usterki sprzętu w całym systemie</td></tr>
+                <tr><td>Stabilnie na ustawieniach fabrycznych, niestabilnie z Afterburnerem lub profilem OC</td><td>Utracony zapas stabilności przy tych zegarach</td><td>Że ustawienia domyślne są „wolne”</td></tr>
+                <tr><td>Do tego zawieszenia lub restarty całego PC, ostrzeżenia WHEA, podkręcony RAM</td><td>Niestabilność poza kartą: pamięć, procesor, płyta. Zobacz <a href="../whea-logger-event-17-18-19/index_pl.html">poradnik o WHEA</a></td><td>Że winny jest sterownik NVIDII</td></tr>
+                <tr><td>Wiele resetów na sesję, coraz gorzej z tygodnia na tydzień</td><td>Degradacja sprzętu, temperatura przez wyschniętą pastę lub termopady, psujące się złącze zasilania</td><td>Niczego, dopóki nie sprawdzisz na ustawieniach domyślnych</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="test">Bezpieczna kolejność sprawdzania</h2>
+        <ol>
+            <li><strong>Zachowaj dowody.</strong> Zapisz dokładny czas, wzorzec z tabeli i zdarzenia wokół 4101 w
+                <em>Dzienniki systemu Windows → System</em>. Jeśli był niebieski ekran, zapisz 0x116 albo 0x117.</li>
+            <li><strong>Wróć ze wszystkim do domyślnych.</strong> Usuń podkręcenie rdzenia i pamięci karty,
+                własne krzywe i undervolty. Jeśli narzędzie producenta pozwala, sprawdź kartę na zegarach
+                referencyjnych. Na czas testu wyłącz też XMP albo EXPO i strojenie procesora: reset karty bywa
+                pierwszym objawem niestabilnego systemu. <a href="../xmp-expo-crashes-ram-stability/index_pl.html">Poradnik
+                o stabilności RAM</a> pokazuje kontrolowany test A/B.</li>
+            <li><strong>Zainstaluj sterownik na czysto.</strong> Użyj opcji czystej instalacji w instalatorze
+                NVIDII. Jeśli problem zostaje, mocniejszą wersją tego samego testu jest pełne usunięcie w trybie
+                awaryjnym programem Display Driver Uninstaller. Potem spróbuj zarówno poprzedniego stabilnego
+                sterownika, jak i najnowszego: oba kierunki to przydatne dane.</li>
+            <li><strong>Zapisuj temperaturę i zegary podczas odtwarzania problemu.</strong> Patrz na temperaturę
+                GPU, hotspot, jeśli twoje narzędzia go pokazują, zegary i pobór mocy w minutach przed resetem.
+                Zegary spadające razem z rosnącą temperaturą wskazują na chłodzenie. Reset przy normalnej
+                temperaturze wskazuje gdzie indziej. Przerwij, jeśli coś pachnie spalenizną albo zachowuje się
+                niebezpiecznie.</li>
+            <li><strong>Sprawdź fizycznie zasilanie i łącze.</strong> Przy wyłączonym i odłączonym od prądu
+                komputerze osadź ponownie kartę i jej złącza zasilania. Wtyczka 12V-2x6 lub 12VHPWR musi wejść do
+                końca, bez szczeliny. Tam, gdzie producent karty tego wymaga, używaj osobnych przewodów PCIe z
+                zasilacza, a na czas testu zrezygnuj z przedłużek i riserów.</li>
+            <li><strong>Przy mignięciach w spoczynku i na pulpicie</strong> ustaw w Panelu sterowania NVIDIA tryb
+                zarządzania energią na <em>Preferuj maksymalną wydajność</em> jako test i spróbuj innego kabla lub
+                portu, zwłaszcza przez przejściówki. Jeśli mignięcia znikną, wiesz, że to problem stanów zasilania
+                albo toru wyświetlania. Potem przywróć ustawienie, jeśli nie chcesz większego poboru w spoczynku.</li>
+            <li><strong>Zmieniaj jedną rzecz naraz</strong> i dawaj każdej zmianie tę samą sesję, która wcześniej
+                kończyła się błędem. Trzy zmiany naraz mogą naprawić i niczego nie nauczyć.</li>
+        </ol>
+        <div class="callout warn">
+            <b>Jeśli resety trwają na pełnych ustawieniach domyślnych, z czystym sterownikiem, normalną
+            temperaturą i dobrze osadzonym zasilaniem,</b> sprawdź kartę w innym komputerze albo inną kartę w
+            swoim, zanim cokolwiek kupisz. Dopiero ten krok oddziela kartę od reszty maszyny.
+        </div>
+
+        <h2 id="tdrdelay">Dlaczego podnoszenie TdrDelay to zła naprawa</h2>
+        <p>
+            Najczęściej kopiowana naprawa w internecie to wpis w rejestrze: utwórz <code>TdrDelay</code> w
+            <code>HKLM\System\CurrentControlSet\Control\GraphicsDrivers</code> i ustaw 8 albo 10 sekund. Microsoft
+            opisuje ten klucz i jego sąsiadów jako ustawienia do testowania i debugowania podczas tworzenia
+            sterowników i wprost pisze, że użytkownicy końcowi nie powinni ich zmieniać.
+        </p>
+        <p>
+            Powód jest prosty. Opóźnienie to strażnik, nie problem. Z dłuższym opóźnieniem karta dalej się blokuje.
+            Windows tylko dłużej czeka z odzyskaniem, więc dwusekundowe mignięcie zmienia się w ośmiosekundowy
+            zamrożony ekran, a zdarzenie, które mówi, że coś jest nie tak, pojawia się rzadziej. Ustawienie
+            <code>TdrLevel</code> na 0 całkiem wyłącza wykrywanie, co może zostawić cały pulpit zawieszony zamiast
+            odzyskanego. Są wąskie zawodowe przypadki, jak długie obliczenia GPU na karcie podłączonej do monitora,
+            w których programiści świadomie zmieniają te wartości. Gra wylatująca w losowych momentach do nich nie
+            należy.
+        </p>
+
+        <h2 id="workman">Gdzie PC Workman pomaga, a gdzie nie</h2>
+        <p>
+            PC Workman prowadzi lokalną historię obciążenia GPU i procesora, temperatur, zegarów i uruchomionych
+            procesów. Po resecie możesz spojrzeć na minuty przed nim i sprawdzić, czy karta była gorąca, czy zegary
+            spadały, czy działo się to w spoczynku. To często oddziela problem z chłodzeniem od problemu ze
+            sterownikiem albo stanami zasilania.
+        </p>
+        <p>
+            <strong>PC Workman nie czyta wewnętrznych logów sterownika NVIDII, nie dekoduje błędów Xid ani zrzutów
+            pamięci i sam nie odróżni błędu sterownika od psującej się karty.</strong> To jedna warstwa obok
+            Podglądu zdarzeń, Monitora niezawodności, czystej instalacji sterownika i testu na ustawieniach
+            domyślnych.
+        </p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Co oznacza zdarzenie nvlddmkm 153?</h3>
+        <p>
+            To własny zapis sterownika NVIDII o zawieszeniu karty i resecie sterownika. NVIDIA nie publikuje jego
+            opisu, więc Podgląd zdarzeń pisze, że go nie znalazł. Ten sam reset Windows zapisuje jako zdarzenie
+            Display 4101.
+        </p>
+        <h3>Czy to awaria sprzętu?</h3>
+        <p>
+            Samo w sobie nie. Zapisuje przekroczenie limitu czasu. Wywołują je problemy ze sterownikiem, niestabilne
+            strojenie, temperatura, zasilanie i niestabilność systemu. Zanim obwinisz kartę, sprawdź na domyślnych
+            ustawieniach z czystym sterownikiem.
+        </p>
+        <h3>Czy zmieniać TdrDelay?</h3>
+        <p>
+            Nie. Microsoft pisze, że użytkownicy końcowi nie powinni zmieniać kluczy TDR. Dłuższe opóźnienie ukrywa
+            objaw i wydłuża każde zawieszenie.
+        </p>
+        <h3>Dlaczego zdarza się na pulpicie, a nie w grach?</h3>
+        <p>
+            Resety w spoczynku często towarzyszą zmianom stanów zasilania albo torowi wyświetlania. Sprawdź z
+            ustawieniem Preferuj maksymalną wydajność, innym kablem i poprzednim sterownikiem.
+        </p>
+        <h3>Kiedy zmienia się w niebieski ekran?</h3>
+        <p>
+            Przy szóstym zawieszeniu w ciągu minuty Windows zatrzymuje się z 0x117. Jeśli sterownika nie da się
+            zresetować w pięć sekund, zatrzymuje się z 0x116.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/pl-pl/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: wykrywanie przekroczenia limitu czasu i odzyskiwanie (TDR)</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys" rel="noopener">Microsoft: klucze rejestru TDR, tylko do testów i debugowania</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected" rel="noopener">Microsoft: błąd 0x117 VIDEO_TDR_TIMEOUT_DETECTED</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x116---video-tdr-failure" rel="noopener">Microsoft: błąd 0x116 VIDEO_TDR_FAILURE</a>.</li>
+            <li><a href="https://docs.nvidia.com/deploy/xid-errors/index.html" rel="noopener">NVIDIA: błędy Xid, własne raporty sterownika o błędach GPU</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zobacz minuty przed resetem.</b> PC Workman prowadzi lokalną historię temperatury, obciążenia i
+            zegarów karty, więc czarne mignięcie nie kończy się na jednym zdarzeniu bez opisu.
+            <a href="../../download/index_pl.html">Pobierz na Windows</a> albo z
+            <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Jeśli restartuje się cały komputer, a nie tylko obraz, przeczytaj
+            <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">Kernel-Power 41 &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>W każdy poradnik wpisuję granicę: zdarzenie daje znacznik czasu, historia czujników zawęża przyczynę, ale żadne z nich samo nie udaje diagnozy.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

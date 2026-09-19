@@ -1,0 +1,394 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: nvlddmkm Event 153 / 4101, display driver stopped responding -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Screen went black, then came back? nvlddmkm Event 153 and 4101 mean Windows reset your NVIDIA driver after a 2 second GPU hang. How to find why, safely.">
+    <meta name="keywords" content="nvlddmkm event 153, display driver nvlddmkm stopped responding and has successfully recovered, event 4101, nvlddmkm event 13 14, TDR timeout, VIDEO_TDR_FAILURE 0x116, 0x117, NVIDIA driver crash, black screen flicker game crash, TdrDelay">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <meta property="og:title" content="nvlddmkm Event 153: Windows reset your GPU. Here is how to find why.">
+    <meta property="og:description" content="The black flicker is a two second timeout. The event does not name the cause. The pattern around it does.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-20">
+    <meta property="article:modified_time" content="2026-09-20">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>nvlddmkm Event 153 and 4101: Why Your GPU Driver Reset</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "nvlddmkm Event 153 and 4101: what a display driver reset means and how to find the cause",
+      "description": "Event 4101 and nvlddmkm Event 153 record a GPU timeout detection and recovery (TDR): the GPU did not finish or preempt its work within two seconds and Windows reset the driver. How to read the pattern, what not to change, and a safe isolation order.",
+      "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "about": [
+        { "@type": "Thing", "name": "Timeout detection and recovery (TDR)" },
+        { "@type": "Thing", "name": "nvlddmkm.sys, the NVIDIA kernel mode display driver" }
+      ],
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x116---video-tdr-failure",
+        "https://docs.nvidia.com/deploy/xid-errors/index.html"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": ["https://github.com/HuckleR2003", "https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://hackernoon.com/u/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "nvlddmkm Event 153 and 4101", "item": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What does nvlddmkm Event 153 mean?",
+          "acceptedAnswer": { "@type": "Answer", "text": "nvlddmkm is the NVIDIA kernel mode display driver. Event 153 from that source is logged when the GPU stops responding and the driver is reset. NVIDIA does not publish a description for it, which is why Event Viewer says the description cannot be found. Windows records the same reset as Display Event 4101: display driver nvlddmkm stopped responding and has successfully recovered." } },
+        { "@type": "Question", "name": "Is nvlddmkm Event 153 a hardware failure?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not by itself. It records a timeout: the GPU did not finish or preempt its work within the two second limit. A driver problem, an unstable overclock or undervolt, heat, a power delivery problem, system memory instability or a failing card can all produce the same event. The pattern around it decides which to test first." } },
+        { "@type": "Question", "name": "Should I increase TdrDelay in the registry?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, not as a fix. Microsoft documents the TDR registry keys as testing and debugging settings for driver developers and states that end users should not change them. A longer delay does not make the GPU finish its work. It turns a two second flicker into a longer freeze and hides the pattern you need to find the cause." } },
+        { "@type": "Question", "name": "Why does the screen flicker black at the desktop, not only in games?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Resets at idle, while browsing or when switching windows often happen while the card moves between power states. Test with the driver set to prefer maximum performance, try the previous driver version, and check display cables and adapters before blaming the GPU itself." } },
+        { "@type": "Question", "name": "When does a driver reset become a blue screen?",
+          "acceptedAnswer": { "@type": "Answer", "text": "By default Windows allows five GPU timeouts within 60 seconds. On the sixth it stops with bug check 0x117 VIDEO_TDR_TIMEOUT_DETECTED. If the driver cannot be reset because threads do not leave it within five seconds, Windows stops with 0x116 VIDEO_TDR_FAILURE." } }
+      ]
+    }
+    </script>
+
+    <style>
+    .triage{ display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:1.4rem 0; padding:1rem;
+        background:#08100a; border:1px solid #1f3824; border-left:4px solid #76b900; }
+    .triage article{ background:#090d0a; border:1px solid #20302a; padding:.9rem; }
+    .triage b{ display:block; color:#fff; font-family:var(--font-mono); font-size:.78rem; margin-bottom:.45rem; }
+    .triage code{ color:#b8e986; font-size:.7rem; }
+    .triage p{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; margin:.4rem 0 0; }
+    .field-table td:first-child{ color:#b8e986; font-family:var(--font-mono); font-size:.76rem; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    .timer{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin:1.3rem 0; border:1px solid #23262e; }
+    .timer div{ padding:.8rem .9rem; border-right:1px solid #23262e; background:#0d0f14; }
+    .timer div:last-child{ border-right:0; }
+    .timer b{ display:block; font-family:var(--font-mono); color:#76b900; font-size:1rem; }
+    .timer span{ font-size:.76rem; color:var(--text-secondary); line-height:1.45; display:block; margin-top:.25rem; }
+    @media(max-width:700px){ .triage, .timer{ grid-template-columns:1fr; } .timer div{ border-right:0; border-bottom:1px solid #23262e; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/nvlddmkm-display-driver-stopped-responding/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; GPU crash diagnosis</span>
+        <h1>The screen went black for two seconds. Windows reset your GPU.</h1>
+        <p class="tagline">nvlddmkm Event 153 and Display Event 4101 record the reset. They do not record the reason.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-09-20</span><span>&middot;</span><span>13 min read</span>
+        </div>
+
+        <p>
+            The game freezes. The screen goes black, sometimes for a second, sometimes long enough to think the PC
+            has died. Then the desktop comes back, the game has crashed or shows a black window, and a small
+            notification says <strong>Display driver nvlddmkm stopped responding and has successfully
+            recovered</strong>. In Event Viewer there is an error from source <strong>nvlddmkm</strong> with
+            <strong>Event ID 153</strong>, and when you open it, Windows says the description for the event
+            cannot be found.
+        </p>
+        <p>
+            That missing description is not your PC being broken in an extra way. NVIDIA does not publish text for
+            that event. The useful facts are elsewhere: what Windows itself recorded, what the machine was doing
+            in the minute before, and whether the reset follows load, heat, idle, one game or one driver version.
+        </p>
+
+        <div class="triage" aria-label="The three records of one driver reset">
+            <article>
+                <b>Windows' record</b>
+                <code>Display, Event 4101</code>
+                <p>"Display driver nvlddmkm stopped responding and has successfully recovered." The operating system reset the GPU after a timeout.</p>
+            </article>
+            <article>
+                <b>NVIDIA's record</b>
+                <code>nvlddmkm, Event 153 (often with 13 or 14)</code>
+                <p>The driver's own entry for the same moment. Undocumented publicly. Treat it as a timestamp, not a diagnosis.</p>
+            </article>
+            <article>
+                <b>When recovery fails</b>
+                <code>Stop 0x117 or 0x116</code>
+                <p>Too many resets in a minute, or a driver that cannot be reset, becomes a blue screen instead of a flicker.</p>
+            </article>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#tdr">What actually happened: a two second timeout</a></li>
+                <li><a href="#pattern">Read the pattern, not the event ID</a></li>
+                <li><a href="#test">A safe isolation order</a></li>
+                <li><a href="#tdrdelay">Why raising TdrDelay is the wrong fix</a></li>
+                <li><a href="#workman">Where PC Workman helps, and where it cannot</a></li>
+                <li><a href="#faq">Short answers</a></li>
+            </ol>
+        </div>
+
+        <h2 id="tdr">What actually happened: a two second timeout</h2>
+        <p>
+            Windows has a watchdog for the graphics card called <strong>Timeout Detection and Recovery (TDR)</strong>.
+            The GPU scheduler in the DirectX graphics kernel hands the card work. If the card takes too long, the
+            scheduler asks it to stop and switch (preempt). If the card can neither finish nor preempt within the
+            timeout, Windows decides the GPU is frozen, tells the driver to reset the hardware, purges video
+            memory and redraws the desktop. Microsoft documents that the only visible sign of a successful
+            recovery is a screen flicker and that message.
+        </p>
+
+        <div class="timer" aria-label="TDR limits documented by Microsoft">
+            <div><b>2 s</b><span>default timeout before the GPU is treated as hung (TdrDelay)</span></div>
+            <div><b>5 in 60 s</b><span>resets Windows allows within a minute (TdrLimitCount, TdrLimitTime)</span></div>
+            <div><b>6th</b><span>hang within that minute stops the PC with 0x117</span></div>
+            <div><b>5 s</b><span>for threads to leave the driver before 0x116 (TdrDdiDelay)</span></div>
+        </div>
+
+        <p>
+            So the event is a symptom with a stopwatch in it. Something kept the GPU busy, stalled or unresponsive
+            for more than two seconds. A game that runs a heavy frame is supposed to finish in milliseconds.
+            Anything that holds the card for two full seconds is a fault somewhere in the chain: the driver, the
+            card's stability at its current clocks and voltage, its temperature, its power, the PCI Express link,
+            or the rest of the system feeding it.
+        </p>
+        <div class="callout">
+            <b>Write down what you saw.</b> Did only the screen go black, or did audio stop too? Did the game crash
+            to the desktop or keep running with a black window? Did it happen in a game, at idle, while watching a
+            video or when switching windows? Was a monitor waking up? These details choose the next test better
+            than the event number does.
+        </div>
+
+        <h2 id="pattern">Read the pattern, not the event ID</h2>
+        <p>
+            Open <strong>Reliability Monitor</strong> with <code>perfmon /rel</code> and find the days with the
+            reset. It puts driver installs, Windows updates and application crashes on one timeline, which makes a
+            repeated neighbour easy to spot. Then use the table.
+        </p>
+        <table>
+            <thead><tr><th>When it happens</th><th>Moves up the list</th><th>What it does not prove</th></tr></thead>
+            <tbody>
+                <tr><td>Only under heavy game load, after minutes of play</td><td>Heat, GPU core or memory overclock, undervolt, power delivery</td><td>That the card is dead</td></tr>
+                <tr><td>At the desktop, while browsing, on alt-tab, on monitor wake</td><td>Power state transitions, the driver version, display cable or adapter</td><td>That the GPU cannot handle load</td></tr>
+                <tr><td>Started the day a driver or Windows update installed</td><td>That driver version; try the previous one</td><td>That the newest driver is always the fix</td></tr>
+                <tr><td>Only in one game or one engine</td><td>That game's settings, its shader cache, its overlay, a known issue in its patch notes</td><td>A system-wide hardware fault</td></tr>
+                <tr><td>Stable at stock, unstable with Afterburner or a factory OC profile</td><td>Lost stability margin at those clocks</td><td>That the defaults are "slow"</td></tr>
+                <tr><td>Also whole-PC freezes or restarts, WHEA warnings, RAM overclock</td><td>System instability outside the GPU: memory, CPU, board. See the <a href="../whea-logger-event-17-18-19/">WHEA guide</a></td><td>That NVIDIA's driver is the culprit</td></tr>
+                <tr><td>Many resets per session, getting worse over weeks</td><td>Hardware degradation, heat from dried paste or pads, a failing power connector</td><td>Anything until tested at defaults</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="test">A safe isolation order</h2>
+        <ol>
+            <li><strong>Keep the evidence.</strong> Note the exact time, the pattern above, and the events around
+                Event 4101 in <em>Windows Logs → System</em>. If a blue screen happened, note 0x116 or 0x117.</li>
+            <li><strong>Return everything to default.</strong> Remove GPU core and memory overclocks, custom
+                curves and undervolts. Test the card at its reference clocks if the maker's tool allows it. Also
+                return RAM XMP or EXPO and CPU tuning to default for the test: a GPU reset can be the first
+                symptom of an unstable system. The <a href="../xmp-expo-crashes-ram-stability/">RAM stability
+                guide</a> shows a controlled A/B test.</li>
+            <li><strong>Reinstall the driver cleanly.</strong> Use the clean installation option in NVIDIA's
+                installer. If the problem survives, a full removal in Safe Mode with Display Driver Uninstaller is
+                the stronger version of the same test. Then try the previous stable driver as well as the newest:
+                both directions are useful data.</li>
+            <li><strong>Log temperature and clocks while reproducing.</strong> Watch GPU temperature, hotspot if
+                your tools show it, clocks and power draw in the few minutes before a reset. Clocks falling as the
+                temperature climbs point at cooling. A reset at normal temperature points elsewhere. Stop if
+                anything smells hot or behaves dangerously.</li>
+            <li><strong>Check power and the link physically.</strong> With the PC switched off and unplugged,
+                reseat the GPU and its power connectors. A 12V-2x6 or 12VHPWR plug must be fully inserted with no
+                gap. Use separate PCIe cables from the power supply where the card maker asks for it, and avoid
+                extensions and risers during the test.</li>
+            <li><strong>For idle and desktop flickers,</strong> set Power management mode to <em>Prefer maximum
+                performance</em> in the NVIDIA Control Panel as a diagnostic, and try another cable or port,
+                especially through adapters. If the flickers stop, you have learned it is a power state or display
+                path problem. Set it back afterwards if you do not want the extra idle power.</li>
+            <li><strong>Change one thing at a time,</strong> and give each change the same session that used to
+                fail. Three changes at once can fix it and teach you nothing.</li>
+        </ol>
+        <div class="callout warn">
+            <b>If resets continue at full default settings with a clean driver, normal temperatures and correctly
+            seated power,</b> test the card in another PC or another card in yours before buying anything. That
+            is the step that separates the card from the rest of the machine.
+        </div>
+
+        <h2 id="tdrdelay">Why raising TdrDelay is the wrong fix</h2>
+        <p>
+            The most copied fix on the internet is a registry value: create <code>TdrDelay</code> under
+            <code>HKLM\System\CurrentControlSet\Control\GraphicsDrivers</code> and set it to 8 or 10 seconds.
+            Microsoft documents that key and its neighbours as settings for testing and debugging during driver
+            development, and states directly that end users should not change them.
+        </p>
+        <p>
+            The reason is simple. The delay is the watchdog, not the problem. With a longer delay the GPU still
+            stalls. Windows just waits longer before recovering, so a two second flicker becomes an eight second
+            frozen screen, and the event that tells you something is wrong appears less often. Setting
+            <code>TdrLevel</code> to 0 turns detection off entirely, which can leave the whole desktop hung
+            instead of recovering. There are narrow professional cases, such as long GPU compute jobs on a
+            display card, where developers change these values deliberately. A game crashing at random is not
+            one of them.
+        </p>
+
+        <h2 id="workman">Where PC Workman helps, and where it cannot</h2>
+        <p>
+            PC Workman keeps a local history of GPU and CPU load, temperatures, clocks and the processes that were
+            running. After a reset you can look at the minutes before it and see whether the card was hot, whether
+            clocks were falling, or whether it happened at idle. That is often the difference between a cooling
+            problem and a driver or power state problem.
+        </p>
+        <p>
+            <strong>PC Workman does not read NVIDIA's internal driver logs, decode Xid errors or crash dumps, and
+            cannot tell a driver bug from a failing card on its own.</strong> It is one layer next to Event
+            Viewer, Reliability Monitor, a clean driver install and a test at default settings.
+        </p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>What does nvlddmkm Event 153 mean?</h3>
+        <p>
+            It is the NVIDIA driver's own record of a GPU hang and driver reset. NVIDIA does not publish a
+            description, so Event Viewer says it cannot find one. Windows records the same reset as Display
+            Event 4101.
+        </p>
+        <h3>Is it a hardware failure?</h3>
+        <p>
+            Not by itself. It records a timeout. Driver problems, unstable tuning, heat, power delivery and
+            system instability all produce it. Test at defaults with a clean driver before blaming the card.
+        </p>
+        <h3>Should I change TdrDelay?</h3>
+        <p>
+            No. Microsoft says end users should not change the TDR keys. A longer delay hides the symptom and
+            makes each hang last longer.
+        </p>
+        <h3>Why do I get it at the desktop, not in games?</h3>
+        <p>
+            Resets at idle often follow power state changes or the display path. Test with Prefer maximum
+            performance, another cable and the previous driver.
+        </p>
+        <h3>When does it turn into a blue screen?</h3>
+        <p>
+            On the sixth hang within a minute Windows stops with 0x117. If the driver cannot be reset within five
+            seconds, it stops with 0x116.
+        </p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: timeout detection and recovery (TDR) in WDDM</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys" rel="noopener">Microsoft: TDR registry keys, for testing and debugging only</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected" rel="noopener">Microsoft: bug check 0x117 VIDEO_TDR_TIMEOUT_DETECTED</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x116---video-tdr-failure" rel="noopener">Microsoft: bug check 0x116 VIDEO_TDR_FAILURE</a>.</li>
+            <li><a href="https://docs.nvidia.com/deploy/xid-errors/index.html" rel="noopener">NVIDIA: Xid errors, the driver's own GPU error reports</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>See the minutes before the reset.</b> PC Workman keeps a local history of GPU temperature, load and
+            clocks, so a black flicker is not reduced to one event without a description.
+            <a href="../../download/">Download for Windows</a> or get it from the
+            <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            If the whole PC restarts instead of only the screen, read
+            <a href="../pc-restarts-while-gaming-kernel-power-41/">Kernel-Power 41 &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>I write the boundary into every guide: an event can give you a timestamp and a sensor history can narrow the cause, but neither can pretend to be a diagnosis on its own.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

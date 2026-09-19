@@ -1,0 +1,411 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman guide: WHEA-Logger Event 17, 18, 19, 47 -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="WHEA-Logger 17, 19 i 47 to błędy, które sprzęt sam skorygował. Zdarzenie 18 to taki, którego nie dał rady. Jak czytać pola, liczyć wpisy i znaleźć psującą się część.">
+    <meta name="keywords" content="WHEA-Logger 17, WHEA-Logger 18, WHEA-Logger 19, WHEA 47, wystąpił skorygowany błąd sprzętu, błąd krytyczny sprzętu, WHEA_UNCORRECTABLE_ERROR, WHEA-Logger event 17, WHEA-Logger event 18, WHEA-Logger event 19, WHEA event 47, a corrected hardware error has occurred, a fatal hardware error has occurred, PCI Express Root Port, cache hierarchy error, WHEA_UNCORRECTABLE_ERROR 0x124, Infinity Fabric WHEA 19, Intel 13th 14th gen instability">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/">
+    <meta property="og:title" content="WHEA-Logger 17, 18, 19: sprzęt naprawił błąd, którego nie widziałeś">
+    <meta property="og:description" content="Skorygowane błędy to ostrzeżenia z licznikiem. Krytyczny to niebieski ekran z adresem. Jak ustalić, która część prosi o uwagę.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-20">
+    <meta property="article:modified_time" content="2026-09-20">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>WHEA-Logger 17, 18, 19: które błędy sprzętu mają znaczenie</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "WHEA-Logger, zdarzenia 17, 18, 19 i 47: które błędy sprzętu mają znaczenie i jak znaleźć część",
+      "description": "WHEA-Logger zapisuje błędy sprzętu zgłaszane przez Windows Hardware Error Architecture. Zdarzenia 17, 19 i 47 to błędy skorygowane, 18 to błąd krytyczny zwykle po niebieskim ekranie 0x124. Jak czytać pola, liczyć wpisy i bezpiecznie sprawdzać.",
+      "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html",
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "about": [
+        { "@type": "Thing", "name": "Windows Hardware Error Architecture (WHEA)" },
+        { "@type": "Thing", "name": "WHEA_UNCORRECTABLE_ERROR, bug check 0x124" }
+      ],
+      "citation": [
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/windows-hardware-error-architecture-overview",
+        "https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error",
+        "https://www.intel.com/content/www/us/en/support/articles/000102331/processors.html",
+        "https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/pci-express-settings-link-state-power-management"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-default.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": ["https://github.com/HuckleR2003", "https://x.com/hck_lab", "https://linkedin.com/in/marcinfirmuga", "https://dev.to/huckler", "https://hackernoon.com/u/huckler", "https://medium.com/@MarcinFirmuga", "https://linktr.ee/marcin_firmuga"]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "WHEA-Logger 17, 18, 19", "item": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Co oznacza zdarzenie 17?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Skorygowany błąd, zwykle na łączu PCI Express. Kilka to norma. Zalew wskazuje na zarządzanie energią łącza, gniazdo, riser, firmware albo urządzenie na tym łączu."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy zdarzenie 19 jest groźne?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Jest skorygowane, więc system działał dalej. Stały strumień pod obciążeniem znaczy, że strojenie albo sprzęt jest na granicy. Na Ryzenach to często zegar Infinity Fabric albo profil pamięci."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Co oznacza zdarzenie 18?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Błąd krytyczny sprzętu, którego nie dało się skorygować, zwykle zapisany po niebieskim ekranie WHEA_UNCORRECTABLE_ERROR. Pole Component pokazuje, gdzie zacząć."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy sterownik może powodować błędy WHEA?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Microsoft pisze, że 0x124 zwykle wiąże się ze sprzętem, a sterownik jest mniej prawdopodobny, choć możliwy. Firmware i zarządzanie energią to częstsze przyczyny niż aplikacje."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy ukryć ostrzeżenia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nie. Tłumienie ich usuwa wczesne ostrzeżenie. Usuń przyczynę albo zaakceptuj ją świadomie."
+      }
+    }
+  ]
+}
+    </script>
+
+    <style>
+    .triage{ display:grid; grid-template-columns:repeat(3,1fr); gap:.65rem; margin:1.4rem 0; padding:1rem;
+        background:#0d0b06; border:1px solid #3a3120; border-left:4px solid #f59e0b; }
+    .triage article{ background:#0e0c08; border:1px solid #302a1c; padding:.9rem; }
+    .triage b{ display:block; color:#fff; font-family:var(--font-mono); font-size:.78rem; margin-bottom:.45rem; }
+    .triage code{ color:#fcd34d; font-size:.7rem; }
+    .triage p{ color:var(--text-secondary); font-size:.78rem; line-height:1.5; margin:.4rem 0 0; }
+    .field-table td:first-child{ color:#fcd34d; font-family:var(--font-mono); font-size:.76rem; white-space:nowrap; }
+    .source-list{ font-size:.82rem; color:var(--text-secondary); }
+    .source-list li{ margin-bottom:.5rem; }
+    @media(max-width:700px){ .triage{ grid-template-columns:1fr; } .field-table td:first-child{ white-space:normal; } }
+    </style>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/whea-logger-event-17-18-19/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/whea-logger-event-17-18-19/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Błędy sprzętu</span>
+        <h1>Sprzęt naprawił błąd, którego nie widziałeś. Oto kiedy to ma znaczenie.</h1>
+        <p class="tagline">WHEA-Logger 17, 19 i 47 to poprawki z licznikiem. Zdarzenie 18 to ta, której nie dało się zrobić.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-09-20</span><span>&middot;</span><span>14 min czytania</span>
+        </div>
+
+        <p>
+            Otwierasz Podgląd zdarzeń, bo wyleciała gra albo komputer raz się zrestartował w zeszłym tygodniu, a
+            dziennik System jest pełen żółtych ostrzeżeń od <strong>WHEA-Logger</strong>: <em>„Wystąpił
+            skorygowany błąd sprzętu”</em>. Czasem kilka. Czasem tysiące, po kilka na sekundę. Albo jest jeden
+            czerwony wpis, <em>„Wystąpił błąd krytyczny sprzętu”</em>, zaraz po niebieskim ekranie z napisem
+            <strong>WHEA_UNCORRECTABLE_ERROR</strong>.
+        </p>
+        <p>
+            WHEA to Windows Hardware Error Architecture. Procesor, kontroler pamięci i łącza PCI Express same wykrywają
+            swoje błędy i zgłaszają je Windowsowi, a ten zapisuje je w dzienniku. Liczy się słowo
+            <em>skorygowany</em>: sprzęt zauważył problem i naprawił go, zanim cokolwiek się zepsuło. To ostrzeżenie
+            z licznikiem, a nie jeszcze awaria. Zadanie polega na tym, żeby ustalić, która część to zgłasza, jak
+            często i czy liczba rośnie.
+        </p>
+
+        <div class="triage" aria-label="Trzy rodzaje wpisów WHEA-Logger">
+            <article>
+                <b>Skorygowany, na łączu</b>
+                <code>Zdarzenie 17 &middot; PCI Express Root Port</code>
+                <p>Łącze PCIe do karty graficznej, dysku NVMe albo urządzenia chipsetu miało błąd, który powtórzono i skorygowano.</p>
+            </article>
+            <article>
+                <b>Skorygowany, w procesorze lub pamięci</b>
+                <code>Zdarzenie 19 &middot; zdarzenie 47</code>
+                <p>Skorygowany błąd machine check: 19 zwykle na magistrali lub połączeniu, 47 w pamięci. System działał dalej.</p>
+            </article>
+            <article>
+                <b>Nieskorygowany</b>
+                <code>Zdarzenie 18 &middot; Stop 0x124</code>
+                <p>Błąd krytyczny sprzętu. Windows zatrzymał się z WHEA_UNCORRECTABLE_ERROR i po restarcie zapisał zdarzenie 18.</p>
+            </article>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#fields">Najpierw przeczytaj trzy pola</a></li>
+                <li><a href="#count">Policz je: kilka to nie zalew</a></li>
+                <li><a href="#causes">Na co zwykle wskazuje każde zdarzenie</a></li>
+                <li><a href="#test">Bezpieczna kolejność sprawdzania</a></li>
+                <li><a href="#dont">Czego nie robić</a></li>
+                <li><a href="#workman">Gdzie PC Workman pomaga, a gdzie nie</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+            </ol>
+        </div>
+
+        <h2 id="fields">Najpierw przeczytaj trzy pola</h2>
+        <p>
+            Otwórz zdarzenie w <strong>Dzienniki systemu Windows → System</strong> i przeczytaj kartę Ogólne. Trzy
+            linie decydują o wszystkim, co dalej. Przepisz je dla każdego rodzaju wpisu, który widzisz.
+        </p>
+        <table class="field-table">
+            <thead><tr><th>Pole</th><th>Co mówi</th><th>Przykłady</th></tr></thead>
+            <tbody>
+                <tr><td>Component</td><td>Która część zgłosiła błąd</td><td>PCI Express Root Port, Processor Core, Memory</td></tr>
+                <tr><td>Error Source</td><td>Który mechanizm go wykrył</td><td>Advanced Error Reporting (PCI Express), Corrected Machine Check, Machine Check Exception</td></tr>
+                <tr><td>Error Type</td><td>Jaki to rodzaj błędu, w zgłoszeniach procesora</td><td>Bus/Interconnect Error, Cache Hierarchy Error</td></tr>
+                <tr><td>Bus:Device:Function</td><td>We wpisach PCIe, które gniazdo lub urządzenie</td><td>Porównaj z polem Lokalizacja w Menedżerze urządzeń</td></tr>
+                <tr><td>Processor APIC ID</td><td>We wpisach procesora, który rdzeń zgłosił</td><td>Ten sam rdzeń za każdym razem to już wskazówka</td></tr>
+            </tbody>
+        </table>
+        <p>
+            We wpisie PCI Express liczby Bus, Device i Function wskazują fizyczne łącze. Otwórz Menedżer urządzeń,
+            przełącz widok na <em>Urządzenia według połączenia</em> i sprawdź Lokalizację portu głównego oraz to, co
+            pod nim wisi. Zwykle tak się dowiadujesz, że ostrzeżenia dotyczą gniazda karty graficznej, gniazda M.2
+            albo urządzenia chipsetu, na przykład karty sieciowej.
+        </p>
+
+        <h2 id="count">Policz je: kilka to nie zalew</h2>
+        <p>
+            Liczba znaczy więcej niż kolor. Kilka skorygowanych błędów przy starcie albo przy budzeniu urządzenia to
+            inna sytuacja niż kilka na sekundę w trakcie gry. Policz je według identyfikatora w PowerShell:
+        </p>
+        <pre><code>Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Microsoft-Windows-WHEA-Logger'} |
+  Group-Object Id | Select-Object Name, Count</code></pre>
+        <p>
+            Uruchom to ponownie po każdej sprawdzanej zmianie. Licznik, który przestaje rosnąć, to najczystszy dowód,
+            że zmiana zadziałała. Jeśli licznik rośnie z tygodnia na tydzień przy tych samych ustawieniach, to jest
+            trend, który trzeba traktować poważnie, nawet jeśli nic się jeszcze nie zawiesiło.
+        </p>
+
+        <h2 id="causes">Na co zwykle wskazuje każde zdarzenie</h2>
+        <table>
+            <thead><tr><th>Zdarzenie</th><th>Zwykle wskazuje na</th><th>Czego nie dowodzi</th></tr></thead>
+            <tbody>
+                <tr><td>17, PCI Express Root Port, AER</td><td>Zarządzanie energią łącza PCIe (ASPM), gniazdo, riser lub przedłużkę, firmware, sterownik chipsetu, urządzenie na tym łączu</td><td>Że karta albo dysk się psuje</td></tr>
+                <tr><td>19, Bus/Interconnect, na AMD Ryzen</td><td>Zegar Infinity Fabric (FCLK) albo profil pamięci ponad to, co procesor utrzyma, napięcie SoC, ustawienia PBO lub Curve Optimizer</td><td>Że procesor jest wadliwy na ustawieniach domyślnych</td></tr>
+                <tr><td>19 na Intelu albo na dowolnym procesorze bez strojenia</td><td>Niestabilne strojenie, domyślne ustawienia zasilania w BIOS-ie, chłodzenie, wczesny objaw psującego się procesora</td><td>Jednej przyczyny bez testu na domyślnych</td></tr>
+                <tr><td>47, Memory</td><td>Błąd pamięci skorygowany przez ECC: moduł, jego profil albo kontroler pamięci</td><td>Którego modułu, dopóki nie sprawdzisz ich po jednym</td></tr>
+                <tr><td>18, Processor Core, Cache Hierarchy</td><td>Niestabilność procesora: podkręcenie, undervolt, za niskie napięcie, temperatura, degradujący się procesor</td><td>Że jedyną naprawą jest wymiana procesora</td></tr>
+                <tr><td>18 po wielu 17, 19 lub 47</td><td>Problem skorygowany, który stał się nieskorygowanym</td><td>Że wcześniejsze ostrzeżenia były niegroźne</td></tr>
+            </tbody>
+        </table>
+        <div class="callout">
+            <b>Właściciele Intel Core 13. i 14. generacji (desktop).</b> Intel potwierdził niestabilność typu Vmin
+            Shift w części tych procesorów, a właściciele zgłaszają ją jako wyloty, niebieskie ekrany i błędy WHEA.
+            Intel zaleca BIOS z mikrokodem <strong>0x12F lub nowszym</strong> i ustawienia Intel Default Settings,
+            a dla kwalifikujących się procesorów przedłużył gwarancję do pięciu lat od zakupu. Jeśli masz taki
+            procesor, zaktualizuj BIOS przed każdym innym testem.
+        </div>
+
+        <h2 id="test">Bezpieczna kolejność sprawdzania</h2>
+        <ol>
+            <li><strong>Zapisz pola i licznik.</strong> Component, Error Source, Error Type, Bus:Device:Function albo
+                APIC ID oraz wynik z PowerShell. Zanotuj, co robił komputer.</li>
+            <li><strong>Zrób kopię ważnych danych,</strong> zwłaszcza gdy widzisz zdarzenie 47 albo 18. Błędy pamięci
+                i procesora potrafią uszkodzić pliki, zanim cokolwiek się zawiesi.</li>
+            <li><strong>Wróć ze strojeniem do domyślnych.</strong> Na czas testu wyłącz podkręcanie procesora, PBO i
+                Curve Optimizer, undervolty, ręczny FCLK oraz XMP lub EXPO. Jeśli licznik staje na domyślnych,
+                przywracaj ustawienia po jednym. <a href="../xmp-expo-crashes-ram-stability/index_pl.html">Poradnik o
+                stabilności RAM</a> opisuje pamięciową połowę tego testu.</li>
+            <li><strong>Zaktualizuj BIOS i sterownik chipsetu</strong> ze strony wsparcia producenta płyty albo
+                komputera, a nie z programu do aktualizacji sterowników. Wiele zalewów WHEA to kwestia firmware'u i
+                zarządzania energią.</li>
+            <li><strong>Przy zdarzeniu 17 na porcie PCIe</strong> sprawdź z wyłączonym zarządzaniem energią łącza: w
+                planie zasilania Windowsa, w ustawieniach zaawansowanych, <em>PCI Express → Zarządzanie energią stanu
+                łącza → Wyłączone</em>. Niektóre płyty mają to samo jako ASPM w BIOS-ie. Jeśli ostrzeżenia znikną,
+                znalazłeś problem z zarządzaniem energią na tym łączu. Potem przy odłączonym od prądu komputerze osadź
+                ponownie urządzenie na tym łączu, usuń risery i przedłużki, a jeśli karta graficzna stoi na riserze,
+                sprawdź z gniazdem ustawionym w BIOS-ie na niższą generację PCIe.</li>
+            <li><strong>Przy zdarzeniu 47 albo 18 z udziałem pamięci</strong> sprawdź pamięć na ustawieniach
+                domyślnych prawdziwym testem pamięci, a jeśli pojawią się błędy, testuj moduły po jednym.</li>
+            <li><strong>Sprawdź temperatury pod obciążeniem, które wywołuje błędy.</strong> Przerwij, jeśli coś się
+                przegrzewa.</li>
+            <li><strong>Jeśli błędy trwają na pełnych domyślnych ustawieniach i aktualnym firmware,</strong> część
+                wskazana w polu Component staje się głównym podejrzanym. Sprawdź z pewną, sprawną częścią albo oddaj
+                komputer do serwisu, który taką ma.</li>
+        </ol>
+
+        <h2 id="dont">Czego nie robić</h2>
+        <ul>
+            <li><strong>Nie instaluj narzędzia do tłumienia WHEA.</strong> Takie narzędzia krążą wśród
+                overclockerów, żeby ukrywać skorygowane błędy przy pogoni za wyższymi zegarami. Usuwają jedyne
+                wczesne ostrzeżenie przed cichym uszkodzeniem danych albo wylotem.</li>
+            <li><strong>Nie czyść dziennika i nie uznawaj, że naprawione.</strong> Pusty dziennik po wyczyszczeniu
+                niczego nie dowodzi. Dowodzi licznik, który stoi przy tym samym obciążeniu.</li>
+            <li><strong>Nie wymieniaj części hurtem.</strong> Jedna zmiana naraz, z licznikiem jako miarą. Wymiana
+                trzech części i zniknięcie ostrzeżeń nie mówi, która to była.</li>
+        </ul>
+
+        <h2 id="workman">Gdzie PC Workman pomaga, a gdzie nie</h2>
+        <p>
+            PC Workman prowadzi lokalną historię obciążenia procesora i karty, temperatur, zegarów i napięć
+            udostępnianych przez obsługiwane czujniki. Kiedy licznik WHEA skacze, ta historia pokazuje, co robiła
+            maszyna: gra na pełnym obciążeniu, gorący procesor, komputer w spoczynku budzący urządzenie. Ten kontekst
+            często rozstrzyga między przyczyną termiczną, strojeniem a zarządzaniem energią.
+        </p>
+        <p>
+            <strong>PC Workman nie czyta ani nie dekoduje rekordów błędów WHEA, nie testuje pamięci i sam nie powie,
+            która część zawiodła.</strong> Używaj go obok Podglądu zdarzeń, licznika z PowerShell i testu na
+            ustawieniach domyślnych.
+        </p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Co oznacza zdarzenie 17?</h3>
+        <p>
+            Skorygowany błąd, zwykle na łączu PCI Express. Kilka to norma. Zalew wskazuje na zarządzanie energią
+            łącza, gniazdo, riser, firmware albo urządzenie na tym łączu.
+        </p>
+        <h3>Czy zdarzenie 19 jest groźne?</h3>
+        <p>
+            Jest skorygowane, więc system działał dalej. Stały strumień pod obciążeniem znaczy, że strojenie albo
+            sprzęt jest na granicy. Na Ryzenach to często zegar Infinity Fabric albo profil pamięci.
+        </p>
+        <h3>Co oznacza zdarzenie 18?</h3>
+        <p>
+            Błąd krytyczny sprzętu, którego nie dało się skorygować, zwykle zapisany po niebieskim ekranie
+            WHEA_UNCORRECTABLE_ERROR. Pole Component pokazuje, gdzie zacząć.
+        </p>
+        <h3>Czy sterownik może powodować błędy WHEA?</h3>
+        <p>
+            Microsoft pisze, że 0x124 zwykle wiąże się ze sprzętem, a sterownik jest mniej prawdopodobny, choć
+            możliwy. Firmware i zarządzanie energią to częstsze przyczyny niż aplikacje.
+        </p>
+        <h3>Czy ukryć ostrzeżenia?</h3>
+        <p>
+            Nie. Tłumienie ich usuwa wczesne ostrzeżenie. Usuń przyczynę albo zaakceptuj ją świadomie.
+        </p>
+
+        <h2 id="sources">Źródła pierwotne</h2>
+        <ul class="source-list">
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/whea/windows-hardware-error-architecture-overview" rel="noopener">Microsoft: przegląd Windows Hardware Error Architecture</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: błąd 0x124 WHEA_UNCORRECTABLE_ERROR</a>.</li>
+            <li><a href="https://www.intel.com/content/www/us/en/support/articles/000102331/processors.html" rel="noopener">Intel: niestabilność Vmin Shift w procesorach Core 13. i 14. generacji</a>.</li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/customize/power-settings/pci-express-settings-link-state-power-management" rel="noopener">Microsoft: ustawienie PCI Express Link State Power Management</a>.</li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zobacz, co robił komputer, kiedy licznik skoczył.</b> PC Workman prowadzi lokalną historię obciążenia,
+            temperatur i zegarów, więc ściana żółtych ostrzeżeń dostaje kontekst.
+            <a href="../../download/index_pl.html">Pobierz na Windows</a> albo z
+            <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a>.
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:.86rem;">
+            Ekran gaśnie, a sterownik NVIDII się resetuje? Przeczytaj
+            <a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html">nvlddmkm, zdarzenie 153 &rarr;</a>
+            &middot; Restartuje się cały komputer? Przeczytaj <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">Kernel-Power 41 &rarr;</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workmana &middot; HCK_Labs</div>
+                <p>Skorygowany błąd to sprzęt mówiący, że pracuje na granicy. Wolę poradnik, który uczy je liczyć, niż taki, który uczy je wyciszać.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
