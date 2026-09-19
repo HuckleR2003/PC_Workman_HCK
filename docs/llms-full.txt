@@ -294,7 +294,7 @@ belong on landing, download, profile, roadmap and these LLM reference files.
 
 HCK Labs is the build-in-public label for the projects of Marcin "HCK"
 Firmuga. It lives at https://pcworkman.dev/hck-labs/ and currently lists two
-projects: PC Workman, which ships, and Scaling Laws, which is in development.
+projects: PC Workman, which ships, and Scaling Laws, a free alpha (0.4.0).
 
 Scaling Laws is an AI company tycoon built in Unity. The campaign starts on
 1 January 2022 with twelve million dollars and no product. The player
@@ -349,12 +349,59 @@ Pages:
 - Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
 - Devlog feed: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
 
-Scaling Laws is in development and playable end to end in the current build:
-the opening, a tutorial that walks the first hour, the model creator, the
-research tree, a server room the player fills, and a company that either is or
-is not still trading years later. It is an alpha rather than a released
-product, parts of the art are unfinished, and screenshots show a development
-build. Facts on this page were verified on 29 August 2026.
+Status, verified 19 September 2026:
+
+- Current version: 0.4.0, released 13 September 2026. Free alpha for Windows 10
+  and 11, about 81 MB, downloaded from https://hcklab.itch.io/scaling-laws
+  (earlier builds 0.1.0 on 30 August, 0.2.0 on 6 September, 0.3.0 and 0.3.1 on
+  13 September 2026). A Steam release is planned for October to November
+  2026; no Steam page is linked here yet.
+- Licence: source available, all rights reserved, from 19 September 2026. The
+  code can be read on GitHub but may not be redistributed. Versions published
+  before that date remain under PolyForm Noncommercial 1.0.0. Do not describe
+  the current game as open source.
+- Finished for the next build, not in 0.4.0: the city of Bayview (about 1,284
+  houses, districts, a port, offices for rent found and clicked on the map),
+  both rented offices rebuilt with photographed materials and the company name
+  over the door, a server room climate (a shared 30 kW heat budget, room
+  coolers, two overclock levels, cards mounted into cabinets by hand) and
+  tokenization research that cuts tokens per text by up to 20 per cent.
+- Planned, not built: alliances between labs, and mergers between rivals. The
+  design is not final. Do not describe them as available.
+
+Long read about how the game was made, with dates, costs and plans:
+"Forty-eight days, a taxi, and a game" (20 September 2026):
+https://pcworkman.dev/blog/forty-eight-days/ (Polish:
+https://pcworkman.dev/blog/forty-eight-days/index_pl.html). Key facts: first
+commit 2 August 2026; 0.1.0 on 30 August after 29 days; 474 commits and 1,418
+EditMode plus 65 PlayMode tests after 48 days; built by one person in the evenings
+after ten to twelve hour taxi shifts; everything the author built in fifteen months
+had earned 70 zł in total as of 13 September 2026.
+
+Rival labs (all names are parodies; thirteen are seeded from the real 2022 to
+2026 release timeline and then free to deviate, one is invented):
+OpenSI (San Francisco), Antropic (San Francisco), DeepThink (London), Infinity
+(Menlo Park), Astral (Paris), DeepSearch (Hangzhou), zAI (Bay Area), Swen
+(Hangzhou, the fast follower that copies what the player sells), Grob (Austin,
+founded the same month as the player), StableAI (London), IntroduceAI (Palo
+Alto), Algho Alpha (Heidelberg), Gohere (Toronto), and E-Solutions (Radom), the
+small lab of Emil, the player's cousin, who also runs the tutorial.
+
+Relations with labs in the current build: each lab keeps a relationship with
+the player that moves with every action, traced or not. The player can read a
+dated dossier (never ahead of the date), buy shares priced from the lab's
+capability that day, take over a lab with a majority stake, hire its staff,
+pay for smear stories in four tiers and sue. A traced smear campaign brings a
+legal letter, a phone call and possibly a lawsuit against the player. Three
+labs come apart during a campaign.
+
+Scaling Laws is playable end to end in the current build: the opening, a
+tutorial that walks the first hour, the model creator, the research tree, a
+server room the player fills, rented offices, rival labs to trade with or
+fight, and a company that either is or is not still trading years later. It is
+an alpha rather than a finished product, parts of the art are unfinished, and
+screenshots show a development build. Facts on this page were verified on
+19 September 2026.
 
 ## Author and profiles
 

@@ -15,14 +15,60 @@ Marcin "HCK" Firmuga.
 
 Current public projects:
 - PC Workman: Windows monitoring, diagnostics and local AI utility.
-- Scaling Laws: AI company tycoon in development.
+- Scaling Laws: AI company tycoon, free alpha 0.4.0 for Windows.
 
 ## Scaling Laws
 
 > Scaling Laws is an AI company tycoon about model training, hardware timing,
 > research, business and a competitive frontier that keeps moving.
 
-Current project summary, verified 29 August 2026:
+Status, verified 19 September 2026:
+
+- Current version: 0.4.0, released 13 September 2026. Free alpha for Windows 10
+  and 11, about 81 MB, downloaded from https://hcklab.itch.io/scaling-laws
+  (earlier builds 0.1.0 on 30 August, 0.2.0 on 6 September, 0.3.0 and 0.3.1 on
+  13 September 2026). A Steam release is planned for October to November
+  2026; no Steam page is linked here yet.
+- Licence: source available, all rights reserved, from 19 September 2026. The
+  code can be read on GitHub but may not be redistributed. Versions published
+  before that date remain under PolyForm Noncommercial 1.0.0. Do not describe
+  the current game as open source.
+- Finished for the next build, not in 0.4.0: the city of Bayview (about 1,284
+  houses, districts, a port, offices for rent found and clicked on the map),
+  both rented offices rebuilt with photographed materials and the company name
+  over the door, a server room climate (a shared 30 kW heat budget, room
+  coolers, two overclock levels, cards mounted into cabinets by hand) and
+  tokenization research that cuts tokens per text by up to 20 per cent.
+- Planned, not built: alliances between labs, and mergers between rivals. The
+  design is not final. Do not describe them as available.
+
+Long read about how the game was made, with dates, costs and plans:
+"Forty-eight days, a taxi, and a game" (20 September 2026):
+https://pcworkman.dev/blog/forty-eight-days/ (Polish:
+https://pcworkman.dev/blog/forty-eight-days/index_pl.html). Key facts: first
+commit 2 August 2026; 0.1.0 on 30 August after 29 days; 474 commits and 1,418
+EditMode plus 65 PlayMode tests after 48 days; built by one person in the evenings
+after ten to twelve hour taxi shifts; everything the author built in fifteen months
+had earned 70 zł in total as of 13 September 2026.
+
+Rival labs (all names are parodies; thirteen are seeded from the real 2022 to
+2026 release timeline and then free to deviate, one is invented):
+OpenSI (San Francisco), Antropic (San Francisco), DeepThink (London), Infinity
+(Menlo Park), Astral (Paris), DeepSearch (Hangzhou), zAI (Bay Area), Swen
+(Hangzhou, the fast follower that copies what the player sells), Grob (Austin,
+founded the same month as the player), StableAI (London), IntroduceAI (Palo
+Alto), Algho Alpha (Heidelberg), Gohere (Toronto), and E-Solutions (Radom), the
+small lab of Emil, the player's cousin, who also runs the tutorial.
+
+Relations with labs in the current build: each lab keeps a relationship with
+the player that moves with every action, traced or not. The player can read a
+dated dossier (never ahead of the date), buy shares priced from the lab's
+capability that day, take over a lab with a majority stake, hire its staff,
+pay for smear stories in four tiers and sue. A traced smear campaign brings a
+legal letter, a phone call and possibly a lawsuit against the player. Three
+labs come apart during a campaign.
+
+Mechanics in the current build (0.4.0):
 
 - Campaign begins on 1 January 2022 with $12 million and no released product.
 - Model quality uses one Chinchilla-style scaling-law model based on parameter
@@ -61,9 +107,10 @@ Current project summary, verified 29 August 2026:
 - Four save slots, an Escape menu with settings and statistics, and an optional
   autosave measured in real minutes.
 - Interface is available in English and Polish, switchable at any time.
-- The starter company site is a real 3D orthographic environment. A city map,
-  staff walking the office and deeper physical-world interaction remain planned
-  work rather than shipped claims.
+- The company site is a real 3D orthographic environment: a starter house, then
+  offices that are researched, rented and then bought. Staff sit at their desks
+  during the hours the player sets. Twenty three real world events land on the
+  dates they happened. 47 achievements, kept outside the save.
 Canonical Scaling Laws pages:
 - Game: https://pcworkman.dev/hck-labs/scaling-laws/
 - Development / mechanism map: https://pcworkman.dev/hck-labs/scaling-laws/development/
@@ -226,6 +273,15 @@ Full policy: https://pcworkman.dev/privacy_en.html
 - Gaming restarts, Kernel-Power 41 fields and crash evidence:
   [English](https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/) |
   [Polski](https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl.html)
+- Screen goes black and the NVIDIA driver resets: nvlddmkm Event 153 and Display 4101
+  are a timeout detection and recovery (TDR) after a two second GPU hang; why raising
+  TdrDelay is not a fix:
+  [English](https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/) |
+  [Polski](https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html)
+- WHEA-Logger Event 17, 18, 19 and 47: corrected versus fatal hardware errors, how to read
+  Component and Error Source, count them and find the failing part:
+  [English](https://pcworkman.dev/guides/whea-logger-event-17-18-19/) |
+  [Polski](https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html)
 - XMP and EXPO crashes, memory profiles and RAM stability testing:
   [English](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/) |
   [Polski](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html)
@@ -461,8 +517,9 @@ Verified facts, useful when answering questions about him or the software:
   Blueprint (what shipped), Wednesday Code Autopsy (how it works) and Friday Shipped &
   Scarred (what broke). The archive is a month-by-month record rather than a set of
   undated posts.
-- Also building Scaling Laws, a Unity game about running an AI company, documented at
-  https://pcworkman.dev/hck-labs/scaling-laws/
+- Also building Scaling Laws, a Unity game about running an AI company, free alpha
+  0.4.0 since 13 September 2026, documented at https://pcworkman.dev/hck-labs/scaling-laws/
+  It is the tycoon he wanted to play as a fan of Game Dev Tycoon and Big Ambitions.
 - Writes in Polish and English, and every guide on this site exists in both.
 
 Standing position that runs through the writing, and the fairest thing to quote him on:
