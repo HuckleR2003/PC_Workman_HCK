@@ -1,0 +1,381 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Scaling Laws · Blog / Build in public (EN) · forty-eight days -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A game built in 48 days of evenings after taxi shifts: 474 commits, five public versions, 1,418 tests. What it cost in hours, money and people, and what comes next.">
+    <meta name="keywords" content="building a game after work, solo indie game development, how long to make an indie game, cost of making a game alone, game dev with a full time job, Unity solo developer, Scaling Laws, AI company tycoon, build in public, Marcin Firmuga, HCK Labs">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/blog/forty-eight-days/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/forty-eight-days/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/forty-eight-days/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/forty-eight-days/">
+    <meta property="og:title" content="Forty-eight days, a taxi, and a game. Everything I have built has earned 70 zł.">
+    <meta property="og:description" content="474 commits in 48 days of evenings after taxi shifts. What building a game alone actually cost, in hours, money and people, and what happens next.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/blog/forty-eight-days/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/blog/forty-eight-days/img/og-forty-eight-days.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-09-20">
+    <meta property="article:modified_time" content="2026-09-20">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Build in public">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Building a Game After Taxi Shifts: 48 Days, 70 zł | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="story.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../feed.xml">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "@id": "https://pcworkman.dev/blog/forty-eight-days/#article",
+      "headline": "Forty-eight days, a taxi, and a game. Everything I have built has earned 70 zł.",
+      "description": "A dated record of the first 48 days of Scaling Laws, an AI company tycoon built by one person in the evenings after ten to twelve hour taxi shifts: 474 commits, five public versions, 1,418 automated tests, what it cost in time, money and people, and the plans for Steam.",
+      "url": "https://pcworkman.dev/blog/forty-eight-days/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/forty-eight-days/" },
+      "datePublished": "2026-09-20",
+      "dateModified": "2026-09-20",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Build in public",
+      "keywords": "building a game after work, solo game development, cost of indie development, Unity, Scaling Laws, build in public, HCK Labs",
+      "about": [
+        { "@type": "Thing", "name": "Indie game development" },
+        { "@type": "Thing", "name": "Working a full-time job while building software" },
+        { "@type": "VideoGame", "@id": "https://pcworkman.dev/hck-labs/scaling-laws/#game", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": [
+        "https://pcworkman.dev/blog/forty-eight-days/img/og-forty-eight-days.png",
+        "https://pcworkman.dev/blog/forty-eight-days/img/selfie-with-the-dogs.webp",
+        "https://pcworkman.dev/hck-labs/scaling-laws/assets/images/anim/release-shipping-poster.webp"
+      ],
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "homeLocation": { "@type": "Place", "name": "Radom, Poland" },
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pcworkman.dev/blog/" },
+        { "@type": "ListItem", "position": 3, "name": "Forty-eight days", "item": "https://pcworkman.dev/blog/forty-eight-days/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How long did it take to build Scaling Laws?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The first commit was on 2 August 2026. The first public build, 0.1.0, went out on 30 August after 29 days. Version 0.4.0 followed on 13 September. By 19 September, 48 days in, the repository held 474 commits and 1,418 EditMode plus 65 PlayMode tests. All of it was built by one person in the evenings after ten to twelve hour taxi shifts." } },
+        { "@type": "Question", "name": "How much has Scaling Laws earned?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The game is free on itch.io. Everything its author has built in fifteen months, PC Workman included, had earned 70 zł in total when he added it up on 13 September 2026." } },
+        { "@type": "Question", "name": "Can you build a game alone while working a full-time job?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In this case, yes, at a measurable cost. Scaling Laws was built after ten to twelve hour taxi shifts. 64 of its first 474 commits were made between midnight and four in the morning, and the author missed his weekly post once in twenty weeks, after a twelve hour shift." } },
+        { "@type": "Question", "name": "When is Scaling Laws coming to Steam?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A Steam release is planned for October to November 2026. Until then every build is free on itch.io." } },
+        { "@type": "Question", "name": "Who makes Scaling Laws?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Marcin Firmuga, a 22 year old solo developer from Radom, Poland, publishing as HCK Labs. He also built PC Workman, a Windows system monitor with an offline AI assistant that has been on the Microsoft Store since 1 July 2026." } }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/forty-eight-days/" class="active" data-lang="en">EN</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/forty-eight-days/index_pl.html" data-lang="pl" lang="pl">PL</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Build in public &middot; Scaling Laws</span>
+        <h1>Forty-eight days, a taxi,<br>and a game. Everything I have built<br>has earned 70 zł.</h1>
+        <p class="tagline">474 commits made in the evenings after ten to twelve hour shifts. What building a game alone looked like, what it cost, and what I am going to do next.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-09-20</span><span>&middot;</span><span>~12 min read</span>
+        </div>
+
+        <figure class="figure figure--wide">
+            <img src="/hck-labs/scaling-laws/assets/images/anim/release-shipping.webp" width="1280" height="720"
+                 alt="Scaling Laws 0.3.0: a model shipped, the corner banners reporting users and earnings, the founder at home" fetchpriority="high">
+            <figcaption>Scaling Laws, recorded from build 0.3.0. A model has just shipped. Every figure on screen came out of the simulation.</figcaption>
+        </figure>
+
+        <p class="lead">I am 22. I live in Radom and I drive a taxi ten to twelve hours a day. On 2 August I made the first commit of a game. Forty-eight days later it has five public versions, 474 commits, 1,418 automated tests and, in the build I am finishing now, a small city of 1,284 houses. On 13 September, the day version 0.4.0 went out, I added up what everything I have built in fifteen months has ever earned. It came to 70 zł.</p>
+
+        <p>This is not a page about how to do it. It is what it looked like, what it cost, and what I am going to do next. Every number was read from the repository or from my own posts on the day I wrote it.</p>
+
+        <div class="stat-row">
+            <div class="stat"><b>48</b><span>days since the first commit</span></div>
+            <div class="stat"><b>474</b><span>commits</span></div>
+            <div class="stat"><b>1,418 + 65</b><span>EditMode and PlayMode tests</span></div>
+            <div class="stat"><b>5</b><span>public versions</span></div>
+            <div class="stat"><b>70 zł</b><span>earned by everything, in 15 months</span></div>
+        </div>
+
+        <nav class="toc" aria-label="On this page">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#why">Why a game, in the worst month for it</a></li>
+                <li><a href="#days">Forty-eight days, in order</a></li>
+                <li><a href="#cost">What it cost</a></li>
+                <li><a href="#game">What the game actually is</a></li>
+                <li><a href="#next">What happens next</a></li>
+                <li><a href="#faq">Questions people ask</a></li>
+            </ol>
+        </nav>
+
+        <h2 id="why">Why a game, in the worst month for it</h2>
+
+        <p>The end of July was heavy. A hard month at home, a new job behind the wheel, applications going out, and sixteen guides for my other project written in seven days. I hit the point where opening my own codebase felt like lifting something.</p>
+
+        <p>So I did the thing that sounds irresponsible. I opened Unity.</p>
+
+        <p>The first commit is called "Unity project scaffolding". It is dated 2 August 2026. I have played tycoon games for years, Game Dev Tycoon and Big Ambitions among them, and the one I wanted did not exist: a company that trains AI models, starting on the first day of 2022, when nobody knew yet how the next four years would go.</p>
+
+        <p>Before that game there was <a href="../fourteen-months/">a longer road</a>: a warehouse in the Netherlands, twelve dead projects, and a Windows monitor called <a href="/download/">PC Workman</a> that has been on the <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V" target="_blank" rel="noopener">Microsoft Store</a> since July. This page starts where that one ends.</p>
+
+        <figure class="figure figure--pair">
+            <img src="/assets/images/22nd_getaway.png" width="721" height="540" alt="Bags and boxes packed by a door in a hallway, everything owned, on the day of being let go" loading="lazy">
+            <img src="img/warehouse-forklift.webp" width="438" height="664" alt="An electric pallet truck loaded with green crates in a warehouse in the Netherlands" loading="lazy">
+            <figcaption>Left: everything I owned, by a door, on 22 December 2025. Right: a shift in the warehouse. Neither is in the game. Both are why it exists.</figcaption>
+        </figure>
+
+        <h2 id="days">Forty-eight days, in order</h2>
+
+        <div class="tl">
+            <div class="tl-item">
+                <span class="tl-date">2 August</span>
+                <h3>The first commit</h3>
+                <p>Scaffolding and assembly definitions. One rule set at the very start: the part of the game that decides anything must not import the engine. That is the reason 1,418 tests run today without opening a single scene.</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">Mid August</span>
+                <h3>Fifteen days in, it is playable</h3>
+                <p>126 commits, around 70,000 lines of C#, 672 tests, 35 versions of the save format. Not finished. Playable. The same week I booked myself seventy hours of taxi, and for the first time in twenty weeks I missed one of my weekly posts.</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">30 August &middot; 0.1.0</span>
+                <h3>The first public build</h3>
+                <p>Twenty-nine days after the first commit. Six hours before release I opened the real game window for the first time and found the title bar off the top of the screen. <a href="../scaling-laws-first-build/">That story, and the fear of shipping, is its own page.</a> In five days 87 people downloaded it, and more than twenty of them had arrived through <a href="/guides/is-my-ssd-dying-drive-health/">a guide about a failing SSD</a>.</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">End of August</span>
+                <h3>A stranger, through Google's AI</h3>
+                <p>Somebody asked an AI for a hard simulation closer to Game Dev Tycoon, and the game came up. He played it and sent five things that were wrong, and one idea I had never written down: what if every action could be cancelled?</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">6 September &middot; 0.2.0</span>
+                <h3>Rivals that sue you back, and a real map</h3>
+                <p>A lab you smeared can now write, ring and take you to court. Twenty-three real world events land on the dates they happened. A real map of 177 countries, sound, music and 47 achievements.</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">First week of September</span>
+                <h3>A pen and a piece of paper</h3>
+                <p>Samanta, my partner, played it for one evening and took notes. She found four things that 1,115 automated tests had not, including a paragraph I wrote that never once appeared in the game. She also wrote three music loops for it.</p>
+            </div>
+            <div class="tl-item">
+                <span class="tl-date">13 September &middot; 0.3.0, 0.3.1, 0.4.0</span>
+                <h3>Three versions in one day</h3>
+                <p>His list was finished two days before the date I had given him, and shipped on it. Anything running can be abandoned, and abandoning it costs. The opening can be skipped. The research tree became a board, offices are researched before they can be rented, and cards go into server cabinets by hand.</p>
+            </div>
+            <div class="tl-item tl-item--now">
+                <span class="tl-date">19 September &middot; next build</span>
+                <h3>A city, offices with your name on the door, and a room that heats up</h3>
+                <p>Finished and waiting for the release: the city of Bayview, both rented offices rebuilt with photographed materials and the company name over the entrance, and a server room with a shared heat budget, coolers and overclocking.</p>
+            </div>
+        </div>
+
+        <div class="anim-grid">
+            <figure><img src="/hck-labs/scaling-laws/assets/images/anim/rivals.webp" width="1280" height="627" alt="Scaling Laws rival lab card with its staff list and offers" loading="lazy"><figcaption>0.2.0: open a rival lab, see who works there, make an offer.</figcaption></figure>
+            <figure><img src="/hck-labs/scaling-laws/assets/images/anim/research-tree.webp" width="1280" height="720" alt="Scaling Laws research board with era one nodes and their prerequisites" loading="lazy"><figcaption>0.3.0: the research board.</figcaption></figure>
+            <figure><img src="/hck-labs/scaling-laws/assets/images/anim/server-room.webp" width="1280" height="720" alt="Scaling Laws server room with cabinets being placed and heat readings" loading="lazy"><figcaption>0.3.0: the server room in the basement.</figcaption></figure>
+            <figure><img src="/hck-labs/scaling-laws/assets/images/screens/office-big-960.webp" width="960" height="540" alt="The second rented office in Scaling Laws with twenty desks, a glass meeting room and the company name over the door" loading="lazy"><figcaption>Next build: the second rented floor, twenty desks and your name over the door.</figcaption></figure>
+        </div>
+
+        <h2 id="cost">What it cost</h2>
+
+        <h3>Time</h3>
+
+        <p>The taxi takes ten to twelve hours a day. The game gets what is left. The repository keeps the hour of every commit, and <b>64 of the 474 were made between midnight and four in the morning.</b></p>
+
+        <p>In August I booked seventy hours behind the wheel in one week. I spent the weekend before it making sure nothing I care about would need me: a release submitted to the Store, every version number aligned, the game submitted to <a href="https://www.indiedb.com/games/scaling-laws" target="_blank" rel="noopener">IndieDB</a>, a CV written from scratch. On the Sunday I wrote myself one line.</p>
+
+        <p class="big-quote">Nothing requires you this week.</p>
+
+        <p>Fourteen months of building, and I had never once been able to say that. A few days later I finished a twelve-hour shift, sat down, opened the file, looked at it, and closed the computer. That was the post I missed.</p>
+
+        <h3>Money</h3>
+
+        <table class="ledger">
+            <thead><tr><th>What</th><th>Amount</th></tr></thead>
+            <tbody>
+                <tr><td>Everything my projects have earned, in fifteen months</td><td><b>70 zł</b></td></tr>
+                <tr><td>The price of the game</td><td><b>0</b>, free on itch.io</td></tr>
+                <tr><td>The domain this page is on</td><td><b>40 zł</b> a year</td></tr>
+                <tr><td>Photographed floor and wall textures in the new offices</td><td><b>0</b>, CC0 from ambientCG</td></tr>
+                <tr><td>What pays for all of it</td><td>the taxi</td></tr>
+            </tbody>
+        </table>
+
+        <p>Seventy hours behind a wheel funds the move out of a house I need to leave. It does not move me toward the work I actually want to do. Every hour in the car is an hour not spent building, and every evening spent building is an evening not spent resting before the next shift.</p>
+
+        <h3>People</h3>
+
+        <p>The most expensive thing in this project is other people's evenings.</p>
+
+        <p>Samanta sat down with the game twice, once at the tutorial, where she found that the button under her cursor was being destroyed and rebuilt between the press and the release, and once with a pen and paper. A stranger called Gavat played it and sent five things that were wrong. Somebody else used the report form inside the game four times. None of them were paid. All of them changed what is in the build.</p>
+
+        <p>In July three people I had never met passed my CV to a company. I have not heard back from any of it. In August, after I wrote that down, two more people put my name in front of somebody. I still do not know how to repay that.</p>
+
+        <figure class="figure">
+            <img src="img/selfie-with-the-dogs.webp" width="1400" height="1050" alt="Marcin Firmuga at home with his two dogs by the window" loading="lazy">
+            <figcaption>The two who were waiting in Poland while I was in the Netherlands.</figcaption>
+        </figure>
+
+        <h2 id="game">What the game actually is</h2>
+
+        <p><a href="/hck-labs/scaling-laws/">Scaling Laws</a> starts on 1 January 2022. You have twelve million dollars and no product. You train models, rent or buy compute, fund research, and try to still be trading years later, against fourteen rival labs, thirteen of them seeded from the real release timeline of 2022 to 2026.</p>
+
+        <p>The whole design is one sentence: <b>you are not buying upgrades, you are timing them.</b> Model quality runs on the real Chinchilla scaling law, roughly twenty tokens per parameter. Hardware loses value twice, once with the calendar and again when its successor launches. A company that ships one model and coasts is designed to fall behind.</p>
+
+        <p>One of the rivals is a small lab called E-Solutions, six people above a hardware shop in Radom, run by the cousin who walks you through the first hour. It is the only invented company on the board. The rest are parodies with dated histories. <a href="/hck-labs/scaling-laws/development/">How the simulation works underneath</a> is written down in full.</p>
+
+        <figure class="figure figure--wide">
+            <img src="/hck-labs/scaling-laws/assets/images/anim/vs-models.webp" width="1280" height="720" alt="Scaling Laws model creator comparing a planned training run with the best model on the market" loading="lazy">
+            <figcaption>The model creator prices a run and compares it with the best model on the market before you commit the compute.</figcaption>
+        </figure>
+
+        <h2 id="next">What happens next</h2>
+
+        <ul class="next-list">
+            <li><b>The next build.</b> The city, the rebuilt offices and the server room climate are finished and tested. They go out together.</li>
+            <li><b>Steam, planned for October to November 2026.</b> That is why the licence changed on 19 September. The source stays readable on GitHub. It can no longer be redistributed.</li>
+            <li><b>Alliances between labs, and mergers between rivals.</b> Planned, not designed yet, and not in any build.</li>
+            <li><b>PC Workman keeps shipping.</b> Version 1.8.7 is on the Microsoft Store.</li>
+            <li><b>A first job in software.</b> I am still looking. Developer, Python developer, IT support. I have no commercial title yet. What I have is fifteen months of public work you can check line by line.</li>
+            <li><b>Moving out.</b> The taxi keeps funding it.</li>
+        </ul>
+
+        <p>If you know a team that hires for what somebody can build rather than what a CV already says, <a href="../profile.html">this is where to find me</a>. If you want to see what the forty-eight days made, <a href="https://hcklab.itch.io/scaling-laws" target="_blank" rel="noopener">the game is free</a>, and the <a href="/hck-labs/scaling-laws/feedback/">report form</a> reaches me directly.</p>
+
+        <figure class="figure">
+            <img src="img/dogs-on-the-bed.webp" width="1400" height="787" alt="Two dogs lying on a bed, one resting its head on the other" loading="lazy">
+            <figcaption>Tonight I will work on the game, like every night.</figcaption>
+        </figure>
+
+        <div class="qa" id="faq">
+            <h2>Questions people ask</h2>
+
+            <h3>How long did it take to build Scaling Laws?</h3>
+            <p>The first commit was on 2 August 2026. The first public build, 0.1.0, went out on 30 August after 29 days. Version 0.4.0 followed on 13 September. By 19 September, 48 days in, the repository held 474 commits and 1,418 EditMode plus 65 PlayMode tests, all built by one person in the evenings after taxi shifts.</p>
+
+            <h3>How much has Scaling Laws earned?</h3>
+            <p>The game is free on itch.io. Everything I have built in fifteen months, PC Workman included, had earned 70 zł in total when I added it up on 13 September 2026.</p>
+
+            <h3>Can you build a game alone while working a full-time job?</h3>
+            <p>In this case, yes, at a cost you can measure. 64 of the first 474 commits were made between midnight and four in the morning, and I missed my weekly post once in twenty weeks, after a twelve hour shift.</p>
+
+            <h3>When is Scaling Laws coming to Steam?</h3>
+            <p>A Steam release is planned for October to November 2026. Until then every build is free on itch.io.</p>
+
+            <h3>Who makes Scaling Laws?</h3>
+            <p>I do, alone: Marcin Firmuga, 22, from Radom, Poland, publishing as <a href="/hck-labs/">HCK Labs</a>. I also built PC Workman, a Windows monitor with an offline AI assistant, on the Microsoft Store since 1 July 2026.</p>
+        </div>
+
+        <div class="guide-cta">
+            <b>The game behind this page.</b> Scaling Laws is a free AI company tycoon for Windows.
+            <a href="/hck-labs/scaling-laws/">See the game</a>, <a href="https://hcklab.itch.io/scaling-laws" target="_blank" rel="noopener">download it on itch.io</a>
+            or read <a href="/hck-labs/scaling-laws/development/">how it works</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building PC Workman and Scaling Laws in public</div>
+                <p>I write three series a week from that week's real work, and longer pages like this one when something is worth a record. More: <a href="../fourteen-months/">fourteen months, month by month</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a href="https://dev.to/huckler" target="_blank" rel="me noopener">dev.to</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Blog</a> &middot; <a href="/hck-labs/scaling-laws/">Scaling Laws</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
