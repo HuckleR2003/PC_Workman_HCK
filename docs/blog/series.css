@@ -801,3 +801,9 @@ a:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) {
     .sl-lead:hover, .sl-row:hover { transform: none; }
 }
+
+/* related reading under a post */
+.read-next { margin: 1.6rem 0 1rem; padding: .9rem 1.1rem; border: 1px solid rgba(255,255,255,.08); border-radius: 10px; background: rgba(255,255,255,.02); font-size: .9rem; }
+.read-next b { display: block; margin-bottom: .35rem; color: var(--text-dim); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.read-next ul { margin: 0; padding-left: 1.1rem; }
+.read-next li { margin: .2rem 0; }
