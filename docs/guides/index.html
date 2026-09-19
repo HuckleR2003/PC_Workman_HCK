@@ -99,7 +99,9 @@
           { "@type": "ListItem", "position": 21, "name": "XMP or EXPO crashes games? How to test RAM stability", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" },
           { "@type": "ListItem", "position": 22, "name": "The most dangerous bug does not crash. It succeeds: six silent failures", "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/" },
           { "@type": "ListItem", "position": 23, "name": "The Silent Failure Catalogue: six classes of code that passes every test and does nothing", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/" },
-          { "@type": "ListItem", "position": 24, "name": "Fourteen months, four jobs, one application, and still no job in software", "url": "https://pcworkman.dev/blog/fourteen-months/" }
+          { "@type": "ListItem", "position": 24, "name": "Fourteen months, four jobs, one application, and still no job in software", "url": "https://pcworkman.dev/blog/fourteen-months/" },
+          { "@type": "ListItem", "position": 25, "name": "nvlddmkm Event 153 and 4101: what a display driver reset means", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/" },
+          { "@type": "ListItem", "position": 26, "name": "WHEA-Logger Event 17, 18, 19: which hardware errors matter", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/" }
         ]
       }
     }
@@ -251,6 +253,9 @@
                     <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/index_en.html"><span class="tg-ic">⚡</span><h4>Speed up your PC</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-spd" href="normal-cpu-temperature/"><span class="tg-ic">◷</span><h4>Normal CPU temp</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-spd" href="why-is-my-ram-usage-so-high/"><span class="tg-ic">▤</span><h4>High RAM usage</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="pc-restarts-while-gaming-kernel-power-41/"><span class="tg-ic">⏻</span><h4>Restarts in games</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="nvlddmkm-display-driver-stopped-responding/"><span class="tg-ic">▣</span><h4>GPU driver reset</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="whea-logger-event-17-18-19/"><span class="tg-ic">⚠</span><h4>WHEA errors</h4><span class="tg-go">Read →</span></a>
                 </div>
             </div>
             <div class="tg-cluster">
@@ -328,9 +333,9 @@
           </div>
 
           <p class="sl-band__foot">
-            Scaling Laws is an AI company tycoon built by Marcin Firmuga under HCK Labs. The first
-            public build is free for Windows. <a href="../hck-labs/scaling-laws/">The game page</a>
-            has the download and the source.
+            Scaling Laws is an AI company tycoon built by Marcin Firmuga under HCK Labs. Version 0.4.0
+            is free for Windows. <a href="../hck-labs/scaling-laws/">The game page</a> has the download,
+            and <a href="../hck-labs/scaling-laws/development/">How Scaling Laws works</a> opens the machinery.
           </p>
         </section>
 
@@ -394,6 +399,18 @@
                 <span class="day-badge day-friday">Crash diagnosis</span>
                 <h3>PC restarts while gaming with no blue screen?</h3>
                 <p>Kernel-Power 41 records an unclean shutdown, not its cause. Read BugcheckCode, dumps and the minute before the restart.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="nvlddmkm-display-driver-stopped-responding/">
+                <span class="day-badge day-friday">GPU crash</span>
+                <h3>Screen goes black and comes back?</h3>
+                <p>nvlddmkm Event 153 and Display 4101 mean Windows reset the NVIDIA driver after a two second GPU hang. Read the pattern, not the event ID.</p>
+                <span class="go">Read the guide -&gt;</span>
+            </a>
+            <a class="series-card friday" href="whea-logger-event-17-18-19/">
+                <span class="day-badge day-friday">Hardware errors</span>
+                <h3>WHEA-Logger warnings in Event Viewer?</h3>
+                <p>Events 17, 19 and 47 are errors your hardware corrected. Event 18 is one it could not. Read the fields, count them, find the part.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
             <a class="series-card wednesday" href="xmp-expo-crashes-ram-stability/">
@@ -574,6 +591,8 @@
         {t:"How much VRAM do I need?", u:"how-much-vram-do-i-need/", cat:"GPU memory", live:1, d:"Games, shared GPU memory and local AI explained.", k:"vram video memory 8gb 12gb 16gb 24gb shared dedicated gpu local ai llm model kv cache textures"},
         {t:"What should I upgrade first: RAM, SSD, CPU or GPU?", u:"what-should-i-upgrade-first/", cat:"Upgrade", live:1, d:"Match the purchase to measured memory, storage, CPU and GPU evidence.", k:"upgrade first ram ssd cpu gpu bottleneck slow pc computer upgrade priority what part buy"},
         {t:"PC restarts while gaming with no blue screen?", u:"pc-restarts-while-gaming-kernel-power-41/", cat:"Crash", live:1, d:"Read Kernel-Power 41 fields, dumps and the timeline before the restart.", k:"restart reboot gaming game kernel power 41 event id no blue screen bsod power supply crash dump"},
+        {t:"Screen goes black and the NVIDIA driver resets?", u:"nvlddmkm-display-driver-stopped-responding/", cat:"Crash", live:1, d:"nvlddmkm Event 153 and 4101: a two second GPU timeout, and how to find why.", k:"nvlddmkm 153 4101 display driver stopped responding recovered black screen flicker tdr tdrdelay 0x116 0x117 nvidia gpu crash"},
+        {t:"WHEA-Logger warnings in Event Viewer?", u:"whea-logger-event-17-18-19/", cat:"Crash", live:1, d:"Event 17, 18, 19 and 47: corrected versus fatal hardware errors, and how to find the part.", k:"whea logger 17 18 19 47 corrected hardware error fatal pci express root port cache hierarchy 0x124 whea_uncorrectable_error ryzen fclk intel 13th 14th"},
         {t:"XMP or EXPO crashes games?", u:"xmp-expo-crashes-ram-stability/", cat:"RAM stability", live:1, d:"Compare default memory with the profile and prove stability outside Windows.", k:"xmp expo crash game unstable ram memory ddr5 memtest whea blue screen profile"}
       ];
       var box = document.getElementById('guideSearch');
