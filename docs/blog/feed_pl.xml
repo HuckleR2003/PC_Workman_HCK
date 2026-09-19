@@ -5,8 +5,16 @@
     <link>https://pcworkman.dev/blog/index_pl.html</link>
     <description>Polskie artykuły techniczne, poradniki Windows i historie wydań PC Workmana.</description>
     <language>pl</language>
-    <lastBuildDate>Mon, 10 Aug 2026 12:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Sun, 20 Sep 2026 12:00:00 +0200</lastBuildDate>
     <atom:link href="https://pcworkman.dev/blog/feed_pl.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Czterdzieści osiem dni, taksówka i gra. Wszystko, co zbudowałem, zarobiło 70 zł.</title>
+      <link>https://pcworkman.dev/blog/forty-eight-days/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/blog/forty-eight-days/index_pl.html</guid>
+      <pubDate>Sun, 20 Sep 2026 12:00:00 +0200</pubDate>
+      <description>474 commity w 48 dni wieczorami po zmianach w taksówce. Ile naprawdę kosztowało zrobienie gry samemu, w godzinach, pieniądzach i ludziach, i co dalej.</description>
+    </item>
+
     <item>
       <title>Najgroźniejszy błąd nie wywala programu. On kończy się sukcesem.</title>
       <link>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html</link>

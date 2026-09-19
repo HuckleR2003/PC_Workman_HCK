@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="The PC Workman build-in-public blog: Monday Grind Blueprint (weekly plan), Wednesday Code Autopsy (one bug dissected), Friday Shipped & Scarred (plan vs reality). By Marcin Firmuga, HCK_Labs.">
+    <meta name="description" content="Three weekly build-in-public series from a solo developer: the plan on Monday, one bug dissected on Wednesday, what shipped and what broke on Friday.">
     <meta name="keywords" content="build in public blog, PC Workman blog, Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped and Scarred, indie hacker Poland, solo developer blog">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/blog/">
@@ -24,7 +24,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>PC Workman Blog | Monday Grind Blueprint · Wednesday Code Autopsy · Friday Shipped &amp; Scarred</title>
+    <title>PC Workman Blog: Three Build-in-Public Series, Every Week</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -133,6 +133,16 @@
 
     <main class="wrap">
 
+        <a href="forty-eight-days/" style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.2rem;align-items:center;margin:0 0 1.15rem;padding:1.3rem 1.5rem;background:linear-gradient(135deg,rgba(163,230,53,.10),rgba(0,120,215,.08));border:1px solid rgba(163,230,53,.45);border-radius:18px;text-decoration:none;color:inherit;box-shadow:0 0 50px rgba(163,230,53,.12);">
+            <span style="display:block;">
+                <span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:#a3e635;margin-bottom:.4rem;">&#9733; New &middot; Scaling Laws</span>
+                <span style="display:block;font-size:1.7rem;font-weight:900;margin:0 0 .4rem;color:#fff;line-height:1.14;">Forty-eight days, a taxi, and a game. Everything I have built has earned 70 zł.</span>
+                <span style="display:block;color:#b0b8c4;margin:0 0 .5rem;font-size:.98rem;line-height:1.55;">474 commits made in the evenings after ten to twelve hour shifts. What building a game alone looked like, what it cost in hours, money and people, and what happens next.</span>
+                <span style="color:#a3e635;font-weight:700;font-size:.95rem;">Read the story &rarr;</span>
+            </span>
+            <img src="/hck-labs/scaling-laws/assets/images/anim/release-shipping-poster.webp" width="1280" height="720" alt="" loading="lazy" style="width:100%;height:auto;border-radius:10px;border:1px solid rgba(255,255,255,.08);">
+        </a>
+
         <a href="fourteen-months/" style="display:block;margin:0 0 1.15rem;padding:1.3rem 1.8rem;background:linear-gradient(135deg,rgba(163,230,53,.08),rgba(192,24,42,.07));border:1px solid rgba(163,230,53,.32);border-radius:18px;text-decoration:none;color:inherit;box-shadow:0 0 44px rgba(163,230,53,.10);">
             <span style="display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:#a3e635;margin-bottom:.4rem;">&#9733; New &middot; The complete record</span>
             <h2 style="font-size:1.7rem;font-weight:900;margin:0 0 .4rem;color:#fff;line-height:1.14;">Fourteen months, four jobs, one application, and still no job in software</h2>
@@ -213,9 +223,9 @@
           </div>
 
           <p class="sl-band__foot">
-            Scaling Laws is an AI company tycoon built by Marcin Firmuga under HCK Labs. The first
-            public build is free for Windows. <a href="../hck-labs/scaling-laws/">The game page</a>
-            has the download and the source.
+            Scaling Laws is an AI company tycoon built by Marcin Firmuga under HCK Labs. Version 0.4.0
+            is free for Windows. <a href="../hck-labs/scaling-laws/">The game page</a> has the download,
+            and <a href="../hck-labs/scaling-laws/development/">How Scaling Laws works</a> opens the machinery.
           </p>
         </section>
 
@@ -245,58 +255,58 @@
         <div class="hub-columns">
             <div class="hub-col">
                 <div class="col-head"><span class="day-badge day-monday">Monday</span><h3>Grind Blueprint</h3></div>
-                <a class="hub-teaser" href="monday-grind-blueprint/13-gaming-overlay-shows-nothing/">
-                    <span class="te-num">#13</span>
-                    <h4>Every Gaming Tool Picks Your Overlay. Mine Starts Empty.</h4>
-                    <p>A configurable in-game overlay, live FPS through RTSS and game-specific greetings. The Monday plan behind the v1.8.0 release.</p>
+                <a class="hub-teaser" href="monday-grind-blueprint/seventy-zloty/">
+                    <span class="te-num">#25</span>
+                    <h4>I Do Not Have a Job. My CV Keeps Coming Back. I Am 22.</h4>
+                    <p>Fifteen months from a warehouse to a Microsoft Store app and a game at 0.4.0. Everything earned so far: 70 zł. Maybe building more was the wrong question.</p>
                 </a>
-                <a class="hub-teaser" href="monday-grind-blueprint/10-biggest-release-then-tester-bugs/">
-                    <span class="te-num">#10</span>
-                    <h4>My Biggest Release, Then 48 Hours of Tester Bugs</h4>
-                    <p>v1.7.6 felt great for 12 hours. Then three testers spent 5+ hours each. 17 silent intents, psutil scanned 19×/message, CS2.exe topping charts for people who don't play it. This week: cleanup.</p>
+                <a class="hub-teaser" href="monday-grind-blueprint/a-pen-and-a-piece-of-paper/">
+                    <span class="te-num">#24</span>
+                    <h4>One Evening, a Pen and a Piece of Paper Found Four Things 1115 Tests Had Not</h4>
+                    <p>Samanta played Scaling Laws for one evening and took notes. A paragraph that never reached the game, music that stepped at the seam, and a test that caught my fix.</p>
                 </a>
-                <a class="hub-teaser" href="monday-grind-blueprint/09-building-what-28-people-asked-for/">
-                    <span class="te-num">#9</span>
-                    <h4>Building What 28 Real People Asked For</h4>
-                    <p>I asked what you'd ask an AI inside your system monitor. 28 answers came back (13 GitHub, 15 LinkedIn DMs). This week every single one becomes real code in hck_GPT.</p>
+                <a class="hub-teaser" href="monday-grind-blueprint/never-seen-my-own-application/">
+                    <span class="te-num">#23</span>
+                    <h4>Most Developers Have Never Seen Their Own Application</h4>
+                    <p>Six hours before release, Scaling Laws opened with its title bar off the screen and its bottom bar behind the taskbar. Why the editor could never show me that.</p>
                 </a>
                 <a class="col-all" href="monday-grind-blueprint/">Full series &rarr;</a>
             </div>
             <div class="hub-col">
                 <div class="col-head"><span class="day-badge day-wednesday">Wednesday</span><h3>Code Autopsy</h3></div>
-                <a class="hub-teaser" href="wednesday-code-autopsy/14-ai-brain-it-couldnt-reach/">
-                    <span class="te-num">#14</span>
-                    <h4>My AI Had a Brain - It Just Couldn't Reach It</h4>
-                    <p>Welford baselines and voltage SPC were running, but the chat never called them. A swallowed NameError kept the connection silent for months.</p>
+                <a class="hub-teaser" href="wednesday-code-autopsy/the-netherlands-clicks/">
+                    <span class="te-num">#25</span>
+                    <h4>I Opened Google Search Console to Check Which of My Guides People Actually Find</h4>
+                    <p>Poland sends 33 clicks in six months. The Netherlands, where I scanned barcodes eighteen months ago, sends 32 and has the highest click rate on the list.</p>
                 </a>
-                <a class="hub-teaser" href="wednesday-code-autopsy/11-snapshot-cache-19-calls/">
-                    <span class="te-num">#11</span>
-                    <h4>The Bug That Worked Perfectly for 4 Months</h4>
-                    <p>snapshot() read live CPU/RAM/GPU flawlessly. Every module called it independently — 19 times per message, no errors, for 4 months. The fix: a 1-second TTL cache. 19 calls become 1.</p>
+                <a class="hub-teaser" href="wednesday-code-autopsy/found-through-googles-ai/">
+                    <span class="te-num">#24</span>
+                    <h4>Someone Found My Game Through Google’s AI</h4>
+                    <p>A player found Scaling Laws through Google’s AI, played it and sent five things that were wrong, including an idea I had never written down: cancel anything.</p>
                 </a>
-                <a class="hub-teaser" href="wednesday-code-autopsy/10-context-window-dictionary/">
-                    <span class="te-num">#10</span>
-                    <h4>Six Memory Depths, One Dictionary</h4>
-                    <p>The answer depends on how far back the AI looks. One dictionary maps each question to a time window — 5 minutes to 7 days — and two lines turn it into the AI's context.</p>
+                <a class="hub-teaser" href="wednesday-code-autopsy/the-readme-that-lied/">
+                    <span class="te-num">#23</span>
+                    <h4>Nothing in Your Build Fails When Your README Starts Lying</h4>
+                    <p>My README said a coasting company goes insolvent in three years. The harness says the fifth. How one unmeasured number lived for three weeks across three websites.</p>
                 </a>
                 <a class="col-all" href="wednesday-code-autopsy/">Full series &rarr;</a>
             </div>
             <div class="hub-col">
                 <div class="col-head"><span class="day-badge day-friday">Friday</span><h3>Shipped & Scarred</h3></div>
-                <a class="hub-teaser" href="friday-shipped-scarred/14-microsoft-store-said-no/">
-                    <span class="te-num">#14</span>
-                    <h4>Microsoft Store Said No - Over a Blurry Icon and the Wrong Link</h4>
-                    <p>The first MSIX submission was rejected over a blurry tile icon and the wrong privacy link. A checklist, not a no.</p>
+                <a class="hub-teaser" href="friday-shipped-scarred/a-week-i-did-not-choose/">
+                    <span class="te-num">#24</span>
+                    <h4>I Finished It Two Days Early, and I Did Not Choose a Single Thing That Is in It</h4>
+                    <p>A stranger found the game, played it and sent four things that were wrong. I gave him a date. Three with a date are finished. The one without has not moved.</p>
                 </a>
-                <a class="hub-teaser" href="friday-shipped-scarred/11-maintenance-week-two-accidental-features/">
-                    <span class="te-num">#11</span>
-                    <h4>A Quiet Maintenance Week That Lasted 36 Hours</h4>
-                    <p>Planned only bug fixes. Noticed a dead GT 1030 still in my registry → Ghost Drivers Hunter. Noticed idle apps burning RAM → Background App Hibernation. Two accidental features in a 'maintenance' week.</p>
+                <a class="hub-teaser" href="friday-shipped-scarred/a-house-you-leave-the-light-on-in/">
+                    <span class="te-num">#23</span>
+                    <h4>Somebody Arrived on My Site With a Broken SSD and Left With a Game About Running an AI Lab</h4>
+                    <p>23 troubleshooting guides written in summer. By autumn Google shows the site 200 times a day, and twenty people who came about a failing disk downloaded the game.</p>
                 </a>
-                <a class="hub-teaser" href="friday-shipped-scarred/10-v176-biggest-update/">
-                    <span class="te-num">#10</span>
-                    <h4>#151 in Poland and the Biggest Update of My Life</h4>
-                    <p>v1.7.6 live — 82 intents, DeepMonitor rewritten, a 2.5D component map, 373 process defs. The scar: psutil temperature reads returned None for months and passed every test because the function never ran.</p>
+                <a class="hub-teaser" href="friday-shipped-scarred/what-carried-it-in/">
+                    <span class="te-num">#22</span>
+                    <h4>On Wednesday I Wrote About Not Hearing Back. By Thursday Two More People Had Put My Name Forward.</h4>
+                    <p>Fourteen months of building did not get me a referral. Admitting I had been waiting did. Plus the tutorial bug my partner found by reading slower than every test.</p>
                 </a>
                 <a class="col-all" href="friday-shipped-scarred/">Full series &rarr;</a>
             </div>

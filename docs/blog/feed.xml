@@ -7,7 +7,151 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Mon, 10 Aug 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Sun, 20 Sep 2026 12:00:00 GMT</lastBuildDate>
+  <item>
+    <title>Forty-eight days, a taxi, and a game. Everything I have built has earned 70 zł.</title>
+    <link>https://pcworkman.dev/blog/forty-eight-days/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/forty-eight-days/</guid>
+    <pubDate>Sun, 20 Sep 2026 12:00:00 GMT</pubDate>
+    <description>474 commits in 48 days of evenings after taxi shifts. What building a game alone actually cost, in hours, money and people, and what happens next.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #25: I Opened Google Search Console to Check Which of My Guides People Actually Find</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/the-netherlands-clicks/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/the-netherlands-clicks/</guid>
+    <pubDate>Wed, 16 Sep 2026 12:00:00 GMT</pubDate>
+    <description>Poland sends 33 clicks in six months. The Netherlands, where I scanned barcodes eighteen months ago, sends 32 and has the highest click rate on the list.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #25: I Do Not Have a Job. My CV Keeps Coming Back. I Am 22.</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/seventy-zloty/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/seventy-zloty/</guid>
+    <pubDate>Mon, 14 Sep 2026 12:00:00 GMT</pubDate>
+    <description>Fifteen months from a warehouse to a Microsoft Store app and a game at 0.4.0. Everything earned so far: 70 zł. Maybe building more was the wrong question.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #24: I Finished It Two Days Early, and I Did Not Choose a Single Thing That Is in It</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/a-week-i-did-not-choose/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/a-week-i-did-not-choose/</guid>
+    <pubDate>Fri, 11 Sep 2026 12:00:00 GMT</pubDate>
+    <description>A stranger found the game, played it and sent four things that were wrong. I gave him a date. Three with a date are finished. The one without has not moved.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #24: Someone Found My Game Through Google’s AI</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/found-through-googles-ai/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/found-through-googles-ai/</guid>
+    <pubDate>Wed, 09 Sep 2026 12:00:00 GMT</pubDate>
+    <description>A player found Scaling Laws through Google’s AI, played it and sent five things that were wrong, including an idea I had never written down: cancel anything.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #24: One Evening, a Pen and a Piece of Paper Found Four Things 1115 Tests Had Not</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/a-pen-and-a-piece-of-paper/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/a-pen-and-a-piece-of-paper/</guid>
+    <pubDate>Mon, 07 Sep 2026 12:00:00 GMT</pubDate>
+    <description>Samanta played Scaling Laws for one evening and took notes. A paragraph that never reached the game, music that stepped at the seam, and a test that caught my fix.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #23: Somebody Arrived on My Site With a Broken SSD and Left With a Game About Running an AI Lab</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/a-house-you-leave-the-light-on-in/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/a-house-you-leave-the-light-on-in/</guid>
+    <pubDate>Fri, 04 Sep 2026 12:00:00 GMT</pubDate>
+    <description>23 troubleshooting guides written in summer. By autumn Google shows the site 200 times a day, and twenty people who came about a failing disk downloaded the game.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #23: Nothing in Your Build Fails When Your README Starts Lying</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/the-readme-that-lied/</guid>
+    <pubDate>Wed, 02 Sep 2026 12:00:00 GMT</pubDate>
+    <description>My README said a coasting company goes insolvent in three years. The harness says the fifth. How one unmeasured number lived for three weeks across three websites.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #23: Most Developers Have Never Seen Their Own Application</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/never-seen-my-own-application/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/never-seen-my-own-application/</guid>
+    <pubDate>Mon, 31 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Six hours before release, Scaling Laws opened with its title bar off the screen and its bottom bar behind the taskbar. Why the editor could never show me that.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #22: On Wednesday I Wrote About Not Hearing Back. By Thursday Two More People Had Put My Name Forward.</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/what-carried-it-in/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/what-carried-it-in/</guid>
+    <pubDate>Fri, 28 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Fourteen months of building did not get me a referral. Admitting I had been waiting did. Plus the tutorial bug my partner found by reading slower than every test.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #22: A Month Ago Three People I Have Never Met Passed My CV to a Company</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/the-boring-ending/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/the-boring-ending/</guid>
+    <pubDate>Wed, 26 Aug 2026 12:00:00 GMT</pubDate>
+    <description>A month after strangers passed my CV to a company, nothing came back. Writing that down, because I posted the thank you at the time.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #22: Most Developers Test Whether Their Code Works. Far Fewer Test Whether Anyone Can Reach It</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/can-anyone-reach-it/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/can-anyone-reach-it/</guid>
+    <pubDate>Mon, 24 Aug 2026 12:00:00 GMT</pubDate>
+    <description>A ten minute script found five unreachable features in a three-week-old game. This week it goes over the eighteen month old app on the Microsoft Store.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #21: Five Functions Came Back Unreachable. One Was an Entire Progression System.</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/526-tests-passed-on-it/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/526-tests-passed-on-it/</guid>
+    <pubDate>Fri, 21 Aug 2026 12:00:00 GMT</pubDate>
+    <description>The node promised curated corpora, took points, cash and four months, and delivered nothing. 526 tests passed because every test called the function directly.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #21: My Game Said a Training Run Would Take Eleven Days. It Took One.</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/eleven-days-or-one/</guid>
+    <pubDate>Wed, 19 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Two formulas in Scaling Laws computed one training time and never compared notes. Pulling them into one function told the truth, and then broke the game.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #21: Twenty Weeks. Sixty Posts. Never Missed One. On Friday I Missed One.</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/the-streak-broke/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/the-streak-broke/</guid>
+    <pubDate>Mon, 17 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Twenty weeks without missing a post, then a twelve-hour shift and an empty tank. Why the streak broke, and what Scaling Laws looked like fifteen days in.</description>
+  </item>
+
+  <item>
+    <title>Friday Shipped &amp; Scarred #20: I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.</title>
+    <link>https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/friday-shipped-scarred/same-bug-four-times/</guid>
+    <pubDate>Fri, 14 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Scaling Laws got a market with memory, and a save test that refused to go green: save in year four, load, play year five, end exactly like an uninterrupted run.</description>
+  </item>
+
+  <item>
+    <title>Wednesday Code Autopsy #20: I Booked Myself Seventy Hours of Taxi Shifts This Week</title>
+    <link>https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/wednesday-code-autopsy/seventy-hours-of-taxi/</guid>
+    <pubDate>Wed, 12 Aug 2026 12:00:00 GMT</pubDate>
+    <description>Before a week of seventy hours behind the wheel, one weekend to leave everything in a state where nothing was waiting on me. A release, a game on IndieDB and a CV.</description>
+  </item>
+
+  <item>
+    <title>Monday Grind Blueprint #20: Five Months Ago One Command Deleted 130 Commits. On Friday I Was One Away From 1081</title>
+    <link>https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/monday-grind-blueprint/one-command-from-deleting-1081-commits/</guid>
+    <pubDate>Mon, 10 Aug 2026 12:00:00 GMT</pubDate>
+    <description>In March git push --force ate 130 commits. The recovery left my clone on the wrong branch for five months, 1081 commits behind, and git said all was fine.</description>
+  </item>
+
   <item>
     <title>The most dangerous bug does not crash. It succeeds.</title>
     <link>https://pcworkman.dev/guides/silent-failures-that-pass-every-test/</link>
