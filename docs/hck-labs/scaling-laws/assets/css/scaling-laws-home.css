@@ -1036,3 +1036,92 @@
   font-size: .84rem;
   line-height: 1.55;
 }
+
+
+/* ---------------------------------------------------------------- why play tiles */
+.sl-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(214px, 1fr));
+  gap: 10px;
+}
+.sl-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px 14px 14px;
+  border: 1px solid var(--hck-line);
+  border-radius: var(--hck-radius);
+  background: rgba(255,255,255,.022);
+  transition: border-color var(--hck-transition-fast), background var(--hck-transition-fast);
+}
+.sl-tile:hover { border-color: var(--hck-line-strong); background: rgba(255,255,255,.04); }
+.sl-tile__top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sl-tile__big { font-size: 1.28rem; font-weight: 800; letter-spacing: -.01em; color: var(--hck-text-strong); }
+.sl-tile__tag {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: .64rem;
+  font-weight: 750;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--hck-success);
+  border: 1px solid rgba(81,215,160,.35);
+}
+.sl-tile--next .sl-tile__tag { color: var(--hck-warning); border-color: rgba(228,184,97,.38); }
+.sl-tile--plan .sl-tile__tag { color: var(--hck-text-soft); border-color: var(--hck-line-strong); }
+.sl-tile--next { border-color: rgba(228,184,97,.18); }
+.sl-tile--plan { border-style: dashed; }
+.sl-tile h3 { margin: 0; font-size: .92rem; line-height: 1.25; color: var(--hck-text-strong); }
+.sl-tile p { margin: 0; font-size: .8rem; line-height: 1.5; color: var(--hck-text-soft); }
+
+/* ---------------------------------------------------------------- rivals */
+.sl-rivals__grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.sl-labs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.sl-lab { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid var(--hck-line); border-radius: var(--hck-radius-sm); background: rgba(255,255,255,.02); font-size: .8rem; line-height: 1.45; color: var(--hck-text-soft); }
+.sl-lab strong { font-size: .92rem; color: var(--hck-text-strong); }
+.sl-lab__meta { font-family: var(--hck-font-mono); font-size: .7rem; color: var(--hck-text-faint); }
+.sl-relations { padding: 18px 20px; border: 1px solid var(--hck-line); border-radius: var(--hck-radius); background: rgba(114,20,48,.08); }
+.sl-relations h3 { margin: 0 0 10px; font-size: 1rem; color: var(--hck-text-strong); }
+.sl-relations ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: .86rem; line-height: 1.5; color: var(--hck-text); }
+.sl-relations__next { margin: 14px 0 0; font-size: .8rem; color: var(--hck-warning); }
+
+/* ---------------------------------------------------------------- next build */
+.sl-next-shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.sl-next-shot { margin: 0; border: 1px solid var(--hck-line); border-radius: var(--hck-radius); overflow: hidden; background: #070d17; }
+.sl-next-shot img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.sl-next-shot figcaption { display: flex; flex-direction: column; gap: 3px; padding: 11px 14px 13px; font-size: .82rem; line-height: 1.45; color: var(--hck-text-soft); }
+.sl-next-shot figcaption strong { color: var(--hck-text-strong); font-size: .92rem; }
+
+/* ---------------------------------------------------------------- author */
+.sl-author__grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.sl-author__grid .hck-title { margin-bottom: 16px; }
+.sl-author__grid p { color: var(--hck-text); line-height: var(--hck-leading-copy); max-width: 68ch; }
+.sl-author__card { padding: 18px 20px; border: 1px solid var(--hck-line); border-radius: var(--hck-radius); background: rgba(255,255,255,.025); }
+.sl-author__facts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+.sl-author__facts span { display: block; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--hck-text-faint); }
+.sl-author__facts strong { font-size: .9rem; color: var(--hck-text-strong); }
+.sl-author__links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.sl-author__links a { padding: 6px 10px; border: 1px solid var(--hck-line-strong); border-radius: 999px; font-size: .78rem; color: var(--hck-text); text-decoration: none; }
+.sl-author__links a:hover { border-color: rgba(217,74,101,.6); color: #fff; }
+
+/* ---------------------------------------------------------------- faq */
+.sl-faq__list { display: grid; gap: 8px; margin-top: 18px; max-width: 900px; }
+.sl-faq__item { border: 1px solid var(--hck-line); border-radius: var(--hck-radius-sm); background: rgba(255,255,255,.02); padding: 11px 14px; }
+.sl-faq__item summary { cursor: pointer; font-weight: 700; color: var(--hck-text-strong); font-size: .92rem; }
+.sl-faq__item p { margin: 8px 0 0; font-size: .86rem; line-height: 1.55; color: var(--hck-text); }
+
+@media (max-width: 900px) {
+  .sl-rivals__grid, .sl-author__grid, .sl-next-shots { grid-template-columns: 1fr; }
+  .sl-tiles { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+/* ---------------------------------------------------------------- in motion */
+.sl-anim-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.sl-anim { margin: 0; border: 1px solid var(--hck-line); border-radius: var(--hck-radius); overflow: hidden; background: #070d17; }
+.sl-anim img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+.sl-anim figcaption { display: flex; flex-direction: column; gap: 2px; padding: 10px 13px 12px; font-size: .8rem; line-height: 1.45; color: var(--hck-text-soft); }
+.sl-anim figcaption strong { color: var(--hck-text-strong); font-size: .9rem; }
+.sl-hero-shot__frame img[src$=".webp"] { aspect-ratio: 16 / 9; object-fit: cover; }
+@media (max-width: 1000px) { .sl-anim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .sl-anim-grid { grid-template-columns: 1fr; } }
