@@ -34,13 +34,34 @@
       "@type": "ProfilePage",
       "url": "https://pcworkman.dev/blog/profile_pl.html",
       "inLanguage": "pl",
-      "dateModified": "2026-07-25",
+      "dateModified": "2026-07-25T00:00:00+02:00",
       "mainEntity": {
                       "@type": "Person",
                       "name": "Marcin Firmuga",
                       "alternateName": "Marcin HCK Firmuga",
                       "jobTitle": "Twórca i opiekun PC Workmana",
                       "url": "https://pcworkman.dev/blog/profile_pl.html",
+                      "hasOccupation": [
+                        {
+                          "@type": "OrganizationRole",
+                          "roleName": "Independent Software Developer",
+                          "startDate": "2025-06",
+                          "description": "Builds and maintains PC Workman, a Windows 10 and 11 monitoring and diagnostics utility with a fully offline AI assistant, published on the Microsoft Store after fourteen months of building in public. Also builds Scaling Laws, a Unity simulation game in C#.",
+                          "worksFor": { "@id": "https://pcworkman.dev/hck-labs/#organization" }
+                        },
+                        {
+                          "@type": "OrganizationRole",
+                          "roleName": "IT Support Intern",
+                          "startDate": "2022",
+                          "description": "Two-month internship at IT-M Kasy Fiskalne in Radom, Poland. PC repair, Windows installation and configuration, end-user support, technical documentation, hardware troubleshooting and direct customer communication.",
+                          "worksFor": { "@type": "Organization", "name": "IT-M Kasy Fiskalne", "address": "Radom, Poland" }
+                        }
+                      ],
+                      "knowsLanguage": [
+                        { "@type": "Language", "name": "Polish" },
+                        { "@type": "Language", "name": "English" }
+                      ],
+
                       "sameAs": [
                         "https://github.com/HuckleR2003",
                         "https://linkedin.com/in/marcinfirmuga",
@@ -50,6 +71,15 @@
                         "https://linktr.ee/marcin_firmuga"
                       ],
                       "knowsAbout": [
+                        "C#",
+                        "Unity",
+                        "PC repair and hardware troubleshooting",
+                        "Windows installation and configuration",
+                        "end-user IT support",
+                        "technical documentation",
+                        "web development",
+                        "Shopify",
+                        "video editing, subtitling and transcription",
                         "Python",
                         "Windows",
                         "monitoring systemu",
@@ -65,6 +95,78 @@
                     }
     }
     </script>
+    <style>
+
+        /* === EXPERIENCE: small on purpose ===
+           A crawler and a reader both stop at the same place here: four dated lines and a way to
+           the full CV. Anything longer competes with the work below it, which is the evidence. */
+        .xp {
+            margin: 2rem 0 0;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.18);
+            border-radius: 16px;
+            padding: 1.3rem 1.5rem;
+        }
+
+        .xp-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: .9rem;
+        }
+
+        .xp-title {
+            font-size: .78rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .xp-cta {
+            display: inline-block;
+            padding: .5rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, .4);
+            background: rgba(255, 215, 0, .1);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: .85rem;
+            white-space: nowrap;
+        }
+
+        .xp-cta:hover { background: rgba(255, 215, 0, .2); border-color: var(--accent-gold); }
+
+        .xp-list { list-style: none; margin: 0; padding: 0; }
+
+        .xp-item {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: .1rem 1rem;
+            padding: .6rem 0;
+            border-top: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .xp-item:first-child { border-top: 0; padding-top: 0; }
+
+        .xp-when {
+            font-family: var(--font-mono);
+            font-size: .8rem;
+            color: var(--text-secondary);
+            padding-top: .15rem;
+        }
+
+        .xp-what strong { display: block; font-size: .98rem; }
+        .xp-what span { color: var(--text-secondary); font-size: .88rem; }
+
+        @media (max-width: 640px) {
+            .xp-item { grid-template-columns: 1fr; }
+            .xp-when { padding-top: 0; }
+        }
+    </style>
 </head>
 <body class="page-monday">
     <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
@@ -97,6 +199,45 @@
             Microsoft Store, GitHub i SourceForge. Kod, historia zmian, testy oraz polityka bezpieczeństwa
             pozostają publiczne.
         </p>
+        <!-- Doświadczenie. Celowo cztery linie i drzwi, a nie CV w środku strony: dowodem jest
+             praca poniżej, a długi blok tutaj z nią konkuruje. -->
+        <section class="xp" id="doswiadczenie" aria-labelledby="xp-title">
+            <div class="xp-top">
+                <h2 class="xp-title" id="xp-title">Doświadczenie</h2>
+                <a class="xp-cta" href="/cv/index_pl.html">Zobacz moje CV &rarr;</a>
+            </div>
+            <ul class="xp-list">
+                <li class="xp-item">
+                    <span class="xp-when">2025 &rarr; teraz</span>
+                    <span class="xp-what">
+                        <strong>Niezależny programista &middot; HCK Labs</strong>
+                        <span>PC Workman w Microsoft Store, opublikowany po czternastu miesiącach budowania publicznie. Python, C#, Unity, Windows od środka.</span>
+                    </span>
+                </li>
+                <li class="xp-item">
+                    <span class="xp-when">2022</span>
+                    <span class="xp-what">
+                        <strong>Praktyka w wsparciu IT &middot; IT-M Kasy Fiskalne, Radom</strong>
+                        <span>Naprawa komputerów, instalacja i konfiguracja Windows, wsparcie użytkowników, dokumentacja techniczna, diagnostyka sprzętu.</span>
+                    </span>
+                </li>
+                <li class="xp-item">
+                    <span class="xp-when">freelance</span>
+                    <span class="xp-what">
+                        <strong>Strony i media</strong>
+                        <span>Tworzenie stron internetowych i sklepów Shopify. Montaż wideo, napisy i transkrypcja.</span>
+                    </span>
+                </li>
+                <li class="xp-item">
+                    <span class="xp-when">pisanie</span>
+                    <span class="xp-what">
+                        <strong>37 rozbudowanych poradników, 34 w dwóch językach</strong>
+                        <span>Plus trzy datowane serie artykułów tygodniowo obok wydań, od 2025 roku.</span>
+                    </span>
+                </li>
+            </ul>
+        </section>
+
         <h2>Stan projektu sprawdzony 25 lipca 2026</h2>
         <table>
             <thead><tr><th>Obszar</th><th>Stan</th></tr></thead>
