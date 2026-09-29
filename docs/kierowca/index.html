@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Kierowca, który pisze programy | HCK Labs</title>
+  <meta name="description" content="Kod z tylnej kanapy. W dzień wożę ludzi, w nocy piszę własne oprogramowanie. Pierwszy program powstał po dwunastogodzinnych zmianach w magazynie w Holandii i jest dziś w Microsoft Store.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/kierowca/">
+  <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/kierowca/">
+  <link rel="alternate" hreflang="en" href="https://pcworkman.dev/kierowca/index_en.html">
+  <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/kierowca/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:title" content="Kierowca, który pisze programy">
+  <meta property="og:description" content="W dzień wożę ludzi. W nocy piszę własne oprogramowanie. Pierwszy program powstał po dwunastogodzinnych zmianach w magazynie w Holandii.">
+  <meta property="og:url" content="https://pcworkman.dev/kierowca/">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://pcworkman.dev/kierowca/#webpage",
+        "url": "https://pcworkman.dev/kierowca/",
+        "name": "Kierowca, który pisze programy",
+        "description": "Strona dla pasażerów, którzy zeskanowali kod w aucie.",
+        "inLanguage": "pl",
+        "dateModified": "2026-09-29T00:00:00+02:00",
+        "mainEntity": {"@id": "https://pcworkman.dev/#person"},
+        "isPartOf": {"@id": "https://pcworkman.dev/#website"}
+      },
+      {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/#person",
+        "name": "Marcin Firmuga",
+        "alternateName": "HCK",
+        "jobTitle": "Kierowca, autor oprogramowania",
+        "url": "https://pcworkman.dev/",
+        "worksFor": {"@type": "Organization", "name": "HCK Labs"},
+        "sameAs": [
+          "https://linktr.ee/marcin_firmuga",
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga"
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+  /* Scoped to this page on purpose. It is one page with one job, reached from one QR code in a
+     car, so it carries its own rules rather than loading the site's whole design system onto a
+     phone that is moving. Everything heavy is deferred: posters first, animations only on tap. */
+  :root{
+    --ink-0:#070a10; --ink-1:#0a0f18; --ink-2:#101722; --ink-3:#151d2a;
+    --text-strong:#f3f6fb; --text:#c8d0dc; --text-soft:#8d98a8; --text-faint:#606b7a;
+    --line:rgba(164,177,196,.14); --line-lit:rgba(164,177,196,.26);
+    --navy:#0a1830;
+    --warm:#e0846c; --gold:#f0d060; --green:#7ed6a4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink-0); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--warm)}
+
+  /* ---- the road ------------------------------------------------------------------------------
+     Small, at the top, as a sign that you have arrived somewhere on purpose. One SVG car on a
+     CSS road: nothing to download, and it matches the sticker the passenger just scanned. */
+  .road{position:relative;height:132px;margin:0 0 4px;overflow:hidden;
+    background:linear-gradient(180deg,var(--navy) 0%,var(--ink-0) 100%)}
+  .road__line{position:absolute;left:0;right:0;bottom:38px;height:2px;
+    background:repeating-linear-gradient(90deg,var(--text-faint) 0 22px,transparent 22px 48px);
+    opacity:.5;animation:road 1.1s linear infinite}
+  .road__glow{position:absolute;left:50%;bottom:26px;width:210px;height:34px;
+    transform:translateX(-50%);border-radius:50%;
+    background:radial-gradient(ellipse,rgba(224,132,108,.30),transparent 70%)}
+  .car{position:absolute;left:50%;bottom:40px;width:118px;transform:translateX(-50%);
+    animation:bob 2.6s ease-in-out infinite}
+  @keyframes road{from{background-position:0 0}to{background-position:-48px 0}}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}
+    50%{transform:translateX(-50%) translateY(-2px)}}
+
+  /* The one accessibility rule that matters on a page somebody opens in a moving car. */
+  @media (prefers-reduced-motion: reduce){ .road__line,.car{animation:none} }
+
+  /* ---- words ---- */
+  .hello{margin:22px 0 0;font-size:15px;color:var(--text-soft)}
+  h1{margin:10px 0 10px;font-size:clamp(28px,7vw,40px);line-height:1.12;
+    color:var(--text-strong);font-weight:760;letter-spacing:-.01em}
+  .sub{margin:0 0 30px;font-size:clamp(19px,4.4vw,23px);line-height:1.35;color:var(--warm);
+    font-weight:600}
+  .story p{margin:0 0 18px}
+  .story strong{color:var(--text-strong);font-weight:650}
+  .pull{margin:30px 0;padding:18px 20px;border-left:3px solid var(--warm);
+    border-radius:0 8px 8px 0;background:rgba(224,132,108,.07);
+    font-size:17px;line-height:1.55;color:#f0ddd6}
+
+  /* ---- numbers ---- */
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:34px 0 8px}
+  .fact{padding:15px 16px;border:1px solid var(--line);border-radius:9px;background:var(--ink-1)}
+  .fact b{display:block;font-size:26px;line-height:1.1;color:var(--text-strong);
+    font-weight:740;letter-spacing:-.02em}
+  .fact span{display:block;margin-top:5px;font-size:12.5px;line-height:1.4;color:var(--text-soft)}
+  @media (max-width:430px){.facts{grid-template-columns:1fr}}
+  .facts-note{margin:0 0 6px;font-size:12.5px;color:var(--text-faint)}
+
+  h2{margin:46px 0 4px;font-size:13px;letter-spacing:2.6px;text-transform:uppercase;
+    color:var(--text-soft);font-weight:700}
+  .h2-note{margin:0 0 14px;font-size:14.5px;color:var(--text-soft);line-height:1.5}
+
+  /* ---- the strips ----------------------------------------------------------------------------
+     A scroll-snap row, never a slideshow that moves on its own: the reader decides, and nothing
+     changes under a thumb. Deliberately short (a 16:10 slide at 78% of a phone is about 180px)
+     because this is a glance, not a gallery. The full-bleed negative margin is paid back by the
+     padding, so the page still cannot scroll sideways. */
+  .strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+    scrollbar-color:var(--line-lit) transparent;
+    margin:0 -20px;padding:2px 20px 14px}
+  .strip::-webkit-scrollbar{height:5px}
+  .strip::-webkit-scrollbar-thumb{background:var(--line-lit);border-radius:3px}
+  .slide{flex:0 0 78%;scroll-snap-align:center;margin:0}
+  @media (min-width:560px){.slide{flex-basis:46%}}
+  .slide__frame{position:relative;display:block;width:100%;aspect-ratio:16/10;overflow:hidden;
+    border:1px solid var(--line);border-radius:9px;background:var(--ink-2);
+    padding:0;cursor:pointer;color:inherit;font:inherit;text-align:left}
+  .slide__frame img{width:100%;height:100%;object-fit:cover;display:block}
+  .slide__play{position:absolute;right:8px;bottom:8px;display:flex;align-items:center;gap:5px;
+    padding:3px 8px;border-radius:14px;font-size:11px;letter-spacing:.05em;
+    background:rgba(7,10,16,.78);color:var(--text-strong);border:1px solid var(--line-lit)}
+  .slide__frame[data-playing="1"] .slide__play{display:none}
+  .slide figcaption{margin-top:7px;font-size:13px;line-height:1.45;color:var(--text-soft)}
+  .swipe{margin:0 0 2px;font-size:12px;color:var(--text-faint);letter-spacing:.04em}
+
+  /* ---- things you can open ---- */
+  .thing{display:block;padding:15px 17px;margin-bottom:10px;border:1px solid var(--line);
+    border-radius:10px;background:var(--ink-1);text-decoration:none;color:inherit;
+    transition:border-color .16s ease,background .16s ease}
+  .thing:hover,.thing:focus-visible{border-color:rgba(224,132,108,.5);background:var(--ink-2)}
+  .thing b{display:block;font-size:17px;color:var(--text-strong);font-weight:680}
+  .thing span{display:block;margin-top:3px;font-size:14px;color:var(--text-soft)}
+  .thing em{font-style:normal;color:var(--warm)}
+
+  /* Not a link, on purpose: these two are not finished, and a row that looks clickable and
+     refuses every tap reads as a broken page. */
+  .soon{padding:14px 17px;border:1px dashed var(--line);border-radius:10px;background:transparent}
+  .soon b{display:block;font-size:15px;color:var(--text);font-weight:640}
+  .soon span{display:block;margin-top:3px;font-size:13.5px;color:var(--text-faint)}
+
+  /* ---- the quiet ask ---- */
+  .help{margin:22px 0 0;padding:17px 18px;border:1px solid var(--line);border-radius:10px;
+    background:linear-gradient(180deg,rgba(240,208,96,.05),transparent)}
+  .help p{margin:0 0 12px;font-size:15px;line-height:1.55;color:var(--text)}
+  .help .fund{margin:0 0 12px;font-size:13px;color:var(--gold)}
+  .help-row{display:flex;flex-wrap:wrap;gap:8px}
+  .help-row a{flex:1 1 160px;padding:10px 13px;border:1px solid var(--line-lit);border-radius:8px;
+    background:var(--ink-1);text-decoration:none;color:var(--text-strong);font-size:14px;
+    font-weight:620;text-align:center}
+  .help-row a:hover{border-color:rgba(240,208,96,.5)}
+
+  /* ---- socials ---- */
+  .social{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+  .social a{padding:8px 14px;border:1px solid var(--line);border-radius:20px;
+    background:var(--ink-1);text-decoration:none;color:var(--text);font-size:13.5px}
+  .social a:hover{border-color:var(--line-lit);color:var(--text-strong)}
+
+  .end{margin:40px 0 0;padding-top:22px;border-top:1px solid var(--line);
+    font-size:14px;line-height:1.6;color:var(--text-faint)}
+  .lang{margin-top:14px;font-size:13px}
+  .lang a{color:var(--text-soft)}
+  </style>
+</head>
+<body>
+
+  <div class="road" aria-hidden="true">
+    <div class="road__line"></div>
+    <div class="road__glow"></div>
+    <svg class="car" viewBox="0 0 220 96" xmlns="http://www.w3.org/2000/svg">
+      <path d="M18 66 L30 44 C34 37 41 33 49 33 L150 33 C158 33 165 37 170 44 L184 66 Z"
+            fill="#152238" stroke="#3a4b66" stroke-width="2"/>
+      <path d="M52 44 L60 33 L102 33 L102 44 Z" fill="#2b3f5e"/>
+      <path d="M110 44 L110 33 L146 33 L156 44 Z" fill="#2b3f5e"/>
+      <rect x="14" y="62" width="176" height="12" rx="5" fill="#101a2b" stroke="#3a4b66"
+            stroke-width="2"/>
+      <circle cx="56" cy="76" r="13" fill="#0a0f18" stroke="#4a5d7c" stroke-width="3"/>
+      <circle cx="152" cy="76" r="13" fill="#0a0f18" stroke="#4a5d7c" stroke-width="3"/>
+      <circle cx="184" cy="60" r="4" fill="#f0d060"/>
+      <circle cx="18" cy="60" r="4" fill="#e0846c"/>
+    </svg>
+  </div>
+
+  <main class="wrap">
+
+    <p class="hello">Kod z tylnej kanapy prowadzi tutaj.</p>
+    <h1>Mam nadzieję, że przejazd mija spokojnie.</h1>
+    <p class="sub">A skoro już tu jesteś: w nocy piszę własne programy.</p>
+
+    <div class="story">
+      <p>Nazywam się Marcin. W dzień wożę ludzi po Radomiu. Wieczorem siadam do laptopa
+        i buduję rzeczy, których nikt mi nie zlecił.</p>
+
+      <p>Zaczęło się w Holandii, w czerwcu 2025. Pracowałem na dwunastogodzinnych zmianach
+        w magazynie, wracałem do pokoju i pisałem na starym laptopie program, który miał
+        pilnować, żeby komputer nie zwalniał bez powodu. <strong>Robiłem to, bo chciałem
+        umieć.</strong> Nie było planu, nie było firmy, nie było nikogo, kto by na to czekał.</p>
+
+      <div class="pull">
+        Rok później ten sam program przeszedł weryfikację i trafił do Microsoft Store.
+        Ten sam plik, który powstawał po nocach między zmianami.
+      </div>
+
+      <p>Była przerwa w kodzie. Przez trzy tygodnie jeździłem w trasy po Europie
+        i miałem przy sobie tylko telefon. Nie przestałem planować ani pisać, po prostu
+        robiłem to z kabiny, a nie zza biurka. W historii zmian tego nie widać.</p>
+
+      <p>Od tamtej pory zmieniła się właściwie tylko skala. Jest praca w dzień i jest kod
+        w nocy. Próbowałem kiedyś sprzedawać, miałem nawet mały sklep internetowy, ale
+        marketingowa nawijka okazała się nie dla mnie. Wolę zrobić narzędzie, które komuś
+        realnie pomoże, i oddać je za darmo.</p>
+
+      <p><strong>Więc nie sprzedaję Ci tu niczego.</strong> Poniżej możesz po prostu
+        zobaczyć, co z tego wyszło.</p>
+    </div>
+
+    <div class="facts">
+      <div class="fact"><b>27</b><span>wersji programu, od 1.0.0 w październiku 2025</span></div>
+      <div class="fact"><b>1&nbsp;866</b><span>zapisanych zmian w dwóch publicznych repozytoriach</span></div>
+      <div class="fact"><b>4</b><span>projekty prowadzone równolegle</span></div>
+      <div class="fact"><b>0&nbsp;zł</b><span>tyle kosztuje pobranie programu</span></div>
+    </div>
+    <p class="facts-note">Każdą z tych liczb da się sprawdzić w publicznej historii zmian.</p>
+
+    <h2>PC Workman</h2>
+    <p class="h2-note">Program na Windowsa: temperatury, wentylatory, autostart i to, co spowalnia
+      komputer. Jest w Microsoft Store. Darmowy.</p>
+    <p class="swipe">Przesuń w bok &rarr; &nbsp;&middot;&nbsp; dotknij, żeby zobaczyć w ruchu</p>
+
+    <div class="strip">
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/assets/images/PCWorkman180Dashboard.gif">
+          <img src="/assets/images/screenshot-main-dashboard.png" alt="Pulpit PC Workmana z wykresami CPU, GPU i RAM" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Pulpit. Procesor, karta i pamięć na żywo. Asystent w programie działa bez internetu.</figcaption>
+      </figure>
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/assets/images/PCWorkman-fan-dashboard.gif">
+          <img src="/assets/images/screenshot-cooling.png" alt="Sterowanie chłodzeniem: krzywa wentylatora i obroty" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Chłodzenie. Krzywa wentylatora, cel temperatury i obroty, które widać od razu.</figcaption>
+      </figure>
+      <figure class="slide">
+        <div class="slide__frame">
+          <img src="/assets/images/startup-manager.png" alt="Menedżer autostartu w PC Workmanie" loading="lazy" decoding="async">
+        </div>
+        <figcaption>Autostart. Co się włącza razem z Windowsem i co spokojnie można wyłączyć.</figcaption>
+      </figure>
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/assets/images/PCWorkman180GamingPresets.gif">
+          <img src="/assets/images/gaming-overlay-pressets.png" alt="Nakładka w grze z FPS i temperaturami" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Nakładka w grze. FPS i temperatury w rogu ekranu, w układzie, który sam wybierasz.</figcaption>
+      </figure>
+    </div>
+
+    <a class="thing" href="/index.html">
+      <b>Zobacz PC&nbsp;Workman <em>&rarr;</em></b>
+      <span>Strona programu, pobieranie i pełna lista zmian.</span>
+    </a>
+
+    <h2>Scaling Laws</h2>
+    <p class="h2-note">Gra o prowadzeniu laboratorium sztucznej inteligencji od 2022 roku.
+      Powstaje teraz, po nocach. Już można ją pobrać.</p>
+    <p class="swipe">Przesuń w bok &rarr; &nbsp;&middot;&nbsp; dotknij, żeby zobaczyć w ruchu</p>
+
+    <div class="strip">
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/hck-labs/scaling-laws/assets/images/anim/server-room.webp">
+          <img src="/hck-labs/scaling-laws/assets/images/anim/server-room-poster.webp" alt="Serwerownia w grze Scaling Laws" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Serwerownia. Kupujesz szafy, stawiasz je na podłodze i patrzysz na ciepło.</figcaption>
+      </figure>
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/hck-labs/scaling-laws/assets/images/anim/research-tree.webp">
+          <img src="/hck-labs/scaling-laws/assets/images/anim/research-tree-poster.webp" alt="Tablica badań w grze Scaling Laws" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Tablica badań. Nic nie dzieje się od razu - badania zajmują czas.</figcaption>
+      </figure>
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/hck-labs/scaling-laws/assets/images/anim/creator-scale.webp">
+          <img src="/hck-labs/scaling-laws/assets/images/anim/creator-scale-poster.webp" alt="Etap skali w kreatorze modelu" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Projektowanie modelu. Ilu ludzi utrzyma twój klaster, zanim wydasz pierwszą złotówkę.</figcaption>
+      </figure>
+      <figure class="slide">
+        <button class="slide__frame" type="button" data-anim="/hck-labs/scaling-laws/assets/images/anim/offices-team.webp">
+          <img src="/hck-labs/scaling-laws/assets/images/anim/offices-team-poster.webp" alt="Biura i zespół w grze Scaling Laws" loading="lazy" decoding="async">
+          <span class="slide__play">&#9654; ruch</span>
+        </button>
+        <figcaption>Biura i ludzie. Wynajęte piętra, nazwa firmy nad drzwiami i kto siedzi przy którym biurku.</figcaption>
+      </figure>
+    </div>
+
+    <a class="thing" href="/hck-labs/scaling-laws/index_pl.html">
+      <b>Zobacz Scaling&nbsp;Laws <em>&rarr;</em></b>
+      <span>Strona gry, opis i pobieranie.</span>
+    </a>
+
+    <h2>Dwa, których jeszcze nie pokazuję</h2>
+    <p class="h2-note"><b>GuideAI</b>, serwis z poradnikami - logowanie działa, płatności
+      jeszcze nie. I <b>Baka Bake Bakery</b>, mała gra w Unity. Wolę nie wysyłać nikogo
+      na coś, co nie działa.</p>
+
+    <h2>Cała historia</h2>
+    <a class="thing" href="/blog/profile_pl.html">
+      <b>Poznaj historię <em>&rarr;</em></b>
+      <span>Dłużej i z datami: cztery prace w dwóch krajach, magazyn, Microsoft Store
+        i to, czego z tego jeszcze nie ma.</span>
+    </a>
+
+    <a class="thing" href="/blog/before-the-app/index_pl.html">
+      <b>Sklep, którego już nie ma <em>&rarr;</em></b>
+      <span>Krótszy rozdział: co robiłem, zanim powstał program, i dlaczego jednego
+        z tamtych projektów nigdzie nie ma.</span>
+    </a>
+
+    <h2>Jeśli chcesz dorzucić cegiełkę</h2>
+    <div class="help">
+      <p>Program jest darmowy i taki zostanie, a grę można dziś pobrać bez opłat.
+        Żeby jednak wydać ją na Steamie, trzeba raz zapłacić wydawcy, i na to zbieram.</p>
+      <p class="fund" id="fund" hidden></p>
+      <div class="help-row">
+        <a href="https://github.com/sponsors/HuckleR2003" rel="noopener">Zbiórka na Steam</a>
+        <a href="https://buycoffee.to/hcklabs" rel="noopener">Postaw kawę</a>
+      </div>
+    </div>
+
+    <h2>Gdzie jeszcze jestem</h2>
+    <div class="social">
+      <a href="https://linktr.ee/marcin_firmuga" rel="noopener me">Wszystko w jednym miejscu</a>
+      <a href="https://x.com/hck_lab" rel="noopener me">X</a>
+      <a href="https://github.com/HuckleR2003" rel="noopener me">GitHub</a>
+      <a href="https://linkedin.com/in/marcinfirmuga" rel="noopener me">LinkedIn</a>
+    </div>
+
+    <p class="end">
+      Marcin Firmuga, HCK&nbsp;Labs, Radom.
+      Jeśli chcesz o czymś pogadać w aucie, śmiało. Lubię o tym opowiadać.
+    </p>
+
+    <p class="lang"><a href="index_en.html">Read this in English</a></p>
+
+  </main>
+
+  <script>
+  // Both of these are optional. Without JavaScript the page is still complete: it shows still
+  // frames and no fundraiser line, and every link still works.
+
+  // Tap a slide to swap the still frame for the animation. Loaded on demand rather than up
+  // front, because this page is opened on mobile data, in a moving car, and the animations
+  // are between ten and thirty times the weight of the posters.
+  document.querySelectorAll('.slide__frame[data-anim]').forEach(function (frame) {
+    frame.addEventListener('click', function () {
+      if (frame.dataset.playing === '1') return;
+      frame.dataset.playing = '1';
+      var img = frame.querySelector('img');
+      if (img) img.src = frame.dataset.anim;
+    });
+  });
+
+  // The fundraiser reads the same file the counter on the front page reads, so the two can
+  // never disagree and a figure nobody remembered to update can never be printed here.
+  (function () {
+    var el = document.getElementById('fund');
+    if (!el) return;
+    fetch('/assets/data/steam-fund.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (f) {
+        if (!f || f.hidden) return;
+        if (f.ends && new Date(f.ends) < new Date()) return;
+        el.textContent = 'Zebrane do tej pory: ' + f.currency + f.raised
+          + ' z ' + f.currency + f.goal + '.';
+        el.hidden = false;
+      })
+      .catch(function () { /* a page opened on a bad signal must not care */ });
+  })();
+  </script>
+</body>
+</html>
