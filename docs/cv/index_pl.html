@@ -1,0 +1,287 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman -->
+<!-- CV. Do druku: arkusz print na końcu zdejmuje nawigację i tła. -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <link rel="canonical" href="https://pcworkman.dev/cv/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/cv/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/cv/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/cv/">
+    <meta name="description" content="CV Marcina HCK Firmugi: niezależny programista, praktyka w wsparciu IT, naprawa komputerów i konfiguracja Windows, Python i C#, twórca PC Workman w Microsoft Store.">
+    <meta name="keywords" content="Marcin Firmuga CV, HCK Labs, PC Workman, programista Python, C# Unity, wsparcie IT, Windows, Radom">
+    <meta property="og:url" content="https://pcworkman.dev/cv/index_pl.html">
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Marcin HCK Firmuga | CV">
+    <meta property="og:description" content="Niezależny programista od 2025, praktyka w wsparciu IT w 2022, freelance: strony i media. Python, C#, Unity, Windows.">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Marcin HCK Firmuga | CV</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-gold: #FFD700;
+            --accent-cyan: #00D9FF;
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            line-height: 1.65;
+        }
+
+        .wrap { max-width: 880px; margin: 0 auto; padding: 5.5rem 1.5rem 5rem; }
+
+        .cv-head { border-bottom: 1px solid rgba(255,215,0,.25); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+        .cv-name { font-size: 2.3rem; font-weight: 900; letter-spacing: -.02em; }
+        .cv-role { color: var(--accent-gold); font-weight: 600; margin-top: .2rem; }
+        .cv-meta { color: var(--text-secondary); font-size: .92rem; margin-top: .6rem; }
+        .cv-meta a { color: var(--accent-cyan); text-decoration: none; }
+        .cv-meta a:hover { text-decoration: underline; }
+
+        .cv-actions { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.2rem; }
+        .cv-btn {
+            display: inline-block; padding: .6rem 1.1rem; border-radius: 10px;
+            border: 1px solid rgba(255,215,0,.35); background: rgba(255,215,0,.08);
+            color: var(--text-primary); text-decoration: none; font-weight: 600; font-size: .9rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .cv-btn:hover { background: rgba(255,215,0,.16); border-color: var(--accent-gold); }
+
+        h2.cv-h {
+            font-size: .8rem; letter-spacing: .14em; text-transform: uppercase;
+            color: var(--accent-gold); margin: 2.4rem 0 1rem; font-weight: 700;
+        }
+
+        .job { border-left: 2px solid rgba(255,215,0,.22); padding-left: 1.1rem; margin-bottom: 1.8rem; }
+        .job-title { font-weight: 700; font-size: 1.05rem; }
+        .job-org { color: var(--accent-cyan); font-size: .95rem; }
+        .job-when { color: var(--text-secondary); font-size: .85rem; font-family: var(--font-mono); margin-bottom: .55rem; }
+        .job ul { margin: 0; padding-left: 1.1rem; }
+        .job li { margin-bottom: .35rem; color: #d6d6d6; font-size: .95rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+        .box { background: var(--bg-card); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 1rem 1.15rem; }
+        .box h3 { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: .5rem; }
+        .box p, .box li { font-size: .92rem; color: #d6d6d6; }
+        .box ul { padding-left: 1.05rem; }
+
+        .note { color: var(--text-secondary); font-size: .85rem; margin-top: 2.2rem; border-top: 1px solid rgba(255,255,255,.08); padding-top: 1rem; }
+
+        @media print {
+            .global-topnav, .cv-actions { display: none !important; }
+            body { background: #fff; color: #111; }
+            .wrap { padding: 0; max-width: none; }
+            .box { background: #fff; border: 1px solid #ccc; }
+            .job-org { color: #0a58ca; }
+            .cv-role, h2.cv-h { color: #8a6d00; }
+            .job li, .box p, .box li { color: #222; }
+        }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "url": "https://pcworkman.dev/cv/index_pl.html",
+      "inLanguage": "pl",
+      "dateModified": "2026-09-28T00:00:00+02:00",
+      "mainEntity": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "jobTitle": "Niezależny programista",
+        "url": "https://pcworkman.dev/cv/index_pl.html",
+        "worksFor": { "@id": "https://pcworkman.dev/hck-labs/#organization" },
+        "homeLocation": { "@type": "Place", "name": "Radom, Polska" },
+        "knowsLanguage": [
+          { "@type": "Language", "name": "Polish" },
+          { "@type": "Language", "name": "English" }
+        ],
+        "knowsAbout": [
+          "Python",
+          "C#",
+          "Unity",
+          "Tkinter",
+          "Windows 10 i 11",
+          "monitorowanie i diagnostyka systemu",
+          "naprawa komputerów",
+          "instalacja i konfiguracja Windows",
+          "wsparcie użytkowników",
+          "dokumentacja techniczna",
+          "lokalne modele AI",
+          "oprogramowanie open source",
+          "tworzenie stron internetowych",
+          "Shopify",
+          "montaż wideo, napisy i transkrypcja"
+        ],
+        "hasOccupation": [
+          {
+            "@type": "OrganizationRole",
+            "roleName": "Niezależny programista",
+            "startDate": "2025-06",
+            "description": "Tworzy i utrzymuje PC Workman, narzędzie do monitorowania i diagnostyki Windows 10 i 11 z w pełni offline'owym asystentem AI, opublikowane w Microsoft Store po czternastu miesiącach budowania publicznie. Tworzy też Scaling Laws, grę symulacyjną w Unity.",
+            "worksFor": { "@id": "https://pcworkman.dev/hck-labs/#organization" }
+          },
+          {
+            "@type": "OrganizationRole",
+            "roleName": "Praktykant w wsparciu IT",
+            "startDate": "2022",
+            "description": "Dwumiesięczna praktyka w IT-M Kasy Fiskalne w Radomiu. Naprawa komputerów, instalacja i konfiguracja Windows, wsparcie użytkowników, dokumentacja techniczna, diagnostyka sprzętu i bezpośredni kontakt z klientem.",
+            "worksFor": { "@type": "Organization", "name": "IT-M Kasy Fiskalne", "address": "Radom, Polska" }
+          }
+        ],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://x.com/hck_lab",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      }
+    }
+    </script>
+</head>
+<body>
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/index.html">PC<span>_</span>Workman <span>/ cv</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/blog/profile_pl.html">Autor</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/cv/index_pl.html" class="active" aria-current="page" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/cv/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <main class="wrap">
+        <header class="cv-head">
+            <h1 class="cv-name">Marcin &bdquo;HCK&rdquo; Firmuga</h1>
+            <div class="cv-role">Niezależny programista</div>
+            <p class="cv-meta">
+                Radom, Polska &middot; polski i angielski &middot;
+                <a href="https://github.com/HuckleR2003" rel="me">GitHub</a> &middot;
+                <a href="https://linkedin.com/in/marcinfirmuga" rel="me">LinkedIn</a> &middot;
+                <a href="/blog/profile_pl.html">Strona autora</a>
+            </p>
+            <div class="cv-actions">
+                <button class="cv-btn" onclick="window.print()">Drukuj lub zapisz jako PDF</button>
+                <a class="cv-btn" href="/download/index_pl.html">PC Workman w Microsoft Store</a>
+            </div>
+        </header>
+
+        <h2 class="cv-h">Doświadczenie</h2>
+
+        <div class="job">
+            <div class="job-title">Niezależny programista</div>
+            <div class="job-org">HCK Labs &middot; samozatrudnienie</div>
+            <div class="job-when">czerwiec 2025 &ndash; obecnie &middot; Venlo, Limburgia, Holandia &middot; zdalnie</div>
+            <ul>
+                <li><strong>PC Workman</strong>, narzędzie do monitorowania i diagnostyki Windows 10 i 11 z w pełni offline'owym asystentem AI, opublikowane w Microsoft Store po czternastu miesiącach budowania publicznie. Aktualne wydanie 1.8.7 z 8 sierpnia 2026.</li>
+                <li>110 rozpoznawanych intencji asystenta po polsku i angielsku, offline'owa biblioteka 521 procesów, offline'owa baza zgodności sprzętu z 196 procesorami i 84 kartami graficznymi oraz 330 testów automatycznych w kodzie źródłowym.</li>
+                <li>Dystrybucja przez Microsoft Store, podpisane wydania na GitHubie i SourceForge. Podpis Sigstore, skan VirusTotal, CodeQL przy każdym commicie.</li>
+                <li><strong>Scaling Laws</strong>, gra symulacyjna w Unity i C#, 1 505 testów EditMode i 74 PlayMode w wersji 0.6.0.</li>
+                <li>Pisze i utrzymuje dokumentację projektu oraz 37 rozbudowanych poradników technicznych, z czego 34 opublikowane po polsku i angielsku.</li>
+            </ul>
+        </div>
+
+        <div class="job">
+            <div class="job-title">Praktykant w wsparciu IT</div>
+            <div class="job-org">IT-M Kasy Fiskalne</div>
+            <div class="job-when">2022 &middot; dwa miesiące &middot; Radom &middot; stacjonarnie</div>
+            <ul>
+                <li>Naprawa komputerów i diagnostyka sprzętu.</li>
+                <li>Instalacja i konfiguracja Windows.</li>
+                <li>Wsparcie użytkowników i bezpośredni kontakt z klientem.</li>
+                <li>Dokumentacja techniczna.</li>
+            </ul>
+        </div>
+
+        <div class="job">
+            <div class="job-title">Freelance, wybrane</div>
+            <div class="job-org">Klienci indywidualni</div>
+            <div class="job-when">równolegle do powyższego</div>
+            <ul>
+                <li>Montaż wideo, napisy i transkrypcja.</li>
+                <li>Tworzenie stron internetowych i sklepów Shopify.</li>
+            </ul>
+        </div>
+
+        <h2 class="cv-h">Umiejętności</h2>
+        <div class="grid">
+            <div class="box">
+                <h3>Języki i frameworki</h3>
+                <ul>
+                    <li>Python, Tkinter</li>
+                    <li>C#, Unity</li>
+                    <li>HTML, CSS, JavaScript</li>
+                </ul>
+            </div>
+            <div class="box">
+                <h3>Systemy</h3>
+                <ul>
+                    <li>Windows 10 i 11 od środka</li>
+                    <li>Monitorowanie i diagnostyka</li>
+                    <li>Naprawa, instalacja, konfiguracja</li>
+                </ul>
+            </div>
+            <div class="box">
+                <h3>Warsztat</h3>
+                <ul>
+                    <li>Testy automatyczne, CI, CodeQL</li>
+                    <li>Podpisane wydania</li>
+                    <li>Pisanie techniczne po polsku i angielsku</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 class="cv-h">Jak wygląda ta praca</h2>
+        <div class="grid">
+            <div class="box">
+                <h3>Budowane publicznie</h3>
+                <p>Trzy datowane serie artykułów tygodniowo obok wydań, od 2025 roku: co wyszło, jak działa i co się zepsuło.</p>
+            </div>
+            <div class="box">
+                <h3>Dowód zamiast deklaracji</h3>
+                <p>Poradniki mówią wprost, czego program nie mierzy, łącznie z tym, gdzie sam PC Workman nie ma żadnego odczytu.</p>
+            </div>
+            <div class="box">
+                <h3>Dystrybucja</h3>
+                <p>Microsoft Store, podpisane wydania na GitHubie i SourceForge, z opublikowaną polityką bezpieczeństwa i weryfikacji.</p>
+            </div>
+        </div>
+
+        <p class="note">
+            Liczby na tej stronie zmierzono w kodzie źródłowym 28 września 2026.
+            Dłuższa wersja, razem z samą pracą: <a href="/blog/profile_pl.html" style="color:var(--accent-cyan)">strona autora</a>
+            &middot; <a href="/hck-labs/index_pl.html" style="color:var(--accent-cyan)">HCK Labs</a>.
+        </p>
+    </main>
+</body>
+</html>
