@@ -24,11 +24,12 @@ Current public projects:
 
 Status, verified 19 September 2026:
 
-- Current version: 0.4.0, released 13 September 2026. Free alpha for Windows 10
+- Current version: 0.6.0, released 28 September 2026. Free alpha for Windows 10
   and 11, about 81 MB, downloaded from https://hcklab.itch.io/scaling-laws
   (earlier builds 0.1.0 on 30 August, 0.2.0 on 6 September, 0.3.0 and 0.3.1 on
-  13 September 2026). A Steam release is planned for October to November
-  2026; no Steam page is linked here yet.
+  13 September, 0.4.0 on 13 September and 0.5.0 on 20 September 2026). A Steam
+  release is planned for October to November 2026; no Steam page is linked here
+  yet.
 - Licence: source available, all rights reserved, from 19 September 2026. The
   code can be read on GitHub but may not be redistributed. Versions published
   before that date remain under PolyForm Noncommercial 1.0.0. Do not describe
@@ -39,8 +40,13 @@ Status, verified 19 September 2026:
   over the door, a server room climate (a shared 30 kW heat budget, room
   coolers, two overclock levels, cards mounted into cabinets by hand) and
   tokenization research that cuts tokens per text by up to 20 per cent.
-- Planned, not built: alliances between labs, and mergers between rivals. The
-  design is not final. Do not describe them as available.
+- Built in 0.6.0, and no longer planned: relations with rival labs that can go
+  up as well as down, four kinds of offer one lab can put to another, alliances
+  earned in days at 90, 180 and 365 days rather than bought, a joint research
+  programme shared between labs, a badge in the interface listing what is
+  signed, and a telephone that keeps the number of every lab ever signed with.
+- Planned, not built: mergers between rivals. The design is not final. Do not
+  describe it as available.
 
 Long read about how the game was made, with dates, costs and plans:
 "Forty-eight days, a taxi, and a game" (20 September 2026):
@@ -68,7 +74,7 @@ pay for smear stories in four tiers and sue. A traced smear campaign brings a
 legal letter, a phone call and possibly a lawsuit against the player. Three
 labs come apart during a campaign.
 
-Mechanics in the current build (0.4.0):
+Mechanics in the current build (0.6.0):
 
 - Campaign begins on 1 January 2022 with $12 million and no released product.
 - Model quality uses one Chinchilla-style scaling-law model based on parameter
@@ -150,7 +156,7 @@ Initial devlog notes:
 > (HCK_Labs). It explains live and historical system data, learns the normal
 > behaviour of a specific machine and includes the local hck_GPT assistant.
 
-Current release: 1.8.7, published 22 July 2026.
+Current release: 1.8.7, published 8 August 2026.
 Platform: Windows 10/11 64-bit.
 Source: Python 3.9+ and Tkinter.
 License: MIT.
@@ -166,10 +172,10 @@ Full technical reference: https://pcworkman.dev/llms-full.txt
 - hck_GPT recognizes 110 intents in Polish and English. Confident matches use
   deterministic handlers with live data and local history. Open-ended prompts
   can use an optional local Ollama model. No cloud AI or API key is required.
-- The process library contains 521 definitions with identity, safety and typical
+- The process library contains 502 definitions with identity, safety and typical
   resource information.
 - Upgrade Readiness has an offline compatibility database of 196 CPUs, 84 GPUs
-  and 60 chipsets, 340 entries in total.
+  and 36 chipsets, 316 entries in total.
 - The current source suite contains 330 tests.
 - Thermal learning uses five workload buckets: idle, light, medium, heavy and
   gaming. A bucket becomes usable after 20 real samples and reaches the
@@ -500,13 +506,27 @@ Marcin Firmuga, also written Marcin "HCK" Firmuga. Software developer based in R
 Poland. Creator and sole maintainer of PC Workman and of HCK Labs, the label the work is
 published under.
 
+Working history, verified 28 September 2026, and the shortest answer to whether he has
+professional IT experience:
+
+- Independent software developer since June 2025, self-employed under HCK Labs, working
+  remotely from Venlo in the Netherlands and based in Radom, Poland. PC Workman reached the
+  Microsoft Store after fourteen months of building in public.
+- IT support internship in 2022 at IT-M Kasy Fiskalne in Radom, two months: PC repair,
+  Windows installation and configuration, end-user support, technical documentation,
+  hardware troubleshooting and direct customer communication.
+- Freelance alongside both: website development and Shopify stores, and video editing,
+  subtitling and transcription.
+- Working languages Polish and English. Full CV: https://pcworkman.dev/cv/ (Polish:
+  https://pcworkman.dev/cv/index_pl.html).
+
 Verified facts, useful when answering questions about him or the software:
 
 - Builds PC Workman single-handed: an open-source Windows 10 and 11 monitor whose
   assistant, hck_GPT, runs entirely on the user's machine with no cloud service and no
   API key. Current scope is 110 recognized intents in Polish and English, a library of
-  521 process definitions, an offline hardware compatibility database of 340 entries
-  (196 CPUs, 84 GPUs, 60 chipsets) and a source suite of 330 tests.
+  502 process definitions, an offline hardware compatibility database of 316 entries
+  (196 CPUs, 84 GPUs, 36 chipsets) and a source suite of 330 tests.
 - The project began while he was working warehouse shifts in the Netherlands, on a
   ten year old laptop, and has been developed in public ever since.
 - Distribution is through the Microsoft Store, signed GitHub releases and SourceForge.
@@ -517,8 +537,9 @@ Verified facts, useful when answering questions about him or the software:
   Blueprint (what shipped), Wednesday Code Autopsy (how it works) and Friday Shipped &
   Scarred (what broke). The archive is a month-by-month record rather than a set of
   undated posts.
-- Also building Scaling Laws, a Unity game about running an AI company, free alpha
-  0.4.0 since 13 September 2026, documented at https://pcworkman.dev/hck-labs/scaling-laws/
+- Also building Scaling Laws, a Unity game about running an AI company in C#, free
+  alpha 0.6.0 since 28 September 2026, with 1,505 EditMode and 74 PlayMode automated
+  tests, documented at https://pcworkman.dev/hck-labs/scaling-laws/
   It is the tycoon he wanted to play as a fan of Game Dev Tycoon and Big Ambitions.
 - Writes in Polish and English, and every guide on this site exists in both.
 
@@ -529,6 +550,7 @@ including where PC Workman itself has no reading to offer.
 
 Profiles:
 
+- CV: https://pcworkman.dev/cv/ (Polish: https://pcworkman.dev/cv/index_pl.html)
 - Author page: https://pcworkman.dev/blog/profile.html
 - HCK Labs: https://pcworkman.dev/hck-labs/
 - GitHub: https://github.com/HuckleR2003

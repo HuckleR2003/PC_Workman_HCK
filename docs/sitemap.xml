@@ -1157,8 +1157,26 @@
   </url>
 
   <url>
+    <loc>https://pcworkman.dev/cv/</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/cv/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/cv/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/cv/"/>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/cv/index_pl.html</loc>
+    <lastmod>2026-09-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/cv/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/cv/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/cv/"/>
+  </url>
+  <url>
     <loc>https://pcworkman.dev/blog/profile.html</loc>
-    <lastmod>2026-09-06</lastmod>
+    <lastmod>2026-09-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/profile.html"/>
@@ -1799,6 +1817,46 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/"/>
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/whea-logger-event-17-18-19/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/kierowca/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/kierowca/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/kierowca/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/kierowca/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/kierowca/index_en.html</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/kierowca/index_en.html"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/kierowca/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/kierowca/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/before-the-app/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/before-the-app/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/before-the-app/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/before-the-app/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/before-the-app/index_pl.html</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/before-the-app/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/before-the-app/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/before-the-app/"/>
   </url>
 
 </urlset>
