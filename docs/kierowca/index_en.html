@@ -350,8 +350,7 @@
     <h2>If you want to chip in</h2>
     <div class="help">
       <p>The program is free and will stay free, and the game can be downloaded at no cost
-        today. Putting it on Steam, though, means paying the publisher fee once, and that
-        is what I am raising.</p>
+        today. Putting it on Steam means paying the publisher fee once.</p>
       <p class="fund" id="fund" hidden></p>
       <div class="help-row">
         <a href="https://github.com/sponsors/HuckleR2003" rel="noopener">The Steam fund</a>
@@ -402,8 +401,9 @@
       .then(function (f) {
         if (!f || f.hidden) return;
         if (f.ends && new Date(f.ends) < new Date()) return;
-        el.textContent = 'Raised so far: ' + f.currency + f.raised
-          + ' of ' + f.currency + f.goal + '.';
+        el.textContent = f.raised >= f.goal
+          ? 'Goal reached: ' + f.currency + f.raised + ' of ' + f.currency + f.goal + '. Thank you.'
+          : 'Raised so far: ' + f.currency + f.raised + ' of ' + f.currency + f.goal + '.';
         el.hidden = false;
       })
       .catch(function () { /* a page opened on a bad signal must not care */ });

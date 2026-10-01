@@ -348,7 +348,7 @@
     <h2>Jeśli chcesz dorzucić cegiełkę</h2>
     <div class="help">
       <p>Program jest darmowy i taki zostanie, a grę można dziś pobrać bez opłat.
-        Żeby jednak wydać ją na Steamie, trzeba raz zapłacić wydawcy, i na to zbieram.</p>
+        Żeby wydać ją na Steamie, trzeba raz zapłacić wydawcy.</p>
       <p class="fund" id="fund" hidden></p>
       <div class="help-row">
         <a href="https://github.com/sponsors/HuckleR2003" rel="noopener">Zbiórka na Steam</a>
@@ -399,8 +399,9 @@
       .then(function (f) {
         if (!f || f.hidden) return;
         if (f.ends && new Date(f.ends) < new Date()) return;
-        el.textContent = 'Zebrane do tej pory: ' + f.currency + f.raised
-          + ' z ' + f.currency + f.goal + '.';
+        el.textContent = f.raised >= f.goal
+          ? 'Cel osiągnięty: ' + f.currency + f.raised + ' z ' + f.currency + f.goal + '. Dziękuję.'
+          : 'Zebrane do tej pory: ' + f.currency + f.raised + ' z ' + f.currency + f.goal + '.';
         el.hidden = false;
       })
       .catch(function () { /* a page opened on a bad signal must not care */ });
