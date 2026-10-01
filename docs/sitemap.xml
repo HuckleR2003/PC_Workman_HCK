@@ -1859,4 +1859,24 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/before-the-app/"/>
   </url>
 
+  <url>
+    <loc>https://pcworkman.dev/blog/the-fund-i-wrote-off/</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/"/>
+  </url>
+
 </urlset>
