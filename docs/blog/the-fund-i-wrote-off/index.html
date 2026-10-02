@@ -19,8 +19,12 @@
 <meta property="og:description" content="I wrote off my own $100 fund in eleven days. One stranger closed it at 6:30 in the morning.">
 <meta property="og:url" content="https://pcworkman.dev/blog/the-fund-i-wrote-off/">
 <meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://pcworkman.dev/assets/images/myselfie_dogs.jpg">
+<meta property="og:image:alt" content="Marcin Firmuga with his two dogs">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pcworkman.dev/assets/images/myselfie_dogs.jpg">
 <meta property="article:published_time" content="2026-09-30T00:00:00+02:00">
-<meta property="article:modified_time" content="2026-09-30T00:00:00+02:00">
+<meta property="article:modified_time" content="2026-10-01T13:00:00+02:00">
 <link rel="stylesheet" href="../series.css">
 <link rel="stylesheet" href="/assets/css/topnav.css">
 <script type="application/ld+json">
@@ -32,12 +36,12 @@
   "url": "https://pcworkman.dev/blog/the-fund-i-wrote-off/",
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/the-fund-i-wrote-off/" },
   "datePublished": "2026-09-30T00:00:00+02:00",
-  "dateModified": "2026-09-30T00:00:00+02:00",
+  "dateModified": "2026-10-01T13:00:00+02:00",
   "inLanguage": "en",
   "isAccessibleForFree": true,
   "articleSection": "Build in public",
   "keywords": "build in public, github sponsors, indie game, steam fee, unity, solo developer, Radom",
-  "image": "https://pcworkman.dev/assets/images/og-technology.png",
+  "image": "https://pcworkman.dev/assets/images/myselfie_dogs.jpg",
   "author": {
     "@type": "Person",
     "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
@@ -108,6 +112,12 @@
 
         <p>This morning at 6:30, sitting on the toilet trying to wake up for a twelve hour shift, I opened my email and found that one person had covered the entire amount in a single payment.</p>
 
+        <figure class="figure">
+            <img src="img/server-room-now.png" alt="The server room in Scaling Laws, a basement with cabinets on a grid and a readout of capacity, power and load"
+                 width="1920" height="1080" loading="lazy" decoding="async">
+            <figcaption>Scaling Laws. The basement you buy cabinets for, which is where two of the three faults below were hiding.</figcaption>
+        </figure>
+
         <h2 id="shop">The shop that failed before any of this</h2>
 
         <p>To explain why I was so sure it would fail, I have to go back further than most people who read this have seen.</p>
@@ -146,7 +156,7 @@
 
         <p>Here is the engineering, and it is the honest answer to what has actually been getting better rather than a list of features.</p>
 
-        <p>Scaling Laws has <b>1,602 automated tests</b> behind it, 1,521 EditMode and 81 PlayMode, all green. And the last stretch of releases has been almost entirely one category of problem, which is the most uncomfortable thing I have learned building this alone:</p>
+        <p>Scaling Laws has <b>1,624 automated tests</b> behind it, 1,541 EditMode and 83 PlayMode, all green. And the last stretch of releases has been almost entirely one category of problem, which is the most uncomfortable thing I have learned building this alone:</p>
 
         <div class="callout warn">
             <b>Finished mechanisms with no working control on top of them.</b> The rule is written. The rule is tested. The rule is correct. And there is no way for a person to reach it.
@@ -160,7 +170,22 @@
 
         <p><b>A text cursor drawn almost black on a dark field.</b> Right shape, right position, right blink rate, completely invisible. It had been that way since the field was written.</p>
 
-        <p>Not one of those could have been caught by 1,602 tests, and not one of the tests is wrong to have missed them. They drive the simulation directly. <b>They prove the rule works. They cannot prove a person can reach it.</b></p>
+        <p>Not one of those could have been caught by 1,624 tests, and not one of the tests is wrong to have missed them. They drive the simulation directly. <b>They prove the rule works. They cannot prove a person can reach it.</b></p>
+
+        <div class="callout">
+            <b>Update, 1 October.</b> I wrote that section on 30 September. The next evening I found
+            that the licence had a <i>second</i> one, in the same feature, four days after I had
+            finished congratulating myself about the first. Agreeing a licence is supposed to open a
+            card that reads out the term, the audience, their commission and what is left for you,
+            and then you sign. The card was built. The figures behind it were built and tested. The
+            slot that holds a contract waiting for your signature has two things that can fill it,
+            and only one of them raised the event that opens the card. So you agreed a licence with
+            a lab, paid for it, and it sat in your save with nothing on any screen. It is fixed and
+            the guard now holds the rule rather than the case: nothing may put a contract in front
+            of a player in silence. I am leaving this here rather than quietly editing the
+            paragraph above, because an article about finished things nobody can reach that turns
+            out to have one more is the most honest version of itself.
+        </div>
 
         <p>Every single one was found by a human clicking. Most of them by my partner Samanta, who is not a programmer, who sits down with the game and uses it properly, and who hands me pages of notes that are regularly longer than the release they were written about.</p>
 
