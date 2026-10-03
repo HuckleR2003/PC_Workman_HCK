@@ -480,6 +480,19 @@ Building PC Workman in public, physical work by day, code by night.
 
 Part of **[HCK_Labs](https://github.com/HuckleR2003/HCK_Labs)** initiative.
 -
+
+---
+
+## Need something like this built?
+
+This app is my own, built in the evenings over eighteen months. I take on the same kind of work
+for other people: Windows desktop applications in Python, automated tests, and documentation
+written from your code rather than from your summary.
+
+[**What I do and how a build goes →**](https://pcworkman.dev/hire/) · [See the services on Fiverr](https://www.fiverr.com/huckler_creator)
+
+---
+
 ## License
 
 **MIT License** © 2025 HCK_Labs / Marcin Firmuga
