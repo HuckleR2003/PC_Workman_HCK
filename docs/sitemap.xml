@@ -1878,5 +1878,45 @@
     <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-fund-i-wrote-off/"/>
   </url>
+  <url>
+    <loc>https://pcworkman.dev/guides/windows-processes/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/windows-processes/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/windows-processes/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/windows-processes/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/windows-processes/index_pl.html</loc>
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/windows-processes/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/windows-processes/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/windows-processes/"/>
+  </url>
+  <url>
+    <loc>https://pcworkman.dev/guides/unity-deterministic-random/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-deterministic-random/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-deterministic-random/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html</loc>
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-deterministic-random/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-deterministic-random/"/>
+  </url>
+
+
 
 </urlset>
