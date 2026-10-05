@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Zlecenia | Marcin Firmuga, programista Python</title>
+  <meta name="description" content="Buduję aplikacje desktopowe na Windows w Pythonie, piszę do nich testy i dokumentację. Moja własna aplikacja jest w Microsoft Store od lipca 2026, a osiemnaście miesięcy jej historii jest publiczne, commit po commicie.">
+  <meta name="author" content="Marcin Firmuga">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical" href="https://pcworkman.dev/hire/index_pl.html">
+  <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/hire/index_pl.html">
+  <link rel="alternate" hreflang="en" href="https://pcworkman.dev/hire/">
+  <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hire/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="HCK Labs">
+  <meta property="og:title" content="Zlecenia: Python, aplikacje desktopowe, testy i dokumentacja">
+  <meta property="og:description" content="Osiemnaście miesięcy publicznej pracy, aplikacja w Microsoft Store i 1 624 testy automatyczne za grą. Napisz, co trzeba zbudować.">
+  <meta property="og:url" content="https://pcworkman.dev/hire/index_pl.html">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://pcworkman.dev/hire/index_pl.html#webpage",
+        "url": "https://pcworkman.dev/hire/index_pl.html",
+        "name": "Zlecenia",
+        "description": "Programowanie w Pythonie, testy automatyczne i dokumentacja techniczna.",
+        "inLanguage": "pl",
+        "dateModified": "2026-10-03T00:00:00+02:00",
+        "mainEntity": {"@id": "https://pcworkman.dev/#person"},
+        "isPartOf": {"@id": "https://pcworkman.dev/#website"}
+      }
+    ]
+  }
+  </script>
+
+  <style>
+  /* Ta sama zasada co na /kierowca/: strona ma jedno zadanie i niesie własne reguły, zamiast
+     ładować cały system projektowy serwisu. Nic się nie animuje, bo strona, która prosi
+     o pieniądze, nie ma powodu się ruszać. */
+  :root{
+    --ink-0:#070a10; --ink-1:#0a0f18; --ink-2:#101722;
+    --text-strong:#f3f6fb; --text:#c8d0dc; --text-soft:#8d98a8; --text-faint:#606b7a;
+    --line:rgba(164,177,196,.14); --line-lit:rgba(164,177,196,.26);
+    --warm:#e0846c; --gold:#f0d060; --green:#7ed6a4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--ink-0);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--warm)}
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:12px;top:12px;position:fixed;background:var(--ink-2);color:var(--text-strong);
+    padding:10px 14px;border-radius:8px;z-index:9}
+  .top{padding:30px 0 0;font-size:14px;color:var(--text-faint)}
+  .top a{color:var(--text-soft);text-decoration:none}
+  .top a:hover{color:var(--warm)}
+  h1{margin:22px 0 12px;font-size:clamp(30px,7vw,44px);line-height:1.1;
+    color:var(--text-strong);font-weight:760;letter-spacing:-.015em}
+  .sub{margin:0 0 26px;font-size:clamp(19px,4.2vw,22px);line-height:1.4;
+    color:var(--warm);font-weight:600}
+  p{margin:0 0 18px}
+  strong{color:var(--text-strong);font-weight:650}
+  .cta{display:inline-block;margin:6px 0 10px;padding:15px 26px;border-radius:10px;
+    background:var(--warm);color:#1a0d08;font-weight:720;font-size:17px;text-decoration:none}
+  .cta:hover{background:#eb9780}
+  .cta-note{margin:0 0 34px;font-size:14px;color:var(--text-faint)}
+  h2{margin:52px 0 6px;font-size:13px;letter-spacing:2.6px;text-transform:uppercase;
+    color:var(--text-soft);font-weight:700}
+  .h2-note{margin:0 0 18px;font-size:14.5px;color:var(--text-soft);line-height:1.5}
+  .svc{border:1px solid var(--line);border-radius:11px;background:var(--ink-1);
+    padding:22px 22px 18px;margin:0 0 14px}
+  .svc h3{margin:0 0 6px;font-size:21px;color:var(--text-strong);font-weight:700;line-height:1.25}
+  .svc p{margin:0 0 14px;font-size:16px;color:var(--text)}
+  .svc .price{font-size:14px;color:var(--text-soft)}
+  .svc .price b{color:var(--gold);font-weight:700}
+  .svc a{font-weight:650}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0 8px}
+  .fact{padding:16px;border:1px solid var(--line);border-radius:9px;background:var(--ink-1)}
+  .fact b{display:block;font-size:25px;line-height:1.1;color:var(--text-strong);
+    font-weight:740;letter-spacing:-.02em}
+  .fact span{display:block;margin-top:5px;font-size:12.5px;line-height:1.4;color:var(--text-soft)}
+  @media (max-width:460px){.facts{grid-template-columns:1fr}}
+  .step{border-left:2px solid var(--line-lit);padding:2px 0 2px 20px;margin:0 0 22px}
+  .step b{display:block;color:var(--gold);font-size:13px;letter-spacing:1.6px;
+    text-transform:uppercase;margin-bottom:4px}
+  .step p{margin:0;font-size:16px}
+  .stop{border-left-color:var(--green)}
+  .stop b{color:var(--green)}
+  .pull{margin:30px 0;padding:18px 20px;border-left:3px solid var(--warm);
+    border-radius:0 8px 8px 0;background:rgba(224,132,108,.07);color:#f0ddd6;font-size:17px}
+  .no li{margin:0 0 12px}
+  footer{margin:60px 0 0;padding-top:24px;border-top:1px solid var(--line);
+    font-size:14.5px;color:var(--text-soft)}
+  footer a{color:var(--text-soft)}
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">Przejdź do treści</a>
+<div class="wrap">
+
+  <div class="top"><a href="/">pcworkman.dev</a> &nbsp;/&nbsp; zlecenia &nbsp;&middot;&nbsp; <a href="/hire/" hreflang="en">in english</a></div>
+
+  <main id="main">
+
+  <h1>Buduję oprogramowanie i możesz sprawdzić każdą linijkę, zanim mi zapłacisz.</h1>
+  <p class="sub">Aplikacje desktopowe na Windows w Pythonie, testy automatyczne i dokumentacja pisana z twojego kodu.</p>
+
+  <p>Nazywam się Marcin Firmuga. Od osiemnastu miesięcy buduję publicznie, wieczorami, najpierw po
+  zmianach w magazynie, potem w zakładzie napraw, a teraz po dziesięciu do dwunastu godzinach
+  za kierownicą taksówki w Radomiu.</p>
+
+  <p><strong>Wszystko, co zrobiłem, jest publiczne, commit po commicie.</strong> To nie jest typowe
+  i na tym polega cała oferta: nie musisz wierzyć portfolio, możesz przeczytać historię i zobaczyć,
+  jak pracuję w słabym tygodniu, a nie tylko w dobrym.</p>
+
+  <a class="cta" href="https://www.fiverr.com/huckler_creator">Zobacz usługi na Fiverrze</a>
+  <p class="cta-note">Fiverr obsługuje płatność, fakturę i ochronę dla obu stron.
+  Jeśli wolisz najpierw porozmawiać, mój adres jest na dole strony.</p>
+
+  </main>
+
+  <h2>Co robię</h2>
+  <p class="h2-note">Trzy rzeczy, celowo wąsko. Jeśli potrzebujesz czegoś innego, napisz mimo to,
+  a powiem uczciwie, czy jestem właściwą osobą.</p>
+
+  <div class="svc">
+    <h3>Testy automatyczne do projektu w Pythonie</h3>
+    <p>Testy, które padają, gdy zachowanie jest złe, i mówią, co jest złe, kiedy padną. Nie pokrycie
+    dla samej liczby. Każdy błąd, który znajdę przy czytaniu, dostaje własny test, więc nie wróci
+    po cichu. Do tego pisemny raport: co przetestowałem, czego świadomie nie, i co mnie zaniepokoiło.</p>
+    <p class="price">Od <b>45 $</b> &middot; <a href="https://www.fiverr.com/huckler_creator">zamów albo zapytaj</a></p>
+  </div>
+
+  <div class="svc">
+    <h3>Dokumentacja pisana z twojego kodu</h3>
+    <p>Większość plików README pisze osoba, która już wie, jak projekt działa, czyli najgorsza
+    możliwa. Ja najpierw czytam kod i piszę z tego, co on robi. README, CHANGELOG, instrukcja
+    uruchomienia i dokumentacja API, po polsku albo po angielsku, z komendami sprawdzonymi,
+    a nie założonymi.</p>
+    <p class="price">Od <b>35 $</b> &middot; <a href="https://www.fiverr.com/huckler_creator">zamów albo zapytaj</a></p>
+  </div>
+
+  <div class="svc">
+    <h3>Aplikacja desktopowa na Windows w Pythonie</h3>
+    <p>Narzędzie z oknem, które twoi ludzie otworzą bez przeglądarki, bez logowania i bez internetu.
+    Narzędzia wewnętrzne, automatyzacja z interfejsem, monitoring, który zapamiętuje historię.
+    Dostajesz spakowany plik .exe działający bez instalowania Pythona, kod źródłowy i dokumentację,
+    dzięki której kolejna osoba to podejmie.</p>
+    <p class="price">Od <b>180 $</b> &middot; <a href="https://www.fiverr.com/huckler_creator">zamów albo zapytaj</a></p>
+  </div>
+
+  <h2>Dlaczego ja, a nie ktoś tańszy</h2>
+  <p class="h2-note">Cztery fakty, każdy sprawdzalny w niecałą minutę.</p>
+
+  <div class="facts">
+    <div class="fact"><b>Microsoft Store</b><span>PC Workman jest tam od lipca 2026. Przeszedł certyfikację Microsoftu, czego nie da się podrobić zrzutem ekranu w portfolio.</span></div>
+    <div class="fact"><b>1 624 testy</b><span>Za moją grą, zielone przed każdym buildem. Nie wypuszczam rzeczy niesprawdzonych, łącznie z własnymi.</span></div>
+    <div class="fact"><b>1 350 commitów</b><span>W samej aplikacji, przez osiemnaście miesięcy, wszystkie publiczne. Możesz sprawdzić, jak pracuję, zanim mnie wynajmiesz, a nie dopiero potem.</span></div>
+    <div class="fact"><b>53 700 słów</b><span>Dwadzieścia trzy poradniki techniczne po polsku i angielsku, plus dziewięć artykułów na HackerNoonie, z których jeden był pierwszy na liście trendów.</span></div>
+  </div>
+
+  <h2>Jak wygląda praca</h2>
+  <p class="h2-note">Rozpisane tak, żebyś wiedział, gdzie możesz się zatrzymać, zanim zapłacisz,
+  a nie po. To jest kształt osiemnastodniowej aplikacji; mniejsze zlecenia idą tak samo, tylko krócej.</p>
+
+  <div class="step">
+    <b>Dzień 0 do 1</b>
+    <p>Ustalamy w jednym zdaniu tę jedną rzecz, dla której w ogóle warto to robić. Odpisuję ci ją
+    własnymi słowami, żebyś mógł powiedzieć, czy źle zrozumiałem, póki nieporozumienie nic nie kosztuje.
+    Mówię też od razu, co moim zdaniem będzie trudniejsze, niż wygląda.</p>
+  </div>
+
+  <div class="step stop">
+    <b>Dzień 2 do 4 &middot; tu możesz przerwać</b>
+    <p>Dostajesz krótkie nagranie, na którym ta jedna rzecz naprawdę działa. Będzie brzydka, surowa
+    i będzie robić dokładnie jedno. Jeśli to nie jest to, o co ci chodziło, zmieniamy kierunek, kiedy
+    prawie nic nie jest zbudowane, albo rezygnujesz. Wolę stracić trzy dni niż oddać w osiemnastym
+    coś, czego nie chciałeś.</p>
+  </div>
+
+  <div class="step">
+    <b>Dzień 5 do 12</b>
+    <p>Reszta powstaje wokół tego. Piszę do ciebie, gdy trafię na decyzję, której nie mogę podjąć
+    za ciebie, i nie piszę w żadnej innej sprawie. Jeśli coś okaże się większe, niż zakładaliśmy,
+    dowiadujesz się tego dnia, w którym się dowiem ja, razem z opcjami.</p>
+  </div>
+
+  <div class="step stop">
+    <b>Dzień 13 do 15 &middot; tu też możesz przerwać</b>
+    <p>Dostajesz build do zainstalowania i zepsucia. Używaj go tak, jak naprawdę zamierzasz, a nie
+    tak, jak idzie pokaz. Wszystko, co znajdziesz w tym oknie, poprawiam w cenie.</p>
+  </div>
+
+  <div class="step">
+    <b>Dzień 16 do 18</b>
+    <p>Poprawki, pakowanie i dokumentacja napisana tak, żeby ty albo ktokolwiek po mnie podjął ten
+    projekt bez pytania mnie o cokolwiek.</p>
+  </div>
+
+  <h2>Czego nie zrobię</h2>
+  <ul class="no">
+    <li><strong>Nie powiem, że zajmie dziesięć dni, jeśli zajmie osiemnaście.</strong> Jeśli to,
+    czego potrzebujesz, jest większe niż to, za co płacisz, powiem o tym przed zamówieniem i opiszę,
+    jak wygląda mniejsza, uczciwa wersja.</li>
+    <li><strong>Nie wezmę zlecenia, do którego się nie nadaję.</strong> Już odmawiałem i będę znowu.
+    Zwrot w pierwszym dniu jest tańszy dla nas obu niż zła dostawa w dwudziestym.</li>
+    <li><strong>Nie zniknę.</strong> Jeśli coś pójdzie nie tak u mnie, dowiesz się tego ode mnie
+    razem z nowym terminem, a nie po dostawie, która po cichu nie przyszła.</li>
+  </ul>
+
+  <p class="pull">Szukam też swojej pierwszej stałej pracy w IT: Python, wsparcie techniczne,
+  junior developer, zdalnie albo w Polsce. Jeśli jesteś tu właśnie dlatego,
+  <a href="/blog/profile.html">pełny profil jest tutaj</a>.</p>
+
+  <h2>Napisz do mnie</h2>
+  <p><strong>Najszybciej:</strong> <a href="https://www.fiverr.com/huckler_creator">wiadomość na Fiverrze</a>.
+  Odpowiadam w ciągu godziny w większość dni, także z postoju taksówek.</p>
+  <p><strong>Mailem:</strong> <a href="mailto:firmuga.marcin.s@gmail.com">firmuga.marcin.s@gmail.com</a></p>
+  <p>Napisz, co trzeba zbudować albo co się psuje. Jeśli nie jestem właściwą osobą, powiem to
+  i w miarę możliwości wskażę kogoś, kto jest.</p>
+
+  <footer>
+    Marcin &bdquo;HCK&rdquo; Firmuga &middot; HCK Labs &middot; Radom<br>
+    <a href="/">pcworkman.dev</a> &middot;
+    <a href="https://github.com/HuckleR2003">GitHub</a> &middot;
+    <a href="https://linkedin.com/in/marcinfirmuga">LinkedIn</a> &middot;
+    <a href="https://hackernoon.com/u/huckler">HackerNoon</a> &middot;
+    <a href="/hire/" hreflang="en">in english</a>
+  </footer>
+
+</div>
+</body>
+</html>
