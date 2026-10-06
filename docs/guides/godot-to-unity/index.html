@@ -1,0 +1,525 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · tested Godot, went back to Unity -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Everyone is writing about leaving Unity for Godot. I tested Godot, made a 3D game in it, and went back. Three of my four reasons were measurable.">
+    <meta name="keywords" content="Godot vs Unity 2026, why I left Godot, Godot to Unity, Godot 3D limitations, Godot merge conflicts tscn, Godot asset library size, Godot team collaboration, choosing a game engine, Godot 4 honest review">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/godot-to-unity/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/godot-to-unity/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/godot-to-unity/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/godot-to-unity/">
+    <meta property="og:title" content="I tested Godot, made a 3D game in it, and went back to Unity">
+    <meta property="og:description" content="Not a hit piece. Three frictions I hit, each one checked against what is actually documented, including what Godot has since fixed.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/godot-to-unity/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-06T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-06T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>I Tested Godot and Went Back to Unity: What Was Measurable | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "I tested Godot, made a 3D game in it, and went back to Unity",
+      "description": "A developer who evaluated Godot seriously and chose Unity anyway, with each friction checked against documented behaviour rather than recalled as an impression.",
+      "url": "https://pcworkman.dev/guides/godot-to-unity/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/godot-to-unity/" },
+      "datePublished": "2026-10-06T00:00:00+02:00",
+      "dateModified": "2026-10-06T00:00:00+02:00",
+      "citation": [
+        "https://godotengine.org/article/uid-changes-coming-to-godot-4-4/",
+        "https://github.com/hyprtuna/gdmerge",
+        "https://github.com/derkork/tscnmerge",
+        "https://forum.godotengine.org/t/constant-merge-conflictions-in-tscn-files/116509"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "wordCount": 2305,
+      "keywords": "Godot, Unity, game engine, 3D, version control, asset library, solo developer",
+      "about": [
+        { "@type": "Thing", "name": "Godot Engine" },
+        { "@type": "Thing", "name": "Unity" },
+        { "@type": "Thing", "name": "Game engine selection" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "description": "Solo developer from Radom, Poland. Started in Unity at thirteen, tested Godot seriously including a 3D project, and returned to Unity for Scaling Laws, a simulation with 1,624 automated tests.",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Godot to Unity", "item": "https://pcworkman.dev/guides/godot-to-unity/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do some developers go back to Unity after trying Godot?",
+          "acceptedAnswer": { "@type": "Answer", "text": "In my case three specific frictions, none of them about the language or the editor. Working with a second person on one project was genuinely painful, because Godot scene files get identifiers that are not deterministic across machines, so two people touching the same scene produce merge conflicts in a format the documentation warns you not to hand-edit. The asset ecosystem is roughly an order of magnitude smaller than Unity's. And the 3D gap, which is invisible on a small project, grows with scene complexity. Note that Godot has improved the first of these since, so check the current state rather than taking a recollection as news." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Godot bad for teams?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not bad, but historically awkward in one specific way that catches small teams hardest. Scene and resource identifiers were not generated deterministically, so two developers adding something to the same scene could produce the same line changed two different ways, and the official guidance is to resolve such conflicts by opening the project rather than editing the file, because hand-editing a scene file commonly corrupts it. Godot 4.4 added dedicated .uid files for scripts and shaders and the engine team wrote about the version-control reasoning directly. Third-party merge drivers exist specifically for this, which is itself evidence the problem was real." }
+        },
+        {
+          "@type": "Question",
+          "name": "How big is the Godot asset library compared to Unity's?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Roughly an order of magnitude apart: commonly reported figures put the Godot Asset Library around three thousand entries against seventy thousand or more in the Unity Asset Store, so call it twenty to twenty-five times, depending on who is counting and what they count. The honest qualifier is that a large share of what a solo developer actually needs is engine-neutral: models, textures, audio and fonts from itch.io or OpenGameArt import into either engine. The gap bites for engine-specific tooling, editor extensions and systems you would otherwise have to write." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does Godot limit you to small or basic projects?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, and this is the claim I would most want to correct, including in myself. I believed it while I was using it, and the belief was the wrong shape. Godot 4 handles stylized and mid-scope 3D convincingly; what lags are the things that only matter at scale, such as level of detail, occlusion culling and large-world streaming, which published comparisons describe as maturing. Because that gap is invisible early and appears as a project grows, it feels from the inside exactly like a ceiling on ambition, when it is really a ceiling on scale in one specific area." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should I choose Godot or Unity in 2026?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Answer three questions rather than reading comparisons. Will more than one person edit the same scenes, because that is where Godot historically cost the most and where you should check its current state carefully. Does your 3D scene get heavy, meaning many lights, large worlds, streaming, because that is where the gap widens. And how much do you need to buy rather than build, because the asset ecosystems are an order of magnitude apart. If all three answers are small, Godot is an excellent choice and the licensing and size advantages are real." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/godot-to-unity/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/godot-to-unity/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Engines</span>
+        <h1>I tested Godot,<br>made a 3D game in it,<br>and went back to Unity.</h1>
+        <p class="tagline">Everyone is writing the other article right now. This is the one I can actually support: three frictions I hit, each checked against what is documented rather than remembered, including the part where my own conclusion was wrong.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-06</span><span>&middot;</span><span>10 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">In early 2026 Unity put its High Definition Render Pipeline into maintenance mode, which landed on top of the trust still leaking from the 2023 runtime fee, and the internet filled up with migration guides. I am going the other way, so let me be precise about what that is worth before you read any further.</p>
+
+        <h2 id="honest">What I actually did, and what I do not remember</h2>
+
+        <p>
+            I used Godot seriously. I made a 3D game in it that friends played and told me was a good
+            direction, which is the only external verdict that project ever got. I did not ship anything
+            commercially in it. Then I went back to Unity and stayed there.
+        </p>
+
+        <p>
+            <b>I do not remember exactly which version I was on.</b> That matters, because Godot has
+            shipped real improvements to at least one of the things I hit, and an article that presents
+            a two-year-old recollection as today's news deserves the comment section it gets. So the
+            structure here is: what I felt, then what is actually documented now, then whether the
+            feeling survives contact with the second part.
+        </p>
+
+        <div class="callout">
+            <b>This is not an argument against Godot.</b> Three of the four things I hit are real and
+            checkable. The fourth &mdash; the conclusion I drew at the time &mdash; is the one I now
+            think was wrong, and it is the most interesting part, so it gets its own section rather
+            than a quiet omission.
+        </div>
+
+        <h2 id="feeling">The feeling: &ldquo;this engine keeps me at basics&rdquo;</h2>
+
+        <p>
+            The sentence I would have given you then was that Godot limited me to basic projects. It did
+            not arrive on any particular day. It accumulated, and the two conditions I remember clearly
+            are that it came <b>after a long time</b> and <b>as the number of files grew</b>.
+        </p>
+
+        <p>
+            Hold on to those two conditions, because they turn out to be the whole explanation, and they
+            are not a statement about the engine's ceiling at all.
+        </p>
+        <h2 id="team">Friction one: two people, one project</h2>
+
+        <p>
+            This was the worst of the three and the one I understood least at the time. Working on a
+            single project with a friend was heavy in a way I could not name, so I filed it under
+            &ldquo;we are disorganised&rdquo;. We were not, or at least not only.
+        </p>
+
+        <p>
+            Godot scenes are text, which is usually sold as the version-control advantage over Unity,
+            and in principle it is. The problem is one level down. <b>The identifiers inside those files
+            have not been generated deterministically across machines.</b> Two people adding a resource
+            to the same scene can both receive a generated id, on the same line, and git has no way to
+            reconcile that beyond handing you a conflict.
+        </p>
+
+        <p>
+            Then the second half of the trap closes. The usual guidance for a conflicted scene file is
+            <b>not</b> to fix it in a text editor &mdash; because editing a <code>.tscn</code> by hand is
+            a common way to produce a scene that no longer loads. The recommended route is to open the
+            project and reintegrate the change through the editor. Which is to say: a text format whose
+            text you are advised not to edit.
+        </p>
+
+        <div class="trap">
+            <h4>The evidence that this was not just us</h4>
+            <p>
+                Dedicated third-party merge drivers exist for exactly this &mdash; tools that parse scene
+                files the way the engine does and merge nodes and resources by identity rather than by
+                line number, reassigning ids themselves. Nobody writes a git merge driver for a problem
+                that does not happen.
+            </p>
+            <p>
+                The practical advice circulating in the community is also telling: agree who is working
+                on which scene, and split scenes into smaller ones so that two people collide less. That
+                is a coordination workaround, and coordination is the thing a two-person hobby project
+                has least of.
+            </p>
+        </div>
+
+        <p>
+            <b>And here is the part that makes this fair.</b> Godot addressed it. In January 2025, with
+            4.4, the engine added dedicated <code>.uid</code> files, and the team wrote about the
+            reasoning publicly &mdash; including that a single central id database was rejected
+            specifically because it &ldquo;would be subject to frequent merge conflicts in version
+            control systems&rdquo;. They were designing against this problem on purpose.
+        </p>
+
+        <p>
+            It is better, not gone. The same change introduces a new way to lose: <b>if the
+            <code>.uid</code> files are not committed, references break when somebody clones the
+            project.</b> So if you are picking an engine for a team today, this is the single area I
+            would test for an afternoon before committing, rather than trusting either my experience or
+            a changelog.
+        </p>
+
+        <h2 id="assets">Friction two: the asset gap is an order of magnitude</h2>
+
+        <p>
+            My memory of this was blunt: compared to Unity, assets did not exist. That is unfair as
+            phrasing and roughly right as scale.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th></th><th>Commonly reported size</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Unity Asset Store</td><td>around 70,000&ndash;80,000 items</td></tr>
+                <tr><td>Godot Asset Library</td><td>around 3,000 items</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Call it twenty to twenty-five times, depending on who is counting and what they count as an
+            asset. Godot's ecosystem has also roughly doubled since version 4, so the direction is
+            right even though the distance is large.
+        </p>
+
+        <p>
+            The qualifier matters more than the ratio, though, and most comparisons skip it:
+            <b>a large share of what a solo developer actually needs is engine-neutral.</b> Models,
+            textures, audio and fonts from itch.io or OpenGameArt import into either engine and do not
+            care which you chose. The gap is not really about art.
+        </p>
+
+        <div class="trap">
+            <h4>Where the gap actually hurts</h4>
+            <p>
+                Engine-specific tooling. Editor extensions, inspector helpers, save systems, dialogue
+                frameworks, state machine editors, build pipeline utilities &mdash; the category where
+                you either buy an hour or spend a weekend. That is where twenty-five times is felt.
+            </p>
+            <p>
+                Which also tells you who is least affected: if you were going to write your own systems
+                regardless, the ratio costs you very little. If you planned to assemble, it costs a lot.
+            </p>
+        </div>
+        <h2 id="3d">Friction three: where the 3D gap actually sits</h2>
+
+        <p>
+            I remember 3D being a fight. What I could not have told you is <em>which</em> 3D, and that
+            distinction is the one worth taking away.
+        </p>
+
+        <p>
+            Godot 4 renders modern 3D properly. Physically based materials, global illumination,
+            volumetric fog &mdash; stylised and mid-scope 3D is covered convincingly, and anyone telling
+            you Godot cannot do 3D is working from Godot 3 memories.
+        </p>
+
+        <p>
+            What published comparisons consistently describe as <em>maturing</em> is a specific list, and
+            every item on it is about scale rather than capability:
+        </p>
+
+        <ul>
+            <li><b>Level of detail</b> and <b>occlusion culling</b> &mdash; the things that stop a scene from costing what it looks like.</li>
+            <li><b>Large-world streaming</b> and large-world coordinates.</li>
+            <li><b>High-end terrain tooling</b> and real-time global illumination at the top end.</li>
+            <li><b>Heavy light counts</b>, where comparisons generally put Unity ahead once a scene casts many shadows.</li>
+        </ul>
+
+        <p>
+            Notice what that list is not. It is not &ldquo;Godot cannot render&rdquo;. It is a list of
+            things that <b>do not matter at all until a project gets big, and then matter enormously</b>.
+            A small scene does not need occlusion culling. A test level does not need streaming.
+        </p>
+
+        <h2 id="reframe">So my conclusion was wrong, and the shape of the error is useful</h2>
+
+        <p>
+            Put the three together against the two conditions I remembered: it came <b>after a long
+            time</b>, and <b>as the files multiplied</b>.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Friction</th><th>When it is invisible</th><th>When it bites</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Scene merge conflicts</td><td>One person, few scenes</td><td>Two people, shared scenes, many files</td></tr>
+                <tr><td>Asset ecosystem</td><td>Writing your own systems early</td><td>When you start wanting to buy time</td></tr>
+                <tr><td>3D at scale</td><td>Small scenes, test levels</td><td>More lights, bigger world, streaming</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            All three are invisible at the start and all three arrive with growth. Which means that what
+            I experienced was not a ceiling on what the engine could do. It was <b>three independent
+            costs that each scale with project size, arriving together</b> &mdash; and from the inside,
+            three things getting harder at once is indistinguishable from a wall.
+        </p>
+
+        <p>
+            So the honest correction to my own sentence: Godot did not keep me at basics. I reached the
+            size at which its weak spots compound, while I was also a two-person team with no process,
+            on the 3D side, which is the exact intersection of all three. A solo developer making a 2D
+            game would have met none of it.
+        </p>
+
+        <div class="trap">
+            <h4>Why I am bothering to correct myself in public</h4>
+            <p>
+                Because &ldquo;the engine limits you&rdquo; is unfalsifiable and spreads easily, and I
+                would have repeated it for years if nobody made me check. The three checkable statements
+                are far more useful to somebody choosing today than my conclusion ever was, and they point
+                at different decisions.
+            </p>
+        </div>
+
+        <h2 id="choose">How I would actually choose now</h2>
+
+        <p>
+            Not by reading comparisons, including this one. By answering three questions about
+            <em>your</em> project, because each maps onto one friction above:
+        </p>
+
+        <ul>
+            <li><b>Will more than one person edit the same scenes?</b> If yes, spend one afternoon testing the merge story before you commit a year. Have two machines add a node to the same scene, conflict it on purpose, and resolve it. Whatever you learn beats my recollection and a changelog.</li>
+            <li><b>Does the 3D get heavy?</b> Many shadow-casting lights, a large world, streaming. If yes, this is where the gap widens. If your 3D is stylised and roomy rather than vast, it is not a factor.</li>
+            <li><b>Will you buy or build?</b> If your plan involves assembling from existing systems, an order of magnitude in catalogue size is a schedule difference, not a preference.</li>
+        </ul>
+
+        <p>
+            If all three answers are small, Godot is an excellent choice and the things people praise
+            about it are true: no licensing anxiety, a tiny download, text scenes that belong in git, a
+            language you can learn in days. None of my frictions touch a solo 2D project, which is most
+            first projects.
+        </p>
+
+        <p>
+            I went back to Unity for reasons that are specific to what I build now: a simulation with
+            twenty-odd dense data screens, <a href="../unity-testable-game-logic/">1,624 automated
+            tests</a>, and a tooling ecosystem I lean on hard. That is an argument about my project, not
+            about the engines, and I would rather give you the questions than my answer.
+        </p>
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Why do some developers go back to Unity after trying Godot?</h3>
+            <p>
+                In my case three frictions, none of them about the language or the editor: collaborating
+                with a second person on shared scenes, an asset ecosystem roughly an order of magnitude
+                smaller, and a 3D gap that is invisible early and grows with scene complexity. Godot has
+                improved the first of these since, so check the current state rather than treating any
+                recollection, including this one, as news.
+            </p>
+
+            <h3>Is Godot bad for teams?</h3>
+            <p>
+                Not bad, but historically awkward in one specific way that hits small teams hardest.
+                Scene and resource identifiers were not generated deterministically across machines, so
+                two people touching the same scene could conflict on the same line, in a format you are
+                advised not to hand-edit because doing so commonly breaks the scene. Godot 4.4 added
+                dedicated <code>.uid</code> files in January 2025 and the team wrote about the
+                version-control reasoning directly. Third-party merge drivers exist for this, which is
+                itself evidence that the problem was real.
+            </p>
+
+            <h3>How big is the Godot asset library compared to Unity's?</h3>
+            <p>
+                Roughly an order of magnitude: commonly reported figures put the Godot Asset Library
+                around three thousand entries against seventy thousand or more for Unity, so twenty to
+                twenty-five times depending on counting. The honest qualifier is that much of what a solo
+                developer needs is engine-neutral &mdash; models, textures, audio and fonts from itch.io
+                or OpenGameArt import into either. The gap bites on engine-specific tooling and editor
+                extensions, where you either buy an hour or spend a weekend.
+            </p>
+
+            <h3>Does Godot limit you to small or basic projects?</h3>
+            <p>
+                No, and this is the claim I most want to correct, including in myself, because I believed
+                it. Godot 4 handles stylised and mid-scope 3D convincingly. What lags are things that only
+                matter at scale &mdash; level of detail, occlusion culling, large-world streaming, heavy
+                shadow-casting light counts. Because that gap is invisible early and arrives with growth,
+                it feels from the inside exactly like a ceiling on ambition when it is a ceiling on scale
+                in one area.
+            </p>
+
+            <h3>Should I choose Godot or Unity in 2026?</h3>
+            <p>
+                Answer three questions about your project instead of reading comparisons. Will more than
+                one person edit the same scenes? Does your 3D scene get heavy &mdash; many lights, a large
+                world, streaming? Will you buy systems or build them? If all three answers are small,
+                Godot is an excellent choice and its licensing and size advantages are real. The frictions
+                in this article do not touch a solo 2D project.
+            </p>
+
+            <h3>Does Unity putting HDRP into maintenance mode change this?</h3>
+            <p>
+                It changes the calculation for the high end, not for most of the people reading engine
+                comparisons. If your plan depended specifically on HDRP, that is a genuine reason to
+                re-evaluate and the migration guides filling the internet are aimed at you. If you are a
+                solo developer or a small team building something stylised, it has very little to do with
+                which engine suits your project, and it is worth noticing how much of the current content
+                assumes otherwise.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>What I would believe over this article.</b> An afternoon of your own testing. Make a scene,
+            conflict it on purpose between two machines, and see what the resolution costs you. Build a
+            representative chunk of your heaviest 3D and look at the frame time. Those two experiments
+            answer your question better than anybody's recollection, mine very much included.
+        </div>
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../why-solo-game-projects-die/">why solo projects die at the same four features</a> &middot; <a href="../unity-testable-game-logic/">1,541 tests that never start the game</a> &middot; <a href="../tycoon-game-economy/">designing a tycoon economy as laws</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

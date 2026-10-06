@@ -1,0 +1,668 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · automatyczne testy balansu gry symulacyjnej -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Test jednostkowy dowodzi, że reguła działa. Nie powie, czy grę da się wygrać. Powie to bot, który rozgrywa cztery pełne lata kampanii.">
+    <meta name="keywords" content="testy balansu gry, automatyczne playtesty, bot testujący, czy grę da się wygrać, balans gry symulacyjnej, przedział trudności, testy regresji w game design, Unity testy balansu, NUnit symulacja">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/game-balance-tests/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/game-balance-tests/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/game-balance-tests/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/game-balance-tests/">
+    <meta property="og:title" content="Bot gra w to czterysta razy, żebyś ty nie musiał">
+    <meta property="og:description" content="Zielony zestaw testów dowodzi, że twoje reguły są spójne. Nie mówi nic o tym, czy grę da się wygrać, czy stanie w miejscu przegrywa i czy twoje decyzje mają znaczenie.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/game-balance-tests/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Testy balansu gry: jak udowodnić, że da się ją wygrać | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Testy balansu: jak udowodnić, że grę da się wygrać, nie grając w nią czterysta razy",
+      "description": "Skryptowany bot, który przegrywa pełne cztery lata, asercje pisane jako przedział zamiast liczby, i uczciwe pytanie, które zadaje każdy czerwony test balansu: naprawiłeś grę czy douczyłeś bota?",
+      "url": "https://pcworkman.dev/guides/game-balance-tests/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/game-balance-tests/index_pl.html" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "sameAs": "https://pcworkman.dev/guides/game-balance-tests/",
+      "citation": [
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/PlayabilityTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/SoakTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/ConsistencyTests.cs"
+      ],
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "C#, NUnit, gra symulacyjna lub strategiczna z rdzeniem bez sceny",
+      "wordCount": 2044,
+      "keywords": "balans gry, automatyczne playtesty, bot skryptowany, przedzial trudnosci, testy regresji, symulacja, Unity, NUnit",
+      "about": [
+        { "@type": "Thing", "name": "Balans gry" },
+        { "@type": "Thing", "name": "Testowanie automatyczne" },
+        { "@type": "Thing", "name": "Projektowanie gier" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Programista",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Testy balansu gry symulacyjnej", "item": "https://pcworkman.dev/guides/game-balance-tests/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy da się testować balans gry testami jednostkowymi?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zwykłymi testami jednostkowymi nie. Test jednostkowy pyta, czy reguła zachowuje się poprawnie, a balans nie jest właściwością żadnej pojedynczej reguły: jest właściwością wszystkich naraz, działających przez długi czas. Działa za to skryptowany gracz, czyli bot z celowo przeciętną strategią, który rozgrywa pełną kampanię wewnątrz testu, po czym sprawdzasz stan, do jakiego doszedł. Symulacja może być idealnie spójna na poziomie każdej reguły i zupełnie niegrywalna jako gra, a jedynym sposobem, żeby się o tym dowiedzieć, jest w nią zagrać." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak dobry powinien być bot?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Celowo przeciętny. Bot istnieje po to, żeby wyznaczyć podłogę, a nie sufit: bez patrzenia w przód, bez sprytnego wyczucia czasu, bez informacji, których nie miałby gracz grający pierwszy raz. Wtedy asercja czyta się tak: jeśli ten gracz nie przeżyje, to zły jest balans, a nie gracz. Bot nastrojony na grę optymalną mówi ci tylko, że ekspert umie wygrać, a o to nikt nie pytał." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co powinien sprawdzać test balansu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Przedział, obustronny. Jedna strona mówi, że grę da się przeżyć. Druga, że nie jest trywialna: gracz nie powinien być wygodnie przed całą stawką, nie powinien mieć trzech czwartych rynku i nie powinien skończyć drzewa technologii. Test z samą dolną granicą po cichu zielenieje, gdy gra dryfuje w stronę łatwiejszej, i to jest najczęstszy sposób, w jaki balans gnije niezauważony." }
+        },
+        {
+          "@type": "Question",
+          "name": "Gdy test balansu oblewa, naprawiasz grę czy bota?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To jest prawdziwe pytanie, a różnica nie widać w diffie, dlatego trzeba ją nazwać na głos. Douczenie bota jest uczciwe, gdy gra wyhodowała kontrolkę, której człowiek oczywiście by użył, a bot jej nie używał: modelujesz wtedy gracza, który widzi suwak, a nie takiego, który go nie widzi. Jest nieuczciwe, gdy kontrolka istnieje tylko w teście, gdy bot dostaje informacje niedostępne graczowi albo gdy stroisz go, aż liczba przejdzie. Sprawdzian brzmi: czy gracz patrzący pierwszy raz na ten ekran zrobiłby to samo?" }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak udowodnić, że dobra gra w ogóle ma znaczenie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Przypadkiem kontrolnym, czyli najbardziej użytecznym testem balansu i tym, którego większość projektów nie ma. Uruchom dwie kampanie z tego samego ziarna: w jednej bot gra porządnie, w drugiej ktoś wydaje jedną rzecz i przez cztery lata nie robi nic. Sprawdź, że aktywny przebieg wygrywa z dużym zapasem. Bez tego wszystkie pozostałe asercje mogą przechodzić w grze, w której decyzje są dekoracją, bo gra, która gra się sama, też jest wypłacalna i też jest zielona." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy to zastępuje playtesty z ludźmi?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie i nie ma takiego zamiaru. Pokrywa dokładnie jedno pytanie, czy liczby składają się na grę, którą da się wygrać i da się przegrać, i pokrywa je przy każdej zmianie, czego nie zrobi żaden człowiek. Wszystko o tym, czy gra jest ciekawa, czy ekrany mają sens i czy decyzja czuje się jak decyzja, wymaga ludzi. To, co kupujesz, to że ludzie przestają zużywać swoją sesję na odkrywanie, że trzeci rok jest niemożliwy." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/game-balance-tests/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/game-balance-tests/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Projektowanie gier</span>
+        <h1>Bot gra w to<br>czterysta razy,<br>żebyś ty nie musiał.</h1>
+        <p class="tagline">Zielony zestaw testów dowodzi, że twoje reguły są spójne. Nie mówi nic o tym, czy grę da się wygrać, czy stanie w miejscu przegrywa i czy którakolwiek z twoich decyzji ma znaczenie. To wymaga innego rodzaju testu &mdash; i niewygodnego pytania za każdym razem, gdy taki test oblewa.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>10 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">To wychodzi z symulacji zarządzania z rdzeniem działającym bez sceny, kampanią na cztery do pięciu lat i 1624 testami automatycznymi. Piętnaście z nich robi coś, czego pozostałe 1609 nie potrafi: gra w tę grę.</p>
+
+        <p>Lukę, którą zamykają, przeoczyłem. Miałem komplet zielonych testów, podczas gdy gra była po cichu niegrywalna, i nic w tych testach nie było błędne. Każda reguła robiła to, co deklarowała. Reguły razem nie składały się na grę.</p>
+
+        <div class="callout">
+            <b>Czego to wymaga od twojego projektu.</b> Rdzenia symulacji, który uruchomi się bez sceny,
+            renderera i pętli klatek &mdash; czegoś, co da się krokować w zwykłym teście C#. Jeśli
+            logika twojej gry działa wyłącznie w <code>MonoBehaviour.Update</code>, ten artykuł jest
+            najpierw argumentem za jej wydzieleniem, a dopiero potem za testowaniem.
+        </div>
+
+        <h2 id="why">Dlaczego test jednostkowy nie widzi balansu</h2>
+
+        <p>
+            Test jednostkowy pyta, czy reguła zachowuje się poprawnie. Balans nie jest właściwością
+            żadnej reguły. Jest właściwością wszystkich naraz, działających przez cztery lata, czyli
+            mieszka w miejscu, w które żaden test jednostkowy nie zagląda.
+        </p>
+
+        <p>
+            Komentarz na górze mojego pliku z testami grywalności to najkrótsza wersja tego problemu,
+            jaką udało mi się napisać:
+        </p>
+
+        <div class="code">/// Czy w tę grę da się grać.
+///
+/// Każdy inny test pyta, czy reguła zachowuje się poprawnie. Te pytają, czy reguły razem
+/// tworzą grę, którą ktoś może wygrać, i czy stanie w miejscu przegrywa. Symulacja może
+/// być idealnie spójna i zupełnie niegrywalna, a jedynym sposobem, żeby się o tym
+/// dowiedzieć, jest w nią zagrać.</div>
+
+        <p>
+            Więc ten plik w nią gra. Nie próbkowane przybliżenie rozgrywki, nie model statystyczny
+            rozgrywki &mdash; prawdziwa kampania, wewnątrz testu, jeden symulowany dzień po drugim,
+            ze skryptowanym graczem podejmującym decyzje, które podejmowałby człowiek.
+        </p>
+        <h2 id="floor">Bot jest podłogą, nie sufitem</h2>
+
+        <p>
+            Pierwszy odruch to zrobić bota dobrym. Ten odruch jest błędny i marnuje całe ćwiczenie,
+            bo bot, który gra dobrze, mówi ci wyłącznie, że ekspert umie wygrać. Nikt o to nie pytał.
+        </p>
+
+        <p>
+            Mój jest celowo przeciętny i tak jest napisane:
+        </p>
+
+        <div class="code">/// Celowo zwyczajna strategia. Bez patrzenia w przód, bez wywiadu, bez sprytnego wyczucia
+/// czasu. Istnieje po to, żeby wyznaczyć podłogę: cokolwiek zrobi rozsądny człowiek, ma to
+/// pobić, a to nie ma zbankrutować.</div>
+
+        <p>
+            Cała jego pętla decyzyjna to dziesięć prostych kroków w stałej kolejności, powtarzanych
+            każdego symulowanego dnia. Żadnego przeszukiwania, żadnej funkcji oceny, nic, czego gracz
+            grający pierwszy raz nie zrobiłby, czytając ekran przed sobą:
+        </p>
+
+        <div class="code">private void Decide()
+{
+    BalanceTheCluster();
+    ShipAnythingFinished();
+    SizeTheFleet();
+    RaiseWhenOffered();
+    PushTheTree();
+    AdoptBetterArchitectures();
+    BuyDataWhenAffordable();
+    KeepOptimising();
+    StartARunWhenIdle();
+    StaffTheDesk();
+}</div>
+
+        <p>
+            Ta zwyczajność jest tym, co nadaje asercji znaczenie. Gdy ten gracz bankrutuje,
+            <b>zły jest balans, a nie gracz</b>, i nie ma o czym dyskutować w kwestii tego, czy
+            istniała lepsza strategia. Test podłogi czyta się wtedy dokładnie tak, jak brzmi:
+        </p>
+
+        <div class="code">[Test]
+public void AnOrdinaryCompetentPlayerSurvivesFourYears()
+{
+    var simulation = NewGame();
+    var operatorBot = new ScriptedOperator(simulation);
+
+    operatorBot.Run(1460);
+
+    Assert.That(simulation.State.IsBankrupt, Is.False,
+        $"Went under on {simulation.State.Date} with {operatorBot.ModelsShipped} model(s) shipped.");
+    Assert.That(operatorBot.ModelsShipped, Is.GreaterThanOrEqualTo(3),
+        "Four years should fit several model generations.");
+    Assert.That(simulation.State.BestCapability, Is.GreaterThan(30.0),
+        $"Capability stalled at {simulation.State.BestCapability:0.0}.");
+}</div>
+
+        <h2 id="band">Sprawdzaj przedział, a nie liczbę</h2>
+
+        <p>
+            Tu jest błąd, którego szukałem najdłużej, i ten, który naprawiłbym pierwszy w cudzym
+            projekcie: <b>test balansu z samą dolną granicą gnije po cichu.</b>
+        </p>
+
+        <p>
+            Każda łatka czyni grę odrobinę hojniejszą. Nowy węzeł badań, przeliczona cena, poprawka
+            błędu, która przy okazji usunęła koszt. Każda zmiana z osobna jest do obrony, test podłogi
+            przechodzi coraz wygodniej, nic nigdy nie zapala się na czerwono. Kończysz z grą, której
+            nikt nie umie przegrać, i z zestawem testów, który jest z tego dumny.
+        </p>
+
+        <p>
+            Lekarstwem jest zapisanie również sufitu. Komentarz przy moim opisuje tryb awarii w obie
+            strony i to jest fragment wart skopiowania, nawet jeśli nie weźmiesz z tego artykułu nic
+            innego:
+        </p>
+
+        <div class="code">/// Przedział trudności. Zwyczajny gracz ma skończyć cztery lata w wyścigu, a nie przed
+/// nim: wciąż za czołówką, wciąż daleko od zdominowania rynku, wciąż wypłacalny. Jeśli ten
+/// test zacznie przechodzić trywialnie, gra zmiękła; jeśli zacznie oblewać od dołu, gra
+/// zrobiła się niesprawiedliwa.</div>
+
+        <p>
+            W praktyce to cztery górne granice stojące obok dolnych:
+        </p>
+
+        <div class="code">Assert.That(simulation.State.IsBankrupt, Is.False, context);
+Assert.That(gap, Is.GreaterThan(-8.0),
+    $"An ordinary player should not be comfortably ahead of the whole field. {context}");
+Assert.That(report.MarketShare, Is.LessThan(0.75),
+    $"An ordinary player should not own the market. {context}");
+Assert.That(simulation.State.UnlockedResearch.Count, Is.LessThan(ResearchTree.All.Count),
+    $"Four years must not be enough to finish the technology tree. {context}");
+Assert.That(simulation.State.HasResearch(ResearchNodeId.ArtificialSuperintelligence), Is.False,
+    $"The end game must stay out of reach in the first four years. {context}");</div>
+
+        <div class="trap">
+            <h4>Czytaj asercje jak decyzje projektowe, bo nimi są</h4>
+            <p>
+                &bdquo;Cztery lata nie mogą wystarczyć na skończenie drzewa technologii&rdquo; nie jest
+                stwierdzeniem technicznym. To decyzja o tym, czym jest gra, zapisana w miejscu, w którym
+                będzie egzekwowana &mdash; a to więcej, niż osiąga większość dokumentów projektowych.
+            </p>
+            <p>
+                To okazuje się cichą korzyścią z całego podejścia. Testy balansu stały się jedynym
+                miejscem, gdzie moje intencje co do trudności są zapisane w formie, która potrafi się
+                odszczeknąć.
+            </p>
+        </div>
+        <h2 id="control">Przypadek kontrolny: dowód, że granie ma znaczenie</h2>
+
+        <p>
+            Każdy dotychczasowy test może przejść w grze, w której twoje decyzje są dekoracją. Gra,
+            która gra się sama, też jest wypłacalna, też coś wydaje, też jest zielona. Żeby to wyłapać,
+            potrzebujesz eksperymentu, którego uczą na każdej lekcji przyrody i którego prawie żaden
+            zestaw testów nie zawiera: <b>kontroli</b>.
+        </p>
+
+        <p>
+            Dwie kampanie, to samo ziarno. W jednej bot gra porządnie. W drugiej ktoś wydaje jedną
+            rzecz i przez cztery lata nie robi zupełnie nic:
+        </p>
+
+        <div class="code">[Test]
+public void ShippingOnceAndDoingNothingElseIsPunished()
+{
+    // Przypadek kontrolny. Ten sam start, to samo ziarno, zero utrzymania po pierwszym modelu.
+    var passive = NewGame();
+    passive.SetRentedAccelerators(500);
+    passive.TryStartTraining(new ModelBlueprint("Only model",
+        ArchitectureId.DenseTransformer, 20, 400, DatasetSource.WebCrawl), out _);
+    passive.Advance(40);
+    passive.TryReleaseModel(0, 1.0, out _);
+    passive.Advance(1400);
+
+    var active = NewGame();
+    new ScriptedOperator(active).Run(1440);
+
+    Assert.That(active.State.BestCapability,
+        Is.GreaterThan(passive.State.BestCapability + 10.0),
+        "Playing well has to beat playing once by a wide margin.");
+    Assert.That(active.State.LifetimeRevenueUsd,
+        Is.GreaterThan(passive.State.LifetimeRevenueUsd));
+}</div>
+
+        <p>
+            To <code>+ 10.0</code> waży więcej niż sam kierunek. &bdquo;Lepiej niż nic nie robić&rdquo;
+            to poprzeczka, którą przechodzi gra idle. <b>Duży zapas</b> to twierdzenie, że uwaga jest
+            nagradzana, i to jest różnica między symulacją a zabawką.
+        </p>
+
+        <p>
+            Ten sam kształt się uogólnia, a gdy raz go zobaczysz, napiszesz cztery kolejne. Czy
+            zbieranie kapitału faktycznie ma znaczenie? Porównaj przebieg z finansowaniem i bez. Czy
+            architektura odblokowana w trzecim roku jest naprawdę lepsza od tej, z której powstała?
+            Uruchom obie i sprawdź, że nowa wygrywa. Mam jeden nazwany
+            <code>AHouseFamilyBeatsTheDenseBaselineItWasBuiltFrom</code>, czyli zdanie o projektowaniu
+            przebrane za test.
+        </p>
+
+        <h2 id="honest">Pytanie, które zadaje każdy oblany test balansu</h2>
+
+        <p>
+            Teraz część niewygodna i powód, dla którego chciałem napisać ten artykuł, a nie jego
+            uładzoną wersję.
+        </p>
+
+        <p>
+            Gdy test balansu zapala się na czerwono, masz dwa ruchy. Możesz zmienić grę albo zrobić
+            bota mądrzejszym. <b>Oba dają zielony zestaw i oba wyglądają w diffie mniej więcej tak
+            samo</b>, a uczciwy jest tylko jeden &mdash; z tym że nie zawsze ten sam, i to czyni rzecz
+            naprawdę trudną, a nie tylko kuszącą.
+        </p>
+
+        <p>
+            Trafiłem na to, gdy strona usługowa mojej symulacji zaczęła się przewracać. Naprawą było
+            pozwolenie botowi ruszyć suwak, który dotąd ignorował. Oto, co napisałem obok, bo nie
+            ufałem sobie, że zapamiętam, dlaczego było to dozwolone:
+        </p>
+
+        <div class="code">/// **To jest zmiana operatora, a nie zmiękczenie asercji, i rozróżnienie ma znaczenie,
+/// bo ten sam ruch może być jednym albo drugim.** Obsługa brała całą flotę zawsze, gdy nie
+/// trwał trening, a badania i tak brały swoją część, więc klaster wykonywał sto siedemdziesiąt
+/// procent własnej pracy. Sprawienie, żeby połowy sumowały się do jedności, jest naprawą;
+/// oznacza też, że firma może teraz naprawdę zagłodzić własnych klientów badaniami, co ten
+/// operator robił przez pięć lat, nie zauważając.
+///
+/// Gracz, który widzi czerwony wskaźnik usługi, daje klientom więcej floty. To jeden suwak
+/// na ekranie COMPUTE i jest dla niego dokładnie tak dostępny, jak tutaj. Modeluj gracza,
+/// który widzi kontrolkę, a nie takiego, który jej nie widzi.</div>
+
+        <p>
+            To ostatnie zdanie jest regułą, którą teraz stosuję, i da się ją odpalić na sobie:
+            <b>czy gracz patrzący pierwszy raz na ten ekran zrobiłby to?</b> Jeśli tak, douczanie bota
+            jest modelowaniem rzeczywistości i test robi się uczciwszy, a nie mniej uczciwy. Jeśli
+            kontrolka istnieje tylko w teście, jeśli bot dostaje informacje niedostępne graczowi albo
+            jeśli liczby są podkręcane, aż przejdzie &mdash; już nie testujesz gry, tylko z nią
+            negocjujesz.
+        </p>
+
+        <div class="trap">
+            <h4>Dwa szczegóły z tego komentarza warte zabrania</h4>
+            <p>
+                <b>&bdquo;Klaster wykonywał sto siedemdziesiąt procent własnej pracy.&rdquo;</b> To jest
+                prawdziwy błąd i żaden test jednostkowy nie mógł go zobaczyć: każdy przydział z osobna
+                był poprawny, po prostu połowy nie musiały się sumować. Do wyjścia na wierzch potrzeba
+                było bota grającego przez pięć lat.
+            </p>
+            <p>
+                <b>&bdquo;Co ten operator robił przez pięć lat, nie zauważając.&rdquo;</b> Po naprawieniu
+                błędu stała się osiągalna nowa, uprawniona awaria: firma może teraz zagłodzić własnych
+                klientów. Naprawa błędu w symulacji nie zmniejsza powierzchni do testowania. Zwykle ją
+                poszerza.
+            </p>
+        </div>
+        <h2 id="context">Oblany test balansu ma opisywać grę, a nie liczbę</h2>
+
+        <p>
+            Oblany test jednostkowy mówi ci, że funkcja jest zła, i idziesz przeczytać funkcję. Oblany
+            test balansu mówi, że firma zbankrutowała w trzecim roku, a to samo w sobie jest prawie
+            bezużyteczne, bo przyczyna leży gdzieś w 1095 symulowanych dniach.
+        </p>
+
+        <p>
+            Dlatego każda asercja w tych testach niesie ze sobą migawkę świata:
+        </p>
+
+        <div class="code">var context =
+    $"cap {simulation.State.BestCapability:F1}, frontier {report.FrontierCapability:F1}, "
+    + $"share {report.MarketShare:P1}, cash {simulation.State.CashUsd:N0}, "
+    + $"models {bot.ModelsShipped}, rounds {bot.RoundsRaised}, "
+    + $"research {simulation.State.UnlockedResearch.Count}/{ResearchTree.All.Count}";</div>
+
+        <p>
+            Różnica jest taka jak między półgodziną bisekcji a przeczytaniem jednej linijki. Awaria,
+            która mówi <em>share 94%, research 31/31, gotówka ogromna</em>, to gra, która zrobiła się
+            za łatwa. Awaria, która mówi <em>models 1, gotówka ujemna, rounds 0</em>, to gracz, który
+            nigdy nie wystartował. Ten sam czerwony test, odwrotne problemy, a napis mówi ci który,
+            zanim cokolwiek otworzysz.
+        </p>
+
+        <div class="trap">
+            <h4>Najtańsza poprawka w całym tym artykule</h4>
+            <p>
+                Jeśli masz już testy balansu i chcesz jednej poprawy dziś wieczorem, to jest właśnie ta.
+                Wstaw pięć czy sześć liczb opisujących stan gry do każdego komunikatu asercji w tym
+                pliku. Kosztuje cztery linijki i zmienia to, co znaczy czerwony build.
+            </p>
+        </div>
+
+        <h2 id="stateless">Bot musi być bezstanowy, a to nie jest oczywiste</h2>
+
+        <p>
+            Jedno ograniczenie łapie każdego raz, mnie też, i pojawia się dopiero, gdy połączysz testy
+            balansu z testami zapisu &mdash; a powinieneś, bo zapis, który po cichu zmienia kampanię,
+            jest błędem balansu, który podróżuje.
+        </p>
+
+        <p>
+            Test brzmi: zagraj cztery lata, zapisz, wczytaj, zagraj piąty rok i sprawdź, czy wczytany
+            przebieg zgadza się z tym, który nigdy nie zapisywał. W chwili, gdy to napiszesz, bot
+            dostaje regułę, której wcześniej nie miał. Cokolwiek bot pamięta we własnym polu, jest
+            stanem, którego nie ma w pliku zapisu, więc wczytany przebieg się rozjedzie &mdash; a test
+            obwini symulację za różnicę, którą stworzył sam plik testowy.
+        </p>
+
+        <div class="code">// **Czytaj z biurka, nigdy z ostatniego raportu.** `AYearFourSaveRunsIdentically`
+// odbudowuje operatora po wczytaniu, więc cokolwiek ta decyzja pamięta między dniami, jest
+// różnicą między przebiegiem, który zapisał, a tym, który wczytał, i strażnik czyta to jako
+// rozjeżdżanie się symulacji. Kolejka jest zapisywana; pole na operatorze nie.</div>
+
+        <p>
+            Reguła brzmi więc: <b>każda decyzja bota ma wynikać ze stanu symulacji, nigdy z czegoś, co
+            bot nosi ze sobą.</b> To ta sama dyscyplina, która w ogóle czyni kampanię powtarzalną, czyli
+            temat <a href="../unity-deterministic-random/index_pl.html">siostrzanego artykułu
+            o deterministycznym losowaniu</a> &mdash; i warto zauważyć, że to ograniczenie przychodzi
+            ze strony, z której nikt nie ostrzega.
+        </p>
+
+        <h2 id="cost">Ile to kosztuje, uczciwie</h2>
+
+        <p>
+            To nie są tanie testy i udawanie czegoś innego byłoby dokładnie tym rodzajem porady, przed
+            którym ta strona ma bronić.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Koszt</th><th>Jak to wygląda naprawdę</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Czas wykonania</td>
+                    <td>Każdy z nich rozgrywa od 1460 do 1826 symulowanych dni, kilka z nich dwukrotnie dla porównania. To zdecydowanie najwolniejsze testy w całym zestawie.</td>
+                </tr>
+                <tr>
+                    <td>Utrzymanie</td>
+                    <td>Realne. Według mojego własnego licznika w kodzie ten plik musiał być uczony korzystania z kontrolki, którą wyhodowała gra, <b>trzy osobne razy</b> &mdash; sufit parametrów, linia produktowa i biurko obsługi. Każdy nowy system widoczny dla gracza to możliwe nowe zachowanie bota.</td>
+                </tr>
+                <tr>
+                    <td>Osąd</td>
+                    <td>Ten się nie zmniejsza. Każdy czerwony test pyta, czy naprawiasz grę, czy douczasz bota, i żadne narzędzie nie odpowie za ciebie.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Po drugiej stronie: piętnaście testów pokrywa pytanie &bdquo;czy to nadal jest gra&rdquo;,
+            chodzą przy każdej zmianie i znalazły klaster wykonujący sto siedemdziesiąt procent własnej
+            pracy. Zapłaciłbym za ten czas wykonania drugi raz.
+        </p>
+
+        <h2 id="start">Od czego zacząć, jeśli nie masz nic z tego</h2>
+
+        <p>
+            W kolejności, w której napisałbym je ponownie:
+        </p>
+
+        <ul>
+            <li><b>Podłoga.</b> Zwyczajny bot rozgrywa pełną kampanię i nie bankrutuje. Jeden test, i obleje za pierwszym uruchomieniem.</li>
+            <li><b>Kontrola.</b> To samo ziarno rozegrane biernie, z asercją, że aktywny przebieg wygrywa z dużym zapasem. To ten, który dowodzi, że twoja gra jest grą.</li>
+            <li><b>Sufit.</b> Dodawaj górne granice do testu podłogi, aż opisze przedział. Zapisz decyzję projektową w komunikacie asercji.</li>
+            <li><b>Zapis.</b> Graj, zapisz, wczytaj, graj dalej, sprawdź, czy oba przebiegi się zgadzają. Licz się z tym, że bot będzie musiał stać się bezstanowy.</li>
+            <li><b>Napisy kontekstowe.</b> Cztery linijki, i każda przyszła awaria tłumaczy się sama.</li>
+        </ul>
+
+        <p>
+            Dwa pierwsze to jeden wieczór i w nich siedzi prawie cała wartość. Reszta to doszlifowanie.
+        </p>
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Czy da się testować balans gry testami jednostkowymi?</h3>
+            <p>
+                Zwykłymi nie. Test jednostkowy pyta, czy reguła zachowuje się poprawnie, a balans nie
+                jest właściwością żadnej pojedynczej reguły &mdash; jest właściwością wszystkich naraz,
+                działających przez długi czas. Działa skryptowany gracz z celowo przeciętną strategią,
+                który rozgrywa pełną kampanię wewnątrz testu, po czym sprawdzasz stan, do którego
+                doszedł. Symulacja może być idealnie spójna na poziomie każdej reguły i zupełnie
+                niegrywalna jako gra.
+            </p>
+
+            <h3>Jak dobry powinien być bot?</h3>
+            <p>
+                Celowo przeciętny. Istnieje po to, żeby wyznaczyć podłogę, a nie sufit: bez patrzenia
+                w przód, bez sprytnego wyczucia czasu, bez informacji, których nie miałby gracz grający
+                pierwszy raz. Wtedy asercja czyta się jako <em>jeśli ten gracz nie przeżyje, to zły jest
+                balans, a nie gracz</em>. Bot nastrojony na grę optymalną mówi tylko, że ekspert umie
+                wygrać, a o to nikt nie pytał.
+            </p>
+
+            <h3>Co powinien sprawdzać test balansu?</h3>
+            <p>
+                Przedział, obustronny. Jedna strona mówi, że grę da się przeżyć; druga, że nie jest
+                trywialna &mdash; gracz nie powinien być wygodnie przed stawką, nie powinien mieć trzech
+                czwartych rynku, nie powinien skończyć drzewa technologii. Test z samą dolną granicą po
+                cichu zielenieje, gdy gra dryfuje w stronę łatwiejszej, i to najczęstszy sposób, w jaki
+                balans gnije niezauważony.
+            </p>
+
+            <h3>Gdy test balansu oblewa, naprawiasz grę czy bota?</h3>
+            <p>
+                To prawdziwe pytanie, a diff wygląda tak samo w obu przypadkach. Douczenie bota jest
+                uprawnione, gdy gra wyhodowała kontrolkę, której człowiek oczywiście by użył: modelujesz
+                gracza, który widzi suwak. Jest nieuczciwe, gdy kontrolka istnieje tylko w teście, gdy
+                bot dostaje informacje niedostępne graczowi albo gdy stroisz go, aż liczba przejdzie.
+                Użyteczny sprawdzian: czy gracz patrzący pierwszy raz na ten ekran zrobiłby to samo?
+            </p>
+
+            <h3>Jak udowodnić, że dobra gra ma znaczenie?</h3>
+            <p>
+                Przypadkiem kontrolnym, którego większość projektów nie ma. Dwie kampanie z tego samego
+                ziarna: jedna rozegrana porządnie, druga wydaje jedną rzecz i przez cztery lata nie robi
+                nic. Sprawdź, że aktywna wygrywa z dużym zapasem. Bez tego wszystkie pozostałe asercje
+                mogą przechodzić w grze, w której decyzje są dekoracją.
+            </p>
+
+            <h3>Czy to zastępuje playtesty z ludźmi?</h3>
+            <p>
+                Nie i nie ma takiego zamiaru. Pokrywa dokładnie jedno pytanie &mdash; czy liczby składają
+                się na grę, którą da się wygrać i da się przegrać &mdash; i pokrywa je przy każdej
+                zmianie, czego nie zrobi żaden człowiek. Wszystko o tym, czy gra jest <em>ciekawa</em>,
+                czy ekrany mają sens i czy decyzja czuje się jak decyzja, wymaga ludzi. Kupujesz to, że
+                ludzie przestają zużywać swoją sesję na odkrywanie, że trzeci rok jest niemożliwy.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>Wszystko da się przeczytać.</b> Skryptowany operator, przedział trudności, przypadek
+            kontrolny i porównanie po zapisie są w publicznym repozytorium
+            <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a>, w pliku
+            <code>PlayabilityTests.cs</code>, podlinkowanym w źródłach tego artykułu. Cytowane tu
+            komentarze są prawdziwe, nie wygładzone na potrzeby tekstu.
+        </div>
+
+        <div class="guide-cta">
+            <b>Dalej w tej serii:</b> <a href="../unity-testable-game-logic/index_pl.html">1541 testów, które nie uruchamiają gry</a> &middot; <a href="../tycoon-game-economy/index_pl.html">ekonomia tycoona jako prawa</a> &middot; <a href="../why-solo-game-projects-die/index_pl.html">dlaczego solowe projekty umierają na tych samych czterech funkcjach</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co naprawdę wypuściłem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nie zadziałało. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

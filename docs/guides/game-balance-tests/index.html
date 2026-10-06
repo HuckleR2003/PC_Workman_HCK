@@ -1,0 +1,666 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · automated balance tests for a simulation game -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A unit test proves a rule works. It cannot tell you the game is winnable. A scripted bot that plays four full years can, if you assert a band.">
+    <meta name="keywords" content="game balance testing, automated playtesting, scripted bot test, is my game winnable, simulation game balance, difficulty band, regression test game design, Unity balance tests, NUnit game simulation">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/game-balance-tests/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/game-balance-tests/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/game-balance-tests/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/game-balance-tests/">
+    <meta property="og:title" content="The bot plays it four hundred times, so you do not have to">
+    <meta property="og:description" content="A green test suite proves your rules are consistent. It says nothing about whether the game is winnable, fair, or worth playing twice.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/game-balance-tests/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Game Balance Tests: Proving a Game Is Winnable | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Balance tests: proving a game is winnable without playing it four hundred times",
+      "description": "A scripted bot that plays four full years, assertions written as a band rather than a number, and the honest question every balance test eventually asks: did you fix the game, or did you teach the bot?",
+      "url": "https://pcworkman.dev/guides/game-balance-tests/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/game-balance-tests/" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "citation": [
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/PlayabilityTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/SoakTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/ConsistencyTests.cs"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "C#, NUnit, a simulation or strategy game with a headless core",
+      "wordCount": 2436,
+      "keywords": "game balance, automated playtesting, scripted bot, difficulty band, regression testing, simulation, Unity, NUnit",
+      "about": [
+        { "@type": "Thing", "name": "Game balance" },
+        { "@type": "Thing", "name": "Automated testing" },
+        { "@type": "Thing", "name": "Game design" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Balance tests for a simulation game", "item": "https://pcworkman.dev/guides/game-balance-tests/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can you unit test game balance?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not with ordinary unit tests. A unit test asks whether a rule behaves correctly, and balance is not a property of any one rule: it is a property of all of them running together for a long time. The thing that does work is a scripted player, a bot with a deliberately ordinary strategy that plays a full campaign inside the test, after which you assert on the state it reached. A simulation can be perfectly consistent at the level of every rule and completely unplayable as a game, and the only way to find that out is to play it." }
+        },
+        {
+          "@type": "Question",
+          "name": "How good should the bot be?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Deliberately mediocre. The bot exists to establish a floor, not a ceiling: no lookahead, no clever timing, no use of information a first-time player would not have. It ships, it raises money when offered, it keeps optimising. The assertion then reads as if that player cannot survive, the balance is wrong rather than the player. A bot tuned to play optimally tells you only that an expert can win, which was never the question." }
+        },
+        {
+          "@type": "Question",
+          "name": "What should a balance test assert?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A band, with both sides. One side says the game is survivable: not bankrupt, several things shipped, progress made. The other side says it is not trivial: the player should not be comfortably ahead of the whole field, should not own three quarters of the market, and should not have finished the technology tree. A test with only a lower bound goes quietly green as the game drifts easier, which is the most common way balance rots without anyone noticing." }
+        },
+        {
+          "@type": "Question",
+          "name": "When a balance test fails, do you fix the game or fix the bot?",
+          "acceptedAnswer": { "@type": "Answer", "text": "This is the real question and the diff looks identical either way, which is why it needs naming out loud. Teaching the bot is legitimate when the game has grown a control a human would obviously use and the bot was not using it: you are modelling the player who can see the dial, not the one who cannot. It is dishonest when the control exists only in the test, when the bot is given information a player cannot get, or when it is tuned until the number passes. The test to apply is whether a first-time player looking at that screen would do the same thing." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you prove that playing well actually matters?",
+          "acceptedAnswer": { "@type": "Answer", "text": "With a control case, which is the single most useful balance test and the one most projects do not have. Run two campaigns from the same seed: one where the bot plays properly, one that ships a single thing and then does nothing for four years. Assert that the active run beats the passive one by a wide margin. Without this, every other assertion can pass in a game where decisions do not matter, because a game that plays itself is still solvent, still shipping and still green." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/game-balance-tests/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/game-balance-tests/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Game design</span>
+        <h1>The bot plays it<br>four hundred times,<br>so you do not have to.</h1>
+        <p class="tagline">A green suite proves your rules are consistent. It says nothing about whether the game is winnable, whether standing still loses, or whether any of your decisions matter. Those need a different kind of test, and an uncomfortable question every time one fails.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>10 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">This comes out of a management simulation with a headless core, a four to five year campaign, and 1,624 automated tests. Fifteen of those tests do something the other 1,609 cannot: they play the game.</p>
+
+        <p>The gap they close is the one I did not see coming. I had a suite that was comprehensively green while the game was quietly unplayable, and nothing in it was wrong. Every rule did what it said. The rules together did not make a game.</p>
+
+        <div class="callout">
+            <b>What this needs from your project.</b> A simulation core that can run without a scene,
+            a renderer or a frame loop &mdash; something you can step forward in a plain C# test. If
+            your game logic only runs inside <code>MonoBehaviour.Update</code>, this article is an
+            argument for separating it before it is an argument for testing it.
+        </div>
+
+        <h2 id="why">Why a unit test cannot see balance</h2>
+
+        <p>
+            A unit test asks whether a rule behaves correctly. Balance is not a property of any rule.
+            It is a property of all of them running together for four years, which means it lives in a
+            place no unit test looks.
+        </p>
+
+        <p>
+            The comment at the top of my playability fixture is the shortest version of the problem I
+            have managed to write:
+        </p>
+
+        <div class="code">/// Is the game playable.
+///
+/// Every other test asks whether a rule behaves correctly. These ask whether the rules
+/// together make a game somebody can win, and whether standing still loses. A simulation
+/// can be perfectly consistent and completely unplayable, and the only way to find out
+/// is to play it.</div>
+
+        <p>
+            So the fixture plays it. Not a sampled approximation of play, not a statistical model of
+            play &mdash; an actual campaign, inside the test, one simulated day at a time, with a
+            scripted player making the decisions a person would be making.
+        </p>
+        <h2 id="floor">The bot is the floor, not the ceiling</h2>
+
+        <p>
+            The first instinct is to make the bot good. That instinct is wrong, and getting it wrong
+            wastes the whole exercise, because a bot that plays well only ever tells you that an
+            expert can win. Nobody was asking that.
+        </p>
+
+        <p>
+            Mine is deliberately ordinary, and it says so:
+        </p>
+
+        <div class="code">/// A deliberately ordinary strategy. No lookahead, no intel, no clever timing. It exists
+/// to establish the floor: whatever a thoughtful human does should beat this, and this
+/// should not go bankrupt.</div>
+
+        <p>
+            Its whole decision loop is ten plain steps in a fixed order, re-run every simulated day.
+            No search, no evaluation function, nothing that a first-time player could not do by reading
+            the screen in front of them:
+        </p>
+
+        <div class="code">private void Decide()
+{
+    BalanceTheCluster();
+    ShipAnythingFinished();
+    SizeTheFleet();
+    RaiseWhenOffered();
+    PushTheTree();
+    AdoptBetterArchitectures();
+    BuyDataWhenAffordable();
+    KeepOptimising();
+    StartARunWhenIdle();
+    StaffTheDesk();
+}</div>
+
+        <p>
+            That ordinariness is what makes the assertion mean something. When this player goes
+            bankrupt, <b>the balance is wrong, not the player</b>, and there is no argument to be had
+            about whether a better strategy existed. The floor test then reads exactly as it sounds:
+        </p>
+
+        <div class="code">[Test]
+public void AnOrdinaryCompetentPlayerSurvivesFourYears()
+{
+    var simulation = NewGame();
+    var operatorBot = new ScriptedOperator(simulation);
+
+    operatorBot.Run(1460);
+
+    Assert.That(simulation.State.IsBankrupt, Is.False,
+        $"Went under on {simulation.State.Date} with {operatorBot.ModelsShipped} model(s) shipped.");
+    Assert.That(operatorBot.ModelsShipped, Is.GreaterThanOrEqualTo(3),
+        "Four years should fit several model generations.");
+    Assert.That(simulation.State.BestCapability, Is.GreaterThan(30.0),
+        $"Capability stalled at {simulation.State.BestCapability:0.0}.");
+}</div>
+
+        <h2 id="band">Assert a band, not a number</h2>
+
+        <p>
+            Here is the mistake that took me longest to find, and it is the one I would fix first in
+            somebody else's project: <b>a balance test with only a lower bound rots silently.</b>
+        </p>
+
+        <p>
+            Every patch makes the game a little more generous. A new research node, a rebalanced
+            price, a bug fix that happened to remove a cost. Each change individually is defensible,
+            the floor test keeps passing more and more comfortably, and nothing ever goes red. You end
+            up with a game nobody can lose and a suite that is proud of it.
+        </p>
+
+        <p>
+            The fix is to write the ceiling down as well. The comment on mine states the failure mode
+            in both directions, which is the part worth copying even if you take nothing else from
+            this article:
+        </p>
+
+        <div class="code">/// The difficulty band. An ordinary player should finish four years in the race and not
+/// in front of it: still behind the frontier, still short of dominating the market, still
+/// solvent. If this test starts passing trivially the game has gone soft; if it starts
+/// failing on the low side the game has gone unfair.</div>
+
+        <p>
+            In practice that is four upper bounds sitting next to the lower ones:
+        </p>
+
+        <div class="code">Assert.That(simulation.State.IsBankrupt, Is.False, context);
+Assert.That(gap, Is.GreaterThan(-8.0),
+    $"An ordinary player should not be comfortably ahead of the whole field. {context}");
+Assert.That(report.MarketShare, Is.LessThan(0.75),
+    $"An ordinary player should not own the market. {context}");
+Assert.That(simulation.State.UnlockedResearch.Count, Is.LessThan(ResearchTree.All.Count),
+    $"Four years must not be enough to finish the technology tree. {context}");
+Assert.That(simulation.State.HasResearch(ResearchNodeId.ArtificialSuperintelligence), Is.False,
+    $"The end game must stay out of reach in the first four years. {context}");</div>
+
+        <div class="trap">
+            <h4>Read the assertions as design decisions, because that is what they are</h4>
+            <p>
+                &ldquo;Four years must not be enough to finish the technology tree&rdquo; is not a
+                technical statement. It is a decision about what the game is, written somewhere it will
+                be enforced, which is more than most design documents manage.
+            </p>
+            <p>
+                This turns out to be the quiet benefit of the whole approach. The balance tests became
+                the only place where my intentions about difficulty are written down in a form that
+                argues back.
+            </p>
+        </div>
+        <h2 id="control">The control case: proving that playing matters</h2>
+
+        <p>
+            Every test so far can pass in a game where your decisions are decorative. A game that
+            plays itself is still solvent, still shipping, still green. To catch that you need the
+            experiment that every science class teaches and almost no test suite contains: a
+            <b>control</b>.
+        </p>
+
+        <p>
+            Two campaigns, same seed. In one the bot plays properly. In the other, somebody ships a
+            single thing and then does nothing at all for four years:
+        </p>
+
+        <div class="code">[Test]
+public void ShippingOnceAndDoingNothingElseIsPunished()
+{
+    // The control case. Same start, same seed, no maintenance after the first model.
+    var passive = NewGame();
+    passive.SetRentedAccelerators(500);
+    passive.TryStartTraining(new ModelBlueprint("Only model",
+        ArchitectureId.DenseTransformer, 20, 400, DatasetSource.WebCrawl), out _);
+    passive.Advance(40);
+    passive.TryReleaseModel(0, 1.0, out _);
+    passive.Advance(1400);
+
+    var active = NewGame();
+    new ScriptedOperator(active).Run(1440);
+
+    Assert.That(active.State.BestCapability,
+        Is.GreaterThan(passive.State.BestCapability + 10.0),
+        "Playing well has to beat playing once by a wide margin.");
+    Assert.That(active.State.LifetimeRevenueUsd,
+        Is.GreaterThan(passive.State.LifetimeRevenueUsd));
+}</div>
+
+        <p>
+            The <code>+ 10.0</code> matters more than the direction. &ldquo;Better than doing
+            nothing&rdquo; is a bar an idle game clears. <b>A wide margin</b> is the claim that
+            attention is rewarded, and it is the difference between a simulation and a toy.
+        </p>
+
+        <p>
+            The same shape generalises, and once you see it you will write four more. Does raising
+            money actually matter? Compare a funded run against an unfunded one. Is the architecture
+            you unlock in year three genuinely better than the one it was built from? Run both and
+            assert the new one wins. I have one named
+            <code>AHouseFamilyBeatsTheDenseBaselineItWasBuiltFrom</code>, which is a sentence about
+            design wearing a test's clothes.
+        </p>
+
+        <h2 id="honest">The question every failing balance test asks</h2>
+
+        <p>
+            Now the uncomfortable part, and the reason I wanted to write this article rather than the
+            tidy version of it.
+        </p>
+
+        <p>
+            When a balance test goes red you have two moves. You can change the game, or you can make
+            the bot smarter. <b>Both produce a green suite and both look about the same in the
+            diff</b>, and only one of them is honest &mdash; except that it is not always the same
+            one, which is what makes this genuinely hard rather than merely tempting.
+        </p>
+
+        <p>
+            I hit this when the service side of my simulation started falling over. The fix was to let
+            the bot move a slider it had been ignoring. Here is what I wrote next to it, because I did
+            not trust myself to remember why it was allowed:
+        </p>
+
+        <div class="code">/// **This is an operator change, not a softened assertion, and the distinction matters
+/// because the same move can be either.** Serving used to take the whole fleet whenever
+/// no training run was in flight, while research went on taking its share regardless, so
+/// the cluster did a hundred and seventy per cent of its own work. Making the halves add
+/// to one is a fix; it also means a company can now genuinely starve its customers by
+/// researching, which this operator did, for five years, without noticing.
+///
+/// A player watching the service dial go red gives the customers more of the fleet. That
+/// is one slider on the COMPUTE screen and it is exactly as available to them as it is
+/// here. Model the player who can see the control, not the one who cannot.</div>
+
+        <p>
+            That last line is the rule I now apply, and it is a test you can actually run on yourself:
+            <b>would a first-time player, looking at that screen, do this?</b> If yes, teaching the bot
+            is modelling reality and the test gets more honest, not less. If the control only exists in
+            the fixture, or the bot is being handed information no player can get, or the numbers are
+            being nudged until it passes &mdash; you are not testing the game any more, you are
+            negotiating with it.
+        </p>
+
+        <div class="trap">
+            <h4>Two details from that comment worth stealing</h4>
+            <p>
+                <b>&ldquo;The cluster did a hundred and seventy per cent of its own work.&rdquo;</b>
+                That is a real bug, and no unit test could have seen it: every individual allocation
+                was correct, the halves simply did not have to add up. It took a bot playing for five
+                years to surface it.
+            </p>
+            <p>
+                <b>&ldquo;Which this operator did, for five years, without noticing.&rdquo;</b> Once the
+                bug was fixed, a new legitimate failure became reachable &mdash; a company can now
+                starve its own customers. Fixing a simulation bug does not reduce the test surface. It
+                usually widens it.
+            </p>
+        </div>
+        <h2 id="context">A failing balance test has to describe the game, not the number</h2>
+
+        <p>
+            A unit test that fails tells you a function is wrong and you go and read the function. A
+            balance test that fails tells you the company went bankrupt in year three, and that is
+            almost useless on its own, because the cause is somewhere in 1,095 simulated days.
+        </p>
+
+        <p>
+            So every assertion in these tests carries a snapshot of the world with it:
+        </p>
+
+        <div class="code">var context =
+    $"cap {simulation.State.BestCapability:F1}, frontier {report.FrontierCapability:F1}, "
+    + $"share {report.MarketShare:P1}, cash {simulation.State.CashUsd:N0}, "
+    + $"models {bot.ModelsShipped}, rounds {bot.RoundsRaised}, "
+    + $"research {simulation.State.UnlockedResearch.Count}/{ResearchTree.All.Count}";</div>
+
+        <p>
+            The difference this makes is the difference between a half hour of bisecting and reading
+            one line. A failure that says <em>share 94%, research 31/31, cash enormous</em> is a game
+            that got too easy. A failure that says <em>models 1, cash negative, rounds 0</em> is a
+            player who never got off the ground. Same red test, opposite problems, and the string tells
+            you which one before you open anything.
+        </p>
+
+        <div class="trap">
+            <h4>The cheapest upgrade in this whole article</h4>
+            <p>
+                If you already have balance tests and want one improvement tonight, it is this. Put the
+                five or six numbers that describe your game state into every assertion message in the
+                fixture. It costs four lines and it changes what a red build means.
+            </p>
+        </div>
+
+        <h2 id="stateless">The bot has to be stateless, and that is not obvious</h2>
+
+        <p>
+            One constraint catches everybody once, including me, and it only appears when you combine
+            balance tests with save tests &mdash; which you should, because a save that quietly changes
+            the campaign is a balance bug that travels.
+        </p>
+
+        <p>
+            The test is: play four years, save, load, play a fifth year, and assert the loaded run
+            matches the one that never saved. The moment you write it, the bot acquires a rule it did
+            not have before. Anything the bot remembers in a field of its own is state that the save
+            file does not contain, so the reloaded run will diverge &mdash; and the test will blame the
+            simulation for a difference the fixture created.
+        </p>
+
+        <div class="code">// **Read from the desk, never from the last report.** `AYearFourSaveRunsIdentically`
+// rebuilds the operator after loading, so anything this decision remembers between days
+// is a difference between the run that saved and the run that loaded, and the guard reads
+// that as the simulation diverging. The queue is saved; a field on the operator is not.</div>
+
+        <p>
+            So the rule is: <b>every decision the bot makes must be derived from the simulation state,
+            never from something the bot has been carrying.</b> It is the same discipline that makes a
+            campaign replayable in the first place, which is the subject of
+            <a href="../unity-deterministic-random/">the companion article on deterministic
+            randomness</a> &mdash; and it is worth noticing that the constraint arrives from a direction
+            nobody warns you about.
+        </p>
+
+        <h2 id="cost">What this costs, honestly</h2>
+
+        <p>
+            These are not cheap tests, and pretending otherwise would be the kind of advice I write
+            this site to avoid.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Cost</th><th>What it actually looks like</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Runtime</td>
+                    <td>Each of these plays 1,460 to 1,826 simulated days, several of them twice for a comparison. They are the slowest tests in the suite by a wide margin.</td>
+                </tr>
+                <tr>
+                    <td>Maintenance</td>
+                    <td>Real. By my own count in the code, the fixture has had to be taught to use a control the game grew <b>three separate times</b> &mdash; the parameter ceiling, the product line, and the support desk. Every new player-facing system is a possible new bot behaviour.</td>
+                </tr>
+                <tr>
+                    <td>Judgement</td>
+                    <td>The one that does not reduce. Every red test asks whether you are fixing the game or teaching the bot, and no amount of tooling answers it for you.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Against that: fifteen tests cover the question &ldquo;is this still a game&rdquo;, they run
+            on every change, and they found a cluster that was doing a hundred and seventy per cent of
+            its own work. I would pay the runtime again.
+        </p>
+        <h2 id="start">Where to start, if you have none of this</h2>
+
+        <p>
+            In the order I would write them again:
+        </p>
+
+        <ul>
+            <li><b>The floor.</b> An ordinary bot plays a full campaign and does not go bankrupt. One test, and it will fail the first time you run it.</li>
+            <li><b>The control.</b> The same seed played passively, asserting the active run wins by a wide margin. This is the one that proves your game is a game.</li>
+            <li><b>The ceiling.</b> Add upper bounds to the floor test until it describes a band. Write the design decision into the assertion message.</li>
+            <li><b>The save.</b> Play, save, load, keep playing, assert the two runs agree. Expect to make the bot stateless to get there.</li>
+            <li><b>The context strings.</b> Four lines, and every future failure explains itself.</li>
+        </ul>
+
+        <p>
+            The first two are a single evening and they are where nearly all of the value is. The rest
+            is refinement.
+        </p>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Can you unit test game balance?</h3>
+            <p>
+                Not with ordinary unit tests. A unit test asks whether a rule behaves correctly, and
+                balance is not a property of any one rule &mdash; it is a property of all of them
+                running together for a long time. What works is a scripted player with a deliberately
+                ordinary strategy that plays a full campaign inside the test, after which you assert on
+                the state it reached. A simulation can be perfectly consistent at the level of every
+                rule and completely unplayable as a game.
+            </p>
+
+            <h3>How good should the bot be?</h3>
+            <p>
+                Deliberately mediocre. It exists to establish a floor, not a ceiling: no lookahead, no
+                clever timing, no information a first-time player would not have. Then the assertion
+                reads as <em>if that player cannot survive, the balance is wrong rather than the
+                player</em>. A bot tuned to play optimally only tells you an expert can win, which was
+                never the question.
+            </p>
+
+            <h3>What should a balance test assert?</h3>
+            <p>
+                A band, with both sides. One side says the game is survivable; the other says it is not
+                trivial &mdash; the player should not be comfortably ahead of the field, should not own
+                three quarters of the market, should not have finished the technology tree. A test with
+                only a lower bound goes quietly green as the game drifts easier, which is the most
+                common way balance rots without anyone noticing.
+            </p>
+
+            <h3>When a balance test fails, do you fix the game or fix the bot?</h3>
+            <p>
+                The real question, and the diff looks identical either way. Teaching the bot is
+                legitimate when the game has grown a control a human would obviously use: you are
+                modelling the player who can see the dial. It is dishonest when the control exists only
+                in the test, when the bot gets information a player cannot, or when it is tuned until
+                the number passes. The usable test is whether a first-time player looking at that
+                screen would do the same thing.
+            </p>
+
+            <h3>How do you prove that playing well actually matters?</h3>
+            <p>
+                With a control case, and most projects do not have one. Run two campaigns from the same
+                seed: one played properly, one that ships a single thing and then does nothing for four
+                years. Assert the active run wins by a wide margin. Without it, every other assertion
+                can pass in a game where the decisions are decorative.
+            </p>
+
+            <h3>Does this replace human playtesting?</h3>
+            <p>
+                No, and it is not trying to. It covers exactly one question &mdash; whether the numbers
+                add up to a game that can be won and can be lost &mdash; and it covers it on every
+                single change, which no human playtester can. Everything about whether the game is
+                <em>interesting</em>, whether the screens make sense, whether a decision feels like a
+                decision, needs people. What this buys is that people stop spending their session
+                discovering that year three is impossible.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>All of it is readable.</b> The scripted operator, the difficulty band, the control case
+            and the save comparison are in the public repository for
+            <a href="../../hck-labs/scaling-laws/">Scaling Laws</a>, in
+            <code>PlayabilityTests.cs</code>, linked from this article's sources. The comments quoted
+            here are the real ones, not cleaned up for the article.
+        </div>
+
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../unity-testable-game-logic/">1,541 tests that never start the game</a> &middot; <a href="../tycoon-game-economy/">designing a tycoon economy as laws</a> &middot; <a href="../why-solo-game-projects-die/">why solo projects die at the same four features</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
