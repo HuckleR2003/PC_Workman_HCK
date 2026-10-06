@@ -8,6 +8,8 @@
 
 User-agent: *
 Allow: /
+# Old copies of the story page, kept on disk, not for indexing.
+Disallow: /backup/
 
 Sitemap: https://pcworkman.dev/sitemap.xml
 
@@ -86,4 +88,22 @@ User-agent: YouBot
 Allow: /
 
 User-agent: DuckAssistBot
+Allow: /
+
+User-agent: AI2Bot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+User-agent: Timpibot
+Allow: /
+
+User-agent: omgili
+Allow: /
+
+User-agent: FirecrawlAgent
 Allow: /
