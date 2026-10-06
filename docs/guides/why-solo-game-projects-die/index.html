@@ -1,0 +1,496 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · why solo game projects die at the same four features -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Terrain, an AI that follows you, an inventory, a weapon. Then nothing. Why every abandoned solo game stops at the same four features.">
+    <meta name="keywords" content="why I never finish games, finish a game solo, abandoned game projects, solo game developer, scope creep, game prototype, first playable, core loop, indie gamedev advice, why solo devs quit">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <meta property="og:title" content="Terrain, an AI that follows you, an inventory, a weapon. Then nothing.">
+    <meta property="og:description" content="Every abandoned solo game stops in the same place. It is not discipline. It is that those four features are the only ones you can finish without deciding what the game is.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Why Solo Game Projects Die at the Same Four Features | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Terrain, an AI that follows you, an inventory, a weapon. Then nothing.",
+      "description": "Almost every abandoned solo game stops at the same four features. Marcin Firmuga built them first as a teenager in Unity with his cousin Seba, then twelve more times as an adult, before shipping a Windows app and a simulation game with 1,624 tests.",
+      "url": "https://pcworkman.dev/guides/why-solo-game-projects-die/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/why-solo-game-projects-die/" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "wordCount": 2188,
+      "keywords": "solo game development, unfinished projects, core loop, scope, first playable, indie gamedev",
+      "about": [
+        { "@type": "Thing", "name": "Solo game development" },
+        { "@type": "Thing", "name": "Project abandonment" },
+        { "@type": "Thing", "name": "Game design" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "description": "Solo developer from Radom, Poland. Started building games in Unity at thirteen with his cousin Seba, abandoned around twelve projects before shipping anything, and now builds PC Workman, a Windows monitoring app on the Microsoft Store, and Scaling Laws, a simulation game with 1,624 automated tests.",
+        "knowsAbout": ["Unity", "C#", "game simulation", "Windows internals", "automated testing"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Why solo game projects die", "item": "https://pcworkman.dev/guides/why-solo-game-projects-die/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do solo game projects always stop at the same point?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because the four features almost everyone builds first — terrain, an AI that walks towards you, an inventory, a weapon — share one property: each can be finished without deciding what the game is. They are self-contained systems with clear completion criteria, so they feel like progress and ask nothing of you in return. The moment the next task requires a decision about what the player is actually doing, there is nothing left to build that does not first require being decided, and the project stops. It is a structural problem, not a motivation problem." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you actually finish a game as a solo developer?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Build the loop before the systems. The loop is the smallest thing the player does over and over, and unlike terrain or an inventory it cannot be built without deciding what the game is, which is exactly why people avoid it. Make it playable and boring first, with placeholder everything, and only add a system once the loop is worse without it. The second rule that matters more than it sounds: ship something small and real to actual people before you believe you can finish something large." }
+        },
+        {
+          "@type": "Question",
+          "name": "Who is Marcin Firmuga?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A solo developer from Radom, Poland. He started building games in Unity at thirteen or fourteen with his cousin Seba, and those projects always ended at the same four features: terrain, a basic AI that follows you, an inventory and a weapon. He abandoned around twelve projects before finishing anything. He now builds PC Workman, a Windows monitoring application that has been on the Microsoft Store since July 2026, and Scaling Laws, a management simulation with 1,624 automated tests, both developed in public." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it a discipline problem if I never finish my games?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Almost certainly not, and the evidence is that the abandoned projects all stop at the same place rather than at random points. A discipline problem produces failures scattered across the timeline. A structural problem produces a cliff, and the cliff is where the buildable work runs out and the decidable work begins. Treating it as a character flaw is both wrong and expensive, because it sends you looking for motivation instead of changing the order you build things in." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the test for whether a project is about to be abandoned?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Ask whether the thing you plan to build next could be dropped into a different game unchanged. Terrain could. An inventory could. A weapon could. If the answer has been yes for several tasks in a row, you are accumulating parts rather than building a game, and the project is already in the failure mode even though everything still feels productive. The honest counter-question is whether anyone could play what you have for sixty seconds and want a second go." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/why-solo-game-projects-die/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/why-solo-game-projects-die/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Game development</span>
+        <h1>Terrain, an AI that<br>follows you, an inventory,<br>a weapon. Then nothing.</h1>
+        <p class="tagline">I built exactly that at thirteen, with my cousin Seba, over and over. Then roughly twelve more times as an adult. The four features are always the same four, and once you see why, the fix stops being about discipline.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>10 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">I started making games in Unity at thirteen or fourteen, in the back of a Polish middle school, with my cousin Seba. Every project we started ended in the same place: a terrain, a basic AI that walked towards you, an inventory, a weapon. Then nothing. Not a fight, not boredom, not a better idea. Just a folder that stopped being opened.</p>
+
+        <p>
+            For years I filed that under not being disciplined enough. It was the wrong diagnosis, and I
+            know that now because I did it <b>around twelve more times as an adult</b> &mdash; same four
+            features, better code, same folder &mdash; before I finished anything at all.
+        </p>
+
+        <p>
+            The reason those four features are always the four is not psychological. It is structural,
+            and it is almost embarrassing once you see it.
+        </p>
+        <h2 id="common">What the four have in common</h2>
+
+        <p>
+            Terrain. An AI that walks towards you. An inventory. A weapon. Line them up and the shared
+            property is obvious: <b>every one of them can be finished without deciding what the game
+            is.</b>
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Feature</th><th>When is it done?</th><th>What it assumes about the game</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Terrain</td><td>When it looks like ground.</td><td>Nothing. Every game has somewhere to stand.</td></tr>
+                <tr><td>AI that follows you</td><td>When it arrives at you and does not fall through the floor.</td><td>Nothing. It does not need to want anything.</td></tr>
+                <tr><td>Inventory</td><td>When items go in, come out and persist.</td><td>Nothing. It never asks what the items are for.</td></tr>
+                <tr><td>Weapon</td><td>When it fires and something reacts.</td><td>Nothing. It does not need a reason to be fired.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Each has a clear completion criterion that lives entirely inside itself. You can tell when
+            it works. You get the small, real satisfaction of a thing that functions. And at no point
+            does any of them require you to answer the only question that matters, which is
+            <em>what is the player doing and why would they do it twice.</em>
+        </p>
+
+        <p>
+            So the work is genuinely pleasant and genuinely productive, right up until the queue of
+            undecidable-free work runs out. Then the next task is no longer &ldquo;build the thing&rdquo;
+            but &ldquo;decide the thing, then build it&rdquo;, and that is a different job that nobody
+            told you was coming.
+        </p>
+
+        <div class="trap">
+            <h4>The cliff, and why it does not look like a cliff</h4>
+            <p>
+                Nothing fails. There is no bug, no wall, no moment of defeat. The project simply stops
+                producing the feeling it was producing yesterday, and a week later you open something
+                else.
+            </p>
+            <p>
+                That is the tell that this is structural rather than motivational: <b>abandoned projects
+                do not stop at random points, they stop at the same point.</b> A discipline problem
+                scatters failures across the timeline. A structural problem produces a cliff, in the
+                same place, every time.
+            </p>
+        </div>
+
+        <h2 id="loop">The thing you were avoiding is the loop</h2>
+
+        <p>
+            The loop is the smallest thing the player does over and over: the thirty seconds that
+            repeats for six hours. Place a tile, see the result, place another. Take a contract, fail
+            it, take a better one.
+        </p>
+
+        <p>
+            Unlike the four, <b>the loop cannot be built without deciding what the game is</b>, because
+            the loop <em>is</em> the decision, expressed in code. That is precisely why it gets deferred,
+            and deferring it is the single mechanism behind every dead folder I own.
+        </p>
+
+        <p>
+            The inversion that works is unpleasant to accept and simple to state:
+        </p>
+
+        <ul>
+            <li><b>Build the loop first, ugly.</b> Grey boxes, no art, no terrain, placeholder everything. The only requirement is that it is playable and repeats.</li>
+            <li><b>Make it boring before you make it good.</b> A boring loop can be improved. A beautiful terrain with no loop cannot be improved into a game; it can only have more things placed on it.</li>
+            <li><b>Add a system only when the loop is worse without it.</b> That sentence is the whole of scope control. An inventory added because the loop needs one is a feature. An inventory added because it was next is a part.</li>
+        </ul>
+
+        <p>
+            In my case, the game I actually shipped opens on a decision rather than a landscape: you
+            pick a thing to build, the world responds, and the thirty seconds repeats. The terrain came
+            eighteen months later, and only because the loop had earned it.
+        </p>
+
+        <h2 id="seba">The version with Seba, and why it matters that we were thirteen</h2>
+
+        <p>
+            It would be neater to claim the childhood projects were a different problem from the adult
+            ones. They were not, and that is the useful part.
+        </p>
+
+        <p>
+            At thirteen, with Seba, we had no deadline, no customer, no cost of failure and infinite
+            afternoons &mdash; every condition that motivation advice says you need. We still stopped at
+            terrain, follow-AI, inventory, weapon. <b>Remove every motivational factor and the same four
+            features still appear, in the same order, and the project still dies.</b> That is as close
+            to a controlled experiment as this subject gets, and it is why I no longer believe the
+            discipline explanation.
+        </p>
+
+        <p>
+            What we did not have was any concept of a loop. Nobody in a Polish middle school in the
+            early 2010s was going to tell us, and the tutorials we were following were structured
+            exactly like our projects: here is how to build terrain, here is how to make an enemy follow
+            the player, here is an inventory system. The tutorials taught the parts because the parts
+            are teachable. Nobody can teach you the decision.
+        </p>
+        <h2 id="broke">What actually broke the pattern</h2>
+
+        <p>
+            Twelve or so projects later the thing that changed was not willpower. Three things changed,
+            and only one of them is about games.
+        </p>
+
+        <p>
+            <b>I shipped something small that was not a game.</b> A Windows monitoring app, on the
+            Microsoft Store since July 2026. It is a smaller, duller thing than any of the games I
+            abandoned, and finishing it taught me the part the games never did: what the last twenty per
+            cent actually consists of. Store rejections, an installer, a privacy policy, a support
+            address, a changelog. None of that is visible from inside a prototype, and all of it is the
+            reason prototypes stay prototypes.
+        </p>
+
+        <p>
+            <b>I started with the thing that could not be built without deciding.</b> The simulation
+            came before the screens, the screens before the art. Not virtue &mdash; I had simply run out
+            of ways to be wrong about this.
+        </p>
+
+        <p>
+            <b>I made the game prove it was a game, automatically.</b> There is now a test in which a
+            scripted bot plays four full in-game years and the assertions check that an ordinary player
+            can survive and cannot dominate. That test is the loop, written down in a form that fails
+            when the loop stops being one. I have
+            <a href="../game-balance-tests/">written about how it works</a>; what matters here is that it
+            answers the question my teenage projects never asked out loud.
+        </p>
+
+        <div class="trap">
+            <h4>The uncomfortable one</h4>
+            <p>
+                The project I finished first was not the project I cared about most. It was the one that
+                was small enough to finish. I spent years believing the opposite order &mdash; that
+                finishing the ambitious thing would prove I could finish things &mdash; and it is exactly
+                backwards.
+            </p>
+            <p>
+                <b>Finishing is a skill with its own curriculum, and you cannot learn it on a project
+                large enough to hide the lesson.</b>
+            </p>
+        </div>
+
+        <h2 id="test">A test for whether your current project is about to die</h2>
+
+        <p>
+            Three questions, in the order I would ask them. They take two minutes and they are
+            uncomfortable on purpose.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Question</th><th>What a bad answer means</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Could the thing I am building next be dropped into a different game unchanged?</b></td>
+                    <td>If yes &mdash; and if it has been yes for several tasks in a row &mdash; you are collecting parts, not building a game. This is the earliest signal and the easiest to ignore, because the work still feels good.</td>
+                </tr>
+                <tr>
+                    <td><b>Can somebody play sixty seconds of it and want a second go?</b></td>
+                    <td>If there is nothing to hand them, the loop does not exist yet, whatever the folder size suggests. Sixty seconds, not a demo.</td>
+                </tr>
+                <tr>
+                    <td><b>What is the smallest version of this I could put in front of a stranger this month?</b></td>
+                    <td>If there is no answer, the scope is not a plan, it is a wish. If the answer exists but you do not want to show it, that is the real project talking and it is worth listening to.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The first question is the one I wish somebody had asked me at thirteen. Terrain, follow-AI,
+            inventory, weapon &mdash; all four are a yes. We had built four things that would fit in
+            anybody's game, which is another way of saying we had not started ours.
+        </p>
+
+        <h2 id="honest">What this does not solve</h2>
+
+        <p>
+            Building the loop first does not make the project easy, and I would be doing the thing I
+            dislike if I implied otherwise.
+        </p>
+
+        <ul>
+            <li><b>A loop can be genuinely bad</b>, and finding that out early is the point, not a failure of the method. It is still unpleasant.</li>
+            <li><b>Some genres hide their loop.</b> A narrative game's loop is read, choose, see the consequence, and that is harder to grey-box than place, see, place.</li>
+            <li><b>Finishing still takes the time it takes.</b> Mine took eighteen months of evenings after shifts, and no ordering trick compresses that.</li>
+        </ul>
+
+        <p>
+            What it does buy you is that the project dies, if it dies, in week two rather than month
+            eight, and with a clear reason rather than a folder you stopped opening. Across twelve
+            projects that difference would have been worth years.
+        </p>
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Why do solo game projects always stop at the same point?</h3>
+            <p>
+                Because terrain, a follow-AI, an inventory and a weapon share one property: each can be
+                finished without deciding what the game is. They are self-contained, they have clear
+                completion criteria, they feel like progress and they ask nothing of you. When the next
+                task finally requires a decision about what the player is actually doing, there is no
+                buildable work left that does not first need to be decided, and the project stops. It is
+                structural, not motivational.
+            </p>
+
+            <h3>How do you actually finish a game as a solo developer?</h3>
+            <p>
+                Build the loop before the systems. The loop is the smallest thing the player repeats, and
+                unlike terrain or an inventory it cannot exist without a decision about the game, which is
+                exactly why it gets deferred. Make it playable and boring first, placeholder everything,
+                and add a system only once the loop is worse without it. Then ship something small and
+                real to actual people before you believe you can finish something large.
+            </p>
+
+            <h3>Is it a discipline problem if I never finish my games?</h3>
+            <p>
+                Almost certainly not. The evidence is that the abandoned projects stop at the same place
+                rather than at random points: a discipline problem scatters failures across a timeline,
+                a structural problem produces a cliff. I had no deadline, no cost of failure and infinite
+                afternoons at thirteen, and the projects died in exactly the same spot as the ones I built
+                as an adult after a work shift.
+            </p>
+
+            <h3>What is the test for whether a project is about to be abandoned?</h3>
+            <p>
+                Ask whether the thing you plan to build next could be dropped into a different game
+                unchanged. If that has been true for several tasks in a row, you are accumulating parts
+                rather than building a game, even though everything still feels productive. The follow-up
+                is whether anyone could play sixty seconds of it and want a second go.
+            </p>
+
+            <h3>Should I use a tutorial series to learn game development?</h3>
+            <p>
+                For the parts, yes, and they are good at it. Be aware of what they structurally cannot
+                give you: a tutorial teaches terrain, an enemy that follows the player, an inventory
+                system, because those are teachable in isolation. Nobody can teach you what your game is,
+                so a curriculum made of tutorials produces exactly the four features in this article and
+                then stops. That is not the tutorials being bad. It is a gap you have to know is there.
+            </p>
+
+            <h3>Who is Marcin Firmuga?</h3>
+            <p>
+                A solo developer from Radom, Poland. I started building games in Unity at thirteen or
+                fourteen with my cousin Seba, and those projects always ended at the same four features:
+                terrain, a basic AI that follows you, an inventory and a weapon. I abandoned around twelve
+                projects before finishing anything. I now build <a href="../../">PC Workman</a>, a Windows
+                monitoring app on the Microsoft Store since July 2026, and
+                <a href="../../hck-labs/scaling-laws/">Scaling Laws</a>, a management simulation with
+                1,624 automated tests &mdash; both in public, including the parts that do not work.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>If you are at the cliff right now</b>, the smallest useful move is not to start again. Open
+            the project, delete nothing, and spend one evening making the ugliest possible playable loop
+            out of what is already there. You will know within an hour whether there is a game in the
+            folder, and that is an hour against the eight months I have spent not knowing, more than once.
+        </div>
+
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../unity-testable-game-logic/">1,541 tests that never start the game</a> &middot; <a href="../tycoon-game-economy/">designing a tycoon economy as laws</a> &middot; <a href="../unity-deterministic-random/">deterministic randomness in Unity</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

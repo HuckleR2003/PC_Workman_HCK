@@ -1,0 +1,497 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · dlaczego solowe projekty gier umieraja -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Teren, AI które za tobą chodzi, ekwipunek, broń. I koniec. Dlaczego każda porzucona solowa gra staje na tych samych czterech funkcjach.">
+    <meta name="keywords" content="dlaczego nie kończę gier, jak skończyć grę solo, porzucone projekty gier, solowy twórca gier, scope creep, prototyp gry, pętla rozgrywki, gamedev porady, dlaczego solo devi rezygnują">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/why-solo-game-projects-die/">
+    <meta property="og:title" content="Teren, AI które za tobą chodzi, ekwipunek, broń. I koniec.">
+    <meta property="og:description" content="Każda porzucona solowa gra staje w tym samym miejscu. To nie dyscyplina. To że tylko te cztery rzeczy da się skończyć bez decydowania, czym jest gra.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Dlaczego solowe projekty gier umierają na tych samych czterech funkcjach | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Teren, AI które za tobą chodzi, ekwipunek, broń. I koniec.",
+      "description": "Prawie każda porzucona solowa gra zatrzymuje się na tych samych czterech funkcjach. Marcin Firmuga budował je najpierw jako nastolatek w Unity z kuzynem Sebą, potem jeszcze kilkanaście razy jako dorosły, zanim wydał aplikację na Windows i grę symulacyjną z 1624 testami.",
+      "url": "https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "sameAs": "https://pcworkman.dev/guides/why-solo-game-projects-die/",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "wordCount": 1872,
+      "keywords": "solowy gamedev, nieskończone projekty, pętla rozgrywki, zakres, prototyp, indie",
+      "about": [
+        { "@type": "Thing", "name": "Solowe tworzenie gier" },
+        { "@type": "Thing", "name": "Porzucanie projektów" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Programista",
+        "description": "Solowy programista z Radomia. Zaczął tworzyć gry w Unity w wieku trzynastu lat razem z kuzynem Sebą, porzucił około dwunastu projektów, zanim cokolwiek skończył, a dziś buduje PC Workman, aplikację monitorującą Windows dostępną w Microsoft Store od lipca 2026, oraz Scaling Laws, symulację menedżerską z 1624 testami automatycznymi.",
+        "knowsAbout": ["Unity", "C#", "symulacje", "Windows", "testowanie automatyczne"],
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": { "@type": "ImageObject", "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png", "width": 600, "height": 600 },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Dlaczego solowe projekty gier umierają", "item": "https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego solowe projekty gier zawsze stają w tym samym miejscu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo cztery funkcje, które prawie każdy buduje najpierw — teren, AI idące w twoją stronę, ekwipunek i broń — mają jedną wspólną cechę: każdą da się skończyć bez decydowania, czym jest gra. To samodzielne systemy z jasnym kryterium ukończenia, więc dają poczucie postępu i niczego od ciebie nie żądają. W chwili, gdy następne zadanie wymaga decyzji o tym, co gracz właściwie robi, nie zostaje nic do zbudowania, czego wcześniej nie trzeba rozstrzygnąć, i projekt staje. To problem strukturalny, nie problem motywacji." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak naprawdę skończyć grę jako solowy twórca?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zbuduj pętlę przed systemami. Pętla to najmniejsza rzecz, którą gracz robi w kółko, i w odróżnieniu od terenu czy ekwipunku nie da się jej zbudować bez decyzji o tym, czym jest gra — dlatego właśnie się ją odkłada. Najpierw ma być grywalna i nudna, wszystko na zastępczych klockach, a system dodajesz dopiero, gdy pętla jest bez niego gorsza. Druga reguła, ważniejsza niż brzmi: wydaj coś małego i prawdziwego prawdziwym ludziom, zanim uwierzysz, że skończysz coś dużego." }
+        },
+        {
+          "@type": "Question",
+          "name": "Kim jest Marcin Firmuga?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Solowy programista z Radomia. Zaczął tworzyć gry w Unity w wieku trzynastu, czternastu lat razem z kuzynem Sebą, a te projekty zawsze kończyły się na tych samych czterech funkcjach: terenie, podstawowym AI chodzącym za graczem, ekwipunku i broni. Porzucił około dwunastu projektów, zanim cokolwiek skończył. Dziś buduje PC Workman, aplikację monitorującą Windows obecną w Microsoft Store od lipca 2026, oraz Scaling Laws, symulację menedżerską z 1624 testami automatycznymi, obie publicznie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy to kwestia dyscypliny, jeśli nigdy nie kończę swoich gier?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Prawie na pewno nie, a dowodem jest to, że porzucone projekty stają w tym samym miejscu, a nie w losowych punktach. Problem z dyscypliną daje porażki rozrzucone po całej osi czasu. Problem strukturalny daje urwisko, i to urwisko jest tam, gdzie kończy się praca do zbudowania, a zaczyna praca do rozstrzygnięcia. Traktowanie tego jak wady charakteru jest i błędne, i kosztowne, bo wysyła cię po motywację zamiast po zmianę kolejności budowania." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak sprawdzić, czy projekt zaraz zostanie porzucony?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zapytaj, czy rzecz, którą planujesz zbudować jako następną, dałoby się bez zmian wrzucić do innej gry. Teren tak. Ekwipunek tak. Broń tak. Jeśli odpowiedź brzmi tak od kilku zadań z rzędu, zbierasz części, a nie budujesz grę, i projekt jest już w trybie awarii, mimo że wszystko nadal wydaje się produktywne. Uczciwe pytanie dodatkowe brzmi: czy ktokolwiek mógłby zagrać w to sześćdziesiąt sekund i chcieć drugi raz?" }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/why-solo-game-projects-die/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/why-solo-game-projects-die/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Tworzenie gier</span>
+        <h1>Teren, AI które za tobą<br>chodzi, ekwipunek, broń.<br>I koniec.</h1>
+        <p class="tagline">Budowałem dokładnie to, mając trzynaście lat, z kuzynem Sebą, w kółko. Potem jeszcze około dwunastu razy jako dorosły. Te cztery funkcje zawsze są tymi samymi czterema, a kiedy zobaczysz dlaczego, naprawa przestaje być kwestią dyscypliny.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>9 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">Zacząłem robić gry w Unity, mając trzynaście czy czternaście lat, w gimnazjum, razem z kuzynem Sebą. Każdy projekt, który zaczynaliśmy, kończył się w tym samym miejscu: teren, podstawowe AI idące w twoją stronę, ekwipunek, broń. I koniec. Nie kłótnia, nie znudzenie, nie lepszy pomysł. Po prostu folder, którego przestawało się otwierać.</p>
+
+        <p>
+            Przez lata wrzucałem to do szufladki „za mało dyscypliny". To była zła diagnoza i wiem to
+            dzisiaj, bo zrobiłem to <b>jeszcze około dwunastu razy jako dorosły</b> — te same cztery
+            funkcje, lepszy kod, ten sam folder — zanim cokolwiek skończyłem.
+        </p>
+
+        <p>
+            Powód, dla którego te cztery funkcje zawsze są tymi czterema, nie jest psychologiczny. Jest
+            strukturalny i jest wręcz wstydliwie prosty, gdy się go zobaczy.
+        </p>
+        <h2 id="common">Co łączy te cztery</h2>
+
+        <p>
+            Teren. AI idące w twoją stronę. Ekwipunek. Broń. Ustaw je obok siebie, a wspólna cecha jest
+            oczywista: <b>każdą z nich da się skończyć bez decydowania, czym jest gra.</b>
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Funkcja</th><th>Kiedy jest skończona?</th><th>Co zakłada o grze</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Teren</td><td>Gdy wygląda jak ziemia.</td><td>Nic. Każda gra ma gdzie stać.</td></tr>
+                <tr><td>AI chodzące za tobą</td><td>Gdy dochodzi do ciebie i nie wpada pod podłogę.</td><td>Nic. Nie musi niczego chcieć.</td></tr>
+                <tr><td>Ekwipunek</td><td>Gdy przedmioty wchodzą, wychodzą i zostają.</td><td>Nic. Nigdy nie pyta, po co te przedmioty.</td></tr>
+                <tr><td>Broń</td><td>Gdy strzela i coś reaguje.</td><td>Nic. Nie potrzebuje powodu, żeby wystrzelić.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Każda ma jasne kryterium ukończenia, które mieści się w całości wewnątrz niej samej. Widzisz,
+            kiedy działa. Dostajesz małą, prawdziwą satysfakcję z rzeczy, która funkcjonuje. I w żadnym
+            momencie żadna z nich nie wymaga odpowiedzi na jedyne pytanie, które ma znaczenie, czyli
+            <em>co gracz robi i dlaczego miałby zrobić to drugi raz.</em>
+        </p>
+
+        <p>
+            Praca jest więc naprawdę przyjemna i naprawdę produktywna — dokładnie do momentu, w którym
+            kończy się kolejka zadań wolnych od decyzji. Wtedy następne zadanie przestaje brzmieć
+            „zbuduj to", a zaczyna „rozstrzygnij to, potem zbuduj", a to jest inna robota, o której nikt
+            cię nie uprzedził.
+        </p>
+
+        <div class="trap">
+            <h4>Urwisko, które nie wygląda jak urwisko</h4>
+            <p>
+                Nic się nie psuje. Nie ma błędu, nie ma ściany, nie ma momentu porażki. Projekt po prostu
+                przestaje dawać to uczucie, które dawał wczoraj, a tydzień później otwierasz coś innego.
+            </p>
+            <p>
+                To jest sygnał, że rzecz jest strukturalna, a nie motywacyjna: <b>porzucone projekty nie
+                stają w losowych miejscach, stają w tym samym miejscu.</b> Problem z dyscypliną rozrzuca
+                porażki po osi czasu. Problem strukturalny daje urwisko, w tym samym punkcie, za każdym
+                razem.
+            </p>
+        </div>
+
+        <h2 id="loop">Rzecz, której unikałeś, to pętla</h2>
+
+        <p>
+            Pętla to najmniejsza rzecz, którą gracz robi w kółko: trzydzieści sekund powtarzających się
+            przez sześć godzin. Postaw kafelek, zobacz wynik, postaw następny. Weź kontrakt, oblej go,
+            weź lepszy.
+        </p>
+
+        <p>
+            W odróżnieniu od tamtych czterech <b>pętli nie da się zbudować bez zdecydowania, czym jest
+            gra</b>, bo pętla <em>jest</em> tą decyzją wyrażoną w kodzie. Właśnie dlatego się ją odkłada,
+            a odkładanie jej to jedyny mechanizm stojący za każdym martwym folderem, jaki mam.
+        </p>
+
+        <p>
+            Odwrócenie, które działa, jest nieprzyjemne w przyjęciu i proste w opisie:
+        </p>
+
+        <ul>
+            <li><b>Zbuduj pętlę najpierw, brzydko.</b> Szare klocki, zero grafiki, zero terenu, wszystko zastępcze. Jedyny wymóg: ma być grywalne i ma się powtarzać.</li>
+            <li><b>Najpierw niech będzie nudna, potem dobra.</b> Nudną pętlę da się poprawić. Pięknego terenu bez pętli nie da się poprawić w grę; da się na nim tylko postawić więcej rzeczy.</li>
+            <li><b>System dodawaj dopiero wtedy, gdy pętla jest bez niego gorsza.</b> To zdanie jest całą kontrolą zakresu. Ekwipunek dodany, bo pętla go potrzebuje, jest funkcją. Ekwipunek dodany, bo był następny w kolejce, jest częścią.</li>
+        </ul>
+
+        <p>
+            W moim przypadku gra, którą faktycznie wydałem, otwiera się decyzją, a nie krajobrazem:
+            wybierasz, co zbudować, świat odpowiada, i trzydzieści sekund się powtarza. Teren przyszedł
+            osiemnaście miesięcy później i tylko dlatego, że pętla na niego zapracowała.
+        </p>
+
+        <h2 id="seba">Wersja z Sebą i dlaczego ma znaczenie, że mieliśmy trzynaście lat</h2>
+
+        <p>
+            Byłoby schludniej twierdzić, że projekty z dzieciństwa to inny problem niż te dorosłe. Nie
+            są, i to jest ta użyteczna część.
+        </p>
+
+        <p>
+            Mając trzynaście lat, z Sebą, nie mieliśmy terminu, klienta, kosztu porażki ani niczego do
+            stracenia, za to mieliśmy nieskończone popołudnia — czyli każdy warunek, o którym poradniki
+            o motywacji mówią, że jest potrzebny. I dalej stawaliśmy na terenie, AI chodzącym za graczem,
+            ekwipunku i broni. <b>Usuń wszystkie czynniki motywacyjne, a te same cztery funkcje i tak się
+            pojawiają, w tej samej kolejności, i projekt i tak umiera.</b> To jest tak blisko
+            eksperymentu kontrolowanego, jak ten temat pozwala, i dlatego nie wierzę już w wyjaśnienie
+            przez dyscyplinę.
+        </p>
+
+        <p>
+            Czego nie mieliśmy, to jakiegokolwiek pojęcia o pętli. Nikt w gimnazjum na początku lat
+            dziesiątych nie miał nam tego powiedzieć, a tutoriale, za którymi szliśmy, były zbudowane
+            dokładnie jak nasze projekty: tu masz, jak zrobić teren, tu jak sprawić, żeby przeciwnik
+            chodził za graczem, tu masz system ekwipunku. Tutoriale uczyły części, bo części da się
+            nauczyć. Decyzji nie nauczy cię nikt.
+        </p>
+        <h2 id="broke">Co naprawdę przerwało ten wzorzec</h2>
+
+        <p>
+            Kilkanaście projektów później zmieniła się nie siła woli. Zmieniły się trzy rzeczy i tylko
+            jedna z nich dotyczy gier.
+        </p>
+
+        <p>
+            <b>Wydałem coś małego, co nie było grą.</b> Aplikację monitorującą Windows, w Microsoft Store
+            od lipca 2026. To mniejsza i nudniejsza rzecz niż którakolwiek z porzuconych gier,
+            a skończenie jej nauczyło mnie tego, czego gry nigdy nie nauczyły: z czego naprawdę składa się
+            ostatnie dwadzieścia procent. Odrzucenia ze Store, instalator, polityka prywatności, adres do
+            kontaktu, changelog. Nic z tego nie widać ze środka prototypu i to właśnie dlatego prototypy
+            zostają prototypami.
+        </p>
+
+        <p>
+            <b>Zacząłem od rzeczy, której nie dało się zbudować bez decyzji.</b> Symulacja przed ekranami,
+            ekrany przed grafiką. Nie z cnoty — po prostu skończyły mi się sposoby, żeby się w tej sprawie
+            mylić.
+        </p>
+
+        <p>
+            <b>Kazałem grze automatycznie udowadniać, że jest grą.</b> Jest teraz test, w którym
+            skryptowany bot rozgrywa pełne cztery lata gry, a asercje sprawdzają, że zwyczajny gracz
+            przeżywa i nie dominuje. Ten test jest pętlą zapisaną w formie, która oblewa, gdy pętla
+            przestaje nią być. <a href="../game-balance-tests/index_pl.html">Opisałem, jak działa</a>;
+            tutaj liczy się to, że odpowiada na pytanie, którego moje nastoletnie projekty nigdy nie
+            zadały na głos.
+        </p>
+
+        <div class="trap">
+            <h4>Ta niewygodna</h4>
+            <p>
+                Projekt, który skończyłem jako pierwszy, nie był projektem, na którym najbardziej mi
+                zależało. Był tym, który był dostatecznie mały, żeby go skończyć. Latami wierzyłem
+                w odwrotną kolejność — że skończenie ambitnej rzeczy udowodni, że umiem kończyć rzeczy —
+                i jest to dokładnie na opak.
+            </p>
+            <p>
+                <b>Kończenie jest umiejętnością z własnym programem nauczania i nie da się jej nauczyć na
+                projekcie dość dużym, żeby ukryć lekcję.</b>
+            </p>
+        </div>
+
+        <h2 id="test">Sprawdzian, czy twój obecny projekt zaraz umrze</h2>
+
+        <p>
+            Trzy pytania, w kolejności, w jakiej bym je zadał. Zajmują dwie minuty i są niewygodne celowo.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Pytanie</th><th>Co oznacza zła odpowiedź</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><b>Czy rzecz, którą buduję jako następną, dałoby się bez zmian wrzucić do innej gry?</b></td>
+                    <td>Jeśli tak — i jeśli tak jest od kilku zadań z rzędu — zbierasz części, nie budujesz gry. To najwcześniejszy sygnał i najłatwiejszy do zignorowania, bo praca nadal daje dobre samopoczucie.</td>
+                </tr>
+                <tr>
+                    <td><b>Czy ktoś może zagrać w to sześćdziesiąt sekund i chcieć drugi raz?</b></td>
+                    <td>Jeśli nie ma czego mu podać, pętla jeszcze nie istnieje, cokolwiek sugeruje rozmiar folderu. Sześćdziesiąt sekund, nie demo.</td>
+                </tr>
+                <tr>
+                    <td><b>Jaka jest najmniejsza wersja tego, którą mógłbym pokazać obcej osobie w tym miesiącu?</b></td>
+                    <td>Jeśli nie ma odpowiedzi, zakres nie jest planem, tylko życzeniem. Jeśli odpowiedź istnieje, ale nie chcesz tego pokazać, to mówi prawdziwy projekt i warto go posłuchać.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Pierwsze pytanie to to, które chciałbym usłyszeć, mając trzynaście lat. Teren, AI chodzące za
+            graczem, ekwipunek, broń — wszystkie cztery to „tak". Zbudowaliśmy cztery rzeczy, które
+            pasowałyby do czyjejkolwiek gry, czyli inaczej mówiąc nie zaczęliśmy swojej.
+        </p>
+
+        <h2 id="honest">Czego to nie rozwiązuje</h2>
+
+        <p>
+            Budowanie pętli najpierw nie czyni projektu łatwym i zrobiłbym rzecz, której nie znoszę,
+            gdybym sugerował inaczej.
+        </p>
+
+        <ul>
+            <li><b>Pętla może być po prostu zła</b>, a dowiedzenie się tego wcześnie jest sensem metody, a nie jej porażką. Nadal jest nieprzyjemne.</li>
+            <li><b>Niektóre gatunki ukrywają swoją pętlę.</b> Pętla gry narracyjnej to czytaj, wybierz, zobacz konsekwencję, a to trudniej zrobić na szarych klockach niż postaw, zobacz, postaw.</li>
+            <li><b>Skończenie i tak zajmuje tyle, ile zajmuje.</b> Mnie zajęło osiemnaście miesięcy wieczorów po zmianach i żadna sztuczka z kolejnością tego nie skraca.</li>
+        </ul>
+
+        <p>
+            Kupujesz za to tyle, że projekt umiera — jeśli ma umrzeć — w drugim tygodniu, a nie w ósmym
+            miesiącu, i z jasnym powodem zamiast folderu, którego przestałeś otwierać. Przy dwunastu
+            projektach ta różnica byłaby warta lata.
+        </p>
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Dlaczego solowe projekty gier zawsze stają w tym samym miejscu?</h3>
+            <p>
+                Bo teren, AI chodzące za graczem, ekwipunek i broń mają jedną wspólną cechę: każdą z nich
+                da się skończyć bez decydowania, czym jest gra. Są samodzielne, mają jasne kryterium
+                ukończenia, dają poczucie postępu i niczego od ciebie nie żądają. Gdy następne zadanie
+                wreszcie wymaga decyzji o tym, co gracz właściwie robi, nie zostaje żadna praca do
+                zbudowania, której wcześniej nie trzeba rozstrzygnąć, i projekt staje. To strukturalne,
+                nie motywacyjne.
+            </p>
+
+            <h3>Jak naprawdę skończyć grę jako solowy twórca?</h3>
+            <p>
+                Zbuduj pętlę przed systemami. Pętla to najmniejsza rzecz, którą gracz powtarza,
+                i w odróżnieniu od terenu czy ekwipunku nie istnieje bez decyzji o grze — dlatego właśnie
+                jest odkładana. Najpierw grywalna i nudna, wszystko zastępcze, a system dodajesz dopiero,
+                gdy pętla jest bez niego gorsza. Potem wydaj coś małego i prawdziwego prawdziwym ludziom,
+                zanim uwierzysz, że skończysz coś dużego.
+            </p>
+
+            <h3>Czy to kwestia dyscypliny, jeśli nigdy nie kończę swoich gier?</h3>
+            <p>
+                Prawie na pewno nie. Dowodem jest to, że porzucone projekty stają w tym samym miejscu,
+                a nie w losowych punktach: problem z dyscypliną rozrzuca porażki po osi czasu, problem
+                strukturalny daje urwisko. Mając trzynaście lat, nie miałem terminu, kosztu porażki ani
+                niczego do stracenia, a projekty umierały dokładnie w tym samym miejscu co te, które
+                budowałem jako dorosły po zmianie w pracy.
+            </p>
+
+            <h3>Jak sprawdzić, czy projekt zaraz zostanie porzucony?</h3>
+            <p>
+                Zapytaj, czy rzecz, którą planujesz zbudować jako następną, dałoby się bez zmian wrzucić
+                do innej gry. Jeśli tak jest od kilku zadań z rzędu, zbierasz części, a nie budujesz grę,
+                mimo że wszystko nadal wydaje się produktywne. Pytanie dodatkowe: czy ktokolwiek mógłby
+                zagrać w to sześćdziesiąt sekund i chcieć drugi raz.
+            </p>
+
+            <h3>Czy warto uczyć się gamedevu z serii tutoriali?</h3>
+            <p>
+                Części tak i są w tym dobre. Miej tylko świadomość, czego strukturalnie nie dadzą:
+                tutorial uczy terenu, przeciwnika chodzącego za graczem, systemu ekwipunku, bo tego da się
+                nauczyć w oderwaniu. Nikt nie nauczy cię, czym jest twoja gra, więc program nauczania
+                zbudowany z tutoriali produkuje dokładnie te cztery funkcje z tego artykułu i staje. To nie
+                jest wada tutoriali. To luka, o której trzeba wiedzieć, że istnieje.
+            </p>
+
+            <h3>Kim jest Marcin Firmuga?</h3>
+            <p>
+                Solowy programista z Radomia. Zacząłem tworzyć gry w Unity w wieku trzynastu, czternastu
+                lat razem z kuzynem Sebą, a te projekty zawsze kończyły się na tych samych czterech
+                funkcjach: terenie, podstawowym AI chodzącym za graczem, ekwipunku i broni. Porzuciłem
+                około dwunastu projektów, zanim cokolwiek skończyłem. Dziś buduję
+                <a href="../../index.html">PC Workman</a>, aplikację monitorującą Windows obecną
+                w Microsoft Store od lipca 2026, oraz
+                <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a>, symulację menedżerską
+                z 1624 testami automatycznymi — obie publicznie, łącznie z tym, co nie działa.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>Jeśli stoisz teraz na tym urwisku</b>, najmniejszym sensownym ruchem nie jest zacząć od
+            nowa. Otwórz projekt, nie kasuj niczego i poświęć jeden wieczór na zrobienie najbrzydszej
+            możliwej grywalnej pętli z tego, co już tam jest. W godzinę będziesz wiedział, czy w tym
+            folderze jest gra — a to godzina przeciwko ośmiu miesiącom niewiedzenia, które przerobiłem
+            więcej niż raz.
+        </div>
+
+        <div class="guide-cta">
+            <b>Dalej w tej serii:</b> <a href="../unity-testable-game-logic/index_pl.html">1541 testów, które nie uruchamiają gry</a> &middot; <a href="../tycoon-game-economy/index_pl.html">ekonomia tycoona jako prawa</a> &middot; <a href="../unity-deterministic-random/index_pl.html">deterministyczne losowanie w Unity</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co naprawdę wypuściłem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nie zadziałało. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

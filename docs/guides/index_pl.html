@@ -100,7 +100,14 @@
           { "@type": "ListItem", "position": 21, "name": "XMP lub EXPO wywala gry? Jak sprawdzić stabilność RAM-u", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html" },
           { "@type": "ListItem", "position": 22, "name": "Najgroźniejszy błąd nie wywala programu. On kończy się sukcesem: sześć cichych awarii", "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/index_pl.html" },
           { "@type": "ListItem", "position": 23, "name": "nvlddmkm, zdarzenie 153 i 4101: co znaczy reset sterownika ekranu", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl.html" },
-          { "@type": "ListItem", "position": 24, "name": "WHEA-Logger 17, 18, 19: które błędy sprzętu mają znaczenie", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html" }
+          { "@type": "ListItem", "position": 24, "name": "WHEA-Logger 17, 18, 19: które błędy sprzętu mają znaczenie", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html" },
+          { "@type": "ListItem", "position": 25, "name": "Lista procesów Windows: 522 procesy z typowym CPU i RAM", "url": "https://pcworkman.dev/guides/windows-processes/index_pl.html" },
+          { "@type": "ListItem", "position": 26, "name": "Ten sam seed, inna gra: deterministyczne losowanie w Unity", "url": "https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html" },
+          { "@type": "ListItem", "position": 27, "name": "Testy balansu: jak udowodnić, że grę da się wygrać", "url": "https://pcworkman.dev/guides/game-balance-tests/index_pl.html" },
+          { "@type": "ListItem", "position": 28, "name": "1541 z 1624 testów gry nigdy nie uruchamia gry", "url": "https://pcworkman.dev/guides/unity-testable-game-logic/index_pl.html" },
+          { "@type": "ListItem", "position": 29, "name": "Ekonomia tycoona: prawa, nie liczby", "url": "https://pcworkman.dev/guides/tycoon-game-economy/index_pl.html" },
+          { "@type": "ListItem", "position": 30, "name": "Teren, AI które za tobą chodzi, ekwipunek, broń. I koniec.", "url": "https://pcworkman.dev/guides/why-solo-game-projects-die/index_pl.html" },
+          { "@type": "ListItem", "position": 31, "name": "Testowałem Godota i wróciłem do Unity", "url": "https://pcworkman.dev/guides/godot-to-unity/index_pl.html" }
         ]
       }
     }
@@ -207,6 +214,7 @@
                 <div class="tg-label">PC Workman</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-pcw" href="what-is-this-process/index_pl.html"><span class="tg-ic">◉</span><h4>Co to za proces?</h4><span class="tg-go">Czytaj →</span></a>
+                    <a class="tg-tile tg-pcw" href="windows-processes/index_pl.html"><span class="tg-ic">▦</span><h4>522 procesy</h4><span class="tg-go">Przeglądaj →</span></a>
                     <a class="tg-tile tg-pcw" href="ghost-drivers-windows/index_pl.html"><span class="tg-ic">⬡</span><h4>Sterowniki widma</h4><span class="tg-go">Czytaj →</span></a>
                     <a class="tg-tile tg-pcw" href="../download/index_pl.html"><span class="tg-ic">⬇</span><h4>Co robi PC Workman</h4><span class="tg-go">Pobierz →</span></a>
                 </div>
@@ -253,6 +261,48 @@
                 <p>Bez gradientów, łuków, masek i selektorów pozycyjnych. Co się psuje i czego użyć zamiast tego.</p>
               </div>
               <span class="sl-row__meta">Unity / UI</span>
+            </a>
+            <a class="sl-row" href="../guides/unity-deterministic-random/index_pl.html">
+              <div>
+                <h4>Ten sam seed, inna gra</h4>
+                <p>UnityEngine.Random da się zapisać i nie w tym tkwi problem. Jeden wspólny strumień, dwa rodzaje losowości i metoda, której nigdy nie wywołałem.</p>
+              </div>
+              <span class="sl-row__meta">Unity / symulacja</span>
+            </a>
+            <a class="sl-row" href="../guides/game-balance-tests/index_pl.html">
+              <div>
+                <h4>Bot gra w to czterysta razy</h4>
+                <p>Zielony zestaw testów nie mówi, czy grę da się wygrać. Przedział zamiast liczby i pytanie: naprawiłeś grę czy douczyłeś bota?</p>
+              </div>
+              <span class="sl-row__meta">Balans / testy</span>
+            </a>
+            <a class="sl-row" href="../guides/unity-testable-game-logic/index_pl.html">
+              <div>
+                <h4>1541 z 1624 testów nie uruchamia gry</h4>
+                <p>Testowalność to nie framework, tylko jedna reguła o tym, kto może zmieniać stan. 98 plików symulacji, zero importu silnika.</p>
+              </div>
+              <span class="sl-row__meta">Testy / architektura</span>
+            </a>
+            <a class="sl-row" href="../guides/tycoon-game-economy/index_pl.html">
+              <div>
+                <h4>Ekonomia to nie arkusz, tylko lista praw</h4>
+                <p>Dziewięć praw ekonomicznych zapisanych jako testy, w tym najlepsza mechanika, jaką mam: liczba, której gracz nigdy nie dotyka.</p>
+              </div>
+              <span class="sl-row__meta">Ekonomia / design</span>
+            </a>
+            <a class="sl-row" href="../guides/why-solo-game-projects-die/index_pl.html">
+              <div>
+                <h4>Teren, AI, ekwipunek, broń. I koniec.</h4>
+                <p>Każda porzucona solowa gra staje w tym samym miejscu. Budowałem to w gimnazjum z kuzynem Sebą, a potem jeszcze dwanaście razy.</p>
+              </div>
+              <span class="sl-row__meta">Gamedev / z życia</span>
+            </a>
+            <a class="sl-row" href="../guides/godot-to-unity/index_pl.html">
+              <div>
+                <h4>Testowałem Godota i wróciłem do Unity</h4>
+                <p>Trzy tarcia sprawdzone wobec dokumentacji, nie wspomnień — i jeden mój własny wniosek, który okazał się błędny.</p>
+              </div>
+              <span class="sl-row__meta">Silniki / wybór</span>
             </a>
             <a class="sl-row" href="../guides/unreachable-code-in-games/index_pl.html">
               <div>
@@ -400,6 +450,12 @@
                 <h3>Co to za proces w Menedżerze zadań?</h3>
                 <p>Sprawdź ścieżkę, podpis, proces nadrzędny i zachowanie, zamiast ufać samej nazwie.</p>
                 <span class="go">Czytaj poradnik -&gt;</span>
+            </a>
+            <a class="series-card monday" href="windows-processes/index_pl.html">
+                <span class="day-badge day-monday">Procesy</span>
+                <h3>Lista 522 procesów Windows z typowym CPU i RAM</h3>
+                <p>Każdy proces z zakresem, w którym normalnie siedzi, bo pytanie brzmi nie „co to jest”, tylko „czy ta liczba jest normalna”. Z wyszukiwarką i odnośnikiem do każdej pozycji.</p>
+                <span class="go">Przeglądaj bibliotekę -&gt;</span>
             </a>
             <a class="series-card friday" href="will-this-cpu-fit-motherboard/index_pl.html">
                 <span class="day-badge day-friday">Modernizacja</span>

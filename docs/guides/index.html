@@ -101,7 +101,14 @@
           { "@type": "ListItem", "position": 23, "name": "The Silent Failure Catalogue: six classes of code that passes every test and does nothing", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/" },
           { "@type": "ListItem", "position": 24, "name": "Fourteen months, four jobs, one application, and still no job in software", "url": "https://pcworkman.dev/blog/fourteen-months/" },
           { "@type": "ListItem", "position": 25, "name": "nvlddmkm Event 153 and 4101: what a display driver reset means", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/" },
-          { "@type": "ListItem", "position": 26, "name": "WHEA-Logger Event 17, 18, 19: which hardware errors matter", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/" }
+          { "@type": "ListItem", "position": 26, "name": "WHEA-Logger Event 17, 18, 19: which hardware errors matter", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/" },
+          { "@type": "ListItem", "position": 27, "name": "Windows process list: 522 processes with typical CPU and RAM", "url": "https://pcworkman.dev/guides/windows-processes/" },
+          { "@type": "ListItem", "position": 28, "name": "Same seed, different game: deterministic randomness in Unity", "url": "https://pcworkman.dev/guides/unity-deterministic-random/" },
+          { "@type": "ListItem", "position": 29, "name": "Balance tests: proving a game is winnable", "url": "https://pcworkman.dev/guides/game-balance-tests/" },
+          { "@type": "ListItem", "position": 30, "name": "1,541 of my 1,624 game tests never start the game", "url": "https://pcworkman.dev/guides/unity-testable-game-logic/" },
+          { "@type": "ListItem", "position": 31, "name": "An economy is not a spreadsheet. It is a list of laws.", "url": "https://pcworkman.dev/guides/tycoon-game-economy/" },
+          { "@type": "ListItem", "position": 32, "name": "Terrain, an AI that follows you, an inventory, a weapon. Then nothing.", "url": "https://pcworkman.dev/guides/why-solo-game-projects-die/" },
+          { "@type": "ListItem", "position": 33, "name": "I tested Godot, made a 3D game in it, and went back to Unity", "url": "https://pcworkman.dev/guides/godot-to-unity/" }
         ]
       }
     }
@@ -262,6 +269,7 @@
                 <div class="tg-label">PC Workman</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-pcw" href="what-is-this-process/"><span class="tg-ic">◉</span><h4>What's this process?</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-pcw" href="windows-processes/"><span class="tg-ic">▦</span><h4>522 processes</h4><span class="tg-go">Browse →</span></a>
                     <a class="tg-tile tg-pcw" href="ghost-drivers-windows/"><span class="tg-ic">⬡</span><h4>Ghost drivers</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-pcw" href="../download/"><span class="tg-ic">⬇</span><h4>What PC Workman does</h4><span class="tg-go">Download →</span></a>
                 </div>
@@ -308,6 +316,48 @@
                 <p>No gradients, no arcs, no masks, no positional selectors. What breaks, and what to use instead.</p>
               </div>
               <span class="sl-row__meta">Unity / UI</span>
+            </a>
+            <a class="sl-row" href="../guides/unity-deterministic-random/">
+              <div>
+                <h4>Same seed, different game</h4>
+                <p>UnityEngine.Random can be saved, and that is not the problem. One shared stream, two kinds of randomness, and a method I never called.</p>
+              </div>
+              <span class="sl-row__meta">Unity / simulation</span>
+            </a>
+            <a class="sl-row" href="../guides/game-balance-tests/">
+              <div>
+                <h4>The bot plays it four hundred times</h4>
+                <p>A green suite does not tell you the game is winnable. Assert a band, not a number, and answer the question every red test asks.</p>
+              </div>
+              <span class="sl-row__meta">Balance / testing</span>
+            </a>
+            <a class="sl-row" href="../guides/unity-testable-game-logic/">
+              <div>
+                <h4>1,541 of 1,624 tests never start the game</h4>
+                <p>Testability is not a framework. It is one rule about who may change state. 98 simulation files, zero engine imports.</p>
+              </div>
+              <span class="sl-row__meta">Testing / architecture</span>
+            </a>
+            <a class="sl-row" href="../guides/tycoon-game-economy/">
+              <div>
+                <h4>An economy is a list of laws, not numbers</h4>
+                <p>Nine economic laws written as tests, including the best mechanic I have: a number the player never touches.</p>
+              </div>
+              <span class="sl-row__meta">Economy / design</span>
+            </a>
+            <a class="sl-row" href="../guides/why-solo-game-projects-die/">
+              <div>
+                <h4>Terrain, an AI, an inventory, a weapon. Then nothing.</h4>
+                <p>Every abandoned solo game stops in the same place. I built it at thirteen with my cousin Seba, then twelve more times.</p>
+              </div>
+              <span class="sl-row__meta">Gamedev / from life</span>
+            </a>
+            <a class="sl-row" href="../guides/godot-to-unity/">
+              <div>
+                <h4>I tested Godot and went back to Unity</h4>
+                <p>Three frictions checked against documentation rather than memory, and one conclusion of mine that turned out wrong.</p>
+              </div>
+              <span class="sl-row__meta">Engines / choosing</span>
             </a>
             <a class="sl-row" href="../guides/unreachable-code-in-games/">
               <div>
@@ -443,6 +493,12 @@
                 <p>A familiar name proves almost nothing. Tell a real Windows process from malware by its path, signature and parent, with a reference table for svchost, RuntimeBroker and COM Surrogate.</p>
                 <span class="go">Read the guide -&gt;</span>
             </a>
+            <a class="series-card monday" href="windows-processes/">
+                <span class="day-badge day-monday">Processes</span>
+                <h3>Windows process list: 522 processes with typical CPU and RAM</h3>
+                <p>Every process with the range it normally sits in, because the question is rarely &quot;what is this&quot; and almost always &quot;is that number normal&quot;. Searchable, with an anchor for every entry.</p>
+                <span class="go">Browse the library -&gt;</span>
+            </a>
             <a class="series-card friday" href="will-this-cpu-fit-motherboard/">
                 <span class="day-badge day-friday">Upgrades</span>
                 <h3>Will this CPU work with my motherboard?</h3>
@@ -565,8 +621,15 @@
         {t:"42 save format changes, no broken saves", u:"save-migration-without-breaking-saves/", cat:"Persistence", live:1, d:"One migration step per version, and the state that looks derived but is causal.", k:"save migration format version upgrade path serialization backwards compatible broken saves campaign"},
         {t:"AI accelerator depreciation, year by year", u:"ai-accelerator-depreciation/", cat:"Reference", live:1, d:"Launch price, cost per petaflop, and value after one, two and three years.", k:"gpu depreciation h100 a100 b200 gb300 resale value cost per petaflop residual accelerator price when to buy"},
         {t:"What USS cannot do in Unity UI Toolkit", u:"unity-ui-toolkit-uss-limitations/", cat:"Unity", live:1, d:"No gradients, arcs, masks or positional selectors, and what to use instead.", k:"unity ui toolkit uss gradient last-child painter2d runtime theme uxml ugui stylesheet game ui not working"},
+        {t:"Same seed, different game", u:"unity-deterministic-random/", cat:"Unity", live:1, d:"Deterministic randomness: one shared stream, and why forking a child generator backfires.", k:"unity random seed deterministic same seed different result unityengine.random global state save random state system.random net version xorshift replay campaign desync simulation flaky test reproducible run initstate unity.mathematics random createfromindex rng"},
+        {t:"Balance tests: is the game winnable", u:"game-balance-tests/", cat:"Testing", live:1, d:"A scripted bot plays four years so you can assert the game is still a game.", k:"game balance testing automated playtest scripted bot is my game too hard too easy difficulty band regression test game design simulation winnable control case nunit unity headless playability soak"},
+        {t:"1,541 tests that never start the game", u:"unity-testable-game-logic/", cat:"Testing", live:1, d:"The one architectural rule that decides whether your game can be tested at all.", k:"unity unit testing test framework editmode playmode assembly definition asmdef headless game logic testable architecture nunit how to test a game without play mode unity 6 testing test game logic separate engine"},
+        {t:"Tycoon economy: laws, not numbers", u:"tycoon-game-economy/", cat:"Design", live:1, d:"Nine one-way economic laws, and the mechanic made of a number nobody touches.", k:"tycoon game economy design balance simulation market share pricing subscription drift idle management game boring after an hour game economy balancing supply demand obsolescence soak test economy design"},
+        {t:"Why solo game projects die", u:"why-solo-game-projects-die/", cat:"Gamedev", live:1, d:"Why you never finish a game: terrain, a follow-AI, an inventory, a weapon.", k:"why i never finish games finish a game solo abandoned project unfinished game scope creep core loop first playable prototype indie gamedev motivation discipline quit giving up terrain inventory enemy ai weapon tutorial"},
+        {t:"I tested Godot and went back to Unity", u:"godot-to-unity/", cat:"Engines", live:1, d:"Three frictions checked against documentation, and one conclusion of mine that was wrong.", k:"godot vs unity 2026 why i left godot godot to unity migration game engine choice tscn merge conflict uid godot asset library size godot 3d limitations occlusion culling lod team collaboration hdrp maintenance mode"},
         {t:"Finished, tested, and impossible to reach", u:"unreachable-code-in-games/", cat:"Testing", live:1, d:"A green suite proves a function works, not that anything calls it.", k:"unreachable dead code green tests coverage not wired up caller sweep static analysis game testing"},
         {t:"What is this process in Task Manager?", u:"what-is-this-process/", cat:"Processes", live:1, d:"Real Windows process vs malware: path, signature, parent.", k:"unknown process svchost runtimebroker com surrogate dllhost conhost csrss is this a virus malware task manager suspicious safe"},
+        {t:"Windows process list: 522 processes", u:"windows-processes/", cat:"Processes", live:1, d:"Typical CPU and RAM for every process, so you can tell busy from broken.", k:"process list reference library typical cpu ram usage normal high cpu what is using my cpu memory svchost runtimebroker dllhost conhost csrss wmiprvse msmpeng searchindexer explorer chrome msedge steam discord obs nvcontainer audiodg spoolsv taskhostw sihost ctfmon is this normal how much cpu should"},
         {t:"What is a normal CPU temperature?", u:"normal-cpu-temperature/", cat:"Thermals", live:1, d:"Per-workload ranges, and when a normal number is a warning.", k:"cpu temperature hot overheating gaming temp idle how hot is too hot throttle heat celsius"},
         {t:"Ghost drivers in Windows", u:"ghost-drivers-windows/", cat:"Drivers", live:1, d:"Find and remove leftover drivers Device Manager hides.", k:"ghost drivers old nvidia amd leftover device manager hidden pnputil uninstall remove"},
         {t:"How to speed up a Windows PC", u:"jak-przyspieszyc-komputer/index_en.html", cat:"Speed", live:1, d:"A diagnostic order for startup, load, storage and heat.", k:"slow pc speed up optimization startup lag background storage heat"},
