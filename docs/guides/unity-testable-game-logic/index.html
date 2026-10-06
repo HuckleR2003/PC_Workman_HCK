@@ -1,0 +1,557 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · testable game logic without PlayMode -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="1,541 of my 1,624 tests never start the game. What makes that possible is one rule about who may change state, decided before the first test.">
+    <meta name="keywords" content="Unity unit testing, Unity Test Framework, EditMode tests, test game logic without PlayMode, headless game logic, assembly definition, testable architecture, NUnit Unity, how to test a game, Unity 6 testing">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-testable-game-logic/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-testable-game-logic/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-testable-game-logic/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-testable-game-logic/">
+    <meta property="og:title" content="1,541 of my 1,624 game tests never start the game">
+    <meta property="og:description" content="Not a testing tutorial. The architectural decision that decides whether your game can be tested at all, made before the first test is written.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-testable-game-logic/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Unity Game Logic Testing: 1,541 Tests Without PlayMode | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "1,541 of my 1,624 game tests never start the game",
+      "description": "Ninety five per cent of a shipped game's tests run with no scene, no MonoBehaviour and no frame. What makes that possible is not a framework but one rule about who is allowed to change state, decided before the first test exists.",
+      "url": "https://pcworkman.dev/guides/unity-testable-game-logic/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-testable-game-logic/" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "citation": [
+        "https://docs.unity3d.com/Packages/com.unity.test-framework@2.0/manual/edit-mode-vs-play-mode-tests.html",
+        "https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Scripts/Simulation/CompanySimulation.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/ScalingLaws.Tests.EditMode.asmdef"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, C#, Unity Test Framework, NUnit",
+      "wordCount": 2178,
+      "keywords": "Unity, unit testing, EditMode, PlayMode, assembly definition, testable architecture, game logic, NUnit",
+      "about": [
+        { "@type": "Thing", "name": "Unity Test Framework" },
+        { "@type": "Thing", "name": "Software architecture" },
+        { "@type": "Thing", "name": "Automated testing" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Testable game logic in Unity", "item": "https://pcworkman.dev/guides/unity-testable-game-logic/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can you test Unity game logic without entering Play Mode?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, and most of it should be. Unity's own documentation separates Edit Mode tests, which run in the editor with no game loop, from Play Mode tests, which start the game. Edit Mode tests use the plain NUnit Test attribute and are substantially faster. In a shipped simulation of mine the split is 1,541 Edit Mode tests against 83 Play Mode tests, so roughly ninety five per cent of the suite never starts the game. The limit is not the framework, it is whether your game logic can run without a scene at all." }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes game logic testable in the first place?",
+          "acceptedAnswer": { "@type": "Answer", "text": "One rule, decided early: there is exactly one object allowed to change game state, and every player action and every tick goes through it. Once that holds, a test can construct the state, call the gateway and step the simulation forward without a scene, a MonoBehaviour or a frame, because nothing else can have mutated anything behind its back. In my project 98 simulation files import UnityEngine zero times, which is a consequence of that rule rather than a separate goal." }
+        },
+        {
+          "@type": "Question",
+          "name": "What should stay in Play Mode tests?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Anything whose subject genuinely is the engine. Scene loading, prefab wiring, UI that only exists once a document is rendered, coroutines, physics, and the handful of integration checks that prove the headless core is actually connected to what the player sees. That last category is the one people skip, and it is the reason a game can have thousands of green tests and a screen that opens empty: the logic is proven, the wiring is not." }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need assembly definitions to test Unity code?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For anything beyond a toy, yes. Assembly definitions are what let a test assembly reference your runtime code while shipping nothing of itself: the test asmdef sets includePlatforms to Editor only, adds TestAssemblies to its optional Unity references, and constrains itself with UNITY_INCLUDE_TESTS so the compiler leaves it out of a player build entirely. They also enforce the architecture, because a reference you did not declare is a compile error rather than a quiet dependency." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it worth testing a solo game project?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends entirely on what kind of game it is. For a simulation, a strategy game or anything where numbers compound over hours of play, the tests are not a quality ritual, they are the only way to observe the thing you are building: nobody can play four in-game years by hand after every change. For a short, authored, hand-placed experience the same effort buys much less, and the honest answer is to put it into the levels instead." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-testable-game-logic/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-testable-game-logic/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Unity</span>
+        <h1>1,541 of my<br>1,624 game tests<br>never start the game.</h1>
+        <p class="tagline">This is not a guide to the Unity Test Framework. It is about the decision made long before the first test exists, which quietly determines whether you will be able to write the second thousand or not.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>10 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">Every tutorial about testing in Unity shows you how to write a test. Almost none of them tell you why your game will fight you when you try, and that part is architecture, not tooling.</p>
+
+        <p>Here is the shape of a suite that did not fight me, measured rather than remembered:</p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Where</th><th>Files</th><th>Tests</th><th>Needs the game running</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Edit Mode</td><td>179</td><td><b>1,541</b></td><td>No</td></tr>
+                <tr><td>Play Mode</td><td>18</td><td>83</td><td>Yes</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Ninety five per cent of them run with no scene, no <code>MonoBehaviour</code> and no frame.
+            That ratio is not discipline and it is not a preference. It is a direct consequence of one
+            rule, and the rule is the whole article.
+        </p>
+
+        <div class="callout">
+            <b>Scope.</b> This is written from a management simulation, where state compounds over four
+            to five in-game years. If your game is a short authored experience with hand-placed content,
+            read the last section first &mdash; the honest answer there is different.
+        </div>
+
+        <h2 id="rule">One object may change the state. That is the rule.</h2>
+
+        <p>
+            The thing that makes a game testable is not a framework, a mocking library or dependency
+            injection. It is that <b>there is exactly one place where the world can change</b>, and
+            everything &mdash; every button, every tick, every system &mdash; goes through it.
+        </p>
+
+        <p>
+            In my project that object carries this comment, and it is the most load-bearing paragraph
+            in the codebase:
+        </p>
+
+        <div class="code">/// The ONE thing allowed to change CompanyState. Every player action and the whole daily
+/// tick go through here, which is why a test can drive four years of company history
+/// without a scene, a MonoBehaviour or a frame.
+///
+/// The day, in order: deliveries land, the run consumes compute, the market splits demand,
+/// the bills come out, the gates get re-checked. Nothing in that order is negotiable,
+/// because a cluster that arrives in the morning should serve tokens the same afternoon.</div>
+
+        <p>
+            Read the causal claim in the middle: <em>which is why a test can drive four years</em>. The
+            testability is not a feature anyone built. It is what you get for free once nothing can
+            mutate the world behind the gateway's back.
+        </p>
+
+        <p>
+            The second paragraph is doing quieter work. A fixed, documented order of operations means a
+            test can assert on the state after any given day and get the same answer every time, for the
+            same reason the campaign is replayable at all &mdash; the subject of
+            <a href="../unity-deterministic-random/">the article on deterministic randomness</a>.
+            Ordering and determinism are the same problem wearing different hats.
+        </p>
+        <h2 id="measure">The measurement that tells you if you have it</h2>
+
+        <p>
+            There is a one-line check for whether your game logic is testable, and it is more honest
+            than any amount of intention. Count how many of your simulation files import the engine:
+        </p>
+
+        <div class="code">grep -rl "using UnityEngine" --include=*.cs Assets/YourGame/Scripts/Simulation | wc -l</div>
+
+        <p>
+            In mine the answer is <b>0, across 98 files</b>. Not because importing the engine is
+            forbidden by some rule I enforce, but because once the simulation only ever manipulates its
+            own state through one gateway, there is never a reason to reach for a <code>Vector3</code>,
+            a <code>Debug.Log</code> or a <code>Time.deltaTime</code>. The engine turns out to be a
+            thing the logic never needed.
+        </p>
+
+        <p>
+            If your number is large, that is the work. Every <code>using UnityEngine</code> in a rules
+            file is a small bet that this rule will only ever run inside a game, and it is the bet that
+            later makes a four-year campaign impossible to test in under a second.
+        </p>
+
+        <div class="trap">
+            <h4>The two engine types that sneak in and cost the most</h4>
+            <p>
+                <b><code>Time.deltaTime</code></b> turns frame rate into a simulation input, so the same
+                campaign on a faster machine is a different campaign. A simulation should advance in
+                units it owns &mdash; a day, a tick, a turn &mdash; and let the presentation layer decide
+                how fast to call it.
+            </p>
+            <p>
+                <b><code>Vector3</code> and friends</b> look harmless and drag the whole engine assembly
+                in behind them. If your logic genuinely needs coordinates, a four-line struct of your own
+                keeps the boundary clean and costs nothing.
+            </p>
+        </div>
+
+        <h2 id="asmdef">Assembly definitions are the part that enforces it</h2>
+
+        <p>
+            A rule nobody can break by accident is worth more than a rule everybody agrees with.
+            Assembly definitions are how Unity gives you that, and they are the step most tutorials skip
+            because the toy example does not need them.
+        </p>
+
+        <p>
+            Four files do the job in my project:
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Assembly</th><th>What it is for</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>ScalingLaws.Runtime</code></td><td>The game itself: simulation, data, persistence, UI.</td></tr>
+                <tr><td><code>ScalingLaws.Editor</code></td><td>Editor-only tooling, which must never reach a player build.</td></tr>
+                <tr><td><code>ScalingLaws.Tests.EditMode</code></td><td>The 1,541. No scene, no frame.</td></tr>
+                <tr><td><code>ScalingLaws.Tests.PlayMode</code></td><td>The 83 that genuinely need the engine.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            The test assembly definition is worth reading line by line, because three of its fields are
+            the ones people get wrong:
+        </p>
+
+        <div class="code">{
+  "name": "ScalingLaws.Tests.EditMode",
+  "references": [ "ScalingLaws.Runtime", "ScalingLaws.Editor" ],
+  "includePlatforms": [ "Editor" ],
+  "autoReferenced": false,
+  "defineConstraints": [ "UNITY_INCLUDE_TESTS" ],
+  "optionalUnityReferences": [ "TestAssemblies" ]
+}</div>
+
+        <ul>
+            <li><code>"includePlatforms": ["Editor"]</code> is what makes these Edit Mode tests at all. Unity's own documentation states that a test assembly targeting only the Editor is treated as Edit Mode by default.</li>
+            <li><code>"defineConstraints": ["UNITY_INCLUDE_TESTS"]</code> keeps the whole assembly out of a player build. Without it you can ship your test code to players.</li>
+            <li><code>"autoReferenced": false</code> means nothing can accidentally depend on your tests. It should be true of every test assembly and almost never is.</li>
+        </ul>
+
+        <p>
+            The references list is the quiet benefit. Because the test assembly declares exactly what it
+            can see, an architectural mistake &mdash; a simulation file reaching into UI, say &mdash;
+            stops being a code review question and becomes a compile error.
+        </p>
+
+        <h2 id="playmode">What the other eighty three tests are for</h2>
+
+        <p>
+            It would be a tidier article if the answer were &ldquo;nothing, put it all in Edit Mode&rdquo;.
+            That is wrong, and the eighty three are where a specific class of bug lives.
+        </p>
+
+        <p>
+            Play Mode tests should cover anything whose <em>subject</em> is the engine: scene loading,
+            prefab wiring, UI that only exists once a document has been rendered, coroutines, physics.
+            But the category people skip is the important one &mdash; <b>the tests that prove the headless
+            core is actually connected to what the player sees</b>.
+        </p>
+
+        <div class="trap">
+            <h4>Why this matters more than it sounds</h4>
+            <p>
+                A simulation with 1,541 passing tests can still ship a screen that opens empty. The logic
+                is proven; the <em>wiring</em> is not. Every bug of that shape I have had looks the same
+                from the inside: one piece of state, two places that set it, and only one of them tells
+                the screen.
+            </p>
+            <p>
+                Edit Mode cannot see this by construction, because the screen does not exist there. If
+                you write only three Play Mode tests, make them &ldquo;every screen opens and shows
+                something on day one&rdquo;, &ldquo;a change in the simulation reaches the screen&rdquo;,
+                and &ldquo;a click on the screen reaches the simulation&rdquo;.
+            </p>
+        </div>
+        <h2 id="layers">What 1,541 tests actually turned out to be</h2>
+
+        <p>
+            &ldquo;Sixteen hundred tests&rdquo; sounds like a number designed to impress, and on its own
+            it would be. It is more useful broken into the four jobs they do, because the fourth one is
+            the one almost nobody has:
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Kind</th><th>The question it answers</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Rule tests</td>
+                    <td>Does this one calculation do what it says? The ordinary majority, and the cheapest to write.</td>
+                </tr>
+                <tr>
+                    <td>Consistency tests</td>
+                    <td>Is the <em>content</em> coherent? That every research prerequisite exists, that the tree has no cycles, that every gated thing has exactly one gate. These read catalogues rather than code, and they catch the mistakes you make at two in the morning in a data file.</td>
+                </tr>
+                <tr>
+                    <td>Persistence tests</td>
+                    <td>Does a save survive a round trip, and does an old save still load? Each one is cheap; together they are why a player's campaign from three months ago still opens.</td>
+                </tr>
+                <tr>
+                    <td>Playability tests</td>
+                    <td>Is this still a game? A scripted bot plays four full years and the assertions describe a difficulty band. Fifteen tests, covered in <a href="../game-balance-tests/">their own article</a>, and they found bugs no unit test could see.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The consistency layer is the one I would add first to someone else's project. A test that
+            walks your content and asserts it is well-formed costs an hour and never stops paying,
+            because content is where a solo developer makes the most mistakes and has the least review.
+        </p>
+
+        <h2 id="cost">What it costs, and when it is not worth it</h2>
+
+        <p>
+            I would be writing an advertisement rather than a guide if I stopped here.
+        </p>
+
+        <p>
+            The real cost is not writing the tests. It is that <b>the architecture has to be decided
+            early and is expensive to retrofit.</b> Separating a simulation from the engine after the
+            fact means finding every place where a rule reads <code>Time.deltaTime</code> or pokes a
+            <code>MonoBehaviour</code>, and in a project of any size that is weeks, not an afternoon. I
+            have written about <a href="../breaking-up-the-monolith/">the one time I had to do it</a>,
+            and it was not fun.
+        </p>
+
+        <p>
+            The second cost is that a headless core is a slightly less convenient way to write a game.
+            You cannot drag a value onto a component in the inspector and have the simulation see it.
+            Everything is explicit, which is better at month twelve and more typing in week one.
+        </p>
+
+        <div class="trap">
+            <h4>The honest case against all of this</h4>
+            <p>
+                If your game is short, authored and hand-placed &mdash; a narrative game, a puzzle game
+                with designed levels, a platformer where the content <em>is</em> the scenes &mdash; most
+                of this buys you much less. There is no four-year campaign to simulate and no compounding
+                economy to protect. The same hours spent on levels will produce a better game.
+            </p>
+            <p>
+                The test that decides it: <b>can a human play your whole game often enough to notice a
+                regression?</b> If yes, play it. If a full playthrough takes four in-game years and nobody
+                will ever do that by hand after every change, the suite is not a quality ritual &mdash; it
+                is the only instrument you have for observing what you built.
+            </p>
+        </div>
+
+        <h2 id="start">The order I would do it in again</h2>
+
+        <ul>
+            <li><b>Put the rules where the engine is not.</b> One folder, no <code>using UnityEngine</code>, verified by the grep above. Everything else follows from this and nothing else works without it.</li>
+            <li><b>Make one object the only way to change state.</b> Player actions and the tick both go through it, in a documented order.</li>
+            <li><b>Add the four assembly definitions</b> so the boundary is a compile error rather than a habit.</li>
+            <li><b>Write consistency tests over your content</b> before rule tests. Cheapest catch rate in the whole suite.</li>
+            <li><b>Add three Play Mode wiring tests</b> so a green suite cannot coexist with an empty screen.</li>
+        </ul>
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Can you test Unity game logic without entering Play Mode?</h3>
+            <p>
+                Yes, and most of it should be. Unity's documentation separates Edit Mode tests, which run
+                in the editor with no game loop, from Play Mode tests, which start the game; Edit Mode
+                uses the plain NUnit <code>[Test]</code> attribute and runs substantially faster. In my
+                shipped simulation the split is 1,541 Edit Mode against 83 Play Mode, so about ninety
+                five per cent of the suite never starts the game. The limiting factor is not the
+                framework &mdash; it is whether your logic can run without a scene at all.
+            </p>
+
+            <h3>What makes game logic testable in the first place?</h3>
+            <p>
+                One rule, decided early: exactly one object may change game state, and every player
+                action and every tick goes through it. Once that holds, a test can build the state, call
+                the gateway and step forward without a scene, a <code>MonoBehaviour</code> or a frame,
+                because nothing else can have mutated anything behind its back. The 98 simulation files
+                that import <code>UnityEngine</code> zero times are a consequence of that rule, not a
+                separate goal.
+            </p>
+
+            <h3>What should stay in Play Mode tests?</h3>
+            <p>
+                Anything whose subject genuinely is the engine: scene loading, prefab wiring, UI that
+                only exists once a document is rendered, coroutines, physics. Plus the category people
+                skip &mdash; the integration checks proving the headless core is actually connected to
+                what the player sees. That omission is why a game can have thousands of green tests and a
+                screen that opens empty.
+            </p>
+
+            <h3>Do I need assembly definitions to test Unity code?</h3>
+            <p>
+                For anything beyond a toy, yes. The test assembly sets <code>includePlatforms</code> to
+                Editor only, adds <code>TestAssemblies</code> to its optional Unity references, and
+                constrains itself with <code>UNITY_INCLUDE_TESTS</code> so the compiler leaves it out of a
+                player build. They also enforce the architecture: a reference you did not declare becomes
+                a compile error instead of a quiet dependency.
+            </p>
+
+            <h3>How long do 1,624 tests take to run?</h3>
+            <p>
+                The Edit Mode majority are fast because there is no game loop to wait for; the expensive
+                ones are the handful that simulate four or five in-game years, and those dominate the
+                total. The practical arrangement is to run everything on a commit and keep the long
+                playability tests out of the loop you run every thirty seconds while editing a rule.
+            </p>
+
+            <h3>Is it worth testing a solo game project?</h3>
+            <p>
+                It depends on the game. For a simulation or strategy game where numbers compound over
+                hours, the tests are the only way to observe what you are building, because nobody plays
+                four in-game years by hand after every change. For a short authored experience the same
+                effort buys much less, and the honest answer is to spend it on the levels.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>The numbers in this article are counted, not remembered.</b> The assembly definitions, the
+            simulation folder and the test suite are in the public repository for
+            <a href="../../hck-labs/scaling-laws/">Scaling Laws</a>, linked from the sources. The grep in
+            the second section is the one I ran to write it.
+        </div>
+
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../tycoon-game-economy/">designing a tycoon economy as laws</a> &middot; <a href="../why-solo-game-projects-die/">why solo projects die at the same four features</a> &middot; <a href="../game-balance-tests/">balance tests that prove a game is winnable</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

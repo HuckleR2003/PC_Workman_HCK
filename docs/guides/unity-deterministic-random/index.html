@@ -1,0 +1,716 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · deterministic randomness in a Unity simulation -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="UnityEngine.Random can be saved. The problem is that it is shared, and forking a child generator draws from the stream it was meant to protect.">
+    <meta name="keywords" content="Unity deterministic random, UnityEngine.Random seed, same seed different result, Unity save random state, deterministic simulation Unity, System.Random .NET version, Unity.Mathematics.Random, replayable campaign, flaky simulation tests">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <meta property="og:title" content="Same seed, different game: deterministic randomness in Unity">
+    <meta property="og:description" content="Saving the generator is the easy half. The half that breaks campaigns is that one shared stream moves whenever anything else rolls.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Unity Deterministic Random: Same Seed, Different Game | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Same seed, different game: deterministic randomness in a Unity simulation",
+      "description": "UnityEngine.Random is globally shared, System.Random is not stable across .NET versions, and forking a child generator draws from the stream it was meant to protect. The three mechanisms that do work, from a shipped simulation with 1,624 tests.",
+      "url": "https://pcworkman.dev/guides/unity-deterministic-random/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-deterministic-random/" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "citation": [
+        "https://docs.unity3d.com/ScriptReference/Random.html",
+        "https://learn.microsoft.com/en-us/dotnet/api/system.random",
+        "https://docs.unity3d.com/Packages/com.unity.mathematics@1.3/api/Unity.Mathematics.Random.html",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Scripts/Core/DeterministicRandom.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Scripts/Simulation/RivalStaff.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/SavePersistenceTests.cs"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, C#, a simulation or roguelike with saves or replays",
+      "wordCount": 3111,
+      "keywords": "Unity, deterministic random, seed, xorshift, save state, replay, simulation, flaky tests",
+      "about": [
+        { "@type": "Thing", "name": "Deterministic simulation" },
+        { "@type": "Thing", "name": "Pseudorandom number generators" },
+        { "@type": "Thing", "name": "Unity game development" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Deterministic randomness in Unity", "item": "https://pcworkman.dev/guides/unity-deterministic-random/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why does Unity give different results from the same seed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually because the generator is shared. UnityEngine.Random is a static class, so its state is global: a particle effect, an editor script, a plugin or any unrelated MonoBehaviour that rolls a number moves the same stream your simulation is reading. Reseeding fixes the first frame and nothing after it. The second common cause is that your own code added a roll somewhere earlier in the tick, which shifts every value drawn after it. Neither problem is solved by saving the seed, because the seed was never what changed." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can you save and restore UnityEngine.Random?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. UnityEngine.Random exposes a state property that can be read and written, and Unity documents it as savable. The generator is an Xorshift 128 seeded once from the operating system at process start and then left under script control. So persistence is not the limitation. The limitation is ownership: the state you save belongs to everything in the process, not to your simulation, so restoring it only reproduces a run if nothing else drew from the stream in between." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is a seeded System.Random the same on every platform and .NET version?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, and Microsoft documents this directly: its own example notes that the code may produce different sequences of random numbers when run on different versions of .NET. The algorithm is an implementation detail, not a contract. For gameplay that is fine. For anything that must replay later, such as a save file, a seeded daily run or a regression test asserting an exact number, it means an engine or runtime upgrade can silently change results in a build that compiles cleanly and reports no error." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should every system in a simulation get its own random generator?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Every system that must stay stable while other systems change, yes. There are two ways to give it one, and they are not interchangeable. A sequential stream has its own state word saved with the game and suits anything that advances over time, such as a queue of job applicants. A coordinate addressed generator is built on demand from a seed mixed with an identity, for example a campaign seed and a company id, and stores nothing at all, because the same coordinate always rebuilds the same values. Reach for the second whenever the data can be recomputed rather than remembered." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is forking a child random generator from a parent safe?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not for isolation, which is usually why people reach for it. Forking a child by drawing a seed from the parent advances the parent, so the act of isolating a subsystem moves the very stream the isolation was meant to protect. Any system that forks at a different moment, or conditionally, shifts everything downstream of it. If a subsystem needs its own stream, seed it from a constant or from a coordinate instead, and give it its own saved state word if it has to survive a reload." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-deterministic-random/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-deterministic-random/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Unity</span>
+        <h1>Same seed,<br>different game,<br>and the obvious fix makes it worse.</h1>
+        <p class="tagline">Saving the generator is the easy half. The half that breaks campaigns is that one shared stream moves whenever anything else rolls &mdash; and forking a child generator to escape it draws from the very stream you were protecting.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>12 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">Everything here comes out of one project: a management simulation where a campaign runs about 1,100 in-game days, every day rolls dozens of outcomes, and the whole thing has to reload from a save file and continue as if nothing happened. 1,624 automated tests sit on top of it, and a good number of them assert exact numbers.</p>
+
+        <p>I am writing it because the search results for this problem are mostly people being told to call <code>Random.InitState</code>, which is advice for a different problem. Reseeding controls where a stream starts. Almost every determinism bug I have had was about what happens to the stream afterwards.</p>
+
+        <div class="callout">
+            <b>Version note.</b> Observed on <b>Unity 6000.5</b> with C# and no DOTS. The three
+            generators discussed are the ones available in a plain Unity project; the behaviour of
+            each is linked to its own documentation rather than asserted from memory.
+        </div>
+
+        <h2 id="three">Three generators, three different promises</h2>
+
+        <p>
+            A Unity project has three obvious generators within reach, and they do not promise the
+            same things. Picking one by habit is how this starts.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Generator</th><th>What it actually is</th><th>Where it breaks</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>UnityEngine.Random</code></td>
+                    <td>Static class, Xorshift 128, seeded once from the OS at process start. State is readable and writable.</td>
+                    <td>The state is <b>globally shared</b>. Anything in the process that rolls a number moves your stream.</td>
+                </tr>
+                <tr>
+                    <td><code>System.Random</code></td>
+                    <td>Instance based, so no sharing problem. Seedable.</td>
+                    <td>The algorithm is <b>not a contract</b>. Microsoft's own docs note the same seed may give a different sequence on a different .NET version.</td>
+                </tr>
+                <tr>
+                    <td><code>Unity.Mathematics.Random</code></td>
+                    <td>A 32-bit xorshift <b>struct</b>, designed to be embedded in components and used inside jobs.</td>
+                    <td>Nothing, for its purpose. It is the right tool for Burst and jobs, and it is a package dependency with a seed that must never be zero.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            That third row is worth a note: <code>Unity.Mathematics.Random</code> is a perfectly good
+            answer, and it even ships a <code>CreateFromIndex</code> helper, which is the second
+            pattern in this article with official support. If you are already on the package, use it.
+            The rest of this guide is about the reasoning, which is the same either way.
+        </p>
+
+        <h2 id="sharing">The problem is not saving. It is sharing.</h2>
+
+        <p>
+            The received wisdom is that <code>UnityEngine.Random</code> cannot be made deterministic.
+            That is not quite right, and getting it right matters, because it points at the real fix.
+            Unity's documentation says plainly that the state can be saved and restored, and it
+            describes the generator as <b>statically initialized with a high-entropy seed from the
+            operating system</b>, after which it is &ldquo;left entirely under script control&rdquo;.
+        </p>
+
+        <p>
+            So you <em>can</em> persist it. What you cannot do is own it. The same documentation is
+            equally plain about why: it is a static class, <b>and so its state is globally shared</b>.
+            Your simulation is one of many readers. A particle system, a plugin, an editor tool, a
+            piece of UI picking a flavour of idle animation &mdash; each one draws from the same
+            sequence, and every draw shifts everything that comes after.
+        </p>
+
+        <div class="trap">
+            <h4>Why this bug is so hard to see</h4>
+            <p>
+                A shared stream does not fail loudly. It fails as a campaign that reloads and plays
+                <em>almost</em> the same, as a test that passes alone and fails in the suite, and as a
+                bug report that says &ldquo;the numbers were different the second time&rdquo; with no
+                reproduction steps, because the reporter cannot see what else rolled.
+            </p>
+            <p>
+                The giveaway is <b>order sensitivity</b>: if adding a feature somewhere unrelated changes
+                results somewhere else, you have one stream, not several.
+            </p>
+        </div>
+        <h2 id="versions">The seed that quietly stops meaning the same thing</h2>
+
+        <p>
+            The instinct after reading the above is to swap in <code>System.Random</code>, which is
+            instance based and therefore not shared. That removes one problem and introduces a quieter
+            one, and this is the part I would not have guessed: <b>a seeded <code>System.Random</code>
+            is not promised to give the same sequence forever.</b>
+        </p>
+
+        <p>
+            Microsoft's documentation, in the section that demonstrates how to retrieve the same
+            sequence of random values, carries this note: the example &ldquo;may produce different
+            sequences of random numbers if run on different versions of .NET&rdquo;. The underlying
+            algorithm is described as a modified subtractive generator, and that description is
+            documentation of an implementation, not a guarantee of one.
+        </p>
+
+        <p>
+            For gameplay noise this is irrelevant. It becomes expensive the moment a number has to
+            survive something:
+        </p>
+
+        <ul>
+            <li>a <b>save file</b> written in one engine version and opened in the next;</li>
+            <li>a <b>daily or weekly seeded run</b> that two players must experience identically;</li>
+            <li>a <b>regression test</b> that asserts an exact figure and is supposed to fail only when you broke something.</li>
+        </ul>
+
+        <p>
+            None of these announce themselves. A runtime upgrade that changes a sequence produces a
+            build that compiles, launches, logs nothing, and is subtly a different game.
+        </p>
+
+        <h2 id="own">The forty lines worth owning</h2>
+
+        <p>
+            Which leads to the unexciting conclusion: if the output must be stable across versions and
+            machines, the generator belongs in your repository, where nothing can change it without a
+            commit. Mine is xorshift32 with a single state word, and this is the whole of it:
+        </p>
+
+        <div class="code">public sealed class DeterministicRandom
+{
+    private const uint DefaultSeed = 0x5CA1AB1E;
+    private uint state;
+
+    public DeterministicRandom(uint seed = DefaultSeed)
+        =&gt; state = seed == 0 ? DefaultSeed : seed;
+
+    /// &lt;summary&gt;The whole generator. Save this, restore it, get the same campaign back.&lt;/summary&gt;
+    public uint State
+    {
+        get =&gt; state;
+        set =&gt; state = value == 0 ? DefaultSeed : value;
+    }
+
+    public uint NextUInt()
+    {
+        state ^= state &lt;&lt; 13;
+        state ^= state &gt;&gt; 17;
+        state ^= state &lt;&lt; 5;
+        return state;
+    }
+}</div>
+
+        <p>
+            Three points matter more than the algorithm. <b>The state is one <code>uint</code></b>, so
+            persisting it is a single field rather than a serialisation exercise. <b>Zero is guarded in
+            two places</b>, the constructor and the setter, because xorshift is absorbing at zero: feed
+            it a zero and it returns zeros forever. That is not my cleverness &mdash; Unity's own
+            mathematics package documents the same rule for its struct, that the seed must be non-zero.
+            And <b>the algorithm is now yours</b>, so a Unity upgrade cannot renegotiate it.
+        </p>
+
+        <p>
+            On top of that sit the conveniences the simulation actually calls: a <code>NextDouble</code>,
+            an integer range, a <code>NextChance(p)</code>, and a Box&ndash;Muller
+            <code>NextGaussian</code> so that a training run lands <em>near</em> its projection rather
+            than exactly on it. All of them are just readings of the same state word, which is the
+            point: one thing to save.
+        </p>
+        <h2 id="two-kinds">Two kinds of randomness, and they are not interchangeable</h2>
+
+        <p>
+            Owning the generator does not tell you how many of them to have. This is where I spent the
+            most time, and the answer turned out not to be &ldquo;one per system&rdquo;. It is that
+            simulations contain <b>two different kinds of randomness</b>, and each has its own correct
+            shape.
+        </p>
+
+        <p>
+            <b>The first kind is sequential.</b> It advances with time and the order of draws is part of
+            the meaning. A queue of job applicants arriving over weeks is sequential: each roll depends
+            on how far the campaign has got. This kind needs a stream with a saved state word, so that
+            a reload resumes mid-sequence rather than starting the sequence again.
+        </p>
+
+        <p>
+            <b>The second kind is coordinate addressed</b>, and it is the one most projects miss. Some
+            values are not a sequence at all. They are a property of a <em>thing</em>: the staff roster
+            at a rival company, the investor who shows up on a specific date, the personality of lab
+            number four. These do not need to be remembered, because they can be recomputed. Build a
+            generator from the coordinate itself and the same coordinate rebuilds the same values
+            forever:
+        </p>
+
+        <div class="code">// The roster for one rival lab. Nothing about this is stored in the save file.
+public static List&lt;RivalStaffMember&gt; RosterFor(CompetitorId lab, GameDate today,
+    uint campaignSeed, IReadOnlyCollection&lt;int&gt; gone = null)
+{
+    var random = new DeterministicRandom(Mix(campaignSeed, (uint)lab));
+    ...
+}</div>
+
+        <p>
+            The comment above that method in my repository states the contract it is keeping:
+            <em>&ldquo;Deterministic in the lab and the campaign seed, so the same company has the same
+            people every time it is opened, and two campaigns on the same seed agree.&rdquo;</em>
+        </p>
+
+        <p>
+            The mixing function matters here, because a coordinate like <code>seed ^ labId</code> is a
+            terrible seed: neighbouring labs would produce visibly related rosters. What is needed is an
+            avalanche, so that one changed bit changes everything:
+        </p>
+
+        <div class="code">private static uint RivalryMix(uint seed, uint lab, uint day, uint salt)
+{
+    unchecked
+    {
+        var value = seed ^ (lab * 2654435761u) ^ (day * 40503u) ^ salt;
+        value ^= value &gt;&gt; 15;
+        value *= 2246822519u;
+        value ^= value &gt;&gt; 13;
+        value *= 3266489917u;
+        value ^= value &gt;&gt; 16;
+
+        return value == 0 ? 0x9E3779B9u : value;
+    }
+}</div>
+
+        <p>
+            Note the <code>salt</code> argument. It is what lets two unrelated questions about the same
+            lab on the same day &mdash; does it ship today, does it poach someone &mdash; get independent
+            answers without either of them knowing the other exists.
+        </p>
+
+        <div class="trap">
+            <h4>The practical test for which kind you have</h4>
+            <p>
+                Ask whether the value could be <b>recomputed from scratch</b> rather than remembered. If
+                yes, it is coordinate addressed and belongs to no stream: it stores nothing, it cannot
+                drift, it cannot desync, and it survives a save format change for free because it was
+                never in the save.
+            </p>
+            <p>
+                In my project this turned out to cover most of it. Exactly <b>two</b> sequential streams
+                have a saved state word in the whole game. Everything about rivals, alliances, investors
+                and rival staff is coordinate addressed and stores nothing at all.
+            </p>
+        </div>
+        <h2 id="fork">The method I wrote, documented, and never called</h2>
+
+        <p>
+            When a subsystem needs its own stream, the obvious move is to fork one from the parent. Draw
+            a number, use it as the child's seed, hand the child over. It is a nice API and I wrote it:
+        </p>
+
+        <div class="code">/// &lt;summary&gt;
+/// A child generator seeded from this one. Lets a subsystem roll without shifting the
+/// parent stream, which keeps unrelated systems from desyncing each other.
+/// &lt;/summary&gt;
+public DeterministicRandom Fork() =&gt; new(NextUInt());</div>
+
+        <p>
+            Read the implementation against its own doc comment. It promises to let a subsystem roll
+            <b>without shifting the parent stream</b>, and the first thing it does is call
+            <code>NextUInt()</code>, <b>which shifts the parent stream</b>.
+        </p>
+
+        <p>
+            That is not a typo, it is the shape of the idea. There is no way to derive a child seed from
+            a parent generator without advancing the parent, because advancing is how a generator
+            produces anything. So the act of isolating a subsystem is itself a draw, and the isolation
+            costs exactly the thing it was buying.
+        </p>
+
+        <p>
+            It gets worse in the case you actually care about. If the fork is conditional &mdash; a
+            subsystem that only initialises once the player unlocks it, or on the day a feature first
+            runs &mdash; then whether you forked at all depends on how the campaign went, and now the
+            parent stream is different for two players who did different things. Which is precisely the
+            class of bug the fork existed to prevent.
+        </p>
+
+        <p>
+            I found this while giving the hiring system its own stream, and what the code says there is
+            the clearest sentence in the whole repository on this subject:
+        </p>
+
+        <div class="code">/// Seeded from a constant rather than forked from the company's, because forking draws
+/// from the very stream this exists to leave alone. Its state is saved, so a campaign
+/// reloads the same people.
+public DeterministicRandom Random { get; } = new(SeedSalt);</div>
+
+        <p>
+            So <code>Fork()</code> is still in the file, compiled into every build, <b>and called exactly
+            zero times</b>. Both problems it was written for had better answers: a constant seed with its
+            own saved state word for the sequential case, and a mixed coordinate for everything else.
+        </p>
+
+        <div class="trap">
+            <h4>If you want to keep a fork anyway</h4>
+            <p>
+                There is a version that works, and it is worth knowing because it is a one-line change in
+                thinking. Do not derive the child from the parent's <em>stream</em>; derive it from the
+                parent's <em>identity</em>. Mix the campaign seed with a constant that names the
+                subsystem, and the child is independent of anything the parent did or did not roll.
+            </p>
+            <p>
+                That is the same mixing function as above with a per-system salt, which is why the fork
+                disappeared rather than being fixed: once you write that, there is nothing left for it
+                to do.
+            </p>
+        </div>
+
+        <p>
+            I have a habit of finding features like this &mdash; written, tested, reachable by no one. By
+            my own count this is the sixteenth. The difference here is that the method is not unreachable
+            because I forgot to wire it up. It is unreachable because wiring it up would have been wrong,
+            and the comment three files away explains why. That is the kind of dead code worth keeping,
+            as long as the reason is written down next to it.
+        </p>
+        <h2 id="tests">The four tests that make this real</h2>
+
+        <p>
+            None of the above is worth anything as an intention. Determinism is a property that decays
+            silently, so it has to be asserted. These four are the ones that have actually caught
+            regressions, and they are cheap enough that there is no excuse for not having them.
+        </p>
+
+        <p>
+            <b>One: the same seed produces the same campaign.</b> The shortest possible statement of the
+            whole idea, and the first thing to break when someone adds a roll in the wrong place.
+        </p>
+
+        <p>
+            <b>Two: the stream survives a round trip through the save file.</b> Advance it, save, reload,
+            and assert both the state <em>and</em> the next value out of it. Asserting only the state
+            misses a restore that writes the field but never reaches the generator:
+        </p>
+
+        <div class="code">[Test]
+public void TheRandomStreamResumesSoTheCampaignStaysReplayable()
+{
+    var original = BuildCampaign();
+    original.Random.NextUInt();
+    original.Random.NextUInt();
+
+    var restored = SaveStore.Restore(SaveStore.Parse(
+        JsonUtility.ToJson(SaveStore.Capture(original))));
+
+    Assert.That(restored.Random.State, Is.EqualTo(original.Random.State));
+    Assert.That(restored.Random.NextUInt(), Is.EqualTo(original.Random.NextUInt()));
+}</div>
+
+        <p>
+            <b>Three: a whole campaign replays under a scripted player.</b> This is the one that earns its
+            runtime. A bot plays 1,100 in-game days twice on the same seed, and the two runs must agree on
+            cash, capability and models shipped. It catches everything the unit tests cannot see, because
+            the failure mode here is accumulated drift rather than a wrong value:
+        </p>
+
+        <div class="code">[Test]
+public void TheWholeCampaignStaysDeterministicUnderAScriptedPlayer()
+{
+    static (long Cash, double Capability, int Models) Play(uint seed)
+    {
+        var simulation = NewGame(seed);
+        var bot = new ScriptedOperator(simulation);
+        bot.Run(1100);
+        return (simulation.State.CashUsd, simulation.State.BestCapability, bot.ModelsShipped);
+    }
+
+    Assert.That(Play(777), Is.EqualTo(Play(777)));
+}</div>
+
+        <p>
+            <b>Four: the coordinate addressed systems agree with themselves.</b> Ask for the same rival
+            field, the same roster, the same investor schedule twice, from two separately constructed
+            campaigns on one seed, and compare. This is what guards the pattern from the previous
+            section, where there is no saved state to catch a mistake.
+        </p>
+
+        <div class="trap">
+            <h4>The one that pays for itself</h4>
+            <p>
+                If you only write one, write the third. A two-run comparison over a long campaign needs no
+                knowledge of which system misbehaved and no maintenance when the numbers change, because it
+                never asserts a <em>value</em> &mdash; only that the game agreed with itself.
+            </p>
+        </div>
+
+        <h2 id="not">What this does not fix</h2>
+
+        <p>
+            A guide on determinism that does not state its boundaries is selling something. Everything
+            above gives you <b>a reproducible sequence of numbers</b>. That is not the same as a
+            reproducible <em>game</em>, and the gap matters:
+        </p>
+
+        <ul>
+            <li><b>Floating point across platforms.</b> The same double arithmetic can differ between CPUs, compilers and build targets. If your simulation must match bit for bit across machines, that is a separate and much harder problem than the generator.</li>
+            <li><b>Physics.</b> Unity's default physics is not a deterministic lockstep simulation, and seeding a generator does nothing about it.</li>
+            <li><b>Collection ordering.</b> Iterating a dictionary or hash set and rolling per item will desync even on a perfect generator, because the order is not promised. This bites far more often than floating point.</li>
+            <li><b>Time and frame rate.</b> Anything that reads <code>Time.deltaTime</code> and then rolls has made frame rate an input to the simulation.</li>
+        </ul>
+
+        <p>
+            In a turn based, day stepped simulation like mine the first two mostly do not arise, which is
+            why this guide is about the generator. The third is the one I would watch: it is easy to write
+            by accident and it fails in exactly the same way, so if a run desyncs after you have done
+            everything above, look at what you iterated before you look at what you rolled.
+        </p>
+        <h2 id="shape">The shape of the answer, in four lines</h2>
+
+        <p>
+            If you take nothing else:
+        </p>
+
+        <ul>
+            <li><b>Own the generator.</b> Forty lines in your repository beats a dependency whose algorithm is an implementation detail.</li>
+            <li><b>Ask whether a value is sequential or coordinate addressed</b> before giving it a stream. Most of what feels random in a simulation can be recomputed, and recomputed data cannot drift.</li>
+            <li><b>Never derive a child stream from a parent stream.</b> Derive it from identity &mdash; a constant, a coordinate, a salt &mdash; so it is independent of what the parent did.</li>
+            <li><b>Assert it in a test that replays a long run twice.</b> Determinism you do not test is determinism you used to have.</li>
+        </ul>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>Why does Unity give different results from the same seed?</h3>
+            <p>
+                Usually because the generator is shared. <code>UnityEngine.Random</code> is a static class,
+                so its state is global: a particle effect, a plugin, an editor script or any unrelated
+                <code>MonoBehaviour</code> that rolls a number moves the same stream your simulation is
+                reading. Reseeding fixes the first frame and nothing after it. The second common cause is
+                your own code adding a roll earlier in the tick, which shifts every value drawn after it.
+                Neither is solved by saving the seed, because the seed was never what changed.
+            </p>
+
+            <h3>Can you save and restore UnityEngine.Random?</h3>
+            <p>
+                Yes &mdash; this is the part the internet usually gets wrong. Unity exposes a
+                <code>state</code> property that can be read and written, and documents the generator as an
+                Xorshift 128 seeded once from the operating system at process start and then left under
+                script control. Persistence is not the limitation. Ownership is: the state you save belongs
+                to the whole process, so restoring it only reproduces a run if nothing else drew from the
+                stream in between.
+            </p>
+
+            <h3>Is a seeded System.Random the same on every platform and .NET version?</h3>
+            <p>
+                No, and Microsoft documents it directly. Its own example for retrieving the same sequence
+                of random values carries a note that the code may produce different sequences on different
+                versions of .NET. For gameplay noise that is fine. For a save file, a shared daily seed or
+                a test asserting an exact number, it means a runtime upgrade can change your results in a
+                build that compiles cleanly and reports nothing.
+            </p>
+
+            <h3>Should every system get its own random generator?</h3>
+            <p>
+                Every system that must stay stable while other systems change, yes &mdash; but there are two
+                ways to give it one and they are not interchangeable. A sequential stream has its own saved
+                state word and suits anything that advances over time, like a queue of applicants. A
+                coordinate addressed generator is built on demand from a seed mixed with an identity, such
+                as a campaign seed and a company id, and stores nothing at all. Reach for the second
+                whenever the data can be recomputed rather than remembered; in my project that covers all
+                but two streams.
+            </p>
+
+            <h3>Is forking a child generator from a parent safe?</h3>
+            <p>
+                Not for isolation, which is usually the reason people reach for it. Drawing a child seed
+                from the parent advances the parent, so isolating a subsystem moves the very stream the
+                isolation was protecting &mdash; and if the fork is conditional, two players who played
+                differently now have different streams. Seed the child from a constant or a coordinate
+                instead, and give it its own saved state word if it must survive a reload.
+            </p>
+
+            <h3>Does this make my game deterministic across platforms?</h3>
+            <p>
+                No. It makes the <em>number sequence</em> reproducible. Floating point arithmetic can still
+                differ between CPUs and build targets, Unity's default physics is not a deterministic
+                lockstep simulation, and iterating an unordered collection will desync a perfect generator.
+                For a turn based or day stepped simulation that is usually enough. For lockstep multiplayer
+                it is the first step of several.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>Everything here is checkable.</b> The generator, the mixing function, the unused
+            <code>Fork()</code> and all four tests are in the public repository for
+            <a href="../../hck-labs/scaling-laws/">Scaling Laws</a>, linked from this article's sources.
+            If I have got something wrong, the code is there to prove it with.
+        </div>
+
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../game-balance-tests/">balance tests that prove a game is winnable</a> &middot; <a href="../unity-testable-game-logic/">1,541 tests that never start the game</a> &middot; <a href="../tycoon-game-economy/">designing a tycoon economy as laws</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

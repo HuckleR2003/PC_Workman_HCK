@@ -1,0 +1,724 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · deterministyczne losowanie w symulacji Unity -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="UnityEngine.Random da się zapisać. Problem w tym, że jest wspólny, a odgałęzienie generatora czerpie ze strumienia, który miało chronić.">
+    <meta name="keywords" content="Unity losowanie deterministyczne, UnityEngine.Random ziarno, ten sam seed inny wynik, zapis stanu losowania Unity, symulacja deterministyczna, System.Random wersje .NET, Unity.Mathematics.Random, powtarzalna kampania, niestabilne testy symulacji">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-deterministic-random/">
+    <meta property="og:title" content="Ten sam seed, inna gra: deterministyczne losowanie w Unity">
+    <meta property="og:description" content="Zapisanie generatora to łatwiejsza połowa. Kampanie psuje to, że jeden wspólny strumień przesuwa się, gdy cokolwiek innego losuje.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Deterministyczne losowanie w Unity: ten sam seed, inna gra | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Ten sam seed, inna gra: deterministyczne losowanie w symulacji Unity",
+      "description": "UnityEngine.Random jest wspólny dla całego procesu, System.Random nie gwarantuje tej samej sekwencji między wersjami .NET, a odgałęzienie generatora potomnego czerpie ze strumienia, który miało chronić. Trzy mechanizmy, które działają, z wydanej symulacji z 1624 testami.",
+      "url": "https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "sameAs": "https://pcworkman.dev/guides/unity-deterministic-random/",
+      "citation": [
+        "https://docs.unity3d.com/ScriptReference/Random.html",
+        "https://learn.microsoft.com/en-us/dotnet/api/system.random",
+        "https://docs.unity3d.com/Packages/com.unity.mathematics@1.3/api/Unity.Mathematics.Random.html",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Scripts/Core/DeterministicRandom.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Scripts/Simulation/RivalStaff.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/SavePersistenceTests.cs"
+      ],
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, C#, symulacja lub roguelike z zapisami albo powtórkami",
+      "wordCount": 2701,
+      "keywords": "Unity, losowanie deterministyczne, ziarno, xorshift, zapis stanu, powtórka, symulacja, niestabilne testy",
+      "about": [
+        { "@type": "Thing", "name": "Symulacja deterministyczna" },
+        { "@type": "Thing", "name": "Generatory liczb pseudolosowych" },
+        { "@type": "Thing", "name": "Tworzenie gier w Unity" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Programista",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Deterministyczne losowanie w Unity", "item": "https://pcworkman.dev/guides/unity-deterministic-random/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "pl",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego Unity daje różne wyniki przy tym samym ziarnie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Najczęściej dlatego, że generator jest wspólny. UnityEngine.Random to klasa statyczna, więc jej stan jest globalny: efekt cząsteczkowy, wtyczka, skrypt edytora albo dowolny niezwiązany MonoBehaviour, który coś wylosuje, przesuwa ten sam strumień, z którego czyta twoja symulacja. Ponowne ustawienie ziarna naprawia pierwszą klatkę i nic poza nią. Druga częsta przyczyna to własne losowanie dodane wcześniej w turze, które przesuwa każdą kolejną wartość. Żadnej z nich nie rozwiązuje zapisanie ziarna, bo to nie ziarno się zmieniło." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy da się zapisać i odtworzyć UnityEngine.Random?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak. UnityEngine.Random udostępnia właściwość state, którą można odczytać i zapisać, a Unity dokumentuje ją jako przeznaczoną do zapisywania. Generator to Xorshift 128, inicjowany raz przy starcie procesu ziarnem z systemu operacyjnego i potem zostawiony pod kontrolą skryptów. Trwałość nie jest więc ograniczeniem. Ograniczeniem jest własność: stan, który zapisujesz, należy do całego procesu, a nie do twojej symulacji, więc jego przywrócenie odtworzy przebieg tylko wtedy, gdy w międzyczasie nic innego nie czerpało ze strumienia." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy System.Random z tym samym ziarnem daje tę samą sekwencję na każdej wersji .NET?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie, i Microsoft dokumentuje to wprost: we własnym przykładzie pokazującym, jak uzyskać tę samą sekwencję, widnieje uwaga, że kod może dawać różne sekwencje liczb losowych na różnych wersjach .NET. Algorytm jest szczegółem implementacji, a nie kontraktem. Dla zwykłego szumu rozgrywki to nie ma znaczenia. Dla czegoś, co ma się odtworzyć później, czyli pliku zapisu, wspólnego ziarna dziennego albo testu sprawdzającego dokładną liczbę, oznacza to, że aktualizacja silnika może po cichu zmienić wyniki w buildzie, który kompiluje się czysto i niczego nie zgłasza." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy każdy system w symulacji powinien mieć własny generator?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Każdy, który ma pozostać stabilny, gdy inne systemy się zmieniają, tak. Są jednak dwa sposoby, żeby mu go dać, i nie są wymienne. Strumień sekwencyjny ma własne słowo stanu zapisywane z grą i pasuje do wszystkiego, co postępuje w czasie, na przykład do kolejki kandydatów do pracy. Generator adresowany współrzędną powstaje na żądanie z ziarna zmieszanego z tożsamością, na przykład z ziarna kampanii i identyfikatora firmy, i nie przechowuje niczego, bo ta sama współrzędna zawsze odbuduje te same wartości. Po drugi sięgaj zawsze, gdy dane da się przeliczyć zamiast pamiętać." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy odgałęzienie generatora potomnego od rodzica jest bezpieczne?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie dla izolacji, a zwykle właśnie po to się po nie sięga. Pobranie ziarna dla potomka z rodzica przesuwa rodzica, więc sam akt izolowania podsystemu rusza dokładnie ten strumień, który izolacja miała chronić. Każdy system, który odgałęzia się w innym momencie albo warunkowo, przesuwa wszystko za sobą. Jeśli podsystem potrzebuje własnego strumienia, zasiej go stałą albo współrzędną, a jeśli ma przetrwać wczytanie zapisu, daj mu własne zapisywane słowo stanu." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy to czyni grę deterministyczną między platformami?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. To czyni powtarzalną sekwencję liczb. Arytmetyka zmiennoprzecinkowa nadal może różnić się między procesorami i celami kompilacji, domyślna fizyka Unity nie jest deterministyczną symulacją lockstep, a iterowanie nieuporządkowanej kolekcji rozjedzie nawet idealny generator. Dla symulacji turowej albo krokowej to zwykle wystarcza. Dla multiplayera w lockstep to pierwszy z kilku kroków." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-deterministic-random/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-deterministic-random/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Unity</span>
+        <h1>Ten sam seed,<br>inna gra,<br>a oczywista poprawka pogarsza sprawę.</h1>
+        <p class="tagline">Zapisanie generatora to łatwiejsza połowa. Kampanie psuje to, że jeden wspólny strumień przesuwa się, gdy cokolwiek innego losuje &mdash; a odgałęzienie własnego generatora, żeby z niego uciec, czerpie dokładnie z tego strumienia, który chroniłeś.</p>
+    </section>
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>12 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p class="lead">Wszystko tutaj pochodzi z jednego projektu: symulacji zarządzania, w której kampania trwa około 1100 dni gry, każdy dzień losuje dziesiątki wyników, a całość musi wczytać się z pliku zapisu i toczyć dalej tak, jakby nic się nie stało. Na tym siedzą 1624 testy automatyczne, a spora ich część sprawdza dokładne liczby.</p>
+
+        <p>Piszę to dlatego, że wyniki wyszukiwania na ten problem to głównie ludzie, którym radzi się wywołać <code>Random.InitState</code>, czyli porada na zupełnie inny problem. Ustawienie ziarna decyduje o tym, gdzie strumień się zaczyna. Prawie każdy błąd determinizmu, jaki miałem, dotyczył tego, co dzieje się ze strumieniem później.</p>
+
+        <div class="callout">
+            <b>Uwaga o wersji.</b> Obserwowane na <b>Unity 6000.5</b>, w czystym C#, bez DOTS. Trzy
+            omawiane generatory to te, które masz pod ręką w zwykłym projekcie Unity; zachowanie
+            każdego z nich jest podlinkowane do jego dokumentacji, a nie podane z pamięci.
+        </div>
+
+        <h2 id="three">Trzy generatory, trzy różne obietnice</h2>
+
+        <p>
+            W projekcie Unity masz w zasięgu ręki trzy oczywiste generatory i każdy obiecuje co innego.
+            Wybranie jednego z przyzwyczajenia jest początkiem tej historii.
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Generator</th><th>Czym naprawdę jest</th><th>Gdzie się łamie</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>UnityEngine.Random</code></td>
+                    <td>Klasa statyczna, Xorshift 128, zasiewana raz przy starcie procesu z systemu. Stan da się odczytać i zapisać.</td>
+                    <td>Stan jest <b>globalnie współdzielony</b>. Cokolwiek w procesie coś losuje, przesuwa twój strumień.</td>
+                </tr>
+                <tr>
+                    <td><code>System.Random</code></td>
+                    <td>Instancyjny, więc bez problemu współdzielenia. Da się zasiać.</td>
+                    <td>Algorytm <b>nie jest kontraktem</b>. Dokumentacja Microsoftu sama zaznacza, że to samo ziarno może dać inną sekwencję na innej wersji .NET.</td>
+                </tr>
+                <tr>
+                    <td><code>Unity.Mathematics.Random</code></td>
+                    <td>32-bitowa <b>struktura</b> xorshift, zaprojektowana do osadzania w komponentach i używania w jobach.</td>
+                    <td>Nic, w swoim zastosowaniu. To właściwe narzędzie do Bursta i jobów, zależność pakietowa, z ziarnem, które nigdy nie może być zerem.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Trzeci wiersz wart jest przypisu: <code>Unity.Mathematics.Random</code> to całkowicie dobra
+            odpowiedź, a nawet dostarcza pomocnik <code>CreateFromIndex</code>, czyli drugi wzorzec
+            z tego artykułu z oficjalnym wsparciem. Jeśli już masz ten pakiet, używaj go. Reszta
+            poradnika dotyczy rozumowania, a ono jest takie samo w obu przypadkach.
+        </p>
+
+        <h2 id="sharing">Problemem nie jest zapisywanie. Problemem jest współdzielenie.</h2>
+
+        <p>
+            Obiegowa opinia mówi, że <code>UnityEngine.Random</code> nie da się uczynić
+            deterministycznym. To nie całkiem prawda, a precyzja ma tu znaczenie, bo wskazuje
+            właściwą naprawę. Dokumentacja Unity mówi wprost, że stan da się zapisać i odtworzyć, i opisuje
+            generator jako <b>inicjowany statycznie ziarnem o wysokiej entropii z systemu operacyjnego</b>,
+            po czym zostaje on &bdquo;w całości pod kontrolą skryptów&rdquo;.
+        </p>
+
+        <p>
+            Da się go więc utrwalić. Czego się nie da, to go posiadać. Ta sama dokumentacja mówi równie
+            wprost dlaczego: to klasa statyczna, <b>więc jej stan jest globalnie współdzielony</b>. Twoja
+            symulacja jest jednym z wielu czytelników. System cząsteczek, wtyczka, narzędzie edytora,
+            kawałek interfejsu losujący wariant animacji bezczynności &mdash; każde z nich czerpie z tej
+            samej sekwencji, a każde pobranie przesuwa wszystko, co następuje po nim.
+        </p>
+
+        <div class="trap">
+            <h4>Dlaczego ten błąd jest tak trudny do zobaczenia</h4>
+            <p>
+                Wspólny strumień nie psuje się głośno. Psuje się jako kampania, która po wczytaniu toczy
+                się <em>prawie</em> tak samo, jako test przechodzący w pojedynkę i oblewający w zestawie,
+                i jako zgłoszenie błędu brzmiące &bdquo;za drugim razem liczby były inne&rdquo;, bez kroków
+                do odtworzenia, bo zgłaszający nie widzi, co jeszcze losowało.
+            </p>
+            <p>
+                Sygnałem rozpoznawczym jest <b>wrażliwość na kolejność</b>: jeśli dodanie funkcji w jednym
+                miejscu zmienia wyniki w zupełnie innym, masz jeden strumień, a nie kilka.
+            </p>
+        </div>
+        <h2 id="versions">Ziarno, które po cichu przestaje znaczyć to samo</h2>
+
+        <p>
+            Odruch po przeczytaniu powyższego to przesiadka na <code>System.Random</code>, który jest
+            instancyjny, a więc nie współdzielony. To usuwa jeden problem i wprowadza cichszy, i tej
+            części bym nie zgadł: <b>zasiany <code>System.Random</code> nie ma obietnicy, że zawsze da
+            tę samą sekwencję.</b>
+        </p>
+
+        <p>
+            Dokumentacja Microsoftu, w sekcji pokazującej, jak uzyskać tę samą sekwencję wartości
+            losowych, niesie taką uwagę: przykład &bdquo;może dawać różne sekwencje liczb losowych
+            uruchomiony na różnych wersjach .NET&rdquo;. Algorytm jest tam opisany jako zmodyfikowany
+            generator subtraktywny, a taki opis to udokumentowanie implementacji, nie gwarancja na nią.
+        </p>
+
+        <p>
+            Dla szumu rozgrywki to bez znaczenia. Robi się kosztowne w chwili, gdy liczba musi coś
+            przetrwać:
+        </p>
+
+        <ul>
+            <li><b>plik zapisu</b> napisany w jednej wersji silnika i otwarty w następnej;</li>
+            <li><b>dzienny albo tygodniowy przebieg na wspólnym ziarnie</b>, który dwóch graczy ma przeżyć identycznie;</li>
+            <li><b>test regresji</b> sprawdzający dokładną wartość, który ma oblewać tylko wtedy, gdy coś zepsułeś.</li>
+        </ul>
+
+        <p>
+            Żadne z tego się nie zapowiada. Aktualizacja środowiska, która zmienia sekwencję, daje build,
+            który się kompiluje, uruchamia, nic nie loguje i jest subtelnie inną grą.
+        </p>
+
+        <h2 id="own">Czterdzieści linijek wartych posiadania</h2>
+
+        <p>
+            Prowadzi to do mało efektownego wniosku: jeśli wynik ma być stabilny między wersjami
+            i maszynami, generator należy do twojego repozytorium, gdzie nic go nie zmieni bez commita.
+            Mój to xorshift32 z jednym słowem stanu i to jest całość:
+        </p>
+
+        <div class="code">public sealed class DeterministicRandom
+{
+    private const uint DefaultSeed = 0x5CA1AB1E;
+    private uint state;
+
+    public DeterministicRandom(uint seed = DefaultSeed)
+        =&gt; state = seed == 0 ? DefaultSeed : seed;
+
+    /// &lt;summary&gt;Cały generator. Zapisz to, odtwórz, dostajesz tę samą kampanię.&lt;/summary&gt;
+    public uint State
+    {
+        get =&gt; state;
+        set =&gt; state = value == 0 ? DefaultSeed : value;
+    }
+
+    public uint NextUInt()
+    {
+        state ^= state &lt;&lt; 13;
+        state ^= state &gt;&gt; 17;
+        state ^= state &lt;&lt; 5;
+        return state;
+    }
+}</div>
+
+        <p>
+            Trzy rzeczy ważą tu więcej niż sam algorytm. <b>Stan to jeden <code>uint</code></b>, więc
+            utrwalenie go jest pojedynczym polem, a nie ćwiczeniem z serializacji. <b>Zero jest
+            zabezpieczone w dwóch miejscach</b>, w konstruktorze i w setterze, bo xorshift jest w zerze
+            pochłaniający: podaj mu zero, a będzie zwracał zera w nieskończoność. To nie mój spryt
+            &mdash; własny pakiet matematyczny Unity dokumentuje tę samą regułę dla swojej struktury, że
+            ziarno musi być niezerowe. I <b>algorytm jest teraz twój</b>, więc aktualizacja Unity nie
+            renegocjuje go za ciebie.
+        </p>
+
+        <p>
+            Na tym siedzą wygody, z których symulacja faktycznie korzysta: <code>NextDouble</code>, zakres
+            całkowity, <code>NextChance(p)</code> oraz <code>NextGaussian</code> metodą Boxa&ndash;Mullera,
+            żeby przebieg treningu lądował <em>blisko</em> swojej prognozy, a nie dokładnie na niej.
+            Wszystkie są tylko odczytami tego samego słowa stanu, i o to chodzi: jedna rzecz do zapisania.
+        </p>
+        <h2 id="two-kinds">Dwa rodzaje losowości, które nie są wymienne</h2>
+
+        <p>
+            Posiadanie generatora nie mówi jeszcze, ile ich mieć. Tu spędziłem najwięcej czasu, a
+            odpowiedź nie brzmi &bdquo;po jednym na system&rdquo;. Brzmi tak, że symulacje zawierają
+            <b>dwa różne rodzaje losowości</b>, a każdy ma własny właściwy kształt.
+        </p>
+
+        <p>
+            <b>Pierwszy rodzaj jest sekwencyjny.</b> Postępuje z czasem, a kolejność losowań jest częścią
+            znaczenia. Kolejka kandydatów do pracy napływających przez tygodnie jest sekwencyjna: każde
+            losowanie zależy od tego, jak daleko zaszła kampania. Ten rodzaj potrzebuje strumienia
+            z zapisywanym słowem stanu, żeby wczytanie wznawiało sekwencję w środku, a nie zaczynało ją
+            od nowa.
+        </p>
+
+        <p>
+            <b>Drugi rodzaj jest adresowany współrzędną</b> i to jego najczęściej brakuje w projektach.
+            Niektóre wartości wcale nie są sekwencją. Są właściwością <em>rzeczy</em>: składem kadry
+            w konkurencyjnej firmie, inwestorem, który zjawia się konkretnego dnia, charakterem
+            laboratorium numer cztery. Tego nie trzeba pamiętać, bo da się to przeliczyć. Zbuduj generator
+            z samej współrzędnej, a ta sama współrzędna odbuduje te same wartości na zawsze:
+        </p>
+
+        <div class="code">// Kadra jednego rywala. Nic z tego nie trafia do pliku zapisu.
+public static List&lt;RivalStaffMember&gt; RosterFor(CompetitorId lab, GameDate today,
+    uint campaignSeed, IReadOnlyCollection&lt;int&gt; gone = null)
+{
+    var random = new DeterministicRandom(Mix(campaignSeed, (uint)lab));
+    ...
+}</div>
+
+        <p>
+            Komentarz nad tą metodą w moim repozytorium nazywa kontrakt, którego ona dotrzymuje:
+            <em>&bdquo;Deterministyczne względem laboratorium i ziarna kampanii, więc ta sama firma ma
+            tych samych ludzi za każdym otwarciem, a dwie kampanie na tym samym ziarnie się zgadzają.&rdquo;</em>
+        </p>
+
+        <p>
+            Funkcja mieszająca ma tu znaczenie, bo współrzędna w stylu <code>seed ^ labId</code> jest
+            fatalnym ziarnem: sąsiednie laboratoria dawałyby widocznie spokrewnione składy. Potrzebna jest
+            lawina, żeby jeden zmieniony bit zmieniał wszystko:
+        </p>
+
+        <div class="code">private static uint RivalryMix(uint seed, uint lab, uint day, uint salt)
+{
+    unchecked
+    {
+        var value = seed ^ (lab * 2654435761u) ^ (day * 40503u) ^ salt;
+        value ^= value &gt;&gt; 15;
+        value *= 2246822519u;
+        value ^= value &gt;&gt; 13;
+        value *= 3266489917u;
+        value ^= value &gt;&gt; 16;
+
+        return value == 0 ? 0x9E3779B9u : value;
+    }
+}</div>
+
+        <p>
+            Zwróć uwagę na argument <code>salt</code>. To on pozwala dwóm niezwiązanym pytaniom o to samo
+            laboratorium tego samego dnia &mdash; czy dziś coś wyda, czy podkupi komuś człowieka &mdash;
+            dostać niezależne odpowiedzi, bez tego żeby którekolwiek wiedziało o istnieniu drugiego.
+        </p>
+
+        <div class="trap">
+            <h4>Praktyczny test na to, który rodzaj masz</h4>
+            <p>
+                Zapytaj, czy wartość dałoby się <b>przeliczyć od zera</b> zamiast ją pamiętać. Jeśli tak,
+                jest adresowana współrzędną i nie należy do żadnego strumienia: nic nie przechowuje, nie
+                może się rozjechać, nie może zdesynchronizować i za darmo przeżywa zmianę formatu zapisu,
+                bo nigdy w tym zapisie jej nie było.
+            </p>
+            <p>
+                W moim projekcie okazało się, że to pokrywa większość. Dokładnie <b>dwa</b> strumienie
+                sekwencyjne mają w całej grze zapisywane słowo stanu. Wszystko dotyczące rywali, sojuszy,
+                inwestorów i ich kadr jest adresowane współrzędną i nie przechowuje niczego.
+            </p>
+        </div>
+        <h2 id="fork">Metoda, którą napisałem, udokumentowałem i nigdy nie wywołałem</h2>
+
+        <p>
+            Gdy podsystem potrzebuje własnego strumienia, oczywistym ruchem jest odgałęzienie go od
+            rodzica. Wylosuj liczbę, użyj jej jako ziarna potomka, podaj potomka dalej. To ładne API
+            i je napisałem:
+        </p>
+
+        <div class="code">/// &lt;summary&gt;
+/// Generator potomny zasiany z tego. Pozwala podsystemowi losować bez przesuwania
+/// strumienia rodzica, co chroni niezwiązane systemy przed desynchronizacją.
+/// &lt;/summary&gt;
+public DeterministicRandom Fork() =&gt; new(NextUInt());</div>
+
+        <p>
+            Przeczytaj implementację obok jej własnego komentarza. Obiecuje pozwolić podsystemowi losować
+            <b>bez przesuwania strumienia rodzica</b>, a pierwsze, co robi, to wywołuje
+            <code>NextUInt()</code>, <b>co przesuwa strumień rodzica</b>.
+        </p>
+
+        <p>
+            To nie literówka, to kształt samego pomysłu. Nie da się wyprowadzić ziarna potomka
+            z generatora rodzica bez posunięcia rodzica, bo posuwanie się jest tym, w jaki sposób generator
+            cokolwiek produkuje. Akt izolowania podsystemu sam jest losowaniem, a izolacja kosztuje
+            dokładnie to, co miała kupić.
+        </p>
+
+        <p>
+            W przypadku, na którym naprawdę ci zależy, jest gorzej. Jeśli odgałęzienie jest warunkowe
+            &mdash; podsystem budzi się dopiero, gdy gracz coś odblokuje, albo w dniu pierwszego
+            uruchomienia funkcji &mdash; to <em>czy</em> w ogóle się odgałęziłeś zależy od przebiegu
+            kampanii, a strumień rodzica jest już inny u dwóch graczy, którzy zrobili co innego. Czyli
+            dokładnie ta klasa błędu, przed którą odgałęzienie miało chronić.
+        </p>
+
+        <p>
+            Znalazłem to, dając systemowi rekrutacji własny strumień, a to, co mówi tam kod, jest
+            najjaśniejszym zdaniem na ten temat w całym repozytorium:
+        </p>
+
+        <div class="code">/// Zasiany stałą, a nie odgałęziony od firmowego, bo odgałęzianie czerpie dokładnie
+/// z tego strumienia, który to ma zostawić w spokoju. Jego stan jest zapisywany, więc
+/// kampania wczytuje tych samych ludzi.
+public DeterministicRandom Random { get; } = new(SeedSalt);</div>
+
+        <p>
+            <code>Fork()</code> jest więc nadal w pliku, wkompilowany w każdy build, <b>i wywołany
+            dokładnie zero razy</b>. Oba problemy, dla których powstał, miały lepsze odpowiedzi: stałe
+            ziarno z własnym zapisywanym słowem stanu dla przypadku sekwencyjnego i zmieszana współrzędna
+            dla całej reszty.
+        </p>
+
+        <div class="trap">
+            <h4>Jeśli mimo wszystko chcesz mieć odgałęzianie</h4>
+            <p>
+                Istnieje wersja, która działa, i warto ją znać, bo to zmiana jednej linijki w myśleniu.
+                Nie wyprowadzaj potomka ze <em>strumienia</em> rodzica, wyprowadź go z jego
+                <em>tożsamości</em>. Zmieszaj ziarno kampanii ze stałą nazywającą podsystem, a potomek jest
+                niezależny od tego, co rodzic wylosował albo czego nie wylosował.
+            </p>
+            <p>
+                To ta sama funkcja mieszająca co wyżej, z solą dla każdego systemu &mdash; i dlatego
+                odgałęzianie zniknęło, zamiast zostać naprawione: kiedy już to napiszesz, nie zostaje dla
+                niego nic do roboty.
+            </p>
+        </div>
+
+        <p>
+            Mam nawyk znajdowania u siebie takich funkcji: napisanych, przetestowanych, nieosiągalnych dla
+            nikogo. Według mojego własnego licznika to szesnasta. Różnica polega na tym, że ta metoda nie
+            jest nieosiągalna przez zapomnienie. Jest nieosiągalna, bo podłączenie jej byłoby błędem,
+            a komentarz trzy pliki dalej wyjaśnia dlaczego. To jest ten rodzaj martwego kodu, który warto
+            zostawić &mdash; pod warunkiem że powód leży zapisany obok.
+        </p>
+        <h2 id="tests">Cztery testy, które czynią to prawdziwym</h2>
+
+        <p>
+            Nic z powyższego nie jest nic warte jako intencja. Determinizm to własność, która psuje się po
+            cichu, więc trzeba go asercjonować. Te cztery faktycznie wyłapały regresje i są na tyle tanie,
+            że nie ma wymówki, żeby ich nie mieć.
+        </p>
+
+        <p>
+            <b>Raz: to samo ziarno daje tę samą kampanię.</b> Najkrótsze możliwe sformułowanie całej idei
+            i pierwsza rzecz, która pęka, gdy ktoś doda losowanie w złym miejscu.
+        </p>
+
+        <p>
+            <b>Dwa: strumień przeżywa podróż w obie strony przez plik zapisu.</b> Posuń go, zapisz, wczytaj
+            i sprawdź zarówno stan, <em>jak i</em> następną wartość z niego. Sprawdzanie samego stanu
+            przeoczy odtwarzanie, które zapisuje pole, ale nigdy nie dochodzi do generatora:
+        </p>
+
+        <div class="code">[Test]
+public void TheRandomStreamResumesSoTheCampaignStaysReplayable()
+{
+    var original = BuildCampaign();
+    original.Random.NextUInt();
+    original.Random.NextUInt();
+
+    var restored = SaveStore.Restore(SaveStore.Parse(
+        JsonUtility.ToJson(SaveStore.Capture(original))));
+
+    Assert.That(restored.Random.State, Is.EqualTo(original.Random.State));
+    Assert.That(restored.Random.NextUInt(), Is.EqualTo(original.Random.NextUInt()));
+}</div>
+
+        <p>
+            <b>Trzy: cała kampania odtwarza się pod skryptowanym graczem.</b> Ten zarabia na swój czas
+            wykonania. Bot gra 1100 dni gry dwa razy na tym samym ziarnie, a oba przebiegi muszą zgodzić
+            się co do gotówki, zdolności i liczby wydanych modeli. Wyłapuje to, czego testy jednostkowe nie
+            widzą, bo trybem awarii jest tu narastające rozjeżdżanie się, a nie pojedyncza zła wartość:
+        </p>
+
+        <div class="code">[Test]
+public void TheWholeCampaignStaysDeterministicUnderAScriptedPlayer()
+{
+    static (long Cash, double Capability, int Models) Play(uint seed)
+    {
+        var simulation = NewGame(seed);
+        var bot = new ScriptedOperator(simulation);
+        bot.Run(1100);
+        return (simulation.State.CashUsd, simulation.State.BestCapability, bot.ModelsShipped);
+    }
+
+    Assert.That(Play(777), Is.EqualTo(Play(777)));
+}</div>
+
+        <p>
+            <b>Cztery: systemy adresowane współrzędną zgadzają się same ze sobą.</b> Poproś dwa razy o to
+            samo pole rywali, ten sam skład kadry, ten sam harmonogram inwestorów, z dwóch osobno
+            zbudowanych kampanii na jednym ziarnie, i porównaj. To pilnuje wzorca z poprzedniej sekcji,
+            gdzie nie ma zapisanego stanu, który wyłapałby pomyłkę.
+        </p>
+
+        <div class="trap">
+            <h4>Ten, który zwraca się sam</h4>
+            <p>
+                Jeśli masz napisać tylko jeden, napisz trzeci. Porównanie dwóch przebiegów długiej kampanii
+                nie wymaga wiedzy o tym, który system zawinił, ani utrzymania, gdy liczby się zmienią, bo
+                nigdy nie sprawdza <em>wartości</em> &mdash; tylko to, że gra zgodziła się sama ze sobą.
+            </p>
+        </div>
+
+        <h2 id="not">Czego to nie naprawia</h2>
+
+        <p>
+            Poradnik o determinizmie, który nie podaje swoich granic, coś ci sprzedaje. Wszystko powyżej
+            daje <b>powtarzalną sekwencję liczb</b>. To nie to samo co powtarzalna <em>gra</em>, a różnica
+            ma znaczenie:
+        </p>
+
+        <ul>
+            <li><b>Zmiennoprzecinkowe między platformami.</b> Ta sama arytmetyka na typie double może różnić się między procesorami, kompilatorami i celami kompilacji. Jeśli twoja symulacja ma zgadzać się co do bitu na różnych maszynach, to osobny i znacznie trudniejszy problem niż generator.</li>
+            <li><b>Fizyka.</b> Domyślna fizyka Unity nie jest deterministyczną symulacją lockstep, a zasianie generatora nic w tej sprawie nie robi.</li>
+            <li><b>Kolejność w kolekcjach.</b> Iterowanie słownika albo zbioru i losowanie na każdym elemencie rozjedzie się nawet przy idealnym generatorze, bo kolejność nie jest obiecana. To gryzie znacznie częściej niż zmiennoprzecinkowe.</li>
+            <li><b>Czas i liczba klatek.</b> Cokolwiek czyta <code>Time.deltaTime</code>, a potem losuje, uczyniło liczbę klatek wejściem do symulacji.</li>
+        </ul>
+
+        <p>
+            W symulacji turowej, krokowanej dniami jak moja, pierwsze dwa w zasadzie nie występują i dlatego
+            ten poradnik jest o generatorze. Trzeciego pilnowałbym: łatwo napisać go przez przypadek, a psuje
+            się dokładnie tak samo, więc jeśli przebieg rozjeżdża się po zrobieniu wszystkiego powyżej,
+            zajrzyj najpierw w to, co iterowałeś, a nie w to, co losowałeś.
+        </p>
+        <h2 id="shape">Kształt odpowiedzi w czterech punktach</h2>
+
+        <p>
+            Jeśli nie zabierasz stąd nic innego:
+        </p>
+
+        <ul>
+            <li><b>Miej własny generator.</b> Czterdzieści linijek w twoim repozytorium bije zależność, której algorytm jest szczegółem implementacji.</li>
+            <li><b>Zapytaj, czy wartość jest sekwencyjna, czy adresowana współrzędną</b>, zanim dasz jej strumień. Większość tego, co w symulacji wygląda na losowe, da się przeliczyć, a przeliczane dane nie mogą się rozjechać.</li>
+            <li><b>Nigdy nie wyprowadzaj strumienia potomnego ze strumienia rodzica.</b> Wyprowadź go z tożsamości &mdash; stałej, współrzędnej, soli &mdash; żeby był niezależny od tego, co rodzic zrobił.</li>
+            <li><b>Zasercjonuj to testem, który odtwarza długi przebieg dwa razy.</b> Determinizm, którego nie testujesz, to determinizm, który miałeś kiedyś.</li>
+        </ul>
+
+        <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+        <div class="qa">
+            <h3>Dlaczego Unity daje różne wyniki przy tym samym ziarnie?</h3>
+            <p>
+                Najczęściej dlatego, że generator jest wspólny. <code>UnityEngine.Random</code> to klasa
+                statyczna, więc jej stan jest globalny: efekt cząsteczkowy, wtyczka, skrypt edytora albo
+                dowolny niezwiązany <code>MonoBehaviour</code>, który coś wylosuje, przesuwa ten sam
+                strumień, z którego czyta twoja symulacja. Ponowne ustawienie ziarna naprawia pierwszą
+                klatkę i nic poza nią. Druga częsta przyczyna to własne losowanie dodane wcześniej
+                w turze, które przesuwa każdą kolejną wartość. Żadnej z nich nie rozwiązuje zapisanie
+                ziarna, bo to nie ziarno się zmieniło.
+            </p>
+
+            <h3>Czy da się zapisać i odtworzyć UnityEngine.Random?</h3>
+            <p>
+                Tak &mdash; i to jest ta część, którą internet zwykle podaje źle. Unity udostępnia
+                właściwość <code>state</code>, którą można odczytać i zapisać, i dokumentuje generator jako
+                Xorshift 128 zasiewany raz z systemu operacyjnego przy starcie procesu, a potem zostawiony
+                pod kontrolą skryptów. Trwałość nie jest ograniczeniem. Ograniczeniem jest własność: stan,
+                który zapisujesz, należy do całego procesu, więc jego przywrócenie odtworzy przebieg tylko
+                wtedy, gdy w międzyczasie nic innego ze strumienia nie czerpało.
+            </p>
+
+            <h3>Czy System.Random z tym samym ziarnem daje tę samą sekwencję na każdej wersji .NET?</h3>
+            <p>
+                Nie, i Microsoft dokumentuje to wprost. Jego własny przykład pokazujący, jak uzyskać tę samą
+                sekwencję wartości losowych, niesie uwagę, że kod może dawać różne sekwencje na różnych
+                wersjach .NET. Dla szumu rozgrywki to w porządku. Dla pliku zapisu, wspólnego ziarna
+                dziennego albo testu sprawdzającego dokładną liczbę oznacza to, że aktualizacja środowiska
+                może zmienić twoje wyniki w buildzie, który kompiluje się czysto i niczego nie zgłasza.
+            </p>
+
+            <h3>Czy każdy system powinien mieć własny generator?</h3>
+            <p>
+                Każdy, który ma pozostać stabilny, gdy inne systemy się zmieniają, tak &mdash; ale są dwa
+                sposoby, żeby mu go dać, i nie są wymienne. Strumień sekwencyjny ma własne zapisywane słowo
+                stanu i pasuje do wszystkiego, co postępuje w czasie, jak kolejka kandydatów. Generator
+                adresowany współrzędną powstaje na żądanie z ziarna zmieszanego z tożsamością, na przykład
+                ziarna kampanii i identyfikatora firmy, i nie przechowuje niczego. Po drugi sięgaj zawsze,
+                gdy dane da się przeliczyć zamiast pamiętać; w moim projekcie pokrywa to wszystko poza
+                dwoma strumieniami.
+            </p>
+
+            <h3>Czy odgałęzienie generatora potomnego od rodzica jest bezpieczne?</h3>
+            <p>
+                Nie dla izolacji, a zwykle właśnie po to się po nie sięga. Pobranie ziarna dla potomka
+                z rodzica przesuwa rodzica, więc izolowanie podsystemu rusza dokładnie ten strumień, który
+                izolacja miała chronić &mdash; a jeśli odgałęzienie jest warunkowe, dwóch graczy, którzy
+                zagrali inaczej, ma teraz inne strumienie. Zasiej potomka stałą albo współrzędną, a jeśli
+                ma przetrwać wczytanie, daj mu własne zapisywane słowo stanu.
+            </p>
+
+            <h3>Czy to czyni grę deterministyczną między platformami?</h3>
+            <p>
+                Nie. To czyni powtarzalną <em>sekwencję liczb</em>. Arytmetyka zmiennoprzecinkowa nadal może
+                różnić się między procesorami i celami kompilacji, domyślna fizyka Unity nie jest
+                deterministyczną symulacją lockstep, a iterowanie nieuporządkowanej kolekcji rozjedzie nawet
+                idealny generator. Dla symulacji turowej albo krokowanej dniami to zwykle wystarcza. Dla
+                multiplayera w lockstep to pierwszy z kilku kroków.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>Wszystko tutaj da się sprawdzić.</b> Generator, funkcja mieszająca, nieużywany
+            <code>Fork()</code> i wszystkie cztery testy są w publicznym repozytorium
+            <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a>, podlinkowanym w źródłach
+            tego artykułu. Jeśli coś pomyliłem, kod jest tam po to, żeby to udowodnić.
+        </div>
+
+        <div class="guide-cta">
+            <b>Dalej w tej serii:</b> <a href="../game-balance-tests/index_pl.html">testy balansu, które dowodzą, że grę da się wygrać</a> &middot; <a href="../unity-testable-game-logic/index_pl.html">1541 testów, które nie uruchamiają gry</a> &middot; <a href="../tycoon-game-economy/index_pl.html">ekonomia tycoona jako prawa</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; buduję publicznie</div>
+                <p>Piszę o tym, co naprawdę wypuściłem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z tym, co nie zadziałało. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw mi kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

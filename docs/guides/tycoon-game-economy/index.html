@@ -1,0 +1,575 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · designing a tycoon economy as testable laws -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A tycoon economy is not a spreadsheet. It is nine one-way laws, and the best mechanic I have is a number the player never touches.">
+    <meta name="keywords" content="tycoon game economy design, game economy balancing, simulation game design, management game mechanics, idle economy design, market simulation game, price mechanic, game economy tests, Unity simulation economy">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/tycoon-game-economy/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/tycoon-game-economy/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/tycoon-game-economy/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/tycoon-game-economy/">
+    <meta property="og:title" content="An economy is not a spreadsheet. It is a list of laws that may never run backwards.">
+    <meta property="og:description" content="Nine economic laws from a shipped simulation, each one written as a test, and the one that turns a settings screen into a decision.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/tycoon-game-economy/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-05T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Tycoon Game Economy Design: Laws, Not Numbers | PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+
+    <style>
+        .limits { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .limits th, .limits td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .limits th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                     font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .limits td code { font-family:'JetBrains Mono',monospace; font-size:13px; color:#f3968a; }
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "An economy is not a spreadsheet. It is a list of laws that may never run backwards.",
+      "description": "Nine economic laws from a shipped management simulation, each written as an enforceable test, including the one that turns a settings screen into a recurring decision by doing nothing at all.",
+      "url": "https://pcworkman.dev/guides/tycoon-game-economy/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/tycoon-game-economy/" },
+      "datePublished": "2026-10-05T00:00:00+02:00",
+      "dateModified": "2026-10-05T00:00:00+02:00",
+      "citation": [
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/MarketModelTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/BusinessPricingTests.cs",
+        "https://github.com/HuckleR2003/ScalingLaws-AI/blob/main/Assets/_ScalingLaws/Tests/EditMode/MarketDriftTests.cs"
+      ],
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Game design, C#, a management or tycoon simulation",
+      "wordCount": 2185,
+      "keywords": "tycoon economy, game design, market simulation, pricing, balance, management game",
+      "about": [
+        { "@type": "Thing", "name": "Game economy design" },
+        { "@type": "Thing", "name": "Simulation games" },
+        { "@type": "Thing", "name": "Game design" },
+        { "@type": "VideoGame", "name": "Scaling Laws", "url": "https://pcworkman.dev/hck-labs/scaling-laws/" }
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Designing a tycoon economy", "item": "https://pcworkman.dev/guides/tycoon-game-economy/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you design the economy of a tycoon game?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Write the laws before the numbers. A tycoon economy is a small set of statements about which way things are allowed to move: the unit price only ever falls, demand grows fast and then flattens, the frontier climbs whether or not the player keeps up. Each one is a sentence you can enforce as a test, which means it cannot quietly reverse during months of tuning. Numbers are what you tune afterwards; laws are what stop the tuning from turning your game into a different game." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my tycoon game get boring after the first hour?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually because standing still stopped costing anything. If a decision the player made in hour one remains correct in hour five, the screen where they made it is a screen they never open again, and a management game is mostly screens. The fix is not more content but decay: make a reasonable choice become unreasonable on its own, through the world moving rather than through a timer. My strongest example is a fixed subscription price in a market whose price halves every year, which makes a company that touched nothing into a company overcharging by double." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should market share be something the player buys with price?",
+          "acceptedAnswer": { "@type": "Answer", "text": "One lever should move it and the rest should not, otherwise share becomes a number that drifts for reasons no player can trace. In my simulation cutting price buys share and nothing else does, which is written as a test with that name. Equally important is that share is always split against actual rivals and never handed over: there is no state in which the market simply gives a player customers, because an economy where competitors stop competing is an economy that has quietly ended." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you stop a simulated economy from breaking late in a long game?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Run it far past where the player will ever get and assert that it is still sane. Mine has a test that steps the market over fourteen years and checks it never breaks, plus one that asserts somebody is always serving the market throughout. Compounding numbers fail at the edges, not in the middle, and a four-year campaign tested only to four years will eventually meet a player who does something unusual and arrives at year six." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much economic realism does a tycoon game need?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Enough that the direction of things is honest, and no more. The laws should match how the real thing behaves, because that is where the satisfaction comes from in this genre, but the magnitudes exist to make decisions legible. The test to apply is whether a player could explain what happened to them in one sentence. If the honest model produces an outcome nobody can narrate, the model is right and the game is wrong." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/tycoon-game-economy/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/tycoon-game-economy/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Game design</span>
+        <h1>An economy is not<br>a spreadsheet. It is a list<br>of laws that may never<br>run backwards.</h1>
+        <p class="tagline">Nine of them, from a shipped management simulation, each written as a test so that months of tuning cannot quietly reverse one. Including the best mechanic I have, which is a number the player never touches.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-05</span><span>&middot;</span><span>11 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p class="lead">I have played this genre for years &mdash; Game Dev Tycoon, Startup Company, Big Ambitions, the Devices and Laptop Tycoon line &mdash; and then spent eighteen months building one. The thing I did not understand as a player is that the economy is not where you put the numbers. It is where you put the rules the numbers are not allowed to break.</p>
+
+        <p>
+            What follows are the actual laws from my simulation. Each one is a test with a name that
+            reads as a sentence, which is deliberate: an economic law written as English survives
+            tuning, and a magic number in a config file does not.
+        </p>
+
+        <div class="callout">
+            <b>The genre this is for.</b> A management or tycoon game where money compounds over hours
+            of play and the player's decisions are mostly numbers. If your game's economy is a shop with
+            three upgrades, most of this is overkill and the last section says so.
+        </div>
+
+        <h2 id="laws">Write the laws first, the numbers second</h2>
+
+        <p>
+            Every economy I have built badly failed the same way: I tuned a number, then another, then
+            forty more, and six weeks later the game had a different character and no single commit was
+            responsible. The numbers were all defensible. The <em>directions</em> had quietly reversed.
+        </p>
+
+        <p>
+            A law is a statement about direction, not magnitude. Here are mine, as they are named in the
+            test suite:
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>The law, as its test is named</th><th>What it protects</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>PricePerTokenOnlyEverFalls</code></td><td>The one-way ratchet the whole economy hangs from.</td></tr>
+                <tr><td><code>DemandGrowsFastThenFlattens</code></td><td>A boom that ends, so early success is not permanent success.</td></tr>
+                <tr><td><code>TheFrontierKeepsClimbingAndNeverWaitsForThePlayer</code></td><td>A world that moves whether or not you do.</td></tr>
+                <tr><td><code>CuttingPriceBuysShareAndNothingElseDoes</code></td><td>Exactly one lever on the most important number.</td></tr>
+                <tr><td><code>ShareIsSplitAgainstRealRivalsAndNeverHandedOver</code></td><td>No free customers, ever.</td></tr>
+                <tr><td><code>AModelNobodyReplacesQuietlyStopsBeingChosen</code></td><td>Nothing you shipped stays good.</td></tr>
+                <tr><td><code>ScarcityPeaksInTheShortageAndEasesAfterwards</code></td><td>Shocks that arrive and then pass.</td></tr>
+                <tr><td><code>ASubscriptionLeftAloneDriftsIntoOverchargingAndThatIsAStory</code></td><td>Standing still has to cost something.</td></tr>
+                <tr><td><code>TheMarketNeverBreaksOverFourteenYears</code></td><td>The edges, where compounding numbers actually fail.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Read that column again as a design document, because that is what it is. It took me a long
+            time to notice that my clearest statement of what the game is was sitting in a test file.
+        </p>
+        <h2 id="drift">The best mechanic I have is a number the player never touches</h2>
+
+        <p>
+            If you take one thing from this article, take this one. It is the cheapest interesting
+            mechanic I have ever built and it is made entirely of a law I had already written.
+        </p>
+
+        <p>
+            The setup: the market price of the thing my player sells falls over time &mdash; that is law
+            one, and it is true of the real industry the game is about. The player chooses a pricing
+            model early, and a subscription is the obvious choice because it is stable. They set it, it
+            works, they close the screen.
+        </p>
+
+        <p>
+            A year later their fee has not moved and the market price has halved. They are now charging
+            <b>twice the market rate</b>, without having done anything at all. The test says it in
+            arithmetic:
+        </p>
+
+        <div class="code">var policy = new MonetizationPolicy();
+var opening = MarketModel.InitialPricePerMillionTokensUsd;
+
+Assert.That(policy.RelativePrice(opening), Is.EqualTo(1.0).Within(1e-9),
+    "A company that has touched nothing does not open at par.");
+
+// Roughly where a year of decay leaves the market.
+var afterAYear = policy.RelativePrice(opening / 2.0);
+
+Assert.That(afterAYear, Is.EqualTo(2.0).Within(1e-9),
+    "The fee is fixed and the market halved, so the company is charging twice the "
+    + "market and this is the number that says so.");</div>
+
+        <p>
+            And then the assertion that explains why this is a <em>mechanic</em> rather than a
+            simulation detail. The message is what you would read if it ever failed:
+        </p>
+
+        <div class="code">Assert.That(afterAYear, Is.GreaterThan(ModelScandals.PricyAbove),
+    "Standing still no longer costs anything, so the BUSINESS page is a screen a "
+    + "player never has to open twice.");</div>
+
+        <div class="trap">
+            <h4>The general rule hiding in there</h4>
+            <p>
+                <b>A screen is only interesting if a decision made on it can become wrong on its own.</b>
+                Not through a timer, not through an event that fires at you, but because the world moved
+                and your choice stayed where you left it.
+            </p>
+            <p>
+                This reframes the usual complaint that a management game &ldquo;gets boring after an
+                hour&rdquo;. It rarely needs more content. It needs decay: a reason for the player to
+                revisit a decision they already consider finished.
+            </p>
+        </div>
+
+        <p>
+            The counterpart matters just as much. Metered pricing tracks the market down, so it never
+            drifts &mdash; and the test says why that is the <em>only</em> reason to choose it:
+        </p>
+
+        <div class="code">Assert.That(metered.RelativePrice(opening / 2.0), Is.EqualTo(1.0).Within(1e-9),
+    "Metered pricing stopped following the market down, which is the only reason to "
+    + "take it over a subscription.");</div>
+
+        <p>
+            That is a genuine trade rather than a better option: a subscription pays more while you are
+            paying attention and punishes you when you stop; metered pays less and never bites. A player
+            can explain both in one sentence, which is the bar every economic choice in this genre
+            should clear.
+        </p>
+
+        <h2 id="one">One lever moves share, and only one</h2>
+
+        <p>
+            Market share is the number players watch, which makes it the number most likely to become
+            incomprehensible. If four systems nudge it, nobody can trace why it moved, and a management
+            game whose central number moves for untraceable reasons is a slot machine with spreadsheets.
+        </p>
+
+        <p>
+            So mine has exactly one lever, named as plainly as I could manage:
+        </p>
+
+        <div class="code">[Test]
+public void CuttingPriceBuysShareAndNothingElseDoes()
+{
+    var market = MarketModel.Evaluate(GameDate.FromCalendar(2024, 6, 1));
+    var listPrice  = new[] { new DeployedModel("List",     /* ... */ 1.00) };
+    var discounted = new[] { new DeployedModel("Discount", /* ... */ 0.25) };
+
+    Assert.That(MarketShareModel.PlayerShare(discounted, 0.4, market),
+        Is.GreaterThan(MarketShareModel.PlayerShare(listPrice, 0.4, market)));
+}</div>
+
+        <p>
+            The companion law is the one people forget, and it is the difference between an economy and
+            a scoreboard: <code>ShareIsSplitAgainstRealRivalsAndNeverHandedOver</code>. There is no state
+            in which the market simply gives the player customers. Even a dominant company faces an
+            assertion that rivals keep some of the market, because <b>an economy where competitors stop
+            competing is an economy that has quietly ended</b>, and the player will feel that long before
+            they can name it.
+        </p>
+        <h2 id="world">The world must not wait for the player</h2>
+
+        <p>
+            Most tycoon games are generous here and it costs them their tension. If the competition
+            scales to your progress, nothing you do is urgent, because the gap is constant by
+            construction.
+        </p>
+
+        <p>
+            Mine states the opposite as a law:
+            <code>TheFrontierKeepsClimbingAndNeverWaitsForThePlayer</code>. The best thing in the world
+            improves on its own schedule. Fall behind for two in-game years and you are behind, not
+            rubber-banded back.
+        </p>
+
+        <p>
+            That sounds harsh and needs a counterweight, which is the balance band from
+            <a href="../game-balance-tests/">the article on playability tests</a>: an ordinary player
+            must still finish four years within reach of the frontier. The two tests disagree on purpose.
+            One says the world does not wait; the other says the game stays winnable anyway. Balance is
+            the distance between them, and writing both down is what stops you from accidentally
+            softening the first while trying to satisfy the second.
+        </p>
+
+        <div class="trap">
+            <h4>Two laws that make a long game feel alive</h4>
+            <p>
+                <b><code>DemandGrowsFastThenFlattens</code></b> gives the economy a boom with an end, so
+                a company that rode the early wave cannot coast on it. Growth that never flattens is a
+                game that rewards starting well and then stops asking anything.
+            </p>
+            <p>
+                <b><code>ScarcityPeaksInTheShortageAndEasesAfterwards</code></b> makes shocks temporary.
+                A shortage that never resolves is just a permanent price change wearing a costume, and
+                players read it as one.
+            </p>
+        </div>
+
+        <h2 id="obsolete">Nothing you shipped stays good</h2>
+
+        <p>
+            <code>AModelNobodyReplacesQuietlyStopsBeingChosen</code> is the law I would add first to
+            somebody else's tycoon game, because almost every one of them is missing it.
+        </p>
+
+        <p>
+            The common design has you build a product, and that product keeps earning forever. It makes
+            the first hours satisfying and the later hours hollow, because the optimal strategy becomes
+            accumulation: never retire anything, let the pile grow. Obsolescence is what turns a pile
+            into a portfolio you have to manage.
+        </p>
+
+        <p>
+            Note the word <em>quietly</em> in the test name. The product is not deleted, it does not
+            expire, no notification fires. Customers simply stop choosing it, because the market moved
+            and it did not. The player discovers it by looking &mdash; which is the behaviour you want to
+            reward in this genre.
+        </p>
+
+        <h2 id="soak">Proving the economy does not break in year fourteen</h2>
+
+        <p>
+            Compounding numbers fail at the edges. An economy that behaves beautifully for four years
+            can produce a negative price, an infinite demand or a dead market at year nine, and your
+            players include someone who will get there.
+        </p>
+
+        <p>
+            So the market is stepped far past the campaign and checked for sanity the whole way:
+        </p>
+
+        <table class="limits">
+            <thead>
+                <tr><th>Test</th><th>What it refuses to allow</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>TheMarketNeverBreaksOverFourteenYears</code></td><td>Any value going impossible at the far edge of the curve.</td></tr>
+                <tr><td><code>SomebodyIsActuallyServingTheMarketThroughout</code></td><td>A market that technically exists while nobody is in it.</td></tr>
+                <tr><td><code>EveryModelTypeIsSomethingSomebodyEventuallyBuilds</code></td><td>Content that is reachable on paper and chosen by nobody.</td></tr>
+                <tr><td><code>TheServedMarketChangesShapeOverAWholeGame</code></td><td>A market that is the same shape in year ten as in year one.</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            That second one is subtler than it looks. &ldquo;Somebody is serving the market&rdquo; is not
+            about the player at all &mdash; it asserts the simulated world remains populated. An economy
+            where the rivals all quietly die is technically stable and completely dead, and it is a very
+            easy failure to ship, because nothing errors.
+        </p>
+
+        <p>
+            The third is my favourite piece of housekeeping in the whole suite. It walks the content and
+            asserts that every product type is something an actor in the world eventually builds. Content
+            that exists but is never chosen is the economic version of the
+            <a href="../unreachable-code-in-games/">unreachable feature</a>: finished, correct and
+            invisible.
+        </p>
+        <h2 id="realism">How much realism, and where to stop</h2>
+
+        <p>
+            My game is about an industry with real published economics, so the temptation to model
+            everything was strong, and giving in to it was a mistake I made twice.
+        </p>
+
+        <p>
+            The rule I settled on: <b>the directions must be honest, the magnitudes must be legible.</b>
+            Price falling over time is true of the real thing and the game would feel wrong without it.
+            The exact shape of the fall exists to make a decision readable, not to match a chart.
+        </p>
+
+        <p>
+            The test to apply is whether a player can explain what happened to them in one sentence.
+            &ldquo;I kept my subscription fee while the market halved, so I was charging double and
+            customers left&rdquo; is a sentence. If an honest model produces an outcome nobody can
+            narrate, the model is right and the game is wrong, and the game is the thing you are making.
+        </p>
+
+        <div class="trap">
+            <h4>When none of this applies</h4>
+            <p>
+                If your economy is a shop with a handful of upgrades, or the money exists only to pace
+                content you have authored by hand, this is overkill. These laws earn their keep when the
+                economy <em>is</em> the game &mdash; when the player spends hours making numerical
+                decisions and expects them to add up.
+            </p>
+            <p>
+                The honest signal that you need them: you have tuned the same constant more than three
+                times and cannot say what the game is supposed to feel like at hour five.
+            </p>
+        </div>
+
+        <h2 id="start">The order I would write them in again</h2>
+
+        <ul>
+            <li><b>One ratchet.</b> Pick the single number that only moves one way and build the rest around it. Mine is the unit price falling.</li>
+            <li><b>One lever on the headline number.</b> Whatever the player watches most, exactly one thing moves it, and that thing is named in a test.</li>
+            <li><b>One decay.</b> Something reasonable must become unreasonable while the player is not looking. This is the mechanic, not the maths.</li>
+            <li><b>No free customers.</b> Share is always contested, including when the player is winning.</li>
+            <li><b>A soak run far past the campaign.</b> Fourteen years in my case; whatever doubles your longest realistic playthrough.</li>
+        </ul>
+
+        <h2 id="faq">Questions people ask about this</h2>
+
+        <div class="qa">
+            <h3>How do you design the economy of a tycoon game?</h3>
+            <p>
+                Write the laws before the numbers. The economy is a small set of statements about which
+                way things may move: the unit price only ever falls, demand grows fast and then flattens,
+                the frontier climbs whether or not the player keeps up. Each is a sentence you can enforce
+                as a test, so it cannot quietly reverse during months of tuning. Numbers are what you tune
+                afterwards; laws are what stop the tuning from producing a different game.
+            </p>
+
+            <h3>Why does my tycoon game get boring after the first hour?</h3>
+            <p>
+                Usually because standing still stopped costing anything. If a decision made in hour one is
+                still correct in hour five, the screen where it was made is a screen nobody opens again
+                &mdash; and a management game is mostly screens. The fix is rarely more content; it is
+                decay, so a reasonable choice becomes unreasonable through the world moving rather than
+                through a timer firing.
+            </p>
+
+            <h3>Should market share be something the player buys with price?</h3>
+            <p>
+                One lever should move it and the rest should not, or share becomes a number that drifts
+                for untraceable reasons. In mine, cutting price buys share and nothing else does, and that
+                is the name of the test. Just as important: share is split against actual rivals and never
+                handed over, because an economy where competitors stop competing has quietly ended.
+            </p>
+
+            <h3>How do you stop a simulated economy from breaking late in a long game?</h3>
+            <p>
+                Run it far past where any player will get and assert it is still sane. Mine steps the
+                market over fourteen years and also asserts that somebody is always serving that market.
+                Compounding numbers fail at the edges, and a four-year campaign tested only to four years
+                will eventually meet the player who arrives at year six.
+            </p>
+
+            <h3>How much economic realism does a tycoon game need?</h3>
+            <p>
+                Enough that the directions are honest, and no more. Magnitudes exist to make decisions
+                legible. The usable test is whether a player can explain what happened to them in one
+                sentence; if an honest model produces an outcome nobody can narrate, the model is right
+                and the game is wrong.
+            </p>
+        </div>
+
+        <div class="callout">
+            <b>Every law here is a real test with that real name.</b> They are in the public repository
+            for <a href="../../hck-labs/scaling-laws/">Scaling Laws</a>, in
+            <code>MarketModelTests.cs</code>, <code>BusinessPricingTests.cs</code> and
+            <code>MarketDriftTests.cs</code>, linked from the sources.
+        </div>
+
+        <div class="guide-cta">
+            <b>More from this series:</b> <a href="../unity-testable-game-logic/">1,541 tests that never start the game</a> &middot; <a href="../why-solo-game-projects-die/">why solo projects die at the same four features</a> &middot; <a href="../unity-deterministic-random/">deterministic randomness in Unity</a>.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Solo developer &middot; HCK_Labs &middot; building in public</div>
+                <p>I write about what I actually shipped, with real numbers and real code, including the parts that did nothing. More: <a href="../../blog/story_en.html">my story</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Buy me a coffee &#9749;</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
