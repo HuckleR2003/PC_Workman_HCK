@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <meta name="description" content="Polski indeks serii Friday Shipped and Scarred. Dwadzieścia cztery podsumowania tygodnia PC Workmana: co dostarczono, co się nie udało i jakie błędy zostały po drodze.">
+    <meta name="description" content="Polski indeks serii Friday Shipped and Scarred. Dwadzieścia cztery podsumowania tygodnia: co dostarczono, co się nie udało i co bolało.">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/blog/friday-shipped-scarred/index_pl.html">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/friday-shipped-scarred/">
@@ -84,32 +84,223 @@
             w oryginalnym angielskim i każdy link jest oznaczony jako EN.
         </div>
         <h2>Odcinki</h2>
-        <ol>
-            <li><a hreflang="en" lang="en" href="01-git-force-deleted-130-commits/"><code>git push --force</code> Turned 130 Commits Into 1</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="02-plan-vs-reality/">Plans Assume Energy I Didn't Have</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="03-three-issues-four-hours-sleep/">Three Issues Closed on Four Hours of Sleep</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="04-built-a-whole-menu-instead/">I Planned 3 Issues. I Built a Whole Menu.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="05-built-my-own-ai-engine/">I Was Going to Plug in Claude. I Built My Own Engine.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="06-startup-services-managers-shipped/">30,000 Views, Five Features, One Project I Keep Avoiding</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="07-twelve-intents-deepmonitor/">Not Scarred This Week. Everything Shipped.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="08-turbo-suite-and-mini-antivirus/">I Wanted to Suspend Processes. I Built a Mini Anti-Virus.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="09-from-26-to-58-stars/">From 26 Stars to 58. No Ads, Just Shipping.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="10-v176-biggest-update/">#151 in Poland and the Biggest Update of My Life</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="11-maintenance-week-two-accidental-features/">A Quiet Maintenance Week That Lasted 36 Hours</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="12-maximized-mode-and-1326-dead-lines/">Welding Plastics by Day, Deleting 1,326 Lines by Night</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="13-plugged-in-the-brain/">Built a Brain for My App, Forgot to Plug It In</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="14-microsoft-store-said-no/">Microsoft Store Said No. Over a Blurry Icon and the Wrong Link.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="16-silent-intents-and-the-store-week/">Sixteen Answers That Existed Only on Paper</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="freeze-protection-and-a-stranger-with-a-4090/">The Optimizer Could Freeze the Desktop. Then a Stranger Sent Me 50 PLN</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="tests-green-app-broken/">My Tests Were Green. The App Was Broken. Both Were True</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="my-first-one-star-review/">My First One-Star Review, and I Agreed With Every Word</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="spotify-and-fourteen-readers/">My Writing Landed on Spotify. A Post I Spent an Hour On Reached 14 People</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="same-bug-four-times/">I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="526-tests-passed-on-it/">Five Functions Came Back Unreachable. One Was an Entire Progression System.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="what-carried-it-in/">On Wednesday I Wrote About Not Hearing Back. By Thursday Two More People Had Put My Name Forward.</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="a-house-you-leave-the-light-on-in/">Somebody Arrived on My Site With a Broken SSD and Left With a Game About Running an AI Lab</a> <small>[EN]</small></li>
-            <li><a hreflang="en" lang="en" href="a-week-i-did-not-choose/">I Finished It Two Days Early, and I Did Not Choose a Single Thing That Is in It</a> <small>[EN]</small></li>
-        </ol>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#1</span><span>2026-03-27</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>git push --force zamienił 130 commitów w 1</h3>
+                <p>Poniedziałek rano, dosłownie stanęło mi serce. git push --force zamienił 130 commitów w jeden, na stałe. Osiem miesięcy przepadło, dopóki nie przypomniałem sobie o gałęzi archiwalnej sprzed trzech tygodni. W środku 90 commitów.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">git push --force Turned 130 Commits Into 1</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="01-git-force-deleted-130-commits/">Przeczytaj po angielsku &mdash; #1 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#2</span><span>2026-04-03</span><span>&middot;</span><span>4 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Plany zakładają energię, której nie miałem</h3>
+                <p>W planie: ponad sto definicji procesów, znaczniki czasu, dwa artykuły. Wydane: szkielet JSON i jeden artykuł. Pierwszy tydzień w Żabce uderzył mocniej, niż się spodziewałem. Wieczorem byłem za zmęczony, żeby pisać definicje.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Plans Assume Energy I Didn't Have</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="02-plan-vs-reality/">Przeczytaj po angielsku &mdash; #2 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#3</span><span>2026-04-10</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Trzy zgłoszenia zamknięte na czterech godzinach snu</h3>
+                <p>W planie trzy zgłoszenia. Zamknięte wszystkie trzy, po czterech godzinach snu, od szóstej rano. Testy przepisane, osiemnaście przypadków, wszystkie zamockowane, przebudowany widok procesów, trzy błędy na wykresach naprawione, około 130 linii martwego kodu usuniętych.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Three Issues Closed on Four Hours of Sleep</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="03-three-issues-four-hours-sleep/">Przeczytaj po angielsku &mdash; #3 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#4</span><span>2026-04-17</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Planowałem 3 zgłoszenia. Zbudowałem całe menu.</h3>
+                <p>W planie trzy zgłoszenia. Zamiast tego zbudowałem całe nowe menu: osiemnaście commitów, dwa nowe moduły i gotowa do produkcji strona pierwszej konfiguracji i sterowników z łukowym wskaźnikiem kondycji.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">I Planned 3 Issues. I Built a Whole Menu.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="04-built-a-whole-menu-instead/">Przeczytaj po angielsku &mdash; #4 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#5</span><span>2026-04-24</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Miałem podpiąć Claude'a. Zbudowałem własny silnik.</h3>
+                <p>Plan: podpiąć API Claude'a do czatu. Zamiast tego zbudowałem od zera własny hybrydowy silnik AI, regułowy i działający offline. Do tego automatyczne czyszczenie pamięci, przepisany pulpit i naprawione logowanie Google.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">I Was Going to Plug in Claude. I Built My Own Engine.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="05-built-my-own-ai-engine/">Przeczytaj po angielsku &mdash; #5 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#6</span><span>2026-05-01</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>30 000 wyświetleń, pięć funkcji i jeden projekt, którego wciąż unikam</h3>
+                <p>Poniedziałkowy post zrobił trzydzieści tysięcy wyświetleń, a obcy człowiek zrobił czysty audyt bezpieczeństwa i został testerem. W piątek: menedżer autostartu z trzema gałęziami rejestru, menedżer usług z ponad czterdziestoma usługami w czterech poziomach i podpisany plik v1.7.2.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">30,000 Views, Five Features, One Project I Keep Avoiding</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="06-startup-services-managers-shipped/">Przeczytaj po angielsku &mdash; #6 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#7</span><span>2026-05-08</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>W tym tygodniu bez blizn, wszystko wyszło</h3>
+                <p>Dwanaście nowych typów zapytań z waszych uwag, pełna tabela DeepMonitor na SQLite ze zrzutami co pięć minut, backend metryk, Stripe w GuideAI, a do tego odezwał się ktoś z wymarzonej firmy. Żadnych blizn.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Not Scarred This Week - Everything Shipped</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="07-twelve-intents-deepmonitor/">Przeczytaj po angielsku &mdash; #7 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#8</span><span>2026-05-15</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Chciałem usypiać procesy. Zbudowałem mini antywirusa.</h3>
+                <p>Chciałem usypiać bezczynne procesy. Sprawdzenie wiarygodności, czyli pytanie, czy chrome.exe mieszka tam, gdzie powinien, czy w %TEMP%, oznaczyło svch0st.exe i expl0rer.exe i stało się zalążkiem antywirusa offline.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">I Wanted to Suspend Processes. I Built a Mini Anti-Virus.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="08-turbo-suite-and-mini-antivirus/">Przeczytaj po angielsku &mdash; #8 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#9</span><span>2026-05-22</span><span>&middot;</span><span>4 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Od 26 gwiazdek do 58, bez reklam, samym wydawaniem</h3>
+                <p>Z 26 gwiazdek do 58 w dwa tygodnie, bez reklam. Wydane: stabilna obsługa polskiego z ponad trzystoma ręcznie pisanymi liniami, w pełni zapamiętywana strona ustawień i 23 intencje zamówione przez społeczność, a 23 kolejne czekają.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">From 26 Stars to 58 — No Ads, Just Shipping</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="09-from-26-to-58-stars/">Przeczytaj po angielsku &mdash; #9 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#10</span><span>2026-05-29</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Miejsce 151 w Polsce i największa aktualizacja mojego życia</h3>
+                <p>v1.7.6 na żywo: 82 intencje, przepisany DeepMonitor, mapa komponentów w 2,5D, 373 definicje procesów. Blizna: odczyty temperatur z psutil przez miesiące zwracały None i przechodziły każdy test, bo ta funkcja nigdy się nie uruchamiała.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">#151 in Poland and the Biggest Update of My Life</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="10-v176-biggest-update/">Przeczytaj po angielsku &mdash; #10 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#11</span><span>2026-06-05</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Spokojny tydzień utrzymaniowy, który trwał 36 godzin</h3>
+                <p>W planie same poprawki błędów. Zauważyłem martwą GT 1030 wciąż w rejestrze, więc powstał łowca sterowników widm. Zauważyłem bezczynne aplikacje zjadające pamięć, więc powstała hibernacja aplikacji w tle. Dwie przypadkowe funkcje w tygodniu „utrzymaniowym".</p>
+                <p class="plc-orig">Oryginał: <span lang="en">A Quiet Maintenance Week That Lasted 36 Hours</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="11-maintenance-week-two-accidental-features/">Przeczytaj po angielsku &mdash; #11 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#12</span><span>2026-06-12</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Za dnia spawam plastik, nocą kasuję 1326 linii</h3>
+                <p>Tryb maksymalizacji skończony w stu procentach, podpowiedzi na wykresach w wersji drugiej, 1326 martwych linii usuniętych, wycieki wątków naprawione. Blizna: przez miesiące obwiniałem tkintera o spowolnienie, które robiło moje własne bind_all na ośmiu stronach.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Welding Plastics by Day, Deleting 1,326 Lines by Night</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="12-maximized-mode-and-1326-dead-lines/">Przeczytaj po angielsku &mdash; #12 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#13</span><span>2026-06-19</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Zbudowałem mózg dla aplikacji i zapomniałem go podłączyć</h3>
+                <p>Przez miesiące PC Workman uczył się twojej maszyny, linie bazowe temperatur Welforda, kontrola napięć, a czat nigdy niczego z tego nie zaimportował. TURBO czytało flagę, której nic nie zapisywało. Menedżer autostartu był ślepy na harmonogram zadań. To tydzień, w którym podłączyłem mózg i zamknąłem plan kończący się na v1.7.9.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Built a Brain for My App, Forgot to Plug It In</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="13-plugged-in-the-brain/">Przeczytaj po angielsku &mdash; #13 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#14</span><span>2026-06-26</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Microsoft Store powiedział nie, przez rozmazaną ikonę i zły link</h3>
+                <p>Mój pierwszy w życiu plik msix, pełne zgłoszenie w Partner Center, stabilne v1.8.0 i odrzucenie. Nie za kod: za rozmazaną ikonę kafelka i link do prywatności wskazujący na mój SECURITY.md. „Popraw te dwie rzeczy i zgłoś ponownie", czyli w gruncie rzeczy lista kontrolna. Projekt skończył w tym tygodniu rok.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Microsoft Store Said No - Over a Blurry Icon and the Wrong Link</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="14-microsoft-store-said-no/">Przeczytaj po angielsku &mdash; #14 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#15</span><span>2026-07-03</span><span>&middot;</span><span>4 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Szesnaście odpowiedzi, które istniały tylko na papierze</h3>
+                <p>Moje AI dopasowało szesnaście pytań ze stuprocentową pewnością i nie zwróciło nic. Pierwszy tydzień PC Workmana w Microsoft Store i tydzień, w którym tester znalazł rozsypany tor temperatur.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Sixteen Answers That Existed Only on Paper</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="16-silent-intents-and-the-store-week/">Przeczytaj po angielsku &mdash; #15 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#16</span><span>2026-07-10</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Optymalizator potrafił zamrozić pulpit. Potem obcy człowiek przysłał mi 50 zł</h3>
+                <p>W poniedziałek mój optymalizator potrafił zamrozić pulpit Windows. Do czwartku obcy człowiek z 7950X3D i przeflashowanym RTX 4090 zapłacił mi i zaproponował swój komputer jako stanowisko testowe.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">The Optimizer Could Freeze the Desktop. Then a Stranger Sent Me 50 PLN</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="freeze-protection-and-a-stranger-with-a-4090/">Przeczytaj po angielsku &mdash; #16 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#17</span><span>2026-07-17</span><span>&middot;</span><span>4 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Moje testy były zielone. Aplikacja była zepsuta. Oba zdania były prawdziwe</h3>
+                <p>Tydzień silnika: warstwa odpowiedzi licząca 6533 linie rozbita na siedem modułów, refaktor, który po cichu wyłączył całą warstwę AI, i porządkowanie, które odsyłało każdą stronę z paska bocznego z powrotem na pulpit.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">My Tests Were Green. The App Was Broken. Both Were True</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="tests-green-app-broken/">Przeczytaj po angielsku &mdash; #17 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#18</span><span>2026-07-24</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Moja pierwsza jednogwiazdkowa recenzja i zgadzałem się z każdym słowem</h3>
+                <p>Jednogwiazdkowa recenzja mówiła, że interfejs wymaga dopracowania, a próg wejścia jest wysoki. Przeczytałem ją trzy razy i się zgodziłem. W tym samym tygodniu wyszły OVERCLOCK, paragony optymalizacji i plan do v2.1.0.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">My First One-Star Review, and I Agreed With Every Word</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="my-first-one-star-review/">Przeczytaj po angielsku &mdash; #18 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#19</span><span>2026-07-31</span><span>&middot;</span><span>5 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Mój tekst trafił na Spotify. Post, nad którym siedziałem godzinę, dotarł do 14 osób</h3>
+                <p>HackerNoon zamienił mój artykuł o monolicie w nagranie w tym samym tygodniu, w którym post dotarł do czternastu czytelników. Szesnaście nowych poradników, wyszukiwarka offline, największa przebudowa hck_GPT i skrypt, który po cichu zjadł 38 przecinków.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">My Writing Landed on Spotify. A Post I Spent an Hour On Reached 14 People</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="spotify-and-fourteen-readers/">Przeczytaj po angielsku &mdash; #19 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#20</span><span>2026-08-14</span><span>&middot;</span><span>3 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Naprawiałem ten sam błąd cztery razy. Moja trzecia poprawka była częścią błędu.</h3>
+                <p>Scaling Laws dostało rynek z pamięcią i test zapisu, który nie chciał zrobić się zielony: zapisz w czwartym roku, wczytaj, przegraj piąty i skończ dokładnie tak jak przebieg bez przerwy.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">I Fixed the Same Bug Four Times. My Third Fix Was Part of the Bug.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="same-bug-four-times/">Przeczytaj po angielsku &mdash; #20 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#21</span><span>2026-08-21</span><span>&middot;</span><span>2 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Pięć funkcji wróciło jako nieosiągalne. Jedna była całym systemem postępu.</h3>
+                <p>Węzeł obiecywał dobrane korpusy, brał punkty, gotówkę i cztery miesiące, i nie dawał nic. 526 testów przechodziło, bo każdy test wołał tę funkcję bezpośrednio.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Five Functions Came Back Unreachable. One Was an Entire Progression System.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="526-tests-passed-on-it/">Przeczytaj po angielsku &mdash; #21 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#22</span><span>2026-08-28</span><span>&middot;</span><span>3 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>W środę napisałem, że nikt nie odpisuje. Do czwartku dwie kolejne osoby podały moje nazwisko dalej.</h3>
+                <p>Czternaście miesięcy budowania nie dało mi polecenia. Przyznanie, że czekałem, dało. Do tego błąd w samouczku, który znalazła moja partnerka, czytając wolniej niż każdy test.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">On Wednesday I Wrote About Not Hearing Back. By Thursday Two More People Had Put My Name Forward.</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="what-carried-it-in/">Przeczytaj po angielsku &mdash; #22 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#23</span><span>2026-09-04</span><span>&middot;</span><span>2 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Ktoś wszedł na moją stronę z zepsutym dyskiem, a wyszedł z grą o prowadzeniu firmy AI</h3>
+                <p>Dwadzieścia trzy poradniki naprawcze napisane latem. Jesienią Google pokazuje stronę dwieście razy dziennie, a dwadzieścia osób, które przyszły po padający dysk, pobrało grę.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">Somebody Arrived on My Site With a Broken SSD and Left With a Game About Running an AI Lab</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="a-house-you-leave-the-light-on-in/">Przeczytaj po angielsku &mdash; #23 &rarr;</a>
+        </article>
+        <article class="post-list-card">
+            <div class="plc-body">
+                <div class="plc-meta"><span class="plc-num">#24</span><span>2026-09-11</span><span>&middot;</span><span>2 min czytania</span><span>&middot;</span><span class="plc-lang">[EN]</span></div>
+                <h3>Skończyłem dwa dni przed czasem i nie wybrałem ani jednej rzeczy, która w tym jest</h3>
+                <p>Obcy człowiek znalazł grę, zagrał i przysłał cztery rzeczy, które były nie tak. Dałem mu datę. Trzy z datą są skończone. Ta bez daty nie ruszyła się z miejsca.</p>
+                <p class="plc-orig">Oryginał: <span lang="en">I Finished It Two Days Early, and I Did Not Choose a Single Thing That Is in It</span></p>
+            </div>
+            <a class="fade-banner" hreflang="en" lang="en" href="a-week-i-did-not-choose/">Przeczytaj po angielsku &mdash; #24 &rarr;</a>
+        </article>
+
         <h2>Pozostałe serie</h2>
         <p><a href="../monday-grind-blueprint/index_pl.html">Monday Grind Blueprint</a> publikuje plan. <a href="../wednesday-code-autopsy/index_pl.html">Wednesday Code Autopsy</a> rozbiera jeden mechanizm.</p>
     </main>
