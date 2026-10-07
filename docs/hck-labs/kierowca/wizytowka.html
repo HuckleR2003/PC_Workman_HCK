@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Wizytówka do auta - do druku</title>
+<style>
+/* ===========================================================================================
+   WIZYTÓWKA DO AUTA - plik do druku
+   ---------------------------------------------------------------------------------------
+   Otwórz w Chrome, wybierz rozmiar u góry, potem Ctrl+P.
+   W oknie drukowania: Marginesy = Brak, i KONIECZNIE zaznacz "Grafika w tle"
+   (ang. Background graphics), inaczej ciemne tło się nie wydrukuje.
+   Zapisz jako PDF i taki plik zanieś do druku.
+
+   Wszystko skaluje się z jednej liczby: --w to szerokość w milimetrach. Rozmiary są
+   podane w em, więc zmiana rozmiaru karty nie psuje żadnej proporcji.
+   =========================================================================================== */
+
+:root{
+  --paper:#070a10; --paper-2:#0c1320;
+  --ink:#f3f6fb; --ink-soft:#aab4c4; --ink-faint:#7c8899;
+  --warm:#e0846c; --gold:#f0d060; --sky:#3a4b66;
+  --hair:rgba(164,177,196,.20);
+}
+/* Wariant jasny: ten sam układ, inna paleta. Czytelniejszy w dzień i tańszy w druku. */
+body.light{
+  --paper:#f7f4ef; --paper-2:#ebe6dd;
+  --ink:#141820; --ink-soft:#4a5260; --ink-faint:#7d8696;
+  --warm:#b4503a; --gold:#9a7b12; --sky:#9fb0c6;
+  --hair:rgba(20,24,32,.18);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1b1f27;color:#cdd4de;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding:26px 18px 70px}
+
+/* --- pasek sterowania, tylko na ekranie --- */
+.bar{max-width:760px;margin:0 auto 22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar b{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#8b95a4;margin-right:4px}
+.bar button{padding:8px 14px;border:1px solid #39414f;border-radius:7px;background:#232935;
+  color:#dbe1ea;font:inherit;font-size:14px;cursor:pointer}
+.bar button[aria-pressed="true"]{background:#e0846c;border-color:#e0846c;color:#10141c;font-weight:650}
+.hint{max-width:760px;margin:0 auto 22px;font-size:13.5px;line-height:1.6;color:#95a0b0}
+.hint code{background:#232935;padding:1px 5px;border-radius:4px;color:#dbe1ea}
+
+/* --- sama karta ------------------------------------------------------------------------- */
+.card{
+  --scale: calc(var(--w) / 150);
+  width: calc(var(--w) * 1mm);
+  height: calc(var(--h) * 1mm);
+  font-size: calc(var(--scale) * 4mm);          /* wszystko poniżej jest w em tego rozmiaru */
+  position:relative; overflow:hidden; margin:0 auto;
+  display:flex; flex-direction:column;
+  background:var(--paper); color:var(--ink);
+  box-shadow:0 18px 50px rgba(0,0,0,.55);
+}
+
+/* Górna połowa: tekst po lewej, auto po prawej, oba stoją NA drodze. */
+.top{position:relative; flex:0 0 auto; padding:1.6em 1.9em 0; min-height:6.8em;
+  background:linear-gradient(180deg, #1c2e4c 0%, #132038 100%)}
+body.light .top{background:linear-gradient(180deg, #ffffff 0%, #efe9df 100%)}
+.greet{font-size:1.42em; line-height:1.24; font-weight:730; letter-spacing:-.01em;
+  max-width:62%; position:relative; z-index:2}
+.greet em{display:block; font-style:normal; font-weight:600; font-size:.84em;
+  color:var(--warm); margin-top:.2em}
+
+/* Auto: prawa strona, dolna krawędź kół siada dokładnie na jezdni. */
+.car{position:absolute; right:1.1em; bottom:-1.55em; width:14.2em; z-index:3}
+
+/* Droga: pełny spad, dzieli kartę na dzień u góry i noc u dołu. */
+.road{position:relative; height:1.95em; flex:0 0 auto; z-index:1;
+  background:linear-gradient(180deg, #0b1220 0%, var(--paper) 100%)}
+body.light .road{background:linear-gradient(180deg, #d9d2c6 0%, var(--paper) 100%)}
+.dash{position:absolute; left:0; right:0; top:50%; height:.13em; transform:translateY(-50%);
+  background:repeating-linear-gradient(90deg, var(--ink-faint) 0 1.5em, transparent 1.5em 3.2em);
+  opacity:.85}
+.glow{position:absolute; right:2.4em; top:-.85em; width:11.5em; height:2.4em; border-radius:50%;
+  background:radial-gradient(ellipse, rgba(224,132,108,.22), transparent 70%)}
+body.light .glow{background:radial-gradient(ellipse, rgba(180,80,58,.16), transparent 70%)}
+
+/* Dolna połowa: noc. */
+.night{flex:1 1 auto; display:flex; flex-direction:column; padding:1.1em 1.9em 1.25em}
+.hookrow{display:flex; align-items:flex-end; gap:1.5em}
+.hook{font-size:2.1em; line-height:1.03; font-weight:820; letter-spacing:-.028em;
+  color:var(--ink); flex:0 0 auto}
+.hook span{color:var(--warm)}
+.since{flex:1 1 0; font-size:.86em; line-height:1.42; color:var(--ink-faint);
+  margin:0 0 .45em}
+
+.body{margin-top:auto; display:flex; align-items:flex-end; gap:1.5em}
+.body p{font-size:.97em; line-height:1.5; color:var(--ink-soft); max-width:22em}
+.body p b{color:var(--ink); font-weight:650}
+.free{margin-top:.5em; font-size:1em; font-weight:680; color:var(--warm)}
+
+/* Kod QR i zaproszenie. */
+.qr{flex:0 0 auto; text-align:center}
+.qr .qrimg{display:block; width:6.2em; height:6.2em; border-radius:.3em;
+  background:#fff; padding:.25em}
+.qr .cta{margin-top:.42em; font-size:.85em; font-weight:700; color:var(--warm);
+  letter-spacing:.01em; white-space:nowrap}
+.qr .addr{margin-top:.1em; font-size:.66em; color:var(--ink-faint); white-space:nowrap}
+
+.bodytext{flex:1 1 auto}
+.sig{margin-top:.7em; font-size:.66em; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-faint)}
+/* Auto rysowane, nie zdjęcie: wektor drukuje się ostro w każdym rozmiarze,
+   a kolory idą z palety, więc wariant jasny nie wymaga drugiego rysunku. */
+.car-shadow{fill:url(#shadowGrad)}
+.car-body{fill:url(#bodyGrad); stroke:#6d88b0; stroke-width:1.6}
+.car-sill{fill:#0b1322}
+.car-glass{fill:url(#glassGrad)}
+.car-pillar{fill:#24375a}
+.car-tyre{fill:#0a0f18; stroke:#6d88b0; stroke-width:2.4}
+.car-rim{fill:#22314a; stroke:#5a6e8e; stroke-width:1.4}
+.car-hub{fill:#6d829f}
+.car-head{fill:#ffe9b8}
+.car-tail{fill:#e0846c}
+.car-line{stroke:#3c4e6b; stroke-width:1.2; fill:none}
+
+body.light .car-body{stroke:#8ea0b8}
+body.light .car-sill{fill:#b9c4d2}
+body.light .car-pillar{fill:#c3ccd9}
+body.light .car-tyre{fill:#2b3340; stroke:#8ea0b8}
+body.light .car-rim{fill:#c9d2de; stroke:#8795a8}
+body.light .car-hub{fill:#7d8896}
+body.light .car-head{fill:#c9962a}
+body.light .car-tail{fill:#b4503a}
+body.light .car-line{stroke:#a7b4c6}
+
+/* --- druk -------------------------------------------------------------------------------
+   Rozmiar strony ustawia skrypt razem z wyborem rozmiaru karty, bo @page nie czyta
+   zmiennych CSS. Karta wychodzi na papier co do milimetra. */
+@media print{
+  body{background:#fff; padding:0}
+  .bar,.hint,.sizelabel{display:none !important}
+  .card{box-shadow:none; margin:0; break-inside:avoid;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact}
+}
+.card{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+.sizelabel{max-width:760px;margin:16px auto 0;text-align:center;font-size:12.5px;color:#7c8899}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <b>Rozmiar</b>
+  <button type="button" data-w="130" data-h="90">13 &times; 9 cm</button>
+  <button type="button" data-w="150" data-h="100" aria-pressed="true">15 &times; 10 cm</button>
+  <button type="button" data-w="180" data-h="130">18 &times; 13 cm</button>
+  <b style="margin-left:14px">Wersja</b>
+  <button type="button" id="theme">Jasna</button>
+</div>
+
+<p class="hint">
+  Wybierz rozmiar, potem <code>Ctrl+P</code>. W oknie drukowania ustaw
+  <b>Marginesy: Brak</b> i zaznacz <b>Grafika w tle</b> - bez tego ciemne tło wyjdzie białe.
+  Zapisz jako PDF i taki plik zanieś do wywołania. W zakładzie proś o wydruk
+  <b>poziomy</b>, bez przycinania (bez "fit to frame").
+</p>
+
+<div class="card" id="card" style="--w:150; --h:100">
+
+  <div class="top">
+    <p class="greet">W dzień wożę ludzi.<em>Mam nadzieję, że wygodnie!</em></p>
+
+    <svg class="car" viewBox="0 0 260 116" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#33507a"/><stop offset="1" stop-color="#16253c"/>
+        </linearGradient>
+        <linearGradient id="glassGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7c99c2"/><stop offset="1" stop-color="#425a80"/>
+        </linearGradient>
+        <radialGradient id="shadowGrad">
+          <stop offset="0" stop-color="#000" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#000" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <ellipse class="car-shadow" cx="132" cy="108" rx="122" ry="8"/>
+
+      <path class="car-body" d="M14 78 L16 62 C18 56 24 53 32 52 L54 50 L76 28
+        C79 25 83 24 88 24 L168 24 C175 24 181 26 186 31 L208 50 L230 53
+        C238 54 244 58 246 64 L248 80 C248 84 245 87 241 87 L21 87 C17 87 14 83 14 78 Z"/>
+      <rect class="car-sill" x="16" y="80" width="230" height="7" rx="3"/>
+
+      <path class="car-glass" d="M84 30 L104 30 L104 49 L64 49 Z"/>
+      <path class="car-glass" d="M112 30 L162 30 L168 49 L112 49 Z"/>
+      <path class="car-glass" d="M174 31 L180 31 L196 49 L176 49 Z"/>
+      <rect class="car-pillar" x="104" y="29" width="7" height="21"/>
+      <path class="car-line" d="M108 50 L108 80"/>
+      <path class="car-line" d="M172 50 L172 80"/>
+
+      <path class="car-head" d="M15 63 h9 a3 3 0 0 1 3 3 v5 a3 3 0 0 1 -3 3 h-9 z"/>
+      <path class="car-tail" d="M247 63 h-8 a3 3 0 0 0 -3 3 v5 a3 3 0 0 0 3 3 h8 z"/>
+
+      <circle class="car-tyre" cx="66" cy="87" r="18"/>
+      <circle class="car-rim"  cx="66" cy="87" r="9"/>
+      <circle class="car-hub"  cx="66" cy="87" r="2.6"/>
+      <circle class="car-tyre" cx="198" cy="87" r="18"/>
+      <circle class="car-rim"  cx="198" cy="87" r="9"/>
+      <circle class="car-hub"  cx="198" cy="87" r="2.6"/>
+    </svg>
+  </div>
+
+  <div class="road">
+    <div class="glow"></div>
+    <div class="dash"></div>
+  </div>
+
+  <div class="night">
+    <div class="hookrow">
+      <p class="hook">W nocy piszę<br><span>własne programy.</span></p>
+      <p class="since">Zaczęło się w czerwcu 2025,<br>po zmianach w magazynie<br>w Holandii. Na starym laptopie.</p>
+    </div>
+
+    <div class="body">
+      <div class="bodytext">
+        <p>Ten sam program jest dziś w <b>Microsoft Store</b>. Od października 2025
+          wyszło <b>27 wersji</b>.</p>
+        <p class="free">Jest darmowy i taki zostanie.</p>
+        <p class="sig">Marcin &middot; HCK Labs &middot; Radom</p>
+      </div>
+
+      <div class="qr">
+        <svg class="qrimg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" shape-rendering="crispEdges" role="img" aria-label="Kod QR: https://pcworkman.dev/kierowca/"><rect width="41" height="41" fill="#fff"/><path d="M4 4h7v1h-7zM15 4h1v1h-1zM17 4h7v1h-7zM26 4h1v1h-1zM28 4h1v1h-1zM30 4h7v1h-7zM4 5h1v1h-1zM10 5h1v1h-1zM13 5h4v1h-4zM19 5h1v1h-1zM21 5h4v1h-4zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h1v1h-1zM36 5h1v1h-1zM4 6h1v1h-1zM6 6h3v1h-3zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM17 6h1v1h-1zM19 6h1v1h-1zM21 6h1v1h-1zM23 6h1v1h-1zM25 6h1v1h-1zM27 6h2v1h-2zM30 6h1v1h-1zM32 6h3v1h-3zM36 6h1v1h-1zM4 7h1v1h-1zM6 7h3v1h-3zM10 7h1v1h-1zM12 7h3v1h-3zM16 7h2v1h-2zM19 7h2v1h-2zM25 7h1v1h-1zM27 7h2v1h-2zM30 7h1v1h-1zM32 7h3v1h-3zM36 7h1v1h-1zM4 8h1v1h-1zM6 8h3v1h-3zM10 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM27 8h1v1h-1zM30 8h1v1h-1zM32 8h3v1h-3zM36 8h1v1h-1zM4 9h1v1h-1zM10 9h1v1h-1zM13 9h2v1h-2zM17 9h2v1h-2zM24 9h1v1h-1zM26 9h1v1h-1zM28 9h1v1h-1zM30 9h1v1h-1zM36 9h1v1h-1zM4 10h7v1h-7zM12 10h1v1h-1zM14 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM26 10h1v1h-1zM28 10h1v1h-1zM30 10h7v1h-7zM13 11h3v1h-3zM17 11h7v1h-7zM26 11h2v1h-2zM7 12h2v1h-2zM10 12h2v1h-2zM13 12h3v1h-3zM18 12h1v1h-1zM21 12h2v1h-2zM24 12h1v1h-1zM27 12h2v1h-2zM33 12h2v1h-2zM6 13h4v1h-4zM12 13h2v1h-2zM17 13h1v1h-1zM19 13h1v1h-1zM21 13h1v1h-1zM24 13h1v1h-1zM26 13h2v1h-2zM29 13h1v1h-1zM31 13h3v1h-3zM9 14h2v1h-2zM12 14h1v1h-1zM14 14h2v1h-2zM18 14h1v1h-1zM23 14h3v1h-3zM27 14h1v1h-1zM29 14h1v1h-1zM31 14h1v1h-1zM33 14h1v1h-1zM35 14h2v1h-2zM6 15h2v1h-2zM9 15h1v1h-1zM11 15h3v1h-3zM18 15h3v1h-3zM23 15h2v1h-2zM28 15h5v1h-5zM34 15h1v1h-1zM5 16h4v1h-4zM10 16h4v1h-4zM20 16h1v1h-1zM22 16h1v1h-1zM24 16h3v1h-3zM28 16h1v1h-1zM30 16h2v1h-2zM33 16h1v1h-1zM35 16h2v1h-2zM4 17h2v1h-2zM7 17h1v1h-1zM12 17h1v1h-1zM14 17h2v1h-2zM25 17h3v1h-3zM31 17h1v1h-1zM33 17h1v1h-1zM35 17h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM10 18h3v1h-3zM14 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM22 18h1v1h-1zM33 18h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM11 19h1v1h-1zM17 19h1v1h-1zM19 19h3v1h-3zM27 19h2v1h-2zM32 19h4v1h-4zM4 20h4v1h-4zM9 20h3v1h-3zM15 20h2v1h-2zM18 20h2v1h-2zM21 20h1v1h-1zM24 20h1v1h-1zM30 20h1v1h-1zM32 20h1v1h-1zM35 20h1v1h-1zM4 21h2v1h-2zM7 21h2v1h-2zM12 21h1v1h-1zM14 21h3v1h-3zM18 21h2v1h-2zM21 21h1v1h-1zM23 21h2v1h-2zM26 21h1v1h-1zM28 21h1v1h-1zM30 21h4v1h-4zM36 21h1v1h-1zM4 22h2v1h-2zM7 22h1v1h-1zM9 22h5v1h-5zM16 22h1v1h-1zM18 22h2v1h-2zM21 22h1v1h-1zM23 22h1v1h-1zM25 22h3v1h-3zM29 22h2v1h-2zM32 22h3v1h-3zM36 22h1v1h-1zM5 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM13 23h1v1h-1zM15 23h4v1h-4zM22 23h1v1h-1zM26 23h3v1h-3zM30 23h2v1h-2zM33 23h3v1h-3zM9 24h2v1h-2zM16 24h1v1h-1zM18 24h3v1h-3zM28 24h2v1h-2zM31 24h1v1h-1zM33 24h1v1h-1zM35 24h1v1h-1zM4 25h3v1h-3zM8 25h2v1h-2zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h1v1h-1zM26 25h1v1h-1zM28 25h1v1h-1zM31 25h2v1h-2zM34 25h1v1h-1zM4 26h1v1h-1zM6 26h2v1h-2zM10 26h1v1h-1zM13 26h1v1h-1zM16 26h1v1h-1zM20 26h3v1h-3zM24 26h4v1h-4zM30 26h1v1h-1zM32 26h1v1h-1zM36 26h1v1h-1zM4 27h1v1h-1zM13 27h4v1h-4zM21 27h1v1h-1zM23 27h2v1h-2zM31 27h2v1h-2zM34 27h1v1h-1zM36 27h1v1h-1zM4 28h2v1h-2zM8 28h3v1h-3zM12 28h1v1h-1zM16 28h1v1h-1zM20 28h1v1h-1zM23 28h2v1h-2zM28 28h5v1h-5zM12 29h1v1h-1zM18 29h1v1h-1zM25 29h2v1h-2zM28 29h1v1h-1zM32 29h3v1h-3zM4 30h7v1h-7zM12 30h4v1h-4zM17 30h1v1h-1zM19 30h4v1h-4zM27 30h2v1h-2zM30 30h1v1h-1zM32 30h1v1h-1zM34 30h1v1h-1zM4 31h1v1h-1zM10 31h1v1h-1zM14 31h8v1h-8zM23 31h6v1h-6zM32 31h4v1h-4zM4 32h1v1h-1zM6 32h3v1h-3zM10 32h1v1h-1zM12 32h1v1h-1zM20 32h2v1h-2zM25 32h9v1h-9zM35 32h1v1h-1zM4 33h1v1h-1zM6 33h3v1h-3zM10 33h1v1h-1zM12 33h2v1h-2zM16 33h2v1h-2zM21 33h1v1h-1zM23 33h1v1h-1zM25 33h2v1h-2zM29 33h1v1h-1zM31 33h1v1h-1zM34 33h2v1h-2zM4 34h1v1h-1zM6 34h3v1h-3zM10 34h1v1h-1zM15 34h3v1h-3zM19 34h2v1h-2zM22 34h1v1h-1zM24 34h3v1h-3zM32 34h1v1h-1zM35 34h2v1h-2zM4 35h1v1h-1zM10 35h1v1h-1zM19 35h1v1h-1zM21 35h2v1h-2zM25 35h2v1h-2zM29 35h2v1h-2zM33 35h4v1h-4zM4 36h7v1h-7zM15 36h7v1h-7zM24 36h1v1h-1zM26 36h5v1h-5zM32 36h1v1h-1z" fill="#000"/></svg>
+        <div class="cta">Poznaj historię &rarr;</div>
+        <div class="addr">pcworkman.dev/kierowca</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="sizelabel" id="sizelabel">15 &times; 10 cm &middot; poziomo</p>
+
+<script>
+// Rozmiar karty i rozmiar strony w druku muszą się zgadzać co do milimetra, więc oba
+// ustawia jedno miejsce: @page nie czyta zmiennych CSS, dlatego regułę piszemy skryptem.
+(function () {
+  var card  = document.getElementById('card');
+  var label = document.getElementById('sizelabel');
+  var pageRule = document.createElement('style');
+  document.head.appendChild(pageRule);
+
+  function setSize(w, h, text) {
+    card.style.setProperty('--w', w);
+    card.style.setProperty('--h', h);
+    pageRule.textContent = '@page{size:' + w + 'mm ' + h + 'mm;margin:0}';
+    label.textContent = text + ' \u00b7 poziomo';
+  }
+
+  document.querySelectorAll('.bar button[data-w]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.bar button[data-w]').forEach(function (o) {
+        o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+      });
+      setSize(b.dataset.w, b.dataset.h, b.textContent.trim());
+    });
+  });
+
+  setSize(150, 100, '15 \u00d7 10 cm');
+
+  var t = document.getElementById('theme');
+  t.addEventListener('click', function () {
+    var light = document.body.classList.toggle('light');
+    t.textContent = light ? 'Ciemna' : 'Jasna';
+  });
+})();
+</script>
+</body>
+</html>
