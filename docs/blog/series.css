@@ -807,3 +807,19 @@ a:hover { text-decoration: underline; }
 .read-next b { display: block; margin-bottom: .35rem; color: var(--text-dim); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .read-next ul { margin: 0; padding-left: 1.1rem; }
 .read-next li { margin: .2rem 0; }
+
+/* Original English title under a Polish summary. The articles themselves are
+   English only, so the Polish index says what each one is about and then hands
+   the reader the original rather than pretending a translation exists. */
+.post-list-card .plc-orig {
+    margin-top: .45rem;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    line-height: 1.45;
+    color: var(--text-dim);
+}
+.post-list-card .plc-lang {
+    color: var(--accent-gold);
+    font-weight: 700;
+    letter-spacing: .4px;
+}
