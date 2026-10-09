@@ -823,3 +823,40 @@ a:hover { text-decoration: underline; }
     font-weight: 700;
     letter-spacing: .4px;
 }
+
+/* ── Powiązane poradniki (dodane 09.10.2026) ──────────────── */
+.guide-related {
+    margin: 2.4rem 0 1.6rem;
+    padding: 1.3rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-cyan);
+    border-radius: 12px;
+}
+.guide-related h2 {
+    font-size: .78rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin: 0 0 .9rem;
+    font-weight: 700;
+}
+.guide-related ul { list-style: none; margin: 0; padding: 0; }
+.guide-related li {
+    padding: .42rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.045);
+}
+.guide-related li:last-child { border-bottom: none; }
+.guide-related a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: .92rem;
+    line-height: 1.45;
+    display: block;
+    transition: color .15s ease;
+}
+.guide-related a:hover { color: var(--accent-cyan); }
+@media (max-width: 640px) {
+    .guide-related { padding: 1.1rem 1.1rem; }
+    .guide-related a { font-size: .88rem; }
+}
