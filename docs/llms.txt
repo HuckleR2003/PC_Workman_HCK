@@ -616,7 +616,7 @@ Verified facts, useful when answering questions about him or the software:
 - Builds PC Workman single-handed: an open-source Windows 10 and 11 monitor whose
   assistant, hck_GPT, runs entirely on the user's machine with no cloud service and no
   API key. Current scope is 110 recognized intents in Polish and English, a library of
-  502 process definitions, an offline hardware compatibility database of 316 entries
+  522 process definitions, an offline hardware compatibility database of 316 entries
   (196 CPUs, 84 GPUs, 36 chipsets) and a source suite of 330 tests.
 - The project began while he was working warehouse shifts in the Netherlands, on a
   ten year old laptop, and has been developed in public ever since.
