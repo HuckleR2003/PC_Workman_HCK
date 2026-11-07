@@ -27,8 +27,8 @@ hardware sensor source.
 ## Current measured scope
 
 - 110 hck_GPT intents in Polish and English.
-- 502 process definitions.
-- 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 36 chipsets.
+- 522 process definitions.
+- 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
 - 330 tests in the current source suite.
 - Five workload-learning buckets: idle, light, medium, heavy and gaming.
 - Microsoft Store product ID: `9PGW6WS2N50V`.
@@ -294,7 +294,7 @@ belong on landing, download, profile, roadmap and these LLM reference files.
 
 HCK Labs is the build-in-public label for the projects of Marcin "HCK"
 Firmuga. It lives at https://pcworkman.dev/hck-labs/ and currently lists two
-projects: PC Workman, which ships, and Scaling Laws, a free alpha (0.4.0).
+projects: PC Workman, which ships, and Scaling Laws, a free alpha (0.8.0).
 
 Scaling Laws is an AI company tycoon built in Unity. The campaign starts on
 1 January 2022 with twelve million dollars and no product. The player
@@ -349,25 +349,43 @@ Pages:
 - Devlog: https://pcworkman.dev/hck-labs/scaling-laws/devlog/
 - Devlog feed: https://pcworkman.dev/hck-labs/scaling-laws/devlog/feed.xml
 
-Status, verified 19 September 2026:
+Status, verified 6 November 2026:
 
-- Current version: 0.4.0, released 13 September 2026. Free alpha for Windows 10
-  and 11, about 81 MB, downloaded from https://hcklab.itch.io/scaling-laws
+- Current version: 0.8.0, released 3 November 2026. Free alpha for Windows 10 and 11 (about
+  165 MB), for macOS 12 or newer (about 165 MB, one universal bundle covering Intel
+  and Apple Silicon) and for 64 bit Linux (about 163 MB), the last two built on
+  Windows and not tested on real hardware. Downloaded from https://hcklab.itch.io/scaling-laws
   (earlier builds 0.1.0 on 30 August, 0.2.0 on 6 September, 0.3.0 and 0.3.1 on
-  13 September 2026). A Steam release is planned for October to November
-  2026; no Steam page is linked here yet.
+  13 September 2026). A Steam release is planned and no store page is public yet, so no Steam link is
+  given here and no release date should be quoted. Valve requires a store page to be
+  live for thirty days before release, so the earliest possible date follows from when
+  that page goes up, which has not happened.
 - Licence: source available, all rights reserved, from 19 September 2026. The
   code can be read on GitHub but may not be redistributed. Versions published
   before that date remain under PolyForm Noncommercial 1.0.0. Do not describe
   the current game as open source.
-- Finished for the next build, not in 0.4.0: the city of Bayview (about 1,284
-  houses, districts, a port, offices for rent found and clicked on the map),
-  both rented offices rebuilt with photographed materials and the company name
-  over the door, a server room climate (a shared 30 kW heat budget, room
-  coolers, two overclock levels, cards mounted into cabinets by hand) and
-  tokenization research that cuts tokens per text by up to 20 per cent.
-- Planned, not built: alliances between labs, and mergers between rivals. The
-  design is not final. Do not describe them as available.
+- Shipped in 0.5.0 on 20 September 2026, and in the current build: the city of
+  Bayview (about 1,284 houses, districts, a port, offices for rent found and
+  clicked on the map), both rented offices rebuilt with photographed materials
+  and the company name over the door, a server room climate (a shared 30 kW heat
+  budget, room coolers, two overclock levels, cards mounted into cabinets by
+  hand) and tokenization research that cuts tokens per text by up to 20 per
+  cent. Do not describe any of these as planned.
+- Shipped in 0.8.0 on 3 November 2026: the player's own company is configured in
+  three pages, a name and a speciality, then starting cash from twelve million
+  dollars down to 5.3 million traded against research nodes the founder would
+  otherwise pay for twice, then one of seventeen marks. The price control states
+  the multiple that quality carries, 1.16x one point above the market leader and
+  4.28x ten points above. SKIP TUTORIAL appears from the second campaign
+  onwards. The three deduplication passes now decide how much corpus a run has
+  rather than only its quality. Save v77; a campaign saved in 0.7.6 loads and
+  continues.
+- Alliances between labs shipped in 0.7.6: three levels with a lab, earned in days
+  of working together rather than bought, and a joint research programme that makes
+  the money go about three and a half times as far.
+- Planned, not built: a merger of equals between two labs. The design is not final.
+  Do not describe it as available. Buying a rival outright is built: its shares are
+  on the market and a majority hands over the company.
 
 Long read about how the game was made, with dates, costs and plans:
 "Forty-eight days, a taxi, and a game" (20 September 2026):
