@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Zielony zestaw dowodzi, że funkcja działa, nie że coś ją wywołuje. Dwanaście nieosiągalnych mechanizmów i skrypt, który je znajduje.">
+    <meta name="description" content="Zielony zestaw dowodzi, że funkcja działa, nie że coś ją wywołuje. Osiemnaście nieosiągalnych mechanizmów i skrypt, który je znajduje.">
     <meta name="keywords" content="nieosiągalny kod, martwy kod, zielone testy fałszywa pewność, funkcja niepodpięta, pokrycie testami, testowanie gier, analiza statyczna, C# nieużywane metody publiczne">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
@@ -16,7 +16,7 @@
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unreachable-code-in-games/">
     <meta property="og:title" content="Funkcja skończona, przetestowana i niemożliwa do osiągnięcia">
-    <meta property="og:description" content="Test dowodzi, że funkcja robi to, czego oczekujesz, gdy ją wywołasz. Nie dowodzi, że cokolwiek ją wywołuje. Dwanaście prawdziwych przypadków i skrypt, który je znajduje.">
+    <meta property="og:description" content="Test dowodzi, że funkcja robi to, czego oczekujesz, gdy ją wywołasz. Nie dowodzi, że cokolwiek ją wywołuje. Osiemnaście prawdziwych przypadków i skrypt, który je znajduje.">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html">
     <meta property="og:locale" content="pl_PL">
@@ -30,7 +30,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Skończone, Przetestowane i Nieosiągalne | PC Workman</title>
+    <title>Skończone, Przetestowane i Nieosiągalne</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,7 +67,7 @@
       "@context": "https://schema.org",
       "@type": "TechArticle",
       "headline": "Funkcja skończona, przetestowana i niemożliwa do osiągnięcia",
-      "description": "Dwanaście mechanizmów, które były kompletne, pokryte przechodzącymi testami i nieosiągalne dla gracza, z jednego projektu. Dziesięciolinijkowy skrypt, który je znajduje, i powód, dla którego ta klasa błędu przeżywa każdą awarię.",
+      "description": "Osiemnaście mechanizmów, które były kompletne, pokryte przechodzącymi testami i nieosiągalne dla gracza, z jednego projektu. Dziesięciolinijkowy skrypt, który je znajduje, i powód, dla którego ta klasa błędu przeżywa każdą awarię.",
       "url": "https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html",
       "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unreachable-code-in-games/index_pl.html" },
       "datePublished": "2026-08-19T00:00:00+02:00",
@@ -143,7 +143,7 @@
         {
           "@type": "Question",
           "name": "Czy funkcja może przejść wszystkie testy i nadal być nieosiągalna dla użytkownika?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Tak i jest to częste. Test jednostkowy wywołuje funkcję bezpośrednio, więc sprawdza, że robi ona to, czego oczekujesz, gdy zostanie wywołana. Nie mówi nic o tym, czy jakakolwiek ścieżka dostępna dla użytkownika ją wywołuje. W jednym udokumentowanym projekcie dwanaście osobnych mechanizmów było skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Jednym z nich był cały system progresji, który pobierał punkty badań, gotówkę i cztery miesiące kalendarza w grze, i nie dostarczał niczego, przy 531 zielonych testach przez cały czas." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak i jest to częste. Test jednostkowy wywołuje funkcję bezpośrednio, więc sprawdza, że robi ona to, czego oczekujesz, gdy zostanie wywołana. Nie mówi nic o tym, czy jakakolwiek ścieżka dostępna dla użytkownika ją wywołuje. W jednym udokumentowanym projekcie osiemnaście osobnych mechanizmów było skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Jednym z nich był cały system progresji, który pobierał punkty badań, gotówkę i cztery miesiące kalendarza w grze, i nie dostarczał niczego, przy 531 zielonych testach przez cały czas." }
         },
         {
           "@type": "Question",
@@ -191,7 +191,7 @@
     <section class="hero">
         <span class="day-badge day-tech">Technologia &middot; Testowanie</span>
         <h1>Test dowodzi, że funkcja działa.<br>Nie dowodzi niczego o tym,<br>czy cokolwiek ją wywołuje.</h1>
-        <p class="tagline">Dwanaście mechanizmów skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Ile kosztowały, dziesięciolinijkowy skrypt, który je znajduje, i dlaczego ten błąd przeżywa każdą awarię, jaką kiedykolwiek napiszesz.</p>
+        <p class="tagline">Osiemnaście mechanizmów skończonych, pokrytych przechodzącymi testami i niemożliwych do osiągnięcia przez gracza. Ile kosztowały, dziesięciolinijkowy skrypt, który je znajduje, i dlaczego ten błąd przeżywa każdą awarię, jaką kiedykolwiek napiszesz.</p>
     </section>
 
     <main class="article">
@@ -287,6 +287,30 @@ for path, source in simulation_files:
                     <td>Pusta strona z jednym przyciskiem, bo każda droga wejścia ustawiała najpierw kanał, więc pusty przypadek uznano za nieosiągalny. Był osiągalny.</td>
                 </tr>
                 <tr>
+                    <td>Węzeł badań, którego nikt nie czytał</td>
+                    <td>Trzy miliony dolarów i cztery miesiące kalendarza za węzeł, którego nie czytał żaden kod w grze. Jego karta nie wymieniała żadnej nagrody, bo nagrody wylicza się z węzła, a ten nie dawał nic. Znalezione przez przeczytanie karty, nie przez test.</td>
+                </tr>
+                <tr>
+                    <td>Każdy slot w szafie serwerowej</td>
+                    <td>Kod decydował, czy slot przyjmuje kliknięcie, zanim cokolwiek przypisało mu obsługę, więc odpowiedź zawsze brzmiała nie. Karty raz włożonej do szafy nie dało się wyjąć. W żadnym buildzie. Nigdy.</td>
+                </tr>
+                <tr>
+                    <td>Przycisk wentylatora</td>
+                    <td>Wyłączał się, gdy w szafie nie było miejsca, a szafy dopełniają się same, więc miejsca nie było już nigdy. Trzymał w sobie najbardziej przydatne zdanie w całej serwerowni: wyjmij kartę, a wentylator wejdzie w zwolniony slot.</td>
+                </tr>
+                <tr>
+                    <td>Licencja dystrybucyjna</td>
+                    <td>1,2 mln dolarów i 270 dni terminu. Linia poszerzająca publiczność nie miała wywołania, a linia naliczająca partnerowi trzydzieści procent była nazwana tylko we własnym katalogu. Przez cały termin nie zmieniała nic.</td>
+                </tr>
+                <tr>
+                    <td>Dwanaście węzłów bezpieczeństwa</td>
+                    <td>Sortowanie miało arm <code>default:</code>, który wysyłał wszystko nieznane na planszę rysującą tylko jedną ścieżkę. Każdy węzeł bezpieczeństwa trafiał na powierzchnię, która po cichu go gubiła. Zgłosił gracz, tymi słowami: węzłów badań bezpieczeństwa nigdzie nie ma.</td>
+                </tr>
+                <tr>
+                    <td>Przełącznik, który sam się reklamował</td>
+                    <td>Twardy ban na zduplikowane konta, z siedmioma wywołaniami w testach i zerem w interfejsie. Kafelek i tak drukował WŁ albo WYŁ, więc gra pokazywała przełącznik, którego nic nie mogło przestawić.</td>
+                </tr>
+                <tr>
                     <td>Grafika półki na dyski</td>
                     <td>Grafika i siatka diod, obie skończone, rysowane przez nic. Nadal otwarte i świadomie.</td>
                 </tr>
@@ -294,7 +318,7 @@ for path, source in simulation_files:
         </table>
 
         <p>
-            Łącznie dwanaście przez całe życie projektu. Trzy pierwsze trafiły do builda, w którego
+            Łącznie osiemnaście przez całe życie projektu. Trzy pierwsze trafiły do builda, w którego
             ludzie grali.
         </p>
 
@@ -411,7 +435,7 @@ Assert.That(simulation.State.DataSources, Contains.Item(DataSource.CuratedCorpor
             <h3>Czy funkcja może przejść wszystkie testy i być nieosiągalna?</h3>
             <p>
                 Tak i jest to częste. Test wywołuje funkcję bezpośrednio, więc weryfikuje zachowanie i
-                nie mówi nic o osiągalności. Dwanaście mechanizmów w jednym projekcie było skończonych,
+                nie mówi nic o osiągalności. Osiemnaście mechanizmów w jednym projekcie było skończonych,
                 przetestowanych i nieosiągalnych.
             </p>
 

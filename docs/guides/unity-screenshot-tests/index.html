@@ -1,0 +1,574 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · unity screenshot tests -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="A test that saved a PNG found four faults in one run that 683 green tests had missed. How to render Unity UI to an image, and the two things worth asserting.">
+    <meta name="keywords" content="unity screenshot test, unity ui test, ui toolkit testing, visual regression testing unity, unity render texture to png, how to test unity ui layout, unity playmode test screenshot, layout bug testing">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <meta property="og:title" content="683 tests were green. One screenshot found four bugs.">
+    <meta property="og:description" content="A layout fault is a relationship between boxes, and an assertion only ever sees one number. Here is the forty line rig that photographs a Unity screen instead.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Unity Screenshot Tests: The Faults No Assertion Sees</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Unity screenshot tests: the faults no assertion sees",
+      "description": "Adding one PlayMode test that renders a UI Toolkit page to a PNG found four faults in a single run that 683 passing tests had not seen. The rig, the two assertions worth making, and why golden image diffing was left out.",
+      "url": "https://pcworkman.dev/guides/unity-screenshot-tests/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-screenshot-tests/" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "en",
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, UI Toolkit, Unity Test Framework"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Unity screenshot tests", "item": "https://pcworkman.dev/guides/unity-screenshot-tests/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do passing tests miss UI layout bugs?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because an assertion reads one value and a layout fault is a relationship between boxes. A button whose label sits in the top left corner still has the right text, the right size and the right click handler, so every property an assertion can name is correct. The fault only exists in the arrangement, and the arrangement is a picture." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you render a Unity UI Toolkit screen to a PNG in a test?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Create a RenderTexture, instantiate a copy of the project's own PanelSettings and point its targetTexture at it, add a UIDocument with those settings, attach the page, yield for about a dozen frames so layout and entry animations finish, then ReadPixels into a Texture2D and write EncodeToPNG to disk. Instantiate the settings rather than using the asset directly, otherwise the test dirties the real one." }
+        },
+        {
+          "@type": "Question",
+          "name": "What should a screenshot test actually assert?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Two things a human looking at the image cannot be trusted on. First, that something was drawn at all: a render texture nobody drew into comes back as a flat rectangle of the clear colour, which on a dark interface is indistinguishable from a screen that worked. Second, that nothing crossed the right hand edge, because UI Toolkit overflows silently and a wrapped row reads as a design decision." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is this the same as visual regression testing with golden images?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, and the difference is deliberate. Golden image diffing compares each run against an approved baseline and fails on any change, including every intentional one. On a project where one person both changes the styling and approves the baseline, that loop collapses into rubber stamping within a few weeks. Saving the frames and asserting only structural facts keeps the images useful without creating an approval ritual nobody honours." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does padding on a ScrollView break the page?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A ScrollView lays its viewport out inside its own padding box, so padding on the scroller shortens the window the page is seen through instead of lengthening the page. Measured at 1920x1080 in this project, a 943px scroller kept a 624px viewport and the remaining 319px of every tab was not drawn at all, and could not be scrolled into because the scroller believed there was nothing there. The same number on the content container is extra page at the bottom, which is what a clearance is supposed to be." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-screenshot-tests/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-screenshot-tests/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Testing</span>
+        <h1>683 tests were green.<br>One screenshot<br>found four bugs.</h1>
+        <p class="tagline">A layout fault is a relationship between boxes, and an assertion only ever reads one number. The cheapest testing change I have made was teaching a test to save a PNG and then looking at it.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>9 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>
+            On 22 August I added a single PlayMode test to Scaling Laws whose only job was to draw
+            one interface page into a texture and write it to disk as a PNG. It did not compare
+            anything. It did not have a baseline. It saved a picture.
+        </p>
+
+        <p>
+            <strong>It found four faults in its first run.</strong> The suite that day was 683 tests
+            and all of them were green, and had been green through every one of those four.
+        </p>
+
+        <div class="big">
+            <b>683 green &rarr; 4 faults</b>
+            <span>Not edge cases. Every styled button in the game was drawing its label in the wrong place, and money was printing with a comma for a decimal point.</span>
+        </div>
+
+        <h2 id="four">The four</h2>
+
+        <p>
+            I am listing them in full because the pattern matters more than any one of them. None of
+            these is exotic. Every one had been shipped.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>What the picture showed</th><th>Why no test caught it</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Every styled button drew its text at the top left</strong> of itself
+                        instead of centred.</td>
+                    <td>The label had the right text, the right font size and the right click
+                        handler. Every property a test can name was correct. The fault was two
+                        missing alignment lines, and alignment has no observable value to assert.</td>
+                </tr>
+                <tr>
+                    <td><strong>Eleven trait tiles had no art.</strong> The cards were there, the
+                        text was there, the image area was empty.</td>
+                    <td>The code named each image correctly and the names resolved. Nothing ever
+                        drew them. A test asking whether a card knows its art passes; asking whether
+                        the art is on screen is a question about pixels.</td>
+                </tr>
+                <tr>
+                    <td><strong>A difference bar drew a two point gain as full width</strong> on a
+                        reading where the underlying number was negative.</td>
+                    <td>The bar scaled itself by its after value. With a negative after value the
+                        arithmetic produced a fill fraction above one, which clamps to full. The
+                        number printed under it was right. Only the bar lied.</td>
+                </tr>
+                <tr>
+                    <td><strong>Money printed as $20,00</strong> rather than $20.00.</td>
+                    <td>The format string was <code>:N2</code>, which follows the machine culture.
+                        On my machine that is Polish. Every currency test compared against a string
+                        produced by the same machine culture, so both sides were wrong together.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="trap">
+            <h4>The last one is the whole argument in miniature</h4>
+            <p>
+                A test that formats a number and compares it to a formatted number cannot find a
+                formatting fault, because the mistake lives in the step both sides share. You can
+                write a hundred of those and the build will still print the wrong currency to
+                everybody whose regional settings differ from yours.
+            </p>
+            <p>
+                A picture shares no step with the code that drew it. That is the entire reason it
+                works.
+            </p>
+        </div>
+
+        <h2 id="why">Why an assertion structurally cannot see this</h2>
+
+        <p>
+            It is worth being precise here, because <em>write more tests</em> is not the lesson.
+        </p>
+
+        <p>
+            An assertion names a value and compares it. <strong>A layout fault is not a value, it is
+            a relationship.</strong> A card that overflows its page by twelve pixels has a correct
+            width and sits in a correct container. The fault exists only in the arithmetic between
+            them, and that arithmetic is performed by the layout engine after your code has finished
+            running. By the time it is wrong there is nothing left for your code to assert about.
+        </p>
+
+        <p>
+            You can assert on the relationship, and in two specific cases below I do. But you have to
+            know which relationship to suspect first, and <strong>the thing that tells you which one
+            to suspect is looking at it.</strong>
+        </p>
+
+        <p>
+            Before this existed, the only way to look at a UI Toolkit screen in this project was to
+            open the editor, load the scene, play into the right state and find the page. That is
+            several minutes per screen and there are now more than eighty screens. In practice it
+            meant the screens I had touched recently got looked at and the rest did not. The
+            stylesheet for one whole area sat unreferenced for weeks with 170 tests green, and a
+            single missing class collapsed the entire right hand half of the model creator, because
+            nobody had a reason to open either one.
+        </p>
+
+        <h2 id="rig">The rig, in about forty lines</h2>
+
+        <p>
+            This is the whole mechanism. It is not clever, and that is the point: anything harder
+            than this does not get written.
+        </p>
+
+        <div class="code">var texture = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+texture.Create();
+
+// A copy of the game's own settings, so scale mode, theme and reference
+// resolution are the ones a player gets. Instantiated, because pointing
+// the real asset at a render texture would dirty it.
+var settings = Object.Instantiate(document.panelSettings);
+settings.targetTexture = texture;
+settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+settings.referenceResolution = new Vector2Int(1920, 1080);
+
+var host = new GameObject("ScreenProof");
+var ui = host.AddComponent&lt;UIDocument&gt;();
+ui.panelSettings = settings;
+ui.rootVisualElement.Add(page);
+
+// Layout, then the entry transition, then any scheduled reveals. Reading
+// the texture early photographs a page mid-animation, which is a picture
+// of nothing.
+for (var pass = 0; pass &lt; 12; pass++) yield return null;
+yield return new WaitForSeconds(0.9f);
+
+var readable = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
+RenderTexture.active = texture;
+readable.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
+readable.Apply();
+
+File.WriteAllBytes(path, readable.EncodeToPNG());</div>
+
+        <p>
+            Three details in there are load bearing, and all three cost me a run to learn.
+        </p>
+
+        <p>
+            <strong>Instantiate the PanelSettings.</strong> Using the project asset directly works,
+            and then the asset is left pointing at a render texture that no longer exists, and the
+            game opens with no interface at all. Copy it.
+        </p>
+
+        <p>
+            <strong>Wait longer than feels necessary.</strong> A dozen frames plus most of a second
+            sounds absurd for a static page. It is not. UI Toolkit resolves layout over several
+            frames, and anything with an entry transition or a scheduled reveal is still moving after
+            the first one. My early frames were pictures of half drawn pages, and I lost an evening
+            to a bar that turned out to be mid-animation.
+        </p>
+
+        <p>
+            <strong>Put the output in a tilde folder.</strong> <code>ScreenProof~/</code> with the
+            trailing tilde is not decoration. Unity ignores tilde-suffixed folders entirely, so
+            eighty PNGs do not become eighty imported assets with eighty meta files in your diff.
+        </p>
+
+        <h2 id="assert">The two things a picture cannot be trusted on</h2>
+
+        <p>
+            A saved frame that nobody opens is worth nothing, and nobody opens eighty of them every
+            run. So the test asserts the two failures a human would miss <em>while looking straight
+            at the image</em>.
+        </p>
+
+        <h3>One: that anything was drawn at all</h3>
+
+        <p>
+            <strong>This is the trap I would not have predicted.</strong> A render texture that
+            nothing drew into comes back as a flat rectangle of the clear colour. The clear colour
+            here is a very dark blue, because the game is dark. A picture of a screen that failed
+            completely and a picture of a dark screen that worked are, at a glance, the same picture.
+        </p>
+
+        <p>
+            So the test measures spread: the distance between the lightest and darkest sample in the
+            frame, taken over every thirty seventh pixel, and requires more than two per cent.
+        </p>
+
+        <div class="code">Assert.That(Spread(readable), Is.GreaterThan(0.02f),
+    $"{fileName} came back flat. A render texture nobody drew into is a "
+    + "rectangle of the clear colour, and on a dark page that looks exactly "
+    + "like a screen that worked. Nothing reached this panel.");</div>
+
+        <p>
+            Sampling every thirty seventh pixel rather than all two million is not an optimisation I
+            measured, it is just enough. A page that drew nothing has zero spread and a page that
+            drew anything has plenty. There is no interesting middle to resolve.
+        </p>
+
+        <h3>Two: that nothing crossed the right hand edge</h3>
+
+        <p>
+            UI Toolkit overflows silently. An element wider than its parent does not clip, does not
+            warn and does not log. It wraps, or it extends past the edge, and either one reads like
+            something you meant.
+        </p>
+
+        <p>
+            Four trait cards in this project once measured 1352 pixels against a 1340 pixel page.
+            The fourth wrapped onto its own line. For weeks I assumed that was a layout decision
+            somebody had made, possibly me.
+        </p>
+
+        <div class="code">private static bool NothingSpillsOffTheRight(VisualElement page)
+{
+    var right = page.worldBound.xMax + 2f;   // two pixels of slack:
+    return Inside(page, right);              // layout rounding is not
+}                                            // worth a failure</div>
+
+        <p>
+            The two pixels of tolerance matter. Without them, sub-pixel layout rounding turns this
+            into a test that fails occasionally for no reason, and <strong>a test that fails for no
+            reason is a test everybody learns to ignore</strong>, which is worse than not having it
+            at all.
+        </p>
+
+        <div class="trap">
+            <h4>One exception, and it is not optional</h4>
+            <p>
+                The walk has to skip elements the runtime theme built for itself, or the check fires
+                on Unity's own internals. The rule I settled on: an element counts as theme-internal
+                only if it has classes and every one of them starts with <code>unity-</code>. An
+                element with no classes at all is not theme-internal, it is an unstyled element the
+                project made, and those are precisely the ones worth catching.
+            </p>
+        </div>
+
+        <h2 id="tutorial">The one that cost the most: 319 pixels of every tab</h2>
+
+        <p>
+            On 30 September a player wrote in to say <em>the blue background of the tutorial covers
+            every tab</em>. Nothing was covering anything, and that report is the best illustration I
+            have of why this technique earns its keep.
+        </p>
+
+        <p>
+            The tutorial strip sits along the bottom of the screen, so the page behind it needs
+            clearance. I had set that clearance as <code>paddingBottom</code> on the
+            <code>ScrollView</code>.
+        </p>
+
+        <p>
+            <strong>A ScrollView lays its viewport out inside its own padding box.</strong> So the
+            reserve came out of the visible half of the page rather than the scrollable half.
+            Measured at 1920 by 1080: a 943 pixel scroller kept a 624 pixel viewport, and the other
+            <strong>319 pixels of every tab were not drawn at all</strong>. The window's own colour
+            showed through the hole, which is the blue the player described. And the page could not
+            be scrolled down into it, because as far as the scroller was concerned there was nothing
+            there to scroll to.
+        </p>
+
+        <div class="code">// On the content container, never on the scroller itself.
+pageScroller.contentContainer.style.paddingBottom = wanted;</div>
+
+        <p>
+            The same number on the content container is extra page underneath the last row, which is
+            what a clearance is supposed to be. One word of difference in the property path, a third
+            of the window either way.
+        </p>
+
+        <p>
+            There is now a fixture that loads the game scene, opens a long tab with the tutorial up
+            and measures the viewport against the scroller. <strong>It fails if the distinction is
+            ever lost again</strong>, which is the only kind of regression test worth writing: one
+            that holds a specific mistake you have already made.
+        </p>
+
+        <h2 id="not">What this deliberately is not</h2>
+
+        <p>
+            It is not visual regression testing. There are no golden images and nothing is compared
+            between runs, and I want to be straight about why, because the obvious next step is to
+            add diffing and I decided against it.
+        </p>
+
+        <p>
+            Golden image diffing fails on <em>any</em> change, including every intentional one. I
+            change the styling of this game weekly. On a one person project, where the same person
+            changes the look and approves the new baseline, the approval step becomes a reflex inside
+            about three weeks, and <strong>a baseline you approve without looking is a baseline that
+            certifies whatever you just broke</strong>.
+        </p>
+
+        <p>
+            So the frames are saved and only structural facts are asserted. The pictures are for me,
+            for the five minutes after a run when I flick through the new ones. The assertions are
+            for the build. Those are two different jobs, and conflating them is what makes visual
+            testing get abandoned three months in.
+        </p>
+
+        <h2 id="now">Where it stands</h2>
+
+        <p>
+            Eight weeks on, the project runs <strong>1,619 EditMode tests and 88 that load a scene</strong>,
+            and 82 of the scene tests write a frame. The folder holds pictures of the world map, the
+            cabinet interior, the release planner, the pause menu, the save slots, the achievements
+            page, the messenger, the address book, every stage of the model creator and the
+            regulatory inspection banner.
+        </p>
+
+        <p>
+            The achievements page is the one I would point at. Forty seven rows in ten groups inside
+            a 620 pixel card, drawn in the state a brand new player sees it in, where every row is
+            locked. <strong>No assertion can tell me whether that reads as deliberate or as broken.</strong>
+            A picture can, in one second, and before this existed nobody had ever opened it.
+        </p>
+
+        <h2 id="try">If you want to add this today</h2>
+
+        <ol>
+            <li><strong>One test, one page, no assertions.</strong> Render your busiest screen, write
+                the PNG, open it. Do not build a framework. The value arrives on the first run.</li>
+            <li><strong>Add the flatness check immediately.</strong> It is five lines, and it is the
+                difference between a suite that proves something and a folder of dark rectangles.</li>
+            <li><strong>Add the overflow check when you first get bitten.</strong> With a couple of
+                pixels of slack, and with a skip rule for your UI framework's own elements.</li>
+            <li><strong>Build the interesting state by hand.</strong> A screenshot of a company with
+                one release proves nothing about the layout that three releases needs. My fixture
+                constructs a company with a model updated three times, badly once, because the
+                comparison screen only has a job to do in that case.</li>
+            <li><strong>Tilde the output folder</strong>, and do not commit the frames.</li>
+        </ol>
+
+        <p>
+            The cost was one afternoon. The return was four shipped faults in the first run, and a
+            player report I could diagnose in ten minutes instead of a weekend. <strong>I have not
+            found a cheaper trade in this project.</strong>
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Questions people ask about this</h2>
+
+            <h3>Why do passing tests miss UI layout bugs?</h3>
+            <p>
+                Because an assertion reads one value and a layout fault is a relationship between
+                boxes. A button whose label sits in the corner still has the right text, size and
+                click handler, so every property you can name is correct. The fault exists only in
+                the arrangement, and the arrangement is a picture.
+            </p>
+
+            <h3>How do you render a UI Toolkit screen to a PNG in a test?</h3>
+            <p>
+                Create a RenderTexture, instantiate a copy of your own PanelSettings and point its
+                <code>targetTexture</code> at it, add a UIDocument with those settings, attach the
+                page, yield for about a dozen frames plus most of a second so layout and entry
+                animations finish, then <code>ReadPixels</code> into a Texture2D and write
+                <code>EncodeToPNG</code> to disk. Copy the settings rather than using the asset, or
+                the test leaves your real one pointing at a texture that is gone.
+            </p>
+
+            <h3>What should a screenshot test actually assert?</h3>
+            <p>
+                The two things a human looking at the image cannot be trusted on. That something was
+                drawn at all, because an empty render texture is a flat rectangle of the clear colour
+                and on a dark interface that looks like success. And that nothing crossed the right
+                hand edge, because UI Toolkit overflows silently and a wrapped row reads as a
+                decision.
+            </p>
+
+            <h3>Is this visual regression testing with golden images?</h3>
+            <p>
+                No, deliberately. Diffing against an approved baseline fails on every intentional
+                change too, and when one person both changes the styling and approves the baseline,
+                approval becomes a reflex within weeks. A baseline approved without looking certifies
+                whatever you just broke. Saving frames and asserting structural facts only keeps the
+                images useful without the ritual.
+            </p>
+
+            <h3>Why does padding on a ScrollView break the page?</h3>
+            <p>
+                A ScrollView lays its viewport out inside its own padding box, so padding on the
+                scroller shortens the window rather than lengthening the page. Here a 943 pixel
+                scroller kept a 624 pixel viewport and the remaining 319 pixels of every tab were
+                never drawn, and could not be scrolled into because the scroller believed there was
+                nothing there. The same value on <code>contentContainer</code> is extra page at the
+                bottom, which is what a clearance should be.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../unreachable-code-in-games/">Finished, Tested, and Impossible to Reach</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/">The Bug That Passes Every Test and Does Nothing</a></li>
+                <li><a href="../bug-reports-that-mean-something/">Bug Reports That Mean Something</a></li>
+                <li><a href="../unity-ui-toolkit-uss-limitations/">Unity UI Toolkit: What USS Will Not Do</a></li>
+                <li><a href="../unity-testable-game-logic/">Unity: Game Logic You Can Actually Test</a></li>
+                <li><a href="../game-balance-tests/">Game Balance Tests: Proving a Game Is Winnable</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Every fault in this article is real</strong> and was found in Scaling Laws,
+                an AI company tycoon released as a free public build with the source open. The rig
+                lives in <code>Tests/PlayMode/ScreenProofTests.cs</code>.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a> &middot;
+               <a href="../unreachable-code-in-games/">The eighteen systems you could not reach</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (PL) · testy zrzutow ekranu w Unity -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Jeden test, który zapisał PNG, znalazł cztery błędy w pierwszym przebiegu. 683 testy były zielone. Jak renderować UI Unity do obrazka i co warto sprawdzać.">
+    <meta name="keywords" content="testy zrzutów ekranu Unity, testowanie UI Unity, UI Toolkit testy, testy wizualne Unity, render texture do PNG, jak testować layout w Unity, PlayMode test zrzut ekranu, błędy layoutu testy">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/unity-screenshot-tests/">
+    <meta property="og:title" content="683 testy były zielone. Jeden zrzut ekranu znalazł cztery błędy.">
+    <meta property="og:description" content="Błąd layoutu to relacja między pudełkami, a asercja czyta zawsze jedną liczbę. Oto czterdzieści linii, które robią ekranowi Unity zdjęcie.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Testy zrzutów ekranu w Unity: błędy niewidoczne dla asercji</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Testy zrzutów ekranu w Unity: błędy, których nie widzi żadna asercja",
+      "description": "Jeden test PlayMode, który renderuje stronę UI Toolkit do PNG, znalazł w pierwszym przebiegu cztery błędy, których 683 zielone testy nie widziały. Jak zbudować taki mechanizm, co warto sprawdzać i dlaczego porównywanie z obrazami wzorcowymi zostało pominięte.",
+      "url": "https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "pl",
+      "articleSection": "Technology",
+      "proficiencyLevel": "Intermediate",
+      "dependencies": "Unity 6000.x, UI Toolkit, Unity Test Framework"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Testy zrzutów ekranu w Unity", "item": "https://pcworkman.dev/guides/unity-screenshot-tests/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego przechodzące testy nie łapią błędów layoutu?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo asercja czyta jedną wartość, a błąd layoutu jest relacją między pudełkami. Przycisk, którego napis siedzi w lewym górnym rogu, ma poprawny tekst, poprawny rozmiar i poprawną obsługę kliknięcia, więc każda właściwość, którą asercja umie nazwać, jest poprawna. Błąd istnieje wyłącznie w układzie, a układ jest obrazkiem." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak zrenderować ekran UI Toolkit do PNG w teście?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Utwórz RenderTexture, zinstancjonuj kopię własnych PanelSettings projektu i ustaw jej targetTexture na tę teksturę, dodaj UIDocument z tymi ustawieniami, dołóż stronę, odczekaj kilkanaście klatek i niemal sekundę, żeby layout i animacje wejścia się skończyły, a potem wczytaj piksele przez ReadPixels do Texture2D i zapisz EncodeToPNG na dysk. Ustawienia trzeba skopiować, a nie użyć assetu wprost, inaczej test zostawia prawdziwy asset wskazujący na teksturę, której już nie ma." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co taki test powinien właściwie sprawdzać?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Dwie rzeczy, na których nie można zaufać człowiekowi patrzącemu na obrazek. Po pierwsze, że cokolwiek zostało w ogóle narysowane: tekstura, do której nikt nic nie narysował, wraca jako płaski prostokąt w kolorze czyszczenia, co na ciemnym interfejsie wygląda dokładnie jak ekran, który zadziałał. Po drugie, że nic nie wyszło za prawą krawędź, bo UI Toolkit przelewa się po cichu, a zawinięty wiersz czyta się jak decyzja projektowa." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy to to samo co testy wizualne z obrazami wzorcowymi?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie i ta różnica jest celowa. Porównywanie z zatwierdzoną linią bazową wywala się przy każdej zmianie, w tym każdej zamierzonej. W projekcie, w którym jedna osoba zmienia wygląd i zatwierdza linię bazową, ta pętla w ciągu kilku tygodni zamienia się w odruch przyklepywania. Zapisywanie klatek i sprawdzanie wyłącznie faktów strukturalnych zostawia obrazki użyteczne, bez rytuału, którego nikt nie dotrzymuje." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego padding na ScrollView psuje stronę?",
+          "acceptedAnswer": { "@type": "Answer", "text": "ScrollView układa swój viewport wewnątrz własnego pudełka paddingu, więc padding na skrolerze skraca okno, przez które widać stronę, zamiast wydłużać samą stronę. Zmierzone w tym projekcie w 1920 na 1080: skroler o wysokości 943 piksele zachował 624 piksele viewportu, a pozostałych 319 pikseli każdej karty nie było rysowanych wcale i nie dało się tam zjechać, bo z punktu widzenia skrolera nic tam nie było. Ta sama liczba na kontenerze treści to dodatkowa strona na dole, czyli dokładnie to, czym zapas ma być." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/unity-screenshot-tests/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/unity-screenshot-tests/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Testy</span>
+        <h1>683 testy były zielone.<br>Jeden zrzut ekranu<br>znalazł cztery błędy.</h1>
+        <p class="tagline">Błąd layoutu to relacja między pudełkami, a asercja czyta zawsze jedną liczbę. Najtańsza zmiana w testach, jaką zrobiłem, to nauczenie testu zapisywania PNG i potem popatrzenie na niego.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>9 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p>
+            22 sierpnia dodałem do Scaling Laws jeden test PlayMode, którego całym zadaniem było
+            narysować jedną stronę interfejsu do tekstury i zapisać ją na dysk jako PNG. Nic nie
+            porównywał. Nie miał żadnej linii bazowej. Zapisywał obrazek.
+        </p>
+
+        <p>
+            <strong>W pierwszym przebiegu znalazł cztery błędy.</strong> Zestaw testów miał wtedy 683
+            pozycje, wszystkie zielone, i były zielone przez cały czas trwania każdego z tych czterech.
+        </p>
+
+        <div class="big">
+            <b>683 zielone &rarr; 4 błędy</b>
+            <span>Nie przypadki brzegowe. Każdy stylizowany przycisk w grze rysował swój napis w złym miejscu, a pieniądze drukowały się z przecinkiem zamiast kropki.</span>
+        </div>
+
+        <h2 id="cztery">Te cztery</h2>
+
+        <p>
+            Wypisuję je w całości, bo wzór jest ważniejszy niż którykolwiek z nich osobno. Żaden nie
+            jest egzotyczny. Każdy był już wydany.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Co pokazał obrazek</th><th>Dlaczego żaden test tego nie złapał</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Każdy stylizowany przycisk rysował swój tekst w lewym górnym
+                        narożniku</strong> siebie zamiast na środku.</td>
+                    <td>Napis miał poprawny tekst, poprawny rozmiar czcionki i poprawną obsługę
+                        kliknięcia. Każda właściwość, którą test umie nazwać, była poprawna. Błędem
+                        były dwie brakujące linie wyrównania, a wyrównanie nie ma obserwowalnej
+                        wartości, którą da się sprawdzić.</td>
+                </tr>
+                <tr>
+                    <td><strong>Jedenaście kafelków cech nie miało grafiki.</strong> Karty były,
+                        tekst był, miejsce na obrazek puste.</td>
+                    <td>Kod poprawnie nazywał każdy obrazek i te nazwy się rozwiązywały. Nic ich
+                        nigdy nie rysowało. Test pytający, czy karta zna swoją grafikę, przechodzi;
+                        pytanie, czy grafika jest na ekranie, dotyczy pikseli.</td>
+                </tr>
+                <tr>
+                    <td><strong>Pasek różnicy rysował wzrost o dwa punkty jako pełną
+                        szerokość</strong> przy odczycie, w którym liczba pod nim była ujemna.</td>
+                    <td>Pasek skalował się swoją wartością po zmianie. Przy ujemnej wartości po
+                        zmianie arytmetyka dawała udział wypełnienia powyżej jedynki, co obcina się
+                        do pełna. Liczba wydrukowana pod paskiem była poprawna. Kłamał tylko pasek.</td>
+                </tr>
+                <tr>
+                    <td><strong>Pieniądze drukowały się jako 20,00 $</strong> zamiast 20.00 $.</td>
+                    <td>Format to <code>:N2</code>, który idzie za kulturą maszyny. Na mojej maszynie
+                        jest to polska. Każdy test walut porównywał się z napisem wyprodukowanym
+                        przez tę samą kulturę maszyny, więc obie strony były błędne razem.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="trap">
+            <h4>Ten ostatni to cały argument w miniaturze</h4>
+            <p>
+                Test, który formatuje liczbę i porównuje ją z inną sformatowaną liczbą, nie może
+                znaleźć błędu formatowania, bo pomyłka siedzi w kroku, który obie strony mają
+                wspólny. Można napisać sto takich testów, a build nadal będzie drukował złą walutę
+                każdemu, kto ma inne ustawienia regionalne niż ty.
+            </p>
+            <p>
+                Obrazek nie ma wspólnego kroku z kodem, który go narysował. To cały powód, dla
+                którego on działa.
+            </p>
+        </div>
+
+        <h2 id="dlaczego">Dlaczego asercja strukturalnie nie może tego zobaczyć</h2>
+
+        <p>
+            Warto być tu precyzyjnym, bo wnioskiem nie jest <em>pisz więcej testów</em>.
+        </p>
+
+        <p>
+            Asercja nazywa wartość i ją porównuje. <strong>Błąd layoutu nie jest wartością, jest
+            relacją.</strong> Karta, która wychodzi za swoją stronę o dwanaście pikseli, ma poprawną
+            szerokość i siedzi w poprawnym kontenerze. Błąd istnieje wyłącznie w arytmetyce między
+            nimi, a tę arytmetykę wykonuje silnik layoutu po tym, jak twój kod skończył się wykonywać.
+            W chwili, w której jest źle, nie zostaje już nic, o czym twój kod mógłby orzekać.
+        </p>
+
+        <p>
+            Da się orzekać o relacji i w dwóch konkretnych przypadkach niżej właśnie to robię. Ale
+            najpierw trzeba wiedzieć, którą relację podejrzewać, a <strong>tym, co mówi ci, którą
+            podejrzewać, jest popatrzenie na nią.</strong>
+        </p>
+
+        <p>
+            Zanim to powstało, jedynym sposobem, żeby popatrzeć na ekran UI Toolkit w tym projekcie,
+            było otworzyć edytor, wczytać scenę, dograć do właściwego stanu i znaleźć stronę. To
+            kilka minut na ekran, a ekranów jest teraz ponad osiemdziesiąt. W praktyce oznaczało to,
+            że na ekrany, które niedawno ruszałem, ktoś patrzył, a na resztę nie. Arkusz stylów
+            całego jednego obszaru był niepodłączony przez tygodnie przy 170 zielonych testach, a
+            jedna brakująca klasa złożyła całą prawą połowę kreatora modeli, bo nikt nie miał powodu
+            otworzyć ani jednego, ani drugiego.
+        </p>
+
+        <h2 id="mechanizm">Mechanizm, w około czterdziestu linijkach</h2>
+
+        <p>
+            To cały mechanizm. Nie jest sprytny i to jest sedno: cokolwiek trudniejszego od tego nie
+            zostaje napisane.
+        </p>
+
+        <div class="code">var texture = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
+texture.Create();
+
+// Kopia własnych ustawień gry, żeby tryb skalowania, motyw i rozdzielczość
+// odniesienia były te, które dostaje gracz. Instancja, bo wycelowanie
+// prawdziwego assetu w render teksturę zabrudziłoby go.
+var settings = Object.Instantiate(document.panelSettings);
+settings.targetTexture = texture;
+settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
+settings.referenceResolution = new Vector2Int(1920, 1080);
+
+var host = new GameObject("ScreenProof");
+var ui = host.AddComponent&lt;UIDocument&gt;();
+ui.panelSettings = settings;
+ui.rootVisualElement.Add(page);
+
+// Layout, potem przejście wejściowe, potem zaplanowane odsłonięcia. Odczyt
+// tekstury za wcześnie fotografuje stronę w połowie animacji, czyli robi
+// zdjęcie niczego.
+for (var pass = 0; pass &lt; 12; pass++) yield return null;
+yield return new WaitForSeconds(0.9f);
+
+var readable = new Texture2D(1920, 1080, TextureFormat.RGB24, false);
+RenderTexture.active = texture;
+readable.ReadPixels(new Rect(0, 0, 1920, 1080), 0, 0);
+readable.Apply();
+
+File.WriteAllBytes(path, readable.EncodeToPNG());</div>
+
+        <p>
+            Trzy szczegóły w środku są nośne i każdy z nich kosztował mnie jeden przebieg nauki.
+        </p>
+
+        <p>
+            <strong>Zrób instancję PanelSettings.</strong> Użycie assetu projektu wprost działa, a
+            potem asset zostaje wycelowany w render teksturę, której już nie ma, i gra otwiera się
+            bez żadnego interfejsu. Skopiuj go.
+        </p>
+
+        <p>
+            <strong>Czekaj dłużej, niż się wydaje potrzebne.</strong> Kilkanaście klatek plus
+            większość sekundy brzmi absurdalnie dla statycznej strony. Nie jest. UI Toolkit rozwiązuje
+            layout przez kilka klatek, a wszystko z przejściem wejściowym albo zaplanowanym
+            odsłonięciem rusza się jeszcze po pierwszej. Moje wczesne klatki były zdjęciami
+            w połowie narysowanych stron, a jeden wieczór straciłem na pasek, który okazał się być
+            w połowie animacji.
+        </p>
+
+        <p>
+            <strong>Wyjście wrzuć do folderu z tyldą.</strong> <code>ScreenProof~/</code> z tyldą na
+            końcu to nie ozdoba. Unity całkowicie ignoruje foldery z tyldą, więc osiemdziesiąt PNG-ów
+            nie zamienia się w osiemdziesiąt zaimportowanych assetów z osiemdziesięcioma plikami meta
+            w twoim diffie.
+        </p>
+
+        <h2 id="sprawdzenia">Dwie rzeczy, na których nie można zaufać obrazkowi</h2>
+
+        <p>
+            Zapisana klatka, której nikt nie otwiera, jest warta zero, a nikt nie otwiera
+            osiemdziesięciu takich po każdym przebiegu. Dlatego test sprawdza te dwa błędy, które
+            człowiek przeoczy <em>patrząc prosto na obrazek</em>.
+        </p>
+
+        <h3>Pierwsza: że cokolwiek zostało narysowane</h3>
+
+        <p>
+            <strong>To pułapka, której bym nie przewidział.</strong> Render tekstura, do której nic
+            nie narysowało, wraca jako płaski prostokąt w kolorze czyszczenia. Kolor czyszczenia jest
+            tu bardzo ciemnoniebieski, bo gra jest ciemna. Zdjęcie ekranu, który zawiódł całkowicie,
+            i zdjęcie ciemnego ekranu, który zadziałał, to na pierwszy rzut oka to samo zdjęcie.
+        </p>
+
+        <p>
+            Dlatego test mierzy rozrzut: odległość między najjaśniejszą i najciemniejszą próbką
+            w klatce, brana co trzydziesty siódmy piksel, i wymaga więcej niż dwóch procent.
+        </p>
+
+        <div class="code">Assert.That(Spread(readable), Is.GreaterThan(0.02f),
+    $"{fileName} came back flat. A render texture nobody drew into is a "
+    + "rectangle of the clear colour, and on a dark page that looks exactly "
+    + "like a screen that worked. Nothing reached this panel.");</div>
+
+        <p>
+            Próbkowanie co trzydziesty siódmy piksel, a nie wszystkich dwóch milionów, to nie
+            optymalizacja, którą zmierzyłem, tylko po prostu tyle wystarczy. Strona, która nic nie
+            narysowała, ma rozrzut zero, a strona, która narysowała cokolwiek, ma go dużo. Nie ma tu
+            żadnego interesującego środka do rozstrzygania.
+        </p>
+
+        <h3>Druga: że nic nie wyszło za prawą krawędź</h3>
+
+        <p>
+            UI Toolkit przelewa się po cichu. Element szerszy niż jego rodzic nie przycina się, nie
+            ostrzega i nic nie loguje. Zawija się albo wychodzi za krawędź, a jedno i drugie czyta
+            się tak, jakbyś tak chciał.
+        </p>
+
+        <p>
+            Cztery karty cech w tym projekcie zmierzyły kiedyś 1352 piksele na stronie szerokiej 1340.
+            Czwarta zawinęła się do własnego wiersza. Przez tygodnie zakładałem, że to decyzja
+            layoutowa, którą ktoś podjął, możliwie że ja.
+        </p>
+
+        <div class="code">private static bool NothingSpillsOffTheRight(VisualElement page)
+{
+    var right = page.worldBound.xMax + 2f;   // dwa piksele luzu:
+    return Inside(page, right);              // zaokrąglanie layoutu nie
+}                                            // jest warte porażki testu</div>
+
+        <p>
+            Te dwa piksele tolerancji mają znaczenie. Bez nich zaokrąglanie layoutu poniżej piksela
+            zamienia to w test, który czasem wywala się bez powodu, a <strong>test, który wywala się
+            bez powodu, to test, który wszyscy uczą się ignorować</strong>, co jest gorsze niż jego
+            brak.
+        </p>
+
+        <div class="trap">
+            <h4>Jeden wyjątek i nie jest opcjonalny</h4>
+            <p>
+                Obchód musi pomijać elementy, które motyw runtime zbudował sam dla siebie, inaczej
+                sprawdzenie odpala się na wnętrznościach Unity. Reguła, na której stanąłem: element
+                liczy się jako wewnętrzny dla motywu tylko wtedy, gdy ma klasy i każda z nich zaczyna
+                się od <code>unity-</code>. Element bez żadnych klas nie jest wewnętrzny dla motywu,
+                jest niestylizowanym elementem, który zrobił projekt, a to dokładnie te warto łapać.
+            </p>
+        </div>
+
+        <h2 id="samouczek">Ten, który kosztował najwięcej: 319 pikseli każdej karty</h2>
+
+        <p>
+            30 września gracz napisał, że <em>niebieskie tło samouczka zakrywa każdą kartę</em>. Nic niczego nie zakrywało, a to zgłoszenie jest najlepszą ilustracją, jaką mam, tego, dlaczego ta
+            technika zarabia na siebie.
+        </p>
+
+        <p>
+            Pasek samouczka siedzi na dole ekranu, więc strona za nim potrzebuje zapasu. Ustawiłem ten
+            zapas jako <code>paddingBottom</code> na <code>ScrollView</code>.
+        </p>
+
+        <p>
+            <strong>ScrollView układa swój viewport wewnątrz własnego pudełka paddingu.</strong> Więc
+            zapas wyszedł z <em>widocznej</em> połowy strony, a nie z przewijalnej. Zmierzone
+            w 1920 na 1080: skroler o wysokości 943 piksele zachował 624 piksele viewportu, a
+            pozostałych <strong>319 pikseli każdej karty nie było rysowanych wcale</strong>. Własny
+            kolor okna przeświecał przez dziurę, i to jest ten niebieski, który opisał gracz. A
+            strony nie dało się tam zjechać, bo z punktu widzenia skrolera nie było tam niczego, do
+            czego można by przewinąć.
+        </p>
+
+        <div class="code">// Na kontenerze treści, nigdy na samym skrolerze.
+pageScroller.contentContainer.style.paddingBottom = wanted;</div>
+
+        <p>
+            Ta sama liczba na kontenerze treści to dodatkowa strona pod ostatnim wierszem, czyli
+            dokładnie to, czym zapas ma być. Jedno słowo różnicy w ścieżce właściwości, w jedną albo
+            drugą stronę trzecia część okna.
+        </p>
+
+        <p>
+            Jest teraz fikstura, która wczytuje scenę gry, otwiera długą kartę z podniesionym
+            samouczkiem i mierzy viewport względem skrolera. <strong>Wywala się, jeśli ta różnica
+            kiedykolwiek znowu zginie</strong>, a to jedyny rodzaj testu regresji wartego napisania:
+            taki, który trzyma konkretną pomyłkę, którą już popełniłeś.
+        </p>
+
+        <h2 id="czym-nie">Czym to celowo nie jest</h2>
+
+        <p>
+            To nie są testy regresji wizualnej. Nie ma obrazów wzorcowych i nic nie jest porównywane
+            między przebiegami, a chcę powiedzieć wprost dlaczego, bo oczywistym następnym krokiem
+            jest dodać porównywanie, a ja się na to nie zdecydowałem.
+        </p>
+
+        <p>
+            Porównywanie z obrazem wzorcowym wywala się przy <em>każdej</em> zmianie, w tym każdej
+            zamierzonej. Ja zmieniam wygląd tej gry co tydzień. W projekcie jednoosobowym, gdzie ta
+            sama osoba zmienia wygląd i zatwierdza nową linię bazową, krok zatwierdzania w ciągu
+            jakichś trzech tygodni staje się odruchem, a <strong>linia bazowa zatwierdzona bez
+            patrzenia to linia bazowa, która poświadcza to, co właśnie zepsułeś</strong>.
+        </p>
+
+        <p>
+            Więc klatki są zapisywane, a sprawdzane są tylko fakty strukturalne. Obrazki są dla mnie,
+            na te pięć minut po przebiegu, kiedy przeglądam nowe. Asercje są dla builda. To są dwie
+            różne roboty i mieszanie ich jest tym, co sprawia, że testowanie wizualne po trzech
+            miesiącach się porzuca.
+        </p>
+
+        <h2 id="teraz">Jak to wygląda teraz</h2>
+
+        <p>
+            Osiem tygodni później projekt ma <strong>1 619 testów EditMode i 88 takich, które
+            wczytują scenę</strong>, a 82 z tych scenowych zapisują klatkę. Folder trzyma zdjęcia mapy
+            świata, wnętrza szafy serwerowej, planera wydania, menu pauzy, slotów zapisu, strony
+            osiągnięć, komunikatora, książki adresowej, każdego etapu kreatora modeli i banneru
+            inspekcji regulacyjnej.
+        </p>
+
+        <p>
+            Strona osiągnięć to ta, na którą bym wskazał. Czterdzieści siedem wierszy w dziesięciu
+            grupach w karcie o wysokości 620 pikseli, rysowana w stanie, w którym widzi ją zupełnie
+            nowy gracz, czyli z każdym wierszem zablokowanym. <strong>Żadna asercja nie powie mi, czy
+            to czyta się jak zamierzone, czy jak zepsute.</strong> Obrazek powie, w jedną sekundę,
+            a zanim to powstało, nikt tej strony nigdy nie otworzył.
+        </p>
+
+        <h2 id="sprobuj">Jeśli chcesz to dodać dzisiaj</h2>
+
+        <ol>
+            <li><strong>Jeden test, jedna strona, zero asercji.</strong> Zrenderuj swój najgęstszy
+                ekran, zapisz PNG, otwórz go. Nie buduj frameworku. Wartość przychodzi w pierwszym
+                przebiegu.</li>
+            <li><strong>Sprawdzenie płaskości dodaj od razu.</strong> To pięć linijek i to różnica
+                między zestawem, który coś dowodzi, a folderem ciemnych prostokątów.</li>
+            <li><strong>Sprawdzenie przelania dodaj, kiedy pierwszy raz cię ugryzie.</strong> Z paroma
+                pikselami luzu i z regułą pomijania dla elementów własnych twojego frameworku UI.</li>
+            <li><strong>Interesujący stan zbuduj ręcznie.</strong> Zrzut firmy z jednym wydaniem nie
+                dowodzi niczego o layoucie, który jest potrzebny przy trzech. Moja fikstura buduje
+                firmę z modelem aktualizowanym trzy razy, raz źle, bo ekran porównania ma co robić
+                tylko w tym przypadku.</li>
+            <li><strong>Folder wyjściowy z tyldą</strong> i nie commituj klatek.</li>
+        </ol>
+
+        <p>
+            Koszt to jedno popołudnie. Zwrot to cztery wydane błędy w pierwszym przebiegu i zgłoszenie
+            gracza, które zdiagnozowałem w dziesięć minut zamiast w weekend. <strong>Nie znalazłem
+            w tym projekcie tańszej wymiany.</strong>
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Pytania, które ludzie o to zadają</h2>
+
+            <h3>Dlaczego przechodzące testy nie łapią błędów layoutu?</h3>
+            <p>
+                Bo asercja czyta jedną wartość, a błąd layoutu jest relacją między pudełkami.
+                Przycisk, którego napis siedzi w narożniku, ma poprawny tekst, rozmiar i obsługę
+                kliknięcia, więc każda właściwość, którą umiesz nazwać, jest poprawna. Błąd istnieje
+                wyłącznie w układzie, a układ jest obrazkiem.
+            </p>
+
+            <h3>Jak zrenderować ekran UI Toolkit do PNG w teście?</h3>
+            <p>
+                Utwórz RenderTexture, zinstancjonuj kopię własnych PanelSettings i ustaw jej
+                <code>targetTexture</code> na tę teksturę, dodaj UIDocument z tymi ustawieniami,
+                dołóż stronę, odczekaj kilkanaście klatek plus większość sekundy, żeby layout
+                i animacje wejścia się skończyły, a potem <code>ReadPixels</code> do Texture2D
+                i zapisz <code>EncodeToPNG</code> na dysk. Ustawienia skopiuj, nie używaj assetu
+                wprost, bo test zostawi prawdziwy wskazujący na teksturę, której już nie ma.
+            </p>
+
+            <h3>Co taki test powinien właściwie sprawdzać?</h3>
+            <p>
+                Dwie rzeczy, na których nie można zaufać człowiekowi patrzącemu na obrazek. Że
+                cokolwiek zostało narysowane, bo pusta render tekstura to płaski prostokąt w kolorze
+                czyszczenia, a na ciemnym interfejsie to wygląda jak sukces. I że nic nie wyszło za
+                prawą krawędź, bo UI Toolkit przelewa się po cichu, a zawinięty wiersz czyta się jak
+                decyzja.
+            </p>
+
+            <h3>Czy to testy regresji wizualnej z obrazami wzorcowymi?</h3>
+            <p>
+                Nie, celowo. Porównywanie z zatwierdzoną linią bazową wywala się też przy każdej
+                zamierzonej zmianie, a kiedy jedna osoba i zmienia wygląd, i zatwierdza linię bazową,
+                zatwierdzanie w ciągu kilku tygodni staje się odruchem. Linia bazowa zatwierdzona bez
+                patrzenia poświadcza to, co właśnie zepsułeś. Zapisywanie klatek i sprawdzanie
+                wyłącznie faktów strukturalnych zostawia obrazki użyteczne bez tego rytuału.
+            </p>
+
+            <h3>Dlaczego padding na ScrollView psuje stronę?</h3>
+            <p>
+                ScrollView układa swój viewport wewnątrz własnego pudełka paddingu, więc padding na
+                skrolerze skraca okno, a nie wydłuża strony. Tutaj skroler o wysokości 943 piksele
+                zachował 624 piksele viewportu, a pozostałych 319 pikseli każdej karty nigdy nie
+                zostało narysowanych i nie dało się tam zjechać, bo skroler był przekonany, że nic
+                tam nie ma. Ta sama wartość na <code>contentContainer</code> to dodatkowa strona na
+                dole, czyli to, czym zapas ma być.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../unreachable-code-in-games/index_pl.html">Skończone, przetestowane i niemożliwe do osiągnięcia</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/index_pl.html">Błąd, który przechodzi każdy test i nic nie robi</a></li>
+                <li><a href="../bug-reports-that-mean-something/index_pl.html">Zgłoszenia błędów, które coś znaczą</a></li>
+                <li><a href="../unity-ui-toolkit-uss-limitations/index_pl.html">Unity UI Toolkit: czego USS nie zrobi</a></li>
+                <li><a href="../unity-testable-game-logic/index_pl.html">Unity: logika gry, którą da się testować</a></li>
+                <li><a href="../game-balance-tests/index_pl.html">Testy balansu: jak dowieść, że grę da się wygrać</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Każdy błąd w tym artykule jest prawdziwy</strong> i został znaleziony
+                w Scaling Laws, tycoonie o firmie AI wydanym jako darmowy publiczny build z otwartym
+                źródłem. Mechanizm siedzi w <code>Tests/PlayMode/ScreenProofTests.cs</code>.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry i źródła</a> &middot;
+               <a href="../unreachable-code-in-games/index_pl.html">Osiemnaście systemów, do których nie dało się dojść</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
