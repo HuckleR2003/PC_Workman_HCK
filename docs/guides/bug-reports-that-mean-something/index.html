@@ -1,0 +1,431 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · bug reports that mean something -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Seven hundred downloads produced thirty reports and six people who keep coming back. What changed between those numbers, and the one question worth asking.">
+    <meta name="keywords" content="bug report quality, playtesting feedback, early access testers, how to get better bug reports, indie game testing, user feedback loop, solo developer QA, feedback form design">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <meta property="og:title" content="Seven hundred downloads, thirty reports, six people who stayed">
+    <meta property="og:description" content="The gap between a download and a useful report is one question, and almost nobody asks it. What thirty strangers found that a thousand automated tests did not.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Bug Reports That Mean Something: 700 Downloads, Six People</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Bug reports that mean something",
+      "description": "Seven hundred downloads produced thirty reports and six people who keep coming back. What changed between those numbers: a badge that removed the noise, a question that replaced did you like it, and replies that named what each person found.",
+      "url": "https://pcworkman.dev/guides/bug-reports-that-mean-something/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/bug-reports-that-mean-something/" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "en",
+      "articleSection": "Technology"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Bug reports that mean something", "item": "https://pcworkman.dev/guides/bug-reports-that-mean-something/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why do most bug reports from players say so little?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Because the request is usually open ended. Asked to report bugs, a player reports the thing that annoyed them, which is often a feature that is not built yet rather than a fault. Asking where they stopped playing and what they were trying to do at the time produces a report about the moment the game lost them, which is the thing a developer cannot observe from inside." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do you stop getting reports about unfinished features?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Label them in the build. In one project a yellow NOT IN THIS BUILD badge on unfinished parts of the map removed roughly half the incoming reports, because those reports had been descriptions of things that were never built. The reports that still arrived were about things that were genuinely wrong." }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes a tester come back a second time?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Being told what their report turned out to be. A reply that names the cause, says what changed and admits when they were right about the smell but wrong about the symptom costs ten minutes and is the difference between one report and a person who keeps looking. Six people out of seven hundred downloads came back on that basis." }
+        },
+        {
+          "@type": "Question",
+          "name": "Should you judge a report by who sent it?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, and this is worth stating because it is easy to do by accident. One report arrived from an address several people read as a joke before reading the message. It was the most useful bug of that week: the opening video bypassed both volume sliders, so muting the game did nothing to the first thing a player hears." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/bug-reports-that-mean-something/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/bug-reports-that-mean-something/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Feedback</span>
+        <h1>Seven hundred downloads.<br>Thirty reports.<br>Six people who stayed.</h1>
+        <p class="tagline">The distance between those three numbers is not luck and it is not audience size. It is one question, one badge and a habit of replying. What thirty strangers found that a thousand automated tests did not.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>7 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>
+            Scaling Laws has been downloaded about seven hundred times. Thirty of those people
+            wrote to me. Six of them are still writing.
+        </p>
+
+        <p>
+            <strong>The last number is the only one that matters</strong>, and it is the one nobody
+            optimises for. A download is a statistic. A report is a favour. Somebody who reports
+            twice has decided the first one was worth their time, and that decision is made entirely
+            by what you did with it.
+        </p>
+
+        <div class="big">
+            <b>700 &rarr; 30 &rarr; 6</b>
+            <span>Four per cent of players wrote once. Less than one per cent kept going. Everything below is about the second drop, not the first.</span>
+        </div>
+
+        <h2 id="open-request">The request almost everybody makes, and why it fails</h2>
+
+        <p>
+            The default is some version of <em>let me know if you find any bugs</em>. It sounds
+            welcoming and it produces almost nothing useful, for a reason that took me three builds
+            to see.
+        </p>
+
+        <p>
+            Asked for bugs, a player reports <strong>whatever annoyed them</strong>. Roughly half of
+            what I used to receive described something that was not built yet. The map had regions
+            you could fly over and not lease. People wrote in to say the leasing was broken. It was
+            not broken. It did not exist.
+        </p>
+
+        <p>
+            Every one of those cost the sender the time to write it and me the time to read it, and
+            neither of us learned anything. <strong>The sender also learned that writing in produces
+            a reply explaining they misunderstood</strong>, which is an excellent way to make sure
+            they never write again.
+        </p>
+
+        <h2 id="badge">Remove the noise in the build, not in the inbox</h2>
+
+        <p>
+            The fix was not a better reply. It was a label. Unfinished parts of the game now carry a
+            yellow <span class="code" style="display:inline;padding:2px 6px;margin:0">NOT IN THIS BUILD</span>
+            badge, in the game, where the player is standing when they get confused.
+        </p>
+
+        <div class="trap">
+            <h4>The instinct this fights</h4>
+            <p>
+                Hiding unfinished work feels safer. It looks more professional and it protects you
+                from being judged on something incomplete.
+            </p>
+            <p>
+                <strong>It also guarantees that the gap gets reported as a bug</strong>, because from
+                outside there is no difference between a feature that is missing and a feature that
+                is broken. You are not hiding the hole. You are hiding the sign that says hole.
+            </p>
+        </div>
+
+        <p>
+            Roughly half the incoming reports stopped. What still arrives is about things that are
+            genuinely wrong, and <strong>I would rather ship a visible gap than a tidy lie</strong>.
+            A reader on a social post put it better than I did: labelling it is what turns strangers
+            into testers instead of critics.
+        </p>
+
+        <h2 id="question">The question that replaced &ldquo;did you like it&rdquo;</h2>
+
+        <p>
+            Everything I send now ends with the same request, and it is deliberately not about
+            opinion:
+        </p>
+
+        <div class="code">Where did you stop playing, and what were you trying to do at the time?</div>
+
+        <p>
+            Three things make this work. It asks about <strong>a moment rather than a judgement</strong>,
+            so there is a specific answer. It assumes they stopped, which removes the awkwardness of
+            admitting it. And it is <strong>the one thing I cannot observe from inside the project</strong>:
+            I know what every screen does, so I cannot see which one loses people.
+        </p>
+
+        <p>
+            Compare it with <em>did you enjoy it</em>, which has two answers, both useless. Yes is
+            politeness. No is unactionable.
+        </p>
+
+        <h2 id="reply">Reply with what it turned out to be</h2>
+
+        <p>
+            This is the part that produces the six, and it costs about ten minutes per report.
+        </p>
+
+        <p>
+            When somebody writes in, I find the cause and <strong>tell them what it actually was</strong>.
+            Not thanks, noted. The mechanism. One tester reported that a bar on screen was wrong and
+            was mistaken about which bar; while checking whether he was right I found a real fault
+            two methods away. I told him that, in those words. <strong>He was wrong about the
+            symptom and right that something smelled off</strong>, which is harder and more useful
+            than being right.
+        </p>
+
+        <p>
+            He now sends reports at a rate I did not ask for. On the Saturday the last build went
+            out he said at half past five that he would look at it that evening or the next day.
+            <strong>By twenty past eight he had sent three.</strong>
+        </p>
+
+        <div class="trap">
+            <h4>What the reply is actually buying</h4>
+            <p>
+                Not goodwill. <strong>Calibration.</strong> A tester who learns what their report
+                turned into gets better at writing the next one, because they now know which details
+                mattered. The six people still writing all send reports with the screen, the action
+                and the expectation in them. None of them did at first.
+            </p>
+        </div>
+
+        <h2 id="sender">Do not read the envelope</h2>
+
+        <p>
+            One report arrived from an address that several people read as a joke before reading the
+            message. I nearly did too.
+        </p>
+
+        <p>
+            It said the music would not mute. It was right, and it was worse than described: the
+            opening video bypassed <strong>both</strong> volume sliders, so turning the sound off did
+            nothing to the one thing that plays before a player has touched any other control. The
+            first impression of the whole game ignored the only control a person reaches for.
+        </p>
+
+        <p>
+            <strong>That was the most useful bug anybody sent me that week</strong>, and the thing I
+            changed was not the audio code. It was how I read the inbox.
+        </p>
+
+        <h2 id="found">What people find that tests do not</h2>
+
+        <p>
+            The project has 1,619 automated tests and 87 more that load a scene and photograph it.
+            None of them found any of the following.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>What a person found</th><th>Why no test could</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Twelve finished systems no player could reach</td>
+                    <td>A test calls the code directly. A player has to find a button. Every one of those twelve was correct, covered and wired to nothing.</td>
+                </tr>
+                <tr>
+                    <td>Two products showing identical user counts, to the decimal</td>
+                    <td>Found by shipping a second product and looking at both. No fixture had ever compared two of them side by side.</td>
+                </tr>
+                <tr>
+                    <td>&ldquo;Things vanish while you are looking at them&rdquo;</td>
+                    <td>A card closed on every day rollover, about every second and a half. Each rebuild was individually correct. The complaint only exists if you are reading.</td>
+                </tr>
+                <tr>
+                    <td>A cabinet slot that was never clickable, in any build</td>
+                    <td>The code decided whether a slot takes a click before anything assigned it a handler. The elements existed, so every structural test passed.</td>
+                </tr>
+                <tr>
+                    <td>A tutorial strip covering a third of every screen</td>
+                    <td>The reserved space was a constant nobody had measured. I played past it for days and read it as background.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The pattern is the same every time. <strong>Tests verify that a thing works when it is
+            called. People discover whether anything leads to it, and whether what it does makes
+            sense to somebody who was not there when it was written.</strong>
+        </p>
+
+        <h2 id="credits">Pay them in the only currency you have</h2>
+
+        <p>
+            I have never paid a tester. What they get is their name in the credits of the shipped
+            game, a reply that treats their report as work, and the game for free once it goes on
+            Steam.
+        </p>
+
+        <p>
+            One of them plays each build with <strong>a pen and a piece of paper</strong> and keeps
+            finding classes of bug that a thousand automated tests do not. Another report described a whole branch of research that was missing from the
+            screen, and that one message opened the audit that eventually found eighteen
+            unreachable systems. Neither of them owes me anything, and that is exactly why
+            their time is worth protecting.
+        </p>
+
+        <h2 id="try">If you want to try this</h2>
+
+        <p>
+            Four things, in the order that cost me the least to learn:
+        </p>
+
+        <ol>
+            <li><strong>Label what is not built</strong>, in the build, where the confusion happens.
+                This removes the most reports for the least effort.</li>
+            <li><strong>Ask where they stopped</strong>, not whether they liked it.</li>
+            <li><strong>Reply with the cause</strong>, named, including when they were wrong about
+                the symptom.</li>
+            <li><strong>Read the message, not the sender.</strong></li>
+        </ol>
+
+        <p>
+            None of this scales and none of it needs to. <strong>Six people is enough</strong> when
+            each of them sees something you structurally cannot.
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Questions people ask about this</h2>
+
+            <h3>Why do most bug reports from players say so little?</h3>
+            <p>
+                Because the request is open ended. Asked to report bugs, a player reports the thing
+                that annoyed them, which is often a feature that is not built yet. Asking where they
+                stopped and what they were trying to do produces a report about the moment the game
+                lost them, which is the thing you cannot observe from inside.
+            </p>
+
+            <h3>How do you stop getting reports about unfinished features?</h3>
+            <p>
+                Label them in the build. A yellow NOT IN THIS BUILD badge on unfinished parts of the
+                map removed roughly half the incoming reports here, because those reports had been
+                descriptions of things that were never built.
+            </p>
+
+            <h3>What makes a tester come back a second time?</h3>
+            <p>
+                Being told what their report turned out to be. A reply that names the cause and
+                admits when they were right about the smell but wrong about the symptom costs ten
+                minutes. It is the difference between one report and a person who keeps looking.
+            </p>
+
+            <h3>Should you judge a report by who sent it?</h3>
+            <p>
+                No. One report here arrived from an address several people read as a joke. It was
+                the most useful bug of that week: the opening video bypassed both volume sliders.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../unreachable-code-in-games/">Finished, Tested, and Impossible to Reach</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/">The Bug That Passes Every Test and Does Nothing</a></li>
+                <li><a href="../game-balance-tests/">Game Balance Tests: Proving a Game Is Winnable</a></li>
+                <li><a href="../why-solo-game-projects-die/">Why Solo Game Projects Die at the Same Four Features</a></li>
+                <li><a href="../save-migration-without-breaking-saves/">Save Migration Without Breaking Saves</a></li>
+                <li><a href="../unity-testable-game-logic/">Unity: Game Logic You Can Actually Test</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Every report in this article is real</strong> and came in about Scaling Laws,
+                an AI company tycoon released as a free public build with the source open.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the source</a> &middot;
+               <a href="../unreachable-code-in-games/">The eighteen unreachable systems that audit found</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

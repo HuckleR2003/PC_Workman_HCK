@@ -1,0 +1,429 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Poradniki / Technologia (PL) · zgłoszenia, które coś znaczą -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Siedemset pobrań dało trzydzieści zgłoszeń i sześć osób, które wracają. Co zmieniło się między tymi liczbami i jedno pytanie, które warto zadać.">
+    <meta name="keywords" content="zgłoszenia błędów, jakość zgłoszeń, testerzy gry, feedback od graczy, jak zbierać błędy, testy a gracze, formularz zgłoszeń, solo developer QA">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/bug-reports-that-mean-something/">
+    <meta property="og:title" content="Siedemset pobrań, trzydzieści zgłoszeń, sześć osób, które zostały">
+    <meta property="og:description" content="Między pobraniem a użytecznym zgłoszeniem stoi jedno pytanie i prawie nikt go nie zadaje. Co trzydziestu obcych ludzi znalazło, czego tysiąc testów nie znalazło.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Zgłoszenia, które coś znaczą: 700 pobrań, sześć osób</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Zgłoszenia, które coś znaczą",
+      "description": "Siedemset pobrań dało trzydzieści zgłoszeń i sześć osób, które wracają. Co zmieniło się między tymi liczbami: plakietka, która usunęła szum, pytanie, które zastąpiło czy ci się podobało, i odpowiedzi nazywające to, co każdy znalazł.",
+      "url": "https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "pl",
+      "articleSection": "Technologia"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Zgłoszenia, które coś znaczą", "item": "https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Dlaczego zgłoszenia od graczy zwykle tak mało mówią?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Bo prośba jest zwykle otwarta. Poproszony o zgłaszanie błędów gracz zgłasza to, co go zirytowało, a to często rzecz, której jeszcze nie zbudowano. Pytanie o to, gdzie przestał grać i co wtedy próbował zrobić, daje zgłoszenie o momencie, w którym gra go straciła, czyli o rzeczy, której autor nie widzi od środka." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak przestać dostawać zgłoszenia o niezbudowanych funkcjach?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Oznaczyć je w buildzie. W jednym projekcie żółta plakietka NOT IN THIS BUILD na nieskończonych fragmentach mapy usunęła mniej więcej połowę przychodzących zgłoszeń, bo tamte zgłoszenia opisywały rzeczy, których nigdy nie zbudowano. To, co nadal przychodzi, dotyczy rzeczy naprawdę zepsutych." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co sprawia, że tester wraca drugi raz?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To, że dowiaduje się, czym jego zgłoszenie okazało się naprawdę. Odpowiedź nazywająca przyczynę i przyznająca, kiedy ktoś miał rację co do przeczucia, a mylił się co do objawu, kosztuje dziesięć minut. To jest różnica między jednym zgłoszeniem a osobą, która szuka dalej." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy oceniać zgłoszenie po nadawcy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie, i warto to powiedzieć wprost, bo robi się to przez przypadek. Jedno zgłoszenie przyszło z adresu, który kilka osób uznało za żart, zanim przeczytało treść. Był to najużyteczniejszy błąd tamtego tygodnia: film wstępny omijał oba suwaki głośności, więc wyciszenie gry nie robiło nic z pierwszą rzeczą, jaką słyszy gracz." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/bug-reports-that-mean-something/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/bug-reports-that-mean-something/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Zgłoszenia</span>
+        <h1>Siedemset pobrań.<br>Trzydzieści zgłoszeń.<br>Sześć osób, które zostały.</h1>
+        <p class="tagline">Odległość między tymi trzema liczbami to nie szczęście i nie wielkość publiczności. To jedno pytanie, jedna plakietka i nawyk odpisywania. Co trzydziestu obcych ludzi znalazło, czego tysiąc automatycznych testów nie znalazło.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>7 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p>
+            Scaling Laws pobrano jakieś siedemset razy. Trzydzieści osób do mnie napisało.
+            Sześć pisze nadal.
+        </p>
+
+        <p>
+            <strong>Ostatnia liczba jest jedyną, która się liczy</strong>, i jest tą, pod którą nikt
+            nie optymalizuje. Pobranie to statystyka. Zgłoszenie to przysługa. Ktoś, kto zgłasza
+            drugi raz, uznał, że pierwsze było warte jego czasu, a tę decyzję podejmuje wyłącznie
+            na podstawie tego, co z nim zrobiłeś.
+        </p>
+
+        <div class="big">
+            <b>700 &rarr; 30 &rarr; 6</b>
+            <span>Cztery procent grających napisało raz. Mniej niż procent pisze dalej. Wszystko poniżej dotyczy drugiego spadku, nie pierwszego.</span>
+        </div>
+
+        <h2 id="otwarta-prosba">Prośba, którą formułują prawie wszyscy, i dlaczego nie działa</h2>
+
+        <p>
+            Domyślna wersja brzmi mniej więcej <em>dajcie znać, jeśli znajdziecie jakieś błędy</em>.
+            Brzmi życzliwie i nie daje prawie nic, z powodu, którego zobaczenie zajęło mi trzy buildy.
+        </p>
+
+        <p>
+            Poproszony o błędy, gracz zgłasza <strong>to, co go zirytowało</strong>. Mniej więcej
+            połowa tego, co wcześniej dostawałem, opisywała rzeczy jeszcze niezbudowane. Mapa miała
+            dzielnice, nad którymi dało się przelecieć i których nie dało się wydzierżawić. Ludzie
+            pisali, że dzierżawa jest zepsuta. Nie była zepsuta. Nie istniała.
+        </p>
+
+        <p>
+            Każde takie zgłoszenie kosztowało nadawcę czas na napisanie, a mnie czas na przeczytanie,
+            i żadne z nas niczego się nie dowiedziało. <strong>Nadawca dowiadywał się przy okazji, że
+            napisanie kończy się odpowiedzią tłumaczącą mu, że się pomylił</strong>, co jest
+            doskonałym sposobem, żeby nie napisał nigdy więcej.
+        </p>
+
+        <h2 id="plakietka">Usuń szum w buildzie, nie w skrzynce</h2>
+
+        <p>
+            Rozwiązaniem nie była lepsza odpowiedź. Była nim etykieta. Nieskończone fragmenty gry
+            noszą teraz żółtą plakietkę
+            <span class="code" style="display:inline;padding:2px 6px;margin:0">NOT IN THIS BUILD</span>,
+            w grze, w miejscu, w którym gracz stoi, kiedy się gubi.
+        </p>
+
+        <div class="trap">
+            <h4>Odruch, z którym to walczy</h4>
+            <p>
+                Chowanie niedokończonej pracy wydaje się bezpieczniejsze. Wygląda bardziej
+                profesjonalnie i chroni przed oceną za coś, co nie jest gotowe.
+            </p>
+            <p>
+                <strong>Gwarantuje też, że dziura zostanie zgłoszona jako błąd</strong>, bo z zewnątrz
+                nie ma różnicy między funkcją, której brakuje, a funkcją zepsutą. Nie chowasz dziury.
+                Chowasz tabliczkę z napisem dziura.
+            </p>
+        </div>
+
+        <p>
+            Mniej więcej połowa zgłoszeń przestała przychodzić. To, co nadal przychodzi, dotyczy
+            rzeczy naprawdę zepsutych, a <strong>wolę wydać widoczną lukę niż schludne
+            kłamstwo</strong>. Ktoś pod postem w mediach społecznościowych ujął to lepiej niż ja:
+            oznaczenie dziury zamienia obcych ludzi w testerów zamiast w krytyków.
+        </p>
+
+        <h2 id="pytanie">Pytanie, które zastąpiło &bdquo;czy ci się podobało&rdquo;</h2>
+
+        <p>
+            Wszystko, co wysyłam, kończy się tą samą prośbą i celowo nie dotyczy ona opinii:
+        </p>
+
+        <div class="code">W którym momencie przestałeś grać i co wtedy próbowałeś zrobić?</div>
+
+        <p>
+            Działa z trzech powodów. Pyta o <strong>moment, a nie o ocenę</strong>, więc ma konkretną
+            odpowiedź. Zakłada, że gracz przestał, co zdejmuje niezręczność przyznania się do tego.
+            I jest <strong>jedyną rzeczą, której nie widzę od środka projektu</strong>: wiem, co robi
+            każdy ekran, więc nie widzę, który z nich gubi ludzi.
+        </p>
+
+        <p>
+            Porównaj z <em>czy ci się podobało</em>, które ma dwie odpowiedzi i obie są bezużyteczne.
+            Tak to uprzejmość. Nie to nic, z czym da się cokolwiek zrobić.
+        </p>
+
+        <h2 id="odpowiedz">Odpisuj tym, czym to się okazało</h2>
+
+        <p>
+            To jest ta część, która daje tę szóstkę, i kosztuje jakieś dziesięć minut na zgłoszenie.
+        </p>
+
+        <p>
+            Kiedy ktoś pisze, znajduję przyczynę i <strong>mówię mu, czym to naprawdę było</strong>.
+            Nie dzięki, zanotowane. Mechanizm. Jeden tester zgłosił, że pasek na ekranie pokazuje źle,
+            i pomylił się co do tego, który to pasek; sprawdzając, czy ma rację, znalazłem prawdziwy
+            błąd dwie metody dalej. Napisałem mu to, tymi słowami. <strong>Mylił się co do objawu
+            i miał rację, że coś tu pachnie</strong>, co jest trudniejsze i bardziej przydatne niż
+            zwykłe trafienie.
+        </p>
+
+        <p>
+            Przysyła teraz zgłoszenia w tempie, o które nie prosiłem. W sobotę, kiedy wyszedł ostatni
+            build, napisał o wpół do szóstej, że zajrzy wieczorem albo nazajutrz.
+            <strong>O dwudziestej dwadzieścia przysłał trzy.</strong>
+        </p>
+
+        <div class="trap">
+            <h4>Co ta odpowiedź naprawdę kupuje</h4>
+            <p>
+                Nie życzliwość. <strong>Kalibrację.</strong> Tester, który dowiaduje się, w co
+                zamieniło się jego zgłoszenie, pisze następne lepiej, bo wie już, które szczegóły
+                miały znaczenie. Te sześć osób, które piszą dalej, podaje ekran, czynność
+                i oczekiwanie. Żadna nie podawała ich na początku.
+            </p>
+        </div>
+
+        <h2 id="nadawca">Nie czytaj koperty</h2>
+
+        <p>
+            Jedno zgłoszenie przyszło z adresu, który kilka osób uznało za żart, zanim przeczytało
+            treść. Ja też o mało tego nie zrobiłem.
+        </p>
+
+        <p>
+            Pisało, że muzyka się nie wycisza. Miało rację i było gorzej, niż opisywało: film wstępny
+            omijał <strong>oba</strong> suwaki głośności, więc wyłączenie dźwięku nie robiło nic
+            z jedyną rzeczą, która gra, zanim gracz dotknie czegokolwiek innego. Pierwsze wrażenie
+            całej gry ignorowało jedyną kontrolkę, po którą człowiek sięga.
+        </p>
+
+        <p>
+            <strong>Był to najużyteczniejszy błąd, jaki ktokolwiek przysłał mi tamtego
+            tygodnia</strong>, a rzecz, którą zmieniłem, nie była kodem dźwięku. Był nią sposób,
+            w jaki czytam skrzynkę.
+        </p>
+
+        <h2 id="znaleziska">Co znajdują ludzie, a czego nie znajdują testy</h2>
+
+        <p>
+            Projekt ma 1619 automatycznych testów i 87 takich, które ładują scenę i ją fotografują.
+            Żaden z nich nie znalazł nic z poniższych.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Co znalazł człowiek</th><th>Dlaczego test nie mógł</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Dwanaście skończonych systemów bez wejścia</td>
+                    <td>Test wywołuje kod wprost. Gracz musi znaleźć przycisk. Każdy z tych dwunastu był poprawny, pokryty testami i podpięty do niczego.</td>
+                </tr>
+                <tr>
+                    <td>Dwa produkty z identyczną liczbą użytkowników, co do dziesiętnego miejsca</td>
+                    <td>Znalezione przez wydanie drugiego produktu i spojrzenie na oba. Żaden test nigdy nie porównywał dwóch obok siebie.</td>
+                </tr>
+                <tr>
+                    <td>&bdquo;Rzeczy znikają, kiedy się na nie patrzy&rdquo;</td>
+                    <td>Karta zamykała się przy każdej zmianie dnia, czyli mniej więcej co półtorej sekundy. Każde przebudowanie było z osobna poprawne. Ta skarga istnieje tylko wtedy, gdy ktoś czyta.</td>
+                </tr>
+                <tr>
+                    <td>Slot w szafie, którego nigdy nie dało się kliknąć, w żadnym buildzie</td>
+                    <td>Kod decydował, czy slot przyjmuje kliknięcie, zanim cokolwiek przypisało mu obsługę. Elementy istniały, więc każdy test strukturalny przechodził.</td>
+                </tr>
+                <tr>
+                    <td>Pasek samouczka zasłaniający trzecią część każdego ekranu</td>
+                    <td>Zarezerwowane miejsce było stałą, której nikt nigdy nie zmierzył. Grałem obok tego kilka dni i czytałem to jako tło.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Wzór jest za każdym razem ten sam. <strong>Testy sprawdzają, czy coś działa, kiedy się to
+            wywoła. Ludzie odkrywają, czy cokolwiek do tego prowadzi i czy to, co robi, ma sens dla
+            kogoś, kogo nie było przy pisaniu.</strong>
+        </p>
+
+        <h2 id="zaplata">Płać im w jedynej walucie, jaką masz</h2>
+
+        <p>
+            Nigdy nie zapłaciłem testerowi. Dostają nazwisko w napisach wydanej gry, odpowiedź
+            traktującą ich zgłoszenie jak pracę, i grę za darmo, kiedy trafi na Steam.
+        </p>
+
+        <p>
+            Jedna z tych osób gra w każdy build <strong>z kartką i długopisem</strong> i wciąż
+            znajduje klasy błędów, których tysiąc automatycznych testów nie znajduje. Inne zgłoszenie
+            opisywało całą gałąź badań, której nie było na ekranie, i właśnie ta jedna wiadomość
+            otworzyła audyt, który ostatecznie znalazł osiemnaście nieosiągalnych systemów. Żadna
+            z tych osób nic mi nie jest winna i właśnie dlatego ich czas warto chronić.
+        </p>
+
+        <h2 id="sprobuj">Jeśli chcesz to u siebie spróbować</h2>
+
+        <p>
+            Cztery rzeczy, w kolejności od tej, której nauka kosztowała mnie najmniej:
+        </p>
+
+        <ol>
+            <li><strong>Oznacz to, co nie jest zbudowane</strong>, w buildzie, tam gdzie powstaje
+                zamieszanie. To usuwa najwięcej zgłoszeń najmniejszym kosztem.</li>
+            <li><strong>Pytaj, gdzie przestali</strong>, a nie czy im się podobało.</li>
+            <li><strong>Odpisuj przyczyną</strong>, nazwaną, również wtedy, gdy mylili się co do
+                objawu.</li>
+            <li><strong>Czytaj treść, nie nadawcę.</strong></li>
+        </ol>
+
+        <p>
+            Nic z tego się nie skaluje i nie musi. <strong>Sześć osób wystarczy</strong>, kiedy każda
+            z nich widzi coś, czego strukturalnie nie możesz zobaczyć.
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Pytania, które ludzie zadają</h2>
+
+            <h3>Dlaczego zgłoszenia od graczy zwykle tak mało mówią?</h3>
+            <p>
+                Bo prośba jest otwarta. Poproszony o błędy gracz zgłasza to, co go zirytowało, a to
+                często rzecz, której jeszcze nie zbudowano. Pytanie o to, gdzie przestał i co
+                próbował zrobić, daje zgłoszenie o momencie, w którym gra go straciła.
+            </p>
+
+            <h3>Jak przestać dostawać zgłoszenia o niezbudowanych funkcjach?</h3>
+            <p>
+                Oznaczyć je w buildzie. Żółta plakietka NOT IN THIS BUILD na nieskończonych
+                fragmentach mapy usunęła tutaj mniej więcej połowę przychodzących zgłoszeń.
+            </p>
+
+            <h3>Co sprawia, że tester wraca drugi raz?</h3>
+            <p>
+                To, że dowiaduje się, czym jego zgłoszenie się okazało. Odpowiedź nazywająca
+                przyczynę kosztuje dziesięć minut i jest różnicą między jednym zgłoszeniem a osobą,
+                która szuka dalej.
+            </p>
+
+            <h3>Czy oceniać zgłoszenie po nadawcy?</h3>
+            <p>
+                Nie. Jedno zgłoszenie przyszło tutaj z adresu, który kilka osób uznało za żart. Był
+                to najużyteczniejszy błąd tamtego tygodnia: film wstępny omijał oba suwaki głośności.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../unreachable-code-in-games/index_pl.html">Skończone, przetestowane i niemożliwe do osiągnięcia</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/index_pl.html">Błąd, który przechodzi każdy test i nie robi nic</a></li>
+                <li><a href="../game-balance-tests/index_pl.html">Testy balansu: jak udowodnić, że grę da się wygrać</a></li>
+                <li><a href="../why-solo-game-projects-die/index_pl.html">Dlaczego solowe projekty gier umierają</a></li>
+                <li><a href="../save-migration-without-breaking-saves/index_pl.html">Migracja zapisów bez psucia kampanii</a></li>
+                <li><a href="../unity-testable-game-logic/index_pl.html">Unity: logika gry, którą da się testować</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Każde zgłoszenie w tym artykule jest prawdziwe</strong> i dotyczyło Scaling
+                Laws, tycoona o firmie AI wydanego jako darmowy publiczny build z otwartym kodem.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">Strona gry i kod źródłowy</a> &middot;
+               <a href="../unreachable-code-in-games/index_pl.html">Osiemnaście nieosiągalnych systemów, które znalazł ten audyt</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
