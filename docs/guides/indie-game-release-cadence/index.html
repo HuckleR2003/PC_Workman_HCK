@@ -1,0 +1,497 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (EN) · indie game release cadence -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Ten releases in forty-seven days, with the real dates and gaps. Three shipped in one day, one was never meant for players, and the longest gap changed least.">
+    <meta name="keywords" content="indie game release cadence, how often should i update my game, early access update frequency, weekly releases solo developer, patch release same day, save format versioning, changelog discipline, shipping schedule indie">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <meta property="og:title" content="Ten releases in forty-seven days, and what the gaps measured">
+    <meta property="og:description" content="Three of them shipped on the same day. One was never meant for players. The fifteen-day gap carried one save migration; an eight-day gap carried ten.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Ten Releases in 47 Days: What Release Cadence Measures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Ten releases in forty-seven days, and what the gaps measured",
+      "description": "The real dates and intervals of ten public releases of one game over forty-seven days: four that looked like a weekly rhythm, three that shipped on the same day, one that was never meant for players, and a fifteen-day gap that changed less underneath than an eight-day one.",
+      "url": "https://pcworkman.dev/guides/indie-game-release-cadence/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/indie-game-release-cadence/" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "en",
+      "articleSection": "Technology",
+      "proficiencyLevel": "Beginner"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/index_en.html" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 3, "name": "Technology", "item": "https://pcworkman.dev/guides/" },
+        { "@type": "ListItem", "position": 4, "name": "Indie game release cadence", "item": "https://pcworkman.dev/guides/indie-game-release-cadence/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How often should a solo developer release updates?",
+          "acceptedAnswer": { "@type": "Answer", "text": "On whatever interval the work actually finishes on, which is not a fixed one. Four weekly releases in a row looked like a rhythm in this project and were really four weeks where the work happened to fit a week. The moment one piece was larger, the choice was between a fifteen-day gap and shipping a half-wired system, and the gap was the better of the two. Nothing external required a weekly number." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it bad to ship a patch on the same day as a release?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. A patch an hour after a release is the system working. What is worth examining is the class of fault it fixed. Both faults in that patch were reachable only by loading a save rather than starting a new campaign, which says the release was tested along the path just built instead of the path a returning player takes. The patch was correct; the habit that made it necessary was not." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does a longer gap between releases mean more changed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No, and in this project the two came apart completely. The eight-day release carried ten save format migrations. The fifteen-day release, the longest gap of the ten, carried one. Gap length measures how long the work took, not how deeply it reached, and those are different questions with different answers." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a reliable measure of how much a release changed?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The save format version is the closest honest one, because a migration is only written when stored data genuinely changed shape, so the count cannot be inflated by intent. A version number is a decision somebody makes; a migration is a count. Neither measures polish, and the changelog length measures how much there was to explain, which is a third separate thing." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it ever right to publish a build not meant for players?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, when publishing is the only way to get information you cannot get otherwise. One release here existed so that a second machine, which had been describing a different screen from the first for three days, could finally report what it was drawing. It said so in its own changelog entry and named the release after it that players should take instead." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ technology</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/indie-game-release-cadence/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/indie-game-release-cadence/" class="active" data-lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technology &middot; Shipping</span>
+        <h1>Ten releases<br>in forty-seven days.<br>What the gaps measured.</h1>
+        <p class="tagline">Three of them went out on the same day. One was never meant for players. The longest gap of the ten changed less underneath than one of the shortest. Here are the real dates.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>10 min read</span><span>&middot;</span><span>Technology</span>
+        </div>
+
+        <p>
+            Scaling Laws went public on 30 August 2026. By 16 October there had been ten releases.
+            I did not plan a cadence and I did not announce one, which turns out to be the only
+            reason the record is worth reading: <strong>nothing here was shaped to fit a
+            schedule</strong>, so the intervals say something.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Version</th><th>Date</th><th>Gap</th><th>Changelog lines</th><th>Save format</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>0.1.0</code></td><td>30 Aug</td><td>first</td><td>70</td><td></td></tr>
+                <tr><td><code>0.2.0</code></td><td>6 Sep</td><td>+7 days</td><td>747</td><td></td></tr>
+                <tr><td><code>0.3.0</code></td><td>13 Sep</td><td>+7 days</td><td><strong>850</strong></td><td>v56</td></tr>
+                <tr><td><code>0.3.1</code></td><td>13 Sep</td><td><strong>same day</strong></td><td>35</td><td></td></tr>
+                <tr><td><code>0.4.0</code></td><td>13 Sep</td><td><strong>same day</strong></td><td>96</td><td></td></tr>
+                <tr><td><code>0.5.0</code></td><td>20 Sep</td><td>+7 days</td><td>551</td><td>v57</td></tr>
+                <tr><td><code>0.6.0</code></td><td>28 Sep</td><td>+8 days</td><td>277</td><td><strong>v67</strong></td></tr>
+                <tr><td><code>0.6.1</code></td><td>29 Sep</td><td>+1 day</td><td>85</td><td>v71</td></tr>
+                <tr><td><code>0.6.2</code></td><td>1 Oct</td><td>+2 days</td><td>180</td><td></td></tr>
+                <tr><td><code>0.7.0</code></td><td>16 Oct</td><td><strong>+15 days</strong></td><td>745</td><td>v72</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Four shapes in there, and each one taught a different thing.
+        </p>
+
+        <h2 id="rhythm">The four weeks that looked like a rhythm</h2>
+
+        <p>
+            30 August, 6 September, 13 September, 20 September. Four releases, seven days apart
+            each time. If you had asked me on 20 September what my release cadence was, I would have
+            said weekly and believed it.
+        </p>
+
+        <p>
+            <strong>It was not a cadence.</strong> It was four consecutive weeks in which the work
+            happened to fit a week, and I had mistaken a coincidence for a commitment. The proof
+            arrived the first time a piece of work was larger than seven days, and I will come back
+            to it.
+        </p>
+
+        <p>
+            What the first one did get right was its own reason. The 0.1.0 entry says the build is
+            deliberately unpolished, that the art is partial and several screens are plain, and that
+            <strong>the point of shipping then was to find out whether the economy was interesting
+            before any more time went into how it looked</strong>. That decision held up. Every
+            correction in the nine releases after it came from somebody playing, and none of them
+            would have arrived if I had spent September on the art.
+        </p>
+
+        <h2 id="threeinaday">The day three releases went out</h2>
+
+        <p>
+            13 September has three entries: <code>0.3.0</code>, then <code>0.3.1</code>, then
+            <code>0.4.0</code>.
+        </p>
+
+        <p>
+            <code>0.3.0</code> is the largest changelog of the ten, 850 lines. <code>0.3.1</code>
+            went out, in the changelog's own words, within an hour of it. Its opening line is the
+            useful part:
+        </p>
+
+        <div class="code">A patch. Two faults found by the author within an hour of 0.3.0 going up,
+both of them only reachable by loading a save rather than starting a campaign.</div>
+
+        <p>
+            <strong>That sentence is the whole lesson of the day, and it is not about speed.</strong>
+            Both faults needed a loaded save. A new campaign could not reach either of them. Which
+            means I had tested 0.3.0 along the path I had just been building, over and over, and had
+            not once opened it the way a returning player does.
+        </p>
+
+        <p>
+            One of the two was properly bad. Loading a save put you in an office that was not there:
+            a wall, some furniture, a bench, no floor and no desks. Nothing failed and nothing was
+            logged, because the room removed itself. The sweep that dims the hand-placed objects in
+            the starting house so they do not show through a rented floor runs once and caches its
+            answer, and a loaded room stands in exactly the house's own space, so on first run with a
+            room already loaded it collected that room as somebody else's furniture.
+            <strong>96 of the 115 pieces of the office were switched off</strong>, measured on the
+            way to the fix.
+        </p>
+
+        <div class="trap">
+            <h4>The habit this cost me, and it is one line</h4>
+            <p>
+                A new campaign starts in the garage. Any fault that needs a populated save is
+                invisible from there, and a solo developer starting a fresh campaign to test is doing
+                the most convenient thing, not the most informative one.
+            </p>
+            <p>
+                <strong>Load a save before you ship.</strong> Not a test save: the oldest one you
+                still have. That single habit would have deleted <code>0.3.1</code> from this table
+                entirely, and it costs thirty seconds.
+            </p>
+        </div>
+
+        <p>
+            <code>0.4.0</code>, later the same day, is a different kind of entry. It made the server
+            room fillable by hand, and the reason it had never worked is worth quoting because it is
+            a shape that recurs: <strong>the floor emptied every cabinet and refilled it from scratch
+            on every tick</strong>, so anything a player placed by hand was wiped a fraction of a
+            second later. The feature was not missing. It was being undone faster than a person could
+            see.
+        </p>
+
+        <h2 id="testbuild">The release that was not for players</h2>
+
+        <p>
+            <code>0.6.1</code> went out one day after <code>0.6.0</code>, and its changelog entry
+            opens by telling you not to take it:
+        </p>
+
+        <div class="code">**A test build, not the release.** 0.6.2 is the one that goes out. This
+exists so the game can be opened in fullscreen on two machines that have been
+describing two different screens for three days, and so the second of them can
+finally say what it is drawing.</div>
+
+        <p>
+            Two machines had been disagreeing about the same interface for three days. One of them
+            was not mine to sit in front of. There is no way to debug that remotely except to put a
+            build in front of it that can describe itself, so <code>0.6.1</code> added one line to
+            the settings sheet naming the window, the logical page the interface is laid out on, the
+            scale between them and the window's aspect ratio.
+        </p>
+
+        <p>
+            <strong>I think publishing it was right, and labelling it was what made it right.</strong>
+            A version number is cheap. A player who downloads the wrong build and has a worse time is
+            not. The entry names its own successor in the first sentence, which costs nothing and
+            removes the only real risk.
+        </p>
+
+        <p>
+            The same release also carried the distribution licence fault: $1.2M to arrange, 270 days
+            of term, and for the whole of that term it changed nothing, because the line that was
+            supposed to widen your audience had no caller anywhere in the game and the line that
+            charged the partner their thirty per cent was named only inside its own catalogue. Both
+            were wired at once, deliberately, because connecting the reach without the cut would have
+            handed out twenty-two per cent more audience for free.
+        </p>
+
+        <h2 id="gap">The fifteen-day gap, and why I did not split it</h2>
+
+        <p>
+            <code>0.6.2</code> on 1 October, <code>0.7.0</code> on 16 October. Fifteen days, more
+            than double any other gap in the table, and the only point where the weekly story
+            visibly broke.
+        </p>
+
+        <p>
+            The headline of <code>0.7.0</code> is a player paying eighty million dollars for
+            something the game then refused to admit he owned. The own-datacenter tier asks for
+            $80,000,000 in the bank and costs exactly $80,000,000 to commission, so paying for it
+            dropped the company back under its own gate in the same tick. The ladder went on
+            demanding the money that had just left, and the compute page, which picks a tier by
+            asking the same question, quietly sold everything into colocation instead. Colocation
+            stops at 2,500 kW against the datacenter's 40,000. <strong>From the player's chair the
+            button simply did nothing.</strong>
+        </p>
+
+        <p>
+            I could have shipped a weekly release on 8 October with half of that repaired. I am
+            fairly sure it would have been worse than waiting, for one specific reason: the second
+            half of the fault was that the research requirement existed only on the screen.
+            <code>TryOrderDatacenter</code> read the catalogue directly and never asked the research
+            tree, so the gate the interface draws was a suggestion to anything calling the simulation
+            another way. That half was found by reading the surrounding code, not reported, and it
+            was found <em>because</em> there was no release to get out on the Thursday.
+        </p>
+
+        <div class="big">
+            <b>Reported twice</b>
+            <span>Francisco reported the datacenter button twice. The first description did not make the second half findable; the second one did. A gap is also time for a second description to arrive.</span>
+        </div>
+
+        <h2 id="measures">The measure that disagrees with all of this</h2>
+
+        <p>
+            Here is the part that changed how I read my own release history.
+        </p>
+
+        <p>
+            The save format version only goes up when stored data genuinely changes shape, because
+            each step is a migration somebody had to write. <strong>You cannot inflate it with
+            intent.</strong> Compare it to the gaps:
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Release</th><th>Gap</th><th>Save migrations it carried</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>0.5.0</code></td><td>7 days</td><td>1 &nbsp;(v56 &rarr; v57)</td></tr>
+                <tr><td><code>0.6.0</code></td><td>8 days</td><td><strong>10</strong> &nbsp;(v57 &rarr; v67)</td></tr>
+                <tr><td><code>0.6.1</code></td><td>1 day</td><td>4 &nbsp;(v67 &rarr; v71)</td></tr>
+                <tr><td><code>0.7.0</code></td><td><strong>15 days</strong></td><td><strong>1</strong> &nbsp;(v71 &rarr; v72)</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            <strong>The longest gap of the ten carried one migration. An eight-day gap carried ten,
+            and a one-day gap carried four.</strong> Gap length and depth of change are not
+            correlated here. They are not even loosely related.
+        </p>
+
+        <p>
+            It makes sense once stated: <code>0.6.0</code> added systems, which is what changes the
+            shape of stored data. <code>0.7.0</code> was mostly repairs and screens, which take
+            calendar time and touch almost nothing a save file has to remember. And the changelog
+            length is a third measure that agrees with neither, because it records how much there was
+            to <em>explain</em>.
+        </p>
+
+        <p>
+            So there are three numbers available for any release and they answer three different
+            questions. <strong>A version number is a decision somebody made. A migration count is a
+            count. Changelog length is a measure of explanation.</strong> None of them is
+            "how much better is the game", and nothing in the table is.
+        </p>
+
+        <h2 id="keep">What I would keep, and what I dropped</h2>
+
+        <p><strong>Kept: shipping before it looks finished.</strong> The 0.1.0 reasoning held. Every
+        useful correction in forty-seven days came from somebody playing, and none of them was about
+        the art.</p>
+
+        <p><strong>Kept: the same-day patch.</strong> An hour after a release is the right response
+        to a fault you can see. The patch was never the problem.</p>
+
+        <p><strong>Kept: labelling a build that is not for players</strong>, in its own first
+        sentence, naming what to take instead.</p>
+
+        <p><strong>Dropped: the belief that a weekly number was a commitment.</strong> Nobody had
+        asked for one. I had inferred it from four weeks of coincidence and then felt behind for a
+        fortnight over a promise that existed only in my own head.</p>
+
+        <p><strong>Added: load an old save before shipping.</strong> Thirty seconds, and it removes
+        the entire class of fault that produced the only patch release in the table.</p>
+
+        <h2 id="advice">If you are deciding your own cadence</h2>
+
+        <ol>
+            <li><strong>Do not announce an interval you have not survived four times under load.</strong>
+                Four weeks of a week fitting is not evidence that weeks fit.</li>
+            <li><strong>Write the gap down with the release</strong>, then look at the column after a
+                couple of months. The shape is invisible release by release and obvious in a table.</li>
+            <li><strong>Count your migrations, not your versions.</strong> It is the one number in
+                this record that nobody can tilt.</li>
+            <li><strong>Treat a long gap as the cost of not shipping something half-wired</strong>,
+                and say so in the changelog. "This took fifteen days because the second half of the
+                fault was not visible yet" is a sentence players accept easily.</li>
+            <li><strong>Test along the path a returning player takes</strong>, not the one you have
+                been building all week.</li>
+        </ol>
+
+        <p>
+            Ten releases, forty-seven days, one patch, one build that told you not to take it, and
+            one gap more than twice as long as any other. <strong>Nothing about that pattern was
+            planned, and that is the only reason it is worth anything as data.</strong>
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Questions people ask about this</h2>
+
+            <h3>How often should a solo developer release updates?</h3>
+            <p>
+                On whatever interval the work finishes on, which is not fixed. Four weekly releases
+                in a row here were really four weeks where the work happened to fit a week. When one
+                piece was larger, the choice was a fifteen-day gap or a half-wired system, and the
+                gap was better. Nothing external required a weekly number.
+            </p>
+
+            <h3>Is it bad to ship a patch on the same day as a release?</h3>
+            <p>
+                No, that is the system working. What is worth examining is the class of fault. Both
+                faults in that patch needed a loaded save, which says the release was tested along
+                the path just built rather than the path a returning player takes. The patch was
+                right; the habit behind it was not.
+            </p>
+
+            <h3>Does a longer gap mean more changed?</h3>
+            <p>
+                No. Here the eight-day release carried ten save migrations and the fifteen-day one
+                carried a single migration. Gap length measures how long the work took, not how
+                deeply it reached.
+            </p>
+
+            <h3>What is a reliable measure of how much a release changed?</h3>
+            <p>
+                The save format version is the closest honest one, because a migration gets written
+                only when stored data really changes shape, so the count cannot be inflated. A
+                version number is a decision; a migration is a count. Changelog length measures
+                something else again: how much there was to explain.
+            </p>
+
+            <h3>Is it ever right to publish a build not meant for players?</h3>
+            <p>
+                Yes, when publishing is the only way to get information you cannot otherwise get.
+                One release here existed so a second machine, which had been describing a different
+                screen for three days, could report what it was drawing. It said so in its first
+                line and named the release to take instead.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../save-migration-without-breaking-saves/">Save Migration Without Breaking Saves</a></li>
+                <li><a href="../unity-screenshot-tests/">Unity Screenshot Tests: Faults No Assertion Sees</a></li>
+                <li><a href="../bug-reports-that-mean-something/">Bug Reports That Mean Something</a></li>
+                <li><a href="../unreachable-code-in-games/">Finished, Tested, and Impossible to Reach</a></li>
+                <li><a href="../why-solo-game-projects-die/">Why Solo Game Projects Die at the Same Four Features</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/">The Bug That Passes Every Test and Does Nothing</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Every date, gap and migration count in this article is from the public
+                changelog</strong> of Scaling Laws, an AI company tycoon released as a free build
+                with the source open. You can check the whole table yourself.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/">The game page and the changelog</a> &middot;
+               <a href="../save-migration-without-breaking-saves/">How the migrations are written</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../blog/">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

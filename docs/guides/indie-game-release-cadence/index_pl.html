@@ -1,0 +1,500 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> Guides / Technology (PL) · rytm wydawania aktualizacji -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Dziesięć wydań w czterdzieści siedem dni, z prawdziwymi datami i przerwami. Trzy w jednym dniu, jedno nie dla graczy, a najdłuższa przerwa zmieniła najmniej.">
+    <meta name="keywords" content="jak często wydawać aktualizacje, rytm wydawania gry, early access częstotliwość aktualizacji, cotygodniowe wydania solo developer, patch tego samego dnia, wersjonowanie formatu zapisu, changelog, harmonogram wydań indie">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/indie-game-release-cadence/">
+    <meta property="og:title" content="Dziesięć wydań w czterdzieści siedem dni i co zmierzyły przerwy">
+    <meta property="og:description" content="Trzy wyszły tego samego dnia. Jedno nie było dla graczy. Przerwa piętnastodniowa wiozła jedną migrację zapisu, ośmiodniowa dziesięć.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-10-19T00:00:00+02:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technology">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Dziesięć wydań w 47 dni: co naprawdę mierzy rytm wydawania</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .code { font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.72;
+                background:#0c0e13; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                border-radius:5px; padding:12px 14px; color:#b9c0cc; overflow-x:auto;
+                white-space:pre-wrap; margin:18px 0; }
+        .cases { width:100%; border-collapse:collapse; margin:24px 0; font-size:14.5px; }
+        .cases th, .cases td { border:1px solid #23262e; padding:10px 12px; text-align:left; vertical-align:top; }
+        .cases th { background:#0d0f14; color:#a0a0a0; font-family:'JetBrains Mono',monospace;
+                    font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+        .trap { border:1px solid #23262e; border-left:3px solid #f59e0b; background:#12100b;
+                border-radius:6px; padding:14px 17px; margin:20px 0; }
+        .trap h4 { margin:0 0 7px; font-size:16px; color:#e8d9b6; }
+        .trap p { margin:0 0 9px; font-size:15px; line-height:1.65; color:#c3b394; }
+        .trap p:last-child { margin-bottom:0; }
+        .big { border:1px solid #23262e; border-left:3px solid #f3604e; background:#140d0e;
+               border-radius:6px; padding:16px 18px; margin:24px 0; }
+        .big b { display:block; font-family:'JetBrains Mono',monospace; font-size:30px;
+                 color:#f3968a; line-height:1.1; margin-bottom:6px; }
+        .big span { font-size:15px; color:#d8bcbc; line-height:1.6; }
+        .qa { border-top:1px solid #23262e; padding-top:18px; margin-top:14px; }
+        .qa h3 { font-size:17px; color:#e8eaee; margin:0 0 8px; }
+        .qa p { font-size:15px; line-height:1.7; color:#b6bdc9; margin:0 0 22px; }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Dziesięć wydań w czterdzieści siedem dni i co zmierzyły przerwy",
+      "description": "Prawdziwe daty i odstępy dziesięciu publicznych wydań jednej gry w czterdzieści siedem dni: cztery, które wyglądały jak cotygodniowy rytm, trzy w jednym dniu, jedno, które nie było dla graczy, i przerwa piętnastodniowa, która pod spodem zmieniła mniej niż ośmiodniowa.",
+      "url": "https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html" },
+      "datePublished": "2026-10-19T00:00:00+02:00",
+      "dateModified": "2026-10-19T00:00:00+02:00",
+      "author": { "@type": "Person", "name": "Marcin Firmuga", "url": "https://linktr.ee/marcin_firmuga" },
+      "publisher": { "@type": "Organization", "name": "PC Workman", "url": "https://pcworkman.dev/" },
+      "inLanguage": "pl",
+      "articleSection": "Technology",
+      "proficiencyLevel": "Beginner"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 3, "name": "Technologia", "item": "https://pcworkman.dev/guides/index_pl.html" },
+        { "@type": "ListItem", "position": 4, "name": "Rytm wydawania aktualizacji", "item": "https://pcworkman.dev/guides/indie-game-release-cadence/index_pl.html" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak często solowy twórca powinien wydawać aktualizacje?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W takim odstępie, w jakim praca naprawdę się kończy, a ten nie jest stały. Cztery cotygodniowe wydania pod rząd wyglądały w tym projekcie jak rytm, a były czterema tygodniami, w których praca przypadkiem zmieściła się w tygodniu. W chwili, w której jeden kawałek był większy, wybór stał między przerwą piętnastodniową i wydaniem systemu podłączonego w połowie, i przerwa była lepsza. Nic z zewnątrz nie wymagało liczby tygodniowej." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy wydanie patcha tego samego dnia to zły znak?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie, to system, który działa. Warto natomiast przyjrzeć się klasie błędu, który naprawił. Oba błędy w tamtym patchu były osiągalne wyłącznie przez wczytanie zapisu, a nie przez start nowej kampanii, co znaczy, że wydanie było testowane ścieżką właśnie budowaną, a nie ścieżką, którą idzie wracający gracz. Patch był słuszny, nawyk, który go wymusił, nie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy dłuższa przerwa znaczy, że zmieniło się więcej?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie, a w tym projekcie te dwie rzeczy rozjechały się całkowicie. Wydanie po ośmiu dniach wiozło dziesięć migracji formatu zapisu. Wydanie po piętnastu dniach, najdłuższa przerwa z dziesięciu, wiozło jedną. Długość przerwy mierzy, ile czasu zajęła praca, a nie jak głęboko sięgnęła, i to są dwa różne pytania z różnymi odpowiedziami." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co jest wiarygodną miarą tego, ile zmieniło wydanie?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Najbliżej uczciwej miary jest wersja formatu zapisu, bo migrację pisze się tylko wtedy, gdy przechowywane dane faktycznie zmieniły kształt, więc tej liczby nie da się napompować intencją. Numer wersji to decyzja, którą ktoś podejmuje; migracja to licznik. Żadne z tych dwóch nie mierzy dopracowania, a długość changelogu mierzy, ile było do wytłumaczenia, czyli trzecią osobną rzecz." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy kiedykolwiek warto opublikować build, który nie jest dla graczy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak, kiedy publikacja jest jedynym sposobem zdobycia informacji, której inaczej nie zdobędziesz. Jedno wydanie powstało tu po to, żeby druga maszyna, która od trzech dni opisywała inny ekran niż pierwsza, mogła wreszcie powiedzieć, co rysuje. Powiedziało to we własnym changelogu i wskazało w pierwszym zdaniu wydanie, które gracz powinien wziąć zamiast niego." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-tech">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/indie-game-release-cadence/index_pl.html" class="active" data-lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/indie-game-release-cadence/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Wydawanie</span>
+        <h1>Dziesięć wydań<br>w czterdzieści siedem dni.<br>Co zmierzyły przerwy.</h1>
+        <p class="tagline">Trzy wyszły tego samego dnia. Jedno nie było dla graczy. Najdłuższa przerwa z dziesięciu zmieniła pod spodem mniej niż jedna z najkrótszych. Oto prawdziwe daty.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-10-19</span><span>&middot;</span><span>10 min czytania</span><span>&middot;</span><span>Technologia</span>
+        </div>
+
+        <p>
+            Scaling Laws wyszło publicznie 30 sierpnia 2026. Do 16 października było dziesięć wydań.
+            Nie planowałem rytmu i nie zapowiedziałem żadnego, co okazuje się jedynym powodem, dla
+            którego ten zapis warto czytać: <strong>nic tutaj nie było przycinane pod
+            harmonogram</strong>, więc odstępy coś mówią.
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Wersja</th><th>Data</th><th>Przerwa</th><th>Linii changelogu</th><th>Format zapisu</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>0.1.0</code></td><td>30.08</td><td>pierwsze</td><td>70</td><td></td></tr>
+                <tr><td><code>0.2.0</code></td><td>06.09</td><td>+7 dni</td><td>747</td><td></td></tr>
+                <tr><td><code>0.3.0</code></td><td>13.09</td><td>+7 dni</td><td><strong>850</strong></td><td>v56</td></tr>
+                <tr><td><code>0.3.1</code></td><td>13.09</td><td><strong>ten sam dzień</strong></td><td>35</td><td></td></tr>
+                <tr><td><code>0.4.0</code></td><td>13.09</td><td><strong>ten sam dzień</strong></td><td>96</td><td></td></tr>
+                <tr><td><code>0.5.0</code></td><td>20.09</td><td>+7 dni</td><td>551</td><td>v57</td></tr>
+                <tr><td><code>0.6.0</code></td><td>28.09</td><td>+8 dni</td><td>277</td><td><strong>v67</strong></td></tr>
+                <tr><td><code>0.6.1</code></td><td>29.09</td><td>+1 dzień</td><td>85</td><td>v71</td></tr>
+                <tr><td><code>0.6.2</code></td><td>01.10</td><td>+2 dni</td><td>180</td><td></td></tr>
+                <tr><td><code>0.7.0</code></td><td>16.10</td><td><strong>+15 dni</strong></td><td>745</td><td>v72</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            Są tam cztery kształty i każdy nauczył czegoś innego.
+        </p>
+
+        <h2 id="rytm">Cztery tygodnie, które wyglądały jak rytm</h2>
+
+        <p>
+            30 sierpnia, 6 września, 13 września, 20 września. Cztery wydania, co siedem dni. Gdybyś
+            zapytał mnie 20 września, jaki mam rytm wydawania, powiedziałbym, że cotygodniowy,
+            i bym w to wierzył.
+        </p>
+
+        <p>
+            <strong>To nie był rytm.</strong> To były cztery kolejne tygodnie, w których praca
+            przypadkiem zmieściła się w tygodniu, a ja wziąłem zbieg okoliczności za zobowiązanie.
+            Dowód przyszedł przy pierwszym kawałku pracy większym niż siedem dni i wrócę do niego
+            niżej.
+        </p>
+
+        <p>
+            To, co pierwsze wydanie zrobiło dobrze, to własne uzasadnienie. Wpis 0.1.0 mówi, że build
+            jest celowo niedopracowany, że grafika jest częściowa, kilka ekranów surowych, a
+            <strong>sensem wydania wtedy było sprawdzić, czy ekonomia jest ciekawa, zanim pójdzie
+            więcej czasu w to, jak to wygląda</strong>. Ta decyzja się obroniła. Każda poprawka
+            w dziewięciu wydaniach po niej przyszła od kogoś, kto grał, i żadna z nich nie
+            przyszłaby, gdybym wrzesień przesiedział nad grafiką.
+        </p>
+
+        <h2 id="trzywdzien">Dzień, w którym wyszły trzy wydania</h2>
+
+        <p>
+            13 września ma trzy wpisy: <code>0.3.0</code>, potem <code>0.3.1</code>, potem
+            <code>0.4.0</code>.
+        </p>
+
+        <p>
+            <code>0.3.0</code> to największy changelog z dziesięciu, 850 linii. <code>0.3.1</code>
+            wyszło, słowami własnego wpisu, w ciągu godziny od niego. Pierwsze zdanie jest tu
+            najważniejsze:
+        </p>
+
+        <div class="code">A patch. Two faults found by the author within an hour of 0.3.0 going up,
+both of them only reachable by loading a save rather than starting a campaign.</div>
+
+        <p>
+            <strong>To zdanie jest całą lekcją tego dnia i nie chodzi w nim o szybkość.</strong> Oba
+            błędy wymagały wczytanego zapisu. Nowa kampania nie mogła do żadnego z nich dojść. Czyli
+            testowałem 0.3.0 ścieżką, którą właśnie budowałem, w kółko, i ani razu nie otworzyłem go
+            tak, jak otwiera go wracający gracz.
+        </p>
+
+        <p>
+            Jeden z tych dwóch był naprawdę zły. Wczytanie zapisu wstawiało cię do biura, którego nie
+            było: ściana, trochę mebli, ławka, bez podłogi i bez biurek. Nic nie zawiodło i nic nie
+            trafiło do logu, bo pokój usunął się sam. Przebieg, który przygasza ręcznie postawione
+            rzeczy w domu startowym, żeby nie przebijały przez wynajęte piętro, wykonuje się raz
+            i pamięta swoją odpowiedź, a wczytany pokój stoi dokładnie w przestrzeni samego domu.
+            Uruchomiony pierwszy raz z już wczytanym pokojem zebrał ten pokój jako czyjeś meble.
+            <strong>96 ze 115 elementów biura było wyłączonych</strong>, zmierzone po drodze do
+            naprawy.
+        </p>
+
+        <div class="trap">
+            <h4>Nawyk, który mnie to kosztowało, i jest jednolinijkowy</h4>
+            <p>
+                Nowa kampania startuje w garażu. Każdy błąd wymagający zapełnionego zapisu jest
+                z tamtego miejsca niewidoczny, a solowy twórca odpalający świeżą kampanię do testów
+                robi rzecz najwygodniejszą, nie najbardziej informującą.
+            </p>
+            <p>
+                <strong>Wczytaj zapis, zanim wydasz.</strong> Nie testowy: najstarszy, jaki jeszcze
+                masz. Ten jeden nawyk usunąłby <code>0.3.1</code> z tej tabeli w całości, a kosztuje
+                trzydzieści sekund.
+            </p>
+        </div>
+
+        <p>
+            <code>0.4.0</code>, tego samego dnia, to wpis innego rodzaju. Zrobił serwerownię, którą
+            da się zapełnić ręcznie, a powód, dla którego nigdy to nie działało, warto zacytować, bo
+            ten kształt się powtarza: <strong>podłoga opróżniała każdą szafę i napełniała ją od zera
+            w każdym ticku</strong>, więc wszystko, co gracz postawił ręką, było ścierane ułamek
+            sekundy później. Funkcja nie była nieobecna. Była cofana szybciej, niż człowiek jest
+            w stanie zobaczyć.
+        </p>
+
+        <h2 id="testowy">Wydanie, które nie było dla graczy</h2>
+
+        <p>
+            <code>0.6.1</code> wyszło dzień po <code>0.6.0</code>, a jego changelog zaczyna się od
+            tego, żebyś go nie brał:
+        </p>
+
+        <div class="code">**A test build, not the release.** 0.6.2 is the one that goes out. This
+exists so the game can be opened in fullscreen on two machines that have been
+describing two different screens for three days, and so the second of them can
+finally say what it is drawing.</div>
+
+        <p>
+            Dwie maszyny od trzech dni nie zgadzały się co do tego samego interfejsu. Jedna z nich
+            nie była moja do siedzenia przed nią. Nie da się tego zdiagnozować zdalnie inaczej niż
+            postawić przed nią build, który umie opisać siebie, więc <code>0.6.1</code> dołożyło
+            jedną linię na arkuszu ustawień: okno, logiczną stronę, na której układa się interfejs,
+            skalę między nimi i proporcje okna.
+        </p>
+
+        <p>
+            <strong>Myślę, że opublikowanie tego było słuszne, a tym, co uczyniło to słusznym, było
+            oznaczenie.</strong> Numer wersji jest tani. Gracz, który pobierze zły build i będzie się
+            przez niego gorzej bawił, nie jest. Wpis wskazuje swojego następcę w pierwszym zdaniu, co
+            nic nie kosztuje, a usuwa jedyne realne ryzyko.
+        </p>
+
+        <p>
+            To samo wydanie wiozło też błąd licencji dystrybucyjnej: 1,2 mln dolarów za zorganizowanie,
+            270 dni terminu, i przez cały ten termin nie zmieniała nic, bo linia, która miała
+            poszerzyć publiczność, nie miała w całej grze żadnego wywołania, a linia naliczająca
+            partnerowi trzydzieści procent była nazwana tylko we własnym katalogu. Obie zostały
+            podłączone naraz, celowo, bo podłączenie zasięgu bez prowizji rozdałoby dwadzieścia dwa
+            procent publiczności za darmo.
+        </p>
+
+        <h2 id="przerwa">Przerwa piętnastodniowa i dlaczego jej nie podzieliłem</h2>
+
+        <p>
+            <code>0.6.2</code> pierwszego października, <code>0.7.0</code> szesnastego. Piętnaście
+            dni, dwa razy więcej niż jakakolwiek inna przerwa w tabeli, i jedyne miejsce, w którym
+            cotygodniowa opowieść widocznie pękła.
+        </p>
+
+        <p>
+            Nagłówek <code>0.7.0</code> to gracz płacący osiemdziesiąt milionów dolarów za coś, do
+            czego gra potem nie chciała się przyznać. Poziom własnego centrum danych wymaga
+            80 000 000 dolarów na koncie i kosztuje dokładnie 80 000 000, więc zapłacenie za niego
+            zrzucało firmę pod jej własną bramkę w tym samym ticku. Drabina dalej domagała się
+            pieniędzy, które właśnie wyszły, a strona mocy obliczeniowej, która wybiera poziom
+            zadając to samo pytanie, po cichu sprzedawała wszystko do kolokacji. Kolokacja kończy się
+            na 2 500 kW przy 40 000 centrum danych. <strong>Z fotela gracza przycisk po prostu nic
+            nie robił.</strong>
+        </p>
+
+        <p>
+            Mogłem wydać cotygodniową wersję 8 października z połową tego naprawioną. Jestem dość
+            pewny, że byłoby to gorsze niż czekanie, z jednego konkretnego powodu: drugą połową błędu
+            było to, że wymóg badań istniał wyłącznie na ekranie. <code>TryOrderDatacenter</code>
+            czytał katalog wprost i nigdy nie pytał drzewa badań, więc bramka, którą rysuje
+            interfejs, była sugestią dla wszystkiego, co woła symulację inną drogą. Tę połowę
+            znalazłem, czytając kod wokół, a nie z czyjegoś zgłoszenia, i znalazłem ją
+            <em>dlatego</em>, że nie było wydania, które trzeba wypchnąć w czwartek.
+        </p>
+
+        <div class="big">
+            <b>Zgłoszone dwa razy</b>
+            <span>Franciszek zgłosił przycisk centrum danych dwa razy. Pierwszy opis nie pozwalał znaleźć drugiej połowy, drugi pozwolił. Przerwa to także czas na to, żeby przyszedł drugi opis.</span>
+        </div>
+
+        <h2 id="miary">Miara, która kłóci się z tym wszystkim</h2>
+
+        <p>
+            Tu jest ta część, która zmieniła sposób, w jaki czytam własną historię wydań.
+        </p>
+
+        <p>
+            Wersja formatu zapisu rośnie tylko wtedy, gdy przechowywane dane naprawdę zmieniają
+            kształt, bo każdy krok to migracja, którą ktoś musiał napisać. <strong>Nie da się jej
+            napompować intencją.</strong> Porównaj ją z przerwami:
+        </p>
+
+        <table class="cases">
+            <thead>
+                <tr><th>Wydanie</th><th>Przerwa</th><th>Migracji zapisu</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>0.5.0</code></td><td>7 dni</td><td>1 &nbsp;(v56 &rarr; v57)</td></tr>
+                <tr><td><code>0.6.0</code></td><td>8 dni</td><td><strong>10</strong> &nbsp;(v57 &rarr; v67)</td></tr>
+                <tr><td><code>0.6.1</code></td><td>1 dzień</td><td>4 &nbsp;(v67 &rarr; v71)</td></tr>
+                <tr><td><code>0.7.0</code></td><td><strong>15 dni</strong></td><td><strong>1</strong> &nbsp;(v71 &rarr; v72)</td></tr>
+            </tbody>
+        </table>
+
+        <p>
+            <strong>Najdłuższa przerwa z dziesięciu wiozła jedną migrację. Ośmiodniowa wiozła
+            dziesięć, a jednodniowa cztery.</strong> Długość przerwy i głębokość zmiany nie są tu
+            skorelowane. Nie są nawet luźno powiązane.
+        </p>
+
+        <p>
+            Po nazwaniu robi się to oczywiste: <code>0.6.0</code> dodawało systemy, a to właśnie
+            zmienia kształt przechowywanych danych. <code>0.7.0</code> było głównie naprawami
+            i ekranami, które zabierają kalendarz i prawie nie dotykają niczego, co plik zapisu musi
+            pamiętać. A długość changelogu to trzecia miara, która nie zgadza się z żadną z tych
+            dwóch, bo zapisuje, ile było do <em>wytłumaczenia</em>.
+        </p>
+
+        <p>
+            Czyli przy każdym wydaniu są trzy dostępne liczby i odpowiadają na trzy różne pytania.
+            <strong>Numer wersji to decyzja, którą ktoś podjął. Liczba migracji to licznik. Długość
+            changelogu to miara tłumaczenia.</strong> Żadna z nich nie jest odpowiedzią na pytanie
+            „o ile gra jest lepsza", i nic w tej tabeli nią nie jest.
+        </p>
+
+        <h2 id="zostaje">Co zostawiam, a co wyrzuciłem</h2>
+
+        <p><strong>Zostaje: wydawanie, zanim wygląda na skończone.</strong> Rozumowanie z 0.1.0 się
+        obroniło. Każda użyteczna poprawka w czterdzieści siedem dni przyszła od kogoś, kto grał,
+        i żadna nie dotyczyła grafiki.</p>
+
+        <p><strong>Zostaje: patch tego samego dnia.</strong> Godzina po wydaniu to właściwa reakcja
+        na błąd, który widzisz. Patch nigdy nie był problemem.</p>
+
+        <p><strong>Zostaje: oznaczanie builda, który nie jest dla graczy</strong>, we własnym
+        pierwszym zdaniu, ze wskazaniem, co wziąć zamiast niego.</p>
+
+        <p><strong>Wyrzucone: wiara, że cotygodniowa liczba była zobowiązaniem.</strong> Nikt o nią
+        nie prosił. Wywnioskowałem ją z czterech tygodni zbiegu okoliczności, a potem przez dwa
+        tygodnie czułem się spóźniony wobec obietnicy, która istniała wyłącznie w mojej głowie.</p>
+
+        <p><strong>Dodane: wczytaj stary zapis przed wydaniem.</strong> Trzydzieści sekund, a usuwa
+        całą klasę błędów, która wyprodukowała jedyny patch w tej tabeli.</p>
+
+        <h2 id="rada">Jeśli ustalasz własny rytm</h2>
+
+        <ol>
+            <li><strong>Nie zapowiadaj odstępu, którego nie przeżyłeś czterokrotnie pod
+                obciążeniem.</strong> Cztery tygodnie, w których tydzień się zmieścił, nie są dowodem,
+                że tygodnie się mieszczą.</li>
+            <li><strong>Zapisuj przerwę razem z wydaniem</strong>, a potem po dwóch miesiącach
+                popatrz na kolumnę. Kształt jest niewidoczny wydanie po wydaniu i oczywisty w tabeli.</li>
+            <li><strong>Licz migracje, nie wersje.</strong> To jedyna liczba w tym zapisie, której
+                nikt nie przekrzywi.</li>
+            <li><strong>Traktuj długą przerwę jako koszt niewydania czegoś podłączonego w
+                połowie</strong> i napisz to w changelogu. „Zajęło piętnaście dni, bo druga połowa
+                błędu nie była jeszcze widoczna" to zdanie, które gracze przyjmują bez problemu.</li>
+            <li><strong>Testuj ścieżką wracającego gracza</strong>, a nie tą, którą budowałeś przez
+                cały tydzień.</li>
+        </ol>
+
+        <p>
+            Dziesięć wydań, czterdzieści siedem dni, jeden patch, jeden build, który sam mówił, żeby
+            go nie brać, i jedna przerwa ponad dwa razy dłuższa niż każda inna. <strong>Nic w tym
+            wzorze nie było zaplanowane i to jedyny powód, dla którego jest coś wart jako
+            dane.</strong>
+        </p>
+
+        <div class="qa">
+            <h2 id="faq">Pytania, które ludzie o to zadają</h2>
+
+            <h3>Jak często solowy twórca powinien wydawać aktualizacje?</h3>
+            <p>
+                W takim odstępie, w jakim praca się kończy, a ten nie jest stały. Cztery cotygodniowe
+                wydania pod rząd były tu w rzeczywistości czterema tygodniami, w których praca
+                przypadkiem zmieściła się w tygodniu. Kiedy jeden kawałek był większy, wybór stał
+                między piętnastoma dniami przerwy i systemem podłączonym w połowie, i przerwa była
+                lepsza. Nic z zewnątrz nie wymagało liczby tygodniowej.
+            </p>
+
+            <h3>Czy wydanie patcha tego samego dnia to zły znak?</h3>
+            <p>
+                Nie, to system, który działa. Warto natomiast przyjrzeć się klasie błędu. Oba błędy
+                w tamtym patchu wymagały wczytanego zapisu, co znaczy, że wydanie było testowane
+                ścieżką właśnie budowaną, a nie ścieżką wracającego gracza. Patch był słuszny, nawyk
+                za nim nie.
+            </p>
+
+            <h3>Czy dłuższa przerwa znaczy, że zmieniło się więcej?</h3>
+            <p>
+                Nie. Tutaj wydanie po ośmiu dniach wiozło dziesięć migracji zapisu, a to po
+                piętnastu jedną. Długość przerwy mierzy, ile czasu zajęła praca, a nie jak głęboko
+                sięgnęła.
+            </p>
+
+            <h3>Co jest wiarygodną miarą tego, ile zmieniło wydanie?</h3>
+            <p>
+                Najbliżej jest wersja formatu zapisu, bo migrację pisze się tylko wtedy, gdy
+                przechowywane dane naprawdę zmieniają kształt, więc tej liczby nie da się napompować.
+                Numer wersji to decyzja, migracja to licznik. Długość changelogu mierzy jeszcze coś
+                innego: ile było do wytłumaczenia.
+            </p>
+
+            <h3>Czy kiedykolwiek warto opublikować build, który nie jest dla graczy?</h3>
+            <p>
+                Tak, kiedy publikacja jest jedynym sposobem zdobycia informacji, której inaczej nie
+                zdobędziesz. Jedno wydanie powstało tu po to, żeby druga maszyna, która od trzech dni
+                opisywała inny ekran, mogła powiedzieć, co rysuje. Napisało to w pierwszym zdaniu
+                i wskazało wydanie, które należy wziąć zamiast niego.
+            </p>
+        </div>
+
+        <!-- guide-related -->
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../save-migration-without-breaking-saves/index_pl.html">Migracje zapisu bez psucia zapisów</a></li>
+                <li><a href="../unity-screenshot-tests/index_pl.html">Testy zrzutów ekranu w Unity</a></li>
+                <li><a href="../bug-reports-that-mean-something/index_pl.html">Zgłoszenia błędów, które coś znaczą</a></li>
+                <li><a href="../unreachable-code-in-games/index_pl.html">Skończone, przetestowane i niemożliwe do osiągnięcia</a></li>
+                <li><a href="../why-solo-game-projects-die/index_pl.html">Dlaczego solowe projekty gier umierają na tych samych czterech funkcjach</a></li>
+                <li><a href="../silent-failures-that-pass-every-test/index_pl.html">Błąd, który przechodzi każdy test i nic nie robi</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>
+                <strong>Każda data, przerwa i liczba migracji w tym artykule pochodzi z publicznego
+                changelogu</strong> Scaling Laws, tycoona o firmie AI wydanego jako darmowy build
+                z otwartym źródłem. Całą tabelę możesz sprawdzić samodzielnie.
+            </p>
+            <p><a href="../../hck-labs/scaling-laws/index_pl.html">Strona gry i changelog</a> &middot;
+               <a href="../save-migration-without-breaking-saves/index_pl.html">Jak pisane są migracje</a></p>
+        </div>
+
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../blog/index_pl.html">Blog</a> &middot; <a href="../../hck-labs/scaling-laws/index_pl.html">Scaling Laws</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
