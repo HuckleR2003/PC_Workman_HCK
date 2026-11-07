@@ -285,6 +285,43 @@
   line-height: 1.6;
 }
 
+.slr-now-card__more {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #b44a61;
+  font-family: var(--hck-font-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(180,74,97,.34);
+  padding-bottom: 2px;
+  transition: color .18s ease, border-color .18s ease;
+}
+
+.slr-now-card__more::after {
+  content: "\2192";
+  font-size: .72rem;
+  line-height: 1;
+}
+
+.slr-now-card__more:hover,
+.slr-now-card__more:focus-visible {
+  color: #e8edf4;
+  border-color: rgba(232,237,244,.55);
+}
+
+/* The cards are 230px tall with the heading pushed down 46px, so the link needs its own room
+   rather than sitting on top of the last line of the paragraph. */
+.slr-now-card {
+  padding-bottom: 54px;
+}
+
 .slr-controls-wrap {
   position: sticky;
   top: 64px;
@@ -952,6 +989,31 @@
   font-size: .83rem;
   line-height: 1.5;
   color: var(--sl-muted);
+}
+
+.slr-plan__more {
+  display: inline-block;
+  margin-top: .55rem;
+  color: #b44a61;
+  font-family: var(--hck-font-mono);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(180,74,97,.32);
+  padding-bottom: 1px;
+  transition: color .18s ease, border-color .18s ease;
+}
+
+.slr-plan__more::after {
+  content: " \2192";
+}
+
+.slr-plan__more:hover,
+.slr-plan__more:focus-visible {
+  color: #e8edf4;
+  border-color: rgba(232,237,244,.5);
 }
 
 @media (max-width: 560px) {
