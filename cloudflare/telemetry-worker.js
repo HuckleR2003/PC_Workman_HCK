@@ -1,23 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// PC Workman — anonymous telemetry sink (Cloudflare Worker)
+// PC Workman - basic telemetry sink (Cloudflare Worker)
 // ─────────────────────────────────────────────────────────────────────────────
-// Receives the opt-in anonymous snapshot from the desktop app and stores only an
-// allow-listed set of fields. It never stores IP addresses or anything personal.
-//
-// DEPLOY (one time):
-//   1. Cloudflare dashboard → Workers & Pages → Create → Worker. Paste this file.
-//   2. Create a KV namespace (Storage & Databases → KV), e.g. "pcworkman_telemetry".
-//   3. Worker → Settings → Variables → KV Namespace Bindings:
-//        Variable name: TELEMETRY   →   your KV namespace.
-//   4. Deploy. Copy the Worker URL (e.g. https://telemetry.pcworkman.dev/collect
-//      via a custom route, or the workers.dev URL).
-//   5. Put that URL in  core/telemetry.py → ENDPOINT.
-//
-// The app only ever calls this when the user turned Network Access + Telemetry on.
-// ─────────────────────────────────────────────────────────────────────────────
-
 const ALLOWED = [
-  "install_id", "app_version", "ts", "session_min", "os", "country",
+  "install_id", "app_version", "ts", "kind", "session_id", "session_min",
+  "os", "country",
   "cpu", "cpu_cores", "gpu", "ram_gb", "ram_mhz", "disks", "motherboard",
 ];
 
@@ -43,7 +29,8 @@ export default {
     clean.received = Date.now();   // server time only — no IP, no headers stored
 
     try {
-      const key = `${clean.install_id}:${clean.received}`;
+      const day = new Date(clean.received).toISOString().slice(0, 10);
+      const key = `${day}:${clean.install_id}:${clean.received}`;
       await env.TELEMETRY.put(key, JSON.stringify(clean), {
         expirationTtl: 60 * 60 * 24 * 400,   // auto-expire after ~13 months
       });
