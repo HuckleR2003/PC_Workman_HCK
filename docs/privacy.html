@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-    <link rel="canonical" href="https://pcworkman.dev/privacy.html">
-    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en.html">
-    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy.html">
-    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/privacy_en.html">
-    <meta property="og:url" content="https://pcworkman.dev/privacy.html">
+    <link rel="canonical" href="https://pcworkman.dev/privacy">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/privacy_en">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/privacy">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/privacy_en">
+    <meta property="og:url" content="https://pcworkman.dev/privacy">
     <meta property="og:type" content="website">
     <meta property="og:title" content="PC Workman - Polityka Prywatności">
     <meta property="og:description" content="Wszystko lokalnie, bez konta, bez chmury. Jedyne co może opuścić komputer to opcjonalna anonimowa migawka sprzętu do testów kompatybilności - tu masz dokładnie co zawiera i jak ją wyłączyć.">
@@ -80,14 +80,14 @@
     <main class="article">
         <p class="kicker">Polityka Prywatności</p>
         <h1>Polityka Prywatności</h1>
-        <p class="updated">Ostatnia aktualizacja: 26 czerwca 2026 - dotyczy PC Workman v1.8.0 i nowszych</p>
+        <p class="updated">Ostatnia aktualizacja: 16 listopada 2026 - dotyczy PC Workman v1.8.0 i nowszych (pole screens od v1.8.8)</p>
 
         <p class="lead">PC Workman to monitor systemu Windows działający lokalnie. Niemal wszystko, co robi, odczyt czujników, uczenie się normalnego zachowania Twojego sprzętu, asystent hck_GPT, cała historia, dzieje się na Twojej maszynie i nigdy jej nie opuszcza. Ten dokument to pełny opis jedynej rzeczy, która <em>może</em> opuścić urządzenie: czym jest, po co istnieje i jak ją wyłączyć.</p>
 
         <h2>W skrócie</h2>
         <ul>
             <li>Dane monitoringu, asystent hck_GPT i Twoja historia zostają na Twoim PC. Bez konta, bez logowania, bez synchronizacji w chmurze.</li>
-            <li>Jedyne dane, które mogą zostać wysłane, to opcjonalna, anonimowa migawka sprzętu i użycia, służąca do naprawy niekompatybilności.</li>
+            <li>Jedyne dane, które mogą zostać wysłane, to anonimowa migawka sprzętu i użycia, służąca do naprawy niekompatybilności. Jest domyślnie włączona i można ją w każdej chwili wyłączyć.</li>
             <li>Zawiera losowy identyfikator i modele Twoich podzespołów - nigdy imię, pliki, adres IP ani to, co robisz.</li>
             <li>Można ją wyłączyć w Ustawieniach. Z wyłączonym dostępem do sieci aplikacja nie wykonuje żadnych połączeń wychodzących.</li>
         </ul>
@@ -104,7 +104,7 @@
         <p>Dane są przechowywane lokalnie, na przykład baza statystyk w <code>…/data/logs/hck_stats.db</code>, i należą wyłącznie do Ciebie.</p>
 
         <h2>Dane, które mogą zostać wysłane</h2>
-        <p>Najwyżej raz na sesję PC Workman może wysłać jedną anonimową migawkę przez jedną bramkę sieciową. Poniższa tabela to cała zawartość; nic więcej nigdy nie jest przesyłane.</p>
+        <p>PC Workman wysyła tę anonimową migawkę przez jedną bramkę sieciową: raz przy starcie aplikacji, raz na godzinę, dopóki jest otwarta, i raz przy normalnym zamknięciu (żeby długość sesji była prawdziwa). Poniższa tabela to cała zawartość; nic więcej nigdy nie jest przesyłane.</p>
         <table>
             <thead><tr><th>Pole</th><th>Co to jest</th><th>Przykład</th></tr></thead>
             <tbody>
@@ -117,10 +117,11 @@
                 <tr><td>ram_gb, ram_mhz</td><td>Rozmiar i prędkość RAM.</td><td>16, 2667</td></tr>
                 <tr><td>motherboard</td><td>Producent i model płyty głównej.</td><td>ASUS PRIME B450M</td></tr>
                 <tr><td>disks</td><td>Do czterech dysków: model, rozmiar i typ (SSD/HDD).</td><td>-</td></tr>
+                <tr><td>screens</td><td>Do czterech monitorów: rozdzielczość, częstotliwość odświeżania, skalowanie Windows i który jest główny. Nigdy nazwy monitorów ani numery seryjne.</td><td>1920&times;1080, 144 Hz, 125%</td></tr>
                 <tr><td>session_min</td><td>Ile minut aplikacja była otwarta w tym uruchomieniu.</td><td>42</td></tr>
             </tbody>
         </table>
-        <p>Tę dokładną migawkę możesz przejrzeć, dosłownie, w Ustawieniach, zanim na cokolwiek się zgodzisz - w tym samym miejscu, które pozwala ją wyłączyć.</p>
+        <p>Tę dokładną migawkę możesz przejrzeć, dosłownie, w Ustawieniach - w tym samym miejscu, które pozwala ją wyłączyć.</p>
 
         <h2>Czego nigdy nie zbieramy</h2>
         <p>Żeby było jednoznacznie, PC Workman nigdy nie zbiera, nie wysyła ani nie przechowuje:</p>
@@ -135,7 +136,7 @@
         <p>Nie ma żadnych sieci reklamowych, zewnętrznych analityk, pikseli śledzących ani odcisku poza polami modeli sprzętu wymienionymi powyżej.</p>
 
         <h2>Po co te dane są zbierane</h2>
-        <p>PC Workman buduje jedna osoba. Wraz ze wzrostem liczby pobrań rośnie liczba zgłoszeń błędów i niekompatybilności na sprzęcie, którego deweloper nie posiada. Modele podzespołów w migawce wskazują, na jakich procesorach, kartach graficznych, pamięciach, płytach głównych i dyskach ludzie naprawdę uruchamiają PC Workman, od najstarszych maszyn po najnowsze, tak aby problemy można było odtworzyć i naprawić.</p>
+        <p>PC Workman buduje jedna osoba. Wraz ze wzrostem liczby pobrań rośnie liczba zgłoszeń błędów i niekompatybilności na sprzęcie, którego deweloper nie posiada. Modele podzespołów w migawce wskazują, na jakich procesorach, kartach graficznych, pamięciach, płytach głównych i dyskach ludzie naprawdę uruchamiają PC Workman, od najstarszych maszyn po najnowsze, tak aby problemy można było odtworzyć i naprawić. Rozmiary ekranów i skalowanie pokazują, w jakich układach musi się mieścić interfejs, od małych ekranów laptopów po monitory ultrawide.</p>
         <p>To jedyny cel. Dane nigdy nie są sprzedawane, udostępniane do reklam ani używane do budowania Twojego profilu.</p>
 
         <h2>Gdzie są wysyłane</h2>
@@ -143,7 +144,7 @@
 
         <h2>Masz kontrolę</h2>
         <div class="callout"><b>Wyłączenie.</b> Otwórz Ustawienia i wyłącz Dostęp do sieci. Z wyłączonym, PC Workman nie wykonuje żadnych połączeń wychodzących - można to niezależnie sprawdzić firewallem lub analizatorem pakietów, takim jak Wireshark.</div>
-        <p><b>Stan domyślny.</b> W v1.8.0 przełącznik sieci/telemetrii jest domyślnie włączony. Przy pierwszym otwarciu tej opcji wyjaśnia ona dokładnie, co jest wysyłane, i pozwala Ci zdecydować.</p>
+        <p><b>Stan domyślny.</b> Od v1.8.0 przełącznik sieci/telemetrii jest domyślnie włączony, od pierwszego uruchomienia. Opcja w Ustawieniach wyjaśnia dokładnie, co jest wysyłane, pokazuje dosłowną zawartość i wyłącza ją jednym kliknięciem.</p>
         <p><b>Reset losowego identyfikatora.</b> Usuń <code>settings/network.json</code>. Następnym razem powstanie nowy losowy identyfikator (albo żaden, jeśli telemetria pozostanie wyłączona).</p>
         <p><b>Żądanie usunięcia.</b> Ponieważ dane są anonimowe, nie ma konta, po którym można by Cię zidentyfikować. Jeśli wyślesz deweloperowi swój <code>install_id</code>, powiązane z nim rekordy mogą zostać usunięte.</p>
 
