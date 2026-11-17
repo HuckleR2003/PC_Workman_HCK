@@ -7,7 +7,23 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Sun, 20 Sep 2026 12:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Mon, 16 Nov 2026 11:00:00 GMT</lastBuildDate>
+  <item>
+    <title>Eleven months after I lost my job in a warehouse</title>
+    <link>https://pcworkman.dev/blog/eleven-months/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/eleven-months/</guid>
+    <pubDate>Mon, 16 Nov 2026 11:00:00 GMT</pubDate>
+    <description>Fired three days before Christmas 2025. Eleven months later: a Windows app on the Microsoft Store, a game strangers test for free, and a site Google shows a thousand times a day. Built at night, around a taxi.</description>
+  </item>
+
+  <item>
+    <title>I did not believe in my own fundraiser. One stranger closed it.</title>
+    <link>https://pcworkman.dev/blog/the-fund-i-wrote-off/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/the-fund-i-wrote-off/</guid>
+    <pubDate>Wed, 30 Sep 2026 10:00:00 GMT</pubDate>
+    <description>I launched a $100 fund for a Steam fee, wrote it off in eleven days, and was ready to pay it myself. One stranger closed it at half past six in the morning.</description>
+  </item>
+
   <item>
     <title>Forty-eight days, a taxi, and a game. Everything I have built has earned 70 zł.</title>
     <link>https://pcworkman.dev/blog/forty-eight-days/</link>

@@ -5,8 +5,24 @@
     <link>https://pcworkman.dev/blog/index_pl.html</link>
     <description>Polskie artykuły techniczne, poradniki Windows i historie wydań PC Workmana.</description>
     <language>pl</language>
-    <lastBuildDate>Sun, 20 Sep 2026 12:00:00 +0200</lastBuildDate>
+    <lastBuildDate>Mon, 16 Nov 2026 12:00:00 +0100</lastBuildDate>
     <atom:link href="https://pcworkman.dev/blog/feed_pl.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Jedenaście miesięcy po tym, jak straciłem pracę w magazynie</title>
+      <link>https://pcworkman.dev/blog/eleven-months/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/blog/eleven-months/index_pl.html</guid>
+      <pubDate>Mon, 16 Nov 2026 12:00:00 +0100</pubDate>
+      <description>Zwolniony trzy dni przed Wigilią 2025. Jedenaście miesięcy później: aplikacja w Microsoft Store, gra testowana za darmo przez obcych ludzi i strona, którą Google pokazuje tysiąc razy dziennie.</description>
+    </item>
+
+    <item>
+      <title>Nie wierzyłem we własną zbiórkę. Ktoś obcy ją zamknął.</title>
+      <link>https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html</link>
+      <guid isPermaLink="true">https://pcworkman.dev/blog/the-fund-i-wrote-off/index_pl.html</guid>
+      <pubDate>Wed, 30 Sep 2026 12:00:00 +0200</pubDate>
+      <description>Założyłem zbiórkę na opłatę za Steama, po jedenastu dniach spisałem ją na straty i byłem gotów zapłacić sam. O wpół do siódmej rano zamknął ją jeden nieznajomy.</description>
+    </item>
+
     <item>
       <title>Czterdzieści osiem dni, taksówka i gra. Wszystko, co zbudowałem, zarobiło 70 zł.</title>
       <link>https://pcworkman.dev/blog/forty-eight-days/index_pl.html</link>
