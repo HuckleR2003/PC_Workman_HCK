@@ -399,123 +399,58 @@ class StatsQueryAPI:
             return []
 
     def get_summary_stats(self, days=7):
-        """Get summary statistics for the last N days.
+        """Summary of the last N days: averages, peaks, recorded time.
 
-        Uses daily_stats when available, falls back to hourly_stats and
-        minute_stats so that lifetime uptime is computed even before
-        the first day-boundary aggregation.
-
-        Args:
-            days: Number of days to summarize
+        Rewritten 2026-11-16 on top of hck_stats_engine.history. The old
+        version averaged daily, hourly and minute rows as if each were one
+        equal sample, so 40 minutes of gaming in the current hour outweighed
+        four whole hours (the upgrade advisor reported "CPU avg 57%" for a
+        day that averaged 14%). It also summed hourly sample_count, which is
+        seconds, as minutes: recorded time came out 60x too long.
 
         Returns:
             dict: {cpu_avg, ram_avg, gpu_avg, cpu_max, ram_max, gpu_max,
                    total_uptime_hours, data_points, days_with_data}
+            or {} when nothing was recorded in the period.
         """
         if not db_manager.is_ready:
             return {}
-
-        conn = db_manager.get_connection()
-        if not conn:
-            return {}
-
-        cutoff = time.time() - days * SECONDS_PER_DAY
-
         try:
-            # --- Primary: daily_stats ---
-            rows = conn.execute("""
-                SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
-                       uptime_minutes, sample_count
-                FROM daily_stats
-                WHERE timestamp >= ?
-                ORDER BY timestamp ASC
-            """, (cutoff,)).fetchall()
-
-            daily_uptime_min = 0
-            daily_days = 0
-
-            if rows:
-                daily_uptime_min = sum(r['uptime_minutes'] or 0 for r in rows)
-                daily_days = len(rows)
-
-            # --- Supplement: hourly_stats (hours not yet rolled into daily) ---
-            # Find the latest daily_stats timestamp so we only count
-            # hourly data that hasn't been aggregated yet.
-            latest_daily_ts = 0
-            try:
-                ld_row = conn.execute(
-                    "SELECT MAX(timestamp) as t FROM daily_stats WHERE timestamp >= ?",
-                    (cutoff,)).fetchone()
-                if ld_row and ld_row['t']:
-                    latest_daily_ts = ld_row['t'] + SECONDS_PER_DAY
-            except Exception:
-                pass
-
-            hourly_uptime_min = 0
-            hourly_rows = []
-            try:
-                hourly_cutoff = max(cutoff, latest_daily_ts)
-                hourly_rows = conn.execute("""
-                    SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
-                           sample_count
-                    FROM hourly_stats
-                    WHERE timestamp >= ?
-                    ORDER BY timestamp ASC
-                """, (hourly_cutoff,)).fetchall()
-                if hourly_rows:
-                    # Each hourly row's sample_count = minutes of data
-                    hourly_uptime_min = sum(r['sample_count'] for r in hourly_rows)
-            except Exception:
-                pass
-
-            # --- Supplement: minute_stats (current hour, not yet in hourly) ---
-            minute_uptime_min = 0
-            minute_rows = []
-            try:
-                latest_hourly_ts = 0
-                lh_row = conn.execute(
-                    "SELECT MAX(timestamp) as t FROM hourly_stats WHERE timestamp >= ?",
-                    (cutoff,)).fetchone()
-                if lh_row and lh_row['t']:
-                    latest_hourly_ts = lh_row['t'] + SECONDS_PER_HOUR
-
-                minute_cutoff = max(cutoff, latest_daily_ts, latest_hourly_ts)
-                minute_rows = conn.execute("""
-                    SELECT cpu_avg, cpu_max, ram_avg, ram_max, gpu_avg, gpu_max,
-                           sample_count
-                    FROM minute_stats
-                    WHERE timestamp >= ?
-                    ORDER BY timestamp ASC
-                """, (minute_cutoff,)).fetchall()
-                if minute_rows:
-                    # Each minute_stats row = ~1 minute of uptime
-                    minute_uptime_min = len(minute_rows)
-            except Exception:
-                pass
-
-            # Combine all rows for averages/peaks
-            all_rows = list(rows) + list(hourly_rows) + list(minute_rows)
-            if not all_rows:
-                return {}
-
-            total_uptime_min = daily_uptime_min + hourly_uptime_min + minute_uptime_min
-            total_samples = sum(r['sample_count'] for r in all_rows)
-
-            return {
-                'cpu_avg': round(sum(r['cpu_avg'] for r in all_rows) / len(all_rows), 2),
-                'ram_avg': round(sum(r['ram_avg'] for r in all_rows) / len(all_rows), 2),
-                'gpu_avg': round(sum(r['gpu_avg'] for r in all_rows) / len(all_rows), 2),
-                'cpu_max': round(max(r['cpu_max'] for r in all_rows), 2),
-                'ram_max': round(max(r['ram_max'] for r in all_rows), 2),
-                'gpu_max': round(max(r['gpu_max'] for r in all_rows), 2),
-                'total_uptime_hours': round(total_uptime_min / 60, 1),
-                'data_points': total_samples,
-                'days_with_data': max(daily_days, 1),
-            }
-
+            from hck_stats_engine import history
+            now = time.time()
+            start = now - days * SECONDS_PER_DAY
+            out = {}
+            recorded_h = 0.0
+            for comp in ("cpu", "ram", "gpu"):
+                st = history.stats(comp, start, now)
+                if not st.get("has_data"):
+                    return {}
+                out[f"{comp}_avg"] = round(st["avg"], 2)
+                out[f"{comp}_max"] = round(st["max"], 2)
+                recorded_h = st["recorded_hours"]
+            out["total_uptime_hours"] = round(recorded_h, 1)
+            out["data_points"] = int(recorded_h * 3600)     # seconds sampled
+            out["days_with_data"] = max(1, self._days_with_data(start, now))
+            return out
         except Exception as e:
             print(f"[StatsQueryAPI] Summary error: {e}")
             return {}
+
+    def _days_with_data(self, start, end):
+        """Calendar days in [start, end) with at least one recorded minute."""
+        conn = db_manager.get_connection()
+        if not conn:
+            return 0
+        days = set()
+        for table in ("daily_stats", "hourly_stats", "minute_stats"):
+            try:
+                for (ts,) in conn.execute(
+                        f"SELECT timestamp FROM {table} WHERE timestamp >= ? "
+                        f"AND timestamp < ?", (start, end)):
+                    days.add(time.strftime("%Y-%m-%d", time.localtime(ts)))
+            except Exception:
+                pass
+        return len(days)
 
     # =========================================================
     # Temperature history
@@ -549,11 +484,16 @@ class StatsQueryAPI:
         cutoff = time.time() - minutes * 60
 
         try:
+            # Measured values only (2026-11-16): rows written before that
+            # date may hold the 35 + load/2 placeholder as cpu_temp; they are
+            # recognised and dropped. A PC without a CPU sensor still gets
+            # its GPU history (the old query required a cpu_temp).
+            from hck_stats_engine.history import _is_fake_cpu_temp
             rows = conn.execute("""
-                SELECT cpu_temp, gpu_temp
+                SELECT cpu_temp, gpu_temp, cpu_avg
                 FROM minute_stats
                 WHERE timestamp >= ?
-                  AND cpu_temp IS NOT NULL
+                  AND (cpu_temp IS NOT NULL OR gpu_temp IS NOT NULL)
                 ORDER BY timestamp DESC
                 LIMIT 120
             """, (cutoff,)).fetchall()
@@ -561,15 +501,10 @@ class StatsQueryAPI:
             if not rows:
                 return {}
 
-            cpu_temps = [r['cpu_temp'] for r in rows if r['cpu_temp'] is not None]
+            cpu_temps = [r['cpu_temp'] for r in rows
+                         if r['cpu_temp'] is not None
+                         and not _is_fake_cpu_temp(r['cpu_temp'], r['cpu_avg'])]
             gpu_temps = [r['gpu_temp'] for r in rows if r['gpu_temp'] is not None]
-
-            # Heuristic: if cpu_temp values cluster near the 35+cpu*0.5 formula
-            # they are probably software estimates rather than hardware sensor reads.
-            # We flag estimated=True when the most recent value is < 40°C AND
-            # max is also < 75°C (real sensors typically show variance + higher peaks).
-            cpu_max = max(cpu_temps) if cpu_temps else None
-            estimated = (cpu_max is not None and cpu_max < 75 and cpu_temps[0] < 45)
 
             return {
                 'cpu_current': round(cpu_temps[0], 1) if cpu_temps else None,
@@ -579,7 +514,7 @@ class StatsQueryAPI:
                 'cpu_max':     round(max(cpu_temps), 1) if cpu_temps else None,
                 'gpu_max':     round(max(gpu_temps), 1) if gpu_temps else None,
                 'samples':     len(rows),
-                'estimated':   estimated,
+                'estimated':   False,
             }
 
         except Exception as e:
@@ -708,54 +643,35 @@ class StatsQueryAPI:
             return {}
 
     def get_temperature_summary(self, days: int = 7):
-        """Get average and max temperatures over the last N days from hourly/daily stats.
+        """Measured temperatures over the last N days.
 
         Returns:
-            dict: {cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max, days_with_data}
+            dict: {cpu_temp_avg, cpu_temp_max, gpu_temp_avg, gpu_temp_max,
+                   days_with_data}; a value is None when nothing measured it.
+            {} when no temperature was recorded at all.
+
+        Rewritten 2026-11-16 on top of hck_stats_engine.history, which drops
+        the old 35 + load/2 CPU placeholder. hck_GPT answered "7-day average:
+        CPU 42 °C" on a PC with no CPU sensor.
         """
         if not db_manager.is_ready:
             return {}
-
-        conn = db_manager.get_connection()
-        if not conn:
-            return {}
-
-        cutoff = time.time() - days * SECONDS_PER_DAY
-
         try:
-            # daily_stats / hourly_stats store only *averages* (cpu_temp_avg,
-            # gpu_temp_avg) - there is no cpu_temp_max column. Select what exists
-            # and use the max of the period-averages as the "max" proxy.
-            rows = conn.execute("""
-                SELECT cpu_temp_avg, gpu_temp_avg
-                FROM daily_stats
-                WHERE timestamp >= ?
-                  AND cpu_temp_avg IS NOT NULL
-            """, (cutoff,)).fetchall()
-
-            if not rows:
-                # Fallback to hourly_stats
-                rows = conn.execute("""
-                    SELECT cpu_temp_avg, gpu_temp_avg
-                    FROM hourly_stats
-                    WHERE timestamp >= ?
-                      AND cpu_temp_avg IS NOT NULL
-                """, (cutoff,)).fetchall()
-
-            if not rows:
-                return {}
-
-            cpu_avgs = [r['cpu_temp_avg'] for r in rows if r['cpu_temp_avg']]
-            gpu_avgs = [r['gpu_temp_avg'] for r in rows if r['gpu_temp_avg']]
-
-            return {
-                'cpu_temp_avg': round(sum(cpu_avgs) / len(cpu_avgs), 1) if cpu_avgs else None,
-                'cpu_temp_max': round(max(cpu_avgs), 1) if cpu_avgs else None,
-                'gpu_temp_avg': round(sum(gpu_avgs) / len(gpu_avgs), 1) if gpu_avgs else None,
-                'gpu_temp_max': round(max(gpu_avgs), 1) if gpu_avgs else None,
-                'days_with_data': len(rows),
+            from hck_stats_engine import history
+            now = time.time()
+            start = now - days * SECONDS_PER_DAY
+            c = history.stats("cpu", start, now)
+            g = history.stats("gpu", start, now)
+            out = {
+                'cpu_temp_avg': c.get('temp_avg'),
+                'cpu_temp_max': c.get('temp_max'),
+                'gpu_temp_avg': g.get('temp_avg'),
+                'gpu_temp_max': g.get('temp_max'),
             }
-
+            if all(v is None for v in out.values()):
+                return {}
+            out['days_with_data'] = self._days_with_data(start, now)
+            return out
         except Exception as e:
             print(f"[StatsQueryAPI] Temperature summary error: {e}")
             return {}

@@ -27,7 +27,64 @@ class StatsAggregator:
 
         # Initialize boundaries from database
         self._init_boundaries()
+        # Roll up everything earlier sessions left behind (see catch_up)
+        try:
+            self.catch_up()
+        except Exception as e:
+            print(f"[StatsAggregator] Catch-up error: {e}")
         print("[StatsAggregator] Initialized")
+
+    # ── Catch-up (2026-11-16) ─────────────────────────────────────────────────
+    # The pipeline only aggregated the ONE period that had just ended while the
+    # app was running. A session that closed before the full hour never got
+    # its hour rolled up, and every day between two sessions was skipped: the
+    # day boundary jumped straight from the last daily row to today. Measured
+    # on a dev machine: 64 hours of process data, 23 hours of CPU/RAM/GPU
+    # stats, 7 days with hourly data and no daily row. The history pages are
+    # built on these tables, so this runs at startup and at every boundary.
+    def catch_up(self, now=None):
+        """Aggregate every COMPLETE hour and day that has data and no row
+        yet, oldest first, then the weeks and months they complete.
+        Returns (hours, days) aggregated."""
+        conn = db_manager.get_connection()
+        if not conn:
+            return 0, 0
+        now = time.time() if now is None else now
+        this_hour = int(now // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
+        today = int(now // SECONDS_PER_DAY) * SECONDS_PER_DAY
+
+        hours = [r[0] for r in conn.execute("""
+            SELECT DISTINCT CAST(timestamp / 3600 AS INTEGER) * 3600 AS h
+            FROM minute_stats
+            WHERE timestamp < ?
+              AND CAST(timestamp / 3600 AS INTEGER) * 3600 NOT IN
+                  (SELECT CAST(timestamp AS INTEGER) FROM hourly_stats)
+            ORDER BY h
+        """, (this_hour,)).fetchall()]
+        for h in hours:
+            self._aggregate_hour(h, flush_processes=False)
+
+        days = [r[0] for r in conn.execute("""
+            SELECT DISTINCT CAST(timestamp / 86400 AS INTEGER) * 86400 AS d
+            FROM hourly_stats
+            WHERE timestamp < ?
+              AND CAST(timestamp / 86400 AS INTEGER) * 86400 NOT IN
+                  (SELECT CAST(timestamp AS INTEGER) FROM daily_stats)
+            ORDER BY d
+        """, (today,)).fetchall()]
+        for d in days:
+            self._aggregate_day(d)
+            # the day AFTER d is when its week / month became complete
+            self._check_weekly_monthly(d + SECONDS_PER_DAY)
+
+        if hours and this_hour > self._last_hour_boundary:
+            self._last_hour_boundary = max(self._last_hour_boundary, hours[-1])
+        if days:
+            self._last_day_boundary = max(self._last_day_boundary, days[-1])
+        if hours or days:
+            print(f"[StatsAggregator] Catch-up: {len(hours)} hours, "
+                  f"{len(days)} days")
+        return len(hours), len(days)
 
     def _init_boundaries(self):
         conn = db_manager.get_connection()
@@ -70,17 +127,14 @@ class StatsAggregator:
                                       cpu_vals, ram_vals, gpu_vals,
                                       cpu_temp, gpu_temp)
 
-            # Check hour boundary
+            # Hour / day boundary: roll up EVERY finished period that is
+            # missing, not just the last one the boundary remembered
             current_hour = int(timestamp // SECONDS_PER_HOUR) * SECONDS_PER_HOUR
-            if current_hour > self._last_hour_boundary:
-                self._aggregate_hour(self._last_hour_boundary)
-                self._last_hour_boundary = current_hour
-
-            # Check day boundary
             current_day = int(timestamp // SECONDS_PER_DAY) * SECONDS_PER_DAY
-            if current_day > self._last_day_boundary:
-                self._aggregate_day(self._last_day_boundary)
-                self._check_weekly_monthly(self._last_day_boundary)
+            if (current_hour > self._last_hour_boundary
+                    or current_day > self._last_day_boundary):
+                self.catch_up(now=timestamp)
+                self._last_hour_boundary = current_hour
                 self._last_day_boundary = current_day
 
             # Pruning check (once per hour)
@@ -132,8 +186,18 @@ class StatsAggregator:
             conn.commit()
         except Exception as e:
             print(f"[StatsAggregator] Insert minute error: {e}")
+            return
+        # number of processes (2026-11-20), apart from the row itself so a
+        # missing column can never cost the minute
+        try:
+            import psutil
+            conn.execute("UPDATE minute_stats SET proc_count = ? WHERE timestamp = ?",
+                         (len(psutil.pids()), timestamp))
+            conn.commit()
+        except Exception:
+            pass
 
-    def _aggregate_hour(self, hour_ts):
+    def _aggregate_hour(self, hour_ts, flush_processes=True):
         conn = db_manager.get_connection()
         if not conn:
             return
@@ -190,9 +254,21 @@ class StatsAggregator:
                   round(gpu_temp_avg, 1) if gpu_temp_avg else None,
                   total_samples))
             conn.commit()
+            try:
+                pr = conn.execute(
+                    "SELECT AVG(proc_count), MAX(proc_count) FROM minute_stats "
+                    "WHERE timestamp >= ? AND timestamp < ? AND proc_count IS NOT NULL",
+                    (hour_ts, hour_end)).fetchone()
+                if pr and pr[0] is not None:
+                    conn.execute("UPDATE hourly_stats SET proc_avg = ?, proc_max = ? "
+                                 "WHERE timestamp = ?", (round(pr[0], 1), pr[1], hour_ts))
+                    conn.commit()
+            except Exception:
+                pass
 
-            # Also aggregate processes for this hour
-            if self._process_aggregator:
+            # Also aggregate processes for this hour (only for the hour that
+            # just ended: the in-memory process buffer belongs to it)
+            if flush_processes and self._process_aggregator:
                 try:
                     self._process_aggregator.flush_hourly_processes(hour_ts)
                 except Exception as e:
@@ -227,7 +303,9 @@ class StatsAggregator:
             ram_avgs = [r['ram_avg'] for r in rows]
             gpu_avgs = [r['gpu_avg'] for r in rows]
             total_samples = sum(r['sample_count'] for r in rows)
-            uptime_minutes = len(rows) * 60  # Each hourly row = 60 min
+            # sample_count is seconds of data (one sample per second). An
+            # hour with 4 minutes of data used to count as 60 minutes.
+            uptime_minutes = int(round(total_samples / 60))
 
             cpu_temps = [r['cpu_temp_avg'] for r in rows if r['cpu_temp_avg'] is not None]
             gpu_temps = [r['gpu_temp_avg'] for r in rows if r['gpu_temp_avg'] is not None]

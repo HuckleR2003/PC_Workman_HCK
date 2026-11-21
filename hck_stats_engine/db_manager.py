@@ -77,6 +77,7 @@ class StatsDBManager:
                 # Schema exists, check version
                 ver = conn.execute("SELECT MAX(version) FROM schema_version").fetchone()[0]
                 if ver and ver >= SCHEMA_VERSION:
+                    self._ensure_columns(conn)
                     conn.close()
                     return
 
@@ -89,6 +90,7 @@ class StatsDBManager:
                 (SCHEMA_VERSION,)
             )
             conn.commit()
+            self._ensure_columns(conn)
             print(f"[StatsDB] Schema v{SCHEMA_VERSION} created successfully")
 
         except Exception as e:
@@ -96,6 +98,25 @@ class StatsDBManager:
             raise
         finally:
             conn.close()
+
+    # Columns added after schema v1, added in place when missing (old history
+    # keeps NULL there). 2026-11-20: the number of processes, for the
+    # Process Center's "how many processes, now and usually".
+    EXTRA_COLUMNS = (
+        ("minute_stats", "proc_count", "INTEGER"),
+        ("hourly_stats", "proc_avg", "REAL"),
+        ("hourly_stats", "proc_max", "INTEGER"),
+    )
+
+    def _ensure_columns(self, conn):
+        for table, col, kind in self.EXTRA_COLUMNS:
+            try:
+                have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+                if have and col not in have:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {kind}")
+                    conn.commit()
+            except Exception as e:
+                print(f"[StatsDB] column {table}.{col}: {e}")
 
     def _get_schema_sql(self):
         """Return complete schema SQL"""
