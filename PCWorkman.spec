@@ -20,12 +20,20 @@ datas = [
     (os.path.join(project_root, 'data', 'process_info'),     os.path.join('data', 'process_info')),
     (os.path.join(project_root, 'data', 'services_config.json'), 'data'),
     (os.path.join(project_root, 'data', 'process_library.json'), 'data'),
+    (os.path.join(project_root, 'data', 'games.json'), 'data'),
     *([
         (os.path.join(project_root, 'assets'), 'assets')
     ] if os.path.isdir(os.path.join(project_root, 'assets')) else []),
-    *([
-        (os.path.join(project_root, 'settings'), 'settings')
-    ] if os.path.isdir(os.path.join(project_root, 'settings')) else []),
+    # Only the two DEFAULT settings files tracked in git (2026-11-15). The
+    # whole folder used to be bundled, which shipped the developer's own
+    # network.json (telemetry ON, his install_id, no consent date),
+    # user_prefs.json, fan curves and TURBO state to every user. Nothing reads
+    # settings from the bundle anyway: they live next to the exe (APP_DIR).
+    *[
+        (os.path.join(project_root, 'settings', _f), 'settings')
+        for _f in ('config.json', 'paths.json')
+        if os.path.isfile(os.path.join(project_root, 'settings', _f))
+    ],
     # Inter font (optional — bundled if present, graceful fallback to Segoe UI)
     *([
         (os.path.join(project_root, 'data', 'fonts'), os.path.join('data', 'fonts'))
@@ -64,6 +72,7 @@ hiddenimports = [
     'core.hibernation_manager',
     'core.protected_processes',
     'core.live_collector',
+    'core.fan_sensors',
     'core.auto_optimizer',
     'core.process_definitions',
     'core.hardware_compat',
@@ -75,6 +84,7 @@ hiddenimports = [
     'hck_stats_engine.aggregator',
     'hck_stats_engine.process_aggregator',
     'hck_stats_engine.query_api',
+    'hck_stats_engine.history',
     'hck_stats_engine.events',
     'hck_stats_engine.constants',
     # ── hck_GPT — AI assistant (all subpackages) ──────────────────────────────
@@ -118,6 +128,8 @@ hiddenimports = [
     'ui.theme',
     'ui.dialogs',
     'ui.splash_screen',
+    'ui.startup_error',
+    'ui.diag_window',
     'ui.system_tray',
     'ui.overlay_mini_monitor',
     'ui.windows',
@@ -126,9 +138,9 @@ hiddenimports = [
     # ── UI — components ───────────────────────────────────────────────────────
     'ui.components',
     'ui.components.led_bars',
+    'ui.components.empty_state',
     'ui.components.charts',
     'ui.components.process_tooltip',
-    'ui.components.sensor_tree',
     'ui.components.fan_curve_editor',
     'ui.components.fan_dashboard',
     'ui.components.pro_info_table',
@@ -152,12 +164,14 @@ hiddenimports = [
     'ui.pages.startup_manager',
     'ui.pages.services_manager',
     'ui.pages.upgrade_readiness',
+    'ui.pages.activity_memory',
     'ui.pages.overclock_lab',
     # ── Utils ─────────────────────────────────────────────────────────────────
     'utils',
     'utils.app_version',
     'utils.freeze_watchdog',
     'utils.crash_log',
+    'utils.diag_console',
     'utils.fonts',
     'utils.i18n',
     'utils.paths',
@@ -206,7 +220,11 @@ exe = EXE(
     debug=False,
     strip=False,
     upx=False,
-    console=True,   # Shows diagnostic console — hides itself on successful launch
+    # No console window. Windows 11 opens console apps in Windows Terminal,
+    # where a program cannot hide its own window, so the old "hide on success"
+    # never worked there. Output goes to data/logs/startup.log, `--console`
+    # opens one on request (utils/diag_console.py). test_diag_console guards it.
+    console=False,
     icon=os.path.join(project_root, 'data', 'icons', 'PCWorkman.ico'),
 )
 
