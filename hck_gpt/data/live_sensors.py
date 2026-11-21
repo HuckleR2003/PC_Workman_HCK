@@ -45,6 +45,8 @@ LIVE: dict = {
     "mb_temp_sys": -1.0,
     "mb_temp_vrm": -1.0,
     "mb_source":   "",     # "" | "ohm" | "lhm" - which daemon provided the data
+    # Fans: [{"name": str, "rpm": int}], measured only, [] without LHM/OHM
+    "fans":        [],
     # Disk - keyed by mount point (e.g. "C:\\")
     # Each value: {"used_gb": float, "free_gb": float, "total_gb": float, "pct": float}
     "disks": {},
