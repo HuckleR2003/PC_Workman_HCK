@@ -139,6 +139,7 @@ INTENT_GUIDE = {
     "disk_health":           "is-my-ssd-dying-drive-health",
     # overall state
     "health_check":          "is-my-pc-healthy",
+    "pc_status":             "is-my-pc-healthy",
     "system_risk":           "is-my-pc-healthy",
     # cooling and noise
     "fan_speed":             "why-are-my-pc-fans-so-loud",

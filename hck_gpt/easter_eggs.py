@@ -15,6 +15,7 @@ RHYTHM of this TIMELINE has to match the track. Tune by editing the ms offsets.
 
 Scene 1 timings tapped against `meme_pro.mp3` (14 s).
 """
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import random
 
 # Vivid colours for the laser show.
@@ -139,7 +140,7 @@ def play(canvas, timeline, *, on_word, on_poop, on_end, width, height) -> None:
     def impact(x, y, color):
         if not alive():
             return
-        sid = canvas.create_text(x, y, text="✸", fill=color, font=("Segoe UI", 24, "bold"))
+        sid = canvas.create_text(x, y, text="✸", fill=color, font=(_FONT_UI, 24, "bold"))
         canvas.after(200, lambda: alive() and canvas.delete(sid))
 
     def _fly(bid, step, target_x, color, y):
@@ -168,14 +169,14 @@ def play(canvas, timeline, *, on_word, on_poop, on_end, width, height) -> None:
         y = cy
         if direction == "R":
             x0 = (aliens[0]["x"] + 18) if aliens else 40
-            mz = canvas.create_text(x0, y, text="✦", fill=color, font=("Segoe UI", 19, "bold"))
+            mz = canvas.create_text(x0, y, text="✦", fill=color, font=(_FONT_UI, 19, "bold"))
             canvas.after(120, lambda: alive() and canvas.delete(mz))
             bid = canvas.create_text(x0 + 14, y, text="▰▰▰▰►", fill=color,
                                      font=("Consolas", 15, "bold"))
             _fly(bid, speed, W - 8, color, y)
         else:
             x0 = (aliens[1]["x"] - 18) if len(aliens) > 1 else (W - 40)
-            mz = canvas.create_text(x0, y, text="✦", fill=color, font=("Segoe UI", 19, "bold"))
+            mz = canvas.create_text(x0, y, text="✦", fill=color, font=(_FONT_UI, 19, "bold"))
             canvas.after(120, lambda: alive() and canvas.delete(mz))
             bid = canvas.create_text(x0 - 14, y, text="◄▰▰▰▰", fill=color,
                                      font=("Consolas", 15, "bold"))

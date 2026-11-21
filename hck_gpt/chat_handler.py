@@ -1,5 +1,8 @@
 # hck_gpt/chat_handler.py
 from __future__ import annotations
+import json
+import os
+import time
 from .service_setup_wizard import ServiceSetupWizard
 from .services_manager import ServicesManager
 from import_core import register_component, STATUS_OK
@@ -198,6 +201,20 @@ _QUICK_ALIASES: dict[str, str] = {
 }
 
 # Keywords that show the styled help card (handled directly, not via builder).
+# Short questions that point at what the open guide step just listed
+# ("co to za aplikacje", "które to?") - answered by that step (2026-11-17)
+_CTX_CUES = ("co to za", "co to są", "co to sa", "jakie to", "które to", "ktore to",
+             "te aplikacje", "te programy", "te usługi", "te uslugi", "tych",
+             "które", "ktore", "jakie", "what are these", "which ones", "which",
+             "these", "those")
+
+# The next message after the Virtual Memory window opened, asking where
+# the setting is (2026-11-17)
+_VM_HELP_CUES = ("gdzie", "jak ", "nie widz", "pomóż", "pomoz", "pomoc", "wyjaśn",
+                 "wyjasn", "napisz", "poprosz", "prosz", "instrukc", "krok",
+                 "tak", "where", "how", "help", "explain", "can't find",
+                 "cant find", "yes", "please", "steps")
+
 _HELP_KEYWORDS = frozenset({
     "komendy", "commands", "help", "pomoc",
     "komendy!", "commands!", "help!", "pomoc!",
@@ -259,6 +276,7 @@ _RESET_KEYWORDS = frozenset({
 
 class ChatHandler:
     def __init__(self) -> None:
+        self._trace: dict = {}
         self.wizard           = ServiceSetupWizard()
         self.services_manager = ServicesManager()
         self.insights: InsightsEngine | None = (
@@ -299,8 +317,218 @@ class ChatHandler:
                 pass
         threading.Thread(target=_scan, daemon=True, name="hck_hw_scan").start()
 
+    # ── Chat journal (2026-11-16) ─────────────────────────────────────────
+    # Every question and the answer it got, with what the parser understood:
+    # intent, confidence, the component it detected, and whether the answer
+    # came from the "I did not understand" fallback. Local only, one JSON
+    # line per exchange, data/logs/hck_gpt_chat.jsonl. Nothing is deleted:
+    # at 20 MB the file is renamed with its date and a new one starts. It is the raw material for a list of questions hck_GPT
+    # misses or answers about the wrong component.
+
+    CHAT_JOURNAL_MAX_BYTES = 20 * 1024 * 1024
+
+    @staticmethod
+    def _chat_journal_path() -> str:
+        from utils.paths import log_dir
+        return os.path.join(log_dir(), "hck_gpt_chat.jsonl")
+
+    def _chat_journal(self, msg: str, answer: list, lang: str,
+                      started: float) -> None:
+        try:
+            parsed = {}
+            if HAS_AI_LAYER:
+                try:
+                    r = intent_parser.parse(msg)
+                    parsed = {"intent": r.intent,
+                              "confidence": round(float(r.confidence), 3),
+                              "entities": dict(r.entities or {})}
+                except Exception:
+                    parsed = {}
+            path = self._chat_journal_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            try:
+                if os.path.getsize(path) > self.CHAT_JOURNAL_MAX_BYTES:
+                    # kept, never deleted: the full file is renamed with its
+                    # date and a new one starts
+                    stamp = time.strftime("%Y%m%d-%H%M%S")
+                    os.replace(path, path.replace(".jsonl", f".{stamp}.jsonl"))
+            except OSError:
+                pass
+            row = {
+                "ts": round(time.time(), 1),
+                "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "lang": lang,
+                "question": msg,
+                "parsed": parsed,
+                "fallback": bool(self._trace.get("fallback")),
+                "ms": int((time.time() - started) * 1000),
+                "answer": [str(x) for x in (answer or [])],
+            }
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
     def process_message(self, user_message: str,
                         ui_lang: str = "auto") -> list[str]:
+        started = time.time()
+        self._trace = {}
+        self._talked = True
+        try:
+            from hck_gpt.engine.flow_engine import flow_engine as _fe
+            _guide_was_open = _fe.is_active()
+        except Exception:
+            _guide_was_open = False
+        answer = self._process_message_inner(user_message, ui_lang)
+        answer = self._place_offer(answer, getattr(self, "_last_lang", "pl"))
+        # an answer to something else while a guide is open says the guide waits
+        try:
+            from hck_gpt.engine.flow_engine import flow_engine
+            if (_guide_was_open and flow_engine.is_active()
+                    and not self._trace.get("flow_answer")):
+                answer = list(answer) + [flow_engine.waiting_line()]
+        except Exception:
+            pass
+        if (user_message or "").strip():
+            self._chat_journal(user_message.strip(), answer,
+                               getattr(self, "_last_lang", ui_lang), started)
+        return answer
+
+    # ── Offer of the optimization guide (2026-11-17) ──────────────────────
+    # An answer that ends with "the guide would help here" carries a line
+    # "§OFFER optimize". It is moved to the very end (below the pcworkman.dev
+    # guide link), drawn as a highlighted line after one empty line, and the
+    # quick replies get a button that starts the guide.
+
+    def _place_offer(self, answer: list, lang: str) -> list:
+        offer = None
+        out = []
+        for line in answer or []:
+            if isinstance(line, str) and line.strip().startswith("§OFFER"):
+                offer = line.strip()[len("§OFFER"):].strip() or "optimize"
+                continue
+            out.append(line)
+        self._offer = None
+        # any answer that names LibreHardwareMonitor gets the "Zobacz sam"
+        # button with the official link (2026-11-17)
+        if offer is None and any(isinstance(l, str) and "LibreHardwareMonitor" in l for l in out):
+            offer = "lhm"
+        if offer == "optimize":
+            try:
+                from hck_gpt.engine.flow_engine import flow_engine
+                if flow_engine.is_active():
+                    return out
+            except Exception:
+                pass
+            self._offer = offer
+            out += ["", "§NOTE " + _t_handler(lang,
+                "⚡ Chcesz, żebym przeprowadził Cię przez to krok po kroku? "
+                "Przewodnik optymalizacji: 6 kroków, z pomiarem przed i po.",
+                "⚡ Want me to walk you through it step by step? "
+                "Optimization guide: 6 steps, measured before and after.")]
+        elif offer in ("export", "lhm"):
+            self._offer = offer
+        elif offer == "record":
+            # the observation note (2026-11-17)
+            self._offer = offer
+            out += ["", "§NOTE " + _t_handler(lang,
+                "⏺ Nagrać to teraz? Zapiszę, co robi komputer, i porównam z następnym nagraniem.",
+                "⏺ Record it now? I will save what the PC does and compare it with the next recording.")]
+        return out
+
+    def offer_vm_help(self) -> None:
+        """The chat opened the Virtual Memory window: the next message may
+        ask where the setting is (10 minutes)."""
+        self._vm_help_until = time.time() + 600
+
+    def _vm_directions(self, lang: str) -> list:
+        if lang == "en":
+            return [
+                "hck_GPT: The System Properties window opens on the Advanced tab.",
+                "  1. Under Performance, click Settings…",
+                "  2. In the new window, open its Advanced tab.",
+                "  3. At the bottom, Virtual memory: click Change…",
+                "",
+                "  The safest choice is to keep \"Automatically manage paging file "
+                "size for all drives\" ticked. If it is unticked and the drive says "
+                "\"No paging file\", tick it, click OK and restart the PC.",
+            ]
+        return [
+            "hck_GPT: Okno Właściwości systemu otwiera się na zakładce Zaawansowane.",
+            "  1. W sekcji Wydajność kliknij Ustawienia…",
+            "  2. W nowym oknie przejdź na jego zakładkę Zaawansowane.",
+            "  3. Na dole jest Pamięć wirtualna: kliknij Zmień…",
+            "",
+            "  Najbezpieczniej zostaw zaznaczone „Automatycznie zarządzaj rozmiarem "
+            "pliku stronicowania dla wszystkich dysków”. Jeśli jest odznaczone, a przy "
+            "dysku stoi „Brak pliku stronicowania”, zaznacz je, kliknij OK i uruchom "
+            "komputer ponownie.",
+        ]
+
+    def suggestions(self) -> list:
+        """Quick replies for the chat panel: [(label, kind, payload)].
+        Inside a guide: that step's choices. Otherwise two starters."""
+        try:
+            from hck_gpt.engine.flow_engine import flow_engine
+            chips = flow_engine.current_chips()
+            if chips:
+                return chips
+        except Exception:
+            pass
+        _lang_now = getattr(self, "_last_lang", "pl")
+        # a recording runs: the way to stop it is always one click away
+        try:
+            from core import observation as _obs
+            if _obs.status()["recording"]:
+                return [("ZAKOŃCZ NAGRYWANIE", "send", "zakończ nagrywanie")
+                        if _lang_now != "en" else
+                        ("STOP RECORDING", "send", "stop recording")]
+        except Exception:
+            pass
+        if getattr(self, "_offer", None) == "export":
+            return [("ZRÓB EXPORT", "send", "zrób export") if _lang_now != "en"
+                    else ("EXPORT NOW", "send", "export data now"),
+                    ("Co potrafisz?", "send", "co potrafisz?") if _lang_now != "en"
+                    else ("What can you do?", "send", "what can you do?")]
+        if getattr(self, "_offer", None) == "lhm":
+            # "Zobacz sam" opens the official GitHub releases page (2026-11-17)
+            return [("ZOBACZ SAM", "nav", "LibreHardwareMonitor") if _lang_now != "en"
+                    else ("SEE FOR YOURSELF", "nav", "LibreHardwareMonitor"),
+                    ("Co potrafisz?", "send", "co potrafisz?") if _lang_now != "en"
+                    else ("What can you do?", "send", "what can you do?")]
+        if getattr(self, "_offer", None) == "record":
+            return [("ZACZNIJ NAGRYWANIE", "send", "zacznij nagrywanie")
+                    if _lang_now != "en" else
+                    ("START RECORDING", "send", "start recording"),
+                    ("Wszystko działa?", "send", "wszystko działa?")
+                    if _lang_now != "en" else ("Is everything OK?", "send", "is everything ok?")]
+        if getattr(self, "_vm_help_until", 0) > time.time():
+            return [("Gdzie to znajdę?", "send", "gdzie to znajdę?")
+                    if _lang_now != "en" else
+                    ("Where is it?", "send", "where is it?")]
+        if getattr(self, "_offer", None) == "optimize":
+            if _lang_now == "en":
+                return [("START THE GUIDE", "send", "optimize my pc"),
+                        ("Is everything OK?", "send", "is everything ok?")]
+            return [("ZACZNIJ PRZEWODNIK", "send", "zoptymalizuj komputer"),
+                    ("Wszystko działa?", "send", "wszystko działa?")]
+        # before the first message the interface language decides, not the
+        # "pl" default of the chat
+        lang = getattr(self, "_last_lang", None) if getattr(self, "_talked", False) else None
+        if lang not in ("pl", "en"):
+            try:
+                from utils.i18n import get_lang
+                lang = get_lang()
+            except Exception:
+                lang = "pl"
+        if lang == "en":
+            return [("What can you do?", "send", "what can you do?"),
+                    ("Is everything OK?", "send", "is everything ok?")]
+        return [("Co potrafisz?", "send", "co potrafisz?"),
+                ("Wszystko działa?", "send", "wszystko działa?")]
+
+    def _process_message_inner(self, user_message: str,
+                               ui_lang: str = "auto") -> list[str]:
         msg   = user_message.strip()
         lower = msg.lower().strip()
 
@@ -318,13 +546,54 @@ class ChatHandler:
 
         if HAS_PROACTIVE:
             try:
-                proactive_monitor.set_language(lang)
+                # The language of a question is not the language of the app.
+                # Messages hck_GPT sends on its own follow the interface
+                # language (set by the panel); with the chat on "auto" this
+                # line used to switch them to whatever one message was
+                # detected as, and the long test got English alerts in a
+                # Polish session (2026-11-16).
                 proactive_monitor.set_user_active()
             except Exception:
                 pass
 
         def _resolve_lang(text: str) -> str:  # kept for inline calls below
             return lang
+
+        # ── Laptop or desktop, said by the user (2026-11-16) ──────────────
+        # "Dzieki, jak cos mam PC" got "OK! Watching the system." and was
+        # forgotten; hardware advice kept talking about laptops. Stored as
+        # a fact; a question in the same message is still answered below.
+        try:
+            from core.machine_type import from_message, remember, statement_only
+            _kind = from_message(msg)
+            if _kind:
+                remember(_kind)
+                if "?" not in msg and statement_only(msg):
+                    if _kind == "desktop":
+                        return [_t_handler(lang,
+                            "hck_GPT: Zapamiętane - to komputer stacjonarny. Rady o "
+                            "rozbudowie i dyskach będą o płycie głównej i obudowie, "
+                            "nie o laptopie.",
+                            "hck_GPT: Noted - this is a desktop. Upgrade and storage "
+                            "advice will be about the motherboard and case, not a laptop.")]
+                    return [_t_handler(lang,
+                        "hck_GPT: Zapamiętane - to laptop. Przy rozbudowie wezmę pod "
+                        "uwagę, że miejsca i slotów jest mniej, a chłodzenie ma "
+                        "swoje granice.",
+                        "hck_GPT: Noted - this is a laptop. For upgrades I will keep "
+                        "in mind that slots and space are limited and cooling has "
+                        "its limits.")]
+        except Exception:
+            pass
+
+        # ── Directions to the Virtual Memory setting (2026-11-17) ─────────
+        # Offered by the chat right after its link opened the Windows
+        # window; given only to the next message and only if it asks.
+        if getattr(self, "_vm_help_until", 0):
+            _vm_open = time.time() < self._vm_help_until
+            self._vm_help_until = 0
+            if _vm_open and any(c in lower for c in _VM_HELP_CUES):
+                return self._vm_directions(lang)
 
         # ── 0. Reset confirmation flow (two-step, waits for tak/yes) ─────────
         if self._pending_reset:
@@ -358,9 +627,42 @@ class ChatHandler:
                             {"event": event, "completed": bool(
                                 transition.get("completed"))},
                         )
+                    self._trace["flow_answer"] = True
                     return _flow_out
+                # a question while a step is open that nothing else would
+                # answer ("nie ma nic do wylaczenia?"): the step answers it;
+                # a clear other question ("jaka mam karte?") is answered
+                # normally and the guide keeps waiting
+                _r = intent_parser.parse(msg)
+                # "co to za aplikacje" on the startup step means THOSE apps;
+                # it was answered as a question about the last TIP (second
+                # long test, 2026-11-17). Short questions pointing at "these"
+                # go to the step first.
+                _pointing = (len(lower.split()) <= 6 and any(
+                    c in lower for c in _CTX_CUES))
+                _ctx = (flow_engine.answer_in_context(msg, response_builder)
+                        if (_r.intent == "unknown" or _r.confidence < 0.5
+                            or _pointing) else None)
+                if _ctx:
+                    self._trace["flow_answer"] = True
+                    return [f"hck_GPT: {_ctx[0]}"] + _ctx[1:]
         except Exception:
             pass
+
+        # "dalej" / "next" with no guide open used to repeat the last answer
+        # (after the guide ended, "dalej" got the GPU card again; 2026-11-16)
+        if lower.strip(" !.") in ("dalej", "next", "kontynuuj", "continue",
+                                  "zaczynajmy", "zaczynamy"):
+            try:
+                from hck_gpt.engine.flow_engine import flow_engine as _fe2
+                if not _fe2.is_active():
+                    return [_t_handler(lang,
+                        "hck_GPT: Nie mamy teraz otwartego przewodnika. Napisz "
+                        "'zoptymalizuj komputer', żeby zacząć od nowa.",
+                        "hck_GPT: There is no guide open right now. Type "
+                        "'optimize my pc' to start one.")]
+            except Exception:
+                pass
 
         # ── 2. Hard-route service/insights commands (bypass AI layer) ─────────
         if any(kw in lower for kw in _LEGACY_ONLY_KEYWORDS):
@@ -528,8 +830,24 @@ class ChatHandler:
                     "next", "done", "gotowe", "zrobione", "kontynuuj",
                 })
                 msg_tokens = [t for t in lower.split() if t not in _short_followup_words]
+                # A short message continues the topic only when it reads as a
+                # follow-up: a follow-up word ("a GPU?", "jeszcze", "dalej")
+                # or a question mark. Reactions never do: after "how are my
+                # temperatures?" a plain "nice" got the temperatures again
+                # (long test, 2026-11-16).
+                _reactions = {"nice", "super", "spoko", "lol", "xd", "wow",
+                              "cool", "great", "fajnie", "dzieki", "dzięki",
+                              "thanks", "thx", "ok", "okej", "okay", "git",
+                              "haha", "hah", "mega", "extra", "ekstra"}
+                _bare = lower.strip(" !?.,").split()
+                _is_reaction = bool(_bare) and all(w in _reactions for w in _bare)
+                if last_topic == "tuneup_guide" and lower.strip(" !.") in ("ok", "okej", "okay"):
+                    _is_reaction = False            # "ok" advances the guide
+                _follows = (lower.rstrip().endswith("?")
+                            or any(t in _short_followup_words for t in lower.split()))
                 if (last_topic in _hw_topics
                         and len(msg_tokens) <= 2
+                        and _follows and not _is_reaction
                         and not any(kw in lower for kw in _LEGACY_ONLY_KEYWORDS)):
                     from .intents.parser import ParseResult as _PR3
                     _ctx_fake = _PR3(intent=last_topic, confidence=0.65, raw_text=msg)
@@ -833,6 +1151,10 @@ class ChatHandler:
 
     def _default_response(self, msg: str) -> list[str]:
         import re
+        try:
+            self._trace["fallback"] = True      # journal: no confident route
+        except Exception:
+            pass
         lang  = self._last_lang
         lower = msg.lower().strip()
 
@@ -944,7 +1266,7 @@ class ChatHandler:
         import random as _rnd
         try:
             import psutil as _ps
-            cpu = _ps.cpu_percent(interval=None)
+            cpu = _ps.cpu_percent(interval=0.2)  # None returned 0% on the first call
             ram = _ps.virtual_memory().percent
             stat = ""
             if cpu > 80 or ram > 85:

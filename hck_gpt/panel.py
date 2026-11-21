@@ -1,5 +1,6 @@
 # hck_gpt/panel.py
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from ui.theme import THEME
 import time
@@ -9,7 +10,7 @@ from import_core import register_component, STATUS_OK
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
 
 try:
     from hck_gpt.chat_handler import ChatHandler
@@ -141,24 +142,31 @@ class HCKGPTPanel:
             try:
                 # push: tip messages -> _insert_tip (replaces previous tip, yellow badge)
                 #        alert messages -> add_message (standard time badge)
-                proactive_monitor.register_push(
-                    lambda msg: parent.after(0, lambda m=msg: (
-                        self._insert_tip(m) if "\U0001f4a1" in m else self.add_message(m)
-                    ))
-                )
-                # banner: updates the banner text silently (thread-safe via after())
-                proactive_monitor.register_banner(
-                    lambda status: parent.after(
-                        0, lambda s=status: self._set_banner_status(s)
-                    )
-                )
+                # The monitor calls these on ITS thread: they only fill a
+                # mailbox (no Tk, no widgets held); the panel takes the
+                # items on the UI thread (ui/bg.py, 2026-11-21).
+                from ui import bg as _bg_ui
+                _pm_box = _bg_ui.Mailbox()
+                # push: tip messages -> _insert_tip (replaces previous tip, yellow badge)
+                #        alert messages -> add_message (standard time badge)
+                proactive_monitor.register_push(lambda msg, b=_pm_box: b.put(("push", msg)))
+                # banner: updates the banner text silently
+                proactive_monitor.register_banner(lambda st, b=_pm_box: b.put(("banner", st)))
                 # hot: RAM/CPU/GPU critical -> HOT strip only, never to chat
-                proactive_monitor.register_hot(
-                    lambda msg: parent.after(0, lambda m=msg: self._set_hot(m))
-                )
-                proactive_monitor.register_hot_clear(
-                    lambda: parent.after(0, self._clear_hot)
-                )
+                proactive_monitor.register_hot(lambda msg, b=_pm_box: b.put(("hot", msg)))
+                proactive_monitor.register_hot_clear(lambda b=_pm_box: b.put(("hot_clear", None)))
+
+                def _pm_item(item):
+                    kind, val = item
+                    if kind == "push":
+                        self._insert_tip(val) if "\U0001f4a1" in val else self.add_message(val)
+                    elif kind == "banner":
+                        self._set_banner_status(val)
+                    elif kind == "hot":
+                        self._set_hot(val)
+                    else:
+                        self._clear_hot()
+                _bg_ui.watch(parent, _pm_box, _pm_item, every_ms=300)
                 proactive_monitor.start()
                 # Sync language immediately so first alerts match panel language
                 proactive_monitor.set_language(self._ui_lang)
@@ -193,7 +201,7 @@ class HCKGPTPanel:
         self.banner.create_rectangle(_bx, _by, _bx + 22, _by + 18,
                                       fill="#5c0f1a", outline="", tags="ui")
         self.banner.create_text(_bx + 11, _by + 9, text="AI",
-                                 font=("Segoe UI Black", 7),
+                                 font=(_FONT_HEAVY, 7),
                                  fill="#ffffff", anchor="center", tags="ui")
 
         # Main text
@@ -201,7 +209,7 @@ class HCKGPTPanel:
             42, self.collapsed_h // 2,
             anchor="w",
             text="hck_GPT  -  Your PC Companion",
-            font=("Segoe UI", 9, "bold"),
+            font=(_FONT_UI, 9, "bold"),
             fill="#f0dde0",
             tags="ui"
         )
@@ -218,7 +226,7 @@ class HCKGPTPanel:
             (_obx1 + _obx2) // 2, _oy,
             anchor="center",
             text="ONLINE",
-            font=("Segoe UI", 7, "bold"),
+            font=(_FONT_UI, 7, "bold"),
             fill="#ff5566",
             tags="ui"
         )
@@ -228,7 +236,7 @@ class HCKGPTPanel:
             self.width - 8, self.collapsed_h // 2,
             anchor="e",
             text="▼",
-            font=("Arial", 9),
+            font=(_FONT_UI, 9),
             fill="#c0182a",
             tags="ui"
         )
@@ -249,6 +257,27 @@ class HCKGPTPanel:
 
         control_bar = tk.Frame(self.chat, bg=THEME["bg_panel"])
         control_bar.pack(fill="x", padx=8, pady=(8, 4))
+        # TIP and HOT strips are packed just above this bar, right under the
+        # banner (2026-11-17), so they never take the input's place
+        self._control_bar = control_bar
+
+        # Optimization guide, always one click away (2026-11-17)
+        _pl = (self._ui_lang if self._ui_lang in ("pl", "en") else "pl") == "pl"
+        self._opt_btn = tk.Button(
+            control_bar,
+            text="⚡ Optymalizacja" if _pl else "⚡ Optimize",
+            bg="#2a0b14",
+            fg="#f6dbe2",
+            activebackground=THEME["accent2"],
+            activeforeground=THEME["text"],
+            font=("Consolas", 9, "bold"),
+            bd=0,
+            padx=10,
+            pady=4,
+            command=self._start_optimize_guide,
+            cursor="hand2"
+        )
+        self._opt_btn.pack(side="left", padx=(0, 4))
 
         service_btn = tk.Button(
             control_bar,
@@ -302,7 +331,7 @@ class HCKGPTPanel:
             control_bar,
             text="Languages",
             bg="#111520",
-            fg="#6b7280",
+            fg="#8d97a8",
             activebackground="#1a1d28",
             activeforeground="#9ca3af",
             font=("Consolas", 9),
@@ -332,8 +361,30 @@ class HCKGPTPanel:
         )
         report_btn.pack(side="left", padx=(0, 4))
 
+        # Observation note (2026-11-17): record what the PC does, stop, compare
+        # with the previous recording. The button shows the running time.
+        self._rec_btn = tk.Button(
+            control_bar,
+            text="⏺ Nagraj" if _pl else "⏺ Record",
+            bg=THEME["bg_main"],
+            fg="#f87171",
+            activebackground=THEME["accent2"],
+            activeforeground=THEME["text"],
+            font=("Consolas", 9, "bold"),
+            bd=0,
+            padx=10,
+            pady=4,
+            command=self._toggle_recording,
+            cursor="hand2"
+        )
+        self._rec_btn.pack(side="left", padx=(0, 4))
+        self.chat.after(1000, self._tick_recording)
+
         log_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
-        log_container.pack(fill="both", expand=True, padx=8, pady=(4, 6))
+        # packed after the input row (below): pack hands out space in packing
+        # order, and with the log first a TIP line was enough to push the
+        # input and SEND out of the panel (long test, 2026-11-17)
+        self._log_container = log_container
 
         scrollbar = tk.Scrollbar(log_container, bg=THEME["bg_main"],
                                 troughcolor=THEME["bg_panel"],
@@ -379,6 +430,23 @@ class HCKGPTPanel:
         self.log.tag_configure("orange", foreground="#f97316")
         self.log.tag_configure("light_purple", foreground="#c084fc")
         self.log.tag_configure("user_msg", foreground=THEME["text"])
+        self.log.tag_configure("step_card", background="#3a0d1a",
+                               foreground="#f6dbe2", font=(_MONOF, 10, "bold"),
+                               spacing1=6, spacing3=2)
+        self.log.tag_configure("verdict_ok", background="#0c2416",
+                               foreground="#86efac", spacing3=2)
+        self.log.tag_configure("verdict_warn", background="#2a1d05",
+                               foreground="#fcd34d", spacing3=2)
+        # §NOTE: a line that should be noticed - "Szybkie kroki do poprawy",
+        # the offer of the optimization guide (2026-11-17)
+        self.log.tag_configure("note_card", background="#262c3d",
+                               foreground="#eef2ff", font=(_MONOF, 10, "bold"),
+                               spacing1=4, spacing3=2)
+        # §SRC: where a verdict comes from, on a yellow band ("Ocena według
+        # testu połączenia z google.com", 2026-11-20)
+        self.log.tag_configure("source_note", background="#facc15",
+                               foreground="#1c1500", font=(_MONOF, 9, "bold"),
+                               spacing1=4, spacing3=2)
         # Welcome block: near-black bg so startup table stands out subtly
         self.log.tag_configure("welcome_bg",
                                background="#060810",
@@ -395,6 +463,8 @@ class HCKGPTPanel:
         self._nav_link_count: int = 0
         # Pre-wire Virtual Memory - opens Windows sysdm.cpl directly, no nav needed
         self._nav_callbacks["Virtual Memory"] = self._open_virtual_memory
+        # the official LibreHardwareMonitor releases page ("Zobacz sam" chip)
+        self._nav_callbacks["LibreHardwareMonitor"] = self._open_lhm_page
 
         # ── HOT ALERT STRIP - above TIP, anti-spam system alerts ─────────────
         # Shown when RAM/CPU/GPU exceeds threshold; auto-dismissed when normal.
@@ -409,7 +479,7 @@ class HCKGPTPanel:
         _hb = tk.Canvas(self._hot_strip, width=30, height=14,
                         bg="#2a0606", highlightthickness=0)
         _hb.create_text(15, 7, text="HOT", fill=_HOT_FG,
-                        font=("Consolas", 6, "bold"), anchor="center")
+                        font=("Consolas", 7, "bold"), anchor="center")
         _hb.pack(side="left", padx=(6, 0), pady=2)
         self._hot_label = tk.Label(
             self._hot_strip, text="",
@@ -435,7 +505,7 @@ class HCKGPTPanel:
         _tb = tk.Canvas(self._tip_strip, width=30, height=14,
                         bg="#2e2800", highlightthickness=0)
         _tb.create_text(15, 7, text="TIP", fill=_TIP_FG,
-                        font=("Consolas", 6, "bold"), anchor="center")
+                        font=("Consolas", 7, "bold"), anchor="center")
         _tb.pack(side="left", padx=(6, 0), pady=2)
         self._tip_label = tk.Label(
             self._tip_strip, text="",
@@ -448,9 +518,20 @@ class HCKGPTPanel:
         self._tip_label.pack(side="left", fill="x", expand=True)
         # Hidden by default - _insert_tip() shows it, _remove_active_tip() hides it
 
+        # ── Quick replies (2026-11-16): one-click answers above SEND, from
+        # chat_handler.suggestions() - the guide's own choices while a guide
+        # is open (ZACZYNAJMY / DALEJ / Zobacz Autostart / PRZERWIJ), two
+        # starters otherwise.
+        self._chips_strip = tk.Frame(self.chat, bg=THEME["bg_panel"])
+
         self._entry_container = tk.Frame(self.chat, bg=THEME["bg_panel"])
         entry_container = self._entry_container
-        entry_container.pack(fill="x", padx=8, pady=(0, 10))
+        # bottom-up and before the log: the input row and the quick replies
+        # get their height first, the log takes what is left
+        entry_container.pack(side="bottom", fill="x", padx=8, pady=(0, 10))
+        # quick replies sit on the right, over SEND (2026-11-17)
+        self._chips_strip.pack(side="bottom", fill="x", padx=8, pady=(2, 2))
+        log_container.pack(side="top", fill="both", expand=True, padx=8, pady=(4, 4))
 
         entry_wrapper = tk.Frame(entry_container, bg=THEME["accent2"], bd=0)
         entry_wrapper.pack(fill="x", side="left", expand=True)
@@ -467,10 +548,10 @@ class HCKGPTPanel:
             font=("Consolas", 11)
         )
         self.entry.pack(fill="both", expand=True, padx=8, pady=6)
-        self.entry.bind("<Return>", lambda e: self._send())
+        self.entry.bind("<Return>", lambda e=None: self._send())
 
-        self.entry.bind("<FocusIn>", lambda e: entry_wrapper.config(bg=THEME["accent"]))
-        self.entry.bind("<FocusOut>", lambda e: entry_wrapper.config(bg=THEME["accent2"]))
+        self.entry.bind("<FocusIn>", lambda e=None: entry_wrapper.config(bg=THEME["accent"]))
+        self.entry.bind("<FocusOut>", lambda e=None: entry_wrapper.config(bg=THEME["accent2"]))
 
         self._start_cursor_blink()
 
@@ -490,6 +571,8 @@ class HCKGPTPanel:
         )
         send_lbl.pack(padx=2, pady=4)
         self.send_btn = send_lbl   # keep attribute for external compatibility
+        # quick replies are there from the first moment (2026-11-16)
+        self.chat.after(300, self._refresh_chips)
 
         def _on_sb_enter(e):
             send_lbl.config(bg=_SB_BG_H, fg=_SB_FG_H,
@@ -651,13 +734,17 @@ class HCKGPTPanel:
         if new_lang == self._ui_lang:
             return
         self._ui_lang = new_lang
+        try:
+            self._opt_btn.config(text="⚡ Optimize" if new_lang == "en" else "⚡ Optymalizacja")
+        except Exception:
+            pass
         if HAS_PROACTIVE:
             try:
                 proactive_monitor.set_language(self._ui_lang)
             except Exception:
                 pass
         try:
-            self.parent.after(0, self._refresh_welcome_for_lang)
+            self.parent.after_idle(self._refresh_welcome_for_lang)
         except Exception:
             pass
 
@@ -726,7 +813,10 @@ class HCKGPTPanel:
         self._last_greeting_session = time.time()
 
         # ── Async: time-of-day greeting + yesterday's stats ──
-        _threading.Thread(target=lambda: self._add_startup_quip(lang), daemon=True).start()
+        from ui import bg as _bg_ui
+        _bg_ui.run(self.log, lambda l=lang, q=type(self)._startup_quip_lines: q(l),
+                   lambda msgs: [self.add_message(m) for m in ("",) + tuple(msgs)],
+                   name="hck_gpt-quip")
 
     def _add_welcome_tables(self):
         """
@@ -789,8 +879,10 @@ class HCKGPTPanel:
         self.log.see("end")
         self.log.config(state="disabled")
 
-    def _add_startup_quip(self, lang="en"):
-        """Background thread: time-of-day greeting + yesterday stats."""
+    @staticmethod
+    def _startup_quip_lines(lang="en"):
+        """Time-of-day greeting + yesterday stats, as two chat lines. Runs on
+        a worker thread and holds no Tk object (2026-11-21)."""
         from datetime import datetime as _dt, timedelta as _td
 
         # ── Greeting by hour ──────────────────────────────────────────────────
@@ -867,12 +959,7 @@ class HCKGPTPanel:
             else:
                 msg2 = "hck_GPT: No data from yesterday yet - still collecting."
 
-        try:
-            self.parent.after(0, lambda: self.add_message(""))
-            self.parent.after(0, lambda m=msg1: self.add_message(m))
-            self.parent.after(0, lambda m=msg2: self.add_message(m))
-        except Exception:
-            pass
+        return msg1, msg2
 
     # TIME BADGE
     def _make_time_badge(self):
@@ -914,7 +1001,7 @@ class HCKGPTPanel:
         badge.create_line(3,  0, 3,  14, fill="#374151")
         badge.create_line(59, 0, 59, 14, fill="#374151")
         badge.create_text(31, 7, text="hck_GPT", fill="#c0182a",
-                          font=("Consolas", 6, "bold"), anchor="center")
+                          font=("Consolas", 7, "bold"), anchor="center")
         return badge
 
     # USER BADGE - animated fill bar (green -> yellow -> red -> green)
@@ -938,7 +1025,7 @@ class HCKGPTPanel:
         state = {'phase': 0.0}
         bg_rect = badge.create_rectangle(0, 0, 44, 14, fill="#22c55e", outline="")
         badge.create_text(22, 7, text="USER", fill="#071013",
-                          font=("Consolas", 6, "bold"), anchor="center")
+                          font=("Consolas", 7, "bold"), anchor="center")
 
         def _tick():
             try:
@@ -972,7 +1059,7 @@ class HCKGPTPanel:
         self.log.config(state="normal")
         badge = self._make_user_badge()
         self.log.window_create("end", window=badge, padx=2, pady=1)
-        start_pos = self.log.index("end")
+        start_pos = self.log.index("end - 1c")
         self.log.insert("end", f" {text}\n", "user_msg")
         self._apply_inline_colors(start_pos)
         self.log.see("end")
@@ -1000,6 +1087,9 @@ class HCKGPTPanel:
             self._turn_count += 1
             self.log.tag_configure(tag, background=self._TURN_BG)
             self.log.tag_add(tag, turn_start, turn_end)
+            # under the cards: a tag made later wins, and the turn tint
+            # hid the §NOTE / §STEP backgrounds (2026-11-17)
+            self.log.tag_lower(tag)
             self.log.config(state="disabled")
         except Exception:
             pass
@@ -1015,12 +1105,55 @@ class HCKGPTPanel:
         """
         self._nav_callbacks[name] = callback
 
-    @staticmethod
-    def _open_virtual_memory() -> None:
-        """Open Windows Virtual Memory settings (Advanced System Properties, tab 3)."""
+    LHM_URL = "https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/releases"
+
+    def _open_lhm_page(self) -> None:
+        try:
+            import webbrowser
+            webbrowser.open(self.LHM_URL)
+        except Exception:
+            pass
+
+    def _open_virtual_memory(self) -> None:
+        """Open Windows Virtual Memory settings (Advanced System Properties,
+        tab 3). The window takes a moment to appear, so after ~2 s hck_GPT
+        says it is opening and offers directions; the directions are given
+        only if the next message asks for them (2026-11-17)."""
         try:
             import subprocess
             subprocess.Popen("control sysdm.cpl,,3", shell=True)
+        except Exception:
+            pass
+        try:
+            if self.chat_handler is not None:
+                self.chat_handler.offer_vm_help()
+        except Exception:
+            pass
+
+        def _say():
+            pl = self._ui_lang != "en"
+            self.add_message(
+                "hck_GPT: Jasne, otwiera się. Jeśli potrzebujesz krótkiego "
+                "wyjaśnienia, gdzie to znajdziesz, napisz." if pl else
+                "hck_GPT: Sure, it is opening. If you want short directions "
+                "to the setting, just ask.")
+            self._refresh_chips()
+        try:
+            self.log.after(2000, _say)
+        except Exception:
+            pass
+
+    def _nav_and_fold(self, callback) -> None:
+        """Open the linked page, then fold the chat down to its bar with the
+        usual animation; the bar stays on that page to keep asking
+        (2026-11-16)."""
+        try:
+            callback()
+        except Exception:
+            pass
+        try:
+            if self.is_open:
+                self.frame.after(180, lambda: self.is_open and self.close())
         except Exception:
             pass
 
@@ -1078,18 +1211,23 @@ class HCKGPTPanel:
                         pass
                 self.log.tag_bind(tag, "<Button-1>", _open_guide)
                 self.log.tag_bind(tag, "<Enter>",
-                                  lambda e: self.log.config(cursor="hand2"))
+                                  lambda e=None: self.log.config(cursor="hand2"))
                 self.log.tag_bind(tag, "<Leave>",
-                                  lambda e: self.log.config(cursor=""))
+                                  lambda e=None: self.log.config(cursor=""))
                 idx = match_end
                 continue
             cb = self._nav_callbacks.get(link_name)
             if cb:
-                self.log.tag_bind(tag, "<Button-1>", lambda e, c=cb: c())
+                # links that open a Windows window or the browser keep the
+                # chat open: the follow-up message lands there (2026-11-17)
+                _stay = link_name in ("Virtual Memory", "pcworkman.dev", "LibreHardwareMonitor")
+                self.log.tag_bind(tag, "<Button-1>",
+                                  (lambda e=None, c=cb: c()) if _stay else
+                                  (lambda e=None, c=cb: self._nav_and_fold(c)))
                 self.log.tag_bind(tag, "<Enter>",
-                                  lambda e: self.log.config(cursor="hand2"))
+                                  lambda e=None: self.log.config(cursor="hand2"))
                 self.log.tag_bind(tag, "<Leave>",
-                                  lambda e: self.log.config(cursor=""))
+                                  lambda e=None: self.log.config(cursor=""))
             idx = match_end
 
         # Bare mentions are highlighted without changing the displayed text.
@@ -1135,12 +1273,12 @@ class HCKGPTPanel:
                 self.log.tag_add(tag, pos, match_end)
                 cb = self._nav_callbacks.get(target)
                 if cb:
-                    self.log.tag_bind(tag, "<Button-1>", lambda e, c=cb: c())
+                    self.log.tag_bind(tag, "<Button-1>", lambda e=None, c=cb: c())
                     self.log.tag_bind(
-                        tag, "<Enter>", lambda e: self.log.config(cursor="hand2")
+                        tag, "<Enter>", lambda e=None: self.log.config(cursor="hand2")
                     )
                     self.log.tag_bind(
-                        tag, "<Leave>", lambda e: self.log.config(cursor="")
+                        tag, "<Leave>", lambda e=None: self.log.config(cursor="")
                     )
                 idx = match_end
 
@@ -1170,8 +1308,10 @@ class HCKGPTPanel:
             # IMPORTANT: before= requires the reference widget to be currently
             # managed by pack - _tip_strip is hidden by default (pack_forget'd),
             # so we must fall back to _entry_container when TIP is not active.
-            _ref = self._tip_strip if self._tip_active else self._entry_container
-            self._hot_strip.pack(fill="x", padx=8, pady=(0, 1), before=_ref)
+            # Both strips hang right under the banner (2026-11-17): down by
+            # the input they pushed it out of a short panel
+            _ref = self._tip_strip if self._tip_active else self._control_bar
+            self._hot_strip.pack(side="top", fill="x", padx=0, pady=0, before=_ref)
             self._hot_active = True
         self._hot_msg = msg
 
@@ -1205,8 +1345,8 @@ class HCKGPTPanel:
 
         if not self._tip_active:
             self._tip_strip.pack(
-                fill="x", padx=8, pady=(0, 4),
-                before=self._entry_container
+                side="top", fill="x", padx=0, pady=0,
+                before=self._control_bar
             )
             self._tip_active = True
 
@@ -1230,12 +1370,28 @@ class HCKGPTPanel:
                 badge = self._make_time_badge()
             self.log.window_create("end", window=badge, padx=2, pady=1)
             self.log.insert("end", " ")
-        start_pos = self.log.index("end")
+        # Guide step cards and verdict bands (2026-11-16): §STEP / §OK / §WARN
+        # at the start of a line pick the style; the marker is not shown
+        _card_tag = None
+        for _mk, _tg in (("§STEP ", "step_card"), ("§OK ", "verdict_ok"),
+                         ("§WARN ", "verdict_warn"), ("§NOTE ", "note_card"),
+                         ("§SRC ", "source_note")):
+            if msg.startswith(_mk):
+                msg = f"  {msg[len(_mk):]}  "
+                _card_tag = _tg
+                break
+        start_pos = self.log.index("end - 1c")  # 'end - 1c' (2026-11-16): 'end' is one line past where the text
+        # lands, so the first line of every message was never scanned:
+        # its [-> links] were not clickable and its colours not applied
         self.log.insert("end", msg + "\n")
         end_pos = self.log.index("end - 1c")
         # Advisory tip messages (contain 💡) get a subtle green background
         if "\U0001f4a1" in msg:
             self.log.tag_add("tip_green", start_pos, end_pos)
+        if _card_tag:
+            self.log.tag_add(_card_tag, start_pos, end_pos)
+            # above the turn background, which is configured later
+            self.log.tag_raise(_card_tag)
         self._apply_inline_colors(start_pos)
         self._apply_component_colors(start_pos)
         self._apply_nav_links(start_pos)
@@ -1508,11 +1664,11 @@ class HCKGPTPanel:
         hdr.pack(fill="x", padx=10, pady=(6, 4))
         tk.Label(hdr, text="UI Language",
                  font=("Consolas", 8, "bold"),
-                 bg="#0d0f14", fg="#6b7280", anchor="w").pack(side="left")
+                 bg="#0d0f14", fg="#8d97a8", anchor="w").pack(side="left")
         tk.Label(hdr, text="✕",
                  font=("Consolas", 9), bg="#0d0f14", fg="#74839a",
                  cursor="hand2").pack(side="right")
-        hdr.winfo_children()[-1].bind("<Button-1>", lambda e: pop.destroy())
+        hdr.winfo_children()[-1].bind("<Button-1>", lambda e=None: pop.destroy())
 
         tk.Frame(pop, bg="#1a1d28", height=1).pack(fill="x")
 
@@ -1546,7 +1702,7 @@ class HCKGPTPanel:
             if badge:
                 bc = "#f59e0b" if badge.startswith("⚠") else "#374151"
                 tk.Label(row, text=badge,
-                         font=("Consolas", 6),
+                         font=("Consolas", 7),
                          bg="#111520" if is_sel else "#0d0f14",
                          fg=bc, padx=5).pack(side="right")
 
@@ -1557,15 +1713,15 @@ class HCKGPTPanel:
                     else:
                         self._ui_lang = c
                     pop.destroy()
-                row.bind("<Button-1>", lambda e, c=code: _select(c))
+                row.bind("<Button-1>", lambda e=None, c=code: _select(c))
                 for child in row.winfo_children():
-                    child.bind("<Button-1>", lambda e, c=code: _select(c))
+                    child.bind("<Button-1>", lambda e=None, c=code: _select(c))
 
-                row.bind("<Enter>", lambda e, r=row: r.config(bg="#161922"))
-                row.bind("<Leave>", lambda e, r=row: r.config(bg="#0d0f14"))
+                row.bind("<Enter>", lambda e=None, r=row: r.config(bg="#161922"))
+                row.bind("<Leave>", lambda e=None, r=row: r.config(bg="#0d0f14"))
 
         # Close when focus leaves the popup
-        pop.bind("<FocusOut>", lambda e: pop.destroy() if pop.winfo_exists() else None)
+        pop.bind("<FocusOut>", lambda e=None: pop.destroy() if pop.winfo_exists() else None)
         pop.focus_set()
 
     def _run_today_report(self):
@@ -1821,8 +1977,27 @@ class HCKGPTPanel:
                 self.log.tag_config(tag, foreground=THEME["accent2"], underline=True)
                 tt = process_library.format_tooltip_text(pname)
                 self.log.tag_bind(tag, "<Enter>",
-                                  lambda e, n=pname, t=tt: self.tooltip.show(e, n, t))
-                self.log.tag_bind(tag, "<Leave>", lambda e: self.tooltip.hide())
+                                  lambda e=None, n=pname, t=tt: self.tooltip.show(e, n, t))
+                self.log.tag_bind(tag, "<Leave>", lambda e=None: self.tooltip.hide())
+                # a click opens the Process Center on it (2026-11-20)
+                self.log.tag_bind(tag, "<Button-1>",
+                                  lambda e=None, n=pname: self._open_process(n))
+                self.log.tag_bind(tag, "<Enter>",
+                                  lambda e=None: self.log.config(cursor="hand2"), add="+")
+                self.log.tag_bind(tag, "<Leave>",
+                                  lambda e=None: self.log.config(cursor=""), add="+")
+
+    # set by the main window: name -> opens the Process Center on it
+    on_process_click = None
+
+    def _open_process(self, name: str) -> None:
+        try:
+            self.tooltip.hide()
+        except Exception:
+            pass
+        cb = self.on_process_click
+        if callable(cb):
+            self._nav_and_fold(lambda: cb(name))
 
     def set_visibility_gate(self, fn) -> None:
         """fn() -> bool; False = panel must stay hidden (non-banner page)."""
@@ -1955,7 +2130,79 @@ class HCKGPTPanel:
         except Exception:
             pass
 
+    # ── Answer off the UI thread (2026-11-16) ─────────────────────────────────
+    # process_message() used to run right here, on the Tk thread: a security
+    # scan that verifies signatures through PowerShell held the whole window
+    # for 18 s (freeze_dump.txt from the long test), and every unrecognised
+    # question cost 4 s probing for a local Ollama. The answer is now worked
+    # out on a worker thread; the UI thread polls for it and, if it takes
+    # longer than _THINK_DELAY_MS, shows an animated "thinking" line.
+
+    _THINK_DELAY_MS = 150
+    _THINK_FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+    def _thinking_show(self):
+        try:
+            self.log.config(state="normal")
+            self._think_start = self.log.index("end - 1c")
+            lang = getattr(self, "_ui_lang", "pl")
+            label = "myśli…" if lang == "pl" else "thinking…"
+            self.log.insert("end", f"hck_GPT  {self._THINK_FRAMES[0]}  {label}\n",
+                            "thinking")
+            self.log.tag_configure("thinking", foreground="#8d97a8",
+                                   font=(_MONOF, 9, "italic"))
+            self.log.see("end")
+            self.log.config(state="disabled")
+            self._think_frame = 0
+            self._thinking_tick()
+        except Exception:
+            self._think_start = None
+
+    def _thinking_tick(self):
+        if getattr(self, "_think_start", None) is None:
+            return
+        try:
+            self._think_frame = (self._think_frame + 1) % len(self._THINK_FRAMES)
+            ranges = self.log.tag_ranges("thinking")
+            if ranges:
+                self.log.config(state="normal")
+                pos = f"{ranges[0]}+9c"
+                self.log.delete(pos, f"{pos}+1c")
+                self.log.insert(pos, self._THINK_FRAMES[self._think_frame], "thinking")
+                self.log.config(state="disabled")
+            try:
+                self.send_btn.config(
+                    text=f"  {self._THINK_FRAMES[self._think_frame]}  ...  ")
+            except Exception:
+                pass
+            self._think_after = self.log.after(90, self._thinking_tick)
+        except Exception:
+            pass
+
+    def _thinking_hide(self):
+        try:
+            if getattr(self, "_think_after", None):
+                self.log.after_cancel(self._think_after)
+        except Exception:
+            pass
+        self._think_after = None
+        try:
+            ranges = self.log.tag_ranges("thinking")
+            if ranges:
+                self.log.config(state="normal")
+                self.log.delete(ranges[0], ranges[-1])
+                self.log.config(state="disabled")
+        except Exception:
+            pass
+        self._think_start = None
+        try:
+            self.send_btn.config(text="> SEND >")
+        except Exception:
+            pass
+
     def _send(self):
+        if getattr(self, "_answer_pending", False):
+            return          # one question at a time; the text stays in the box
         text = self.entry.get().strip()
         if not text:
             return
@@ -1977,7 +2224,7 @@ class HCKGPTPanel:
         _turn_start = None
         try:
             self.log.config(state="normal")
-            _turn_start = self.log.index("end")
+            _turn_start = self.log.index("end - 1c")
             self.log.config(state="disabled")
         except Exception:
             pass
@@ -1985,28 +2232,149 @@ class HCKGPTPanel:
         # Show user message with animated USER badge
         self._add_user_message(text)
 
-        # Process with chat handler
-        _chat_cleared = False
-        if self.chat_handler:
-            responses = self.chat_handler.process_message(
-                text, ui_lang=getattr(self, '_ui_lang', 'auto')
-            )
-
-            # Check if we need to clear chat (wizard starting)
-            if text.lower() in ["yes", "y", "yeah", "ok", "sure", "tak", "t"]:
-                if self.chat_handler.wizard.state == "questions":
-                    self.clear_chat()
-                    _chat_cleared = True
-
-            # Add response messages
-            for response in responses:
-                self.add_message(response)
-        else:
+        if not self.chat_handler:
             self.add_message("hck_GPT: (Chat handler not available)")
+            return
 
-        # ── Apply conversation turn background (skip if chat was cleared) ──────
-        if _turn_start and not _chat_cleared:
-            self._apply_turn_background(_turn_start)
+        import threading
+        import time as _time
+        box: dict = {}
+        ui_lang = getattr(self, '_ui_lang', 'auto')
+
+        # the worker gets the handler and plain values, never the panel
+        def _work(h=self.chat_handler, b=box, t=text, lg=ui_lang):
+            try:
+                b["responses"] = h.process_message(t, ui_lang=lg)
+            except Exception as e:
+                b["responses"] = [f"hck_GPT: (error: {e})"]
+
+        self._answer_pending = True
+        started = _time.time()
+        threading.Thread(target=_work, daemon=True, name="hck_gpt-answer").start()
+
+        def _poll():
+            try:
+                if not self.log.winfo_exists():
+                    self._answer_pending = False
+                    return
+            except Exception:
+                self._answer_pending = False
+                return
+            if "responses" not in box:
+                waited = (_time.time() - started) * 1000
+                if (getattr(self, "_think_start", None) is None
+                        and waited >= self._THINK_DELAY_MS):
+                    self._thinking_show()
+                if waited >= self._THINK_DELAY_MS:
+                    # the SEND button spins too, so the chat bar itself
+                    # shows that an answer is on its way
+                    try:
+                        fr = self._THINK_FRAMES[int(waited / 90) % len(self._THINK_FRAMES)]
+                        self.send_btn.config(text=f"  {fr}  ...  ")
+                    except Exception:
+                        pass
+                self.log.after(30, _poll)
+                return
+            self._thinking_hide()
+            try:
+                self.send_btn.config(text="> SEND >")
+            except Exception:
+                pass
+            self._answer_pending = False
+            self._deliver(text, box["responses"], _turn_start)
+
+        self.log.after(15, _poll)
+
+    # A "§PAUSE" line in an answer splits it: the first part shows at once,
+    # then the thinking line spins for _PAUSE_MS and the next part follows
+    # (2026-11-17, Marcin: a long answer in parts feels like the program
+    # is really working on it). The chat stays busy until the last part.
+    _PAUSE_MS = 2000
+
+    def _deliver(self, text, responses, turn_start):
+        """Show the answer (UI thread)."""
+        _chat_cleared = False
+        # Check if we need to clear chat (wizard starting)
+        if text.lower() in ["yes", "y", "yeah", "ok", "sure", "tak", "t"]:
+            if self.chat_handler.wizard.state == "questions":
+                self.clear_chat()
+                _chat_cleared = True
+
+        segments = [[]]
+        for response in responses:
+            if isinstance(response, str) and response.strip() == "§PAUSE":
+                segments.append([])
+            else:
+                segments[-1].append(response)
+        # an answer that starts with §PAUSE thinks first (the guide's
+        # component check); other empty parts are dropped
+        segments = [s for i, s in enumerate(segments)
+                    if s or (i == 0 and len(segments) > 1)] or [[]]
+        self._answer_pending = True
+
+        def _show(i):
+            try:
+                if not self.log.winfo_exists():
+                    self._answer_pending = False
+                    return
+            except Exception:
+                self._answer_pending = False
+                return
+            if i > 0:
+                self._thinking_hide()
+            for response in segments[i]:
+                self.add_message(response)
+            if i + 1 < len(segments):
+                self._thinking_show()
+                self.log.after(self._PAUSE_MS, lambda: _show(i + 1))
+                return
+            # ── Apply conversation turn background (skip if chat was cleared)
+            if turn_start and not _chat_cleared:
+                self._apply_turn_background(turn_start)
+            self._answer_pending = False
+            self._refresh_chips()
+
+        _show(0)
+
+    def _refresh_chips(self):
+        """Redraw the quick replies for the current state of the chat."""
+        strip = getattr(self, "_chips_strip", None)
+        if strip is None:
+            return
+        try:
+            for w in strip.winfo_children():
+                w.destroy()
+            chips = self.chat_handler.suggestions() if self.chat_handler else []
+        except Exception:
+            chips = []
+        # right-aligned over SEND (2026-11-17): packed from the right, so
+        # walk the list backwards to keep the reading order
+        for label, kind, payload in reversed(chips):
+            quiet = label in ("PRZERWIJ", "STOP", "POMIŃ", "SKIP") or not label.isupper()
+            bg, fg, bd = (("#11151d", "#aab6c8", "#26303f") if quiet else
+                          ("#3a0d1a", "#f6dbe2", "#7a1f35"))
+            chip = tk.Label(strip, text=label, font=(_MONOF, 8, "bold"),
+                            bg=bg, fg=fg, padx=7, pady=1, cursor="hand2",
+                            highlightthickness=1, highlightbackground=bd)
+            chip.pack(side="right", padx=(4, 0))
+
+            def _click(e=None, k=kind, v=payload):
+                if k == "nav":
+                    cb = self._nav_callbacks.get(v)
+                    if cb:
+                        if v in ("Virtual Memory", "pcworkman.dev", "LibreHardwareMonitor"):
+                            cb()
+                        else:
+                            self._nav_and_fold(cb)
+                    return
+                if getattr(self, "_answer_pending", False):
+                    return
+                self.entry.delete(0, "end")
+                self.entry.insert(0, v)
+                self._send()
+            chip.bind("<Button-1>", _click)
+            chip.bind("<Enter>", lambda e=None, c=chip: c.config(highlightbackground="#c0182a"))
+            chip.bind("<Leave>", lambda e=None, c=chip, b=bd: c.config(highlightbackground=b))
 
     def clear_chat(self):
         """Clear the chat log and hide both TIP and HOT strips."""
@@ -2133,6 +2501,43 @@ class HCKGPTPanel:
                 self._welcome()
             except Exception:
                 pass
+
+    def _toggle_recording(self):
+        """⏺ Nagraj / ⏹ stop: the chat starts or ends the observation note,
+        so its answer (and the comparison) lands in the conversation."""
+        if getattr(self, "_answer_pending", False):
+            return
+        try:
+            from core import observation
+            rec = observation.status()["recording"]
+        except Exception:
+            rec = False
+        en = self._ui_lang == "en"
+        self.ask(("stop recording" if en else "zakończ nagrywanie") if rec else
+                 ("start recording" if en else "zacznij nagrywanie"))
+
+    def _tick_recording(self):
+        try:
+            if not self._rec_btn.winfo_exists():
+                return
+            from core import observation
+            st = observation.status()
+            en = self._ui_lang == "en"
+            if st["recording"]:
+                s = st["seconds"]
+                self._rec_btn.config(text=f"⏹ {s // 60}:{s % 60:02d}")
+            else:
+                self._rec_btn.config(text="⏺ Record" if en else "⏺ Nagraj")
+            self._rec_btn.after(1000, self._tick_recording)
+        except Exception:
+            pass
+
+    def _start_optimize_guide(self):
+        """The ⚡ Optymalizacja button: starts the optimization guide as if
+        the user had typed it (2026-11-17)."""
+        if getattr(self, "_answer_pending", False):
+            return
+        self.ask("optimize my pc" if self._ui_lang == "en" else "zoptymalizuj komputer")
 
     def _start_service_setup(self):
         """Start the Service Setup wizard via button"""

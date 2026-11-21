@@ -611,7 +611,14 @@ class InsightsEngine:
                         proc["display_name"] = info.get("display_name", name)
                 except Exception:
                     pass
-            if category == "Gaming" or proc_type == "gaming":
+            # launchers (Steam, Epic, ...) are not games: "Gaming detected:
+            # steam.exe @ CPU 0%" in the fourth long test (2026-11-17)
+            try:
+                from core.game_detect import _NOT_GAMES
+                _launcher = (name or "").lower() in _NOT_GAMES
+            except Exception:
+                _launcher = False
+            if (category == "Gaming" or proc_type == "gaming") and not _launcher:
                 result["games"].append(proc)
             elif category == "Browser" or proc_type == "browser":
                 result["browsers"].append(proc)

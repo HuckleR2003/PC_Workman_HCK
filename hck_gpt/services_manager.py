@@ -90,11 +90,10 @@ class ServicesManager:
         import time
         self.disabled_services["timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
 
-        os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
         try:
-            with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(self.disabled_services, f, indent=2,
-                          ensure_ascii=False)
+            from utils.prefs_io import save_json
+            if not save_json(self.config_path, self.disabled_services):
+                raise OSError("could not write " + str(self.config_path))
             return True
         except Exception as e:
             print(f"Error saving config: {e}")
