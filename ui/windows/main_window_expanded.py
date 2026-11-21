@@ -5,6 +5,8 @@ PC Workman - EXPANDED MODE (Main Window) v1.7.1
 Full-featured interface with modern dark theme
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
+from utils.fonts import SYMBOL as _FONT_SYMBOL
 import tkinter as tk
 import time
 import os
@@ -26,6 +28,7 @@ except ImportError:
 from ui.theme import THEME
 from ui.components.led_bars import AnimatedBar
 from ui.components.sidebar_nav import SidebarNav
+from ui.components.fit import show_only_if_fits as _show_only_if_fits
 from ui.pages.fan_control import create_fans_hardware_page, create_fans_usage_stats_page
 
 # ── Diagnostic logging ────────────────────────────────────────────────────────
@@ -114,8 +117,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -155,6 +158,17 @@ class ExpandedMainWindow:
     # "your_pc" and "fan_control" ride the overlay system - _show_overlay
     # lifts the banner above the overlay frame for them.
     _GPT_BANNER_PAGES = {"dashboard", "fan_control", "your_pc"}
+    # Pages reached from a chat link keep the chat (2026-11-16): a user sent to
+    # Services Manager looks at the data and wants to ask about it.
+    _CHAT_PAGES = {"services_manager", "startup_manager", "optimization",
+                   "monitoring_alerts", "first_setup", "upgrade_readiness",
+                   "overclock", "fans_hw_usage", "process_center", "cleanup",
+                   "health_report", "profile"}
+
+    def _page_has_chat(self, page_id) -> bool:
+        return bool(page_id) and (page_id in self._GPT_BANNER_PAGES
+                                  or page_id in self._CHAT_PAGES
+                                  or str(page_id).startswith("activity_"))
 
     def __init__(self, data_manager=None, monitor=None, switch_to_minimal_callback=None, quit_callback=None):
         self.data_manager = data_manager
@@ -238,7 +252,9 @@ class ExpandedMainWindow:
             from utils.paths import BUNDLE_DIR as _BUNDLE_DIR
             _win_ico_path = os.path.join(_BUNDLE_DIR, "data", "icons", "app_icon.png")
         except Exception:
-            _win_ico_path = os.path.join("data", "icons", "app_icon.png")
+            _win_ico_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(
+                    os.path.abspath(__file__)))), "data", "icons", "app_icon.png")
         try:
             if Image and ImageTk and os.path.exists(_win_ico_path):
                 self._win_icon = ImageTk.PhotoImage(Image.open(_win_ico_path))
@@ -254,11 +270,24 @@ class ExpandedMainWindow:
         # Handle window close (X button) -> minimize to tray
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
-        # Center window on screen
+        # Center window on screen, then put it back where the user left it
+        # (2026-11-15: size, position and maximized state were forgotten on
+        # every start).
         self._center_window()
+        _restore_maximized = self._restore_window_placement()
+        self.chart_filter = self._saved_chart_filter()
 
         # Build UI
         self._build_ui()
+        if self.chart_filter != "LIVE":
+            try:
+                self._load_historical_chart_data(self.chart_filter)
+            except Exception:
+                self.chart_filter = "LIVE"
+        if _restore_maximized:
+            self.root.after(150, lambda: (not self._is_maximized)
+                            and self._toggle_maximize())
+        self._placement_after_id = None
 
         # Start update loop - AFTER() BASED, NO THREADING
         self._running = True
@@ -337,12 +366,26 @@ class ExpandedMainWindow:
             on_navigate=self._handle_sidebar_navigation
         )
         self.sidebar.pack(side="left", fill="y")
+        # where the user came from: sidebar "← Wróć" and Alt+Left (2026-11-20)
+        try:
+            self.root.bind("<Alt-Left>", self.go_back)
+            # calls queued from worker threads run here, on the UI thread
+            from ui import bg as _bg_ui
+            _bg_ui.install(self.root)
+            # Esc (2026-11-20): closes the hck_GPT panel when it is open,
+            # otherwise goes home to the Dashboard
+            self.root.bind("<Escape>", self._on_escape)
+        except Exception:
+            pass
 
         # Apply saved settings immediately (language + auto-hide)
         try:
             import json, os as _os
-            _sf = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
-                                "settings", "app_settings.json")
+            # APP_DIR, not __file__: in the exe __file__ is inside _internal,
+            # so the language and auto-hide saved in Settings were never
+            # applied after a restart (found 2026-11-15).
+            from utils.paths import APP_DIR as _APP_DIR
+            _sf = _os.path.join(_APP_DIR, "settings", "app_settings.json")
             with open(_sf, "r", encoding="utf-8") as _f:
                 _s = json.load(_f)
             # Initialize i18n language BEFORE sidebar is fully built
@@ -360,6 +403,7 @@ class ExpandedMainWindow:
 
         # Track current view
         self.current_view = "dashboard"
+        self._nav_last = ("page", "dashboard", None)     # navigation history start
         self.dashboard_widgets = []  # Store dashboard widgets for show/hide
 
         # Build dashboard view (default)
@@ -387,12 +431,169 @@ class ExpandedMainWindow:
     @staticmethod
     def _overlay_full_cover(page_id: str) -> bool:
         """True when the overlay covers the whole content area, hiding the
-        dashboard completely. Settings is the exception: it sits at y=60 and
-        the dashboard shows around it, so that one still needs a build."""
-        return page_id != "settings"
+        dashboard completely. Since 2026-11-17 Settings covers it too: as a
+        980x515 card the dashboard showed around it on the right and below."""
+        return True
+
+    # pages built straight into the content area (everything else is an overlay)
+    _DIRECT_PAGES = frozenset({
+        "dashboard", "fans_hw_usage", "fans_hardware", "fans_usage_stats",
+        "fan_control", "overclock", "monitoring_alerts", "first_setup",
+        "optimization", "startup_manager", "services_manager", "upgrade_readiness",
+        "process_center", "cleanup", "health_report", "profile",
+    })
+
+    # ── Navigation history (2026-11-20) ───────────────────────────────────
+    def _nav_hist(self):
+        h = getattr(self, "_nav_history", None)
+        if h is None:
+            from ui.components.nav_history import NavHistory
+            h = self._nav_history = NavHistory()
+        return h
+
+    def _nav_arrived(self, kind, page_id):
+        """The window now shows page_id: the place left goes on the history."""
+        if not page_id:
+            return
+        last = getattr(self, "_nav_last", None)
+        if (not getattr(self, "_nav_restoring", False) and last
+                and last[1] != page_id):
+            if last[1] == "your_pc":
+                # back to the My PC tab the user was on
+                last = (last[0], last[1],
+                        getattr(self, "yourpc_active_tab", None) or last[2])
+            self._nav_hist().push(last)
+        self._nav_last = (kind, page_id, None)
+        self._nav_refresh()
+
+    def _nav_refresh(self):
+        sb = getattr(self, "sidebar", None)
+        if sb is None or not hasattr(sb, "set_back"):
+            return
+        prev = self._nav_hist().peek()
+        if not prev:
+            sb.set_back(None)
+            return
+        from ui.components.nav_history import label
+        try:
+            from utils.i18n import get_lang
+            lang = get_lang()
+        except Exception:
+            lang = "pl"
+        word = {"pl": "Wróć: ", "en": "Back: "}["en" if lang == "en" else "pl"]
+        sb.set_back(word + label(prev, lang), self.go_back)
+
+    def _on_escape(self, e=None):
+        """Esc: one step towards the Dashboard. First the open hck_GPT panel
+        closes; next press, an open page or overlay gives way to the
+        Dashboard. On the Dashboard itself Esc does nothing."""
+        try:
+            panel = getattr(self, "gpt_panel", None)
+            if panel is not None and getattr(panel, "is_open", False):
+                if not getattr(panel, "animating", False):
+                    panel.close()
+                return "break"
+            # typing in a field on a page: Esc only leaves the field, so a
+            # half-typed name is not thrown away with the page
+            try:
+                focus = self.root.focus_get()
+            except Exception:
+                focus = None
+            if isinstance(focus, (tk.Entry, tk.Text)):
+                self.root.focus_set()
+                return "break"
+            if self.overlay_frame is not None:
+                self._close_overlay()
+            elif self.current_view != "dashboard":
+                self._switch_to_page("dashboard")
+            else:
+                return "break"
+            if getattr(self, "sidebar", None):
+                self.sidebar.set_active_page("dashboard")
+        except Exception as exc:
+            print(f"[nav] Esc failed: {exc}")
+        return "break"
+
+    def go_back(self, e=None):
+        """Open the previous place (sidebar '← Wróć', Alt+Left)."""
+        loc = self._nav_hist().pop()
+        if not loc:
+            return "break"
+        kind, page_id, tab = loc
+        self._nav_restoring = True
+        try:
+            if page_id == "your_pc" and tab:
+                self._yourpc_initial_tab = tab
+            if (kind == "page" and page_id == "dashboard" and self.overlay_frame
+                    and self.current_view == "dashboard"):
+                self._close_overlay()
+            else:
+                self.current_view = None
+                self._switch_to_page(page_id)
+            self._nav_last = loc
+        except Exception as exc:
+            print(f"[nav] back failed: {exc}")
+        finally:
+            self._nav_restoring = False
+        self._nav_refresh()
+        try:
+            sid = "my_pc" if page_id == "your_pc" else page_id
+            self.sidebar.set_active_page(sid)
+        except Exception:
+            pass
+        return "break"
+
+    def _optimization_sidebar(self, page_id) -> None:
+        """The Optimization Center hides the sidebar (it slides out at the
+        left edge) for more room; Settings can turn it off. Other pages get
+        it back unless auto-hide is on for the whole app (2026-11-20)."""
+        sb = getattr(self, "sidebar", None)
+        if sb is None or not hasattr(sb, "set_auto_hide"):
+            return
+        try:
+            from utils.prefs_io import load_json
+            st = load_json(self._app_settings_file(), {}) or {}
+        except Exception:
+            st = {}
+        everywhere = bool(st.get("sidebar_auto_hide", False))
+        want = page_id == "optimization" and st.get("optimization_hide_sidebar", True)
+        if want and not everywhere and not getattr(self, "_opt_sidebar_hidden", False):
+            self._opt_sidebar_hidden = True
+            sb.set_auto_hide(True)
+        elif not want and getattr(self, "_opt_sidebar_hidden", False):
+            self._opt_sidebar_hidden = False
+            if not everywhere:
+                sb.set_auto_hide(False)
+
+    # Page ids from outside the router (pcworkman:// links, the tray, the
+    # chat) that name another page (2026-11-21, found in the test build):
+    #   my_pc       the sidebar's id; the router's page is your_pc (a link
+    #               to my_pc opened an empty "MY PC" overlay)
+    #   statistics  an empty "Detailed stats coming soon" page; the stats and
+    #               the time travel live in Monitoring & Learning
+    _PAGE_ALIASES = {"my_pc": "your_pc", "statistics": "monitoring_alerts"}
+
+    def open_page_from_link(self, page_id):
+        """Open a page named from outside (a pcworkman:// link): the alias,
+        a fresh build, and the sidebar marked on it."""
+        pid = self._PAGE_ALIASES.get(page_id, page_id)
+        if pid == "your_pc":
+            self._yourpc_initial_tab = "central"
+        self.current_view = None
+        self._switch_to_page(pid)
+        try:
+            self.sidebar.set_active_page("my_pc" if pid == "your_pc" else pid)
+        except Exception:
+            pass
 
     def _switch_to_page(self, page_id):
         """Switch content area to a specific page (replaces dashboard)"""
+        if page_id == "statistics":
+            page_id = self._PAGE_ALIASES["statistics"]
+        try:
+            self._optimization_sidebar(page_id)
+        except Exception:
+            pass
         _dbg(f"[Switch] Switching to page: {page_id} (current: {self.current_view})")
 
         if self.current_view == page_id and page_id != "dashboard":
@@ -436,7 +637,7 @@ class ExpandedMainWindow:
         # The frame uses place() geometry; hide it on pages without the banner,
         # re-shown by _build_hckgpt_banner on pages that carry it.
         _gpt_frame = getattr(getattr(self, "gpt_panel", None), "frame", None)
-        if _gpt_frame is not None and page_id not in self._GPT_BANNER_PAGES:
+        if _gpt_frame is not None and not self._page_has_chat(page_id):
             try:
                 if _gpt_frame.winfo_exists():
                     _gpt_frame.place_forget()
@@ -485,6 +686,14 @@ class ExpandedMainWindow:
             self._build_services_manager_view()
         elif page_id == "upgrade_readiness":
             self._build_upgrade_readiness_view()
+        elif page_id.startswith("activity_"):
+            self._build_activity_memory_view(page_id.split("_", 1)[1])
+        elif page_id == "process_center":
+            self._build_process_center_view()
+        elif page_id == "cleanup" or page_id == "health_report" or page_id == "profile":
+            self._build_mypc_extra_view(page_id)
+        if page_id in self._DIRECT_PAGES or page_id.startswith("activity_"):
+            self._nav_arrived("page", page_id)
         else:
             # For other pages, use the overlay system. Full-cover overlays
             # hide the dashboard entirely, so building it underneath is wasted
@@ -498,6 +707,20 @@ class ExpandedMainWindow:
         # Direct pages that carry the hck_GPT banner (dashboard adds its own,
         # overlay pages are handled inside _show_overlay)
         if page_id == "fan_control":
+            self._build_hckgpt_banner()
+        elif page_id in self._CHAT_PAGES or str(page_id).startswith("activity_"):
+            # keep the collapsed chat bar from covering the page's bottom row
+            try:
+                _h = int(getattr(getattr(self, "gpt_panel", None), "collapsed_h", 34) or 34)
+                _kids = [c for c in self.content_area.winfo_children()
+                         if c.winfo_manager() == "pack"]
+                _sp = tk.Frame(self.content_area, height=_h, bg="#0a0e14")
+                if _kids:
+                    _sp.pack(side="bottom", fill="x", before=_kids[0])
+                else:
+                    _sp.pack(side="bottom", fill="x")
+            except Exception:
+                pass
             self._build_hckgpt_banner()
 
     def _build_page_header(self, title: str, subtitle: str = "",
@@ -536,7 +759,7 @@ class ExpandedMainWindow:
                            font=(_HDR, 12), fill="#c4cfdf")
             if subtitle:
                 cv.create_text(18, 44, text=subtitle, anchor="w",
-                               font=(_BODY, 8), fill="#3d4a60")
+                               font=(_BODY, 8), fill="#7d8aa0")
             # Optional right-side accent block (two lines, clears the ⤢ btn)
             if right_title:
                 cv.create_text(W - 46, 16, text=right_title, anchor="e",
@@ -546,7 +769,7 @@ class ExpandedMainWindow:
                                    font=(_BODY, 7), fill="#9f5a5a", width=430)
             # Back link - bottom-right
             cv.create_text(W - 10, 54, text=f"‹ {_t('nav.back_dashboard')}",
-                           anchor="e", font=(_BODY, 7), fill="#273448",
+                           anchor="e", font=(_BODY, 7), fill="#5d6c85",
                            tags="back_tag")
 
         cv.bind("<Configure>", _draw)
@@ -559,25 +782,25 @@ class ExpandedMainWindow:
 
         cv.tag_bind("back_tag", "<Button-1>", _go_back)
         cv.tag_bind("back_tag", "<Enter>",
-                    lambda e: cv.itemconfig("back_tag", fill="#8b5cf6"))
+                    lambda e=None: cv.itemconfig("back_tag", fill="#8b5cf6"))
         cv.tag_bind("back_tag", "<Leave>",
-                    lambda e: cv.itemconfig("back_tag", fill="#273448"))
+                    lambda e=None: cv.itemconfig("back_tag", fill="#5d6c85"))
 
         # ── Maximize toggle button (top-right, overlaid on canvas) ────────────
         _max_sym = "⊡" if self._is_maximized else "⤢"
         max_btn = tk.Label(
             container,
             text=_max_sym,
-            font=(_HDR, 10),
+            font=(_FONT_SYMBOL, 11),
             bg="#090c14",      # matches gradient at y≈8
             fg="#6f86a3",
             cursor="hand2",
             padx=10,
         )
         max_btn.place(relx=1.0, y=8, anchor="ne", x=-8)
-        max_btn.bind("<Button-1>", lambda e: self._on_max_btn_click())
-        max_btn.bind("<Enter>",    lambda e: max_btn.config(fg="#8b5cf6"))
-        max_btn.bind("<Leave>",    lambda e: max_btn.config(fg="#6f86a3"))
+        max_btn.bind("<Button-1>", lambda e=None: self._on_max_btn_click())
+        max_btn.bind("<Enter>",    lambda e=None: max_btn.config(fg="#8b5cf6"))
+        max_btn.bind("<Leave>",    lambda e=None: max_btn.config(fg="#6f86a3"))
         self._page_max_btn = max_btn
         self._update_max_btns()
 
@@ -587,9 +810,8 @@ class ExpandedMainWindow:
         """Merged FANS page (2026-07 restructure): Hardware Info and Usage
         Statistics were two sidebar tabs showing sibling data - now one page
         with an internal switch, same builders underneath."""
-        self._build_page_header("FANS - HARDWARE & USAGE",
-                                "Sensors, fan monitoring & intensity over time",
-                                "#f59e0b")
+        from ui.components.page_titles import title as _pt
+        self._build_page_header(*_pt("fans_hw_usage"), "#f59e0b")
 
         strip = tk.Frame(self.content_area, bg="#0a0e14")
         strip.pack(fill="x", padx=14, pady=(6, 0))
@@ -616,10 +838,10 @@ class ExpandedMainWindow:
         for key, label in (("hardware", "HARDWARE INFO"),
                            ("usage",    "USAGE STATS")):
             b = tk.Label(strip, text=label, font=(_MONO, 8, "bold"),
-                         bg="#12161f", fg="#6b7280", cursor="hand2",
+                         bg="#12161f", fg="#8d97a8", cursor="hand2",
                          padx=12, pady=4)
             b.pack(side="left", padx=(0, 6))
-            b.bind("<Button-1>", lambda e, k=key: _show(k))
+            b.bind("<Button-1>", lambda e=None, k=key: _show(k))
             btns[key] = b
 
         _show(initial)
@@ -630,7 +852,8 @@ class ExpandedMainWindow:
 
     def _build_fans_usage_stats_view(self):
         """Build Usage Statistics as main view"""
-        self._build_page_header("FAN STATISTICS", "Fan intensity over time", "#f59e0b")
+        from ui.components.page_titles import title as _pt
+        self._build_page_header(*_pt("fans_usage_stats"), "#f59e0b")
 
         # Content
         content = tk.Frame(self.content_area, bg="#0a0e14")
@@ -640,7 +863,8 @@ class ExpandedMainWindow:
 
     def _build_fan_dashboard_view(self):
         """Build Fan Dashboard as main view"""
-        self._build_page_header("FAN DASHBOARD", "Cooling control center & profiles", "#f59e0b")
+        from ui.components.page_titles import title as _pt
+        self._build_page_header(*_pt("fan_control"), "#f59e0b")
 
         # Content - use existing fan dashboard
         content = tk.Frame(self.content_area, bg="#0f1117")
@@ -657,7 +881,7 @@ class ExpandedMainWindow:
                 text="Fan Dashboard loading...",
                 font=(_BODY, 12),
                 bg="#0f1117",
-                fg="#6b7280"
+                fg="#8d97a8"
             ).pack(pady=50)
 
     def _build_overclock_view(self):
@@ -668,8 +892,9 @@ class ExpandedMainWindow:
             _pl = _gl() == "pl"
         except Exception:
             _pl = False
+        from ui.components.page_titles import title as _pt
         self._build_page_header(
-            "OVERCLOCK", "Headroom Lab - what limits your clocks", "#ef4444",
+            *_pt("overclock"), "#ef4444",
             right_title="ANALIZA READ-ONLY" if _pl else "READ-ONLY ANALYSIS",
             right_sub=("PC Workman nigdy nie zapisuje zegarów, napięć ani limitów mocy."
                        if _pl else
@@ -686,7 +911,7 @@ class ExpandedMainWindow:
                 text="Overclock Lab loading...",
                 font=(_BODY, 12),
                 bg="#0f1117",
-                fg="#6b7280"
+                fg="#8d97a8"
             ).pack(pady=50)
 
     def _build_monitoring_alerts_view(self):
@@ -732,8 +957,8 @@ class ExpandedMainWindow:
 
     def _build_services_manager_view(self):
         """Build Services Manager page."""
-        self._build_page_header("SERVICES MANAGER",
-                                "Windows services & TURBO profiles", "#3b82f6")
+        from ui.components.page_titles import title as _pt
+        self._build_page_header(*_pt("services_manager"), "#3b82f6")
         try:
             from ui.pages.services_manager import build_services_manager_page
             build_services_manager_page(self, self.content_area)
@@ -746,9 +971,8 @@ class ExpandedMainWindow:
 
     def _build_upgrade_readiness_view(self):
         """Upgrade Readiness - offline component compatibility check."""
-        self._build_page_header("UPGRADE READINESS",
-                                "Will that part fit this PC? Offline "
-                                "compatibility check", "#10b981")
+        from ui.components.page_titles import title as _pt
+        self._build_page_header(*_pt("upgrade_readiness"), "#10b981")
         try:
             from ui.pages.upgrade_readiness import build_upgrade_readiness_page
             focus = getattr(self, "_upgrade_focus", None)
@@ -761,6 +985,70 @@ class ExpandedMainWindow:
                      font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
                      justify="left", padx=20, pady=20).pack(anchor="nw")
             traceback.print_exc()
+
+    def open_process_center(self, process_name=None):
+        """Open the Process Center, optionally on one process (a double click
+        on any process in the program lands here, 2026-11-20)."""
+        self._process_center_focus = process_name
+        self.current_view = None            # force rebuild
+        self._switch_to_page("process_center")
+
+    def _open_page_fresh(self, page_id):
+        """From a hck_GPT link: build the page even when it is the current one."""
+        self.current_view = None
+        self._switch_to_page(page_id)
+
+    def _build_mypc_extra_view(self, page_id):
+        """My PC's Cleanup, Health report and Profile pages (2026-11-20)."""
+        try:
+            if page_id == "cleanup":
+                from ui.pages.cleanup_page import build_cleanup_page as build
+            elif page_id == "health_report":
+                from ui.pages.health_report import build_health_report as build
+            else:
+                from ui.pages.profile_page import build_profile_page as build
+            self._extra_page = build(self, self.content_area)
+        except Exception as e:
+            import traceback
+            tk.Label(self.content_area, text=f"{page_id} failed to load:\n{e}",
+                     font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
+                     justify="left", padx=20, pady=20).pack(anchor="nw")
+            traceback.print_exc()
+
+    def _build_process_center_view(self):
+        try:
+            from ui.pages.process_center import build_process_center_page
+            focus = getattr(self, "_process_center_focus", None)
+            self._process_center_focus = None
+            self._process_center_page = build_process_center_page(
+                self, self.content_area, focus=focus)
+        except Exception as e:
+            import traceback
+            tk.Label(self.content_area, text=f"Process Center failed to load:\n{e}",
+                     font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
+                     justify="left", padx=20, pady=20).pack(anchor="nw")
+            traceback.print_exc()
+
+    def _build_activity_memory_view(self, comp):
+        """Activity Memory - full history of CPU / RAM / GPU (2026-11-16)."""
+        try:
+            from ui.pages.activity_memory import build_activity_memory_page
+            self._activity_page = build_activity_memory_page(
+                self, self.content_area, comp)
+        except Exception as e:
+            import traceback
+            tk.Label(self.content_area,
+                     text=f"Failed to load Activity Memory:\n{e}",
+                     font=(_BODY, 10), bg="#0a0e14", fg="#ef4444",
+                     justify="left", padx=20, pady=20).pack(anchor="nw")
+            traceback.print_exc()
+
+    def open_activity_memory(self, comp="cpu"):
+        """Open the history page of one component from anywhere (dashboard
+        card, hck_GPT link). Starts on 'now' with the remembered range."""
+        self._activity_state = None
+        self.current_view = None            # force rebuild
+        self._switch_to_page(f"activity_{comp}")
 
     def open_upgrade_readiness(self, focus=None):
         """Navigate to Upgrade Readiness from any page/overlay.
@@ -807,6 +1095,10 @@ class ExpandedMainWindow:
                 # buttons (Components / Drivers / Alerts), kept here so any
                 # nav path with this id lands correctly.
                 "upgrade_readiness": "upgrade_readiness",
+                "process_center": "process_center",
+                "cleanup": "cleanup",
+                "health_report": "health_report",
+                "profile": "profile",
             }
 
             # Build lookup key
@@ -814,6 +1106,12 @@ class ExpandedMainWindow:
                 full_id = f"{page_id}.{subpage_id}"
             else:
                 full_id = page_id
+
+            # "All statistics": the Hardware history (2026-11-20)
+            if full_id == "monitoring_alerts.all_stats":
+                self._activity_state = None
+                self.open_activity_memory("hardware")
+                return
 
             # Fast path: direct page switch
             if full_id in direct_pages:
@@ -900,7 +1198,7 @@ class ExpandedMainWindow:
             try:
                 if existing.frame.winfo_exists():
                     existing.set_visibility_gate(
-                        lambda: self.current_view in self._GPT_BANNER_PAGES)
+                        lambda: self._page_has_chat(self.current_view))
                     self._apply_gpt_height_scale(existing)
                     # Defer by 10 ms so all dashboard widgets are laid out first,
                     # giving content_area its final height before _on_resize reads it.
@@ -928,7 +1226,7 @@ class ExpandedMainWindow:
                 max_h=438
             )
             self.gpt_panel.set_visibility_gate(
-                lambda: self.current_view in self._GPT_BANNER_PAGES)
+                lambda: self._page_has_chat(self.current_view))
             self._apply_gpt_height_scale(self.gpt_panel)
             # Wire clickable nav links - [-> Optimization] / [-> Startup Manager]
             try:
@@ -984,14 +1282,70 @@ class ExpandedMainWindow:
                     "Statistics",
                     lambda: self._show_overlay("statistics")
                 )
+                # Everyday answers (2026-11-16): overlay, learning, drivers, site
+                def _open_overlay_from_chat():
+                    try:
+                        # a second click must not toggle My PC shut
+                        if not (self.active_overlay == "your_pc" and self.overlay_frame):
+                            self._show_overlay("your_pc")
+                        from ui.components import yourpc_page as _yp
+                        _of = self.overlay_frame
+
+                        def _go():
+                            if _of is not None and _yp.use_page_in(self, _of):
+                                _yp._open_gaming_home(self)
+                        self.root.after(220, _go)
+                    except Exception:
+                        pass
+
+                def _open_site():
+                    try:
+                        import webbrowser
+                        webbrowser.open("https://pcworkman.dev")
+                    except Exception:
+                        pass
+                self.gpt_panel.register_nav_callback("In-Game Overlay", _open_overlay_from_chat)
+                self.gpt_panel.register_nav_callback(
+                    "Learning Center", lambda: self._switch_to_page("monitoring_alerts"))
+                self.gpt_panel.register_nav_callback(
+                    "Setup & Drivers", lambda: self._switch_to_page("first_setup"))
+                self.gpt_panel.register_nav_callback("pcworkman.dev", _open_site)
+                # process names in the chat open the Process Center (2026-11-20)
+                self.gpt_panel.on_process_click = self.open_process_center
+                self.gpt_panel.register_nav_callback(
+                    "Process Center", lambda: self.open_process_center())
+                self.gpt_panel.register_nav_callback(
+                    "Cleanup", lambda: self._open_page_fresh("cleanup"))
+                self.gpt_panel.register_nav_callback(
+                    "Health Report", lambda: self._open_page_fresh("health_report"))
+                self.gpt_panel.register_nav_callback(
+                    "Your Profile", lambda: self._open_page_fresh("profile"))
+                # feature answers (2026-11-17): "czym jest DeepMonitor"
+                self.gpt_panel.register_nav_callback(
+                    "DeepMonitor", lambda: None if self.active_overlay == "live_graphs"
+                    else self._show_overlay("live_graphs"))
+                # Activity Memory links: "[-> CPU History]" / "[-> Historia CPU]"
+                for _c in ("cpu", "ram", "gpu"):
+                    for _name in (f"{_c.upper()} History", f"Historia {_c.upper()}"):
+                        self.gpt_panel.register_nav_callback(
+                            _name, lambda c=_c: self.open_activity_memory(c))
+                # history answers in the chat (2026-11-17)
+                self.gpt_panel.register_nav_callback(
+                    "Activity Memory", lambda: self.open_activity_memory("cpu"))
 
                 def _open_stability_from_chat():
                     # Stability Tests lives inside the "My PC" page -> show it, then
                     # swap its content area to the stability tests view.
                     try:
-                        self._show_overlay("your_pc")
-                        from ui.components.yourpc_page import _open_stability_tests
-                        self.root.after(220, lambda: _open_stability_tests(self))
+                        if not (self.active_overlay == "your_pc" and self.overlay_frame):
+                            self._show_overlay("your_pc")
+                        from ui.components import yourpc_page as _yp
+                        _of = self.overlay_frame
+
+                        def _go():
+                            if _of is not None and _yp.use_page_in(self, _of):
+                                _yp._open_stability_tests(self)
+                        self.root.after(220, _go)
                     except Exception:
                         pass
 
@@ -1083,7 +1437,7 @@ class ExpandedMainWindow:
             pady=8
         )
         mode_btn.pack(side="right", pady=12)
-        mode_btn.bind("<Button-1>", lambda e: self._switch_to_minimal())
+        mode_btn.bind("<Button-1>", lambda e=None: self._switch_to_minimal())
         self._mode_btn = mode_btn  # kept for live i18n refresh
 
         def on_enter(e):
@@ -1099,7 +1453,7 @@ class ExpandedMainWindow:
         max_btn = tk.Label(
             right_frame,
             text=_max_text,
-            font=(_HDR, 12),
+            font=(_FONT_SYMBOL, 13),
             bg="#1e293b",
             fg="#94a3b8",
             cursor="hand2",
@@ -1107,7 +1461,7 @@ class ExpandedMainWindow:
             pady=8
         )
         max_btn.pack(side="right", pady=12, padx=(0, 6))
-        max_btn.bind("<Button-1>", lambda e: self._on_max_btn_click())
+        max_btn.bind("<Button-1>", lambda e=None: self._on_max_btn_click())
         self._max_btn = max_btn
         self._update_max_btns()
 
@@ -1142,19 +1496,107 @@ class ExpandedMainWindow:
             except Exception:
                 pass
         self._resize_after_id = self.root.after(120, self._update_max_btns)
+        # remember the placement once the user has stopped dragging
+        if getattr(self, "_placement_after_id", None):
+            try:
+                self.root.after_cancel(self._placement_after_id)
+            except Exception:
+                pass
+        if hasattr(self, "_placement_after_id"):
+            self._placement_after_id = self.root.after(
+                1000, self._save_window_placement)
+
+    # ── Remembered window placement + chart range (2026-11-15) ────────────────
+    @staticmethod
+    def _app_settings_file() -> str:
+        from utils.paths import APP_DIR
+        return os.path.join(APP_DIR, "settings", "app_settings.json")
+
+    @staticmethod
+    def _rect_is_on_a_monitor(x: int, y: int, w: int, h: int) -> bool:
+        """At least the title bar must be on a monitor that exists NOW (a
+        laptop undocked from its second screen must not open off-screen)."""
+        try:
+            import ctypes
+            import ctypes.wintypes as wt
+            probe = wt.RECT(x + 20, y, x + min(w, 200), y + 30)
+            return bool(ctypes.windll.user32.MonitorFromRect(
+                ctypes.byref(probe), 0))          # MONITOR_DEFAULTTONULL
+        except Exception:
+            return False
+
+    def _restore_window_placement(self) -> bool:
+        """Apply the saved size/position. Returns the saved maximized flag."""
+        try:
+            from utils.prefs_io import load_json
+            w = (load_json(self._app_settings_file(), {}) or {}).get("window")
+            if not isinstance(w, dict):
+                return False
+            x, y = int(w.get("x")), int(w.get("y"))
+            ww, hh = int(w.get("w")), int(w.get("h"))
+        except Exception:
+            return False
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        ww = max(_uis.compact_w(), min(ww, int(sw * 2)))
+        hh = max(_uis.compact_h(), min(hh, int(sh * 2)))
+        if self._rect_is_on_a_monitor(x, y, ww, hh):
+            self.root.geometry(f"{ww}x{hh}+{x}+{y}")
+        return bool(w.get("maximized"))
+
+    def _save_window_placement(self) -> None:
+        self._placement_after_id = None
+        try:
+            if not self.root.winfo_exists():
+                return
+            state = self.root.state()
+        except Exception:
+            return
+        if state in ("iconic", "withdrawn"):
+            return                                  # tray / minimized: keep last
+        try:
+            from utils.prefs_io import edit_json
+
+            def _apply(d):
+                win = d.get("window") if isinstance(d.get("window"), dict) else {}
+                win["maximized"] = (state == "zoomed")
+                if state == "normal":               # only a normal frame is a size
+                    win.update(w=self.root.winfo_width(),
+                               h=self.root.winfo_height(),
+                               x=self.root.winfo_x(), y=self.root.winfo_y())
+                d["window"] = win
+            edit_json(self._app_settings_file(), _apply)
+        except Exception:
+            pass
+
+    def _saved_chart_filter(self) -> str:
+        try:
+            from utils.prefs_io import load_json
+            f = (load_json(self._app_settings_file(), {}) or {}).get(
+                "chart_filter", "LIVE")
+            return f if f in ("LIVE", "1H", "4H", "1D", "1W", "1M") else "LIVE"
+        except Exception:
+            return "LIVE"
+
+    def _remember_chart_filter(self, name: str) -> None:
+        try:
+            from utils.prefs_io import update_json
+            update_json(self._app_settings_file(), chart_filter=name)
+        except Exception:
+            pass
 
     def _update_max_btns(self):
         """Sync both maximize buttons (main header + page header) with the
         real window state: ⤢ maximize / ⊡ restore / ⟲ RESET size."""
         self._resize_after_id = None
         if self._is_maximized:
-            text, font = "⊡", (_HDR, 12)
+            text, font = "⊡", (_FONT_SYMBOL, 13)
         elif self._is_default_size():
-            text, font = "⤢", (_HDR, 12)
+            text, font = "⤢", (_FONT_SYMBOL, 13)
         else:
-            text, font = "⟲ RESET size", (_HDR, 9)
+            text, font = "⟲ RESET size", (_HDR, 9, "bold")
         for attr, base_font in (("_max_btn", font),
-                                ("_page_max_btn", (font[0], max(8, font[1] - 2)))):
+                                ("_page_max_btn", (*font[:1], max(8, font[1] - 2), *font[2:]))):
             btn = getattr(self, attr, None)
             if btn is None:
                 continue
@@ -1269,9 +1711,13 @@ class ExpandedMainWindow:
         metrics_frame.pack(side="top", fill="x")
         metrics_frame.pack_propagate(False)
 
+        # packed first so the range buttons always fit (see compact view)
+        filter_btns_max = tk.Frame(metrics_frame, bg="#1a1d24")
+        filter_btns_max.pack(side="right", padx=10)
+
         _cur_lbl = tk.Label(
             metrics_frame, text=_t("dashboard.current_usage_label"),
-            font=(_BODY, 7, "bold"), bg="#1a1d24", fg="#6b7280",
+            font=(_BODY, 7, "bold"), bg="#1a1d24", fg="#8d97a8",
         )
         _cur_lbl.pack(side="left", padx=(10, 15))
         self._current_usage_lbl = _cur_lbl
@@ -1294,10 +1740,6 @@ class ExpandedMainWindow:
         )
         self.live_ram_label.pack(side="left", padx=8)
 
-        tk.Frame(metrics_frame, bg="#1a1d24", width=2).pack(side="left", padx=10)
-
-        filter_btns_max = tk.Frame(metrics_frame, bg="#1a1d24")
-        filter_btns_max.pack(side="right", padx=10)
 
         filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
         self.filter_buttons = {}
@@ -1307,7 +1749,7 @@ class ExpandedMainWindow:
             _active = (_fname == getattr(self, "chart_filter", "LIVE"))
             _fbtn = tk.Label(
                 filter_btns_max, text=_fname,
-                font=(_BODY, 6, "bold"),
+                font=(_BODY, 7, "bold"),
                 bg="#2563eb" if _active else "#000000",
                 fg="#ffffff" if _active else "#6b7280",
                 cursor="hand2", padx=6, pady=2,
@@ -1317,9 +1759,10 @@ class ExpandedMainWindow:
             def _make_click(fn, fb):
                 def _on_click(e):
                     for fb2 in self.filter_buttons.values():
-                        fb2.config(bg="#000000", fg="#6b7280")
+                        fb2.config(bg="#000000", fg="#8d97a8")
                     fb.config(bg="#2563eb", fg="#ffffff")
                     self.chart_filter = fn
+                    self._remember_chart_filter(fn)
                     self._chart_needs_view_reset = True
                     if fn != "LIVE":
                         self._load_historical_chart_data(fn)
@@ -1359,6 +1802,8 @@ class ExpandedMainWindow:
         self.realtime_canvas.bind("<Motion>",   self._chart_on_motion)
         self.realtime_canvas.bind("<Button-1>", self._chart_on_click)
         self.realtime_canvas.bind("<Leave>",    self._chart_on_leave)
+        self.realtime_canvas.bind("<Enter>",    self._chart_on_enter)
+        self.realtime_canvas.config(cursor="hand2")
         self._chart_pin_idx   = None
         self._main_chart      = None
         self._chart_after_id  = None
@@ -1450,13 +1895,15 @@ class ExpandedMainWindow:
         # 4th left-nav button fits - nav needs 3×62 + 50 = 236 px, so 180 px
         # (compact) clips OPTYMALIZACJA entirely and 216 px cuts it in half.
         # 274 = 238 +15% (v1.7.8 polish: taller hardware cards w/ corner names)
-        _mid_h = 274 if self._is_maximized else 180
+        # compact 200 (was 180): fonts are 10 % larger since 2026-11-16 and
+        # the hardware cards' status line was cut at the bottom
+        _mid_h = 274 if self._is_maximized else 200
         middle = tk.Frame(self.content_area, bg=THEME["bg_main"], height=_mid_h)
         middle.pack(fill="x", side="top", padx=_mid_padx, pady=(10, 0))
         middle.pack_propagate(False)
 
         # LEFT NAVIGATION
-        left_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(200))
+        left_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(214))
         left_nav.pack(side="left", fill="y", padx=(0, 10))
         left_nav.pack_propagate(False)
         self.guide_left_nav = left_nav   # used by LiveGuide spotlight
@@ -1469,6 +1916,11 @@ class ExpandedMainWindow:
             (_t("dashboard.nav_optimization"), "#10b981", "",                                 "optimization"),
         ]
 
+        # Compact: three buttons fit, a fourth showed as a sliver under the
+        # third. Optimization stays one click away (sidebar, Optimization
+        # Center tile under the chart).
+        if not self._is_maximized:
+            nav_buttons_left = nav_buttons_left[:3]
         for text, color, subtitle, pid in nav_buttons_left:
             self._create_nav_button(left_nav, text, color, subtitle, pady=2, page_id=pid)
 
@@ -1503,7 +1955,7 @@ class ExpandedMainWindow:
         self._build_yourpc_section(center)
 
         # RIGHT NAVIGATION
-        right_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(200))
+        right_nav = tk.Frame(middle, bg=THEME["bg_panel"], width=_uis.scale(214))
         right_nav.pack(side="right", fill="y", padx=(10, 0))
         right_nav.pack_propagate(False)
         self.guide_right_nav = right_nav   # used by LiveGuide spotlight
@@ -1634,11 +2086,11 @@ class ExpandedMainWindow:
 
             # Drop shadow
             canvas.create_text(tx + 1, ty_main + 1, text=clean_text.upper(),
-                               font=("Segoe UI Black", 10),
+                               font=(_FONT_HDR, 10),
                                fill="#000000", anchor="w")
             # Main label
             canvas.create_text(tx, ty_main, text=clean_text.upper(),
-                               font=("Segoe UI Black", 10),
+                               font=(_FONT_HDR, 10),
                                fill="#ffffff", anchor="w")
 
             if subtitle:
@@ -1655,10 +2107,10 @@ class ExpandedMainWindow:
         _draw_once()
 
         if page_id:
-            canvas.bind("<Button-1>", lambda e: self._show_overlay(page_id))
+            canvas.bind("<Button-1>", lambda e=None: self._show_overlay(page_id))
 
-        canvas.bind("<Enter>", lambda e: _redraw(True))
-        canvas.bind("<Leave>", lambda e: _redraw(False))
+        canvas.bind("<Enter>", lambda e=None: _redraw(True))
+        canvas.bind("<Leave>", lambda e=None: _redraw(False))
 
     def _create_session_bar(self, parent, label, color_start, color_end, key):
         """Create session average bar with AnimatedBar."""
@@ -1677,19 +2129,22 @@ class ExpandedMainWindow:
         )
         lbl.pack(side="left", padx=(8, 4))
 
-        bar = AnimatedBar(row, color_start, bg_color="#1a1d24", height=_bar_h)
-        bar.bg_frame.pack(side="left", fill="x", expand=True, padx=4)
-
+        # Six characters, not four: the value is drawn as "100.0%". With four
+        # the first digit was cut off and 15.0% read as "l5.0%". Packed before
+        # the bar so the bar is what gives way, never the number.
         val_lbl = tk.Label(
             row,
             text="0%",
             font=(_MONO, 8, "bold"),
             bg=THEME["bg_main"],
             fg=color_start,
-            width=4,
+            width=6,
             anchor="e"
         )
         val_lbl.pack(side="right", padx=(4, 8))
+
+        bar = AnimatedBar(row, color_start, bg_color="#1a1d24", height=_bar_h)
+        bar.bg_frame.pack(side="left", fill="x", expand=True, padx=4)
 
         if not hasattr(self, 'session_bars'):
             self.session_bars = {}
@@ -1712,34 +2167,67 @@ class ExpandedMainWindow:
         cards = tk.Frame(section, bg=THEME["bg_main"])
         cards.pack(fill="x")
 
-        # Get hardware info
-        try:
-            import platform
-            cpu_model = platform.processor()[:25] if platform.processor() else "Unknown CPU"
-        except Exception:
-            cpu_model = "Unknown CPU"
+        # Hardware names (2026-11-15). Two things were wrong here:
+        #  - the CPU came from platform.processor(), which on Windows returns
+        #    the CPUID string ("Intel64 Family 6 Model 151 Stepping 2"), not
+        #    the name on the box;
+        #  - the GPU came from the GPUtil library, i.e. nvidia-smi run on the
+        #    UI thread. freeze_dump.txt has 12 stalls of 15-18 s at this exact
+        #    call. The live collector already knows the name; the card picks
+        #    it up as soon as it is there (see _update_hardware_card).
+        cpu_model = self._cpu_marketing_name()
+        gpu_model = self._gpu_name_nonblocking()
 
         try:
             import psutil
             total_ram_gb = psutil.virtual_memory().total / (1024**3)
-            ram_model = f"{total_ram_gb:.1f} GB RAM"
+            ram_model = f"{total_ram_gb:.1f} GB"
         except Exception:
-            ram_model = "Unknown RAM"
-
-        # Try to get GPU
-        gpu_model = "Unknown GPU"
-        try:
-            import GPUtil
-            gpus = GPUtil.getGPUs()
-            if gpus:
-                gpu_model = gpus[0].name[:25]
-        except Exception:
-            pass
+            ram_model = ""
 
         # Create 3 hardware cards
         self._create_hardware_card(cards, "CPU", cpu_model, "#3b82f6", "cpu")
         self._create_hardware_card(cards, "RAM", ram_model, "#fbbf24", "ram")
         self._create_hardware_card(cards, "GPU", gpu_model, "#10b981", "gpu")
+
+    @staticmethod
+    def _short_hw_name(name: str, limit: int = 26) -> str:
+        """'12th Gen Intel(R) Core(TM) i5-12400F' -> 'Intel Core i5-12400F'."""
+        import re as _re
+        name = _re.sub(r"\((R|TM|tm|r)\)", "", name or "")
+        name = _re.sub(r"^\d+(st|nd|rd|th) Gen ", "", name.strip())
+        name = _re.sub(r"\s+(CPU|Processor)\b.*$", "", name)
+        name = _re.sub(r"\s+", " ", name).strip()
+        return name[:limit]
+
+    def _cpu_marketing_name(self) -> str:
+        """CPU name as sold. Live collector first, then one registry read
+        (microseconds, no subprocess)."""
+        try:
+            from hck_gpt.data.live_sensors import get as _ls_get
+            name = _ls_get("cpu_name", "") or ""
+            if name:
+                return self._short_hw_name(name)
+        except Exception:
+            pass
+        try:
+            import winreg
+            with winreg.OpenKey(
+                    winreg.HKEY_LOCAL_MACHINE,
+                    r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as k:
+                return self._short_hw_name(
+                    str(winreg.QueryValueEx(k, "ProcessorNameString")[0]))
+        except Exception:
+            return ""
+
+    def _gpu_name_nonblocking(self) -> str:
+        """GPU name from the live collector, '' until its first reading.
+        Never runs nvidia-smi from here."""
+        try:
+            from hck_gpt.data.live_sensors import get as _ls_get
+            return self._short_hw_name(_ls_get("gpu_name", "") or "")
+        except Exception:
+            return ""
 
     def _create_hardware_card(self, parent, hw_type, model, color, key):
         """Hardware card: sparkline with the component name overlaid in its
@@ -1752,7 +2240,9 @@ class ExpandedMainWindow:
         inner.pack(fill="both", expand=True, padx=4, pady=4)
 
         # Sparkline area - taller in both modes so the corner name has room.
-        _chart_h = 50 if self._is_maximized else 44
+        # 36 px in the compact view (was 44): the section has a fixed height
+        # and the status line under the bar needs those 8 px to be whole.
+        _chart_h = 50 if self._is_maximized else 36
         chart_frame = tk.Frame(inner, bg="#0f1117", height=_chart_h)
         chart_frame.pack(fill="x", pady=(0, 0))
         chart_frame.pack_propagate(False)
@@ -1771,13 +2261,27 @@ class ExpandedMainWindow:
         temp_frame = tk.Frame(inner, bg=THEME["bg_panel"])
         temp_frame.pack(fill="x", pady=(3, 0))
 
-        tk.Label(
+        # RAM has no temperature: its bar shows how much is in use.
+        caption_label = tk.Label(
             temp_frame,
-            text="TEMP",
-            font=(_BODY, 5),
+            text="USED" if key == "ram" else "TEMP",
+            font=(_BODY, 7),
             bg=THEME["bg_panel"],
             fg=THEME["muted"]
-        ).pack(side="left")
+        )
+        caption_label.pack(side="left")
+
+        # value first, bar second: the bar is what gives way
+        temp_label = tk.Label(
+            temp_frame,
+            text="--",
+            font=(_MONO, 7),
+            bg=THEME["bg_panel"],
+            fg=color,
+            width=5,
+            anchor="e"
+        )
+        temp_label.pack(side="right")
 
         temp_bar_bg = tk.Frame(temp_frame, bg="#1a1d24", height=4)
         temp_bar_bg.pack(side="left", fill="x", expand=True, padx=(3, 3))
@@ -1786,51 +2290,102 @@ class ExpandedMainWindow:
         temp_bar_fill = tk.Frame(temp_bar_bg, bg=color, height=4)
         temp_bar_fill.place(x=0, y=0, relwidth=0, relheight=1.0)
 
-        temp_label = tk.Label(
-            temp_frame,
-            text="0°C",
-            font=(_MONO, 6),
-            bg=THEME["bg_panel"],
-            fg=color,
-            width=3
-        )
-        temp_label.pack(side="right")
-
-        # Health status - smaller font
+        # ONE status line: "✓ All good · Standard load" (2026-11-15). There
+        # were two labels, one under the other, in a section with a fixed
+        # height: the first was sliced in half and the second was never on
+        # screen. health_label / load_label stay as two names for callers;
+        # the second is kept off-screen and only carries its text.
         health_label = tk.Label(
             inner,
             text=_t("dashboard.status_all_good"),
-            font=(_BODY, 6),
+            font=(_BODY, 8),
             bg=THEME["bg_panel"],
             fg="#10b981",
             anchor="w"
         )
         health_label.pack(fill="x", pady=(2, 0))
 
-        # Load status - smaller font
-        load_label = tk.Label(
-            inner,
-            text=_t("dashboard.no_activity"),
-            font=(_BODY, 6),
-            bg=THEME["bg_panel"],
-            fg=THEME["muted"],
-            anchor="w"
-        )
-        load_label.pack(fill="x", pady=(1, 0))
+        load_label = tk.Label(inner, text=_t("dashboard.no_activity"))
 
         # Store references for updates
         if not hasattr(self, 'hardware_cards'):
             self.hardware_cards = {}
+
+        self._make_card_clickable(card, key)
 
         self.hardware_cards[key] = {
             "chart_canvas": chart_canvas,
             "chart_data": [],  # Store last 30 values for sparkline
             "temp_bar": temp_bar_fill,
             "temp_label": temp_label,
+            "temp_caption": caption_label,
             "health_label": health_label,
             "load_label": load_label,
             "color": color
         }
+
+    # Bordeaux hover of the dashboard hardware cards (2026-11-16)
+    _CARD_HOVER_BG = "#1d0c13"
+    _CARD_HOVER_EDGE = "#8b1e3f"
+
+    def _make_card_clickable(self, card, key):
+        """The whole card opens Activity Memory of its component. Hover tints
+        every plain frame/label of the card bordeaux and draws a bordeaux
+        edge; the sparkline canvas keeps its own colours."""
+        base = THEME["bg_panel"]
+        card.config(highlightthickness=1, highlightbackground=base,
+                    highlightcolor=base)
+        tinted = []
+
+        def walk(w):
+            if isinstance(w, (tk.Frame, tk.Label)):
+                try:
+                    if w.cget("bg") == base:
+                        tinted.append(w)
+                except Exception:
+                    pass
+            for c in w.winfo_children():
+                walk(c)
+        walk(card)
+
+        state = {"on": False}
+
+        def paint(on):
+            if state["on"] == on:
+                return
+            state["on"] = on
+            try:
+                card.config(highlightbackground=self._CARD_HOVER_EDGE if on else base)
+                for w in tinted:
+                    if w.winfo_exists():
+                        w.config(bg=self._CARD_HOVER_BG if on else base)
+            except Exception:
+                pass
+
+        def leave(e=None):
+            # <Leave> also fires when the pointer moves onto a child widget
+            try:
+                x, y = card.winfo_pointerxy()
+                w = card.winfo_containing(x, y)
+                while w is not None:
+                    if w is card:
+                        return
+                    w = w.master
+            except Exception:
+                pass
+            paint(False)
+
+        def bind(w):
+            w.bind("<Enter>", lambda e=None: paint(True), add="+")
+            w.bind("<Leave>", leave, add="+")
+            w.bind("<Button-1>", lambda e=None: self.open_activity_memory(key), add="+")
+            try:
+                w.config(cursor="hand2")
+            except Exception:
+                pass
+            for c in w.winfo_children():
+                bind(c)
+        bind(card)
 
     def _build_content_area(self):
         """Build compact dashboard content: scrollable proc panels + InteractiveChart."""
@@ -1879,12 +2434,14 @@ class ExpandedMainWindow:
         # Canvas bar chart (compact)
         self.realtime_canvas = tk.Canvas(
             center, bg="#080b14", bd=0, highlightthickness=1,
-            highlightbackground="#0d1825", height=150,
+            highlightbackground="#0d1825", height=196,
         )
         self.realtime_canvas.pack(fill="x", pady=(0, 0))
         self.realtime_canvas.bind("<Motion>",   self._chart_on_motion)
         self.realtime_canvas.bind("<Button-1>", self._chart_on_click)
         self.realtime_canvas.bind("<Leave>",    self._chart_on_leave)
+        self.realtime_canvas.bind("<Enter>",    self._chart_on_enter)
+        self.realtime_canvas.config(cursor="hand2")
         self._chart_pin_idx   = None
         self._main_chart      = None
         self._chart_after_id  = None
@@ -1897,35 +2454,50 @@ class ExpandedMainWindow:
         metrics_frame.pack(fill="x")
         metrics_frame.pack_propagate(False)
 
+        # Time-range buttons are packed FIRST (2026-11-15). pack() gives
+        # space in packing order: with the legend first, only LIVE and 1H
+        # fitted, 4H was cut in half and 1D / 1W / 1M were not on screen at
+        # all, so half of the chart's ranges could not be reached.
+        filter_btns = tk.Frame(metrics_frame, bg=_LEG_BG)
+        filter_btns.pack(side="right", padx=(4, 8))
+
         _cur_lbl = tk.Label(
             metrics_frame, text=_t("dashboard.current_usage_label"),
-            font=(_BODY, 7, "bold"), bg=_LEG_BG, fg="#6b7280",
+            font=(_BODY, 7, "bold"), bg=_LEG_BG, fg="#8d97a8",
         )
-        _cur_lbl.pack(side="left", padx=(10, 10))
+        _cur_lbl.pack(side="left", padx=(10, 6))
         self._current_usage_lbl = _cur_lbl
 
         self.live_cpu_label = tk.Label(
             metrics_frame, text="■ CPU 0%",
             font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#3b82f6",
+            width=10, anchor="w",   # "■ CPU 100%": numbers never push the row
         )
-        self.live_cpu_label.pack(side="left", padx=7)
+        self.live_cpu_label.pack(side="left", padx=5)
 
         self.live_ram_label = tk.Label(
             metrics_frame, text="■ RAM 0%",
             font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#fbbf24",
+            width=10, anchor="w",   # "■ CPU 100%": numbers never push the row
         )
-        self.live_ram_label.pack(side="left", padx=7)
+        self.live_ram_label.pack(side="left", padx=5)
 
         self.live_gpu_label = tk.Label(
             metrics_frame, text="■ GPU 0%",
             font=(_MONO, 9, "bold"), bg=_LEG_BG, fg="#10b981",
+            width=10, anchor="w",   # "■ CPU 100%": numbers never push the row
         )
-        self.live_gpu_label.pack(side="left", padx=7)
+        self.live_gpu_label.pack(side="left", padx=5)
 
-        tk.Frame(metrics_frame, bg=_LEG_BG, width=2).pack(side="left", padx=10)
-
-        filter_btns = tk.Frame(metrics_frame, bg=_LEG_BG)
-        filter_btns.pack(side="right", padx=10)
+        # The three values and the six range buttons must always be whole.
+        # The "CURRENT USAGE:" caption is the one thing that may go: it
+        # disappears when the row is too narrow, instead of pushing the GPU
+        # value off the row.
+        _show_only_if_fits(
+            _cur_lbl, metrics_frame,
+            [filter_btns, self.live_cpu_label, self.live_ram_label,
+             self.live_gpu_label],
+            margin=70, side="left", padx=(10, 6), before=self.live_cpu_label)
 
         filter_options = ["LIVE", "1H", "4H", "1D", "1W", "1M"]
         self.filter_buttons = {}
@@ -1935,7 +2507,7 @@ class ExpandedMainWindow:
             _active = (filter_name == getattr(self, 'chart_filter', 'LIVE'))
             btn = tk.Label(
                 filter_btns, text=filter_name,
-                font=(_BODY, 6, "bold"),
+                font=(_BODY, 7, "bold"),
                 bg="#2563eb" if _active else "#000000",
                 fg="#ffffff" if _active else "#6b7280",
                 cursor="hand2", padx=6, pady=2,
@@ -1945,9 +2517,10 @@ class ExpandedMainWindow:
             def make_filter_click(f_name, f_btn):
                 def on_click(e):
                     for fb in self.filter_buttons.values():
-                        fb.config(bg="#000000", fg="#6b7280")
+                        fb.config(bg="#000000", fg="#8d97a8")
                     f_btn.config(bg="#2563eb", fg="#ffffff")
                     self.chart_filter = f_name
+                    self._remember_chart_filter(f_name)
                     self._chart_needs_view_reset = True
                     if f_name != 'LIVE':
                         self._load_historical_chart_data(f_name)
@@ -2025,9 +2598,9 @@ class ExpandedMainWindow:
         _cfg = tk.Label(turbo_actions, text="Configure", font=(_BODY, 7, "bold"),
                         bg="#374151", fg="#9ca3af", padx=8, pady=3, cursor="hand2")
         _cfg.pack(side="left")
-        _cfg.bind("<Button-1>", lambda e: self._switch_to_page("optimization"))
-        _cfg.bind("<Enter>", lambda e: _cfg.config(fg="#cbd5e1"))
-        _cfg.bind("<Leave>", lambda e: _cfg.config(fg="#9ca3af"))
+        _cfg.bind("<Button-1>", lambda e=None: self._switch_to_page("optimization"))
+        _cfg.bind("<Enter>", lambda e=None: _cfg.config(fg="#cbd5e1"))
+        _cfg.bind("<Leave>", lambda e=None: _cfg.config(fg="#9ca3af"))
 
         _launch = tk.Label(turbo_actions, text="Launch", font=(_BODY, 7, "bold"),
                            bg="#7f1d1d", fg="#fecaca", padx=10, pady=3, cursor="hand2")
@@ -2111,9 +2684,9 @@ class ExpandedMainWindow:
 
         # Keep attribute refs for compatibility (zero-size)
         self.tools_label       = tk.Label(optim_inner, text="", height=0,
-                                          font=(_BODY, 1), bg=_OC_BG, fg=_OC_BG)
+                                          font=(_BODY, 7), bg=_OC_BG, fg=_OC_BG)
         self.tools_count_label = tk.Label(optim_inner, text="", height=0,
-                                          font=(_BODY, 1), bg=_OC_BG, fg=_OC_BG)
+                                          font=(_BODY, 7), bg=_OC_BG, fg=_OC_BG)
 
         # Navigation -> My PC (Hardware & Health)
         def _go_hardware(e=None):
@@ -2338,20 +2911,13 @@ class ExpandedMainWindow:
                 if _wh:
                     self._bind_wheel_recursive(row, _wh)
 
-                # Tooltip bindings
-                if self._process_tooltip:
-                    def _enter(e, wd=widget_data):
-                        pn = wd["proc_name"]
-                        if pn:
-                            tt = _proc_lib.format_tooltip_text(pn)
-                            if tt:
-                                self._process_tooltip.show(e, pn, tt)
-                    def _leave(e):
-                        self._process_tooltip.hide()
-                    name_lbl.bind("<Enter>", _enter)
-                    name_lbl.bind("<Leave>", _leave)
-                    row.bind("<Enter>", _enter)
-                    row.bind("<Leave>", _leave)
+                # one process card for the whole program; a double click
+                # opens the Process Center on it (2026-11-20)
+                try:
+                    from ui.components import process_ref as _pref
+                    _pref.bind([row, name_lbl], lambda wd=widget_data: wd["proc_name"], self)
+                except Exception:
+                    pass
 
         for i, widget_data in enumerate(self.expanded_user_widgets):
             if i < len(procs):
@@ -2467,20 +3033,11 @@ class ExpandedMainWindow:
                 if _wh:
                     self._bind_wheel_recursive(row, _wh)
 
-                # Tooltip bindings
-                if self._process_tooltip:
-                    def _sys_enter(e, wd=sys_widget_data):
-                        pn = wd["proc_name"]
-                        if pn:
-                            tt = _proc_lib.format_tooltip_text(pn)
-                            if tt:
-                                self._process_tooltip.show(e, pn, tt)
-                    def _sys_leave(e):
-                        self._process_tooltip.hide()
-                    name_lbl.bind("<Enter>", _sys_enter)
-                    name_lbl.bind("<Leave>", _sys_leave)
-                    row.bind("<Enter>", _sys_enter)
-                    row.bind("<Leave>", _sys_leave)
+                try:
+                    from ui.components import process_ref as _pref
+                    _pref.bind([row, name_lbl], lambda wd=sys_widget_data: wd["proc_name"], self)
+                except Exception:
+                    pass
 
         for i, widget_data in enumerate(self.expanded_sys_widgets):
             if i < len(procs):
@@ -2518,11 +3075,14 @@ class ExpandedMainWindow:
                 self._restore_from_tray()
                 self._show_overlay("sensors")
 
+            # pystray calls these on ITS thread: they only queue the work,
+            # the window does it on the UI thread (ui/bg.py, 2026-11-21)
+            from ui import bg as _bg_ui
             self.tray_manager = SystemTrayManager(
-                main_window_callback=self._restore_from_tray,
-                stats_callback=lambda: self._show_overlay("statistics"),
-                quit_callback=self._quit_from_tray,
-                sensors_callback=show_sensors_page  # NEW: Sensors shortcut! 🌲
+                main_window_callback=lambda: _bg_ui.post(self._restore_from_tray),
+                stats_callback=lambda: _bg_ui.post(lambda: self._show_overlay("statistics")),
+                quit_callback=lambda: _bg_ui.post(self._quit_from_tray),
+                sensors_callback=lambda: _bg_ui.post(show_sensors_page)
             )
             self.tray_manager.start()
             _dbg("[SystemTray] Initialized")
@@ -2908,7 +3468,7 @@ class ExpandedMainWindow:
                 canvas.create_line(ML, gy, W - MR, gy,
                                    fill="#0d1825", width=1, dash=(3, 5))
                 canvas.create_text(ML - 3, gy, text=str(pct),
-                                   fill="#2a3860", font=(_MONO, 5), anchor="e")
+                                   fill="#2a3860", font=(_MONO, 7), anchor="e")
 
             if num == 0:
                 canvas.create_text(
@@ -3039,46 +3599,24 @@ class ExpandedMainWindow:
             self._bar_anim_ease = 1.0
             self._schedule_chart_update(2000)  # resume normal 2 s cycle
 
-    def _chart_on_click(self, event: "tk.Event") -> None:
-        """Pin / unpin detail tooltip on clicked bar."""
+    # The chart's click opens the whole history (2026-11-20). It used to pin
+    # a bar's tooltip; Marcin asked whether the pin was needed, and the
+    # history page shows the same numbers with far more around them.
+    _FILTER_TO_HISTORY = {"LIVE": "1H", "1H": "1H", "4H": "6H", "1D": "24H",
+                          "1W": "7D", "1M": "30D"}
+
+    def _chart_on_enter(self, event: "tk.Event" = None) -> None:
         try:
-            canvas = self.realtime_canvas
-            if not canvas.winfo_exists():
-                return
-            W = canvas.winfo_width()
-            ML, MR = 28, 8
-            cw = W - ML - MR
-
-            if (getattr(self, 'chart_filter', 'LIVE') != 'LIVE' and
-                    getattr(self, '_historical_chart_data', None)):
-                cpu_d = list(self._historical_chart_data.get('cpu', []))
-                ram_d = list(self._historical_chart_data.get('ram', []))
-                gpu_d = list(self._historical_chart_data.get('gpu', []))
-            else:
-                cpu_d = list(self.chart_data.get('cpu', []))
-                ram_d = list(self.chart_data.get('ram', []))
-                gpu_d = list(self.chart_data.get('gpu', []))
-
-            num = max(len(cpu_d), len(ram_d), len(gpu_d))
-            if num < 1:
-                return
-
-            bar_w = max(int(cw / num), 1)
-            idx   = max(0, min(num - 1, (event.x - ML) // max(bar_w, 1)))
-
-            # Any click while pinned = unpin. In LIVE mode the pinned bar
-            # drifts left every second, so "click the exact same bar" is
-            # untargetable - this keeps the toggle predictable.
-            if getattr(self, '_chart_pin_idx', None) is not None:
-                self._chart_pin_idx = None
-                self._chart_hide_tip()
-            else:
-                self._chart_pin_idx = idx
-                self._chart_show_tip(idx, event.x, event.y,
-                                     cpu_d, ram_d, gpu_d, num,
-                                     canvas.winfo_width(), canvas.winfo_height())
+            self.realtime_canvas.config(bg="#0f1524", highlightbackground="#33415c")
         except Exception:
             pass
+
+    def _chart_on_click(self, event: "tk.Event" = None) -> None:
+        span = self._FILTER_TO_HISTORY.get(getattr(self, "chart_filter", "LIVE"), "24H")
+        self._chart_hide_tip()
+        self._activity_state = {"span": span, "end": None, "temp": True}
+        self.current_view = None
+        self._switch_to_page("activity_hardware")
 
     def _chart_on_motion(self, event: "tk.Event") -> None:
         """Hover tooltip - suppressed when a bar is pinned."""
@@ -3115,6 +3653,10 @@ class ExpandedMainWindow:
             pass
 
     def _chart_on_leave(self, event: "tk.Event") -> None:
+        try:
+            self.realtime_canvas.config(bg="#080b14", highlightbackground="#0d1825")
+        except Exception:
+            pass
         if getattr(self, '_chart_pin_idx', None) is None:
             self._chart_hide_tip()
 
@@ -3150,7 +3692,7 @@ class ExpandedMainWindow:
                                 ("gpu", "GPU", "#10b981")):
             r = tk.Frame(inner, bg=_BG)
             r.pack(fill="x")
-            tk.Label(r, text=label, font=("Segoe UI Black", 8),
+            tk.Label(r, text=label, font=(_FONT_HEAVY, 8),
                      bg=_BG, fg=col, width=4, anchor="w").pack(side="left")
             v = tk.Label(r, text="", font=(_MONO, 9, "bold"),
                          bg=_BG, fg="#e8eefc", anchor="e")
@@ -3158,7 +3700,7 @@ class ExpandedMainWindow:
             rows[key] = v
 
         age = tk.Label(inner, text="", font=(_MONO, 7),
-                       bg=_BG, fg="#5a719a", anchor="w")
+                       bg=_BG, fg="#8098bd", anchor="w")
         age.pack(fill="x", pady=(3, 0))
 
         # PIN strip - same construction as the hck_GPT TIP/HOT strips
@@ -3167,11 +3709,11 @@ class ExpandedMainWindow:
                              highlightbackground="#3a3100", highlightthickness=1)
         _pb = tk.Canvas(pin_strip, width=30, height=14,
                         bg="#2e2800", highlightthickness=0)
-        _pb.create_text(15, 7, text="PIN", fill="#d4a900",
-                        font=("Consolas", 6, "bold"), anchor="center")
+        _pb.create_text(15, 7, text="HIST", fill="#d4a900",
+                        font=("Consolas", 7, "bold"), anchor="center")
         _pb.pack(side="left", padx=(4, 0), pady=2)
         tk.Label(pin_strip,
-                 text=_t("dashboard.chart_unpin", default="click bar to unpin"),
+                 text=_t("dashboard.chart_open_history", default="click: the whole history"),
                  bg="#1c1900", fg="#d4a900", font=("Consolas", 7),
                  padx=5, pady=1, anchor="w").pack(side="left", fill="x")
 
@@ -3219,10 +3761,9 @@ class ExpandedMainWindow:
         tw._rows["ram"].config(text=f"{ram_v:.0f}%")
         tw._rows["gpu"].config(text=f"{gpu_v:.0f}%")
         tw._age.config(text=age_str)
-        if pinned:
+        # the strip now says what a click does (opens the history)
+        if not tw._pin_strip.winfo_ismapped():
             tw._pin_strip.pack(fill="x", pady=(4, 0))
-        else:
-            tw._pin_strip.pack_forget()
 
         # Screen position next to the cursor (or pinned bar), kept on-screen
         tw.update_idletasks()
@@ -3313,26 +3854,65 @@ class ExpandedMainWindow:
         # Draw sparkline
         self._draw_sparkline(card["chart_canvas"], card["chart_data"], card["color"])
 
-        # Update temperature (simulated based on load)
-        temp = 30 + (value * 0.6)  # 30°C base + load-based increase
-        card["temp_label"].config(text=f"{temp:.0f}°C")
-        card["temp_bar"].place(relwidth=min(temp / 100, 1.0))
+        # Temperature: a MEASUREMENT or nothing (2026-11-15). This line used
+        # to be `30 + value * 0.6`, a formula on the load, shown as degrees
+        # for the CPU, the GPU and even the RAM, which has no sensor at all.
+        reading = self._card_reading(key, value)
+        card["temp_label"].config(text=reading["text"])
+        card["temp_bar"].place(relwidth=reading["fill"])
+        if card.get("temp_caption") is not None:
+            card["temp_caption"].config(text=reading["caption"])
 
-        # Update health status
+        # The name arrives with the collector's first reading
+        cv = card["chart_canvas"]
+        if not getattr(cv, "_corner_sub", "") and key in ("cpu", "gpu"):
+            cv._corner_sub = (self._cpu_marketing_name() if key == "cpu"
+                              else self._gpu_name_nonblocking())
+
+        # Status: one line, health first, load second
         if value < 85:
-            card["health_label"].config(text=_t("dashboard.status_all_good"),    fg="#10b981")
+            health, h_fg = _t("dashboard.status_all_good"), "#10b981"
         else:
-            card["health_label"].config(text=_t("dashboard.status_needs_check"), fg="#f59e0b")
-
-        # Update load status
+            health, h_fg = _t("dashboard.status_needs_check"), "#f59e0b"
         if value < 10:
-            card["load_label"].config(text=_t("dashboard.no_activity"),    fg=THEME["muted"])
+            load = _t("dashboard.no_activity")
         elif value < 50:
-            card["load_label"].config(text=_t("dashboard.status_standard"), fg="#3b82f6")
+            load = _t("dashboard.status_standard")
         elif value < 80:
-            card["load_label"].config(text=_t("dashboard.status_heavy"),    fg="#f59e0b")
+            load = _t("dashboard.status_heavy")
         else:
-            card["load_label"].config(text=_t("dashboard.status_max"),      fg="#ef4444")
+            load = _t("dashboard.status_max")
+        card["load_label"].config(text=load)
+        card["health_label"].config(text=f"{health}  ·  {load}", fg=h_fg)
+
+    @staticmethod
+    def _card_reading(key: str, load_pct: float) -> dict:
+        """What the small bar under a dashboard hardware card shows.
+        RAM: how much is used. CPU / GPU: a temperature when something
+        measures it ('~' marks the CPU estimate), otherwise '--'."""
+        if key == "ram":
+            pct = max(0.0, min(100.0, float(load_pct or 0)))
+            return {"caption": "USED", "text": f"{pct:.0f}%", "fill": pct / 100}
+        try:
+            from hck_gpt.data.live_sensors import snapshot as _snap
+            s = _snap()
+        except Exception:
+            s = {}
+        temp, estimated = None, False
+        if key == "gpu":
+            v = s.get("gpu_temp", -1)
+            if s.get("gpu_ok") and v and v > 0:
+                temp = float(v)
+        elif key == "cpu":
+            v = s.get("cpu_temp", -1)
+            if v and v > 0:
+                temp = float(v)
+                estimated = s.get("cpu_temp_src") != "sensor"
+        if temp is None:
+            return {"caption": "TEMP", "text": "--", "fill": 0.0}
+        return {"caption": "TEMP est." if estimated else "TEMP",
+                "text": f"{'~' if estimated else ''}{temp:.0f}°C",
+                "fill": max(0.0, min(temp / 100, 1.0))}
 
     @staticmethod
     def _draw_card_corner(canvas) -> None:
@@ -3342,13 +3922,22 @@ class ExpandedMainWindow:
         if not _title:
             return
         t_id = canvas.create_text(7, 6, text=_title, anchor="nw",
-                                  font=("Segoe UI Black", 8),
+                                  font=(_FONT_HEAVY, 8),
                                   fill=getattr(canvas, "_corner_color", "#e2e8f0"))
         _sub = getattr(canvas, "_corner_sub", "")
+        ids = [t_id]
         if _sub:
             bbox = canvas.bbox(t_id)
-            canvas.create_text((bbox[2] if bbox else 34) + 6, 8, text=_sub,
-                               anchor="nw", font=(_BODY, 6), fill="#7a96b2")
+            ids.append(canvas.create_text((bbox[2] if bbox else 34) + 6, 8, text=_sub,
+                                          anchor="nw", font=(_BODY, 7), fill="#9fb3c8"))
+        # A plate under the name: drawn over the sparkline it was unreadable
+        try:
+            x0, y0, x1, y1 = canvas.bbox(*ids)
+            plate = canvas.create_rectangle(x0 - 4, y0 - 1, x1 + 5, y1 + 1,
+                                            fill="#0b0e14", outline="")
+            canvas.tag_lower(plate, ids[0])
+        except Exception:
+            pass
 
     def _draw_sparkline(self, canvas, data, color):
         """Draw mini sparkline chart"""
@@ -3480,14 +4069,23 @@ class ExpandedMainWindow:
     def _show_overlay(self, page_id):
         """Show overlay panel - builds on the first visit, re-places the
         kept-alive frame on later ones (Phase 2 keep-alive)."""
+        if page_id == "statistics":
+            # the tray's "Statistics" and hck_GPT's link: see _PAGE_ALIASES
+            self.open_page_from_link("statistics")
+            return
         if self.active_overlay == page_id and self.overlay_frame:
             # Already showing this page, close it
             self._close_overlay()
             return
 
-        # Close existing overlay if any
+        # Close existing overlay if any (not an arrival anywhere: the new
+        # overlay is where the user goes)
         if self.overlay_frame:
-            self._close_overlay()
+            self._nav_quiet_close = True
+            try:
+                self._close_overlay()
+            finally:
+                self._nav_quiet_close = False
 
         # Slide starts at the actual content width - the hardcoded 980 left the
         # overlay already half-visible in maximized mode.
@@ -3513,6 +4111,11 @@ class ExpandedMainWindow:
                                      relwidth=1.0, relheight=1.0)
             self.overlay_frame.lift()
             if page_id == "your_pc":
+                try:
+                    from ui.components.yourpc_page import use_page_in
+                    use_page_in(self, cached)
+                except Exception:
+                    pass
                 # honor sidebar deep-links (My PC -> Components) on re-entry
                 tab = getattr(self, "_yourpc_initial_tab", None)
                 if tab:
@@ -3527,11 +4130,11 @@ class ExpandedMainWindow:
             # visible as per spec); all other pages cover the full content area.
             self.overlay_frame = tk.Frame(self.content_area, bg="#0f1117",
                                           relief="flat", bd=0)
-            if page_id == "settings":
-                self.overlay_frame.place(x=_slide_x, y=60, width=980, height=515)
-            else:
-                self.overlay_frame.place(x=_slide_x, y=0,
-                                         relwidth=1.0, relheight=1.0)
+            # every page, Settings included, covers the whole content area
+            # (2026-11-17: the floating 980x515 Settings card left the
+            # dashboard visible around it)
+            self.overlay_frame.place(x=_slide_x, y=0,
+                                     relwidth=1.0, relheight=1.0)
             self._build_overlay_content(page_id)
             if page_id in self._KEEPALIVE_OVERLAYS:
                 self._overlay_cache[page_id] = self.overlay_frame
@@ -3540,12 +4143,8 @@ class ExpandedMainWindow:
         # Settings is a fixed 980px floating card: in a resized/maximized
         # window it slides to the CENTER instead of hugging the left edge.
         _end_x = 0
-        if page_id == "settings":
-            try:
-                _end_x = max(0, (self.content_area.winfo_width() - 980) // 2)
-            except Exception:
-                _end_x = 0
         self._animate_overlay_slide(_slide_x, _end_x, page_id)
+        self._nav_arrived("overlay", page_id)
 
         # hck_GPT banner stays available on top of these overlay pages;
         # everywhere else the overlay (created later = higher) covers it.
@@ -3601,6 +4200,9 @@ class ExpandedMainWindow:
         during the animation can never drag the WRONG overlay (race fix)."""
         if not self.overlay_frame:
             return
+        if not getattr(self, "_nav_quiet_close", False):
+            # the overlay slides away and the page under it shows again
+            self._nav_arrived("page", self.current_view or "dashboard")
 
         frame = self.overlay_frame
         page  = self.active_overlay
@@ -3666,19 +4268,32 @@ class ExpandedMainWindow:
     def _build_overlay_content(self, page_id):
         """Build content for overlay panel"""
         # ── Per-page header metadata (accent colour · title · subtitle) ──────
+        from ui.components.page_titles import title as _pt
         _META = {
-            "your_pc":          ("#3b82f6", "MÓJ PC",           "Overview · Performance · Health"),
-            "sensors":          ("#f59e0b", "MONITORING",        "Temperatures · Voltages · Alerts"),
-            "live_graphs":      ("#3b82f6", "MÓJ PC",           "Live data & hardware overview"),
-            "optimization":     ("#8b5cf6", "OPTIMIZATION",     "Features, automation & power management"),
-            "statistics":       ("#3b82f6", "STATISTICS",        "Usage trends & session history"),
-            "fan_control":      ("#f59e0b", "FAN CONTROL",      "Cooling profiles & temperature curves"),
-            "fans_hardware":    ("#f59e0b", "FANS - HARDWARE",  "Real-time fan monitoring"),
-            "fans_usage_stats": ("#f59e0b", "FAN STATISTICS",   "Fan intensity over time"),
+            "your_pc":          ("#3b82f6", _t("my_pc.page_title", "MY PC"), _pt("your_pc_sub")[1]),
+            "sensors":          ("#f59e0b", *_pt("sensors")),
+            "live_graphs":      ("#3b82f6", _t("my_pc.page_title", "MY PC"), _pt("live_graphs_sub")[1]),
+            "optimization":     ("#8b5cf6", *_pt("optimization")),
+            "statistics":       ("#3b82f6", *_pt("statistics")),
+            "fan_control":      ("#f59e0b", *_pt("fan_overlay")),
+            "fans_hardware":    ("#f59e0b", *_pt("fans_hardware")),
+            "fans_usage_stats": ("#f59e0b", *_pt("fans_usage_stats")),
             "hck_labs":         ("#f59e0b", "HCK LABS",         "Engineering · Monitoring · Intelligence"),
             "guide":            ("#8b5cf6", "PROGRAM GUIDE",    "Master PC Workman - commands & features"),
             "settings":         ("#3b82f6", "SETTINGS",         "Language, appearance & behavior"),
         }
+        # Polish headers for the pages rebuilt in 1.9.0 (they were English
+        # under a Polish interface)
+        try:
+            from utils.i18n import get_lang as _gl_
+            if str(_gl_()).lower().startswith("pl"):
+                _META.update({
+                    "hck_labs": ("#f59e0b", "HCK LABS", "Inżynieria · Monitoring · Inteligencja"),
+                    "guide":    ("#8b5cf6", "PRZEWODNIK", "Wszystko o PC Workman: funkcje i pytania do hck_GPT"),
+                    "settings": ("#3b82f6", "USTAWIENIA", "Język, wygląd i zachowanie programu"),
+                })
+        except Exception:
+            pass
         accent, ov_title, ov_sub = _META.get(
             page_id, ("#8b5cf6", page_id.upper().replace("_", " "), ""))
 
@@ -3708,7 +4323,7 @@ class ExpandedMainWindow:
                             font=(_HDR, 12), fill="#c4cfdf")
             if _sb:
                 _cv.create_text(18, 44, text=_sb, anchor="w",
-                                font=(_BODY, 8), fill="#3d4a60")
+                                font=(_BODY, 8), fill="#7d8aa0")
 
         hdr_cv.bind("<Configure>", _draw_hdr)
 
@@ -3723,24 +4338,24 @@ class ExpandedMainWindow:
             padx=12,
         )
         close_btn.place(relx=1.0, y=8, anchor="ne", x=-4)
-        close_btn.bind("<Button-1>", lambda e: self._close_overlay())
-        close_btn.bind("<Enter>", lambda e: close_btn.config(fg="#ef4444"))
-        close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#6f86a3"))
+        close_btn.bind("<Button-1>", lambda e=None: self._close_overlay())
+        close_btn.bind("<Enter>", lambda e=None: close_btn.config(fg="#ef4444"))
+        close_btn.bind("<Leave>", lambda e=None: close_btn.config(fg="#6f86a3"))
 
         _ov_max_sym = "⊡" if self._is_maximized else "⤢"
         ov_max_btn = tk.Label(
             hdr_frame,
             text=_ov_max_sym,
-            font=(_HDR, 10),
+            font=(_FONT_SYMBOL, 11),
             bg="#090c14",
             fg="#6f86a3",
             cursor="hand2",
             padx=10,
         )
         ov_max_btn.place(relx=1.0, y=8, anchor="ne", x=-38)
-        ov_max_btn.bind("<Button-1>", lambda e: self._toggle_maximize())
-        ov_max_btn.bind("<Enter>",    lambda e: ov_max_btn.config(fg="#8b5cf6"))
-        ov_max_btn.bind("<Leave>",    lambda e: ov_max_btn.config(fg="#6f86a3"))
+        ov_max_btn.bind("<Button-1>", lambda e=None: self._toggle_maximize())
+        ov_max_btn.bind("<Enter>",    lambda e=None: ov_max_btn.config(fg="#8b5cf6"))
+        ov_max_btn.bind("<Leave>",    lambda e=None: ov_max_btn.config(fg="#6f86a3"))
 
         # Content area with scrollbar
         content_frame = tk.Frame(self.overlay_frame, bg="#0f1117")
@@ -3805,7 +4420,7 @@ class ExpandedMainWindow:
 
         scrollable_frame.bind(
             "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+            lambda e=None: canvas.configure(scrollregion=canvas.bbox("all"))
         )
 
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
@@ -3943,17 +4558,30 @@ class ExpandedMainWindow:
             text="📊 STATISTICS\n\nDetailed stats coming soon...",
             font=(_BODY, 12),
             bg="#0f1117",
-            fg="#64748b",
+            fg="#8a97ab",
             justify="center"
         ).pack(expand=True)
 
     def _build_hcklabs_page(self, parent):
+        """HCK Labs - rebuilt 2026-11-17 in ui/pages/labs_guide_pages.py; the
+        old blog layout below stays as the fallback."""
+        try:
+            from ui.pages.labs_guide_pages import build_hcklabs_page
+            build_hcklabs_page(self, parent)
+            return
+        except Exception as _e:
+            print(f"[HCK_Labs] new page failed, old layout: {_e}")
+            for _w in parent.winfo_children():
+                _w.destroy()
+        self._build_hcklabs_page_old(parent)
+
+    def _build_hcklabs_page_old(self, parent):
         """HCK Labs - minimalist blog style"""
         BG      = "#080b10"
         CARD    = "#0e1118"
         BORDER  = "#181d2e"
         TEXT    = "#e2e8f0"
-        MUTED   = "#475569"
+        MUTED   = "#7c889b"
         DIM     = "#94a3b8"
         AMBER   = "#f59e0b"
         EMERALD = "#10b981"
@@ -3965,10 +4593,10 @@ class ExpandedMainWindow:
         sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview,
                           bg=BG, troughcolor=BG, width=5)
         sf = tk.Frame(cv, bg=BG)
-        sf.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+        sf.bind("<Configure>", lambda e=None: cv.configure(scrollregion=cv.bbox("all")))
         win_id = cv.create_window((0, 0), window=sf, anchor="nw")
         cv.configure(yscrollcommand=sb.set)
-        cv.bind("<Configure>", lambda e: cv.itemconfig(win_id, width=e.width))
+        cv.bind("<Configure>", lambda e=None: cv.itemconfig(win_id, width=e.width))
         def _hl_wheel(e):
             try:
                 if cv.winfo_exists():
@@ -3989,7 +4617,7 @@ class ExpandedMainWindow:
         hero_inner = tk.Frame(hero, bg=CARD)
         hero_inner.pack(fill="x", padx=32, pady=(28, 24))
 
-        tk.Label(hero_inner, text="HCK_Labs", font=("Segoe UI Light", 30),
+        tk.Label(hero_inner, text="HCK_Labs", font=(_FONT_LIGHT, 30),
                  bg=CARD, fg=TEXT, anchor="w").pack(anchor="w")
         tk.Label(hero_inner, text="Engineering · Monitoring · Intelligence",
                  font=(_BODY, 11), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w", pady=(2, 14))
@@ -4003,7 +4631,7 @@ class ExpandedMainWindow:
                          bg=color, fg="#000000" if color in (AMBER, EMERALD) else "#ffffff",
                          padx=16, pady=7, cursor="hand2")
             b.pack(side="left", padx=(0, 10))
-            b.bind("<Button-1>", lambda e: cmd())
+            b.bind("<Button-1>", lambda e=None: cmd())
             return b
 
         _make_hero_btn(btn_row, "Services", VIOLET,
@@ -4136,13 +4764,26 @@ class ExpandedMainWindow:
         update_fan_dashboard()
 
     def _build_guide_page(self, parent):
+        """Guide - rebuilt 2026-11-17 in ui/pages/labs_guide_pages.py; the old
+        layout below stays as the fallback."""
+        try:
+            from ui.pages.labs_guide_pages import build_guide_page
+            build_guide_page(self, parent)
+            return
+        except Exception as _e:
+            print(f"[Guide] new page failed, old layout: {_e}")
+            for _w in parent.winfo_children():
+                _w.destroy()
+        self._build_guide_page_old(parent)
+
+    def _build_guide_page_old(self, parent):
         """Guide - modern dark blog layout with command chips and changelog strip."""
         BG      = "#060911"
         CARD    = "#0c0f1a"
         CARD2   = "#0f1320"
         BORDER  = "#161c2e"
         TEXT    = "#e2e8f0"
-        MUTED   = "#475569"
+        MUTED   = "#7c889b"
         DIM     = "#8b9ab5"
         VIOLET  = "#8b5cf6"
         BLUE    = "#3b82f6"
@@ -4156,10 +4797,10 @@ class ExpandedMainWindow:
         sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview,
                           bg=BG, troughcolor=BG, width=5)
         sf = tk.Frame(cv, bg=BG)
-        sf.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+        sf.bind("<Configure>", lambda e=None: cv.configure(scrollregion=cv.bbox("all")))
         win_id = cv.create_window((0, 0), window=sf, anchor="nw")
         cv.configure(yscrollcommand=sb.set)
-        cv.bind("<Configure>", lambda e: cv.itemconfig(win_id, width=e.width))
+        cv.bind("<Configure>", lambda e=None: cv.itemconfig(win_id, width=e.width))
         def _gd_wheel(e):
             try:
                 if cv.winfo_exists():
@@ -4221,8 +4862,8 @@ class ExpandedMainWindow:
             self.root.after(280, self._start_live_guide)
 
         live_btn.bind("<Button-1>", _live_guide_click)
-        live_btn.bind("<Enter>",    lambda e: live_btn.config(bg="#7c3aed"))
-        live_btn.bind("<Leave>",    lambda e: live_btn.config(bg=VIOLET))
+        live_btn.bind("<Enter>",    lambda e=None: live_btn.config(bg="#7c3aed"))
+        live_btn.bind("<Leave>",    lambda e=None: live_btn.config(bg=VIOLET))
 
         tk.Frame(hero, bg=BORDER, height=1).pack(fill="x")
 
@@ -4290,11 +4931,13 @@ class ExpandedMainWindow:
         tk.Label(news_inner, text=f"What's new in v{_APP_V}",
                  font=(_BODY, 9, "bold"), bg="#0a0e1a", fg=EMERALD).pack(side="left")
 
+        # Keep in step with CHANGELOG.md for the current version. (This strip
+        # still listed items from 1.7.x until 2026-11-16.)
         changes = [
-            ("hck_GPT proactive alerts", VIOLET),
-            ("12 new AI intents", BLUE),
-            ("Session budget (3/30 min)", EMERALD),
-            ("Paper-plane send button", AMBER),
+            ("No console window", VIOLET),
+            ("Safe Process Guard & RAM Flush", BLUE),
+            ("Settings survive a crash", EMERALD),
+            ("Measured fan data only", AMBER),
         ]
         for txt, col in changes:
             tk.Label(news_inner, text=f"  ·  {txt}",
@@ -4364,7 +5007,8 @@ class ExpandedMainWindow:
                 "Voltage SPC catches slow drift a fixed threshold misses.",
             ]),
             (SLATE, "Privacy & Safety", "Your PC, your data, your rules", [
-                "100% offline - nothing is transmitted or uploaded.",
+                "Usage history, learning and chats stay on your PC.",
+                "Anonymous telemetry (hardware models, session time): off in Settings.",
                 "Every feature toggles independently in Settings.",
                 "Safe actions; no registry edits without confirmation.",
             ]),
@@ -4514,7 +5158,7 @@ class ExpandedMainWindow:
                     text_widget.see("end")
                     text_widget.config(state="disabled")
 
-            entry.bind("<Return>", lambda e: send_message())
+            entry.bind("<Return>", lambda e=None: send_message())
 
             send_btn = tk.Button(
                 entry_frame,
@@ -4584,155 +5228,140 @@ class ExpandedMainWindow:
         self._live_guide = _LiveGuide(self)
         self._live_guide.start()
 
+    # Microsoft Store listing of PC Workman (product ID from the Store page)
+    _STORE_ID = "9PGW6WS2N50V"
+
     def _show_update_dialog(self, parent):
-        """Show Check Update dialog"""
-        # Create dialog window
+        """Check for updates: the installed version from utils.app_version and
+        two places with the newest one, the Microsoft Store (opens the Store
+        app on Windows) and GitHub Releases. The app itself never connects
+        to check (2026-11-17: the old card showed one fixed old version)."""
+        try:
+            from utils.app_version import APP_VERSION, RELEASE_DATE
+        except Exception:
+            APP_VERSION, RELEASE_DATE = "?", ""
+        try:
+            from utils.i18n import get_lang
+            _lang = "en" if get_lang() == "en" else "pl"
+        except Exception:
+            _lang = "pl"
+        tx = {
+            "pl": {"title": "Sprawdź aktualizację", "yours": "Twoja wersja: ",
+                   "body": "PC Workman sam nie łączy się z internetem, żeby to sprawdzić.\n"
+                           "Najnowszą wersję znajdziesz w Microsoft Store albo na GitHubie.\n"
+                           "Ze Sklepu aktualizacje przychodzą same.",
+                   "store": "MICROSOFT STORE", "github": "GitHub Releases", "close": "Zamknij"},
+            "en": {"title": "Check for updates", "yours": "Your version: ",
+                   "body": "PC Workman does not connect to the internet to check this itself.\n"
+                           "The newest version is in the Microsoft Store or on GitHub.\n"
+                           "Store installs update on their own.",
+                   "store": "MICROSOFT STORE", "github": "GitHub Releases", "close": "Close"},
+        }[_lang]
+        date_txt = ""
+        try:
+            import datetime as _dt
+            date_txt = _dt.date.fromisoformat(RELEASE_DATE).strftime("%d.%m.%Y")
+        except Exception:
+            date_txt = RELEASE_DATE or ""
+
         dialog = tk.Toplevel(self.root)
-        dialog.title("🔄 Check for Updates")
-        dialog.geometry("500x350")
+        dialog.title(tx["title"])
         dialog.configure(bg="#0f1117")
         dialog.resizable(False, False)
         dialog.transient(self.root)
-        dialog.grab_set()
+        try:
+            dialog.grab_set()
+        except Exception:
+            pass
 
-        # Center dialog
-        dialog.update_idletasks()
-        x = self.root.winfo_x() + (self.root.winfo_width() // 2) - 250
-        y = self.root.winfo_y() + (self.root.winfo_height() // 2) - 175
-        dialog.geometry(f"+{x}+{y}")
-
-        # Header
         header = tk.Frame(dialog, bg="#10b981")
         header.pack(fill="x")
+        tk.Label(header, text="🔄 " + tx["title"], font=(_BODY, 14, "bold"),
+                 bg="#10b981", fg="#ffffff").pack(pady=12)
 
-        tk.Label(
-            header,
-            text="🔄 Check for Updates",
-            font=(_BODY, 14, "bold"),
-            bg="#10b981",
-            fg="#ffffff"
-        ).pack(pady=15)
-
-        # Content
         content = tk.Frame(dialog, bg="#0f1117")
-        content.pack(fill="both", expand=True, padx=30, pady=20)
+        content.pack(fill="both", expand=True, padx=28, pady=(18, 6))
 
-        # Message
-        tk.Label(
-            content,
-            text="Hey!",
-            font=(_BODY, 16, "bold"),
-            bg="#0f1117",
-            fg="#ffffff"
-        ).pack(anchor="w", pady=(0, 15))
+        row = tk.Frame(content, bg="#0f1117")
+        row.pack(anchor="w")
+        tk.Label(row, text=tx["yours"], font=(_BODY, 12), bg="#0f1117",
+                 fg="#cbd5e1").pack(side="left")
+        tk.Label(row, text=f"v{APP_VERSION}", font=(_BODY, 12, "bold"), bg="#0f1117",
+                 fg="#10b981").pack(side="left")
+        if date_txt:
+            tk.Label(row, text=f"  ·  {date_txt}", font=(_BODY, 12), bg="#0f1117",
+                     fg="#8a97ab").pack(side="left")
 
-        # Version info
-        version_frame = tk.Frame(content, bg="#0f1117")
-        version_frame.pack(anchor="w", pady=5)
+        tk.Label(content, text=tx["body"], font=(_BODY, 10), bg="#0f1117", fg="#94a3b8",
+                 justify="left").pack(anchor="w", pady=(12, 14))
 
-        tk.Label(
-            version_frame,
-            text="Your version: ",
-            font=(_BODY, 12),
-            bg="#0f1117",
-            fg="#cbd5e1"
-        ).pack(side="left")
+        def _open_store():
+            import webbrowser
+            sid = self._STORE_ID
+            try:
+                os.startfile(f"ms-windows-store://pdp/?ProductId={sid}")
+                return
+            except Exception:
+                pass
+            webbrowser.open(f"https://apps.microsoft.com/detail/{sid}")
 
-        tk.Label(
-            version_frame,
-            text="v1.7.1",
-            font=(_BODY, 12, "bold"),
-            bg="#0f1117",
-            fg="#10b981"
-        ).pack(side="left")
-
-        tk.Label(
-            version_frame,
-            text=" - 10.04.2026",
-            font=(_BODY, 12),
-            bg="#0f1117",
-            fg="#64748b"
-        ).pack(side="left")
-
-        # Message text
-        tk.Label(
-            content,
-            text="\nI would really like to tell you if there's a new update!\nBut I'm limited ;)",
-            font=(_BODY, 11),
-            bg="#0f1117",
-            fg="#94a3b8",
-            justify="left"
-        ).pack(anchor="w", pady=(15, 10))
-
-        tk.Label(
-            content,
-            text="Please check here if your version is up to date!",
-            font=(_BODY, 11),
-            bg="#0f1117",
-            fg="#cbd5e1"
-        ).pack(anchor="w", pady=(5, 15))
-
-        # GitHub button
-        def open_github():
+        def _open_github():
             import webbrowser
             webbrowser.open("https://github.com/HuckleR2003/PC_Workman_HCK/releases")
 
-        github_btn = tk.Button(
-            content,
-            text="🔗 CHECK UPDATE ON GITHUB",
-            font=(_HDR, 11, "bold"),
-            bg="#3b82f6",
-            fg="#ffffff",
-            activebackground="#2563eb",
-            activeforeground="#ffffff",
-            bd=0,
-            padx=25,
-            pady=12,
-            cursor="hand2",
-            command=open_github
-        )
-        github_btn.pack(pady=15)
+        btns = tk.Frame(content, bg="#0f1117")
+        btns.pack(fill="x", pady=(0, 8))
+        tk.Button(btns, text="🛍  " + tx["store"], font=(_HDR, 11, "bold"),
+                  bg="#3b82f6", fg="#ffffff", activebackground="#2563eb",
+                  activeforeground="#ffffff", bd=0, padx=22, pady=10, cursor="hand2",
+                  command=_open_store).pack(side="left")
+        tk.Button(btns, text="🔗  " + tx["github"], font=(_BODY, 10, "bold"),
+                  bg="#1f2937", fg="#e5e7eb", activebackground="#374151",
+                  activeforeground="#ffffff", bd=0, padx=16, pady=10, cursor="hand2",
+                  command=_open_github).pack(side="left", padx=(10, 0))
 
-        # Close button
-        close_btn = tk.Button(
-            dialog,
-            text="Close",
-            bg="#374151",
-            fg="#ffffff",
-            font=(_BODY, 10),
-            bd=0,
-            padx=20,
-            pady=8,
-            command=dialog.destroy
-        )
-        close_btn.pack(pady=15)
+        tk.Button(dialog, text=tx["close"], bg="#374151", fg="#ffffff",
+                  font=(_BODY, 10), bd=0, padx=20, pady=6,
+                  command=dialog.destroy).pack(pady=(4, 14))
+
+        dialog.update_idletasks()
+        w, h = max(dialog.winfo_reqwidth(), 520), dialog.winfo_reqheight()
+        x = self.root.winfo_x() + (self.root.winfo_width() - w) // 2
+        y = self.root.winfo_y() + (self.root.winfo_height() - h) // 2
+        dialog.geometry(f"{w}x{h}+{x}+{y}")
 
     # ========== STARTUP / APP-INSTALL WATCHER ==========
 
     def _start_system_watchers(self) -> None:
         """
         Launch the StartupWatcher background thread.
-        Callbacks are marshalled onto the main tkinter thread via root.after(0,…).
+        The watcher's callbacks only fill a mailbox; the window shows the
+        toasts on its own thread (ui/bg.py).
         """
         try:
             from core.startup_watcher import get_watcher
             watcher = get_watcher()
-            watcher.register_startup_cb(self._on_new_startup_entry)
-            watcher.register_app_cb(self._on_new_app_installed)
+            # the watcher's thread only fills a mailbox (no Tk, no window
+            # held); the window shows the toasts on its own thread
+            from ui import bg as _bg_ui
+            box = _bg_ui.Mailbox()
+            watcher.register_startup_cb(lambda name, exe, hive, b=box: b.put(("startup", (name, exe, hive))))
+            watcher.register_app_cb(lambda name, path, b=box: b.put(("app", (name, path))))
+            _bg_ui.watch(self.root, box, lambda it: (self._on_new_startup_entry(*it[1]) if it[0] == "startup"
+                                                     else self._on_new_app_installed(*it[1])),
+                         every_ms=1000)
             watcher.start()
             _dbg("[SystemWatcher] Startup + app-install watcher started.")
         except Exception as exc:
             print(f"[SystemWatcher] Failed to start: {exc}")
 
     def _on_new_startup_entry(self, name: str, exe: str, hive: str) -> None:
-        """Called from watcher thread - marshal to main thread."""
+        """On the UI thread (the watcher's mailbox, ui/bg.py)."""
         def _show():
             try:
                 import json, os as _os
-                _sf = _os.path.join(
-                    _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
-                    "settings", "app_settings.json",
-                )
+                from utils.paths import APP_DIR as _APP_DIR
+                _sf = _os.path.join(_APP_DIR, "settings", "app_settings.json")
                 with open(_sf, encoding="utf-8") as _f:
                     lang = json.load(_f).get("language", "en")
             except Exception:
@@ -4749,24 +5378,22 @@ class ExpandedMainWindow:
                 self.root, name, exe, hive,
                 on_manage=_go_startup, lang=lang,
             )
-        self.root.after(0, _show)
+        _show()
 
     def _on_new_app_installed(self, display_name: str, exe_path: str) -> None:
-        """Called from watcher thread - marshal to main thread."""
+        """On the UI thread (the watcher's mailbox, ui/bg.py)."""
         def _show():
             try:
                 import json, os as _os
-                _sf = _os.path.join(
-                    _os.path.dirname(_os.path.dirname(_os.path.dirname(__file__))),
-                    "settings", "app_settings.json",
-                )
+                from utils.paths import APP_DIR as _APP_DIR
+                _sf = _os.path.join(_APP_DIR, "settings", "app_settings.json")
                 with open(_sf, encoding="utf-8") as _f:
                     lang = json.load(_f).get("language", "en")
             except Exception:
                 lang = "en"
             from ui.components.system_toast import show_app_install_toast
             show_app_install_toast(self.root, display_name, exe_path, lang=lang)
-        self.root.after(0, _show)
+        _show()
 
     # ========== MAIN LOOP ==========
 
@@ -4815,7 +5442,7 @@ def _open_hw_table_popup(anchor):
                      font=(_BODY, 10), bg="#07090f", fg="#ef4444").pack(pady=50)
     else:
         tk.Label(content, text="Hardware table not available",
-                 font=(_BODY, 10), bg="#07090f", fg="#6b7280").pack(pady=50)
+                 font=(_BODY, 10), bg="#07090f", fg="#8d97a8").pack(pady=50)
 
     # Center on screen - wider for 4 columns
     popup.update_idletasks()

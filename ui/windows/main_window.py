@@ -1,6 +1,7 @@
 # ui/main_window.py
 """Main application window for PC Workman."""
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import ttk
 import threading
@@ -43,8 +44,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -64,6 +65,11 @@ class MainWindow:
         # mainloop only services one). `master` is the Expanded root; tk.Tk() stays
         # only as a fallback for a hypothetical standalone launch.
         self.root = tk.Toplevel(master) if master is not None else tk.Tk()
+        if master is None:
+            # standalone: pump the calls queued from worker threads (ui/bg.py);
+            # as a Toplevel the Expanded window's pump already serves it
+            from ui import bg as _bg_ui
+            _bg_ui.install(self.root)
         try:
             from utils.app_version import APP_VERSION as _av
         except ImportError:
@@ -126,10 +132,13 @@ class MainWindow:
             return
 
         try:
+            # pystray calls these on its own thread: they only queue the
+            # work for the UI thread (ui/bg.py, 2026-11-21)
+            from ui import bg as _bg_ui
             self.tray_manager = SystemTrayManager(
-                main_window_callback=self._restore_from_tray,
-                stats_callback=self._show_stats_window,
-                quit_callback=self._quit_application
+                main_window_callback=lambda: _bg_ui.post(self._restore_from_tray),
+                stats_callback=lambda: _bg_ui.post(self._show_stats_window),
+                quit_callback=lambda: _bg_ui.post(self._quit_application)
             )
             self.tray_manager.start()
         except Exception as e:
@@ -252,7 +261,7 @@ class MainWindow:
             cursor="hand2"
         )
         self.lock_indicator.pack(side="right", padx=8)
-        self.lock_indicator.bind("<Button-1>", lambda e: self._toggle_position_lock())
+        self.lock_indicator.bind("<Button-1>", lambda e=None: self._toggle_position_lock())
 
         # GPT Panel (if available)
         if HCKGPTPanel:
@@ -295,9 +304,9 @@ class MainWindow:
             lbl.config(bg=bg, fg=("#ffffff" if on else ACC))
 
         for w in (ctrl, lbl):
-            w.bind("<Enter>", lambda e: _hover(True))
-            w.bind("<Leave>", lambda e: _hover(False))
-            w.bind("<Button-1>", lambda e: self._switch_to_expanded())
+            w.bind("<Enter>", lambda e=None: _hover(True))
+            w.bind("<Leave>", lambda e=None: _hover(False))
+            w.bind("<Button-1>", lambda e=None: self._switch_to_expanded())
 
         self.expand_control = ctrl
         ctrl.lift()
@@ -401,8 +410,8 @@ class MainWindow:
                 w.bind("<Leave>", le)
 
         # Hover bindings for sidebar expand/collapse
-        self.sidebar.bind("<Enter>", lambda e: self._expand_sidebar())
-        self.sidebar.bind("<Leave>", lambda e: self._collapse_sidebar_delayed())
+        self.sidebar.bind("<Enter>", lambda e=None: self._expand_sidebar())
+        self.sidebar.bind("<Leave>", lambda e=None: self._collapse_sidebar_delayed())
 
     def _build_all_pages(self):
         """Build all page frames"""
@@ -468,7 +477,7 @@ class MainWindow:
                            font=(_BODY, 10), bg=THEME["bg_panel"],
                            fg=THEME["accent"], cursor="hand2", padx=15, pady=8)
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
-        back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
+        back_btn.bind("<Button-1>", lambda e=None: self.show_page("dashboard"))
 
         # Content area
         content = tk.Frame(parent, bg=THEME["bg_main"])
@@ -503,7 +512,7 @@ class MainWindow:
                              fg=THEME["text"], cursor="hand2", relief="raised",
                              padx=15, pady=10)
         wizard_btn.pack(side="left", padx=5)
-        wizard_btn.bind("<Button-1>", lambda e: self._open_services_wizard())
+        wizard_btn.bind("<Button-1>", lambda e=None: self._open_services_wizard())
 
         # Quick disable button
         quick_btn = tk.Label(btn_frame, text="⚡ Quick Disable Unnecessary",
@@ -511,7 +520,7 @@ class MainWindow:
                             fg=THEME["bg_panel"], cursor="hand2", relief="raised",
                             padx=15, pady=10)
         quick_btn.pack(side="left", padx=5)
-        quick_btn.bind("<Button-1>", lambda e: self._quick_disable_services())
+        quick_btn.bind("<Button-1>", lambda e=None: self._quick_disable_services())
 
         # Process Optimization Section
         proc_frame = tk.Frame(content, bg=THEME["bg_panel"])
@@ -555,7 +564,7 @@ class MainWindow:
                            font=(_BODY, 10), bg=THEME["bg_panel"],
                            fg=THEME["accent"], cursor="hand2", padx=15, pady=8)
         back_btn.pack(anchor="w", padx=20, pady=(0, 10))
-        back_btn.bind("<Button-1>", lambda e: self.show_page("dashboard"))
+        back_btn.bind("<Button-1>", lambda e=None: self.show_page("dashboard"))
 
         # Content area - 3 columns side by side
         content = tk.Frame(parent, bg=THEME["bg_main"])
@@ -630,13 +639,13 @@ class MainWindow:
 
         # Status line 1: Component health
         status1 = tk.Label(panel, text="⚙️ System status: stable",
-                          font=(_BODY, 6), bg=THEME["bg_panel"],
+                          font=(_BODY, 7), bg=THEME["bg_panel"],
                           fg="#10b981", anchor="w")
         status1.pack(fill="x", padx=6, pady=(2, 0))
 
         # Status line 2: Load status
         status2 = tk.Label(panel, text="📊 Normal activity",
-                          font=(_BODY, 6), bg=THEME["bg_panel"],
+                          font=(_BODY, 7), bg=THEME["bg_panel"],
                           fg="#fbbf24", anchor="w")
         status2.pack(fill="x", padx=6, pady=(0, 4))
 
@@ -922,7 +931,7 @@ class MainWindow:
 
         # Click handler
         for widget in [self.opt_btn_frame, opt_content, opt_left, opt_text_frame]:
-            widget.bind("<Button-1>", lambda e: self._open_optimization_page())
+            widget.bind("<Button-1>", lambda e=None: self._open_optimization_page())
 
         # YOUR PC button
         self.yourpc_btn_frame = tk.Frame(parent, bg="#2563eb", cursor="hand2", relief="flat")
@@ -951,7 +960,7 @@ class MainWindow:
 
         # Click handler
         for widget in [self.yourpc_btn_frame, pc_content, pc_left, pc_text_frame]:
-            widget.bind("<Button-1>", lambda e: self._open_yourpc_page())
+            widget.bind("<Button-1>", lambda e=None: self._open_yourpc_page())
 
         # Right panel (Data View + System processes)
         self._build_right_panel(parent, content_w, right_w, chart_h)
@@ -992,7 +1001,7 @@ class MainWindow:
                 bd=1
             )
             btn.place(x=8, y=y, width=right_w-24, height=24)
-            btn.bind("<Button-1>", lambda e, m=mode_key: self._on_data_view_change(m))
+            btn.bind("<Button-1>", lambda e=None, m=mode_key: self._on_data_view_change(m))
 
             self.data_view_buttons[mode_key] = btn
             y += 30
@@ -1330,8 +1339,8 @@ class MainWindow:
             cpu_container = tk.Frame(bars_frame, bg=row_bg)
             cpu_container.pack(side="left", padx=2)
 
-            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 6),
-                              bg=row_bg, fg="#6b7280", width=3)
+            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 7),
+                              bg=row_bg, fg="#8d97a8", width=3)
             cpu_lbl.pack(side="left", padx=(0,2))
 
             self._create_inline_bar(cpu_container, cpu, "#3b82f6", f"{cpu:.0f}%", bg=row_bg)
@@ -1340,15 +1349,15 @@ class MainWindow:
             ram_container = tk.Frame(bars_frame, bg=row_bg)
             ram_container.pack(side="left", padx=2)
 
-            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 6),
-                              bg=row_bg, fg="#6b7280", width=3)
+            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 7),
+                              bg=row_bg, fg="#8d97a8", width=3)
             ram_lbl.pack(side="left", padx=(0,2))
 
             ram_pct = min((ram_mb / 8192) * 100, 100)
             self._create_inline_bar(ram_container, ram_pct, "#fbbf24", f"{ram_mb:.0f}MB", bg=row_bg)
 
             # Click to show info
-            row.bind("<Button-1>", lambda e, p=proc_name: self._show_process_info_click(e, p))
+            row.bind("<Button-1>", lambda e=None, p=proc_name: self._show_process_info_click(e, p))
 
             self.top5_widgets.append(row)
 
@@ -1423,8 +1432,8 @@ class MainWindow:
             cpu_container = tk.Frame(bars_frame, bg=row_bg)
             cpu_container.pack(side="left", padx=2)
 
-            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 6),
-                              bg=row_bg, fg="#6b7280", width=3)
+            cpu_lbl = tk.Label(cpu_container, text="CPU", font=(_BODY, 7),
+                              bg=row_bg, fg="#8d97a8", width=3)
             cpu_lbl.pack(side="left", padx=(0,2))
 
             self._create_inline_bar(cpu_container, cpu, "#3b82f6", f"{cpu:.0f}%", bg=row_bg)
@@ -1433,15 +1442,15 @@ class MainWindow:
             ram_container = tk.Frame(bars_frame, bg=row_bg)
             ram_container.pack(side="left", padx=2)
 
-            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 6),
-                              bg=row_bg, fg="#6b7280", width=3)
+            ram_lbl = tk.Label(ram_container, text="RAM", font=(_BODY, 7),
+                              bg=row_bg, fg="#8d97a8", width=3)
             ram_lbl.pack(side="left", padx=(0,2))
 
             ram_pct = min((ram_mb / 8192) * 100, 100)
             self._create_inline_bar(ram_container, ram_pct, "#fbbf24", f"{ram_mb:.0f}MB", bg=row_bg)
 
             # Click to show info
-            row.bind("<Button-1>", lambda e, p=proc_name: self._show_process_info_click(e, p))
+            row.bind("<Button-1>", lambda e=None, p=proc_name: self._show_process_info_click(e, p))
 
             self.sys_widgets.append(row)
 
