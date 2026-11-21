@@ -1,0 +1,36 @@
+# The old address huckler2003.github.io/PC_Workman_HCK/ answered 404 while
+# search engines still listed it (2026-11-21). This publishes ONLY the folder
+# pages-redirect/ (four tiny files that send every old address to the same
+# page on pcworkman.dev). Never point GitHub Pages at docs/: that would put a
+# second full copy of the site online.
+name: Old GitHub Pages address -> pcworkman.dev
+
+on:
+  push:
+    branches: [main]
+    paths: ["pages-redirect/**", ".github/workflows/pages-redirect.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pages-redirect
+      - id: deployment
+        uses: actions/deploy-pages@v4
