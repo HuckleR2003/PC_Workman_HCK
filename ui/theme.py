@@ -2,10 +2,11 @@
 # Afterburner Neon theme for PC_Workman_HCK UI (v1.0.7 Guardian UI)
 
 # ── Font system ────────────────────────────────────────────────────────────────
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
 
 THEME = {
     # Window

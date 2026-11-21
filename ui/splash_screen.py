@@ -3,6 +3,7 @@ Splash Screen for PC Workman HCK
 Beautiful animated intro with HCK_Labs logo
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import PhotoImage
 import os
@@ -17,8 +18,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -36,16 +37,26 @@ _BRAND_RED = "#c0182a"   # app bordeaux accent, matches the sidebar / logo
 class SplashScreen:
     """Animated splash screen with fade-in and fade-out effects"""
 
-    def __init__(self, duration=2.5, on_complete=None):
+    # Never hold the logo longer than this, whatever the caller does: a
+    # loader that hangs must not leave an always-on-top logo on the screen.
+    MAX_HOLD_S = 30.0
+
+    def __init__(self, duration=2.5, on_complete=None, release=None):
         """
         Create splash screen with HCK_Labs logo
 
         Args:
             duration: Total duration in seconds (default 2.5s)
             on_complete: Callback function to call when splash is done
+            release: optional threading.Event. When given, the logo stays at
+                full opacity until the event is set (and the normal hold time
+                has passed), then fades out. This is how the logo covers the
+                whole startup now that there is no console window.
         """
         self.duration = duration
         self.on_complete = on_complete
+        self.release = release
+        self._fade_out_start = None
         self.running = True
 
         # Create window
@@ -132,18 +143,25 @@ class SplashScreen:
         import time
         elapsed = time.time() - self.start_time
 
+        hold_end = self.fade_in_duration + self.hold_duration
+        if self._fade_out_start is None and elapsed >= hold_end:
+            released = self.release is None or self.release.is_set()
+            if released or elapsed >= hold_end + self.MAX_HOLD_S:
+                self._fade_out_start = elapsed
+
         if elapsed < self.fade_in_duration:
             # FADE IN (0.0 -> 1.0)
             progress = elapsed / self.fade_in_duration
             self.current_alpha = self._ease_out(progress)
 
-        elif elapsed < self.fade_in_duration + self.hold_duration:
-            # HOLD (1.0)
+        elif self._fade_out_start is None:
+            # HOLD (1.0) - until the hold time has passed and, when a release
+            # event was given, until the caller says loading is finished
             self.current_alpha = 1.0
 
-        elif elapsed < self.fade_in_duration + self.hold_duration + self.fade_out_duration:
+        elif elapsed < self._fade_out_start + self.fade_out_duration:
             # FADE OUT (1.0 -> 0.0)
-            fade_out_elapsed = elapsed - self.fade_in_duration - self.hold_duration
+            fade_out_elapsed = elapsed - self._fade_out_start
             progress = fade_out_elapsed / self.fade_out_duration
             self.current_alpha = 1.0 - self._ease_in(progress)
 
@@ -174,15 +192,17 @@ class SplashScreen:
         self.root.mainloop()
 
 
-def show_splash(duration=2.5, on_complete=None):
+def show_splash(duration=2.5, on_complete=None, release=None):
     """
     Convenience function to show splash screen
 
     Args:
         duration: Duration in seconds
         on_complete: Callback when done
+        release: optional threading.Event, see SplashScreen
     """
-    splash = SplashScreen(duration=duration, on_complete=on_complete)
+    splash = SplashScreen(duration=duration, on_complete=on_complete,
+                          release=release)
     splash.show()
 
 

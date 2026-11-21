@@ -7,6 +7,7 @@ Overlay Mini-Monitor  - always-on-top desktop panel
 """
 from __future__ import annotations
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 import time
 import os
@@ -80,20 +81,20 @@ _FREEZE_HOV  = "#283448"
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
 # ── Fonts ─────────────────────────────────────────────────────────────────────
 
-_F_LABEL     = ("Segoe UI Light",    7)     # CPU / RAM / GPU header text (Light = intentional)
-_F_AVG       = (_BODY,               6)     # AVG row - compact
+_F_LABEL     = (_FONT_LIGHT,    7)     # CPU / RAM / GPU header text (Light = intentional)
+_F_AVG       = (_BODY,               7)     # AVG row - compact
 _F_CLOSE     = (_BODY,               9)     # ×
 _F_ARROW     = (_BODY,              10)     # ▾ / ▴
-_F_PROC_RAM  = ("Segoe UI Black",    7)     # Black weight = intentional
+_F_PROC_RAM  = (_FONT_HEAVY,    7)     # Black weight = intentional
 _F_PROC_NAME = (_HDR,                7)
-_F_BTN       = (_HDR,                6)     # compact kill/freeze
+_F_BTN       = (_HDR,                7, "bold")     # compact kill/freeze
 
 
 # ── Geometry ─────────────────────────────────────────────────────────────────
@@ -220,16 +221,16 @@ class OverlayMiniMonitor:
         close = tk.Label(ctrl, text="×", font=_F_CLOSE,
                          bg=_HEADER_BG, fg=_CLOSE_COL, cursor="hand2", padx=2)
         close.pack(side="right")
-        close.bind("<Button-1>", lambda e: self.stop())
-        close.bind("<Enter>",    lambda e: close.config(fg=_CLOSE_HOV))
-        close.bind("<Leave>",    lambda e: close.config(fg=_CLOSE_COL))
+        close.bind("<Button-1>", lambda e=None: self.stop())
+        close.bind("<Enter>",    lambda e=None: close.config(fg=_CLOSE_HOV))
+        close.bind("<Leave>",    lambda e=None: close.config(fg=_CLOSE_COL))
 
         self._arrow = tk.Label(ctrl, text="▾", font=_F_ARROW,
                                bg=_HEADER_BG, fg=_ARROW_COL, cursor="hand2", padx=3)
         self._arrow.pack(side="right")
         self._arrow.bind("<Button-1>", self._toggle_expand)
-        self._arrow.bind("<Enter>",    lambda e: self._arrow.config(fg=_ARROW_HOV))
-        self._arrow.bind("<Leave>",    lambda e: self._arrow.config(fg=_ARROW_COL))
+        self._arrow.bind("<Enter>",    lambda e=None: self._arrow.config(fg=_ARROW_HOV))
+        self._arrow.bind("<Leave>",    lambda e=None: self._arrow.config(fg=_ARROW_COL))
 
         # ── Three equal-width stat cells (grid with uniform weight) ──────────
         stats = tk.Frame(bar, bg=_HEADER_BG)
@@ -303,8 +304,8 @@ class OverlayMiniMonitor:
             cursor="hand2", padx=5, pady=2,
         )
         kill_btn.pack(side="right", padx=(3, 0))
-        kill_btn.bind("<Enter>", lambda e, b=kill_btn: b.config(bg=_KILL_HOV))
-        kill_btn.bind("<Leave>", lambda e, b=kill_btn: b.config(bg=_KILL_BG))
+        kill_btn.bind("<Enter>", lambda e=None, b=kill_btn: b.config(bg=_KILL_HOV))
+        kill_btn.bind("<Leave>", lambda e=None, b=kill_btn: b.config(bg=_KILL_BG))
 
         freeze_btn = tk.Label(
             right, text="FREEZE",
@@ -312,8 +313,8 @@ class OverlayMiniMonitor:
             cursor="hand2", padx=5, pady=2,
         )
         freeze_btn.pack(side="right")
-        freeze_btn.bind("<Enter>", lambda e, b=freeze_btn: b.config(bg=_FREEZE_HOV))
-        freeze_btn.bind("<Leave>", lambda e, b=freeze_btn: b.config(bg=_FREEZE_BG))
+        freeze_btn.bind("<Enter>", lambda e=None, b=freeze_btn: b.config(bg=_FREEZE_HOV))
+        freeze_btn.bind("<Leave>", lambda e=None, b=freeze_btn: b.config(bg=_FREEZE_BG))
 
         return {
             "frame":      frame,
@@ -399,11 +400,11 @@ class OverlayMiniMonitor:
 
                 row["kill_btn"].bind(
                     "<Button-1>",
-                    lambda e, p=pid, r=row: self._kill_process(p, r),
+                    lambda e=None, p=pid, r=row: self._kill_process(p, r),
                 )
                 row["freeze_btn"].bind(
                     "<Button-1>",
-                    lambda e, p=pid, r=row: self._freeze_process(p, r),
+                    lambda e=None, p=pid, r=row: self._freeze_process(p, r),
                 )
             else:
                 row["pid"] = None
