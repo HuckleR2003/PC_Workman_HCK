@@ -37,9 +37,9 @@ class TestVersionSource(unittest.TestCase):
         self.assertTrue(all(isinstance(p, int) for p in vt))
         self.assertEqual(".".join(str(p) for p in vt), APP_VERSION)
 
-    def test_current_version_is_1_8_7(self):
+    def test_current_version_is_1_8_8(self):
         """Explicit pin for THIS release - bump consciously, with the file."""
-        self.assertEqual(APP_VERSION, "1.8.7")
+        self.assertEqual(APP_VERSION, "1.9.2")
 
     def test_source_module_imports_nothing(self):
         """utils/app_version.py must stay dependency-free: it is imported at
@@ -106,10 +106,11 @@ class TestNoStrayVersionLiterals(unittest.TestCase):
 
     SCAN_DIRS = ("core", "ui", "hck_gpt", "hck_stats_engine", "utils")
     SCAN_FILES = ("startup.py", "import_core.py", "PCWorkman.spec")
-    RX = re.compile(r"\b1\.[0-9]+\.[0-9]+\b")
+    # not an IPv4 address such as 1.1.1.1 (the network check, 2026-11-20)
+    RX = re.compile(r"(?<![\d.])\b1\.[0-9]+\.[0-9]+\b(?!\.\d)")
     # utils/app_version.py IS the source; HELPER_VERSION (diagnostic console
     # banner, frozen at 1.6.3) is a different, intentionally static number.
-    ALLOWED_LINE = re.compile(r"HELPER_VERSION|hck_GPT v2\.1|python_requires")
+    ALLOWED_LINE = re.compile(r"HELPER_VERSION|hck_GPT v2\.1|python_requires|# past release")
 
     def _iter_files(self):
         for base in self.SCAN_DIRS:

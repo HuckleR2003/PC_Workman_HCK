@@ -80,7 +80,9 @@ class TestSingleGamingWatcher(unittest.TestCase):
             watcher._check()
             watcher._check()
             watcher._check()
-        self.assertEqual([row[0] for row in events], ["start", "end"])
+        # "tick" (a game still running, 2026-11-20) feeds the session
+        # recorder; starts and ends are still one each
+        self.assertEqual([row[0] for row in events if row[0] != "tick"], ["start", "end"])
         self.assertEqual(events[0][1], "valorant.exe")
 
     def test_duplicate_observer_registration_is_ignored(self):

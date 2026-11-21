@@ -67,7 +67,7 @@ class TestRoutingMatrix(unittest.TestCase):
         import hck_gpt.responses.r_performance as rp
         import inspect
         src = inspect.getsource(rp.PerformanceResponses._resp_speed_up_pc)
-        self.assertIn("zoptymalizuj komputer", src,
+        self.assertIn("§OFFER optimize", src,
                       "speed_up_pc must offer the guided flow")
 
 

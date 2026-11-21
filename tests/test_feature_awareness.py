@@ -113,8 +113,9 @@ class TestFeatureAwareness(unittest.TestCase):
     def test_why_slow_answer_links_optimization_and_guide(self):
         txt = self._answer("why_slow", "moj pc laguje")
         self.assertIn("[-> Optimization]", txt)
-        self.assertTrue("5 krok" in txt or "zoptymalizuj komputer" in txt,
-                        "why_slow should offer the 5-step guided fix")
+        self.assertIn("§OFFER optimize", txt,
+                      "why_slow should offer the guided fix (2026-11-17: as a marker "
+                      "the chat turns into a highlighted line with a button)")
 
     def test_upgrade_answer_links_upgrade_readiness(self):
         txt = self._answer("upgrade_compat", "chce kupic nowy procesor")
@@ -132,8 +133,8 @@ class TestFeatureAwareness(unittest.TestCase):
 
     def test_five_step_guide_flow_exists(self):
         src = _read("hck_gpt", "responses", "flows.py")
-        self.assertTrue("5 krok" in src or "5 steps" in src,
-                        "the 5-step optimization guide must exist in flows")
+        self.assertIn("_STEPS = 6", src,
+                      "the optimization guide (6 steps since 2026-11-17) must exist in flows")
 
 
 class TestOptimizationTilesResearchPass(unittest.TestCase):

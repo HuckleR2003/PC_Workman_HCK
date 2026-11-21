@@ -10,7 +10,14 @@ Two fixes this locks in:
      names come from the warmed hardware_detector instead.
 """
 import inspect
+import os
+import tempfile
 import unittest
+
+# Building the real window starts the crash log and freeze watchdog. Keep
+# their output out of data/logs, which holds evidence from real use.
+if not os.environ.get("PCW_LOG_DIR"):
+    os.environ["PCW_LOG_DIR"] = tempfile.mkdtemp(prefix="pcw_test_logs_")
 
 
 class TestNoBlockingWmicInBuild(unittest.TestCase):
@@ -39,7 +46,7 @@ class TestPhase1SkipsDashboard(unittest.TestCase):
         from ui.windows.main_window_expanded import ExpandedMainWindow as E
         self.assertTrue(E._overlay_full_cover("your_pc"))
         self.assertTrue(E._overlay_full_cover("sensors"))
-        self.assertFalse(E._overlay_full_cover("settings"))
+        self.assertTrue(E._overlay_full_cover("settings"))  # full page since 2026-11-17
 
     def test_sidebar_overlay_path_skips_build_when_no_dashboard(self):
         from ui.windows.main_window_expanded import ExpandedMainWindow as E
@@ -64,6 +71,7 @@ class TestPhase2KeepAlive(unittest.TestCase):
         except tk.TclError:
             raise unittest.SkipTest("no display available")
         import ui.windows.main_window_expanded as mwe
+        from _isolate import isolate_window_state; isolate_window_state()
         cls.win = mwe.ExpandedMainWindow(
             data_manager=None, monitor=None,
             switch_to_minimal_callback=lambda: None,

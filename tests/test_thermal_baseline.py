@@ -55,6 +55,37 @@ class TestNoLHMMachineStillLearns(unittest.TestCase):
     def test_overall_pct_is_not_zero(self):
         self.assertGreater(self.tb.overall_training_pct(), 0)
 
+    def test_overall_pct_counts_the_workloads_that_occur(self):
+        """2026-11-16: progress towards "trained" in the workloads this PC
+        actually runs. Not all samples together (an idle-heavy PC read 100 %
+        with "heavy" unseen) and not towards "calibrated" in all five (an
+        afternoon read 5 %)."""
+        pm = self.tb.primary_metric()
+        ns = [self.tb.get_range(b, pm).n for b in tbm.BUCKETS]
+        bd = self.tb.training_breakdown(pm)
+        used = list(bd["typical"].values())
+        expect = int(sum(min(100.0, n / tbm.T_TRAINED * 100) for n in used) / len(used))
+        self.assertEqual(self.tb.overall_training_pct(pm), expect)
+        self.assertIn(0, ns, "the seed leaves a workload unseen")
+
+    def test_rare_workloads_do_not_hold_the_figure_down(self):
+        """2026-11-20, the author's PC after 136 h: idle 2126, light 628,
+        medium 51, heavy 3, gaming 159 minutes read 79 %. Medium and heavy
+        are under 5 % of the time: rare, learned along the way."""
+        counts = {"idle": 2126, "light": 628, "medium": 51, "heavy": 3, "gaming": 159}
+
+        class _R:
+            def __init__(self, n): self.n = n
+        old = self.tb.get_range
+        try:
+            self.tb.get_range = lambda b, m=None: _R(counts[b])
+            bd = self.tb.training_breakdown("gpu_temp")
+            self.assertEqual(set(bd["typical"]), {"idle", "light", "gaming"})
+            self.assertEqual(set(bd["rare"]), {"medium", "heavy"})
+            self.assertEqual(self.tb.overall_training_pct("gpu_temp"), 96)
+        finally:
+            self.tb.get_range = old
+
     def test_gaming_bucket_learned_real_gpu_range(self):
         g = self.tb.get_range("gaming", "gpu_temp")
         self.assertTrue(g.is_usable)

@@ -120,7 +120,8 @@ class TestOptimizeFlow(unittest.TestCase):
                {"ram_pct": 61.0, "cpu_pct": 20.0, "procs": 231}]   # verify
         with mock.patch.object(flows, "_measure", side_effect=seq), \
              mock.patch.object(flows, "_startup_flagged",
-                               return_value=(4, 19)):
+                               return_value=([{"name": f"App{i}", "impact": "high"}
+                                              for i in range(4)], 19)):
             s0 = eng.start("optimize", rb, "pl")
             self.assertTrue(any("82" in x for x in s0), "baseline in step 1")
             s1 = eng.process_input("dalej", rb)
@@ -142,6 +143,11 @@ class TestOptimizeFlow(unittest.TestCase):
         self.assertIn("-21", joined, "verify must show the MEASURED delta")
         self.assertIn("500", joined, "freed MB must be reported")
         self.assertTrue(fake.flush_now.called)
+        # 2026-11-17: step 5 now offers the components check; skipping it
+        # ends the guide
+        self.assertTrue(eng.is_active())
+        end = eng.process_input("pomiń", rb)
+        self.assertTrue(any("zakończony" in x for x in end), end)
         self.assertFalse(eng.is_active())
 
     def test_ledger_records_and_recall_answers(self):

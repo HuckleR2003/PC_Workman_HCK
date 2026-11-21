@@ -11,11 +11,16 @@ Three behaviors must never regress:
      still round-trips and never re-locks the window.
 """
 import os
+import tempfile
 import unittest
 
 os.environ.setdefault("PCW_DEBUG", "0")
+# Building the real window starts the crash log and freeze watchdog. Keep
+# their output out of data/logs, which holds evidence from real use.
+if not os.environ.get("PCW_LOG_DIR"):
+    os.environ["PCW_LOG_DIR"] = tempfile.mkdtemp(prefix="pcw_test_logs_")
 
-from utils.ui_scale import _compute_scale, _BASE_W, _BASE_H
+from utils.ui_scale import _compute_scale, _BASE_W, _BASE_H, window_size
 
 
 class TestScaleFormula(unittest.TestCase):
@@ -30,18 +35,19 @@ class TestScaleFormula(unittest.TestCase):
         986x489 window). New formula fills the screen -> full 1.0."""
         s = _compute_scale(1366, 768)
         self.assertEqual(s, 1.0)
-        self.assertLessEqual(_BASE_W * s, 1366 * 0.9)
+        self.assertLessEqual(window_size(1366, 768)[0], 1366 * 0.93)
 
     def test_1280x720_window_fits_screen(self):
         s = _compute_scale(1280, 720)
         self.assertGreater(s, 0.9)          # old formula: 0.85
-        self.assertLessEqual(_BASE_W * s, 1280 * 0.92)
-        self.assertLessEqual(_BASE_H * s, 720 * 0.90)
+        w, h = window_size(1280, 720)
+        self.assertLessEqual(w, 1280 * 0.92)
+        self.assertLessEqual(h, 720 * 0.90)
 
     def test_1024x768_floor_holds(self):
         s = _compute_scale(1024, 768)
         self.assertGreaterEqual(s, 0.75)
-        self.assertLessEqual(_BASE_W * s, 1024)
+        self.assertLessEqual(window_size(1024, 768)[0], 1024)
 
     def test_never_above_fhd_baseline_below_1920(self):
         for sw, sh in ((1600, 900), (1440, 900), (1366, 768), (1280, 800)):
@@ -62,10 +68,13 @@ class TestScaleFormula(unittest.TestCase):
             (3840, 1080), (3840, 1600), (3840, 2160), (5120, 1440),
         )
         for sw, sh in screens:
-            s = _compute_scale(sw, sh)
-            w, h = _BASE_W * s, _BASE_H * s
+            w, h = window_size(sw, sh)
             self.assertLessEqual(w, sw, f"window wider than {sw}x{sh}")
             self.assertLessEqual(h + TASKBAR, sh, f"window taller than {sw}x{sh}")
+
+    def test_1080p_window_is_the_enlarged_base(self):
+        """2026-11-16: +12 % window on 1080p; fonts follow FONT_BOOST."""
+        self.assertEqual(window_size(1920, 1080), (_BASE_W, _BASE_H))
 
     def test_standard_tiers_did_not_move(self):
         """The ultrawide clamp must not touch normal screens: 1080p stays 1:1."""
@@ -87,6 +96,7 @@ class TestResizableWindow(unittest.TestCase):
         import utils.ui_scale as uis
         cls.uis = uis
         try:
+            from _isolate import isolate_window_state; isolate_window_state()
             cls.win = mwe.ExpandedMainWindow(
                 data_manager=None, monitor=None,
                 switch_to_minimal_callback=lambda: None,

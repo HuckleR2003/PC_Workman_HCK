@@ -10,9 +10,14 @@ ExpandedMainWindow on a live Tk root and fires every nav item, so that class
 of break can never ship silently again.
 """
 import os
+import tempfile
 import unittest
 
 os.environ.setdefault("PCW_DEBUG", "0")
+# Building the real window starts the crash log and freeze watchdog. Keep
+# their output out of data/logs, which holds evidence from real use.
+if not os.environ.get("PCW_LOG_DIR"):
+    os.environ["PCW_LOG_DIR"] = tempfile.mkdtemp(prefix="pcw_test_logs_")
 
 # Every (page_id, subpage_id) the sidebar actually emits, from _nav_structure.
 NAV = [
@@ -48,6 +53,7 @@ class TestSidebarNavigationEndToEnd(unittest.TestCase):
             raise unittest.SkipTest("no display available")
         import ui.windows.main_window_expanded as mwe
         try:
+            from _isolate import isolate_window_state; isolate_window_state()
             cls.win = mwe.ExpandedMainWindow(
                 data_manager=None, monitor=None,
                 switch_to_minimal_callback=lambda: None,

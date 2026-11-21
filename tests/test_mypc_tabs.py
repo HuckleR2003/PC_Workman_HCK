@@ -97,5 +97,39 @@ class TestEmptyStates(_TkTabTest):
         f.destroy()
 
 
+class TestTwoPagesDoNotShareTabs(_TkTabTest):
+    """Fifth long test (2026-11-17): "Live graphs" built a second My PC page;
+    after it closed, every tab click in the kept page raised TclError on a
+    destroyed label and the in-game overlay view could not be left."""
+
+    def test_kept_page_works_after_the_second_one_is_gone(self):
+        win = self._fake()
+        kept = self.tk.Frame(self.root)
+        self.yp.build_yourpc_page(win, kept)
+        kept_tabs = win.yourpc_tabs
+        second = self.tk.Frame(self.root)
+        self.yp.build_yourpc_page(win, second)
+        second.destroy()
+        self.root.update_idletasks()
+        self.assertTrue(self.yp.use_page_in(win, kept))
+        self.assertIs(win.yourpc_tabs, kept_tabs)
+        self.yp._open_gaming_configurator(win)
+        self.root.update_idletasks()
+        self.yp._show_tab(win, "central")
+        self.assertEqual(win.yourpc_active_tab, "central")
+        shown = [w for w in win.yourpc_content_frame.winfo_children()
+                 if w.winfo_manager() == "pack"]
+        self.assertEqual(len(shown), 1, "only the central tab is shown, no overlay left")
+        kept.destroy()
+
+    def test_no_page_left_is_quiet(self):
+        win = self._fake()
+        f = self.tk.Frame(self.root)
+        self.yp.build_yourpc_page(win, f)
+        f.destroy()
+        self.yp._show_tab(win, "health")
+        self.yp._open_gaming_configurator(win)
+
+
 if __name__ == "__main__":
     unittest.main()

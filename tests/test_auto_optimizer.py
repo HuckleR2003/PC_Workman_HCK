@@ -38,7 +38,16 @@ class TestTppReconcile(unittest.TestCase):
                                           lambda: {"Turbo PC": "TURBO-GUID"})
         self.p_set    = mock.patch.object(ao, "_pp_set",
                                           lambda g: self.calls.append(g) or True)
-        for p in (self.p_admin, self.p_active, self.p_list, self.p_set):
+        # Since 2026-11-14 tpp_activate writes the original plan to
+        # settings/turbo_state.json. Without this the test wrote "ORIG-GUID"
+        # into the REAL settings file of the machine running it.
+        import os
+        import tempfile
+        state_dir = tempfile.mkdtemp(prefix="pcw_test_state_")
+        self.p_state  = mock.patch.object(
+            ao, "_STATE_PATH", os.path.join(state_dir, "turbo_state.json"))
+        for p in (self.p_admin, self.p_active, self.p_list, self.p_set,
+                  self.p_state):
             p.start()
             self.addCleanup(p.stop)
 
