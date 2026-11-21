@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PC Workman moved to pcworkman.dev</title>
+<meta name="robots" content="noindex,follow">
+<script>
+/* Any old address under /PC_Workman_HCK/ goes to the same page on
+   pcworkman.dev (2026-11-21). Cloudflare Pages serves pages without
+   ".html", and a folder's index.html as the folder itself. */
+(function () {
+  var p = location.pathname.replace(/^\/PC_Workman_HCK/i, "");
+  p = p.replace(/index\.html$/i, "").replace(/\.html$/i, "");
+  if (!p) p = "/";
+  location.replace("https://pcworkman.dev" + p + location.search + location.hash);
+})();
+</script>
+</head>
+<body>
+<p>PC Workman lives at <a href="https://pcworkman.dev/">pcworkman.dev</a>.</p>
+</body>
+</html>
