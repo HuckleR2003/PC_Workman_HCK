@@ -34,6 +34,7 @@ Usage
 """
 from __future__ import annotations
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from datetime import datetime
 
@@ -41,7 +42,7 @@ from datetime import datetime
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -171,19 +172,19 @@ class InteractiveChart:
         ctrl = tk.Frame(self._frame, bg=bg)
         ctrl.pack(fill="x", pady=(1, 0))
         if label:
-            tk.Label(ctrl, text=label, font=(_MONO, 6, "bold"),
+            tk.Label(ctrl, text=label, font=(_MONO, 7, "bold"),
                      bg=bg, fg="#74839a").pack(side="left", padx=6)
 
         reset_btn = tk.Label(ctrl, text="⟲ reset",
-                             font=(_MONO, 6), bg=bg, fg=_C["reset_fg"],
+                             font=(_MONO, 7), bg=bg, fg=_C["reset_fg"],
                              cursor="hand2")
         reset_btn.pack(side="right", padx=(0, 6))
-        reset_btn.bind("<Button-1>", lambda e: self.reset_view())
-        reset_btn.bind("<Enter>",    lambda e: reset_btn.config(fg=_C["reset_hov"]))
-        reset_btn.bind("<Leave>",    lambda e: reset_btn.config(fg=_C["reset_fg"]))
+        reset_btn.bind("<Button-1>", lambda e=None: self.reset_view())
+        reset_btn.bind("<Enter>",    lambda e=None: reset_btn.config(fg=_C["reset_hov"]))
+        reset_btn.bind("<Leave>",    lambda e=None: reset_btn.config(fg=_C["reset_fg"]))
 
         self._zoom_lbl = tk.Label(ctrl, text="",
-                                  font=(_MONO, 6), bg=bg, fg=_C["text"])
+                                  font=(_MONO, 7), bg=bg, fg=_C["text"])
         self._zoom_lbl.pack(side="right", padx=(0, 4))
 
         self._bind_events()
@@ -369,7 +370,7 @@ class InteractiveChart:
             cv.create_line(PL, y, W - PR, y, fill=_C["grid"], width=1)
             label_str = f"{v:.1f}" if yrng < 5 else f"{v:.0f}"
             cv.create_text(PL - 4, y, text=label_str,
-                           fill=_C["text"], font=(_MONO, 5), anchor="e")
+                           fill=_C["text"], font=(_MONO, 7), anchor="e")
 
         # ── Baseline band ─────────────────────────────────────────────────────
         if self._baseline:
@@ -444,7 +445,7 @@ class InteractiveChart:
                     anch = ("w" if frac == 0.0 else "e" if frac == 1.0 else "center")
                     cv.create_text(ax, H - 5,
                                    text=datetime.fromtimestamp(ts_v).strftime(fmt),
-                                   fill=_C["text"], font=(_MONO, 5), anchor=anch)
+                                   fill=_C["text"], font=(_MONO, 7), anchor=anch)
 
     def _draw_bars(self, cv, W, H, n, lo, hi, PL, PR, PT, ch) -> None:
         """Bar-mode rendering: overlapping vertical bars (CPU → RAM → GPU, last on top).
@@ -463,7 +464,7 @@ class InteractiveChart:
             y = vy(pct)
             cv.create_line(PL, y, W - self._PR, y, fill=_C["grid"], width=1)
             cv.create_text(PL - 4, y, text=str(pct), fill=_C["text"],
-                           font=(_MONO, 5), anchor="e")
+                           font=(_MONO, 7), anchor="e")
 
         visible_n = hi - lo + 1
         slot_px   = (W - PL - self._PR) / max(visible_n, 1)
@@ -509,7 +510,7 @@ class InteractiveChart:
                     anch = "w" if frac_t == 0.0 else ("e" if frac_t == 1.0 else "center")
                     cv.create_text(ax, H - 5,
                                    text=datetime.fromtimestamp(ts_v).strftime(fmt),
-                                   fill=_C["text"], font=(_MONO, 5), anchor=anch)
+                                   fill=_C["text"], font=(_MONO, 7), anchor=anch)
 
     def _draw_pin_tooltip(self, cv, idx, vx, vy, lo, hi, W, H, PL, PR, PT, ch):
         px = vx(idx)
@@ -589,7 +590,7 @@ class InteractiveChart:
         for j, (col, text) in enumerate(lines):
             cv.create_text(tx, ty + j * 15 + 7,
                            text=text, fill=col,
-                           font=(_MONO, 6), anchor="w")
+                           font=(_MONO, 7), anchor="w")
 
     def _draw_minimap(self) -> None:
         mm = self._mm_cv
@@ -658,14 +659,14 @@ class InteractiveChart:
         cv.bind("<MouseWheel>",      self._on_scroll)
         cv.bind("<Motion>",          self._on_motion)
         cv.bind("<Leave>",           self._on_leave)
-        cv.bind("<Configure>",       lambda e: self._redraw())
-        cv.bind("<Key-Escape>",      lambda e: self._unpin())
+        cv.bind("<Configure>",       lambda e=None: self._redraw())
+        cv.bind("<Key-Escape>",      lambda e=None: self._unpin())
 
         if self._mm_cv:
             self._mm_cv.bind("<ButtonPress-1>",   self._on_mm_press)
             self._mm_cv.bind("<B1-Motion>",       self._on_mm_drag)
-            self._mm_cv.bind("<ButtonRelease-1>", lambda e: setattr(self, "_mm_drag", False))
-            self._mm_cv.bind("<Configure>",       lambda e: self._draw_minimap())
+            self._mm_cv.bind("<ButtonRelease-1>", lambda e=None: setattr(self, "_mm_drag", False))
+            self._mm_cv.bind("<Configure>",       lambda e=None: self._draw_minimap())
 
     def _on_press(self, e: tk.Event) -> None:
         self._drag_x     = e.x
@@ -795,7 +796,7 @@ class InteractiveChart:
         cv.create_rectangle(tx - 2, ty - 2, tx + TW, ty + 14,
                              fill=_C["pin_bg"], outline=_C["pin_bd"])
         cv.create_text(tx, ty + 5, text=tip,
-                       fill=_C["pin_fg"], font=(_MONO, 6), anchor="w")
+                       fill=_C["pin_fg"], font=(_MONO, 7), anchor="w")
 
     # ── Pin ───────────────────────────────────────────────────────────────────
 

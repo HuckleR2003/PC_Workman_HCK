@@ -3,6 +3,7 @@ Fan Curve Editor Component - MSI Afterburner / EVGA Precision Style
 Visual drag-and-drop fan curve editor with presets
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from typing import List, Tuple, Optional, Dict, Callable
 import json
@@ -12,8 +13,8 @@ import os
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -75,7 +76,7 @@ class FanCurveEditor:
         tk.Label(
             header,
             text="🌀 Fan Curve Editor",
-            font=("Segoe UI Semibold", 14, "bold"),
+            font=(_FONT_HDR, 14, "bold"),
             bg="#1a1d24",
             fg="#ffffff"
         ).pack(side="left")
@@ -95,7 +96,7 @@ class FanCurveEditor:
             btn = tk.Label(
                 presets_frame,
                 text=name,
-                font=("Segoe UI Semibold", 9, "bold"),
+                font=(_FONT_HDR, 9, "bold"),
                 bg="#1e293b",
                 fg="#94a3b8",
                 cursor="hand2",
@@ -103,7 +104,7 @@ class FanCurveEditor:
                 pady=6
             )
             btn.pack(side="left", padx=5)
-            btn.bind("<Button-1>", lambda e, cb=callback: cb())
+            btn.bind("<Button-1>", lambda e=None, cb=callback: cb())
 
             # Hover effect
             def make_hover(b):
@@ -137,7 +138,7 @@ class FanCurveEditor:
             text="💡 Drag points to adjust curve | Click to add points | Right-click to remove",
             font=(_BODY, 9),
             bg="#1a1d24",
-            fg="#64748b"
+            fg="#8a97ab"
         )
         self.info_label.pack(pady=10)
 
@@ -182,7 +183,7 @@ class FanCurveEditor:
                 self.canvas.create_text(
                     x, self.padding + self.graph_height + 15,
                     text=f"{temp}°C",
-                    fill="#64748b",
+                    fill="#8a97ab",
                     font=(_MONO, 9)
                 )
 
@@ -202,7 +203,7 @@ class FanCurveEditor:
                 self.canvas.create_text(
                     self.padding - 20, y,
                     text=f"{speed}%",
-                    fill="#64748b",
+                    fill="#8a97ab",
                     font=(_MONO, 9)
                 )
 
@@ -413,8 +414,8 @@ class FanCurveEditor:
     def save_curve(self, filename: str):
         """Save curve to JSON file"""
         data = self.get_curve_data()
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=2)
+        from utils.prefs_io import save_json
+        save_json(filename, data)
         print(f"[FanCurve] Saved curve to {filename}")
 
     def load_curve(self, filename: str):
@@ -450,7 +451,7 @@ def create_fan_curve_page(parent, on_curve_change=None):
     tk.Label(
         header,
         text="🌀 Fan Curve Editor",
-        font=("Segoe UI Light", 20, "bold"),
+        font=(_FONT_LIGHT, 20, "bold"),
         bg="#1a1d24",
         fg="#ffffff"
     ).pack(side="left", padx=15, pady=15)
@@ -491,7 +492,7 @@ def create_fan_curve_page(parent, on_curve_change=None):
         btn = tk.Label(
             controls,
             text=text,
-            font=("Segoe UI Semibold", 10, "bold"),
+            font=(_FONT_HDR, 10, "bold"),
             bg="#1e293b",
             fg="#94a3b8",
             cursor="hand2",
@@ -499,7 +500,7 @@ def create_fan_curve_page(parent, on_curve_change=None):
             pady=10
         )
         btn.pack(side="left", padx=10)
-        btn.bind("<Button-1>", lambda e, cb=callback: cb())
+        btn.bind("<Button-1>", lambda e=None, cb=callback: cb())
 
         # Hover effect
         def make_hover(b):

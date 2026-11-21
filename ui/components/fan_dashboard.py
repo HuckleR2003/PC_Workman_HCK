@@ -1,5 +1,6 @@
 """Fan dashboard UI and controls."""
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import ttk, messagebox
 import math
@@ -12,8 +13,8 @@ import os
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -30,6 +31,20 @@ except ImportError:
 
 # Import base classes
 from ui.components.fan_curve_editor import FanCurvePoint
+
+# Every file this page reads or writes lives in APP_DIR (2026-11-15). The paths
+# were relative to the CURRENT folder: started from the Windows autostart that
+# is C:\\Windows\\System32, so Apply, Save Profile and Export failed silently.
+try:
+    from utils.paths import APP_DIR as _APP_DIR
+except Exception:                                   # pragma: no cover
+    _APP_DIR = os.getcwd()
+
+try:
+    from utils.i18n import t as _t
+except Exception:                                   # pragma: no cover
+    def _t(key, default=None, **kw):
+        return default if default is not None else key
 
 
 class FanData:
@@ -132,8 +147,8 @@ class CompactFanCurveGraph(tk.Canvas):
         self.bind("<Button-1>", self._on_click)
         self.bind("<B1-Motion>", self._on_drag)
         self.bind("<ButtonRelease-1>", self._on_release)
-        self.bind("<Enter>", lambda e: self._set_hover(True))
-        self.bind("<Leave>", lambda e: self._set_hover(False))
+        self.bind("<Enter>", lambda e=None: self._set_hover(True))
+        self.bind("<Leave>", lambda e=None: self._set_hover(False))
         self._draw()
 
     # ── Geometry helpers ─────────────────────────────────────────────────────
@@ -240,7 +255,7 @@ class CompactFanCurveGraph(tk.Canvas):
             self.create_line(self.PAD_L, fy, self.PAD_L + gw, fy,
                              fill="#10b981", width=1, dash=(5, 3))
             self.create_text(self.PAD_L + 4, fy - 2, text="MIN",
-                             fill="#10b981", font=(_MONO, 6, "bold"),
+                             fill="#10b981", font=(_MONO, 7, "bold"),
                              anchor="sw")
         try:
             set_rpm = float(self.get_set_rpm() or 0)
@@ -253,7 +268,7 @@ class CompactFanCurveGraph(tk.Canvas):
                              fill="#22d3ee", width=1, dash=(6, 3))
             self.create_text(self.PAD_L + gw - 4, sy - 2,
                              text=f"SET {int(set_rpm)}",
-                             fill="#22d3ee", font=(_MONO, 6, "bold"),
+                             fill="#22d3ee", font=(_MONO, 7, "bold"),
                              anchor="se")
 
         if self._live_temp is not None and 0 <= self._live_temp <= 100:
@@ -280,13 +295,13 @@ class CompactFanCurveGraph(tk.Canvas):
         for i in range(0, 101, 25):
             y = self._py(i)
             self.create_text(self.PAD_L - 8, y, text=f"{i}",
-                             fill="#64748b", font=(_MONO, 7), anchor="e")
+                             fill="#8a97ab", font=(_MONO, 7), anchor="e")
             self.create_text(self.PAD_L + gw + 8, y,
                              text=f"{int(max_rpm * i / 100)}",
-                             fill="#64748b", font=(_MONO, 7), anchor="w")
+                             fill="#8a97ab", font=(_MONO, 7), anchor="w")
         for t in range(0, 101, 20):
             self.create_text(self._px(t), self.PAD_T + gh + 10,
-                             text=f"{t}\u00b0", fill="#64748b",
+                             text=f"{t}\u00b0", fill="#8a97ab",
                              font=(_MONO, 7), anchor="n")
 
         ref_t = self._live_temp if self._live_temp is not None else pts[-1].temp
@@ -326,10 +341,10 @@ class CompactFanCurveGraph(tk.Canvas):
                      highlightbackground="#31395c", highlightthickness=1,
                      padx=6, pady=3)
         b.place(relx=1.0, x=-10, y=8, anchor="ne")
-        b.bind("<Enter>", lambda e: b.config(fg="#e0e7ff", bg="#1d2440"))
-        b.bind("<Leave>", lambda e: b.config(fg="#a5b4fc", bg="#161b2c"))
+        b.bind("<Enter>", lambda e=None: b.config(fg="#e0e7ff", bg="#1d2440"))
+        b.bind("<Leave>", lambda e=None: b.config(fg="#a5b4fc", bg="#161b2c"))
         b.bind("<Button-1>",
-               lambda e: self.on_ai_consult() if self.on_ai_consult else None)
+               lambda e=None: self.on_ai_consult() if self.on_ai_consult else None)
         self._ai_btn = b
 
     # ── Interaction ──────────────────────────────────────────────────────────
@@ -537,7 +552,7 @@ class TrapezoidalProfileButton(tk.Canvas):
         self.on_click = on_click
         self.active = False
 
-        self.bind("<Button-1>", lambda e: self._handle_click())
+        self.bind("<Button-1>", lambda e=None: self._handle_click())
         self.bind("<Enter>", self._on_enter)
         self.bind("<Leave>", self._on_leave)
 
@@ -709,7 +724,7 @@ class AdvancedCoolingPanel(tk.Frame):
                                state="readonly", width=18, font=(_BODY, 7))
         dropdown.pack(fill="x", pady=(2, 0))
         dropdown.bind("<<ComboboxSelected>>",
-                     lambda e: self.on_option_change(label, var.get()))
+                     lambda e=None: self.on_option_change(label, var.get()))
 
     def update_health(self, status: str, mode: str, temp: float):
         """Update health display"""
@@ -762,11 +777,11 @@ class SaveProfileDialog:
 
         # Close button
         close_btn = tk.Label(header, text="✖", font=(_BODY, 10, "bold"),
-                            bg="#1a1d24", fg="#64748b", cursor="hand2", padx=8)
+                            bg="#1a1d24", fg="#8a97ab", cursor="hand2", padx=8)
         close_btn.pack(side="right", padx=8)
-        close_btn.bind("<Button-1>", lambda e: self.dialog.destroy())
-        close_btn.bind("<Enter>", lambda e: close_btn.config(fg="#ef4444"))
-        close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#64748b"))
+        close_btn.bind("<Button-1>", lambda e=None: self.dialog.destroy())
+        close_btn.bind("<Enter>", lambda e=None: close_btn.config(fg="#ef4444"))
+        close_btn.bind("<Leave>", lambda e=None: close_btn.config(fg="#8a97ab"))
 
         # Main content
         content = tk.Frame(self.dialog, bg="#0f1117")
@@ -783,11 +798,11 @@ class SaveProfileDialog:
             btn = tk.Label(profile_btns, text=f"Profile {slot}", font=(_BODY, 10, "bold"),
                           bg="#8b5cf6", fg="#ffffff", cursor="hand2", pady=10)
             btn.pack(side="left", fill="x", expand=True, padx=3)
-            btn.bind("<Button-1>", lambda e, s=slot: self._save_to_slot(s))
+            btn.bind("<Button-1>", lambda e=None, s=slot: self._save_to_slot(s))
 
             def make_hover(b):
-                b.bind("<Enter>", lambda e: b.config(bg="#a855f7"))
-                b.bind("<Leave>", lambda e: b.config(bg="#8b5cf6"))
+                b.bind("<Enter>", lambda e=None: b.config(bg="#a855f7"))
+                b.bind("<Leave>", lambda e=None: b.config(bg="#8b5cf6"))
             make_hover(btn)
 
         # Separator
@@ -800,9 +815,9 @@ class SaveProfileDialog:
         load_btn = tk.Label(content, text="📁 Load from File", font=(_BODY, 10, "bold"),
                            bg="#06b6d4", fg="#ffffff", cursor="hand2", pady=10)
         load_btn.pack(fill="x")
-        load_btn.bind("<Button-1>", lambda e: self._load_from_file())
-        load_btn.bind("<Enter>", lambda e: load_btn.config(bg="#0891b2"))
-        load_btn.bind("<Leave>", lambda e: load_btn.config(bg="#06b6d4"))
+        load_btn.bind("<Button-1>", lambda e=None: self._load_from_file())
+        load_btn.bind("<Enter>", lambda e=None: load_btn.config(bg="#0891b2"))
+        load_btn.bind("<Leave>", lambda e=None: load_btn.config(bg="#06b6d4"))
 
     def _save_to_slot(self, slot):
         """Save profile to P1/P2 slot"""
@@ -814,14 +829,15 @@ class SaveProfileDialog:
         }
 
         # Save to data/profiles/ directory
-        profiles_dir = os.path.join("data", "profiles")
+        profiles_dir = os.path.join(_APP_DIR, "data", "profiles")
         os.makedirs(profiles_dir, exist_ok=True)
 
         filename = os.path.join(profiles_dir, f"profile_{slot.lower()}.json")
 
         try:
-            with open(filename, "w") as f:
-                json.dump(data, f, indent=2)
+            from utils.prefs_io import save_json
+            if not save_json(filename, data):
+                raise OSError(f"could not write {filename}")
 
             messagebox.showinfo("Saved", f"✅ Fan curve saved to Profile {slot}!")
             self.dialog.destroy()
@@ -835,7 +851,7 @@ class SaveProfileDialog:
         filename = filedialog.askopenfilename(
             title="Load Fan Curve Configuration",
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
-            initialdir=os.path.join("data", "profiles")
+            initialdir=os.path.join(_APP_DIR, "data", "profiles")
         )
 
         if not filename:
@@ -1002,7 +1018,9 @@ class FanDashboardUltimate:
             def _do():
                 self._on_profile_change("ai")
                 self._apply(silent=True)
-            self.parent.after(0, _do)
+            # the chat's thread only queues it; the UI thread runs it
+            from ui import bg as _bg_ui
+            _bg_ui.post(_do)
             return True
         except Exception:
             return False
@@ -1081,11 +1099,11 @@ class FanDashboardUltimate:
                             highlightthickness=1)
             chip.pack(side="left", padx=3)
             chip.bind("<Button-1>",
-                      lambda e, p=profile_id: self._on_profile_change(p))
-            chip.bind("<Enter>", lambda e, c=chip, a=accent:
+                      lambda e=None, p=profile_id: self._on_profile_change(p))
+            chip.bind("<Enter>", lambda e=None, c=chip, a=accent:
                       c.config(fg="#e2e8f0", highlightbackground=a)
                       if not getattr(c, "_active", False) else None)
-            chip.bind("<Leave>", lambda e, c=chip:
+            chip.bind("<Leave>", lambda e=None, c=chip:
                       c.config(fg="#94a3b8", highlightbackground="#232b40")
                       if not getattr(c, "_active", False) else None)
             self.profile_buttons[profile_id] = chip
@@ -1130,8 +1148,10 @@ class FanDashboardUltimate:
         fan_info = [
             ("CPU FAN", cpu_model or "CPU cooler"),
             ("GPU FAN", gpu_model or "GPU cooler"),
-            ("FAN 1", "Case front"),
-            ("FAN 2", "Case rear"),
+            # No invented positions ("Case front" / "Case rear"): the label
+            # is filled with the sensor's own name when a fan is detected.
+            ("FAN 1", ""),
+            ("FAN 2", ""),
         ]
 
         self._fan_cards = {}
@@ -1174,16 +1194,18 @@ class FanDashboardUltimate:
         status_lbl = tk.Label(left_info, text="curve", font=(_MONO, 9, "bold"),
                               bg="#131722", fg="#10b981", anchor="w")
         status_lbl.pack(fill="x", pady=(4, 0))
-        tk.Label(left_info, text=model, font=(_BODY, 8),
-                 bg="#131722", fg="#8593a8", anchor="w",
-                 wraplength=88, justify="left").pack(fill="x")
+        model_lbl = tk.Label(left_info, text=model, font=(_BODY, 8),
+                             bg="#131722", fg="#8593a8", anchor="w",
+                             wraplength=88, justify="left")
+        model_lbl.pack(fill="x")
 
         canvas = tk.Canvas(content_row, bg="#131722", width=62, height=62,
                            highlightthickness=0)
         canvas.pack(side="right", padx=2)
         self._fan_cards[name] = {"cv": canvas, "status": status_lbl,
-                                 "card": card, "accent": accent}
-        self._draw_fan_ring(canvas, 0.0, 0)
+                                 "card": card, "accent": accent,
+                                 "model": model_lbl}
+        self._draw_fan_ring(canvas, None, "")
 
     def _draw_fan_ring(self, canvas, pct, rpm):
         """Smooth red progress ring: layered 5px arcs on a 62px canvas with a
@@ -1192,9 +1214,14 @@ class FanDashboardUltimate:
             canvas.delete("all")
         except Exception:
             return
-        pct = max(0.0, min(100.0, float(pct)))
         # track
         canvas.create_oval(6, 6, 56, 56, outline="#232b3d", width=5)
+        if pct is None:
+            # nothing to show: no plan target and no measurement for this fan
+            canvas.create_text(31, 31, text="--",
+                               font=(_MONO, 11, "bold"), fill="#4b5563")
+            return
+        pct = max(0.0, min(100.0, float(pct)))
         if pct > 0:
             ext = -pct / 100.0 * 359.9
             col = "#f87171" if pct >= 75 else "#ef4444" if pct >= 40 else "#b91c1c"
@@ -1207,6 +1234,22 @@ class FanDashboardUltimate:
                            font=(_MONO, 11, "bold"), fill="#ffffff")
         canvas.create_text(31, 41, text=f"{rpm}",
                            font=(_MONO, 8), fill="#8593a8")
+
+    @staticmethod
+    def _measured_by_card() -> dict:
+        """Map fans the sensor daemon reports onto the four cards. Empty
+        values mean 'not measured'. Never invents a fan."""
+        try:
+            from core import fan_sensors
+            fans = fan_sensors.measured()
+        except Exception:
+            fans = []
+        cpu = next((f for f in fans if "cpu" in f["name"].lower()), None)
+        gpu = next((f for f in fans if "gpu" in f["name"].lower()), None)
+        rest = [f for f in fans if f is not cpu and f is not gpu]
+        return {"CPU FAN": cpu, "GPU FAN": gpu,
+                "FAN 1": rest[0] if rest else None,
+                "FAN 2": rest[1] if len(rest) > 1 else None}
 
     def _tick_cards(self):
         """Live refresh loop (2 s) - the work lives in _update_live so the
@@ -1235,22 +1278,41 @@ class FanDashboardUltimate:
             v = s.get("gpu_temp");  gpu_t = float(v) if v and v > 0 else None
         except Exception:
             pass
-        max_rpm = self._active_max_rpm()
-        temps = {"CPU FAN": cpu_t, "GPU FAN": gpu_t,
-                 "FAN 1": cpu_t, "FAN 2": (gpu_t or cpu_t)}
+        # What the ring means (2026-11-14): the PERCENT is the plan, i.e. what
+        # the curve asks for at the current temperature. The line under it is
+        # the MEASURED speed when a sensor daemon reports that fan, and the
+        # word "plan" when nothing measures it. It used to print
+        # max_rpm * percent as if it were an RPM reading, and the two case
+        # fan cards repeated the CPU/GPU numbers for fans nobody detected.
+        measured = self._measured_by_card()
+        plan_word = _t("fan_control.card_plan", "plan")
+        none_word = _t("fan_control.card_no_sensor", "no sensor")
+        temps = {"CPU FAN": cpu_t, "GPU FAN": gpu_t}
         for name, refs in self._fan_cards.items():
             t = temps.get(name)
+            fan = measured.get(name)
             try:
-                if t is None:
-                    self._draw_fan_ring(refs["cv"], 0, 0)
-                    refs["status"].config(text="no sensor", fg="#6b7280")
+                under = f"{fan['rpm']} rpm" if fan else plan_word
+                if name in temps:
+                    if t is None:
+                        self._draw_fan_ring(refs["cv"], None, "")
+                        refs["status"].config(text=none_word, fg="#8d97a8")
+                    else:
+                        self._draw_fan_ring(refs["cv"], self._pct_at(t), under)
+                        refs["status"].config(
+                            text=f"{t:.0f}°C",
+                            fg="#f59e0b" if self._config_mode else "#10b981")
+                elif fan:
+                    # a case fan the sensor really reports: speed only, the
+                    # curve has no temperature of its own to follow here
+                    self._draw_fan_ring(refs["cv"], None, "")
+                    refs["status"].config(text=f"{fan['rpm']} rpm",
+                                          fg="#10b981")
+                    if refs.get("model") is not None:
+                        refs["model"].config(text=fan["name"][:22])
                 else:
-                    pct = self._pct_at(t)
-                    self._draw_fan_ring(refs["cv"], pct,
-                                        int(max_rpm * pct / 100))
-                    refs["status"].config(
-                        text=f"{t:.0f}°C",
-                        fg="#f59e0b" if self._config_mode else "#10b981")
+                    self._draw_fan_ring(refs["cv"], None, "")
+                    refs["status"].config(text=none_word, fg="#8d97a8")
             except Exception:
                 return
         # live temp marker on the chart follows the CPU (or GPU) sensor
@@ -1345,8 +1407,8 @@ class FanDashboardUltimate:
             except Exception:
                 pass
 
-        track.bind("<Button-1>", lambda e: _set_from_x(e.x))
-        track.bind("<B1-Motion>", lambda e: _set_from_x(e.x))
+        track.bind("<Button-1>", lambda e=None: _set_from_x(e.x))
+        track.bind("<B1-Motion>", lambda e=None: _set_from_x(e.x))
 
         def _set_val(v):
             self.slider_vals[label] = int(v)
@@ -1375,8 +1437,16 @@ class FanDashboardUltimate:
         tk.Label(header_bar, text=" FAN CURVE", font=(_BODY, 10, "bold"),
                  bg="#12151f", fg="#ffffff").pack(side="left", padx=(8, 0), pady=5)
         tk.Label(header_bar, text="hover to unlock editing",
-                 font=(_MONO, 7), bg="#12151f", fg="#64748b").pack(
+                 font=(_MONO, 7), bg="#12151f", fg="#8a97ab").pack(
             side="right", padx=10)
+        # Said once, where the curve is: this is a planner. Nothing in
+        # PC Workman writes fan speed to hardware (2026-11-14).
+        tk.Label(graph_frame,
+                 text=_t("fan_control.plan_note",
+                         "Planner: curves are saved in PC Workman. They do "
+                         "not change fan speed yet."),
+                 font=(_BODY, 8), bg="#0a0e27", fg="#d7a544", anchor="w",
+                 justify="left", wraplength=540).pack(fill="x", pady=(0, 3))
 
         # Graph: view-first (locked), dual %/RPM axes, red heat gradient
         self.graph = CompactFanCurveGraph(
@@ -1426,7 +1496,7 @@ class FanDashboardUltimate:
             btn = tk.Label(section, text=text, font=(_BODY, 9, "bold"),
                           bg=color, fg="#ffffff", cursor="hand2", padx=20, pady=8)
             btn.pack(side="left", padx=3 if i > 0 else 0, expand=True, fill="both")
-            btn.bind("<Button-1>", lambda e, cb=callback: cb())
+            btn.bind("<Button-1>", lambda e=None, cb=callback: cb())
 
             def make_hover(b, c):
                 def on_enter(e):
@@ -1550,7 +1620,7 @@ class FanDashboardUltimate:
         elif profile_id.startswith("profile"):
             # P1/P2: load from saved file if exists
             slot_num = profile_id[-1]
-            filename = os.path.join("data", "profiles", f"profile_p{slot_num}.json")
+            filename = os.path.join(_APP_DIR, "data", "profiles", f"profile_p{slot_num}.json")
 
             if os.path.exists(filename):
                 try:
@@ -1591,7 +1661,7 @@ class FanDashboardUltimate:
     # ── Persistence (2026-07-18): Apply used to show "applied successfully"
     #    while saving NOTHING. Now it persists curve+profile+sliders to
     #    settings/fan_dashboard.json, which is reloaded on every open.
-    _STATE_PATH = os.path.join("settings", "fan_dashboard.json")
+    _STATE_PATH = os.path.join(_APP_DIR, "settings", "fan_dashboard.json")
 
     def _apply(self, silent: bool = False):
         """THE APPLY RULE: confirm the editing draft as the new applied
@@ -1599,16 +1669,20 @@ class FanDashboardUltimate:
         try:
             data = {"profile": self.current_profile,
                     **self._snapshot_editing()}
-            os.makedirs(os.path.dirname(self._STATE_PATH), exist_ok=True)
-            with open(self._STATE_PATH, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            from utils.prefs_io import save_json
+            if not save_json(self._STATE_PATH, data):
+                raise OSError(f"could not write {self._STATE_PATH}")
             self._applied = {"curve": data["curve"],
                              "sliders": data["sliders"]}
             self._exit_config_mode()
             if not silent:
+                # Says what happened and what did NOT: the old text ("this is
+                # now the active fan plan") read as if the fans had changed.
                 messagebox.showinfo(
-                    "Apply", "Applied ✓  This is now the active fan plan -\n"
-                             "the cards follow it and it reloads on open.")
+                    "Apply",
+                    _t("fan_control.apply_saved",
+                       "Saved. This curve is now your fan plan.\n\n"
+                       "PC Workman does not control fan speed yet."))
         except Exception as e:
             if not silent:
                 messagebox.showerror("Apply", f"Save failed: {e}")
@@ -1669,10 +1743,9 @@ class FanDashboardUltimate:
             "options": self.options,
             "sliders": dict(self.slider_vals),
         }
-        export_path = os.path.join("settings", "fan_settings_ultimate.json")
-        os.makedirs("settings", exist_ok=True)
-        with open(export_path, "w") as f:
-            json.dump(data, f, indent=2)
+        export_path = os.path.join(_APP_DIR, "settings", "fan_settings_ultimate.json")
+        from utils.prefs_io import save_json
+        save_json(export_path, data)
         messagebox.showinfo("Export", f"Settings exported to {export_path}")
 
     def _reset(self):

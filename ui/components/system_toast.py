@@ -22,6 +22,7 @@ and auto-dismiss after AUTO_DISMISS_S seconds.
 """
 from __future__ import annotations
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import os
 import tkinter as tk
 from typing import Callable, Optional
@@ -58,8 +59,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -78,7 +79,7 @@ _active_toasts: list["_Toast"] = []
 _BG        = "#0b0f16"
 _BORDER    = "#1c2534"
 _TEXT      = "#e2e8f0"
-_MUTED     = "#64748b"
+_MUTED     = "#8a97ab"
 _BODY      = "#94a3b8"
 
 # Startup toast - bordeaux/red
@@ -601,20 +602,22 @@ def show_welcome_toast(root: tk.Misc, delay_ms: int = 1800) -> None:
         delay_ms: How long to wait after startup before showing (default 1.8 s).
     """
     def _show():
-        lang = _detect_system_lang()
         # ── Strings ──────────────────────────────────────────────────────────
-        if lang == "pl":
-            title   = "Hej! Dziekujemy, ze korzystasz z PC Workmana :)"
-            body    = ("Po cichu powiadomimy Cie gdy wlaczy sie nowy program "
-                       "do Startu z Windowsem, lub gdy cos bedzie nie tak.")
-            version = "v1.7.6  ·  29.05.2026"
-            ok_txt  = "Rozumiem"
-        else:
-            title   = "Hey! Thanks for using PC Workman :)"
-            body    = ("We’ll quietly notify you when a new program is added "
-                       "to Windows Startup, or if something looks off.")
-            version = "v1.7.6  ·  2026-05-29"
-            ok_txt  = "Got it"
+        # Interface language, from the locale files (2026-11-14). This toast
+        # used to pick its language from WINDOWS, so a Polish system with the
+        # app set to English got a Polish greeting, written without Polish
+        # letters, above a version number frozen at an old release.
+        title  = _t_i18n("toast.welcome_title",
+                         "Hey! Thanks for using PC Workman :)")
+        body   = _t_i18n("toast.welcome_body",
+                         "We’ll quietly notify you when a new program is "
+                         "added to Windows Startup, or if something looks off.")
+        ok_txt = _t_i18n("toast.welcome_ok", "Got it")
+        try:
+            from utils.app_version import APP_VERSION as _ver
+            version = f"v{_ver}"
+        except Exception:
+            version = ""
 
         # ── Icon: small violet HCK badge ─────────────────────────────────────
         def _place_icon(parent: tk.Widget) -> None:
@@ -629,7 +632,7 @@ def show_welcome_toast(root: tk.Misc, delay_ms: int = 1800) -> None:
             c.create_text(23, 19, text="PC", fill="#c4b5fd",
                           font=(_MONO, 7, "bold"))
             c.create_text(23, 30, text="WK", fill="#7c3aed",
-                          font=(_MONO, 6, "bold"))
+                          font=(_MONO, 7, "bold"))
 
         _Toast(
             root             = root,

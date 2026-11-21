@@ -26,13 +26,14 @@ Visuals: bordeaux / hck_GPT style, queued items in a 2-column grid (~4 left +
 4 right) that grows DOWNWARD as more are selected; right side = Zatwierdź / Wróć.
 Always visible - empty state is a thin prompt bar, so it's a persistent operator.
 """
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import math
 import tkinter as tk
 
 try:
     from utils.fonts import UI as _UIF
 except Exception:
-    _UIF = "Segoe UI"
+    _UIF = _FONT_UI
 
 try:
     from utils.i18n import t as _t
@@ -123,8 +124,8 @@ class OperatorDrawer:
         self._render()
 
     def _hover(self, w, on_fg, off_fg):
-        w.bind("<Enter>", lambda e: w.config(fg=on_fg))
-        w.bind("<Leave>", lambda e: w.config(fg=off_fg))
+        w.bind("<Enter>", lambda e=None: w.config(fg=on_fg))
+        w.bind("<Leave>", lambda e=None: w.config(fg=off_fg))
 
     def _render(self) -> None:
         for w in self.outer.winfo_children():
@@ -159,7 +160,7 @@ class OperatorDrawer:
         back = tk.Label(banner, text="‹ " + self._back_txt, font=(_UIF, 9), fg=_SUB,
                         bg=_BG, padx=14, pady=4, cursor="hand2")
         back.grid(row=0, column=0, sticky="w")
-        back.bind("<Button-1>", lambda e: self.clear())
+        back.bind("<Button-1>", lambda e=None: self.clear())
         self._hover(back, _TEXT, _SUB)
 
         # Wide, prominent centre button: title + count, toggles the detail panel.
@@ -171,14 +172,14 @@ class OperatorDrawer:
                            font=(_UIF, 9, "bold"), fg=det_fg, bg=det_bg,
                            padx=22, pady=6, cursor="hand2")
         details.grid(row=0, column=2)
-        details.bind("<Button-1>", lambda e: self._toggle_details())
-        details.bind("<Enter>", lambda e: details.config(fg=_TEXT, bg=_BORDEAU))
-        details.bind("<Leave>", lambda e: details.config(fg=det_fg, bg=det_bg))
+        details.bind("<Button-1>", lambda e=None: self._toggle_details())
+        details.bind("<Enter>", lambda e=None: details.config(fg=_TEXT, bg=_BORDEAU))
+        details.bind("<Leave>", lambda e=None: details.config(fg=det_fg, bg=det_bg))
 
         confirm = tk.Label(banner, text=self._confirm_txt + " ›", font=(_UIF, 9, "bold"),
                            fg=_BORD_L, bg=_BORD_MID, padx=16, pady=4, cursor="hand2")
         confirm.grid(row=0, column=4, sticky="e", padx=(0, 12))
-        confirm.bind("<Button-1>", lambda e: self._confirm())
+        confirm.bind("<Button-1>", lambda e=None: self._confirm())
         self._hover(confirm, _TEXT, _BORD_L)
 
         # ── Expandable detail panel (revealed by SZCZEGÓŁY, like the GPT panel) ──

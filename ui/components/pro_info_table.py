@@ -20,6 +20,7 @@ Min/Max track session extremes. Reset clears them.
 Save Data exports snapshot as .txt or .csv.
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import ttk, filedialog
 import threading
@@ -41,8 +42,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -51,7 +52,7 @@ _BG       = "#0d1017"
 _BG_CAT   = "#101624"
 _BG_BAR   = "#07090f"
 _FG       = "#ffffff"
-_FG_DIM   = "#4b5563"
+_FG_DIM   = "#7b8597"
 _FG_HDR   = "#374151"
 _ACCENT   = "#be123c"
 _GREEN    = "#34d399"
@@ -114,7 +115,7 @@ class DeepMonitorTable(tk.Frame):
         # Parent-driven destruction skips the destroy() override below -
         # <Destroy> always fires, so the 2 s update loop can't outlive the page.
         self.bind("<Destroy>",
-                  lambda e: self._stop_ev.set() if e.widget is self else None,
+                  lambda e=None: self._stop_ev.set() if e.widget is self else None,
                   add="+")
 
         self._build_action_bar()
@@ -139,9 +140,9 @@ class DeepMonitorTable(tk.Frame):
                          bg=_BTN_BG, fg=_BTN_FG, padx=10, pady=3,
                          cursor="hand2", relief="flat")
             b.pack(side="right", padx=(0, 6), pady=5)
-            b.bind("<Button-1>", lambda e: cmd())
-            b.bind("<Enter>",    lambda e: b.config(bg=_BTN_HOV, fg=_FG))
-            b.bind("<Leave>",    lambda e: b.config(bg=_BTN_BG,  fg=_BTN_FG))
+            b.bind("<Button-1>", lambda e=None: cmd())
+            b.bind("<Enter>",    lambda e=None: b.config(bg=_BTN_HOV, fg=_FG))
+            b.bind("<Leave>",    lambda e=None: b.config(bg=_BTN_BG,  fg=_BTN_FG))
             if save_ref:
                 setattr(self, save_ref, b)
 
@@ -243,7 +244,7 @@ class DeepMonitorTable(tk.Frame):
         sb.pack(side="right", fill="y")
 
         self._tree.bind("<MouseWheel>",
-            lambda e: self._tree.yview_scroll(-1 * (e.delta // 120), "units"))
+            lambda e=None: self._tree.yview_scroll(-1 * (e.delta // 120), "units"))
 
     # ── INSERT HELPERS ────────────────────────────────────────────────────────
 

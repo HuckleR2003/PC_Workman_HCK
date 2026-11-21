@@ -13,6 +13,7 @@ translucency, the same approach the mini-overlay and chart tooltip use.
 """
 from __future__ import annotations
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import sys
 import tkinter as tk
 from typing import Optional
@@ -26,7 +27,7 @@ try:
     from utils.fonts import MONO as _MONOF
 except ImportError:
     _MONOF = "Consolas"
-_HDR = "Segoe UI Semibold"
+_HDR = _FONT_HDR
 
 _MARGIN = 12
 _CORNERS = ("TR", "TL", "BL", "BR")   # right-top -> left-top -> left-bottom -> right-bottom

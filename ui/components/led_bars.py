@@ -5,6 +5,7 @@ Scalable, color-mapped, neon-styled segments like MSI Afterburner.
 Also provides AnimatedBar - a smooth ease-out progress bar usable anywhere.
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from ui.theme import THEME
 
@@ -12,8 +13,8 @@ from ui.theme import THEME
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 

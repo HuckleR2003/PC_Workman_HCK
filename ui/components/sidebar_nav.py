@@ -4,6 +4,7 @@ PC Workman - Sidebar Navigation Component (Snyk Evo Style)
 Fixed sidebar with hierarchical navigation and HCK_Labs branding.
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 
 try:
@@ -13,13 +14,14 @@ except ImportError:
     ImageTk = None
 
 from utils.i18n import t, register_on_change, unregister_on_change
+from ui.components.fit import wrap_to_width as _wrap_to_width
 
 # ── Font system ────────────────────────────────────────────────────────────────
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -45,6 +47,7 @@ class SidebarNav:
         "separator": "#1f2937",    # Separator
         "subitem_bg": "#0d0f12",   # Subcategory background
         "bg_expanded": "#2a0f18",  # Bordeaux while a category is expanded
+        "text_primary": "#e5e7eb", # My PC, the main button (2026-11-20)
     }
 
     def __init__(self, parent, width=180, on_navigate=None):
@@ -79,6 +82,7 @@ class SidebarNav:
         # Build content
         self._build_logo()
         self._build_separator()
+        self._build_back_row()
         self._build_navigation()
         self._build_bottom_section()
 
@@ -107,7 +111,7 @@ class SidebarNav:
         hck_lbl = tk.Label(
             logo_container,
             text="HCK",
-            font=("Segoe UI Semibold", 15, "bold"),
+            font=(_FONT_HDR, 15, "bold"),
             bg=self.COLORS["bg"],
             fg="#ffffff",
             cursor="hand2"
@@ -131,6 +135,49 @@ class SidebarNav:
 
         for w in [logo_frame, logo_container, icon_lbl, hck_lbl, labs_lbl]:
             w.bind("<Button-1>", _go_dashboard)
+        self._logo_container = logo_container
+        self._logo_texts = (hck_lbl, labs_lbl)
+
+    def _build_back_row(self):
+        """'←  Wróć: Mój PC' under the logo, shown only when there is a place
+        to go back to (2026-11-20). The window sets it with set_back()."""
+        self._back_cb = None
+        self._back_row = tk.Frame(self.frame, bg=self.COLORS["bg"], cursor="hand2")
+        self._back_lbl = tk.Label(self._back_row, text="", anchor="w",
+                                  font=(_BODY, 8, "bold"), bg=self.COLORS["bg"],
+                                  fg=self.COLORS["text"], cursor="hand2", padx=14, pady=4)
+        self._back_lbl.pack(fill="x")
+
+        def _enter(e=None):
+            self._back_row.config(bg=self.COLORS["bg_hover"])
+            self._back_lbl.config(bg=self.COLORS["bg_hover"], fg=self.COLORS["text_hover"])
+
+        def _leave(e=None):
+            self._back_row.config(bg=self.COLORS["bg"])
+            self._back_lbl.config(bg=self.COLORS["bg"], fg=self.COLORS["text"])
+
+        def _click(e=None):
+            if self._back_cb:
+                self._back_cb()
+        for w in (self._back_row, self._back_lbl):
+            w.bind("<Enter>", _enter)
+            w.bind("<Leave>", _leave)
+            w.bind("<Button-1>", _click)
+
+    def set_back(self, text, callback=None) -> None:
+        """Show '←  <text>' (text None hides the row)."""
+        try:
+            if not text:
+                self._back_cb = None
+                self._back_row.pack_forget()
+                return
+            self._back_cb = callback
+            self._back_text = "←  " + text
+            self._back_lbl.config(text="←" if self._collapsed else self._back_text)
+            if not self._back_row.winfo_ismapped():
+                self._back_row.pack(fill="x", pady=(0, 6), before=self.nav_container)
+        except Exception:
+            pass
 
     def _build_separator(self):
         """Build separator below logo."""
@@ -138,8 +185,26 @@ class SidebarNav:
         sep.pack(fill="x", padx=12, pady=(0, 10))
 
     def _nav_structure(self) -> list:
-        """Return the navigation tree using translated labels."""
+        """Return the navigation tree using translated labels.
+
+        2026-11-20 (Marcin's note): My PC is the main button, at the top.
+        Items with subitems are "split": a click on the name opens the page
+        (and shows its subitems), the arrow on the right opens or closes
+        the list on its own. Monitoring & Learning got "All statistics",
+        the Hardware history of CPU, RAM and GPU together."""
         return [
+            {
+                "id": "my_pc",
+                "label": t("nav.my_pc"),
+                "icon": "▣",
+                "primary": True,
+                "split": True,
+                "subitems": [
+                    ("central",    t("nav.my_pc_central")),
+                    ("components", t("nav.my_pc_components", default="Components")),
+                    ("sensors",    t("nav.my_pc_sensors")),
+                ]
+            },
             {
                 "id": "dashboard",
                 "label": t("nav.dashboard"),
@@ -150,58 +215,27 @@ class SidebarNav:
                 "id": "monitoring_alerts",
                 "label": t("nav.monitoring"),
                 "sub_caption": "CENTER",
-                "icon": "⚠",
+                "icon": "◷",
+                "split": True,
                 "subitems": [
+                    ("all_stats",   t("nav.monitoring_all_stats")),
                     ("temperature", t("nav.monitoring_temperature")),
                     ("voltage",     t("nav.monitoring_voltage")),
                     ("alerts",      t("nav.monitoring_alerts")),
                 ]
             },
             {
-                "id": "my_pc",
-                "label": t("nav.my_pc"),
-                "icon": "▣",
-                "subitems": [
-                    # Health / Efficiency removed (2026-07 restructure):
-                    # not finished / not working - back when they earn it.
-                    ("central",    t("nav.my_pc_central")),
-                    ("components", t("nav.my_pc_components", default="Components")),
-                    ("sensors",    t("nav.my_pc_sensors")),
-                ]
-            },
-            {
-                "id": "first_setup",
-                "label": t("nav.setup"),
-                "icon": "⚙",
+                "id": "process_center",
+                "label": t("nav.process_center"),
+                "icon": "☰",
                 "subitems": None
-            },
-            {
-                # OVERCLOCK - Headroom Lab (2026-07). Same word in PL and EN,
-                # so no locale keys needed.
-                "id": "overclock",
-                "label": "OVERCLOCK",
-                "sub_caption": "HEADROOM LAB",
-                "icon": "▲",
-                "subitems": None
-            },
-            {
-                "id": "fan_control",
-                "label": t("nav.fan_control"),
-                "icon": "❊",
-                "subitems": [
-                    # Hardware Info + Usage Statistics merged into one page
-                    ("fan_dashboard", t("nav.fan_control_dashboard")),
-                    ("hw_usage",      t("nav.fan_control_hw_usage",
-                                        default="Hardware & Usage")),
-                ]
             },
             {
                 "id": "optimization",
                 "label": t("nav.optimization"),
                 "icon": "⚡",
+                "split": True,
                 "subitems": [
-                    # Re-pointed to the three real destinations (was
-                    # services/startup/wizard aliases of one page).
                     ("center",       t("nav.optimization_center",
                                        default="Optimization Center")),
                     ("startup_mgr",  t("nav.optimization_startup_mgr",
@@ -210,8 +244,31 @@ class SidebarNav:
                                        default="Services Manager")),
                 ]
             },
-            # "Statistics" tab removed entirely (2026-07 restructure) -
-            # its data lives in Monitoring & Alerts.
+            {
+                "id": "fan_control",
+                "label": t("nav.fan_control"),
+                "icon": "❊",
+                "split": True,
+                "subitems": [
+                    ("fan_dashboard", t("nav.fan_control_dashboard")),
+                    ("hw_usage",      t("nav.fan_control_hw_usage",
+                                        default="Hardware & Usage")),
+                ]
+            },
+            {
+                # OVERCLOCK - Headroom Lab (2026-07). Same word in PL and EN.
+                "id": "overclock",
+                "label": "OVERCLOCK",
+                "sub_caption": "HEADROOM LAB",
+                "icon": "▲",
+                "subitems": None
+            },
+            {
+                "id": "first_setup",
+                "label": t("nav.setup"),
+                "icon": "⚙",
+                "subitems": None
+            },
         ]
 
     def _build_navigation(self):
@@ -228,6 +285,8 @@ class SidebarNav:
         """Create a single navigation item (can include subitems)."""
         item_id = item["id"]
         has_subitems = item["subitems"] is not None
+        split = has_subitems and item.get("split", False)
+        primary = item.get("primary", False)
 
         # Main item container
         item_frame = tk.Frame(self.nav_container, bg=self.COLORS["bg"])
@@ -251,10 +310,27 @@ class SidebarNav:
             text=item["icon"],
             font=(_BODY, 11),
             bg=self.COLORS["bg"],
-            fg=self.COLORS["text"],
+            fg=self.COLORS["accent"] if primary else self.COLORS["text"],
             width=2
         )
         icon_label.pack(side="left")
+
+        # Expand arrow (if subitems exist). Packed BEFORE the text: pack()
+        # gives space in packing order, so a long name packed first would
+        # push the arrow out of the row.
+        arrow_label = None
+        if has_subitems:
+            arrow_label = tk.Label(
+                inner,
+                text="›",
+                font=(_BODY, 12),
+                bg=self.COLORS["bg"],
+                fg=self.COLORS["text"],
+                # a separate target on split items: wide enough to hit
+                padx=6 if split else 0,
+                cursor="hand2",
+            )
+            arrow_label.pack(side="right")
 
         # Text (optionally a two-line column: label + tight tiny caption)
         text_col = tk.Frame(inner, bg=self.COLORS["bg"])
@@ -262,12 +338,16 @@ class SidebarNav:
         text_label = tk.Label(
             text_col,
             text=item["label"],
-            font=(_BODY, 10),
+            font=(_BODY, 10, "bold") if primary else (_BODY, 10),
             bg=self.COLORS["bg"],
-            fg=self.COLORS["text"],
+            fg=self.COLORS["text_primary"] if primary else self.COLORS["text"],
             anchor="w"
         )
-        text_label.pack(anchor="w")
+        text_label.pack(anchor="w", fill="x")
+        # A name wider than the sidebar wraps onto a second line. It used to
+        # be cut mid-letter: "Monitoring & Learı", and in Polish
+        # "Konfiguracja i sterc", "Kontrola wentylatoró".
+        _wrap_to_width(text_label, text_col)
         caption_label = None
         if item.get("sub_caption"):
             caption_label = tk.Label(
@@ -281,18 +361,6 @@ class SidebarNav:
             )
             # tight: flush against the bottom of the label above
             caption_label.pack(anchor="w", pady=(0, 0), ipady=0)
-
-        # Expand arrow (if subitems exist)
-        arrow_label = None
-        if has_subitems:
-            arrow_label = tk.Label(
-                inner,
-                text="›",
-                font=(_BODY, 12),
-                bg=self.COLORS["bg"],
-                fg=self.COLORS["text"]
-            )
-            arrow_label.pack(side="right")
 
         # Subitems container (hidden by default). Children are built LAZILY on
         # first expand (2026-07 perf): ~90 subitem widgets across all collapsed
@@ -315,6 +383,8 @@ class SidebarNav:
             "arrow": arrow_label,
             "subitems_frame": subitems_frame,
             "has_subitems": has_subitems,
+            "split": split,
+            "primary": primary,
             "subitems_spec": item["subitems"] if has_subitems else None,
             "subitems_built": False,
         }
@@ -337,7 +407,12 @@ class SidebarNav:
             widget.bind("<Leave>", on_leave)
 
         if arrow_label:
-            arrow_label.bind("<Button-1>", on_click)
+            if split:
+                # the arrow only opens or closes the list
+                arrow_label.bind("<Button-1>",
+                                 lambda e=None, iid=item_id: self._toggle_category(iid))
+            else:
+                arrow_label.bind("<Button-1>", on_click)
             arrow_label.bind("<Enter>", on_enter)
             arrow_label.bind("<Leave>", on_leave)
 
@@ -409,17 +484,25 @@ class SidebarNav:
         if not widgets:
             return
 
-        if widgets["has_subitems"]:
-            # Toggle expanded state
-            if item_id in self.expanded_categories:
-                self._collapse_category(item_id)
-            else:
-                self._expand_category(item_id)
+        if widgets.get("split"):
+            # the name opens the page and shows what is under it
+            self._expand_category(item_id)
+            self._set_active(item_id)
+            if self.on_navigate:
+                self.on_navigate(item_id, None)
+        elif widgets["has_subitems"]:
+            self._toggle_category(item_id)
         else:
             # Navigate to page
             self._set_active(item_id)
             if self.on_navigate:
                 self.on_navigate(item_id, None)
+
+    def _toggle_category(self, item_id):
+        if item_id in self.expanded_categories:
+            self._collapse_category(item_id)
+        else:
+            self._expand_category(item_id)
 
     def _handle_subitem_click(self, full_id):
         """Handle subitem click."""
@@ -535,6 +618,9 @@ class SidebarNav:
                 widgets["caption"].config(bg=bg)
             if widgets.get("text_col"):
                 widgets["text_col"].config(bg=bg)
+            if widgets.get("primary"):
+                widgets["text"].config(fg=self.COLORS["text_primary"])
+                widgets["icon"].config(fg=self.COLORS["accent"])
 
         # expanded categories keep their bordeaux highlight
         for item_id in self.expanded_categories:
@@ -779,20 +865,69 @@ class SidebarNav:
                 pass
             self._collapse_timer = None
 
+    def _rail(self, on: bool) -> None:
+        """Icons only at 48 px (2026-11-20). The rail used to keep every
+        label and margin at full size and simply clip them: the icons got
+        9 px of their 26. Now the texts, arrows and open subitems step
+        aside and the margins shrink; expanding puts everything back."""
+        for w in getattr(self, "_logo_texts", ()):
+            try:
+                w.pack_forget() if on else w.pack(side="left")
+            except Exception:
+                pass
+        try:
+            self._logo_container.pack_configure(padx=6 if on else 15)
+            if not on:
+                self._logo_texts[1].pack_configure(pady=(3, 0))
+        except Exception:
+            pass
+        for iid, w in self.item_widgets.items():
+            if w.get("is_subitem"):
+                continue
+            try:
+                w["btn"].pack_configure(padx=2 if on else 8)
+                w["inner"].pack_configure(padx=(6, 0) if on else 10)
+                for key in ("text_col", "arrow"):
+                    if w.get(key) is not None:
+                        if on:
+                            w[key].pack_forget()
+                        elif key == "arrow":
+                            w[key].pack(side="right", before=w.get("text_col"))
+                        else:
+                            w[key].pack(side="left", padx=(5, 0), fill="x", expand=True)
+                if w.get("text_col") is None and w.get("text") is not None:
+                    # bottom items: the label sits straight in "inner"
+                    w["text"].pack_forget() if on else w["text"].pack(side="left", padx=(5, 0))
+                sub = w.get("subitems_frame")
+                if sub is not None:
+                    if on:
+                        sub.pack_forget()
+                    elif iid in self.expanded_categories:
+                        sub.pack(fill="x")
+            except Exception:
+                pass
+
     def _collapse_sidebar(self) -> None:
         """Shrink sidebar to icon-rail width (48 px)."""
         if not self._auto_hide:
             return
         self._collapsed = True
+        self._rail(True)
         try:
             self.frame.config(width=48)
+            # the rail is 48 px: only the arrow of "Back: ..." fits
+            self._back_lbl.config(text="←")
         except Exception:
             pass
 
     def _expand_sidebar(self) -> None:
         """Restore sidebar to full width."""
+        was = self._collapsed
         self._collapsed = False
+        if was:
+            self._rail(False)
         try:
             self.frame.config(width=self.width)
+            self._back_lbl.config(text=getattr(self, "_back_text", ""))
         except Exception:
             pass

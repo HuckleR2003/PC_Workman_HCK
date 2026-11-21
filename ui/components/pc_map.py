@@ -1,1176 +1,718 @@
-"""
-PC Map  --  2.5D Isometric Hardware Visualization
-Pillow-rendered, live-updating isometric view of all detected PC components.
-Desktop PC and Laptop modes.
+"""ui.components.pc_map - My PC → Map (rebuilt 2026-11-20).
+
+The map on the left (ui/components/pc_map_scene.py draws it), this PC and
+its temperatures on the right, and below them "under the cursor": the model
+and numbers of the part the mouse points at.
+
+  * colours: green → amber → red from the temperature (or the load when no
+    sensor reads it), now or as a 7-day average, switched at the top;
+  * a click on the CPU, GPU or RAM opens its history (Activity Memory);
+  * nothing is drawn while the tab is hidden (the tab is kept alive, and the
+    old map redrew itself every 120 ms even then); it redraws when the data
+    changes, the mouse moves to another part or the size changes;
+  * the worker thread only touches a plain object (_Shared), never Tk.
 """
 from __future__ import annotations
 
-import math
 import threading
 import time
 import tkinter as tk
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 
-# ── Font system ────────────────────────────────────────────────────────────────
-try:
-    from utils.fonts import UI as _UIF, MONO as _MONOF
-except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
-_BODY = _UIF
-_MONO = _MONOF
+from utils.fonts import UI as _BODY, HDR as _HDR
 
-# PIL
 try:
-    from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageTk
+    from PIL import ImageTk
     _HAS_PIL = True
 except ImportError:
     _HAS_PIL = False
 
-# psutil
-try:
-    import psutil as _psutil
-    _HAS_PSUTIL = True
-except ImportError:
-    _psutil = None
-    _HAS_PSUTIL = False
+from ui.components import pc_map_scene as S
 
+BG = "#0a0e14"
+BAR = "#0f1117"
+PANEL = "#0f141c"
+PANEL2 = "#131a24"
+LINE = "#1f2937"
+TEXT = "#e5e7eb"
+MUTED = "#8d97a8"
+DIM = "#64748b"
+BLUE = "#3b82f6"
+CANVAS_BG = (10, 14, 20)
+RIGHT_W = 330
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  ISOMETRIC PROJECTION  (x -> lower-right, y -> lower-left, z -> up)
-# ─────────────────────────────────────────────────────────────────────────────
-_TW   = 64    # iso tile width  (pixels per x/y unit, at 1x)
-_TH   = 22    # iso tile height (y-step per x/y unit, at 1x)
-_TZ   = 16    # z step per unit (at 1x)
-_SSAA = 2     # super-sampling: draw at 2x, scale down
+_TX = {
+    "desktop": {"pl": "Komputer stacjonarny", "en": "Desktop PC"},
+    "laptop": {"pl": "Laptop", "en": "Laptop"},
+    "colors": {"pl": "Kolory:", "en": "Colours:"},
+    "now": {"pl": "Teraz", "en": "Now"},
+    "week": {"pl": "Średnio 7 dni", "en": "7-day average"},
+    "cool": {"pl": "chłodno", "en": "cool"},
+    "hot": {"pl": "gorąco", "en": "hot"},
+    "this_pc": {"pl": "TEN KOMPUTER", "en": "THIS PC"},
+    "thermal": {"pl": "TEMPERATURY I OBCIĄŻENIE", "en": "TEMPERATURES AND LOAD"},
+    "under": {"pl": "POD KURSOREM", "en": "UNDER THE CURSOR"},
+    "hint": {"pl": "Najedź na część na mapie: tu pojawi się jej model i liczby.",
+             "en": "Point at a part on the map: its model and numbers show here."},
+    "click_hist": {"pl": "Kliknij, aby otworzyć jej historię.", "en": "Click to open its history."},
+    "kind": {"pl": "Rodzaj", "en": "Kind"},
+    "kind_desktop": {"pl": "komputer stacjonarny", "en": "desktop PC"},
+    "kind_laptop": {"pl": "laptop", "en": "laptop"},
+    "board": {"pl": "Płyta", "en": "Board"},
+    "drives": {"pl": "Dyski", "en": "Drives"},
+    "unknown": {"pl": "nieznany", "en": "unknown"},
+    "loading": {"pl": "wczytuję…", "en": "loading…"},
+    "col_now": {"pl": "teraz", "en": "now"},
+    "col_avg": {"pl": "śr. 7 dni", "en": "7-day avg"},
+    "col_max": {"pl": "maks. 7 dni", "en": "7-day max"},
+    "no_cpu_sensor": {"pl": "Temperatury CPU Windows nie podaje: czyta ją LibreHardwareMonitor (Ustawienia). Do tego czasu kolor CPU to obciążenie.",
+                      "en": "Windows does not give the CPU temperature: LibreHardwareMonitor reads it (Settings). Until then the CPU colour is its load."},
+    "load": {"pl": "Obciążenie", "en": "Load"},
+    "temp": {"pl": "Temperatura", "en": "Temperature"},
+    "avg7": {"pl": "Średnio 7 dni", "en": "7-day average"},
+    "max7": {"pl": "Najwyżej 7 dni", "en": "7-day peak"},
+    "cores": {"pl": "Rdzenie / wątki", "en": "Cores / threads"},
+    "clock": {"pl": "Zegar maks.", "en": "Max clock"},
+    "vram": {"pl": "Pamięć karty", "en": "Video memory"},
+    "driver": {"pl": "Sterownik", "en": "Driver"},
+    "used": {"pl": "Zajęte", "en": "In use"},
+    "sticks": {"pl": "Kości", "en": "Sticks"},
+    "size": {"pl": "Pojemność", "en": "Size"},
+    "bus": {"pl": "Złącze", "en": "Interface"},
+    "c_drive": {"pl": "Dysk C:", "en": "Drive C:"},
+    "free": {"pl": "{f} wolne z {t}", "en": "{f} free of {t}"},
+    "battery_lv": {"pl": "Naładowanie", "en": "Charge"},
+    "plugged": {"pl": "podłączony do prądu", "en": "plugged in"},
+    "on_batt": {"pl": "na baterii", "en": "on battery"},
+    "heat_by_temp": {"pl": "Kolor: temperatura.", "en": "Colour: temperature."},
+    "heat_by_load": {"pl": "Kolor: obciążenie (brak czujnika temperatury).", "en": "Colour: load (no temperature sensor)."},
+    "heat_by_use": {"pl": "Kolor: zajęta pamięć.", "en": "Colour: memory in use."},
+    "no_data": {"pl": "brak danych", "en": "no data"},
+}
 
-# Canvas output size
-_CW = 680
-_CH = 540
+# name of each part, and one line about what it is
+_PART = {
+    "cpu": ({"pl": "Procesor (CPU)", "en": "Processor (CPU)"}, None),
+    "gpu": ({"pl": "Karta graficzna (GPU)", "en": "Graphics card (GPU)"}, None),
+    "ram": ({"pl": "Pamięć RAM", "en": "Memory (RAM)"}, None),
+    "nvme": ({"pl": "Dysk M.2 (NVMe)", "en": "M.2 drive (NVMe)"}, None),
+    "m2": ({"pl": "Gniazdo M.2", "en": "M.2 slot"},
+           {"pl": "Wolne gniazdo na szybki dysk NVMe.", "en": "A free slot for a fast NVMe drive."}),
+    "drive": ({"pl": "Dyski SATA", "en": "SATA drives"}, None),
+    "mobo": ({"pl": "Płyta główna", "en": "Motherboard"}, None),
+    "chipset": ({"pl": "Chipset", "en": "Chipset"},
+                {"pl": "Łączy procesor z dyskami SATA, USB i resztą płyty.", "en": "Connects the CPU with SATA drives, USB and the rest of the board."}),
+    "vrm": ({"pl": "Sekcja zasilania CPU", "en": "CPU power section"},
+            {"pl": "Zamienia 12 V z zasilacza na napięcie procesora. Windows nie ma tu czujnika.",
+             "en": "Turns the PSU's 12 V into the CPU's voltage. Windows has no sensor here."}),
+    "pcie": ({"pl": "Gniazdo PCIe x16", "en": "PCIe x16 slot"},
+             {"pl": "Tu siedzi karta graficzna.", "en": "The graphics card sits here."}),
+    "ram_slot": ({"pl": "Gniazda RAM", "en": "RAM slots"},
+                 {"pl": "Cztery gniazda DIMM; dwie kości siedzą zwykle w drugim i czwartym.",
+                  "en": "Four DIMM slots; two sticks usually go in the second and the fourth."}),
+    "psu": ({"pl": "Zasilacz", "en": "Power supply"},
+            {"pl": "Model nieznany: Windows nie widzi zasilacza ani jego mocy. Sprawdzisz go na naklejce z boku.",
+             "en": "Model unknown: Windows does not see the power supply or its wattage. The label on its side has it."}),
+    "screen": ({"pl": "Ekran", "en": "Screen"}, None),
+    "battery": ({"pl": "Bateria", "en": "Battery"}, None),
+    "fan": ({"pl": "Wentylatory", "en": "Fans"},
+            {"pl": "Wyciągają ciepło z radiatora procesora i karty. Windows nie podaje ich obrotów.",
+             "en": "They pull heat off the CPU and GPU heatsink. Windows does not report their speed."}),
+    "chassis": ({"pl": "Obudowa", "en": "Chassis"}, None),
+}
 
-# Draw-space origin of 3D (0,0,0) - PC tower centered in canvas
-# _OY raised by 40 px so the floor stays visible without scrolling
-_OX = int((_CW // 2 - 18) * _SSAA)   # 644
-_OY = int((_CH - 115)      * _SSAA)  # 850  (was 930)
-
-
-def _iso(x: float, y: float, z: float,
-         ox: float = _OX, oy: float = _OY) -> Tuple[float, float]:
-    s = _SSAA
-    sx = ox + (x - y) * (_TW * s / 2.0)
-    sy = oy + (x + y) * (_TH * s / 2.0) - z * (_TZ * s)
-    return sx, sy
-
-
-def _face(x: float, y: float, z: float,
-          w: float, d: float, h: float,
-          face: str,
-          ox: float = _OX, oy: float = _OY) -> List[Tuple[float, float]]:
-    p = _iso
-    if face == "top":
-        return [p(x,   y,   z+h, ox, oy), p(x+w, y,   z+h, ox, oy),
-                p(x+w, y+d, z+h, ox, oy), p(x,   y+d, z+h, ox, oy)]
-    elif face == "front":   # y=y face  (left diagonal)
-        return [p(x,   y, z,   ox, oy), p(x,   y, z+h, ox, oy),
-                p(x+w, y, z+h, ox, oy), p(x+w, y, z,   ox, oy)]
-    elif face == "side":    # x=x+w face (right diagonal)
-        return [p(x+w, y,   z,   ox, oy), p(x+w, y,   z+h, ox, oy),
-                p(x+w, y+d, z+h, ox, oy), p(x+w, y+d, z,   ox, oy)]
-    return []
-
-
-def _shade(rgb: Tuple, f: float) -> Tuple:
-    return (min(255, max(0, int(rgb[0]*f))),
-            min(255, max(0, int(rgb[1]*f))),
-            min(255, max(0, int(rgb[2]*f))))
-
-
-def _lerp(a: Tuple, b: Tuple, t: float) -> Tuple:
-    return (int(a[0]+(b[0]-a[0])*t), int(a[1]+(b[1]-a[1])*t), int(a[2]+(b[2]-a[2])*t))
-
-
-def _heat(base: Tuple, heat: float) -> Tuple:
-    """Shift base color: cool -> warm amber -> hot red based on heat 0..1."""
-    if heat <= 0.45:
-        return base
-    elif heat <= 0.72:
-        t = (heat - 0.45) / 0.27
-        return _lerp(base, (210, 120, 20), t)
-    else:
-        t = min(1.0, (heat - 0.72) / 0.28)
-        return _lerp((210, 120, 20), (220, 30, 30), t)
-
-
-def _pulse(base: Tuple, warn: Tuple, phase: float) -> Tuple:
-    t = (math.sin(phase) + 1.0) / 2.0
-    return _lerp(base, warn, t * 0.65)
-
-
-def _poly(draw: "ImageDraw.ImageDraw", pts, fill, outline=None, width=1):
-    """Draw a filled polygon with flat tuples."""
-    flat = [(int(p[0]), int(p[1])) for p in pts]
-    draw.polygon(flat, fill=fill)
-    if outline:
-        draw.line(flat + [flat[0]], fill=outline, width=width)
-
-
-# ── Component colors ───────────────────────────────────────────────────────────
-_C = {
-    "bg":      (8,  11, 18),
-    "floor":   (14, 18, 28),
-    "grid":    (24, 32, 48),
-    "case":    (26, 30, 40),
-    "case_hi": (38, 44, 58),
-    "case_lo": (18, 21, 30),
-    "mobo":    (18, 65, 44),
-    "mobo_hi": (22, 85, 55),
-    "cpu":     (16, 172, 150),
-    "cpu_hi":  (22, 210, 185),
-    "hsink":   (145, 155, 168),
-    "hsink_hi":(180, 195, 210),
-    "gpu":     (108, 58, 188),
-    "gpu_hi":  (135, 75, 220),
-    "ram":     (195, 140, 22),
-    "ram_hi":  (230, 175, 35),
-    "ssd":     (30, 150, 68),
-    "ssd_hi":  (40, 185, 85),
-    "hdd":     (60, 85, 115),
-    "hdd_hi":  (75, 108, 145),
-    "psu":     (55, 68, 88),
-    "psu_hi":  (70, 88, 112),
-    "fan":     (32, 42, 58),
-    "fan_hi":  (45, 58, 80),
-    "wire_b":  (30, 120, 220),
-    "wire_y":  (220, 175, 25),
-    "wire_r":  (200, 40,  40),
-    "led_g":   (20, 230, 100),
-    "led_b":   (30, 160, 255),
+_LABEL = {
+    "cpu": "CPU", "gpu": "GPU", "ram": "RAM", "nvme": "NVMe", "drive": "SATA",
+    "psu": {"pl": "Zasilacz", "en": "PSU"}, "mobo": {"pl": "Płyta", "en": "Board"},
+    "vrm": "VRM", "screen": {"pl": "Ekran", "en": "Screen"},
+    "battery": {"pl": "Bateria", "en": "Battery"}, "fan": {"pl": "Wentylator", "en": "Fan"},
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  LIVE DATA GATHERING
-# ─────────────────────────────────────────────────────────────────────────────
-def _gather_live() -> Dict[str, Any]:
-    d: Dict[str, Any] = {
-        "cpu_pct":  0.0, "cpu_temp": 0.0, "cpu_freq": 0.0,
-        "gpu_pct":  0.0, "gpu_temp": 0.0, "gpu_vram_pct": 0.0,
-        "ram_pct":  0.0, "ram_used": 0.0, "ram_total": 0.0,
-        "disk_pct": 0.0, "disk_free": 0.0,
-        "cpu_name": "CPU", "gpu_name": "GPU",
-        "ram_slots": 2,
-    }
-    if _HAS_PSUTIL and _psutil:
-        try:
-            d["cpu_pct"]  = _psutil.cpu_percent(interval=None)
-            freq = _psutil.cpu_freq()
-            d["cpu_freq"] = round(freq.current / 1000.0, 2) if freq else 0.0
-            vm = _psutil.virtual_memory()
-            d["ram_pct"]   = vm.percent
-            d["ram_used"]  = round(vm.used  / 1e9, 1)
-            d["ram_total"] = round(vm.total / 1e9, 1)
-        except Exception:
-            pass
-        try:
-            du = _psutil.disk_usage("C:\\")
-            d["disk_pct"]  = du.percent
-            d["disk_free"] = round(du.free / 1e9, 1)
-        except Exception:
-            pass
+def _lang():
     try:
-        from core.hardware_sensors import get_cpu_temp, get_gpu_temp
-        t = get_cpu_temp()
-        if t:
-            d["cpu_temp"] = float(t)
-        g = get_gpu_temp()
-        if g:
-            d["gpu_temp"] = float(g)
+        from utils.i18n import get_lang
+        return "en" if get_lang() == "en" else "pl"
+    except Exception:
+        return "pl"
+
+
+def _tx(k, lang=None, **kw):
+    s = _TX[k][lang or _lang()]
+    return s.format(**kw) if kw else s
+
+
+# ── data ─────────────────────────────────────────────────────────────────
+def gather_live() -> Dict:
+    d = {"cpu_pct": None, "cpu_temp": None, "gpu_pct": None, "gpu_temp": None,
+         "ram_pct": None, "ram_used": None, "ram_total": None, "c_free": None, "c_total": None,
+         "battery": None, "plugged": None}
+    try:
+        import psutil
+        d["cpu_pct"] = psutil.cpu_percent(interval=None)
+        vm = psutil.virtual_memory()
+        d["ram_pct"], d["ram_used"], d["ram_total"] = vm.percent, vm.used, vm.total
+        du = psutil.disk_usage("C:\\")
+        d["c_free"], d["c_total"] = du.free, du.total
+        b = psutil.sensors_battery()
+        if b is not None:
+            d["battery"], d["plugged"] = b.percent, b.power_plugged
     except Exception:
         pass
     try:
-        from core.hardware_detector import get_hardware_detector
-        det = get_hardware_detector()
-        if det.is_ready:
-            hw = det.get_data()
-            cpu = hw.get("cpu", {})
-            gpu = hw.get("gpu", {})
-            ram = hw.get("ram", {})
-            if cpu.get("name"):
-                d["cpu_name"] = cpu["name"].split("@")[0].strip()[:32]
-            if gpu.get("name"):
-                d["gpu_name"] = gpu["name"][:32]
-            slots = ram.get("modules", [])
-            d["ram_slots"] = max(1, min(4, len(slots))) if slots else 2
+        from core.hardware_sensors import get_cpu_temp, get_gpu_temp, get_gpu_usage
+        d["cpu_temp"] = get_cpu_temp() or None
+        d["gpu_temp"] = get_gpu_temp() or None
+        g = get_gpu_usage()
+        d["gpu_pct"] = g if g or d["gpu_temp"] else None
     except Exception:
         pass
     return d
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  ISOMETRIC BOX DRAWING
-# ─────────────────────────────────────────────────────────────────────────────
-class _Box:
-    """Drawable isometric box with hit-testing support."""
-    __slots__ = ("x","y","z","w","d","h","col","name",
-                 "outline","outline_w","top_f","front_f","side_f")
-
-    def __init__(self, x, y, z, w, d, h, col, name="",
-                 outline=None, ow=2,
-                 top_f=1.0, front_f=0.76, side_f=0.55):
-        self.x, self.y, self.z = x, y, z
-        self.w, self.d, self.h = w, d, h
-        self.col = col
-        self.name = name
-        self.outline = outline
-        self.outline_w = ow
-        self.top_f   = top_f
-        self.front_f = front_f
-        self.side_f  = side_f
-
-    def draw(self, draw, ox=_OX, oy=_OY):
-        x,y,z,w,d,h = self.x,self.y,self.z,self.w,self.d,self.h
-        c = self.col
-        out = self.outline
-        ow  = self.outline_w * _SSAA
-
-        # Draw back-most edges first (side, then front, then top)
-        _poly(draw, _face(x,y,z,w,d,h,"side", ox,oy),
-              _shade(c, self.side_f), out, ow)
-        _poly(draw, _face(x,y,z,w,d,h,"front",ox,oy),
-              _shade(c, self.front_f), out, ow)
-        _poly(draw, _face(x,y,z,w,d,h,"top",  ox,oy),
-              _shade(c, self.top_f), out, ow)
-
-    def screen_center(self, ox=_OX, oy=_OY) -> Tuple[float,float]:
-        """Return 2D screen center of top face (in draw-space coords)."""
-        cx = self.x + self.w / 2.0
-        cy = self.y + self.d / 2.0
-        cz = self.z + self.h
-        sx, sy = _iso(cx, cy, cz, ox, oy)
-        return sx, sy
-
-    def top_mid(self, ox=_OX, oy=_OY) -> Tuple[float, float]:
-        pts = _face(self.x, self.y, self.z, self.w, self.d, self.h, "top", ox, oy)
-        xs = [p[0] for p in pts]
-        ys = [p[1] for p in pts]
-        return (sum(xs)/4, sum(ys)/4)
-
-    def hit_rect(self, ox=_OX, oy=_OY) -> Tuple[float,float,float,float]:
-        """Bounding rect in draw-space for hover detection."""
-        all_pts = (
-            _face(self.x,self.y,self.z,self.w,self.d,self.h,"top",  ox,oy) +
-            _face(self.x,self.y,self.z,self.w,self.d,self.h,"front",ox,oy) +
-            _face(self.x,self.y,self.z,self.w,self.d,self.h,"side", ox,oy)
-        )
-        xs = [p[0] for p in all_pts]
-        ys = [p[1] for p in all_pts]
-        return (min(xs), min(ys), max(xs), max(ys))
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  WORKLOAD-AWARE HEAT HELPER
-# ─────────────────────────────────────────────────────────────────────────────
-def _thermal_aware_cpu_heat(cpu_pct: float, cpu_temp: float,
-                            gpu_pct: float) -> float:
-    """
-    Returns heat 0..1 using thermal_baseline when trained.
-    Falls back to the classic formula if baseline is unavailable.
-
-    Innovation: the heat colour reflects whether a temperature is *actually*
-    abnormal for the current workload - not just a fixed threshold.
-    E.g. 72°C during heavy gaming is "normal" (cool colour) while 72°C at
-    idle is "hot" (amber/red).
-    """
-    if cpu_temp > 0:
-        try:
-            from core.thermal_baseline import thermal_baseline
-            bucket = thermal_baseline.classify(cpu_pct, gpu_pct)
-            br     = thermal_baseline.get_range(bucket)
-            if br.is_usable:
-                z = br.z_score(cpu_temp)
-                # Map z-score → heat: z≤0 = cool, z≥3 = max heat
-                return max(0.0, min(1.0, z / 3.0))
-        except Exception:
-            pass
-        # Fallback: classic weighted formula
-        return max(0.0, min(1.0, cpu_pct / 100 * 0.4 + cpu_temp / 100 * 0.6))
-    return max(0.0, min(1.0, cpu_pct / 100))
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  DESKTOP PC SCENE DEFINITION
-# ─────────────────────────────────────────────────────────────────────────────
-def _desktop_scene(data: Dict, pulse: float) -> List[_Box]:
-    """Return all boxes for the desktop PC, in draw order (back to front)."""
-
-    # ── dynamic colors based on live data ──
-    # CPU heat uses workload-aware thermal baseline when trained
-    cpu_heat  = _thermal_aware_cpu_heat(
-        data["cpu_pct"], data["cpu_temp"], data["gpu_pct"])
-    gpu_heat  = max(0.0, min(1.0, data["gpu_temp"]/100 if data["gpu_temp"] else
-                                   data["gpu_pct"]/100))
-    ram_heat  = max(0.0, min(1.0, data["ram_pct"]/100))
-    disk_heat = max(0.0, min(1.0, data["disk_pct"]/100))
-
-    # Colors adjusted by heat
-    cpu_col  = _heat(_C["cpu"],  cpu_heat)
-    gpu_col  = _heat(_C["gpu"],  gpu_heat)
-    ram_col  = _heat(_C["ram"],  ram_heat)
-    disk_col = _heat(_C["ssd"],  disk_heat)
-
-    # Pulse for hot components
-    if cpu_heat > 0.68:
-        cpu_col = _pulse(cpu_col, (220, 55, 35), pulse)
-    if gpu_heat > 0.68:
-        gpu_col = _pulse(gpu_col, (200, 40, 80), pulse)
-    if ram_heat > 0.80:
-        ram_col = _pulse(ram_col, (220, 80, 20), pulse)
-
-    boxes: List[_Box] = []
-
-    # ── Case outer shell ──────────────────────────────────────
-    C = _C["case"]
-    case_out = (50, 54, 68)   # subtle edge highlight
-    # Back wall (y=4)
-    boxes.append(_Box(0, 4, 0, 7.5, 0.12, 15,  _C["case_lo"], "case_back",
-                      case_out, 1, 0.45, 0.35, 0.28))
-    # Left wall (x=0)
-    boxes.append(_Box(0, 0, 0, 0.12, 4, 15,    _C["case_lo"], "case_left",
-                      case_out, 1, 0.40, 0.32, 0.25))
-    # Bottom floor of case
-    boxes.append(_Box(0, 0, 0, 7.5, 4, 0.12,   _C["case_lo"], "case_floor",
-                      case_out, 1, 0.50, 0.38, 0.30))
-
-    # ── PSU ───────────────────────────────────────────────────
-    boxes.append(_Box(0.35, 0.3, 0.2, 4.2, 3.4, 2.5, _C["psu"], "psu",
-                      (80, 96, 120), 2))
-
-    # PSU vent lines (decorative thin boxes)
-    for i in range(4):
-        boxes.append(_Box(0.55+i*0.7, 0.3, 2.4, 0.3, 3.0, 0.08,
-                          _shade(_C["psu"], 1.3), ""))
-
-    # PSU fan grill on top
-    boxes.append(_Box(0.5, 0.35, 2.72, 3.6, 3.0, 0.06, _shade(_C["psu"], 1.5), ""))
-
-    # ── Motherboard PCB ───────────────────────────────────────
-    boxes.append(_Box(0.5, 0.15, 3.0, 6.5, 0.18, 11.0, _C["mobo"], "mobo",
-                      (28, 90, 60), 2))
-    # PCB trace lines (decorative)
-    for i in range(3):
-        boxes.append(_Box(0.55+i*1.8, 0.14, 3.2+i*2.5, 1.2, 0.06, 0.06,
-                          _shade(_C["mobo"], 1.6), ""))
-
-    # ── SSD / Drive bay ──────────────────────────────────────
-    boxes.append(_Box(0.4, 0.3, 2.85, 2.4, 1.8, 0.22, disk_col, "ssd",
-                      (50, 190, 90), 2))
-    # SSD connector
-    boxes.append(_Box(2.5, 0.35, 2.82, 0.4, 0.5, 0.12, _C["hdd"], ""))
-
-    # ── GPU ───────────────────────────────────────────────────
-    boxes.append(_Box(0.55, 0.35, 6.2, 5.6, 2.0, 0.75, gpu_col, "gpu",
-                      (140, 80, 220), 2))
-    # GPU heatsink fins (small thin boxes on top of GPU)
-    for i in range(6):
-        boxes.append(_Box(0.7+i*0.8, 0.4, 6.95, 0.5, 1.8, 0.25,
-                          _shade(gpu_col, 1.25), ""))
-    # GPU fans
-    for fx in (1.3, 3.1):
-        boxes.append(_Box(fx, 0.38, 6.22, 1.2, 1.85, 0.6, _shade(gpu_col, 0.7), ""))
-        boxes.append(_Box(fx+0.1, 0.42, 6.22, 1.0, 1.65, 0.58, _shade(gpu_col, 0.55), ""))
-
-    # ── CPU ───────────────────────────────────────────────────
-    # IHS (Integrated Heat Spreader)
-    boxes.append(_Box(3.15, 0.38, 11.0, 1.9, 1.8, 0.42, cpu_col, "cpu",
-                      (22, 210, 185), 2))
-    # CPU socket frame
-    boxes.append(_Box(3.0, 0.28, 10.85, 2.2, 2.1, 0.15, _shade(_C["mobo"], 0.8), ""))
-
-    # ── Heatsink / AIO ───────────────────────────────────────
-    hs = _C["hsink"]
-    # Heatsink base
-    boxes.append(_Box(3.0, 0.3, 11.42, 2.3, 2.0, 0.35, hs, "",
-                      (165, 175, 188), 2))
-    # Heatsink fins (many thin slices)
-    for i in range(9):
-        fx_off = 3.05 + i * 0.22
-        fin_c  = _shade(hs, 1.1 - i*0.01)
-        boxes.append(_Box(fx_off, 0.32, 11.77, 0.16, 1.85, 2.5, fin_c, "heatsink",
-                          (165, 178, 195), 1))
-    # Heatpipes on top
-    for p_idx in range(3):
-        boxes.append(_Box(3.1+p_idx*0.55, 0.33, 14.27, 0.18, 1.6, 0.18,
-                          (180, 130, 50), ""))
-
-    # ── RAM sticks ────────────────────────────────────────────
-    num_ram = data.get("ram_slots", 2)
-    ram_positions = [(5.3, 8.5), (5.65, 8.5), (6.0, 8.5), (6.35, 8.5)]
-    for i in range(min(num_ram, 4)):
-        rx, rz = ram_positions[i]
-        boxes.append(_Box(rx, 0.38, rz, 0.22, 0.5, 3.9, ram_col, "ram",
-                          (230, 175, 35), 2))
-        # RAM spreader heat
-        boxes.append(_Box(rx-0.03, 0.38, rz, 0.28, 0.5, 4.1,
-                          _shade(ram_col, 0.85), ""))
-        # RAM chip pads
-        for chip in range(4):
-            boxes.append(_Box(rx, 0.4, rz+0.3+chip*0.8, 0.15, 0.3, 0.4,
-                              _shade(ram_col, 1.3), ""))
-
-    # ── Case fans (140mm front + top) ─────────────────────────
-    # Front intake fan
-    boxes.append(_Box(1.8, 0.0, 9.0, 3.5, 0.22, 3.5, _C["fan"], "case_fan",
-                      (48, 62, 85), 2))
-    # Fan blades
-    boxes.append(_Box(2.2, 0.0, 9.5, 2.7, 0.1, 2.5, _shade(_C["fan"], 1.4), ""))
-
-    # Top exhaust fan
-    boxes.append(_Box(1.5, 0.8, 14.88, 4.0, 3.2, 0.2, _C["fan"], "",
-                      (48, 62, 85), 2))
-    boxes.append(_Box(1.9, 1.0, 14.88, 3.2, 2.6, 0.08, _shade(_C["fan"], 1.4), ""))
-
-    # ── Case frame (front and right side visible edges) ───────
-    # The case front is intentionally open so internals remain visible.
-    # Only thin structural rails are drawn at the front opening corners.
-    edge_c = _C["case_hi"]
-    edge_out = (60, 68, 88)
-    # Right side edge (x=7.5)
-    boxes.append(_Box(7.38, 0, 0, 0.12, 4, 15,  edge_c, "", edge_out, 1, 0.55, 0.42, 0.32))
-    # Top lid
-    boxes.append(_Box(0, 0, 14.88, 7.5, 4, 0.14, edge_c, "", edge_out, 1, 0.7, 0.55, 0.44))
-    # Front opening corner rails (thin structural frame - no solid panel blocking internals)
-    # Bottom-front horizontal rail
-    boxes.append(_Box(0, 0, 0,     7.5, 0.1, 0.15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
-    # Top-front horizontal rail
-    boxes.append(_Box(0, 0, 14.73, 7.5, 0.1, 0.15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
-    # Left-front vertical corner rail
-    boxes.append(_Box(0,    0, 0, 0.15, 0.1, 15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
-    # Right-front vertical corner rail
-    boxes.append(_Box(7.35, 0, 0, 0.15, 0.1, 15, edge_c, "", edge_out, 1, 0.6, 0.5, 0.38))
-
-    # LED strip (front bottom)
-    led_col = _C["led_b"] if cpu_heat < 0.65 else _C["led_g"] if cpu_heat < 0.82 else (220, 50, 50)
-    boxes.append(_Box(0.4, 0.0, 0.6, 6.5, 0.06, 0.12, led_col, ""))
-
-    # ── Cable bundle ──────────────────────────────────────────
-    boxes.append(_Box(1.0, 1.6, 3.1, 0.35, 1.5, 6.0, _shade(_C["wire_b"], 0.65), ""))
-    boxes.append(_Box(0.6, 1.8, 2.8, 0.35, 1.2, 2.8, _shade(_C["wire_y"], 0.55), ""))
-
-    return boxes
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  LAPTOP SCENE DEFINITION
-# ─────────────────────────────────────────────────────────────────────────────
-
-# Laptop origin is shifted
-_LOX = int((_CW // 2 - 40) * _SSAA)
-_LOY = int((_CH - 130)      * _SSAA)   # raised 40 px to match desktop origin fix
-
-
-def _laptop_scene(data: Dict, pulse: float) -> List[_Box]:
-    """Return all boxes for laptop scene."""
-    cpu_heat  = _thermal_aware_cpu_heat(
-        data["cpu_pct"], data["cpu_temp"], data["gpu_pct"])
-    gpu_heat  = max(0.0, min(1.0, data["gpu_pct"]/100))
-    ram_heat  = max(0.0, min(1.0, data["ram_pct"]/100))
-    disk_heat = max(0.0, min(1.0, data["disk_pct"]/100))
-
-    cpu_col  = _heat(_C["cpu"],  cpu_heat)
-    gpu_col  = _heat(_C["gpu"],  gpu_heat)
-    ram_col  = _heat(_C["ram"],  ram_heat)
-    disk_col = _heat(_C["ssd"],  disk_heat)
-
-    if cpu_heat > 0.68:
-        cpu_col = _pulse(cpu_col, (220, 55, 35), pulse)
-
-    boxes: List[_Box] = []
-    lo, lo2 = _LOX, _LOY
-
-    # ── Laptop base (bottom chassis) ──────────────────────────
-    base_c = (32, 36, 44)
-    boxes.append(_Box(0, 0, 0, 12, 8, 0.6,  base_c,  "chassis",
-                      (50, 55, 68), 2,
-                      top_f=0.85, front_f=0.62, side_f=0.48))
-
-    # Bottom vents
-    for i in range(5):
-        boxes.append(_Box(1.5+i*1.6, 7.5, 0.12, 1.0, 0.35, 0.35,
-                          _shade(base_c, 1.5), ""))
-
-    # Internal chassis lid (open internals view)
-    boxes.append(_Box(0.2, 0.2, 0.62, 11.6, 7.6, 0.12, (20, 24, 32), ""))
-
-    # ── Motherboard (horizontal, fills inside) ────────────────
-    boxes.append(_Box(0.4, 0.4, 0.74, 11.2, 7.2, 0.18, _C["mobo"], "mobo",
-                      (28, 90, 60), 2,
-                      top_f=0.95, front_f=0.70, side_f=0.52))
-
-    # ── Battery (large block at back) ─────────────────────────
-    bat_c = (40, 60, 90)
-    boxes.append(_Box(0.5, 4.8, 0.92, 11.0, 2.8, 0.9, bat_c, "battery",
-                      (55, 80, 120), 2))
-    boxes.append(_Box(0.6, 5.0, 1.82, 2.0, 0.3, 0.08, _shade(bat_c, 1.5), ""))
-
-    # ── CPU (center-left area) ────────────────────────────────
-    boxes.append(_Box(3.5, 1.5, 0.92, 2.0, 2.0, 0.45, cpu_col, "cpu",
-                      (22, 210, 185), 2))
-    # CPU heatsink + heatpipes
-    boxes.append(_Box(3.4, 1.4, 1.37, 2.2, 2.2, 0.22, _C["hsink"], "heatsink",
-                      (165, 178, 195), 2))
-    for i in range(3):
-        boxes.append(_Box(3.5, 1.5+i*0.55, 1.37, 4.0, 0.15, 0.12, (180, 130, 50), ""))
-    boxes.append(_Box(5.5, 1.5, 1.37, 0.22, 2.0, 0.12, _C["hsink"], ""))
-
-    # ── Cooling fan (left) ────────────────────────────────────
-    boxes.append(_Box(1.0, 1.2, 0.92, 2.0, 2.0, 0.5, _C["fan"], "case_fan",
-                      (48, 62, 85), 2))
-    boxes.append(_Box(1.2, 1.4, 0.93, 1.6, 1.6, 0.45, _shade(_C["fan"], 1.5), ""))
-    boxes.append(_Box(1.9, 1.9, 0.93, 0.2, 0.2, 0.45, _shade(_C["fan"], 0.7), ""))
-
-    # ── GPU (dGPU, if present) ────────────────────────────────
-    boxes.append(_Box(5.8, 1.5, 0.92, 3.0, 2.0, 0.38, gpu_col, "gpu",
-                      (140, 80, 220), 2))
-
-    # ── Cooling fan right ─────────────────────────────────────
-    boxes.append(_Box(9.0, 1.2, 0.92, 2.0, 2.0, 0.5, _C["fan"], "",
-                      (48, 62, 85), 2))
-    boxes.append(_Box(9.2, 1.4, 0.93, 1.6, 1.6, 0.45, _shade(_C["fan"], 1.5), ""))
-
-    # ── RAM sticks (soldered, shown as thin bars) ─────────────
-    for i in range(2):
-        boxes.append(_Box(3.6+i*1.2, 4.0, 0.92, 0.9, 0.45, 1.8, ram_col, "ram",
-                          (230, 175, 35), 2))
-
-    # ── SSD (M.2) ─────────────────────────────────────────────
-    boxes.append(_Box(6.0, 4.0, 0.92, 3.0, 0.35, 0.55, disk_col, "ssd",
-                      (50, 190, 90), 2))
-
-    # ── Wireless card ─────────────────────────────────────────
-    boxes.append(_Box(9.5, 3.5, 0.92, 1.5, 1.0, 0.38, (55, 65, 90), "",
-                      (70, 85, 115), 1))
-
-    # ── Screen hinge area ─────────────────────────────────────
-    hinge_c = (38, 42, 52)
-    boxes.append(_Box(0.4, 0, 0.3, 11.2, 0.55, 0.55, hinge_c, "",
-                      (55, 60, 75), 2))
-
-    # ── Screen (lid, slightly tilted - shown as angled box) ───
-    # We approximate the screen as a slightly inclined box
-    scr_base_c = (25, 28, 38)
-    # Screen back shell
-    boxes.append(_Box(0.3, -0.3, 0.55, 11.4, 0.5, 7.5, scr_base_c, "screen",
-                      (45, 50, 65), 2,
-                      top_f=0.7, front_f=0.55, side_f=0.42))
-    # Screen bezel
-    boxes.append(_Box(0.5, -0.35, 0.6, 11.0, 0.08, 7.2, (18, 20, 28), ""))
-    # Screen display area
-    boxes.append(_Box(0.65, -0.36, 0.75, 10.7, 0.06, 6.8, (15, 22, 42), ""))
-    # Screen glow (simulated)
-    boxes.append(_Box(0.72, -0.365, 0.82, 10.56, 0.04, 6.64, (22, 85, 120), ""))
-
-    # ── Logo on lid ────────────────────────────────────────────
-    boxes.append(_Box(5.3, -0.36, 3.8, 1.4, 0.06, 1.4, (55, 62, 78), ""))
-
-    # ── Keyboard area on base (decorative) ────────────────────
-    kb_c = (28, 32, 42)
-    boxes.append(_Box(1.0, 1.0, 0.85, 10.0, 5.5, 0.06, kb_c, "", (38, 42, 55), 1,
-                      top_f=0.9, front_f=0.65, side_f=0.5))
-    # Key rows
-    for row in range(5):
-        for col in range(13):
-            kx = 1.1 + col * 0.75
-            ky = 1.2 + row * 0.85
-            if kx < 10.8 and ky < 5.5:
-                boxes.append(_Box(kx, ky, 0.91, 0.55, 0.6, 0.08, (36, 42, 56), ""))
-
-    # ── Trackpad ───────────────────────────────────────────────
-    boxes.append(_Box(4.5, 5.8, 0.82, 3.0, 1.8, 0.06, (36, 40, 52), "",
-                      (50, 55, 70), 1,
-                      top_f=0.92, front_f=0.68, side_f=0.52))
-
-    return boxes
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  LABEL / ANNOTATION SYSTEM
-# ─────────────────────────────────────────────────────────────────────────────
-_LABEL_MAP_DESKTOP = {
-    "cpu":      ("CPU",     _C["cpu"],     "right"),
-    "heatsink": ("COOLER",  _C["hsink"],   "right"),
-    "gpu":      ("GPU",     _C["gpu"],     "right"),
-    "ram":      ("RAM",     _C["ram"],     "right"),
-    "ssd":      ("SSD",     _C["ssd"],     "left"),
-    "psu":      ("PSU",     _C["psu"],     "left"),
-    "mobo":     ("MOBO",    _C["mobo"],    "left"),
-    "case_fan": ("FAN",     _C["fan"],     "left"),
-}
-
-_LABEL_MAP_LAPTOP = {
-    "cpu":     ("CPU",     _C["cpu"],     "right"),
-    "gpu":     ("GPU",     _C["gpu"],     "right"),
-    "ram":     ("RAM",     _C["ram"],     "right"),
-    "ssd":     ("SSD",     _C["ssd"],     "right"),
-    "battery": ("BATTERY", (55, 80, 120), "left"),
-    "screen":  ("SCREEN",  (22, 85, 120), "left"),
-    "mobo":    ("MOBO",    _C["mobo"],    "left"),
-    "case_fan":("FAN",     _C["fan"],     "left"),
-}
-
-
-def _draw_labels(draw: "ImageDraw.ImageDraw", boxes: List[_Box],
-                 label_map: dict, data: Dict, font_sm, font_xs,
-                 ox=_OX, oy=_OY):
-    """Draw floating labels with connecting lines for named components."""
-    seen: Dict[str, bool] = {}
-
-    for box in boxes:
-        name = box.name
-        if name not in label_map or name in seen:
-            continue
-        seen[name] = True
-
-        label_txt, base_col, side = label_map[name]
-        sx, sy = box.top_mid(ox, oy)
-
-        # Sub-label with live data value
-        sub_txt = ""
-        if name == "cpu":
-            pct = data.get("cpu_pct", 0)
-            tmp = data.get("cpu_temp", 0)
-            sub_txt = f"{pct:.0f}%  {tmp:.0f}°C" if tmp else f"{pct:.0f}%"
-        elif name == "gpu":
-            pct = data.get("gpu_pct", 0)
-            tmp = data.get("gpu_temp", 0)
-            sub_txt = f"{tmp:.0f}°C" if tmp else f"{pct:.0f}%"
-        elif name == "ram":
-            sub_txt = f"{data.get('ram_pct', 0):.0f}%  {data.get('ram_used', 0):.1f}GB"
-        elif name == "ssd":
-            sub_txt = f"{data.get('disk_pct', 0):.0f}%  {data.get('disk_free', 0):.0f}GB free"
-        elif name == "heatsink":
-            sub_txt = f"{data.get('cpu_temp', 0):.0f}°C" if data.get("cpu_temp") else ""
-
-        # Label anchor
-        if side == "right":
-            lx = sx + 36 * _SSAA
-            line_ex = sx + 28 * _SSAA
-        else:
-            lx = sx - 36 * _SSAA
-            line_ex = sx - 28 * _SSAA
-
-        ly = sy - 8 * _SSAA
-
-        # Connecting dot + line
-        dot_r = 3 * _SSAA
-        col_t = tuple(int(c) for c in base_col)
-        draw.ellipse([sx-dot_r, sy-dot_r, sx+dot_r, sy+dot_r], fill=col_t)
-        draw.line([(sx, sy), (line_ex, ly)],
-                  fill=_shade(col_t, 0.75), width=_SSAA)
-
-        # Horizontal tick
-        tick_len = 18 * _SSAA
-        tick_end = lx + (tick_len if side == "right" else -tick_len)
-        draw.line([(line_ex, ly), (tick_end, ly)],
-                  fill=_shade(col_t, 0.65), width=_SSAA)
-
-        # Label text - no `anchor` param (not supported by PIL default font)
-        pad = 4 * _SSAA
-        lbl_fill = tuple(int(c) for c in _shade(col_t, 1.25))
-        if side == "right":
-            tx = tick_end + pad
-        else:
-            # Right-align: estimate text width and shift left
-            try:
-                bbox = font_sm.getbbox(label_txt)
-                tw = bbox[2] - bbox[0]
-            except Exception:
-                tw = len(label_txt) * 7 * _SSAA
-            tx = tick_end - pad - tw
-        ty = ly - 12 * _SSAA
-        draw.text((tx, ty), label_txt, fill=lbl_fill, font=font_sm)
-
-        if sub_txt:
-            if side == "right":
-                stx = tick_end + pad
-            else:
-                try:
-                    sbbox = font_xs.getbbox(sub_txt)
-                    stw = sbbox[2] - sbbox[0]
-                except Exception:
-                    stw = len(sub_txt) * 6 * _SSAA
-                stx = tick_end - pad - stw
-            draw.text((stx, ly + 2 * _SSAA), sub_txt, fill=(130, 145, 165), font=font_xs)
-
-
-def _draw_floor(draw, img_w, img_h, ox, oy):
-    """Draw a subtle isometric grid floor beneath the PC."""
-    grid_col = _C["grid"]
-    for gx in range(-2, 14):
-        for gy in range(-1, 7):
-            pts = _face(gx, gy, -0.05, 1.0, 1.0, 0.05, "top", ox, oy)
-            _poly(draw, pts, _C["floor"], grid_col, 1)
-
-
-def _draw_glow_ring(img: "Image.Image", cx: float, cy: float,
-                    radius: float, color: Tuple, alpha: int = 60):
-    """Draw a subtle radial glow ring using a temp layer + blur."""
+def gather_week(days: int = 7) -> Dict:
+    out = {}
     try:
-        glow = Image.new("RGBA", img.size, (0,0,0,0))
-        gd = ImageDraw.Draw(glow)
-        r = int(radius)
-        gd.ellipse([int(cx-r), int(cy-r), int(cx+r), int(cy+r)],
-                   fill=(*color, alpha))
-        glow = glow.filter(ImageFilter.GaussianBlur(radius // 2))
-        img.alpha_composite(glow)
+        from hck_stats_engine import history
+        now = time.time()
+        for comp in ("cpu", "gpu", "ram"):
+            st = history.stats(comp, now - days * 86400, now)
+            if st.get("has_data"):
+                out[comp] = {"avg": st["avg"], "max": st["max"],
+                             "temp_avg": st.get("temp_avg"), "temp_max": st.get("temp_max")}
     except Exception:
         pass
+    return out
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  MAIN VIEW CLASS
-# ─────────────────────────────────────────────────────────────────────────────
-class PCMapView(tk.Frame):
-    """
-    2.5D Isometric hardware map - Desktop PC + Laptop modes.
-    Pillow-rendered, live-updating with hover tooltips.
-    """
+def disk_buses() -> List[Dict]:
+    """[{"name", "bus", "media", "size"}] from Get-PhysicalDisk (no admin
+    rights needed). The model name alone does not say NVMe or SATA."""
+    try:
+        import json
+        import subprocess
+        ps = ("[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; Get-PhysicalDisk | "
+              "Select-Object FriendlyName, @{n='Bus';e={\"$($_.BusType)\"}}, "
+              "@{n='Media';e={\"$($_.MediaType)\"}}, Size | ConvertTo-Json -Compress")
+        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", ps],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace",
+                           timeout=15, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        data = json.loads((r.stdout or "").strip() or "[]")
+        if isinstance(data, dict):
+            data = [data]
+        return [{"name": str(x.get("FriendlyName") or "").strip(), "bus": str(x.get("Bus") or ""),
+                 "media": str(x.get("Media") or ""), "size": float(x.get("Size") or 0)}
+                for x in data if isinstance(x, dict)]
+    except Exception:
+        return []
 
-    def __init__(self, parent, **kwargs):
-        super().__init__(parent, bg="#0a0e14", **kwargs)
-        self._mode       = "desktop"   # "desktop" | "laptop"
-        self._live_data  = _gather_live()
-        self._pulse      = 0.0
-        self._running    = True
-        self._photo      = None
-        self._hit_rects: Dict[str, Tuple] = {}   # name -> (x1,y1,x2,y2) in canvas px
-        self._hovered    = None
-        self._tooltip_win: Optional[tk.Toplevel] = None
-        self._last_render_time = 0.0
-        # Cached PIL fonts - loaded once, reused every frame
-        self._font_sm = None
-        self._font_xs = None
 
-        if not _HAS_PIL:
-            tk.Label(self, text="Pillow (PIL) not installed.\npip install Pillow",
-                     font=(_BODY, 11), bg="#0a0e14", fg="#ef4444").pack(expand=True)
-            return
+def gather_hw() -> Dict:
+    hw = {}
+    try:
+        from core.hardware_detector import get_hardware_detector
+        det = get_hardware_detector()
+        hw = dict(det.ensure_data() if hasattr(det, "ensure_data") else det.get_data())
+    except Exception:
+        pass
+    hw["disks"] = disk_buses()
+    try:
+        from core import machine_type
+        hw["kind"] = machine_type.get()
+    except Exception:
+        hw["kind"] = None
+    return hw
 
-        # Page switches destroy this widget via the PARENT's destroy() - the
-        # Python-level destroy() override below is never called then, so the
-        # 3 s data thread would leak (one per page visit). <Destroy> always fires.
-        self.bind("<Destroy>", self._on_tk_destroy, add="+")
 
-        self._build_ui()
-        self._start_loop()
+def layout_args(hw: Dict) -> Dict:
+    """What the scene needs to know: sticks, a GPU, NVMe, SATA drives."""
+    mods = ((hw.get("ram") or {}).get("modules") or [])
+    gpu = (hw.get("gpu") or {}).get("name", "")
+    disks = hw.get("disks") or []
+    nvme = [x for x in disks if x["bus"].lower() == "nvme"]
+    other = [x for x in disks if x["bus"].lower() not in ("nvme", "usb")]
+    return {"ram_sticks": len(mods) or 2,
+            "has_gpu": bool(gpu) and gpu != "Not detected",
+            "nvme": bool(nvme) or not disks,
+            "sata": len(other)}
 
-    def _on_tk_destroy(self, event=None):
-        if event is None or event.widget is self:
-            self._running = False
 
-    # ── UI ────────────────────────────────────────────────────
-    def _build_ui(self):
-        # Top bar
-        top_bar = tk.Frame(self, bg="#0f1117", height=34)
-        top_bar.pack(fill="x")
-        top_bar.pack_propagate(False)
+def _norm(v, lo, hi):
+    if v is None:
+        return None
+    return max(0.0, min(1.0, (float(v) - lo) / (hi - lo)))
 
-        tk.Label(top_bar, text="MAP OF COMPONENTS",
-                 font=(_HDR, 9, "bold"),
-                 bg="#0f1117", fg="#e2e8f0", padx=14).pack(side="left", fill="y")
 
-        tk.Frame(top_bar, bg="#1f2937", width=1).pack(side="left", fill="y", pady=5)
+def heat_values(live: Dict, week: Dict, mode: str = "now") -> Dict[str, Optional[float]]:
+    """0..1 per coloured part. Temperature first (40 °C cool, 85 °C hot),
+    the load when nothing reads the temperature; RAM by memory in use."""
+    if mode == "week":
+        c, g, r = week.get("cpu") or {}, week.get("gpu") or {}, week.get("ram") or {}
+        ct, cl, gt, gl, rp = c.get("temp_avg"), c.get("avg"), g.get("temp_avg"), g.get("avg"), r.get("avg")
+    else:
+        ct, cl = live.get("cpu_temp"), live.get("cpu_pct")
+        gt, gl = live.get("gpu_temp"), live.get("gpu_pct")
+        rp = live.get("ram_pct")
+    return {"cpu": _norm(ct, 40, 85) if ct else _norm(cl, 0, 100),
+            "gpu": _norm(gt, 40, 85) if gt else _norm(gl, 0, 100),
+            "ram": _norm(rp, 40, 95)}
 
-        # Mode buttons
-        self._btn_desktop = self._mode_btn(top_bar, "🖥  DESKTOP PC",  "desktop")
-        self._btn_laptop  = self._mode_btn(top_bar, "💻  LAPTOP",      "laptop")
 
-        # Status label (right side)
-        self._status_lbl = tk.Label(top_bar, text="",
-                                    font=(_MONO, 7),
-                                    bg="#0f1117", fg="#8593a8", padx=12)
-        self._status_lbl.pack(side="right", fill="y")
+def _gb(n):
+    return f"{n / 1024 ** 3:.0f} GB" if n else "-"
 
-        tk.Label(top_bar, text="Hover over a component for details",
-                 font=(_BODY, 7), bg="#0f1117", fg="#74839a", padx=10
-                 ).pack(side="right", fill="y")
 
-        # Canvas + vertical scrollbar so the scene never gets cut off
-        _canvas_wrap = tk.Frame(self, bg="#08090f")
-        _canvas_wrap.pack(fill="both", expand=True)
+def _num(v, unit, nd=0):
+    if v is None:
+        return "-"
+    return f"{v:.{nd}f}{unit}".replace(".", ",") if _lang() == "pl" else f"{v:.{nd}f}{unit}"
 
-        _vsb = tk.Scrollbar(_canvas_wrap, orient="vertical",
-                            bg="#0a0e14", troughcolor="#060911", width=6,
-                            relief="flat", bd=0)
-        _vsb.pack(side="right", fill="y")
 
-        self._canvas = tk.Canvas(
-            _canvas_wrap, width=_CW, height=_CH,
-            bg="#08090f", highlightthickness=0, cursor="crosshair",
-            yscrollcommand=_vsb.set, scrollregion=(0, 0, _CW, _CH),
-        )
-        self._canvas.pack(side="left", fill="both", expand=True)
-        _vsb.config(command=self._canvas.yview)
+def _pair(w):
+    """ "12 %  ·  41 °C", without the part nothing measured."""
+    return "  ·  ".join(v for v in (_num(w.get("avg"), " %"), _num(w.get("temp_avg"), " °C")) if v != "-") or "-"
 
-        # Mouse-wheel scroll
-        self._canvas.bind("<MouseWheel>",
-                          lambda e: self._canvas.yview_scroll(
-                              int(-1 * (e.delta / 120)), "units"))
 
-        self._canvas.bind("<Motion>",   self._on_motion)
-        self._canvas.bind("<Leave>",    self._on_leave)
-        self._canvas.bind("<Button-1>", self._on_click)
-
-        self._update_mode_buttons()
-
-    def _mode_btn(self, parent, text, mode) -> tk.Label:
-        btn = tk.Label(parent, text=text,
-                       font=(_BODY, 7, "bold"),
-                       bg="#0f1117", fg="#6b7280",
-                       padx=12, pady=4, cursor="hand2")
-        btn.pack(side="left")
-        btn.bind("<Button-1>",  lambda e: self._set_mode(mode))
-        btn.bind("<Enter>",
-                 lambda e, b=btn, m=mode: b.config(
-                     fg="#e2e8f0", bg="#1a1f2e") if self._mode != m else None)
-        btn.bind("<Leave>",
-                 lambda e, b=btn, m=mode: self._update_mode_buttons())
-        return btn
-
-    def _update_mode_buttons(self):
-        for btn, mode in [(self._btn_desktop, "desktop"),
-                          (self._btn_laptop,  "laptop")]:
-            if self._mode == mode:
-                btn.config(fg="#ffffff", bg="#3b82f6")
-            else:
-                btn.config(fg="#6b7280", bg="#0f1117")
-
-    def _set_mode(self, mode: str):
-        self._mode = mode
-        self._update_mode_buttons()
-        self._hide_tooltip()
-        self._render_now()
-
-    # ── Loop ──────────────────────────────────────────────────
-    def _start_loop(self):
-        self._data_thread()
-        self._anim_tick()
-
-    def _data_thread(self):
-        """Fetch live data in background thread every 3s."""
-        def _fetch():
-            while self._running:
-                try:
-                    d = _gather_live()
-                    if self._running:
-                        self._live_data = d
-                except Exception:
-                    pass
-                time.sleep(3.0)
-
-        t = threading.Thread(target=_fetch, daemon=True)
-        t.start()
-
-    def _anim_tick(self):
-        if not self._running:
-            return
-        self._pulse += 0.18
-        self._render_now()
-        if self.winfo_exists():
-            self.after(120, self._anim_tick)
-
-    # ── Render ────────────────────────────────────────────────
-    def _render_now(self):
-        if not _HAS_PIL:
-            return
+def details(key: str, live: Dict, week: Dict, hw: Dict, lang: str = "pl"):
+    """(title, [(caption, value)], note) for the panel under the cursor."""
+    lang = "en" if lang == "en" else "pl"
+    name, about = _PART.get(key, ({"pl": key, "en": key}, None))
+    rows = []
+    note = about[lang] if about else ""
+    T = lambda k: _TX[k][lang]                       # noqa: E731
+    wk = week or {}
+    if key == "cpu":
+        cpu = hw.get("cpu") or {}
+        rows += [("", cpu.get("name") or T("unknown"))]
+        if cpu.get("cores_physical"):
+            rows.append((T("cores"), f"{cpu['cores_physical']} / {cpu.get('cores_logical') or '-'}"))
+        if cpu.get("freq_max_mhz"):
+            rows.append((T("clock"), f"{cpu['freq_max_mhz'] / 1000:.2f} GHz"))
+        rows += [(T("load"), _num(live.get("cpu_pct"), " %")),
+                 (T("temp"), _num(live.get("cpu_temp"), " °C"))]
+        w = wk.get("cpu") or {}
+        if w:
+            rows.append((T("avg7"), _pair(w)))
+        note = T("heat_by_temp") if live.get("cpu_temp") else T("no_cpu_sensor")
+        note += " " + T("click_hist")
+    elif key == "gpu":
+        gpu = hw.get("gpu") or {}
+        rows += [("", gpu.get("name") or T("unknown"))]
+        if gpu.get("vram_mb"):
+            rows.append((T("vram"), f"{gpu['vram_mb'] / 1024:.0f} GB"))
+        if gpu.get("driver_version"):
+            rows.append((T("driver"), f"{gpu['driver_version']}  ({gpu.get('driver_date') or '-'})"))
+        rows += [(T("load"), _num(live.get("gpu_pct"), " %")),
+                 (T("temp"), _num(live.get("gpu_temp"), " °C"))]
+        w = wk.get("gpu") or {}
+        if w:
+            rows.append((T("avg7"), _pair(w)))
+        note = (T("heat_by_temp") if live.get("gpu_temp") else T("heat_by_load")) + " " + T("click_hist")
+    elif key == "ram":
+        ram = hw.get("ram") or {}
+        mods = ram.get("modules") or []
+        if mods:
+            sizes = sorted({m.get("capacity_gb") for m in mods if m.get("capacity_gb")})
+            speed = max((m.get("speed_mhz") or 0) for m in mods)
+            sz = "/".join(f"{s:g}" for s in sizes) + " GB" if sizes else ""
+            rows.append((T("sticks"), f"{len(mods)} × {sz}" + (f", {speed} MHz" if speed else "")))
+        rows.append((T("used"), f"{_gb(live.get('ram_used'))} / {_gb(live.get('ram_total'))}  ({_num(live.get('ram_pct'), ' %')})"))
+        w = wk.get("ram") or {}
+        if w:
+            rows.append((T("avg7"), _num(w.get("avg"), " %")))
+        note = T("heat_by_use") + " " + T("click_hist")
+    elif key in ("nvme", "drive"):
+        disks = hw.get("disks") or []
+        want = [x for x in disks if (x["bus"].lower() == "nvme") == (key == "nvme")
+                and x["bus"].lower() != "usb"]
+        for x in want:
+            rows.append(("", f"{x['name']}"))
+            rows.append((T("size"), f"{x['size'] / 1e9:.0f} GB  ·  {x['bus'] or '-'} {x['media'] or ''}".rstrip()))
+        if key == "nvme" and live.get("c_total"):
+            rows.append((T("c_drive"), T("free").format(f=_gb(live["c_free"]), t=_gb(live["c_total"]))))
+        if not want:
+            rows.append(("", T("no_data")))
+    elif key == "mobo":
+        mb = hw.get("motherboard") or {}
+        nm = " ".join(x for x in (mb.get("manufacturer"), mb.get("product")) if x)
+        rows.append(("", nm or T("unknown")))
+        if mb.get("version"):
+            rows.append(("", mb["version"]))
+    elif key == "battery":
+        rows.append((T("battery_lv"), _num(live.get("battery"), " %")))
+        if live.get("plugged") is not None:
+            rows.append(("", T("plugged") if live["plugged"] else T("on_batt")))
+    elif key == "screen":
         try:
-            img_w = _CW * _SSAA
-            img_h = _CH * _SSAA
+            import ctypes
+            u = ctypes.windll.user32
+            rows.append(("", f"{u.GetSystemMetrics(0)} × {u.GetSystemMetrics(1)}"))
+        except Exception:
+            pass
+    return name[lang], rows, note
 
-            # Create RGBA draw image
-            img = Image.new("RGBA", (img_w, img_h), (*_C["bg"], 255))
-            draw = ImageDraw.Draw(img)
 
-            # Select scene + origin
-            if self._mode == "desktop":
-                ox, oy = _OX, _OY
-                scene = _desktop_scene(self._live_data, self._pulse)
-                label_map = _LABEL_MAP_DESKTOP
-            else:
-                ox, oy = _LOX, _LOY
-                scene = _laptop_scene(self._live_data, self._pulse)
-                label_map = _LABEL_MAP_LAPTOP
+# ── the view ─────────────────────────────────────────────────────────────
+class _Shared:
+    """Plain data between the worker and the window (no Tk objects)."""
+    def __init__(self):
+        self.live: Dict = {}
+        self.week: Dict = {}
+        self.hw: Dict = {}
+        self.version = 0
+        self.want = True          # the tab is on screen
+        self.alive = True
 
-            # Floor grid
-            _draw_floor(draw, img_w, img_h, ox, oy)
 
-            # Draw all boxes in scene order
-            hit: Dict[str, Tuple] = {}
-            for box in scene:
-                box.draw(draw, ox, oy)
-                if box.name and box.name in label_map and box.name not in hit:
-                    r = box.hit_rect(ox, oy)
-                    # Convert to canvas coords (divide by SSAA)
-                    hit[box.name] = (r[0]/_SSAA, r[1]/_SSAA,
-                                     r[2]/_SSAA, r[3]/_SSAA)
+def _worker(sh: _Shared):
+    week_at = 0.0
+    if not sh.hw:
+        sh.hw = gather_hw()
+        sh.version += 1
+    while sh.alive:
+        if sh.want:
+            sh.live = gather_live()
+            if time.time() - week_at > 300:
+                sh.week = gather_week()
+                week_at = time.time()
+            sh.version += 1
+        for _ in range(30):
+            if not sh.alive:
+                return
+            time.sleep(0.1)
 
-            self._hit_rects = hit
 
-            # Fonts - load once and cache; loading from disk every 120ms is expensive
-            if self._font_sm is None:
-                try:
-                    self._font_sm = ImageFont.truetype(
-                        "C:/Windows/Fonts/consola.ttf", 11 * _SSAA)
-                    self._font_xs = ImageFont.truetype(
-                        "C:/Windows/Fonts/consola.ttf",  9 * _SSAA)
-                except Exception:
-                    self._font_sm = ImageFont.load_default()
-                    self._font_xs = self._font_sm
-            font_sm = self._font_sm
-            font_xs = self._font_xs
+class PCMapView(tk.Frame):
 
-            # Labels - wrapped separately so label failure doesn't blank the canvas
-            try:
-                _draw_labels(draw, scene, label_map, self._live_data,
-                             font_sm, font_xs, ox, oy)
-            except Exception:
-                pass
-
-            # Mode badge (bottom-left)
-            try:
-                badge = "DESKTOP PC" if self._mode == "desktop" else "LAPTOP"
-                draw.text((18*_SSAA, img_h - 22*_SSAA),
-                          badge, fill=(40, 52, 72), font=font_sm)
-            except Exception:
-                pass
-
-            # Glow under hot CPU
-            try:
-                if self._live_data.get("cpu_temp", 0) > 75 or self._live_data.get("cpu_pct", 0) > 75:
-                    cpu_boxes = [b for b in scene if b.name == "cpu"]
-                    if cpu_boxes:
-                        cx, cy = cpu_boxes[0].screen_center(ox, oy)
-                        alpha = int(30 + 25 * (math.sin(self._pulse) + 1) / 2)
-                        _draw_glow_ring(img, cx, cy, 55 * _SSAA, (20, 200, 170), alpha)
-            except Exception:
-                pass
-
-            # Downscale (SSAA anti-aliasing) - handle Pillow 9 vs 10 LANCZOS API
-            _lanczos = getattr(getattr(Image, "Resampling", Image), "LANCZOS",
-                               getattr(Image, "LANCZOS", 1))
-            out = img.resize((_CW, _CH), _lanczos)
-            self._photo = ImageTk.PhotoImage(out)
-
-            # Put on canvas
-            if self.winfo_exists():
-                self._canvas.delete("all")
-                self._canvas.create_image(0, 0, anchor="nw", image=self._photo)
-
-            # Status bar
-            try:
-                d = self._live_data
-                st = (f"CPU {d.get('cpu_pct',0):.0f}%  "
-                      f"{d.get('cpu_temp',0):.0f}°C   "
-                      f"GPU {d.get('gpu_temp',0):.0f}°C   "
-                      f"RAM {d.get('ram_pct',0):.0f}%   "
-                      f"DISK {d.get('disk_pct',0):.0f}%")
-                if self.winfo_exists():
-                    self._status_lbl.config(text=st)
-            except Exception:
-                pass
-
-        except Exception as _e:
-            import traceback as _tb
-            print(f"[PCMap] render error: {_e}")
-            # _tb.print_exc()  # uncomment for full traceback during debugging
-
-    # ── Hover / Tooltip ───────────────────────────────────────
-    def _on_motion(self, event):
-        mx, my = event.x, event.y
-        found = None
-        for name, (x1, y1, x2, y2) in self._hit_rects.items():
-            if x1 <= mx <= x2 and y1 <= my <= y2:
-                found = name
-                break
-
-        if found != self._hovered:
-            self._hovered = found
-            self._hide_tooltip()
-            if found:
-                self._show_tooltip(found, event.x_root, event.y_root)
-
-    def _on_leave(self, event):
-        self._hovered = None
-        self._hide_tooltip()
-
-    def _on_click(self, event):
-        pass   # reserved for future drill-down
-
-    def _show_tooltip(self, comp: str, rx: int, ry: int):
-        d = self._live_data
-        lines = _tooltip_lines(comp, d)
-        if not lines:
+    def __init__(self, parent, app=None, **kw):
+        super().__init__(parent, bg=BG, **kw)
+        self.app = app
+        self.sh = _Shared()
+        self._seen = -1
+        self._mode = None             # desktop | laptop, from the machine once known
+        self._colors = "now"
+        self._hover = None
+        self._photo = None
+        self._parts: List = []
+        self._fit = None
+        self._job = None
+        self._lang = _lang()
+        if not _HAS_PIL:
+            tk.Label(self, text="Pillow", font=(_BODY, 11), bg=BG, fg="#ef4444").pack(expand=True)
             return
+        self.bind("<Destroy>", self._on_destroy, add="+")
+        self._build()
+        threading.Thread(target=_worker, args=(self.sh,), daemon=True, name="pc-map").start()
+        self._tick()
 
-        self._tooltip_win = tk.Toplevel(self)
-        w = self._tooltip_win
-        w.wm_overrideredirect(True)
-        w.attributes("-topmost", True)
-        w.wm_geometry(f"+{rx+16}+{ry-8}")
+    # ── layout ───────────────────────────────────────────────────────────
+    def _build(self):
+        bar = tk.Frame(self, bg=BAR, height=36)
+        bar.pack(fill="x")
+        bar.pack_propagate(False)
+        self._b_mode = {m: self._btn(bar, _tx(m), lambda m=m: self._set_mode(m)) for m in ("desktop", "laptop")}
+        tk.Frame(bar, bg=LINE, width=1).pack(side="left", fill="y", pady=7, padx=8)
+        tk.Label(bar, text=_tx("colors"), font=(_BODY, 8), bg=BAR, fg=MUTED).pack(side="left")
+        self._b_col = {m: self._btn(bar, _tx(m), lambda m=m: self._set_colors(m)) for m in ("now", "week")}
+        leg = tk.Frame(bar, bg=BAR)
+        leg.pack(side="right", padx=12)
+        tk.Label(leg, text=_tx("cool"), font=(_BODY, 7), bg=BAR, fg=MUTED).pack(side="left")
+        g = tk.Canvas(leg, width=90, height=8, bg=BAR, highlightthickness=0)
+        g.pack(side="left", padx=6)
+        for i in range(90):
+            g.create_line(i, 0, i, 8, fill="#%02x%02x%02x" % S.heat_color(i / 89))
+        tk.Label(leg, text=_tx("hot"), font=(_BODY, 7), bg=BAR, fg=MUTED).pack(side="left")
 
-        outer = tk.Frame(w, bg="#151922",
-                         highlightbackground="#2d3748",
-                         highlightthickness=1)
-        outer.pack()
+        body = tk.Frame(self, bg=BG)
+        body.pack(fill="both", expand=True)
+        right = tk.Frame(body, bg=BG, width=RIGHT_W)
+        right.pack(side="right", fill="y", padx=(0, 12), pady=10)
+        right.pack_propagate(False)
+        self.cv = tk.Canvas(body, bg="#%02x%02x%02x" % CANVAS_BG, highlightthickness=0, cursor="crosshair")
+        self.cv.pack(side="left", fill="both", expand=True, padx=(12, 10), pady=10)
+        self.cv.bind("<Configure>", lambda e=None: self._schedule())
+        self.cv.bind("<Motion>", self._on_motion)
+        self.cv.bind("<Leave>", self._on_leave)
+        self.cv.bind("<Button-1>", self._on_click)
 
-        # Header
-        comp_colors = {
-            "cpu": "#12b09a", "gpu": "#7c3aed", "ram": "#c48f10",
-            "ssd": "#22a855", "hdd": "#4d6a8a", "psu": "#4a6070",
-            "mobo": "#1a6b40", "heatsink": "#9aa3ae", "case_fan": "#3a4e66",
-            "battery": "#2d5a9a", "screen": "#1a5678", "chassis": "#2e3440",
-        }
-        hdr_col = comp_colors.get(comp, "#4b5563")
-        hdr = tk.Frame(outer, bg=hdr_col)
-        hdr.pack(fill="x")
-        tk.Label(hdr, text=lines[0],
-                 font=(_HDR, 9, "bold"),
-                 bg=hdr_col, fg="#ffffff",
-                 padx=10, pady=4).pack(anchor="w")
+        self.c_pc = self._card(right, _tx("this_pc"))
+        self.c_th = self._card(right, _tx("thermal"))
+        self.under = tk.Frame(self.cv, bg=PANEL, highlightthickness=1, highlightbackground="#3b4a63")
+        tk.Label(self.under, text=_tx("under"), font=(_BODY, 7, "bold"), bg=PANEL, fg=MUTED,
+                 anchor="w").pack(fill="x", padx=12, pady=(8, 2))
+        self.c_under = tk.Frame(self.under, bg=PANEL)
+        self.c_under.pack(fill="both", expand=True, padx=12, pady=(0, 10))
+        self._fill_under(None)
+        self._fill_pc()
+        self._fill_thermal()
+        self._paint_buttons()
 
-        # Body
-        body = tk.Frame(outer, bg="#151922")
-        body.pack(padx=8, pady=(4, 8), fill="x")
-        for line in lines[1:]:
-            if line == "---":
-                tk.Frame(body, bg="#2d3748", height=1).pack(fill="x", pady=2)
+    def _btn(self, parent, text, cmd):
+        b = tk.Label(parent, text=text, font=(_BODY, 8, "bold"), bg=BAR, fg=MUTED, padx=10, pady=3,
+                     cursor="hand2")
+        b.pack(side="left", padx=(4, 0), pady=6)
+        b.bind("<Button-1>", lambda e=None: cmd())
+        return b
+
+    def _paint_buttons(self):
+        for m, b in self._b_mode.items():
+            b.config(bg=BLUE if m == (self._mode or "desktop") else BAR,
+                     fg="#ffffff" if m == (self._mode or "desktop") else MUTED)
+        for m, b in self._b_col.items():
+            b.config(bg="#6d28d9" if m == self._colors else BAR,
+                     fg="#ffffff" if m == self._colors else MUTED)
+
+    def _card(self, parent, title, expand=False):
+        f = tk.Frame(parent, bg=PANEL, highlightthickness=1, highlightbackground=LINE)
+        f.pack(fill="both" if expand else "x", expand=expand, pady=(0, 8))
+        tk.Label(f, text=title, font=(_BODY, 7, "bold"), bg=PANEL, fg=MUTED, anchor="w").pack(
+            fill="x", padx=12, pady=(8, 2))
+        inner = tk.Frame(f, bg=PANEL)
+        inner.pack(fill="both", expand=True, padx=12, pady=(0, 8))
+        return inner
+
+    def _rows(self, parent, rows, wrap=RIGHT_W - 40):
+        for cap, val in rows:
+            r = tk.Frame(parent, bg=PANEL)
+            r.pack(fill="x", pady=1)
+            if cap:
+                tk.Label(r, text=cap, font=(_BODY, 8), bg=PANEL, fg=MUTED, width=13, anchor="w").pack(side="left")
+                tk.Label(r, text=val, font=(_BODY, 8, "bold"), bg=PANEL, fg=TEXT, anchor="w", justify="left",
+                         wraplength=wrap - 100).pack(side="left", fill="x", expand=True)
             else:
-                tk.Label(body, text=line,
-                         font=(_MONO, 8),
-                         bg="#151922", fg="#94a3b8",
-                         anchor="w").pack(fill="x")
+                tk.Label(r, text=val, font=(_BODY, 9, "bold"), bg=PANEL, fg=TEXT, anchor="w", justify="left",
+                         wraplength=wrap).pack(fill="x")
 
-    def _hide_tooltip(self):
-        if self._tooltip_win:
+    # ── panels ───────────────────────────────────────────────────────────
+    def _clear(self, f):
+        for w in f.winfo_children():
+            w.destroy()
+
+    def _fill_pc(self):
+        self._clear(self.c_pc)
+        hw, lang = self.sh.hw, self._lang
+        if not hw:
+            self._rows(self.c_pc, [("", _tx("loading"))])
+            return
+        kind = hw.get("kind")
+        mods = (hw.get("ram") or {}).get("modules") or []
+        total = sum(m.get("capacity_gb") or 0 for m in mods)
+        mb = hw.get("motherboard") or {}
+        disks = hw.get("disks") or []
+        rows = [(_tx("kind"), _tx("kind_laptop" if kind == "laptop" else "kind_desktop") if kind else _tx("unknown")),
+                ("CPU", (hw.get("cpu") or {}).get("name") or "-"),
+                ("GPU", (hw.get("gpu") or {}).get("name") or "-"),
+                ("RAM", f"{total:g} GB ({len(mods)} × {mods[0].get('capacity_gb') or '?'} GB)" if mods else "-"),
+                (_tx("board"), " ".join(x for x in (mb.get("manufacturer"), mb.get("product")) if x) or "-"),
+                (_tx("drives"), ", ".join(f"{d['bus'] or '?'} {d['size'] / 1e9:.0f} GB" for d in disks) or "-")]
+        self._rows(self.c_pc, rows)
+
+    def _fill_thermal(self):
+        self._clear(self.c_th)
+        lv, wk = self.sh.live, self.sh.week
+        head = tk.Frame(self.c_th, bg=PANEL)
+        head.pack(fill="x")
+        for i, t in enumerate(("", _tx("col_now"), _tx("col_avg"), _tx("col_max"))):
+            tk.Label(head, text=t, font=(_BODY, 7), bg=PANEL, fg=DIM, width=10 if i == 0 else 9,
+                     anchor="w").pack(side="left")
+
+        # one unit per row: a temperature next to a load read as one number
+        def line(name, now, comp, temp):
+            w = wk.get(comp) or {}
+            r = tk.Frame(self.c_th, bg=PANEL)
+            r.pack(fill="x", pady=1)
+            unit = "°C" if temp else "%"
+            vals = [name, _num(now, unit),
+                    _num(w.get("temp_avg" if temp else "avg"), unit),
+                    _num(w.get("temp_max" if temp else "max"), unit)]
+            for i, v in enumerate(vals):
+                tk.Label(r, text=v, font=(_BODY, 8, "bold" if i else "normal"), bg=PANEL,
+                         fg=(TEXT if v != "-" else DIM) if i else MUTED,
+                         width=10 if i == 0 else 9, anchor="w").pack(side="left")
+        line("CPU °C", lv.get("cpu_temp"), "cpu", True)
+        line("GPU °C", lv.get("gpu_temp"), "gpu", True)
+        line("CPU %", lv.get("cpu_pct"), "cpu", False)
+        line("GPU %", lv.get("gpu_pct"), "gpu", False)
+        line("RAM %", lv.get("ram_pct"), "ram", False)
+        if lv and not lv.get("cpu_temp"):
+            tk.Label(self.c_th, text=_tx("no_cpu_sensor"), font=(_BODY, 7), bg=PANEL, fg=DIM, anchor="w",
+                     justify="left", wraplength=RIGHT_W - 40).pack(fill="x", pady=(4, 0))
+
+    def _fill_under(self, key):
+        """The card under the cursor sits on the map's empty top-left corner:
+        the right column has no room left for it at 645 px."""
+        self._clear(self.c_under)
+        if not key:
+            self.under.place_forget()
+            return
+        # on the side of the map away from the part, so it never covers it
+        x = 12
+        try:
+            pt = S.label_points(self._parts, self._fit).get(key)
+            if pt is None:
+                pt = next((S.to_screen([S.top_center(p)], self._fit)[0]
+                           for p in self._parts if p.key == key), None)
+            cw = self.cv.winfo_width()
+            if pt is not None and pt[0] < cw / 2:
+                x = cw - (RIGHT_W - 20) - 12
+        except Exception:
+            pass
+        self.under.place(x=x, y=12, width=RIGHT_W - 20)
+        title, rows, note = details(key, self.sh.live, self.sh.week, self.sh.hw, self._lang)
+        tk.Label(self.c_under, text=title, font=(_HDR, 11, "bold"), bg=PANEL, fg=TEXT, anchor="w").pack(fill="x")
+        self._rows(self.c_under, rows)
+        if note:
+            tk.Label(self.c_under, text=note, font=(_BODY, 7), bg=PANEL, fg=MUTED, anchor="w",
+                     justify="left", wraplength=RIGHT_W - 40).pack(fill="x", pady=(6, 0))
+
+    # ── drawing ──────────────────────────────────────────────────────────
+    def _scene(self):
+        a = layout_args(self.sh.hw) if self.sh.hw else {"ram_sticks": 2, "has_gpu": True, "nvme": True, "sata": 0}
+        if (self._mode or "desktop") == "laptop":
+            return S.laptop(a["has_gpu"])
+        return S.desktop(a["ram_sticks"], a["has_gpu"], a["nvme"], a["sata"])
+
+    def _schedule(self, delay=60):
+        if self._job:
             try:
-                self._tooltip_win.destroy()
+                self.after_cancel(self._job)
             except Exception:
                 pass
-            self._tooltip_win = None
+        self._job = self.after(delay, self._render)
 
-    def destroy(self):
-        self._running = False
-        self._hide_tooltip()
-        super().destroy()
+    def _render(self):
+        self._job = None
+        try:
+            w, h = self.cv.winfo_width(), self.cv.winfo_height()
+            if w < 50 or h < 50:
+                return
+            self._parts = self._scene()
+            heat = heat_values(self.sh.live, self.sh.week, self._colors)
+            img, self._fit = S.render(self._parts, w, h, heat, self._hover, bg=CANVAS_BG)
+            self._photo = ImageTk.PhotoImage(img)
+            self.cv.delete("all")
+            self.cv.create_image(0, 0, anchor="nw", image=self._photo)
+            self._labels()
+            if not self._hover:
+                self.cv.create_text(14, h - 12, text=_tx("hint"), anchor="sw", font=(_BODY, 8),
+                                    fill=DIM)
+        except Exception as e:
+            print(f"[PCMap] render: {e}")
+
+    def _label_text(self, key):
+        lv = self.sh.live
+        base = _LABEL.get(key, key)
+        if isinstance(base, dict):
+            base = base[self._lang]
+        if self._colors == "week" and key in ("cpu", "gpu", "ram"):
+            # the labels say what the colours say: the 7-day average
+            w = self.sh.week.get(key) or {}
+            v = _num(w.get("temp_avg"), "°C") if w.get("temp_avg") else _num(w.get("avg"), "%")
+            return f"{base}  Ø {v}" if v != "-" else base
+        if key == "cpu":
+            v = _num(lv.get("cpu_temp"), "°C") if lv.get("cpu_temp") else _num(lv.get("cpu_pct"), "%")
+        elif key == "gpu":
+            v = _num(lv.get("gpu_temp"), "°C") if lv.get("gpu_temp") else _num(lv.get("gpu_pct"), "%")
+        elif key == "ram":
+            v = _num(lv.get("ram_pct"), "%")
+        elif key == "battery":
+            v = _num(lv.get("battery"), "%")
+        else:
+            v = ""
+        return f"{base}  {v}" if v and v != "-" else base
+
+    def _labels(self):
+        placed = []
+        for key, (x, y) in S.label_points(self._parts, self._fit).items():
+            t = self.cv.create_text(0, 0, text=self._label_text(key), font=(_BODY, 8, "bold"),
+                                    fill="#ffffff", anchor="s")
+            bb = self.cv.bbox(t)
+            tw, th = bb[2] - bb[0] + 12, bb[3] - bb[1] + 4
+            ly = y - 18
+            for _ in range(6):
+                rect = (x - tw / 2, ly - th, x + tw / 2, ly)
+                if not any(rect[0] < r[2] and r[0] < rect[2] and rect[1] < r[3] and r[1] < rect[3] for r in placed):
+                    break
+                ly -= th + 3
+            placed.append(rect)
+            self.cv.create_line(x, y, x, ly, fill="#cbd5e1", width=1)
+            self.cv.create_oval(x - 2.5, y - 2.5, x + 2.5, y + 2.5, fill="#ffffff", outline="")
+            box = self.cv.create_rectangle(*rect, fill="#111827", outline="#475569")
+            self.cv.coords(t, x, ly - 2)
+            self.cv.tag_raise(t, box)
+
+    # ── events ───────────────────────────────────────────────────────────
+    def _on_motion(self, e=None):
+        if e is None or not self._fit:
+            return
+        self._set_hover(S.hit(self._parts, self._fit, e.x, e.y))
+
+    def _on_leave(self, e=None):
+        # the card on the map is a child of the canvas: entering it is a
+        # <Leave> too, and must not hide it
+        try:
+            px, py = self.cv.winfo_pointerxy()
+            x0, y0 = self.cv.winfo_rootx(), self.cv.winfo_rooty()
+            if x0 <= px < x0 + self.cv.winfo_width() and y0 <= py < y0 + self.cv.winfo_height():
+                return
+        except Exception:
+            pass
+        self._set_hover(None)
+
+    def _set_hover(self, key):
+        if key == self._hover:
+            return
+        self._hover = key
+        self.cv.config(cursor="hand2" if key in ("cpu", "gpu", "ram") else "crosshair")
+        self._fill_under(key)
+        self._schedule(10)
+
+    def _on_click(self, e=None):
+        if self._hover in ("cpu", "gpu", "ram") and self.app is not None:
+            try:
+                self.app.open_activity_memory(self._hover)
+            except Exception:
+                pass
+
+    def _set_mode(self, m):
+        self._mode = m
+        self._paint_buttons()
+        self._set_hover(None)
+        self._schedule(10)
+
+    def _set_colors(self, m):
+        self._colors = m
+        self._paint_buttons()
+        self._schedule(10)
+
+    def _tick(self):
+        """Every half second: is the tab on screen, did the data change."""
+        try:
+            if not self.winfo_exists():
+                return
+            shown = bool(self.winfo_ismapped())
+            self.sh.want = shown
+            if shown and self.sh.version != self._seen:
+                first_hw = self._mode is None and bool(self.sh.hw)
+                self._seen = self.sh.version
+                if first_hw:
+                    self._mode = "laptop" if self.sh.hw.get("kind") == "laptop" else "desktop"
+                    self._paint_buttons()
+                    self._fill_pc()
+                self._fill_thermal()
+                if self._hover:
+                    self._fill_under(self._hover)
+                self._schedule(10)
+            self.after(500, self._tick)
+        except Exception:
+            pass
+
+    def _on_destroy(self, e=None):
+        if e is None or e.widget is self:
+            self.sh.alive = False
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  TOOLTIP CONTENT
-# ─────────────────────────────────────────────────────────────────────────────
-def _tooltip_lines(comp: str, d: Dict) -> List[str]:
-    c_pct  = d.get("cpu_pct",  0)
-    c_tmp  = d.get("cpu_temp", 0)
-    c_ghz  = d.get("cpu_freq", 0)
-    c_name = d.get("cpu_name", "CPU")
-    g_pct  = d.get("gpu_pct",  0)
-    g_tmp  = d.get("gpu_temp", 0)
-    g_name = d.get("gpu_name", "GPU")
-    r_pct  = d.get("ram_pct",  0)
-    r_used = d.get("ram_used", 0)
-    r_tot  = d.get("ram_total",0)
-    dk_pct = d.get("disk_pct", 0)
-    dk_fr  = d.get("disk_free",0)
-
-    if comp == "cpu":
-        status = ("OPTIMAL" if c_tmp < 70 else "WARM" if c_tmp < 83 else "HOT!")
-        return [
-            f"  CPU",
-            f"{c_name}",
-            "---",
-            f"Load        {c_pct:.1f}%",
-            f"Temperature {c_tmp:.1f} C" if c_tmp else f"Load  {c_pct:.1f}%",
-            f"Frequency   {c_ghz:.2f} GHz" if c_ghz else "",
-            "---",
-            f"Status      {status}",
-        ]
-    elif comp == "gpu":
-        status = ("OPTIMAL" if g_tmp < 80 else "WARM" if g_tmp < 90 else "HOT!")
-        return [
-            f"  GPU",
-            f"{g_name}",
-            "---",
-            f"Temperature {g_tmp:.1f} C" if g_tmp else "No data",
-            "---",
-            f"Status      {status}",
-        ]
-    elif comp == "ram":
-        return [
-            "  RAM",
-            f"Usage     {r_pct:.1f}%",
-            f"Used      {r_used:.1f} / {r_tot:.1f} GB",
-            "---",
-            f"Free      {r_tot - r_used:.1f} GB",
-        ]
-    elif comp == "ssd":
-        return [
-            "  SSD / Storage  (C:)",
-            f"Used      {dk_pct:.1f}%",
-            f"Free      {dk_fr:.1f} GB",
-        ]
-    elif comp == "psu":
-        return [
-            "  PSU",
-            "Power Supply Unit",
-            "---",
-            "No sensor data available",
-        ]
-    elif comp == "mobo":
-        return [
-            "  MOTHERBOARD",
-            "System PCB",
-            "---",
-            "Hosts CPU, RAM, PCIe",
-        ]
-    elif comp == "heatsink":
-        tmp = c_tmp
-        return [
-            "  CPU COOLER",
-            f"CPU temp  {tmp:.1f} C" if tmp else "Temp sensor N/A",
-            "Tower / AIO cooler",
-        ]
-    elif comp == "case_fan":
-        return [
-            "  CASE FAN",
-            "System airflow",
-            "Intake / Exhaust fan",
-        ]
-    elif comp == "battery":
-        return [
-            "  BATTERY",
-            "Li-ion laptop battery",
-            "---",
-            "No sensor data",
-        ]
-    elif comp == "screen":
-        return [
-            "  DISPLAY",
-            "Built-in laptop screen",
-        ]
-    elif comp == "chassis":
-        return [
-            "  CHASSIS",
-            "Laptop frame / body",
-        ]
-    return []
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  PAGE BUILDER
-# ─────────────────────────────────────────────────────────────────────────────
-def create_pc_map_page(parent) -> PCMapView:
-    """
-    Build and return a PCMapView inside the given parent widget.
-    Drop-in for yourpc_page tab system.
-    """
-    view = PCMapView(parent)
+def create_pc_map_page(parent, app=None) -> PCMapView:
+    view = PCMapView(parent, app=app)
     view.pack(fill="both", expand=True)
     return view

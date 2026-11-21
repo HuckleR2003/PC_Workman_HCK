@@ -2,6 +2,7 @@
 MY PC - Hardware & Health
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 import os
 import json
@@ -22,8 +23,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except Exception:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"   # section / card headings
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR   # section / card headings
 _BODY = _UIF                  # body text  (Inter or Segoe UI)
 _MONO = _MONOF                # numbers / values (Consolas)
 
@@ -72,21 +73,79 @@ class InfoTooltip:
             self.tip = None
 
 
+def _hover_tip(widget, lines, delay_ms: int = 700):
+    """The explanation that sat behind an "i" button, shown when the cursor
+    rests on the control itself. Bound with add="+", so the control keeps
+    its own hover colours."""
+    if isinstance(lines, str):
+        lines = [lines]
+    state = {"tip": None, "after": None}
+
+    def _show():
+        state["after"] = None
+        if state["tip"] is not None:
+            return
+        try:
+            x = widget.winfo_rootx() + 12
+            y = widget.winfo_rooty() + widget.winfo_height() + 4
+            tip = tk.Toplevel(widget)
+            tip.wm_overrideredirect(True)
+            tip.attributes("-topmost", True)
+            tip.wm_geometry(f"+{x}+{y}")
+            f = tk.Frame(tip, bg="#1a1a2e", bd=1, relief="solid")
+            f.pack()
+            for line in lines:
+                tk.Label(f, text=line, font=(_BODY, 8), bg="#1a1a2e", fg="#e0e0e0",
+                         padx=8, pady=1, justify="left", wraplength=340).pack(anchor="w")
+            state["tip"] = tip
+        except Exception:
+            pass
+
+    def _enter(e=None):
+        if state["after"] is None and state["tip"] is None:
+            state["after"] = widget.after(delay_ms, _show)
+
+    def _leave(e=None):
+        if state["after"] is not None:
+            try:
+                widget.after_cancel(state["after"])
+            except Exception:
+                pass
+            state["after"] = None
+        if state["tip"] is not None:
+            try:
+                state["tip"].destroy()
+            except Exception:
+                pass
+            state["tip"] = None
+    widget.bind("<Enter>", _enter, add="+")
+    widget.bind("<Leave>", _leave, add="+")
+    widget.bind("<Button-1>", _leave, add="+")
+
+
 def build_yourpc_page(self, parent):
+    _APP_REF["app"] = self
     main = tk.Frame(parent, bg="#0a0e14")
     main.pack(fill="both", expand=True)
 
     self.yourpc_tabs = {}
     self.yourpc_active_tab = None
     self.yourpc_content_frame = None
+    self.yourpc_tab_frames = {}
 
     nav_bar = tk.Frame(main, bg="#0f1117", height=30)
     nav_bar.pack(fill="x")
     nav_bar.pack_propagate(False)
 
     # Page title - left edge, bold modern
-    tk.Label(nav_bar, text=_t("my_pc.page_title"), font=(_BODY, 8, "bold"),
-             bg="#0f1117", fg="#3b82f6", padx=10).pack(side="left", fill="y")
+    # the title is a way home: from Stability Tests or the overlay
+    # configurator it opens the central tab (2026-11-20)
+    _title = tk.Label(nav_bar, text=_t("my_pc.page_title"), font=(_BODY, 8, "bold"),
+                      bg="#0f1117", fg="#3b82f6", padx=10, cursor="hand2")
+    _title.pack(side="left", fill="y")
+    _title.bind("<Button-1>", lambda e=None, m=main: _show_tab(self, "central", m))
+    _title.bind("<Enter>", lambda e=None: _title.config(fg="#93c5fd"))
+    _title.bind("<Leave>", lambda e=None: _title.config(fg="#3b82f6"))
     tk.Frame(nav_bar, bg="#1f2937", width=1).pack(side="left", fill="y", pady=5)
 
     tabs_frame = tk.Frame(nav_bar, bg="#0f1117")
@@ -100,7 +159,7 @@ def build_yourpc_page(self, parent):
         (_t("my_pc.startup_title"),    "startup"),
         (_t("my_pc.map_title"),        "map"),
     ]:
-        _create_tab(self, tabs_frame, text, tab_id)
+        _create_tab(self, tabs_frame, text, tab_id, main)
 
     # Small "PC" superscript next to MAP tab
     try:
@@ -110,12 +169,23 @@ def build_yourpc_page(self, parent):
                             bg="#0f1117", fg="#3b82f6",
                             pady=0)
         pc_badge.pack(side="left", pady=(0, 8))
-        pc_badge.bind("<Button-1>", lambda e: _show_tab(self, "map"))
+        pc_badge.bind("<Button-1>", lambda e=None, m=main: _show_tab(self, "map", m))
     except Exception:
         pass
 
     self.yourpc_content_frame = tk.Frame(main, bg="#0a0e14")
     self.yourpc_content_frame.pack(fill="both", expand=True)
+
+    # Every build owns its tabs and content frame. "Live graphs" builds a
+    # second My PC page next to the kept-alive one; when it closed, the
+    # shared self.yourpc_* names pointed at destroyed widgets and every tab
+    # click in the kept page died in a TclError (fifth long test, 38 times).
+    main._ypc_state = {"tabs": self.yourpc_tabs, "frames": self.yourpc_tab_frames,
+                       "content": self.yourpc_content_frame, "active": None}
+    mains = [m for m in getattr(self, "_ypc_mains", []) if _alive(m)]
+    mains.append(main)
+    self._ypc_mains = mains
+    self._ypc_main = main
 
     # Sidebar deep-link (e.g. My PC -> Components) - set by
     # _handle_sidebar_navigation, consumed once, defaults to central.
@@ -129,15 +199,69 @@ def build_yourpc_page(self, parent):
     _show_tab(self, _initial)
 
 
-def _create_tab(self, parent, text, tab_id):
+def _alive(w):
+    try:
+        return w is not None and bool(w.winfo_exists())
+    except Exception:
+        return False
+
+
+def _ypc_use(self, main=None):
+    """Point self.yourpc_* at one My PC build: the one given, else the
+    current one while it lives, else the newest one still alive. Returns
+    False when no My PC page exists at all."""
+    cur = getattr(self, "_ypc_main", None)
+    if main is None or not _alive(main):
+        main = cur if _alive(cur) else None
+    if main is None:
+        alive = [m for m in getattr(self, "_ypc_mains", []) if _alive(m)]
+        self._ypc_mains = alive
+        main = alive[-1] if alive else None
+    if main is None or not hasattr(main, "_ypc_state"):
+        return False
+    if cur is not main:
+        if cur is not None and hasattr(cur, "_ypc_state"):
+            cur._ypc_state["active"] = getattr(self, "yourpc_active_tab", None)
+        st = main._ypc_state
+        self.yourpc_tabs = st["tabs"]
+        self.yourpc_tab_frames = st["frames"]
+        self.yourpc_content_frame = st["content"]
+        self.yourpc_active_tab = st["active"]
+        self._ypc_main = main
+    return _alive(self.yourpc_content_frame)
+
+
+def use_page_in(self, container):
+    """Make the My PC build inside `container` (an overlay frame) current."""
+    stack = [container]
+    while stack:
+        w = stack.pop()
+        if hasattr(w, "_ypc_state"):
+            return _ypc_use(self, w)
+        try:
+            stack.extend(w.winfo_children())
+        except Exception:
+            pass
+    return False
+
+
+def _ypc_owner(widget):
+    while widget is not None:
+        if hasattr(widget, "_ypc_state"):
+            return widget
+        widget = getattr(widget, "master", None)
+    return None
+
+
+def _create_tab(self, parent, text, tab_id, main=None):
     tab = tk.Label(parent, text=text.upper(), font=(_BODY, 7, "bold"),
-                   bg="#0f1117", fg="#6b7280", padx=10, pady=4, cursor="hand2")
+                   bg="#0f1117", fg="#8d97a8", padx=10, pady=4, cursor="hand2")
     tab.pack(side="left")
     self.yourpc_tabs[tab_id] = tab
 
-    tab.bind("<Button-1>", lambda e: _show_tab(self, tab_id))
-    tab.bind("<Enter>", lambda e: tab.config(fg="#e5e7eb", bg="#1a1f2e") if self.yourpc_active_tab != tab_id else None)
-    tab.bind("<Leave>", lambda e: tab.config(fg="#6b7280", bg="#0f1117") if self.yourpc_active_tab != tab_id else None)
+    tab.bind("<Button-1>", lambda e=None: _show_tab(self, tab_id, main))
+    tab.bind("<Enter>", lambda e=None: tab.config(fg="#e5e7eb", bg="#1a1f2e") if self.yourpc_active_tab != tab_id else None)
+    tab.bind("<Leave>", lambda e=None: tab.config(fg="#8d97a8", bg="#0f1117") if self.yourpc_active_tab != tab_id else None)
 
 
 # Tabs kept alive after the first build (Phase 2, 2026-07-18): the heavy
@@ -163,14 +287,18 @@ def _rebind_tab_wheel(host):
             return
 
 
-def _show_tab(self, tab_id):
-    if self.yourpc_active_tab:
-        self.yourpc_tabs[self.yourpc_active_tab].config(fg="#6b7280", bg="#0f1117")
+def _show_tab(self, tab_id, main=None):
+    if not _ypc_use(self, main):
+        return
+    for tid, lbl in self.yourpc_tabs.items():
+        try:
+            if tid == tab_id:
+                lbl.config(fg="#ffffff", bg="#3b82f6")
+            else:
+                lbl.config(fg="#8d97a8", bg="#0f1117")
+        except Exception:
+            pass
     self.yourpc_active_tab = tab_id
-    self.yourpc_tabs[tab_id].config(fg="#ffffff", bg="#3b82f6")
-
-    if not hasattr(self, "yourpc_tab_frames"):
-        self.yourpc_tab_frames = {}
 
     # Hide kept tabs, destroy the rest (Phase 2 keep-alive)
     kept = set(self.yourpc_tab_frames.values())
@@ -212,7 +340,7 @@ def _show_tab(self, tab_id):
     else:
         tk.Label(host,
                 text=_t("my_pc.coming_soon_tab", tab=tab_id.upper()),
-                font=(_BODY, 12), bg="#0a0e14", fg="#6b7280").pack(pady=50)
+                font=(_BODY, 12), bg="#0a0e14", fg="#8d97a8").pack(pady=50)
 
     if tab_id in _KEEPALIVE_TABS:
         self.yourpc_tab_frames[tab_id] = host
@@ -244,13 +372,14 @@ def _build_central(self, parent):
 
     _create_action_btn(r1_left, "\U0001f4cb", _t("my_pc.health_report"), "#3b82f6", None,
                        _t("my_pc.tooltip_health_report"),
-                       lambda: _nav_to("my_pc", "health"))
+                       lambda: _open_extra(self, "health_report"))
     _create_action_btn(r1_right, "\U0001f5d1\ufe0f", _t("my_pc.cleanup"), "#ef4444", None,
                        _t("my_pc.tooltip_cleanup"),
-                       lambda: _nav_to("optimization", "services"))
+                       # the Cleanup page (2026-11-20)
+                       lambda: _open_extra(self, "cleanup"))
 
     # Row 1.5: GAMING / In-Game overlay (replaces the device/task/export shortcuts)
-    _create_gaming_tile(left, lambda: _open_gaming_configurator(self))
+    _create_gaming_tile(left, lambda: _open_gaming_home(self))
 
     # Row 2: LARGE - STATS & ALERTS (yellow gradient)
     _create_large_gradient_btn(
@@ -308,28 +437,21 @@ def _build_central(self, parent):
                        _t("my_pc.tooltip_stability"),
                        lambda: _open_stability_tests(self))
 
+    # Your profile: local, no account (2026-11-20)
     _create_action_btn(right_col, "\U0001f464", _t("my_pc.your_account"), "#8b5cf6", None,
                        _t("my_pc.tooltip_account"),
-                       None)
+                       lambda: _open_extra(self, "profile"))
 
-    # ── SESSION bar ───────────────────────────────────────────────────────────
+    # ── PC Workman on this PC (2026-11-20): the learning ring with the
+    # hours recorded and a few facts from the history, instead of
+    # "SESJA: 4h 47m" (time since Windows started) ───────────────────────────
     try:
-        import psutil as _psu_ses, time as _t_ses
-        _sec = int(_t_ses.time() - _psu_ses.boot_time())
-        _h, _m = _sec // 3600, (_sec % 3600) // 60
-        _ses_txt = _t("my_pc.session_label", h=_h, m=_m)
-    except Exception:
-        _ses_txt = _t("my_pc.session_na")
+        from ui.components.pc_summary import build_summary_card
+        build_summary_card(left, on_click=lambda: _nav_to("monitoring_alerts"))
+    except Exception as _e:
+        print(f"[MyPC] summary card: {_e}")
 
-    ses_bar = tk.Frame(left, bg="#1e3a5f", height=20)
-    ses_bar.pack(fill="x", pady=(3, 0))
-    ses_bar.pack_propagate(False)
-    tk.Label(ses_bar, text=_ses_txt, font=(_BODY, 7, "bold"),
-             bg="#1e3a5f", fg="#93c5fd").pack(side="left", padx=10, fill="y")
-    tk.Label(ses_bar, text=_t("my_pc.live_badge"), font=(_BODY, 7),
-             bg="#1e3a5f", fg="#60a5fa").pack(side="right", padx=8, fill="y")
-
-    right = tk.Frame(container, bg="#0a0e27", width=408)
+    right = tk.Frame(container, bg="#0a0e27", width=456)  # 408 until 2026-11-16: fonts grew 10 %, tables were cut
     right.pack(side="right", fill="y", padx=5, pady=5)
     right.pack_propagate(False)
 
@@ -404,9 +526,9 @@ def _scan_startup_metrics():
                 pass
     except Exception:
         pass
-    count_optimize = max(0, count_all - 2)
-    count_disable  = count_all // 3
-    return count_optimize, count_disable
+    # The tile says "N startup entries detected": N is all of them. It was
+    # count_all - 2 until 2026-11-16, a number that matched nothing.
+    return count_all, count_all // 3
 
 
 def _scan_services_metrics():
@@ -452,7 +574,16 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
     canvas = tk.Canvas(outer, height=HEIGHT, bg="#1a1d24", highlightthickness=0)
     canvas.pack(fill="x")
 
-    _state = {"su": 0, "svc": 0, "hover": None}
+    # None = still scanning; 0 is a real answer (it used to read "Scanning..."
+    # forever when nothing unnecessary was running)
+    _state = {"su": None, "svc": None, "hover": None}
+
+    def _sub(x, y, text, fill="#f1f5f9"):
+        """Subtitle on a gradient: 8 pt, light, with a 1 px shadow, so it
+        reads on amber, blue and green alike."""
+        canvas.create_text(x + 1, y + 1, text=text, font=(_BODY, 8),
+                           fill="#0b0d12", anchor="w")
+        canvas.create_text(x, y, text=text, font=(_BODY, 8), fill=fill, anchor="w")
 
     def _draw(bc=1.0, bs=1.0, bsv=1.0):
         canvas.delete("all")
@@ -473,12 +604,8 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
                            font=(_BODY, 13), fill="#ffffff", anchor="w")
         canvas.create_text(38, h // 2 - 14, text=_t("my_pc.opt_center"),
                            font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
-        canvas.create_text(38, h // 2,
-                           text=_t("my_pc.turbo_row"),
-                           font=(_BODY, 7), fill="#e5c47a", anchor="w")
-        canvas.create_text(38, h // 2 + 12,
-                           text=_t("my_pc.automated_cleanup"),
-                           font=(_BODY, 7), fill="#a38a4a", anchor="w")
+        _sub(38, h // 2 + 1, _t("my_pc.turbo_row"), "#fde9b8")
+        _sub(38, h // 2 + 15, _t("my_pc.automated_cleanup"), "#e9d9b4")
 
         # ── Vertical divider ─────────────────────────────────────────────
         canvas.create_rectangle(sp, 0, sp + 2, h, fill="#0d0f15", outline="")
@@ -493,10 +620,9 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
                            text="🚀 " + _t("startup_manager.page_title"),
                            font=(_BODY, 8, "bold"), fill="#ffffff", anchor="w")
         n_su = _state["su"]
-        su_txt = (_t("my_pc.startup_entries", n=n_su) if n_su
-                  else _t("my_pc.scanning"))
-        canvas.create_text(sp + 12, hh // 2 + 6, text=su_txt,
-                           font=(_BODY, 7), fill="#93c5fd", anchor="w")
+        su_txt = (_t("my_pc.scanning") if n_su is None
+                  else _t("my_pc.startup_entries", n=n_su))
+        _sub(sp + 12, hh // 2 + 8, su_txt)
 
         # ── Horizontal divider ────────────────────────────────────────────
         canvas.create_rectangle(sp + 2, hh - 1, w, hh + 1,
@@ -512,10 +638,10 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
                            text="⚙ " + _t("my_pc.services_manager"),
                            font=(_BODY, 8, "bold"), fill="#ffffff", anchor="w")
         n_svc = _state["svc"]
-        svc_txt = (_t("my_pc.unnecessary_services", n=n_svc) if n_svc
-                   else _t("my_pc.scanning"))
-        canvas.create_text(sp + 12, hh + (h - hh) // 2 + 6, text=svc_txt,
-                           font=(_BODY, 7), fill="#6ee7b7", anchor="w")
+        svc_txt = (_t("my_pc.scanning") if n_svc is None
+                   else _t("my_pc.unnecessary_services", n=n_svc) if n_svc
+                   else _t("my_pc.no_unnecessary"))
+        _sub(sp + 12, hh + (h - hh) // 2 + 8, svc_txt)
 
     def _zone(x, y):
         w = canvas.winfo_width() or 400
@@ -530,10 +656,10 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
               bs=1.25 if z == "startup" else 1.0,
               bsv=1.25 if z == "services" else 1.0)
 
-    canvas.bind("<Configure>", lambda e: _draw())
-    canvas.bind("<Enter>",     lambda e: (_state.update(hover=_zone(e.x, e.y)), _redraw()))
-    canvas.bind("<Leave>",     lambda e: (_state.update(hover=None), _draw()))
-    canvas.bind("<Motion>",    lambda e: (
+    canvas.bind("<Configure>", lambda e=None: _draw())
+    canvas.bind("<Enter>",     lambda e=None: (_state.update(hover=_zone(e.x, e.y)), _redraw()))
+    canvas.bind("<Leave>",     lambda e=None: (_state.update(hover=None), _draw()))
+    canvas.bind("<Motion>",    lambda e=None: (
         _state.update(hover=_zone(e.x, e.y)), _redraw()
         ) if _zone(e.x, e.y) != _state["hover"] else None)
     def _click(e):
@@ -556,13 +682,32 @@ def _create_optimization_hub(parent, on_center=None, on_startup=None, on_service
                 _state["svc"] = _get_services_metrics()
             except Exception:
                 pass
-            try:
-                canvas.after(0, _draw)
-            except Exception:
-                pass
+            _state["done"] = True
         threading.Thread(target=_do, daemon=True).start()
+
+        # the worker never touches Tk; the UI thread picks the result up
+        def _poll():
+            try:
+                if not canvas.winfo_exists():
+                    return
+            except Exception:
+                return
+            if _state.get("done"):
+                _draw()
+            else:
+                canvas.after(80, _poll)
+        canvas.after(80, _poll)
     _scan_bg()
     return outer
+
+
+def _open_extra(self, page_id):
+    """Cleanup, Health report and Profile are pages of their own."""
+    try:
+        self.current_view = None
+        self._switch_to_page(page_id)
+    except Exception:
+        pass
 
 
 def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, command=None):
@@ -570,7 +715,7 @@ def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, com
     row.pack(fill="x", pady=1)
     row.pack_propagate(False)
 
-    btn = tk.Frame(row, bg="#1a1d24", cursor="hand2")
+    btn = tk.Frame(row, bg="#1a1d24", cursor="hand2" if command else "arrow")
     btn.pack(side="left", fill="both", expand=True)
 
     icon_lbl = tk.Label(btn, text=icon, font=(_BODY, 8), bg="#1a1d24", fg=color)
@@ -581,25 +726,23 @@ def _create_action_btn(parent, icon, title, color, badge=None, tooltip=None, com
 
     if badge:
         badge_lbl = tk.Label(btn, text=badge, font=(_BODY, 7, "bold"),
-                            bg="#166534", fg="#ffffff", padx=4)
+                            bg="#166534" if command else "#374151",
+                            fg="#ffffff", padx=4)
         badge_lbl.pack(side="left", padx=(5, 0))
 
-    info_btn = tk.Label(row, text="i", font=(_BODY, 7, "bold"),
-                        bg="#0a0a0a", fg="#6b7280", width=2, cursor="hand2")
-    info_btn.pack(side="right", fill="y")
-
+    # no "i" button any more (2026-11-20): the explanation shows when the
+    # cursor rests on the button itself
     if tooltip:
-        InfoTooltip(info_btn, tooltip)
-
-    info_btn.bind("<Enter>", lambda e: info_btn.config(bg="#3b82f6", fg="#ffffff"))
-    info_btn.bind("<Leave>", lambda e: info_btn.config(bg="#0a0a0a", fg="#6b7280"))
+        _hover_tip(btn, tooltip)
 
     if command:
-        btn.bind("<Button-1>", lambda e: command())
-        icon_lbl.bind("<Button-1>", lambda e: command())
-        title_lbl.bind("<Button-1>", lambda e: command())
+        btn.bind("<Button-1>", lambda e=None: command())
+        icon_lbl.bind("<Button-1>", lambda e=None: command())
+        title_lbl.bind("<Button-1>", lambda e=None: command())
 
     def on_enter(e):
+        if not command:
+            return          # nothing to click: no hover invitation
         btn.config(bg="#7f1d1d")
         icon_lbl.config(bg="#7f1d1d")
         title_lbl.config(bg="#7f1d1d")
@@ -672,7 +815,11 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
         if badge_text:
             bx = w - 12
             # Badge background
-            text_w = len(badge_text) * 6 + 12
+            # measured, not guessed from the letter count: "6 items pending"
+            # was cut to "6 items pend" once fonts grew
+            import tkinter.font as _tkf
+            text_w = max(_tkf.Font(font=(_BODY, 7, "bold")).measure(badge_text),
+                         _tkf.Font(font=(_BODY, 8)).measure(sub_text or "")) + 14
             pad_y = 4
             if sub_text:
                 pad_y = 2
@@ -689,8 +836,8 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
             if sub_text:
                 canvas.create_text(
                     bx - text_w // 2, HEIGHT // 2 + 12,
-                    text=sub_text, font=(_BODY, 7),
-                    fill="#9ca3af", tags="content"
+                    text=sub_text, font=(_BODY, 8),
+                    fill="#e5e7eb", tags="content"
                 )
 
     def _on_configure(e=None):
@@ -712,28 +859,26 @@ def _create_large_gradient_btn(parent, icon, title, grad_start, grad_end, comman
     canvas.bind("<Leave>", _on_leave)
 
     if command:
-        canvas.bind("<Button-1>", lambda e: command())
+        canvas.bind("<Button-1>", lambda e=None: command())
 
-    # Info button on the right edge
-    info_btn = tk.Label(outer, text="i", font=(_BODY, 7, "bold"),
-                        bg="#0a0a0a", fg="#6b7280", width=2, cursor="hand2")
-    info_btn.place(relx=1.0, rely=0.0, anchor="ne", relheight=1.0)
-
+    # no "i" button (2026-11-20): the explanation shows on the tile itself
     if tooltip:
-        InfoTooltip(info_btn, tooltip)
-
-    info_btn.bind("<Enter>", lambda e: info_btn.config(bg="#3b82f6", fg="#ffffff"))
-    info_btn.bind("<Leave>", lambda e: info_btn.config(bg="#0a0a0a", fg="#6b7280"))
+        _hover_tip(canvas, tooltip)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # GAMING / In-Game Overlay  -  tile + configurator   (Phase 1 skeleton)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_GAMING_CFG_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "settings", "gaming_overlay.json",
-)
+try:
+    from utils.paths import APP_DIR as _CFG_BASE
+except Exception:                                   # pragma: no cover
+    _CFG_BASE = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+# APP_DIR, not __file__ (2026-11-15): in the exe __file__ points into
+# _internal, so the overlay setup was saved inside the program files - lost
+# on every update, and refused outright in a read-only (Store) install.
+_GAMING_CFG_PATH = os.path.join(_CFG_BASE, "settings", "gaming_overlay.json")
 
 # Metric palette the Custom configurator can place in the overlay.  (id, label, group)
 _GAMING_METRICS = [
@@ -784,26 +929,19 @@ _GM_PURPLE   = (124, 58, 237)
 
 
 def _gaming_load_cfg() -> dict:
-    try:
-        with open(_GAMING_CFG_PATH, encoding="utf-8") as f:
-            d = json.load(f)
-        return d if isinstance(d, dict) else {}
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    d = load_json(_GAMING_CFG_PATH, {})
+    return d if isinstance(d, dict) else {}
 
 
 def _gaming_save_cfg(cfg: dict) -> None:
-    try:
-        os.makedirs(os.path.dirname(_GAMING_CFG_PATH), exist_ok=True)
-        with open(_GAMING_CFG_PATH, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_GAMING_CFG_PATH, cfg)
 
 
 def _bind_click(widget, fn):
     """Bind a left-click on a widget and all its current descendants."""
-    widget.bind("<Button-1>", lambda e: fn())
+    widget.bind("<Button-1>", lambda e=None: fn())
     for ch in widget.winfo_children():
         _bind_click(ch, fn)
 
@@ -837,21 +975,50 @@ def _create_gaming_tile(parent, command):
         canvas.create_text(34, HEIGHT // 2 - 6,
                            text=_t("gaming.tile_title", default="GAMING  /  In-Game"),
                            font=(_BODY, 10, "bold"), fill="#ffffff", anchor="w")
-        canvas.create_text(34, HEIGHT // 2 + 8,
+        canvas.create_text(34, HEIGHT // 2 + 9,
                            text=_t("gaming.tile_sub", default="In-game overlay + MiniOverlay"),
-                           font=(_BODY, 7), fill="#f0e6ff", anchor="w")
+                           font=(_BODY, 8), fill="#f5efff", anchor="w")
         canvas.create_text(w - 12, HEIGHT // 2, text="NEW",
                            font=(_BODY, 7, "bold"), fill="#ffffff", anchor="e")
 
-    canvas.bind("<Configure>", lambda e: _draw())
-    canvas.bind("<Enter>", lambda e: _draw(1.15))
-    canvas.bind("<Leave>", lambda e: _draw(1.0))
-    canvas.bind("<Button-1>", lambda e: command())
+    canvas.bind("<Configure>", lambda e=None: _draw())
+    canvas.bind("<Enter>", lambda e=None: _draw(1.15))
+    canvas.bind("<Leave>", lambda e=None: _draw(1.0))
+    canvas.bind("<Button-1>", lambda e=None: command())
 
 
-def _open_gaming_configurator(self):
+def _clear_content(self):
+    """Empty the content frame for a sub-page; kept tabs are only hidden."""
+    kept = set(getattr(self, "yourpc_tab_frames", {}).values())
     for w in self.yourpc_content_frame.winfo_children():
-        w.destroy()
+        try:
+            if w in kept:
+                w.pack_forget()
+            else:
+                w.destroy()
+        except Exception:
+            pass
+
+
+def _open_gaming_home(self, main=None):
+    """The GAMING page (2026-11-20): what it is and what was learned, with
+    "Start configuration" leading to the configurator below."""
+    if not _ypc_use(self, main):
+        return
+    _clear_content(self)
+    try:
+        from ui.pages.gaming_home import build_gaming_home
+        build_gaming_home(self, self.yourpc_content_frame,
+                          on_configure=lambda: _open_gaming_configurator(self))
+    except Exception as exc:
+        print(f"[MyPC] gaming page: {exc}")
+        _build_gaming_configurator(self, self.yourpc_content_frame)
+
+
+def _open_gaming_configurator(self, main=None):
+    if not _ypc_use(self, main):
+        return
+    _clear_content(self)
     _build_gaming_configurator(self, self.yourpc_content_frame)
 
 
@@ -865,7 +1032,7 @@ def _mini_overlay_section(self, par):
              font=(_BODY, 9, "bold"), bg="#0d1118", fg="#cbd5e1", anchor="w").pack(fill="x")
     tk.Label(txt, text=_t("gaming.mini_desc",
              default="The small floating monitor that runs the whole time PC Workman is open."),
-             font=(_BODY, 7), bg="#0d1118", fg="#6b7280", anchor="w").pack(fill="x")
+             font=(_BODY, 7), bg="#0d1118", fg="#8d97a8", anchor="w").pack(fill="x")
 
     sw = tk.Label(sec, text="", font=(_BODY, 8, "bold"), padx=12, pady=4, cursor="hand2")
     sw.pack(side="right", padx=12)
@@ -914,6 +1081,7 @@ def _build_gaming_configurator(self, parent):
     state = {"custom": list(cfg.get("custom_metrics", _GAMING_PRESETS["default"][1])),
              "style":  dict(cfg.get("style") or {})}
 
+    owner = _ypc_owner(parent)
     root = tk.Frame(parent, bg=BG)
     root.pack(fill="both", expand=True, padx=10, pady=8)
 
@@ -930,15 +1098,15 @@ def _build_gaming_configurator(self, parent):
                         font=(_BODY, 8, "bold"), bg=BG, fg="#9ca3af",
                         cursor="hand2", padx=2, pady=2)
         mypc.pack(side="left")
-        mypc.bind("<Button-1>", lambda e: _show_tab(self, "central"))
-        mypc.bind("<Enter>", lambda e: mypc.config(fg="#e5e7eb"))
-        mypc.bind("<Leave>", lambda e: mypc.config(fg="#9ca3af"))
+        mypc.bind("<Button-1>", lambda e=None: _show_tab(self, "central", owner))
+        mypc.bind("<Enter>", lambda e=None: mypc.config(fg="#e5e7eb"))
+        mypc.bind("<Leave>", lambda e=None: mypc.config(fg="#9ca3af"))
         pres = tk.Label(top, text=_t("gaming.presets_tab", default="Presets"),
                         font=(_BODY, 8, "bold"), cursor="hand2", padx=10, pady=2,
                         bg="#3b82f6" if active_presets else "#11131c",
                         fg="#ffffff" if active_presets else "#9ca3af")
         pres.pack(side="left", padx=(8, 0))
-        pres.bind("<Button-1>", lambda e: _render_presets())
+        pres.bind("<Button-1>", lambda e=None: _render_presets())
 
     body.pack(fill="both", expand=True, pady=(10, 0))
 
@@ -954,7 +1122,7 @@ def _build_gaming_configurator(self, parent):
             btn = tk.Label(h, text=action_text, font=(_BODY, 9, "bold"),
                            bg=accent, fg="#ffffff", padx=16, pady=8, cursor="hand2")
             btn.pack(side="right", padx=14)
-            btn.bind("<Button-1>", lambda e: action_cmd())
+            btn.bind("<Button-1>", lambda e=None: action_cmd())
         txt = tk.Frame(h, bg="#11131c")
         txt.pack(side="left", fill="x", expand=True, padx=14, pady=12)
         tk.Label(txt, text=title, font=(_HDR, 13), bg="#11131c", fg="#f3e8ff",
@@ -979,12 +1147,12 @@ def _build_gaming_configurator(self, parent):
         if not rows and not has_fps:
             tk.Label(pv, text=_t("gaming.preview_empty",
                      default="(empty - add metrics below)"), font=("Consolas", 8),
-                     bg=panel, fg="#5b6b7b").pack(anchor="w")
+                     bg=panel, fg="#82909f").pack(anchor="w")
             return pv
         left = tk.Frame(pv, bg=panel)
         left.pack(side="left")
         for r, (label, color, mids) in enumerate(rows):
-            tk.Label(left, text=label, font=("Segoe UI", lp, "bold"), bg=panel,
+            tk.Label(left, text=label, font=(_FONT_UI, lp, "bold"), bg=panel,
                      fg=color, anchor="w").grid(row=r, column=0, sticky="w",
                                                 padx=(0, 10), pady=1)
             for c, mid in enumerate(mids):
@@ -996,7 +1164,7 @@ def _build_gaming_configurator(self, parent):
             tk.Frame(pv, bg=sep, width=1).pack(side="left", fill="y", padx=8)
             fb = tk.Frame(pv, bg=panel)
             fb.pack(side="left", fill="y")
-            tk.Label(fb, text="FPS", font=("Segoe UI", lp, "bold"), bg=panel,
+            tk.Label(fb, text="FPS", font=(_FONT_UI, lp, "bold"), bg=panel,
                      fg="#a78bfa").pack(expand=True)
             _, fval, _ = _GAMING_SAMPLE.get("fps", ("FPS", "60", "#a78bfa"))
             tk.Label(fb, text=fval, font=("Consolas", fp, "bold"), bg=panel,
@@ -1006,7 +1174,7 @@ def _build_gaming_configurator(self, parent):
     def _hint():
         tk.Label(body, text="\U0001f4a1 " + _t("gaming.quick_move",
                  default="Quick move: left/right-click the overlay in-game to jump it to the next corner."),
-                 font=(_BODY, 7), bg=BG, fg="#6b7280", anchor="w",
+                 font=(_BODY, 7), bg=BG, fg="#8d97a8", anchor="w",
                  wraplength=640, justify="left").pack(fill="x", pady=(14, 0))
 
     # ── STATE: presets ──────────────────────────────────────────────────────
@@ -1034,14 +1202,14 @@ def _build_gaming_configurator(self, parent):
                 _render_configured()
 
             _bind_click(card, _pick)
-            card.bind("<Enter>", lambda e, c=card: c.config(highlightbackground="#7c3aed"))
-            card.bind("<Leave>", lambda e, c=card: c.config(highlightbackground="#2a2440"))
+            card.bind("<Enter>", lambda e=None, c=card: c.config(highlightbackground="#7c3aed"))
+            card.bind("<Leave>", lambda e=None, c=card: c.config(highlightbackground="#2a2440"))
 
         cc = tk.Label(body, text="＋  " + _t("gaming.create_custom", default="Create Custom"),
                       font=(_BODY, 9, "bold"), bg="#1a1330", fg="#c4b5fd",
                       padx=16, pady=10, cursor="hand2")
         cc.pack(fill="x", pady=(12, 0))
-        cc.bind("<Button-1>", lambda e: _render_custom())
+        cc.bind("<Button-1>", lambda e=None: _render_custom())
         _hint()
 
     # ── STATE: custom ───────────────────────────────────────────────────────
@@ -1053,7 +1221,7 @@ def _build_gaming_configurator(self, parent):
 
         tk.Label(body, text=_t("gaming.live_preview",
                  default="Live preview (updates as you pick):"),
-                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(anchor="w")
+                 font=(_BODY, 7), bg=BG, fg="#8d97a8").pack(anchor="w")
         prev_holder = tk.Frame(body, bg=BG)
         prev_holder.pack(anchor="w", pady=(3, 10))
 
@@ -1126,11 +1294,11 @@ def _build_gaming_configurator(self, parent):
             d = tk.Label(parent, text=text + "  ▼", font=(_BODY, 8), bg=bg, fg=fg,
                          padx=8, pady=3, cursor="hand2")
             d.pack(side="left", padx=2)
-            d.bind("<Button-1>", lambda e: _field_menu(d, items))
+            d.bind("<Button-1>", lambda e=None: _field_menu(d, items))
 
         tk.Label(body, text=_t("gaming.build",
                  default="Build your overlay (pick a metric per field):"),
-                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(anchor="w")
+                 font=(_BODY, 7), bg=BG, fg="#8d97a8").pack(anchor="w")
         form = tk.Frame(body, bg=BG)
         form.pack(fill="x", pady=(3, 10))
 
@@ -1180,7 +1348,7 @@ def _build_gaming_configurator(self, parent):
         def _style_chip_row(title, options, key):
             row = tk.Frame(body, bg=BG)
             row.pack(fill="x", pady=2)
-            tk.Label(row, text=title, font=(_BODY, 7, "bold"), bg=BG, fg="#6b7280",
+            tk.Label(row, text=title, font=(_BODY, 7, "bold"), bg=BG, fg="#8d97a8",
                      width=8, anchor="w").pack(side="left")
             chips = {}
 
@@ -1201,7 +1369,7 @@ def _build_gaming_configurator(self, parent):
                     _style_set(key, vv)
                     _repaint()
 
-                ch.bind("<Button-1>", lambda e, f=_pick: f())
+                ch.bind("<Button-1>", lambda e=None, f=_pick: f())
             _repaint()
 
         _style_chip_row(_t("gaming.size", default="Size"),
@@ -1213,7 +1381,7 @@ def _build_gaming_configurator(self, parent):
         orow = tk.Frame(body, bg=BG)
         orow.pack(fill="x", pady=2)
         tk.Label(orow, text=_t("gaming.opacity", default="Opacity"),
-                 font=(_BODY, 7, "bold"), bg=BG, fg="#6b7280", width=8,
+                 font=(_BODY, 7, "bold"), bg=BG, fg="#8d97a8", width=8,
                  anchor="w").pack(side="left")
         oval = tk.Label(orow, text="", font=(_MONO, 8, "bold"), bg=BG, fg="#c4b5fd")
 
@@ -1226,7 +1394,7 @@ def _build_gaming_configurator(self, parent):
             b = tk.Label(orow, text=txt, font=(_BODY, 9, "bold"), bg="#161922",
                          fg="#c4b5fd", padx=10, pady=2, cursor="hand2")
             b.pack(side="left", padx=2)
-            b.bind("<Button-1>", lambda e, dv=dd: _bump_op(dv))
+            b.bind("<Button-1>", lambda e=None, dv=dd: _bump_op(dv))
         oval.pack(side="left", padx=6)
         oval.config(text=f"{int(_style_get('opacity') or 80)}%")
 
@@ -1234,7 +1402,7 @@ def _build_gaming_configurator(self, parent):
                         font=(_BODY, 9, "bold"), bg="#7c3aed", fg="#ffffff",
                         padx=16, pady=8, cursor="hand2")
         done.pack(anchor="e", pady=(14, 0))
-        done.bind("<Button-1>", lambda e: _render_configured())
+        done.bind("<Button-1>", lambda e=None: _render_configured())
 
     # ── STATE: configured ───────────────────────────────────────────────────
     def _render_configured():
@@ -1266,14 +1434,14 @@ def _build_gaming_configurator(self, parent):
                  anchor="w").pack(anchor="w")
         tk.Label(lc, text=_t("gaming.all_time_desc",
                  default="Keep the overlay on even outside games."),
-                 font=(_BODY, 7), bg="#11131c", fg="#6b7280", anchor="w",
+                 font=(_BODY, 7), bg="#11131c", fg="#8d97a8", anchor="w",
                  wraplength=170, justify="left").pack(anchor="w")
 
         # CENTRE - current overlay preview
         cc = tk.Frame(inner, bg="#11131c")
         cc.grid(row=0, column=1)
         tk.Label(cc, text=_t("gaming.current", default="Current overlay:"),
-                 font=(_BODY, 7), bg="#11131c", fg="#6b7280").pack()
+                 font=(_BODY, 7), bg="#11131c", fg="#8d97a8").pack()
         _preview(cc, metrics, _gaming_load_cfg().get("style")).pack(pady=(3, 0))
 
         # RIGHT - CHANGE + All-Time ON/OFF
@@ -1283,7 +1451,7 @@ def _build_gaming_configurator(self, parent):
                        font=(_BODY, 9, "bold"), bg="#22c55e", fg="#06210f",
                        padx=16, pady=6, cursor="hand2")
         chg.pack(anchor="e")
-        chg.bind("<Button-1>", lambda e: _render_presets())
+        chg.bind("<Button-1>", lambda e=None: _render_presets())
         at_sw = tk.Label(rc, text="", font=(_BODY, 8, "bold"), padx=14, pady=4,
                          cursor="hand2")
         at_sw.pack(anchor="e", pady=(10, 0))
@@ -1316,7 +1484,7 @@ def _build_gaming_configurator(self, parent):
         ov_btn.pack(side="left")
         tk.Label(ctl, text=_t("gaming.overlay_hint",
                  default="Borderless / windowed games. Left/right-click the HUD to move corner."),
-                 font=(_BODY, 7), bg=BG, fg="#6b7280").pack(side="left", padx=(12, 0))
+                 font=(_BODY, 7), bg=BG, fg="#8d97a8").pack(side="left", padx=(12, 0))
 
         def _paint_ov():
             try:
@@ -1606,11 +1774,20 @@ def _build_hey_user_table(self, parent):
         except Exception:
             pass
     if not _cpu_name:
+        # the name as sold, from the registry (microseconds). platform.
+        # processor() returns the CPUID string ("Intel64 Family 6 Model 151
+        # Stepping 2"), which is what this panel showed until 2026-11-16.
         try:
-            import platform
-            _cpu_name = platform.processor() or "Unknown CPU"
+            import winreg
+            with winreg.OpenKey(
+                    winreg.HKEY_LOCAL_MACHINE,
+                    r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as _k:
+                _cpu_name = " ".join(
+                    str(winreg.QueryValueEx(_k, "ProcessorNameString")[0]).split())
         except Exception:
-            _cpu_name = "Unknown CPU"
+            pass
+    if not _cpu_name:
+        _cpu_name = "Unknown CPU"
 
     _cpu_prof = _match_cpu(_cpu_name)
 
@@ -1626,7 +1803,7 @@ def _build_hey_user_table(self, parent):
     body = tk.Frame(canvas, bg=BG)
 
     body.bind("<Configure>",
-              lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+              lambda e=None: canvas.configure(scrollregion=canvas.bbox("all")))
     canvas.create_window((0, 0), window=body, anchor="nw")
     canvas.configure(yscrollcommand=sb.set)
 
@@ -1647,9 +1824,9 @@ def _build_hey_user_table(self, parent):
                     font=(_BODY, 8, "bold"),
                     bg="#374151", fg="#ffffff", pady=6, cursor="hand2")
     more.pack(fill="x")
-    more.bind("<Enter>",    lambda e: more.config(bg="#4b5563"))
-    more.bind("<Leave>",    lambda e: more.config(bg="#374151"))
-    more.bind("<Button-1>", lambda e: _show_full_table_popup(self, parent))
+    more.bind("<Enter>",    lambda e=None: more.config(bg="#4b5563"))
+    more.bind("<Leave>",    lambda e=None: more.config(bg="#374151"))
+    more.bind("<Button-1>", lambda e=None: _show_full_table_popup(self, parent))
 
     canvas.pack(side="left", fill="both", expand=True)
     sb.pack(side="right", fill="y")
@@ -1721,7 +1898,7 @@ def _build_hey_user_table(self, parent):
             row = tk.Frame(container, bg="#0f1117")
             row.pack(fill="x")
             tk.Label(row, text=lbl_txt,
-                     font=(_BODY, 7), bg="#0f1117", fg="#6a7a94",
+                     font=(_BODY, 7), bg="#0f1117", fg="#8a99b0",
                      anchor="w", width=10).pack(side="left", padx=1)
             cur_l = tk.Label(row, text="--", font=(_BODY, 7, "bold"),
                              bg="#080b18", fg=_CNA, width=7)
@@ -1787,7 +1964,13 @@ def _build_hey_user_table(self, parent):
     # ═════════════════════════════════════════════════════════════════════════
     # SECTION 2 - CPU
     # ═════════════════════════════════════════════════════════════════════════
-    _cpu_short = _cpu_name[:28] if len(_cpu_name) > 28 else _cpu_name
+    # "12th Gen Intel(R) Core(TM) i5-12400F" -> "Intel Core i5-12400F": the
+    # cut at 28 characters used to end the header at "Core(TM) i"
+    import re as _re
+    _cpu_short = _re.sub(r"\(R\)|\(TM\)|\(tm\)|\b\d+(st|nd|rd|th) Gen\b|\bCPU\b|@.*$",
+                         "", _cpu_name, flags=_re.I)
+    _cpu_short = " ".join(_cpu_short.split())
+    _cpu_short = _cpu_short if len(_cpu_short) <= 32 else _cpu_short[:31] + "…"
     _build_trapezoid_header(body, f"CPU  {_cpu_short}", "#3b82f6")
 
     cpu_outer = tk.Frame(body, bg="#1a1d24",
@@ -1980,8 +2163,17 @@ def _build_hey_user_table(self, parent):
 
             # ── CPU data ──────────────────────────────────────────────────
             cpu_load  = psutil.cpu_percent(interval=None)
+            # the real clock from the live collector (psutil gives the base
+            # clock on Windows: "2500 MHz" and a false LOW badge, 2026-11-20)
+            try:
+                from hck_gpt.data.live_sensors import get as _ls_get
+                _live_mhz = float(_ls_get("cpu_mhz", -1) or -1)
+                _live_t = float(_ls_get("cpu_temp", -1) or -1)
+                _live_src = _ls_get("cpu_temp_src", "")
+            except Exception:
+                _live_mhz, _live_t, _live_src = -1.0, -1.0, ""
             freq      = psutil.cpu_freq()
-            cur_mhz   = freq.current if freq else _cpu_prof["base"]
+            cur_mhz   = _live_mhz if _live_mhz > 0 else (freq.current if freq else _cpu_prof["base"])
             boost_mhz = _cpu_prof["boost"]
             tj        = _cpu_prof["tj"]
             pl2       = _cpu_prof["pl2"]
@@ -1990,6 +2182,17 @@ def _build_hey_user_table(self, parent):
             # Temperature estimate (no sensor driver on most Windows systems)
             # Calibrated: idle 38°C, scales linearly to ~85% Tj at 100% load
             cpu_t = 38.0 + (cpu_load / 100.0) * (tj * 0.85 - 38.0)
+            # measured by LibreHardwareMonitor when it runs (phase 0): then
+            # the table shows the sensor and drops "(est.)" from its title
+            _measured = _live_src == "sensor" and _live_t > 0
+            if _measured:
+                cpu_t = _live_t
+            try:
+                _title = cpu_t_bdg.master.winfo_children()[0]
+                _title.config(text=_t("my_pc.section_temperature") if _measured
+                              else _t("my_pc.section_temp_est"))
+            except Exception:
+                pass
 
             # Power estimate: idle ~8 W, scales with load up to PL2
             cpu_w = 8.0 + (cpu_load / 100.0) * (pl2 - 8.0) * 0.92
@@ -2283,7 +2486,7 @@ def _build_mini_data_table(parent, title, rows):
     hdr_bar.pack(fill="x")
     tk.Label(hdr_bar, text="", width=10, bg="#000000", font=(_BODY, 7)).pack(side="left")
     for col in [_t("my_pc.col_current"), _t("my_pc.col_min"), _t("my_pc.col_max")]:
-        tk.Label(hdr_bar, text=col, width=7, bg="#000000", fg="#64748b",
+        tk.Label(hdr_bar, text=col, width=7, bg="#000000", fg="#8a97ab",
                  font=(_BODY, 7, "bold")).pack(side="left", padx=1)
 
     # Data rows
@@ -2316,7 +2519,7 @@ def _build_disk_fans_strip(parent):
     space.pack_propagate(False)
     tk.Label(space, text=_t("my_pc.section_space"), font=(_BODY, 7, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(space, text="|", font=(_BODY, 7), bg="#000000", fg="#64748b").pack(side="left", padx=2)
+    tk.Label(space, text="|", font=(_BODY, 7), bg="#000000", fg="#8a97ab").pack(side="left", padx=2)
 
     if psutil:
         try:
@@ -2338,11 +2541,23 @@ def _build_disk_fans_strip(parent):
     fans.pack_propagate(False)
     tk.Label(fans, text=_t("my_pc.section_fans"), font=(_BODY, 7, "bold"),
              bg="#000000", fg="#fbbf24").pack(side="left", padx=8)
-    tk.Label(fans, text="|", font=(_BODY, 7), bg="#000000", fg="#64748b").pack(side="left", padx=2)
-    tk.Label(fans, text="CPU 560 RPM", font=(_BODY, 7),
-             bg="#000000", fg="#ffffff").pack(side="left", padx=6)
-    tk.Label(fans, text="BODYFAN 990 RPM", font=(_BODY, 7),
-             bg="#000000", fg="#ffffff").pack(side="left", padx=6)
+    tk.Label(fans, text="|", font=(_BODY, 7), bg="#000000", fg="#8a97ab").pack(side="left", padx=2)
+    # Measured fans only (2026-11-14). This strip used to print two literals,
+    # "CPU 560 RPM" and "BODYFAN 990 RPM", on every machine.
+    try:
+        from core import fan_sensors as _fan_sensors
+        _fans_now = _fan_sensors.measured()
+    except Exception:
+        _fans_now = []
+    if _fans_now:
+        for _f in _fans_now[:4]:
+            tk.Label(fans, text=f"{_f['name'][:14]} {_f['rpm']} RPM",
+                     font=(_BODY, 7), bg="#000000",
+                     fg="#ffffff").pack(side="left", padx=6)
+    else:
+        tk.Label(fans, text=_t("fan_control.strip_no_sensor", "no fan sensor"),
+                 font=(_BODY, 7), bg="#000000",
+                 fg="#8d97a8").pack(side="left", padx=6)
 
 
 def _export_health_report():
@@ -2376,8 +2591,9 @@ def _export_health_report():
         os.makedirs(cache_dir, exist_ok=True)
         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(cache_dir, f"health_report_{ts}.json")
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, default=str)
+        from utils.prefs_io import save_json
+        # default=str turns dates and other objects into text first
+        save_json(path, json.loads(json.dumps(report, default=str)))
 
         # Open folder in explorer so user can see the file
         _sp.Popen(["explorer", "/select,", path])
@@ -2391,9 +2607,8 @@ def _open_stability_tests(self):
         for w in self.content_frame.winfo_children():
             w.destroy()
         build_stability_tests_page(self, self.content_frame)
-    elif hasattr(self, 'yourpc_content_frame'):
-        for w in self.yourpc_content_frame.winfo_children():
-            w.destroy()
+    elif _ypc_use(self):
+        _clear_content(self)
         build_stability_tests_page(self, self.yourpc_content_frame)
 
 
@@ -2417,9 +2632,9 @@ def _show_full_table_popup(self, parent):
     close_btn = tk.Label(header, text="X", font=(_BODY, 12, "bold"),
                          bg="#1e3a5f", fg="#ffffff", padx=10, cursor="hand2")
     close_btn.pack(side="right", pady=5)
-    close_btn.bind("<Button-1>", lambda e: popup.destroy())
-    close_btn.bind("<Enter>", lambda e: close_btn.config(fg="#ef4444"))
-    close_btn.bind("<Leave>", lambda e: close_btn.config(fg="#ffffff"))
+    close_btn.bind("<Button-1>", lambda e=None: popup.destroy())
+    close_btn.bind("<Enter>", lambda e=None: close_btn.config(fg="#ef4444"))
+    close_btn.bind("<Leave>", lambda e=None: close_btn.config(fg="#ffffff"))
 
     content = tk.Frame(popup, bg="#0a0e27")
     content.pack(fill="both", expand=True, padx=5, pady=5)
@@ -2433,7 +2648,7 @@ def _show_full_table_popup(self, parent):
                     bg="#0a0e27", fg="#ef4444").pack(pady=50)
     else:
         tk.Label(content, text=_t("my_pc.hw_table_unavailable"),
-                font=(_BODY, 10), bg="#0a0e27", fg="#6b7280").pack(pady=50)
+                font=(_BODY, 10), bg="#0a0e27", fg="#8d97a8").pack(pady=50)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2447,12 +2662,12 @@ def _make_scroll_frame(parent):
     sb = tk.Scrollbar(parent, orient="vertical", command=canvas.yview,
                       bg="#000000", troughcolor=BG, activebackground="#1a1d24", width=6)
     sf = tk.Frame(canvas, bg=BG)
-    sf.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    sf.bind("<Configure>", lambda e=None: canvas.configure(scrollregion=canvas.bbox("all")))
     win_id = canvas.create_window((0, 0), window=sf, anchor="nw")
     canvas.configure(yscrollcommand=sb.set)
 
     # Keep inner frame as wide as the canvas
-    canvas.bind("<Configure>", lambda e: canvas.itemconfig(win_id, width=e.width - 2))
+    canvas.bind("<Configure>", lambda e=None: canvas.itemconfig(win_id, width=e.width - 2))
 
     def _mw(event):
         try:
@@ -2479,12 +2694,12 @@ def _empty_state(parent, icon, title, subtitle=""):
                      highlightbackground="#1e2535", highlightthickness=1)
     inner.pack(pady=6, ipadx=26, ipady=20)
     tk.Label(inner, text=icon, font=(_BODY, 26), bg="#0f1522",
-             fg="#3b4a63").pack()
+             fg="#717f97").pack()
     tk.Label(inner, text=title, font=(_HDR, 11, "bold"), bg="#0f1522",
              fg="#cbd5e1").pack(pady=(8, 2))
     if subtitle:
         tk.Label(inner, text=subtitle, font=(_BODY, 8), bg="#0f1522",
-                 fg="#6b7280", wraplength=320, justify="center").pack()
+                 fg="#8d97a8", wraplength=320, justify="center").pack()
     return wrap
 
 
@@ -2493,7 +2708,7 @@ def _sec_hdr(parent, text):
     row = tk.Frame(parent, bg="#0a0e14")
     row.pack(fill="x", padx=8, pady=(7, 2))
     tk.Label(row, text=text, font=(_BODY, 7, "bold"),
-             bg="#0a0e14", fg="#64748b").pack(side="left")
+             bg="#0a0e14", fg="#8a97ab").pack(side="left")
     tk.Frame(row, bg="#1e2535", height=1).pack(side="left", fill="x", expand=True, padx=8)
 
 
@@ -2502,7 +2717,7 @@ def _spec_row(parent, label, value, value_color="#e2e8f0", bg="#1a1d24"):
     row = tk.Frame(parent, bg=bg)
     row.pack(fill="x", padx=6, pady=0)
     tk.Label(row, text=label, font=(_BODY, 7), bg=bg,
-             fg="#6b7280", anchor="w", width=16).pack(side="left")
+             fg="#8d97a8", anchor="w", width=16).pack(side="left")
     tk.Label(row, text=value, font=(_BODY, 7, "bold"), bg=bg,
              fg=value_color, anchor="w").pack(side="left")
 
@@ -2559,34 +2774,25 @@ def _build_health(self, parent):
                            bg="#1a1d24", fg="#10b981")
         val_lbl.pack(pady=(1, 0))
         status_lbl = tk.Label(col, text=" ", font=(_BODY, 7),
-                               bg="#1a1d24", fg="#6b7280", pady=3)
+                               bg="#1a1d24", fg="#8d97a8", pady=3)
         status_lbl.pack()
         refs[key] = (val_lbl, status_lbl)
 
-    # ── Row 2: Health score gauge + uptime panel ───────────
+    # ── The health centre (2026-11-20): a score from the event log, drives,
+    # temperatures in games, memory, the graphics driver and startup ─────
+    try:
+        from ui.components.health_center import build_health_center
+        build_health_center(sf, self)
+    except Exception as _e:
+        print(f"[MyPC] health centre: {_e}")
+
+    # ── Row 2: uptime panel ────────────────────────────────
     _sec_hdr(sf, _t("my_pc.section_health_uptime"))
     mid_row = tk.Frame(sf, bg=BG)
     mid_row.pack(fill="x", padx=8, pady=2)
 
-    # Score gauge (left)
-    gauge_outer = tk.Frame(mid_row, bg="#1a1d24", width=110,
-                           highlightbackground="#2a2d34", highlightthickness=1)
-    gauge_outer.pack(side="left", fill="y", padx=(0, 4))
-    gauge_outer.pack_propagate(False)
-    tk.Label(gauge_outer, text="HEALTH SCORE", font=(_BODY, 7, "bold"),
-             bg="#1a1d24", fg="#8593a8").pack(pady=(4, 0))
-    score_canvas = tk.Canvas(gauge_outer, width=80, height=46,
-                             bg="#1a1d24", highlightthickness=0)
-    score_canvas.pack()
-    score_lbl = tk.Label(gauge_outer, text="-", font=(_BODY, 14, "bold"),
-                         bg="#1a1d24", fg="#10b981")
-    score_lbl.pack()
-    score_sub = tk.Label(gauge_outer, text=" ", font=(_BODY, 7),
-                         bg="#1a1d24", fg="#6b7280", pady=3)
-    score_sub.pack()
-    refs["score_canvas"] = score_canvas
-    refs["score_lbl"] = score_lbl
-    refs["score_sub"] = score_sub
+    # (the "HEALTH SCORE" gauge here was a formula on the live load; the
+    # health centre above scores what is known, 2026-11-20)
 
     # Uptime + alerts (right)
     right_col = tk.Frame(mid_row, bg=BG)
@@ -2604,7 +2810,7 @@ def _build_health(self, parent):
         row = tk.Frame(up_card, bg="#1a1d24")
         row.pack(fill="x", padx=8, pady=1)
         tk.Label(row, text=label, font=(_BODY, 7), bg="#1a1d24",
-                 fg="#6b7280", width=18, anchor="w").pack(side="left")
+                 fg="#8d97a8", width=18, anchor="w").pack(side="left")
         lbl = tk.Label(row, text="-", font=(_BODY, 7, "bold"),
                        bg="#1a1d24", fg="#94a3b8")
         lbl.pack(side="left")
@@ -2630,7 +2836,7 @@ def _build_health(self, parent):
                            bg="#1a1d24", fg=color)
         cnt_lbl.pack()
         tk.Label(col_f, text=label, font=(_BODY, 7), bg="#1a1d24",
-                 fg="#6b7280").pack()
+                 fg="#8d97a8").pack()
         refs[key] = cnt_lbl
 
     # ── Row 3: Recent events table ─────────────────────────
@@ -2744,37 +2950,6 @@ def _health_refresh(refs):
             except Exception:
                 pass
 
-    # Health score
-    score = 100
-    if cpu_temp >= 90: score -= 20
-    elif cpu_temp >= 85: score -= 12
-    elif cpu_temp >= 70: score -= 5
-    if gpu_temp and gpu_temp >= 90: score -= 20
-    elif gpu_temp and gpu_temp >= 85: score -= 12
-    elif gpu_temp and gpu_temp >= 70: score -= 5
-    if ram_pct >= 95: score -= 15
-    elif ram_pct >= 85: score -= 8
-    elif ram_pct >= 75: score -= 4
-    if disk_pct >= 95: score -= 10
-    elif disk_pct >= 85: score -= 5
-    score = max(0, min(100, score))
-    sc_col = "#10b981" if score >= 80 else "#fbbf24" if score >= 60 else "#ef4444"
-    sc_txt = "GOOD" if score >= 80 else "FAIR" if score >= 60 else "POOR"
-    try:
-        sc = refs["score_canvas"]
-        if sc.winfo_exists():
-            sc.delete("all")
-            # Background arc
-            sc.create_arc(8, 4, 72, 44, start=200, extent=-160,
-                          style="arc", outline="#2a2d34", width=5)
-            # Filled arc
-            sc.create_arc(8, 4, 72, 44, start=200, extent=-int(160 * score / 100),
-                          style="arc", outline=sc_col, width=5)
-        refs["score_lbl"].config(text=str(score), fg=sc_col)
-        refs["score_sub"].config(text=sc_txt)
-    except Exception:
-        pass
-
     # Uptime
     try:
         import psutil as _pu3, time as _t
@@ -2785,10 +2960,12 @@ def _health_refresh(refs):
     except Exception:
         session_str = "N/A"
 
-    lifetime_str = session_str
+    # "Total (ever)" showed the session again: the query it asked for does
+    # not exist. The recorded hours of PC Workman on this PC (2026-11-20).
+    lifetime_str = "--"
     try:
-        from hck_stats_engine.query_api import query_api
-        lt = query_api.get_lifetime_uptime() if hasattr(query_api, "get_lifetime_uptime") else None
+        from core.thermal_baseline import thermal_baseline as _tbl
+        lt = _tbl.total_observed_hours() * 3600
         if lt:
             lh, lm = int(lt // 3600), int((lt % 3600) // 60)
             lifetime_str = f"{lh}h {lm}m"
@@ -2833,19 +3010,28 @@ def _populate_events_table(parent):
         if db_manager.is_ready:
             conn = db_manager.get_connection()
             if conn:
+                # without program shutdowns, and naming the game of a busy
+                # stretch (the same as Monitoring's Recent Events, 2026-11-20)
                 rows = conn.execute(
-                    "SELECT timestamp, severity, metric, description "
-                    "FROM events ORDER BY timestamp DESC LIMIT 10"
+                    "SELECT timestamp, severity, metric, description, event_type, "
+                    "process_name, value, baseline "
+                    "FROM events WHERE event_type != 'shutdown' "
+                    "ORDER BY timestamp DESC LIMIT 10"
                 ).fetchall()
                 import datetime
+                try:
+                    from ui.pages.monitoring_alerts import _event_message as _evm
+                except Exception:
+                    _evm = None
                 for r in rows:
                     ts = r["timestamp"]
                     dt = datetime.datetime.fromtimestamp(ts).strftime("%H:%M:%S")
+                    desc = _evm(dict(r)) if _evm else (r["description"] or "")
                     events.append({
                         "time": dt,
                         "severity": r["severity"] or "",
                         "metric": r["metric"] or "",
-                        "description": (r["description"] or "")[:50],
+                        "description": (desc or "")[:50],
                     })
     except Exception:
         pass
@@ -2885,15 +3071,8 @@ def _build_components(self, parent):
     loading_lbl.pack(pady=20)
 
     def _on_scan_done(data):
-        # Runs on the scanner's background thread: schedule the render on the
-        # main thread and check widget existence THERE (winfo_exists from a
-        # worker thread is a cross-thread Tk call). after() is the one hop.
-        try:
-            parent.after(0, lambda: _render_components(sf, loading_lbl, data,
-                                                       win=self)
-                         if parent.winfo_exists() else None)
-        except Exception:
-            pass
+        # UI thread (ui/bg.py): the scan ran on a worker with no Tk in reach
+        _render_components(sf, loading_lbl, data, win=self)
 
     try:
         from core.hardware_detector import get_hardware_detector
@@ -2901,7 +3080,11 @@ def _build_components(self, parent):
         if det.is_ready:
             _on_scan_done(det.get_data())
         else:
-            det.scan_async(on_done=_on_scan_done)
+            from ui import bg as _bg_ui
+            _bg_ui.run(parent, det.ensure_data, _on_scan_done,
+                       fail=lambda ex: loading_lbl.config(
+                           text=f"Hardware scan failed: {ex}", fg="#ef4444"),
+                       name="mypc-components")
     except Exception as ex:
         loading_lbl.config(text=f"Hardware scan failed: {ex}", fg="#ef4444")
 
@@ -2917,9 +3100,9 @@ def _upgrade_btn(card_inner, win, focus, bg="#1a1d24"):
     b = tk.Label(row, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
                  bg=bg, fg="#10b981", cursor="hand2")
     b.pack(side="right")
-    b.bind("<Enter>", lambda e: b.config(fg="#34d399"))
-    b.bind("<Leave>", lambda e: b.config(fg="#10b981"))
-    b.bind("<Button-1>", lambda e, f=focus: win.open_upgrade_readiness(f))
+    b.bind("<Enter>", lambda e=None: b.config(fg="#34d399"))
+    b.bind("<Leave>", lambda e=None: b.config(fg="#10b981"))
+    b.bind("<Button-1>", lambda e=None, f=focus: win.open_upgrade_readiness(f))
 
 
 def _render_components(sf, loading_lbl, data, win=None):
@@ -3080,6 +3263,14 @@ def _build_efficiency(self, parent):
     sf, _ = _make_scroll_frame(parent)
     refs = {}
 
+    # ── What slows this PC down (2026-11-20): the conclusions first, the
+    # live clocks and cores below them ──────────────────────────────────────
+    try:
+        from ui.components.slowdown_panel import build_slowdown_panel
+        build_slowdown_panel(sf)
+    except Exception as _e:
+        print(f"[MyPC] slowdown panel: {_e}")
+
     # ── CPU Frequency bar ──────────────────────────────────────────────────
     _eff_sec_hdr(sf, "CPU FREQUENCY", "#3b82f6")
     freq_frame = tk.Frame(sf, bg="#0d1219",
@@ -3190,11 +3381,12 @@ def _build_efficiency(self, parent):
     pwr_lbl.pack(anchor="w")
     refs["pwr_lbl"] = pwr_lbl
 
-    def _load_power_plan():
+    def _power_plan_name():
         try:
             import subprocess
+            from utils.oem import OEM_ENCODING
             r = subprocess.run(["powercfg", "/getactivescheme"],
-                               capture_output=True, text=True, errors="replace", timeout=3)
+                               capture_output=True, text=True, encoding=OEM_ENCODING, errors="replace", timeout=3)
             line = r.stdout.strip()
             if "(" in line and ")" in line:
                 name = line[line.rfind("(") + 1:line.rfind(")")]
@@ -3202,14 +3394,12 @@ def _build_efficiency(self, parent):
                 name = line[-30:] if line else "N/A"
         except Exception:
             name = "N/A"
-        try:   # worker thread -> hop to main thread, check existence there
-            parent.after(0, lambda: pwr_lbl.config(text=name)
-                         if pwr_lbl.winfo_exists() else None)
-        except Exception:
-            pass
+        return name
 
-    import threading as _thr
-    _thr.Thread(target=_load_power_plan, daemon=True).start()
+    # powercfg on a worker, the label on the UI thread (ui/bg.py)
+    from ui import bg as _bg_ui
+    _bg_ui.run(pwr_lbl, _power_plan_name, lambda name: pwr_lbl.config(text=name),
+               name="mypc-power-plan")
 
     # ── Live refresh ───────────────────────────────────────────────────────
     def _refresh():
@@ -3239,7 +3429,18 @@ def _efficiency_refresh(refs):
 
     # ── CPU frequency bar ──────────────────────────────────────────────────
     try:
-        freq = _psu.cpu_freq()
+        # the live collector's real clock and the model's boost (2026-11-20:
+        # psutil gave the base clock, "2500 / 2500 MHz max" in red)
+        from hck_gpt.data.live_sensors import get as _ls_get
+        _cur = float(_ls_get("cpu_mhz", -1) or -1)
+        _max = float(_ls_get("cpu_boost", -1) or -1)
+        freq = None
+        if _cur > 0:
+            class _F:
+                current, max = _cur, (_max if _max > 0 else _cur)
+            freq = _F
+        else:
+            freq = _psu.cpu_freq()
         if freq:
             cur, max_f = freq.current, freq.max or freq.current
             pct = min(1.0, cur / max_f) if max_f else 0.5
@@ -3379,6 +3580,8 @@ except Exception:
     _HAS_PROC_LIB_YP = False
 
 _PROC_TIP: dict = {"win": None}
+# the main window, for process_ref's double click (set by build_yourpc_page)
+_APP_REF: dict = {"app": None}
 
 
 def _attach_proc_tip(widget, proc_name):
@@ -3480,7 +3683,13 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
         _name_lbl = tk.Label(row, text=name_s, font=(_BODY, 7),
                              bg=BG, fg="#94a3b8", anchor="w")
         _name_lbl.pack(side="left", padx=(2, 2), fill="x", expand=True)
-        _attach_proc_tip(_name_lbl, name)
+        # the program-wide process card; double click -> Process Center
+        try:
+            from ui.components import process_ref as _pref
+            _pref.bind([row] + list(row.winfo_children()), name,
+                       getattr(_name_lbl.winfo_toplevel(), "_pcw_app", None) or _APP_REF.get("app"))
+        except Exception:
+            _attach_proc_tip(_name_lbl, name)
 
         # Stats on right
         right = tk.Frame(row, bg=BG)
@@ -3509,25 +3718,113 @@ def _render_proc_rows(parent, procs, metric_key, bar_color, kind, now):
 # STARTUP TAB
 # ─────────────────────────────────────────────────────────────────────────────
 
+_SU_TX = {
+    "title": {"pl": "Do rozważenia: {n} z {t} wpisów autostartu", "en": "Worth a look: {n} of {t} startup entries"},
+    "none": {"pl": "Autostart jest czysty: nic nie spowalnia startu.", "en": "Startup is clean: nothing slows the boot."},
+    "open": {"pl": "Otwórz Menedżer autostartu  ›", "en": "Open Startup Manager  ›"},
+    "disable": {"pl": "wyłącz", "en": "disable"},
+    "delay": {"pl": "opóźnij", "en": "delay"},
+}
+
+
+class _SuBox:
+    def __init__(self):
+        self.data = None
+
+
+def _su_work(box):
+    try:
+        from hck_gpt.responses.flows import _startup_flagged
+        box.data = _startup_flagged()
+    except Exception:
+        box.data = ([], -1)
+
+
+def _startup_summary(self, parent):
+    """What in the startup is worth switching off, with the way there
+    (2026-11-20). The list below stays read-only."""
+    lang = "en" if _t("common.coming_soon") == "Coming soon" else "pl"
+    card = tk.Frame(parent, bg="#0f141c", highlightthickness=1, highlightbackground="#1f2937")
+    card.pack(fill="x", padx=8, pady=(6, 4))
+    box = _SuBox()
+    import threading as _thr
+    _thr.Thread(target=_su_work, args=(box,), daemon=True, name="startup-summary").start()
+
+    def _poll():
+        try:
+            if not card.winfo_exists():
+                return
+        except Exception:
+            return
+        if box.data is None:
+            card.after(150, _poll)
+            return
+        flagged, total = box.data
+        if total < 0:
+            card.destroy()
+            return
+        if not flagged:
+            tk.Label(card, text=_SU_TX["none"][lang], font=(_BODY, 9, "bold"), bg="#0f141c",
+                     fg="#34d399", anchor="w").pack(fill="x", padx=12, pady=8)
+            return
+        tk.Label(card, text=_SU_TX["title"][lang].format(n=len(flagged), t=total),
+                 font=(_BODY, 9, "bold"), bg="#0f141c", fg="#fbbf24", anchor="w").pack(fill="x", padx=12, pady=(8, 2))
+        for e in flagged[:5]:
+            row = tk.Frame(card, bg="#0f141c")
+            row.pack(fill="x", padx=12)
+            tk.Label(row, text=e.get("name") or e.get("exe") or "?", font=(_BODY, 8), bg="#0f141c",
+                     fg="#e5e7eb", anchor="w").pack(side="left")
+            tk.Label(row, text=_SU_TX.get(e.get("rec"), {}).get(lang, ""), font=(_BODY, 8, "bold"),
+                     bg="#0f141c", fg="#fbbf24").pack(side="right")
+        go = tk.Label(card, text=_SU_TX["open"][lang], font=(_BODY, 8, "bold"), bg="#0f141c",
+                      fg="#a78bfa", cursor="hand2", anchor="w")
+        go.pack(fill="x", padx=12, pady=(4, 8))
+
+        def _open(e=None):
+            try:
+                self.current_view = None
+                self._switch_to_page("startup_manager")
+            except Exception:
+                pass
+        go.bind("<Button-1>", _open)
+    _poll()
+
+
 def _build_startup(self, parent):
     """Startup tab - read-only registry startup program list."""
     BG = "#0a0e14"
     sf, _ = _make_scroll_frame(parent)
+    _startup_summary(self, sf)
 
     loading_lbl = tk.Label(sf, text=_t("my_pc.reading_startup"), font=(_BODY, 8),
                            bg=BG, fg="#8593a8", pady=10)
     loading_lbl.pack()
 
-    def _load():
-        entries = _read_startup_registry()
-        try:   # worker thread -> main thread; existence checked in the callback
-            parent.after(0, lambda: _render_startup(sf, loading_lbl, entries, self)
-                         if parent.winfo_exists() else None)
+    # The worker only reads; the main thread picks the result up. It used
+    # to call parent.after() from the worker thread, which Tk does not
+    # allow: the list could stay at "Loading..." (2026-11-20).
+    box = _SuBox()
+
+    def _load(b=box):
+        try:
+            b.data = _read_startup_registry()
         except Exception:
-            pass
+            b.data = []
 
     import threading as _thr
     _thr.Thread(target=_load, daemon=True).start()
+
+    def _poll():
+        try:
+            if not parent.winfo_exists():
+                return
+        except Exception:
+            return
+        if box.data is None:
+            parent.after(150, _poll)
+            return
+        _render_startup(sf, loading_lbl, box.data, self)
+    _poll()
 
 
 def _read_startup_registry() -> list:
@@ -3592,7 +3889,7 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
     if count > 8:
         hint = "   High startup count may slow boot time."
         tk.Label(badge_row, text=hint, font=(_BODY, 7), bg=BG,
-                 fg="#6b7280").pack(side="left")
+                 fg="#8d97a8").pack(side="left")
 
     # Table header
     hdr = tk.Frame(sf, bg="#111827")
@@ -3639,9 +3936,9 @@ def _render_startup(sf, loading_lbl, entries, self_ref):
         except Exception:
             pass
 
-    manage_btn.bind("<Button-1>", lambda e: _goto_setup())
-    manage_btn.bind("<Enter>", lambda e: manage_btn.config(bg="#1d4ed8"))
-    manage_btn.bind("<Leave>", lambda e: manage_btn.config(bg="#1e3a5f"))
+    manage_btn.bind("<Button-1>", lambda e=None: _goto_setup())
+    manage_btn.bind("<Enter>", lambda e=None: manage_btn.config(bg="#1d4ed8"))
+    manage_btn.bind("<Leave>", lambda e=None: manage_btn.config(bg="#1e3a5f"))
 
 
 # ── MAP OF COMPONENTS tab ─────────────────────────────────────────────────────
@@ -3649,7 +3946,7 @@ def _build_map(self, parent):
     """MAP tab - 2.5D isometric hardware visualization."""
     try:
         from ui.components.pc_map import create_pc_map_page
-        create_pc_map_page(parent)
+        create_pc_map_page(parent, app=self)
     except Exception as ex:
         tk.Label(parent,
                  text=f"MAP OF COMPONENTS\n\nCould not load: {ex}",
