@@ -32,7 +32,8 @@ from typing import Callable, Dict, List, Optional
 
 FLOW_TTL_S = 600   # 10 min of silence = flow forgotten
 
-_NEXT    = ("dalej", "next", "ok", "oki", "go", "kontynuuj", "continue", "gotowe", "ready")
+_NEXT    = ("dalej", "next", "ok", "oki", "go", "kontynuuj", "continue", "gotowe", "ready",
+            "zaczynajmy", "zaczynamy", "start", "lecimy", "let's go")
 _CONFIRM = ("tak", "yes", "zrób", "zrob", "do it", "run", "wykonaj", "jedziemy", "yep")
 _SKIP    = ("pomiń", "pomin", "skip", "nie", "no", "później", "later")
 _ABORT   = ("stop", "koniec", "anuluj", "cancel", "przerwij", "end", "quit", "wyjdź")
@@ -49,15 +50,33 @@ class FlowStep:
                                           plain dalej.
     """
 
-    def __init__(self, say: Callable, act: Optional[Callable] = None):
+    def __init__(self, say: Callable, act: Optional[Callable] = None,
+                 ask: Optional[Callable] = None, chips: tuple = (),
+                 yes: Optional[tuple] = None):
         self.say = say
         self.act = act
+        # ask(rb, state, lang, msg) -> lines | None: a question asked while
+        # this step is open ("nie ma nic do wylaczenia?" on the startup step
+        # used to get "I did not understand"; 2026-11-16)
+        self.ask = ask
+        # quick replies offered under this step: "start", "next",
+        # "nav:<link name>"; yes / skip / stop are added automatically
+        self.chips = tuple(chips)
+        # label of the confirm button for this action step, (pl, en);
+        # default "TAK, WYKONAJ" (2026-11-17: "TAK, SPRAWDŹ" for checks).
+        # May be a callable(state) -> (pl, en) when the step offers
+        # different things (2026-11-20: the network guide)
+        self.yes = yes
 
 
 class Flow:
-    def __init__(self, flow_id: str, steps: List[FlowStep]):
+    def __init__(self, flow_id: str, steps: List[FlowStep],
+                 finish: Optional[Callable] = None):
         self.id = flow_id
         self.steps = steps
+        # finish(rb, state, lang) -> lines said when the user moves past the
+        # last step (an action step ends the flow whether run or skipped)
+        self.finish = finish
 
 
 class FlowEngine:
@@ -133,10 +152,15 @@ class FlowEngine:
                 "flow_id": flow_id, "event": "aborted",
                 "state": state, "completed": True,
             }
-            return [("Przerwałem przewodnik. Wróć kiedy chcesz, "
-                     "zaczniemy od nowa.") if lang == "pl" else
-                    ("Guide stopped. Come back any time - "
-                     "we'll start fresh.")]
+            if state.get("flush"):
+                return [("Przerwałem przewodnik. Zmieniliśmy tylko jedno: zwolniłem "
+                         "pamięć (RAM Flush). Wiesz, gdzie mnie szukać :)")
+                        if lang == "pl" else
+                        ("Guide stopped. The only change was the RAM Flush. "
+                         "You know where to find me :)")]
+            return [("Skończyliśmy bez wprowadzania zmian, wiesz gdzie mnie szukać :)")
+                    if lang == "pl" else
+                    ("We stopped without changing anything. You know where to find me :)")]
 
         is_action = step.act is not None and not self._acted
 
@@ -188,6 +212,58 @@ class FlowEngine:
 
         return None   # not navigation -> let normal routing answer, stay paused
 
+    def answer_in_context(self, msg: str, rb) -> Optional[List[str]]:
+        """A question while a step is open: the step's own answer plus where
+        the guide stands, or None when the step has nothing to say."""
+        if not self.is_active():
+            return None
+        flow = self._flows[self._active]
+        step = flow.steps[self._step]
+        if step.ask is None:
+            return None
+        try:
+            lines = step.ask(rb, self._state, self._lang, msg)
+        except Exception:
+            lines = None
+        if not lines:
+            return None
+        self._ts = time.time()
+        return list(lines) + [self.waiting_line()]
+
+    def waiting_line(self) -> str:
+        n = len(self._flows[self._active].steps) if self._active else 0
+        cur = self._step + 1
+        if self._lang == "pl":
+            return f"↪ Przewodnik czeka na kroku {cur}/{n}: 'dalej' albo 'przerwij'."
+        return f"↪ The guide is waiting on step {cur}/{n}: 'next' or 'stop'."
+
+    def current_chips(self) -> List[tuple]:
+        """Quick replies for the open step: [(label, kind, payload)], kind
+        'send' (types payload) or 'nav' (opens a link by name)."""
+        if not self.is_active():
+            return []
+        pl = self._lang == "pl"
+        step = self._flows[self._active].steps[self._step]
+        out = []
+        if step.act is not None and not self._acted:
+            yes = step.yes(self._state) if callable(step.yes) else step.yes
+            yes = yes or ("TAK, WYKONAJ", "YES, RUN IT")
+            out += [(yes[0] if pl else yes[1], "send", "tak" if pl else "yes"),
+                     ("POMIŃ" if pl else "SKIP", "send", "pomiń" if pl else "skip")]
+        elif "start" in step.chips:
+            out.append(("ZACZYNAJMY" if pl else "LET'S START", "send", "zaczynajmy" if pl else "start"))
+        else:
+            out.append(("DALEJ" if pl else "NEXT", "send", "dalej" if pl else "next"))
+        for c in step.chips:
+            if c.startswith("nav:"):
+                name = c[4:]
+                label = {"Startup Manager": ("Zobacz Autostart", "See Startup"),
+                         "Services Manager": ("Zobacz Usługi", "See Services")}.get(
+                             name, (name, name))
+                out.append((label[0] if pl else label[1], "nav", name))
+        out.append(("PRZERWIJ" if pl else "STOP", "send", "przerwij" if pl else "stop"))
+        return out
+
     # ── internals ─────────────────────────────────────────────────────────────
     def _advance(self, rb) -> List[str]:
         flow = self._flows[self._active]
@@ -195,8 +271,14 @@ class FlowEngine:
         self._acted = False
         if self._step >= len(flow.steps):
             self._completed_state = dict(self._state)
+            lines = []
+            if flow.finish is not None:
+                try:
+                    lines = flow.finish(None, self._state, self._lang) or []
+                except Exception:
+                    lines = []
             self.abort()
-            return []
+            return lines
         return self._open_step(rb)
 
     def _open_step(self, rb) -> List[str]:
@@ -207,6 +289,10 @@ class FlowEngine:
             lines = step.say(rb, self._state, self._lang) or []
         except Exception:
             lines = []
+        if not lines:
+            # a step with nothing to say is passed over (2026-11-17: the
+            # drivers step exists only after the components were checked)
+            return self._advance(rb)
         if self._step >= len(flow.steps) - 1 and step.act is None:
             # last plain step ends the flow after speaking
             self._completed_state = dict(self._state)

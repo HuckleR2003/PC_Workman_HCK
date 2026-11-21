@@ -35,7 +35,11 @@ from typing import Any, Dict, List, Optional
 from import_core import register_component, STATUS_IDLE
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-OLLAMA_HOST        = "localhost"
+# 127.0.0.1, not "localhost": on Windows a closed port on "localhost" is
+# retried for ~2 s on IPv6 and again on IPv4, which froze the chat for 4 s
+# on every question it did not recognise (long test, 2026-11-16).
+OLLAMA_HOST        = "127.0.0.1"
+PROBE_TIMEOUT      = 0.3                # the availability ping only
 OLLAMA_PORT        = 11434
 DEFAULT_MODEL      = "llama3.2"          # override: hybrid_engine.model = "mistral"
 RULE_THRESHOLD     = 0.65               # above -> rule engine (deterministic); raised from 0.60 so borderline queries get Ollama's natural language
@@ -137,7 +141,8 @@ class OllamaClient:
         import http.client
         conn = None
         try:
-            conn = http.client.HTTPConnection(OLLAMA_HOST, OLLAMA_PORT, timeout=2)
+            conn = http.client.HTTPConnection(OLLAMA_HOST, OLLAMA_PORT,
+                                              timeout=PROBE_TIMEOUT)
             conn.request("GET", "/api/tags")
             resp = conn.getresponse()
             resp.read()   # drain buffer
@@ -442,9 +447,13 @@ class HybridEngine:
 
     def refresh_availability(self) -> bool:
         """Force-check Ollama availability (ignores cache)."""
-        self._available_checked_at = 0
+        # explicit request: ask now and wait (0.3 s at most when it is off)
         self._temp_unavail_until   = 0
-        return self._check_available()
+        self._available            = self._ollama.is_available()
+        self._available_checked_at = time.time()
+        if self._available:
+            self._pick_best_model()
+        return bool(self._available)
 
     # ── Availability check ────────────────────────────────────────────────────
 
@@ -454,10 +463,24 @@ class HybridEngine:
         if now < self._temp_unavail_until:
             return False
         if self._available is None or (now - self._available_checked_at) > AVAILABILITY_TTL:
-            self._available            = self._ollama.is_available()
+            # The ping runs in the background; this answer uses what is known
+            # (nothing the first time = rules only). An answer never waits for
+            # a network check.
             self._available_checked_at = now
-            if self._available:
-                self._pick_best_model()
+            if self._available is None:
+                self._available = False
+            import threading
+
+            def _probe():
+                ok = self._ollama.is_available()
+                if ok:
+                    try:
+                        self._pick_best_model()
+                    except Exception:
+                        pass
+                self._available = ok
+            threading.Thread(target=_probe, daemon=True,
+                             name="ollama-probe").start()
         return bool(self._available)
 
     def _pick_best_model(self) -> None:
