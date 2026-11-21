@@ -803,12 +803,8 @@ class VoltageAnalyzer:
         self._cache = {"version": VERSION, "rails": {}, "last_update": 0.0}
 
     def _save_cache(self) -> None:
-        try:
-            os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-            with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-                json.dump(self._cache, f, indent=2)
-        except Exception:
-            pass
+        from utils.prefs_io import save_json
+        save_json(_PREFS_PATH, self._cache)
 
 
 # ── Math helpers ──────────────────────────────────────────────────────────────

@@ -71,20 +71,14 @@ def _metrics() -> dict:
 
 
 def _load() -> list:
-    try:
-        with open(_store_path(), encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, list) else []
-    except Exception:
-        return []
+    from utils.prefs_io import load_json
+    data = load_json(_store_path(), [])
+    return data if isinstance(data, list) else []
 
 
 def _save(entries: list) -> None:
-    try:
-        with open(_store_path(), "w", encoding="utf-8") as f:
-            json.dump(entries[-_MAX_ENTRIES:], f, ensure_ascii=False, indent=1)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_store_path(), entries[-_MAX_ENTRIES:], indent=1)
 
 
 def record(action: str, delay: float = None, detail=None) -> None:

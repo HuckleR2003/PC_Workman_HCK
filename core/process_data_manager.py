@@ -311,8 +311,8 @@ class ProcessDataManager:
                 stats['classification'] = session_data['classifications']
 
             # Save to file
-            with open(PROCESS_STATS_FILE, 'w', encoding='utf-8') as f:
-                json.dump(self.statistics, f, indent=2, ensure_ascii=False)
+            from utils.prefs_io import save_json
+            save_json(PROCESS_STATS_FILE, self.statistics)
 
         except Exception as e:
             print(f"[ProcessDataManager] Failed to save statistics: {e}")

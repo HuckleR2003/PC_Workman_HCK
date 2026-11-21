@@ -58,6 +58,64 @@ TICK_S       = 10          # RAM sampled every 10 s
 TRIGGER_S    = 30          # sustained-pressure window before a flush fires
 _DEFAULT_THR = 75          # % RAM
 
+# Pause between AUTO flushes (2026-11-14). There was none: after a flush the
+# counter went back to zero and 30 s later, if RAM was still above the
+# threshold, the next flush fired. On a machine that simply uses its RAM (8 GB
+# with a browser open sits above 75 % all day) that meant trimming every
+# process about once a minute, forever. Trimmed pages are read back from disk
+# when the program needs them, so a flush loop makes the PC slower, not faster.
+COOLDOWN_S       = 5 * 60          # normal pause after an AUTO flush
+COOLDOWN_MAX_S   = 30 * 60         # ceiling for the back-off
+MIN_USEFUL_MB    = 150             # a flush that freed less did not help
+
+_STATE_PATH = os.path.join(_APP_DIR, "settings", "turbo_state.json")
+
+
+def next_cooldown(previous_s: float, freed_mb: float) -> float:
+    """Pause before the next AUTO flush. A flush that freed real memory gets
+    the normal pause; one that freed almost nothing doubles the pause (up to
+    30 min), because repeating it would only cost page faults."""
+    if freed_mb >= MIN_USEFUL_MB:
+        return float(COOLDOWN_S)
+    return float(min(max(previous_s, COOLDOWN_S) * 2, COOLDOWN_MAX_S))
+
+
+def _state_read() -> dict:
+    try:
+        with open(_STATE_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _state_update(**changes) -> None:
+    """Merge keys into settings/turbo_state.json (None removes a key). The
+    file is shared with core.turbo_manager, so read-modify-write."""
+    try:
+        from utils.prefs_io import update_json
+        update_json(_STATE_PATH, **changes)
+    except Exception:
+        pass
+
+
+def pick_original_plan(active_guid, turbo_guid, saved_guid) -> str:
+    """Which plan to go back to when Turbo PC is switched off.
+
+    The plan that was active before we switched, unless that IS the Turbo PC
+    plan. That happens after a crash or a kill: the machine is still on
+    Turbo PC, the next activation used to record Turbo PC as "the original",
+    and restoring then set Turbo PC again. The machine never left it."""
+    balanced = "381b4222-f694-41f0-9685-ff5bb260df2e"
+    same = (active_guid and turbo_guid
+            and active_guid.lower() == turbo_guid.lower())
+    if active_guid and not same:
+        return active_guid
+    if saved_guid and not (turbo_guid
+                           and saved_guid.lower() == turbo_guid.lower()):
+        return saved_guid
+    return balanced
+
 
 # ── prefs (shared file with the Optimization page) ───────────────────────────
 def _load_prefs_full() -> dict:
@@ -221,6 +279,11 @@ class AutoOptimizer:
         self._exclude: set = set()
         self._turbo_on     = False
         self._high_secs     = 0
+        self._cooldown_s    = 0.0           # current pause between AUTO flushes
+        self._next_auto_ts  = 0.0           # no AUTO flush before this time
+        self._last_flush_ts = 0.0
+        self._flush_judged  = True          # last flush already assessed
+        self._tpp_recovered = False
         self._last_status   = ""
         self._listeners: list = []          # (callback, kind) pairs
         # Turbo Power Plan state
@@ -255,8 +318,14 @@ class AutoOptimizer:
         self._stop.set()
 
     def reload_prefs(self) -> None:
-        o = _load_opt()
+        full = _load_prefs_full()
+        o = full.get("optimization", {})
         with self._lock:
+            # The master TURBO flag survives a restart in the prefs file, and
+            # the Dashboard shows "Turbo Boost: ON" from it. The daemon used
+            # to start with False, so RAM-on-TURBO was dead after every
+            # restart until the user switched TURBO off and on again.
+            self._turbo_on     = bool(full.get("turbo_active", False))
             self._ram_auto     = bool(o.get("ram_auto", False))
             self._ram_on_turbo = bool(o.get("ram_on_turbo", False))
             self._threshold    = int(o.get("ram_threshold", _DEFAULT_THR))
@@ -312,8 +381,6 @@ class AutoOptimizer:
         """Activate the Turbo PC plan (creates it on first use). (ok, msg)."""
         if not _is_admin():
             return False, "Needs admin - restart as Administrator"
-        if not self._tpp_original_guid:
-            self._tpp_original_guid = _pp_active_guid()
         if not self._tpp_turbo_guid:
             plans = _pp_list()
             if _TURBO_PC_NAME in plans:
@@ -323,8 +390,15 @@ class AutoOptimizer:
                 if not guid:
                     return False, "Plan creation failed"
                 self._tpp_turbo_guid = guid
+        if not self._tpp_original_guid:
+            self._tpp_original_guid = pick_original_plan(
+                _pp_active_guid(), self._tpp_turbo_guid,
+                _state_read().get("tpp_original"))
         if _pp_set(self._tpp_turbo_guid):
             self._tpp_active = True
+            # On disk until restored: a crash or a kill must not leave the
+            # machine on Turbo PC with nobody remembering what was there.
+            _state_update(tpp_original=self._tpp_original_guid)
             try:
                 from import_core import COMPONENTS
                 hibm = COMPONENTS.get("core.hibernation_manager")
@@ -339,9 +413,12 @@ class AutoOptimizer:
 
     def tpp_restore(self) -> tuple:
         """Restore the original power plan. (ok, msg)."""
-        guid = self._tpp_original_guid or "381b4222-f694-41f0-9685-ff5bb260df2e"
+        guid = pick_original_plan(self._tpp_original_guid, self._tpp_turbo_guid,
+                                  _state_read().get("tpp_original"))
         if _pp_set(guid):
             self._tpp_active = False
+            self._tpp_original_guid = None
+            _state_update(tpp_original=None)
             try:
                 from import_core import COMPONENTS
                 hibm = COMPONENTS.get("core.hibernation_manager")
@@ -349,10 +426,35 @@ class AutoOptimizer:
                     hibm.restore_turbo_apps()
             except Exception:
                 pass
-            msg = "Balanced restored ✓"
+            # It said "Balanced restored" whatever plan it went back to.
+            msg = "Previous power plan restored ✓"
             self._emit(msg, kind="tpp")
             return True, msg
         return False, "Restore failed"
+
+    def _tpp_recover(self) -> None:
+        """Once per start: a previous run switched to Turbo PC and never
+        switched back (crash, kill, power cut). If TURBO is still meant to be
+        on, adopt the state; otherwise put the user's plan back."""
+        saved = _state_read().get("tpp_original")
+        if not saved:
+            return
+        plans = _pp_list()
+        turbo = plans.get(_TURBO_PC_NAME)
+        active = _pp_active_guid()
+        on_turbo_plan = bool(turbo and active
+                             and active.lower() == turbo.lower())
+        if not on_turbo_plan:
+            _state_update(tpp_original=None)       # user already changed it
+            return
+        self._tpp_turbo_guid = turbo
+        self._tpp_original_guid = saved
+        if self._turbo_on and self._tpp_on_turbo:
+            self._tpp_active = True                # still wanted: keep it
+        elif _pp_set(saved):
+            self._tpp_original_guid = None
+            _state_update(tpp_original=None)
+            self._emit("Previous power plan restored ✓", kind="tpp")
 
     def _tpp_tick(self) -> None:
         """Reconcile the power plan with the master TURBO flag (daemon-side).
@@ -411,17 +513,47 @@ class AutoOptimizer:
     def _loop(self) -> None:
         import psutil
         while not self._stop.is_set():
+            if not self._tpp_recovered:
+                self._tpp_recovered = True
+                try:
+                    self._tpp_recover()
+                except Exception:
+                    pass
             try:
                 if self._ram_watch_active():
                     pct = psutil.virtual_memory().percent
                     with self._lock:
                         thr = self._threshold
-                    if pct > thr:
+                    wait_left = self._next_auto_ts - time.time()
+                    if pct > thr and wait_left > 0:
+                        # still high, but the last flush was recent: wait
+                        self._high_secs = 0
+                        since = time.time() - self._last_flush_ts
+                        if not self._flush_judged and 20 <= since <= 90:
+                            # Back above the threshold within a minute and a
+                            # half: the flush did not hold. Measured on an
+                            # 8 GB machine (2026-11-14): +430 MB right after,
+                            # all of it gone 20 s later. Wait longer.
+                            self._flush_judged = True
+                            self._cooldown_s = next_cooldown(self._cooldown_s, 0)
+                            self._next_auto_ts = (self._last_flush_ts
+                                                  + self._cooldown_s)
+                            wait_left = self._next_auto_ts - time.time()
+                        self._emit(f"cooldown  {int(wait_left // 60) + 1} min")
+                    elif pct > thr:
                         self._high_secs = min(self._high_secs + TICK_S, TRIGGER_S)
                         self._emit(f"high  {self._high_secs}s/{TRIGGER_S}s")
                         if self._high_secs >= TRIGGER_S:
                             self._high_secs = 0
                             ok, msg, before, after = self.flush_now()
+                            self._last_flush_ts = time.time()
+                            self._flush_judged = False
+                            # a flush that held resets the back-off
+                            self._cooldown_s = next_cooldown(
+                                0 if after - before >= MIN_USEFUL_MB
+                                else self._cooldown_s, after - before)
+                            self._next_auto_ts = (self._last_flush_ts
+                                                  + self._cooldown_s)
                     else:
                         if self._high_secs:
                             self._high_secs = 0

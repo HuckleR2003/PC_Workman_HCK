@@ -53,6 +53,41 @@ except Exception:
     )
 
 _PREFS_PATH = os.path.join(_APP_DIR, "data", "cache", "hibernation_prefs.json")
+# Processes we put to sleep, on disk (2026-11-14). The list lived only in
+# memory and nothing woke the apps on exit, so closing PC Workman (or a crash)
+# left a FROZEN app frozen until the next reboot, and a LOW PRIORITY app on
+# idle priority for the rest of its life.
+_SLEEPING_PATH = os.path.join(_APP_DIR, "data", "cache",
+                              "hibernation_sleeping.json")
+
+
+def _same_process(proc, info: dict) -> bool:
+    """True when *proc* is still the process we put to sleep, not another
+    one that Windows gave the same PID to later."""
+    try:
+        created = float(info.get("created") or 0.0)
+        if created and abs(proc.create_time() - created) > 2.0:
+            return False
+        name = info.get("name") or ""
+        return not name or proc.name().lower() == name.lower()
+    except Exception:
+        return False
+
+
+def _undo_sleep(proc, info: dict) -> None:
+    """Reverse one sleep: resume a frozen process, or give a low-priority
+    one the priority it had before (not always 'normal')."""
+    if info.get("behavior") == "freeze":
+        proc.resume()
+        return
+    original = info.get("original_nice")
+    try:
+        if original is not None:
+            proc.nice(int(original))
+            return
+    except Exception:
+        pass
+    _set_priority(proc.pid, NORMAL_PRIORITY_CLASS)
 
 
 # ── HibernationManager ────────────────────────────────────────────────────────
@@ -75,6 +110,63 @@ class HibernationManager:
 
         self._load_prefs()
         register_component("core.hibernation_manager", self, STATUS_IDLE)
+        try:
+            self.recover_orphans()
+        except Exception:
+            pass
+        try:
+            import atexit
+            atexit.register(self._on_exit)
+        except Exception:
+            pass
+
+    # ── Never leave an app asleep behind us ───────────────────────────────────
+
+    def _persist_sleeping(self) -> None:
+        try:
+            with self._lock:
+                snap = {str(pid): {"name": i.get("name", ""),
+                                   "created": i.get("created", 0.0),
+                                   "behavior": i.get("behavior", "low"),
+                                   "original_nice": i.get("original_nice")}
+                        for pid, i in self._sleeping.items()}
+            from utils.prefs_io import save_json, remove_json
+            if snap:
+                save_json(_SLEEPING_PATH, snap)
+            else:
+                remove_json(_SLEEPING_PATH)
+        except Exception:
+            pass
+
+    def recover_orphans(self, path: str = None) -> int:
+        """Wake what a previous run put to sleep and never woke. Returns how
+        many processes were restored."""
+        path = path or _SLEEPING_PATH
+        try:
+            with open(path, encoding="utf-8") as f:
+                left = json.load(f)
+        except Exception:
+            return 0
+        woken = 0
+        for pid_s, info in (left or {}).items():
+            try:
+                proc = psutil.Process(int(pid_s))
+                if _same_process(proc, info):
+                    _undo_sleep(proc, info)
+                    woken += 1
+            except Exception:
+                continue
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+        return woken
+
+    def _on_exit(self) -> None:
+        try:
+            self.wake_all()
+        except Exception:
+            pass
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -112,7 +204,8 @@ class HibernationManager:
 
         try:
             proc = psutil.Process(pid)
-            original_nice = proc.nice()
+            original_nice = int(proc.nice())
+            created = proc.create_time()
         except Exception:
             return False
 
@@ -120,8 +213,10 @@ class HibernationManager:
             if behavior == "freeze":
                 proc.suspend()
             else:
-                # Low priority via kernel32
-                _set_priority(pid, IDLE_PRIORITY_CLASS)
+                # Low priority via kernel32. Report failure honestly: the
+                # row used to turn "sleeping" even when Windows refused.
+                if not _set_priority(pid, IDLE_PRIORITY_CLASS):
+                    return False
 
             with self._lock:
                 self._sleeping[pid] = {
@@ -131,7 +226,9 @@ class HibernationManager:
                     "behavior":         behavior,
                     "slept_at":         time.time(),
                     "original_nice":    original_nice,
+                    "created":          created,
                 }
+            self._persist_sleeping()
             update_status("core.hibernation_manager", STATUS_OK,
                           f"{len(self._sleeping)} sleeping")
             return True
@@ -147,10 +244,10 @@ class HibernationManager:
             return False
         try:
             proc = psutil.Process(pid)
-            if info["behavior"] == "freeze":
-                proc.resume()
-            else:
-                _set_priority(pid, NORMAL_PRIORITY_CLASS)
+            # Same PID, different program: ours exited and Windows reused the
+            # number. Nothing to wake, and the newcomer must not be touched.
+            if _same_process(proc, info):
+                _undo_sleep(proc, info)
             return True
         except psutil.NoSuchProcess:
             # Process already exited - consider it successfully "woken"
@@ -158,6 +255,7 @@ class HibernationManager:
         except Exception:
             return False
         finally:
+            self._persist_sleeping()
             remaining = len(self._sleeping)
             update_status("core.hibernation_manager",
                           STATUS_OK if remaining == 0 else STATUS_WARN,

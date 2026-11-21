@@ -144,6 +144,19 @@ class HardwareSensors:
                             'type': 'temperature'
                         }
 
+            elif _lhm_cpu_temp() > 0:
+                # Windows: psutil has no temperatures; the measured value
+                # comes from LibreHardwareMonitor (CPU Package / Tctl).
+                # Until 2026-11-20 Windows always got the estimate below,
+                # even with LHM running.
+                package_temp = _lhm_cpu_temp()
+                sensors['sensors']['Package Temperature'] = {
+                    'value': f"{int(package_temp)}°C",
+                    'raw': package_temp,
+                    'unit': '°C',
+                    'type': 'temperature'
+                }
+
             else:
                 cpu_percent = psutil.cpu_percent(interval=0.1)
                 estimated_temp = 35 + (cpu_percent * 0.5)  # Rough estimate
@@ -381,6 +394,15 @@ class HardwareSensors:
                 })
 
         return flat_list
+
+
+def _lhm_cpu_temp() -> float:
+    """CPU temperature measured by LibreHardwareMonitor, -1 without it."""
+    try:
+        from core.live_collector import fetch_mb_sensors
+        return float(fetch_mb_sensors().get("cpu_temp", -1.0) or -1.0)
+    except Exception:
+        return -1.0
 
 
 def get_cpu_temp() -> float:

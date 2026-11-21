@@ -43,22 +43,14 @@ def _path() -> str:
 
 
 def _load() -> dict:
-    try:
-        with open(_path(), encoding="utf-8") as f:
-            d = json.load(f)
-        return {**_DEFAULTS, **d} if isinstance(d, dict) else dict(_DEFAULTS)
-    except Exception:
-        return dict(_DEFAULTS)
+    from utils.prefs_io import load_json
+    d = load_json(_path(), {})
+    return {**_DEFAULTS, **d} if isinstance(d, dict) else dict(_DEFAULTS)
 
 
 def _save(d: dict) -> None:
-    try:
-        p = _path()
-        os.makedirs(os.path.dirname(p), exist_ok=True)
-        with open(p, "w", encoding="utf-8") as f:
-            json.dump(d, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_path(), d)
 
 
 # ── Public state ──────────────────────────────────────────────────────────────

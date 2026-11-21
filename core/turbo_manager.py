@@ -294,19 +294,13 @@ class TurboServiceManager:
     # ── Editable profiles (single source of truth, synced with Features) ───────
 
     def _load_overrides(self) -> dict:
-        try:
-            with open(_PROFILES_PATH, encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return {}
+        from utils.prefs_io import load_json
+        data = load_json(_PROFILES_PATH, {})
+        return data if isinstance(data, dict) else {}
 
     def _save_overrides(self) -> None:
-        try:
-            os.makedirs(os.path.dirname(_PROFILES_PATH), exist_ok=True)
-            with open(_PROFILES_PATH, "w", encoding="utf-8") as f:
-                json.dump(self._overrides, f, indent=2)
-        except Exception:
-            pass
+        from utils.prefs_io import save_json
+        save_json(_PROFILES_PATH, self._overrides)
 
     def get_profile_services(self, key: str) -> list[str]:
         """Effective stop-list for a mode: user override if set, else the preset."""
@@ -399,15 +393,10 @@ class TurboServiceManager:
         try:
             with self._lock:
                 snap = dict(self._stopped)
-            existing = {}
-            try:
-                with open(_STATE_PATH, encoding="utf-8") as f:
-                    existing = json.load(f)
-            except Exception:
-                pass
-            existing["svc_stopped"] = snap
-            with open(_STATE_PATH, "w", encoding="utf-8") as f:
-                json.dump(existing, f, indent=2)
+            # shared with core.auto_optimizer (tpp_original): merge under
+            # the file lock, never overwrite the other writer's keys
+            from utils.prefs_io import update_json
+            update_json(_STATE_PATH, svc_stopped=snap)
         except Exception:
             pass
 
@@ -462,8 +451,22 @@ SUSPEND_CANDIDATES = (
     "EpicGamesLauncher.exe", "steam.exe",
 )
 
+# The ONLY names the suspender may freeze (lower-case). Until 2026-11-14 the
+# scan ignored this list and froze every idle process that was not on the
+# short whitelist above. turbo_engine.log from 2026-07-06 shows the result:
+# MSI_Central_Service, GameInputRedistService, gamingservicesnet, OpenConsole
+# and a dozen more frozen within one second. A frozen service makes everything
+# that talks to it hang, which is what "PC Workman froze my system" was.
+# An allow-list cannot do that: a process we have never heard of is left alone.
+_CANDIDATE_NAMES = frozenset(n.lower() for n in SUSPEND_CANDIDATES)
+
 IDLE_SECONDS_DEFAULT = 5 * 60    # 5 minutes
 AUTO_RESUME_SECONDS  = 30 * 60   # 30 minutes
+
+# PIDs we froze, on disk. If PC Workman is killed or crashes while processes
+# are suspended, nothing else will ever wake them; the next start reads this
+# file and resumes them (see TurboProcessSuspender._recover_orphans).
+_SUSPENDED_PATH = os.path.join(_APP_DIR, "settings", "turbo_suspended.json")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -486,6 +489,69 @@ class TurboProcessSuspender:
         self.idle_threshold = IDLE_SECONDS_DEFAULT
         self._sample_interval = 30              # scan every 30 s
         register_component('core.turbo_processes', self, STATUS_IDLE)
+        try:
+            self._recover_orphans()
+        except Exception:
+            pass
+        try:
+            import atexit
+            atexit.register(self._on_exit)
+        except Exception:
+            pass
+
+    # ── Never leave a process frozen behind us ────────────────────────────────
+
+    def _persist(self) -> None:
+        """Write the frozen PIDs to disk (pid + name + create time, so a
+        recycled PID is never mistaken for the process we froze)."""
+        try:
+            with self._lock:
+                snap = {str(pid): {"name": info["name"],
+                                   "created": info.get("created", 0.0)}
+                        for pid, info in self._suspended.items()}
+            from utils.prefs_io import save_json, remove_json
+            if snap:
+                save_json(_SUSPENDED_PATH, snap)
+            else:
+                remove_json(_SUSPENDED_PATH)
+        except Exception:
+            pass
+
+    def _recover_orphans(self, path: Optional[str] = None) -> int:
+        """Resume what a previous run froze and never woke (crash, kill,
+        power loss of the app). Returns how many were resumed."""
+        path = path or _SUSPENDED_PATH
+        try:
+            with open(path, encoding="utf-8") as f:
+                left = json.load(f)
+        except Exception:
+            return 0
+        woken = 0
+        for pid_s, info in (left or {}).items():
+            try:
+                proc = psutil.Process(int(pid_s))
+                same = (proc.name() == info.get("name")
+                        and abs(proc.create_time()
+                                - float(info.get("created", 0.0))) < 2.0)
+                if same:
+                    proc.resume()
+                    woken += 1
+                    _log("PROC", f"recovered  pid={pid_s}  name={info.get('name')}"
+                                 "  (frozen by a previous run)")
+            except Exception:
+                continue
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+        return woken
+
+    def _on_exit(self) -> None:
+        self._running = False
+        try:
+            self.resume_all()
+        except Exception:
+            pass
 
     # ── Control ───────────────────────────────────────────────────────────────
 
@@ -537,6 +603,8 @@ class TurboProcessSuspender:
             return True
         except Exception:
             return False
+        finally:
+            self._persist()
 
     def resume_all(self) -> int:
         with self._lock:
@@ -562,11 +630,34 @@ class TurboProcessSuspender:
         our_pid = os.getpid()
         needed_samples = max(2, self.idle_threshold // self._sample_interval)
 
+        # The app the user is looking at right now. Browsers and chat apps run
+        # as many processes under one name: the window is one PID, the tabs
+        # are others. So the whole family of the foreground app is off limits,
+        # and anything of that family we froze earlier is woken now. Without
+        # this, switching back to a frozen Chrome showed dead tabs for up to
+        # 30 minutes (until auto-resume).
+        fg_name = ""
+        try:
+            if fg_pid:
+                fg_name = psutil.Process(fg_pid).name().lower()
+        except Exception:
+            fg_name = ""
+        if fg_name:
+            with self._lock:
+                wake = [p for p, info in self._suspended.items()
+                        if info["name"].lower() == fg_name]
+            for p in wake:
+                self.resume(p)
+
         for proc in psutil.process_iter(["pid", "name", "exe", "status"]):
             try:
                 pid  = proc.pid
                 name = proc.info.get("name") or ""
                 exe  = proc.info.get("exe")  or ""
+
+                # Allow-list: only apps we know are safe to freeze.
+                if not self._may_suspend(name, fg_name):
+                    continue
 
                 # Hard skips
                 if (pid <= 8
@@ -600,14 +691,17 @@ class TurboProcessSuspender:
         pid  = proc.pid
         name = proc.name()
         try:
+            created = proc.create_time()
             proc.suspend()
             with self._lock:
                 self._suspended[pid] = {
                     "pid":          pid,
                     "name":         name,
+                    "created":      created,
                     "suspended_at": time.time(),
                     "suspicious":   suspicious,
                 }
+            self._persist()
             self._cpu_samples.pop(pid, None)
             flag = "  ⚠ suspicious path" if suspicious else ""
             _log("PROC", f"suspended  pid={pid}  name={name}{flag}")
@@ -623,6 +717,17 @@ class TurboProcessSuspender:
             ]
         for pid in expired:
             self.resume(pid)
+
+    @staticmethod
+    def _may_suspend(name: str, fg_name: str = "") -> bool:
+        """True only for a known idle-able app that is not the app in front.
+        This is the allow-list gate; _is_whitelisted stays as a second guard."""
+        nl = (name or "").lower()
+        if nl not in _CANDIDATE_NAMES:
+            return False
+        if fg_name and nl == fg_name.lower():
+            return False
+        return True
 
     def _is_whitelisted(self, name: str, exe: str) -> bool:
         # Anti-cheat first - the one category we must never suspend.

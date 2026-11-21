@@ -85,11 +85,15 @@ _DB_PATH    = os.path.join(_base_dir(), "data", "logs",  "hck_stats.db")
 
 BUCKETS       = ("idle", "light", "medium", "heavy", "gaming")
 
-# Sample count thresholds for training levels
-T_INIT        =   5
-T_BASIC       =  20
-T_TRAINED     =  60
-T_CALIBRATED  = 200
+# Sample count thresholds for training levels. Since 2026-11-16 one sample
+# is one recorded MINUTE (minute_stats), not one 5-minute DeepMonitor
+# snapshot: 5x more samples for the same time, so the thresholds are 3x
+# higher and the learning still gets there faster. In time per workload:
+#   basic 1 h, trained 3 h, calibrated 10 h.
+T_INIT        =  15
+T_BASIC       =  60
+T_TRAINED     = 180
+T_CALIBRATED  = 600
 
 # z-multiplier for the displayed normal band (≈ central 90%: p5 / p95)
 _P_Z          = 1.645
@@ -120,7 +124,7 @@ _METRIC_PRIORITY = ("cpu_temp", "gpu_temp", "cpu_load")
 # A version bump discards the old single-metric JSON; rebuild() re-folds the
 # whole DeepMonitor history (rows survive up to the retention window), so no
 # learning is permanently lost - it re-accumulates on the next rebuild.
-VERSION       = 3
+VERSION       = 4   # 4 (2026-11-17): one-time refold from minute rows
 
 
 # ── BaselineRange (immutable result object) ───────────────────────────────────
@@ -268,7 +272,11 @@ class ThermalBaseline:
         order cpu_temp -> gpu_temp -> cpu_load. cpu_load is the guaranteed
         fallback (always real), so the Learning Center is never empty."""
         for m in _METRIC_PRIORITY:
-            if self._metric_total(m) >= T_INIT:
+            # the CPU temperature takes over only after 3 h of real readings
+            # (2026-11-20): at 15 samples the Learning Center switched to it
+            # and its figure fell from about 96% to single digits
+            need = T_TRAINED if m == "cpu_temp" else T_INIT
+            if self._metric_total(m) >= need:
                 return m
         return "cpu_load"
 
@@ -298,14 +306,57 @@ class ThermalBaseline:
         br = self.get_range(bucket, metric)
         return br.classify_temp(temp) if br.is_usable else "unknown"
 
-    def overall_training_pct(self, metric: str = None) -> int:
-        """0–100 % overall training completeness for the primary (or given)
-        metric across all buckets. Uses the primary metric so it reflects
-        whatever this machine can actually learn."""
+    # A workload this PC spends under 5 % of its time in is "rare": it is
+    # learned along the way and shown apart (2026-11-20).
+    RARE_SHARE = 0.05
+
+    def training_breakdown(self, metric: str = None) -> dict:
+        """{"metric", "typical": {bucket: n}, "rare": {bucket: n}, "total",
+        "counts"}. Typical = at least T_INIT samples and RARE_SHARE of all."""
         metric = metric or self.primary_metric()
-        total  = self._metric_total(metric)
-        target = len(BUCKETS) * T_CALIBRATED
-        return min(100, int(total / target * 100)) if target else 0
+        counts = {b: self.get_range(b, metric).n for b in BUCKETS}
+        total = sum(counts.values())
+        typical, rare = {}, {}
+        for b, n in counts.items():
+            if n <= 0:
+                continue
+            if n >= T_INIT and n / total >= self.RARE_SHARE:
+                typical[b] = n
+            else:
+                rare[b] = n
+        return {"metric": metric, "typical": typical, "rare": rare,
+                "total": total, "counts": counts}
+
+    def _pct_for(self, metric: str) -> int:
+        bd = self.training_breakdown(metric)
+        used = list(bd["typical"].values())
+        if not used and bd["total"]:
+            used = [max(bd["counts"].values())]
+        if not used or not used[0]:
+            return 0
+        return int(sum(min(100.0, n / T_TRAINED * 100) for n in used) / len(used))
+
+    def overall_training_pct(self, metric: str = None) -> int:
+        """0-100: how well this PC's normal is known.
+
+        History of the rule:
+          2026-11-16  all samples / (5 x calibrated) read 100 % with "heavy"
+                      unseen; averaging every workload towards "calibrated"
+                      read 5 % after a real afternoon.
+          2026-11-17  only workloads with T_INIT samples count.
+          2026-11-20  only the workloads this PC spends 5 % of its time in
+                      count; the rest are "rare". The author's PC sat at 79 %
+                      after 136 h because "medium" (1.7 % of the time, 51 min)
+                      weighed as much as idle (2126 min). Without a metric,
+                      the best real signal counts: when the CPU temperature
+                      starts to be measured it learns next to the others
+                      instead of dropping the figure from 96 % to 8 %."""
+        if metric:
+            return self._pct_for(metric)
+        cands = [m for m in _METRIC_PRIORITY if self._metric_total(m) >= T_INIT]
+        if not cands:
+            cands = [self.primary_metric()]
+        return max(self._pct_for(m) for m in cands)
 
     def training_status(self, metric: str = None) -> dict[str, dict]:
         """
@@ -403,18 +454,30 @@ class ThermalBaseline:
                          f"({br.n}/{T_CALIBRATED} samples, learned from your own data)")
         return "\n".join(lines)
 
-    # Each DeepMonitor snapshot = one sample; metrics_store writes one every
-    # 5 minutes, so N samples ≈ N × 5 min of your machine actually observed.
-    SAMPLE_INTERVAL_MIN = 5.0
+    # Minutes of machine time behind one sample of each source.
+    SAMPLE_INTERVAL_MIN = 1.0          # minute_stats (current source)
+    LEGACY_INTERVAL_MIN = 5.0          # deepmonitor_snapshots (before 2026-11-16)
+
+    def _observed_min(self, metric: str) -> float:
+        """Minutes observed, kept as its own counter because the samples
+        before 2026-11-16 were 5 minutes apart and the newer ones 1 minute."""
+        v = self._raw.get("observed_min")
+        if v is None:
+            return self._metric_total(metric) * self.LEGACY_INTERVAL_MIN
+        return float(v)
 
     def total_observed_hours(self, metric: str = None) -> float:
-        """Rough hours of real machine time behind the learning (primary metric)."""
+        """Hours of real machine time behind the learning (primary metric)."""
         metric = metric or self.primary_metric()
-        return self._metric_total(metric) * self.SAMPLE_INTERVAL_MIN / 60.0
+        return self._observed_min(metric) / 60.0
 
     def observed_hours(self, bucket: str, metric: str = None) -> float:
         metric = metric or self.primary_metric()
-        return self.get_range(bucket, metric).n * self.SAMPLE_INTERVAL_MIN / 60.0
+        total_n = self._metric_total(metric)
+        if not total_n:
+            return 0.0
+        share = self.get_range(bucket, metric).n / total_n
+        return self._observed_min(metric) * share / 60.0
 
     def learning_since_str(self, lang: str = "en") -> str:
         """How long PC Workman has been observing this machine, e.g. '3 days'."""
@@ -473,6 +536,7 @@ class ThermalBaseline:
         if not self._rebuild_lock.acquire(blocking=False):
             return 0
         try:
+            self._maybe_refold()
             with self._lock:
                 last_ts = float(self._raw.get("last_ts", 0.0) or 0.0)
                 # buckets[bucket][metric] = {n, mean, M2}
@@ -484,7 +548,7 @@ class ThermalBaseline:
                         for m in _METRICS
                     }
 
-            rows = self._query_db_since(last_ts)
+            rows, interval = self._query_db_since(last_ts)
             if not rows:
                 self._last_rebuild = time.time()
                 return 0
@@ -511,7 +575,18 @@ class ThermalBaseline:
                 if folded:
                     processed += 1
 
+            # first pass with the counter: what was learned so far came from
+            # 5-minute snapshots (read before taking the lock, which these
+            # helpers take themselves)
+            legacy_min = None
+            if self._raw.get("observed_min") is None:
+                legacy_min = (self._metric_total(self.primary_metric())
+                              * self.LEGACY_INTERVAL_MIN)
             with self._lock:
+                if legacy_min is not None:
+                    self._raw["observed_min"] = legacy_min
+                self._raw["observed_min"] = (float(self._raw["observed_min"])
+                                             + processed * interval)
                 self._raw["buckets"]     = buckets
                 self._raw["last_ts"]     = max_ts
                 self._raw["last_update"] = time.time()
@@ -527,6 +602,32 @@ class ThermalBaseline:
         finally:
             self._rebuild_lock.release()
 
+    def _maybe_refold(self) -> None:
+        """One-time fix (2026-11-17). Learning switched from 5-minute
+        snapshots to minute rows on 2026-11-16, but the switch continued
+        from the last snapshot's time, so every minute recorded before it
+        was learned only as every fifth minute. The second long test: 368
+        recorded minutes, 133 learned samples, gaming 14 instead of ~70.
+        When the minute rows reach back to where learning started, the
+        accumulators are rebuilt from them, every minute counted once.
+        Otherwise (an old install whose minutes were pruned) nothing
+        changes. Called under the rebuild lock."""
+        if not self._raw.get("refold_pending"):
+            return
+        try:
+            con = sqlite3.connect(_DB_PATH, timeout=5)
+            first = con.execute("SELECT MIN(timestamp) FROM minute_stats").fetchone()[0]
+            con.close()
+        except Exception:
+            return          # try again on the next rebuild
+        started = float(self._raw.get("started_ts", 0.0) or 0.0)
+        with self._lock:
+            if first is not None and started and float(first) <= started + 600:
+                self._raw["buckets"] = {}
+                self._raw["last_ts"] = 0.0
+                self._raw["observed_min"] = 0.0
+            self._raw.pop("refold_pending", None)
+
     def maybe_rebuild(self, min_interval_s: float = 300.0) -> None:
         """Trigger an async incremental fold only if older than min_interval_s."""
         if time.time() - self._last_rebuild > min_interval_s:
@@ -538,10 +639,44 @@ class ThermalBaseline:
 
     # ── Internal helpers ──────────────────────────────────────────────────────
 
-    def _query_db_since(self, last_ts: float) -> list[dict]:
-        """Load every learnable signal for snapshots newer than last_ts.
-        No cpu_temp filter: we fold whatever is real per row (gpu_temp/cpu_load
-        exist even when cpu_temp is absent), each metric gated on its own."""
+    def _query_db_since(self, last_ts: float):
+        """(rows, minutes per row) for everything newer than last_ts.
+
+        Source since 2026-11-16: minute_stats, one row per recorded minute.
+        DeepMonitor snapshots come every 5 minutes, so the learning card said
+        "about 6 hours" while one workload alone needed 5 hours of snapshots
+        (the long test folded 33 samples in 3.5 hours). The old CPU
+        temperature placeholder (35 + load/2) in older minute rows is dropped.
+        Falls back to the snapshots when there are no minute rows."""
+        try:
+            con = sqlite3.connect(_DB_PATH, timeout=5)
+            con.row_factory = sqlite3.Row
+            mrows = con.execute(
+                "SELECT timestamp AS ts, cpu_temp, gpu_temp, "
+                "cpu_avg AS cpu_load, gpu_avg AS gpu_load "
+                "FROM minute_stats WHERE timestamp > ? ORDER BY timestamp",
+                (last_ts,),
+            ).fetchall()
+            con.close()
+            if mrows:
+                out = []
+                for r in mrows:
+                    d = dict(r)
+                    t, load = d.get("cpu_temp"), d.get("cpu_load")
+                    if t is not None and load is not None and \
+                            abs(float(t) - (35.0 + float(load) * 0.5)) < 0.6:
+                        d["cpu_temp"] = None
+                    for k in ("cpu_temp", "gpu_temp"):
+                        if d.get(k) is None:
+                            d[k] = -1.0
+                    out.append(d)
+                return out, self.SAMPLE_INTERVAL_MIN
+        except Exception:
+            pass
+        return self._query_snapshots_since(last_ts), self.LEGACY_INTERVAL_MIN
+
+    def _query_snapshots_since(self, last_ts: float) -> list[dict]:
+        """DeepMonitor snapshots newer than last_ts (the pre-2026-11-16 source)."""
         try:
             con = sqlite3.connect(_DB_PATH, timeout=5)
             con.row_factory = sqlite3.Row
@@ -564,6 +699,13 @@ class ThermalBaseline:
             if raw.get("version") == VERSION:
                 self._raw = raw
                 return
+            if raw.get("version") == 3:
+                # kept; the next rebuild decides whether to refold it from
+                # the minute rows (see _maybe_refold)
+                raw["version"] = VERSION
+                raw["refold_pending"] = True
+                self._raw = raw
+                return
         except Exception:
             pass
         self._raw = {
@@ -574,12 +716,8 @@ class ThermalBaseline:
         }
 
     def _save_json(self) -> None:
-        try:
-            os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-            with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-                json.dump(self._raw, f, indent=2)
-        except Exception:
-            pass
+        from utils.prefs_io import save_json
+        save_json(_PREFS_PATH, self._raw)
 
 
 # ── Singleton ─────────────────────────────────────────────────────────────────

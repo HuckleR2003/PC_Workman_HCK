@@ -4,7 +4,7 @@ StartupWatcher - background thread that polls the Windows registry for:
   1. New autostart entries  (HKCU/HKLM Run keys)
   2. New installed applications  (Uninstall keys)
 
-Thread-safe; fires callbacks on the calling thread (wrap with root.after(0,…)
+Thread-safe; fires callbacks on the calling thread (register callbacks that only fill a ui.bg.Mailbox
 when used from tkinter).
 
 Usage
@@ -70,20 +70,13 @@ _UNINSTALL_PATHS = [
 # ── Cache helpers ─────────────────────────────────────────────────────────────
 
 def _load_cache() -> dict:
-    try:
-        with open(_CACHE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    return load_json(_CACHE_FILE, {})
 
 
 def _save_cache(data: dict) -> None:
-    os.makedirs(os.path.dirname(_CACHE_FILE), exist_ok=True)
-    try:
-        with open(_CACHE_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_CACHE_FILE, data)
 
 
 # ── Registry readers ──────────────────────────────────────────────────────────
@@ -165,7 +158,7 @@ class StartupWatcher:
     Background daemon that detects new startup entries and newly installed apps.
 
     Callbacks receive plain Python values and are invoked from the watcher
-    thread - wrap with  root.after(0, lambda: cb(...))  for tkinter safety.
+    thread - register a callback that only fills a ui.bg.Mailbox (no Tk on this thread).
     """
 
     def __init__(self) -> None:

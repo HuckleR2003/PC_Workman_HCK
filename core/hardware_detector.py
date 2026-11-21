@@ -100,11 +100,36 @@ def _wmic(wmi_path: str, get_fields: list, timeout: int = 8) -> list:
     return _run_cim(wmi_path, get_fields)
 
 
+def parse_cim_date(raw):
+    """
+    A CIM/WMI date as a datetime, or None.
+
+    Two shapes reach us. wmic gives "20260722000000.000000-000". PowerShell's
+    ConvertTo-Json (the path used on Windows 11, where wmic is gone) gives
+    "/Date(1784678400000)/", milliseconds since 1970. Only the first was
+    handled, so My PC showed the raw "/Date(...)/" text as the GPU driver
+    date and hck_GPT could not tell how old any driver was.
+    """
+    import datetime as _dt
+    import re as _re
+    raw = str(raw or "").strip()
+    m = _re.search(r"Date\((-?\d+)", raw)
+    try:
+        if m:
+            return (_dt.datetime(1970, 1, 1)
+                    + _dt.timedelta(milliseconds=int(m.group(1))))
+        if len(raw) >= 8 and raw[:8].isdigit():
+            return _dt.datetime.strptime(raw[:8], "%Y%m%d")
+    except Exception:
+        return None
+    return None
+
+
 def _fmt_driver_date(raw: str) -> str:
-    raw = raw.strip()
-    if len(raw) >= 8 and raw[:8].isdigit():
-        return f"{raw[:4]}-{raw[4:6]}-{raw[6:8]}"
-    return raw or "Unknown"
+    dt = parse_cim_date(raw)
+    if dt is not None:
+        return dt.strftime("%Y-%m-%d")
+    return "Unknown"
 
 
 class HardwareDetector:

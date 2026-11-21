@@ -78,6 +78,36 @@ _MB_CACHE: dict = {"volt_12v": -1.0, "volt_5v": -1.0, "volt_33v": -1.0,
 _MB_CACHE_TS: float = 0.0
 
 
+def _lhm_number(value) -> float | None:
+    """'43,5 °C' / '12,120 V' / '1 200 RPM' -> float.
+
+    LHM writes numbers in the Windows regional format. On a Polish (German,
+    French, Russian...) Windows the decimal separator is a comma, and
+    float("43,5") failed: every temperature and voltage with a fraction was
+    dropped, only whole fan speeds got through (found 2026-11-20 on the
+    author's PC: "the server runs and nothing is recorded")."""
+    if not isinstance(value, str):
+        return None
+    v = value.strip().replace(" ", " ").replace(" ", " ")
+    parts = v.split()
+    if not parts:
+        return None
+    # "1 200 RPM": a thousands separator written as a space
+    num = parts[0]
+    if len(parts) >= 3 and parts[1].isdigit() and len(parts[1]) == 3:
+        num += parts[1]
+    try:
+        return float(num.replace(",", "."))
+    except ValueError:
+        return None
+
+
+# CPU temperature from the LHM tree, best first. SensorId is
+# "/intelcpu/0/temperature/N" or "/amdcpu/0/temperature/N".
+_CPU_TEMP_NAMES = ("cpu package", "core (tctl/tdie)", "core (tctl)", "tdie",
+                   "package", "core max")
+
+
 def _walk_sensor_tree(node: dict, acc: dict) -> None:
     """Fold one OHM/LHM data.json node (recursively) into `acc`.
     Module-level so tests can feed it synthetic trees without a web server.
@@ -87,28 +117,46 @@ def _walk_sensor_tree(node: dict, acc: dict) -> None:
     discriminator, so the voltage branches require a V-suffixed value."""
     text  = node.get("Text", "")
     value = node.get("Value", "")
-    try:
-        num = float(value.split()[0])
-    except Exception:
-        num = None
+    num = _lhm_number(value)
     if num is not None:
         tl = text.lower()
+        sid = str(node.get("SensorId") or "").lower()
+        is_temp = (str(node.get("Type") or "").lower() == "temperature"
+                   or (isinstance(value, str) and value.strip().endswith("C")))
+        if is_temp and tl in _CPU_TEMP_NAMES and num > 0 and (
+                "cpu/" in sid or not sid):
+            rank = _CPU_TEMP_NAMES.index(tl)
+            if rank < acc.get("_cpu_temp_rank", 99):
+                acc["cpu_temp"] = num
+                acc["_cpu_temp_rank"] = rank
         is_volt = isinstance(value, str) and value.strip().endswith("V") \
             and not value.strip().endswith("mV")
-        if is_volt and ("vcore" in tl.replace(" ", "")
+        is_rpm = isinstance(value, str) and value.strip().upper().endswith("RPM")
+        if is_rpm:
+            # Fan speed (2026-11-14). Checked FIRST: a node called
+            # "System Fan #1" used to fall into the "system" branch below and
+            # was stored as the motherboard TEMPERATURE (1200 "degrees").
+            acc.setdefault("fans", []).append(
+                {"name": text.strip() or "Fan", "rpm": int(num)})
+        elif is_volt and ("vcore" in tl.replace(" ", "")
                         or ("cpu" in tl and "core" in tl)):
-            acc["volt_vcore"] = num
+            # the board's Vcore or the CPU's own "CPU Core"; the per-core
+            # "CPU Core #1..#6" used to overwrite it, the last one won
+            if "#" not in tl or "volt_vcore" not in acc:
+                acc["volt_vcore"] = num
         elif is_volt and "gpu" in tl and ("core" in tl or tl == "gpu"):
             acc["volt_gpu"] = num
         elif "+12" in tl:
             acc["volt_12v"] = num
         elif "+5" in tl and "12" not in tl:
             acc["volt_5v"] = num
-        elif "+3.3" in tl or "3.3v" in tl:
+        elif "+3.3" in tl or "3.3v" in tl or tl in ("avcc3", "3vcc", "+3v3", "3vsb"):
             acc["volt_33v"] = num
+        elif not is_temp:
+            pass
         elif "vrm" in tl and "temp" not in tl:
             acc["temp_vrm"] = num
-        elif ("motherboard" in tl or "system" in tl or "systin" in tl
+        elif ("motherboard" in tl or tl == "system" or "systin" in tl
               or "temp1" in tl):
             acc["temp_sys"] = num
     for child in node.get("Children", []):
@@ -127,7 +175,8 @@ def fetch_mb_sensors() -> dict:
 
     result = {"volt_12v": -1.0, "volt_5v": -1.0, "volt_33v": -1.0,
               "volt_vcore": -1.0, "volt_gpu": -1.0,
-              "temp_sys": -1.0, "temp_vrm": -1.0, "source": ""}
+              "temp_sys": -1.0, "temp_vrm": -1.0, "cpu_temp": -1.0,
+              "source": "", "fans": []}
 
     try:
         import urllib.request, json
@@ -135,12 +184,18 @@ def fetch_mb_sensors() -> dict:
             try:
                 with urllib.request.urlopen(
                         f"http://localhost:{port}/data.json", timeout=0.8) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
+                    raw = resp.read().decode("utf-8")
+                data = json.loads(raw)
+                result["answered"] = port
                 acc: dict = {}
                 _walk_sensor_tree(data, acc)
-                if any(v > 0 for v in acc.values() if isinstance(v, float)):
+                acc.pop("_cpu_temp_rank", None)
+                if (any(v > 0 for v in acc.values() if isinstance(v, float))
+                        or acc.get("fans")):
                     result.update(acc)
-                    result["source"] = src
+                    # LHM also serves on 8085 (its default); only LHM puts
+                    # SensorId in the tree, so name the source by that
+                    result["source"] = "lhm" if '"SensorId"' in raw else src
                     break
             except Exception:
                 continue
@@ -223,11 +278,29 @@ class LiveCollector:
         try:
             import psutil
             patch["cpu_load"] = float(psutil.cpu_percent(interval=None))
+            # The real clock (2026-11-20). psutil reports the BASE clock on
+            # Windows ("2500 MHz" on an i5-12400F running at 4400), and every
+            # screen that read cpu_mhz showed it: My PC's "Current", the
+            # Performance bar at "2500 / 2500 MHz max" in red. The
+            # "% Processor Performance" counter gives what the cores run at;
+            # this thread can afford its quarter-second window.
+            clk = {}
+            try:
+                from core.pc_insight import cpu_clock, cpu_profile
+                clk = cpu_clock(0.25)
+                if self._tick == 1 or not getattr(self, "_boost", None):
+                    self._boost = float(cpu_profile().get("boost") or 0)
+            except Exception:
+                clk = {}
             f = psutil.cpu_freq()
-            if f:
+            if clk.get("actual"):
+                patch["cpu_mhz"] = float(clk["actual"])
+            elif f:
                 patch["cpu_mhz"] = float(f.current)
-                if f.max:
-                    patch["cpu_boost"] = float(f.max)
+            if getattr(self, "_boost", 0):
+                patch["cpu_boost"] = self._boost
+            elif f and f.max:
+                patch["cpu_boost"] = float(f.max)
             if self._tick == 1:
                 patch["cpu_cores_p"] = psutil.cpu_count(logical=False) or -1
                 patch["cpu_cores_l"] = psutil.cpu_count(logical=True) or -1
@@ -265,6 +338,14 @@ class LiveCollector:
         patch["mb_temp_sys"] = mb.get("temp_sys", -1.0)
         patch["mb_temp_vrm"] = mb.get("temp_vrm", -1.0)
         patch["mb_source"]   = mb.get("source", "")
+        # Fan RPM: measured values only, [] when no sensor daemon answers.
+        # core.fan_sensors is the one place the UI reads them from.
+        try:
+            from core import fan_sensors as _fans
+            _fans.record(mb.get("fans", []), mb.get("source", ""))
+            patch["fans"] = _fans.measured()
+        except Exception:
+            patch["fans"] = []
 
         # Disks - cheap but not free; every 5th tick (10 s)
         if self._tick % 5 == 1:
