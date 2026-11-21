@@ -23,6 +23,24 @@ from typing import Dict, List
 
 INTENT_PATTERNS: Dict[str, List[str]] = {
 
+    # ── Everyday questions (2026-11-16, after the first long test) ───────────
+    # The semantic rules route the loose forms; these are the exact phrases.
+    "overlay_where": ["gdzie jest in-game overlay", "gdzie znajde zakladke w grze",
+                      "where is the in-game overlay", "jak wlaczyc nakladke w grze"],
+    "pc_status": ["wszystko dziala", "wszystko gra", "czy wszystko dobrze chodzi",
+                  "czy cos zle chodzi", "is everything fine"],
+    "version_check": ["czy mam najnowsza wersje", "jaka mam wersje",
+                      "am i on the latest version", "czy program jest aktualny"],
+    "website": ["strona programu", "gdzie pobrac pc workman", "link do strony",
+                "pc workman website"],
+    "free_space": ["co moge usunac", "jak zwolnic miejsce", "free up space",
+                   "co zajmuje miejsce na dysku"],
+    "driver_update_where": ["gdzie zaktualizuje sterowniki", "jak zaktualizowac sterowniki",
+                            "where to update drivers"],
+    "about_assistant": ["czy jestes ai", "kim jestes", "are you an ai", "who are you"],
+    "ollama_info": ["ollama", "czy moge sie przelaczyc na ollama", "local llm"],
+    "reaction": ["nice", "co powiesz", "co to bylo"],
+
     # ── Hardware queries ──────────────────────────────────────────────────────
     "hw_cpu": [
         # Tokens
@@ -540,7 +558,7 @@ INTENT_PATTERNS: Dict[str, List[str]] = {
         "jak wyczyścić dysk", "dysk c pełny",
         "wolny dysk",
         "jak zwolnić miejsce na dysku",
-        "co zajmuje miejsce", "dysk prawie pełny",
+        "dysk prawie pełny",
         "szybkość dysku", "jak szybki jest dysk",
         "jak szybki jest moj dysk", "predkosc dysku",
         "odczyt dysku", "zapis dysku", "io dysku",
