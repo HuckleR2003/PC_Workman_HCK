@@ -16,7 +16,7 @@ Push mechanism:
   Register a callback via proactive_monitor.register_push(fn).
   The fn receives a single string message and is called from a
   background thread - make sure to schedule it on the main thread
-  (use tkinter's .after(0, ...) when registering).
+  (register callbacks that only fill a ui.bg.Mailbox; the panel reads it).
 
 Silent notifications (banner):
   Register via proactive_monitor.register_banner(fn) for non-intrusive
@@ -37,6 +37,7 @@ from hck_gpt.memory.proactive_policy import ProactivePolicy
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 CPU_HIGH_PCT      = 85.0
+CPU_CALM_PCT      = 50.0     # "settled" for the recovery note (2026-11-16)
 CPU_CRIT_PCT      = 95.0
 RAM_HIGH_PCT      = 88.0
 RAM_CRIT_PCT      = 93.0
@@ -175,12 +176,12 @@ _MSGS: dict[str, dict[str, list[str]]] = {
             # Note: no "Wpisz 'co to {val}'" - tooltip on process name handles that
             "hck_GPT: 🔍 {val} pojawił się i zużywa dużo CPU. Najedź na nazwę po szczegóły.",
             "hck_GPT: ⚠ {val} wskoczył na listę top obciążeń. Normalnie go tu nie ma.",
-            "hck_GPT: Wykryłem {val} - zużywa znaczną część CPU. Przypadkowe czy zaplanowane?",
+            "hck_GPT: {val} bierze teraz sporo procesora. Najedź na nazwę po szczegóły.",
         ],
         "en": [
             "hck_GPT: 🔍 {val} appeared and is consuming significant CPU. Hover its name for details.",
             "hck_GPT: ⚠ {val} jumped onto the top load list - unusual. Normal activity?",
-            "hck_GPT: Spotted {val} using significant CPU. Expected, or something unexpected?",
+            "hck_GPT: {val} is using a fair share of the CPU right now. Hover its name for details.",
         ],
     },
     # Morning brief - first launch of the day
@@ -325,11 +326,11 @@ _MSGS: dict[str, dict[str, list[str]]] = {
     },
     "sensor_health_insight": {
         "pl": [
-            "hck_GPT: ✓ DeepMonitor: CPU {val}. Wszystkie sensory w normie.",
+            "hck_GPT: ✓ DeepMonitor: {val}. Wszystkie sensory w normie.",
             "hck_GPT: 📊 Raport sensorów: {val}. System pod kontrolą.",
         ],
         "en": [
-            "hck_GPT: ✓ DeepMonitor: CPU {val}. All sensors nominal.",
+            "hck_GPT: ✓ DeepMonitor: {val}. All sensors nominal.",
             "hck_GPT: 📊 Sensor report: {val}. System under control.",
         ],
     },
@@ -359,7 +360,7 @@ _MSGS: dict[str, dict[str, list[str]]] = {
 _IDLE_TIPS: dict[str, list[str]] = {
     "pl": [
         "hck_GPT: 💡 Statistics pokazuje historyczne min/max dla każdego zasobu.",
-        "hck_GPT: 💡 'service setup' w chatie uruchamia kreator optymalizacji.",
+        "hck_GPT: 💡 Przycisk ⚡ Optymalizacja w czacie przeprowadzi Cię przez przyspieszenie komputera krok po kroku.",
         "hck_GPT: 💡 Wpisz 'stats' by zobaczyć dzisiejsze średnie użycia.",
         "hck_GPT: 💡 My PC pokazuje procesy Top CPU i Top RAM na żywo.",
         "hck_GPT: 💡 Wiesz, że możesz zapytać 'jaki mam procesor' i podam Ci pełne dane?",
@@ -386,7 +387,7 @@ _IDLE_TIPS: dict[str, list[str]] = {
     ],
     "en": [
         "hck_GPT: 💡 Statistics shows historical min/max for each resource.",
-        "hck_GPT: 💡 Type 'service setup' to launch the optimization wizard.",
+        "hck_GPT: 💡 The ⚡ Optimize button in the chat walks you through speeding up the PC step by step.",
         "hck_GPT: 💡 Type 'stats' to see today's usage averages.",
         "hck_GPT: 💡 My PC shows live Top CPU and Top RAM processes.",
         "hck_GPT: 💡 You can ask 'what CPU do I have' and I'll give you full details.",
@@ -413,6 +414,31 @@ _IDLE_TIPS: dict[str, list[str]] = {
 
 
 # ── Main class ────────────────────────────────────────────────────────────────
+
+
+# Windows processes that get busy on their own, with what they do
+# (2026-11-17)
+_KNOWN_BUSY = {
+    "msmpeng.exe": ("🛡 Windows Defender (MsMpEng.exe) skanuje komputer. To normalne, "
+                    "zwykle kończy w kilka minut.",
+                    "🛡 Windows Defender (MsMpEng.exe) is scanning. Normal, usually done "
+                    "in a few minutes."),
+    "searchindexer.exe": ("🔎 Windows indeksuje pliki do wyszukiwarki (SearchIndexer.exe). "
+                          "To normalne po większych zmianach na dysku.",
+                          "🔎 Windows is indexing files for search (SearchIndexer.exe). "
+                          "Normal after big changes on the disk."),
+    "tiworker.exe": ("⬇ Windows instaluje aktualizacje (TiWorker.exe). Lepiej nie wyłączać "
+                     "komputera, aż skończy.",
+                     "⬇ Windows is installing updates (TiWorker.exe). Better not to shut "
+                     "down until it finishes."),
+    "trustedinstaller.exe": ("⬇ Windows instaluje aktualizacje (TrustedInstaller.exe).",
+                             "⬇ Windows is installing updates (TrustedInstaller.exe)."),
+    "compattelrunner.exe": ("Windows zbiera dane zgodności (CompatTelRunner.exe). Chwilowe.",
+                            "Windows is collecting compatibility data (CompatTelRunner.exe). "
+                            "Temporary."),
+    "mousocoreworker.exe": ("⬇ Windows Update sprawdza aktualizacje (MoUsoCoreWorker.exe).",
+                            "⬇ Windows Update is checking for updates (MoUsoCoreWorker.exe)."),
+}
 
 class ProactiveMonitor:
     """
@@ -566,6 +592,9 @@ class ProactiveMonitor:
                 # Announce a learning milestone when a bucket hits full calibration
                 if tip_counter % 6 == 0:
                     self._check_learning_milestones()
+                # Load trend from the history (~every 30 min, first at ~4 min)
+                if tip_counter % 40 == 5:
+                    self._maybe_history_trend()
             except Exception:
                 pass
             time.sleep(CHECK_INTERVAL_S)
@@ -584,6 +613,69 @@ class ProactiveMonitor:
             voltage_analyzer.maybe_rebuild()
         except Exception:
             pass
+
+    # ── History trend: "your CPU has been running higher for 2 days" ──────────
+    # (2026-11-16) Compares the last 1-3 days with the 14 before them, using
+    # hck_stats_engine.history. One note per component per calendar day at
+    # most, remembered across restarts; the link opens Activity Memory.
+
+    _TREND_COMP = {"cpu": "CPU", "ram": "RAM", "gpu": "GPU"}
+
+    def _trend_path(self) -> str:
+        from utils.paths import APP_DIR
+        return os.path.join(APP_DIR, "data", "cache", "history_trend_notes.json")
+
+    def history_trend_candidate(self, now: Optional[float] = None):
+        """(component, result) with the biggest notable rise, or None."""
+        try:
+            from hck_stats_engine import history
+        except Exception:
+            return None
+        best = None
+        for comp in ("cpu", "ram", "gpu"):
+            for days in (1, 2, 3):
+                r = history.recent_vs_usual(comp, recent_days=days,
+                                            usual_days=14, now=now)
+                if r.get("notable") and (best is None or r["delta"] > best[1]["delta"]):
+                    best = (comp, r)
+        return best
+
+    def history_trend_message(self, comp: str, r: Dict[str, Any]) -> str:
+        name = self._TREND_COMP[comp]
+        d, rec, usual = r["recent_days"], r["recent_avg"], r["usual_avg"]
+        if self._lang == "pl":
+            span = "od wczoraj" if d == 1 else f"od {d} dni"
+            return (f"{name} {span} pracuje średnio na {rec:.0f}%, a przez "
+                    f"poprzednie 2 tygodnie było to {usual:.0f}%. Zobacz, kiedy "
+                    f"to się zaczęło i co wtedy działało: [-> Historia {name}]")
+        span = "since yesterday" if d == 1 else f"for the last {d} days"
+        return (f"Your {name} has averaged {rec:.0f}% {span}, against "
+                f"{usual:.0f}% over the 2 weeks before. See when it started "
+                f"and what was running: [-> {name} History]")
+
+    def _maybe_history_trend(self) -> None:
+        if self._is_user_active():
+            return
+        cand = self.history_trend_candidate()
+        if not cand:
+            return
+        comp, r = cand
+        import datetime
+        today = datetime.date.today().isoformat()
+        try:
+            from utils.prefs_io import load_json, update_json
+            seen = load_json(self._trend_path(), {}) or {}
+            if seen.get(comp) == today:
+                return
+        except Exception:
+            return
+        msg = self.history_trend_message(comp, r)
+        if self._dispatch_candidate("history_trend", msg,
+                                    {"component": comp, **r}):
+            try:
+                update_json(self._trend_path(), **{comp: today})
+            except Exception:
+                pass
 
     # ── Learning-milestone announcements (one-time, positive) ──────────────────
 
@@ -607,10 +699,8 @@ class ProactiveMonitor:
 
     def _save_milestones(self) -> None:
         try:
-            p = self._milestones_path()
-            os.makedirs(os.path.dirname(p), exist_ok=True)
-            with open(p, "w", encoding="utf-8") as f:
-                json.dump(self._milestones_announced or {}, f, indent=2)
+            from utils.prefs_io import save_json
+            save_json(self._milestones_path(), self._milestones_announced or {})
         except Exception:
             pass
 
@@ -685,9 +775,16 @@ class ProactiveMonitor:
             else:
                 self._cpu_high_cnt = max(0, self._cpu_high_cnt - 1)
 
-        # RAM - normal high (immediate, single reading)
+        # RAM - high, measured against what is normal on THIS PC (2026-11-16).
+        # On an 8 GB machine 85-92 % is everyday; the long test got "RAM at
+        # 90%" nine times in two hours. With a learned norm the alert comes
+        # only above it, and once a day a single note explains the norm.
         if ram >= RAM_HIGH_PCT and ram < RAM_CRIT_PCT:
-            self._alert("ram_high", f"{ram:.0f}")
+            norm = self._ram_norm()
+            if norm is None or ram > norm["p95"] + 3:
+                self._alert("ram_high", f"{ram:.0f}")
+            else:
+                self._maybe_ram_norm_note(norm)
 
         # A low clock at idle is normal power saving. Only flag a severe clock
         # deficit while total CPU load is high.
@@ -771,6 +868,16 @@ class ProactiveMonitor:
                         continue
                     if pcpu < PROC_SPIKE_PCT:
                         continue
+                    # A game working hard is the point of the game, not an
+                    # anomaly ("Spotted BeamNG.drive using significant CPU.
+                    # Expected?" in the long test, 2026-11-16). Game sessions
+                    # get their own recap instead.
+                    try:
+                        from core.game_detect import is_game
+                        if is_game(pname, pid=pid):
+                            continue
+                    except Exception:
+                        pass
                     last_spike = self._proc_spike_last.get(pname, 0)
                     if now - last_spike < PROC_SPIKE_MIN_GAP:
                         continue
@@ -789,17 +896,29 @@ class ProactiveMonitor:
             self._alert("long_session", f"{uptime_h:.0f}")
 
         # ── Problem anchor - notify when issue resolves ───────────────────────
-        if self._was_cpu_high and cpu < CPU_HIGH_PCT - 10:
+        # "Back to normal" only once the load has really settled (below
+        # CPU_CALM_PCT), and it counts against the budget. It used to fire at
+        # CPU_HIGH_PCT - 10 = 75 % outside the budget: in a game the load
+        # swings 75-85 %, so the long test got "CPU back to normal - now 75%.
+        # Problem resolved." four times in an hour.
+        if self._was_cpu_high and cpu < CPU_CALM_PCT:
             if not self._recovery_notified.get("cpu"):
                 self._recovery_notified["cpu"] = True
                 self._was_cpu_high = False
-                if lang := self._lang:
-                    msg = (f"hck_GPT: ✓ CPU wróciło do normy - teraz {cpu:.0f}%. Problem minął."
+                # at most once in 30 minutes: the fourth long test got it
+                # three times in eight minutes (2026-11-17)
+                _last_rec = getattr(self, "_last_recovery_ts", 0.0)
+                if time.time() - _last_rec < 1800:
+                    lang = None
+                else:
+                    self._last_recovery_ts = time.time()
+                    lang = self._lang
+                if lang:
+                    msg = (f"hck_GPT: ✓ CPU się uspokoiło - teraz {cpu:.0f}%."
                            if lang == "pl" else
-                           f"hck_GPT: ✓ CPU back to normal - now {cpu:.0f}%. Problem resolved.")
+                           f"hck_GPT: ✓ CPU has settled - now {cpu:.0f}%.")
                     self._dispatch_candidate(
                         "recovery", msg, {"metric": "cpu", "value": cpu},
-                        count_budget=False,
                     )
         elif cpu >= CPU_HIGH_PCT:
             self._was_cpu_high = True
@@ -853,6 +972,55 @@ class ProactiveMonitor:
         }
         return signature not in self._last_signature
 
+    # ── Journal of unsolicited messages (2026-11-16) ─────────────────────────
+    # Every message hck_GPT considered on its own: sent, or held back and why
+    # (setting off, policy score, budget, duplicate). Local only, one JSON
+    # line each, in data/logs/hck_gpt_proactive.jsonl. Nothing is deleted:
+    # at 20 MB the file is renamed with its date and a new one starts. It is what shows whether hck_GPT talks too much or
+    # says the wrong thing, which the chat window alone cannot: what was held
+    # back never appears there, and the chat is gone after a restart.
+
+    JOURNAL_MAX_BYTES = 20 * 1024 * 1024
+
+    @staticmethod
+    def _journal_path() -> str:
+        from utils.paths import log_dir
+        return os.path.join(log_dir(), "hck_gpt_proactive.jsonl")
+
+    def _journal(self, event_type: str, msg: str, outcome: str,
+                 score: Optional[float] = None, channel: str = "chat",
+                 context: Optional[Dict[str, Any]] = None) -> None:
+        try:
+            path = self._journal_path()
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            try:
+                if os.path.getsize(path) > self.JOURNAL_MAX_BYTES:
+                    # kept, never deleted: the full file is renamed with its
+                    # date and a new one starts
+                    stamp = time.strftime("%Y%m%d-%H%M%S")
+                    os.replace(path, path.replace(".jsonl", f".{stamp}.jsonl"))
+            except OSError:
+                pass
+            row = {
+                "ts": round(time.time(), 1),
+                "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "channel": channel,
+                "type": event_type,
+                "outcome": outcome,
+                "score": None if score is None else round(float(score), 3),
+                "mode": self.proactive_mode(),
+                "user_active": bool(self._is_user_active()),
+                "lang": self._lang,
+                "msg": msg,
+            }
+            if context:
+                row["ctx"] = {k: v for k, v in context.items()
+                              if isinstance(v, (int, float, str, bool))}
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
     def _dispatch_candidate(self, event_type: str, msg: str,
                             context: Optional[Dict[str, Any]] = None,
                             urgent: bool = False,
@@ -860,15 +1028,12 @@ class ProactiveMonitor:
                             relevance: Optional[float] = None) -> bool:
         """Score, de-duplicate and dispatch one unsolicited message."""
         settings = self._app_settings()
-        if event_type == "process_spike" and not settings.get(
-                "gpt_process_spike", True):
-            return False
-        if event_type == "morning_brief" and not settings.get(
-                "gpt_morning_brief", True):
-            return False
-        if event_type == "digest_suggestion" and not settings.get(
-                "gpt_digest", True):
-            return False
+        for _ev, _key in (("process_spike", "gpt_process_spike"),
+                          ("morning_brief", "gpt_morning_brief"),
+                          ("digest_suggestion", "gpt_digest")):
+            if event_type == _ev and not settings.get(_key, True):
+                self._journal(event_type, msg, "held:setting_off", context=context)
+                return False
 
         decision = ProactivePolicy.decide(
             event_type=event_type,
@@ -879,14 +1044,21 @@ class ProactiveMonitor:
             relevance=relevance,
         )
         if not decision.allowed:
+            self._journal(event_type, msg, f"held:policy:{decision.reason}",
+                          decision.score, context=context)
             return False
         if count_budget and not self._budget_ok(decision.urgent):
+            self._journal(event_type, msg, "held:budget", decision.score,
+                          context=context)
             return False
         signature = self._message_signature(event_type, msg)
         if not decision.urgent and not self._signature_is_fresh(signature):
+            self._journal(event_type, msg, "held:duplicate", decision.score,
+                          context=context)
             return False
 
         self._push(msg)
+        self._journal(event_type, msg, "sent", decision.score, context=context)
         now = time.time()
         self._last_signature[signature] = now
         if count_budget and not decision.urgent:
@@ -903,6 +1075,69 @@ class ProactiveMonitor:
             pass
         return True
 
+    # ── RAM norm of this PC (2026-11-16) ──────────────────────────────────────
+
+    RAM_NORM_MIN_HOURS = 3.0
+    _ram_norm_cache = (0.0, None)
+
+    def _ram_norm(self):
+        """{"avg", "p95", "hours"} of RAM use over the last 7 days, or None
+        while there are fewer than RAM_NORM_MIN_HOURS recorded. Cached 30 min."""
+        at, val = self._ram_norm_cache
+        if time.time() - at < 1800:
+            return val
+        val = None
+        try:
+            from hck_stats_engine import history
+            now = time.time()
+            st = history.stats("ram", now - 7 * 86400, now)
+            if st.get("has_data") and st["recorded_hours"] >= self.RAM_NORM_MIN_HOURS:
+                val = {"avg": st["avg"], "p95": st["p95"], "hours": st["recorded_hours"]}
+        except Exception:
+            val = None
+        self._ram_norm_cache = (time.time(), val)
+        return val
+
+    def ram_norm_message(self, norm) -> str:
+        try:
+            import psutil
+            gb = psutil.virtual_memory().total / 1024 ** 3
+            gb_txt = f"{gb:.0f} GB"
+        except Exception:
+            gb_txt = ""
+        avg, p95 = norm["avg"], norm["p95"]
+        if self._lang == "pl":
+            return (f"hck_GPT: RAM na tym komputerze zwykle pracuje na {avg:.0f}%, "
+                    f"a przez 95% czasu do {p95:.0f}%"
+                    + (f" (masz {gb_txt})" if gb_txt else "") + ". To jego "
+                    "codzienność, nie awaria, więc nie będę o tym przypominać co "
+                    "chwilę - odezwę się, gdy wyjdzie ponad tę normę. Najwięcej da "
+                    "dołożenie pamięci: [-> Upgrade Readiness]")
+        return (f"hck_GPT: RAM on this PC usually runs at {avg:.0f}%, and 95% of "
+                f"the time stays under {p95:.0f}%"
+                + (f" (you have {gb_txt})" if gb_txt else "") + ". That is its "
+                "everyday level, not a fault, so I will not keep repeating it - "
+                "I will speak up when it goes above that. More memory is what "
+                "helps most: [-> Upgrade Readiness]")
+
+    def _maybe_ram_norm_note(self, norm) -> None:
+        """The norm explained once a day at most (remembered across restarts)."""
+        import datetime
+        today = datetime.date.today().isoformat()
+        try:
+            from utils.prefs_io import load_json, update_json
+            seen = load_json(self._trend_path(), {}) or {}
+            if seen.get("ram_norm") == today:
+                return
+        except Exception:
+            return
+        if self._dispatch_candidate("ram_norm", self.ram_norm_message(norm),
+                                    {"avg": norm["avg"], "p95": norm["p95"]}):
+            try:
+                update_json(self._trend_path(), ram_norm=today)
+            except Exception:
+                pass
+
     def _push_hot_ram(self, ram: float) -> None:
         """Send RAM critical alert to HOT strip only - never to chat."""
         lang = self._lang
@@ -916,12 +1151,17 @@ class ProactiveMonitor:
                 msg = f"RAM at {ram:.0f}% - critical! Close apps or run RAM Flush."
             else:
                 msg = f"RAM at {ram:.0f}% - may start using page file."
+        # the strip is updated in place every check; journal what changes
+        if msg != getattr(self, "_last_hot_msg", None):
+            self._journal("hot_ram", msg, "sent", channel="hot", context={"ram": ram})
+            self._last_hot_msg = msg
         if self._hot_fn:
             try: self._hot_fn(msg)
             except Exception: pass
 
     def _clear_hot(self) -> None:
         """Tell the HOT strip to clear itself."""
+        self._last_hot_msg = None
         if self._hot_clear_fn:
             try: self._hot_clear_fn()
             except Exception: pass
@@ -955,6 +1195,13 @@ class ProactiveMonitor:
             return
 
         msg = random.choice(pool).format(val=val)
+        if event_type == "process_spike":
+            # Windows' own busy processes get the explanation instead of a
+            # question nobody can answer ("SearchIndexer.exe - accidental or
+            # planned?", third long test, 2026-11-17)
+            known = _KNOWN_BUSY.get((val or "").lower())
+            if known:
+                msg = "hck_GPT: " + (known[0] if self._lang != "en" else known[1])
         if self._dispatch_candidate(
                 event_type, msg, {"val": val}, urgent=effective_urgent):
             self._last_alert[event_type] = now
@@ -991,7 +1238,17 @@ class ProactiveMonitor:
             tips = _IDLE_TIPS.get(self._lang, _IDLE_TIPS.get("pl", []))
             if not tips:
                 return
-            msg = tips[self._idle_tip_idx % len(tips)]
+            # each static tip at most once a day ("wpisz 'stats'" and
+            # "zapytaj 'jaki mam procesor'" came twice in an afternoon)
+            today = time.strftime("%Y-%m-%d")
+            if getattr(self, "_tips_day", "") != today:
+                self._tips_day, self._tips_sent = today, set()
+            fresh = [t for t in tips if t not in self._tips_sent]
+            if not fresh:
+                self._idle_tip_idx += 1
+                return
+            msg = fresh[self._idle_tip_idx % len(fresh)]
+            self._tips_sent.add(msg)
         self._idle_tip_idx += 1
         event_type = ("context_idle_tip"
                       if meta.get("type") == "context_idle_tip" else "idle_tip")
@@ -1030,6 +1287,14 @@ class ProactiveMonitor:
             if not totals:
                 return None, {}
             exe, rec = max(totals.items(), key=lambda item: item[1]["ram_mb"])
+            # the same program at most once in 3 hours unless it grew by half
+            # ("Opera trzyma X MB" five times in an afternoon, 2026-11-17)
+            seen = getattr(self, "_ctx_tip_last", {})
+            prev = seen.get(exe)
+            if prev and time.time() - prev[0] < 3 * 3600 and rec["ram_mb"] < prev[1] * 1.5:
+                return None, {}
+            seen[exe] = (time.time(), rec["ram_mb"])
+            self._ctx_tip_last = seen
             known = rec["known"]
             category = known.get("category") or "application"
             if rec["ram_mb"] < 150 and category != "gaming":
@@ -1347,14 +1612,16 @@ class ProactiveMonitor:
                 self._dm_healthy_report_due = False
                 t_str = ""
                 parts = []
+                # "DeepMonitor: CPU GPU 45 C" in the third long test: the
+                # template said "CPU" before a GPU-only reading (2026-11-17)
                 if cpu_temp:
-                    parts.append(f"{cpu_temp:.0f} C")
+                    parts.append(f"CPU {cpu_temp:.0f}°C")
                 if gpu_temp:
-                    parts.append(f"GPU {gpu_temp:.0f} C")
+                    parts.append(f"GPU {gpu_temp:.0f}°C")
                 if parts:
-                    t_str = "  |  ".join(parts)
+                    t_str = "  ·  ".join(parts)
                 else:
-                    t_str = f"{cpu_pct:.0f}%"
+                    t_str = f"CPU {cpu_pct:.0f}%"
                 pool = _MSGS.get("sensor_health_insight", {}).get(self._lang, [])
                 if pool:
                     msg = random.choice(pool).format(val=t_str)
@@ -1468,11 +1735,27 @@ class ProactiveMonitor:
             pass
         return metrics
 
+    @staticmethod
+    def _game_family(exe: str) -> str:
+        """beamng.drive.exe and beamng.drive.x64.exe are one game: the
+        fifth long test got two check-ins and two recaps for one session."""
+        from core.game_detect import game_family
+        return game_family(exe)
+
     def on_game_event(self, event: str, exe: str, label: str = "") -> None:
         """Receive start/end from the one existing GamingToastWatcher."""
         if event not in ("start", "end") or not exe:
             return
         with self._game_lock:
+            fam = self._game_family(exe)
+            try:
+                siblings = [e for e in self._game_sessions.active_executables()
+                            if e != (exe or "").strip().lower() and self._game_family(e) == fam]
+            except Exception:
+                siblings = []
+            if siblings:
+                # the same game under a second process name: one session
+                return
             if event == "start":
                 self._game_sessions.start(
                     exe, label or exe, self._game_metrics(),
@@ -1539,6 +1822,23 @@ class ProactiveMonitor:
                 bits.append(f"{label} {avg[key]:.0f}%")
         if "gpu_temp" in avg:
             bits.append(f"GPU {avg['gpu_temp']:.0f}°C")
+        # the whole PC during the session from the minute history: the
+        # samples above were the game process ("CPU 4%" over 56 minutes of
+        # play, no GPU; fourth long test, 2026-11-17)
+        try:
+            from hck_stats_engine import history as _h
+            end = time.time()
+            start = end - float(summary.get("duration_s") or 0)
+            c, g = _h.stats("cpu", start, end), _h.stats("gpu", start, end)
+            if c.get("has_data") and g.get("has_data"):
+                bits = [f"GPU {g['avg']:.0f}% (max {g['max']:.0f}%)",
+                        f"CPU {c['avg']:.0f}%"]
+                if "ram_pct" in avg:
+                    bits.append(f"RAM {avg['ram_pct']:.0f}%")
+                if g.get("temp_max"):
+                    bits.append(f"GPU max {g['temp_max']:.0f}°C")
+        except Exception:
+            pass
         if summary.get("fps_available") and summary.get("fps_source") == "rtss":
             bits.append(f"RTSS {avg['fps']:.0f} FPS")
         facts = " · ".join(bits) or (

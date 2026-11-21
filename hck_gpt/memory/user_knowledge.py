@@ -27,6 +27,11 @@ _tls = threading.local()
 # ── DB path (AppData/Local) ───────────────────────────────────────────────────
 _DB_DIR  = os.path.join(os.path.expanduser("~"),
                         "AppData", "Local", "PC_Workman_HCK")
+# A separate data folder (PCW_APP_DIR: the test suite, isolated probes) gets
+# its own knowledge base. 2026-11-17: the tests wrote "this is a laptop" into
+# the AppData base that the user's real PC Workman reads.
+if os.environ.get("PCW_APP_DIR"):
+    _DB_DIR = os.path.join(os.environ["PCW_APP_DIR"], "data")
 DB_PATH  = os.path.join(_DB_DIR, "user_knowledge.db")
 
 

@@ -24,6 +24,11 @@ from dataclasses import dataclass, field
 from typing import Deque, Dict, List, Optional, Any
 
 
+# intents that belong to an open "why is it slow" diagnosis (2026-11-17)
+_DIAG_FAMILY = ("unknown", "why_slow", "fps_degradation", "symptom_freeze",
+                "small_talk", "continue_diagnosis")
+
+
 # ── Data classes ──────────────────────────────────────────────────────────────
 
 @dataclass
@@ -816,6 +821,16 @@ class SessionMemory:
             }
         return kind, value
 
+    def note_reference(self, kind: str, value: str, intent: str = "") -> None:
+        """A handler names what "it" / "to" means for the next message
+        (2026-11-17): the heaviest process it just showed, the game it checked,
+        the action it advised. "A czy mogę to wyłączyć?" then knows."""
+        if not kind or not value:
+            return
+        self._last_references[kind] = {
+            "value": str(value), "intent": intent, "recorded_at": time.time(),
+        }
+
     def set_frame_subject(self, kind: str, value: str,
                           corrected: bool = False) -> bool:
         if not kind or not value:
@@ -1042,7 +1057,9 @@ class SessionMemory:
             "how hot is it", "is it running hot",
         )) or ("ile ma" in folded and "stopni" in folded)
         process_close = any(p in folded for p in (
-            "czy moge go zamknac", "czy moge go wylaczyc",
+            "czy moge to zamknac", "czy moge to wylaczyc", "czy moge to zabic",
+            "moge to wylaczyc", "moge to zamknac", "can i turn it off",
+            "can i close that", "czy moge go zamknac", "czy moge go wylaczyc",
             "czy moge go zabic", "zamknac go", "wylaczyc go",
             "can i close it", "can i stop it", "can i kill it",
             "is it safe to close",
@@ -1103,10 +1120,13 @@ class SessionMemory:
             "programy", "aplikacje", "temperatura", "temperature", "temp",
             "cpu", "gpu", "ram", "procesor",
         }
+        # the question mark is read from the raw text: _fold_text strips
+        # punctuation, so folded.endswith("?") was never true (2026-11-16)
+        is_question = (text or "").rstrip().endswith("?")
         compact_detail_answer = (
             len(words) <= 6
             and not explicit_new_cues.intersection(words)
-            and not folded.endswith("?")
+            and not is_question
         )
 
         intent = None
@@ -1144,6 +1164,21 @@ class SessionMemory:
             intent = "desktop_recurrence"
         elif (frame and frame.goal in ("diagnose", "game", "cool", "inspect")
               and details and len(words) <= 24
+              # A full question with its own clear meaning is not a detail
+              # for the open diagnosis (2026-11-16): "Laguje mi CS2, co moge
+              # wylaczyc w tle?" and "czy pojda mi gry na tym kompie?" got
+              # "Dopisuje ten szczegol do tej samej diagnozy" instead of an
+              # answer.
+              and not (is_question and confidence >= 0.5
+                       and current_intent not in ("unknown", "continue_diagnosis"))
+              # A clear statement about something else is answered too
+              # (2026-11-17: "dysk ciagle na 100", "jak przyspieszyc gry",
+              # "czy uruchomie cyberpunka" all got "Dopisuje ten szczegol").
+              # It joins the diagnosis only right after hck_GPT asked for a
+              # detail, and only when it is short and not a sure match.
+              and not (current_intent not in _DIAG_FAMILY and confidence >= 0.8
+                       and (last_intent not in _DIAG_FAMILY
+                            or not compact_detail_answer))
               and (current_intent in (
                   "unknown", "why_slow", "fps_degradation",
                   "symptom_freeze", "small_talk", "continue_diagnosis",

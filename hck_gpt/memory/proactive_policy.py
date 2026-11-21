@@ -57,6 +57,10 @@ class ProactivePolicy:
         "game_checkin": (0.16, 0.85, 0.58, 0.90, 0.30),
         "game_recap": (0.14, 0.92, 0.45, 0.86, 0.28),
         "recovery": (0.20, 0.95, 0.35, 0.82, 0.22),
+        # days of history behind it, and a link that explains it
+        "history_trend": (0.45, 0.90, 0.75, 0.80, 0.30),
+        # the RAM norm of this PC, once a day instead of "RAM at 90%" again
+        "ram_norm": (0.40, 0.92, 0.70, 0.80, 0.30),
     }
     _DEFAULT = (0.45, 0.75, 0.55, 0.65, 0.38)
 
