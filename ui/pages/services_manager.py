@@ -1,3 +1,4 @@
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import messagebox
 import threading, subprocess, os, json, ctypes
@@ -13,12 +14,36 @@ except Exception:
 # Shared "operator" drawer - the single confirm/queue mechanism (also used by
 # Startup Manager). One component, no duplicated drawers.
 from ui.components.operator_drawer import OperatorDrawer
+from ui.components.fit import (wrap_to_width as _wrap_to_width,
+                               show_only_if_fits as _show_only_if_fits)
 
 try:
     from utils.i18n import t as _t
 except Exception:
     def _t(key, default=None, **kw):
         return default if default is not None else key
+
+# Quick-setup tiles come from core.turbo_manager.RECOMMENDED. Their "label" is
+# also the key the answers are saved under, so it stays as it is; only what is
+# drawn goes through t().
+_REC_SLUG = {"Bluetooth": "bluetooth", "Drukowanie": "printing", "Xbox": "xbox",
+             "Telemetria": "telemetry", "Fax": "fax", "Pulpit zdalny": "remote"}
+
+
+def _rec_title(label: str) -> str:
+    slug = _REC_SLUG.get(label)
+    return _t("services_manager.rec_" + slug, label) if slug else label
+
+
+def _rec_question(item: dict) -> str:
+    """The tile's question in the interface language (it was always Polish)."""
+    try:
+        from utils.i18n import get_lang
+        polish = get_lang() == "pl"
+    except Exception:
+        polish = False
+    first, second = ("q_pl", "q_en") if polish else ("q_en", "q_pl")
+    return item.get(first) or item.get(second) or ""
 
 # User-facing modes shown as per-service chips (match the Features mode buttons).
 _MODES = [
@@ -30,8 +55,8 @@ _MODES = [
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except Exception:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _F    = _UIF
 _M    = _MONOF
 _BODY = _UIF
@@ -186,20 +211,14 @@ _SVC_PREFS_PATH = os.path.join(_APP_DIR, "data", "cache", "service_prefs.json")
 
 
 def _load_svc_prefs() -> dict:
-    try:
-        with open(_SVC_PREFS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    data = load_json(_SVC_PREFS_PATH, {})
+    return data if isinstance(data, dict) else {}
 
 
 def _save_svc_prefs(data: dict):
-    os.makedirs(os.path.dirname(_SVC_PREFS_PATH), exist_ok=True)
-    try:
-        with open(_SVC_PREFS_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_SVC_PREFS_PATH, data)
 
 
 _QUICK_PATH = os.path.join(_APP_DIR, "settings", "quick_setup.json")
@@ -207,20 +226,14 @@ _QUICK_PATH = os.path.join(_APP_DIR, "settings", "quick_setup.json")
 
 def _load_quick() -> dict:
     """Saved Quick-setup answers: {recommendation_label: 'yes'|'no'}."""
-    try:
-        with open(_QUICK_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    data = load_json(_QUICK_PATH, {})
+    return data if isinstance(data, dict) else {}
 
 
 def _save_quick(data: dict):
-    os.makedirs(os.path.dirname(_QUICK_PATH), exist_ok=True)
-    try:
-        with open(_QUICK_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(_QUICK_PATH, data)
 
 
 def _log_change(svc: str, action: str, ok: bool):
@@ -289,8 +302,8 @@ def _scrollable(parent, bg=BG):
                       bg=bg, troughcolor=bg, highlightthickness=0, bd=0, width=5)
     inner = tk.Frame(cv, bg=bg)
     wid = cv.create_window((0, 0), window=inner, anchor="nw")
-    cv.bind("<Configure>", lambda e: cv.itemconfig(wid, width=e.width))
-    inner.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+    cv.bind("<Configure>", lambda e=None: cv.itemconfig(wid, width=e.width))
+    inner.bind("<Configure>", lambda e=None: cv.configure(scrollregion=cv.bbox("all")))
     def _mw(e):
         try:
             if cv.winfo_exists():
@@ -336,9 +349,9 @@ def _pill_status(parent, status: str, bg: str) -> tk.Label:
 def _btn(parent, text: str, fg: str, bg: str, hover_fg: str, command, font_size: int = 8):
     b = tk.Label(parent, text=text, font=(_F, font_size), fg=fg, bg=bg,
                  padx=9, pady=3, cursor="hand2")
-    b.bind("<Button-1>", lambda e: command())
-    b.bind("<Enter>", lambda e: b.config(fg=hover_fg))
-    b.bind("<Leave>", lambda e: b.config(fg=fg))
+    b.bind("<Button-1>", lambda e=None: command())
+    b.bind("<Enter>", lambda e=None: b.config(fg=hover_fg))
+    b.bind("<Leave>", lambda e=None: b.config(fg=fg))
     return b
 
 
@@ -373,7 +386,11 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
 
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(12, 0))
-    hdr.bind("<Button-1>", lambda e: toggle_fn())
+    hdr.bind("<Button-1>", lambda e=None: toggle_fn())
+
+    # count + caret first, title second: they must stay whole
+    right = tk.Frame(hdr, bg=BG)
+    right.pack(side="right")
 
     left = tk.Frame(hdr, bg=BG)
     left.pack(side="left", fill="y")
@@ -381,20 +398,20 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
     icon_lbl = tk.Label(left, text=meta["icon"], font=(_F, 10, "bold"),
                         bg=BG, fg=color, cursor="hand2")
     icon_lbl.pack(side="left", padx=(0, 8))
-    icon_lbl.bind("<Button-1>", lambda e: toggle_fn())
+    icon_lbl.bind("<Button-1>", lambda e=None: toggle_fn())
 
     name_lbl = tk.Label(left, text=meta["label"], font=(_F, 9, "bold"),
                         bg=BG, fg=color, cursor="hand2")
     name_lbl.pack(side="left")
-    name_lbl.bind("<Button-1>", lambda e: toggle_fn())
+    name_lbl.bind("<Button-1>", lambda e=None: toggle_fn())
 
     desc_lbl = tk.Label(left, text=f"  -  {meta['desc']}",
                         font=(_F, 8), bg=BG, fg=MUTED, cursor="hand2")
     desc_lbl.pack(side="left")
-    desc_lbl.bind("<Button-1>", lambda e: toggle_fn())
+    desc_lbl.bind("<Button-1>", lambda e=None: toggle_fn())
+    # the description is a hint: it goes away whole when the column is narrow
+    _show_only_if_fits(desc_lbl, hdr, [icon_lbl, name_lbl, right], margin=24)
 
-    right = tk.Frame(hdr, bg=BG)
-    right.pack(side="right")
     count_lbl = tk.Label(right, text=str(count), font=(_F, 8, "bold"),
                          bg=meta["bg"], fg=color, padx=8, pady=2)
     count_lbl.pack(side="left")
@@ -402,7 +419,7 @@ def _section_header(parent, cat: str, count: int, collapsed_var: tk.BooleanVar, 
     caret_lbl = tk.Label(right, text="▾", font=(_F, 9),
                          bg=BG, fg=MUTED, cursor="hand2", padx=8)
     caret_lbl.pack(side="left")
-    caret_lbl.bind("<Button-1>", lambda e: toggle_fn())
+    caret_lbl.bind("<Button-1>", lambda e=None: toggle_fn())
 
     tk.Frame(hdr, bg=color, height=1).pack(side="bottom", fill="x")
 
@@ -435,6 +452,12 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
     def _build():
         status = statuses.get(name, "unknown")
 
+        # Controls first, text second (2026-11-15). pack() gives space in
+        # packing order: with the text column first, the Disable/Enable
+        # control in the right-hand tier was cut to "Disab".
+        right = tk.Frame(row, bg=SURFACE)
+        right.pack(side="right", padx=(0, 12), pady=8)
+
         body = tk.Frame(row, bg=SURFACE)
         body.pack(side="left", fill="both", expand=True, padx=(8, 4), pady=7)
 
@@ -446,10 +469,15 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
         svc_key = tk.Label(name_row, text=f"  {name}", font=(_M, 8),
                            bg=SURFACE, fg=MUTED)
         svc_key.pack(side="left")
+        # The technical key is also in the tooltip: when the column is narrow
+        # it goes away whole and the readable name keeps its room.
+        _show_only_if_fits(svc_key, name_row, [name_lbl], margin=6)
+        _wrap_to_width(name_lbl, name_row)
 
         desc_lbl = tk.Label(body, text=desc, font=(_F, 8), bg=SURFACE, fg=SUB,
                             anchor="w", wraplength=220, justify="left")
-        desc_lbl.pack(anchor="w", pady=(2, 0))
+        desc_lbl.pack(anchor="w", fill="x", pady=(2, 0))
+        _wrap_to_width(desc_lbl, body)      # follows the real column width
 
         # "changed by user" badge if this service was previously actioned by user
         if svc_prefs:
@@ -457,15 +485,14 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
             if hist.get("changed_by") == "UŻYTKOWNIK" and hist.get("last_action"):
                 ts  = hist.get("last_change", "")
                 act = hist.get("last_action", "").upper()
-                badge_txt = f"UŻYTKOWNIK: {act}" + (f"  ·  {ts}" if ts else "")
+                badge_txt = (f"{_t('common.user_tag', 'USER')}: {act}"
+                             + (f"  ·  {ts}" if ts else ""))
                 tk.Label(body, text=badge_txt, font=(_F, 7), bg=SURFACE,
                          fg="#16a34a", anchor="w").pack(anchor="w")
 
         all_labels = [body, name_row, name_lbl, svc_key, desc_lbl]
         _Tooltip(name_lbl, f"{dname}\n\n{desc}\n\nService key: {name}")
 
-        right = tk.Frame(row, bg=SURFACE)
-        right.pack(side="right", padx=(0, 12), pady=8)
         all_labels.append(right)
 
         pill = _pill_status(right, status, SURFACE)
@@ -477,7 +504,7 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
         if status == "disabled":
             # Disabled at system level - nothing to queue.
             dis_lbl = tk.Label(right, text="DISABLED", font=(_M, 7, "bold"),
-                               bg=SURFACE, fg="#4b5563")
+                               bg=SURFACE, fg="#7b8597")
             dis_lbl.pack(side="left", padx=(0, 8))
             _Tooltip(dis_lbl, "This service is disabled at the system level.\n"
                               "Start it first before enabling here.")
@@ -490,7 +517,8 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
             all_labels.append(lock)
         else:
             running  = (status == "running")
-            base_txt = "Wyłącz" if running else "Włącz"
+            base_txt = (_t("services_manager.disable", "Stop") if running
+                        else _t("services_manager.enable", "Start"))
             base_fg  = RED if running else GREEN
 
             tg = tk.Label(right, font=(_F, 9, "bold"), bg=SURFACE,
@@ -502,11 +530,14 @@ def _service_row(parent, entry: dict, statuses: dict, mode_sets: dict,
                 else:
                     tg.config(text=base_txt, fg=base_fg, bg=SURFACE)
 
-            tg.bind("<Button-1>", lambda e, en=entry: queue_toggle(en))
-            tg.bind("<Enter>", lambda e: (tg.config(fg=TEXT) if not is_queued(name) else None))
-            tg.bind("<Leave>", lambda e: _style())
+            tg.bind("<Button-1>", lambda e=None, en=entry: queue_toggle(en))
+            tg.bind("<Enter>", lambda e=None: (tg.config(fg=TEXT) if not is_queued(name) else None))
+            tg.bind("<Leave>", lambda e=None: _style())
             tg.pack(side="left", padx=2)
-            _Tooltip(tg, f"Dodaj „{base_txt} {dname}” do operatora zmian (na dole).")
+            _Tooltip(tg, _t("services_manager.queue_tip",
+                             "Add \"{action} {name}\" to the change list "
+                             "(at the bottom).",
+                             action=base_txt, name=dname))
             _style()
             sync = _style
 
@@ -544,13 +575,14 @@ def _quick_card(strip, item, answers, on_answer, after_answer):
 
     head = tk.Frame(inner, bg=SURFACE)
     head.pack(fill="x")
-    tk.Label(head, text=label, font=(_F, 8, "bold"), bg=SURFACE, fg=TEXT).pack(side="left")
+    tk.Label(head, text=_rec_title(label), font=(_F, 8, "bold"),
+             bg=SURFACE, fg=TEXT).pack(side="left")
     change = tk.Label(head, text="", font=(_F, 7, "bold"), bg=SURFACE, fg=SUB, cursor="hand2")
     change.pack(side="right")
-    change.bind("<Enter>", lambda e: change.config(fg=TEXT) if change.cget("text") else None)
-    change.bind("<Leave>", lambda e: change.config(fg=SUB)  if change.cget("text") else None)
+    change.bind("<Enter>", lambda e=None: change.config(fg=TEXT) if change.cget("text") else None)
+    change.bind("<Leave>", lambda e=None: change.config(fg=SUB)  if change.cget("text") else None)
 
-    tk.Label(inner, text=(item.get("q_pl") or item.get("q_en") or ""),
+    tk.Label(inner, text=_rec_question(item),
              font=(_F, 7), bg=SURFACE, fg=SUB, wraplength=150,
              justify="left").pack(anchor="w", pady=(1, 4))
 
@@ -562,26 +594,28 @@ def _quick_card(strip, item, answers, on_answer, after_answer):
             w.destroy()
         change.config(text="")
         change.unbind("<Button-1>")
-        _btn(content, "Nie używam", "#f87171", SURFACE, "#fca5a5",
+        _btn(content, _t("services_manager.not_used", "Not used"),
+             "#f87171", SURFACE, "#fca5a5",
              lambda: _answer(False), 7).pack(side="left", padx=(0, 4))
-        _btn(content, "Używam", "#34d399", SURFACE, "#6ee7b7",
+        _btn(content, _t("services_manager.used", "I use it"),
+             "#34d399", SURFACE, "#6ee7b7",
              lambda: _answer(True), 7).pack(side="left")
 
     def _state(used):
         for w in content.winfo_children():
             w.destroy()
         if used:
-            tk.Label(content, text="TAK", font=(_F, 8, "bold"),
+            tk.Label(content, text=_t("services_manager.yes", "YES"), font=(_F, 8, "bold"),
                      bg=SURFACE, fg=GREEN).pack(side="left")
-            tk.Label(content, text=" - zostawiam", font=(_F, 7),
+            tk.Label(content, text=" - " + _t("services_manager.yes_note", "keeping it"), font=(_F, 7),
                      bg=SURFACE, fg=MUTED).pack(side="left")
         else:
-            tk.Label(content, text="NIE", font=(_F, 8, "bold"),
+            tk.Label(content, text=_t("services_manager.no", "NO"), font=(_F, 8, "bold"),
                      bg=SURFACE, fg=RED).pack(side="left")
-            tk.Label(content, text=" - dodano do MANAGER", font=(_F, 7),
+            tk.Label(content, text=" - " + _t("services_manager.no_note", "added to MANAGER"), font=(_F, 7),
                      bg=SURFACE, fg=GREEN).pack(side="left")
-        change.config(text="ZMIEŃ", fg=SUB)
-        change.bind("<Button-1>", lambda e: _buttons())
+        change.config(text=_t("services_manager.change", "CHANGE"), fg=SUB)
+        change.bind("<Button-1>", lambda e=None: _buttons())
 
     def _answer(used):
         answers[label] = "yes" if used else "no"
@@ -625,18 +659,18 @@ def _recommended_strip(parent, on_answer):
         chg = tk.Label(bar, text="CHANGE", font=(_F, 7, "bold"), bg="#0c1a12",
                        fg=SUB, cursor="hand2", padx=10)
         chg.pack(side="left")
-        chg.bind("<Button-1>", lambda e: _show_cards())
-        chg.bind("<Enter>", lambda e: chg.config(fg=TEXT))
-        chg.bind("<Leave>", lambda e: chg.config(fg=SUB))
+        chg.bind("<Button-1>", lambda e=None: _show_cards())
+        chg.bind("<Enter>", lambda e=None: chg.config(fg=TEXT))
+        chg.bind("<Leave>", lambda e=None: chg.config(fg=SUB))
         banner.pack(fill="x")
 
     cv = tk.Canvas(cards_holder, bg=BG, highlightthickness=0, height=92)
     cv.pack(fill="x")
     strip = tk.Frame(cv, bg=BG)
     cv.create_window((0, 0), window=strip, anchor="nw")
-    strip.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+    strip.bind("<Configure>", lambda e=None: cv.configure(scrollregion=cv.bbox("all")))
     cv.bind("<Shift-MouseWheel>",
-            lambda e: cv.xview_scroll(int(-1 * (e.delta / 120)), "units"))
+            lambda e=None: cv.xview_scroll(int(-1 * (e.delta / 120)), "units"))
 
     def _maybe_collapse():
         if _all_answered():
@@ -648,11 +682,18 @@ def _recommended_strip(parent, on_answer):
     _show_banner() if _all_answered() else _show_cards()
 
 
-def _modes_panel(parent, mode_sets: dict, get_active, set_active):
+def _modes_panel(parent, mode_sets: dict, get_active, set_active, before=None):
     """Bottom bar: clickable per-mode chips that set the active profile (synced with
-    the Features modes), plus a 'Current profile' label that flashes Saving/Saved!."""
+    the Features modes), plus a 'Current profile' label that flashes Saving/Saved!.
+
+    *before*: the expanding list this bar must be packed ahead of. pack() gives
+    space in packing order; packed after the list, this bar got none and was
+    never on screen (found 2026-11-15: the profile could not be chosen here)."""
     panel = tk.Frame(parent, bg=TURBO_BG, highlightthickness=1, highlightbackground=TURBO_BD)
-    panel.pack(fill="x", side="bottom")
+    if before is not None:
+        panel.pack(fill="x", side="bottom", before=before)
+    else:
+        panel.pack(fill="x", side="bottom")
     row = tk.Frame(panel, bg=TURBO_BG)
     row.pack(fill="x", padx=14, pady=6)
     tk.Label(row, text="MODES", font=(_F, 8, "bold"),
@@ -718,7 +759,8 @@ def _modes_panel(parent, mode_sets: dict, get_active, set_active):
 
 
 def _stat_text(total, running):
-    return f"  {total} services catalogued   ·   {running} running"
+    from ui.components.page_titles import text as _ptx
+    return "  " + _ptx("svc_count").format(total=total, running=running)
 
 
 def build_services_manager_page(host, parent: tk.Frame):
@@ -730,7 +772,8 @@ def build_services_manager_page(host, parent: tk.Frame):
         warn = tk.Frame(page, bg="#1a0f00", height=28)
         warn.pack(fill="x")
         warn.pack_propagate(False)
-        tk.Label(warn, text="  ⚠  Not running as Administrator - Stop / Start actions may fail.",
+        from ui.components.page_titles import text as _ptx
+        tk.Label(warn, text="  ⚠  " + _ptx("svc_not_admin"),
                  font=(_F, 8, "bold"), bg="#1a0f00", fg=AMBER,
                  padx=10).pack(side="left", fill="y")
 
@@ -740,11 +783,39 @@ def build_services_manager_page(host, parent: tk.Frame):
     spin.pack(pady=60)
 
     def _on_ready(statuses):
+        try:
+            if not page.winfo_exists():
+                return                      # user left the page meanwhile
+        except Exception:
+            return
         spin.destroy()
         _render(page, statuses, is_admin)
 
-    threading.Thread(target=lambda: page.after(0, lambda: _on_ready(_get_statuses_batch(names))),
-                     daemon=True).start()
+    def _scan():
+        # The `sc query` runs HERE, on the worker. The old one-liner wrapped
+        # the scan inside the after() callback, so the "background" thread
+        # only scheduled it and the scan itself ran on the UI thread: the
+        # window froze for as long as `sc` took.
+        result["statuses"] = _get_statuses_batch(names)
+
+    # The worker only stores the result; the UI thread picks it up. Calling
+    # page.after() from the worker relies on Tk accepting calls from another
+    # thread, which it does only while mainloop() runs (2026-11-16).
+    result: dict = {}
+
+    def _poll():
+        try:
+            if not page.winfo_exists():
+                return
+        except Exception:
+            return
+        if "statuses" in result:
+            _on_ready(result["statuses"])
+        else:
+            page.after(60, _poll)
+
+    threading.Thread(target=_scan, daemon=True, name="services-scan").start()
+    page.after(60, _poll)
 
 
 def _render(page: tk.Frame, statuses: dict, is_admin: bool):
@@ -767,17 +838,18 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
 
     left_col = tk.Frame(header, bg=BG)
     left_col.pack(side="left")
-    tk.Label(left_col, text="Services Manager", font=(_F, 13, "bold"),
+    from ui.components.page_titles import text as _ptx
+    tk.Label(left_col, text=_ptx("services_inner"), font=(_F, 13, "bold"),
              bg=BG, fg=TEXT).pack(anchor="w")
 
     right_col = tk.Frame(header, bg=BG)
     right_col.pack(side="right", fill="y")
 
     if is_admin:
-        tk.Label(right_col, text="Administrator ✓", font=(_F, 8, "bold"),
+        tk.Label(right_col, text=_ptx("svc_admin"), font=(_F, 8, "bold"),
                  bg="#071610", fg=GREEN, padx=8, pady=3).pack(side="right", padx=(6, 0))
     else:
-        tk.Label(right_col, text="Limited mode", font=(_F, 8, "bold"),
+        tk.Label(right_col, text=_ptx("svc_limited"), font=(_F, 8, "bold"),
                  bg="#1a0f00", fg=AMBER, padx=8, pady=3).pack(side="right", padx=(6, 0))
 
     stat_lbl = tk.Label(right_col, text=_stat_text(total, running),
@@ -797,12 +869,13 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                             highlightcolor=ACCENT)
     search_entry.pack(fill="x", ipady=6, padx=(0, 0))
 
-    placeholder = "Search services…"
+    from ui.components.page_titles import text as _ptx
+    placeholder = _ptx("svc_search")
     search_entry.insert(0, placeholder)
     search_entry.config(fg=SUB)
-    search_entry.bind("<FocusIn>",  lambda e: (search_entry.delete(0, "end"), search_entry.config(fg=TEXT))
+    search_entry.bind("<FocusIn>",  lambda e=None: (search_entry.delete(0, "end"), search_entry.config(fg=TEXT))
                                     if search_entry.get() == placeholder else None)
-    search_entry.bind("<FocusOut>", lambda e: (search_entry.insert(0, placeholder), search_entry.config(fg=SUB))
+    search_entry.bind("<FocusOut>", lambda e=None: (search_entry.insert(0, placeholder), search_entry.config(fg=SUB))
                                     if not search_entry.get() else None)
 
     def on_mode_toggle(svc_name: str, mkey: str, enabled: bool):
@@ -871,18 +944,26 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         lines = "\n".join(
             f"   •  {it['payload']['action'].upper()}   {it['label'].split('  ·')[0]}"
             for it in items)
-        if not messagebox.askyesno("Potwierdź zmiany",
-                f"Zatwierdzić {len(items)} zmian(y)?\n\n{lines}"):
+        if not messagebox.askyesno(
+                _t("services_manager.confirm_title", "Confirm changes"),
+                _t("services_manager.confirm_msg", "Apply changes: {n}?",
+                   n=len(items)) + f"\n\n{lines}\n\n"
+                + _t("services_manager.until_restart",
+                     "Stopped services start again after a restart if "
+                     "Windows starts them automatically.")):
             return
 
         payloads = [dict(it["payload"]) for it in items]
+        failed: list = []
 
         def _do():
             from datetime import datetime as _dt
             for p in payloads:
                 n, action = p["name"], p["action"]
-                ok, _ = _sc_run([action, n])
+                ok, out = _sc_run([action, n])
                 _log_change(n, action, ok)
+                if not ok:
+                    failed.append((n, (out or "").strip().splitlines()[-1:] or [""]))
                 if ok:
                     statuses[n] = "running" if action == "start" else "stopped"
                     ts = _dt.now().strftime("%Y-%m-%d %H:%M")
@@ -892,7 +973,6 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                         "changed_by":  "UŻYTKOWNIK",
                     })
             _save_svc_prefs(svc_prefs)
-            page.after(0, _after)
 
         def _after():
             for p in payloads:
@@ -903,22 +983,40 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
             d = drawer_holder["d"]
             if d:
                 d.clear()
+            # A failed sc call used to be written to the log and nowhere
+            # else: the row simply stayed as it was, with no explanation.
+            if failed:
+                messagebox.showwarning(
+                    _t("services_manager.failed_title", "Some changes failed"),
+                    _t("services_manager.failed_msg",
+                       "Windows refused these changes:") + "\n\n"
+                    + "\n".join(f"  •  {n}  {msg[0][:70]}" for n, msg in failed))
 
-        threading.Thread(target=_do, daemon=True).start()
+        # sc.exe on a worker with plain data; the rows refresh on the UI thread
+        from ui import bg as _bg_ui
+        _bg_ui.run(page, _do, lambda _r: _after(), name="services-apply")
 
     # ── 2×2 grid: row1 = UNNEEDED | OPTIONAL, row2 = RECOMMENDED | ESSENTIAL ──
     #    (configurator order: safest-to-disable at the top, never-touch at the bottom)
     def _make_col_pair(parent_frame, left_cat, right_cat):
+        # grid with uniform columns (2026-11-16): two pack(expand=True)
+        # columns split the width by what their content ASKS for, and the
+        # descriptions wrap to the width they GET. Each wrap changed the
+        # request, the split moved, the text wrapped again: in the default
+        # window the whole list jumped without end.
         row = tk.Frame(parent_frame, bg=BG)
         row.pack(fill="x")
+        row.grid_columnconfigure(0, weight=1, uniform="svc_cols")
+        row.grid_columnconfigure(2, weight=1, uniform="svc_cols")
+        row.grid_rowconfigure(0, weight=1)
 
         left_col  = tk.Frame(row, bg=BG)
-        left_col.pack(side="left", fill="both", expand=True)
+        left_col.grid(row=0, column=0, sticky="nsew")
 
-        tk.Frame(row, bg=BORDER, width=1).pack(side="left", fill="y")
+        tk.Frame(row, bg=BORDER, width=1).grid(row=0, column=1, sticky="ns")
 
         right_col = tk.Frame(row, bg=BG)
-        right_col.pack(side="left", fill="both", expand=True)
+        right_col.grid(row=0, column=2, sticky="nsew")
 
         return {left_cat: left_col, right_cat: right_col}
 
@@ -982,7 +1080,8 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
             expand_bar = tk.Frame(body, bg="#0b1018", cursor="hand2")
             expand_bar.pack(fill="x", padx=8, pady=0)
             expand_lbl = tk.Label(expand_bar,
-                                   text=f"∨  Rozwiń więcej ({len(overflow)})  ∨",
+                                   text="∨  " + _t("services_manager.expand_more", "Show more")
+                                        + f" ({len(overflow)})  ∨",
                                    font=(_F, 7), bg="#0b1018", fg=MUTED,
                                    pady=2, cursor="hand2")
             expand_lbl.pack()
@@ -1001,16 +1100,17 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
                         bld()
                         eb[0] = True
                     ef.pack(fill="x", after=bar)
-                    el.config(text="∧  Zwiń  ∧")
+                    el.config(text="∧  " + _t("services_manager.collapse", "Collapse") + "  ∧")
                 else:
                     ef.pack_forget()
-                    el.config(text=f"∨  Rozwiń więcej ({len(ol)})  ∨")
+                    el.config(text="∨  " + _t("services_manager.expand_more", "Show more")
+                                   + f" ({len(ol)})  ∨")
                 inner.event_generate("<Configure>")
 
             expand_bar.bind("<Button-1>", _toggle_overflow)
             expand_lbl.bind("<Button-1>", _toggle_overflow)
-            expand_bar.bind("<Enter>", lambda e, w=expand_lbl: w.config(fg=TEXT))
-            expand_bar.bind("<Leave>", lambda e, w=expand_lbl: w.config(fg=MUTED))
+            expand_bar.bind("<Enter>", lambda e=None, w=expand_lbl: w.config(fg=TEXT))
+            expand_bar.bind("<Leave>", lambda e=None, w=expand_lbl: w.config(fg=MUTED))
 
     tk.Frame(inner, bg=BG, height=10).pack()
 
@@ -1022,10 +1122,15 @@ def _render(page: tk.Frame, statuses: dict, is_admin: bool):
         title=_t("operator.title", default="Zmiany do zatwierdzenia"),
     )
     drawer_holder["d"] = drawer
+    # Both bottom bars go AHEAD of the expanding list in the packing order,
+    # otherwise the list takes the whole page and they are pushed below the
+    # window edge (the drawer showed 8 px of its text, the MODES bar nothing).
+    drawer.outer.pack_configure(before=content_wrap)
 
     active_get = turbo_services.get_active_profile if _HAS_TURBO else (lambda: "gaming")
     active_set = turbo_services.set_active_profile if _HAS_TURBO else (lambda k: None)
-    modes = _modes_panel(page, mode_sets, active_get, active_set)
+    modes = _modes_panel(page, mode_sets, active_get, active_set,
+                         before=content_wrap)
 
     def _apply_search(*_):
         q = search_var.get().lower().strip()

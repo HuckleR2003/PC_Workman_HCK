@@ -6,7 +6,6 @@ Professional app page structure
 Structure:
     pages/
     ├── __init__.py
-    ├── base_page.py          # Base class for all pages
     ├── fan_control/          # Fan Control tabs
     │   ├── __init__.py
     │   ├── dashboard.py      # Fan Dashboard

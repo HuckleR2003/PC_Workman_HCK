@@ -5,6 +5,7 @@ Real-time driver health, system readiness score, startup manager, setup checklis
 Data sourced from Windows registry - no admin rights required for reads.
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 import threading
 import time
@@ -30,10 +31,20 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
+
+try:
+    from utils.i18n import t as _t
+except Exception:                                   # pragma: no cover
+    def _t(key, default=None, **kw):
+        return default if default is not None else key
+
+from ui.components.fit import (
+    fixed_width_natural_height as _fixed_width_natural_height,
+    show_only_if_fits as _show_only_if_fits)
 
 # ─── Palette ──────────────────────────────────────────────────────────────────
 BG     = "#0a0e14"
@@ -41,7 +52,7 @@ PANEL  = "#111827"
 PANEL2 = "#0d1117"
 BORDER = "#1f2937"
 TEXT   = "#e5e7eb"
-MUTED  = "#6b7280"
+MUTED  = "#8d97a8"
 BLUE   = "#3b82f6"
 GREEN  = "#10b981"
 AMBER  = "#f59e0b"
@@ -378,7 +389,7 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
 
     certainty = "100% Unused driver." if confirmed_unused else "Likely unused driver."
     tk.Label(body, text=f"{'🔴' if confirmed_unused else '⚠'}  {certainty}",
-             font=(_HDR, 9), bg=_W, fg=RED if confirmed_unused else AMBER).pack(anchor="w")
+             font=(_HDR, 9, "bold"), bg=_W, fg=RED if confirmed_unused else AMBER).pack(anchor="w")
 
     tk.Label(body,
              text=(
@@ -409,8 +420,8 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
                       highlightbackground="#1f2937", highlightthickness=1)
     dm_btn.pack(side="left", padx=(0, 6))
     dm_btn.bind("<Button-1>", _do_dm)
-    dm_btn.bind("<Enter>", lambda e: dm_btn.config(fg=BLUE))
-    dm_btn.bind("<Leave>", lambda e: dm_btn.config(fg="#8593a8"))
+    dm_btn.bind("<Enter>", lambda e=None: dm_btn.config(fg=BLUE))
+    dm_btn.bind("<Leave>", lambda e=None: dm_btn.config(fg="#8593a8"))
 
     if inst_id:
         def _do_remove(e=None):
@@ -433,15 +444,15 @@ def _open_ghost_dialog(root, dev: dict, pnp_entry: dict, category: str,
                           highlightbackground=GHOST_BD, highlightthickness=1)
         rm_btn.pack(side="left")
         rm_btn.bind("<Button-1>", _do_remove)
-        rm_btn.bind("<Enter>", lambda e: rm_btn.config(fg="#ffffff"))
-        rm_btn.bind("<Leave>", lambda e: rm_btn.config(fg=GHOST_MARK))
+        rm_btn.bind("<Enter>", lambda e=None: rm_btn.config(fg="#ffffff"))
+        rm_btn.bind("<Leave>", lambda e=None: rm_btn.config(fg=GHOST_MARK))
 
     close_btn = tk.Label(btn_row, text="Close", font=(_MONO, 8),
                          bg="#0d1117", fg=MUTED, cursor="hand2",
                          padx=10, pady=5,
                          highlightbackground="#1f2937", highlightthickness=1)
     close_btn.pack(side="right")
-    close_btn.bind("<Button-1>", lambda e: win.destroy())
+    close_btn.bind("<Button-1>", lambda e=None: win.destroy())
 
 
 def _build_ext_device_row(parent, dev: dict, pnp_entry: dict, category: str,
@@ -476,24 +487,24 @@ def _build_ext_device_row(parent, dev: dict, pnp_entry: dict, category: str,
     meta = tk.Frame(info, bg=row_bg)
     meta.pack(anchor="w")
     if dev.get("version"):
-        tk.Label(meta, text=f"v{dev['version']}", font=(_MONO, 6),
+        tk.Label(meta, text=f"v{dev['version']}", font=(_MONO, 7),
                  bg=row_bg, fg=MUTED).pack(side="left")
     if dev.get("date"):
         tk.Label(meta, text=_fmt_date(dev["date"]),
-                 font=(_MONO, 6), bg=row_bg, fg=MUTED).pack(side="left", padx=(8, 0))
+                 font=(_MONO, 7), bg=row_bg, fg=MUTED).pack(side="left", padx=(8, 0))
 
     right = tk.Frame(outer, bg=row_bg)
     right.pack(side="right", padx=6, pady=3)
 
     badge_fg = RED if days and days >= 730 else (AMBER if days and days >= 365 else bar_col)
     tk.Label(right, text=f" {status_txt} ",
-             font=(_MONO, 5, "bold"), bg="#0d1522", fg=badge_fg,
+             font=(_MONO, 7, "bold"), bg="#0d1522", fg=badge_fg,
              padx=4, pady=2).pack()
 
     if is_ghost:
         lbl_txt = "100% UNUSED" if confirmed_unused else "⚠ ISSUE"
         issue_btn = tk.Label(right, text=lbl_txt,
-                             font=(_MONO, 5, "bold"), bg="#1a0508", fg=GHOST_MARK,
+                             font=(_MONO, 7, "bold"), bg="#1a0508", fg=GHOST_MARK,
                              cursor="hand2", padx=5, pady=2,
                              highlightbackground=GHOST_BD, highlightthickness=1)
         issue_btn.pack(pady=(3, 0))
@@ -505,8 +516,8 @@ def _build_ext_device_row(parent, dev: dict, pnp_entry: dict, category: str,
                 pass
 
         issue_btn.bind("<Button-1>", _on_issue)
-        issue_btn.bind("<Enter>", lambda e: issue_btn.config(fg="#ffffff"))
-        issue_btn.bind("<Leave>", lambda e: issue_btn.config(fg=GHOST_MARK))
+        issue_btn.bind("<Enter>", lambda e=None: issue_btn.config(fg="#ffffff"))
+        issue_btn.bind("<Leave>", lambda e=None: issue_btn.config(fg=GHOST_MARK))
 
     return outer
 
@@ -595,7 +606,7 @@ def _build_see_outdated_view(parent, all_lists: list, ghost_sets: list,
         lbl_frame.pack(side="left", fill="x", expand=True, padx=(6, 0), pady=3)
 
         cat_badge = tk.Label(lbl_frame, text=cat_name,
-                             font=(_MONO, 5, "bold"), bg="#111520", fg=accent, padx=4)
+                             font=(_MONO, 7, "bold"), bg="#111520", fg=accent, padx=4)
         cat_badge.pack(side="left", padx=(0, 6))
         tk.Label(lbl_frame, text=dev.get("name", "Unknown")[:46],
                  font=(_BODY, 7), bg=row_bg, fg=RED if is_g else TEXT,
@@ -605,13 +616,13 @@ def _build_see_outdated_view(parent, all_lists: list, ghost_sets: list,
         right = tk.Frame(outer, bg=row_bg)
         right.pack(side="right", padx=8, pady=3)
         tk.Label(right, text=f"{mo}mo OLD",
-                 font=(_MONO, 6, "bold"), bg="#0d1522",
+                 font=(_MONO, 7, "bold"), bg="#0d1522",
                  fg=RED if days >= 730 else AMBER, padx=5, pady=2).pack()
 
         if is_g:
             lbl_t = "100% UNUSED" if d2["_confirmed_unused"] else "⚠ GHOST"
             issue = tk.Label(right, text=lbl_t,
-                             font=(_MONO, 5, "bold"), bg="#1a0508", fg=GHOST_MARK,
+                             font=(_MONO, 7, "bold"), bg="#1a0508", fg=GHOST_MARK,
                              cursor="hand2", padx=5, pady=2,
                              highlightbackground=GHOST_BD, highlightthickness=1)
             issue.pack(pady=(2, 0))
@@ -624,8 +635,8 @@ def _build_see_outdated_view(parent, all_lists: list, ghost_sets: list,
                     pass
 
             issue.bind("<Button-1>", _on_issue)
-            issue.bind("<Enter>", lambda e: issue.config(fg="#ffffff"))
-            issue.bind("<Leave>", lambda e: issue.config(fg=GHOST_MARK))
+            issue.bind("<Enter>", lambda e=None: issue.config(fg="#ffffff"))
+            issue.bind("<Leave>", lambda e=None: issue.config(fg=GHOST_MARK))
 
     return wrap
 
@@ -717,12 +728,8 @@ def _load_checklist():
 
 
 def _save_checklist(state):
-    try:
-        os.makedirs(os.path.dirname(CHECKLIST_PATH), exist_ok=True)
-        with open(CHECKLIST_PATH, "w", encoding="utf-8") as f:
-            json.dump(state, f)
-    except Exception:
-        pass
+    from utils.prefs_io import save_json
+    save_json(CHECKLIST_PATH, state)
 
 
 # ─── Page entry point ─────────────────────────────────────────────────────────
@@ -735,10 +742,10 @@ def build_first_setup_page(win_self, parent):
     vsb   = tk.Scrollbar(main, orient="vertical", command=wrap.yview,
                          bg="#000000", troughcolor=BG, width=8, bd=0)
     sf    = tk.Frame(wrap, bg=BG)
-    sf.bind("<Configure>", lambda e: wrap.configure(scrollregion=wrap.bbox("all")))
+    sf.bind("<Configure>", lambda e=None: wrap.configure(scrollregion=wrap.bbox("all")))
     win_id = wrap.create_window((0, 0), window=sf, anchor="nw")
     wrap.configure(yscrollcommand=vsb.set)
-    wrap.bind("<Configure>", lambda e: wrap.itemconfig(win_id, width=e.width - 2))
+    wrap.bind("<Configure>", lambda e=None: wrap.itemconfig(win_id, width=e.width - 2))
 
     def _wheel(ev):
         try:
@@ -763,9 +770,9 @@ def build_first_setup_page(win_self, parent):
     _lnk = tk.Label(_ur, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
                     bg=BG, fg="#10b981", cursor="hand2")
     _lnk.pack(side="right")
-    _lnk.bind("<Enter>", lambda e: _lnk.config(fg="#34d399"))
-    _lnk.bind("<Leave>", lambda e: _lnk.config(fg="#10b981"))
-    _lnk.bind("<Button-1>", lambda e: win_self.open_upgrade_readiness("cpu"))
+    _lnk.bind("<Enter>", lambda e=None: _lnk.config(fg="#34d399"))
+    _lnk.bind("<Leave>", lambda e=None: _lnk.config(fg="#10b981"))
+    _lnk.bind("<Button-1>", lambda e=None: win_self.open_upgrade_readiness("cpu"))
     _build_hero(sf, refs)
     _build_driver_section(sf, refs)
     _build_bottom_row(sf, refs)
@@ -839,13 +846,13 @@ def build_first_setup_page(win_self, parent):
             "pnp_lists":  pnp_lists,
         }
 
-        try:
-            sf.after(0, lambda: _apply(refs, all_drivers_primary, all_lists,
-                                       win_info, startup, score,
-                                       uptime_str, last_boot_str,
-                                       scan_data, outdated_count))
-        except Exception:
-            pass
+        # plain data back to the UI thread (ui/bg.py); nothing here touches Tk
+        return (all_drivers_primary, all_lists, win_info, startup, score,
+                uptime_str, last_boot_str, scan_data, outdated_count)
+
+    def _scan_now():
+        from ui import bg as _bg_ui
+        _bg_ui.run(sf, _do_scan, lambda res: _apply(refs, *res), name="drivers-scan")
 
     def _trigger_scan():
         refs["scanning"] = True
@@ -855,13 +862,14 @@ def build_first_setup_page(win_self, parent):
         try:
             refs["scan_msg"].config(text="  Re-scanning…")
             refs["scan_dot"].config(fg=AMBER)
-            refs["header_dot"].config(text="● Scanning…", fg=AMBER)
+            from ui.components.page_titles import text as _ptx
+            refs["header_dot"].config(text=_ptx("fs_scanning"), fg=AMBER)
         except Exception:
             pass
-        threading.Thread(target=_do_scan, daemon=True).start()
+        _scan_now()
 
     refs["rescan_cmd"] = _trigger_scan
-    threading.Thread(target=_do_scan, daemon=True).start()
+    _scan_now()
 
     return main
 
@@ -902,19 +910,30 @@ def _build_header(parent, refs):
     inner = tk.Frame(hdr, bg="#0b1220")
     inner.pack(fill="both", expand=True, padx=14)
 
-    left = tk.Frame(inner, bg="#0b1220")
-    left.pack(side="left", fill="y")
-    tk.Label(left, text="⚙", font=(_BODY, 14), bg="#0b1220",
-             fg=BLUE).pack(side="left", pady=10)
-    tk.Label(left, text="  FIRST SETUP & DRIVERS",
-             font=(_MONO, 10, "bold"), bg="#0b1220", fg=TEXT).pack(side="left")
-    tk.Label(left, text="   ·   system readiness  ·  driver health  ·  startup control",
-             font=(_MONO, 7), bg="#0b1220", fg=MUTED).pack(side="left")
-
+    # Buttons first, title second (2026-11-15): pack() gives space in packing
+    # order, and with the title block first the last button lost its edge.
     right = tk.Frame(inner, bg="#0b1220")
     right.pack(side="right", fill="y")
 
-    dot = tk.Label(right, text="● Scanning…", font=(_MONO, 7),
+    left = tk.Frame(inner, bg="#0b1220")
+    left.pack(side="left", fill="y")
+    gear_lbl = tk.Label(left, text="⚙", font=(_BODY, 14), bg="#0b1220", fg=BLUE)
+    gear_lbl.pack(side="left")
+    from ui.components.page_titles import title as _pt, text as _ptx
+    _fs_title, _fs_tag = _pt("first_setup")
+    title_lbl = tk.Label(left, text="  " + _fs_title,
+                         font=(_MONO, 10, "bold"), bg="#0b1220", fg=TEXT)
+    title_lbl.pack(side="left")
+    tagline = tk.Label(
+        left, text="   ·   " + _fs_tag,
+        font=(_MONO, 7), bg="#0b1220", fg=MUTED)
+    tagline.pack(side="left")
+
+    # The tagline is decoration: when the row is too narrow for everything it
+    # goes away whole, instead of being cut mid-word next to the buttons.
+    _show_only_if_fits(tagline, inner, [right, gear_lbl, title_lbl], margin=28)
+
+    dot = tk.Label(right, text=_ptx("fs_scanning"), font=(_MONO, 7),
                    bg="#0b1220", fg=AMBER)
     dot.pack(side="right", padx=(8, 0), pady=14)
     refs["header_dot"] = dot
@@ -923,9 +942,9 @@ def _build_header(parent, refs):
         b = tk.Label(right, text=label, font=(_MONO, 8, "bold"),
                      bg=bg_, fg="#ffffff", padx=10, pady=6, cursor="hand2")
         b.pack(side="right", padx=(5, 0), pady=8)
-        b.bind("<Button-1>", lambda e: cmd())
-        b.bind("<Enter>", lambda e, w=b, c=bg_: w.config(bg=_lighten(c)))
-        b.bind("<Leave>", lambda e, w=b, c=bg_: w.config(bg=c))
+        b.bind("<Button-1>", lambda e=None: cmd())
+        b.bind("<Enter>", lambda e=None, w=b, c=bg_: w.config(bg=_lighten(c)))
+        b.bind("<Leave>", lambda e=None, w=b, c=bg_: w.config(bg=c))
 
     def _rescan():
         cmd = refs.get("rescan_cmd")
@@ -940,8 +959,8 @@ def _build_header(parent, refs):
         try: subprocess.Popen(["devmgmt.msc"], shell=True)
         except Exception: pass
 
-    _make_btn("↺  Re-Scan",        "#374151", _rescan)
-    _make_btn("⊞  Device Manager", "#0c4a6e", _dev_mgr)
+    _make_btn(_ptx("fs_rescan"),  "#374151", _rescan)
+    _make_btn(_ptx("fs_devmgr"),  "#0c4a6e", _dev_mgr)
     _make_btn("↑  Windows Update", "#1d4ed8", _win_update)
 
 
@@ -996,7 +1015,7 @@ def _build_hero(parent, refs):
     ]):
         f = tk.Frame(stats, bg=PANEL)
         f.grid(row=0, column=col, sticky="w", padx=(0, 28))
-        tk.Label(f, text=lbl, font=(_MONO, 6), bg=PANEL, fg=MUTED).pack(anchor="w")
+        tk.Label(f, text=lbl, font=(_MONO, 7), bg=PANEL, fg=MUTED).pack(anchor="w")
         v = tk.Label(f, text="-", font=(_MONO, 8, "bold"), bg=PANEL, fg=TEXT)
         v.pack(anchor="w")
         refs[key] = v
@@ -1057,7 +1076,7 @@ def _build_driver_section(parent, refs):
 
     # ── Mode switch helpers ───────────────────────────────────────────────────
     def _make_mode_btn(parent_f, label, bg_n, fg_n, key):
-        b = tk.Label(parent_f, text=label, font=(_MONO, 6, "bold"),
+        b = tk.Label(parent_f, text=label, font=(_MONO, 7, "bold"),
                      bg=bg_n, fg=fg_n, cursor="hand2",
                      padx=8, pady=3,
                      highlightbackground=BORDER, highlightthickness=1)
@@ -1086,14 +1105,14 @@ def _build_driver_section(parent, refs):
                 w.destroy()
             # BACK button
             back_btn = tk.Label(btn_area, text="← BACK",
-                                font=(_MONO, 6, "bold"),
+                                font=(_MONO, 7, "bold"),
                                 bg="#0d1520", fg=BLUE, cursor="hand2",
                                 padx=8, pady=3,
                                 highlightbackground=BORDER, highlightthickness=1)
             back_btn.pack(side="left")
-            back_btn.bind("<Button-1>", lambda e: _switch_mode("normal"))
-            back_btn.bind("<Enter>",    lambda e: back_btn.config(fg="#ffffff"))
-            back_btn.bind("<Leave>",    lambda e: back_btn.config(fg=BLUE))
+            back_btn.bind("<Button-1>", lambda e=None: _switch_mode("normal"))
+            back_btn.bind("<Enter>",    lambda e=None: back_btn.config(fg="#ffffff"))
+            back_btn.bind("<Leave>",    lambda e=None: back_btn.config(fg=BLUE))
 
             # Build view from cached scan data (if available)
             cached = refs.get("drv_scan_data")
@@ -1120,16 +1139,16 @@ def _build_driver_section(parent, refs):
     def _wire_mode_buttons():
         see_all_btn = _make_mode_btn(btn_area, "SEE EVERYTHING",
                                      "#0d1520", BLUE, "see_all")
-        see_all_btn.bind("<Button-1>", lambda e: _switch_mode("everything"))
-        see_all_btn.bind("<Enter>",    lambda e: see_all_btn.config(fg="#ffffff"))
-        see_all_btn.bind("<Leave>",    lambda e: see_all_btn.config(fg=BLUE))
+        see_all_btn.bind("<Button-1>", lambda e=None: _switch_mode("everything"))
+        see_all_btn.bind("<Enter>",    lambda e=None: see_all_btn.config(fg="#ffffff"))
+        see_all_btn.bind("<Leave>",    lambda e=None: see_all_btn.config(fg=BLUE))
 
         out_count = refs.get("drv_outdated_count", 0)
         lbl = f"SEE OUTDATED  {out_count}" if out_count else "SEE OUTDATED"
         see_out_btn = _make_mode_btn(btn_area, lbl, "#1a0a0a", RED, "see_out")
-        see_out_btn.bind("<Button-1>", lambda e: _switch_mode("outdated"))
-        see_out_btn.bind("<Enter>",    lambda e: see_out_btn.config(fg="#ffffff"))
-        see_out_btn.bind("<Leave>",    lambda e: see_out_btn.config(fg=RED))
+        see_out_btn.bind("<Button-1>", lambda e=None: _switch_mode("outdated"))
+        see_out_btn.bind("<Enter>",    lambda e=None: see_out_btn.config(fg="#ffffff"))
+        see_out_btn.bind("<Leave>",    lambda e=None: see_out_btn.config(fg=RED))
         refs["drv_btn_see_out"] = see_out_btn
 
     _wire_mode_buttons()
@@ -1144,16 +1163,20 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
     ab = tk.Frame(row, bg="#374151", width=4)
     ab.pack(side="left", fill="y")
 
-    # Category column - wider + larger fonts for readability
+    # Category column - wider + larger fonts for readability.
+    # Fixed-size columns need a HEIGHT too (2026-11-15): with only a width
+    # and propagation off they ask for no height at all, so the row was as
+    # tall as the middle column and the last line of each side column
+    # ("Display / Graphics", "show all (7)") was sliced through.
     cf = tk.Frame(row, bg=PANEL2, width=96)
     cf.pack(side="left", fill="y")
-    cf.pack_propagate(False)
     tk.Label(cf, text=icon, font=(_BODY, 11), bg=PANEL2, fg=accent
              ).pack(pady=(7, 0))
     tk.Label(cf, text=category, font=(_MONO, 8, "bold"), bg=PANEL2, fg=accent
              ).pack()
     tk.Label(cf, text=subcategory, font=(_MONO, 7), bg=PANEL2, fg="#8a9db8"
              ).pack(pady=(0, 7))
+    _fixed_width_natural_height(cf, 96)
 
     tk.Frame(row, bg=BORDER, width=1).pack(side="left", fill="y", pady=4)
 
@@ -1180,7 +1203,6 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
 
     rf = tk.Frame(row, bg=PANEL2, width=136)
     rf.pack(side="right", fill="y", padx=10)
-    rf.pack_propagate(False)
 
     badge = tk.Label(rf, text="SCANNING", font=(_MONO, 8, "bold"),
                      bg="#1f2937", fg=MUTED, padx=8, pady=3)
@@ -1195,13 +1217,14 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
                       cursor="hand2")
     action.pack()
     action.bind("<Button-1>", _open_dm)
-    action.bind("<Enter>", lambda e: action.config(fg=BLUE))
-    action.bind("<Leave>", lambda e: action.config(fg="#8593a8"))
+    action.bind("<Enter>", lambda e=None: action.config(fg=BLUE))
+    action.bind("<Leave>", lambda e=None: action.config(fg="#8593a8"))
 
     # Expand toggle button - shown only after scan with extra devices
     expand_btn = tk.Label(rf, text="", font=(_MONO, 7),
-                          bg=PANEL2, fg="#6b7280", cursor="hand2")
-    expand_btn.pack(pady=(4, 0))
+                          bg=PANEL2, fg="#8d97a8", cursor="hand2")
+    expand_btn.pack(pady=(4, 4))
+    _fixed_width_natural_height(rf, 136)
 
     # Expand panel - shows all detected devices in this class
     _EXP_BG = "#0a0e17"
@@ -1214,21 +1237,23 @@ def _make_driver_card(parent, category, subcategory, icon, accent):
             # Restore collapsed label - update arrow, keep count
             lbl = expand_btn.cget("text")
             expand_btn.config(
-                text=lbl.replace("▲ zwiń", "▼ pokaż wszystkie"),
+                text=lbl.replace("▲ " + _t("setup.collapse", "collapse"),
+                                 "▼ " + _t("setup.show_all", "show all")),
                 fg="#8a9db8",
             )
         else:
             expand_panel.pack(fill="x", padx=(4, 4), pady=(0, 4))
             lbl = expand_btn.cget("text")
             expand_btn.config(
-                text=lbl.replace("▼ pokaż wszystkie", "▲ zwiń"),
+                text=lbl.replace("▼ " + _t("setup.show_all", "show all"),
+                                 "▲ " + _t("setup.collapse", "collapse")),
                 fg=accent,
             )
         _exp_state["open"] = not _exp_state["open"]
 
     expand_btn.bind("<Button-1>", _toggle_expand)
-    expand_btn.bind("<Enter>", lambda e: expand_btn.config(fg=accent))
-    expand_btn.bind("<Leave>", lambda e: expand_btn.config(
+    expand_btn.bind("<Enter>", lambda e=None: expand_btn.config(fg=accent))
+    expand_btn.bind("<Leave>", lambda e=None: expand_btn.config(
         fg=accent if _exp_state["open"] else "#4b5563"))
 
     # Ghost badge - hidden by default, shown by _fill_card when ghosts detected
@@ -1300,9 +1325,9 @@ def _build_bottom_row(parent, refs):
                        bg=bg_, fg=TEXT, anchor="w", padx=10, pady=7, cursor="hand2")
         btn.grid(row=r, column=c, padx=3, pady=2, sticky="ew")
         grid.columnconfigure(c, weight=1)
-        btn.bind("<Button-1>", lambda e, f=_run: f())
-        btn.bind("<Enter>", lambda e, b=btn, o=bg_: b.config(bg=_lighten(o)))
-        btn.bind("<Leave>", lambda e, b=btn, o=bg_: b.config(bg=o))
+        btn.bind("<Button-1>", lambda e=None, f=_run: f())
+        btn.bind("<Enter>", lambda e=None, b=btn, o=bg_: b.config(bg=_lighten(o)))
+        btn.bind("<Leave>", lambda e=None, b=btn, o=bg_: b.config(bg=o))
 
     foot_l = tk.Frame(left, bg=PANEL)
     foot_l.pack(fill="x", padx=8, pady=(0, 6))
@@ -1336,7 +1361,7 @@ def _build_bottom_row(parent, refs):
         n_l = tk.Label(rf, text="-", font=(_MONO, 8), bg=PANEL2,
                        fg=MUTED, anchor="w")
         n_l.pack(side="left", fill="x", expand=True)
-        src = tk.Label(rf, text="", font=(_MONO, 6), bg=PANEL2, fg="#74839a")
+        src = tk.Label(rf, text="", font=(_MONO, 7), bg=PANEL2, fg="#74839a")
         src.pack(side="right", padx=(0, 8))
         rf.pack_forget()
         rows.append({"frame": rf, "dot": dot, "name": n_l, "src": src})
@@ -1352,9 +1377,9 @@ def _build_bottom_row(parent, refs):
     lnk2 = tk.Label(foot_r, text="⟶ Open Startup Settings",
                     font=(_MONO, 7), bg=PANEL, fg="#8593a8", cursor="hand2")
     lnk2.pack(side="right")
-    lnk2.bind("<Button-1>", lambda e: _open_startup())
-    lnk2.bind("<Enter>", lambda e: lnk2.config(fg=GREEN))
-    lnk2.bind("<Leave>", lambda e: lnk2.config(fg="#8593a8"))
+    lnk2.bind("<Button-1>", lambda e=None: _open_startup())
+    lnk2.bind("<Enter>", lambda e=None: lnk2.config(fg=GREEN))
+    lnk2.bind("<Leave>", lambda e=None: lnk2.config(fg="#8593a8"))
 
 
 # ─── Setup Checklist ──────────────────────────────────────────────────────────
@@ -1461,8 +1486,9 @@ def _apply(refs, drivers, all_driver_lists, win_info, startup, score,
         refs.get("scan_dot",    tk.Label()).config(fg=GREEN)
         refs.get("scan_msg",    tk.Label()).config(
             text=f"  Scan complete  ·  score {score}/100")
+        from ui.components.page_titles import text as _ptx
         refs.get("header_dot",  tk.Label()).config(
-            text=f"● Ready  {score}/100", fg=_score_color(score))
+            text=f"{_ptx('fs_ready')}  {score}/100", fg=_score_color(score))
 
         ghost_sets = scan_data.get("ghost_sets", []) if scan_data else []
         for i, (card, d, all_devs) in enumerate(
@@ -1612,10 +1638,11 @@ def _fill_expand_panel(card, all_devs: list, ghost_names: set = None):
         )
 
         # Update expand button - show count + ghost warning if applicable
-        btn_lbl = f"▼ pokaż wszystkie ({len(all_devs)})"
+        btn_lbl = f"▼ {_t('setup.show_all', 'show all')} ({len(all_devs)})"
         btn_fg  = "#8a9db8"
         if ghost_count_in_list:
-            btn_lbl = f"▼ pokaż wszystkie ({len(all_devs)})  ⚠ GHOST"
+            btn_lbl = (f"▼ {_t('setup.show_all', 'show all')} "
+                       f"({len(all_devs)})  ⚠ GHOST")
             btn_fg  = GHOST_MARK
         eb.config(text=btn_lbl, fg=btn_fg)
 
@@ -1623,7 +1650,7 @@ def _fill_expand_panel(card, all_devs: list, ghost_names: set = None):
         _EXP_BG = "#0a0e17"
         hdr = tk.Frame(ep, bg=_EXP_BG)
         hdr.pack(fill="x", padx=6, pady=(4, 2))
-        hdr_txt = f"WSZYSTKIE URZĄDZENIA  ({len(all_devs)})"
+        hdr_txt = f"{_t('setup.all_devices', 'ALL DEVICES')}  ({len(all_devs)})"
         hdr_fg  = GHOST_MARK if ghost_count_in_list else TEXT
         tk.Label(hdr, text=hdr_txt,
                  font=(_MONO, 7, "bold"), bg=_EXP_BG, fg=hdr_fg).pack(side="left")
@@ -1671,16 +1698,16 @@ def _fill_expand_panel(card, all_devs: list, ghost_names: set = None):
             meta = tk.Frame(info, bg=row_bg)
             meta.pack(anchor="w")
             if ver:
-                tk.Label(meta, text=f"v{ver}", font=(_MONO, 6),
+                tk.Label(meta, text=f"v{ver}", font=(_MONO, 7),
                          bg=row_bg, fg=MUTED).pack(side="left")
             if date_str:
                 tk.Label(meta, text=_fmt_date(date_str),
-                         font=(_MONO, 6), bg=row_bg, fg=MUTED).pack(
+                         font=(_MONO, 7), bg=row_bg, fg=MUTED).pack(
                          side="left", padx=(8, 0))
 
             badge_txt = "⚠ GHOST" if is_ghost else f" {status} "
             badge_bg  = GHOST_BG  if is_ghost else "#0d1522"
-            badge = tk.Label(row, text=badge_txt, font=(_MONO, 6, "bold"),
+            badge = tk.Label(row, text=badge_txt, font=(_MONO, 7, "bold"),
                              bg=badge_bg, fg=txt_col, padx=4, pady=2)
             badge.pack(side="right", padx=(0, 6), pady=3)
 

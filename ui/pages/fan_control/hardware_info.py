@@ -1,38 +1,80 @@
-# ui/components/fans_hardware_page.py
+# ui/pages/fan_control/hardware_info.py
 """
-PC Workman - FANS Hardware Info Page
-Compact fan information in Snyk Evo style.
-"""
+PC Workman - FANS Hardware Info page.
 
+Shows fan speed that was MEASURED, or says that nothing is measuring it.
+
+Until 2026-11-14 this page drew `random.randint()` values under the title
+"Real-time fan monitoring" and listed cooler models ("Noctua NH-D15",
+"Arctic P12", "be quiet!") that were typed into the source, not read from
+the machine. Windows does not report fan speed to applications, so there is
+exactly one honest source: a sensor daemon (LibreHardwareMonitor /
+OpenHardwareMonitor), read through core.fan_sensors. No daemon, no numbers.
+"""
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
-from tkinter import ttk
-import random
 
 # ── Font system ────────────────────────────────────────────────────────────────
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
 try:
-    from PIL import Image, ImageTk, ImageDraw
-except ImportError:
-    Image = None
-    ImageTk = None
-    ImageDraw = None
+    from utils.i18n import t as _t
+except Exception:                                   # pragma: no cover
+    def _t(key, default=None, **kw):
+        return default if default is not None else key
+
+from ui.components.empty_state import build_empty_state
+
+_REFRESH_MS = 2000
+
+
+def _measured_fans() -> list:
+    try:
+        from core import fan_sensors
+        return fan_sensors.measured()
+    except Exception:
+        return []
+
+
+def _source_label() -> str:
+    try:
+        from core import fan_sensors
+        return fan_sensors.source_label()
+    except Exception:
+        return ""
+
+
+def real_temperatures() -> list:
+    """[(label, text)] for what PC Workman does measure, with the CPU value
+    flagged when it is an estimate. Used by the empty state so the page still
+    tells the user something true."""
+    out = []
+    try:
+        from hck_gpt.data.live_sensors import snapshot
+        s = snapshot()
+    except Exception:
+        return out
+    gpu = s.get("gpu_temp", -1)
+    if s.get("gpu_ok") and gpu and gpu > 0:
+        out.append(("GPU", f"{gpu:.0f}°C  ({_t('fan_control.temp_sensor', 'sensor')})"))
+    cpu = s.get("cpu_temp", -1)
+    if cpu and cpu > 0:
+        kind = (_t("fan_control.temp_sensor", "sensor")
+                if s.get("cpu_temp_src") == "sensor"
+                else _t("fan_control.temp_estimated", "estimated"))
+        out.append(("CPU", f"{cpu:.0f}°C  ({kind})"))
+    return out
 
 
 class FansHardwarePage:
-    """
-    FANS - Hardware Info page.
-    Shows fan information:
-    - Main: CPU fan, GPU fan (left)
-    - Case fans: 4 slots (right)
-    - Bottom: CPU/GPU models and fan details
-    """
+    """Measured fans as cards, or an empty state. Re-checks every 2 s, so the
+    page fills in by itself the moment a sensor daemon is started."""
 
     COLORS = {
         "bg": "#0a0e14",
@@ -44,365 +86,160 @@ class FansHardwarePage:
         "accent_blue": "#3b82f6",
         "accent_purple": "#8b5cf6",
         "accent_orange": "#f59e0b",
-        "gauge_bg": "#1f2937",
-        "gauge_track": "#374151",
     }
 
     def __init__(self, parent, monitor=None):
         self.parent = parent
         self.monitor = monitor
-        self.fan_gauges = {}
-        self.rpm_labels = {}
-        self.info_labels = {}
-
-        # Simulated fan data (replace with hardware sensors when available)
-        self.fan_data = {
-            "cpu": {"name": "CPU Fan", "rpm": 1250, "max_rpm": 2500, "model": "Noctua NH-D15"},
-            "gpu": {"name": "GPU Fan", "rpm": 1800, "max_rpm": 3000, "model": "Stock Cooler"},
-            "case1": {"name": "Front 1", "rpm": 900, "max_rpm": 1500, "model": "Arctic P12"},
-            "case2": {"name": "Front 2", "rpm": 920, "max_rpm": 1500, "model": "Arctic P12"},
-            "case3": {"name": "Rear", "rpm": 850, "max_rpm": 1200, "model": "be quiet!"},
-            "case4": {"name": "Top", "rpm": 0, "max_rpm": 1500, "model": "Not installed"},
-        }
-
+        self._shown_names = None        # tuple of fan names currently drawn
+        self._rpm_labels = {}
+        self._temp_labels = []
         self._build_page()
-        self._start_updates()
+        self._tick()
 
+    # ── Layout ───────────────────────────────────────────────────────────────
     def _build_page(self):
-        """Build main page."""
-        # Header
         header = tk.Frame(self.parent, bg=self.COLORS["bg"])
-        header.pack(fill="x", padx=20, pady=(15, 10))
+        header.pack(fill="x", padx=20, pady=(15, 4))
+        tk.Label(header, text=_t("nav.fan_control_hardware", "FANS - Hardware Info"),
+                 font=(_HDR, 16, "bold"), bg=self.COLORS["bg"],
+                 fg=self.COLORS["text"]).pack(side="left")
+        self._subtitle = tk.Label(header, text="", font=(_BODY, 10),
+                                  bg=self.COLORS["bg"],
+                                  fg=self.COLORS["text_muted"])
+        self._subtitle.pack(side="left", padx=(15, 0))
 
-        tk.Label(
-            header,
-            text="FANS - Hardware Info",
-            font=("Segoe UI Semibold", 16, "bold"),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["text"]
-        ).pack(side="left")
+        self._body = tk.Frame(self.parent, bg=self.COLORS["bg"])
+        self._body.pack(fill="both", expand=True)
 
-        tk.Label(
-            header,
-            text="Real-time fan monitoring",
-            font=(_BODY, 10),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["text_muted"]
-        ).pack(side="left", padx=(15, 0))
+    def _clear_body(self):
+        for w in self._body.winfo_children():
+            try:
+                w.destroy()
+            except Exception:
+                pass
+        self._rpm_labels = {}
+        self._temp_labels = []
 
-        # Main container for fan cards
-        fans_container = tk.Frame(self.parent, bg=self.COLORS["bg"])
-        fans_container.pack(fill="both", expand=True, padx=20, pady=10)
+    def _build_empty(self):
+        self._subtitle.config(
+            text=_t("fan_control.hw_subtitle_none", "No sensor connected"))
+        es = build_empty_state(
+            self._body,
+            title=_t("fan_control.no_sensor_title", "No fan speed sensor"),
+            body=_t("fan_control.no_sensor_body",
+                    "Windows does not report fan speed to applications."),
+            note=_t("fan_control.no_sensor_note",
+                    "Until then this page stays empty."),
+            accent=self.COLORS["accent_orange"], bg=self.COLORS["bg"])
+        tk.Label(es.extra, text=_t("fan_control.measured_now",
+                                   "Measured right now").upper(),
+                 font=(_BODY, 8, "bold"), bg=es.panel_bg,
+                 fg=self.COLORS["accent_green"], anchor="w").pack(fill="x")
+        self._temp_row = tk.Frame(es.extra, bg=es.panel_bg)
+        self._temp_row.pack(fill="x", pady=(3, 0))
+        self._panel_bg = es.panel_bg
+        self._fill_temps()
 
-        # LEFT SIDE - Main fans (CPU, GPU)
-        left_frame = tk.Frame(fans_container, bg=self.COLORS["bg"])
-        left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
-
-        tk.Label(
-            left_frame,
-            text="MAIN COOLING",
-            font=("Segoe UI Semibold", 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["accent_green"]
-        ).pack(anchor="w", pady=(0, 8))
-
-        # CPU Fan gauge
-        self._create_main_fan_card(left_frame, "cpu", "CPU Fan", self.COLORS["accent_blue"])
-
-        # GPU Fan gauge
-        self._create_main_fan_card(left_frame, "gpu", "GPU Fan", self.COLORS["accent_orange"])
-
-        # RIGHT SIDE - Case fans (4 slots in one row)
-        right_frame = tk.Frame(fans_container, bg=self.COLORS["bg"])
-        right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
-
-        tk.Label(
-            right_frame,
-            text="CASE FANS",
-            font=("Segoe UI Semibold", 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["accent_purple"]
-        ).pack(anchor="w", pady=(0, 8))
-
-        # Container for 4 compact case fan cards
-        case_fans_row = tk.Frame(right_frame, bg=self.COLORS["bg"])
-        case_fans_row.pack(fill="x")
-
-        for i, fan_id in enumerate(["case1", "case2", "case3", "case4"]):
-            self._create_case_fan_card(case_fans_row, fan_id, self.fan_data[fan_id]["name"])
-
-        # BOTTOM SECTION - Models and details
-        self._build_details_section()
-
-    def _create_main_fan_card(self, parent, fan_id, title, accent_color):
-        """Create main fan card (CPU/GPU) with gauge."""
-        card = tk.Frame(parent, bg=self.COLORS["card_bg"], relief="flat", bd=0)
-        card.pack(fill="x", pady=5)
-
-        # Inner padding
-        inner = tk.Frame(card, bg=self.COLORS["card_bg"])
-        inner.pack(fill="both", expand=True, padx=15, pady=12)
-
-        # Left side - gauge
-        gauge_frame = tk.Frame(inner, bg=self.COLORS["card_bg"])
-        gauge_frame.pack(side="left")
-
-        # Gauge canvas (semi-circle)
-        gauge_size = 80
-        canvas = tk.Canvas(
-            gauge_frame,
-            width=gauge_size,
-            height=gauge_size // 2 + 15,
-            bg=self.COLORS["card_bg"],
-            highlightthickness=0
-        )
-        canvas.pack()
-
-        self.fan_gauges[fan_id] = {
-            "canvas": canvas,
-            "size": gauge_size,
-            "color": accent_color
-        }
-
-        # Draw initial gauge
-        self._draw_gauge(fan_id, self.fan_data[fan_id]["rpm"], self.fan_data[fan_id]["max_rpm"])
-
-        # Right side - details
-        info_frame = tk.Frame(inner, bg=self.COLORS["card_bg"])
-        info_frame.pack(side="left", fill="both", expand=True, padx=(15, 0))
-
-        # Title
-        tk.Label(
-            info_frame,
-            text=title,
-            font=("Segoe UI Semibold", 11),
-            bg=self.COLORS["card_bg"],
-            fg=self.COLORS["text"]
-        ).pack(anchor="w")
-
-        # RPM
-        rpm_label = tk.Label(
-            info_frame,
-            text=f"{self.fan_data[fan_id]['rpm']} RPM",
-            font=(_MONO, 18, "bold"),
-            bg=self.COLORS["card_bg"],
-            fg=accent_color
-        )
-        rpm_label.pack(anchor="w")
-        self.rpm_labels[fan_id] = rpm_label
-
-        # Percentage
-        pct = int((self.fan_data[fan_id]["rpm"] / self.fan_data[fan_id]["max_rpm"]) * 100)
-        pct_label = tk.Label(
-            info_frame,
-            text=f"{pct}% of max",
-            font=(_BODY, 9),
-            bg=self.COLORS["card_bg"],
-            fg=self.COLORS["text_muted"]
-        )
-        pct_label.pack(anchor="w")
-
-    def _create_case_fan_card(self, parent, fan_id, title):
-        """Create compact case fan card."""
-        card = tk.Frame(parent, bg=self.COLORS["card_bg"], relief="flat", bd=0)
-        card.pack(side="left", fill="both", expand=True, padx=2, pady=2)
-
-        inner = tk.Frame(card, bg=self.COLORS["card_bg"])
-        inner.pack(fill="both", expand=True, padx=8, pady=8)
-
-        # Mini gauge
-        gauge_size = 50
-        canvas = tk.Canvas(
-            inner,
-            width=gauge_size,
-            height=gauge_size // 2 + 10,
-            bg=self.COLORS["card_bg"],
-            highlightthickness=0
-        )
-        canvas.pack()
-
-        self.fan_gauges[fan_id] = {
-            "canvas": canvas,
-            "size": gauge_size,
-            "color": self.COLORS["accent_purple"]
-        }
-
-        # Draw gauge
-        self._draw_gauge(fan_id, self.fan_data[fan_id]["rpm"], self.fan_data[fan_id]["max_rpm"])
-
-        # Name
-        tk.Label(
-            inner,
-            text=title,
-            font=(_BODY, 8),
-            bg=self.COLORS["card_bg"],
-            fg=self.COLORS["text"]
-        ).pack()
-
-        # RPM (compact)
-        rpm = self.fan_data[fan_id]["rpm"]
-        rpm_text = f"{rpm}" if rpm > 0 else "N/A"
-        rpm_label = tk.Label(
-            inner,
-            text=rpm_text,
-            font=(_MONO, 10, "bold"),
-            bg=self.COLORS["card_bg"],
-            fg=self.COLORS["accent_purple"] if rpm > 0 else self.COLORS["text_muted"]
-        )
-        rpm_label.pack()
-        self.rpm_labels[fan_id] = rpm_label
-
-    def _draw_gauge(self, fan_id, rpm, max_rpm):
-        """Draw fan gauge (semi-circle)."""
-        gauge_data = self.fan_gauges.get(fan_id)
-        if not gauge_data:
+    def _fill_temps(self):
+        row = getattr(self, "_temp_row", None)
+        if row is None:
             return
-
-        canvas = gauge_data["canvas"]
-        size = gauge_data["size"]
-        color = gauge_data["color"]
-
-        canvas.delete("all")
-
-        # Parameters
-        cx, cy = size // 2, size // 2 + 5
-        radius = size // 2 - 5
-        thickness = 6 if size > 60 else 4
-
-        # Gauge background (gray arc)
-        canvas.create_arc(
-            cx - radius, cy - radius,
-            cx + radius, cy + radius,
-            start=180, extent=180,
-            outline=self.COLORS["gauge_track"],
-            width=thickness,
-            style="arc"
-        )
-
-        # Gauge value (colored arc)
-        if max_rpm > 0:
-            pct = min(rpm / max_rpm, 1.0)
-            extent = 180 * pct
-
-            canvas.create_arc(
-                cx - radius, cy - radius,
-                cx + radius, cy + radius,
-                start=180, extent=extent,
-                outline=color,
-                width=thickness,
-                style="arc"
-            )
-
-        # Percentage text (only for large gauge)
-        if size > 60:
-            pct_text = f"{int(pct * 100)}%" if max_rpm > 0 else "N/A"
-            canvas.create_text(
-                cx, cy - 5,
-                text=pct_text,
-                font=(_MONO, 11, "bold"),
-                fill=color
-            )
-
-    def _build_details_section(self):
-        """Build details section with CPU/GPU models and fan info."""
-        details = tk.Frame(self.parent, bg=self.COLORS["bg"])
-        details.pack(fill="x", padx=20, pady=(15, 10))
-
-        # Separator
-        sep = tk.Frame(details, bg=self.COLORS["card_border"], height=1)
-        sep.pack(fill="x", pady=(0, 15))
-
-        # Two columns
-        columns = tk.Frame(details, bg=self.COLORS["bg"])
-        columns.pack(fill="x")
-
-        # LEFT COLUMN - CPU/GPU models
-        left_col = tk.Frame(columns, bg=self.COLORS["bg"])
-        left_col.pack(side="left", fill="both", expand=True)
-
-        tk.Label(
-            left_col,
-            text="COMPONENT MODELS",
-            font=("Segoe UI Semibold", 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["accent_green"]
-        ).pack(anchor="w", pady=(0, 8))
-
-        # CPU/GPU models
-        self._create_model_row(left_col, "CPU Cooler:", self.fan_data["cpu"]["model"])
-        self._create_model_row(left_col, "GPU Cooler:", self.fan_data["gpu"]["model"])
-
-        # RIGHT COLUMN - case fan models
-        right_col = tk.Frame(columns, bg=self.COLORS["bg"])
-        right_col.pack(side="right", fill="both", expand=True)
-
-        tk.Label(
-            right_col,
-            text="CASE FAN MODELS",
-            font=("Segoe UI Semibold", 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["accent_purple"]
-        ).pack(anchor="w", pady=(0, 8))
-
-        for fan_id in ["case1", "case2", "case3", "case4"]:
-            name = self.fan_data[fan_id]["name"]
-            model = self.fan_data[fan_id]["model"]
-            self._create_model_row(right_col, f"{name}:", model)
-
-    def _create_model_row(self, parent, label, value):
-        """Create a model row with label and value."""
-        row = tk.Frame(parent, bg=self.COLORS["bg"])
-        row.pack(fill="x", pady=2)
-
-        tk.Label(
-            row,
-            text=label,
-            font=(_BODY, 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["text_muted"],
-            width=12,
-            anchor="w"
-        ).pack(side="left")
-
-        tk.Label(
-            row,
-            text=value,
-            font=("Segoe UI Semibold", 9),
-            bg=self.COLORS["bg"],
-            fg=self.COLORS["text"],
-            anchor="w"
-        ).pack(side="left")
-
-    def _start_updates(self):
-        """Start periodic data updates."""
-        self._update_data()
-
-    def _update_data(self):
-        """Update fan data (simulation)."""
         try:
-            # Simulated RPM changes (replace with hardware reads)
-            for fan_id, data in self.fan_data.items():
-                if data["max_rpm"] > 0 and data["rpm"] > 0:
-                    # Random delta +/- 50 RPM
-                    change = random.randint(-50, 50)
-                    new_rpm = max(500, min(data["max_rpm"], data["rpm"] + change))
-                    self.fan_data[fan_id]["rpm"] = new_rpm
-
-                    # Update gauge
-                    self._draw_gauge(fan_id, new_rpm, data["max_rpm"])
-
-                    # Update RPM label
-                    if fan_id in self.rpm_labels:
-                        if fan_id.startswith("case"):
-                            self.rpm_labels[fan_id].config(text=f"{new_rpm}")
-                        else:
-                            self.rpm_labels[fan_id].config(text=f"{new_rpm} RPM")
-
-            # Next update in 2 seconds
-            self.parent.after(2000, self._update_data)
-        except tk.TclError:
-            # Widget destroyed
+            for w in row.winfo_children():
+                w.destroy()
+            temps = real_temperatures()
+            if not temps:
+                tk.Label(row, text="-", font=(_MONO, 10), bg=self._panel_bg,
+                         fg=self.COLORS["text_muted"]).pack(side="left")
+            for label, text in temps:
+                tk.Label(row, text=label, font=(_BODY, 9, "bold"),
+                         bg=self._panel_bg,
+                         fg=self.COLORS["text_muted"]).pack(side="left")
+                tk.Label(row, text=text, font=(_MONO, 10, "bold"),
+                         bg=self._panel_bg,
+                         fg=self.COLORS["text"]).pack(side="left", padx=(6, 22))
+        except Exception:
             pass
+
+    def _build_fans(self, fans):
+        self._subtitle.config(
+            text=_t("fan_control.hw_subtitle_live", "Measured fan speed"))
+        wrap = tk.Frame(self._body, bg=self.COLORS["bg"])
+        wrap.pack(fill="both", expand=True, padx=20, pady=10)
+        tk.Label(wrap, text=_t("fan_control.fans_detected", "FANS DETECTED"),
+                 font=(_HDR, 9), bg=self.COLORS["bg"],
+                 fg=self.COLORS["accent_green"]).pack(anchor="w", pady=(0, 8))
+
+        grid = tk.Frame(wrap, bg=self.COLORS["bg"])
+        grid.pack(fill="x")
+        cols = 3
+        for c in range(cols):
+            grid.grid_columnconfigure(c, weight=1, uniform="fan")
+        accents = (self.COLORS["accent_blue"], self.COLORS["accent_orange"],
+                   self.COLORS["accent_purple"])
+        for i, fan in enumerate(fans):
+            card = tk.Frame(grid, bg=self.COLORS["card_bg"])
+            card.grid(row=i // cols, column=i % cols, sticky="nsew",
+                      padx=4, pady=4)
+            tk.Frame(card, bg=accents[i % len(accents)],
+                     height=2).pack(fill="x")
+            inner = tk.Frame(card, bg=self.COLORS["card_bg"])
+            inner.pack(fill="both", expand=True, padx=14, pady=10)
+            tk.Label(inner, text=fan["name"], font=(_HDR, 10),
+                     bg=self.COLORS["card_bg"], fg=self.COLORS["text"],
+                     anchor="w").pack(fill="x")
+            rpm = tk.Label(inner, text="", font=(_MONO, 17, "bold"),
+                           bg=self.COLORS["card_bg"],
+                           fg=accents[i % len(accents)], anchor="w")
+            rpm.pack(fill="x")
+            note = tk.Label(inner, text="", font=(_BODY, 8),
+                            bg=self.COLORS["card_bg"],
+                            fg=self.COLORS["text_muted"], anchor="w")
+            note.pack(fill="x")
+            self._rpm_labels[fan["name"]] = (rpm, note)
+
+        src = _source_label() or "LibreHardwareMonitor"
+        tk.Label(wrap, text=_t("fan_control.source_line",
+                               "Read from {source}.", source=src),
+                 font=(_BODY, 9), bg=self.COLORS["bg"],
+                 fg=self.COLORS["text_muted"], anchor="w").pack(
+                     fill="x", pady=(12, 0))
+        self._update_values(fans)
+
+    def _update_values(self, fans):
+        for fan in fans:
+            refs = self._rpm_labels.get(fan["name"])
+            if not refs:
+                continue
+            rpm_lbl, note_lbl = refs
+            rpm_lbl.config(text=f"{fan['rpm']} RPM")
+            note_lbl.config(text=_t("fan_control.fan_stopped",
+                                    "stopped or not connected")
+                            if fan["rpm"] == 0 else "")
+
+    # ── Refresh ──────────────────────────────────────────────────────────────
+    def _tick(self):
+        try:
+            if not self.parent.winfo_exists():
+                return
+            fans = _measured_fans()
+            names = tuple(f["name"] for f in fans)
+            if names != self._shown_names:
+                # sensor appeared, disappeared, or the set of fans changed
+                self._shown_names = names
+                self._clear_body()
+                if fans:
+                    self._build_fans(fans)
+                else:
+                    self._build_empty()
+            elif fans:
+                self._update_values(fans)
+            else:
+                self._fill_temps()
+            self.parent.after(_REFRESH_MS, self._tick)
+        except tk.TclError:
+            pass                                    # widget destroyed
 
 
 def create_fans_hardware_page(parent, monitor=None):

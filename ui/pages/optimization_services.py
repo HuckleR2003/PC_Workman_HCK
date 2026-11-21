@@ -1,6 +1,8 @@
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 import subprocess
 import threading
+from ui import bg as _bg_ui   # worker threads never call Tk (2026-11-21)
 import os
 import json
 import time
@@ -21,8 +23,8 @@ except Exception:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except Exception:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _F    = _UIF    # body / UI text
 _M    = _MONOF  # monospace / numbers
 _BODY = _UIF
@@ -33,6 +35,8 @@ try:
 except Exception:
     def t(key, default=None, **kw):
         return default if default is not None else key
+
+from ui.components.fit import wrap_to_width as _wrap_to_width
 
 # Page-level navigation callback (set in build_optimization_page) so nested card
 # builders can jump to another page - e.g. the MANAGER 'i' -> Services Manager.
@@ -84,17 +88,32 @@ def _load_prefs():
     from utils.prefs_io import load_json
     return load_json(_PREFS_PATH, {})
 
+_APP_SETTINGS_PATH = os.path.join(_APP_DIR, "settings", "app_settings.json")
+
+
+def _app_setting(key, default=None):
+    """One value from settings/app_settings.json (shared with Settings)."""
+    from utils.prefs_io import load_json
+    d = load_json(_APP_SETTINGS_PATH, {})
+    return d.get(key, default) if isinstance(d, dict) else default
+
+
+def _set_app_setting(**kw):
+    from utils.prefs_io import update_json
+    update_json(_APP_SETTINGS_PATH, **kw)
+
+
 def _save_opt(**kw):
-    try:
-        os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-        p = _load_prefs()
-        o = p.get("optimization", {})
+    """Merge keys into user_prefs.json["optimization"] under the file lock
+    (the master TURBO switch writes the same file from another thread)."""
+    from utils.prefs_io import edit_json
+
+    def _apply(p):
+        o = p.get("optimization")
+        o = o if isinstance(o, dict) else {}
         o.update(kw)
         p["optimization"] = o
-        with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-            json.dump(p, f, indent=2)
-    except Exception:
-        pass
+    edit_json(_PREFS_PATH, _apply)
 
 # ── RAM state ─────────────────────────────────────────────────────────────────
 _RAM = {
@@ -165,11 +184,8 @@ def _tpp_is_active() -> bool:
 def _set_turbo_flag(on: bool) -> None:
     """Persist the master TURBO flag at top level (read by feature monitors)."""
     try:
-        os.makedirs(os.path.dirname(_PREFS_PATH), exist_ok=True)
-        p = _load_prefs()
-        p["turbo_active"] = bool(on)
-        with open(_PREFS_PATH, "w", encoding="utf-8") as f:
-            json.dump(p, f, indent=2)
+        from utils.prefs_io import update_json
+        update_json(_PREFS_PATH, turbo_active=bool(on))
     except Exception:
         pass
     # Inform the always-on daemon immediately, so RAM-on-TURBO and the TPP
@@ -199,45 +215,74 @@ def set_turbo_active(on: bool) -> dict:
     _set_turbo_flag(on)
     applied: list[tuple[str, bool]] = []
     o = _load_prefs().get("optimization", {})
+    admin = _is_admin()
 
-    # Turbo Power Plan
-    if o.get("tpp_on_turbo", False):
-        if on and not _tpp_is_active():
-            ok, _ = _tpp_run();     applied.append(("Turbo Power Plan", ok))
-        elif not on and _tpp_is_active():
-            ok, _ = _tpp_restore(); applied.append(("Turbo Power Plan", ok))
+    # What this click will actually do, decided up front and reported
+    # honestly (2026-11-14). The Dashboard prints "N fired" from this list.
+    # It used to end with one fixed, always-successful entry for hibernation
+    # and services, so the button answered "ON · 1 fired" with nothing armed,
+    # and with services that need Administrator rights and never stopped.
+    tpp_armed = bool(o.get("tpp_on_turbo", False))
+    hib_armed = svc_armed = False
+    try:
+        from import_core import COMPONENTS
+        _hibm = COMPONENTS.get("core.hibernation_manager")
+        hib_armed = bool(_hibm is not None and _hibm.turbo_behaviors)
+    except Exception:
+        _hibm = None
+    try:
+        from core.turbo_manager import turbo_services as _tsvc
+        _prof = _tsvc.get_active_profile()
+        svc_armed = bool(_prof and _tsvc.get_profile_services(_prof))
+    except Exception:
+        _tsvc, _prof = None, None
+    if tpp_armed:
+        applied.append(("Turbo Power Plan", admin))      # powercfg needs admin
+    if hib_armed:
+        applied.append(("App Hibernation", True))
+    if svc_armed:
+        applied.append(("Service Stop", admin))          # sc stop needs admin
 
-    # App Hibernation + TURBO Services - BOTH fully off the main thread
-    # (2026-07-18 freeze lesson: apply_turbo_behaviors iterates and suspends
-    # EVERY matching process; on the UI thread that can stall the whole app.
-    # The master switch must stay instant - all process/service work goes to
-    # one worker).
+    # ALL of it runs on one worker, the power plan included: powercfg can
+    # take seconds, and it used to run right here on the UI thread. (Lesson
+    # of 2026-07-18: apply_turbo_behaviors suspends every matching process;
+    # on the UI thread that stalls the whole app. The switch stays instant.)
     def _turbo_workers(_on=on):
-        try:
-            from import_core import COMPONENTS
-            hibm = COMPONENTS.get("core.hibernation_manager")
-            if hibm is not None and hibm.turbo_behaviors:
+        if tpp_armed:
+            try:
+                if _on and not _tpp_is_active():
+                    _tpp_run()
+                elif not _on and _tpp_is_active():
+                    _tpp_restore()
+            except Exception:
+                pass
+        if hib_armed:
+            try:
                 if _on:
-                    hibm.apply_turbo_behaviors()
+                    _hibm.apply_turbo_behaviors()
                 else:
-                    hibm.restore_turbo_apps()
+                    _hibm.restore_turbo_apps()
+            except Exception:
+                pass
+        # Restoring is attempted even when nothing is armed any more: a
+        # profile emptied while TURBO was on must still get its services back.
+        try:
+            if _tsvc is not None:
+                if _on and svc_armed:
+                    _tsvc.stop_profile(_prof)
+                elif not _on:
+                    _tsvc.restore_all()
         except Exception:
             pass
-        try:
-            from core.turbo_manager import turbo_services
-            prof = turbo_services.get_active_profile()
-            if prof and turbo_services.get_profile_services(prof):
-                if _on:
-                    turbo_services.stop_profile(prof)
-                else:
-                    turbo_services.restore_all()
-        except Exception:
-            pass
+        if not _on and _hibm is not None and not hib_armed:
+            try:
+                _hibm.restore_turbo_apps()
+            except Exception:
+                pass
     threading.Thread(target=_turbo_workers, daemon=True,
                      name="turbo-apply").start()
-    applied.append(("App Hibernation + Services", True))
 
-    return {"on": on, "applied": applied, "admin": _is_admin()}
+    return {"on": on, "applied": applied, "admin": admin}
 
 
 def turbo_armed_summary() -> list[tuple[str, bool]]:
@@ -391,7 +436,7 @@ def _build_hero_header(parent, back_fn=None):
                                fill="#0a0f1a", outline=BORDER2)
         hero.create_text(W - 49, 32,
                           text=f"2 / {_TOTAL}  active",
-                          font=(_M, 6), fill=DIM)
+                          font=(_M, 7), fill=DIM)
         # Back link - quiet, bottom-right (only when back_fn provided)
         if back_fn:
             hero.create_text(W - 10, 57, text="‹ Dashboard",
@@ -401,11 +446,11 @@ def _build_hero_header(parent, back_fn=None):
     hero.bind("<Configure>", _draw_hero)
 
     if back_fn:
-        hero.tag_bind("back_nav", "<Button-1>", lambda e: back_fn())
+        hero.tag_bind("back_nav", "<Button-1>", lambda e=None: back_fn())
         hero.tag_bind("back_nav", "<Enter>",
-                      lambda e: hero.itemconfig("back_nav", fill="#8b5cf6"))
+                      lambda e=None: hero.itemconfig("back_nav", fill="#8b5cf6"))
         hero.tag_bind("back_nav", "<Leave>",
-                      lambda e: hero.itemconfig("back_nav", fill="#6b7a90"))
+                      lambda e=None: hero.itemconfig("back_nav", fill="#6b7a90"))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -451,14 +496,14 @@ def _build_snapshot_strip(parent):
             _cv.create_rectangle(0, 0, fw, H, fill=_fc, outline="")
         mid = H // 2
         _cv.create_text(12, mid - 7, text=_lbl, anchor="w",
-                        fill=MUTED, font=(_F, 6))
+                        fill=MUTED, font=(_F, 7))
         _cv.create_text(12, mid + 8, text=f"{pct:.0f}%", anchor="w",
                         fill=_col, font=(_F, 9, "bold"))
 
     # Bind Configure for initial draw (correct width after layout)
     for cv, col, fc, lbl, _key in _canvases:
         cv.bind("<Configure>",
-                lambda e, _c=cv, _co=col, _f=fc, _l=lbl: _redraw_cv(_c, _co, _f, _l, 0))
+                lambda e=None, _c=cv, _co=col, _f=fc, _l=lbl: _redraw_cv(_c, _co, _f, _l, 0))
 
     def _refresh():
         try:
@@ -549,7 +594,7 @@ def _build_quick_actions(parent, nav_callback=None):
 
     # Status bar (shared)
     status_lbl = tk.Label(wrap, text="",
-                          font=(_M, 5), bg="#0a0d14", fg=MUTED,
+                          font=(_M, 7), bg="#0a0d14", fg=MUTED,
                           pady=2, padx=8, anchor="w")
     status_lbl.pack(fill="x")
 
@@ -594,23 +639,28 @@ def _build_quick_actions(parent, nav_callback=None):
         _icv(row, qa["icon"], bg=row_bg, size=11).pack(
             side="left", padx=(7, 5), pady=7)
 
-        # Text block: label + subtitle
-        txt = tk.Frame(row, bg=row_bg)
-        txt.pack(side="left", fill="both", expand=True)
-        tk.Label(txt, text=label, font=(_HDR, 9),
-                 bg=row_bg, fg="#a0b4cc" if row_bg == CARD else "#4aaa70",
-                 anchor="w").pack(anchor="w", pady=(4, 0))
-        if sub:
-            tk.Label(txt, text=sub, font=(_F, 8),
-                     bg=row_bg, fg="#9fb0c6", anchor="w").pack(anchor="w", pady=(0, 4))
-
-        # RUN / OPEN / VIEW button  (slightly larger: padx=10, pady=4)
-        btn = tk.Label(row, text=btn_t, font=(_HDR, 6),
+        # RUN / OPEN / VIEW button, packed BEFORE the text so the text is
+        # what gives way (the button was cut to "VI" once fonts grew)
+        btn = tk.Label(row, text=btn_t, font=(_HDR, 7),
                        bg=row_bg, fg=col, cursor="hand2",
                        padx=10, pady=4,
                        highlightbackground=col, highlightthickness=1)
         btn.pack(side="right", padx=8, pady=6)
         _ACTION_BTNS[qa["key"]] = (btn, col)
+
+        # Text block: label + subtitle
+        txt = tk.Frame(row, bg=row_bg)
+        txt.pack(side="left", fill="both", expand=True)
+        _lab = tk.Label(txt, text=label, font=(_HDR, 9),
+                        bg=row_bg, fg="#a0b4cc" if row_bg == CARD else "#4aaa70",
+                        anchor="w", justify="left")
+        _lab.pack(anchor="w", fill="x", pady=(4, 0))
+        _wrap_to_width(_lab, txt)
+        if sub:
+            _sl = tk.Label(txt, text=sub, font=(_F, 8), bg=row_bg,
+                           fg="#9fb0c6", anchor="w", justify="left")
+            _sl.pack(anchor="w", fill="x", pady=(0, 4))
+            _wrap_to_width(_sl, txt)
 
         # ── Bind action ───────────────────────────────────────────────────────
         kind = qa["kind"]
@@ -634,22 +684,18 @@ def _build_quick_actions(parent, nav_callback=None):
                 def _h(e=None):
                     b.config(text="...", fg=MUTED, bg="#0a0d14",
                              highlightbackground=BORDER)
-                    def _bg():
-                        ok, msg = f()
+
+                    def _done(res):
+                        ok, msg = res
                         t2, c2 = ("DONE", EMERALD) if ok else ("FAIL", RED)
-                        bg2 = "#0a1a10" if ok else "#1a0a0a"
-                        if b.winfo_exists():
-                            b.after(0, lambda: b.config(
-                                text=t2, fg=c2, highlightbackground=c2, bg=bg2))
+                        b.config(text=t2, fg=c2, highlightbackground=c2,
+                                 bg="#0a1a10" if ok else "#1a0a0a")
                         if status_lbl.winfo_exists():
-                            status_lbl.after(0, lambda:
-                                status_lbl.config(text=msg, fg=c2))
-                        time.sleep(3)
-                        if b.winfo_exists():
-                            b.after(0, lambda: b.config(
-                                text=orig_lbl, fg=c, bg=CARD,
-                                highlightbackground=c))
-                    threading.Thread(target=_bg, daemon=True).start()
+                            status_lbl.config(text=msg, fg=c2)
+                        _bg_ui.later(b, 3, lambda: b.config(
+                            text=orig_lbl, fg=c, bg=CARD, highlightbackground=c))
+                    # f runs on a thread and touches no Tk (ui/bg.py)
+                    _bg_ui.run(b, f, _done, name="opt-quick-action")
                 return _h
             btn.bind("<Button-1>", _mk_run(fn, btn, col, btn_t))
 
@@ -661,8 +707,8 @@ def _build_quick_actions(parent, nav_callback=None):
                 return _h
             btn.bind("<Button-1>", _mk_report(btn))
 
-        btn.bind("<Enter>", lambda e, b=btn: b.config(fg="#ffffff"))
-        btn.bind("<Leave>", lambda e, b=btn, c=col: b.config(fg=c))
+        btn.bind("<Enter>", lambda e=None, b=btn: b.config(fg="#ffffff"))
+        btn.bind("<Leave>", lambda e=None, b=btn, c=col: b.config(fg=c))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -719,11 +765,12 @@ def _build_live_mini(parent):
             for nm, (barcv, col) in _bar_cvs.items():
                 pct = vals.get(nm, 0)
                 if _val_lbls[nm].winfo_exists():
-                    _val_lbls[nm].config(text=f"{pct:.0f}%")
+                    # -1 means "no reading" (no NVIDIA card): it showed "-1%"
+                    _val_lbls[nm].config(text=f"{pct:.0f}%" if pct >= 0 else "--")
                 if barcv.winfo_exists():
                     barcv.delete("all")
                     W = barcv.winfo_width()
-                    if W > 2:
+                    if W > 2 and pct > 0:
                         fw = max(1, int(W * pct / 100))
                         barcv.create_rectangle(0, 0, fw, 2,
                                                fill=col, outline="")
@@ -753,7 +800,7 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
     # ── Profile selector ──────────────────────────────────────────────────────
     top = tk.Frame(parent, bg=_BG)
     top.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(top, text="PROFILE", font=(_HDR, 6),
+    tk.Label(top, text="PROFILE", font=(_HDR, 7),
              bg=_BG, fg=_MUT).pack(side="left", padx=(0, 8))
 
     _sel   = {"key": "gaming"}
@@ -782,22 +829,22 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
         for svc in svcs[:9]:
             row = tk.Frame(list_frame, bg=_DARK)
             row.pack(fill="x", padx=6, pady=1)
-            tk.Label(row, text="─", font=(_BODY, 6),
+            tk.Label(row, text="─", font=(_BODY, 7),
                      bg=_DARK, fg=_BD).pack(side="left")
             friendly = _SVC_LABELS.get(svc, svc)
-            tk.Label(row, text=friendly, font=(_F, 6),
+            tk.Label(row, text=friendly, font=(_F, 7),
                      bg=_DARK, fg="#7f93ad", anchor="w",
                      ).pack(side="left", padx=(4, 0), fill="x", expand=True)
-            sl = tk.Label(row, text="", font=(_F, 5), bg=_DARK, fg=_MUT)
+            sl = tk.Label(row, text="", font=(_F, 7), bg=_DARK, fg=_MUT)
             sl.pack(side="right", padx=4)
             svc_rows[svc] = sl
         if len(svcs) > 9:
             tk.Label(list_frame, text=f"  + {len(svcs) - 9} more services…",
-                     font=(_F, 5), bg=_DARK, fg=_MUT, anchor="w",
+                     font=(_F, 7), bg=_DARK, fg=_MUT, anchor="w",
                      pady=2).pack(anchor="w", padx=6)
         elif not svcs:
             tk.Label(list_frame, text="  (turbo_manager not available)",
-                     font=(_F, 6), bg=_DARK, fg=_MUT, pady=4).pack(anchor="w", padx=6)
+                     font=(_F, 7), bg=_DARK, fg=_MUT, pady=4).pack(anchor="w", padx=6)
         card.update_idletasks()
 
     def _sel_profile(pkey):
@@ -825,23 +872,23 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
         pcol = pdata["color"]
         is_mgr = (pkey == "manager")
         ch = tk.Label(top, text=pdata["label"].upper(),
-                      font=(_HDR, 6), cursor="hand2", padx=9, pady=3,
+                      font=(_HDR, 7), cursor="hand2", padx=9, pady=3,
                       bg="#f5f5f5" if is_mgr else _BG,
                       fg="#0a0a0a" if is_mgr else _MUT,
                       highlightbackground="#cfd2d6" if is_mgr else _BD,
                       highlightthickness=1)
         ch.pack(side="left", padx=(2, 0) if is_mgr else 2)
         _chips[pkey] = (ch, pcol, pdata.get("bg", _BG))
-        ch.bind("<Button-1>", lambda e, k=pkey: _sel_profile(k))
+        ch.bind("<Button-1>", lambda e=None, k=pkey: _sel_profile(k))
         if is_mgr:
             # Clickable info badge - jumps to the Services Manager configurator
-            info = tk.Label(top, text="ⓘ", font=(_HDR, 7), bg=_BG,
+            info = tk.Label(top, text="ⓘ", font=(_HDR, 7, "bold"), bg=_BG,
                             fg="#8b5cf6", cursor="hand2")
             info.pack(side="left", padx=(0, 2))
             info.bind("<Button-1>",
-                      lambda e: _NAV["cb"]("services_manager") if _NAV["cb"] else None)
-            info.bind("<Enter>", lambda e, w=info: w.config(fg="#c4b5fd"))
-            info.bind("<Leave>", lambda e, w=info: w.config(fg="#8b5cf6"))
+                      lambda e=None: _NAV["cb"]("services_manager") if _NAV["cb"] else None)
+            info.bind("<Enter>", lambda e=None, w=info: w.config(fg="#c4b5fd"))
+            info.bind("<Leave>", lambda e=None, w=info: w.config(fg="#8b5cf6"))
 
     _sel_profile(turbo_services.get_active_profile()
                  if (_TURBO_MGR_OK and turbo_services) else "gaming")  # active profile (synced)
@@ -851,18 +898,18 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
     btn_row.pack(fill="x", padx=10, pady=(0, 4))
 
     act_lbl = tk.Label(btn_row, text="",
-                       font=(_F, 6), bg=_BG, fg=_MUT, anchor="w")
+                       font=(_F, 7), bg=_BG, fg=_MUT, anchor="w")
     act_lbl.pack(side="left", fill="x", expand=True)
 
     restore_btn = tk.Label(btn_row, text="RESTORE  ALL",
-                           font=(_HDR, 6),
+                           font=(_HDR, 7),
                            bg=_BG, fg=_MUT, cursor="hand2",
                            padx=8, pady=3,
                            highlightbackground=_BD, highlightthickness=1)
     restore_btn.pack(side="right", padx=(4, 0))
 
     stop_btn = tk.Label(btn_row, text="STOP  PROFILE",
-                        font=(_HDR, 6),
+                        font=(_HDR, 7),
                         bg="#130508", fg=BORD_L, cursor="hand2",
                         padx=8, pady=3,
                         highlightbackground=BORD, highlightthickness=1)
@@ -871,7 +918,7 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
     if not (_TURBO_MGR_OK and turbo_services and turbo_services.is_admin):
         tk.Label(parent,
                  text="⚠  Requires Administrator - restart PC Workman as Admin",
-                 font=(_F, 6), bg=_BG, fg=AMBER, anchor="w",
+                 font=(_F, 7), bg=_BG, fg=AMBER, anchor="w",
                  ).pack(anchor="w", padx=10, pady=(0, 6))
     else:
         tk.Frame(parent, bg=_BD, height=1).pack(fill="x", padx=10, pady=(0, 6))
@@ -885,57 +932,53 @@ def _build_svc_expand(parent: tk.Frame, card: tk.Frame) -> None:
             act_lbl.config(text="Needs Administrator rights", fg=AMBER)
             return
         stop_btn.config(text="stopping…", fg=MUTED)
-        def _bg():
+        key = _sel["key"]
+
+        def _work(key=key):
             # Receipt opens BEFORE the services go down, so the comparison is
             # honest: every optimiser claims it helped, this one prints the
             # numbers from either side of the action.
             try:
                 from core.opt_receipts import record as _receipt
-                _receipt(f"TURBO services: {_sel['key']}")
+                _receipt(f"TURBO services: {key}")
             except Exception:
                 pass
-            results = turbo_services.stop_profile(_sel["key"])
+            return turbo_services.stop_profile(key)
+
+        def _done(results):
             ok_n = sum(1 for _, ok, _ in results if ok)
-            col  = BORD_L if ok_n > 0 else MUTED
-            msg  = f"{ok_n} services stopped"
             for svc, sl in svc_rows.items():
                 hit = next((ok for s, ok, _ in results if s == svc), None)
                 if sl.winfo_exists():
-                    sl.after(0, lambda lb=sl, h=hit: lb.config(
-                        text="✓ stopped" if h else "", fg=BORD_L if h else _MUT))
-            if stop_btn.winfo_exists():
-                stop_btn.after(0, lambda: stop_btn.config(
-                    text="STOP  PROFILE", fg=BORD_L))
+                    sl.config(text="✓ stopped" if hit else "", fg=BORD_L if hit else _MUT)
+            stop_btn.config(text="STOP  PROFILE", fg=BORD_L)
             if act_lbl.winfo_exists():
-                act_lbl.after(0, lambda: act_lbl.config(text=msg, fg=col))
-        threading.Thread(target=_bg, daemon=True).start()
+                act_lbl.config(text=f"{ok_n} services stopped", fg=BORD_L if ok_n > 0 else MUTED)
+        _bg_ui.run(stop_btn, _work, _done, name="turbo-stop")
 
     def _do_restore(e=None):
         if not (_TURBO_MGR_OK and turbo_services):
             return
         restore_btn.config(text="restoring…", fg=MUTED)
-        def _bg():
-            results = turbo_services.restore_all()
+
+        def _done(results):
             ok_n = sum(1 for _, ok, _ in results if ok)
-            msg  = (f"{ok_n} services restored" if ok_n
-                    else "Nothing to restore - already running")
-            col  = EMERALD if ok_n else _MUT
             for sl in svc_rows.values():
                 if sl.winfo_exists():
-                    sl.after(0, lambda lb=sl: lb.config(text=""))
-            if restore_btn.winfo_exists():
-                restore_btn.after(0, lambda: restore_btn.config(
-                    text="RESTORE  ALL", fg=_MUT))
+                    sl.config(text="")
+            restore_btn.config(text="RESTORE  ALL", fg=_MUT)
             if act_lbl.winfo_exists():
-                act_lbl.after(0, lambda: act_lbl.config(text=msg, fg=col))
-        threading.Thread(target=_bg, daemon=True).start()
+                act_lbl.config(text=(f"{ok_n} services restored" if ok_n
+                                     else "Nothing to restore - already running"),
+                               fg=EMERALD if ok_n else _MUT)
+        _bg_ui.run(restore_btn, turbo_services.restore_all, _done, name="turbo-restore")
 
     stop_btn.bind("<Button-1>", _do_stop)
     restore_btn.bind("<Button-1>", _do_restore)
-    stop_btn.bind("<Enter>", lambda e: stop_btn.config(fg="#ffffff"))
-    stop_btn.bind("<Leave>", lambda e: stop_btn.config(fg=BORD_L))
-    restore_btn.bind("<Enter>", lambda e: restore_btn.config(fg=EMERALD))
-    restore_btn.bind("<Leave>", lambda e: restore_btn.config(fg=_MUT))
+    stop_btn.bind("<Enter>", lambda e=None: stop_btn.config(fg="#ffffff"))
+    stop_btn.bind("<Leave>", lambda e=None: stop_btn.config(fg=BORD_L))
+    restore_btn.bind("<Enter>", lambda e=None: restore_btn.config(fg=EMERALD))
+    restore_btn.bind("<Leave>", lambda e=None: restore_btn.config(fg=_MUT))
 
 
 def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
@@ -948,16 +991,20 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
     # ── Idle threshold chips ──────────────────────────────────────────────────
     thr_row = tk.Frame(parent, bg=_BG)
     thr_row.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(thr_row, text="IDLE THRESHOLD", font=(_HDR, 6),
+    tk.Label(thr_row, text="IDLE THRESHOLD", font=(_HDR, 7),
              bg=_BG, fg=_MUT).pack(side="left", padx=(0, 8))
 
     _thr_chips: dict = {}
     _thresh = {"secs": IDLE_SECONDS_DEFAULT}
 
-    def _sel_thr(secs):
+    def _sel_thr(secs, save=True):
         _thresh["secs"] = secs
         if _TURBO_MGR_OK and turbo_processes:
             turbo_processes.idle_threshold = secs
+        if save:
+            # the SAME value as Settings > TURBO > idle threshold (2026-11-15:
+            # this card always reopened on 5 MIN and ignored that setting)
+            _set_app_setting(turbo_idle_seconds=int(secs))
         for s, (ch, _) in _thr_chips.items():
             is_me = (s == secs)
             ch.config(
@@ -967,19 +1014,23 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
             )
 
     for lbl, secs in [("3 MIN", 180), ("5 MIN", 300), ("10 MIN", 600)]:
-        ch = tk.Label(thr_row, text=lbl, font=(_HDR, 6),
+        ch = tk.Label(thr_row, text=lbl, font=(_HDR, 7),
                       bg=_BG, fg=_MUT, cursor="hand2",
                       padx=8, pady=3,
                       highlightbackground=_BD, highlightthickness=1)
         ch.pack(side="left", padx=2)
         _thr_chips[secs] = (ch, VIOLET)
-        ch.bind("<Button-1>", lambda e, s=secs: _sel_thr(s))
-    _sel_thr(300)  # default 5 min
+        ch.bind("<Button-1>", lambda e=None, s=secs: _sel_thr(s))
+    try:
+        _saved_secs = int(_app_setting("turbo_idle_seconds", 300))
+    except (TypeError, ValueError):
+        _saved_secs = 300
+    _sel_thr(_saved_secs if _saved_secs in _thr_chips else 300, save=False)
 
     # ── AUTO toggle row ───────────────────────────────────────────────────────
     auto_row = tk.Frame(parent, bg=_BG)
     auto_row.pack(fill="x", padx=10, pady=(0, 6))
-    tk.Label(auto_row, text="AUTO SUSPEND", font=(_HDR, 6),
+    tk.Label(auto_row, text="AUTO SUSPEND", font=(_HDR, 7),
              bg=_BG, fg=_MUT).pack(side="left", padx=(0, 8))
 
     auto_pill = tk.Canvas(auto_row, width=32, height=15,
@@ -988,14 +1039,14 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
     _pill_cv(auto_pill, False, 32, 15, VIOLET)
 
     mon_lbl = tk.Label(auto_row, text="inactive",
-                       font=(_F, 6), bg=_BG, fg=_MUT)
+                       font=(_F, 7), bg=_BG, fg=_MUT)
     mon_lbl.pack(side="left", padx=(8, 0))
 
     tk.Frame(auto_row, bg=_BD, width=1).pack(side="left", fill="y", padx=10)
 
     # Security notice
     sec_lbl = tk.Label(auto_row, text="✓ anti-spoof check",
-                       font=(_F, 6), bg=_BG, fg="#5fae7e")
+                       font=(_F, 7), bg=_BG, fg="#5fae7e")
     sec_lbl.pack(side="left")
 
     # ── Process list ──────────────────────────────────────────────────────────
@@ -1008,7 +1059,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
     count_lbl.pack(side="left")
 
     resume_all_btn = tk.Label(list_hdr, text="RESUME ALL",
-                              font=(_HDR, 6),
+                              font=(_HDR, 7),
                               bg=_BG, fg=_MUT, cursor="hand2",
                               padx=6, pady=2,
                               highlightbackground=_BD, highlightthickness=1)
@@ -1020,7 +1071,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
     tk.Label(proc_frame,
              text="  No suspended processes   -   toggle AUTO SUSPEND to begin",
-             font=(_F, 6), bg=_DARK, fg=_MUT, anchor="w", pady=5
+             font=(_F, 7), bg=_DARK, fg=_MUT, anchor="w", pady=5
              ).pack(fill="x")
 
     def _refresh():
@@ -1034,7 +1085,7 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
         if not procs:
             tk.Label(proc_frame,
                      text="  No suspended processes   -   toggle AUTO SUSPEND to begin",
-                     font=(_F, 6), bg=_DARK, fg=_MUT, anchor="w", pady=5
+                     font=(_F, 7), bg=_DARK, fg=_MUT, anchor="w", pady=5
                      ).pack(fill="x")
             return
         for info in procs[:8]:
@@ -1045,30 +1096,30 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
             row = tk.Frame(proc_frame, bg=_DARK)
             row.pack(fill="x", padx=6, pady=1)
             dot_c = AMBER if susp else VIOLET
-            tk.Label(row, text="●", font=(_BODY, 6),
+            tk.Label(row, text="●", font=(_BODY, 7),
                      bg=_DARK, fg=dot_c).pack(side="left")
-            nm_lbl = tk.Label(row, text=name, font=(_F, 6),
+            nm_lbl = tk.Label(row, text=name, font=(_F, 7),
                               bg=_DARK, fg="#7f93ad", anchor="w")
             nm_lbl.pack(side="left", padx=(3, 0), fill="x", expand=True)
             if susp:
-                tk.Label(row, text="⚠", font=(_BODY, 6),
+                tk.Label(row, text="⚠", font=(_BODY, 7),
                          bg=_DARK, fg=AMBER).pack(side="left", padx=2)
             idle_m = max(0, idle) // 60
             tk.Label(row, text=f"{idle_m}m idle",
-                     font=(_F, 5), bg=_DARK, fg=_MUT).pack(side="left", padx=4)
+                     font=(_F, 7), bg=_DARK, fg=_MUT).pack(side="left", padx=4)
             rb = tk.Label(row, text="▶ RESUME",
-                          font=(_HDR, 5),
+                          font=(_HDR, 7),
                           bg=_DARK, fg=VIOLET, cursor="hand2",
                           padx=5, pady=1,
                           highlightbackground=VIOLET, highlightthickness=1)
             rb.pack(side="right", padx=(0, 2))
             rb.bind("<Button-1>",
-                    lambda e, p=pid: (turbo_processes.resume(p), _refresh()))
-            rb.bind("<Enter>", lambda e, b=rb: b.config(fg="#ffffff"))
-            rb.bind("<Leave>", lambda e, b=rb: b.config(fg=VIOLET))
+                    lambda e=None, p=pid: (turbo_processes.resume(p), _refresh()))
+            rb.bind("<Enter>", lambda e=None, b=rb: b.config(fg="#ffffff"))
+            rb.bind("<Leave>", lambda e=None, b=rb: b.config(fg=VIOLET))
         if len(procs) > 8:
             tk.Label(proc_frame, text=f"  + {len(procs) - 8} more…",
-                     font=(_F, 5), bg=_DARK, fg=_MUT, anchor="w"
+                     font=(_F, 7), bg=_DARK, fg=_MUT, anchor="w"
                      ).pack(anchor="w", padx=6)
         card.update_idletasks()
 
@@ -1094,7 +1145,10 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
                     "TURBO process suspension",
                     delay=_secs + 30,
                     detail=lambda: "%d processes suspended"
-                                   % len(turbo_processes.suspended_list()),
+                                   # suspended_list is a property: calling
+                                   # it raised TypeError, so this receipt
+                                   # never recorded its result
+                                   % len(turbo_processes.suspended_list),
                 )
             except Exception:
                 pass
@@ -1125,8 +1179,8 @@ def _build_guard_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
     auto_pill.bind("<Button-1>", _toggle_auto)
     resume_all_btn.bind("<Button-1>", _resume_all)
-    resume_all_btn.bind("<Enter>", lambda e: resume_all_btn.config(fg=EMERALD))
-    resume_all_btn.bind("<Leave>", lambda e: resume_all_btn.config(fg=_MUT))
+    resume_all_btn.bind("<Enter>", lambda e=None: resume_all_btn.config(fg=EMERALD))
+    resume_all_btn.bind("<Leave>", lambda e=None: resume_all_btn.config(fg=_MUT))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1162,8 +1216,10 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     _turbo_mode  = {"on": False}   # True → show Turbo Configure selectors per row
     _thr_chips:  dict = {}
 
-    def _sel_thr(minutes):
+    def _sel_thr(minutes, save=True):
         _thresh["min"] = minutes
+        if save:
+            _save_opt(hib_idle_min=int(minutes))   # was forgotten on reopen
         for m, ch in _thr_chips.items():
             is_me = (m == minutes)
             ch.config(
@@ -1175,24 +1231,28 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     # ── Threshold chips ───────────────────────────────────────────────────────
     thr_row = tk.Frame(parent, bg=_BG)
     thr_row.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(thr_row, text="INACTIVE SINCE", font=(_HDR, 6),
+    tk.Label(thr_row, text="INACTIVE SINCE", font=(_HDR, 7),
              bg=_BG, fg=_MUT).pack(side="left", padx=(0, 8))
 
     for lbl, mins in [("10 MIN", 10), ("15 MIN", 15), ("30 MIN", 30)]:
-        ch = tk.Label(thr_row, text=lbl, font=(_HDR, 6),
+        ch = tk.Label(thr_row, text=lbl, font=(_HDR, 7),
                       bg=_BG, fg=_MUT, cursor="hand2",
                       padx=8, pady=3,
                       highlightbackground=_BD, highlightthickness=1)
         ch.pack(side="left", padx=2)
         _thr_chips[mins] = ch
-        ch.bind("<Button-1>", lambda e, m=mins: (_sel_thr(m), _refresh_unused()))
-    _sel_thr(15)
+        ch.bind("<Button-1>", lambda e=None, m=mins: (_sel_thr(m), _refresh_unused()))
+    try:
+        _saved_min = int(_load_prefs().get("optimization", {}).get("hib_idle_min", 15))
+    except (TypeError, ValueError, AttributeError):
+        _saved_min = 15
+    _sel_thr(_saved_min if _saved_min in _thr_chips else 15, save=False)
 
     # ── TURBO Configure button ─────────────────────────────────────────────────
     turbo_cfg_btn = tk.Label(
         thr_row,
         text="TURBO Configure",
-        font=(_HDR, 6),
+        font=(_HDR, 7),
         bg=_BG,
         fg=BORD,
         cursor="hand2",
@@ -1213,9 +1273,9 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
     turbo_cfg_btn.bind("<Button-1>", _toggle_turbo_cfg)
     turbo_cfg_btn.bind("<Enter>",
-                       lambda e: turbo_cfg_btn.config(fg=BORD_L) if not _turbo_mode["on"] else None)
+                       lambda e=None: turbo_cfg_btn.config(fg=BORD_L) if not _turbo_mode["on"] else None)
     turbo_cfg_btn.bind("<Leave>",
-                       lambda e: turbo_cfg_btn.config(fg=BORD) if not _turbo_mode["on"] else None)
+                       lambda e=None: turbo_cfg_btn.config(fg=BORD) if not _turbo_mode["on"] else None)
 
     # ── Tab bar ───────────────────────────────────────────────────────────────
     tk.Frame(parent, bg=_BD, height=1).pack(fill="x", padx=10, pady=(4, 0))
@@ -1233,7 +1293,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
         for n, btn in _tab_btns.items():
             btn.config(
                 fg=_TEAL if n == name else _MUT,
-                font=(_HDR, 6) if n == name else (_F, 6),
+                font=(_HDR, 7) if n == name else (_F, 7),
             )
         for n, pg in tab_pages.items():
             if n == name:
@@ -1246,23 +1306,23 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
             _refresh_ignored()
 
     for tab_id, tab_lbl in [("unused", "Unused Apps"), ("ignored", "Ignored")]:
-        btn = tk.Label(tab_row, text=tab_lbl, font=(_F, 6),
+        btn = tk.Label(tab_row, text=tab_lbl, font=(_F, 7),
                        bg=_BG, fg=_MUT, cursor="hand2",
                        padx=10, pady=5)
         btn.pack(side="left")
         _tab_btns[tab_id] = btn
-        btn.bind("<Button-1>", lambda e, n=tab_id: _switch_tab(n))
+        btn.bind("<Button-1>", lambda e=None, n=tab_id: _switch_tab(n))
 
     # Refresh button (right side of tab bar)
-    ref_btn = tk.Label(tab_row, text="↻ REFRESH", font=(_HDR, 5),
+    ref_btn = tk.Label(tab_row, text="↻ REFRESH", font=(_HDR, 7),
                        bg=_BG, fg=_MUT, cursor="hand2",
                        padx=6, pady=3,
                        highlightbackground=_BD, highlightthickness=1)
     ref_btn.pack(side="right", pady=3)
-    ref_btn.bind("<Button-1>", lambda e: (
+    ref_btn.bind("<Button-1>", lambda e=None: (
         _refresh_unused() if _tab["active"] == "unused" else _refresh_ignored()))
-    ref_btn.bind("<Enter>", lambda e: ref_btn.config(fg=_TEAL))
-    ref_btn.bind("<Leave>", lambda e: ref_btn.config(fg=_MUT))
+    ref_btn.bind("<Enter>", lambda e=None: ref_btn.config(fg=_TEAL))
+    ref_btn.bind("<Leave>", lambda e=None: ref_btn.config(fg=_MUT))
 
     tk.Frame(parent, bg=_BD, height=1).pack(fill="x", padx=10)
 
@@ -1270,16 +1330,19 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     page_unused = tk.Frame(parent, bg=_BG)
 
     summary_lbl = tk.Label(page_unused,
-                           text="Aplikacje nieaktywne od dłuższego czasu - możesz je uśpić lub skonfigurować tryb Turbo.",
-                           font=(_F, 6), bg=_BG, fg=_SOFT,
+                           text=t("optimization.hib_unused_hint",
+                                  "Apps idle for a long time - put them to sleep "
+                                  "or set their Turbo behaviour."),
+                           font=(_F, 7), bg=_BG, fg=_SOFT,
                            anchor="w", justify="left")
     summary_lbl.pack(fill="x", padx=10, pady=(4, 2))
 
     # Column headers
     col_hdr = tk.Frame(page_unused, bg=_BG)
     col_hdr.pack(fill="x", padx=10, pady=(0, 2))
-    for col_txt in ["APLIKACJA", "NIEAKTYWNA", "RAM", "CPU"]:
-        tk.Label(col_hdr, text=col_txt, font=(_HDR, 5),
+    for col_txt in [t("optimization.hib_col_app", "APP"),
+                    t("optimization.hib_col_idle", "IDLE"), "RAM", "CPU"]:
+        tk.Label(col_hdr, text=col_txt, font=(_HDR, 7),
                  bg=_BG, fg="#7f93ad",
                  anchor="w").pack(side="left", padx=(0, 8))
 
@@ -1294,7 +1357,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
         if not _tracker or not _hibm:
             tk.Label(list_frame,
                      text="  Hibernation system unavailable",
-                     font=(_F, 6), bg=_DARK, fg=RED, anchor="w", pady=5
+                     font=(_F, 7), bg=_DARK, fg=RED, anchor="w", pady=5
                      ).pack(fill="x")
             return
 
@@ -1303,8 +1366,10 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
         if not apps:
             tk.Label(list_frame,
-                     text=f"  Brak nieaktywnych aplikacji przez {_thresh['min']}+ minut",
-                     font=(_F, 6), bg=_DARK, fg=_SOFT, anchor="w", pady=6
+                     text="  " + t("optimization.hib_none_idle",
+                                   "No apps idle for {min}+ minutes",
+                                   min=_thresh['min']),
+                     font=(_F, 7), bg=_DARK, fg=_SOFT, anchor="w", pady=6
                      ).pack(fill="x")
             try:
                 card.update_idletasks()
@@ -1328,22 +1393,22 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
 
             # ── Status dot ──────────────────────────────────────────────────
             dot_color = BORD_L if is_sleeping else _TEAL
-            tk.Label(row, text="●", font=(_BODY, 5),
+            tk.Label(row, text="●", font=(_BODY, 7),
                      bg=_DARK, fg=dot_color).pack(side="left", padx=(2, 0))
 
             # ── Process name ────────────────────────────────────────────────
-            tk.Label(row, text=name, font=(_F, 6),
+            tk.Label(row, text=name, font=(_F, 7),
                      bg=_DARK, fg="#8a9cb5", anchor="w", width=16
                      ).pack(side="left", padx=(3, 0))
 
             # ── Metrics ─────────────────────────────────────────────────────
-            tk.Label(row, text=f"{idle_min}m", font=(_M, 5),
+            tk.Label(row, text=f"{idle_min}m", font=(_M, 7),
                      bg=_DARK, fg=_SOFT, width=4, anchor="center"
                      ).pack(side="left", padx=1)
-            tk.Label(row, text=f"{ram_mb}MB", font=(_M, 5),
+            tk.Label(row, text=f"{ram_mb}MB", font=(_M, 7),
                      bg=_DARK, fg=AMBER if ram_mb > 300 else _SOFT, width=5, anchor="center"
                      ).pack(side="left", padx=1)
-            tk.Label(row, text=f"{cpu_avg:.1f}%", font=(_M, 5),
+            tk.Label(row, text=f"{cpu_avg:.1f}%", font=(_M, 7),
                      bg=_DARK, fg=_SOFT, width=4, anchor="center"
                      ).pack(side="left", padx=1)
 
@@ -1354,7 +1419,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
             if in_turbo_cfg:
                 # ── TURBO Configure mode: show behaviour selector ────────────
                 tk.Label(btn_f, text="Behaviour on TURBO:",
-                         font=(_F, 5), bg=_DARK, fg=BORD_L,
+                         font=(_F, 7), bg=_DARK, fg=BORD_L,
                          ).pack(side="left", padx=(0, 4))
 
                 current_beh = _hibm.get_turbo_behavior(exe)
@@ -1377,7 +1442,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                         "low":    "#041412" if is_active else _DARK,
                         "freeze": "#1a0508" if is_active else _DARK,
                     }[value]
-                    btn = tk.Label(parent, text=label, font=(_HDR, 5),
+                    btn = tk.Label(parent, text=label, font=(_HDR, 7),
                                    bg=_bg, fg=_fg, cursor="hand2",
                                    padx=5, pady=1,
                                    highlightbackground=_bd, highlightthickness=1)
@@ -1390,8 +1455,8 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                         _refresh_unused()
 
                     btn.bind("<Button-1>", _on_click)
-                    btn.bind("<Enter>", lambda e, b=btn: b.config(fg="#c4cfdf"))
-                    btn.bind("<Leave>", lambda e, b=btn: b.config(fg=_fg))
+                    btn.bind("<Enter>", lambda e=None, b=btn: b.config(fg="#c4cfdf"))
+                    btn.bind("<Leave>", lambda e=None, b=btn: b.config(fg=_fg))
                     return btn
 
                 _make_beh_btn(btn_f, "-",             "none")
@@ -1401,7 +1466,7 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
             elif is_sleeping:
                 # ── Sleeping: show WAKE ──────────────────────────────────────
                 wake_btn = tk.Label(btn_f, text="▶ WAKE",
-                                    font=(_HDR, 5),
+                                    font=(_HDR, 7),
                                     bg=_DARK, fg=_TEAL, cursor="hand2",
                                     padx=5, pady=1,
                                     highlightbackground=_TEALM, highlightthickness=1)
@@ -1415,13 +1480,13 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                     _refresh_unused()
 
                 wake_btn.bind("<Button-1>", _do_wake)
-                wake_btn.bind("<Enter>", lambda e, b=wake_btn: b.config(fg="#ffffff"))
-                wake_btn.bind("<Leave>", lambda e, b=wake_btn: b.config(fg=_TEAL))
+                wake_btn.bind("<Enter>", lambda e=None, b=wake_btn: b.config(fg="#ffffff"))
+                wake_btn.bind("<Leave>", lambda e=None, b=wake_btn: b.config(fg=_TEAL))
 
             else:
                 # ── Normal mode: SLEEP + IGNORE ──────────────────────────────
                 ign_btn = tk.Label(btn_f, text="IGNORE",
-                                   font=(_HDR, 5),
+                                   font=(_HDR, 7),
                                    bg=_DARK, fg=_MUT, cursor="hand2",
                                    padx=5, pady=1,
                                    highlightbackground=_BD, highlightthickness=1)
@@ -1433,11 +1498,11 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                     _refresh_unused()
 
                 ign_btn.bind("<Button-1>", _do_ignore)
-                ign_btn.bind("<Enter>", lambda e, b=ign_btn: b.config(fg=AMBER))
-                ign_btn.bind("<Leave>", lambda e, b=ign_btn: b.config(fg=_MUT))
+                ign_btn.bind("<Enter>", lambda e=None, b=ign_btn: b.config(fg=AMBER))
+                ign_btn.bind("<Leave>", lambda e=None, b=ign_btn: b.config(fg=_MUT))
 
                 slp_btn = tk.Label(btn_f, text="SLEEP",
-                                   font=(_HDR, 5),
+                                   font=(_HDR, 7),
                                    bg=_DARK, fg=_TEAL, cursor="hand2",
                                    padx=5, pady=1,
                                    highlightbackground=_TEALM, highlightthickness=1)
@@ -1452,12 +1517,12 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                     _refresh_unused()
 
                 slp_btn.bind("<Button-1>", _do_sleep)
-                slp_btn.bind("<Enter>", lambda e, b=slp_btn: b.config(fg="#ffffff"))
-                slp_btn.bind("<Leave>", lambda e, b=slp_btn: b.config(fg=_TEAL))
+                slp_btn.bind("<Enter>", lambda e=None, b=slp_btn: b.config(fg="#ffffff"))
+                slp_btn.bind("<Leave>", lambda e=None, b=slp_btn: b.config(fg=_TEAL))
 
         if len(apps) > 10:
-            tk.Label(list_frame, text=f"  + {len(apps) - 10} więcej…",
-                     font=(_F, 5), bg=_DARK, fg=_SOFT, anchor="w"
+            tk.Label(list_frame, text=f"  + {len(apps) - 10} " + t("optimization.more", "more") + "…",
+                     font=(_F, 7), bg=_DARK, fg=_SOFT, anchor="w"
                      ).pack(anchor="w", padx=6, pady=2)
 
         try:
@@ -1469,8 +1534,10 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
     page_ignored = tk.Frame(parent, bg=_BG)
 
     ign_header = tk.Label(page_ignored,
-                          text="Aplikacje oznaczone jako ignorowane - nie będą proponowane do uśpienia.",
-                          font=(_F, 6), bg=_BG, fg=_SOFT,
+                          text=t("optimization.hib_ignored_hint",
+                                 "Apps marked as ignored - they will not be "
+                                 "suggested for sleep."),
+                          font=(_F, 7), bg=_BG, fg=_SOFT,
                           anchor="w", justify="left")
     ign_header.pack(fill="x", padx=10, pady=(4, 2))
 
@@ -1484,19 +1551,19 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
         ignored = _hibm.ignored if _hibm else set()
         if not ignored:
             tk.Label(ign_frame, text="  Ignore list is empty",
-                     font=(_F, 6), bg=_DARK, fg=_SOFT,
+                     font=(_F, 7), bg=_DARK, fg=_SOFT,
                      anchor="w", pady=5).pack(fill="x")
             return
         for exe_name in sorted(ignored):
             row = tk.Frame(ign_frame, bg=_DARK)
             row.pack(fill="x", padx=4, pady=2)
-            tk.Label(row, text="◌", font=(_BODY, 6),
+            tk.Label(row, text="◌", font=(_BODY, 7),
                      bg=_DARK, fg=_MUT).pack(side="left")
-            tk.Label(row, text=exe_name, font=(_F, 6),
+            tk.Label(row, text=exe_name, font=(_F, 7),
                      bg=_DARK, fg=_SOFT, anchor="w"
                      ).pack(side="left", padx=(3, 0), fill="x", expand=True)
             rm_btn = tk.Label(row, text="REMOVE",
-                              font=(_HDR, 5),
+                              font=(_HDR, 7),
                               bg=_DARK, fg=_MUT, cursor="hand2",
                               padx=5, pady=1,
                               highlightbackground=_BD, highlightthickness=1)
@@ -1508,8 +1575,8 @@ def _build_hibernation_expand(parent: tk.Frame, card: tk.Frame) -> None:
                 _refresh_ignored()
 
             rm_btn.bind("<Button-1>", _do_remove)
-            rm_btn.bind("<Enter>", lambda e, b=rm_btn: b.config(fg=EMERALD))
-            rm_btn.bind("<Leave>", lambda e, b=rm_btn: b.config(fg=_MUT))
+            rm_btn.bind("<Enter>", lambda e=None, b=rm_btn: b.config(fg=EMERALD))
+            rm_btn.bind("<Leave>", lambda e=None, b=rm_btn: b.config(fg=_MUT))
         try:
             card.update_idletasks()
         except Exception:
@@ -1611,8 +1678,8 @@ def _build_upgrade_advisor_expand(parent: tk.Frame, card: tk.Frame) -> None:
                        font=(_M, 8, "bold"), bg=EMERALD, fg="#04110b",
                        padx=10, pady=5, cursor="hand2")
         btn.pack(anchor="w", pady=(8, 0))
-        btn.bind("<Enter>", lambda e: btn.config(bg="#34d399"))
-        btn.bind("<Leave>", lambda e: btn.config(bg=EMERALD))
+        btn.bind("<Enter>", lambda e=None: btn.config(bg="#34d399"))
+        btn.bind("<Leave>", lambda e=None: btn.config(bg=EMERALD))
 
         def _go(_e=None):
             win = _NAV.get("win")
@@ -1622,8 +1689,8 @@ def _build_upgrade_advisor_expand(parent: tk.Frame, card: tk.Frame) -> None:
                 _NAV["cb"]("upgrade_readiness")
         btn.bind("<Button-1>", _go)
 
-    def _load():
-        # Worker thread: gather everything, then one after(0) hop to the UI.
+    def _gather():
+        # Worker thread: plain data only; the page takes it (ui/bg.py)
         summ, plat_lbl, sug = {}, "", {}
         try:
             from hck_stats_engine.query_api import query_api
@@ -1637,14 +1704,9 @@ def _build_upgrade_advisor_expand(parent: tk.Frame, card: tk.Frame) -> None:
             sug = hc.suggest_upgrades(plat)
         except Exception:
             pass
-        try:
-            parent.after(0, lambda: _render(summ, plat_lbl, sug))
-        except Exception:
-            pass
+        return summ, plat_lbl, sug
 
-    import threading
-    threading.Thread(target=_load, daemon=True,
-                     name="UpgradeAdvisorLoad").start()
+    _bg_ui.run(parent, _gather, lambda res: _render(*res), name="UpgradeAdvisorLoad")
 
 
 def _build_features_grid(parent):
@@ -1657,11 +1719,11 @@ def _build_features_grid(parent):
     hdr_row = tk.Frame(parent, bg=BG)
     hdr_row.pack(fill="x", pady=(0, 8))
     tk.Label(hdr_row, text=t("optimization.section_features", default="FEATURES"),
-             font=(_F, 6, "bold"), bg=BG, fg=MUTED).pack(side="left")
+             font=(_F, 7, "bold"), bg=BG, fg=MUTED).pack(side="left")
     tk.Frame(hdr_row, bg=LINE, height=1).pack(
         side="left", fill="x", expand=True, padx=8)
-    tk.Label(hdr_row, text=f"2 / {_TOTAL}  active",
-             font=(_M, 6), bg=BG, fg=DIM).pack(side="right")
+    # (the "2 / 16 active" counter here was typed in: it said 2 whatever
+    # was on; removed 2026-11-20)
 
     # ── Feature definitions ───────────────────────────────────────────────────
     features = [
@@ -1820,10 +1882,10 @@ def _build_features_grid(parent):
     _cwin = canvas.create_window((0, 0), window=grid_frame, anchor="nw")
     # Keep grid_frame as wide as the canvas so columns fill properly
     canvas.bind("<Configure>",
-        lambda e: canvas.itemconfigure(_cwin, width=e.width))
+        lambda e=None: canvas.itemconfigure(_cwin, width=e.width))
     # Update scroll region whenever grid_frame height changes
     grid_frame.bind("<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        lambda e=None: canvas.configure(scrollregion=canvas.bbox("all")))
     canvas.configure(yscrollcommand=sb.set)
 
     # Page-level wheel binding WITHOUT add="+": overwrites the previous page's
@@ -1893,6 +1955,33 @@ def _build_features_grid(parent):
                 if c == 2:
                     c = 0; r += 1
 
+    # 2026-11-20 redesign: the ready features come in groups with a line
+    # that says what the group is for, one colour per group (there were
+    # eight colours for nine cards); "coming next" stays below them.
+    by_key = {f["key"]: f for f in features}
+    placed = set()
+    for title, desc, color, keys in _FEATURE_GROUPS:
+        group = [by_key[k] for k in keys if k in by_key and by_key[k]["ready"]]
+        if not group:
+            continue
+        hdr = tk.Frame(grid_frame, bg=BG)
+        top = tk.Frame(hdr, bg=BG)
+        top.pack(fill="x", padx=2)
+        tk.Frame(top, bg=color, width=3, height=14).pack(side="left", padx=(0, 6))
+        tk.Label(top, text=_gtx(title), font=(_HDR, 9, "bold"), bg=BG,
+                 fg=TEXT).pack(side="left")
+        tk.Label(top, text="  " + _gtx(desc), font=(_F, 8), bg=BG,
+                 fg=MUTED).pack(side="left")
+        _cards.append((hdr, {"open": False, "header": True}))
+        for feat in group:
+            feat["color"] = color
+            if feat.get("run_label"):
+                feat["run_color"] = color
+            outer, state = _build_feature_card(grid_frame, feat, _relayout)
+            _cards.append((outer, state))
+            placed.add(feat["key"])
+    features = [f for f in features if f["key"] not in placed]
+
     _soon_started = False
     for feat in features:
         if not feat["ready"] and not _soon_started:
@@ -1901,13 +1990,59 @@ def _build_features_grid(parent):
             hdr = tk.Frame(grid_frame, bg=BG)
             tk.Label(hdr, text=t("optimization.features.coming_next",
                                  default="COMING NEXT"),
-                     font=(_HDR, 7, "bold"), bg=BG, fg="#55627a"
+                     font=(_HDR, 7, "bold"), bg=BG, fg="#808da4"
                      ).pack(anchor="w", padx=2)
             tk.Frame(hdr, bg="#1a2130", height=1).pack(fill="x", pady=(2, 0))
             _cards.append((hdr, {"open": False, "header": True}))
         outer, state = _build_feature_card(grid_frame, feat, _relayout)
         _cards.append((outer, state))
     _relayout()
+
+
+_FEATURE_GROUPS = [
+    ({"pl": "PAMIĘĆ", "en": "MEMORY"},
+     {"pl": "oddaje RAM, który programy trzymają bez potrzeby",
+      "en": "gives back RAM that programs hold for nothing"},
+     VIOLET, ["ram_flush", "app_hibernation"]),
+    ({"pl": "PROCESOR I ZASILANIE", "en": "CPU AND POWER"},
+     {"pl": "pełna moc, kiedy jej potrzebujesz, i spokój w tle",
+      "en": "full power when you need it, quiet in the background"},
+     BLUE, ["turbo_pp", "proc_guard", "cpu_throttle"]),
+    ({"pl": "USŁUGI I START", "en": "SERVICES AND STARTUP"},
+     {"pl": "mniej rzeczy w tle, szybszy start Windows",
+      "en": "less in the background, a faster Windows start"},
+     BORD_L, ["turbo_svc"]),
+    ({"pl": "DOWODY I PORADY", "en": "PROOF AND ADVICE"},
+     {"pl": "co dała każda akcja i co warto wymienić",
+      "en": "what each action gained and what is worth upgrading"},
+     EMERALD, ["receipts", "upgrade_advisor"]),
+]
+
+
+# the action chips on the cards, in the interface language (2026-11-20)
+_RUN_TX = {
+    "FLUSH  RAM": {"pl": "OCZYŚĆ RAM", "en": "FLUSH RAM"},
+    "ACTIVATE": {"pl": "WŁĄCZ", "en": "ACTIVATE"},
+    "OPEN": {"pl": "OTWÓRZ", "en": "OPEN"},
+    "SOON": {"pl": "WKRÓTCE", "en": "SOON"},
+}
+
+
+def _run_label(label, default="OPEN") -> str:
+    """The chip on a card says "OPEN" when it has no action of its own;
+    the RUN button in the expanded panel stays empty then (default None)."""
+    if not label and default is None:
+        return ""
+    d = _RUN_TX.get(label or default)
+    return _gtx(d) if d else label
+
+
+def _gtx(d) -> str:
+    try:
+        from utils.i18n import get_lang
+        return d["en"] if get_lang() == "en" else d["pl"]
+    except Exception:
+        return d["pl"]
 
 
 def _ico_glob_feat(c, s, p=None, bg=CARD2):
@@ -1962,7 +2097,7 @@ def _build_receipts_expand(expand_frame, card):
             tk.Label(rows_frame,
                      text=t("optimization.features.receipts.empty",
                             default="No receipts yet - run FLUSH RAM or switch on TURBO and the first one appears here."),
-                     font=(_M, 7), bg=_RBG, fg="#55627a", anchor="w"
+                     font=(_M, 7), bg=_RBG, fg="#808da4", anchor="w"
                      ).pack(anchor="w")
             return
         import datetime as _dt
@@ -1977,7 +2112,7 @@ def _build_receipts_expand(expand_frame, card):
             if a is None:
                 tk.Label(row, text=t("optimization.features.receipts.pending",
                                      default="measuring..."),
-                         font=(_M, 7), bg=_RBG, fg="#55627a").pack(side="left")
+                         font=(_M, 7), bg=_RBG, fg="#808da4").pack(side="left")
             else:
                 txt = (f"RAM {_fmt(b.get('ram_pct'))} → {_fmt(a.get('ram_pct'))}"
                        f"   CPU {_fmt(b.get('cpu_load'))} → {_fmt(a.get('cpu_load'))}")
@@ -1990,14 +2125,14 @@ def _build_receipts_expand(expand_frame, card):
                 det = e.get("detail")
                 if det:
                     tk.Label(row, text=f"  ({det})", font=(_M, 7), bg=_RBG,
-                             fg="#55627a").pack(side="left")
+                             fg="#808da4").pack(side="left")
 
-    refresh = tk.Label(wrap, text="↻ REFRESH", font=(_M, 6, "bold"),
+    refresh = tk.Label(wrap, text="↻ REFRESH", font=(_M, 7, "bold"),
                        bg="#0e1520", fg="#a3e635", cursor="hand2",
                        padx=8, pady=3,
                        highlightbackground="#3f6212", highlightthickness=1)
     refresh.pack(anchor="e", pady=(6, 0))
-    refresh.bind("<Button-1>", lambda e: _render())
+    refresh.bind("<Button-1>", lambda e=None: _render())
     _render()
 
 
@@ -2042,16 +2177,9 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         ic = icon_fn(color, 12, p=compact, bg=card_bg)
         ic.pack(side="left", padx=(0, 6))
 
-        txt_frame = tk.Frame(compact, bg=card_bg)
-        txt_frame.pack(side="left", fill="both", expand=True)
-        title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 10, "bold"),
-                             bg=card_bg, fg=color, anchor="w", cursor="hand2")
-        title_lbl.pack(anchor="w")
-        desc_lbl = tk.Label(txt_frame, text=desc, font=(_F, 8),
-                            bg=card_bg, fg="#9fb3cc", anchor="w",
-                            cursor="hand2")
-        desc_lbl.pack(anchor="w")
-
+        # The two controls are packed BEFORE the text (2026-11-15). pack()
+        # hands out space in packing order: with the long description first,
+        # the action chip got what was left and read "FLUSH RA", "TIV", "OPE".
         # Chevron - the expander users could never find is now unmissable
         info_btn = tk.Label(compact, text="▾", font=(_HDR, 10, "bold"),
                             bg="#10141f", fg=color,
@@ -2060,12 +2188,25 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         info_btn.pack(side="right", padx=(6, 0))
 
         # Action chip - names the feature's action right on the card
-        quick_btn = tk.Label(compact, text=(run_label or "OPEN"),
-                             font=(_M, 6, "bold"),
+        quick_btn = tk.Label(compact, text=_run_label(run_label),
+                             font=(_M, 7, "bold"),
                              bg="#0e1520", fg=color, cursor="hand2",
                              padx=8, pady=3,
                              highlightbackground=color, highlightthickness=1)
         quick_btn.pack(side="right", padx=(6, 0))
+
+        txt_frame = tk.Frame(compact, bg=card_bg)
+        txt_frame.pack(side="left", fill="both", expand=True)
+        title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 10, "bold"),
+                             bg=card_bg, fg=color, anchor="w", cursor="hand2")
+        title_lbl.pack(anchor="w", fill="x")
+        desc_lbl = tk.Label(txt_frame, text=desc, font=(_F, 8),
+                            bg=card_bg, fg="#9fb3cc", anchor="w",
+                            cursor="hand2")
+        desc_lbl.pack(anchor="w", fill="x")
+        # the description gives way: it wraps instead of pushing the chip out
+        _wrap_to_width(desc_lbl, txt_frame)
+        _wrap_to_width(title_lbl, txt_frame)
     else:
         card_bg = "#0a0d15"
         card = tk.Frame(outer, bg=card_bg,
@@ -2079,20 +2220,20 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         txt_frame = tk.Frame(compact, bg=card_bg)
         txt_frame.pack(side="left", fill="both", expand=True)
         title_lbl = tk.Label(txt_frame, text=title, font=(_HDR, 8),
-                             bg=card_bg, fg="#5d6b80", anchor="w",
+                             bg=card_bg, fg="#8492a7", anchor="w",
                              cursor="hand2")
         title_lbl.pack(side="left")
         desc_lbl = tk.Label(txt_frame, text="· " + desc, font=(_F, 7),
-                            bg=card_bg, fg="#3d4658", anchor="w",
+                            bg=card_bg, fg="#707b8f", anchor="w",
                             cursor="hand2")
         desc_lbl.pack(side="left", padx=(6, 0))
 
-        tk.Label(compact, text="SOON", font=(_M, 5, "bold"),
-                 bg=card_bg, fg="#55627a", padx=5, pady=1,
+        tk.Label(compact, text=_run_label("SOON"), font=(_M, 7, "bold"),
+                 bg=card_bg, fg="#808da4", padx=5, pady=1,
                  highlightbackground="#232b3b", highlightthickness=1
                  ).pack(side="right", padx=(6, 0))
-        info_btn = tk.Label(compact, text="▾", font=(_HDR, 8),
-                            bg=card_bg, fg="#55627a",
+        info_btn = tk.Label(compact, text="▾", font=(_HDR, 8, "bold"),
+                            bg=card_bg, fg="#808da4",
                             cursor="hand2", padx=5, pady=1)
         info_btn.pack(side="right")
         quick_btn = None
@@ -2123,7 +2264,7 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         auto_state = {"on": False}
         auto_frame = tk.Frame(ctrl, bg="#090c14")
         auto_frame.pack(side="left")
-        tk.Label(auto_frame, text="AUTO", font=(_HDR, 6),
+        tk.Label(auto_frame, text="AUTO", font=(_HDR, 7),
                  bg="#090c14", fg=MUTED).pack(side="left", padx=(0, 3))
         auto_pill = tk.Canvas(auto_frame, width=32, height=15,
                               bg="#090c14", highlightthickness=0,
@@ -2135,7 +2276,7 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         turbo_state = {"on": False}
         turbo_frame = tk.Frame(ctrl, bg="#090c14")
         turbo_frame.pack(side="left")
-        tk.Label(turbo_frame, text="ON  TURBO", font=(_HDR, 6),
+        tk.Label(turbo_frame, text="ON  TURBO", font=(_HDR, 7),
                  bg="#090c14", fg=MUTED).pack(side="left", padx=(0, 3))
         turbo_pill = tk.Canvas(turbo_frame, width=32, height=15,
                                bg="#090c14", highlightthickness=0,
@@ -2144,13 +2285,13 @@ def _build_feature_card(parent, feat: dict, relayout=None):
         _pill_cv(turbo_pill, False, 32, 15, BORD_L)
 
         status_lbl = tk.Label(ctrl, text="",
-                              font=(_M, 6), bg="#090c14", fg=MUTED,
+                              font=(_M, 7), bg="#090c14", fg=MUTED,
                               anchor="w")
         status_lbl.pack(side="left", fill="x", expand=True, padx=(8, 0))
 
         run_btn = tk.Label(ctrl,
-                           text=run_label if ready else "SOON",
-                           font=(_M, 6, "bold"),
+                           text=_run_label(run_label, None) if ready else _run_label("SOON"),
+                           font=(_M, 7, "bold"),
                            bg="#0e1520" if ready else "#0a0d14",
                            fg=run_color if ready else DIM,
                            cursor="hand2" if ready else "arrow",
@@ -2181,8 +2322,8 @@ def _build_feature_card(parent, feat: dict, relayout=None):
 
     info_btn.bind("<Button-1>", _toggle_expand)
     _idle_fg = info_btn.cget("fg")
-    info_btn.bind("<Enter>", lambda e: info_btn.config(fg="#e2e8f0"))
-    info_btn.bind("<Leave>", lambda e: info_btn.config(fg=_idle_fg))
+    info_btn.bind("<Enter>", lambda e=None: info_btn.config(fg="#e2e8f0"))
+    info_btn.bind("<Leave>", lambda e=None: info_btn.config(fg=_idle_fg))
     # 2026-07 redesign: the WHOLE compact row expands the card - no more
     # hunting for a tiny grey "i".
     for _w in (compact, title_lbl, desc_lbl):
@@ -2203,11 +2344,11 @@ def _build_feature_card(parent, feat: dict, relayout=None):
             # Thermal Throttle Investigator IS the OVERCLOCK Headroom Lab -
             # the tile navigates there (read-only diagnosis, no automation).
             run_btn.bind("<Button-1>",
-                         lambda e: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
+                         lambda e=None: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
             if quick_btn is not None:
                 # The compact-row chip goes straight there too (no expand hop)
                 quick_btn.bind("<Button-1>",
-                               lambda e: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
+                               lambda e=None: _NAV["cb"]("overclock") if _NAV.get("cb") else None)
 
     return outer, _expanded
 
@@ -2233,18 +2374,18 @@ def _build_exclusion_panel(parent):
     hdr.pack(fill="x")
 
     count_lbl = tk.Label(hdr, text=f"PROCESS EXCLUSIONS  ·  {len(_RAM_EXCLUDE)} protected",
-                         font=(_HDR, 6), bg=_EX_HDR, fg=MUTED, anchor="w",
+                         font=(_HDR, 7), bg=_EX_HDR, fg=MUTED, anchor="w",
                          padx=8, pady=4)
     count_lbl.pack(side="left", fill="x", expand=True)
 
     refresh_btn = tk.Label(hdr, text="↺ Refresh",
-                           font=(_MONO, 6), bg=_EX_HDR, fg="#6f8093",
+                           font=(_MONO, 7), bg=_EX_HDR, fg="#6f8093",
                            cursor="hand2", padx=8, pady=4)
     refresh_btn.pack(side="right")
 
     hint = tk.Label(wrap,
                     text="  Click a process to protect it from flush. Click again to unprotect.",
-                    font=(_F, 6), bg=_EX_BG, fg=MUTED, anchor="w", pady=2)
+                    font=(_F, 7), bg=_EX_BG, fg=MUTED, anchor="w", pady=2)
     hint.pack(fill="x")
 
     # ── Scrollable process list ──────────────────────────────────
@@ -2313,7 +2454,7 @@ def _build_exclusion_panel(parent):
                 badge_txt = "PROTECTED · offline"
 
             badge = tk.Label(row, text=badge_txt,
-                             font=(_MONO, 5, "bold"), bg=row_bg,
+                             font=(_MONO, 7, "bold"), bg=row_bg,
                              fg=badge_fg, padx=6)
             badge.pack(side="right", pady=3)
 
@@ -2353,11 +2494,11 @@ def _build_exclusion_panel(parent):
                      font=(_F, 7), bg=_EX_BG, fg=MUTED, pady=6
                      ).pack(fill="x")
 
-    refresh_btn.bind("<Button-1>", lambda e: _refresh_list())
+    refresh_btn.bind("<Button-1>", lambda e=None: _refresh_list())
     refresh_btn.bind("<Enter>",
-                     lambda e: refresh_btn.config(fg=EMERALD))
+                     lambda e=None: refresh_btn.config(fg=EMERALD))
     refresh_btn.bind("<Leave>",
-                     lambda e: refresh_btn.config(fg="#6f8093"))
+                     lambda e=None: refresh_btn.config(fg="#6f8093"))
 
     wrap.after(200, _refresh_list)
     return wrap
@@ -2389,23 +2530,17 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
 
     def _run(e=None):
         run_btn.config(text="...", fg=MUTED, bg="#0a0d14")
-        def _bg():
-            ok, msg, before, after = _do_ram_flush()
+
+        def _done(res):
+            ok, msg, before, after = res
             freed = after - before
-            d = f"Freed {freed} MB" if freed > 0 else msg
             col = EMERALD if ok else RED
-            if run_btn.winfo_exists():
-                run_btn.after(0, lambda: run_btn.config(
-                    text="DONE", fg=col, bg="#061210",
-                    highlightbackground=col))
+            run_btn.config(text="DONE", fg=col, bg="#061210", highlightbackground=col)
             if status_lbl.winfo_exists():
-                status_lbl.after(0, lambda: status_lbl.config(text=d, fg=col))
-            time.sleep(3)
-            if run_btn.winfo_exists():
-                run_btn.after(0, lambda: run_btn.config(
-                    text="FLUSH  RAM", fg=run_color,
-                    bg="#0e1520", highlightbackground=run_color))
-        threading.Thread(target=_bg, daemon=True).start()
+                status_lbl.config(text=f"Freed {freed} MB" if freed > 0 else msg, fg=col)
+            _bg_ui.later(run_btn, 3, lambda: run_btn.config(
+                text="FLUSH  RAM", fg=run_color, bg="#0e1520", highlightbackground=run_color))
+        _bg_ui.run(run_btn, _do_ram_flush, _done, name="ram-flush")
 
     def _toggle_auto(e=None):
         auto_state["on"] = not auto_state["on"]
@@ -2416,18 +2551,17 @@ def _wire_ram_flush(run_btn, auto_pill, auto_state,
         from core.auto_optimizer import auto_optimizer
         auto_optimizer.set_ram_auto(auto_state["on"])
 
-    # Live status from the daemon -> the card's label (guarded against teardown)
-    def _on_status(text):
-        try:
-            if status_lbl.winfo_exists():
-                status_lbl.after(0, lambda t=text: status_lbl.config(
-                    text=t, fg=AMBER if "high" in t else EMERALD))
-        except Exception:
-            pass
+    # Live status from the daemon -> the card's label. The daemon calls the
+    # listener on its own thread, so the listener only fills a mailbox; the
+    # label takes it on the UI thread and unhooks itself when it is gone.
     try:
         from core.auto_optimizer import auto_optimizer as _ao
+        _box = _bg_ui.Mailbox()
+        _on_status = _bg_ui.listener(_box)
         _ao.register_status_listener(_on_status)
-        status_lbl.bind("<Destroy>", lambda e: _ao.unregister_status_listener(_on_status))
+        _bg_ui.watch(status_lbl, _box,
+                     lambda t: status_lbl.config(text=t, fg=AMBER if "high" in t else EMERALD),
+                     on_close=lambda: _ao.unregister_status_listener(_on_status))
     except Exception:
         pass
 
@@ -2470,31 +2604,25 @@ def _wire_turbo_pp(run_btn, auto_pill, auto_state,
     def _run(e=None):
         if _tpp_is_active():
             run_btn.config(text="...", fg=MUTED)
-            def _bg_restore():
-                ok, msg = _tpp_restore()
-                if run_btn.winfo_exists():
-                    run_btn.after(0, lambda: run_btn.config(
-                        text="ACTIVATE", fg=run_color,
-                        highlightbackground=run_color, bg="#0e1520"))
+
+            def _restored(res):
+                ok, msg = res
+                run_btn.config(text="ACTIVATE", fg=run_color,
+                               highlightbackground=run_color, bg="#0e1520")
                 if status_lbl.winfo_exists():
-                    status_lbl.after(0, lambda: status_lbl.config(
-                        text=msg, fg=MUTED))
-            threading.Thread(target=_bg_restore, daemon=True).start()
+                    status_lbl.config(text=msg, fg=MUTED)
+            _bg_ui.run(run_btn, _tpp_restore, _restored, name="tpp-restore")
         else:
             run_btn.config(text="...", fg=MUTED)
-            def _bg_activate():
-                ok, msg = _tpp_run()
+
+            def _activated(res):
+                ok, msg = res
                 col = EMERALD if ok else RED
-                btn_lbl = "DEACTIVATE" if ok else "ACTIVATE"
-                if run_btn.winfo_exists():
-                    run_btn.after(0, lambda: run_btn.config(
-                        text=btn_lbl, fg=col,
-                        highlightbackground=col,
-                        bg="#061210" if ok else "#1a0a0a"))
+                run_btn.config(text="DEACTIVATE" if ok else "ACTIVATE", fg=col,
+                               highlightbackground=col, bg="#061210" if ok else "#1a0a0a")
                 if status_lbl.winfo_exists():
-                    status_lbl.after(0, lambda: status_lbl.config(
-                        text=msg, fg=col))
-            threading.Thread(target=_bg_activate, daemon=True).start()
+                    status_lbl.config(text=msg, fg=col)
+            _bg_ui.run(run_btn, _tpp_run, _activated, name="tpp-activate")
 
     def _toggle_auto(e=None):
         auto_state["on"] = not auto_state["on"]
@@ -2511,30 +2639,81 @@ def _wire_turbo_pp(run_btn, auto_pill, auto_state,
             _ao.set_tpp_on_turbo(turbo_state["on"])
         _refresh_armed_ui()
 
-    # Live status from the daemon -> the card's label (guarded, auto-unhooked)
-    def _on_tpp_status(text):
-        try:
-            if status_lbl.winfo_exists():
-                status_lbl.after(0, lambda t=text: status_lbl.config(
-                    text=t, fg=EMERALD if "active" in t else MUTED))
-        except Exception:
-            pass
+    # Live status from the daemon -> the card's label, through a mailbox
+    # (the daemon's thread never touches Tk; auto-unhooked with the label)
     if _ao:
+        _tbox = _bg_ui.Mailbox()
+        _on_tpp_status = _bg_ui.listener(_tbox)
         _ao.register_status_listener(_on_tpp_status, kind="tpp")
-        status_lbl.bind("<Destroy>",
-                        lambda e: _ao.unregister_status_listener(_on_tpp_status))
+        _bg_ui.watch(status_lbl, _tbox,
+                     lambda t: status_lbl.config(text=t, fg=EMERALD if "active" in t else MUTED),
+                     on_close=lambda: _ao.unregister_status_listener(_on_tpp_status))
 
     run_btn.bind("<Button-1>", _run)
     auto_pill.bind("<Button-1>", _toggle_auto)
     turbo_pill.bind("<Button-1>", _toggle_turbo)
-    run_btn.bind("<Enter>", lambda e: run_btn.config(fg="#ffffff"))
-    run_btn.bind("<Leave>", lambda e: run_btn.config(
+    run_btn.bind("<Enter>", lambda e=None: run_btn.config(fg="#ffffff"))
+    run_btn.bind("<Leave>", lambda e=None: run_btn.config(
         fg=EMERALD if _tpp_is_active() else run_color))
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # MAIN PAGE BUILDER
 # ═════════════════════════════════════════════════════════════════════════════
+
+_OPT_TX = {
+    "title": {"pl": "Centrum optymalizacji", "en": "Optimization Center"},
+    "guide": {"pl": "Przewodnik krok po kroku", "en": "Step-by-step guide"},
+    "startup": {"pl": "Autostart i usługi", "en": "Startup and services"},
+    "status": {"pl": "TURBO: {a} z {n} uzbrojone  ·  RAM {ram}%  ·  każda akcja zostawia paragon przed i po",
+               "en": "TURBO: {a} of {n} armed  ·  RAM {ram}%  ·  every action leaves a before-and-after receipt"},
+}
+
+
+def _otx(key: str, **kw) -> str:
+    try:
+        from utils.i18n import get_lang
+        lang = "en" if get_lang() == "en" else "pl"
+    except Exception:
+        lang = "pl"
+    txt = _OPT_TX[key][lang]
+    return txt.format(**kw) if kw else txt
+
+
+def _build_opt_banner(win, parent):
+    from ui.components.hero_banner import hero_banner
+    try:
+        armed = turbo_armed_summary()
+        a, n = sum(1 for _, on in armed if on), len(armed)
+    except Exception:
+        a, n = 0, 0
+    try:
+        import psutil
+        ram = int(psutil.virtual_memory().percent)
+    except Exception:
+        ram = 0
+
+    def _guide():
+        panel = getattr(win, "gpt_panel", None)
+        if panel is not None and hasattr(panel, "ask"):
+            # the same 6-step guide as in the chat
+            panel.ask("optimize my pc" if _otx("title").startswith("Opt")
+                      else "zoptymalizuj komputer")
+
+    def _startup():
+        nav = getattr(win, "_switch_to_page", None)
+        if nav:
+            win.current_view = None
+            nav("startup_manager")
+    from ui.components.hero_banner import nav_crumbs
+    crumbs = nav_crumbs(win, _otx("title"),
+                        [(_gtx({"pl": "Autostart", "en": "Startup"}), "startup_manager"),
+                         (_gtx({"pl": "Usługi", "en": "Services"}), "services_manager")])
+    hero_banner(parent, _otx("title"), _otx("status", a=a, n=n, ram=ram),
+                stops=["#7c3aed", "#db2777", "#f59e0b"], height=96,
+                buttons=[(_otx("guide"), _guide, True), (_otx("startup"), _startup, False)],
+                crumbs=crumbs)
+
 
 def build_optimization_page(self, parent):
     root_frame = tk.Frame(parent, bg=BG)
@@ -2543,15 +2722,23 @@ def build_optimization_page(self, parent):
     _nav = getattr(self, "_switch_to_page", None)
     _NAV["cb"] = _nav
     _NAV["win"] = self          # Upgrade Advisor card navigates through this
-    _back_fn = (lambda: _nav("dashboard")) if _nav else None
-    _build_hero_header(root_frame, back_fn=_back_fn)
-    _build_snapshot_strip(root_frame)
+    # back to where the user came from (2026-11-20: was always the Dashboard)
+    # (decided on click: the page is built before the history records it)
+    def _back_fn():
+        if hasattr(self, "go_back") and len(self._nav_hist()):
+            self.go_back()
+        elif _nav:
+            _nav("dashboard")
+    # 2026-11-20 redesign: the shared gradient banner with one clear first
+    # step (the guided optimization), the status in plain words. The
+    # CPU / RAM / C: strip repeated the "live" box on the left; it is gone.
+    _build_opt_banner(self, root_frame)
 
     body = tk.Frame(root_frame, bg=BG)
     body.pack(fill="both", expand=True, padx=12, pady=(0, 12))
 
     # LEFT: Quick Actions (210px - ~21 % narrower, giving Features more room)
-    left = tk.Frame(body, bg=BG, width=210)
+    left = tk.Frame(body, bg=BG, width=232)
     left.pack(side="left", fill="y", padx=(0, 8))
     left.pack_propagate(False)
 
@@ -2637,7 +2824,7 @@ def _build_weekly_chart(parent, gr: int, gc: int,
                  font=(_HDR, 10), bg=_CARD, fg=color
                  ).pack(side="right")
         tk.Label(th, text="NOW ->",
-                 font=(_BODY, 5), bg=_CARD, fg=_MUT
+                 font=(_BODY, 7), bg=_CARD, fg=_MUT
                  ).pack(side="right", padx=(0, 4))
 
     # ── Chart canvas ─────────────────────────────────────────────────────────
@@ -2668,7 +2855,7 @@ def _build_weekly_chart(parent, gr: int, gc: int,
             y = baseline - int(chart_h * pct / 100)
             _cv.create_line(pad_l, y, W - pad_r, y, fill=_GRID, width=1)
             _cv.create_text(pad_l - 3, y, text=str(pct),
-                            anchor="e", font=(_BODY, 5), fill=_MUT)
+                            anchor="e", font=(_BODY, 7), fill=_MUT)
 
         n_bars  = len(_vals)
         slot_w  = chart_w / n_bars
@@ -2701,14 +2888,14 @@ def _build_weekly_chart(parent, gr: int, gc: int,
             # Value label above bar
             if val > 0:
                 lc  = _col if is_now else _MUT
-                fnt = (_BODY, 6, "bold") if is_now else (_BODY, 5)
+                fnt = (_BODY, 7, "bold") if is_now else (_BODY, 7)
                 ty  = baseline - bh - 4 if bh > 0 else baseline - 4
                 _cv.create_text(cx, ty, text=f"{val:.0f}%",
                                 font=fnt, fill=lc, anchor="s")
 
             # X label (week label)
             lc2  = _col if is_now else _MUT
-            fnt2 = (_HDR, 6) if is_now else (_BODY, 5)
+            fnt2 = (_HDR, 7) if is_now else (_BODY, 7)
             _cv.create_text(cx, baseline + 3, text=lbl,
                             font=fnt2, fill=lc2, anchor="n")
 
@@ -2717,7 +2904,7 @@ def _build_weekly_chart(parent, gr: int, gc: int,
                 dc_col = _blend_hex(_col, "#000000", 0.62)
                 _cv.create_text(cx, baseline + 13,
                                 text=f"{_dcounts[i]}d",
-                                font=(_BODY, 4), fill=dc_col, anchor="n")
+                                font=(_BODY, 7), fill=dc_col, anchor="n")
 
             if val > 0:
                 trend.append((cx, baseline - bh))
@@ -2892,7 +3079,7 @@ def _build_insight_card(parent, col_idx: int, name: str, color: str,
 
     if week_max > 0:
         tk.Label(badge_row, text=f"peak {week_max:.0f}%",
-                 font=(_BODY, 6), bg=_R_CARD, fg=_R_MUT).pack(side="left")
+                 font=(_BODY, 7), bg=_R_CARD, fg=_R_MUT).pack(side="left")
 
     if cur_avg > 0:
         if cur_avg < 60:
@@ -2903,7 +3090,7 @@ def _build_insight_card(parent, col_idx: int, name: str, color: str,
             st, sc = "HIGH", RED
         sb = _blend_hex(sc, "#000000", 0.84)
         tk.Label(badge_row, text=f"  {st}  ",
-                 font=(_HDR, 5),
+                 font=(_HDR, 7),
                  bg=sb, fg=sc, padx=3, pady=1).pack(side="left", padx=(6, 0))
 
     # ── Mini sparkline (6-week trend) ────────────────────────────────────
@@ -2913,7 +3100,7 @@ def _build_insight_card(parent, col_idx: int, name: str, color: str,
 
         # "6W TREND" label
         tk.Label(spk_frame, text="6W TREND",
-                 font=(_BODY, 5), bg=_R_CARD, fg=_R_MUT).pack(anchor="w")
+                 font=(_BODY, 7), bg=_R_CARD, fg=_R_MUT).pack(anchor="w")
 
         spk = tk.Canvas(spk_frame, bg=_blend_hex(_R_CARD, "#ffffff", 0.03),
                         height=22, highlightthickness=0)
@@ -2928,7 +3115,7 @@ def _build_insight_card(parent, col_idx: int, name: str, color: str,
             valid = [v for v in _v if v > 0]
             if len(valid) < 2:
                 _s.create_text(W // 2, H // 2, text="no data",
-                               font=(_BODY, 4), fill=_R_MUT, anchor="center")
+                               font=(_BODY, 7), fill=_R_MUT, anchor="center")
                 return
             hi  = max(valid) or 1
             lo  = min(valid)
@@ -3238,17 +3425,17 @@ def _show_weekly_report(root_win) -> None:
         hdr.create_rectangle(bx, 20, bx + 108, 40,
                              fill="#0d1428", outline=_W_BD)
         hdr.create_text(bx + 54, 30, text="6 WEEKS  ·  HISTORY",
-                        font=(_HDR, 6), fill=_W_SOFT, anchor="center")
+                        font=(_HDR, 7), fill=_W_SOFT, anchor="center")
         # ✕
         hdr.create_text(Wh - 16, 36, text="✕", anchor="center",
                         font=(_BODY, 13), fill=_W_MUT, tags="close_x")
 
     hdr.bind("<Configure>", _draw_hdr)
-    hdr.tag_bind("close_x", "<Button-1>", lambda e: win.destroy())
+    hdr.tag_bind("close_x", "<Button-1>", lambda e=None: win.destroy())
     hdr.tag_bind("close_x", "<Enter>",
-                 lambda e: hdr.itemconfig("close_x", fill=RED))
+                 lambda e=None: hdr.itemconfig("close_x", fill=RED))
     hdr.tag_bind("close_x", "<Leave>",
-                 lambda e: hdr.itemconfig("close_x", fill=_W_MUT))
+                 lambda e=None: hdr.itemconfig("close_x", fill=_W_MUT))
 
     # ── Week timeline strip ────────────────────────────────────────────────────
     wk_cv = tk.Canvas(win, bg="#0b0e16", height=28, highlightthickness=0)
@@ -3267,7 +3454,7 @@ def _show_weekly_report(root_win) -> None:
                 wk_cv.create_line(int(slot * wi), 4, int(slot * wi), 24,
                                   fill=_W_BD)
             fg  = _W_TXT  if is_now else _W_SOFT
-            fnt = (_HDR, 7) if is_now else (_BODY, 6)
+            fnt = (_HDR, 7) if is_now else (_BODY, 7)
             wk_cv.create_text(cx, 13, text=full_labels[wi],
                               font=fnt, fill=fg, anchor="center")
             if is_now:
@@ -3354,9 +3541,9 @@ def _show_weekly_report(root_win) -> None:
                          padx=8, pady=4,
                          highlightbackground=_W_BD, highlightthickness=1)
     close_btn.pack(side="right", padx=(4, 0))
-    close_btn.bind("<Button-1>", lambda e: win.destroy())
-    close_btn.bind("<Enter>", lambda e: close_btn.config(fg=_W_TXT))
-    close_btn.bind("<Leave>", lambda e: close_btn.config(fg=_W_SOFT))
+    close_btn.bind("<Button-1>", lambda e=None: win.destroy())
+    close_btn.bind("<Enter>", lambda e=None: close_btn.config(fg=_W_TXT))
+    close_btn.bind("<Leave>", lambda e=None: close_btn.config(fg=_W_SOFT))
 
     exp_btn = tk.Label(btn_row, text="  EXPORT .TXT  ",
                        font=(_HDR, 7),
@@ -3365,6 +3552,6 @@ def _show_weekly_report(root_win) -> None:
                        highlightbackground="#1e3a5f", highlightthickness=1)
     exp_btn.pack(side="right", padx=(0, 4))
     exp_btn.bind("<Button-1>",
-                 lambda e: _export_report(win, week_data, full_labels, _N))
-    exp_btn.bind("<Enter>", lambda e: exp_btn.config(fg="#93c5fd"))
-    exp_btn.bind("<Leave>", lambda e: exp_btn.config(fg=BLUE))
+                 lambda e=None: _export_report(win, week_data, full_labels, _N))
+    exp_btn.bind("<Enter>", lambda e=None: exp_btn.config(fg="#93c5fd"))
+    exp_btn.bind("<Leave>", lambda e=None: exp_btn.config(fg=BLUE))

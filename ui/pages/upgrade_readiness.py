@@ -12,14 +12,15 @@ intelligence lives in core/hardware_compat.py - this file only renders:
   quick-pick chips    - suggest_upgrades() picks that make sense HERE
   verdict card        - green / amber / red with reasons and notes
 """
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import threading
 import tkinter as tk
 
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -63,14 +64,14 @@ def build_upgrade_readiness_page(win, parent, focus=None):
     plat_head = tk.Frame(plat_card, bg=CARD)
     plat_head.pack(fill="x", padx=12, pady=(8, 2))
     tk.Label(plat_head, text="YOUR PLATFORM", font=(_MONO, 8, "bold"),
-             bg=CARD, fg="#64748b").pack(side="left")
+             bg=CARD, fg="#8a97ab").pack(side="left")
     plat_line = tk.Label(plat_head, text="", font=(_MONO, 8, "bold"),
                          bg=CARD, fg="#10b981")
     plat_line.pack(side="right")
     plat_body = tk.Frame(plat_card, bg=CARD)
     plat_body.pack(fill="x", padx=12, pady=(0, 8))
     loading = tk.Label(plat_body, text="Reading your hardware...",
-                       font=(_BODY, 9), bg=CARD, fg="#6b7280")
+                       font=(_BODY, 9), bg=CARD, fg="#8d97a8")
     loading.pack(anchor="w")
 
     state = {"plat": None}
@@ -79,7 +80,7 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         cell = tk.Frame(row, bg=CARD)
         cell.pack(side="left", fill="x", expand=True)
         tk.Label(cell, text=label, font=(_BODY, 7), bg=CARD,
-                 fg="#6b7280", anchor="w").pack(fill="x")
+                 fg="#8d97a8", anchor="w").pack(fill="x")
         tk.Label(cell, text=value or "not detected", font=(_BODY, 9, "bold"),
                  bg=CARD, fg="#e2e8f0" if value else "#4b5563",
                  anchor="w").pack(fill="x")
@@ -114,15 +115,15 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         _render_chips()
 
     def _load_platform():
-        # Worker thread: only compute, then one after(0) hop to the UI.
+        # Worker thread: only compute; the page renders it (ui/bg.py)
         try:
-            state["plat"] = hc.current_platform()
+            return hc.current_platform()
         except Exception:
-            state["plat"] = {}
-        try:
-            page.after(0, _render_platform)
-        except Exception:
-            pass
+            return {}
+
+    def _platform_ready(plat):
+        state["plat"] = plat
+        _render_platform()
 
     # ── Search row ───────────────────────────────────────────────────────
     search = tk.Frame(page, bg=BG)
@@ -138,8 +139,8 @@ def build_upgrade_readiness_page(win, parent, focus=None):
                    bg="#10b981", fg="#04110b", padx=18, pady=8,
                    cursor="hand2")
     btn.pack(side="left", padx=(8, 0))
-    btn.bind("<Enter>", lambda e: btn.config(bg="#34d399"))
-    btn.bind("<Leave>", lambda e: btn.config(bg="#10b981"))
+    btn.bind("<Enter>", lambda e=None: btn.config(bg="#34d399"))
+    btn.bind("<Leave>", lambda e=None: btn.config(bg="#10b981"))
 
     # ── Live autocomplete list (fills as you type; invisible when empty) ──
     suggest_box = tk.Frame(page, bg=BG)
@@ -149,7 +150,7 @@ def build_upgrade_readiness_page(win, parent, focus=None):
                         "(i5 11400F, Ryzen 7 5800X3D), a GPU (RTX 4070, "
                         "RX 7800 XT) or RAM (DDR5 6000). Start typing a model "
                         "and pick it from the list.",
-             font=(_BODY, 8), bg=BG, fg="#6b7280", anchor="w",
+             font=(_BODY, 8), bg=BG, fg="#8d97a8", anchor="w",
              wraplength=820, justify="left").pack(fill="x", pady=(4, 0))
 
     # ── Quick-pick chips ─────────────────────────────────────────────────
@@ -160,9 +161,9 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         c = tk.Label(parent_row, text=text, font=(_MONO, 8), bg="#161b28",
                      fg="#94a3b8", padx=9, pady=3, cursor="hand2")
         c.pack(side="left", padx=(0, 6), pady=2)
-        c.bind("<Enter>", lambda e: c.config(bg="#1f2739", fg="#e2e8f0"))
-        c.bind("<Leave>", lambda e: c.config(bg="#161b28", fg="#94a3b8"))
-        c.bind("<Button-1>", lambda e: _run_check(query))
+        c.bind("<Enter>", lambda e=None: c.config(bg="#1f2739", fg="#e2e8f0"))
+        c.bind("<Leave>", lambda e=None: c.config(bg="#161b28", fg="#94a3b8"))
+        c.bind("<Button-1>", lambda e=None: _run_check(query))
 
     def _render_chips():
         try:
@@ -181,7 +182,7 @@ def build_upgrade_readiness_page(win, parent, focus=None):
             order.remove(focus)
             order.insert(0, focus)
         tk.Label(chips_row, text="TRY:", font=(_MONO, 8, "bold"),
-                 bg=BG, fg="#4b5563").pack(side="left", padx=(0, 8))
+                 bg=BG, fg="#7b8597").pack(side="left", padx=(0, 8))
         shown = 0
         for kind in order:
             for rec in sug.get(kind, []):
@@ -212,7 +213,7 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         inner = tk.Frame(card, bg=CARD)
         inner.pack(fill="x", padx=14, pady=12)
         tk.Label(inner, text="WHAT THE CHECK LOOKS AT", font=(_MONO, 8, "bold"),
-                 bg=CARD, fg="#64748b", anchor="w").pack(fill="x")
+                 bg=CARD, fg="#8a97ab", anchor="w").pack(fill="x")
         for dot, name, desc in (
                 ("#10b981", "Fits",
                  "same socket, your chipset runs it, drops straight in"),
@@ -230,7 +231,7 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         tk.Label(inner, text="A CPU check reads socket, chipset, RAM carry-over "
                              "and cooler mount. A GPU check reads the class "
                              "delta, VRAM, and recommended PSU. All offline.",
-                 font=(_BODY, 8), bg=CARD, fg="#6b7280", anchor="w",
+                 font=(_BODY, 8), bg=CARD, fg="#8d97a8", anchor="w",
                  wraplength=800, justify="left").pack(fill="x", pady=(10, 0))
 
     def _render_verdict(v):
@@ -254,12 +255,12 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         if tgt and tgt.get("kind") == "cpu":
             tk.Label(top, text=f"{tgt['socket']} · {tgt['cores']}C/"
                                f"{tgt['threads']}T · {tgt['tdp']} W",
-                     font=(_MONO, 8), bg=CARD, fg="#4b5563").pack(
+                     font=(_MONO, 8), bg=CARD, fg="#7b8597").pack(
                 side="right")
         elif tgt and tgt.get("kind") == "gpu":
             tk.Label(top, text=f"{tgt['vram_gb']} GB · {tgt['tdp']} W · "
                                f"PSU {tgt['rec_psu']} W",
-                     font=(_MONO, 8), bg=CARD, fg="#4b5563").pack(
+                     font=(_MONO, 8), bg=CARD, fg="#7b8597").pack(
                 side="right")
 
         # Headline + loud status badge: the answer readable from across the
@@ -332,12 +333,12 @@ def build_upgrade_readiness_page(win, parent, focus=None):
             tk.Label(row, text=m["label"], font=(_MONO, 9), bg="#0d111b",
                      fg="#e2e8f0", anchor="w").pack(side="left")
             tk.Label(row, text=m.get("meta", ""), font=(_MONO, 7),
-                     bg="#0d111b", fg="#5a6883", anchor="e").pack(
+                     bg="#0d111b", fg="#8291a9", anchor="e").pack(
                 side="right", padx=8)
             for w in (row,) + tuple(row.winfo_children()):
-                w.bind("<Button-1>", lambda e, lbl=m["label"]: _pick(lbl))
-                w.bind("<Enter>", lambda e, r=row: _hl(r, True))
-                w.bind("<Leave>", lambda e, r=row: _hl(r, False))
+                w.bind("<Button-1>", lambda e=None, lbl=m["label"]: _pick(lbl))
+                w.bind("<Enter>", lambda e=None, r=row: _hl(r, True))
+                w.bind("<Leave>", lambda e=None, r=row: _hl(r, False))
 
     def _hl(row, on):
         try:
@@ -349,10 +350,10 @@ def build_upgrade_readiness_page(win, parent, focus=None):
         except Exception:
             pass
 
-    btn.bind("<Button-1>", lambda e: (_clear_suggestions(), _run_check()))
-    entry.bind("<Return>", lambda e: (_clear_suggestions(), _run_check()))
+    btn.bind("<Button-1>", lambda e=None: (_clear_suggestions(), _run_check()))
+    entry.bind("<Return>", lambda e=None: (_clear_suggestions(), _run_check()))
     entry.bind("<KeyRelease>", _update_suggestions)
-    entry.bind("<Escape>", lambda e: _clear_suggestions())
+    entry.bind("<Escape>", lambda e=None: _clear_suggestions())
 
     # ── Footer ───────────────────────────────────────────────────────────
     try:
@@ -363,13 +364,13 @@ def build_upgrade_readiness_page(win, parent, focus=None):
     except Exception:
         foot = "Offline library. Cross-check the board vendor's support list."
     tk.Label(page, text=foot, font=(_BODY, 7), bg=BG,
-             fg="#4b5563", anchor="w").pack(fill="x", side="bottom",
+             fg="#7b8597", anchor="w").pack(fill="x", side="bottom",
                                             pady=(6, 0))
 
     _show_legend()    # explain the colors before the first search
 
-    threading.Thread(target=_load_platform, daemon=True,
-                     name="UpgradeReadinessScan").start()
+    from ui import bg as _bg_ui
+    _bg_ui.run(page, _load_platform, _platform_ready, name="UpgradeReadinessScan")
     try:
         entry.focus_set()
     except Exception:

@@ -4,6 +4,7 @@ Day Stats Page - Windows Properties Style
 Professional statistics page showing daily system usage
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import ttk
 from ui.theme import THEME
@@ -12,8 +13,8 @@ from ui.theme import THEME
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 from ui.components.process_tooltip import ProcessTooltip
@@ -449,8 +450,8 @@ class DayStatsPage:
                 btn.pack(side="right", padx=2)
 
                 # Bind hover events for tooltip and row highlighting
-                btn.bind("<Enter>", lambda e, p=proc_name, r=row, i=info: self._on_info_hover(e, p, r, i))
-                btn.bind("<Leave>", lambda e, r=row, i=info: self._on_info_leave(e, r, i))
+                btn.bind("<Enter>", lambda e=None, p=proc_name, r=row, i=info: self._on_info_hover(e, p, r, i))
+                btn.bind("<Leave>", lambda e=None, r=row, i=info: self._on_info_leave(e, r, i))
 
                 self.process_widgets.append(row)
 

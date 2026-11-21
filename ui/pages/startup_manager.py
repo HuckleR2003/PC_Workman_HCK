@@ -8,6 +8,7 @@ Redesigned UX:
   · Critical process detection + warning in drawer
   · "Disabled" tab -> full-width view
 """
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from tkinter import messagebox
 import threading, os, json
@@ -20,12 +21,18 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except Exception:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _F    = _UIF
 _M    = _MONOF
 _BODY = _UIF
 _MONO = _MONOF
+
+try:
+    from utils.i18n import t as _t
+except Exception:                                   # pragma: no cover
+    def _t(key, default=None, **kw):
+        return default if default is not None else key
 
 # ── Palette ───────────────────────────────────────────────────────────────────
 BG         = "#090c12"
@@ -70,24 +77,50 @@ _SRC_COLOR = {
     "UWP":          "#1a3a5a",
 }
 # Human labels - users kept asking what "HKCU / HKLM / Task" means
-_SRC_LABEL = {
-    "HKCU":         "👤 Twoje konto",
-    "HKLM":         "🖥 Wszyscy",
-    "HKLM32":       "🖥 Wszyscy (32)",
-    "STARTUP_USER": "📁 Autostart",
-    "STARTUP_SYS":  "📁 Autostart sys",
-    "TASK":         "⏰ Harmonogram",
-    "UWP":          "⊞ Store",
+# Looked up through t() at draw time, so they follow the interface language.
+# (They were Polish literals, shown as-is with the interface set to English.)
+_SRC_ICON = {
+    "HKCU": "👤", "HKLM": "🖥", "HKLM32": "🖥", "STARTUP_USER": "📁",
+    "STARTUP_SYS": "📁", "TASK": "⏰", "UWP": "⊞",
 }
-_SRC_HINT = {
-    "HKCU":         "Wpis rejestru - startuje tylko dla Twojego konta (HKCU\\...\\Run)",
-    "HKLM":         "Wpis rejestru - startuje dla wszystkich użytkowników (HKLM\\...\\Run)",
-    "HKLM32":       "Wpis rejestru 32-bit - dla wszystkich użytkowników (WOW6432Node)",
-    "STARTUP_USER": "Skrót w folderze Autostart Twojego konta",
-    "STARTUP_SYS":  "Skrót w folderze Autostart wszystkich użytkowników",
-    "TASK":         "Zadanie Harmonogramu zadań Windows (logon/boot)",
-    "UWP":          "Aplikacja z Microsoft Store z zadaniem startowym",
+_SRC_LABEL_EN = {
+    "HKCU":         "Your account",
+    "HKLM":         "All users",
+    "HKLM32":       "All users (32)",
+    "STARTUP_USER": "Startup folder",
+    "STARTUP_SYS":  "Startup folder (all)",
+    "TASK":         "Scheduler",
+    "UWP":          "Store",
 }
+_SRC_HINT_EN = {
+    "HKCU":         "Registry entry - starts only for your account (HKCU\\...\\Run)",
+    "HKLM":         "Registry entry - starts for all users (HKLM\\...\\Run)",
+    "HKLM32":       "32-bit registry entry - for all users (WOW6432Node)",
+    "STARTUP_USER": "Shortcut in your account's Startup folder",
+    "STARTUP_SYS":  "Shortcut in the Startup folder of all users",
+    "TASK":         "Windows Task Scheduler task (logon/boot)",
+    "UWP":          "Microsoft Store app with a startup task",
+}
+
+
+def _src_label(hive: str, fallback: str = None) -> str:
+    """Badge text for where a startup entry comes from."""
+    if hive not in _SRC_LABEL_EN:
+        return hive if fallback is None else fallback
+    return (_SRC_ICON[hive] + " "
+            + _t("startup_manager.src_" + hive.lower(), _SRC_LABEL_EN[hive]))
+
+
+def _src_hint(hive: str):
+    if hive not in _SRC_HINT_EN:
+        return None
+    return _t("startup_manager.hint_" + hive.lower(), _SRC_HINT_EN[hive])
+
+
+def _who_label(who: str) -> str:
+    """'UŻYTKOWNIK' is the value stored in prefs (kept for old files); what
+    is shown follows the interface language."""
+    return _t("common.user_tag", "USER") if who == "UŻYTKOWNIK" else who
 
 # Exe fragments that warrant a critical warning before disabling
 _CRITICAL_FRAGS = frozenset({
@@ -97,50 +130,21 @@ _CRITICAL_FRAGS = frozenset({
     "eset", "kaspersky", "bitdefender", "mbam",
 })
 
-_KNOWN: dict[str, tuple[str, str, str]] = {
-    "teams.exe":              ("high",   "disable", "High RAM & CPU at boot. Open when you need a meeting."),
-    "discord.exe":            ("medium", "delay",   "Chat app - launch on demand. Saves seconds at boot."),
-    "slack.exe":              ("high",   "disable", "Heavy memory footprint. Open manually at work start."),
-    "zoom.exe":               ("medium", "delay",   "Video client. Only needed when joining a call."),
-    "spotify.exe":            ("medium", "delay",   "Music player. Start when you actually want to listen."),
-    "skype.exe":              ("medium", "delay",   "Legacy VoIP - start manually if still used."),
-    "onedrive.exe":           ("medium", "delay",   "Cloud sync runs fine when delayed or started on-demand."),
-    "dropbox.exe":            ("medium", "delay",   "Cloud sync - can start delayed after login."),
-    "googledrivesync.exe":    ("medium", "delay",   "Google Drive sync - delayed start works fine."),
-    "steam.exe":              ("high",   "disable", "Game launcher. No reason to start with Windows."),
-    "epicgameslauncher.exe":  ("high",   "disable", "Epic Games - opens fine on demand."),
-    "ea_desktop.exe":         ("high",   "disable", "EA Desktop - large, start manually when gaming."),
-    "battle.net.exe":         ("high",   "disable", "Battle.net - open when you want to play."),
-    "upc.exe":                ("medium", "disable", "Ubisoft Connect - can start on demand."),
-    "origin.exe":             ("high",   "disable", "EA Origin - large process, open when gaming."),
-    "adobeupdatedaemon.exe":  ("medium", "disable", "Adobe updater - update manually from the app."),
-    "acrobat.exe":            ("medium", "delay",   "PDF viewer - only needed when opening PDF files."),
-    "ccleaner64.exe":         ("low",    "keep",    "Lightweight cleaner - fine to keep in startup."),
-    "malwarebytes.exe":       ("low",    "keep",    "Security tool - recommended to keep running."),
-    "msiafterburner.exe":     ("low",    "keep",    "GPU OC utility - keep if actively using fan curves."),
-    "hwinfo64.exe":           ("low",    "keep",    "Hardware monitor - lightweight, keep if using sensors."),
-    "corsairhid.exe":         ("low",    "keep",    "Corsair iCUE - needed for RGB and macros."),
-    "razercentralservice.exe":("low",    "keep",    "Razer Synapse - needed for G keys and lighting."),
-    "lghub.exe":              ("low",    "keep",    "Logitech G HUB - needed for G-series devices."),
-    "curve.exe":              ("medium", "delay",   "NZXT CAM - can delay startup without issues."),
-    # Screenshot / recording
-    "sharex.exe":             ("low",    "keep",    "ShareX screenshot & recording - lightweight, safe to keep."),
-    "lightshot.exe":          ("low",    "keep",    "Lightshot screenshot tool - very lightweight."),
-    "obs64.exe":              ("medium", "delay",   "OBS Studio - start manually when streaming/recording."),
-    "obs32.exe":              ("medium", "delay",   "OBS Studio (32-bit) - start manually when needed."),
-    # Remote / streaming
-    "parsec.exe":             ("low",    "keep",    "Parsec remote desktop - keep if used regularly."),
-    "rustdesk.exe":           ("medium", "delay",   "RustDesk remote desktop - start on demand."),
-    "anydesk.exe":            ("medium", "delay",   "AnyDesk remote access - start manually when needed."),
-    # Password managers
-    "bitwarden.exe":          ("low",    "keep",    "Bitwarden password manager - keep for autofill."),
-    "keepassxc.exe":          ("low",    "keep",    "KeePassXC password manager - keep for autofill."),
-    # Cloud / sync
-    "nextcloud.exe":          ("medium", "delay",   "Nextcloud desktop sync - delayed start is fine."),
-    "megasync.exe":           ("medium", "delay",   "MEGA cloud sync - can start delayed."),
-    # Dev / heavy tools
-    "docker desktop.exe":     ("high",   "disable", "Docker Desktop - heavy, start manually when developing."),
-}
+# The tables moved to core/recommendations.py (2026-11-20): the Process
+# Center, hck_GPT and this page give the same advice from one place.
+from core.recommendations import STARTUP_KNOWN as _KNOWN, STARTUP_NAME_RULES as _NAME_RULES
+
+
+def _known_or_guess(exe: str, name: str = ""):
+    """(impact, rec, why) from the file table, else from the name rules."""
+    hit = _KNOWN.get(exe)
+    if hit:
+        return hit
+    key = f"{(name or '').lower()} {(exe or '').lower()}"
+    for frag, impact, rec, why in _NAME_RULES:
+        if frag in key:
+            return impact, rec, why
+    return ("low", "keep", "")
 
 # ── Registry helpers ──────────────────────────────────────────────────────────
 
@@ -213,7 +217,7 @@ def _read_startup_entries() -> list[dict]:
             kid = f"{hive_label}:{name.lower()}"
             if kid in seen: continue
             seen.add(kid)
-            impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
+            impact, rec, desc = _known_or_guess(exe, name)
             entries.append({"id": kid, "name": name, "value": value, "exe": exe,
                             "hive": hive_label, "hive_const": hive, "reg_path": path,
                             "impact": impact, "rec": rec, "desc": desc,
@@ -266,7 +270,7 @@ def _read_startup_entries() -> list[dict]:
                     continue
                 seen.add(kid)
 
-                impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
+                impact, rec, desc = _known_or_guess(exe, name)
                 entries.append({
                     "id":         kid,
                     "name":       name,
@@ -427,7 +431,7 @@ def _read_scheduled_tasks() -> list[dict]:
             enabled = (d.get("State") or "").strip().lower() != "disabled"
             exe_path = (d.get("Exe") or "").strip().strip('"')
             exe = os.path.basename(exe_path).lower() if exe_path else ""
-            impact, rec, desc = _KNOWN.get(exe, ("low", "keep", ""))
+            impact, rec, desc = _known_or_guess(exe, name)
             entries.append({
                 "id": f"TASK:{full.lower()}", "name": name, "value": exe_path,
                 "exe": exe, "hive": "TASK", "hive_const": None, "reg_path": full,
@@ -497,10 +501,11 @@ def _read_uwp_startup() -> list[dict]:
                 continue   # no State -> not a startup task
             enabled = int(state) in (2, 4)
             disp = pfn.split("_")[0].split(".")[-1] or pfn
+            _imp, _rec, _why = _known_or_guess("", f"{disp} {pfn}")
             entries.append({
                 "id": f"UWP:{pfn.lower()}:{task_id.lower()}", "name": disp,
                 "value": pfn, "exe": "", "hive": "UWP", "hive_const": None,
-                "reg_path": sub_path, "impact": "low", "rec": "keep", "desc": "",
+                "reg_path": sub_path, "impact": _imp, "rec": _rec, "desc": _why,
                 "_uwp": True, "_enabled": enabled,
             })
         winreg.CloseKey(pkg)
@@ -575,8 +580,8 @@ def _scrollable_frame(parent, bg=BG):
                       bg=bg, troughcolor=bg, highlightthickness=0, bd=0, width=4)
     inner = tk.Frame(cv, bg=bg)
     wid = cv.create_window((0, 0), window=inner, anchor="nw")
-    cv.bind("<Configure>", lambda e: cv.itemconfig(wid, width=e.width))
-    inner.bind("<Configure>", lambda e: cv.configure(scrollregion=cv.bbox("all")))
+    cv.bind("<Configure>", lambda e=None: cv.itemconfig(wid, width=e.width))
+    inner.bind("<Configure>", lambda e=None: cv.configure(scrollregion=cv.bbox("all")))
 
     def _scroll(e):
         try: cv.yview_scroll(int(-1 * (e.delta / 120)), "units")
@@ -682,13 +687,13 @@ def _compact_row(parent, entry: dict, prefs: dict,
     if show_on_badge and not is_dis:
         hive = entry.get("hive", "")
         src_col = _SRC_COLOR.get(hive, "#1a2530")
-        src_txt = _SRC_LABEL.get(hive, hive[:6])
+        src_txt = _src_label(hive, hive[:6])
         if src_txt:
             src_badge = tk.Label(line1, text=src_txt,
                                  font=(_F, 7), bg=src_col, fg="#6a8aaa",
                                  padx=3, pady=1)
             src_badge.pack(side="right", padx=(0, 3))
-            hint = _SRC_HINT.get(hive)
+            hint = _src_hint(hive)
             if hint:
                 _Tooltip(src_badge, hint)
 
@@ -746,7 +751,8 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(hdr, text="Startup Menu", font=(_F, 8, "bold"),
+    from ui.components.page_titles import text as _ptx
+    tk.Label(hdr, text=_ptx("sm_menu_head"), font=(_F, 8, "bold"),
              bg=BG, fg=AMBER).pack(side="left")
     tk.Label(hdr, text=f"  {len(flagged)}", font=(_F, 8),
              bg=BG, fg=SUB).pack(side="left")
@@ -761,9 +767,9 @@ def _build_needs_attention_panel(parent: tk.Frame, flagged: list[dict],
                  font=(_F, 11, "bold"), bg=BG, fg=GREEN,
                  anchor="w").pack(anchor="w", pady=(0, 10))
         tk.Label(_EmptyAttention,
-                 text="To tutaj nie przegapisz potencjalnej złośliwej\n"
-                      "aplikacji, która potajemnie chciała wejść\n"
-                      "w działanie systemu przy starcie.",
+                 text=_t("startup_manager.clean_note",
+                         "A program that quietly added itself\n"
+                         "to Windows startup would show up here."),
                  font=(_F, 8), bg=BG, fg="#6f86a3",
                  justify="left", anchor="w").pack(anchor="w")
         return
@@ -794,18 +800,18 @@ def _build_all_active_panel(parent: tk.Frame, active: list[dict],
     # Header
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=10, pady=(8, 4))
-    tk.Label(hdr, text="Aktywne przy starcie",
+    tk.Label(hdr, text=_t("startup_manager.active_at_boot", "Active at startup"),
              font=(_F, 8, "bold"), bg=BG, fg=TEXT).pack(side="left")
     tk.Label(hdr, text=f"  {len(active)}", font=(_F, 8),
              bg=BG, fg=SUB).pack(side="left")
-    tk.Label(hdr, text="kliknij aby wyłączyć",
+    tk.Label(hdr, text=_t("startup_manager.click_to_disable", "click to disable"),
              font=(_F, 7), bg=BG, fg=MUTED).pack(side="right")
 
     tk.Frame(parent, bg=BORDER, height=1).pack(fill="x", padx=10)
 
     if not active:
         tk.Label(parent,
-                 text="Brak aktywnych wpisów autostartu.",
+                 text=_t("startup_manager.no_active", "No active startup entries."),
                  font=(_F, 9), bg=BG, fg=SUB).pack(pady=30)
         return
 
@@ -865,7 +871,7 @@ def _folder_row(parent: tk.Frame, entry: dict, prefs: dict, running_set: set = N
              ).pack(side="right", padx=(0, 4))
 
     # Source badge (📁)
-    src_lbl = _SRC_LABEL.get(hive, "📁")
+    src_lbl = _src_label(hive, "📁")
     tk.Label(line1, text=src_lbl, font=(_F, 7),
              bg=_SRC_COLOR.get(hive, "#1a3a2a"), fg="#5a8a6a",
              padx=3, pady=1).pack(side="right", padx=(0, 3))
@@ -913,13 +919,13 @@ def _actionable_row(parent: tk.Frame, entry: dict, on_queue, queued_ids: set,
                  bg="#052e16", fg="#22c55e", padx=4, pady=1).pack(side="left", padx=(4, 0))
 
     if in_q:
-        tk.Label(line1, text="✓ w kolejce", font=(_F, 7, "bold"),
+        tk.Label(line1, text="✓ " + _t("startup_manager.queued", "queued"), font=(_F, 7, "bold"),
                  bg=row_bg, fg=BORDEAU_LIGHT, padx=4).pack(side="right", padx=(0, 4))
 
     tk.Label(line1, text="ON" if enabled else "OFF", font=(_F, 7, "bold"),
              bg="#052e16" if enabled else row_bg, fg="#22c55e" if enabled else MUTED,
              padx=4, pady=1).pack(side="right", padx=(0, 4))
-    tk.Label(line1, text=_SRC_LABEL.get(hive, hive), font=(_F, 7),
+    tk.Label(line1, text=_src_label(hive, hive), font=(_F, 7),
              bg=_SRC_COLOR.get(hive, "#1a2530"), fg="#8aa0bc",
              padx=3, pady=1).pack(side="right", padx=(0, 3))
 
@@ -927,9 +933,13 @@ def _actionable_row(parent: tk.Frame, entry: dict, on_queue, queued_ids: set,
                      anchor="w")
     exe_l.pack(anchor="w")
 
-    kind = "Zadanie Harmonogramu (⏰)" if entry.get("_task") else "Aplikacja Microsoft Store (⊞)"
-    _Tooltip(row, f"{kind} - kliknij, aby dodać do wyłączenia.\n"
-                  f"W pełni odwracalne w zakładce Disabled.\n{entry.get('reg_path','')}")
+    kind = (_t("startup_manager.kind_task", "Scheduled task (⏰)")
+            if entry.get("_task")
+            else _t("startup_manager.kind_uwp", "Microsoft Store app (⊞)"))
+    _Tooltip(row, _t("startup_manager.row_tip",
+                     "{kind} - click to add it to the disable list.\n"
+                     "Fully reversible in the Disabled tab.", kind=kind)
+                  + f"\n{entry.get('reg_path','')}")
 
     def _click(e, _entry=entry):
         on_queue(_entry)
@@ -943,7 +953,8 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
     """Full-width view for Disabled tab."""
     hdr = tk.Frame(parent, bg=BG)
     hdr.pack(fill="x", padx=16, pady=(10, 6))
-    tk.Label(hdr, text="Disabled entries", font=(_F, 8, "bold"),
+    from ui.components.page_titles import text as _ptx
+    tk.Label(hdr, text=_ptx("sm_disabled_head"), font=(_F, 8, "bold"),
              bg=BG, fg=SUB).pack(side="left")
     tk.Label(hdr, text=f"  {len(disabled)}", font=(_F, 8),
              bg=BG, fg=MUTED).pack(side="left")
@@ -980,7 +991,7 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
         dis_by  = pdata.get("disabled_by", "")
         dis_at  = pdata.get("disabled_at", "")
         if dis_by:
-            who_str = f"Kto: {dis_by}"
+            who_str = _t("startup_manager.who", "By: {who}", who=_who_label(dis_by))
             if dis_at:
                 who_str += f"  ·  {dis_at}"
             tk.Label(body, text=who_str,
@@ -994,6 +1005,12 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
         def _make_restore(entry=e, r=row):
             def _do():
+                if _store_blocked(entry):
+                    from utils.install_kind import open_task_manager_startup
+                    if messagebox.askyesno(_sx("store_title"),
+                                           _sx("store_skip", names=f"  • {entry['name']}")):
+                        open_task_manager_startup()
+                    return
                 # Scheduled task / UWP: re-enable directly (no registry value to write)
                 if entry.get("_task") or entry.get("_uwp"):
                     ok = (_set_task_enabled(entry["reg_path"], True) if entry.get("_task")
@@ -1001,9 +1018,12 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                     if not ok:
                         import tkinter.messagebox as _mb
                         _mb.showerror(
-                            "Nie udało się przywrócić",
-                            f"Nie można włączyć '{entry['name']}'.\n"
-                            "Może wymagać uprawnień Administratora.")
+                            _t("startup_manager.restore_fail_title",
+                               "Could not restore"),
+                            _t("startup_manager.restore_fail_enable",
+                               "Cannot enable '{name}'.\n"
+                               "It may need Administrator rights.",
+                               name=entry['name']))
                         return
                     r.destroy()
                     on_restore_done()
@@ -1026,9 +1046,12 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
                 if not ok:
                     import tkinter.messagebox as _mb
                     _mb.showerror(
-                        "Nie udało się przywrócić",
-                        f"Nie można przywrócić '{entry['name']}'.\n"
-                        "Uruchom PC Workman jako Administrator."
+                        _t("startup_manager.restore_fail_title",
+                           "Could not restore"),
+                        _t("startup_manager.restore_fail_registry",
+                           "Cannot restore '{name}'.\n"
+                           "Run PC Workman as Administrator.",
+                           name=entry['name'])
                     )
                     return
                 # Remove from prefs entirely - entry will appear as active next scan
@@ -1041,9 +1064,9 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
         rb = tk.Label(right, text="Restore", font=(_F, 8),
                       fg=SUB, bg=SURFACE, cursor="hand2", padx=6, pady=2)
         rb.pack(anchor="e", pady=(3, 0))
-        rb.bind("<Button-1>", lambda e, fn=_make_restore(): fn())
-        rb.bind("<Enter>",    lambda e, w=rb: w.config(fg=TEXT))
-        rb.bind("<Leave>",    lambda e, w=rb: w.config(fg=SUB))
+        rb.bind("<Button-1>", lambda e=None, fn=_make_restore(): fn())
+        rb.bind("<Enter>",    lambda e=None, w=rb: w.config(fg=TEXT))
+        rb.bind("<Leave>",    lambda e=None, w=rb: w.config(fg=SUB))
 
         tk.Frame(inner, bg=SEP, height=1).pack(fill="x", padx=17)
 
@@ -1054,24 +1077,89 @@ def _build_disabled_panel(parent: tk.Frame, disabled: list[dict],
 
 from utils.admin import is_admin as _is_admin  # single source of truth
 
+# What this install may change (utils/install_kind.py, 2026-11-20)
+_SX = {
+    "store_banner": {"pl": "  ⚠  Wersja ze Sklepu: Windows zapisuje zmiany autostartu w prywatnej kopii rejestru tej aplikacji, więc wyłączenie tutaj by nie zadziałało. Zrób to w Menedżerze zadań.",
+                     "en": "  ⚠  Store version: Windows writes startup changes to this app's private copy of the registry, so disabling here would not work. Use Task Manager instead."},
+    "store_btn": {"pl": "Otwórz Menedżer zadań", "en": "Open Task Manager"},
+    "admin_banner": {"pl": "  ⚠  Bez uprawnień administratora: wpisów dla wszystkich użytkowników (HKLM) nie zmienię. Uruchom PC Workman jako administrator.",
+                     "en": "  ⚠  Not running as administrator: entries for all users (HKLM) cannot be changed. Run PC Workman as administrator."},
+    "store_title": {"pl": "Wersja ze Sklepu", "en": "Store version"},
+    "scanning": {"pl": "Sprawdzam, co startuje z Windows…", "en": "Scanning startup entries…"},
+    "store_skip": {"pl": "Tych wpisów nie wyłączę z wersji ze Sklepu (Windows zapisałby zmianę tylko w prywatnej kopii rejestru tej aplikacji):\n\n{names}\n\nOtworzyć Menedżer zadań na stronie Aplikacje autostartu?",
+                   "en": "I cannot disable these from the Store version (Windows would only change this app's private copy of the registry):\n\n{names}\n\nOpen Task Manager on its Startup apps page?"},
+}
+
+
+def _sx(k, **kw):
+    try:
+        from utils.i18n import get_lang
+        lang = "en" if get_lang() == "en" else "pl"
+    except Exception:
+        lang = "pl"
+    s = _SX[k][lang]
+    return s.format(**kw) if kw else s
+
+
+def _store_blocked(entry) -> bool:
+    """A registry or startup-folder entry on a Store install whose HKCU
+    writes are virtualized: the change would not reach Windows. Scheduled
+    tasks go through the Task Scheduler service and do work."""
+    if entry.get("_task"):
+        return False
+    try:
+        from utils.install_kind import registry_virtualized
+        return registry_virtualized()
+    except Exception:
+        return False
+
 def build_startup_manager_page(host, parent: tk.Frame):
     prefs = _load_prefs()
 
     page = tk.Frame(parent, bg=BG)
     page.pack(fill="both", expand=True)
 
-    spin = tk.Label(page, text="Scanning startup entries…",
+    spin = tk.Label(page, text=_sx("scanning"),
                     font=(_F, 10), bg=BG, fg=SUB)
     spin.pack(pady=60)
 
     def _on_ready(entries):
+        try:
+            if not page.winfo_exists():
+                return                      # user left the page meanwhile
+        except Exception:
+            return
         spin.destroy()
         _render(page, entries, prefs, host=host)
 
-    threading.Thread(
-        target=lambda: page.after(0, lambda: _on_ready(_read_startup_entries())),
-        daemon=True
-    ).start()
+    # The worker only fills a plain dict; the window polls it. 2026-11-20:
+    # page.after() called FROM the worker raised whenever the Tk main loop was
+    # not the one pumping (the error was swallowed, the list never showed),
+    # and a worker holding a Tk widget is what crashed with Tcl_AsyncDelete
+    # on other pages this month.
+    box = {"entries": None}
+
+    def _scan(b=box):
+        # Registry + scheduled tasks (PowerShell) are read HERE, on the
+        # worker, so the window does not freeze while PowerShell starts.
+        try:
+            b["entries"] = _read_startup_entries()
+        except Exception:
+            b["entries"] = []
+
+    def _poll():
+        try:
+            if not page.winfo_exists():
+                return
+        except Exception:
+            return
+        if box["entries"] is None:
+            page.after(150, _poll)
+            return
+        _on_ready(box["entries"])
+
+    threading.Thread(target=_scan, daemon=True, name="startup-scan").start()
+    page.after(150, _poll)
 
 
 def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
@@ -1139,16 +1227,24 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     header_block = tk.Frame(page, bg=BG)
     header_block.grid(row=0, column=0, sticky="ew")
 
-    # Admin notice - inside header_block so it survives _full_refresh
-    if not _is_admin():
-        _adm = tk.Frame(header_block, bg="#1a0f00", height=28)
+    # Admin / Store notice - inside header_block so it survives _full_refresh
+    try:
+        from utils.install_kind import registry_virtualized as _virt
+        _store_virt = _virt()
+    except Exception:
+        _store_virt = False
+    if _store_virt or not _is_admin():
+        _adm = tk.Frame(header_block, bg="#1a0f00")
         _adm.pack(fill="x")
-        _adm.pack_propagate(False)
-        tk.Label(_adm,
-                 text="  ⚠  Not running as Administrator - HKLM startup entries cannot be modified.  "
-                      "Right-click PC Workman → Run as administrator for full control.",
-                 font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER,
-                 padx=8).pack(side="left", fill="y")
+        if _store_virt:
+            from utils.install_kind import open_task_manager_startup as _otm
+            _b = tk.Label(_adm, text=_sx("store_btn"), font=(_F, 8, "bold"), bg="#3a2a00",
+                          fg="#ffffff", padx=10, pady=3, cursor="hand2")
+            _b.pack(side="right", padx=8, pady=4)
+            _b.bind("<Button-1>", lambda e=None: _otm())
+        tk.Label(_adm, text=_sx("store_banner" if _store_virt else "admin_banner"),
+                 font=(_F, 7, "bold"), bg="#1a0f00", fg=AMBER, anchor="w", justify="left",
+                 wraplength=900, padx=8, pady=5).pack(side="left", fill="x", expand=True)
 
     # Compact title row - no subtitle, minimal vertical padding
     title_row = tk.Frame(header_block, bg=BG)
@@ -1156,7 +1252,8 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
     title_col = tk.Frame(title_row, bg=BG)
     title_col.pack(side="left", fill="y")
-    tk.Label(title_col, text="Startup Manager",
+    from ui.components.page_titles import text as _ptx
+    tk.Label(title_col, text=_ptx("startup_manager"),
              font=(_F, 13, "bold"), bg=BG, fg=TEXT).pack(anchor="w")
 
     # Back navigation link (far right, before chips so it sits at the edge)
@@ -1166,9 +1263,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
                             font=(_F, 7), bg=BG, fg="#6f86a3",
                             cursor="hand2", padx=8)
         _back_sm.pack(side="right", fill="y")
-        _back_sm.bind("<Button-1>", lambda e: _nav_cb("dashboard"))
-        _back_sm.bind("<Enter>", lambda e: _back_sm.config(fg="#8b5cf6"))
-        _back_sm.bind("<Leave>", lambda e: _back_sm.config(fg="#6f86a3"))
+        _back_sm.bind("<Button-1>", lambda e=None: _nav_cb("dashboard"))
+        _back_sm.bind("<Enter>", lambda e=None: _back_sm.config(fg="#8b5cf6"))
+        _back_sm.bind("<Leave>", lambda e=None: _back_sm.config(fg="#6f86a3"))
 
     chips_row = tk.Frame(title_row, bg=BG)
     chips_row.pack(side="right", fill="y")
@@ -1179,9 +1276,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
         tk.Label(f, text=label, font=(_F, 7, "bold"), bg="#0f1720", fg=color).pack(side="left")
         tk.Label(f, text=str(val), font=(_F, 7), bg="#0f1720", fg=SUB).pack(side="left", padx=(2, 0))
 
-    _chip(chips_row, "Total",       len(entries), TEXT)
-    _chip(chips_row, "High impact", n_high,        RED)
-    _chip(chips_row, "Flagged",     len(flagged),  AMBER)
+    _chip(chips_row, _ptx("sm_total"),   len(entries), TEXT)
+    _chip(chips_row, _ptx("sm_high"),    n_high,        RED)
+    _chip(chips_row, _ptx("sm_flagged"), len(flagged),  AMBER)
 
     tk.Frame(header_block, bg=BORDER, height=1).pack(fill="x", padx=16, pady=(6, 0))
 
@@ -1207,9 +1304,9 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
         _view.set(v)
         active_now, flagged_now, disabled_now = _get_derived()
         if "split" in _tab_btns:
-            _tab_btns["split"].config(text=f"Startup Menu  {len(active_now)}")
+            _tab_btns["split"].config(text=f"{_ptx('sm_tab_menu')}  {len(active_now)}")
         if "disabled" in _tab_btns:
-            _tab_btns["disabled"].config(text=f"Disabled  {len(disabled_now)}")
+            _tab_btns["disabled"].config(text=f"{_ptx('sm_tab_disabled')}  {len(disabled_now)}")
         _refresh_tabs()
         if _content_ref[0]:
             _content_ref[0].destroy()
@@ -1222,7 +1319,7 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
             # Pass a callback that does a full refresh after restore
             def _after_restore():
                 # Re-scan registry to pick up restored entries immediately
-                page.after(0, lambda: _full_refresh())
+                page.after_idle(_full_refresh)   # UI thread (a click)
             _build_disabled_panel(cf, disabled_now, prefs, _after_restore)
 
     def _full_refresh():
@@ -1237,22 +1334,23 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
     # Two tabs only: Startup Menu + Disabled
     for key, lbl, col in [
-        ("split",    f"Startup Menu  {len(active)}",  TEXT),
-        ("disabled", f"Disabled  {len(disabled)}",    SUB),
+        ("split",    f"{_ptx('sm_tab_menu')}  {len(active)}",  TEXT),
+        ("disabled", f"{_ptx('sm_tab_disabled')}  {len(disabled)}",    SUB),
     ]:
         b = tk.Label(tab_bar, text=lbl, font=(_F, 9),
                      bg=BG, fg=col, padx=12, pady=5, cursor="hand2")
         b.pack(side="left", padx=(0, 3))
-        b.bind("<Button-1>", lambda e, _v=key: _switch_view(_v))
+        b.bind("<Button-1>", lambda e=None, _v=key: _switch_view(_v))
         _tab_btns[key] = b
 
     # ── Banner ────────────────────────────────────────────────────────────────
     banner = tk.Frame(header_block, bg=BANNER_BG)
     banner.pack(fill="x", padx=0, pady=(4, 0))
     tk.Label(banner,
-             text="  Kliknij wpis, aby dodać do wyłączenia   ·   "
-                  "👤 Twoje konto  ·  🖥 wszyscy użytkownicy  ·  "
-                  "⏰ Harmonogram zadań  ·  ⊞ aplikacja Store",
+             text="  " + _t("startup_manager.banner",
+                            "Click an entry to add it to the disable list   ·   "
+                            "👤 your account  ·  🖥 all users  ·  "
+                            "⏰ Task Scheduler  ·  ⊞ Store app"),
              font=(_F, 8), bg=BANNER_BG, fg="#5a7a96",
              anchor="w", pady=4).pack(fill="x", padx=16)
 
@@ -1291,13 +1389,31 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
     def _apply_queue(items: list):
         if not items:
             return
+        # Store build: registry entries would change only the app's private
+        # copy of the registry; send the user to Task Manager instead
+        blocked = [it for it in items if _store_blocked(it.get("payload") or {})]
+        if blocked:
+            if messagebox.askyesno(_sx("store_title"), _sx(
+                    "store_skip", names="\n".join(f"  • {it['label']}" for it in blocked[:8]))):
+                from utils.install_kind import open_task_manager_startup
+                open_task_manager_startup()
+            items = [it for it in items if it not in blocked]
+            if not items:
+                return
         names_str = "\n".join(f"  • {it['label']}" for it in items[:8])
         has_crit  = any(it.get("warn") for it in items)
-        extra     = ("\n\n⚠ Jeden z procesów wygląda jak sterownik/narzędzie systemowe."
-                     "\nWyłącz tylko jeśli jesteś pewien." if has_crit else "")
-        msg = (f"Wyłączyć ze startu {len(items)} {'wpis' if len(items)==1 else 'wpisów'}?\n\n"
-               f"{names_str}{extra}\n\nZmiany wejdą w życie po ponownym uruchomieniu.")
-        if not messagebox.askyesno("Potwierdź wyłączenie", msg, icon="warning"):
+        extra     = ("\n\n" + _t("startup_manager.crit_warn",
+                                 "⚠ One of these looks like a driver or a "
+                                 "system tool.\nDisable it only if you are sure.")
+                     if has_crit else "")
+        msg = (_t("startup_manager.confirm_msg",
+                  "Disable startup entries: {n}?", n=len(items))
+               + f"\n\n{names_str}{extra}\n\n"
+               + _t("startup_manager.confirm_after",
+                    "Changes take effect after the next restart."))
+        if not messagebox.askyesno(
+                _t("startup_manager.confirm_title", "Confirm disable"),
+                msg, icon="warning"):
             return
 
         failed = []
@@ -1311,9 +1427,11 @@ def _render(page: tk.Frame, entries: list[dict], prefs: dict, host=None):
 
         if failed:
             messagebox.showerror(
-                "Część operacji nie powiodła się",
-                "Nie udało się wyłączyć:\n" + "\n".join(f"  • {n}" for n in failed) +
-                "\n\nUruchom PC Workman jako Administrator."
+                _t("startup_manager.partial_title", "Some operations failed"),
+                _t("startup_manager.partial_msg", "Could not disable:") + "\n"
+                + "\n".join(f"  • {n}" for n in failed) + "\n\n"
+                + _t("startup_manager.run_admin",
+                     "Run PC Workman as Administrator.")
             )
         _full_refresh()
 

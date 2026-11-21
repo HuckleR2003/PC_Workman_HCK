@@ -12,7 +12,9 @@ Innovations in this redesign:
   7. Contextual Tooltips         - "XX°C (Y % above usual for this time)"
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
+from ui.components.fit import wrap_to_width as _wrap_to_width
 import time
 import math
 import threading
@@ -46,8 +48,8 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -64,7 +66,7 @@ PANEL   = "#0c1018"
 PANEL2  = "#10151e"
 BORDER  = "#1a2030"
 TEXT    = "#e2e8f0"
-MUTED   = "#6b7280"
+MUTED   = "#8d97a8"
 DIM     = "#74839a"   # readable dim (was #374151 - barely visible on dark)
 
 TEMP_C  = "#f59e0b"    # amber  - temperature
@@ -91,10 +93,10 @@ def build_monitoring_alerts_page(self, parent):
     sb = tk.Scrollbar(main, orient="vertical", command=canvas.yview,
                       bg=BG, troughcolor=BG, width=5)
     sf = tk.Frame(canvas, bg=BG)
-    sf.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    sf.bind("<Configure>", lambda e=None: canvas.configure(scrollregion=canvas.bbox("all")))
     win_id = canvas.create_window((0, 0), window=sf, anchor="nw")
     canvas.configure(yscrollcommand=sb.set)
-    canvas.bind("<Configure>", lambda e: canvas.itemconfig(win_id, width=e.width))
+    canvas.bind("<Configure>", lambda e=None: canvas.itemconfig(win_id, width=e.width))
 
     def _wheel(event):
         try:
@@ -127,18 +129,21 @@ def build_monitoring_alerts_page(self, parent):
     _lnk = tk.Label(_ur, text="UPGRADE READINESS ->", font=(_MONO, 7, "bold"),
                     bg=BG, fg="#10b981", cursor="hand2")
     _lnk.pack(side="right")
-    _lnk.bind("<Enter>", lambda e: _lnk.config(fg="#34d399"))
-    _lnk.bind("<Leave>", lambda e: _lnk.config(fg="#10b981"))
-    _lnk.bind("<Button-1>", lambda e: self.open_upgrade_readiness("cpu"))
+    _lnk.bind("<Enter>", lambda e=None: _lnk.config(fg="#34d399"))
+    _lnk.bind("<Leave>", lambda e=None: _lnk.config(fg="#10b981"))
+    _lnk.bind("<Button-1>", lambda e=None: self.open_upgrade_readiness("cpu"))
 
     # ── Learning status bar ───────────────────────────────────────────────────
-    _build_learning_center(sf)
+    _build_learning_center(sf, app=self)
 
     # ── Temperature section ───────────────────────────────────────────────────
     temp_sec = _build_temperature_section(sf)
+    # the header leads to the whole history of CPU, RAM and GPU (2026-11-20)
+    _link_header(temp_sec, self, "#1a1200", "#2b1e04")
 
     # ── Voltage / Load section ────────────────────────────────────────────────
     load_sec = _build_load_section(sf)
+    _link_header(load_sec, self, "#08101a", "#13223a")
 
     # ── Voltage Rails (SPC) ───────────────────────────────────────────────────
     volt_sec = _build_voltage_section(sf)
@@ -288,7 +293,7 @@ def _draw_health_rings(canvas, size, thermal, memory, load):
     canvas.create_text(cx, cy - 3, text=str(avg),
                        font=(_MONO, 15, "bold"), fill=a_col)
     canvas.create_text(cx, cy + 15, text="SCORE",
-                       font=(_MONO, 6), fill=DIM)
+                       font=(_MONO, 7), fill=DIM)
 
     # ── Right: three labeled component bars ───────────────────────────────────
     bx = cx + r + 16
@@ -349,6 +354,41 @@ def _build_session_overview(parent):
 # ──────────────────────────────────────────────────────────────────────────────
 # 3. TEMPERATURE SECTION
 # ──────────────────────────────────────────────────────────────────────────────
+
+def _link_header(section, app, bg, bg_hover):
+    """The coloured header of a section: lighter on hover, a click opens
+    Activity Memory on the Hardware tab. The scale buttons in it keep their
+    own clicks (only the header's frames and plain labels take part)."""
+    if app is None or not hasattr(app, "open_activity_memory"):
+        return
+    try:
+        hdr = section.winfo_children()[0]
+        body = hdr.winfo_children()[1]
+    except Exception:
+        return
+    parts = [hdr, body] + [w for w in body.winfo_children()
+                           if isinstance(w, tk.Label) and not str(w.cget("cursor"))]
+    parts = [w for w in parts if str(w.cget("bg")) == bg]
+
+    def paint(col):
+        for w in parts:
+            try:
+                w.config(bg=col)
+            except Exception:
+                pass
+
+    def go(e=None):
+        try:
+            app._activity_state = None
+            app.open_activity_memory("hardware")
+        except Exception:
+            pass
+    for w in parts:
+        w.config(cursor="hand2")
+        w.bind("<Enter>", lambda e=None: paint(bg_hover), add="+")
+        w.bind("<Leave>", lambda e=None: paint(bg), add="+")
+        w.bind("<Button-1>", go, add="+")
+
 
 def _build_temperature_section(parent):
     section = _make_section(parent)
@@ -573,13 +613,22 @@ _LEVEL_COLORS = {
 _LC_BUCKETS = [("idle", "Idle"), ("light", "Light"), ("medium", "Medium"),
                ("heavy", "Heavy"), ("gaming", "Gaming")]
 
+# The first hours: one learning sample every 5 minutes, and after about 6
+# hours of use the usual workloads (idle, light, gaming) have enough samples
+# for a first normal range.
+_FIRST_HOURS = 6
+
+
+def _bucket_label(bk: str, default: str) -> str:
+    return _t(f"monitoring.learn.bucket.{bk}", default=default)
+
 
 def _level_label(level: str) -> str:
     """Localized display name for a learning level (engine keys stay EN)."""
     return _t(f"monitoring.learn.level.{level}", default=level)
 
 
-def _build_learning_center(parent):
+def _build_learning_center(parent, app=None):
     """At-a-glance view of what PC Workman has learned: thermal baselines per
     workload + voltage SPC baselines + overall progress. The Rebuild button is a
     live self-check that the learning engines are actually working."""
@@ -590,11 +639,11 @@ def _build_learning_center(parent):
     tk.Frame(section, bg="#6366f1", height=2).pack(fill="x")
 
     hdr = tk.Frame(section, bg=PANEL)
-    hdr.pack(fill="x", padx=12, pady=(8, 2))
-    tk.Label(hdr, text="🧠", font=(_BODY, 11), bg=PANEL).pack(side="left")
+    hdr.pack(fill="x", padx=14, pady=(10, 4))
+    tk.Label(hdr, text="🧠", font=(_BODY, 14), bg=PANEL).pack(side="left")
     tk.Label(hdr, text=" " + _t("monitoring.learn.header",
                                 default="WHAT PC WORKMAN HAS LEARNED"),
-             font=(_HDR, 10), bg=PANEL, fg="#a5b4fc").pack(side="left")
+             font=(_HDR, 13, "bold"), bg=PANEL, fg="#c7d2fe").pack(side="left")
 
     pct_lbl = tk.Label(hdr, text="", font=(_MONO, 8, "bold"), bg=PANEL, fg=DIM)
     pct_lbl.pack(side="right", padx=(8, 0))
@@ -607,7 +656,10 @@ def _build_learning_center(parent):
     reb.pack(side="right", padx=(8, 0))
 
     body = tk.Frame(section, bg=PANEL)
-    body.pack(fill="x", padx=12, pady=(2, 4))
+    body.pack(fill="x", padx=14, pady=(2, 4))
+
+    if app is not None and hasattr(app, "open_activity_memory"):
+        _lc_time_travel(section, app)
 
     tk.Label(section,
              text=_t("monitoring.learn.info",
@@ -623,19 +675,22 @@ def _build_learning_center(parent):
                 w.destroy()
             except Exception:
                 pass
-        body.grid_columnconfigure(0, weight=1, uniform="lc")
-        body.grid_columnconfigure(1, weight=1, uniform="lc")
+        body.grid_columnconfigure(0, weight=3, uniform="lc")
+        body.grid_columnconfigure(1, weight=2, uniform="lc")
+        body.grid_columnconfigure(2, weight=0, minsize=260)
         left  = tk.Frame(body, bg=PANEL)
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
         right = tk.Frame(body, bg=PANEL)
-        right.grid(row=0, column=1, sticky="nsew")
+        right.grid(row=0, column=1, sticky="nsew", padx=(0, 12))
+        summary = tk.Frame(body, bg="#11152a", highlightthickness=1,
+                           highlightbackground="#3730a3", width=260)
+        summary.grid(row=0, column=2, sticky="nsew")
         _lc_thermal(left)
         _lc_voltage(right)
+        _lc_summary(summary)
         if _HAS_THERMAL_BL:
-            p = _thermal_bl.overall_training_pct()
-            pct_lbl.config(text=_t("monitoring.learn.pct",
-                                   default="{p}% learned", p=p),
-                           fg=OK_C if p >= 80 else WARN_C if p >= 40 else "#6366f1")
+            # the percentage lives in the summary card on the right now
+            pct_lbl.config(text="")
             upd_lbl.config(text=_t("monitoring.learn.rebuilt",
                                    default="rebuilt {t}",
                                    t=_thermal_bl.last_update_str()))
@@ -652,7 +707,7 @@ def _build_learning_center(parent):
     def _rebuild(_=None):
         reb.config(text="↻ …", fg=DIM)
 
-        def _bg():
+        def _work():
             try:
                 if _HAS_THERMAL_BL:
                     _thermal_bl.rebuild(force=True)
@@ -660,18 +715,15 @@ def _build_learning_center(parent):
                     _volt_az.rebuild(force=True)
             except Exception:
                 pass
-            try:
-                if section.winfo_exists():
-                    section.after(0, lambda: (_populate(),
-                                              reb.config(text="↻ Rebuild", fg="#818cf8")))
-            except Exception:
-                pass
 
-        threading.Thread(target=_bg, daemon=True, name="lc-rebuild").start()
+        from ui import bg as _bg_ui
+        _bg_ui.run(section, _work,
+                   lambda _r: (_populate(), reb.config(text="↻ Rebuild", fg="#818cf8")),
+                   name="lc-rebuild")
 
     reb.bind("<Button-1>", _rebuild)
-    reb.bind("<Enter>", lambda e: reb.config(fg="#c4b5fd") if "…" not in reb.cget("text") else None)
-    reb.bind("<Leave>", lambda e: reb.config(fg="#818cf8") if "…" not in reb.cget("text") else None)
+    reb.bind("<Enter>", lambda e=None: reb.config(fg="#c4b5fd") if "…" not in reb.cget("text") else None)
+    reb.bind("<Leave>", lambda e=None: reb.config(fg="#818cf8") if "…" not in reb.cget("text") else None)
 
     _populate()
     return section
@@ -710,8 +762,8 @@ def _lc_thermal(parent):
 
         row = tk.Frame(parent, bg=PANEL)
         row.pack(fill="x", pady=2)
-        tk.Label(row, text=label, font=(_MONO, 8), bg=PANEL, fg=TEXT,
-                 width=8, anchor="w").pack(side="left")
+        tk.Label(row, text=_bucket_label(bk, label), font=(_MONO, 8), bg=PANEL,
+                 fg=TEXT, width=9, anchor="w").pack(side="left")
         cv = tk.Canvas(row, width=110, height=9, bg=PANEL, highlightthickness=0)
         cv.pack(side="left", padx=(0, 8))
         cv.create_rectangle(0, 2, 110, 8, fill="#161c28", outline="")
@@ -729,13 +781,15 @@ def _lc_thermal(parent):
     try:
         since = _thermal_bl.learning_since_str()
         hrs   = _thermal_bl.total_observed_hours()
-        tk.Label(parent,
+        _lf = tk.Label(parent,
                  text=_t("monitoring.learn.learning_for",
                          default="⏱ Learning for {since}  ·  {hrs}h of your "
                                  "machine observed",
                          since=since, hrs=f"{hrs:.0f}"),
-                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc",
-                 anchor="w").pack(anchor="w", pady=(4, 0))
+                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc", anchor="w",
+                 justify="left")
+        _lf.pack(anchor="w", fill="x", pady=(4, 0))
+        _wrap_to_width(_lf, parent)
     except Exception:
         pass
 
@@ -749,15 +803,142 @@ def _lc_thermal(parent):
                  anchor="w").pack(anchor="w", pady=(3, 0))
 
 
+def _lc_summary(card):
+    """Right-hand card: how far the learning is, in one number, and what
+    that means right now. In the first hours it explains how the learning
+    works and asks for time; later it names what is known and what is not."""
+    if not _HAS_THERMAL_BL:
+        return
+    try:
+        pm     = _thermal_bl.primary_metric()
+        # the ring follows the signal this card shows (2026-11-20: it said
+        # 100% from the CPU load while the bars showed GPU temperature
+        # still learning gaming)
+        pct    = _thermal_bl.overall_training_pct(pm)
+        hours  = _thermal_bl.total_observed_hours()
+        status = _thermal_bl.training_status(pm)
+        rare_b = set(_thermal_bl.training_breakdown(pm)["rare"])
+    except Exception:
+        return
+    known = [_bucket_label(bk, lab) for bk, lab in _LC_BUCKETS
+             if status.get(bk, {}).get("level") in ("trained", "calibrated")]
+    still = [_bucket_label(bk, lab) for bk, lab in _LC_BUCKETS
+             if status.get(bk, {}).get("level") not in ("trained", "calibrated")
+             and bk not in rare_b]
+    rare = [_bucket_label(bk, lab) for bk, lab in _LC_BUCKETS
+            if bk in rare_b and status.get(bk, {}).get("level") not in ("trained", "calibrated")]
+    col = OK_C if pct >= 80 else WARN_C if pct >= 40 else "#818cf8"
+    CARD = "#11152a"
+
+    top = tk.Frame(card, bg=CARD)
+    top.pack(fill="x", padx=12, pady=(10, 4))
+    ring = tk.Canvas(top, width=78, height=78, bg=CARD, highlightthickness=0)
+    ring.pack(side="left")
+    ring.create_oval(6, 6, 72, 72, outline="#1e2440", width=7)
+    # the ring fills from 0 when the page opens (ease-out, ~0.6 s)
+    arc = ring.create_arc(6, 6, 72, 72, start=90, extent=0,
+                          style="arc", outline=col, width=7)
+    num = ring.create_text(39, 35, text="0%", font=(_HDR, 14, "bold"), fill=TEXT)
+    target = min(max(pct, 0), 100)
+
+    def _grow(step=0, steps=18):
+        try:
+            if not ring.winfo_exists():
+                return
+        except Exception:
+            return
+        k = 1 - (1 - step / steps) ** 3
+        # 359.9, not 360: Tk draws a 360-degree arc as nothing (100% looked empty)
+        ring.itemconfig(arc, extent=-min(3.6 * target * k, 359.9) if target else 0)
+        ring.itemconfig(num, text=f"{int(round(target * k))}%")
+        if step < steps:
+            ring.after(33, lambda: _grow(step + 1, steps))
+    _grow()
+    ring.create_text(39, 54, text=_t("monitoring.learn.learned_word",
+                                     default="LEARNED"),
+                     font=(_BODY, 7, "bold"), fill=MUTED)
+
+    if hours < _FIRST_HOURS:
+        stage, text = "stage_new", "explain_new"
+    elif pct < 80:
+        stage, text = "stage_learning", "explain_learning"
+    else:
+        stage, text = "stage_done", "explain_done"
+    head = tk.Frame(top, bg=CARD)
+    head.pack(side="left", fill="both", expand=True, padx=(10, 0))
+    tk.Label(head, text=_t(f"monitoring.learn.{stage}"), font=(_HDR, 10, "bold"),
+             bg=CARD, fg="#c7d2fe", anchor="w", justify="left",
+             wraplength=150).pack(anchor="w", pady=(8, 2))
+    tk.Label(head, text=_t("monitoring.learn.observed", h=f"{hours:.1f}"),
+             font=(_BODY, 8), bg=CARD, fg=MUTED, anchor="w").pack(anchor="w")
+
+    tk.Label(card, text=_t(f"monitoring.learn.{text}", h=_FIRST_HOURS),
+             font=(_BODY, 8), bg=CARD, fg="#b8c2d6", anchor="w",
+             justify="left", wraplength=232).pack(fill="x", padx=12, pady=(2, 6))
+
+    if hours < _FIRST_HOURS:
+        bar = tk.Canvas(card, height=8, bg=CARD, highlightthickness=0)
+        bar.pack(fill="x", padx=12)
+        frac = hours / _FIRST_HOURS
+
+        def _draw_bar(e=None):
+            bar.delete("all")
+            w = bar.winfo_width()
+            bar.create_rectangle(0, 1, w, 7, fill="#1e2440", outline="")
+            bar.create_rectangle(0, 1, max(2, int(w * min(frac, 1))), 7,
+                                 fill="#818cf8", outline="")
+        bar.bind("<Configure>", _draw_bar)
+        tk.Label(card, text=_t("monitoring.learn.first_hours",
+                               h=f"{hours:.1f}", t=_FIRST_HOURS),
+                 font=(_BODY, 7), bg=CARD, fg=MUTED,
+                 anchor="w").pack(fill="x", padx=12, pady=(2, 8))
+    else:
+        if known:
+            tk.Label(card, text=_t("monitoring.learn.knows", list=", ".join(known)),
+                     font=(_BODY, 8), bg=CARD, fg=OK_C, anchor="w",
+                     justify="left", wraplength=232).pack(fill="x", padx=12)
+        if still:
+            tk.Label(card, text=_t("monitoring.learn.still", list=", ".join(still)),
+                     font=(_BODY, 8), bg=CARD, fg=WARN_C, anchor="w",
+                     justify="left", wraplength=232).pack(fill="x", padx=12,
+                                                          pady=(2, 0 if rare else 8))
+        if rare:
+            tk.Label(card, text=_t("monitoring.learn.rare", list=", ".join(rare)),
+                     font=(_BODY, 8), bg=CARD, fg=MUTED, anchor="w",
+                     justify="left", wraplength=232).pack(fill="x", padx=12,
+                                                          pady=(2, 8))
+
+
+def _lc_time_travel(section, app):
+    """Links from what was learned to the full history of each component."""
+    row = tk.Frame(section, bg=PANEL)
+    row.pack(fill="x", padx=14, pady=(4, 6))
+    tk.Label(row, text=_t("monitoring.learn.time_travel", default="TIME TRAVEL"),
+             font=(_BODY, 8, "bold"), bg=PANEL, fg="#c7d2fe").pack(side="left")
+    tk.Label(row, text=_t("monitoring.learn.time_travel_sub"),
+             font=(_BODY, 8), bg=PANEL, fg=MUTED).pack(side="left", padx=(8, 12))
+    for comp, color in (("cpu", "#3b82f6"), ("ram", "#fbbf24"), ("gpu", "#10b981")):
+        chip = tk.Label(row, text=_t("monitoring.learn.history_link",
+                                     c=comp.upper()) + "  ›",
+                        font=(_BODY, 8, "bold"), bg="#151b2a", fg=color,
+                        padx=10, pady=3, cursor="hand2")
+        chip.pack(side="left", padx=(0, 6))
+        chip.bind("<Button-1>", lambda e=None, c=comp: app.open_activity_memory(c))
+        chip.bind("<Enter>", lambda e=None, w=chip: w.config(bg="#2a0f19"))
+        chip.bind("<Leave>", lambda e=None, w=chip: w.config(bg="#151b2a"))
+
+
 def _lc_voltage(parent):
     tk.Label(parent, text="VOLTAGE  ·  SPC baselines", font=(_MONO, 8, "bold"),
              bg=PANEL, fg=VOLT_C).pack(anchor="w", pady=(0, 4))
     if not (_HAS_VOLT_AZ and _volt_az.is_data_available()):
-        tk.Label(parent,
+        _nl = tk.Label(parent,
                  text=_t("monitoring.learn.needs_lhm",
                          default="⚡ Needs LibreHardwareMonitor to learn rails"),
-                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc").pack(
-            anchor="w", pady=4)
+                 font=(_BODY, 8), bg=PANEL, fg="#8aa0bc", anchor="w",
+                 justify="left")
+        _nl.pack(anchor="w", fill="x", pady=4)
+        _wrap_to_width(_nl, parent)
         return
     stats = _volt_az.get_rail_stats()
     for key, meta in _VOLT_RAILS.items():
@@ -1126,7 +1307,7 @@ def _refresh_voltage(section):
             continue
 
         cv.bind("<Configure>",
-                lambda e, t=timeline, rk=rail_key, s=rs:
+                lambda e=None, t=timeline, rk=rail_key, s=rs:
                     _draw_voltage_chart(e.widget, t, rk, s))
         _draw_voltage_chart(cv, timeline, rail_key, rs)
 
@@ -1301,7 +1482,10 @@ def _build_alerts_log(parent):
     events = []
     try:
         from hck_stats_engine.query_api import query_api
-        events = query_api.get_events(limit=10)
+        # program shutdowns are bookkeeping, not events of the PC: six of
+        # thirteen entries in the fifth long test were "PC Workman shutdown"
+        events = [e for e in query_api.get_events(limit=40)
+                  if e.get("event_type") != "shutdown"][:10]
     except Exception:
         pass
 
@@ -1342,6 +1526,12 @@ def _event_message(evt: dict) -> str:
         return txt
 
     desc = (evt.get("description") or "").strip()
+    # a game session or busy stretch said only "26 min": name what ran
+    if etype in ("game_session", "load_period"):
+        who = (evt.get("process_name") or "").strip()
+        icon = "🎮 " if etype == "game_session" else ""
+        if who:
+            return f"{icon}{who} · {desc}" if desc else f"{icon}{who}"
     if desc:
         return desc
     if etype:
@@ -1865,7 +2055,7 @@ def _refresh_temp(section):
         if hasattr(section, "_timeline_cv") and section._timeline_cv:
             section._timeline_cv.bind(
                 "<Configure>",
-                lambda e, d=data: _draw_alert_timeline(
+                lambda e=None, d=data: _draw_alert_timeline(
                     section._timeline_cv, d, "display_temp"))
             _draw_alert_timeline(section._timeline_cv, data, "display_temp")
 

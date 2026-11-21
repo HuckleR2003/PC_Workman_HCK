@@ -1,6 +1,7 @@
 # ui/pages/settings_page.py
 """Settings page - two-column compact layout with AI section highlight."""
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 import json
 import os
@@ -21,10 +22,12 @@ except ImportError:
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
+
+from ui.components.fit import wrap_to_width as _wrap_to_width
 
 # ── Colour palette ─────────────────────────────────────────────────────────────
 _BG       = THEME["bg_main"]
@@ -74,20 +77,17 @@ _SETTINGS_FILE = os.path.join(_APP_DIR, "settings", "app_settings.json")
 # ── Persistence ───────────────────────────────────────────────────────────────
 
 def _load_settings() -> dict:
-    try:
-        with open(_SETTINGS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    from utils.prefs_io import load_json
+    data = load_json(_SETTINGS_FILE, {})
+    return data if isinstance(data, dict) else {}
 
 
 def _save_settings(data: dict) -> None:
-    os.makedirs(os.path.dirname(_SETTINGS_FILE), exist_ok=True)
-    try:
-        with open(_SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
-    except Exception:
-        pass
+    """Merge this page's values into app_settings.json under the file lock.
+    A plain overwrite with the page's own copy would wipe keys another part
+    of the app saved after the page was built."""
+    from utils.prefs_io import edit_json
+    edit_json(_SETTINGS_FILE, lambda current: current.update(data))
 
 
 # ── Layout helpers ────────────────────────────────────────────────────────────
@@ -232,22 +232,30 @@ def _setting_row(
     row = tk.Frame(card, bg=bg)
     row.pack(fill="x", padx=12, pady=pady)
 
+    # The control goes in FIRST (2026-11-15). pack() gives space in packing
+    # order: with the text first, a long description took the whole row and
+    # the control fell outside it. "Run as administrator" had no visible
+    # switch at all, and "Balanced" was cut in half.
+    if right_widget_factory:
+        right_widget_factory(row)
+
     left = tk.Frame(row, bg=bg)
     left.pack(side="left", fill="both", expand=True)
 
-    tk.Label(
+    title_lbl = tk.Label(
         left, text=label,
         font=(_BODY, 9), bg=bg, fg=_TEXT, anchor="w",
-    ).pack(anchor="w")
+    )
+    title_lbl.pack(anchor="w", fill="x")
+    _wrap_to_width(title_lbl, left)
 
     if sublabel:
-        tk.Label(
+        sub_lbl = tk.Label(
             left, text=sublabel,
             font=(_BODY, 7), bg=bg, fg=_MUTED, anchor="w",
-        ).pack(anchor="w")
-
-    if right_widget_factory:
-        right_widget_factory(row)
+        )
+        sub_lbl.pack(anchor="w", fill="x")
+        _wrap_to_width(sub_lbl, left)       # wraps instead of being cut off
 
     if separator:
         tk.Frame(card, bg=border, height=1).pack(fill="x", padx=12)
@@ -373,7 +381,7 @@ class _LangSelector:
             chip.pack(side="left", padx=3)
             self._chips[code] = chip
             if available:
-                chip.bind("<Button-1>", lambda e, c=code: self._select(c))
+                chip.bind("<Button-1>", lambda e=None, c=code: self._select(c))
 
         self._refresh()
 
@@ -421,7 +429,7 @@ class _SensitivityChips:
             )
             chip.pack(side="left", padx=2)
             self._chips[val] = chip
-            chip.bind("<Button-1>", lambda e, v=val: self._select(v))
+            chip.bind("<Button-1>", lambda e=None, v=val: self._select(v))
 
         self._refresh()
 
@@ -465,7 +473,7 @@ class _ThresholdChips:
             )
             chip.pack(side="left", padx=3)
             self._chips[val] = chip
-            chip.bind("<Button-1>", lambda e, v=val: self._select(v))
+            chip.bind("<Button-1>", lambda e=None, v=val: self._select(v))
 
         self._refresh()
 
@@ -542,9 +550,9 @@ class SettingsPage:
             if canvas.winfo_width() > 1:
                 canvas.itemconfig(self._win_id, width=canvas.winfo_width())
 
-        outer.bind("<Map>", lambda e: outer.after(20, _on_map))
-        canvas.bind("<Enter>", lambda e: canvas.bind_all("<MouseWheel>", _on_mousewheel))
-        canvas.bind("<Leave>", lambda e: canvas.unbind_all("<MouseWheel>"))
+        outer.bind("<Map>", lambda e=None: outer.after(20, _on_map))
+        canvas.bind("<Enter>", lambda e=None: canvas.bind_all("<MouseWheel>", _on_mousewheel))
+        canvas.bind("<Leave>", lambda e=None: canvas.unbind_all("<MouseWheel>"))
 
         self._build(self._scroll_frame)
 
@@ -735,9 +743,9 @@ class SettingsPage:
                             font=(_BODY, 8, "bold"), bg="#241a3a", fg="#c4b5fd",
                             padx=(10 if compact else 16), pady=(4 if compact else 6),
                             cursor="hand2")
-            info.bind("<Button-1>", lambda e: _net_dialog())
-            info.bind("<Enter>", lambda e: info.config(bg="#2f2150"))
-            info.bind("<Leave>", lambda e: info.config(bg="#241a3a"))
+            info.bind("<Button-1>", lambda e=None: _net_dialog())
+            info.bind("<Enter>", lambda e=None: info.config(bg="#2f2150"))
+            info.bind("<Leave>", lambda e=None: info.config(bg="#241a3a"))
             return info
 
         def _render_net_widget():
@@ -791,13 +799,13 @@ class SettingsPage:
             wrap = tk.Frame(dlg, bg="#0a0e14", padx=20, pady=16)
             wrap.pack(fill="both", expand=True)
             tk.Label(wrap, text="📊 " + L("Anonymous telemetry", "Anonimowa telemetria"),
-                     font=(_HDR, 14), bg="#0a0e14", fg="#f3e8ff",
+                     font=(_HDR, 14, "bold"), bg="#0a0e14", fg="#f3e8ff",
                      anchor="w").pack(fill="x")
             tk.Label(wrap, text=L(
                 "PC Workman shares an anonymous snapshot that helps improve the app. "
                 "Turn it here anytime, OFF means zero "
                 "network traffic.",
-                "PC Workman wysyła anonimowy zrzut, który pomaga ulepszać program." \
+                "PC Workman wysyła anonimowy zrzut, który pomaga ulepszać program. "
                 "Włączysz tutaj w każdej chwili, a WYŁ oznacza "
                 "zero ruchu sieciowego."),
                 font=(_BODY, 9), bg="#0a0e14", fg="#9ca3af", anchor="w",
@@ -806,9 +814,9 @@ class SettingsPage:
             for en, plt in [
                 ("Anonymous - a random ID, never your name, machine or IP.",
                  "Anonimowo - losowy identyfikator, nigdy nazwa, maszyna ani IP."),
-                ("Minimal - hardware models, OS and session time only. No files, no "
+                ("Minimal - hardware models, screen sizes, OS and session time only. No files, no "
                  "process names, no content.",
-                 "Minimalnie - tylko modele sprzętu, OS i czas sesji. Żadnych plików, "
+                 "Minimalnie - tylko modele sprzętu, rozmiary ekranów, OS i czas sesji. Żadnych plików, "
                  "nazw procesów ani treści."),
                 ("Verifiable - the exact data is shown below, the code is open-source, "
                  "and OFF means zero traffic (check with a firewall).",
@@ -827,7 +835,7 @@ class SettingsPage:
 
             tk.Label(wrap, text=L("Exactly what is sent:",
                      "Dokładnie to, co jest wysyłane:"),
-                     font=(_BODY, 8, "bold"), bg="#0a0e14", fg="#6b7280",
+                     font=(_BODY, 8, "bold"), bg="#0a0e14", fg="#8d97a8",
                      anchor="w").pack(fill="x", pady=(12, 4))
             box = tk.Text(wrap, height=11, width=58, font=(_MONO, 8), bg="#06080d",
                           fg="#86efac", bd=0, padx=8, pady=6, wrap="none")
@@ -841,7 +849,7 @@ class SettingsPage:
                              font=(_BODY, 9, "bold"), bg="#1a1f2e", fg="#9ca3af",
                              padx=16, pady=8, cursor="hand2")
             close.pack(side="left")
-            close.bind("<Button-1>", lambda e: dlg.destroy())
+            close.bind("<Button-1>", lambda e=None: dlg.destroy())
 
             turn = tk.Label(btns, font=(_BODY, 10, "bold"), padx=22, pady=8,
                             cursor="hand2")
@@ -918,9 +926,9 @@ class SettingsPage:
                     highlightbackground="#be123c",
                 ))
 
-            btn.bind("<Button-1>", lambda e: _do_reset())
-            btn.bind("<Enter>",    lambda e: btn.config(bg="#5c001e"))
-            btn.bind("<Leave>",    lambda e: btn.config(bg="#3b0014"))
+            btn.bind("<Button-1>", lambda e=None: _do_reset())
+            btn.bind("<Enter>",    lambda e=None: btn.config(bg="#5c001e"))
+            btn.bind("<Leave>",    lambda e=None: btn.config(bg="#3b0014"))
 
         _setting_row(
             card,
@@ -980,6 +988,31 @@ class SettingsPage:
                        "Potrzebne dla wpisów HKLM, niektórych usług i planów zasilania. "
                        "Nie dotyczy instalacji z Microsoft Store."),
             right_widget_factory=lambda r: _ToggleSquare(r, as_admin, _on_admin, bg=BG),
+            separator=True,
+            bg=BG, border=BD,
+        )
+
+        # ── 3a2. Diagnostic console at startup (2026-11-15) ──────────────────
+        # Next to the other "what happens at launch" options. ON: the console
+        # shows the startup live and closes by itself 3 s after the window is
+        # ready. Read by startup.py before the first print, so it applies from
+        # the next launch.
+        show_console = self._settings.get("show_startup_console", False)
+
+        def _on_console(v):
+            self._settings["show_startup_console"] = bool(v)
+            _save_settings(self._settings)
+
+        _setting_row(
+            card,
+            _t("settings.general.console_label",
+               default="Show diagnostic console at startup"),
+            _t("settings.general.console_desc",
+               default="Shows what PC Workman loads while it starts. Closes "
+                       "by itself 3 seconds after the window is ready. "
+                       "Applies from the next launch."),
+            right_widget_factory=lambda r: _ToggleSquare(r, show_console,
+                                                         _on_console, bg=BG),
             separator=True,
             bg=BG, border=BD,
         )
@@ -1066,6 +1099,22 @@ class SettingsPage:
             bg=BG, border=BD,
         )
 
+        # ── 4b. Hide the sidebar on the Optimization Center (2026-11-20) ─────
+        opt_hide = self._settings.get("optimization_hide_sidebar", True)
+
+        def _on_opt_hide(v):
+            self._settings["optimization_hide_sidebar"] = v
+            _save_settings(self._settings)
+
+        _setting_row(
+            card,
+            _t("settings.general.opt_autohide_label"),
+            _t("settings.general.opt_autohide_desc"),
+            right_widget_factory=lambda r: _ToggleSquare(r, opt_hide, _on_opt_hide, bg=BG),
+            separator=True,
+            bg=BG, border=BD,
+        )
+
         # ── 5. Temperature unit ───────────────────────────────────────────────
         temp_unit = self._settings.get("temp_unit", "C")
 
@@ -1123,10 +1172,10 @@ class SettingsPage:
             highlightthickness=1, highlightbackground="#7f1d1d",
         )
         btn_dbg.pack(side="right")
-        btn_dbg.bind("<Button-1>", lambda e: self._show_debug_password(
+        btn_dbg.bind("<Button-1>", lambda e=None: self._show_debug_password(
             btn_dbg.winfo_toplevel()))
-        btn_dbg.bind("<Enter>", lambda e: btn_dbg.config(bg="#5c0000"))
-        btn_dbg.bind("<Leave>", lambda e: btn_dbg.config(bg="#3b0000"))
+        btn_dbg.bind("<Enter>", lambda e=None: btn_dbg.config(bg="#5c0000"))
+        btn_dbg.bind("<Leave>", lambda e=None: btn_dbg.config(bg="#3b0000"))
 
     # ── TURBO ─────────────────────────────────────────────────────────────────
 
@@ -1140,8 +1189,10 @@ class SettingsPage:
             self._settings["turbo_idle_seconds"] = val
             _save_settings(self._settings)
             try:
-                from core.turbo_manager import turbo_processes
-                turbo_processes._idle_seconds = val
+                from core.turbo_manager import turbo_processes  # noqa
+                # was `_idle_seconds`, an attribute nothing reads: the
+                # setting was saved and never applied
+                turbo_processes.idle_threshold = int(val)
             except Exception:
                 pass
 
@@ -1366,7 +1417,7 @@ class SettingsPage:
                 padx=10, pady=3, cursor="hand2", relief="flat",
             )
             btn.pack(side="right", padx=(8, 0))
-            btn.bind("<Button-1>", lambda e: self._export_data())
+            btn.bind("<Button-1>", lambda e=None: self._export_data())
 
         _setting_row(card, _t("settings.data_privacy.export_label"),
                      _t("settings.data_privacy.export_desc"),
@@ -1380,7 +1431,7 @@ class SettingsPage:
                 padx=10, pady=3, cursor="hand2", relief="flat",
             )
             btn.pack(side="right", padx=(8, 0))
-            btn.bind("<Button-1>", lambda e: self._confirm_reset(row.winfo_toplevel()))
+            btn.bind("<Button-1>", lambda e=None: self._confirm_reset(row.winfo_toplevel()))
 
         _setting_row(card, _t("settings.data_privacy.reset_label"),
                      _t("settings.data_privacy.reset_desc"),
@@ -1392,7 +1443,14 @@ class SettingsPage:
         _section_header(parent, _t("settings.section.about"), accent=_MUTED)
         card = _card(parent)
 
-        _setting_row(card, _t("settings.about.app_label"), _t("settings.about.app_desc"))
+        # the number comes from utils/app_version.py; the locale held "1.7.4"
+        # for months (2026-11-17)
+        try:
+            from utils.app_version import APP_VERSION as _V
+        except Exception:
+            _V = "?"
+        _setting_row(card, _t("settings.about.app_label"),
+                     _t("settings.about.app_desc").replace("{version}", _V))
         _setting_row(card, _t("settings.about.author_label"), _t("settings.about.author_desc"))
 
         def _gh_right(row):
@@ -1403,7 +1461,7 @@ class SettingsPage:
                 padx=0, cursor="hand2",
             )
             lbl.pack(side="right", padx=(8, 0))
-            lbl.bind("<Button-1>", lambda e: self._open_github())
+            lbl.bind("<Button-1>", lambda e=None: self._open_github())
 
         _setting_row(card, _t("settings.about.source_label"),
                      _t("settings.about.source_desc"),
@@ -1485,9 +1543,9 @@ class SettingsPage:
             padx=14, pady=5, cursor="hand2",
         )
         cancel.pack(side="right", padx=(6, 0))
-        cancel.bind("<Button-1>", lambda e: dlg.destroy())
-        cancel.bind("<Enter>",    lambda e: cancel.config(bg="#374151"))
-        cancel.bind("<Leave>",    lambda e: cancel.config(bg="#1f2937"))
+        cancel.bind("<Button-1>", lambda e=None: dlg.destroy())
+        cancel.bind("<Enter>",    lambda e=None: cancel.config(bg="#374151"))
+        cancel.bind("<Leave>",    lambda e=None: cancel.config(bg="#1f2937"))
 
         unlock = tk.Label(
             btn_row, text=_t("settings.general.debug_unlock"),
@@ -1497,8 +1555,8 @@ class SettingsPage:
         )
         unlock.pack(side="right")
         unlock.bind("<Button-1>", _try_unlock)
-        unlock.bind("<Enter>",    lambda e: unlock.config(bg="#5c0000"))
-        unlock.bind("<Leave>",    lambda e: unlock.config(bg="#450a0a"))
+        unlock.bind("<Enter>",    lambda e=None: unlock.config(bg="#5c0000"))
+        unlock.bind("<Leave>",    lambda e=None: unlock.config(bg="#450a0a"))
 
     # ── Actions ───────────────────────────────────────────────────────────────
 
@@ -1506,10 +1564,9 @@ class SettingsPage:
         import tkinter.filedialog as fd
         import shutil
 
-        data_dir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            "data", "logs",
-        )
+        # APP_DIR: in the exe __file__ is inside _internal, where no logs are
+        # written, so "Export" copied nothing (found 2026-11-15)
+        data_dir = os.path.join(_APP_DIR, "data", "logs")
         dest = fd.askdirectory(title="Export logs to folder…")
         if dest:
             try:
@@ -1543,7 +1600,7 @@ class SettingsPage:
         tk.Label(btn_row, text=_t("common.cancel"), font=(_BODY, 10, "bold"),
                  bg=_BORDER, fg=_TEXT, padx=16, pady=6,
                  cursor="hand2").pack(side="right", padx=4)
-        btn_row.winfo_children()[-1].bind("<Button-1>", lambda e: dlg.destroy())
+        btn_row.winfo_children()[-1].bind("<Button-1>", lambda e=None: dlg.destroy())
 
         def _do_reset():
             self._reset_data()
@@ -1552,10 +1609,11 @@ class SettingsPage:
         tk.Label(btn_row, text=_t("settings.data_privacy.reset_btn"), font=(_BODY, 10, "bold"),
                  bg=_DANGER, fg="#ffffff", padx=16, pady=6,
                  cursor="hand2").pack(side="right", padx=4)
-        btn_row.winfo_children()[-1].bind("<Button-1>", lambda e: _do_reset())
+        btn_row.winfo_children()[-1].bind("<Button-1>", lambda e=None: _do_reset())
 
     def _reset_data(self):
-        base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        # APP_DIR, see _export_data: in the exe "Reset" deleted nothing
+        base = _APP_DIR
         to_clear = [
             os.path.join(base, "data", "logs", "raw_usage.csv"),
             os.path.join(base, "data", "logs", "minute_avg.csv"),

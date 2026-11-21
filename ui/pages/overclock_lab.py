@@ -21,13 +21,14 @@ page is a consumer only, never a producer. Refresh loop follows the app
 conventions: winfo_exists guard, stops when the user navigates away.
 """
 
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -191,7 +192,10 @@ class _SegBar:
     def __init__(self, parent, bg=_CARD):
         self.cv = tk.Canvas(parent, height=9, bg=bg, highlightthickness=0)
         self.ratio = -1.0
-        self.cv.bind("<Configure>", lambda e: self._draw())
+        # e=None: Tk can call this binding with no event argument; the old
+        # lambda raised TypeError there (errors.log: "lambda missing argument
+        # 'e'", 11 times in July, reproduced by tests/test_text_fits.py).
+        self.cv.bind("<Configure>", lambda e=None: self._draw())
 
     def set(self, ratio: float):
         self.ratio = ratio if ratio is not None else -1.0
