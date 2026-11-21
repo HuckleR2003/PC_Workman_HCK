@@ -1,0 +1,37 @@
+[startup.log] 2026-11-15 17:59:06  mode=terminal  frozen=False  Windows 10.0.26200  Python 3.14.2
+======================================================================
+  PC Workman v1.8.7 - startup diagnostics
+  Attach this information when reporting errors/issues
+======================================================================
+
+=====================================
+  DIAGNOSTIC CONSOLE HELPER v1.6.3  
+=====================================
+
+[~] Initializing Python environment...
+[+] Python environment ready
+[~] Loading core systems...
+[+] Core systems loaded
+[+] Inter font loaded (1 files)
+
+[~] Starting PC Workman HCK...
+
+[~] Loading import_core...
+[+] import_core loaded
+[~] Loading core modules...
+[+] Core modules loaded
+[+] App Activity Tracker + Hibernation Manager loaded
+[StatsDB] Database ready at C:\Users\kemat\Desktop\PC_Workman_HCK_1.6.3\data\logs\hck_stats.db
+[StatsAggregator] Initialized
+[ProcessAggregator] Initialized
+[StatsQueryAPI] Initialized
+[EventDetector] Initialized
+[+] Stats engine (legacy) loaded
+[+] Stats Engine v2 (SQLite) loaded - DB ready
+[ProcessLibrary] Loaded 522 process definitions
+[+] ML intent classifier: background train/load started
+[+] Live sensor collector started (2s tick)
+[+] DeepMonitor metrics store started (snapshot every 5 min)
+[+] Auto-optimizer started (AUTO features run in background)
+[+] Splash warm-up started (hardware + service/startup metrics)
+[~] Loading UI...

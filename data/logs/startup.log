@@ -1,0 +1,21 @@
+[startup.log] 2026-11-17 18:46:38  mode=terminal  frozen=False  Windows 10.0.26200  Python 3.14.2
+======================================================================
+  PC Workman v1.8.8 - startup diagnostics
+  Attach this information when reporting errors/issues
+======================================================================
+
+=====================================
+  DIAGNOSTIC CONSOLE HELPER v1.6.3  
+=====================================
+
+[~] Initializing Python environment...
+[+] Python environment ready
+[~] Loading core systems...
+[+] Core systems loaded
+[+] Inter font loaded (1 files)
+
+[~] Starting PC Workman HCK...
+
+[~] Loading import_core...
+[+] import_core loaded
+[~] Loading core modules...

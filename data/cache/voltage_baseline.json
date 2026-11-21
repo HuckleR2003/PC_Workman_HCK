@@ -1,0 +1,61 @@
+{
+  "version": 3,
+  "rails": {
+    "mb_volt_12v": {
+      "n": 0,
+      "has_data": false,
+      "median": 12.0,
+      "mad": 0.0,
+      "ucl": 12.6,
+      "lcl": 11.4,
+      "warn_hi": 12.6,
+      "warn_lo": 11.4,
+      "anomaly_count": 0
+    },
+    "mb_volt_5v": {
+      "n": 0,
+      "has_data": false,
+      "median": 5.0,
+      "mad": 0.0,
+      "ucl": 5.25,
+      "lcl": 4.75,
+      "warn_hi": 5.25,
+      "warn_lo": 4.75,
+      "anomaly_count": 0
+    },
+    "mb_volt_33v": {
+      "n": 0,
+      "has_data": false,
+      "median": 3.3,
+      "mad": 0.0,
+      "ucl": 3.465,
+      "lcl": 3.135,
+      "warn_hi": 3.465,
+      "warn_lo": 3.135,
+      "anomaly_count": 0
+    },
+    "mb_volt_vcore": {
+      "n": 0,
+      "has_data": false,
+      "median": 1.2,
+      "mad": 0.0,
+      "ucl": 1.7,
+      "lcl": 0.35,
+      "warn_hi": 1.7,
+      "warn_lo": 0.35,
+      "anomaly_count": 0
+    },
+    "mb_volt_gpu": {
+      "n": 0,
+      "has_data": false,
+      "median": 0.9,
+      "mad": 0.0,
+      "ucl": 1.35,
+      "lcl": 0.35,
+      "warn_hi": 1.35,
+      "warn_lo": 0.35,
+      "anomaly_count": 0
+    }
+  },
+  "last_update": 1794907185.885644
+}

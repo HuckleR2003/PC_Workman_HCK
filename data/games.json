@@ -1,0 +1,5462 @@
+{
+ "_about": "PC Workman game library: exe names, genre, Steam appid and launch messages (PL/EN). \"verified\": the exe name was read from a real install. Genre pools are used when a game has no message of its own; \"first\" when the game is seen for the first time on this PC. \"generic\": names any program could have, a game only when it runs from a game library.",
+ "genres": {
+  "fps": {
+   "accent": "#ef4444",
+   "pl": [
+    [
+     "Powodzenia w meczu!",
+     "{name}"
+    ],
+    [
+     "Celownik ustawiony?",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Good luck out there!",
+     "{name}"
+    ],
+    [
+     "Crosshair set?",
+     "{name}"
+    ]
+   ]
+  },
+  "moba": {
+   "accent": "#ef4444",
+   "pl": [
+    [
+     "Dobrej gry, spokojnej linii.",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Good game, calm lane.",
+     "{name}"
+    ]
+   ]
+  },
+  "action": {
+   "accent": "#f97316",
+   "pl": [
+    [
+     "Do dzieła!",
+     "{name}"
+    ],
+    [
+     "Powodzenia!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Let's go!",
+     "{name}"
+    ],
+    [
+     "Good luck!",
+     "{name}"
+    ]
+   ]
+  },
+  "rpg": {
+   "accent": "#8b5cf6",
+   "pl": [
+    [
+     "Przygoda czeka.",
+     "{name}"
+    ],
+    [
+     "Dobrej przygody!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Adventure awaits.",
+     "{name}"
+    ],
+    [
+     "Have a great adventure!",
+     "{name}"
+    ]
+   ]
+  },
+  "cozy": {
+   "accent": "#10b981",
+   "pl": [
+    [
+     "Spokojnej gry.",
+     "{name}"
+    ],
+    [
+     "Herbata obok? Miłej gry.",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Have a calm session.",
+     "{name}"
+    ],
+    [
+     "Tea nearby? Enjoy.",
+     "{name}"
+    ]
+   ]
+  },
+  "sim": {
+   "accent": "#14b8a6",
+   "pl": [
+    [
+     "Do roboty! Spokojnie, to tylko gra.",
+     "{name}"
+    ],
+    [
+     "Plan na dziś gotowy?",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Back to work! Relax, it's a game.",
+     "{name}"
+    ],
+    [
+     "Got today's plan?",
+     "{name}"
+    ]
+   ]
+  },
+  "strategy": {
+   "accent": "#eab308",
+   "pl": [
+    [
+     "Jeszcze jedna tura?",
+     "{name}"
+    ],
+    [
+     "Plan, potem ruch.",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "One more turn?",
+     "{name}"
+    ],
+    [
+     "Plan first, then move.",
+     "{name}"
+    ]
+   ]
+  },
+  "survival": {
+   "accent": "#84cc16",
+   "pl": [
+    [
+     "Najpierw jedzenie i schronienie.",
+     "{name}"
+    ],
+    [
+     "Przetrwaj dzisiejszą noc.",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Food and shelter first.",
+     "{name}"
+    ],
+    [
+     "Survive tonight.",
+     "{name}"
+    ]
+   ]
+  },
+  "sandbox": {
+   "accent": "#22c55e",
+   "pl": [
+    [
+     "Co dziś budujemy?",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "What are we building today?",
+     "{name}"
+    ]
+   ]
+  },
+  "racing": {
+   "accent": "#06b6d4",
+   "pl": [
+    [
+     "Na tor!",
+     "{name}"
+    ],
+    [
+     "Gaz do dechy!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Hit the track!",
+     "{name}"
+    ],
+    [
+     "Pedal to the metal!",
+     "{name}"
+    ]
+   ]
+  },
+  "sports": {
+   "accent": "#06b6d4",
+   "pl": [
+    [
+     "Do gry!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Game on!",
+     "{name}"
+    ]
+   ]
+  },
+  "horror": {
+   "accent": "#a855f7",
+   "pl": [
+    [
+     "Zapal światło. Na wszelki wypadek.",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Turn the lights on. Just in case.",
+     "{name}"
+    ]
+   ]
+  },
+  "party": {
+   "accent": "#ec4899",
+   "pl": [
+    [
+     "Dobrej zabawy w ekipie!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Have fun with the crew!",
+     "{name}"
+    ]
+   ]
+  },
+  "puzzle": {
+   "accent": "#3b82f6",
+   "pl": [
+    [
+     "Głowa gotowa?",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Brain ready?",
+     "{name}"
+    ]
+   ]
+  },
+  "default": {
+   "accent": "#3b82f6",
+   "pl": [
+    [
+     "Dobrej zabawy!",
+     "{name}"
+    ]
+   ],
+   "en": [
+    [
+     "Good luck, have fun!",
+     "{name}"
+    ]
+   ]
+  }
+ },
+ "first": {
+  "pl": [
+   [
+    "Pierwszy raz na tym komputerze. Miłej gry!",
+    "{name}"
+   ],
+   [
+    "Nowa gra na tym komputerze!",
+    "{name}"
+   ]
+  ],
+  "en": [
+   [
+    "First time on this PC. Have fun!",
+    "{name}"
+   ],
+   [
+    "A new game on this PC!",
+    "{name}"
+   ]
+  ]
+ },
+ "games": [
+  {
+   "exe": [
+    "cs2.exe"
+   ],
+   "name": "Counter-Strike 2",
+   "genre": "fps",
+   "appid": 730,
+   "msg": {
+    "pl": [
+     [
+      "Powodzenia na turnieju!",
+      "CS2 uruchomione."
+     ],
+     [
+      "Czas na kilka headshotów!",
+      "CS2 · clutch or kick"
+     ]
+    ],
+    "en": [
+     [
+      "Good luck at the tournament!",
+      "CS2 launched."
+     ],
+     [
+      "Time for some headshots!",
+      "CS2 · clutch or kick"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "csgo.exe"
+   ],
+   "name": "CS:GO",
+   "genre": "fps",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Graj na maksa!",
+      "CS:GO uruchomione."
+     ]
+    ],
+    "en": [
+     [
+      "Give it your all!",
+      "CS:GO launched."
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "valorant.exe"
+   ],
+   "name": "Valorant",
+   "genre": "fps",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Dobrej gry!",
+      "Valorant odpalony."
+     ],
+     [
+      "Pokaż im swojego Jett!",
+      "Valorant"
+     ]
+    ],
+    "en": [
+     [
+      "Have a good one!",
+      "Valorant launched."
+     ],
+     [
+      "Show them your Jett!",
+      "Valorant"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "r5apex.exe"
+   ],
+   "name": "Apex Legends",
+   "genre": "fps",
+   "appid": 1172470,
+   "msg": {
+    "pl": [
+     [
+      "Ratuj druzyne!",
+      "Apex Legends"
+     ]
+    ],
+    "en": [
+     [
+      "Carry the squad!",
+      "Apex Legends"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "overwatch.exe"
+   ],
+   "name": "Overwatch 2",
+   "genre": "fps",
+   "appid": 2357570,
+   "msg": {
+    "pl": [
+     [
+      "Push the payload!",
+      "Overwatch"
+     ]
+    ],
+    "en": [
+     [
+      "Push the payload!",
+      "Overwatch"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "helldivers2.exe"
+   ],
+   "name": "Helldivers 2",
+   "genre": "action",
+   "appid": 553850,
+   "msg": {
+    "pl": [
+     [
+      "Za Super-Ziemię!",
+      "Helldivers 2"
+     ],
+     [
+      "Szerz demokrację!",
+      "Helldivers 2"
+     ]
+    ],
+    "en": [
+     [
+      "For Super Earth!",
+      "Helldivers 2"
+     ],
+     [
+      "Spread democracy!",
+      "Helldivers 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fortniteclient-win64-shipping.exe"
+   ],
+   "name": "Fortnite",
+   "genre": "fps",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Po Victory Royale!",
+      "Fortnite"
+     ]
+    ],
+    "en": [
+     [
+      "Go get that Victory Royale!",
+      "Fortnite"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "tslgame.exe"
+   ],
+   "name": "PUBG",
+   "genre": "fps",
+   "appid": 578080,
+   "msg": {
+    "pl": [
+     [
+      "Winner winner, chicken dinner!",
+      "PUBG"
+     ]
+    ],
+    "en": [
+     [
+      "Winner winner, chicken dinner!",
+      "PUBG"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "rocketleague.exe"
+   ],
+   "name": "Rocket League",
+   "genre": "sports",
+   "appid": 252950,
+   "msg": {
+    "pl": [
+     [
+      "Gol! ...albo własna bramka.",
+      "Rocket League"
+     ]
+    ],
+    "en": [
+     [
+      "Goal! ...or an own goal.",
+      "Rocket League"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "league of legends.exe",
+    "leagueoflegends.exe"
+   ],
+   "name": "League of Legends",
+   "genre": "moba",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Walkę z Nerdami czas zacząć...",
+      "League of Legends"
+     ]
+    ],
+    "en": [
+     [
+      "Let the battle with the Nerds begin...",
+      "League of Legends"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dota2.exe"
+   ],
+   "name": "Dota 2",
+   "genre": "moba",
+   "appid": 570,
+   "msg": {
+    "pl": [
+     [
+      "Powodzenia, dobrej zabawy!",
+      "Dota 2"
+     ]
+    ],
+    "en": [
+     [
+      "Good luck, have fun!",
+      "Dota 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "stardewvalley.exe"
+   ],
+   "name": "Stardew Valley",
+   "genre": "cozy",
+   "appid": 413150,
+   "msg": {
+    "pl": [
+     [
+      "Odświeżmy farmę po dziadku!",
+      "Stardew Valley"
+     ]
+    ],
+    "en": [
+     [
+      "Let's revive grandpa's farm!",
+      "Stardew Valley"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "planet zoo.exe",
+    "planetzoo.exe"
+   ],
+   "name": "Planet Zoo",
+   "genre": "sim",
+   "appid": 703080,
+   "msg": {
+    "pl": [
+     [
+      "Czy wychodujesz dziś jakiegoś albinoska?",
+      "Planet Zoo"
+     ],
+     [
+      "Jaki wybieg udało ci się dzisiaj zbudować?",
+      "Planet Zoo"
+     ]
+    ],
+    "en": [
+     [
+      "Breeding an albino today?",
+      "Planet Zoo"
+     ],
+     [
+      "What habitat will you build today?",
+      "Planet Zoo"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "cities skylines 2.exe",
+    "citiesskylines2.exe"
+   ],
+   "name": "Cities: Skylines II",
+   "genre": "sim",
+   "appid": 949230,
+   "msg": {
+    "pl": [
+     [
+      "Czas budować miasto!",
+      "Cities: Skylines II"
+     ]
+    ],
+    "en": [
+     [
+      "Time to build a city!",
+      "Cities: Skylines II"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "sims4.exe"
+   ],
+   "name": "The Sims 4",
+   "genre": "cozy",
+   "appid": 1222670,
+   "msg": {
+    "pl": [
+     [
+      "Zyj, zyj, zyj!",
+      "The Sims 4"
+     ]
+    ],
+    "en": [
+     [
+      "Live, laugh, Sim!",
+      "The Sims 4"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "terraria.exe"
+   ],
+   "name": "Terraria",
+   "genre": "sandbox",
+   "appid": 105600,
+   "msg": {
+    "pl": [
+     [
+      "Jakiś boss dziś będzie bity?",
+      "Terraria"
+     ],
+     [
+      "Kopiemy w głąb?",
+      "Terraria"
+     ]
+    ],
+    "en": [
+     [
+      "Fighting a boss today?",
+      "Terraria"
+     ],
+     [
+      "Digging deep today?",
+      "Terraria"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "factorygame.exe"
+   ],
+   "name": "Satisfactory",
+   "genre": "sim",
+   "appid": 526870,
+   "msg": {
+    "pl": [
+     [
+      "Optymalizuj fabrykę... i bez spaghetti!",
+      "Satisfactory"
+     ]
+    ],
+    "en": [
+     [
+      "Optimize the factory... no spaghetti!",
+      "Satisfactory"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "factorio.exe"
+   ],
+   "name": "Factorio",
+   "genre": "sim",
+   "appid": 427520,
+   "msg": {
+    "pl": [
+     [
+      "Fabryka musi rosnąć.",
+      "Factorio"
+     ]
+    ],
+    "en": [
+     [
+      "The factory must grow.",
+      "Factorio"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "witcher3.exe"
+   ],
+   "name": "Wiedźmin 3",
+   "genre": "rpg",
+   "appid": 292030,
+   "msg": {
+    "pl": [
+     [
+      "Dzikie Łowy czekają!",
+      "Wiedźmin 3"
+     ]
+    ],
+    "en": [
+     [
+      "The Wild Hunt awaits!",
+      "The Witcher 3"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "cyberpunk2077.exe"
+   ],
+   "name": "Cyberpunk 2077",
+   "genre": "rpg",
+   "appid": 1091500,
+   "msg": {
+    "pl": [
+     [
+      "Night City wita!",
+      "Cyberpunk 2077"
+     ]
+    ],
+    "en": [
+     [
+      "Welcome to Night City!",
+      "Cyberpunk 2077"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "eldenring.exe"
+   ],
+   "name": "Elden Ring",
+   "genre": "rpg",
+   "appid": 1245620,
+   "msg": {
+    "pl": [
+     [
+      "Powodzenia w Pomiędzyziemiu!",
+      "Elden Ring · Tarnished"
+     ]
+    ],
+    "en": [
+     [
+      "Good luck in the Lands Between!",
+      "Elden Ring · Tarnished"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "baldursgate3.exe"
+   ],
+   "name": "Baldur's Gate 3",
+   "genre": "rpg",
+   "appid": 1086940,
+   "msg": {
+    "pl": [
+     [
+      "Dobrej przygody!",
+      "Baldur's Gate 3"
+     ]
+    ],
+    "en": [
+     [
+      "Have a great adventure!",
+      "Baldur's Gate 3"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "starfield.exe"
+   ],
+   "name": "Starfield",
+   "genre": "rpg",
+   "appid": 1716740,
+   "msg": {
+    "pl": [
+     [
+      "Odkrywaj gwiazdy!",
+      "Starfield"
+     ]
+    ],
+    "en": [
+     [
+      "Explore the stars!",
+      "Starfield"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hades.exe"
+   ],
+   "name": "Hades",
+   "genre": "action",
+   "appid": 1145360,
+   "msg": {
+    "pl": [
+     [
+      "Ucieczka z podziemi, próba #∞",
+      "Hades"
+     ]
+    ],
+    "en": [
+     [
+      "Escaping the underworld, attempt #∞",
+      "Hades"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hades2.exe"
+   ],
+   "name": "Hades II",
+   "genre": "action",
+   "appid": 1145350,
+   "msg": {
+    "pl": [
+     [
+      "Ucieczka z podziemi, próba #∞",
+      "Hades II"
+     ]
+    ],
+    "en": [
+     [
+      "Escaping the underworld, attempt #∞",
+      "Hades II"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hollow_knight.exe"
+   ],
+   "name": "Hollow Knight",
+   "genre": "action",
+   "appid": 367520,
+   "msg": {
+    "pl": [
+     [
+      "Hallownest czeka!",
+      "Hollow Knight"
+     ]
+    ],
+    "en": [
+     [
+      "Hallownest awaits!",
+      "Hollow Knight"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gta5.exe"
+   ],
+   "name": "GTA V",
+   "genre": "action",
+   "appid": 271590,
+   "msg": {
+    "pl": [
+     [
+      "Witaj w Los Santos!",
+      "GTA V"
+     ]
+    ],
+    "en": [
+     [
+      "Welcome to Los Santos!",
+      "GTA V"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "rdr2.exe"
+   ],
+   "name": "Red Dead Redemption 2",
+   "genre": "action",
+   "appid": 1174180,
+   "msg": {
+    "pl": [
+     [
+      "Dziki Zachód wzywa, kowboju.",
+      "Red Dead Redemption 2"
+     ]
+    ],
+    "en": [
+     [
+      "The Wild West is calling, cowboy.",
+      "Red Dead Redemption 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "rust.exe"
+   ],
+   "name": "Rust",
+   "genre": "survival",
+   "appid": 252490,
+   "msg": {
+    "pl": [
+     [
+      "Nie daj się zabić... za bardzo.",
+      "Rust"
+     ]
+    ],
+    "en": [
+     [
+      "Try not to get killed... too much.",
+      "Rust"
+     ]
+    ]
+   },
+   "generic": [
+    "rust.exe"
+   ]
+  },
+  {
+   "exe": [
+    "minecraft.exe"
+   ],
+   "name": "Minecraft",
+   "genre": "sandbox",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Kopiemy diamenty?",
+      "Minecraft"
+     ],
+     [
+      "Czas budować!",
+      "Minecraft"
+     ]
+    ],
+    "en": [
+     [
+      "Mining diamonds today?",
+      "Minecraft"
+     ],
+     [
+      "Time to build!",
+      "Minecraft"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "valheim.exe"
+   ],
+   "name": "Valheim",
+   "genre": "survival",
+   "appid": 892970,
+   "msg": {
+    "pl": [
+     [
+      "Podbij krainę Wikingów!",
+      "Valheim"
+     ]
+    ],
+    "en": [
+     [
+      "Conquer the Viking realm!",
+      "Valheim"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "palworld.exe"
+   ],
+   "name": "Palworld",
+   "genre": "survival",
+   "appid": 1623730,
+   "msg": {
+    "pl": [
+     [
+      "Łap, hoduj... i do roboty!",
+      "Palworld"
+     ]
+    ],
+    "en": [
+     [
+      "Catch 'em, breed 'em... back to work!",
+      "Palworld"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "sotgame.exe",
+    "seaofthieves.exe"
+   ],
+   "name": "Sea of Thieves",
+   "genre": "action",
+   "appid": 1172620,
+   "msg": {
+    "pl": [
+     [
+      "Po skarby, piracie!",
+      "Sea of Thieves"
+     ]
+    ],
+    "en": [
+     [
+      "Set sail for treasure, pirate!",
+      "Sea of Thieves"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "nms.exe"
+   ],
+   "name": "No Man's Sky",
+   "genre": "survival",
+   "appid": 275850,
+   "msg": {
+    "pl": [
+     [
+      "Odkrywaj nowe światy!",
+      "No Man's Sky"
+     ]
+    ],
+    "en": [
+     [
+      "Explore new worlds!",
+      "No Man's Sky"
+     ]
+    ]
+   },
+   "generic": [
+    "nms.exe"
+   ]
+  },
+  {
+   "exe": [
+    "forza_horizon5.exe"
+   ],
+   "name": "Forza Horizon 5",
+   "genre": "racing",
+   "appid": 1551360,
+   "msg": {
+    "pl": [
+     [
+      "Gaz do dechy!",
+      "Forza Horizon 5"
+     ]
+    ],
+    "en": [
+     [
+      "Pedal to the metal!",
+      "Forza Horizon 5"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "assettocorsa.exe"
+   ],
+   "name": "Assetto Corsa",
+   "genre": "racing",
+   "appid": 244210,
+   "msg": {
+    "pl": [
+     [
+      "Na tor!",
+      "Assetto Corsa"
+     ]
+    ],
+    "en": [
+     [
+      "Hit the track!",
+      "Assetto Corsa"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ck3.exe"
+   ],
+   "name": "Crusader Kings III",
+   "genre": "strategy",
+   "appid": 1158310,
+   "msg": {
+    "pl": [
+     [
+      "Dynastia nie zbuduje się sama!",
+      "Crusader Kings III"
+     ]
+    ],
+    "en": [
+     [
+      "The dynasty won't build itself!",
+      "Crusader Kings III"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "eu4.exe"
+   ],
+   "name": "Europa Universalis IV",
+   "genre": "strategy",
+   "appid": 236850,
+   "msg": {
+    "pl": [
+     [
+      "Europa czeka!",
+      "Europa Universalis IV"
+     ]
+    ],
+    "en": [
+     [
+      "Europe awaits!",
+      "Europa Universalis IV"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "stellaris.exe"
+   ],
+   "name": "Stellaris",
+   "genre": "strategy",
+   "appid": 281990,
+   "msg": {
+    "pl": [
+     [
+      "Podbij galaktykę!",
+      "Stellaris"
+     ]
+    ],
+    "en": [
+     [
+      "Conquer the galaxy!",
+      "Stellaris"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "re4.exe"
+   ],
+   "name": "Resident Evil 4",
+   "genre": "horror",
+   "appid": 2050650,
+   "msg": {
+    "pl": [
+     [
+      "Leon, ratuj księżniczkę!",
+      "Resident Evil 4"
+     ]
+    ],
+    "en": [
+     [
+      "Leon, save the princess!",
+      "Resident Evil 4"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "phasmophobia.exe"
+   ],
+   "name": "Phasmophobia",
+   "genre": "horror",
+   "appid": 739630,
+   "msg": {
+    "pl": [
+     [
+      "Duuuuchy!",
+      "Phasmophobia"
+     ]
+    ],
+    "en": [
+     [
+      "Ghoooosts!",
+      "Phasmophobia"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "deadbydaylight.exe"
+   ],
+   "name": "Dead by Daylight",
+   "genre": "horror",
+   "appid": 381210,
+   "msg": {
+    "pl": [
+     [
+      "Uciekaj albo poluj!",
+      "Dead by Daylight"
+     ]
+    ],
+    "en": [
+     [
+      "Run or hunt!",
+      "Dead by Daylight"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "plateup.exe"
+   ],
+   "name": "PlateUp!",
+   "genre": "cozy",
+   "appid": 1599600,
+   "msg": {
+    "pl": [
+     [
+      "Kuchnia otwarta. Kto dziś zmywa?",
+      "PlateUp!"
+     ]
+    ],
+    "en": [
+     [
+      "Kitchen's open. Who's on dishes today?",
+      "PlateUp!"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "infection free zone.exe"
+   ],
+   "name": "Infection Free Zone",
+   "genre": "strategy",
+   "appid": 1465460,
+   "msg": {
+    "pl": [
+     [
+      "Barykady na Twojej ulicy czekają.",
+      "Infection Free Zone"
+     ]
+    ],
+    "en": [
+     [
+      "The barricades on your street are waiting.",
+      "Infection Free Zone"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "supermarket together.exe"
+   ],
+   "name": "Supermarket Together",
+   "genre": "sim",
+   "appid": 2709570,
+   "msg": {
+    "pl": [
+     [
+      "Półki same się nie wyłożą.",
+      "Supermarket Together"
+     ]
+    ],
+    "en": [
+     [
+      "The shelves won't stock themselves.",
+      "Supermarket Together"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "dontstarve_steam_x64.exe",
+    "dontstarve_steam.exe"
+   ],
+   "name": "Don't Starve Together",
+   "genre": "survival",
+   "appid": 322330,
+   "msg": {
+    "pl": [
+     [
+      "Nie głoduj. Zapasy na zimę!",
+      "Don't Starve Together"
+     ]
+    ],
+    "en": [
+     [
+      "Don't starve. Stock up for winter.",
+      "Don't Starve Together"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "7daystodie.exe"
+   ],
+   "name": "7 Days to Die",
+   "genre": "survival",
+   "appid": 251570,
+   "msg": {
+    "pl": [
+     [
+      "Policz dni do krwawego księżyca.",
+      "7 Days to Die"
+     ]
+    ],
+    "en": [
+     [
+      "Count the days to the blood moon.",
+      "7 Days to Die"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "projectzomboid64.exe",
+    "projectzomboid32.exe"
+   ],
+   "name": "Project Zomboid",
+   "genre": "survival",
+   "appid": 108600,
+   "msg": {
+    "pl": [
+     [
+      "Tak umarłeś. Ale może nie dziś.",
+      "Project Zomboid"
+     ]
+    ],
+    "en": [
+     [
+      "This is how you died. Maybe not today.",
+      "Project Zomboid"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "beamng.drive.exe",
+    "beamng.drive.x64.exe"
+   ],
+   "name": "BeamNG.drive",
+   "genre": "racing",
+   "appid": 284160,
+   "msg": {
+    "pl": [
+     [
+      "Fizyka zgniotu gotowa. Zapnij pasy.",
+      "BeamNG.drive"
+     ]
+    ],
+    "en": [
+     [
+      "Crash physics ready. Buckle up.",
+      "BeamNG.drive"
+     ]
+    ]
+   },
+   "verified": "2026-11-20"
+  },
+  {
+   "exe": [
+    "powder.exe"
+   ],
+   "name": "The Powder Toy",
+   "genre": "sandbox",
+   "appid": 1148350,
+   "msg": {
+    "pl": [
+     [
+      "Co dziś wysadzamy?",
+      "The Powder Toy"
+     ]
+    ],
+    "en": [
+     [
+      "What are we blowing up today?",
+      "The Powder Toy"
+     ]
+    ]
+   },
+   "verified": "2026-11-20",
+   "generic": [
+    "powder.exe"
+   ]
+  },
+  {
+   "exe": [
+    "civilizationvi.exe",
+    "civilizationvi_dx12.exe"
+   ],
+   "name": "Civilization VI",
+   "genre": "strategy",
+   "appid": 289070,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedna tura.",
+      "Civilization VI"
+     ]
+    ],
+    "en": [
+     [
+      "One more turn.",
+      "Civilization VI"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "eurotrucks2.exe"
+   ],
+   "name": "Euro Truck Simulator 2",
+   "genre": "sim",
+   "appid": 227300,
+   "msg": {
+    "pl": [
+     [
+      "Ładunek czeka. Szerokiej drogi!",
+      "Euro Truck Simulator 2"
+     ]
+    ],
+    "en": [
+     [
+      "The cargo's waiting. Drive safe!",
+      "Euro Truck Simulator 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "shootergame.exe"
+   ],
+   "name": "ARK: Survival Evolved",
+   "genre": "survival",
+   "appid": 346110,
+   "msg": {
+    "pl": [
+     [
+      "Dinozaury nie oswoją się same.",
+      "ARK: Survival Evolved"
+     ]
+    ],
+    "en": [
+     [
+      "The dinos won't tame themselves.",
+      "ARK: Survival Evolved"
+     ]
+    ]
+   },
+   "generic": [
+    "shootergame.exe"
+   ]
+  },
+  {
+   "exe": [
+    "democracy4.exe"
+   ],
+   "name": "Democracy 4",
+   "genre": "strategy",
+   "appid": 1410710,
+   "msg": {
+    "pl": [
+     [
+      "Sondaże drżą. Jaka ustawa dziś?",
+      "Democracy 4"
+     ]
+    ],
+    "en": [
+     [
+      "The polls are nervous. Which bill today?",
+      "Democracy 4"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "unturned.exe"
+   ],
+   "name": "Unturned",
+   "genre": "survival",
+   "appid": 304930,
+   "msg": {
+    "pl": [
+     [
+      "Najpierw plecak, potem zombie.",
+      "Unturned"
+     ]
+    ],
+    "en": [
+     [
+      "Backpack first, zombies later.",
+      "Unturned"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "rainbowsix.exe",
+    "rainbowsix_vulkan.exe",
+    "rainbowsix_be.exe"
+   ],
+   "name": "Rainbow Six Siege",
+   "genre": "fps",
+   "appid": 359550,
+   "msg": {
+    "pl": [
+     [
+      "Drony w górę, ściany w dół.",
+      "Rainbow Six Siege"
+     ]
+    ],
+    "en": [
+     [
+      "Drones up, walls down.",
+      "Rainbow Six Siege"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "cod.exe"
+   ],
+   "name": "Call of Duty",
+   "genre": "fps",
+   "appid": 1938090,
+   "msg": {
+    "pl": [
+     [
+      "Załaduj profil i do boju.",
+      "Call of Duty"
+     ]
+    ],
+    "en": [
+     [
+      "Load your class and go.",
+      "Call of Duty"
+     ]
+    ]
+   },
+   "generic": [
+    "cod.exe"
+   ]
+  },
+  {
+   "exe": [
+    "bf2042.exe"
+   ],
+   "name": "Battlefield 2042",
+   "genre": "fps",
+   "appid": 1517290,
+   "msg": {
+    "pl": [
+     [
+      "Wejdź w chaos.",
+      "Battlefield 2042"
+     ]
+    ],
+    "en": [
+     [
+      "Into the chaos.",
+      "Battlefield 2042"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "escapefromtarkov.exe"
+   ],
+   "name": "Escape from Tarkov",
+   "genre": "fps",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Wróć z łupem, nie z pustymi rękami.",
+      "Escape from Tarkov"
+     ]
+    ],
+    "en": [
+     [
+      "Extract with the loot.",
+      "Escape from Tarkov"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "tf_win64.exe"
+   ],
+   "name": "Team Fortress 2",
+   "genre": "fps",
+   "appid": 440,
+   "msg": {
+    "pl": [
+     [
+      "Medyk! Ktoś woła medyka.",
+      "Team Fortress 2"
+     ]
+    ],
+    "en": [
+     [
+      "Medic! Someone needs a medic.",
+      "Team Fortress 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "destiny2.exe"
+   ],
+   "name": "Destiny 2",
+   "genre": "fps",
+   "appid": 1085660,
+   "msg": {
+    "pl": [
+     [
+      "Strażniku, czas na raid.",
+      "Destiny 2"
+     ]
+    ],
+    "en": [
+     [
+      "Guardian, raid time.",
+      "Destiny 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "discovery.exe"
+   ],
+   "name": "The Finals",
+   "genre": "fps",
+   "appid": 2073850,
+   "msg": {
+    "pl": [
+     [
+      "Rozwal arenę, nie tylko wrogów.",
+      "The Finals"
+     ]
+    ],
+    "en": [
+     [
+      "Wreck the arena, not just the enemy.",
+      "The Finals"
+     ]
+    ]
+   },
+   "generic": [
+    "discovery.exe"
+   ]
+  },
+  {
+   "exe": [
+    "marvel-win64-shipping.exe"
+   ],
+   "name": "Marvel Rivals",
+   "genre": "fps",
+   "appid": 2767030,
+   "msg": {
+    "pl": [
+     [
+      "Wybierz bohatera i do drużyny.",
+      "Marvel Rivals"
+     ]
+    ],
+    "en": [
+     [
+      "Pick a hero and join the team.",
+      "Marvel Rivals"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "huntgame.exe"
+   ],
+   "name": "Hunt: Showdown",
+   "genre": "fps",
+   "appid": 594650,
+   "msg": {
+    "pl": [
+     [
+      "Nasłuchuj kroków.",
+      "Hunt: Showdown"
+     ]
+    ],
+    "en": [
+     [
+      "Listen for footsteps.",
+      "Hunt: Showdown"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "readyornot-win64-shipping.exe"
+   ],
+   "name": "Ready or Not",
+   "genre": "fps",
+   "appid": 1144200,
+   "msg": {
+    "pl": [
+     [
+      "Spokojnie, krok po kroku.",
+      "Ready or Not"
+     ]
+    ],
+    "en": [
+     [
+      "Slow is smooth, smooth is fast.",
+      "Ready or Not"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "insurgencyclient-win64-shipping.exe"
+   ],
+   "name": "Insurgency: Sandstorm",
+   "genre": "fps",
+   "appid": 581320,
+   "msg": {
+    "pl": [
+     [
+      "Trzymaj się drużyny.",
+      "Insurgency: Sandstorm"
+     ]
+    ],
+    "en": [
+     [
+      "Stick with your squad.",
+      "Insurgency: Sandstorm"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "squadgame.exe"
+   ],
+   "name": "Squad",
+   "genre": "fps",
+   "appid": 393380,
+   "msg": {
+    "pl": [
+     [
+      "Komunikacja wygrywa mecze.",
+      "Squad"
+     ]
+    ],
+    "en": [
+     [
+      "Comms win matches.",
+      "Squad"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "arma3_x64.exe"
+   ],
+   "name": "Arma 3",
+   "genre": "fps",
+   "appid": 107410,
+   "msg": {
+    "pl": [
+     [
+      "Mapa, kompas i cierpliwość.",
+      "Arma 3"
+     ]
+    ],
+    "en": [
+     [
+      "Map, compass and patience.",
+      "Arma 3"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "armareforgersteam.exe"
+   ],
+   "name": "Arma Reforger",
+   "genre": "fps",
+   "appid": 1874880,
+   "msg": {
+    "pl": [
+     [
+      "Mapa, kompas i cierpliwość.",
+      "Arma Reforger"
+     ]
+    ],
+    "en": [
+     [
+      "Map, compass and patience.",
+      "Arma Reforger"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "deltaforceclient-win64-shipping.exe"
+   ],
+   "name": "Delta Force",
+   "genre": "fps",
+   "appid": 2507950,
+   "msg": {
+    "pl": [
+     [
+      "Zadanie przyjęte.",
+      "Delta Force"
+     ]
+    ],
+    "en": [
+     [
+      "Mission accepted.",
+      "Delta Force"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "titanfall2.exe"
+   ],
+   "name": "Titanfall 2",
+   "genre": "fps",
+   "appid": 1237970,
+   "msg": {
+    "pl": [
+     [
+      "Bądź gotów na tytana.",
+      "Titanfall 2"
+     ]
+    ],
+    "en": [
+     [
+      "Stand by for Titanfall.",
+      "Titanfall 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "borderlands3.exe"
+   ],
+   "name": "Borderlands 3",
+   "genre": "fps",
+   "appid": 397540,
+   "msg": {
+    "pl": [
+     [
+      "Łup sam się nie zbierze.",
+      "Borderlands 3"
+     ]
+    ],
+    "en": [
+     [
+      "The loot won't pick itself up.",
+      "Borderlands 3"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "payday2_win32_release.exe"
+   ],
+   "name": "Payday 2",
+   "genre": "fps",
+   "appid": 218620,
+   "msg": {
+    "pl": [
+     [
+      "Plan jest prosty. Zwykle.",
+      "Payday 2"
+     ]
+    ],
+    "en": [
+     [
+      "The plan is simple. Usually.",
+      "Payday 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "mcc-win64-shipping.exe"
+   ],
+   "name": "Halo: The Master Chief Collection",
+   "genre": "fps",
+   "appid": 976730,
+   "msg": {
+    "pl": [
+     [
+      "Mistrzu, czas na misję.",
+      "Halo: The Master Chief Collection"
+     ]
+    ],
+    "en": [
+     [
+      "Chief, mission time.",
+      "Halo: The Master Chief Collection"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "haloinfinite.exe"
+   ],
+   "name": "Halo Infinite",
+   "genre": "fps",
+   "appid": 1240440,
+   "msg": {
+    "pl": [
+     [
+      "Mistrzu, czas na misję.",
+      "Halo Infinite"
+     ]
+    ],
+    "en": [
+     [
+      "Chief, mission time.",
+      "Halo Infinite"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "stalker2-win64-shipping.exe"
+   ],
+   "name": "S.T.A.L.K.E.R. 2",
+   "genre": "fps",
+   "appid": 1643320,
+   "msg": {
+    "pl": [
+     [
+      "Zona nie wybacza. Weź bandaże.",
+      "S.T.A.L.K.E.R. 2"
+     ]
+    ],
+    "en": [
+     [
+      "The Zone doesn't forgive. Bring bandages.",
+      "S.T.A.L.K.E.R. 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "metroexodus.exe"
+   ],
+   "name": "Metro Exodus",
+   "genre": "fps",
+   "appid": 412020,
+   "msg": {
+    "pl": [
+     [
+      "Maska, filtr, latarka.",
+      "Metro Exodus"
+     ]
+    ],
+    "en": [
+     [
+      "Mask, filter, flashlight.",
+      "Metro Exodus"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "doometernalx64vk.exe"
+   ],
+   "name": "DOOM Eternal",
+   "genre": "fps",
+   "appid": 782330,
+   "msg": {
+    "pl": [
+     [
+      "Rip and tear.",
+      "DOOM Eternal"
+     ]
+    ],
+    "en": [
+     [
+      "Rip and tear.",
+      "DOOM Eternal"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "doomthedarkages.exe"
+   ],
+   "name": "DOOM: The Dark Ages",
+   "genre": "fps",
+   "appid": 3017860,
+   "msg": {
+    "pl": [
+     [
+      "Tarcza w dłoń.",
+      "DOOM: The Dark Ages"
+     ]
+    ],
+    "en": [
+     [
+      "Shield up.",
+      "DOOM: The Dark Ages"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hl2.exe"
+   ],
+   "name": "Half-Life 2",
+   "genre": "fps",
+   "appid": 220,
+   "msg": {
+    "pl": [
+     [
+      "Łom gotowy.",
+      "Half-Life 2"
+     ]
+    ],
+    "en": [
+     [
+      "Crowbar ready.",
+      "Half-Life 2"
+     ]
+    ]
+   },
+   "generic": [
+    "hl2.exe"
+   ]
+  },
+  {
+   "exe": [
+    "left4dead2.exe"
+   ],
+   "name": "Left 4 Dead 2",
+   "genre": "fps",
+   "appid": 550,
+   "msg": {
+    "pl": [
+     [
+      "Nie zostawiaj nikogo w tyle.",
+      "Left 4 Dead 2"
+     ]
+    ],
+    "en": [
+     [
+      "Leave no one behind.",
+      "Left 4 Dead 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fsd-win64-shipping.exe"
+   ],
+   "name": "Deep Rock Galactic",
+   "genre": "fps",
+   "appid": 548430,
+   "msg": {
+    "pl": [
+     [
+      "Rock and Stone!",
+      "Deep Rock Galactic"
+     ]
+    ],
+    "en": [
+     [
+      "Rock and Stone!",
+      "Deep Rock Galactic"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "warframe.x64.exe"
+   ],
+   "name": "Warframe",
+   "genre": "action",
+   "appid": 230410,
+   "msg": {
+    "pl": [
+     [
+      "Tenno, misja czeka.",
+      "Warframe"
+     ]
+    ],
+    "en": [
+     [
+      "Tenno, a mission awaits.",
+      "Warframe"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "deadlock.exe"
+   ],
+   "name": "Deadlock",
+   "genre": "moba",
+   "appid": 1422450,
+   "msg": {
+    "pl": [
+     [
+      "Pilnuj linii.",
+      "Deadlock"
+     ]
+    ],
+    "en": [
+     [
+      "Watch your lane.",
+      "Deadlock"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "brawlhalla.exe"
+   ],
+   "name": "Brawlhalla",
+   "genre": "action",
+   "appid": 291550,
+   "msg": {
+    "pl": [
+     [
+      "Na arenę!",
+      "Brawlhalla"
+     ]
+    ],
+    "en": [
+     [
+      "To the arena!",
+      "Brawlhalla"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "pathofexile_x64steam.exe",
+    "pathofexile_x64.exe",
+    "pathofexile.exe"
+   ],
+   "name": "Path of Exile",
+   "genre": "rpg",
+   "appid": 238960,
+   "msg": {
+    "pl": [
+     [
+      "Drzewko pasywek czeka.",
+      "Path of Exile"
+     ]
+    ],
+    "en": [
+     [
+      "The passive tree is waiting.",
+      "Path of Exile"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "diablo iv.exe"
+   ],
+   "name": "Diablo IV",
+   "genre": "rpg",
+   "appid": 2344520,
+   "msg": {
+    "pl": [
+     [
+      "Sanktuarium znów potrzebuje pomocy.",
+      "Diablo IV"
+     ]
+    ],
+    "en": [
+     [
+      "Sanctuary needs help again.",
+      "Diablo IV"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "darksoulsiii.exe"
+   ],
+   "name": "Dark Souls III",
+   "genre": "rpg",
+   "appid": 374320,
+   "msg": {
+    "pl": [
+     [
+      "Spróbuj jeszcze raz. I jeszcze.",
+      "Dark Souls III"
+     ]
+    ],
+    "en": [
+     [
+      "Try again. And again.",
+      "Dark Souls III"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "skyrimse.exe",
+    "tesv.exe"
+   ],
+   "name": "Skyrim",
+   "genre": "rpg",
+   "appid": 489830,
+   "msg": {
+    "pl": [
+     [
+      "Dovahkiin wraca.",
+      "Skyrim"
+     ]
+    ],
+    "en": [
+     [
+      "Dovahkiin returns.",
+      "Skyrim"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fallout4.exe"
+   ],
+   "name": "Fallout 4",
+   "genre": "rpg",
+   "appid": 377160,
+   "msg": {
+    "pl": [
+     [
+      "Pustkowia czekają.",
+      "Fallout 4"
+     ]
+    ],
+    "en": [
+     [
+      "The Wasteland awaits.",
+      "Fallout 4"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fallout76.exe"
+   ],
+   "name": "Fallout 76",
+   "genre": "rpg",
+   "appid": 1151340,
+   "msg": {
+    "pl": [
+     [
+      "Pustkowia czekają.",
+      "Fallout 76"
+     ]
+    ],
+    "en": [
+     [
+      "The Wasteland awaits.",
+      "Fallout 76"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "falloutnv.exe"
+   ],
+   "name": "Fallout: New Vegas",
+   "genre": "rpg",
+   "appid": 22380,
+   "msg": {
+    "pl": [
+     [
+      "Patroluj pustynię Mojave.",
+      "Fallout: New Vegas"
+     ]
+    ],
+    "en": [
+     [
+      "Patrolling the Mojave.",
+      "Fallout: New Vegas"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hogwartslegacy.exe"
+   ],
+   "name": "Hogwarts Legacy",
+   "genre": "rpg",
+   "appid": 990080,
+   "msg": {
+    "pl": [
+     [
+      "Różdżka w dłoń.",
+      "Hogwarts Legacy"
+     ]
+    ],
+    "en": [
+     [
+      "Wand at the ready.",
+      "Hogwarts Legacy"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "kingdomcome.exe"
+   ],
+   "name": "Kingdom Come: Deliverance",
+   "genre": "rpg",
+   "appid": 1771300,
+   "msg": {
+    "pl": [
+     [
+      "Najpierw zapisz grę. Schnaps też się liczy.",
+      "Kingdom Come: Deliverance"
+     ]
+    ],
+    "en": [
+     [
+      "Save first. Schnapps counts too.",
+      "Kingdom Come: Deliverance"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "bannerlord.exe"
+   ],
+   "name": "Mount & Blade II: Bannerlord",
+   "genre": "rpg",
+   "appid": 261550,
+   "msg": {
+    "pl": [
+     [
+      "Calradia czeka na wodza.",
+      "Mount & Blade II: Bannerlord"
+     ]
+    ],
+    "en": [
+     [
+      "Calradia needs a leader.",
+      "Mount & Blade II: Bannerlord"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "kenshi_x64.exe"
+   ],
+   "name": "Kenshi",
+   "genre": "rpg",
+   "appid": 233860,
+   "msg": {
+    "pl": [
+     [
+      "Pustynia jest duża, a Ty mały.",
+      "Kenshi"
+     ]
+    ],
+    "en": [
+     [
+      "The desert is big, you are small.",
+      "Kenshi"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "eocapp.exe"
+   ],
+   "name": "Divinity: Original Sin 2",
+   "genre": "rpg",
+   "appid": 435150,
+   "msg": {
+    "pl": [
+     [
+      "Rzut na inicjatywę.",
+      "Divinity: Original Sin 2"
+     ]
+    ],
+    "en": [
+     [
+      "Roll for initiative.",
+      "Divinity: Original Sin 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "disco.exe"
+   ],
+   "name": "Disco Elysium",
+   "genre": "rpg",
+   "appid": 632470,
+   "msg": {
+    "pl": [
+     [
+      "Detektywie, krawat masz na lampie.",
+      "Disco Elysium"
+     ]
+    ],
+    "en": [
+     [
+      "Detective, your tie is on the lamp.",
+      "Disco Elysium"
+     ]
+    ]
+   },
+   "generic": [
+    "disco.exe"
+   ]
+  },
+  {
+   "exe": [
+    "p5r.exe"
+   ],
+   "name": "Persona 5 Royal",
+   "genre": "rpg",
+   "appid": 1687950,
+   "msg": {
+    "pl": [
+     [
+      "Kalendarz pełny, czas krótki.",
+      "Persona 5 Royal"
+     ]
+    ],
+    "en": [
+     [
+      "Busy calendar, short time.",
+      "Persona 5 Royal"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "undertale.exe"
+   ],
+   "name": "Undertale",
+   "genre": "rpg",
+   "appid": 391540,
+   "msg": {
+    "pl": [
+     [
+      "Zostań determinacją.",
+      "Undertale"
+     ]
+    ],
+    "en": [
+     [
+      "Stay determined.",
+      "Undertale"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ffxiv_dx11.exe"
+   ],
+   "name": "Final Fantasy XIV",
+   "genre": "rpg",
+   "appid": 39210,
+   "msg": {
+    "pl": [
+     [
+      "Eorzea czeka.",
+      "Final Fantasy XIV"
+     ]
+    ],
+    "en": [
+     [
+      "Eorzea awaits.",
+      "Final Fantasy XIV"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "wow.exe"
+   ],
+   "name": "World of Warcraft",
+   "genre": "rpg",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Kolejka do lochu?",
+      "World of Warcraft"
+     ]
+    ],
+    "en": [
+     [
+      "Queueing for a dungeon?",
+      "World of Warcraft"
+     ]
+    ]
+   },
+   "generic": [
+    "wow.exe"
+   ]
+  },
+  {
+   "exe": [
+    "lostark.exe"
+   ],
+   "name": "Lost Ark",
+   "genre": "rpg",
+   "appid": 1599340,
+   "msg": {
+    "pl": [
+     [
+      "Codzienne zadania czekają.",
+      "Lost Ark"
+     ]
+    ],
+    "en": [
+     [
+      "Dailies are waiting.",
+      "Lost Ark"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gw2-64.exe"
+   ],
+   "name": "Guild Wars 2",
+   "genre": "rpg",
+   "appid": 1284210,
+   "msg": {
+    "pl": [
+     [
+      "Tyria czeka.",
+      "Guild Wars 2"
+     ]
+    ],
+    "en": [
+     [
+      "Tyria awaits.",
+      "Guild Wars 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "osclient.exe"
+   ],
+   "name": "Old School RuneScape",
+   "genre": "rpg",
+   "appid": 1343370,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jeden poziom.",
+      "Old School RuneScape"
+     ]
+    ],
+    "en": [
+     [
+      "One more level.",
+      "Old School RuneScape"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "genshinimpact.exe"
+   ],
+   "name": "Genshin Impact",
+   "genre": "rpg",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Teyvat czeka.",
+      "Genshin Impact"
+     ]
+    ],
+    "en": [
+     [
+      "Teyvat awaits.",
+      "Genshin Impact"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "starrail.exe"
+   ],
+   "name": "Honkai: Star Rail",
+   "genre": "rpg",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Ekspres gotowy do odjazdu.",
+      "Honkai: Star Rail"
+     ]
+    ],
+    "en": [
+     [
+      "The Express is ready to depart.",
+      "Honkai: Star Rail"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "monsterhunterwilds.exe"
+   ],
+   "name": "Monster Hunter Wilds",
+   "genre": "action",
+   "appid": 2246340,
+   "msg": {
+    "pl": [
+     [
+      "Polowanie czas zacząć.",
+      "Monster Hunter Wilds"
+     ]
+    ],
+    "en": [
+     [
+      "Time to hunt.",
+      "Monster Hunter Wilds"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "monsterhunterworld.exe"
+   ],
+   "name": "Monster Hunter: World",
+   "genre": "action",
+   "appid": 582010,
+   "msg": {
+    "pl": [
+     [
+      "Polowanie czas zacząć.",
+      "Monster Hunter: World"
+     ]
+    ],
+    "en": [
+     [
+      "Time to hunt.",
+      "Monster Hunter: World"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "b1-win64-shipping.exe"
+   ],
+   "name": "Black Myth: Wukong",
+   "genre": "action",
+   "appid": 2358720,
+   "msg": {
+    "pl": [
+     [
+      "Kij w dłoń.",
+      "Black Myth: Wukong"
+     ]
+    ],
+    "en": [
+     [
+      "Staff in hand.",
+      "Black Myth: Wukong"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "sekiro.exe"
+   ],
+   "name": "Sekiro",
+   "genre": "action",
+   "appid": 814380,
+   "msg": {
+    "pl": [
+     [
+      "Odbij. I jeszcze raz.",
+      "Sekiro"
+     ]
+    ],
+    "en": [
+     [
+      "Deflect. And again.",
+      "Sekiro"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hollow knight silksong.exe"
+   ],
+   "name": "Hollow Knight: Silksong",
+   "genre": "action",
+   "appid": 1030300,
+   "msg": {
+    "pl": [
+     [
+      "Pharloom czeka.",
+      "Hollow Knight: Silksong"
+     ]
+    ],
+    "en": [
+     [
+      "Pharloom awaits.",
+      "Hollow Knight: Silksong"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "risk of rain 2.exe"
+   ],
+   "name": "Risk of Rain 2",
+   "genre": "action",
+   "appid": 632360,
+   "msg": {
+    "pl": [
+     [
+      "Im dłużej, tym trudniej.",
+      "Risk of Rain 2"
+     ]
+    ],
+    "en": [
+     [
+      "The longer, the harder.",
+      "Risk of Rain 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "vampiresurvivors.exe"
+   ],
+   "name": "Vampire Survivors",
+   "genre": "action",
+   "appid": 1794680,
+   "msg": {
+    "pl": [
+     [
+      "Przeżyj 30 minut.",
+      "Vampire Survivors"
+     ]
+    ],
+    "en": [
+     [
+      "Survive 30 minutes.",
+      "Vampire Survivors"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "deadcells.exe"
+   ],
+   "name": "Dead Cells",
+   "genre": "action",
+   "appid": 588650,
+   "msg": {
+    "pl": [
+     [
+      "Kolejna próba ucieczki.",
+      "Dead Cells"
+     ]
+    ],
+    "en": [
+     [
+      "Another escape attempt.",
+      "Dead Cells"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "celeste.exe"
+   ],
+   "name": "Celeste",
+   "genre": "action",
+   "appid": 504230,
+   "msg": {
+    "pl": [
+     [
+      "Góra się nie zmniejszy. Ty dasz radę.",
+      "Celeste"
+     ]
+    ],
+    "en": [
+     [
+      "The mountain won't shrink. You'll make it.",
+      "Celeste"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "cuphead.exe"
+   ],
+   "name": "Cuphead",
+   "genre": "action",
+   "appid": 268910,
+   "msg": {
+    "pl": [
+     [
+      "Boss czeka. Ty też poczekaj na wzór.",
+      "Cuphead"
+     ]
+    ],
+    "en": [
+     [
+      "The boss is waiting. Learn the pattern.",
+      "Cuphead"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "oriwotw.exe"
+   ],
+   "name": "Ori and the Will of the Wisps",
+   "genre": "action",
+   "appid": 1057090,
+   "msg": {
+    "pl": [
+     [
+      "Las czeka.",
+      "Ori and the Will of the Wisps"
+     ]
+    ],
+    "en": [
+     [
+      "The forest awaits.",
+      "Ori and the Will of the Wisps"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "cult of the lamb.exe"
+   ],
+   "name": "Cult of the Lamb",
+   "genre": "action",
+   "appid": 1313140,
+   "msg": {
+    "pl": [
+     [
+      "Wyznawcy czekają na kazanie.",
+      "Cult of the Lamb"
+     ]
+    ],
+    "en": [
+     [
+      "The followers await a sermon.",
+      "Cult of the Lamb"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "etg.exe"
+   ],
+   "name": "Enter the Gungeon",
+   "genre": "action",
+   "appid": 311690,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedno piętro.",
+      "Enter the Gungeon"
+     ]
+    ],
+    "en": [
+     [
+      "One more chamber.",
+      "Enter the Gungeon"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "isaac-ng.exe"
+   ],
+   "name": "The Binding of Isaac",
+   "genre": "action",
+   "appid": 250900,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jeden run.",
+      "The Binding of Isaac"
+     ]
+    ],
+    "en": [
+     [
+      "One more run.",
+      "The Binding of Isaac"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ghostoftsushima.exe"
+   ],
+   "name": "Ghost of Tsushima",
+   "genre": "action",
+   "appid": 2215430,
+   "msg": {
+    "pl": [
+     [
+      "Wiatr wskaże drogę.",
+      "Ghost of Tsushima"
+     ]
+    ],
+    "en": [
+     [
+      "Follow the wind.",
+      "Ghost of Tsushima"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gow.exe"
+   ],
+   "name": "God of War",
+   "genre": "action",
+   "appid": 1593500,
+   "msg": {
+    "pl": [
+     [
+      "Chłopcze!",
+      "God of War"
+     ]
+    ],
+    "en": [
+     [
+      "Boy!",
+      "God of War"
+     ]
+    ]
+   },
+   "generic": [
+    "gow.exe"
+   ]
+  },
+  {
+   "exe": [
+    "gowr.exe"
+   ],
+   "name": "God of War Ragnarök",
+   "genre": "action",
+   "appid": 2322010,
+   "msg": {
+    "pl": [
+     [
+      "Chłopcze!",
+      "God of War Ragnarök"
+     ]
+    ],
+    "en": [
+     [
+      "Boy!",
+      "God of War Ragnarök"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "spider-man.exe"
+   ],
+   "name": "Marvel's Spider-Man",
+   "genre": "action",
+   "appid": 1817070,
+   "msg": {
+    "pl": [
+     [
+      "Nowy Jork na Ciebie liczy.",
+      "Marvel's Spider-Man"
+     ]
+    ],
+    "en": [
+     [
+      "New York counts on you.",
+      "Marvel's Spider-Man"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "horizonzerodawn.exe"
+   ],
+   "name": "Horizon Zero Dawn",
+   "genre": "action",
+   "appid": 1151640,
+   "msg": {
+    "pl": [
+     [
+      "Maszyny na horyzoncie.",
+      "Horizon Zero Dawn"
+     ]
+    ],
+    "en": [
+     [
+      "Machines on the horizon.",
+      "Horizon Zero Dawn"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dyinglightgame.exe"
+   ],
+   "name": "Dying Light",
+   "genre": "action",
+   "appid": 239140,
+   "msg": {
+    "pl": [
+     [
+      "Wróć przed zmrokiem.",
+      "Dying Light"
+     ]
+    ],
+    "en": [
+     [
+      "Get back before dark.",
+      "Dying Light"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dyinglightgame_x64_rwdi.exe"
+   ],
+   "name": "Dying Light 2",
+   "genre": "action",
+   "appid": 534380,
+   "msg": {
+    "pl": [
+     [
+      "Wróć przed zmrokiem.",
+      "Dying Light 2"
+     ]
+    ],
+    "en": [
+     [
+      "Get back before dark.",
+      "Dying Light 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "daysgone.exe"
+   ],
+   "name": "Days Gone",
+   "genre": "action",
+   "appid": 1259420,
+   "msg": {
+    "pl": [
+     [
+      "Zatankuj motor.",
+      "Days Gone"
+     ]
+    ],
+    "en": [
+     [
+      "Fuel up the bike.",
+      "Days Gone"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "mafiadefinitiveedition.exe"
+   ],
+   "name": "Mafia",
+   "genre": "action",
+   "appid": 1030840,
+   "msg": {
+    "pl": [
+     [
+      "Lost Heaven wita.",
+      "Mafia"
+     ]
+    ],
+    "en": [
+     [
+      "Welcome to Lost Heaven.",
+      "Mafia"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "stray-win64-shipping.exe"
+   ],
+   "name": "Stray",
+   "genre": "action",
+   "appid": 1332010,
+   "msg": {
+    "pl": [
+     [
+      "Miau.",
+      "Stray"
+     ]
+    ],
+    "en": [
+     [
+      "Meow.",
+      "Stray"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "acvalhalla.exe"
+   ],
+   "name": "Assassin's Creed Valhalla",
+   "genre": "action",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Drakkar gotowy.",
+      "Assassin's Creed Valhalla"
+     ]
+    ],
+    "en": [
+     [
+      "The longship is ready.",
+      "Assassin's Creed Valhalla"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "aces.exe"
+   ],
+   "name": "War Thunder",
+   "genre": "action",
+   "appid": 236390,
+   "msg": {
+    "pl": [
+     [
+      "Silniki ciepłe.",
+      "War Thunder"
+     ]
+    ],
+    "en": [
+     [
+      "Engines warm.",
+      "War Thunder"
+     ]
+    ]
+   },
+   "generic": [
+    "aces.exe"
+   ]
+  },
+  {
+   "exe": [
+    "worldoftanks.exe"
+   ],
+   "name": "World of Tanks",
+   "genre": "action",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Do czołgu!",
+      "World of Tanks"
+     ]
+    ],
+    "en": [
+     [
+      "Roll out!",
+      "World of Tanks"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "zenlesszonezero.exe"
+   ],
+   "name": "Zenless Zone Zero",
+   "genre": "action",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Nowe Eridu czeka.",
+      "Zenless Zone Zero"
+     ]
+    ],
+    "en": [
+     [
+      "New Eridu awaits.",
+      "Zenless Zone Zero"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "subnautica.exe"
+   ],
+   "name": "Subnautica",
+   "genre": "survival",
+   "appid": 264710,
+   "msg": {
+    "pl": [
+     [
+      "Zabierz tlen.",
+      "Subnautica"
+     ]
+    ],
+    "en": [
+     [
+      "Mind your oxygen.",
+      "Subnautica"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "subnauticazero.exe"
+   ],
+   "name": "Subnautica: Below Zero",
+   "genre": "survival",
+   "appid": 848450,
+   "msg": {
+    "pl": [
+     [
+      "Zabierz tlen i ciepłą kurtkę.",
+      "Subnautica: Below Zero"
+     ]
+    ],
+    "en": [
+     [
+      "Oxygen and a warm jacket.",
+      "Subnautica: Below Zero"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "theforest.exe"
+   ],
+   "name": "The Forest",
+   "genre": "survival",
+   "appid": 242760,
+   "msg": {
+    "pl": [
+     [
+      "Zbuduj schronienie przed nocą.",
+      "The Forest"
+     ]
+    ],
+    "en": [
+     [
+      "Build a shelter before night.",
+      "The Forest"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "sonsoftheforest.exe"
+   ],
+   "name": "Sons of the Forest",
+   "genre": "survival",
+   "appid": 1326470,
+   "msg": {
+    "pl": [
+     [
+      "Kelvin czeka na polecenia.",
+      "Sons of the Forest"
+     ]
+    ],
+    "en": [
+     [
+      "Kelvin is waiting for orders.",
+      "Sons of the Forest"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gh.exe"
+   ],
+   "name": "Green Hell",
+   "genre": "survival",
+   "appid": 815370,
+   "msg": {
+    "pl": [
+     [
+      "Sprawdź pijawki.",
+      "Green Hell"
+     ]
+    ],
+    "en": [
+     [
+      "Check for leeches.",
+      "Green Hell"
+     ]
+    ]
+   },
+   "generic": [
+    "gh.exe"
+   ]
+  },
+  {
+   "exe": [
+    "raft.exe"
+   ],
+   "name": "Raft",
+   "genre": "survival",
+   "appid": 648800,
+   "msg": {
+    "pl": [
+     [
+      "Rekin krąży. Hak w dłoń.",
+      "Raft"
+     ]
+    ],
+    "en": [
+     [
+      "The shark's circling. Hook ready.",
+      "Raft"
+     ]
+    ]
+   },
+   "generic": [
+    "raft.exe"
+   ]
+  },
+  {
+   "exe": [
+    "maine-win64-shipping.exe"
+   ],
+   "name": "Grounded",
+   "genre": "survival",
+   "appid": 962130,
+   "msg": {
+    "pl": [
+     [
+      "Uważaj na pająki.",
+      "Grounded"
+     ]
+    ],
+    "en": [
+     [
+      "Watch out for spiders.",
+      "Grounded"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "enshrouded.exe"
+   ],
+   "name": "Enshrouded",
+   "genre": "survival",
+   "appid": 1203620,
+   "msg": {
+    "pl": [
+     [
+      "Płomień czeka na rozpalenie.",
+      "Enshrouded"
+     ]
+    ],
+    "en": [
+     [
+      "The flame waits to be lit.",
+      "Enshrouded"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "vrising.exe"
+   ],
+   "name": "V Rising",
+   "genre": "survival",
+   "appid": 1604030,
+   "msg": {
+    "pl": [
+     [
+      "Unikaj słońca.",
+      "V Rising"
+     ]
+    ],
+    "en": [
+     [
+      "Stay out of the sun.",
+      "V Rising"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "conansandbox.exe"
+   ],
+   "name": "Conan Exiles",
+   "genre": "survival",
+   "appid": 440900,
+   "msg": {
+    "pl": [
+     [
+      "Przetrwaj Wygnane Ziemie.",
+      "Conan Exiles"
+     ]
+    ],
+    "en": [
+     [
+      "Survive the Exiled Lands.",
+      "Conan Exiles"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dayz_x64.exe"
+   ],
+   "name": "DayZ",
+   "genre": "survival",
+   "appid": 221100,
+   "msg": {
+    "pl": [
+     [
+      "Puszka fasoli i ostrożność.",
+      "DayZ"
+     ]
+    ],
+    "en": [
+     [
+      "A can of beans and caution.",
+      "DayZ"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "tld.exe"
+   ],
+   "name": "The Long Dark",
+   "genre": "survival",
+   "appid": 305620,
+   "msg": {
+    "pl": [
+     [
+      "Pilnuj ognia.",
+      "The Long Dark"
+     ]
+    ],
+    "en": [
+     [
+      "Keep the fire going.",
+      "The Long Dark"
+     ]
+    ]
+   },
+   "generic": [
+    "tld.exe"
+   ]
+  },
+  {
+   "exe": [
+    "abioticfactor-win64-shipping.exe"
+   ],
+   "name": "Abiotic Factor",
+   "genre": "survival",
+   "appid": 427410,
+   "msg": {
+    "pl": [
+     [
+      "Naukowcy, do kasków.",
+      "Abiotic Factor"
+     ]
+    ],
+    "en": [
+     [
+      "Scientists, helmets on.",
+      "Abiotic Factor"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "lethal company.exe"
+   ],
+   "name": "Lethal Company",
+   "genre": "horror",
+   "appid": 1966720,
+   "msg": {
+    "pl": [
+     [
+      "Kwota sama się nie zbierze.",
+      "Lethal Company"
+     ]
+    ],
+    "en": [
+     [
+      "The quota won't fill itself.",
+      "Lethal Company"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "content warning.exe"
+   ],
+   "name": "Content Warning",
+   "genre": "horror",
+   "appid": 2881650,
+   "msg": {
+    "pl": [
+     [
+      "Kamera nagrywa. Uśmiech.",
+      "Content Warning"
+     ]
+    ],
+    "en": [
+     [
+      "Camera's rolling. Smile.",
+      "Content Warning"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "repo.exe"
+   ],
+   "name": "R.E.P.O.",
+   "genre": "horror",
+   "appid": 3241660,
+   "msg": {
+    "pl": [
+     [
+      "Nie upuść wazonu.",
+      "R.E.P.O."
+     ]
+    ],
+    "en": [
+     [
+      "Don't drop the vase.",
+      "R.E.P.O."
+     ]
+    ]
+   },
+   "generic": [
+    "repo.exe"
+   ]
+  },
+  {
+   "exe": [
+    "robloxplayerbeta.exe"
+   ],
+   "name": "Roblox",
+   "genre": "sandbox",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "W co dziś gramy?",
+      "Roblox"
+     ]
+    ],
+    "en": [
+     [
+      "What are we playing today?",
+      "Roblox"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "minecraft.windows.exe"
+   ],
+   "name": "Minecraft (Bedrock)",
+   "genre": "sandbox",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Kopiemy diamenty?",
+      "Minecraft (Bedrock)"
+     ]
+    ],
+    "en": [
+     [
+      "Mining diamonds today?",
+      "Minecraft (Bedrock)"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gmod.exe"
+   ],
+   "name": "Garry's Mod",
+   "genre": "sandbox",
+   "appid": 4000,
+   "msg": {
+    "pl": [
+     [
+      "Fizyka gotowa, wyobraźnia też.",
+      "Garry's Mod"
+     ]
+    ],
+    "en": [
+     [
+      "Physics ready, imagination too.",
+      "Garry's Mod"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "corekeeper.exe"
+   ],
+   "name": "Core Keeper",
+   "genre": "sandbox",
+   "appid": 1621690,
+   "msg": {
+    "pl": [
+     [
+      "Kilof w dłoń.",
+      "Core Keeper"
+     ]
+    ],
+    "en": [
+     [
+      "Pickaxe ready.",
+      "Core Keeper"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "starbound.exe"
+   ],
+   "name": "Starbound",
+   "genre": "sandbox",
+   "appid": 211820,
+   "msg": {
+    "pl": [
+     [
+      "Nowa planeta, nowa baza.",
+      "Starbound"
+     ]
+    ],
+    "en": [
+     [
+      "New planet, new base.",
+      "Starbound"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "spaceengineers.exe"
+   ],
+   "name": "Space Engineers",
+   "genre": "sandbox",
+   "appid": 244850,
+   "msg": {
+    "pl": [
+     [
+      "Najpierw grawitacja, potem projekt.",
+      "Space Engineers"
+     ]
+    ],
+    "en": [
+     [
+      "Gravity first, then the design.",
+      "Space Engineers"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "teardown.exe"
+   ],
+   "name": "Teardown",
+   "genre": "sandbox",
+   "appid": 1167630,
+   "msg": {
+    "pl": [
+     [
+      "Wszystko się da rozebrać.",
+      "Teardown"
+     ]
+    ],
+    "en": [
+     [
+      "Everything comes apart.",
+      "Teardown"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "besiege.exe"
+   ],
+   "name": "Besiege",
+   "genre": "sandbox",
+   "appid": 346010,
+   "msg": {
+    "pl": [
+     [
+      "Czy to poleci?",
+      "Besiege"
+     ]
+    ],
+    "en": [
+     [
+      "Will it fly?",
+      "Besiege"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ksp_x64.exe"
+   ],
+   "name": "Kerbal Space Program",
+   "genre": "sim",
+   "appid": 220200,
+   "msg": {
+    "pl": [
+     [
+      "Więcej silników!",
+      "Kerbal Space Program"
+     ]
+    ],
+    "en": [
+     [
+      "More boosters!",
+      "Kerbal Space Program"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "spiritfarer.exe"
+   ],
+   "name": "Spiritfarer",
+   "genre": "cozy",
+   "appid": 972660,
+   "msg": {
+    "pl": [
+     [
+      "Statek gotowy do rejsu.",
+      "Spiritfarer"
+     ]
+    ],
+    "en": [
+     [
+      "The boat's ready to sail.",
+      "Spiritfarer"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "unpacking.exe"
+   ],
+   "name": "Unpacking",
+   "genre": "cozy",
+   "appid": 1135690,
+   "msg": {
+    "pl": [
+     [
+      "Gdzie postawić ten kubek?",
+      "Unpacking"
+     ]
+    ],
+    "en": [
+     [
+      "Where does this mug go?",
+      "Unpacking"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "a short hike.exe"
+   ],
+   "name": "A Short Hike",
+   "genre": "cozy",
+   "appid": 1055540,
+   "msg": {
+    "pl": [
+     [
+      "Na szczyt, bez pośpiechu.",
+      "A Short Hike"
+     ]
+    ],
+    "en": [
+     [
+      "To the summit, no rush.",
+      "A Short Hike"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dorfromantik.exe"
+   ],
+   "name": "Dorfromantik",
+   "genre": "cozy",
+   "appid": 1455840,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jeden kafelek.",
+      "Dorfromantik"
+     ]
+    ],
+    "en": [
+     [
+      "One more tile.",
+      "Dorfromantik"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "townscaper.exe"
+   ],
+   "name": "Townscaper",
+   "genre": "cozy",
+   "appid": 1291340,
+   "msg": {
+    "pl": [
+     [
+      "Zbuduj coś ładnego.",
+      "Townscaper"
+     ]
+    ],
+    "en": [
+     [
+      "Build something pretty.",
+      "Townscaper"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "sun haven.exe"
+   ],
+   "name": "Sun Haven",
+   "genre": "cozy",
+   "appid": 1432860,
+   "msg": {
+    "pl": [
+     [
+      "Farma czeka.",
+      "Sun Haven"
+     ]
+    ],
+    "en": [
+     [
+      "The farm is waiting.",
+      "Sun Haven"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fields of mistria.exe"
+   ],
+   "name": "Fields of Mistria",
+   "genre": "cozy",
+   "appid": 2142790,
+   "msg": {
+    "pl": [
+     [
+      "Mistria czeka na ogród.",
+      "Fields of Mistria"
+     ]
+    ],
+    "en": [
+     [
+      "Mistria awaits your garden.",
+      "Fields of Mistria"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "potion craft.exe"
+   ],
+   "name": "Potion Craft",
+   "genre": "cozy",
+   "appid": 1210320,
+   "msg": {
+    "pl": [
+     [
+      "Kocioł się grzeje.",
+      "Potion Craft"
+     ]
+    ],
+    "en": [
+     [
+      "The cauldron's warming up.",
+      "Potion Craft"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "balatro.exe"
+   ],
+   "name": "Balatro",
+   "genre": "puzzle",
+   "appid": 2379780,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedna runda. Na pewno ostatnia.",
+      "Balatro"
+     ]
+    ],
+    "en": [
+     [
+      "One more round. Surely the last.",
+      "Balatro"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "slaythespire.exe"
+   ],
+   "name": "Slay the Spire",
+   "genre": "puzzle",
+   "appid": 646570,
+   "msg": {
+    "pl": [
+     [
+      "Talia gotowa.",
+      "Slay the Spire"
+     ]
+    ],
+    "en": [
+     [
+      "Deck ready.",
+      "Slay the Spire"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "portal2.exe"
+   ],
+   "name": "Portal 2",
+   "genre": "puzzle",
+   "appid": 620,
+   "msg": {
+    "pl": [
+     [
+      "Ciasto jest kłamstwem.",
+      "Portal 2"
+     ]
+    ],
+    "en": [
+     [
+      "The cake is a lie.",
+      "Portal 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hearthstone.exe"
+   ],
+   "name": "Hearthstone",
+   "genre": "puzzle",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Karty na stół.",
+      "Hearthstone"
+     ]
+    ],
+    "en": [
+     [
+      "Cards on the table.",
+      "Hearthstone"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "powerwashsimulator.exe"
+   ],
+   "name": "PowerWash Simulator",
+   "genre": "sim",
+   "appid": 1290000,
+   "msg": {
+    "pl": [
+     [
+      "Brud nie ma szans.",
+      "PowerWash Simulator"
+     ]
+    ],
+    "en": [
+     [
+      "The dirt stands no chance.",
+      "PowerWash Simulator"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "houseflipper.exe"
+   ],
+   "name": "House Flipper",
+   "genre": "sim",
+   "appid": 613100,
+   "msg": {
+    "pl": [
+     [
+      "Dom do remontu czeka.",
+      "House Flipper"
+     ]
+    ],
+    "en": [
+     [
+      "A fixer-upper is waiting.",
+      "House Flipper"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "houseflipper2.exe"
+   ],
+   "name": "House Flipper 2",
+   "genre": "sim",
+   "appid": 1190970,
+   "msg": {
+    "pl": [
+     [
+      "Dom do remontu czeka.",
+      "House Flipper 2"
+     ]
+    ],
+    "en": [
+     [
+      "A fixer-upper is waiting.",
+      "House Flipper 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "car mechanic simulator 2021.exe"
+   ],
+   "name": "Car Mechanic Simulator 2021",
+   "genre": "sim",
+   "appid": 1190000,
+   "msg": {
+    "pl": [
+     [
+      "Klienci czekają w kolejce.",
+      "Car Mechanic Simulator 2021"
+     ]
+    ],
+    "en": [
+     [
+      "Customers are lined up.",
+      "Car Mechanic Simulator 2021"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "supermarket simulator.exe"
+   ],
+   "name": "Supermarket Simulator",
+   "genre": "sim",
+   "appid": 2670630,
+   "msg": {
+    "pl": [
+     [
+      "Kasa otwarta.",
+      "Supermarket Simulator"
+     ]
+    ],
+    "en": [
+     [
+      "Checkout's open.",
+      "Supermarket Simulator"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "tcg card shop simulator.exe"
+   ],
+   "name": "TCG Card Shop Simulator",
+   "genre": "sim",
+   "appid": 3070070,
+   "msg": {
+    "pl": [
+     [
+      "Nowa dostawa paczek.",
+      "TCG Card Shop Simulator"
+     ]
+    ],
+    "en": [
+     [
+      "New booster delivery.",
+      "TCG Card Shop Simulator"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "schedule i.exe"
+   ],
+   "name": "Schedule I",
+   "genre": "sim",
+   "appid": 3164500,
+   "msg": {
+    "pl": [
+     [
+      "Biznes się kręci.",
+      "Schedule I"
+     ]
+    ],
+    "en": [
+     [
+      "Business is rolling.",
+      "Schedule I"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "farmingsimulator2025.exe"
+   ],
+   "name": "Farming Simulator 25",
+   "genre": "sim",
+   "appid": 2300320,
+   "msg": {
+    "pl": [
+     [
+      "Pole czeka na żniwa.",
+      "Farming Simulator 25"
+     ]
+    ],
+    "en": [
+     [
+      "The field's ready for harvest.",
+      "Farming Simulator 25"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "farmingsimulator2022.exe"
+   ],
+   "name": "Farming Simulator 22",
+   "genre": "sim",
+   "appid": 1248130,
+   "msg": {
+    "pl": [
+     [
+      "Pole czeka na żniwa.",
+      "Farming Simulator 22"
+     ]
+    ],
+    "en": [
+     [
+      "The field's ready for harvest.",
+      "Farming Simulator 22"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "amtrucks.exe"
+   ],
+   "name": "American Truck Simulator",
+   "genre": "sim",
+   "appid": 270880,
+   "msg": {
+    "pl": [
+     [
+      "Ładunek czeka. Szerokiej drogi!",
+      "American Truck Simulator"
+     ]
+    ],
+    "en": [
+     [
+      "The cargo's waiting. Drive safe!",
+      "American Truck Simulator"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "flightsimulator2024.exe"
+   ],
+   "name": "Microsoft Flight Simulator 2024",
+   "genre": "sim",
+   "appid": 2537590,
+   "msg": {
+    "pl": [
+     [
+      "Checklista przed startem.",
+      "Microsoft Flight Simulator 2024"
+     ]
+    ],
+    "en": [
+     [
+      "Pre-flight checklist.",
+      "Microsoft Flight Simulator 2024"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "flightsimulator.exe"
+   ],
+   "name": "Microsoft Flight Simulator",
+   "genre": "sim",
+   "appid": 1250410,
+   "msg": {
+    "pl": [
+     [
+      "Checklista przed startem.",
+      "Microsoft Flight Simulator"
+     ]
+    ],
+    "en": [
+     [
+      "Pre-flight checklist.",
+      "Microsoft Flight Simulator"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "planetcoaster2.exe"
+   ],
+   "name": "Planet Coaster 2",
+   "genre": "sim",
+   "appid": 2688950,
+   "msg": {
+    "pl": [
+     [
+      "Jaka kolejka dziś?",
+      "Planet Coaster 2"
+     ]
+    ],
+    "en": [
+     [
+      "Which coaster today?",
+      "Planet Coaster 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "planetcoaster.exe"
+   ],
+   "name": "Planet Coaster",
+   "genre": "sim",
+   "appid": 493340,
+   "msg": {
+    "pl": [
+     [
+      "Jaka kolejka dziś?",
+      "Planet Coaster"
+     ]
+    ],
+    "en": [
+     [
+      "Which coaster today?",
+      "Planet Coaster"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "tph.exe"
+   ],
+   "name": "Two Point Hospital",
+   "genre": "sim",
+   "appid": 535930,
+   "msg": {
+    "pl": [
+     [
+      "Pacjenci w poczekalni.",
+      "Two Point Hospital"
+     ]
+    ],
+    "en": [
+     [
+      "Patients in the waiting room.",
+      "Two Point Hospital"
+     ]
+    ]
+   },
+   "generic": [
+    "tph.exe"
+   ]
+  },
+  {
+   "exe": [
+    "prison architect64.exe"
+   ],
+   "name": "Prison Architect",
+   "genre": "sim",
+   "appid": 233450,
+   "msg": {
+    "pl": [
+     [
+      "Sprawdź, czy drzwi są zamknięte.",
+      "Prison Architect"
+     ]
+    ],
+    "en": [
+     [
+      "Check every door is locked.",
+      "Prison Architect"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "frostpunk.exe"
+   ],
+   "name": "Frostpunk",
+   "genre": "strategy",
+   "appid": 323190,
+   "msg": {
+    "pl": [
+     [
+      "Generator musi działać.",
+      "Frostpunk"
+     ]
+    ],
+    "en": [
+     [
+      "The generator must not stop.",
+      "Frostpunk"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "frostpunk2-win64-shipping.exe"
+   ],
+   "name": "Frostpunk 2",
+   "genre": "strategy",
+   "appid": 1601580,
+   "msg": {
+    "pl": [
+     [
+      "Generator musi działać.",
+      "Frostpunk 2"
+     ]
+    ],
+    "en": [
+     [
+      "The generator must not stop.",
+      "Frostpunk 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "rimworldwin64.exe"
+   ],
+   "name": "RimWorld",
+   "genre": "strategy",
+   "appid": 294100,
+   "msg": {
+    "pl": [
+     [
+      "Koloniści mają nowe problemy.",
+      "RimWorld"
+     ]
+    ],
+    "en": [
+     [
+      "The colonists have new problems.",
+      "RimWorld"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "oxygennotincluded.exe"
+   ],
+   "name": "Oxygen Not Included",
+   "genre": "strategy",
+   "appid": 457140,
+   "msg": {
+    "pl": [
+     [
+      "Sprawdź tlen. I toalety.",
+      "Oxygen Not Included"
+     ]
+    ],
+    "en": [
+     [
+      "Check the oxygen. And the toilets.",
+      "Oxygen Not Included"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "manorlords-win64-shipping.exe"
+   ],
+   "name": "Manor Lords",
+   "genre": "strategy",
+   "appid": 1363080,
+   "msg": {
+    "pl": [
+     [
+      "Wioska czeka na plan.",
+      "Manor Lords"
+     ]
+    ],
+    "en": [
+     [
+      "The village needs a plan.",
+      "Manor Lords"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "anno1800.exe"
+   ],
+   "name": "Anno 1800",
+   "genre": "strategy",
+   "appid": 916440,
+   "msg": {
+    "pl": [
+     [
+      "Robotnicy chcą piwa.",
+      "Anno 1800"
+     ]
+    ],
+    "en": [
+     [
+      "The workers want beer.",
+      "Anno 1800"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "hoi4.exe"
+   ],
+   "name": "Hearts of Iron IV",
+   "genre": "strategy",
+   "appid": 394360,
+   "msg": {
+    "pl": [
+     [
+      "Front czeka na rozkazy.",
+      "Hearts of Iron IV"
+     ]
+    ],
+    "en": [
+     [
+      "The front awaits orders.",
+      "Hearts of Iron IV"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "victoria3.exe"
+   ],
+   "name": "Victoria 3",
+   "genre": "strategy",
+   "appid": 529340,
+   "msg": {
+    "pl": [
+     [
+      "Rynek się chwieje.",
+      "Victoria 3"
+     ]
+    ],
+    "en": [
+     [
+      "The market is wobbling.",
+      "Victoria 3"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "warhammer3.exe"
+   ],
+   "name": "Total War: Warhammer III",
+   "genre": "strategy",
+   "appid": 1142710,
+   "msg": {
+    "pl": [
+     [
+      "Armie gotowe.",
+      "Total War: Warhammer III"
+     ]
+    ],
+    "en": [
+     [
+      "Armies ready.",
+      "Total War: Warhammer III"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "aoe2de_s.exe"
+   ],
+   "name": "Age of Empires II",
+   "genre": "strategy",
+   "appid": 813780,
+   "msg": {
+    "pl": [
+     [
+      "Wololo.",
+      "Age of Empires II"
+     ]
+    ],
+    "en": [
+     [
+      "Wololo.",
+      "Age of Empires II"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "reliccardinal.exe"
+   ],
+   "name": "Age of Empires IV",
+   "genre": "strategy",
+   "appid": 1466860,
+   "msg": {
+    "pl": [
+     [
+      "Zbierz drewno, zbuduj zamek.",
+      "Age of Empires IV"
+     ]
+    ],
+    "en": [
+     [
+      "Gather wood, build a castle.",
+      "Age of Empires IV"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "civilizationv.exe",
+    "civilizationv_dx11.exe"
+   ],
+   "name": "Civilization V",
+   "genre": "strategy",
+   "appid": 8930,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedna tura.",
+      "Civilization V"
+     ]
+    ],
+    "en": [
+     [
+      "One more turn.",
+      "Civilization V"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "civilizationvii.exe"
+   ],
+   "name": "Civilization VII",
+   "genre": "strategy",
+   "appid": 1295660,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedna tura.",
+      "Civilization VII"
+     ]
+    ],
+    "en": [
+     [
+      "One more turn.",
+      "Civilization VII"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "xcom2.exe"
+   ],
+   "name": "XCOM 2",
+   "genre": "strategy",
+   "appid": 268500,
+   "msg": {
+    "pl": [
+     [
+      "95% szans. Co może pójść źle?",
+      "XCOM 2"
+     ]
+    ],
+    "en": [
+     [
+      "95% chance. What could go wrong?",
+      "XCOM 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "against the storm.exe"
+   ],
+   "name": "Against the Storm",
+   "genre": "strategy",
+   "appid": 1336490,
+   "msg": {
+    "pl": [
+     [
+      "Deszcz nie przestanie.",
+      "Against the Storm"
+     ]
+    ],
+    "en": [
+     [
+      "The rain won't stop.",
+      "Against the Storm"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "theyarebillions.exe"
+   ],
+   "name": "They Are Billions",
+   "genre": "strategy",
+   "appid": 644930,
+   "msg": {
+    "pl": [
+     [
+      "Mury przed nocą.",
+      "They Are Billions"
+     ]
+    ],
+    "en": [
+     [
+      "Walls before nightfall.",
+      "They Are Billions"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "f1_24.exe"
+   ],
+   "name": "F1 24",
+   "genre": "racing",
+   "appid": 2488620,
+   "msg": {
+    "pl": [
+     [
+      "Opony na temperaturze?",
+      "F1 24"
+     ]
+    ],
+    "en": [
+     [
+      "Tyres up to temperature?",
+      "F1 24"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "forzahorizon4.exe"
+   ],
+   "name": "Forza Horizon 4",
+   "genre": "racing",
+   "appid": 1293830,
+   "msg": {
+    "pl": [
+     [
+      "Gaz do dechy!",
+      "Forza Horizon 4"
+     ]
+    ],
+    "en": [
+     [
+      "Pedal to the metal!",
+      "Forza Horizon 4"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "needforspeedheat.exe"
+   ],
+   "name": "Need for Speed Heat",
+   "genre": "racing",
+   "appid": 1222680,
+   "msg": {
+    "pl": [
+     [
+      "Noc w Palm City.",
+      "Need for Speed Heat"
+     ]
+    ],
+    "en": [
+     [
+      "Night in Palm City.",
+      "Need for Speed Heat"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ac2-win64-shipping.exe"
+   ],
+   "name": "Assetto Corsa Competizione",
+   "genre": "racing",
+   "appid": 805550,
+   "msg": {
+    "pl": [
+     [
+      "Na tor!",
+      "Assetto Corsa Competizione"
+     ]
+    ],
+    "en": [
+     [
+      "Hit the track!",
+      "Assetto Corsa Competizione"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "trackmania.exe"
+   ],
+   "name": "Trackmania",
+   "genre": "racing",
+   "appid": 2225070,
+   "msg": {
+    "pl": [
+     [
+      "Jeszcze jedno okrążenie na czas.",
+      "Trackmania"
+     ]
+    ],
+    "en": [
+     [
+      "One more time trial.",
+      "Trackmania"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "wreckfest_x64.exe"
+   ],
+   "name": "Wreckfest",
+   "genre": "racing",
+   "appid": 228380,
+   "msg": {
+    "pl": [
+     [
+      "Zderzaki w gotowości.",
+      "Wreckfest"
+     ]
+    ],
+    "en": [
+     [
+      "Bumpers ready.",
+      "Wreckfest"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "dirtrally2.exe"
+   ],
+   "name": "DiRT Rally 2.0",
+   "genre": "racing",
+   "appid": 690790,
+   "msg": {
+    "pl": [
+     [
+      "Słuchaj pilota.",
+      "DiRT Rally 2.0"
+     ]
+    ],
+    "en": [
+     [
+      "Listen to your co-driver.",
+      "DiRT Rally 2.0"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fc25.exe"
+   ],
+   "name": "EA SPORTS FC 25",
+   "genre": "sports",
+   "appid": 2669320,
+   "msg": {
+    "pl": [
+     [
+      "Skład ustawiony?",
+      "EA SPORTS FC 25"
+     ]
+    ],
+    "en": [
+     [
+      "Line-up set?",
+      "EA SPORTS FC 25"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fc24.exe"
+   ],
+   "name": "EA SPORTS FC 24",
+   "genre": "sports",
+   "appid": 2195250,
+   "msg": {
+    "pl": [
+     [
+      "Skład ustawiony?",
+      "EA SPORTS FC 24"
+     ]
+    ],
+    "en": [
+     [
+      "Line-up set?",
+      "EA SPORTS FC 24"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fm.exe"
+   ],
+   "name": "Football Manager",
+   "genre": "sports",
+   "appid": null,
+   "msg": {
+    "pl": [
+     [
+      "Odprawa przed meczem.",
+      "Football Manager"
+     ]
+    ],
+    "en": [
+     [
+      "Team talk before kick-off.",
+      "Football Manager"
+     ]
+    ]
+   },
+   "generic": [
+    "fm.exe"
+   ]
+  },
+  {
+   "exe": [
+    "re8.exe"
+   ],
+   "name": "Resident Evil Village",
+   "genre": "horror",
+   "appid": 1196590,
+   "msg": {
+    "pl": [
+     [
+      "Światło zapalone?",
+      "Resident Evil Village"
+     ]
+    ],
+    "en": [
+     [
+      "Lights on?",
+      "Resident Evil Village"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "re2.exe"
+   ],
+   "name": "Resident Evil 2",
+   "genre": "horror",
+   "appid": 883710,
+   "msg": {
+    "pl": [
+     [
+      "Oszczędzaj amunicję.",
+      "Resident Evil 2"
+     ]
+    ],
+    "en": [
+     [
+      "Save your ammo.",
+      "Resident Evil 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "shproto-win64-shipping.exe"
+   ],
+   "name": "Silent Hill 2",
+   "genre": "horror",
+   "appid": 2124490,
+   "msg": {
+    "pl": [
+     [
+      "Mgła gęstnieje.",
+      "Silent Hill 2"
+     ]
+    ],
+    "en": [
+     [
+      "The fog is thickening.",
+      "Silent Hill 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "among us.exe"
+   ],
+   "name": "Among Us",
+   "genre": "party",
+   "appid": 945360,
+   "msg": {
+    "pl": [
+     [
+      "Kto jest podejrzany?",
+      "Among Us"
+     ]
+    ],
+    "en": [
+     [
+      "Who's sus?",
+      "Among Us"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "fallguys_client_game.exe"
+   ],
+   "name": "Fall Guys",
+   "genre": "party",
+   "appid": 1097150,
+   "msg": {
+    "pl": [
+     [
+      "Nie spadnij.",
+      "Fall Guys"
+     ]
+    ],
+    "en": [
+     [
+      "Don't fall.",
+      "Fall Guys"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "golf with your friends.exe"
+   ],
+   "name": "Golf With Your Friends",
+   "genre": "party",
+   "appid": 431240,
+   "msg": {
+    "pl": [
+     [
+      "Pierwszy dołek.",
+      "Golf With Your Friends"
+     ]
+    ],
+    "en": [
+     [
+      "First hole.",
+      "Golf With Your Friends"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "gang beasts.exe"
+   ],
+   "name": "Gang Beasts",
+   "genre": "party",
+   "appid": 285900,
+   "msg": {
+    "pl": [
+     [
+      "Trzymaj się krawędzi.",
+      "Gang Beasts"
+     ]
+    ],
+    "en": [
+     [
+      "Hold on to the edge.",
+      "Gang Beasts"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "human.exe",
+    "human fall flat.exe"
+   ],
+   "name": "Human: Fall Flat",
+   "genre": "party",
+   "appid": 477160,
+   "msg": {
+    "pl": [
+     [
+      "Chwyć i się wspinaj.",
+      "Human: Fall Flat"
+     ]
+    ],
+    "en": [
+     [
+      "Grab and climb.",
+      "Human: Fall Flat"
+     ]
+    ]
+   },
+   "generic": [
+    "human.exe"
+   ]
+  },
+  {
+   "exe": [
+    "overcooked2.exe"
+   ],
+   "name": "Overcooked! 2",
+   "genre": "party",
+   "appid": 728880,
+   "msg": {
+    "pl": [
+     [
+      "Kto pilnuje garnka?",
+      "Overcooked! 2"
+     ]
+    ],
+    "en": [
+     [
+      "Who's on the pot?",
+      "Overcooked! 2"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ittakestwo.exe"
+   ],
+   "name": "It Takes Two",
+   "genre": "party",
+   "appid": 1426210,
+   "msg": {
+    "pl": [
+     [
+      "We dwoje raźniej.",
+      "It Takes Two"
+     ]
+    ],
+    "en": [
+     [
+      "Better together.",
+      "It Takes Two"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "splitfiction.exe"
+   ],
+   "name": "Split Fiction",
+   "genre": "party",
+   "appid": 2001120,
+   "msg": {
+    "pl": [
+     [
+      "We dwoje raźniej.",
+      "Split Fiction"
+     ]
+    ],
+    "en": [
+     [
+      "Better together.",
+      "Split Fiction"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "stumble guys.exe"
+   ],
+   "name": "Stumble Guys",
+   "genre": "party",
+   "appid": 1677740,
+   "msg": {
+    "pl": [
+     [
+      "Nie spadnij.",
+      "Stumble Guys"
+     ]
+    ],
+    "en": [
+     [
+      "Don't fall.",
+      "Stumble Guys"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "ultimatechickenhorse.exe"
+   ],
+   "name": "Ultimate Chicken Horse",
+   "genre": "party",
+   "appid": 386940,
+   "msg": {
+    "pl": [
+     [
+      "Pułapki rozstawione?",
+      "Ultimate Chicken Horse"
+     ]
+    ],
+    "en": [
+     [
+      "Traps set?",
+      "Ultimate Chicken Horse"
+     ]
+    ]
+   }
+  },
+  {
+   "exe": [
+    "peak.exe"
+   ],
+   "name": "PEAK",
+   "genre": "party",
+   "appid": 3527290,
+   "msg": {
+    "pl": [
+     [
+      "Na szczyt, razem.",
+      "PEAK"
+     ]
+    ],
+    "en": [
+     [
+      "To the summit, together.",
+      "PEAK"
+     ]
+    ]
+   },
+   "generic": [
+    "peak.exe"
+   ]
+  }
+ ]
+}

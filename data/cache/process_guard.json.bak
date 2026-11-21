@@ -1,0 +1,705 @@
+{
+  "whitelist": [],
+  "sig_cache": {
+    "c:\\windows\\system32\\smss.exe": {
+      "key": "245168:1794431198",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\services.exe": {
+      "key": "957896:1794431194",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\lsass.exe": {
+      "key": "95048:1794431169",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\csrss.exe": {
+      "key": "38576:1711956135",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\wininit.exe": {
+      "key": "862008:1794431214",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\svchost.exe": {
+      "key": "88312:1790205282",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\fontdrvhost.exe": {
+      "key": "866160:1794431157",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\claude_1.17377.1.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232441680:1782909119",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\windows\\system32\\notepad.exe": {
+      "key": "200704:1750601967",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\taskhostw.exe": {
+      "key": "117216:1790205278",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\driverstore\\filerepository\\nvmd.inf_amd64_aa54f7a758543a0a\\display.nvcontainer\\nvdisplay.container.exe": {
+      "key": "1275024:1732012200",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    "c:\\program files\\nvidia corporation\\nvcontainer\\nvcontainer.exe": {
+      "key": "1277480:1718138926",
+      "status": "Valid",
+      "publisher": "NVIDIA Corporation"
+    },
+    "c:\\windows\\system32\\wbem\\wmiprvse.exe": {
+      "key": "544768:1794431215",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\ctfmon.exe": {
+      "key": "81920:1794431205",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\systemapps\\microsoft.windows.search_cw5n1h2txyewy\\searchapp.exe": {
+      "key": "3979168:1763996972",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\spoolsv.exe": {
+      "key": "991232:1794431185",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\runtimebroker.exe": {
+      "key": "140880:1794431141",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\conhost.exe": {
+      "key": "1003520:1794431129",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26050.15-0\\msmpeng.exe": {
+      "key": "290744:1781003065",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\users\\kemat\\appdata\\local\\programs\\opera gx\\opera.exe": {
+      "key": "3676616:1794836024",
+      "status": "Valid",
+      "publisher": "Opera Norway AS"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingservices_37.114.21002.0_x64__8wekyb3d8bbwe\\gamingservices.exe": {
+      "key": "88520:1782420946",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\windows\\system32\\searchindexer.exe": {
+      "key": "1134592:1794431227",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\systemapps\\microsoft.lockapp_cw5n1h2txyewy\\lockapp.exe": {
+      "key": "11435904:1794431168",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\explorer.exe": {
+      "key": "3358576:1794431154",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\users\\kemat\\appdata\\local\\python\\pythoncore-3.14-64\\python.exe": {
+      "key": "106328:1767801942",
+      "status": "Valid",
+      "publisher": "Python Software Foundation"
+    },
+    "c:\\windows\\system32\\securityhealthsystray.exe": {
+      "key": "270336:1790205324",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\dllhost.exe": {
+      "key": "93568:1794431141",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "e:\\steamlibrary\\steamapps\\common\\counter-strike global offensive\\game\\bin\\win64\\cs2.exe": {
+      "key": "2968216:1780372292",
+      "status": "Valid",
+      "publisher": "Valve Corp."
+    },
+    "c:\\windows\\system32\\gameinputsvc.exe": {
+      "key": "55168:1763996928",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\winlogon.exe": {
+      "key": "999424:1794431214",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\sihost.exe": {
+      "key": "139264:1794431197",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\dwm.exe": {
+      "key": "126976:1794431147",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\systemapps\\microsoft.windows.startmenuexperiencehost_cw5n1h2txyewy\\startmenuexperiencehost.exe": {
+      "key": "233312:1794431199",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\applicationframehost.exe": {
+      "key": "107560:1794431195",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\audiodg.exe": {
+      "key": "899472:1794431136",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\systemapps\\microsoftwindows.client.cbs_cw5n1h2txyewy\\textinputhost.exe": {
+      "key": "47104:1794431223",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files (x86)\\microsoft\\edge\\application\\msedge.exe": {
+      "key": "5072712:1794578517",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\steammain\\steam.exe": {
+      "key": "5830808:1794535550",
+      "status": "Valid",
+      "publisher": "Valve Corp."
+    },
+    "c:\\windows\\systemapps\\shellexperiencehost_cw5n1h2txyewy\\shellexperiencehost.exe": {
+      "key": "547176:1794431197",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe": {
+      "key": "495616:1794431184",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\smartscreen.exe": {
+      "key": "626688:1794431198",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\servicing\\trustedinstaller.exe": {
+      "key": "286080:1794431206",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\winsxs\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_10.0.19041.6465_none_7e0fb53c7c8be091\\tiworker.exe": {
+      "key": "271768:1762393222",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\claude_1.18286.0.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232441680:1783024978",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\pythonsoftwarefoundation.pythonmanager_26.3.240.0_x64__qbz5n2kfra8p0\\python.exe": {
+      "key": "313856:1782901398",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\windows\\system32\\backgroundtaskhost.exe": {
+      "key": "60768:1791924465",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\claude_1.21459.0.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232441680:1784095104",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26060.3008-0\\msmpeng.exe": {
+      "key": "290704:1783534985",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingservices_37.114.26001.0_x64__8wekyb3d8bbwe\\gamingservices.exe": {
+      "key": "88520:1783541795",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\users\\kemat\\appdata\\roaming\\claude\\claude-code\\2.1.209\\claude.exe": {
+      "key": "251303072:1784095119",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\microsoft.xboxgamingoverlay_7.326.6011.0_x64__8wekyb3d8bbwe\\gamebarftserver.exe": {
+      "key": "1578848:1781715697",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files\\windowsapps\\microsoft.xboxgamingoverlay_7.326.6011.0_x64__8wekyb3d8bbwe\\gamebar.exe": {
+      "key": "17195840:1781715697",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\users\\kemat\\appdata\\local\\programs\\microsoft vs code\\code.exe": {
+      "key": "232750432:1785231100",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "f:\\launcher\\rockstarservice.exe": {
+      "key": "1683576:1784289500",
+      "status": "Valid",
+      "publisher": "Rockstar Games"
+    },
+    "c:\\windows\\system32\\msiexec.exe": {
+      "key": "69632:1720607055",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\rockstar games\\social club\\socialclubhelper.exe": {
+      "key": "2415224:1780921787",
+      "status": "Valid",
+      "publisher": "Rockstar Games"
+    },
+    "c:\\program files (x86)\\common files\\steam\\steamservice.exe": {
+      "key": "2966168:1794535548",
+      "status": "Valid",
+      "publisher": "Valve Corp."
+    },
+    "f:\\launcher\\thirdparty\\crashpad\\rockstarerrorhandler.exe": {
+      "key": "1079704:1784289515",
+      "status": "Valid",
+      "publisher": "Rockstar Games"
+    },
+    "c:\\steammain\\bin\\cef\\cef.win64\\steamwebhelper.exe": {
+      "key": "7515288:1794535552",
+      "status": "Valid",
+      "publisher": "Valve Corp."
+    },
+    "f:\\launcher\\launcher.exe": {
+      "key": "30561400:1784289500",
+      "status": "Valid",
+      "publisher": "Rockstar Games"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26060.3008-0\\nissrv.exe": {
+      "key": "4769792:1783534985",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\windows\\system32\\mousocoreworker.exe": {
+      "key": "1971200:1750601920",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\claude_1.22209.0.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232441680:1784240423",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\claude_1.22209.3.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232441680:1784438075",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\nvidia corporation\\shadowplay\\nvsphelper64.exe": {
+      "key": "843304:1718139188",
+      "status": "Valid",
+      "publisher": "NVIDIA Corporation"
+    },
+    "c:\\program files\\oracle\\virtualbox\\virtualbox.exe": {
+      "key": "2791344:1782483214",
+      "status": "Valid",
+      "publisher": "Oracle America"
+    },
+    "c:\\program files\\windowsapps\\claude_1.24012.1.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232851792:1784707597",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\openai.codex_26.715.10079.0_x64__2p2nqsd0c76g0\\app\\chatgpt.exe": {
+      "key": "4139008:1784819937",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\program files\\riot vanguard\\vgtray.exe": {
+      "key": "7315760:1782357446",
+      "status": "Valid",
+      "publisher": "Riot Games"
+    },
+    "e:\\gta5\\grand theft auto v legacy\\gta5.exe": {
+      "key": "47467128:1784290233",
+      "status": "Valid",
+      "publisher": "Rockstar Games"
+    },
+    "c:\\program files\\windowsapps\\openai.codex_26.721.3404.0_x64__2p2nqsd0c76g0\\app\\chatgpt.exe": {
+      "key": "4139008:1784844426",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\users\\kemat\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe": {
+      "key": "91648:1704067200",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\program files\\nodejs\\node.exe": {
+      "key": "89953280:1768240500",
+      "status": "Valid",
+      "publisher": "OpenJS Foundation"
+    },
+    "c:\\program files\\windowsapps\\openai.codex_26.721.11231.0_x64__2p2nqsd0c76g0\\app\\chatgpt.exe": {
+      "key": "4139008:1784844426",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\program files\\git\\cmd\\git.exe": {
+      "key": "46464:1770913454",
+      "status": "Valid",
+      "publisher": "Johannes Schindelin"
+    },
+    "c:\\program files\\git\\mingw64\\bin\\git.exe": {
+      "key": "4344192:1770913454",
+      "status": "Valid",
+      "publisher": "Johannes Schindelin"
+    },
+    "c:\\program files\\windowsapps\\claude_1.24012.9.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232851792:1784915083",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\openai.codex_26.803.5235.0_x64__2p2nqsd0c76g0\\app\\chatgpt.exe": {
+      "key": "4216624:1786089699",
+      "status": "Valid",
+      "publisher": "OpenAI OpCo"
+    },
+    "c:\\program files\\windowsapps\\claude_1.26832.0.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "232851792:1786089688",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26070.9-0\\nissrv.exe": {
+      "key": "5183648:1785952837",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26070.9-0\\msmpeng.exe": {
+      "key": "291352:1785952837",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\program files\\git\\bin\\bash.exe": {
+      "key": "46992:1770913454",
+      "status": "Valid",
+      "publisher": "Johannes Schindelin"
+    },
+    "c:\\program files\\git\\usr\\bin\\tail.exe": {
+      "key": "56617:1770914890",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\program files (x86)\\asus\\asuscertservice\\1.2.40\\asuscertservice.exe": {
+      "key": "497560:1756914096",
+      "status": "Valid",
+      "publisher": "ASUSTeK COMPUTER INC."
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingapp_2608.1001.17.0_x64__8wekyb3d8bbwe\\xboxpcappft.exe": {
+      "key": "8197944:1785858770",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26070.9-0\\mpdefendercoreservice.exe": {
+      "key": "2113568:1785952837",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\program files (x86)\\msi\\msi center\\mystic light\\mystic_light_service.exe": {
+      "key": "44648:1708508364",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\program files\\microsoft gameinput\\x64\\gameinputredistservice.exe": {
+      "key": "468608:1793160438",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files (x86)\\msi\\msi center\\mystic light\\lightkeeperservice.exe": {
+      "key": "92768:1683706930",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\program files (x86)\\msi\\msi center\\case\\msi_case_service.exe": {
+      "key": "74256:1713173500",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\program files (x86)\\msi\\msi center\\msi_central_service.exe": {
+      "key": "149608:1704444470",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\windows\\system32\\driverstore\\filerepository\\dal.inf_amd64_af50fdb80983f7bc\\jhi_service.exe": {
+      "key": "630280:1689031080",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    "c:\\program files\\jetbrains\\etw host\\16\\jetbrains.etw.collector.host.exe": {
+      "key": "1030544:1785684738",
+      "status": "Valid",
+      "publisher": "JetBrains s.r.o."
+    },
+    "c:\\program files (x86)\\radmin vpn\\rvcontrolsvc.exe": {
+      "key": "1480056:1756829830",
+      "status": "Valid",
+      "publisher": "Famatech Corp."
+    },
+    "c:\\windows\\system32\\driverstore\\filerepository\\mewmiprov.inf_amd64_d51901c26227fb29\\wmiregistrationservice.exe": {
+      "key": "144064:1708559056",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    "c:\\windows\\system32\\dashost.exe": {
+      "key": "200704:1794431180",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingservices_37.114.26001.0_x64__8wekyb3d8bbwe\\gamingservicesnet.exe": {
+      "key": "88520:1783541795",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files (x86)\\msi\\msi center\\msi.centralserver.exe": {
+      "key": "171624:1713353808",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\windows\\system32\\searchprotocolhost.exe": {
+      "key": "782336:1794431227",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\claude_1.26832.0.0_x64__pzs8sxrjxfjjc\\app\\resources\\cowork-svc.exe": {
+      "key": "12679504:1786089729",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files (x86)\\msi\\msi center\\msi.terminalserver.exe": {
+      "key": "110696:1712601034",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\windows\\helppane.exe": {
+      "key": "1065984:1750601950",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\securityhealthservice.exe": {
+      "key": "157592:1794431226",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windows media player\\wmpnetwk.exe": {
+      "key": "917504:1794431216",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\oobe\\useroobebroker.exe": {
+      "key": "110592:1794431182",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\daemon tools lite\\dtshellhlp.exe": {
+      "key": "3731792:1713646789",
+      "status": "Valid",
+      "publisher": "AVB Disc Soft"
+    },
+    "c:\\users\\kemat\\appdata\\local\\programs\\opera gx\\133.0.5932.109\\opera_crashreporter.exe": {
+      "key": "3500488:1785762059",
+      "status": "Valid",
+      "publisher": "Opera Norway AS"
+    },
+    "c:\\windows\\system32\\rundll32.exe": {
+      "key": "89600:1750601929",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\comppkgsrv.exe": {
+      "key": "215040:1715719902",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\programy\\driver booster\\pub\\imsctadn.exe": {
+      "key": "2156352:1714384271",
+      "status": "Valid",
+      "publisher": "IObit CO."
+    },
+    "c:\\programy\\advanced systemcare\\ascservice.exe": {
+      "key": "1857240:1760099730",
+      "status": "Valid",
+      "publisher": "IObit CO."
+    },
+    "c:\\program files (x86)\\microsoft\\edge\\application\\151.0.4129.72\\elevation_service.exe": {
+      "key": "3856200:1786026086",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files (x86)\\msi\\msi center\\mystic light\\ledkeeper2.exe": {
+      "key": "2686056:1716570068",
+      "status": "Valid",
+      "publisher": "MICRO-STAR INTERNATIONAL CO."
+    },
+    "c:\\windows\\immersivecontrolpanel\\systemsettings.exe": {
+      "key": "165888:1794431165",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\daemon tools lite\\discsoftbusservicelite.exe": {
+      "key": "4974416:1713646789",
+      "status": "Valid",
+      "publisher": "AVB Disc Soft"
+    },
+    "c:\\program files\\git\\usr\\bin\\bash.exe": {
+      "key": "2553064:1770914870",
+      "status": "Valid",
+      "publisher": "Johannes Schindelin"
+    },
+    "c:\\program files\\windowsapps\\openai.codex_26.803.5235.0_x64__2p2nqsd0c76g0\\app\\resources\\codex.exe": {
+      "key": "293478192:1786090086",
+      "status": "Valid",
+      "publisher": "OpenAI OpCo"
+    },
+    "c:\\windows\\system32\\searchfilterhost.exe": {
+      "key": "577536:1794431227",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\driverstore\\filerepository\\nvmd.inf_amd64_ffd9a18b05442e28\\display.nvcontainer\\nvdisplay.container.exe": {
+      "key": "1702632:1786007360",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Hardware Compatibility Publisher"
+    },
+    "c:\\program files\\windowsapps\\claude_5.11492.5.0_x64__pzs8sxrjxfjjc\\app\\claude.exe": {
+      "key": "249955664:1794657048",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26100.4-0\\mpdefendercoreservice.exe": {
+      "key": "2386280:1793193654",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26100.4-0\\msmpeng.exe": {
+      "key": "378128:1793193654",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\windows\\system32\\aggregatorhost.exe": {
+      "key": "319488:1794431210",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\syswow64\\wbem\\wmiprvse.exe": {
+      "key": "454656:1794431215",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\windows\\system32\\wlanext.exe": {
+      "key": "151552:1794431215",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingservices_39.118.30001.0_x64__8wekyb3d8bbwe\\gamingservicesnet.exe": {
+      "key": "88520:1793889509",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingservices_39.118.30001.0_x64__8wekyb3d8bbwe\\gamingservices.exe": {
+      "key": "88520:1793889509",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\programdata\\microsoft\\windows defender\\platform\\4.18.26100.4-0\\nissrv.exe": {
+      "key": "5609240:1793193654",
+      "status": "Valid",
+      "publisher": "Microsoft Windows Publisher"
+    },
+    "c:\\program files\\windowsapps\\claude_5.11492.5.0_x64__pzs8sxrjxfjjc\\app\\resources\\cowork-svc.exe": {
+      "key": "13727056:1794657055",
+      "status": "Valid",
+      "publisher": "Anthropic"
+    },
+    "c:\\program files\\windowsapps\\microsoft.widgetsplatformruntime_1.6.19.0_x64__8wekyb3d8bbwe\\widgetservice\\widgetservice.exe": {
+      "key": "218624:1790204066",
+      "status": "NotSigned",
+      "publisher": ""
+    },
+    "c:\\program files (x86)\\microsoft\\edgewebview\\application\\157.0.4341.46\\msedgewebview2.exe": {
+      "key": "4532040:1794081165",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\windows\\systemapps\\microsoftwindows.client.cbs_cw5n1h2txyewy\\searchhost.exe": {
+      "key": "57856:1794431222",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\users\\kemat\\appdata\\local\\programs\\opera gx\\138.0.6044.65\\opera_crashreporter.exe": {
+      "key": "3827656:1793712798",
+      "status": "Valid",
+      "publisher": "Opera Norway AS"
+    },
+    "c:\\windows\\system32\\cmd.exe": {
+      "key": "339968:1794431141",
+      "status": "Valid",
+      "publisher": "Microsoft Windows"
+    },
+    "c:\\program files\\windowsapps\\microsoft.xboxgamingoverlay_7.326.11042.0_x64__8wekyb3d8bbwe\\gamebarftserver.exe": {
+      "key": "1620320:1794527752",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingapp_2612.1001.23.0_x64__8wekyb3d8bbwe\\xboxpcappft.exe": {
+      "key": "7053672:1794479999",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files\\windowsapps\\microsoft.xboxgamingoverlay_7.326.11042.0_x64__8wekyb3d8bbwe\\gamebar.exe": {
+      "key": "17543488:1794527751",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\program files\\windowsapps\\microsoft.gamingapp_2612.1001.25.0_x64__8wekyb3d8bbwe\\xboxpcappft.exe": {
+      "key": "7051584:1794697616",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    },
+    "c:\\users\\kemat\\appdata\\local\\programs\\opera gx\\139.0.6053.63\\opera_crashreporter.exe": {
+      "key": "3883976:1794836033",
+      "status": "Valid",
+      "publisher": "Opera Norway AS"
+    },
+    "c:\\program files\\windowsapps\\microsoft.windowsnotepad_11.2609.11.0_x64__8wekyb3d8bbwe\\notepad\\notepad.exe": {
+      "key": "3212128:1794527749",
+      "status": "Valid",
+      "publisher": "Microsoft Corporation"
+    }
+  }
+}

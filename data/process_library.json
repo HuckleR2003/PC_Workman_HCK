@@ -253,7 +253,7 @@
     "name": "Runtime Broker",
     "vendor": "Microsoft Corporation",
     "category": "system",
-    "description": "Manages permissions for UWP apps. High RAM = app permission bug.",
+    "description": "Checks what Store apps are allowed to reach, such as the camera, microphone and files. Spikes briefly when an app asks for a permission; sustained high memory usually means one app is asking in a loop.",
     "power_usage": "low",
     "safety": "safe",
     "typical_cpu": "0-3%",
@@ -5208,5 +5208,25 @@
     "safety": "safe",
     "typical_cpu": "0-15%",
     "typical_ram": "100-500MB"
+  },
+  "taskhostex.exe": {
+    "name": "Windows Task Host",
+    "vendor": "Microsoft Corporation",
+    "category": "system",
+    "description": "Runs scheduled tasks that live in a DLL rather than in their own program. Windows 8 and 8.1 only; on Windows 10 and 11 the same job is done by taskhostw.exe.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "0-2%",
+    "typical_ram": "5-30MB"
+  },
+  "pc workman hck.exe": {
+    "name": "PC Workman HCK",
+    "vendor": "",
+    "category": "utility",
+    "description": "PC Workman itself (HCK_Labs): system monitor with an offline assistant. Records CPU, RAM and GPU history and learns what is normal for this PC.",
+    "power_usage": "low",
+    "safety": "safe",
+    "typical_cpu": "1-4%",
+    "typical_ram": "150-300MB"
   }
 }
