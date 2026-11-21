@@ -22,9 +22,16 @@ from hck_gpt.responses.r_performance import PerformanceResponses
 from hck_gpt.responses.r_insights import InsightsResponses
 from hck_gpt.responses.r_assistant import AssistantResponses
 from hck_gpt.responses.r_conversation import ConversationResponses
+from hck_gpt.responses.r_everyday2 import MoreEverydayResponses
+from hck_gpt.responses.r_insight import InsightResponses
+from hck_gpt.responses.r_followup import FollowupResponses
+from hck_gpt.responses.r_meta import MetaResponses
+from hck_gpt.responses.r_features import FeatureResponses
+from hck_gpt.responses.r_everyday import EverydayResponses
+from hck_gpt.responses.r_network import NetworkResponses
 
 
-class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, GamingResponses, SystemResponses, PerformanceResponses, InsightsResponses, ConversationResponses, AssistantResponses):
+class ResponseBuilder(NetworkResponses, HardwareResponses, UpgradeResponses, ThermalResponses, GamingResponses, SystemResponses, PerformanceResponses, InsightsResponses, ConversationResponses, AssistantResponses, EverydayResponses, MoreEverydayResponses, InsightResponses, FollowupResponses, MetaResponses, FeatureResponses):
     """Builds bilingual responses for every parsed intent (109 handlers)."""
 
     """
@@ -62,6 +69,7 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         vocabulary intents always reach their dedicated handlers.
         """
         intent  = self._INTENT_ALIASES.get(result.intent, result.intent)
+        intent  = self._redirect(intent, result.raw_text or "")
         handler = getattr(self, f"_resp_{intent}", None)
         if handler is None:
             return None
@@ -103,14 +111,58 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
             print(f"[builder] _resp_{intent} raised: {_e}")
             return None
 
+    # Exact vocabulary phrases that ask for a different answer than their
+    # intent gives (2026-11-17). The vocabulary itself stays as it is: it
+    # trains the classifier, and changing it moved unrelated phrases.
+    _REDIRECTS = (
+        ("disk_speed", ("wyczysc", "wyczyść", "pełny", "pelny", "miejsc", "clean"), "free_space"),
+        ("unnecessary_programs", ("usług", "uslug", "service"), "services_advice"),
+    )
+
+    # conversation control keeps its own answer; anything else that asks for
+    # a conclusion gets the insight answer (2026-11-17)
+    _KEEP_INTENT = frozenset({
+        "verify_after_action", "decline_advice", "correct_subject",
+        "explain_previous_advice", "compare_after_change", "explain_confidence",
+        "upgrade_budget", "upgrade_workload", "desktop_recurrence",
+        "optimize_guide", "tuneup_guide", "how_to", "will_it_help",
+        "observe_start", "observe_stop", "data_export_run",
+    })
+
+    @classmethod
+    def _redirect(cls, intent: str, raw: str) -> str:
+        low = raw.lower()
+        for src, words, dst in cls._REDIRECTS:
+            if intent == src and any(w in low for w in words):
+                return dst
+        if intent not in cls._KEEP_INTENT:
+            try:
+                from hck_gpt.intents.insight_rules import route_insight
+                better = route_insight(raw)
+                if better and better != intent:
+                    return better
+            except Exception:
+                pass
+        return intent
+
     # Intents whose answers carry no recallable data - keep the ledger clean.
     _NO_LEDGER = frozenset({
         "greeting", "small_talk", "thanks", "help", "about_program",
         "about_author", "fun_roast", "recall_numbers", "privacy_data",
         "correct_subject", "explain_previous_advice", "verify_after_action",
+        "reaction", "about_assistant", "website", "version_check",
         "compare_after_change", "continue_diagnosis", "decline_advice",
         "explain_confidence", "compat_missing_details", "upgrade_budget",
         "upgrade_workload", "desktop_recurrence",
+        "language_change", "backup_where", "vague_problem", "where_page",
+        "dust_cleaning", "audio_crackle", "windows_update_off",
+        "files_access", "data_stored", "what_remembered", "virus_capability",
+        "defender_enough", "signed_trust", "pc_tired", "idle_activity",
+        "watching", "likes_job", "how_to", "observe_howto", "observe_start",
+        "observe_stop", "learning_eta", "lhm_help", "project_status",
+        "presence", "meta_feedback", "compliment", "error_help", "data_export",
+        "data_export_run", "data_reset", "feature_info", "app_capabilities",
+        "network_slow", "gpu_overclock", "joke", "recent_events",
     })
 
     @staticmethod
@@ -303,16 +355,9 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
         except Exception:
             return "unknown"
 
-    _BACKGROUND_BLOAT = {
-        "epicgameslauncher.exe", "battlenet.exe", "ubisoft connect.exe",
-        "gog galaxy.exe", "ea app.exe", "rockstarlauncher.exe",
-        "nvidiaSharecontainer.exe", "adobeupdateservice.exe",
-        "adobearm.exe", "acrobat.exe", "creativeclouduis.exe",
-        "ccleaner64.exe", "ccleanermonitor.exe",
-        "microsoftedgeupdate.exe", "googleupdater.exe",
-        "onedrive.exe", "dropbox.exe", "skype.exe",
-        "cortana.exe", "microsoftedgewebview2.exe",
-    }
+    # one list with the Process Center (core/recommendations, 2026-11-20);
+    # the old copy had "nvidiaSharecontainer.exe" in mixed case, never matched
+    from core.recommendations import BACKGROUND_OPTIONAL as _BACKGROUND_BLOAT
 
     _KNOWN_PROCS = {
         "svchost.exe": ("Svchost.exe to kontener systemowy - odpala wiele usług Windows jednocześnie. To normalne że jest ich kilka.",
@@ -586,26 +631,26 @@ class ResponseBuilder(HardwareResponses, UpgradeResponses, ThermalResponses, Gam
                              name=f"hck_microbench_{bench_type}").start()
 
     _GAME_DB: dict = {
-        "cs2":          {"name": "CS2",              "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
-        "csgo":         {"name": "CS:GO / CS2",      "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
-        "counter-strike":{"name":"CS2",              "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
-        "fortnite":     {"name": "Fortnite",         "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 40,  "cpu_note": "i5-7300U / Ryzen 3 3300U"},
-        "cyberpunk":    {"name": "Cyberpunk 2077",   "ram_min": 12, "ram_rec": 16, "vram_min": 8, "disk_gb": 70,  "cpu_note": "i7-6700 / Ryzen 5 1600"},
-        "hogwarts":     {"name": "Hogwarts Legacy",  "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 85,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
-        "minecraft":    {"name": "Minecraft Java",   "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 4,   "cpu_note": "any modern dual-core"},
-        "gta":          {"name": "GTA V",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 90,  "cpu_note": "i5-3470 / FX-8350"},
-        "gta5":         {"name": "GTA V",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 90,  "cpu_note": "i5-3470 / FX-8350"},
-        "valorant":     {"name": "Valorant",         "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 22,  "cpu_note": "i3-4150 / Ryzen 3 1200"},
-        "elden ring":   {"name": "Elden Ring",       "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
-        "eldenring":    {"name": "Elden Ring",       "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
-        "witcher":      {"name": "The Witcher 3",    "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i5-2500K / FX-8350"},
-        "apex":         {"name": "Apex Legends",     "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 60,  "cpu_note": "i5-3570T / FX-4170"},
-        "warzone":      {"name": "Warzone",          "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 125, "cpu_note": "i5-2500K / Ryzen 5 1600X"},
-        "overwatch":    {"name": "Overwatch 2",      "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i7-4770 / Ryzen 5 1600"},
-        "league":       {"name": "League of Legends","ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 20,  "cpu_note": "any dual-core 2GHz+"},
-        "roblox":       {"name": "Roblox",           "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 2,   "cpu_note": "any dual-core"},
-        "battlefield":  {"name": "Battlefield 2042", "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 100, "cpu_note": "i7-4790 / Ryzen 7 3700X"},
-        "stray":        {"name": "Stray",            "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 10,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
+        "cs2":          {"name": "CS2",              "gpu_high": 100, "ram_min": 8,  "ram_rec": 16, "vram_min": 1, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "csgo":         {"name": "CS:GO / CS2",      "gpu_high": 100, "ram_min": 8,  "ram_rec": 16, "vram_min": 1, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "counter-strike":{"name":"CS2",              "gpu_high": 100, "ram_min": 8,  "ram_rec": 16, "vram_min": 1, "disk_gb": 85,  "cpu_note": "i5-6600K / Ryzen 5 1600"},
+        "fortnite":     {"name": "Fortnite",         "gpu_high": 110, "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 40,  "cpu_note": "i5-7300U / Ryzen 3 3300U"},
+        "cyberpunk":    {"name": "Cyberpunk 2077",   "gpu_high": 200, "ram_min": 12, "ram_rec": 16, "vram_min": 8, "disk_gb": 70,  "cpu_note": "i7-6700 / Ryzen 5 1600"},
+        "hogwarts":     {"name": "Hogwarts Legacy",  "gpu_high": 190, "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 85,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
+        "minecraft":    {"name": "Minecraft Java",   "gpu_high": 40,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 4,   "cpu_note": "any modern dual-core"},
+        "gta":          {"name": "GTA V",            "gpu_high": 90,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 110,  "cpu_note": "i5-3470 / FX-8350"},
+        "gta5":         {"name": "GTA V",            "gpu_high": 90,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 110,  "cpu_note": "i5-3470 / FX-8350"},
+        "valorant":     {"name": "Valorant",         "gpu_high": 45,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 22,  "cpu_note": "i3-4150 / Ryzen 3 1200"},
+        "elden ring":   {"name": "Elden Ring",       "gpu_high": 150, "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
+        "eldenring":    {"name": "Elden Ring",       "gpu_high": 150, "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 60,  "cpu_note": "i5-8600K / Ryzen 5 3600"},
+        "witcher":      {"name": "The Witcher 3",    "gpu_high": 120, "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i5-2500K / FX-8350"},
+        "apex":         {"name": "Apex Legends",     "gpu_high": 120, "ram_min": 8,  "ram_rec": 16, "vram_min": 2, "disk_gb": 60,  "cpu_note": "i5-3570T / FX-4170"},
+        "warzone":      {"name": "Warzone",          "gpu_high": 160, "ram_min": 12, "ram_rec": 16, "vram_min": 4, "disk_gb": 125, "cpu_note": "i5-2500K / Ryzen 5 1600X"},
+        "overwatch":    {"name": "Overwatch 2",      "gpu_high": 100, "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 50,  "cpu_note": "i7-4770 / Ryzen 5 1600"},
+        "league":       {"name": "League of Legends","gpu_high": 30,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 20,  "cpu_note": "any dual-core 2GHz+"},
+        "roblox":       {"name": "Roblox",           "gpu_high": 30,  "ram_min": 4,  "ram_rec": 8,  "vram_min": 1, "disk_gb": 2,   "cpu_note": "any dual-core"},
+        "battlefield":  {"name": "Battlefield 2042", "gpu_high": 180, "ram_min": 16, "ram_rec": 16, "vram_min": 8, "disk_gb": 100, "cpu_note": "i7-4790 / Ryzen 7 3700X"},
+        "stray":        {"name": "Stray",            "gpu_high": 110, "ram_min": 8,  "ram_rec": 16, "vram_min": 4, "disk_gb": 10,  "cpu_note": "i7-8700 / Ryzen 5 3600"},
     }
 
     _GREET_INTROS_PL = [

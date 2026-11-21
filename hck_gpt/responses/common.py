@@ -65,7 +65,7 @@ _FOLLOWUPS: dict[str, dict[str, list[str]]] = {
         "pl": [
             "  💬 Napisz 'top procesy' by zobaczyć co obciąża CPU",
             "  💬 Wpisz 'temperatury' jeśli coś grzeje za mocno",
-            "  💬 Sprawdź 'wydajność' po zmknięciu zbędnych programów",
+            "  💬 Sprawdź 'wydajność' po zamknięciu zbędnych programów",
             "  💬 Zapytaj 'dlaczego jest wolno' jeśli coś nie gra",
         ],
         "en": [

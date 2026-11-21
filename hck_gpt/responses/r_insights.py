@@ -115,8 +115,9 @@ class InsightsResponses:
         # ── 3. Current power plan ─────────────────────────────────────────────
         try:
             import subprocess
+            from utils.oem import OEM_ENCODING
             rp = subprocess.run(["powercfg", "/getactivescheme"],
-                                capture_output=True, text=True, errors="replace", timeout=3)
+                                capture_output=True, text=True, encoding=OEM_ENCODING, errors="replace", timeout=3)
             ln = rp.stdout.strip()
             plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else ""
             if plan:
@@ -197,10 +198,17 @@ class InsightsResponses:
                     f"{self.PREFIX} Performance change since last session:")]
 
         if not today or not yest:
-            lines.append(_t(lang,
-                            "  Za mało danych - potrzebuję minimum 2 dni historii.",
-                            "  Not enough data - need at least 2 days of history."))
-            return lines
+            # two full daily rows are not there yet, the minute history is:
+            # compare today with yesterday from it (2026-11-17)
+            try:
+                return self._resp_history_compare_days(r, lang) + [_t(lang,
+                    "  Co doszło od wczoraj (nowe procesy, autostart): 'co się zmieniło'.",
+                    "  What is new since yesterday (processes, startup): 'what changed'.")]
+            except Exception:
+                lines.append(_t(lang,
+                                "  Za mało danych - potrzebuję minimum 2 dni historii.",
+                                "  Not enough data - need at least 2 days of history."))
+                return lines
 
         cpu_t = today.get("cpu_avg") or 0
         cpu_y = yest.get("cpu_avg")  or 0

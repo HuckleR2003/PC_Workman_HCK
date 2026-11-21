@@ -12,6 +12,16 @@ from hck_gpt.responses.common import (  # shared helpers/data
 )
 
 
+def _console_text(raw: bytes) -> str:
+    """Decode output of a Windows console tool (OEM code page)."""
+    try:
+        import ctypes
+        cp = ctypes.windll.kernel32.GetOEMCP()
+        return raw.decode(f"cp{cp}", errors="replace")
+    except Exception:
+        return raw.decode("utf-8", errors="replace")
+
+
 class PerformanceResponses:
     def _resp_performance(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.context.system_context import system_context
@@ -107,6 +117,7 @@ class PerformanceResponses:
         lines.append(_t(lang,
             "  💬 Wpisz 'przyspiesz komputer' po spersonalizowany plan optymalizacji",
             "  💬 Type 'speed up pc' for a personalised optimisation plan"))
+        lines.append("§OFFER optimize")
         return lines
 
     def _resp_speed_up_pc(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -131,12 +142,23 @@ class PerformanceResponses:
             recs.append(_t(lang,
                 f"  · RAM: {profile['ram_gb']:.0f} GB - realne wąskie gardło przy dzisiejszych obciążeniach. Priorytet 1:",
                 f"  · RAM: {profile['ram_gb']:.0f} GB - a real bottleneck under today's workloads. Priority 1:"))
-            recs.append(_t(lang,
-                "     Zamknij browser gdy nieużywany (~3–4 GB odzysk)",
-                "     Close browser when idle (~3–4 GB recovered)"))
-            recs.append(_t(lang,
-                "     lub dodaj Pamięć Wirtualną  [-> Virtual Memory]",
-                "     or add Virtual Memory  [-> Virtual Memory]"))
+            # what the browser holds right now, not a "~3-4 GB" guess
+            # (2026-11-17)
+            top, _comp = self._ram_by_app(8)
+            br = [(n, mb) for n, mb in top
+                  if any(n.lower().startswith(k) for k in self._BROWSERS)]
+            if br and br[0][1] >= 400:
+                recs.append(_t(lang,
+                    f"     Zamknij przeglądarkę, gdy jej nie używasz ({br[0][0]} trzyma teraz "
+                    f"{self._mb_text(br[0][1])})",
+                    f"     Close the browser when idle ({br[0][0]} holds "
+                    f"{self._mb_text(br[0][1])} now)"))
+            try:
+                from core.pagefile import describe
+                _vm = describe(lang)
+            except Exception:
+                _vm = _t(lang, "Pamięć wirtualna", "Virtual memory")
+            recs.append(f"     {_vm}  [-> Virtual Memory]")
 
         # HDD - drastically different optimization path
         if profile["is_hdd"]:
@@ -153,12 +175,17 @@ class PerformanceResponses:
         # Power plan
         try:
             rp = subprocess.run(["powercfg", "/getactivescheme"],
-                                capture_output=True, text=True, errors="replace", timeout=3)
-            ln = rp.stdout.strip()
+                                capture_output=True, timeout=3,
+                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            # powercfg writes in the console code page (cp852 on Polish
+            # Windows): read as cp1250 it gave "Zr˘wnowaľony" (2026-11-17)
+            ln = _console_text(rp.stdout).strip()
             plan = ln[ln.rfind("(")+1:ln.rfind(")")] if "(" in ln else "Unknown"
-            if "High Performance" not in plan and "Ultimate" not in plan:
+            _fast = ("high performance", "ultimate", "wysoka wydajno", "najwyższa wydajno",
+                     "maksymalna wydajno")
+            if not any(k in plan.lower() for k in _fast):
                 recs.append(_t(lang,
-                    f"  · Plan zasilania: {plan}  ->  zmień na High Performance",
+                    f"  · Plan zasilania: {plan}  ->  zmień na Wysoka wydajność",
                     f"  · Power plan: {plan}  ->  switch to High Performance"))
         except Exception:
             pass
@@ -232,13 +259,9 @@ class PerformanceResponses:
                 "  ✓ System wygląda dobrze - nie ma oczywistych usprawnień.",
                 "  ✓ System looks clean - no obvious wins found."))
 
-        recs.append(_t(lang,
-            "  Wolisz, żebym Cię poprowadził? Pełny przewodnik krok po kroku "
-            "z pomiarem przed/po - napisz: zoptymalizuj komputer.",
-            "  Prefer to be guided? Full step-by-step walkthrough with "
-            "before/after measurements - type: optimize my pc."))
-
-        return [header] + recs
+        # the guide is offered at the very end, highlighted, with a button
+        # that starts it (2026-11-17)
+        return [header] + recs + ["§OFFER optimize"]
 
     def _resp_turbo_boost(self, r: ParseResult, lang: str = "pl") -> List[str]:
         if lang == "en":
@@ -278,30 +301,12 @@ class PerformanceResponses:
         except (TypeError, ValueError):
             gpu = -1
 
-        # Pull top 3 CPU hogs live
-        top_procs: list[str] = []
-        try:
-            import psutil
-            raw = []
-            for p in psutil.process_iter(["name", "cpu_percent", "memory_percent"]):
-                try:
-                    raw.append(p)
-                    if len(raw) >= 64:
-                        break
-                except Exception:
-                    continue
-            sorted_procs = sorted(raw, key=lambda p: p.info.get("cpu_percent", 0) or 0, reverse=True)
-            for p in sorted_procs:
-                name_raw = p.info.get("name") or "?"
-                if name_raw.lower() in _IDLE_PROC_NAMES:
-                    continue   # never blame System Idle Process
-                pct = p.info.get("cpu_percent", 0) or 0
-                if pct > 0.5:
-                    top_procs.append(f"{name_raw[:24]} ({pct:.0f}%)")
-                if len(top_procs) >= 3:
-                    break
-        except Exception:
-            pass
+        # Top 3 CPU users, measured over half a second across ALL processes
+        # and shown as a share of the whole CPU. 2026-11-17: the old list
+        # read the first 64 processes with no measuring window, so it blamed
+        # "System" (the kernel) and missed the real user.
+        top_procs: list[str] = [
+            f"{n[:24]} ({pct:.0f}%)" for n, pct in self._cpu_by_app(3) if pct >= 1.0]
 
         reasons: list[str] = []
 
@@ -370,7 +375,7 @@ class PerformanceResponses:
                     lines.append("  I saved that this happens while gaming; this diagnosis stays attached to that context.")
             if top_procs:
                 lines.append(f"  Top processes: {',  '.join(top_procs)}")
-            lines.append("  💬 Type 'top processes' for the full list, or 'tune up my pc' for the 5-step guided fix  [-> Optimization]")
+            lines.append("  💬 Full list of processes: type 'top processes'.  ·  Tools: [-> Optimization]")
         else:
             header = f"{self.PREFIX} Lagi potrafią zirytować - spokojnie, znajdziemy winowajcę razem. Sprawdzam na żywo:"
             lines  = [header]
@@ -398,7 +403,7 @@ class PerformanceResponses:
                     lines.append("  Zapisałem, że dzieje się to podczas grania; dalsza diagnoza zostaje w tym kontekście.")
             if top_procs:
                 lines.append(f"  Winowajcy: {',  '.join(top_procs)}")
-            lines.append("  💬 Wpisz 'top procesy' po pełną listę, albo 'zoptymalizuj komputer' - poprowadzę Cię w 5 krokach  [-> Optimization]")
+            lines.append("  💬 Pełna lista procesów: wpisz 'top procesy'.  ·  Narzędzia: [-> Optimization]")
 
         # ── session reference - link to previously shown RAM spec ───
         ram_sess = session_memory.get_response_data("hw_ram")
@@ -424,6 +429,9 @@ class PerformanceResponses:
                 asked_key, goal="diagnose", intent="why_slow",
             )
 
+        # the guide offer goes last, highlighted, with its own button
+        # (2026-11-17; it used to sit mid-answer as plain text)
+        lines.append("§OFFER optimize")
         return lines
 
     def _resp_ram_why_high(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -439,106 +447,166 @@ class PerformanceResponses:
         used = snap.get("ram_used_gb", "?")
         free = snap.get("ram_free_gb", "?")
 
-        # Top RAM consumers
-        top_ram: list[str] = []
-        try:
-            import psutil
-            raw = []
-            for p in psutil.process_iter(["name", "memory_percent"]):
-                try:
-                    raw.append(p)
-                    if len(raw) >= 64:
-                        break
-                except Exception:
-                    continue
-            sorted_procs = sorted(raw, key=lambda p: p.info.get("memory_percent", 0) or 0, reverse=True)
-            for p in sorted_procs[:3]:
-                name = (p.info.get("name") or "?")[:24]
-                pct  = p.info.get("memory_percent", 0) or 0
-                if pct > 0.3:
-                    top_ram.append(f"{name} ({pct:.1f}%)")
-        except Exception:
-            pass
-
         # ── get typical avg from session data or patterns ───────────
-        ram_sess  = session_memory.get_response_data("hw_ram")
-        typ_avg   = ram_sess.get("typical_avg")
+        # the 7-day average from the history first, the same number the
+        # guide's component check shows (2026-11-17: 73% here, 82% there)
+        typ_avg = None
+        try:
+            import time as _time
+            from hck_stats_engine import history as _hist
+            _st = _hist.stats("ram", _time.time() - 7 * 86400, _time.time())
+            if _st.get("has_data") and _st.get("recorded_hours", 0) >= 1:
+                typ_avg = _st["avg"]
+        except Exception:
+            typ_avg = None
+        if typ_avg is None:
+            ram_sess  = session_memory.get_response_data("hw_ram")
+            typ_avg   = ram_sess.get("typical_avg")
         if typ_avg is None:
             patterns = user_knowledge.get_all_patterns()
             typ_avg  = patterns.get("typical_ram_avg")
 
-        if lang == "en":
-            header = (
-                f"{self.PREFIX} Why is RAM high - {ram:.0f}%"
-                f" ({used} GB used / {free} GB free):"
-            )
-            lines = [header]
+        # 2026-11-17: the version below replaces the old one for both
+        # languages. The old list read only the first 64 processes, so in the
+        # long test it blamed explorer.exe (2.2%) while Opera held 1.2 GB,
+        # and it named "browser tabs" without looking.
+        return self._ram_why_high_v2(ram, used, free, profile, typ_avg, lang)
 
-            # ── low-RAM context ─────────────────────────────────────
-            if profile["ram_low"]:
-                lines.append(
-                    f"  ⚠ You only have {profile['ram_gb']:.0f} GB total - "
-                    f"{ram:.0f}% means only ~{free} GB breathing room."
-                )
+    _BROWSERS = {"chrome": "Chrome", "msedge": "Edge", "firefox": "Firefox",
+                 "opera": "Opera", "brave": "Brave", "vivaldi": "Vivaldi"}
+    _NOT_PROGRAMS = {"memcompression", "memory compression", "system", "registry",
+                     "system idle process", "idle"}
 
-            if top_ram:
-                lines.append(f"  Top consumers: {',  '.join(top_ram)}")
+    @staticmethod
+    def _ram_by_app(n: int = 3):
+        """[(name, MB)] of the programs holding the most memory, every
+        process counted and grouped by name, plus Windows' compressed memory
+        (MemCompression) in MB, reported apart because it is not a program."""
+        acc, comp = {}, 0.0
+        try:
+            import psutil
+            for p in psutil.process_iter(["name", "memory_info"]):
+                try:
+                    nm = (p.info.get("name") or "").rsplit(".exe", 1)[0]
+                    mi = p.info.get("memory_info")
+                    if not nm or mi is None:
+                        continue
+                    mb = mi.rss / 1024 ** 2
+                    if nm.lower() in ("memcompression", "memory compression"):
+                        comp += mb
+                        continue
+                    if nm.lower() in PerformanceResponses._NOT_PROGRAMS:
+                        continue
+                    acc[nm] = acc.get(nm, 0.0) + mb
+                except Exception:
+                    continue
+        except Exception:
+            return [], 0.0
+        return sorted(acc.items(), key=lambda kv: -kv[1])[:n], comp
 
-            # ── delta vs typical ────────────────────────────────────
-            if typ_avg:
-                delta_str = _delta_label(ram, typ_avg, "en")
-                if delta_str:
-                    lines.append(f"  Context: {delta_str}")
+    @staticmethod
+    def _cpu_by_app(n: int = 3, window: float = 0.5):
+        """[(name, % of the whole CPU)] over a short window, grouped by name;
+        kernel and idle entries left out. Runs on the chat's worker thread."""
+        import time as _time
+        try:
+            import psutil
+            ncpu = psutil.cpu_count() or 1
+            procs = []
+            for p in psutil.process_iter(["name"]):
+                try:
+                    p.cpu_percent(None)
+                    procs.append(p)
+                except Exception:
+                    continue
+            _time.sleep(window)
+            acc = {}
+            for p in procs:
+                try:
+                    nm = (p.info.get("name") or "").rsplit(".exe", 1)[0]
+                    if not nm or nm.lower() in PerformanceResponses._NOT_PROGRAMS                             or nm.lower() in _IDLE_PROC_NAMES or nm.lower() == "interrupts":
+                        continue
+                    acc[nm] = acc.get(nm, 0.0) + p.cpu_percent(None) / ncpu
+                except Exception:
+                    continue
+            return sorted(acc.items(), key=lambda kv: -kv[1])[:n]
+        except Exception:
+            return []
 
-            if ram > 90:
-                lines.append("  ⚠ Critical - system is likely using pagefile (slow disk swapping).")
-                lines.append("  Fix: close unused apps  [-> Optimization]")
-                if profile["is_hdd"]:
-                    lines.append("  ⚠ HDD detected - pagefile on HDD is very slow. Consider Virtual Memory on faster drive  [-> Virtual Memory]")
-            elif ram > 75:
-                lines.append("  High but manageable. Browser tabs are usually the main cause.")
-                lines.append("  Reduce background apps  [-> Optimization]  ·  or add swap  [-> Virtual Memory]")
-                if profile["ram_low"]:
-                    lines.append(f"  Long-term: {profile['ram_gb']:.0f} GB is limiting - more RAM would help.")
+    @staticmethod
+    def _mb_text(mb: float) -> str:
+        return f"{mb / 1024:.1f} GB" if mb >= 1024 else f"{mb:.0f} MB"
+
+    def _ram_why_high_v2(self, ram, used, free, profile, typ_avg, lang):
+        """RAM answer in two parts (2026-11-17): what holds the memory and
+        how it compares, then - after a short pause - quick steps: free it,
+        virtual memory as it is now, more RAM if this PC has little."""
+        pl = lang != "en"
+        top, comp = self._ram_by_app(3)
+        lines = [_t(lang,
+            f"{self.PREFIX} Dlaczego RAM wysoki - {ram:.0f}% ({used} GB zajęte / {free} GB wolne):",
+            f"{self.PREFIX} Why is RAM high - {ram:.0f}% ({used} GB used / {free} GB free):")]
+        if profile["ram_low"]:
+            lines.append(_t(lang,
+                f"  ⚠ Masz tylko {profile['ram_gb']:.0f} GB - przy {ram:.0f}% zostaje ~{free} GB na resztę.",
+                f"  ⚠ You have only {profile['ram_gb']:.0f} GB - at {ram:.0f}% about {free} GB is left."))
+        if top:
+            lines.append(_t(lang, "  Najwięcej trzymają: ", "  Holding the most: ")
+                         + ",  ".join(f"{n} {self._mb_text(mb)}" for n, mb in top))
+        if comp >= 300:
+            lines.append(_t(lang,
+                f"  (MemCompression {self._mb_text(comp)} to pamięć skompresowana przez Windows, nie program)",
+                f"  (MemCompression {self._mb_text(comp)} is memory Windows compressed, not a program)"))
+
+        lines.append("")
+        if typ_avg:
+            delta_str = _delta_label(ram, typ_avg, lang)
+            if delta_str:
+                lines.append(_t(lang, f"  Kontekst: {delta_str}", f"  Context: {delta_str}"))
+        lead = top[0] if top else None
+        lead_browser = None
+        if lead:
+            lead_browser = next((v for k, v in self._BROWSERS.items()
+                                 if lead[0].lower().startswith(k)), None)
+        if ram > 90:
+            lines.append(_t(lang,
+                "  ⚠ Krytycznie: Windows przenosi już pamięć na dysk, stąd spowolnienia.",
+                "  ⚠ Critical: Windows is already moving memory to disk, hence slowdowns."))
+        elif ram > 75:
+            if lead_browser:
+                lines.append(_t(lang,
+                    f"  Wysoki, ale do opanowania. Najwięcej bierze przeglądarka ({lead_browser}, "
+                    f"{self._mb_text(lead[1])}).",
+                    f"  High but manageable. The browser takes the most ({lead_browser}, "
+                    f"{self._mb_text(lead[1])})."))
+            elif lead:
+                lines.append(_t(lang,
+                    f"  Wysoki, ale do opanowania. Najwięcej bierze {lead[0]} ({self._mb_text(lead[1])}).",
+                    f"  High but manageable. {lead[0]} takes the most ({self._mb_text(lead[1])})."))
             else:
-                lines.append("  Within normal range - Windows pre-loads data into RAM.")
-                lines.append("  Free RAM is wasted RAM. Only act if above 85%.")
-
+                lines.append(_t(lang, "  Wysoki, ale do opanowania.", "  High but manageable."))
         else:
-            header = (
-                f"{self.PREFIX} Dlaczego RAM wysoki - {ram:.0f}%"
-                f" ({used} GB zajęte / {free} GB wolne):"
-            )
-            lines = [header]
+            lines.append(_t(lang,
+                "  To normalny zakres - Windows trzyma w RAM dane na zapas. Reaguj powyżej 85%.",
+                "  This is a normal range - Windows keeps data in RAM on purpose. Act above 85%."))
+            return lines
 
-            if profile["ram_low"]:
-                lines.append(
-                    f"  ⚠ Masz tylko {profile['ram_gb']:.0f} GB - "
-                    f"{ram:.0f}% to zostaje ci ~{free} GB na resztę."
-                )
-
-            if top_ram:
-                lines.append(f"  Główni winowajcy: {',  '.join(top_ram)}")
-
-            if typ_avg:
-                delta_str = _delta_label(ram, typ_avg, "pl")
-                if delta_str:
-                    lines.append(f"  Kontekst: {delta_str}")
-
-            if ram > 90:
-                lines.append("  ⚠ Krytyczne - system używa prawdopodobnie pliku wymiany (wolno).")
-                lines.append("  Napraw: zamknij zbędne programy  [-> Optimization]")
-                if profile["is_hdd"]:
-                    lines.append("  ⚠ HDD wykryty - plik wymiany na HDD jest bardzo wolny  [-> Virtual Memory]")
-            elif ram > 75:
-                lines.append("  Wysoki, zarządzalny. Główna przyczyna: karty przeglądarki.")
-                lines.append("  Zamknij aplikacje w tle  [-> Optimization]  ·  lub dodaj pamięć  [-> Virtual Memory]")
-                if profile["ram_low"]:
-                    lines.append(f"  Długofalowo: {profile['ram_gb']:.0f} GB to za mało - więcej RAM by pomogło.")
-            else:
-                lines.append("  To normalny zakres - Windows wstępnie ładuje dane do RAM.")
-                lines.append("  Wolny RAM = zmarnowany RAM. Reaguj dopiero powyżej 85%.")
-
+        lines.append("§PAUSE")
+        lines.append("§NOTE " + _t(lang, "Szybkie kroki do poprawy:", "Quick steps to improve it:"))
+        lines.append(_t(lang,
+            "  · Zamknij to, czego nie używasz, albo zwolnij pamięć jednym kliknięciem  [-> Optimization]",
+            "  · Close what you do not use, or free memory in one click  [-> Optimization]"))
+        try:
+            from core.pagefile import describe
+            vm = describe(lang)
+        except Exception:
+            vm = _t(lang, "Pamięć wirtualna", "Virtual memory")
+        lines.append(f"  · {vm}  [-> Virtual Memory]")
+        if profile["ram_low"]:
+            lines.append(_t(lang,
+                f"  · Na dłużej: {profile['ram_gb']:.0f} GB to mało, 16 GB zrobi największą różnicę.",
+                f"  · Longer term: {profile['ram_gb']:.0f} GB is little, 16 GB makes the biggest difference."))
+        lines.append("§OFFER optimize")
         return lines
 
     def _resp_browser_cache(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -832,11 +900,26 @@ class PerformanceResponses:
 
         # Default: show both unless user was specific
         show_ram  = want_ram  or (not want_disk)
-        show_disk = want_disk or (not want_ram)
+        # disk totals since boot ("SearchIndexer 6057 GB") say little unless
+        # the question is about the disk (2026-11-17)
+        show_disk = want_disk
 
         lines = [_t(lang,
             f"{self.PREFIX} Największe pochłaniacze zasobów:",
             f"{self.PREFIX} Top resource consumers:")]
+
+        # a question about the processor gets the processor first, measured
+        # over half a second (2026-11-17: it got the RAM list, MemCompression
+        # at the top)
+        want_cpu = any(w in msg_lower for w in ("cpu", "procesor", "proca", "procka", "procek"))
+        if want_cpu or not (want_ram or want_disk):
+            cpu_top = self._cpu_by_app(5)
+            lines.append("")
+            lines.append(_t(lang, "  ⚙ TOP 5 - CPU (teraz):", "  ⚙ TOP 5 - CPU (now):"))
+            for name, pct in cpu_top:
+                lines.append(f"  - {name[:36]:<36}  {pct:.1f}%")
+            if want_cpu:
+                show_ram = show_disk = False
 
         try:
             import psutil
@@ -847,14 +930,21 @@ class PerformanceResponses:
                 for proc in psutil.process_iter(["name", "memory_info"]):
                     try:
                         mi = proc.info.get("memory_info")
-                        if mi:
+                        nm = proc.info["name"] or "?"
+                        if mi and nm.lower() not in ("memcompression", "memory compression",
+                                                     "system", "registry"):
                             mb = (mi.rss or 0) / (1024 ** 2)
                             if mb > 10:
-                                procs_ram.append((proc.info["name"] or "?", mb))
+                                procs_ram.append((nm, mb))
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         continue
 
-                procs_ram.sort(key=lambda x: x[1], reverse=True)
+                # one line per program, all its processes together (2026-11-17:
+                # "claude.exe 671 MB, claude.exe 306 MB, claude.exe 234 MB")
+                grouped = {}
+                for nm, mb in procs_ram:
+                    grouped[nm] = grouped.get(nm, 0.0) + mb
+                procs_ram = sorted(grouped.items(), key=lambda x: x[1], reverse=True)
                 lines.append("")
                 lines.append(_t(lang,
                     "  🧠 TOP 5 - RAM (RSS):",
@@ -899,6 +989,15 @@ class PerformanceResponses:
         lines.append(_t(lang,
             "  💡 Duże I/O nie znaczy problem - to mogą być aktualizacje lub indeksowanie.",
             "  💡 High disk I/O isn't always a problem - it may be updates or indexing."))
+        # "it" for the next message: the biggest ordinary program (2026-11-17)
+        try:
+            from hck_gpt.memory.session_memory import session_memory
+            keep = getattr(self, "_KEEP", set())
+            apps = [n for n, _mb in self._ram_by_app(10)[0] if n.lower() not in keep]
+            if apps:
+                session_memory.note_reference("process", apps[0] + ".exe", "top_resource_hog")
+        except Exception:
+            pass
         lines.append(_followup("process", lang))
         return lines
 

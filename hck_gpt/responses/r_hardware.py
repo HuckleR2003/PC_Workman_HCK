@@ -154,11 +154,16 @@ class HardwareResponses:
             "vram_gb": vram,
         })
 
-        vram_str = f"\n  VRAM:  {vram} GB" if vram else ""
+        vram_str = f"  VRAM:   {vram} GB" if vram else ""
         header = _t(lang,
                     f"{self.PREFIX} Karta graficzna:",
                     f"{self.PREFIX} Graphics card:")
-        return [header, f"  Model:{vram_str}  {model}", _followup("hw", lang)]
+        # model and VRAM on their own lines (the model used to land after the
+        # VRAM figure, leaving "Model:" empty; 2026-11-16)
+        lines = [header, f"  Model:  {model}"]
+        if vram_str:
+            lines.append(vram_str)
+        return lines + [_followup("hw", lang)]
 
     def _resp_hw_ram(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.memory.user_knowledge import user_knowledge
@@ -293,6 +298,20 @@ class HardwareResponses:
         return lines
 
     def _resp_throttle_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        out = self._throttle_check_core(r, lang)
+        raw = (r.raw_text or "").lower()
+        if "co to" in raw or "what is" in raw or "czym jest" in raw:
+            # "co to jest throttling" got only the live verdict (2026-11-17)
+            out.insert(0, _t(lang,
+                f"{self.PREFIX} Throttling to samoczynne zwolnienie procesora, gdy jest za gorący "
+                f"albo dostaje za mało prądu. Chroni sprzęt, ale zabiera wydajność.",
+                f"{self.PREFIX} Throttling is the processor slowing itself down when it is too hot "
+                f"or short on power. It protects the hardware but costs performance."))
+            out[1] = out[1].replace(self.PREFIX, " ").strip()
+            out[1] = "  " + out[1]
+        return out
+
+    def _throttle_check_core(self, r: ParseResult, lang: str = "pl") -> List[str]:
         from hck_gpt.context.system_context import system_context
         snap = system_context.snapshot()
         mhz      = snap.get("cpu_mhz",     None)
@@ -346,15 +365,26 @@ class HardwareResponses:
     def _resp_power_plan(self, r: ParseResult, lang: str = "pl") -> List[str]:
         try:
             import subprocess
+            from utils.oem import OEM_ENCODING
             result = subprocess.run(
                 ["powercfg", "/getactivescheme"],
-                capture_output=True, text=True, errors="replace", timeout=3
+                capture_output=True, text=True, encoding=OEM_ENCODING, errors="replace", timeout=3
             )
             line = result.stdout.strip()
             if "(" in line:
                 name = line[line.rfind("(") + 1:line.rfind(")")]
                 label = _t(lang, "Aktywny plan zasilania", "Active power plan")
-                return [f"{self.PREFIX} {label}:  {name}"]
+                out = [f"{self.PREFIX} {label}:  {name}"]
+                # how to change it, not only what it is (2026-11-17)
+                out.append(_t(lang,
+                    "  Zmiana: Panel sterowania → Opcje zasilania (albo Win+R → powercfg.cpl) "
+                    "i wybierz Wysoka wydajność.",
+                    "  To change it: Control Panel → Power Options (or Win+R → powercfg.cpl) "
+                    "and pick High performance."))
+                out.append(_t(lang,
+                    "  Na czas grania przełączy go TURBO i przywróci po wszystkim.  [-> Optimization]",
+                    "  TURBO switches it for gaming and restores it afterwards.  [-> Optimization]"))
+                return out
         except Exception:
             pass
         return [_t(lang,
@@ -417,9 +447,10 @@ class HardwareResponses:
         ram_pressure = ram_avg >= 80 or ram_max >= 97
         cpu_hot      = bool((ct_avg and ct_avg > 75) or (ct_max and ct_max > 92) or throttled)
 
-        d_lbl = _t(lang, "dni", "days")
+        d_lbl = (_t(lang, "dzień", "day") if days == 1 else
+                 _t(lang, "dni", "days"))
         lines = [_t(lang,
-            f"{P} Co warto wymienić? Patrzę na Twoje {days} {d_lbl} użytkowania:",
+            f"{P} Co warto wymienić? Patrzę na {days} {d_lbl} Twojego użytkowania:",
             f"{P} What's worth upgrading? Reading your last {days} {d_lbl} of use:")]
         ev = (f"  CPU śr. {cpu_avg:.0f}% (szczyt {cpu_max:.0f}%)" if lang == "pl"
               else f"  CPU avg {cpu_avg:.0f}% (peak {cpu_max:.0f}%)")
@@ -688,24 +719,12 @@ class HardwareResponses:
                             "  Procesy najbardziej drenujące baterię (CPU = prąd):",
                             "  Processes draining battery most (CPU = power):"))
 
-        try:
-            import psutil
-            raw = []
-            for p in psutil.process_iter(["name", "cpu_percent"]):
-                try:
-                    raw.append(p)
-                    if len(raw) >= 64:
-                        break
-                except Exception:
-                    continue
-            top = sorted(raw, key=lambda p: p.info.get("cpu_percent", 0) or 0, reverse=True)[:5]
-            for i, p in enumerate(top, 1):
-                nm = (p.info.get("name") or "?")[:28]
-                c  = p.info.get("cpu_percent", 0) or 0
-                if c > 0.1:
-                    lines.append(f"  {i}. {nm:<28}  {c:.1f}% CPU")
-        except Exception:
-            pass
+        # measured over half a second across all processes, as a share of
+        # the whole CPU; "System Idle Process 877.9%" used to top it
+        # (2026-11-17)
+        for i, (nm, c) in enumerate(self._cpu_by_app(5), 1):
+            if c >= 0.5:
+                lines.append(f"  {i}. {nm[:28]:<28}  {c:.1f}% CPU")
 
         lines.append(_t(lang,
                         "  💡 Plan zasilania Balanced = lepsza bateria niż High Performance.",
@@ -1330,19 +1349,81 @@ class HardwareResponses:
                 "  Cannot read disk info."))
 
         lines.append("")
-        lines.append(_t(lang,
-            "  💡 Większość laptopów ma 1–2 sloty M.2/SATA. Sprawdź model w specyfikacji producenta.",
-            "  💡 Most laptops have 1–2 M.2/SATA slots. Check manufacturer specs for your model."))
+        # laptop or desktop: what the user said, else Windows (2026-11-16);
+        # this tip used to talk about laptops to everyone
+        try:
+            from core.machine_type import get as _machine
+            kind = _machine()
+        except Exception:
+            kind = None
+        if kind == "desktop":
+            try:
+                from hck_gpt.memory.user_knowledge import user_knowledge
+                mb = (user_knowledge.get_all_hardware() or {}).get("motherboard") or ""
+            except Exception:
+                mb = ""
+            lines.append(_t(lang,
+                "  💡 W komputerze stacjonarnym zwykle są wolne złącza SATA, a często "
+                "drugie M.2" + (f" - sprawdź specyfikację płyty {mb}." if mb else
+                " - sprawdź specyfikację płyty głównej."),
+                "  💡 A desktop usually has free SATA ports and often a second M.2"
+                + (f" - check the {mb} specs." if mb else " - check the motherboard specs.")))
+        elif kind == "laptop":
+            lines.append(_t(lang,
+                "  💡 Większość laptopów ma 1–2 sloty M.2/SATA. Sprawdź model w specyfikacji producenta.",
+                "  💡 Most laptops have 1–2 M.2/SATA slots. Check manufacturer specs for your model."))
+        else:
+            lines.append(_t(lang,
+                "  💡 Ile dysków dołożysz, zależy od płyty głównej (stacjonarny) albo modelu (laptop).",
+                "  💡 How many drives you can add depends on the motherboard (desktop) or the model (laptop)."))
         lines.append(_t(lang,
             "  Wpisz 'specs' by zobaczyć pełny profil sprzętu.",
             "  Type 'specs' to see your full hardware profile."))
         return lines
 
+    @staticmethod
+    def _multiplier_locked(model: str):
+        """True = locked, False = unlocked, None = cannot tell. Intel: the
+        K / KF / KS / X suffix unlocks; AMD Ryzen is unlocked."""
+        import re as _re
+        m = (model or "").upper()
+        if "RYZEN" in m:
+            return False
+        hit = _re.search(r"I[3579]-\d{4,5}([A-Z]*)", m)
+        if hit:
+            return not any(x in hit.group(1) for x in ("K", "X"))
+        return None
+
     def _resp_overclock_check(self, r: ParseResult, lang: str = "pl") -> List[str]:
         ls = self._dm_live()
-        mhz, boost = ls.get("cpu_mhz", -1), ls.get("cpu_boost", -1)
+        mhz = ls.get("cpu_mhz", -1)
+        # Boost from the CPU model table, not from the live reading: on
+        # Windows psutil's "max" frequency is the BASE clock, so an
+        # i5-12400F showed "boost 2500 MHz" (it is 4400). Unknown model ->
+        # no boost figure and no OC verdict (2026-11-16).
+        boost, model = -1, ""
+        try:
+            from hck_gpt.data.live_sensors import get as _ls_get
+            model = str(_ls_get("cpu_name", "") or "")
+            from ui.components.yourpc_page import _CPU_KB
+            up = model.upper()
+            for key, prof in _CPU_KB.items():
+                if not key.startswith("_") and key.upper() in up:
+                    boost = int(prof.get("boost", -1))
+                    break
+        except Exception:
+            boost = -1
         lines = [_t(lang, f"{self.PREFIX} Zegary i zasilanie:",
                           f"{self.PREFIX} Clocks & power:")]
+        _locked = self._multiplier_locked(model)
+        if _locked is not None:
+            lines.append(_t(lang,
+                "  Ten procesor ma zablokowany mnożnik - klasyczne podkręcanie odpada; "
+                "zysk da tylko szybsza pamięć i lepsze chłodzenie." if _locked else
+                "  Ten procesor ma odblokowany mnożnik - można go podkręcać (w BIOS).",
+                "  This CPU has a locked multiplier - classic overclocking is out; "
+                "faster memory and better cooling are what helps." if _locked else
+                "  This CPU has an unlocked multiplier - it can be overclocked (in BIOS)."))
         lines.append(
             f"  CPU {self._dm_val(mhz,' MHz')}"
             + (f"  (boost {self._dm_val(boost,' MHz')})" if boost and boost > 0 else ""))

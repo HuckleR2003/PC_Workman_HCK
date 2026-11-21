@@ -258,6 +258,41 @@ class GamingResponses:
             "  💬 Type 'temperatures' to check if hardware throttles during gaming"))
         return lines
 
+    @staticmethod
+    def _game_installed(game_name: str) -> bool:
+        """Whether a game with this name is in an installed Steam / Epic /
+        GOG library folder (folder names, read once)."""
+        try:
+            import os
+            import re
+            from core import game_detect
+            key = re.sub(r"[^a-z0-9]", "", game_name.lower())
+            aliases = {"cs2": "counterstrikeglobaloffensive", "gtav": "grandtheftautov",
+                       "witcher3": "thewitcher3"}
+            want = {key, aliases.get(key, key)}
+            roots = getattr(game_detect, "_LIB_FOLDERS", None)
+            if roots is None:
+                roots = set()
+                try:
+                    import winreg
+                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam") as k:
+                        steam = winreg.QueryValueEx(k, "SteamPath")[0]
+                    paths = [os.path.join(steam, "steamapps", "common")]
+                    vdf = os.path.join(steam, "steamapps", "libraryfolders.vdf")
+                    if os.path.exists(vdf):
+                        txt = open(vdf, encoding="utf-8", errors="replace").read()
+                        paths += [os.path.join(p.replace("\\\\", "\\"), "steamapps", "common")
+                                  for p in re.findall(r'"path"\s+"([^"]+)"', txt)]
+                    for pth in paths:
+                        if os.path.isdir(pth):
+                            roots |= {re.sub(r"[^a-z0-9]", "", d.lower()) for d in os.listdir(pth)}
+                except Exception:
+                    pass
+                game_detect._LIB_FOLDERS = roots
+            return any(w and any(w in r_ for r_ in roots) for w in want)
+        except Exception:
+            return False
+
     def _resp_game_can_run(self, r: ParseResult, lang: str = "pl") -> List[str]:
         """
         Checks if the user's PC meets minimum/recommended requirements
@@ -267,6 +302,17 @@ class GamingResponses:
         from hck_gpt.memory.user_knowledge import user_knowledge
 
         msg_lower = (r.raw_text or "").lower()
+
+        # GTA 6 is not on PC yet; "gta 6" used to match "gta" and got the
+        # GTA V requirements (2026-11-17)
+        import re as _re
+        if _re.search(r"gta ?(6|vi)(?![0-9a-z])", msg_lower):
+            return [_t(lang,
+                f"{self.PREFIX} GTA 6 nie ma jeszcze wersji na PC ani oficjalnych wymagań.",
+                f"{self.PREFIX} GTA 6 has no PC version or official requirements yet."),
+                _t(lang,
+                   "  Gdy Rockstar je poda, porównam je z Twoim sprzętem. Na dziś mogę sprawdzić GTA V.",
+                   "  Once Rockstar publishes them I can compare them with your hardware. GTA V I can check today.")]
 
         # Find which game the user is asking about
         game = None
@@ -293,7 +339,8 @@ class GamingResponses:
 
         # Get GPU VRAM (GB) from user_knowledge
         vram_gb: Optional[float] = None
-        raw_vram = hw.get("gpu_vram", "") or hw.get("vram", "") or ""
+        raw_vram = (hw.get("gpu_vram_gb", "") or hw.get("gpu_vram", "")
+                    or hw.get("vram", "") or "")
         try:
             vram_gb = float(str(raw_vram).replace("GB", "").replace("MB", "").strip())
             if "MB" in str(raw_vram):
@@ -301,13 +348,7 @@ class GamingResponses:
         except Exception:
             vram_gb = None
 
-        # Get free disk space
-        disk_free_gb: Optional[float] = None
-        try:
-            import psutil
-            disk_free_gb = psutil.disk_usage("C:\\").free / (1024 ** 3)
-        except Exception:
-            pass
+        disk_name, disk_free_gb = _roomiest_drive()
 
         if game is None:
             # Unknown game - give generic guidance
@@ -331,87 +372,99 @@ class GamingResponses:
         vram_min  = game["vram_min"]
         disk_gb   = game["disk_gb"]
         cpu_note  = game["cpu_note"]
+        gpu_need  = game.get("gpu_high", 0)
+
+        gpu_name = str(hw.get("gpu_model", "") or hw.get("gpu_name", "") or "")
+        if not gpu_name:
+            try:
+                from hck_gpt.data.live_sensors import get as _ls_get
+                gpu_name = str(_ls_get("gpu_name", "") or "")
+            except Exception:
+                gpu_name = ""
+        gpu_score = _gpu_score(gpu_name)
 
         lines = [_t(lang,
             f"{self.PREFIX} Sprawdzam wymagania: {gname}",
-            f"{self.PREFIX} Checking requirements: {gname}")]
+            f"{self.PREFIX} Checking requirements: {gname}"),
+            _t(lang, f"§STEP {gname} · Twój sprzęt i wymagania", f"§STEP {gname} · your hardware and the requirements")]
 
-        # RAM check
+        # RAM: Windows reports a few hundred MB less than the modules hold,
+        # 8 GB shows as 7.85 GB (third long test, 2026-11-17)
         ram_ok = ram_rec_ok = False
         if ram_gb is not None:
-            ram_ok     = ram_gb >= ram_min
-            ram_rec_ok = ram_gb >= ram_rec
-            if ram_rec_ok:
-                ram_icon = "✓"
-            elif ram_ok:
-                ram_icon = "!"
-            else:
-                ram_icon = "✗"
-            lines.append(_t(lang,
-                f"  {ram_icon} RAM: {ram_gb:.0f} GB masz  /  min {ram_min} GB  /  rec {ram_rec} GB",
-                f"  {ram_icon} RAM: {ram_gb:.0f} GB installed  /  min {ram_min} GB  /  rec {ram_rec} GB"))
+            ram_ok     = ram_gb >= ram_min * 0.9
+            ram_rec_ok = ram_gb >= ram_rec * 0.9
+            tag = "§OK " if ram_rec_ok else "§WARN "
+            lines.append(tag + _t(lang,
+                f"RAM: masz {ram_gb:.0f} GB  ·  minimum {ram_min} GB  ·  zalecane {ram_rec} GB",
+                f"RAM: {ram_gb:.0f} GB installed  ·  minimum {ram_min} GB  ·  recommended {ram_rec} GB"))
         else:
-            lines.append(_t(lang,
-                f"  ? RAM: brak danych  (wymagane min {ram_min} GB)",
-                f"  ? RAM: no data available  (required min {ram_min} GB)"))
+            lines.append(_t(lang, f"  ? RAM: brak danych  (minimum {ram_min} GB)",
+                            f"  ? RAM: no data  (minimum {ram_min} GB)"))
 
-        # VRAM check
-        if vram_gb is not None:
-            vram_ok = vram_gb >= vram_min
-            vram_icon = "✓" if vram_ok else "✗"
-            lines.append(_t(lang,
-                f"  {vram_icon} VRAM GPU: {vram_gb:.0f} GB masz  /  min {vram_min} GB",
-                f"  {vram_icon} VRAM GPU: {vram_gb:.0f} GB installed  /  min {vram_min} GB"))
+        vram_ok = vram_gb is None or vram_gb >= vram_min
+        if vram_gb is not None or gpu_name:
+            card = (gpu_name + (f", {vram_gb:.0f} GB VRAM" if vram_gb is not None else "")).strip(", ")
+            lines.append(("§OK " if vram_ok else "§WARN ") + _t(lang,
+                f"Karta: {card}  ·  minimum {vram_min} GB VRAM",
+                f"Graphics: {card}  ·  minimum {vram_min} GB VRAM"))
         else:
-            lines.append(_t(lang,
-                f"  ? VRAM GPU: brak danych  (wymagane min {vram_min} GB)",
-                f"  ? VRAM GPU: no data  (required min {vram_min} GB)"))
+            lines.append(_t(lang, f"  ? Karta graficzna: brak danych  (minimum {vram_min} GB VRAM)",
+                            f"  ? Graphics card: no data  (minimum {vram_min} GB VRAM)"))
 
-        # Disk check
-        if disk_free_gb is not None:
-            disk_ok = disk_free_gb >= disk_gb
-            disk_icon = "✓" if disk_ok else "✗"
-            lines.append(_t(lang,
-                f"  {disk_icon} Dysk wolne: {disk_free_gb:.0f} GB  /  wymagane ~{disk_gb} GB",
-                f"  {disk_icon} Disk free: {disk_free_gb:.0f} GB  /  required ~{disk_gb} GB"))
-        else:
-            lines.append(_t(lang,
-                f"  ? Dysk: brak danych  (wymagane ~{disk_gb} GB wolnego)",
-                f"  ? Disk: no data  (need ~{disk_gb} GB free)"))
+        # Disk: only for a game that is not installed yet, and on the drive
+        # with the most room, not just C: (fifth long test: "0.5 TB free"
+        # elsewhere, the answer counted the system drive only)
+        installed = False
+        try:
+            installed = bool(self._game_installed(gname))
+        except Exception:
+            installed = False
+        if installed:
+            lines.append("§OK " + _t(lang, "Dysk: gra jest już zainstalowana.",
+                                     "Disk: the game is already installed."))
+        elif disk_free_gb is not None:
+            lines.append(("§OK " if disk_free_gb >= disk_gb else "§WARN ") + _t(lang,
+                f"Dysk: najwięcej miejsca ma {disk_name}, {disk_free_gb:.0f} GB wolnego  ·  gra zajmie ok. {disk_gb} GB",
+                f"Disk: {disk_name} has the most room, {disk_free_gb:.0f} GB free  ·  the game takes about {disk_gb} GB"))
+        lines.append(_t(lang, f"  CPU: wymagany {cpu_note}", f"  CPU: required {cpu_note}"))
 
-        lines.append(_t(lang,
-            f"  CPU: wymagany {cpu_note}",
-            f"  CPU: required {cpu_note}"))
-
-        # Verdict
+        # Verdict: the minimum decides whether it starts at all, the card's
+        # rough power decides the settings, RAM below the recommendation caps
+        # them. Disk space never changes the verdict: it only says where.
         lines.append("")
-        can_run    = (ram_gb is None or ram_ok) and (vram_gb is None or vram_gb >= vram_min)
-        can_ultra  = (ram_gb is None or ram_rec_ok) and (vram_gb is None or vram_gb >= vram_min * 2)
-        no_data    = ram_gb is None and vram_gb is None
-
-        if no_data:
-            lines.append(_t(lang,
-                "  ⚠ Za mało danych sprzętowych - sprawdź 'moje specs' aby je wypełnić.",
-                "  ⚠ Not enough hardware data - type 'my specs' to populate it."))
-        elif not can_run:
-            lines.append(_t(lang,
-                f"  ✗ Twój sprzęt NIE SPEŁNIA minimalnych wymagań {gname}.",
-                f"  ✗ Your hardware does NOT meet minimum requirements for {gname}."))
-            lines.append(_t(lang,
-                "  Gra może nie uruchomić się lub działać bardzo źle.",
-                "  The game may not launch or will run very poorly."))
-        elif can_ultra:
-            lines.append(_t(lang,
-                f"  ✓ {gname} pójdzie płynnie - masz zapas na wyższe ustawienia.",
-                f"  ✓ {gname} will run smoothly - you have headroom for higher settings."))
+        if ram_gb is None and vram_gb is None and not gpu_score:
+            lines.append(_t(lang, "  ⚠ Za mało danych o sprzęcie: wpisz 'moje specs', żeby je uzupełnić.",
+                            "  ⚠ Not enough hardware data: type 'my specs' to fill it in."))
+        elif not ((ram_gb is None or ram_ok) and vram_ok):
+            lines.append("§WARN " + _t(lang,
+                f"Twój sprzęt nie spełnia minimalnych wymagań {gname}: gra może się nie uruchomić albo działać bardzo słabo.",
+                f"Your hardware is below the minimum for {gname}: it may not start or will run very poorly."))
         else:
-            lines.append(_t(lang,
-                f"  ! {gname} uruchomi się, ale spodziewaj się niskich/średnich ustawień.",
-                f"  ! {gname} will launch but expect low to medium settings."))
-            lines.append(_t(lang,
-                "  Na ultra może być za wolno - spróbuj najpierw ustawień Medium.",
-                "  Ultra settings will likely struggle - start with Medium."))
-
+            if gpu_score and gpu_need:
+                ratio = gpu_score / gpu_need
+                level = 3 if ratio >= 1.6 else 2 if ratio >= 1.0 else 1 if ratio >= 0.6 else 0
+            else:
+                level = 2 if (ram_rec_ok and vram_gb is not None and vram_gb >= vram_min * 2) else 1
+            if ram_gb is not None and not ram_rec_ok and level > 1:
+                level = 1 if ram_gb < ram_rec * 0.6 else min(level, 2)
+            pl = ["niskich", "średnich", "wysokich", "wysokich i ultra"][level]
+            en = ["low", "medium", "high", "high and ultra"][level]
+            lines.append(("§OK " if level >= 2 else "§WARN ") + _t(lang,
+                f"{gname} pójdzie, w 1080p spodziewaj się {pl} ustawień.",
+                f"{gname} will run; at 1080p expect {en} settings."))
+            if gpu_score and gpu_need:
+                lines.append(_t(lang, "  Ustawienia to szacunek z mocy karty graficznej, nie pomiar w tej grze.",
+                                "  The settings are an estimate from the graphics card's power, not a test in this game."))
+            if ram_gb is not None and not ram_rec_ok:
+                lines.append(_t(lang,
+                    f"  RAM poniżej zalecanych {ram_rec} GB: zamknij przeglądarkę i komunikatory przed grą, inaczej możliwe przycięcia.",
+                    f"  RAM below the recommended {ram_rec} GB: close the browser and chat apps before playing, or expect stutter."))
+        try:
+            from hck_gpt.memory.session_memory import session_memory
+            session_memory.note_reference("game", gname, "game_can_run")
+        except Exception:
+            pass
         lines.append(_followup("hw", lang))
         return lines
 
@@ -453,6 +506,7 @@ class GamingResponses:
         gmax = (hist.get("gpu_temp") or [-1, -1])[1]
         lines = [_t(lang, f"{self.PREFIX} Sesja gamingowa - stan:",
                           f"{self.PREFIX} Gaming session - status:")]
+        lines += _current_games(lang)
         lines.append(_t(lang,
             f"  Tryb obciążenia: {bucket} · GPU {self._dm_val(ls.get('gpu_load'),'%')} "
             f"@ {self._dm_val(ls.get('gpu_temp'),'°C')} · clock {self._dm_val(ls.get('gpu_clk_gr'),' MHz')}",
@@ -466,3 +520,72 @@ class GamingResponses:
             "  In-Game overlay: My PC → GAMING (FPS via RTSS)."))
         return lines
 
+
+_GENRE_NAMES = {
+    "fps": ("strzelanka", "shooter"), "moba": ("MOBA", "MOBA"), "action": ("akcja", "action"),
+    "rpg": ("RPG", "RPG"), "cozy": ("spokojna", "cozy"), "sim": ("symulator", "simulation"),
+    "strategy": ("strategia", "strategy"), "survival": ("survival", "survival"),
+    "sandbox": ("sandbox", "sandbox"), "racing": ("wyścigi", "racing"), "sports": ("sport", "sports"),
+    "horror": ("horror", "horror"), "party": ("imprezowa / co-op", "party / co-op"),
+    "puzzle": ("logiczna / karciana", "puzzle / cards"),
+}
+
+
+def _current_games(lang: str) -> list:
+    """'  Gra: PlateUp! (spokojna)' for every game running now."""
+    out = []
+    try:
+        from ui.components.gaming_toast import gaming_watcher
+        from core.game_library import resolve
+        for exe in sorted(getattr(gaming_watcher, "_active", set())):
+            info = resolve(exe, getattr(gaming_watcher, "_paths", {}).get(exe))
+            g = _GENRE_NAMES.get(info["genre"])
+            kind = f" ({g[1] if lang == 'en' else g[0]})" if g else ""
+            out.append(_t(lang, f"  Gra: {info['name']}{kind}", f"  Game: {info['name']}{kind}"))
+    except Exception:
+        pass
+    return out
+
+
+def _roomiest_drive():
+    """(name, free GB) of the local fixed drive with the most free space."""
+    try:
+        import psutil
+        best = (None, None)
+        for part in psutil.disk_partitions(all=False):
+            opts = (part.opts or "").lower()
+            if "cdrom" in opts or "removable" in opts or "remote" in opts or not part.fstype:
+                continue
+            try:
+                free = psutil.disk_usage(part.mountpoint).free / (1024 ** 3)
+            except Exception:
+                continue
+            if best[1] is None or free > best[1]:
+                best = (part.mountpoint.rstrip("\\"), free)
+        return best
+    except Exception:
+        return (None, None)
+
+
+# Rough 1080p power of a graphics card, GTX 1060 = 100. Only for "which
+# settings" in the requirements answer, never shown as a number.
+_GPU_SCORES = [
+    ("RTX 4090", 400), ("RTX 4080", 330), ("RTX 4070 TI", 280), ("RTX 4070", 240), ("RTX 4060 TI", 190), ("RTX 4060", 165),
+    ("RTX 5090", 480), ("RTX 5080", 360), ("RTX 5070 TI", 310), ("RTX 5070", 260), ("RTX 5060 TI", 210), ("RTX 5060", 180),
+    ("RTX 3090", 300), ("RTX 3080", 270), ("RTX 3070", 210), ("RTX 3060 TI", 185), ("RTX 3060", 155), ("RTX 3050", 115),
+    ("RTX 2080", 200), ("RTX 2070", 170), ("RTX 2060", 140), ("GTX 1660", 115), ("GTX 1650", 75),
+    ("GTX 1080", 160), ("GTX 1070", 130), ("GTX 1060", 100), ("GTX 1050", 55), ("GTX 970", 85), ("GTX 960", 55),
+    ("RX 9070", 300), ("RX 7900", 330), ("RX 7800", 250), ("RX 7700", 220), ("RX 7600", 160),
+    ("RX 6950", 290), ("RX 6900", 280), ("RX 6800", 250), ("RX 6750", 205), ("RX 6700", 195),
+    ("RX 6650", 160), ("RX 6600", 150), ("RX 6500", 75), ("RX 5700", 145), ("RX 5600", 125), ("RX 5500", 90),
+    ("RX 590", 100), ("RX 580", 95), ("RX 570", 85),
+    ("ARC B580", 170), ("ARC A770", 160), ("ARC A750", 145), ("ARC A380", 60),
+]
+
+
+def _gpu_score(name: str) -> int:
+    n = " ".join((name or "").upper().replace("-", " ").split())
+    for key, score in _GPU_SCORES:
+        if key in n:
+            return score
+    return 0

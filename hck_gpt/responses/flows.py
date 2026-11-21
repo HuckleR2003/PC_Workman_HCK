@@ -27,16 +27,101 @@ def _measure() -> dict:
 
 
 def _startup_flagged() -> tuple:
-    """(flagged, total) high/medium-impact autostart candidates, (-1,-1) on fail."""
+    """(flagged entries, total) - enabled autostart entries worth disabling or
+    delaying (high/medium impact); ([], -1) when they cannot be read."""
     try:
         from ui.pages.startup_manager import _read_startup_entries
         ents = _read_startup_entries()
-        flagged = len([e for e in ents
-                       if e.get("rec") in ("disable", "delay")
-                       and e.get("impact") in ("high", "medium")])
+        flagged = [e for e in ents
+                   if e.get("_enabled", True)
+                   and e.get("rec") in ("disable", "delay")
+                   and e.get("impact") in ("high", "medium")]
+        flagged.sort(key=lambda ent: 0 if ent.get("impact") == "high" else 1)
         return flagged, len(ents)
     except Exception:
-        return -1, -1
+        return [], -1
+
+
+def _startup_now(state) -> list:
+    """The flagged names as they are NOW. 2026-11-20: the list was read once,
+    on step 2, and the summary on step 5 still named two entries the user
+    had just turned off ("only these two are left")."""
+    flagged, total = _startup_flagged()
+    if total < 0:
+        return list(state.get("startup_flagged") or [])
+    names = [_short(e.get("name")) for e in flagged]
+    state["startup_now"] = names
+    return names
+
+
+def _short(name: str) -> str:
+    n = (name or "").split("_{")[0].split("_")[0]
+    return n[:24]
+
+
+# ── Step cards (2026-11-16) ──────────────────────────────────────────────────
+# A line starting with one of these markers is drawn by the chat panel as a
+# card header or a coloured verdict band; the marker itself is not shown.
+#   §STEP  header with a background, alone on its line
+#   §OK    green verdict band       §WARN  amber verdict band
+def _card(lang, n, pl, en):
+    return "§STEP " + _t(lang, f"KROK {n}/{_STEPS} · {pl}", f"STEP {n}/{_STEPS} · {en}")
+
+
+_STEPS = 6   # 2026-11-17: + components and drivers
+
+
+def _ok(lang, pl, en):
+    return "§OK " + _t(lang, pl, en)
+
+
+def _warn(lang, pl, en):
+    return "§WARN " + _t(lang, pl, en)
+
+
+def _top_ram(n=3):
+    """[(name, MB)] of the processes holding the most memory, grouped by name."""
+    try:
+        import psutil
+        acc = {}
+        for p in psutil.process_iter(["name", "memory_info"]):
+            try:
+                nm = (p.info["name"] or "").rsplit(".exe", 1)[0]
+                mi = p.info["memory_info"]
+                if nm and mi and nm.lower() not in ("memory compression", "system", "registry"):
+                    acc[nm] = acc.get(nm, 0) + mi.rss / 1024 ** 2
+            except Exception:
+                continue
+        return sorted(acc.items(), key=lambda kv: -kv[1])[:n]
+    except Exception:
+        return []
+
+
+_UNNEEDED_SVC = {
+    "diagtrack": "Telemetria Windows", "dmwappushservice": "WAP Push",
+    "xblgamesave": "Xbox Game Save", "xboxnetapisvc": "Xbox Networking",
+    "xblauthmanager": "Xbox Auth", "fax": "Fax", "wmpnetworksvc": "WMP Sharing",
+    "retaildemo": "Retail Demo", "remoteregistry": "Remote Registry",
+    "wersvc": "Error Reporting", "mapsbroker": "Maps", "wisvc": "Insider",
+}
+
+
+def _running_unneeded():
+    """Display names of running services that most PCs do not need."""
+    try:
+        import subprocess
+        out = subprocess.run(["sc", "query", "state=", "running"],
+                             capture_output=True, text=True, errors="replace",
+                             timeout=6, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                             ).stdout.lower()
+        names = set()
+        for line in out.splitlines():
+            line = line.strip()
+            if line.startswith("service_name:"):
+                names.add(line.split(":", 1)[1].strip())
+        return [v for k, v in _UNNEEDED_SVC.items() if k in names]
+    except Exception:
+        return None
 
 
 # ── master flow: optimize ─────────────────────────────────────────────────────
@@ -44,120 +129,195 @@ def _s0_measure(rb, state, lang):
     m = _measure()
     state["before"] = m
     head = _t(lang,
-              "🚀 Przewodnik optymalizacji - 5 kroków, konkretne liczby, "
-              "zero zgadywania.",
-              "🚀 Optimization guide - 5 steps, real numbers, no guessing.")
+              f"🚀 Przewodnik optymalizacji: {_STEPS} kroków, prawdziwe liczby z Twojego komputera.",
+              f"🚀 Optimization guide: {_STEPS} steps, real numbers from your PC.")
+    out = [head, _card(lang, 1, "Pomiar startowy", "Baseline")]
     if m["ram_pct"] >= 0:
-        now = _t(lang,
-                 f"KROK 1/5 · Pomiar startowy: RAM {m['ram_pct']:.0f}%  ·  "
-                 f"CPU {m['cpu_pct']:.0f}%  ·  {m['procs']} procesów. "
-                 f"Te liczby wrócą na końcu - zobaczysz różnicę.",
-                 f"STEP 1/5 · Baseline: RAM {m['ram_pct']:.0f}%  ·  "
-                 f"CPU {m['cpu_pct']:.0f}%  ·  {m['procs']} processes. "
-                 f"We'll re-measure at the end - you'll SEE the difference.")
+        out.append(_t(lang,
+            f"RAM {m['ram_pct']:.0f}%  ·  CPU {m['cpu_pct']:.0f}%  ·  {m['procs']} procesów. "
+            f"Te liczby wrócą na końcu, zobaczysz różnicę.",
+            f"RAM {m['ram_pct']:.0f}%  ·  CPU {m['cpu_pct']:.0f}%  ·  {m['procs']} processes. "
+            f"They come back at the end, so you see the difference."))
     else:
-        now = _t(lang, "KROK 1/5 · Pomiar niedostępny - lecimy dalej.",
-                       "STEP 1/5 · Baseline unavailable - moving on.")
-    nxt = _t(lang, "➡ Napisz 'dalej'.", "➡ Type 'next'.")
-    return [head, now, nxt]
+        out.append(_t(lang, "Pomiar niedostępny, lecimy dalej.", "Baseline unavailable, moving on."))
+    out.append(_t(lang, "➡ 'zaczynajmy' albo 'przerwij'.", "➡ 'start' or 'stop'."))
+    return out
 
 
 def _s1_startup(rb, state, lang):
     flagged, total = _startup_flagged()
-    if flagged > 0:
-        body = _t(lang,
-                  f"KROK 2/5 · Autostart: {total} wpisów, w tym {flagged} o "
-                  f"wysokim/średnim wpływie do bezpiecznego wyłączenia. "
-                  f"To najtańsze przyspieszenie startu systemu. "
-                  f"[-> Startup Manager]",
-                  f"STEP 2/5 · Startup: {total} entries, {flagged} of them "
-                  f"high/medium impact and safe to disable - the cheapest "
-                  f"boot speedup there is. [-> Startup Manager]")
-    elif flagged == 0:
-        body = _t(lang,
-                  f"KROK 2/5 · Autostart: {total} wpisów i czysto - nic nie "
-                  f"marnuje Twojego startu. Rzadki widok, brawo.",
-                  f"STEP 2/5 · Startup: {total} entries and clean - nothing "
-                  f"wasting your boot. Rare sight, well done.")
+    state["startup_flagged"] = [_short(e.get("name")) for e in flagged]
+    out = [_card(lang, 2, "Autostart", "Startup")]
+    if total < 0:
+        out.append(_warn(lang, "Nie mogę teraz odczytać autostartu.",
+                               "I cannot read the startup list right now."))
+        out.append("[-> Startup Manager]")
+    elif flagged:
+        names = ", ".join(_short(e.get("name")) for e in flagged[:4])
+        more = len(flagged) - 4
+        out.append(_warn(lang,
+            f"{len(flagged)} z {total} wpisów spowalnia start: {names}"
+            + (f" i {more} więcej" if more > 0 else "") + ".",
+            f"{len(flagged)} of {total} entries slow the boot: {names}"
+            + (f" and {more} more" if more > 0 else "") + "."))
+        out.append(_t(lang,
+            "Wyłączenie ich z autostartu ich nie odinstalowuje: uruchomisz je, kiedy chcesz.",
+            "Taking them out of startup does not uninstall them: you start them when you want."))
+        out.append("[-> Startup Manager]")
     else:
-        body = _t(lang,
-                  "KROK 2/5 · Autostart: nie mogę teraz odczytać wpisów - "
-                  "zajrzyj do [-> Startup Manager] ręcznie.",
-                  "STEP 2/5 · Startup: can't read entries right now - "
-                  "check [-> Startup Manager] manually.")
-    return [body, _t(lang, "➡ 'dalej', gdy gotowe.", "➡ 'next' when ready.")]
+        out.append(_ok(lang, f"{total} wpisów i nic, co warto wyłączyć.",
+                             f"{total} entries and nothing worth disabling."))
+    out.append(_t(lang, "➡ 'dalej', gdy gotowe.", "➡ 'next' when ready."))
+    return out
+
+
+def _s1_ask(rb, state, lang, msg):
+    """Questions about startup while on step 2."""
+    names = _startup_now(state)
+    if names:
+        return [_t(lang,
+            f"Do wyłączenia albo opóźnienia: {', '.join(names)}. Riot Vanguard, "
+            f"Windows Security i sterowniki zostają, bo są potrzebne.",
+            f"Worth disabling or delaying: {', '.join(names)}. Riot Vanguard, "
+            f"Windows Security and drivers stay, they are needed."),
+            "[-> Startup Manager]"]
+    return [_t(lang,
+        "Nic, co wyraźnie spowalnia start. Reszta wpisów jest lekka albo potrzebna "
+        "(zabezpieczenia, sterowniki, anti-cheat). Pełna lista z opisem:",
+        "Nothing that clearly slows the boot. The rest are light or needed "
+        "(security, drivers, anti-cheat). Full list with notes:"),
+        "[-> Startup Manager]"]
 
 
 def _s2_services(rb, state, lang):
-    body = _t(lang,
-              "KROK 3/5 · Usługi: zamiast wyłączać na ślepo, ustaw profil "
-              "(Gaming / Economy / Manager) - TURBO zatrzyma je tylko wtedy, "
-              "gdy potrzebujesz mocy, i przywróci po wszystkim. "
-              "[-> Services Manager]",
-              "STEP 3/5 · Services: instead of blind disabling, set a profile "
-              "(Gaming / Economy / Manager) - TURBO stops them only when you "
-              "need the power and restores them after. [-> Services Manager]")
-    return [body, _t(lang, "➡ 'dalej'.", "➡ 'next'.")]
+    running = _running_unneeded()
+    state["svc_running"] = running or []
+    out = [_card(lang, 3, "Usługi", "Services")]
+    if running:
+        out.append(_warn(lang,
+            f"Działa {len(running)} usług, których większość komputerów nie potrzebuje: "
+            f"{', '.join(running[:4])}" + ("…" if len(running) > 4 else "") + ".",
+            f"{len(running)} services are running that most PCs do not need: "
+            f"{', '.join(running[:4])}" + ("…" if len(running) > 4 else "") + "."))
+    elif running is not None:
+        out.append(_ok(lang, "Żadna z typowo zbędnych usług nie działa.",
+                             "None of the usually unneeded services is running."))
+    out.append(_t(lang,
+        "Zamiast wyłączać na ślepo, ustaw profil (Gaming / Economy / Manager): TURBO "
+        "zatrzyma je, gdy potrzebujesz mocy, i przywróci po wszystkim.",
+        "Instead of blind disabling, set a profile (Gaming / Economy / Manager): TURBO "
+        "stops them when you need the power and restores them after."))
+    out.append("[-> Services Manager]")
+    out.append(_t(lang, "➡ 'dalej'.", "➡ 'next'."))
+    return out
+
+
+def _s2_ask(rb, state, lang, msg):
+    running = state.get("svc_running") or []
+    if running:
+        return [_t(lang,
+            f"Działające, typowo zbędne: {', '.join(running)}. Wyłączysz je w "
+            f"Services Manager albo dodasz do profilu, żeby TURBO je zatrzymywał.",
+            f"Running and usually unneeded: {', '.join(running)}. Turn them off in "
+            f"Services Manager or add them to a profile for TURBO."),
+            "[-> Services Manager]"]
+    return [_t(lang, "Tu nic nie działa niepotrzebnie. Szczegóły:",
+                     "Nothing runs needlessly here. Details:"),
+            "[-> Services Manager]"]
 
 
 def _s3_ram_say(rb, state, lang):
     m = _measure()
     state["pre_flush"] = m
-    if m["ram_pct"] >= 75:
-        tone = _t(lang, f"RAM {m['ram_pct']:.0f}% - jest co zwalniać.",
-                        f"RAM {m['ram_pct']:.0f}% - there's real pressure.")
-    elif m["ram_pct"] >= 0:
-        tone = _t(lang,
-                  f"RAM {m['ram_pct']:.0f}% - nie jest źle, ale flush "
-                  f"potrafi oddać kilkaset MB.",
-                  f"RAM {m['ram_pct']:.0f}% - not bad, but a flush can "
-                  f"still hand back a few hundred MB.")
-    else:
-        tone = ""
-    ask = _t(lang,
-             "KROK 4/5 · Akcja: mogę TERAZ zwolnić pamięć (RAM Flush - "
-             "bezpieczny, omija anti-cheaty i procesy krytyczne). "
-             "Napisz 'tak' aby wykonać, 'pomiń' aby przejść dalej.",
-             "STEP 4/5 · Action: I can free memory NOW (RAM Flush - safe, "
-             "skips anti-cheat and OS-critical processes). "
-             "Type 'yes' to run it, 'skip' to move on.")
-    return [x for x in (tone, ask) if x]
+    top = _top_ram(3)
+    state["top_ram"] = top
+    out = [_card(lang, 4, "Pamięć", "Memory")]
+    if m["ram_pct"] >= 0:
+        tops = ", ".join(f"{n} {mb / 1024:.1f} GB" if mb >= 1024 else f"{n} {mb:.0f} MB"
+                         for n, mb in top)
+        if m["ram_pct"] >= 75:
+            out.append(_warn(lang, f"RAM {m['ram_pct']:.0f}%. Najwięcej trzyma: {tops}.",
+                                   f"RAM {m['ram_pct']:.0f}%. Holding the most: {tops}."))
+        else:
+            out.append(_ok(lang, f"RAM {m['ram_pct']:.0f}%. Najwięcej trzyma: {tops}.",
+                                 f"RAM {m['ram_pct']:.0f}%. Holding the most: {tops}."))
+    out.append(_t(lang,
+        "Mogę teraz zwolnić pamięć (RAM Flush: bezpieczny, omija anti-cheaty i procesy "
+        "systemowe). Trwałą różnicę da zamknięcie tego, czego nie używasz.",
+        "I can free memory now (RAM Flush: safe, skips anti-cheat and system processes). "
+        "A lasting difference comes from closing what you do not use."))
+    out.append(_t(lang, "➡ 'tak' wykonuje, 'pomiń' przechodzi dalej.",
+                        "➡ 'yes' runs it, 'skip' moves on."))
+    return out
+
+
+def _s3_ask(rb, state, lang, msg):
+    top = state.get("top_ram") or []
+    if top:
+        return [_t(lang,
+            "RAM Flush przesuwa nieużywane strony pamięci do pliku wymiany; nic nie "
+            "zamyka i niczego nie traci. Najwięcej pamięci trzyma teraz: "
+            + ", ".join(n for n, _ in top) + ".",
+            "RAM Flush moves unused memory pages to the page file; it closes nothing "
+            "and loses nothing. Holding the most now: " + ", ".join(n for n, _ in top) + ".")]
+    return None
 
 
 def _s3_ram_act(rb, state, lang):
     from core.auto_optimizer import auto_optimizer
     ok, msg, before, after = auto_optimizer.flush_now()
-    state["flush"] = {"ok": ok, "freed_mb": max(0, after - before)}
-    return ["🧹 " + msg]
+    freed = max(0, after - before)
+    state["flush"] = {"ok": ok, "freed_mb": freed}
+    if not ok:
+        return ["⚠ " + _t(lang, "Nie udało się zwolnić pamięci.", "Could not free memory.")]
+    return ["🧹 " + _t(lang, f"Zwolniłem {freed} MB pamięci.", f"Freed {freed} MB of memory.")]
 
 
 def _s4_verify(rb, state, lang):
     m = _measure()
     b = state.get("before") or {}
-    lines = []
+    lines = [_card(lang, 5, "Wynik", "Result")]
     if m["ram_pct"] >= 0 and b.get("ram_pct", -1) >= 0:
-        d_ram = m["ram_pct"] - b["ram_pct"]   # after minus before (drop = minus)
+        d_ram = m["ram_pct"] - b["ram_pct"]
         freed = (state.get("flush") or {}).get("freed_mb", 0)
-        extra = _t(lang, f" (flush oddał ~{freed} MB)",
-                         f" (flush returned ~{freed} MB)") if freed else ""
-        lines.append(_t(lang,
-            f"KROK 5/5 · Weryfikacja: RAM {b['ram_pct']:.0f}% -> "
-            f"{m['ram_pct']:.0f}% ({d_ram:+.0f} pp){extra}  ·  "
-            f"procesy {b.get('procs', '?')} -> {m['procs']}.",
-            f"STEP 5/5 · Verify: RAM {b['ram_pct']:.0f}% -> "
-            f"{m['ram_pct']:.0f}% ({d_ram:+.0f} pp){extra}  ·  "
-            f"processes {b.get('procs', '?')} -> {m['procs']}."))
+        extra = _t(lang, f", flush oddał ~{freed} MB", f", the flush returned ~{freed} MB") if freed else ""
+        txt = _t(lang,
+            f"RAM {b['ram_pct']:.0f}% → {m['ram_pct']:.0f}% ({d_ram:+.0f} pp{extra})  ·  "
+            f"procesy {b.get('procs', '?')} → {m['procs']}.",
+            f"RAM {b['ram_pct']:.0f}% → {m['ram_pct']:.0f}% ({d_ram:+.0f} pp{extra})  ·  "
+            f"processes {b.get('procs', '?')} → {m['procs']}.")
+        lines.append(("§OK " if d_ram <= 0 else "§WARN ") + txt)
     else:
-        lines.append(_t(lang, "KROK 5/5 · Weryfikacja niedostępna.",
-                              "STEP 5/5 · Verification unavailable."))
-    lines.append(_t(lang,
-        "Trwałe efekty zrobisz w [-> Startup Manager] i profilach usług - "
-        "a ja dalej uczę się Twojego 'normalnie', więc każda kolejna rada "
-        "będzie celniejsza. To tyle - bez magii, same liczby. 🖤",
-        "For lasting gains use [-> Startup Manager] and service profiles - "
-        "and I keep learning your 'normal', so every next tip gets sharper. "
-        "That's it - no magic, just numbers. 🖤"))
-    # verify-after-action ledger: later "ile to było?" can recall this
+        lines.append(_warn(lang, "Weryfikacja niedostępna.", "Verification unavailable."))
+    # read again: what the user changed in Startup and Services since step 2
+    todo = []
+    first = list(state.get("startup_flagged") or [])
+    now = _startup_now(state) if first else []
+    done = [n for n in first if n not in now]
+    if done:
+        lines.append(_ok(lang, "Wyłączone z autostartu: " + ", ".join(done) + ".",
+                               "Taken out of startup: " + ", ".join(done) + "."))
+    if now:
+        todo.append(_t(lang, f"autostart ({len(now)}: {', '.join(now[:3])}"
+                             + ("…" if len(now) > 3 else "") + ")",
+                             f"startup ({len(now)}: {', '.join(now[:3])}"
+                             + ("…" if len(now) > 3 else "") + ")"))
+    if state.get("svc_running"):
+        svc_now = _running_unneeded()
+        if svc_now is None:
+            svc_now = state["svc_running"]
+        if svc_now:
+            todo.append(_t(lang, "profil usług", "service profile"))
+    if todo:
+        lines.append(_t(lang,
+            "Na stałe zostało: " + ", ".join(todo) + ". To daje trwały efekt, flush tylko chwilowy.",
+            "Left for a lasting effect: " + ", ".join(todo) + ". The flush helps only for a while."))
+    lines.append("")
+    lines.append("§NOTE " + _t(lang,
+        "Czy sprawdzić szybko kluczowe komponenty (CPU, GPU, RAM) oraz ich sterowniki?",
+        "Shall I quickly check the key components (CPU, GPU, RAM) and their drivers?"))
+    lines.append(_t(lang, "➡ 'tak' sprawdza, 'pomiń' kończy.",
+                          "➡ 'yes' checks, 'skip' ends here."))
     try:
         from hck_gpt.memory.session_memory import session_memory
         session_memory.record_response_data("optimize_guide", {
@@ -170,13 +330,51 @@ def _s4_verify(rb, state, lang):
     return lines
 
 
+# ── steps 5-6 (2026-11-17): components, then their drivers ──────────────────
+def _s4_components_act(rb, state, lang):
+    """'tak' on step 5: think for a moment (the chat shows its spinner on
+    §PAUSE), then CPU, GPU and RAM, each in its own block."""
+    from core.component_check import components
+    state["components_checked"] = True
+    return ["§PAUSE"] + components(lang) + [""]
+
+
+def _s5_drivers_say(rb, state, lang):
+    if not state.get("components_checked"):
+        # "pomiń" on step 5 ends the guide; the finish line says goodbye
+        return []
+    return [_card(lang, 6, "Sterowniki", "Drivers"),
+            _t(lang,
+               "Na koniec: sprawdzić, jak stare są sterowniki CPU, GPU i RAM? Oceniam spokojnie, "
+               "bez straszenia datami.",
+               "Last one: check how old the CPU, GPU and RAM drivers are? Judged calmly, "
+               "no scare dates."),
+            _t(lang, "➡ 'tak' sprawdza, 'pomiń' kończy.", "➡ 'yes' checks, 'skip' ends here.")]
+
+
+def _s5_drivers_act(rb, state, lang):
+    from core.component_check import drivers
+    state["drivers_checked"] = True
+    return ["§PAUSE"] + drivers(lang)
+
+
+def _finish(rb, state, lang):
+    return ["", _t(lang,
+        "✓ Przewodnik zakończony. Dalej uczę się Twojego 'normalnie', więc każda kolejna "
+        "rada będzie celniejsza. Wrócisz tu przyciskiem ⚡ Optymalizacja.",
+        "✓ Guide finished. I keep learning your 'normal', so each next tip gets sharper. "
+        "The ⚡ Optimize button brings you back here.")]
+
+
 flow_engine.register(Flow("optimize", [
-    FlowStep(_s0_measure),
-    FlowStep(_s1_startup),
-    FlowStep(_s2_services),
-    FlowStep(_s3_ram_say, act=_s3_ram_act),
-    FlowStep(_s4_verify),
-]))
+    FlowStep(_s0_measure, chips=("start",)),
+    FlowStep(_s1_startup, ask=_s1_ask, chips=("next", "nav:Startup Manager")),
+    FlowStep(_s2_services, ask=_s2_ask, chips=("next", "nav:Services Manager")),
+    FlowStep(_s3_ram_say, act=_s3_ram_act, ask=_s3_ask),
+    FlowStep(_s4_verify, act=_s4_components_act, yes=("TAK, SPRAWDŹ", "YES, CHECK")),
+    FlowStep(_s5_drivers_say, act=_s5_drivers_act, yes=("TAK, SPRAWDŹ", "YES, CHECK"),
+             chips=("nav:Setup & Drivers",)),
+], finish=_finish))
 
 
 # ── cooling diagnosis ───────────────────────────────────────────────────────

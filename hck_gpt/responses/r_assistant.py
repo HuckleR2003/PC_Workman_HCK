@@ -166,8 +166,8 @@ class AssistantResponses:
         if lang == "en":
             return [
                 f"{self.PREFIX} About PC Workman HCK v{ver}:",
-                "  A real-time PC monitor + optimizer - runs fully on your machine,",
-                "  nothing in the cloud.",
+                "  A real-time PC monitor + optimizer. Usage history, learning and",
+                "  chats stay on your computer.",
                 "  • Live CPU / RAM / GPU tracking with history graphs",
                 "  • hck_GPT - AI assistant (bilingual PL/EN, learns your patterns, Ollama-ready)",
                 "  • Stats engine - daily/weekly usage history (local SQLite)",
@@ -176,13 +176,13 @@ class AssistantResponses:
                 "  • DeepMonitor + 2.5D MAP OF COMPONENTS - live hardware view",
                 "  • Process library - identifies 370+ running programs & games",
                 "",
-                "  Your data stays local - want proof it runs clean?  [-> Stability Tests]",
+                *self._telemetry_lines("en"),
                 "  💬 Try: 'specs'  'health'  'temperatures'  'what do you collect'",
             ]
         return [
             f"{self.PREFIX} O programie PC Workman HCK v{ver}:",
-            "  Monitor i optymalizator PC w czasie rzeczywistym - działa w całości",
-            "  na Twoim komputerze, nic nie idzie do chmury.",
+            "  Monitor i optymalizator PC w czasie rzeczywistym. Historia użytkowania,",
+            "  nauka i rozmowy zostają na Twoim komputerze.",
             "  • Śledzenie CPU / RAM / GPU na żywo z wykresami historii",
             "  • hck_GPT - asystent AI (PL/EN, uczy się Twoich wzorców, gotowy na Ollama)",
             "  • Silnik statystyk - lokalna historia użytkowania (SQLite)",
@@ -191,23 +191,56 @@ class AssistantResponses:
             "  • DeepMonitor + MAPA PODZESPOŁÓW 2.5D - podgląd sprzętu na żywo",
             "  • Biblioteka procesów - identyfikuje 370+ programów i gier",
             "",
-            "  Twoje dane zostają u Ciebie - chcesz dowód, że działa czysto?  [-> Stability Tests]",
+            *self._telemetry_lines("pl"),
             "  💬 Spróbuj: 'specyfikacja'  'zdrowie'  'temperatury'  'jakie dane zbierasz'",
         ]
 
+    @staticmethod
+    def _telemetry_lines(lang: str) -> List[str]:
+        """What actually leaves the PC, said the same way everywhere
+        (2026-11-16). The answers used to claim "nothing goes to the cloud"
+        and "never sent without consent" while telemetry is on by default."""
+        try:
+            from core import network
+            on = network.telemetry_enabled()
+        except Exception:
+            on = None
+        if lang == "en":
+            head = ("  • Anonymous telemetry is ON: " if on else
+                    "  • Anonymous telemetry is OFF. When on, it sends: ")
+            return [
+                head + "a random install ID, app version, session",
+                "    length, Windows version, country, hardware models and screen sizes.",
+                "    No files, no process names, nothing you type. Switch: [-> Settings]",
+            ]
+        head = ("  • Anonimowa telemetria jest WŁĄCZONA: " if on else
+                "  • Anonimowa telemetria jest WYŁĄCZONA. Włączona wysyła: ")
+        return [
+            head + "losowy identyfikator instalacji,",
+            "    wersję, długość sesji, wersję Windows, kraj, modele sprzętu i ekrany.",
+            "    Bez plików, nazw procesów i niczego, co piszesz. Przełącznik: [-> Settings]",
+        ]
+
     def _resp_about_author(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        # Marcin's own story, from his note of 2026-11-16 (was "built by HCK
+        # Labs", which told nobody anything). Public text: change only with
+        # his approval.
         if lang == "en":
             return [
-                f"{self.PREFIX} PC Workman HCK was built by HCK Labs.",
-                "  An independent one-person development project.",
-                "  Focused on giving Windows users real insight into",
-                "  what their PC is actually doing - no bloat, no cloud.",
+                f"{self.PREFIX} I'm made by Marcin, from Poland. One person, no studio.",
+                "  PC Workman grew at night, after work shifts: first a tool for my own PC,",
+                "  then something I wanted others to have. Everything in it I build",
+                "  and test myself, and I read every bug report.",
+                "  I also make other projects, among them the game Scaling Laws.",
+                "  Meet me, the projects and the story behind them :)  [-> pcworkman.dev]",
             ]
         return [
-            f"{self.PREFIX} PC Workman HCK został stworzony przez HCK Labs.",
-            "  Niezależny, jednoosobowy projekt deweloperski.",
-            "  Celem było danie użytkownikom Windows prawdziwego wglądu",
-            "  w to, co dzieje się z ich komputerem - bez zbędnych rzeczy.",
+            f"{self.PREFIX} Tworzy mnie Marcin z Polski. Jedna osoba, bez studia.",
+            "  PC Workman powstaje nocami, po zmianach w pracy: najpierw jako narzędzie",
+            "  do własnego komputera, potem jako coś, co chciałem dać innym.",
+            "  Wszystko w nim sam buduję i testuję, a każde zgłoszenie błędu czytam.",
+            "  Robię też inne projekty, między innymi grę Scaling Laws.",
+            "  Poznaj mnie, projekty i historię zza kulis :)  [-> pcworkman.dev]",
         ]
 
     def _resp_privacy_data(self, r: ParseResult, lang: str = "pl") -> List[str]:
@@ -218,8 +251,7 @@ class AssistantResponses:
                 "  • I only remember hardware stats - CPU/RAM/GPU load, temperatures,",
                 "    uptime - in a local SQLite database on your own disk.",
                 "  • I never read your files, keystrokes, browser or anything personal.",
-                "  • I never send your data anywhere without consent - every bit of",
-                "    internet access is yours to control in Settings.",
+                *self._telemetry_lines("en"),
                 "  • Nothing is hidden: it all lives in plain files you can open.",
                 "",
                 "  Want to see for yourself how clean it runs?  [-> Stability Tests]",
@@ -230,8 +262,7 @@ class AssistantResponses:
             "  • Zapamiętuję tylko statystyki sprzętu - obciążenie CPU/RAM/GPU,",
             "    temperatury, czas pracy - w lokalnej bazie SQLite na Twoim dysku.",
             "  • Nigdy nie czytam plików, klawiatury, przeglądarki ani niczego osobistego.",
-            "  • Nigdy nie wysyłam Twoich danych bez zgody - każdy dostęp do",
-            "    internetu w całości kontrolujesz w Ustawieniach.",
+            *self._telemetry_lines("pl"),
             "  • Nic nie jest ukryte: wszystko leży w zwykłych plikach, które otworzysz.",
             "",
             "  Chcesz sam zobaczyć, jak czysto działa?  [-> Stability Tests]",
@@ -272,6 +303,16 @@ class AssistantResponses:
                     continue
             names_cpu.sort(key=lambda x: x[1], reverse=True)
             names_ram.sort(key=lambda x: x[1], reverse=True)
+            # "the biggest culprit: System Idle Process" (third long test):
+            # idle time and the kernel are not culprits, and one unmeasured
+            # pass ranks idle first. Measured over half a second instead.
+            try:
+                hog = self._cpu_by_app(1)
+                if hog:
+                    names_cpu = [(hog[0][0], hog[0][1])]
+            except Exception:
+                names_cpu = [n for n in names_cpu if n[0].lower() not in
+                             ("system idle process", "system", "idle", "registry")]
             if names_cpu:
                 top_cpu_name = names_cpu[0][0]
             if names_ram:
@@ -527,7 +568,7 @@ class AssistantResponses:
         _bpl = {"idle": "bezczynność", "light": "lekki", "medium": "średni",
                 "heavy": "intensywny", "gaming": "gaming"}
         try:
-            from core.thermal_baseline import thermal_baseline as tb
+            from core.thermal_baseline import thermal_baseline as tb, T_BASIC
             pm     = tb.primary_metric()
             plabel = tb.metric_label(pm, lang)
             unit   = tb.metric_unit(pm)
@@ -535,11 +576,11 @@ class AssistantResponses:
             hrs    = tb.total_observed_hours()
             pct    = tb.overall_training_pct()
             lines.append(_t(lang,
-                f"  ⏱ Uczę się od {since} · {hrs:.0f}h obserwacji · {pct}% skalibrowane",
-                f"  ⏱ Learning for {since} · {hrs:.0f}h observed · {pct}% calibrated"))
+                f"  ⏱ Uczę się od {since} · {hrs:.1f} h obserwacji · {pct}% nauczone",
+                f"  ⏱ Learning for {since} · {hrs:.1f} h observed · {pct}% learned"))
             status  = tb.training_status(pm)
             learned = [(b, status[b]) for b in ("idle", "light", "medium", "heavy", "gaming")
-                       if status.get(b, {}).get("n", 0) >= 20]
+                       if status.get(b, {}).get("n", 0) >= T_BASIC]
             if learned:
                 lines.append(_t(lang, f"  Nauczone zakresy ({plabel}):",
                                       f"  Learned ranges ({plabel}):"))
@@ -548,8 +589,8 @@ class AssistantResponses:
                     lines.append(f"    {bn:<11} {info['p5']:.0f}–{info['p95']:.0f}{unit}")
             else:
                 lines.append(_t(lang,
-                    "  Zbieram dane - zakresy pojawią się przy 20+ próbkach na tryb.",
-                    "  Gathering data - ranges appear at 20+ samples per workload."))
+                    "  Zbieram dane - zakres pojawi się po godzinie danego obciążenia.",
+                    "  Gathering data - a range appears after an hour of that workload."))
             if "cpu_temp" not in tb.available_metrics():
                 lines.append(_t(lang,
                     "  (temp. CPU: uruchom LibreHardwareMonitor, by ją odblokować)",
@@ -575,8 +616,8 @@ class AssistantResponses:
         except Exception:
             pass
         lines.append(_t(lang,
-            "  Zero chmury - pełny obraz w Learning Center (Monitoring & Alerts).",
-            "  Zero cloud - the full picture is in the Learning Center (Monitoring & Alerts)."))
+            "  Wszystko, czego się nauczyłem, zostaje na komputerze. Pełny obraz: [-> Learning Center]",
+            "  Everything I learned stays on this PC. Full picture: [-> Learning Center]"))
         return lines
 
     def _resp_tuneup_guide(self, r: ParseResult, lang: str = "pl") -> List[str]:

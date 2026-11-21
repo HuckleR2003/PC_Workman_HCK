@@ -127,6 +127,52 @@ def _missing_question(key: str, lang: str, attempt: int = 1) -> str:
     return en if lang == "en" else pl
 
 
+
+_CONTEXT_WORDS = {
+    "gaming":  ("w grze", "in a game"),
+    "desktop": ("na pulpicie", "on the desktop"),
+    "browser": ("w przeglądarce", "in the browser"),
+    "startup": ("przy starcie", "at startup"),
+    "work":    ("przy pracy", "while working"),
+}
+
+
+# stored values -> words (2026-11-17: "częstotliwość: consistent",
+# "rodzaj: network" were shown raw)
+_VALUE_WORDS = {
+    "fps": ("spadki FPS", "FPS drops"), "stutter": ("przycięcia", "stutter"),
+    "network": ("sieć / ping", "network / ping"), "freeze": ("zawieszanie", "freezing"),
+    "hitching": ("szarpanie", "hitching"), "latency": ("opóźnienie", "latency"),
+    "rubberband": ("przeskakiwanie postaci", "rubber-banding"),
+    "slow": ("ogólne spowolnienie", "general slowness"), "unclear": ("niejasny", "unclear"),
+    "consistent": ("cały czas", "all the time"), "constantly": ("cały czas", "all the time"),
+    "intermittent": ("od czasu do czasu", "now and then"), "sometimes": ("czasami", "sometimes"),
+    "occasionally": ("czasami", "now and then"), "randomly": ("losowo", "randomly"),
+    "recurring": ("powtarza się", "keeps coming back"), "first_time": ("pierwszy raz", "first time"),
+    "immediately": ("od razu", "right away"), "after_a_while": ("po chwili", "after a while"),
+    "mid_session": ("w trakcie", "midway"), "late_session": ("po dłuższym czasie", "after a long time"),
+    "windows_update": ("po aktualizacji Windows", "after a Windows update"),
+    "game_update": ("po aktualizacji gry", "after a game update"),
+    "new_install": ("po instalacji programu", "after an install"),
+    "settings_change": ("po zmianie ustawień", "after a settings change"),
+    "all_games": ("wszystkie gry", "all games"), "one_game": ("jedna gra", "one game"),
+    "system_wide": ("cały system", "the whole system"),
+}
+
+
+def _human_detail(key, label, value, lang):
+    """One remembered detail as words: "w grze", "gra: GTA 5"."""
+    pl = lang != "en"
+    if key == "context" and value in _CONTEXT_WORDS:
+        return _CONTEXT_WORDS[value][0 if pl else 1]
+    if value in _VALUE_WORDS:
+        return f"{label}: {_VALUE_WORDS[value][0 if pl else 1]}"
+    if key == "game":
+        name = " ".join(w.upper() if len(w) <= 3 else w.capitalize()
+                        for w in str(value).split())
+        return f"{label}: {name}"
+    return f"{label}: {value}"
+
 class ConversationResponses:
     def _resp_correct_subject(self, r: ParseResult,
                               lang: str = "pl") -> List[str]:
@@ -310,9 +356,11 @@ class ConversationResponses:
             ("trigger", _t(lang, "punkt startowy", "trigger")),
         ):
             if key in details:
-                accepted.append(f"{label}={details[key]}")
+                accepted.append(_human_detail(key, label, details[key], lang))
         if accepted:
-            lines.append("  " + ", ".join(accepted))
+            # read as a sentence, not "miejsce=gaming, gra=gta 5" (second
+            # long test, 2026-11-17)
+            lines.append(_t(lang, "  Zapisane: ", "  Noted: ") + ", ".join(accepted) + ".")
 
         previous_evidence = before.get("evidence") or {}
         revised = [
@@ -339,16 +387,30 @@ class ConversationResponses:
                 question or missing[0], lang, attempt,
             ))
         elif evidence.get("context") == "gaming":
-            lines.append(_t(
-                lang,
-                "  Mamy już miejsce, moment i typ problemu. Następny krok: odtwórz go w tej samej grze i sprawdź [-> My PC], wtedy zestawię CPU, RAM, GPU i temperatury.",
-                "  We now have the context, timing, and issue type. Next, reproduce it in the same game and check [-> My PC], then I can line up CPU, RAM, GPU, and temperatures.",
-            ))
+            # with the picture complete, check what is checkable now instead
+            # of only asking to reproduce it (2026-11-17)
+            lines.append(_t(lang,
+                "  Mamy już miejsce, moment i typ problemu. Co sprawdziłem na tym komputerze:",
+                "  We have the context, timing and issue type. What I checked on this PC:"))
+            try:
+                lines += self._fps_checklist(lang)
+            except Exception:
+                pass
+            lines.append(_t(lang,
+                "  Po zmianach odtwórz problem w tej samej grze i napisz „sprawdź ponownie”.",
+                "  After changes, reproduce it in the same game and say 'check again'."))
+            lines.append("§OFFER optimize")
         else:
+            lines.append(_t(lang,
+                "  Co sprawdziłem na tym komputerze:", "  What I checked on this PC:"))
+            try:
+                lines += self._fps_checklist(lang)
+            except Exception:
+                pass
             lines.append(_t(
                 lang,
-                "  Kontekst jest wystarczający do kolejnego pomiaru. Powtórz objaw, a potem napisz „sprawdź ponownie”.",
-                "  The context is sufficient for the next measurement. Reproduce the issue, then say 'check again'.",
+                "  Powtórz objaw, a potem napisz „sprawdź ponownie”, porównam pomiary.",
+                "  Reproduce the issue, then say 'check again' and I compare the readings.",
             ))
         return lines
 

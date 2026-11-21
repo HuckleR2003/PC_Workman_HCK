@@ -233,6 +233,14 @@ class SystemResponses:
         else:
             verdict = _t(lang, "⚠ Za dużo elementów startowych - spowolnienie boot.", "⚠ Too many startup items - boot is slower.")
 
+        # "MicrosoftEdgeAutoLaunch_6BE24301AD05CA3C4A62FD6F29F2087D" ->
+        # "MicrosoftEdgeAutoLaunch" (2026-11-17)
+        def _clean(n):
+            import re as _re
+            return _re.sub(r"_[0-9A-Fa-f]{12,}$", "", str(n))[:32]
+        high, medium, low = ([_clean(n) for n in high], [_clean(n) for n in medium],
+                             [_clean(n) for n in low])
+
         lines = [_t(lang,
                     f"{self.PREFIX} Programy startowe ({total} wpisów):",
                     f"{self.PREFIX} Startup programs ({total} entries):")]
@@ -480,10 +488,20 @@ class SystemResponses:
         return lines
 
     def _resp_driver_status(self, r: ParseResult, lang: str = "pl") -> List[str]:
-        """
-        Shows GPU/display/audio driver info with dates via PowerShell/WMI.
-        Color-codes by age: <6 months green, 6-18 months yellow, >18 months red.
-        """
+        """The drivers that matter, judged calmly (2026-11-17): graphics by
+        date, the platform by its newest real date, RAM through the BIOS.
+        Same report as the last step of the optimization guide. The old
+        list led with "NVIDIA Virtual Audio Device · 33m old"."""
+        try:
+            from core.component_check import drivers
+            return [_t(lang, f"{self.PREFIX} Sterowniki kluczowych podzespołów:",
+                       f"{self.PREFIX} Drivers of the key components:")] + drivers(lang)
+        except Exception:
+            pass
+        return self._driver_status_wmi(r, lang)
+
+    def _driver_status_wmi(self, r: ParseResult, lang: str = "pl") -> List[str]:
+        """Fallback: GPU/display/audio drivers with dates via PowerShell/WMI."""
         import subprocess, datetime
 
         lines = [_t(lang,
@@ -521,8 +539,12 @@ class SystemResponses:
                 age_str = "?"
                 color   = ""
                 try:
-                    date_str = date_raw[:8]  # YYYYMMDD
-                    dt = datetime.datetime.strptime(date_str, "%Y%m%d")
+                    # ConvertTo-Json returns "/Date(ms)/", not YYYYMMDD: the
+                    # shared parser handles both (see core.hardware_detector)
+                    from core.hardware_detector import parse_cim_date
+                    dt = parse_cim_date(date_raw)
+                    if dt is None:
+                        raise ValueError(date_raw)
                     months = (now - dt).days // 30
                     age_str = f"{months}m"
                     if months < 6:
@@ -578,6 +600,44 @@ class SystemResponses:
                 if wp in raw:
                     proc_name = wp + ".exe"
                     break
+        if not proc_name:
+            # any running program named without ".exe" ("co to msmpeng")
+            proc_name = self._running_named(raw) or None
+
+        if proc_name:
+            # "it" for "czy mogę go wyłączyć?" next (fourth long test: after
+            # "co to searchindexer?" that follow-up was not understood)
+            try:
+                from hck_gpt.memory.session_memory import session_memory
+                session_memory.note_reference("process", proc_name, "process_identity")
+            except Exception:
+                pass
+
+        if not proc_name:
+            # not running: the process library still knows many programs
+            # ("co to teams" asked for an .exe name)
+            try:
+                import re as _re2
+                from hck_gpt.process_library import process_library as _pl
+                words = [w for w in _re2.findall(r"[a-z0-9_.-]{3,}", raw)
+                         if w not in ("jest", "czym", "proces", "program", "what", "this")]
+                for w in words:
+                    key = next((k for k in _pl.processes
+                                if k.rsplit(".exe", 1)[0] == w or k.startswith(w)), None)
+                    if key:
+                        info = _pl.processes[key]
+                        try:
+                            from hck_gpt.memory.session_memory import session_memory
+                            session_memory.note_reference("process", key, "process_identity")
+                        except Exception:
+                            pass
+                        return [_t(lang, f"{self.PREFIX} {info.get('name', key)} ({key}), {info.get('vendor', '')}:",
+                                   f"{self.PREFIX} {info.get('name', key)} ({key}), {info.get('vendor', '')}:"),
+                                f"  {info.get('description', '')}",
+                                _t(lang, f"  Bezpieczeństwo: {info.get('safety', '?')}. Teraz nie działa, więc nie sprawdzam podpisu ani lokalizacji.",
+                                   f"  Safety: {info.get('safety', '?')}. It is not running now, so I do not check its signature or location.")]
+            except Exception:
+                pass
 
         if not proc_name:
             if lang == "en":
@@ -883,6 +943,30 @@ class SystemResponses:
                 f"{self.PREFIX} Nie złapałem procesu do analizy - spróbuj 'top procesy'.",
                 f"{self.PREFIX} Couldn't grab a process to analyse - try 'top processes'.")]
 
+    @staticmethod
+    def _running_named(raw: str) -> str:
+        """A running program the message names without ".exe", Polish endings
+        allowed: "opere" -> opera.exe, "discorda" -> discord.exe (2026-11-17)."""
+        import re
+        words = [w for w in re.findall(r"[a-ząćęłńóśźż0-9]+", raw) if len(w) >= 4]
+        skip = {"zamknac", "zamknąć", "wylaczyc", "wyłączyć", "moge", "mogę", "czy",
+                "close", "program", "proces", "aplikacje", "aplikację", "teraz"}
+        words = [w for w in words if w not in skip]
+        if not words:
+            return ""
+        try:
+            import psutil
+            names = {(p.info.get("name") or "").lower() for p in psutil.process_iter(["name"])}
+        except Exception:
+            return ""
+        for w in words:
+            stem = w[:-1] if len(w) > 4 else w
+            for n in sorted(names):
+                base = n.rsplit(".exe", 1)[0]
+                if len(base) >= 4 and (base.startswith(stem) or w.startswith(base)):
+                    return n
+        return ""
+
     def _resp_process_kill(self, r: ParseResult, lang: str = "pl") -> List[str]:
         # Safety by design: chat never kills anything. It can still identify the
         # named target and give a concrete, protected-process-aware verdict.
@@ -890,20 +974,39 @@ class SystemResponses:
         raw = (r.raw_text or "").lower()
         match = re.search(r"[\w.-]+\.exe", raw)
         proc_name = match.group(0) if match else ""
+        if not proc_name:
+            proc_name = self._running_named(raw)
         proc_path = ""
         proc_cpu = proc_ram = None
         if proc_name:
+            # every instance together: a browser is a dozen processes, the
+            # first one alone said "opera.exe RAM 12 MB" (2026-11-17)
             try:
                 import psutil
-                for proc in psutil.process_iter(
-                        ["name", "exe", "cpu_percent", "memory_info"]):
+                import time as _time
+                found = []
+                for proc in psutil.process_iter(["name", "exe", "memory_info"]):
                     if (proc.info.get("name") or "").lower() != proc_name:
                         continue
-                    proc_path = proc.info.get("exe") or ""
-                    proc_cpu = float(proc.info.get("cpu_percent") or 0)
-                    mem = proc.info.get("memory_info")
-                    proc_ram = (mem.rss / 1_048_576) if mem else 0.0
-                    break
+                    found.append(proc)
+                    proc_path = proc_path or proc.info.get("exe") or ""
+                if found:
+                    for p in found:
+                        try:
+                            p.cpu_percent(None)
+                        except Exception:
+                            pass
+                    _time.sleep(0.4)
+                    cpu = ram = 0.0
+                    for p in found:
+                        try:
+                            cpu += p.cpu_percent(None)
+                            mem = p.info.get("memory_info")
+                            ram += (mem.rss / 1_048_576) if mem else 0.0
+                        except Exception:
+                            continue
+                    proc_cpu = cpu / (psutil.cpu_count() or 1)
+                    proc_ram = ram
             except Exception:
                 pass
 
@@ -954,9 +1057,24 @@ class SystemResponses:
                    "  hck_GPT will not perform this action. Closing it could sign you out, restart Windows or interrupt the game."),
             ]
 
-        lines = [_t(lang,
-            f"{self.PREFIX} Sprawdzam, ale nie zabijam procesów z czatu.",
-            f"{self.PREFIX} I can check it, but I do not kill processes from chat.")]
+        # A verdict first (2026-11-17): "A czy mogę to wyłączyć?" got the numbers
+        # and a general warning, never a plain "yes, you can".
+        _sys_dirs = ("\\windows\\system32", "\\windows\\syswow64", "\\windows\\systemapps")
+        _is_sys = any(d in (proc_path or "").lower() for d in _sys_dirs)
+        if proc_name and proc_name != "explorer.exe" and not _is_sys:
+            lines = [_t(lang,
+                f"{self.PREFIX} Tak, {proc_name} możesz bezpiecznie zamknąć: to zwykły program, nie część Windows. "
+                f"Stracisz tylko niezapisaną pracę w nim.",
+                f"{self.PREFIX} Yes, you can safely close {proc_name}: it is an ordinary program, not part of Windows. "
+                f"You only lose unsaved work in it.")]
+        elif proc_name and _is_sys:
+            lines = [_t(lang,
+                f"{self.PREFIX} {proc_name} to składnik Windows (System32): lepiej go nie zamykać, Windows i tak go uruchomi ponownie.",
+                f"{self.PREFIX} {proc_name} is part of Windows (System32): better not to close it, Windows would restart it anyway.")]
+        else:
+            lines = [_t(lang,
+                f"{self.PREFIX} Sprawdzam, ale nie zabijam procesów z czatu.",
+                f"{self.PREFIX} I can check it, but I do not kill processes from chat.")]
         if proc_name:
             if proc_cpu is not None:
                 lines.append(_t(
