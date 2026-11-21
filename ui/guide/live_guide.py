@@ -18,6 +18,7 @@ Steps:
                     + secondary tooltip beside the Settings item
 """
 from __future__ import annotations
+from utils.fonts import UI as _FONT_UI, HDR as _FONT_HDR, HEAVY as _FONT_HEAVY, LIGHT as _FONT_LIGHT  # noqa: F401
 import tkinter as tk
 from typing import Optional, Tuple
 
@@ -26,8 +27,8 @@ from typing import Optional, Tuple
 try:
     from utils.fonts import UI as _UIF, MONO as _MONOF
 except ImportError:
-    _UIF, _MONOF = "Segoe UI", "Consolas"
-_HDR  = "Segoe UI Semibold"
+    _UIF, _MONOF = _FONT_UI, "Consolas"
+_HDR  = _FONT_HDR
 _BODY = _UIF
 _MONO = _MONOF
 
@@ -38,7 +39,7 @@ _SPOT_COL = "#ffffff"   # Windows -transparentcolor key
 _CARD_BG  = "#0a0f1a"   # card solid background
 _DIVIDER  = "#1e293b"
 _TEXT     = "#e2e8f0"
-_MUTED    = "#475569"
+_MUTED    = "#7c889b"
 _BODY_TXT = "#94a3b8"
 
 # Glow layers - bordeaux red (steps 1-3, 5)
@@ -720,7 +721,7 @@ class LiveGuide:
         txt_col = tk.Frame(left, bg=_BNR_BG)
         txt_col.pack(side="left")
         tk.Label(txt_col, text="Was that enough?",
-                 font=("Segoe UI Semibold", 10, "bold"),
+                 font=(_FONT_HDR, 10, "bold"),
                  bg=_BNR_BG, fg=_BNR_TXT, anchor="w").pack(anchor="w")
         tk.Label(txt_col, text="You can expand any section or close the guide.",
                  font=(_BODY, 8), bg=_BNR_BG, fg=_BNR_AMB, anchor="w").pack(anchor="w")
@@ -729,7 +730,7 @@ class LiveGuide:
         right.pack(side="right", fill="y", pady=12)
 
         close_btn = tk.Label(right, text="Got it  ✓",
-                             font=("Segoe UI Semibold", 9, "bold"),
+                             font=(_FONT_HDR, 9, "bold"),
                              bg="#2a1400", fg=_BNR_AMB,
                              padx=16, pady=5, cursor="hand2",
                              highlightthickness=1, highlightbackground=_BNR_LINE)
@@ -739,7 +740,7 @@ class LiveGuide:
         close_btn.bind("<Leave>",    lambda _: close_btn.config(bg="#2a1400"))
 
         more_btn = tk.Label(right, text="Show more  ->",
-                            font=("Segoe UI Semibold", 9, "bold"),
+                            font=(_FONT_HDR, 9, "bold"),
                             bg=_BNR_AMB, fg="#1a0700", padx=16, pady=5, cursor="hand2")
         more_btn.pack(side="left")
         more_btn.bind("<Button-1>", lambda _: self._on_expand())
