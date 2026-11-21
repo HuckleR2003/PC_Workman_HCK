@@ -9,6 +9,8 @@
 User-agent: *
 Allow: /
 # Old copies of the story page, kept on disk, not for indexing.
+# Repeated in every named group below: a crawler obeys only the most
+# specific group that names it, so a rule here alone does not reach them.
 Disallow: /backup/
 
 Sitemap: https://pcworkman.dev/sitemap.xml
@@ -16,12 +18,15 @@ Sitemap: https://pcworkman.dev/sitemap.xml
 # ── Search engine crawlers — welcome ─────────────────────────
 User-agent: Googlebot
 Allow: /
+Disallow: /backup/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /backup/
 
 User-agent: DuckDuckBot
 Allow: /
+Disallow: /backup/
 
 # ── AI assistant & LLM crawlers — explicitly welcome ─────────
 # This is an open-source project; being quotable by AI assistants
@@ -29,81 +34,108 @@ Allow: /
 
 User-agent: GPTBot
 Allow: /
+Disallow: /backup/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /backup/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /backup/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /backup/
 
 User-agent: Claude-User
 Allow: /
+Disallow: /backup/
 
 User-agent: Claude-SearchBot
 Allow: /
+Disallow: /backup/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /backup/
 
 User-agent: CCBot
 Allow: /
+Disallow: /backup/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /backup/
 
 User-agent: GoogleOther
 Allow: /
+Disallow: /backup/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /backup/
 
 User-agent: Perplexity-User
 Allow: /
+Disallow: /backup/
 
 User-agent: Applebot
 Allow: /
+Disallow: /backup/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /backup/
 
 User-agent: meta-externalagent
 Allow: /
+Disallow: /backup/
 
 User-agent: FacebookBot
 Allow: /
+Disallow: /backup/
 
 User-agent: Amazonbot
 Allow: /
+Disallow: /backup/
 
 User-agent: cohere-ai
 Allow: /
+Disallow: /backup/
 
 User-agent: MistralAI-User
 Allow: /
+Disallow: /backup/
 
 User-agent: YouBot
 Allow: /
+Disallow: /backup/
 
 User-agent: DuckAssistBot
 Allow: /
+Disallow: /backup/
 
 User-agent: AI2Bot
 Allow: /
+Disallow: /backup/
 
 User-agent: Bytespider
 Allow: /
+Disallow: /backup/
 
 User-agent: Diffbot
 Allow: /
+Disallow: /backup/
 
 User-agent: Timpibot
 Allow: /
+Disallow: /backup/
 
 User-agent: omgili
 Allow: /
+Disallow: /backup/
 
 User-agent: FirecrawlAgent
 Allow: /
+Disallow: /backup/
