@@ -38,6 +38,8 @@ _PAGES = {
     "fans_usage_stats", "overclock", "statistics", "first_setup",
     "upgrade_readiness", "guide", "settings", "hck_labs", "live_graphs",
     "sensors",
+    # the big update's pages (2026-11-21): a guide can open them too
+    "process_center", "cleanup", "health_report", "profile",
 }
 
 

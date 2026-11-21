@@ -6,9 +6,24 @@ Call init(root) once, immediately after tk.Tk() is created.
 
 SCALE = 1.0
 
-_BASE_W = 1160
-_BASE_H = 575
-_BASE_SIDEBAR = 180
+# Every point-sized font is drawn this much larger than its number says
+# (2026-11-16). The smallest texts (status lines, captions, 6-7 pt) were hard
+# to read at 1080p; one factor here raises all of them evenly, and the window
+# grew by about the same amount so layouts keep their proportions.
+FONT_BOOST = 1.10
+
+# The size the layout was designed at. SCALE (and with it every font) is
+# computed from this, so a small laptop keeps the same text size as before.
+_DESIGN_W = 1160
+_DESIGN_H = 575
+# Default window on a 1080p screen: 12 % larger than the design size
+# (2026-11-16), together with FONT_BOOST, so the larger text has room. On a
+# screen too small for it the window takes what fits, never less than the
+# design size.
+_BASE_W = 1300
+_BASE_H = 645
+_SCREEN = (1920, 1080)
+_BASE_SIDEBAR = 196
 
 
 def init(root):
@@ -24,11 +39,12 @@ def init(root):
     the window: identical look at 1080p/100%, proportionally smaller on sub-FHD
     screens, doubled on 4K. One call - every point-sized font in the app obeys.
     """
-    global SCALE
-    SCALE = _compute_scale(root.winfo_screenwidth(), root.winfo_screenheight())
+    global SCALE, _SCREEN
+    _SCREEN = (root.winfo_screenwidth(), root.winfo_screenheight())
+    SCALE = _compute_scale(*_SCREEN)
 
     try:
-        root.tk.call("tk", "scaling", (96.0 / 72.0) * SCALE)
+        root.tk.call("tk", "scaling", (96.0 / 72.0) * SCALE * FONT_BOOST)
     except Exception:
         pass
 
@@ -59,20 +75,29 @@ def _compute_scale(sw: int, sh: int) -> float:
         tier = 1.0
     else:
         # smaller laptops: biggest window that still fits comfortably
-        fit_w = (sw * 0.88) / _BASE_W
-        fit_h = (sh * 0.85) / _BASE_H
+        fit_w = (sw * 0.88) / _DESIGN_W
+        fit_h = (sh * 0.85) / _DESIGN_H
         return max(0.75, min(fit_w, fit_h, 1.0))
 
     # Wide screen, but the window still has to fit the height of it.
-    return max(0.75, min(tier, (sh * 0.85) / _BASE_H))
+    return max(0.75, min(tier, (sh * 0.85) / _DESIGN_H))
+
+
+def window_size(sw: int, sh: int) -> tuple:
+    """Default (compact) window for a screen: the enlarged base where it
+    fits, otherwise what fits, never below the design size."""
+    s = _compute_scale(sw, sh)
+    w = min(int(_BASE_W * s), int(sw * 0.92))
+    h = min(int(_BASE_H * s), int(sh * 0.85))
+    return max(w, int(_DESIGN_W * s)), max(h, int(_DESIGN_H * s))
 
 
 def compact_w() -> int:
-    return int(_BASE_W * SCALE)
+    return window_size(*_SCREEN)[0] if SCALE == _compute_scale(*_SCREEN)         else int(_BASE_W * SCALE)
 
 
 def compact_h() -> int:
-    return int(_BASE_H * SCALE)
+    return window_size(*_SCREEN)[1] if SCALE == _compute_scale(*_SCREEN)         else int(_BASE_H * SCALE)
 
 
 def sidebar_width() -> int:

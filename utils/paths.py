@@ -47,6 +47,16 @@ def _local_appdata_dir() -> str:
 
 def _app_dir() -> str:
     """Katalog trwałego zapisu (patrz nagłówek modułu)."""
+    # PCW_APP_DIR: a separate folder for settings and data (2026-11-15). The
+    # test suite sets it so a test can never write the real settings, and a
+    # tester can run a second, clean profile next to the normal one.
+    override = os.environ.get("PCW_APP_DIR")
+    if override:
+        try:
+            os.makedirs(override, exist_ok=True)
+            return override
+        except Exception:
+            pass
     if getattr(sys, "frozen", False):
         exe_dir = os.path.dirname(sys.executable)
         # Microsoft Store / MSIX: install dir is read-only -> LOCALAPPDATA
@@ -66,3 +76,16 @@ def _bundle_dir() -> str:
 
 APP_DIR    = _app_dir()
 BUNDLE_DIR = _bundle_dir()
+
+
+def log_dir() -> str:
+    """
+    Folder for errors.log and freeze_dump.txt.
+
+    PCW_LOG_DIR overrides it. The test suite sets that to a temp folder:
+    tests build the real window without a mainloop, which the freeze watchdog
+    reads as a stall, and until 2026-11-14 every test run appended fake
+    freezes and thread errors to the logs of real use.
+    Read at call time, so the override works even after this module is imported.
+    """
+    return os.environ.get("PCW_LOG_DIR") or os.path.join(APP_DIR, "data", "logs")

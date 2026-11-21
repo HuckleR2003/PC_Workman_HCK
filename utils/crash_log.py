@@ -24,11 +24,11 @@ _MAX_BYTES = 200_000
 
 def _path() -> str:
     try:
-        from utils.paths import APP_DIR
-        base = APP_DIR
+        from utils.paths import log_dir
+        base = log_dir()
     except Exception:
-        base = os.getcwd()
-    return os.path.join(base, "data", "logs", "errors.log")
+        base = os.path.join(os.getcwd(), "data", "logs")
+    return os.path.join(base, "errors.log")
 
 
 def _write(kind: str, text: str) -> None:

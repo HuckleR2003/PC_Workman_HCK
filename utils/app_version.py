@@ -18,7 +18,11 @@ Rules (guarded by tests/test_version.py):
     focus quietly stopped working
 """
 
-APP_VERSION = "1.8.7"
+APP_VERSION = "1.9.2"
+
+# Day this version was released (ISO). hck_GPT answers "do I have the
+# latest version?" from its age, without going online. Bump with APP_VERSION.
+RELEASE_DATE = "2026-11-21"
 
 # Exact main-window title. startup.py's single-instance path looks this
 # string up via FindWindowW, so the two must be THE SAME object - never

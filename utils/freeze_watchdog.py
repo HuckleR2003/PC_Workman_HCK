@@ -23,11 +23,11 @@ _CHECK_S = 5
 
 def _dump_path() -> str:
     try:
-        from utils.paths import APP_DIR
-        base = APP_DIR
+        from utils.paths import log_dir
+        base = log_dir()
     except Exception:
-        base = os.getcwd()
-    return os.path.join(base, "data", "logs", "freeze_dump.txt")
+        base = os.path.join(os.getcwd(), "data", "logs")
+    return os.path.join(base, "freeze_dump.txt")
 
 
 def start(root) -> None:
