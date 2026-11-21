@@ -1,10 +1,39 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// PC Workman - basic telemetry sink (Cloudflare Worker)
+// PC Workman — anonymous telemetry sink (Cloudflare Worker)
 // ─────────────────────────────────────────────────────────────────────────────
+// Receives the anonymous snapshot from the desktop app and stores only an
+// allow-listed set of fields. It never stores IP addresses or anything personal.
+//
+// DEPLOY (one time):
+//   1. Cloudflare dashboard → Workers & Pages → Create → Worker. Paste this file.
+//   2. Create a KV namespace (Storage & Databases → KV), e.g. "pcworkman_telemetry".
+//   3. Worker → Settings → Variables → KV Namespace Bindings:
+//        Variable name: TELEMETRY   →   your KV namespace.
+//   4. Deploy. Copy the Worker URL (e.g. https://telemetry.pcworkman.dev/collect
+//      via a custom route, or the workers.dev URL).
+//   5. Put that URL in  core/telemetry.py → ENDPOINT.
+//
+// UPDATE 2026-11-15 (paste and Deploy again):
+//   - "kind" and "session_id" are kept. Since 1.8.7 a session sends three
+//     kinds of report: "start", "heartbeat" (every hour) and "end" (on exit,
+//     with the real session length). Before, the only report went out 2 s
+//     after launch, so session_min was always 0.
+//   - Keys start with the DATE: 2026-11-15:<install_id>:<ms>. The KV list in
+//     the dashboard is sorted by key; with the install id first, old and new
+//     reports were mixed alphabetically and the first page looked like June.
+//     Now "Search keys by prefix" with a date shows exactly that day.
+//     Reports stored before this update keep their old keys.
+//
+// UPDATE 2026-11-16 (paste and Deploy again, BEFORE releasing 1.8.8):
+//   - "screens" is kept: up to 4 monitors as {w, h, hz, scale, primary}.
+//     Without this redeploy the Worker silently drops the field.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const ALLOWED = [
   "install_id", "app_version", "ts", "kind", "session_id", "session_min",
   "os", "country",
   "cpu", "cpu_cores", "gpu", "ram_gb", "ram_mhz", "disks", "motherboard",
+  "screens",
 ];
 
 export default {
