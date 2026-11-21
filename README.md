@@ -3,7 +3,7 @@
 > **Your PC finally has someone who speaks its language.**
 
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Available-0067b8?style=flat-square&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PGW6WS2N50V)
-![Version](https://img.shields.io/badge/Version-1.8.7-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.9.0-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
@@ -48,11 +48,13 @@ It learns *your* machine: 82°C is normal while you game but critical at idle, j
 
 ### Windows Users (Easiest)
 ```
-1. Download PC_Workman_HCK_1.8.5.zip from Releases
+1. Download PC_Workman_HCK_1.9.0.zip from Releases
 2. Extract the folder anywhere
 3. Run "PC Workman HCK.exe" and you are done.
    (keep the _internal folder next to it - that's the runtime)
 ```
+
+If it does not start, `data/logs/startup.log` next to the exe says why. Settings > General > "Show diagnostic console at startup" shows the same log in a window while the program loads; `"PC Workman HCK.exe" --console` opens a plain console instead.
 
 **[Get Latest Release](https://github.com/HuckleR2003/PC_Workman_HCK/releases)**
 
@@ -90,12 +92,16 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 
 ### Fan Dashboard *(rebuilt in 1.8.5)*
 - Curve chart with a heat gradient that brightens to red as you raise values, dual % / RPM axes, monotonic drag-safe points and a live temperature marker
-- The APPLY rule: chart and sliders are a draft (cards preview in amber); Apply persists the plan and re-locks the chart behind a hover padlock
+- The APPLY rule: chart and sliders are a draft (cards preview in amber); Apply saves the plan and re-locks the chart behind a hover padlock
+- The curve is a plan. PC Workman does not control fan speed yet; the BIOS or the vendor tool still does
+- Fan speeds are measured values only, read from LibreHardwareMonitor or OpenHardwareMonitor when one is running with its web server on. Without one, the fan pages say so instead of showing numbers
 - hck_GPT [AI] button on the chart: a temperature health check from your learned history, then the learned "hck_GPT - AI" profile chat can apply for you
 
 ### Intelligence (hck_GPT)
-- **127 intents** across 8 categories (hardware, diagnostics, performance, why, optimization, security, fun, small talk) + gaming/battery/upgrade/privacy
-- **Hybrid Engine**: rule-based responses for known intents, Ollama LLM for open-ended questions, 100% offline, no API key needed
+- **139 answer types** across hardware, diagnostics, performance, history, optimization, security, gaming, battery, upgrades, privacy and small talk; in 1.9.0 the 63-question library (193 phrasings) and 73 questions from a real session are answered
+- **Optimization guide**: 6 steps with before/after measurements, a CPU/GPU/RAM check and a driver-age check at the end; one click from the chat
+- **Reads the recorded history**: busiest moments, sleep, games played, today vs yesterday, restarts and blue screens from the Windows event log
+- **Hybrid Engine**: rule-based responses for known intents, an optional local Ollama model for open-ended questions, no API key needed (anonymous app telemetry is described in Settings and can be turned off)
 - **Bilingual**: Polish and English, auto-detected per message
 - **Session memory**: conversation context, CPU/RAM trend buffers, cross-response data store
 - **Proactive monitor with DeepMonitor integration**: background daemon watches CPU/GPU temps, RAM, throttle, disk on all drives; pushes alerts automatically; banner shows live temps
@@ -150,9 +156,9 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 
 ### Services Manager - mode configurator
 - Catalogue of 40+ Windows services in 4 categories (Essential locked / Recommended / Optional / Likely Unnecessary), plus enumeration of every installed service
-- Guided **Quick setup** strip: plain questions ("Do you use Bluetooth?") build your custom profile
+- Guided **Quick setup** strip: plain questions ("Do you use Bluetooth?") build your custom profile; answers are kept in `settings/quick_setup.json`
 - Per-service **G / E / M** chips assign each service to the **Gaming · Economy · MANAGER** modes, one source of truth, synced live with the Features mode buttons (`settings/turbo_services.json`)
-- Stop / Start / Restart per service; admin detection; all changes logged to `data/logs/service_changes.log`
+- Stop / Start per service. Stopping lasts until Windows starts the service again, usually at the next restart. Admin detection; a change Windows refuses is shown; all changes logged to `data/logs/service_changes.log`
 
 ### Interface
 - Modern dashboard (Apple-inspired design)
@@ -205,7 +211,76 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.8.7] - `2026-08-08` - CURRENT
+## What's New [1.9.0] - `2026-11-17` - CURRENT
+
+The largest hck_GPT update so far, built from five long tests on a real PC. Full list in [CHANGELOG.md](CHANGELOG.md).
+
+### hck_GPT draws conclusions
+- Reads the real CPU clock from Windows counters (psutil reports only the base clock), whether heat or a power limit holds the CPU back, each drive's type and health, hardware errors and sudden restarts from the Windows event log, how CPU and GPU behave in games, and which part is the weakest.
+- Answers "is anything to fix?", "do I have a bottleneck?", "is my GPU fully used?", "does my CPU reach its boost?", "is my drive fast?", "how old is my PC?", "should I buy a new one?", and questions of trust: what it reads, stores and sends, whether every svchost.exe is genuine.
+- Conversations of several turns: "what slows it down?" → "can I close it?" → "how?" → "will it help?" (it measures that program and says how much RAM closing it frees).
+
+### Observation note
+- ⏺ Record in the chat: every second CPU, RAM, GPU, GPU temperature, real CPU clock and the busiest process. Stop it and get a note on the Desktop, compared with the previous recording: better, the same or worse.
+
+### hck_GPT knows the program
+- "What is DeepMonitor?", "fan dashboard", "what is a recording?": what each feature does, where it is, and a link that opens it. "What can I do in the program?" gets a tour.
+- "Can I run GTA V?": free space from the drive with the most room (not C: alone), settings estimated from the graphics card's power, corrected requirements.
+- New answers for slow internet (the PC's own traffic and background downloaders first, then the steps), GPU overclocking and LibreHardwareMonitor ("is it needed?": no, and a button to its official page).
+
+### Your data
+- "Move my data to a new Windows": one ZIP on the Desktop with the history, learning, settings and what hck_GPT knows, with import steps inside.
+
+### Fixes
+- My PC no longer gets stuck on the In-Game Overlay view after DeepMonitor was opened.
+- "Check for updates" shows the installed version and opens PC Workman in the Microsoft Store (it showed v1.7.1).
+- One game running as two processes gives one session summary, not two.
+
+## What's New [1.8.8] - `2026-11-16` *(previous)*
+
+A stability release, from a full audit on Windows 11, from the logs the app wrote on real machines since July, and from two long tests in which the app ran for hours and hck_GPT was asked what a user would ask. Full list in [CHANGELOG.md](CHANGELOG.md).
+
+### Activity Memory: the history of CPU, RAM and GPU
+- Click the CPU, RAM or GPU card on the Dashboard to open its history, from the last hour to everything recorded. Drag, zoom and jump months back. Under the chart: average, peak and when it happened, time under high load, temperature, the heaviest processes of the period, the busy stretches (with the game that caused them) and the times the PC slept.
+
+### hck_GPT answers what people actually ask
+- In the first long test 28 of 71 questions ended in "I did not understand". After this release a sweep of 122 everyday questions, in Polish and English, with typos and without Polish letters, has none.
+- Answers read what PC Workman recorded on your PC:
+  - when it was busiest and what ran then;
+  - whether it slept;
+  - what you played and for how long;
+  - today against yesterday;
+  - sudden restarts and blue screens from the Windows event log;
+  - virtual memory;
+  - which apps you can close now;
+  - RAM speed and XMP;
+  - the refresh rate of each screen.
+- Sending a message never freezes the window. Long answers arrive in parts, with a short thinking pause between them.
+- The optimization guide has 6 steps with real numbers, measured before and after. It ends with a check of CPU, GPU and RAM (use now, 7-day average, temperature, virtual memory) and a calm verdict on how old their drivers are. A "⚡ Optymalizacja" button in the chat starts it, and answers about lag or RAM offer it with one click.
+- Quick replies sit above SEND. Links in the chat open pages, and the chat folds to its bar and stays available there.
+- hck_GPT keeps a local record of conversations and of the messages it decided to send or hold back, so mistakes can be found and fixed. Nothing in it leaves the PC.
+
+### Learning that adds up
+- Every recorded minute now counts. A switch of the data source had made learning count only every fifth minute; it is rebuilt once from the minute history. Workloads seen once no longer drag down the learning percentage (14% became 67% on the same data on the test PC).
+- PC Workman tells when a component has been working clearly harder for a few days than in the two weeks before, and what the RAM on your PC usually sits at, so a normal 80% is not reported as a problem.
+
+### Starts without a console window
+- On Windows 11 the console used to stay open behind the app, because Windows Terminal ignores the call that hid it. The exe is now a windowed program. The startup is written to `data/logs/startup.log`, and a failed start shows a window with "Copy details" and "Open log".
+- Settings > General > "Show diagnostic console at startup" shows the startup log live in a window that closes 3 seconds after the app is ready.
+
+### Optimization that does not get in the way
+- Process Guard suspended any idle process, system services included. It now touches only 12 known applications and never the one in front.
+- Nothing stays frozen after a crash: suspended programs are woken on the next start. Turbo Power Plan returns to your previous plan after a crash too.
+- Auto RAM Flush trimmed every process about once a minute while RAM stayed high. It now waits 5 to 30 minutes between flushes.
+
+### Remembers what you set
+- Settings are written so that a crash or a shutdown cannot leave a broken file, with a backup of the last good version. The window size and position, the chart range and two Optimization thresholds are now remembered. In the exe, the language from Settings now survives a restart.
+
+### Honest numbers
+- The fan pages showed random values. They now show measured fan speed or say that no sensor is connected. Dashboard temperatures were a formula on the load; they are now measured, marked as an estimate, or blank.
+- Text cut off mid-word across the app is fixed, and several controls that were pushed off screen are back.
+
+## What's New [1.8.7] - `2026-08-08` *(previous)*
 
 ### hck_GPT - guided flows and a conversation that holds together
 - Multi-step guides are now an engine rather than one hand-written handler, so every flow understands "next", "yes", "skip" and "stop" for free. Four ship: optimize, cooling, desktop repair and upgrade planning. The optimize flow measures first, walks startup and services, asks before touching RAM, then verifies against the numbers it took at the start.
@@ -225,7 +300,7 @@ PC_Workman/
 - Process library grew from 485 to 521 entries, with vendors read from the Authenticode signature rather than assumed. Test suite from 229 to 316.
 
 
-## What's New [1.8.5] - `2026-07-21` *(previous)*
+## What's New [1.8.5] - `2026-07-21`
 
 ### Upgrade Readiness - part compatibility before you buy
 - Type a planned purchase (a CPU, GPU or RAM kit) and get a clear verdict: fits, fits after a BIOS update, or wrong socket with what the swap actually costs you (board, RAM, cooler mount). Fully offline, 188 CPUs and 84 GPUs, 58 chipsets with per-generation support - it knows the traps a spec sheet hides, like a B460 board refusing an 11th-gen chip that shares its exact socket.
@@ -297,7 +372,6 @@ HCK_Labs/PC_Workman_HCK/
 │   ├── chat_handler.py      # Command routing (stats, alerts, insights, etc.)
 │   ├── insights.py          # Local InsightsEngine (habits, anomalies, teasers)
 │   ├── panel.py             # Chat panel UI (gradient banner, ticker, greeting)
-│   ├── report_window.py     # Today Report Toplevel (chart, processes, alerts)
 │   └── services_manager.py  # Windows services optimization
 ├── hck_stats_engine/
 │   ├── db_manager.py        # WAL-mode SQLite, thread-local connections
@@ -388,6 +462,11 @@ Click any process to see more details.
 - Temperature readings (from hardware sensors)
 - Network usage (local tracking)
 
+### Anonymous telemetry
+- On by default. Each session sends an anonymous report when it starts, once an hour, and when it closes: a random install id, app version, Windows version, the country from the system locale (never from the IP), hardware models (CPU, GPU, RAM size and speed, disks, motherboard) and how long the app has been open.
+- Never sent: names, file paths, process names, IP addresses or anything you type.
+- Settings > PC Workman > Access to Internet shows the exact data before it is sent and turns it off. Off means no connections at all.
+
 ### Where It's Stored
 - **Local only:** `/data/logs/hck_stats.db` (SQLite) + learned baselines in `/data/cache/`
 - **Never personal:** no files, keystrokes, browsing, or content, ever
@@ -422,7 +501,10 @@ Click any process to see more details.
 | **v1.8.0** | Released | **Smart Learning (Welford accumulator, workload-aware temps, voltage SPC), GAMING in-game overlay + configurator, live FPS via RTSS, 40+ game greetings, 4 new hck_GPT intents, Process Suspect Guard** |
 | **v1.8.1** | Released | Data machine, anti-cheat guard, learning v3, always-on AUTO |
 | **v1.8.2** | Released | Critical freeze fix, admin elevation, scaling, hck_GPT expansion |
-| **v1.8.5** | **Current** | **Upgrade Readiness (offline part compatibility), Fan Dashboard rebuild, My PC 2s -> 17ms keep-alive, voltage learning (VCore/GPU), one version source, builder split, 21 -> 194 tests** |
+| v1.8.5 | Released | Upgrade Readiness (offline part compatibility), Fan Dashboard rebuild, My PC 2s -> 17ms keep-alive, voltage learning (VCore/GPU), one version source, builder split, 21 -> 194 tests |
+| v1.8.7 | Released | hck_GPT guided flows and conversation director, guides inside the app, TURBO receipts, process library 485 -> 521, 229 -> 331 tests |
+| v1.8.8 | Released | Stability release: no console window, safe Process Guard and RAM Flush, settings that survive a crash, measured fan data only, layout fixes, 331 -> 460 tests |
+| **v1.9.0** | **Current** | **hck_GPT draws conclusions from the recorded data (real CPU clock, drives, event log, bottleneck), conversations of several turns, observation note, data export, knowledge of the program's features, 460 -> 573 tests** |
 | v2.0.0 | Q4 2026 | Long-term drift, Smart User Activity, Tools & Utils |
 
 **[Full Changelog](./CHANGELOG.md)**

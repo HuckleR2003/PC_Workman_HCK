@@ -1,7 +1,10 @@
 """
 startup.py
 Entry point for PC Workman HCK.
-Includes Diagnostic Console Helper that auto-hides on successful UI launch.
+
+No console window. Everything printed here goes to data/logs/startup.log;
+`--console` opens a live console on request; a startup failure shows a window
+with the details (ui/startup_error.py). See utils/diag_console.py for why.
 """
 
 # ONE version source (utils/app_version.py) - bump it there, never here.
@@ -10,10 +13,15 @@ from utils.app_version import APP_VERSION, MAIN_WINDOW_TITLE
 HELPER_VERSION = "1.6.3"
 
 # ============================================
-# IMMEDIATE CONSOLE OUTPUT - Shows before any imports
+# OUTPUT STREAMS - must be set up before the first print()
 # ============================================
+# In the windowed build sys.stdout / sys.stderr are None. diag_console gives
+# them a writer that always works and records the whole startup to a file.
+from utils import diag_console
+diag_console.setup()
+
 print("=" * 70)
-print(f"  PC Workman v{APP_VERSION} - This console will close if program runs correctly")
+print(f"  PC Workman v{APP_VERSION} - startup diagnostics")
 print("  Attach this information when reporting errors/issues")
 print("=" * 70)
 print()
@@ -100,93 +108,11 @@ _maybe_elevate()
 print("[~] Loading core systems...")
 
 # ============================================
-# DIAGNOSTIC CONSOLE HELPER
+# STARTUP LOG + FAILURE WINDOW
 # ============================================
-def get_console_window():
-    """Get handle to console window"""
-    if sys.platform == 'win32':
-        return ctypes.windll.kernel32.GetConsoleWindow()
-    return None
-
-# Only a real conhost window answers to ShowWindow. Windows 11 defaults the
-# terminal application to Windows Terminal, and there GetConsoleWindow() hands
-# back a hidden proxy window instead of the frame the user can see: hiding it
-# reports success and changes nothing on screen.
-_CONHOST_CLASS = "ConsoleWindowClass"
-
-
-def _console_window_class(hwnd) -> str:
-    """Win32 class name of the console window, empty string if unavailable."""
-    try:
-        buf = ctypes.create_unicode_buffer(256)
-        ctypes.windll.user32.GetClassNameW(hwnd, buf, 256)
-        return buf.value or ""
-    except Exception:
-        return ""
-
-
-def hide_console() -> bool:
-    """
-    Hide the diagnostic console. Returns True only when it is genuinely gone.
-
-    When it cannot be hidden the user gets a plain explanation in the console
-    they are still looking at, instead of an unexplained black window sitting
-    behind the app forever. A silent no-op here was reported by a tester on
-    Windows 11 and is exactly the class of bug this project keeps finding:
-    the call succeeds and does nothing.
-    """
-    if sys.platform != 'win32':
-        return False
-    hwnd = get_console_window()
-    if not hwnd:
-        return True                              # windowed build, nothing to hide
-
-    ctypes.windll.user32.ShowWindow(hwnd, 0)     # SW_HIDE = 0
-    cls = _console_window_class(hwnd)
-
-    if cls == _CONHOST_CLASS:
-        # Classic console host: verify rather than assume.
-        try:
-            if not ctypes.windll.user32.IsWindowVisible(hwnd):
-                return True
-        except Exception:
-            return True
-
-    print()
-    print("-" * 62)
-    print("  The diagnostic console stayed open. This is not a crash.")
-    print()
-    print("  PC Workman is running normally, this window just cannot be")
-    print("  hidden on your system. Windows 11 uses Windows Terminal as the")
-    print("  default terminal, and it does not let a program hide its own")
-    print("  window the way the classic console did.")
-    print(f"  (console host reported: {cls or 'unknown'})")
-    print()
-    print("  You can minimise this window and keep working. Do NOT close it:")
-    print("  closing the console closes PC Workman with it.")
-    print()
-    print("  To hide it permanently:")
-    print("    Settings > System > For developers > Terminal")
-    print("    change it to 'Windows Console Host', then restart PC Workman.")
-    print("-" * 62)
-    print()
-    try:
-        from utils.crash_log import log_event
-        log_event("console_hide_failed",
-                  f"window class: {cls or 'unknown'} (console stayed visible)")
-    except Exception:
-        pass
-    return False
-
-def show_console():
-    """Show the console window"""
-    if sys.platform == 'win32':
-        hwnd = get_console_window()
-        if hwnd:
-            ctypes.windll.user32.ShowWindow(hwnd, 5)  # SW_SHOW = 5
-
 def log(msg: str, level: str = "INFO"):
-    """Print log message with level prefix"""
+    """Print log message with level prefix. ERROR lines are also remembered:
+    if the UI still comes up they are shown once, instead of vanishing."""
     prefix = {
         "INFO": "[*]",
         "OK": "[+]",
@@ -195,14 +121,66 @@ def log(msg: str, level: str = "INFO"):
         "LOAD": "[~]"
     }.get(level, "[*]")
     print(f"{prefix} {msg}")
+    if level == "ERROR":
+        diag_console.note_problem(msg)
 
-# Fix console encoding issues on Windows
+
+# Set while the splash is on screen, so a failure can take it down first
+# (the splash is always-on-top and would cover the error window).
+_splash_release = None
+_splash_done = None
+
+
+def _dismiss_splash(timeout: float = 3.0) -> None:
+    try:
+        if _splash_release is not None:
+            _splash_release.set()
+        if _splash_done is not None:
+            _splash_done.wait(timeout)
+    except Exception:
+        pass
+
+
+def _fatal(summary: str, exc: Optional[BaseException] = None) -> None:
+    """Startup cannot continue: record it and tell the user in a window.
+    Replaces the old 'Press Enter to exit' prompts, which need a console."""
+    import traceback
+    details = ""
+    if exc is not None:
+        details = "".join(traceback.format_exception(
+            type(exc), exc, exc.__traceback__))
+    print()
+    print("=" * 50)
+    print(f"  STARTUP FAILED - {summary}")
+    print("=" * 50)
+    if details:
+        print(details)
+    try:
+        from utils.crash_log import log_event
+        log_event("startup_failed", f"{summary}\n{details}".strip())
+    except Exception:
+        pass
+    _dismiss_splash()
+    diag_console.close_startup_window_now()   # the error window has the log
+    try:
+        from ui.startup_error import show_startup_error
+        show_startup_error(summary, details, fatal=True)
+    except Exception:
+        pass
+
+
 if sys.platform == 'win32':
-    os.environ['PYTHONIOENCODING'] = 'utf-8'
-    if sys.stdout is not None and hasattr(sys.stdout, 'buffer'):
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    if sys.stderr is not None and hasattr(sys.stderr, 'buffer'):
-        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+    os.environ['PYTHONIOENCODING'] = 'utf-8'     # for child processes
+if diag_console.MODE == "console":
+    print("[i] Diagnostic console opened by --console. Closing this window "
+          "closes PC Workman.")
+elif diag_console.MODE == "startup":
+    if diag_console.open_startup_window():
+        print("[i] Diagnostic console (Settings). It closes by itself "
+              "3 seconds after PC Workman is ready.")
+    else:
+        print("[!] Diagnostic console window could not open - "
+              "everything is still in startup.log")
 
 print("[+] Core systems loaded")
 
@@ -244,9 +222,11 @@ def _handle_deep_links(mode_mgr) -> None:
         try:
             act = it.get("action")
             if act == "open" and win is not None:
-                switch = getattr(win, "_switch_to_page", None)
-                if callable(switch):
-                    switch(it["page"])
+                # the window maps link ids to its pages and marks the
+                # sidebar (2026-11-21: "my_pc" opened an empty overlay)
+                opener = getattr(win, "open_page_from_link", None) or getattr(win, "_switch_to_page", None)
+                if callable(opener):
+                    opener(it["page"])
             elif act == "guide":
                 try:
                     from utils.i18n import get_lang
@@ -275,6 +255,31 @@ def run_demo():
     log("Starting PC Workman HCK...", "LOAD")
     print()
 
+    # --- Step 0: Logo first ---
+    # With no console, the logo is the only sign that the double-click worked.
+    # It goes up before the heavy imports and stays until loading is finished
+    # (release event), so there is no blank gap and no fixed extra wait.
+    global _splash_release, _splash_done
+    import threading
+    try:
+        from ui.splash_screen import show_splash
+        _splash_release = threading.Event()
+        _splash_done = threading.Event()
+
+        def _run_splash():
+            try:
+                show_splash(duration=2.5, on_complete=_splash_done.set,
+                            release=_splash_release)
+            except Exception as e:
+                print(f"[!] Splash screen failed: {e}")
+            finally:
+                _splash_done.set()
+
+        threading.Thread(target=_run_splash, daemon=True,
+                         name="splash").start()
+    except Exception as e:
+        log(f"Splash screen skipped: {e}", "WARN")
+
     # --- Step 1: Load core imports ---
     log("Loading import_core...", "LOAD")
     try:
@@ -282,9 +287,7 @@ def run_demo():
         log("import_core loaded", "OK")
     except Exception as e:
         log(f"FAILED to load import_core: {e}", "ERROR")
-        import traceback
-        traceback.print_exc()
-        input("\nPress Enter to exit...")
+        _fatal("sum_core", e)
         return
 
     # --- Step 2: Load core modules (compact output) ---
@@ -298,6 +301,16 @@ def run_demo():
             core_ok = False
     if core_ok:
         log("Core modules loaded", "OK")
+
+    # Self-test switch for testers and for us (2026-11-15). The two failure
+    # windows cannot be reached on a healthy machine, and breaking the exe to
+    # see them only shows PyInstaller's own dialog. Setting
+    #   PCW_SELFTEST=problem   shows the "started with problems" window
+    #   PCW_SELFTEST=fail      shows the "could not start" window
+    # Unset (the normal case) does nothing.
+    _selftest = os.environ.get("PCW_SELFTEST", "").strip().lower()
+    if _selftest == "problem":
+        log("core.selftest FAILED: forced by PCW_SELFTEST=problem", "ERROR")
 
     # Load additional core silently
     try:
@@ -397,6 +410,7 @@ def run_demo():
     main_window_module: Optional[Any] = None
     main_window_expanded_module: Optional[Any] = None
     HAS_UI = False
+    ui_import_error: Optional[BaseException] = None
 
     try:
         import ui
@@ -405,6 +419,7 @@ def run_demo():
         HAS_UI = True
         log("UI modules loaded", "OK")
     except Exception as e:
+        ui_import_error = e
         log(f"UI modules FAILED: {e}", "ERROR")
         import traceback
         traceback.print_exc()
@@ -523,28 +538,18 @@ def run_demo():
                     except Exception:
                         pass
 
-        # Splash screen
-        try:
-            from ui.splash_screen import show_splash
-
-            splash_done = threading.Event()
-            def on_splash_complete():
-                splash_done.set()
-
-            splash_thread = threading.Thread(
-                target=lambda: show_splash(duration=2.5, on_complete=on_splash_complete)
-            )
-            splash_thread.daemon = True
-            splash_thread.start()
-            splash_done.wait()
-            log("Splash screen done", "OK")
-        except Exception as e:
-            log(f"Splash screen skipped: {e}", "WARN")
+        # Loading is finished: let the logo fade out, then build the window.
+        # (The splash has its own Tk interpreter on its own thread; the main
+        # window is created only after that one is gone, as before.)
+        _dismiss_splash(timeout=10.0)
+        log("Splash screen done", "OK")
 
         # Create mode manager and start UI
         mode_mgr = ModeManager()
 
         try:
+            if _selftest == "fail":
+                raise RuntimeError("forced by PCW_SELFTEST=fail")
             mode_mgr.expanded_window = main_window_expanded_module.ExpandedMainWindow(
                 data_manager=data_manager,
                 monitor=monitor,
@@ -567,79 +572,95 @@ def run_demo():
                 from utils.i18n import get_lang as _gl
                 gaming_watcher.register_game_observer(
                     proactive_monitor.on_game_event)
+            except Exception:
+                pass
+            try:
+                # every game into the history, light ones too (2026-11-20)
+                from ui.components.gaming_toast import gaming_watcher
+                from hck_stats_engine.game_sessions import game_session_recorder
+                from utils.i18n import get_lang as _gl
+                gaming_watcher.register_game_observer(
+                    game_session_recorder.on_game_event)
+            except Exception:
+                pass
+            try:
+                from ui.components.gaming_toast import gaming_watcher
+                from utils.i18n import get_lang as _gl
                 gaming_watcher.start(mode_mgr.expanded_window.root, lang=_gl())
             except Exception:
                 pass
 
-            # Opt-in telemetry: a no-op unless the user turned Network Access +
-            # Telemetry ON in Settings AND a Worker endpoint is configured. Runs
-            # off-thread so it never touches startup.
+            # Telemetry: a no-op unless Network Access + Telemetry are ON in
+            # Settings. Start report, hourly heartbeat, end report on exit
+            # (core/telemetry.py). The old single report was sent 2 s after
+            # start, which is why every session_min on the server read 0.
+            # Off-thread, so it never touches startup.
             try:
-                import threading as _th
+                from core.telemetry import start_reporting as _t_start
+                _t_start(APP_VERSION)
+                log("Telemetry reporting started (start / hourly / end)", "OK")
+            except Exception as _te:
+                log(f"Telemetry skipped: {_te}", "WARN")
 
-                def _telemetry_once():
-                    try:
-                        import time as _time
-                        _time.sleep(2)   # let network init settle; send right after
-                        from core.telemetry import send as _tsend
-                        _tsend(APP_VERSION)   # ensure_data() scans HW inside send()
-                    except Exception:
-                        pass
-
-                _th.Thread(target=_telemetry_once, daemon=True,
-                           name="telemetry").start()
-            except Exception:
-                pass
-
-            log("UI ready - hiding console", "OK")
+            log("UI ready", "OK")
             print()
             print("-" * 40)
             print("  All systems GO - Starting PC Workman")
             print("-" * 40)
 
-            # === HIDE CONSOLE ONCE THE UI IS ACTUALLY ON SCREEN ===
-            # Schedule the hide INSIDE the event loop (after the window is mapped),
-            # not before mainloop starts. This way a startup that fails before the
-            # UI is up leaves the diagnostic console visible (with the error), the
-            # user never sees a blank "nothing on screen" gap, and the console only
-            # vanishes once PC Workman is genuinely running and painted.
             try:
                 _root = mode_mgr.expanded_window.root
                 _root.update_idletasks()                 # force a first paint
-                _root.after(500, hide_console)           # hide from inside the loop
                 # pcworkman:// deep links arrive as a command-line argument.
                 # Dispatched after the window is painted, never before, and
                 # only for intents utils/deep_link.py recognised. A link can
                 # open a page or hand a question to the chat; it can never
                 # run an action on its own.
                 _root.after(900, lambda: _handle_deep_links(mode_mgr))
+
+                # Settings > "Show diagnostic console at startup": the window
+                # counts down 3 s once the main window is painted. Scheduled
+                # from inside the event loop, so a startup that fails before
+                # this point never starts the countdown.
+                if diag_console.MODE == "startup":
+                    print("[+] PC Workman is ready")
+                    _root.after(300, diag_console.release_startup_console)
+
+                # The app is up, but something failed on the way (a core
+                # module, the stats engine, the scheduler). The console used
+                # to be the only place that said so, and nobody read it. Say
+                # it once, in a window, after the UI has painted.
+                _startup_problems = diag_console.problems()
+                if _startup_problems:
+                    def _show_startup_problems():
+                        try:
+                            from ui.startup_error import show_startup_error
+                            show_startup_error(
+                                "\n".join(_startup_problems[:8]),
+                                parent=_root, fatal=False)
+                        except Exception:
+                            pass
+                    _root.after(1500, _show_startup_problems)
             except Exception:
-                hide_console()                           # fallback: hide immediately
+                pass
 
             # Run the UI mainloop
             mode_mgr.expanded_window.run()
 
         except Exception as e:
             log(f"UI FAILED: {e}", "ERROR")
-            import traceback
-            traceback.print_exc()
-            print()
-            print("=" * 50)
-            print("  UI FAILED - Check error above")
-            print("=" * 50)
-            input("\nPress Enter to exit...")
+            # The half-built main window must go before the error window can
+            # own the screen (two Tk roots at once is what crashed mode
+            # switching in the past).
+            try:
+                if mode_mgr.expanded_window is not None:
+                    mode_mgr.expanded_window.root.destroy()
+            except Exception:
+                pass
+            _fatal("sum_window", e)
     else:
-        log("UI not available - headless mode", "WARN")
-        print()
-        import time
-        log("Collecting data for 5 seconds...", "INFO")
-        time.sleep(5)
-        if logger:
-            samples = logger.get_last_n_samples(5)
-            for s in samples:
-                print(f"  CPU: {s['cpu_percent']}%  RAM: {s['ram_percent']}%  GPU: {s['gpu_percent']}%")
-        log("Headless finished", "OK")
-        input("\nPress Enter to exit...")
+        log("UI not available", "WARN")
+        _fatal("sum_ui", ui_import_error)
 
     # Graceful stop
     if scheduler:
@@ -702,4 +723,10 @@ if __name__ == "__main__":
     if _mutex is None:
         print("[!] PC Workman is already running - bringing existing window to front.")
         sys.exit(0)
-    run_demo()
+    try:
+        run_demo()
+    except Exception as _e:
+        # Anything run_demo did not expect. Without a console this would be
+        # a program that silently disappears.
+        _fatal("sum_unexpected", _e)
+        sys.exit(1)

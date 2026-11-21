@@ -1,6 +1,562 @@
 # HCK_Labs - PC_Workman_HCK - Changelog
 _All notable changes are documented here._
 
+## [1.9.2] - 2026-11-21
+
+### Phase 0 of the next update: sensors and learning
+**`core/live_collector.py`, `core/hardware_sensors.py`, `core/thermal_baseline.py`, `hck_gpt/responses/r_meta.py`, `ui/pages/stability_tests.py`, `core/game_detect.py`, `ui/components/gaming_toast.py`, `ui/components/yourpc_page.py`**
+- LibreHardwareMonitor on a Polish Windows writes "43,5 °C". The comma was refused, so every temperature and voltage with a fraction was dropped and only whole fan speeds got through: "the server runs and nothing is recorded". The same happened on every Windows that writes decimals with a comma (German, French, Italian, Spanish, Russian, Brazilian, Turkish and others).
+- The CPU temperature on Windows was always the estimate (35 + load × 0.5), even with LHM running: the code read it from a function that only works on Linux. It now comes from LHM's "CPU Package" (Intel) or "Core (Tctl/Tdie)" (AMD), chosen by the sensor id, and is learned like the other temperatures. On the test PC the CPU temperature had 0 learned samples after 136 hours.
+- Also from the LHM tree: the per-core voltages ("CPU Core #6") no longer overwrite Vcore, the "CPU System Agent" voltage is no longer stored as the motherboard temperature, a 3.3 V rail called AVCC3 is recognised, and LHM on its default port is named LHM, not OpenHardwareMonitor.
+- hck_GPT says "I see it" only when temperatures or voltages actually arrive, with the CPU temperature. When the server answers with nothing, it says so and points to running LHM as administrator.
+- Learning: "79% learned" after 136 hours. Workloads this PC spends under 5% of its time in (here medium 1.7% and heavy) weighed as much as idle. They are now "rare", learned along the way and shown apart; the figure counts the typical workloads (96% on the same data). When the CPU temperature starts to be measured, it learns next to the other signals instead of dropping the figure to single digits.
+- Stability Tests: every file read MISSING in the exe and the Microsoft Store version, because it looked for .py files that a build does not have. It now checks that the module can be loaded. The log viewer reads the data folder of the Store install.
+- Minecraft Java Edition runs as javaw.exe and was never recognised. javaw.exe with Minecraft on its command line now counts as Minecraft; any other Java program does not.
+- My PC: "Cleanup" opened the Services Manager; it opens the Optimization Center. "Your account" did nothing on click; it says "coming soon" and does not invite a click.
+
+### Phase 1: foundations for the new pages
+**`ui/components/nav_history.py` (new), `ui/components/process_ref.py` (new), `ui/components/hero_banner.py` (new), `core/process_history.py` (new), `hck_stats_engine/game_sessions.py` (new), `ui/windows/main_window_expanded.py`, `ui/components/sidebar_nav.py`, `hck_stats_engine/db_manager.py`, `hck_stats_engine/aggregator.py`, `ui/pages/activity_memory.py`, `ui/pages/monitoring_alerts.py`**
+- **A way back.** No page knew where the user came from: Optimization went back to the Dashboard whatever came before, Stability Tests, Startup, Services and Setup had no way back at all. The window now remembers each place shown (page, overlay, the My PC tab) and the sidebar shows "← Back: My PC" under the logo; Alt+Left does the same. Going back to My PC opens the tab the user was on. The "MY PC" title over the My PC tabs is clickable and opens the central tab, also from Stability Tests and the overlay configurator.
+- **Processes have a card.** Hovering a process in Activity Memory's "heaviest processes" tints the row and shows what the process is (process library) and how it lives on this PC, from the recorded history: "every day for 12 days" or "3 of the last 7 days". One component for all process lists; the click that opens the coming Process Center is built in and waits for it. PC Workman itself was not in its own process library; it is now.
+- **Every game is recorded.** Only GPU at 60% for 3 minutes left a trace, so Stardew Valley, PlateUp or Democracy never appeared in the history. Each game the watcher sees is now written with its start, end, GPU peak and average; one game running as two processes is one session; the end moves forward every minute so a crash still leaves the row. Activity Memory draws these sessions on the CPU and GPU charts in a band about 40% lighter than a busy stretch. Recent Events names the game ("BeamNG.drive · 26 min" instead of "26 min").
+- **The number of processes is recorded** every minute, with the hourly average and peak, for the Process Center's chart. Existing databases get the new columns in place; older history stays without them.
+- **One page header.** The gradient header of HCK_Labs and the Guide is a shared component with up to two stacked buttons on the right, for the new pages.
+
+### Phase 2: the Process Information Center
+**`ui/pages/process_center.py` (new), `core/process_center.py` (new), `core/recommendations.py` (new), `ui/pages/startup_manager.py`, `hck_gpt/responses/builder.py`, `hck_gpt/panel.py`, `ui/windows/main_window_expanded.py`, `ui/components/yourpc_page.py`, `ui/components/sidebar_nav.py`**
+- A new page in the sidebar: every process on this PC in one place. Processes were shown in eight places and nowhere together.
+  - Banner with buttons to the Startup Manager and Windows services.
+  - Four tiles: processes now, the 7-day average (recorded from this version on), processes in the background (no window: 93% on the test PC, which is normal for Windows), and programs worth switching off (a click filters the table).
+  - The number of processes over time, 1H / 24H / 7D / 30D.
+  - A table sorted by a click on any heading (again to reverse): CPU and RAM now, CPU and RAM over 7 days, steady ("daily, 12 days" / "3 of 7 days" / "new"), safe, advice. Filters: all, background, steady, worth a look, games; and search.
+  - The card of the selected process: what it is, its numbers now and over 7 days, how it lives on this PC, safety, advice with the reason, and buttons to ask hck_GPT, open the Startup Manager or the file's folder. A process that is not running gets its card from the history.
+- Every list of processes leads here: a double click in Dashboard TOP 5, My PC's performance lists or Activity Memory, and a click on a process name in the hck_GPT chat, open the Process Center on that process. "Czym jest centrum procesów" gets an answer with a link.
+- The 7-day figures add up all of a program's processes, like the "now" column. The history samples each instance: Claude's 12 processes were recorded at about 30 MB each, and the first version of the table showed 28 MB against 1.9 GB now.
+- One place for advice on processes (`core/recommendations.py`): the Startup Manager's tables moved there unchanged, hck_GPT's list of background programs too (its "nvidiaSharecontainer.exe" was in mixed case and never matched). Windows, anti-cheats and PC Workman itself are always "protected". A startup rule names the program itself: steamwebhelper.exe no longer gets the advice meant for Steam.
+- The shared gradient banner drew the narrow layout over the right one: a measurement inside the drawing ran a nested redraw (buttons over the title). Fixed for every page that uses it.
+
+### Phase 3: time travel
+**`ui/pages/activity_memory.py`, `ui/windows/main_window_expanded.py`, `ui/pages/monitoring_alerts.py`, `core/thermal_baseline.py`**
+- **Hardware, a fourth tab in Activity Memory**: CPU, RAM and GPU as three charts on one time axis, dragged and zoomed together, with temperatures, busy stretches and game sessions. Its tiles show each part's average and peak, CPU and GPU temperature and the recorded time. The switch sits next to CPU / RAM / GPU in the top right.
+- **The mouse wheel** went from 1 hour straight to 24 hours and lost the place you were looking at. It now steps through 1h, 3h, 6h, 12h, 24h, 3 days, 7 days, 14 days, 30 days, 90 days, a year, everything. Zooming out past "everything" resets the view to the whole history. The window never starts before the first record (three quarters of the chart could be empty, an easy place to get lost).
+- **The Dashboard chart** lightens under the cursor and a click opens the Hardware history on the matching range (LIVE and 1H: an hour, 4H: 6 hours, 1D: 24 hours, 1W: 7 days, 1M: 30 days). The click used to pin a bar's tooltip; the tooltip now says what the click does.
+- **Monitoring & Learning**: the TEMPERATURE MONITOR and VOLTAGE / LOAD MONITOR headers lighten under the cursor and open the Hardware history.
+- **Learning Center**: the ring said "100% learned" from the CPU load while the bars next to it showed the GPU temperature still learning gaming. The ring follows the signal the card shows, and workloads that are rare on this PC are listed apart ("rare, learned along the way") instead of "still learning". The measured CPU temperature takes over the card after 3 hours of readings, not 15 minutes, so the figure does not fall to single digits the moment LibreHardwareMonitor starts.
+
+### Phase 4: the sidebar and the Optimization Center
+**`ui/components/sidebar_nav.py`, `ui/pages/optimization_services.py`, `ui/windows/main_window_expanded.py`, `ui/pages/settings_page.py`, `hck_gpt/responses/r_features.py`**
+- **The sidebar, renewed.** My PC is the main button, at the top and in bold. The order: My PC, Dashboard, Monitoring & Learning, Process Center, Optimization, Fans, Overclock, Setup & Drivers.
+  - Items with subitems are split: a click on the name opens the page and shows its subitems, the arrow on the right opens or closes the list on its own. Before, those items only opened their list.
+  - Monitoring & Learning got "All statistics", the Hardware history of CPU, RAM and GPU.
+  - The Monitoring icon is a clock instead of a warning sign.
+- **The icon rail.** A collapsed sidebar (48 px) clipped every label and margin, leaving the icons 9 px of their 26. It now shows the icons alone, centred, with "← Back" as an arrow, and expands back exactly as it was.
+- **The Optimization Center.** Marcin: "the current look really puts people off".
+  - The shared gradient banner says what is armed and how full the RAM is, with one main button, "Step-by-step guide" (the 6-step guide from the chat), and a second one to Startup and services.
+  - The ready features come in four groups, each with one line of what it is for and one colour: Memory, CPU and power, Services and startup, Proof and advice. There were eight colours for nine cards.
+  - The action chips speak the interface language ("OCZYŚĆ RAM", "WŁĄCZ", "OTWÓRZ", "WKRÓTCE"). The left column is wider, so "Defragmentacja" no longer breaks mid-word.
+  - The CPU / RAM / C: strip that repeated the "Live" box is gone. So is the "2 / 16 active" counter: it was typed in and said 2 whatever was on.
+  - The live GPU value showed "-1%" without an NVIDIA card; it shows "--".
+- **A navigation strip on page banners** (Marcin's idea): "MY PC · DASHBOARD │ *where you are* · the pages next to it" along the top of the gradient, the current page underlined, the rest one click away. On the Optimization Center and the Process Center; the new pages get it too.
+- **The sidebar hides itself on the Optimization Center** (it slides out at the left edge) for more room, and comes back on every other page. Settings → General has a switch for it, on by default. With auto-hide on for the whole app, nothing changes.
+- **hck_GPT** no longer sends people to Network Adapter Reset for slow internet: that feature is still "coming next". The step names what works today, `ipconfig /flushdns`.
+
+### Phase 5: My PC
+**`ui/components/yourpc_page.py`, `ui/components/pc_summary.py` (new), `ui/pages/gaming_home.py` (new), `ui/components/slowdown_panel.py` (new), `ui/components/health_center.py` (new), `core/health_score.py` (new), `ui/pages/stability_tests.py`, `core/live_collector.py`, `ui/components/process_ref.py`**
+- **Central tab**
+  - The "i" buttons are gone. Their explanation shows when the cursor rests on the button itself.
+  - "SESJA: 4h 47m" (time since Windows started) is replaced by "PC Workman on this PC": a learning ring with the hours PC Workman has recorded (148 on the test PC) and facts from the history, one every 6 seconds: the game played longest, the quietest and busiest weekday, what the RAM flushes gave, since when it learns. A fact without data behind it is not shown. The ring was empty at exactly 100%, because Tk draws a 360-degree arc as nothing; the same fix went into the Learning Center ring.
+- **GAMING / In-Game** is a page now; it used to open the configurator straight away.
+  - A red-to-blue banner with "Start configuration" (the configurator) and the MiniOverlay switch.
+  - What was learned about gaming: progress, the heaviest games with hours and GPU average, the heaviest processes with "See more · Process Center".
+  - A thermal verdict from recorded gaming ("GPU in games: 66°C on average, usually up to 72°C: normal").
+  - "CPU: OK · RAM: OK · GPU: OK" in their colours; hover turns red, a click opens that history.
+- **Performance** starts with "What slows this PC down": the bottleneck verdict and every finding hck_GPT knows (RAM against its use, XMP, sudden restarts, programs using more than usual, drive state, driver age...), coloured by weight, in the same words as the chat. Three tiles: the CPU clock now and whether anything holds it back, virtual memory, what TURBO has armed.
+- **The real CPU clock everywhere.** The live collector stored psutil's base clock, so My PC showed "Current 2500 MHz" with a false LOW badge on an i5-12400F running near 4 GHz, and Performance showed "2500 / 2500 MHz max" in red. The collector reads the "% Processor Performance" counter now; the boost comes from the model table.
+- **The CPU temperature in My PC's table** was always a formula on the load, even with LibreHardwareMonitor running. It shows the sensor when there is one, and the title drops "(est.)".
+- **Health** has a health centre: a score 0-100 from what is known, in six bars with a reason each.
+  - Stability: the Windows event log.
+  - Drives: their state and room on C:.
+  - Temperatures in games, and the graphics driver's age.
+  - Memory: size against use, XMP, virtual memory.
+  - Startup.
+  - A click on a bar opens where it is looked after. A part without data is left out of the score, not counted as fine.
+  - The old "Health score" was a formula on the live load and is gone.
+  - "Total (ever)" showed the session again; it shows PC Workman's recorded hours.
+  - Recent events leave out program shutdowns and name the game.
+- **Stability Tests**: FILE INTEGRITY CHECK has PROGRAM and OTHERS.
+  - OTHERS covers the data files the program reads and whether the history database can be written.
+  - A line lists what is missing.
+  - TEST re-checks every part: yellow CHECKING for 0.4-3 s, uneven so the statuses do not flip together, with a console of the run.
+- **Startup** opens with what is worth a look: "1 of 23 startup entries", the names and the advice, and a link to the Startup Manager.
+- **The process row highlight** on the Dashboard (and every process list) is 50% stronger (Marcin's request).
+
+### Phase 6: Cleanup, Health report, Your profile
+**`core/cleanup.py` (new), `ui/pages/cleanup_page.py` (new), `ui/pages/health_report.py` (new), `ui/pages/profile_page.py` (new), `ui/components/yourpc_page.py`, `ui/windows/main_window_expanded.py`, `hck_gpt/responses/r_features.py`, `hck_gpt/responses/r_everyday.py`, `tests/test_phase6_cleanup.py` (new)**
+- **Cleanup.** My PC's button had no page.
+  - Two columns. On the left, what to clean in four groups with a box per item and per group:
+    - Windows: temporary files, Windows Temp, Explorer thumbnails, error reports and crash dumps, system reports and minidumps, shader caches, downloaded updates, Delivery Optimization;
+    - Browsers: Chrome, Edge, Brave, Opera, Opera GX and Firefox, each on its own, every profile, only the page cache (never passwords, history or cookies);
+    - Apps: Discord, Steam's store browser, Spotify's streaming cache;
+    - Your files: big files over 100 MB and older than 90 days in Downloads, and the Recycle Bin.
+  - On the right, what the scan found, biggest first, with a bar, a line on what it is and the files on request.
+  - Items whose folders do not exist on this PC are not shown. A program's cache is skipped while that program is open, and the page says which one.
+  - The choice is remembered (`cleanup_selection` in the app settings), except Downloads and the Recycle Bin, which always start unticked.
+  - "Flush the DNS cache" quick action (`ipconfig /flushdns`, only on click).
+  - Below the list, hck_GPT tips that follow from the scan: low free space on the system drive, how big the temporary files are and that this is space rather than speed, when clearing shaders makes sense, which programs to close, what needs administrator rights. Links lead to Startup, Services and the Optimization Center, plus an "Ask hck_GPT" button.
+  - Each item is removed only after a confirmation that names the amount.
+  - Temporary files and caches are deleted for good, as Windows' Disk Cleanup does. Big files from Downloads go to the Recycle Bin and are never selected automatically. Emptying the Recycle Bin is never selected automatically.
+  - Files younger than a day and files in use are skipped. Categories that need administrator rights say so.
+  - No registry is touched. A receipt keeps the last cleanup.
+- **Health report.** The health score with its parts, what changed since the last saved report, three things to do first and every finding; "Save the report" writes an HTML file to the Desktop.
+- **Your profile** (was "Your account", which did nothing): a name for this PC, its kind, CPU and GPU, stats since the beginning, milestones earned from the history, and privacy in one place (what is sent, export, how to delete).
+- hck_GPT knows the three pages; "what can I delete" leads to Cleanup and quotes the last scan, if it is under a week old: the total and the three biggest items. The scan is kept as `data/cache/cleanup_scan.json`, with sizes only and no file names.
+- Cleanup's scan summary, its receipt and the health report history are written through `utils/prefs_io`.
+
+### Phase 7: the PC map, rebuilt
+**`ui/components/pc_map.py` (rewritten), `ui/components/pc_map_scene.py` (new), `ui/components/yourpc_page.py`, `hck_gpt/responses/r_features.py`, `tests/test_phase7_pc_map.py` (new)**
+- The old map drew the back faces of its boxes, in list order, so parts showed through each other. Two thirds of the tab stayed empty, and the scene started half scrolled.
+- The map is drawn from scratch: an ATX board seen at an angle, with every part in a fixed place.
+  - On the board: the CPU socket with a tower cooler, four DIMM slots with the sticks in the second and fourth slots first, the PCIe x16 slot with the graphics card, M.2, the power section and the chipset.
+  - Beside the board: the power supply and the SATA drives.
+  - Drives are placed by their bus (NVMe or SATA, from `Get-PhysicalDisk`), not by the model name.
+- The laptop has its own layout: the bottom cover off, the board, cooling, RAM, NVMe, battery, and the screen behind. It fills about 90% of the map's height.
+- The three visible faces are drawn, in depth order. A test measures, off-screen, that every part the user can point at is visible for every combination of sticks, GPU, NVMe and SATA drives, and that no two parts share a place.
+- Layout:
+  - the map on the left;
+  - on the right, this PC (kind, CPU, GPU, RAM, board, drives) and a table of temperatures and loads (now, 7-day average, 7-day peak), one unit per row;
+  - "under the cursor": a card on the map, on the side away from the part, with the model and numbers.
+- Colours go from green to amber to red: by temperature (40 °C to 85 °C), by load when no sensor reads the temperature, and RAM by memory in use. "Now" and "7-day average" switch the colours and the labels.
+- A click on the CPU, GPU or RAM opens its history in Activity Memory.
+- Labels are Tk text on the map with no font file paths. Labels that would land on the same spot move up.
+- The power supply says plainly that its model is unknown, because Windows does not see it.
+- The map is redrawn only when the data, the hovered part or the size changes. The tab is kept alive, and the old map redrew itself every 120 ms even while hidden. Now nothing is drawn or read while the tab is hidden, and the worker thread touches only a plain object.
+
+### Phase 8: the game library
+**`data/games.json` (new), `core/game_library.py` (new), `core/game_detect.py`, `ui/components/gaming_toast.py`, `hck_gpt/responses/r_gaming.py`, `PCWorkman.spec`, `tests/test_phase8_games.py` (new)**
+- The games moved out of the toast's code into `data/games.json`: 228 games instead of 42. Each game has its `.exe` names, a genre, the Steam appid where it has one, and one to three launch messages in Polish and English. The 42 old games keep their messages.
+- The games from the plan are in the library: Democracy 4, PlateUp!, Don't Starve Together, Infection Free Zone, Supermarket Together, Unturned and Minecraft.
+  - The `.exe` names of PlateUp!, Infection Free Zone, Supermarket Together, Don't Starve Together, 7 Days to Die, Project Zomboid, BeamNG.drive and The Powder Toy were read from a real install and are marked `verified`.
+  - Democracy 4 and Unturned were not installed, so their names are unchecked.
+- Fourteen genres, each with its own pool of messages and its own accent colour. A game with no message of its own gets a line from its genre instead of "Dobrej zabawy!" for everything.
+- A game seen for the first time on this PC gets a different line ("Pierwszy raz na tym komputerze"). The games already greeted are kept in `data/cache/games_seen.json`, names only.
+- Steam games are found by their folder. The folder leads to `appmanifest_<appid>.acf`, which gives the appid and then the genre from the library. A new or misspelt `.exe` name still finds the right game, and an unknown Steam game is greeted by its real name.
+- Names any program could have (`discovery.exe`, `fm.exe`, `human.exe`, `cod.exe`, `wow.exe` and 14 more) count as a game only when they run from a game library folder.
+- Session history and hck_GPT use the proper names ("cs2.exe" → "Counter-Strike 2"). Sessions recorded before this keep their old names.
+- hck_GPT's gaming session answer names the game running now and its genre.
+- The launch toast sizes itself to its text, up to 460 px at 100% scaling. The old fixed 300 × 72 px cut longer titles on both sides, and more of them at 125%. The progress bar's canvas no longer sets the toast's width. A test keeps every title within 45 characters.
+- `data/games.json` is added to the PyInstaller data files, so the built app and the MSIX ship it.
+
+### Review after phase 8
+**`hck_gpt/responses/flows.py`, `utils/install_kind.py` (new), `ui/pages/startup_manager.py`, `dist/msix/AppxManifest.xml`, `core/net_check.py` (new), `hck_gpt/responses/r_network.py` (new), `hck_gpt/intents/insight_rules.py`, `hck_gpt/engine/flow_engine.py`, `hck_gpt/panel.py`, `ui/windows/main_window_expanded.py`, `tests/test_review_2026_11_20.py` (new)**
+- **The optimization guide's summary named entries the user had already turned off.** The Startup list was read once, on step 2, and reused on step 5. The summary now reads Startup and Services again. It says what was turned off ("Wyłączone z autostartu: …") and names only what is still on.
+- **The Store version's Startup Manager disabled entries only in its own copy of the registry.**
+  - An MSIX app's HKCU writes go to the package's private hive unless the manifest turns that off. A test on the installed Store package confirmed it: the key did not reach the real registry, and it was removed afterwards. PC Workman showed the entries as disabled while Windows still started them.
+  - `utils/install_kind.py` now knows the install kind (Store, .exe or source) and reads the package's own manifest.
+  - With the old manifest, the Startup Manager explains this on a banner and offers "Open Task Manager" (its Startup apps page) instead of a change that would not stick. Scheduled tasks still work, because they go through the Task Scheduler service.
+  - The non-admin banner is in the interface language. It no longer tells Store users to right-click and run as administrator.
+  - The next package's manifest turns registry write virtualization off: `desktop6:RegistryWriteVirtualization`, the restricted capability `unvirtualizedResources`, and Windows 10 1903 as the minimum. It was checked with `makeappx pack`. Notes and the Partner Center justification are in `local_notes/MSIX_NASTEPNA_PACZKA_2026-11-21.md`.
+- **The Startup Manager's list could stay on "Scanning…".** The scan thread called Tk (`page.after`) from outside the main thread, and the error was swallowed. The thread now fills a plain dict, and the page polls it.
+- **hck_GPT tests the internet before answering.**
+  - Questions like "sprawdź internet", "czy mam internet", "jaki mam ping", "nie mam internetu", "strony się nie ładują", "zmierz prędkość internetu", "wyczyść dns", "wolny internet" and "Wi-Fi się rozłącza" (about 50 phrasings in Polish and English) start a network guide.
+  - The guide's first step is a quick test, 1 to 4 seconds (`core/net_check.py`):
+    - the router (default gateway);
+    - google.com: DNS, ping, jitter and loss;
+    - 1.1.1.1 by address, to tell a DNS fault from no internet;
+    - a TCP connection to port 443, which works where ping is blocked.
+  - Pings use Windows' ICMP API: no administrator rights, and no parsing of the translated `ping.exe` output.
+  - The answer starts with a yellow band, "Ocena według testu połączenia z google.com" (a new `§SRC` marker in the chat). Then come the numbers, a verdict and the steps for that verdict. The verdicts are: no network, router silent, no internet past the router, DNS, loss near the router, loss, slow Wi-Fi hop, high ping, jitter, slow DNS.
+  - Next, a download speed test (25 MB from Cloudflare's test endpoint), only after "tak".
+  - On a DNS fault, the guide offers to flush the DNS cache, then tests again and compares before and after. With no internet at all, "tak" tests again instead of measuring speed.
+  - The flow engine's confirm button can now change its label from step to step.
+- **Esc:** closes the hck_GPT panel when it is open, otherwise goes to the Dashboard. On the Dashboard it does nothing. In a text field on a page, it only leaves the field.
+- Tests: the version-literal rule no longer takes an IPv4 address (1.1.1.1) for a version.
+
+### Found in the test build
+**`ui/windows/main_window_expanded.py`, `startup.py`, `utils/deep_link.py`, `ui/pages/cleanup_page.py`, `ui/pages/startup_manager.py`**
+- How the test build was checked:
+  - every page was opened through `pcworkman://open/<page>`, in Polish, on a copy of the data with network and telemetry off;
+  - the window itself was captured, not the screen;
+  - the log files were read after each page;
+  - a 4-minute run measured memory and CPU: 96 to 140 MB, about 3% CPU of the PC, a stable thread count, and no new errors.
+- `pcworkman://open/my_pc` opened an empty "MY PC" overlay, because `my_pc` is the sidebar's id and the router's page is `your_pc`. Links now go through `open_page_from_link()`, which maps the id and marks the page in the sidebar. Before, the sidebar stayed on the Dashboard.
+- "Statistics" was an empty "Detailed stats coming soon" page. The tray menu, hck_GPT's link and `pcworkman://open/statistics` led there. They now open Monitoring & Learning, where the stats and the time travel are.
+- `pcworkman://` links can open the new pages too: Process Center, Cleanup, Health report and Your profile.
+- Cleanup's left column was empty during a scan, which takes over 10 seconds with a big TEMP folder. It now says it is scanning.
+- The Startup Manager's "Scanning startup entries…" is in the interface language.
+- **The older pages' headers follow the interface language** (`ui/components/page_titles.py`, new).
+  - The test build showed them in English under a Polish interface, next to the new pages' Polish banners.
+  - Page titles in Polish, following the sidebar's names:
+    - Menedżer Autostartu, Menedżer Usług, Kontrola wentylatorów;
+    - Wentylatory: sprzęt i użycie, Statystyki wentylatorów;
+    - Konfiguracja i sterowniki, Monitoring, Optymalizacja, Statystyki.
+  - OVERCLOCK and Upgrade Readiness keep their feature names in both languages, as in the sidebar and hck_GPT. Their subtitles are translated.
+  - Other header pieces now in both languages:
+    - Startup Manager: the counters and tabs (Razem, Duży wpływ, Do sprawdzenia, Do wyłączenia, Wyłączone);
+    - Services Manager: the admin warning, the counter and the search hint;
+    - Setup & Drivers: the scan state and the buttons.
+  - Checked at 100% and 125% scaling and in the built app.
+
+### No worker thread calls Tk
+**`ui/bg.py` (new), `ui/pages/optimization_services.py`, `hck_gpt/panel.py`, `ui/components/yourpc_page.py`, `ui/pages/first_setup_drivers.py`, `ui/pages/services_manager.py`, `ui/pages/upgrade_readiness.py`, `ui/pages/monitoring_alerts.py`, `ui/components/fan_dashboard.py`, `ui/components/gaming_toast.py`, `ui/windows/main_window_expanded.py`, `ui/windows/main_window.py`, `tests/test_no_tk_from_threads.py` (new)**
+- Worker threads called Tk directly (`widget.after(0, ...)`, `widget.config(...)`) in about 40 places. These calls have two failure modes:
+  - When the Tk main loop is not the one pumping, they raise "main thread is not in main loop". The error was swallowed, and the page never filled in (the Startup Manager's "Scanning…").
+  - A worker holding the last reference to a widget frees the Tk interpreter from the wrong thread, and the process aborts with Tcl_AsyncDelete.
+- `ui/bg.py` is the one way to work off the UI thread now:
+  - `run(widget, work, done)`: `work()` runs on a thread with plain values; `done(result)` runs on the UI thread, and only if the widget still exists.
+  - `later()`: "show DONE, then put the button back" without a sleeping thread.
+  - `Mailbox` + `watch()`: a daemon's callbacks only fill a mailbox, and the page takes the items in order. The mailbox closes on `<Destroy>`, because Tkinter drops a destroyed widget's pending `after()` calls.
+  - `post()`: code outside the window, such as a chat answer or the tray menu, queues work for the main window's pump.
+- Converted:
+  - **Optimization Center:** quick actions, TURBO services stop and restore, the upgrade advisor, RAM Flush and its live status, the Turbo Power Plan and its live status.
+  - **hck_GPT panel:** the proactive monitor's push, banner and HOT callbacks, and the startup quip. The answer worker gets the chat handler and plain values, not the panel.
+  - **My PC:** the component scan and the power plan name.
+  - **Setup & Drivers:** the driver scan.
+  - **Services:** applying the queue.
+  - **Upgrade Readiness:** the platform.
+  - **Monitoring:** rebuilding the baselines.
+  - **Fan Dashboard:** the AI profile from chat.
+  - **Gaming toasts and the startup/app-install watcher toasts.**
+- **The system tray menu** (pystray runs it on its own thread) restored, showed and closed the window straight from that thread. It now queues the work, in both the Expanded and the minimal window.
+- A test reads the sources: from every `threading.Thread(target=...)` and every `bg.run(...)` work function, it follows the functions of the same module and fails on a Tk call. The only exception is the diagnostic console, which owns its own Tk interpreter on its own thread, like the splash. Further tests cover `ui/bg.py` on a real Tk root.
+
+## [1.9.0] - 2026-11-17
+
+A large update of hck_GPT, started after the third long test (17 November). Marcin wrote down 63 questions a user would ask, with three conversations of several turns. Asked in 193 phrasings, 51 ended in "I did not understand" and about 40 got an answer to a different question; none ends there now. Plan and status: `local_notes/HCK_GPT_1.9.0_PLAN_2026-11-17.md`.
+
+### hck_GPT draws conclusions from what PC Workman recorded
+**`core/pc_insight.py` (new), `hck_gpt/responses/r_insight.py` (new), `hck_gpt/intents/insight_rules.py` (new), `hck_gpt/responses/builder.py`**
+- A shared layer turns the recorded data into conclusions:
+  - the real CPU clock from Windows performance counters (psutil reports only the base clock: "2500 MHz" on a CPU running at 4200);
+  - whether heat or a power limit is holding the CPU back;
+  - each drive's type (NVMe, SATA SSD, HDD) and health;
+  - hardware errors, disk errors, blue screens and sudden restarts from the Windows event log;
+  - how CPU and GPU behave in the minutes recorded as gaming;
+  - the highest VRAM use;
+  - this PC's normal load and whether the last days differ;
+  - programs using more than their own normal;
+  - the age of the main parts;
+  - which part is the weakest, and why.
+- New answers on top of it, each saying what was checked, the verdict and what to do:
+  - **state of the PC:** is anything to fix or worry about; is it stable; is it worse than usual; is anything running in the background for no reason; what slows it down; why it feels slower lately; what changed;
+  - **parts:** the bottleneck and what to upgrade first; is the CPU or GPU still good; is there enough RAM or VRAM; does the CPU reach its boost or hit a limit; is the GPU fully used in games; is the drive fast and does it slow game loading; SSD health; temperatures in games; which processors the motherboard takes, with a note when the BIOS is too old for them; how old the PC is; whether to buy a new one;
+  - **trust:** whether hck_GPT reads files, what it stores, what it sends, what it remembers; whether it can recognise a virus; whether Windows Defender is enough; whether every svchost.exe is genuine (it checks each running one); whether a signature means safe; programs posing as Windows processes (it checks them);
+  - **personality:** is the PC tired, what hck_GPT does while you are away, does it watch the PC, does it like its job, can it predict when the PC will slow down (from the RAM peaks, the busiest hours, free space and the trend).
+
+### Conversations of several turns
+**`hck_gpt/responses/r_followup.py` (new), `hck_gpt/memory/session_memory.py`, `hck_gpt/responses/r_system.py`, `hck_gpt/responses/r_gaming.py`**
+- hck_GPT remembers what "it" is: the program it just named, the game, the advice it gave.
+  - "A czy mogę to wyłączyć?" answers about that program, starting with a plain yes or no.
+  - "Jak to zrobić?" gives the steps for that action: closing a program, startup, XMP, virtual memory, services, adding RAM, drivers.
+  - "Czy to pomoże?" measures that program and says how much RAM closing it frees (on the test PC: Claude, 1.4 GB, RAM from 74% to about 55%).
+- "Chcę pograć w CS2, ale mam lagi" gets the game's requirements together with what is off on this PC. "Czy komputer sobie z tym radzi?" means that game, "Co zamknąć przed grą?" lists programs to close, "A co jeśli dalej będzie zacinać?" gives the next steps.
+- Game requirements: 8 GB of RAM reads as 7.85 GB in Windows and was judged "below the 8 GB minimum"; a game that is already installed is no longer failed for disk space.
+
+### Observation note: record, change, compare
+**`core/observation.py` (new), `hck_gpt/panel.py`, `hck_gpt/chat_handler.py`**
+- "Zacznij nagrywanie", or the ⏺ Nagraj button in the chat, records every second:
+  - CPU, RAM, GPU and GPU temperature;
+  - the real CPU clock;
+  - the busiest process.
+- "Zakończ nagrywanie" shows the averages, peaks and the level the load stayed under 95% of the time. It compares them with the previous recording and gives a verdict: better, no clear difference or worse. A text note goes to the Desktop.
+- Meant for "is it better now?": record a game before a change and again after it. "Jak sprawdzić, że jest poprawa?" explains this and offers a button that starts the recording.
+
+### Data from the third long test
+**`hck_stats_engine/load_periods.py`, `core/scheduler.py`, `core/game_detect.py`, `hck_gpt/memory/proactive_monitor.py`, `hck_gpt/memory/user_knowledge.py`**
+- 1.5 hours of a game at GPU 64-75% left no busy stretch in the history: the line was 80%. It is now 60%, the same line at which learning counts gaming. While a game runs, the stretch stays open whatever the load. Stretches are rebuilt once from the minute history: 83 minutes of a game on 17 November and 105 minutes of BeamNG on 16 November on the test PC.
+- Unreal Engine games (`*-Win64-Shipping.exe`) count as games wherever they are installed. A game was reported as "jumped onto the top load list, not normally here".
+- Windows' own busy processes (Defender, the search indexer, updates) are explained instead of "accidental or planned?". "DeepMonitor: CPU GPU 45 C" reads "GPU 45°C".
+- The test suite wrote into the same knowledge base as the user's PC Workman, so a test that says "I have a laptop" left the test PC marked as a laptop. Tests and isolated runs now get their own knowledge base.
+- "Wolno działa komputer" got "CPU is not throttling"; it now gets what slows the PC down, now and all the time.
+
+### The fourth long test: 73 questions from a real afternoon
+**`hck_gpt/responses/r_meta.py` (new), `core/data_export.py` (new), `hck_gpt/intents/insight_rules.py`, `hck_gpt/responses/r_system.py`, `hck_gpt/memory/proactive_monitor.py`, `hck_gpt/insights.py`, `core/pc_insight.py`**
+- 34 of 73 questions ended in "I did not understand"; replayed against this version, none does. New answers:
+  - how much longer it learns, per workload in minutes;
+  - LibreHardwareMonitor: what it is, where to get it, and that its web server must run for PC Workman to read the sensors;
+  - whether PC Workman is still developed, and where a new version is;
+  - what is new and what deserves attention;
+  - "halo", "jesteś?", "rozumiesz?", "nie rozpoznajesz pytań", a compliment;
+  - "mam błąd": asks for the message and checks the Windows log of the last 7 days;
+  - "czy jesteś Claude" and similar;
+  - "czy mam wirusy?" runs the security scan.
+- Moving to a new Windows: "zrób export" packs the history, learning, settings, observation recordings and hck_GPT's knowledge into one ZIP on the Desktop, with import steps inside. The databases are copied with SQLite's online backup, so the copy is consistent while the app runs.
+- Deleting data: what "reset" clears, which files hold the history and the learning, and a reminder to export first.
+- "Co to teams" asked for an .exe name when Teams was not running; the process library answers from its description. After "co to searchindexer?" the next "czy mogę go wyłączyć?" now knows what "go" is.
+- "Programs using more than usual" compared a day with six calendar days, so every program looked 20 times above its normal. It now compares averages over the time actually recorded and needs 12 hours of history; Windows' compressed memory is not a program.
+- Proactive messages: "CPU has settled" at most once in 30 minutes (it came three times in eight minutes); each fixed tip at most once a day; "this program holds X MB" for the same program at most once in 3 hours unless it grew by half. The game session summary uses the whole PC's CPU and GPU from the history, not the game process alone ("CPU 4%" over 56 minutes of play). Launchers such as Steam are no longer "Gaming detected".
+
+### Version, Settings, HCK_Labs and the Guide
+**`utils/app_version.py`, `locales/*.json`, `ui/pages/settings_page.py`, `ui/windows/main_window_expanded.py`, `ui/pages/labs_guide_pages.py` (new)**
+- Version 1.9.0. Settings showed "Version 1.7.4" from a translation file; it now reads the one version source.
+- Settings opened as a 980×515 card with the dashboard visible around it. It now covers the whole content area like every other page.
+- HCK_Labs, rebuilt: a gradient header with the author, live numbers from this PC (learning, recorded hours, gaming, known processes), the projects, a version timeline and the principles behind the program.
+- The Guide, rebuilt: what is new in this version as cards, a three-step start, questions that ask hck_GPT on click, the map of the program and the guides on pcworkman.dev. Its "What's new" listed the previous version.
+- Both pages and their headers follow the interface language.
+- "Check for updates" in HCK_Labs showed v1.7.1 from April. It now shows the installed version and opens PC Workman in the Microsoft Store app, with GitHub Releases next to it. The app still never connects to check by itself.
+
+### The fifth long test: the 1.9.0 run
+**`ui/components/yourpc_page.py`, `hck_gpt/responses/r_features.py` (new), `hck_gpt/responses/r_gaming.py`, `hck_gpt/intents/insight_rules.py`, `hck_gpt/chat_handler.py`, `hck_gpt/panel.py`, `hck_gpt/memory/proactive_monitor.py`, `ui/pages/monitoring_alerts.py`**
+- My PC could get stuck on the In-Game Overlay view: "← My PC" and the tabs did nothing (38 errors in the log). DeepMonitor builds a second My PC page; after it closed, the kept My PC page pointed at the destroyed one's tabs. Each My PC page now owns its tabs and content, and a second click on the chat link no longer closes My PC.
+- Game requirements:
+  - free space is read from the drive with the most room, not from C: alone (the answer said too little space with over 1 TB free elsewhere); disk space no longer affects the verdict;
+  - GTA V had 16 GB RAM as recommended; Rockstar recommends 8 GB, and the minimum is 4 GB;
+  - the settings estimate uses the graphics card's power, so an RTX 3050 gets "high" in GTA V instead of "low to medium";
+  - the answer is drawn as a card.
+- hck_GPT knows the program: "czym jest DeepMonitor", "deepmonitor?", "fan dashboard", "monitoring learning", "czym jest nagranie", TURBO, Process Guard, App Hibernation, RAM Flush, Upgrade Readiness, PC map, stability tests and others each get what the feature does, where it is and a link that opens it. "Co mogę robić w programie?" gets a tour of the program.
+- New answers:
+  - "mam wolny internet": the PC's own traffic measured for a second, downloaders that are running (Steam, OneDrive, torrent clients and others), then the steps from speed test to router to provider;
+  - overclocking the graphics card (the answer talked about the CPU's locked multiplier);
+  - "opowiedz żart";
+  - what Recent Events counts.
+- Fixed understandings:
+  - "czy komputer ma wirusa" got the hardware upgrade options; it runs the security scan;
+  - "co mogę robić w programie" got the background programs;
+  - "nagrywaj", "kto ty jesteś", "czy dobrze działasz?", "co odinstalować?", "co usunąć?", "czy mam jakieś błędy?" and "wyłącz teams" outside the guide.
+- LibreHardwareMonitor: the answer says it is optional and what works without it (everything except the CPU temperature, voltages and fan speeds). Any answer that mentions it gets a "Zobacz sam" button that opens the official GitHub releases page.
+- BeamNG runs as two processes, so one session gave two "is the game smooth?" questions and two summaries. Processes of one game now make one session.
+- Recent Events no longer lists "PC Workman shutdown": it was 6 of 13 entries.
+
+### Tests
+- 460 to 573. New: the 63-question library and the questions of the fourth and fifth long tests as route tables, two My PC pages that must not share tabs, the game check, the update dialog, the export ZIP staying in the test folder.
+
+## [1.8.8] - 2026-11-16
+
+A stability release. It came out of a full audit on Windows 11 (build 26200), of the logs the app had been writing on real machines since July, and of two long tests on one PC (16 and 17 November) in which the app ran for hours and hck_GPT was asked what a user would ask. Most changes fix something that worked in a test and failed in use.
+
+In numbers:
+- hck_GPT questions ending in "I did not understand": 28 of 71 in the first long test, 0 of 122 in a sweep of everyday questions after the fixes.
+- Learning on the test PC: 14% before the fixes, 67% on the same data after them.
+- Tests: 552, all passing.
+
+### Activity Memory: the history of CPU, RAM and GPU
+**`ui/pages/activity_memory.py` (new), `hck_stats_engine/history.py` (new), `ui/windows/main_window_expanded.py`, `hck_gpt/memory/proactive_monitor.py`**
+- Click the CPU, RAM or GPU card on the Dashboard (it lights up bordeaux under the mouse) to open its full history: 1 hour, 24 hours, 7, 30 and 90 days, a year, or everything recorded.
+- The time axis is real time. Hours when PC Workman was off stay empty instead of being joined into one line. Hovering a point shows when it was, the average, the lowest and highest reading and, where a sensor measured it, the temperature.
+- Moving in time: drag the chart, use the arrows, or click the strip with the whole history under the chart to jump months back. Scroll zooms around the cursor, a double-click opens that moment closer. The chosen range is remembered.
+- Under the chart: average, lowest, peak and when it happened, the level the load stayed under 95% of the time, time above 80% (85% for RAM and GPU), how much of the period was recorded, temperature, and the change against the period before.
+- Heaviest processes of the period, counted over all their instances, and the recorded load spikes. A click on a spike opens the hour around it. GPU load is not recorded per process, and the page says so.
+- hck_GPT notices when a component has been working clearly harder for 1 to 3 days than in the 2 weeks before (at least 15 points higher, or 10 points and 1.5 times as much), says it with both numbers once a day at most, and links to that history.
+
+### hck_GPT after a six-hour test
+**`hck_gpt/panel.py`, `hck_gpt/engine/hybrid_engine.py`, `hck_gpt/chat_handler.py`, `hck_gpt/responses/`, `hck_gpt/memory/proactive_monitor.py`, `hck_stats_engine/query_api.py`**
+- hck_GPT keeps a local record of every conversation (`data/logs/hck_gpt_chat.jsonl`) and of every message it considered sending on its own, sent or held back and why (`hck_gpt_proactive.jsonl`). Nothing is deleted: at 20 MB a file is kept under its date and a new one starts. Nothing in them leaves the PC.
+- Sending a message no longer freezes the window. The answer is worked out in the background with an animated "thinking" line. A security question had held the window for 18 s.
+- Every question hck_GPT did not recognise cost 4 s: it looked for a local Ollama on "localhost", and Windows retries a closed port there twice. It now checks 127.0.0.1 in the background.
+- Links in the first line of a message were never clickable, for example "[-> Services Manager]" in the optimization guide.
+- Summaries counted an hour of history and a minute of history as equal, so 40 minutes of gaming outweighed four hours (the upgrade advisor reported CPU 57% for a day that averaged 33%). Recorded time was counted 60 times too long. Temperature summaries still included the old estimated CPU temperature.
+- The answers about the program and about privacy said that nothing leaves the PC. They now say what anonymous telemetry sends, whether it is on, and link to the switch in Settings.
+- "CPU back to normal - now 75%" came several times an hour while gaming. The note now comes once the CPU is below 50%, and it counts against the message limit.
+- The overclock answer read the base clock as boost ("boost 2500 MHz" on an i5-12400F, which boosts to 4400) and now also says whether the CPU can be overclocked at all.
+- A short reaction such as "nice" no longer repeats the previous answer.
+- Messages hck_GPT sends on its own use the interface language. They switched to whatever language one chat message was detected as.
+
+### hck_GPT understands everyday questions
+**`hck_gpt/intents/semantic_rules.py`, `hck_gpt/responses/r_everyday.py` (new), `hck_gpt/responses/flows.py`, `hck_gpt/engine/flow_engine.py`, `hck_gpt/panel.py`, `ui/pages/startup_manager.py`, `ui/windows/main_window_expanded.py`**
+- In the six-hour test 28 of 71 questions ended in "I did not understand". Short everyday questions without a hardware word were rejected outright. New answers, each with variants (no Polish letters, typos, short forms, English) covered by tests:
+  - where the In-Game Overlay is;
+  - whether everything is fine (a verdict from live values, this PC's normal levels, today's high-load periods and how much has been learned);
+  - why it lags;
+  - what uses the most;
+  - what to upgrade;
+  - whether this is the latest version (from the release date, without going online);
+  - the website;
+  - what can be deleted or uninstalled;
+  - where to update drivers;
+  - whether it has learned;
+  - whether it is an AI;
+  - Ollama;
+  - plain reactions such as "nice".
+  Of the 28 questions, 22 are now answered; the rest were attempts at a hidden scene.
+- "Who makes PC Workman" tells who does: Marcin, one person, building it at night after work, also making Scaling Laws.
+- A complaint about RAM ("mam duże obciążenie RAMu") reached the part-fit check and offered the CPU-motherboard guide.
+- The optimization guide shows each step as a card with a coloured verdict, on real data:
+  - the startup entries worth disabling, by name;
+  - the unneeded services that are running;
+  - the three processes holding the most memory.
+  A question asked during a step gets an answer about that step, and the guide says it is waiting. "Przerwij" ends it and says whether anything was changed.
+- Quick replies above SEND: the guide's choices during a guide (ZACZYNAJMY, DALEJ, Zobacz Autostart, TAK / POMIŃ, PRZERWIJ), two starters otherwise.
+- The chat stays available on Services, Startup, Optimization, Monitoring, Setup & Drivers, Upgrade Readiness, Overclock, Fans and Activity Memory. A link opens the page and folds the chat down to its bar.
+- Startup Manager judged every entry it had no file record of as "low impact, keep" (24 of 24 on the test PC, Teams and Driver Booster among them). Entries are now also judged by name; anti-cheat and Windows Security stay "keep".
+
+### hck_GPT chat: layout and how answers arrive
+**`hck_gpt/panel.py`, `hck_gpt/chat_handler.py`, `ui/windows/main_window_expanded.py`**
+- The message box and SEND disappeared in the second long test, once when a TIP appeared and once after a link from the chat opened another page. The chat log was laid out first and took the panel's height, so the input row was the part cut off. The input row and the quick replies now get their place first and the log takes what is left. A test builds the panel with a TIP and a HOT alert shown and checks that the input row is inside it.
+- TIP and HOT hang directly under the hck_GPT banner instead of above the input, so a new tip no longer pushes anything near where you type.
+- Quick replies sit on the right, above SEND, slightly smaller.
+- A "⚡ Optymalizacja" button, first in the chat's top bar, starts the optimization guide at any time.
+- Long answers come in parts. The first part shows at once; the chat then shows its thinking line for 2 seconds (the SEND button spins too) and adds the next part. The chat takes no new question until the last part is in.
+- Lines meant to be noticed have a lighter background: "Szybkie kroki do poprawy" in the RAM answer and the offer of the optimization guide. The tint of a conversation turn no longer covers these backgrounds or the guide's step cards.
+- Answers about lag, high RAM, speeding up the PC and the Optimization page end with the guide offer: one empty line, the highlighted offer below the article link, and a ZACZNIJ PRZEWODNIK button among the quick replies.
+- The Virtual Memory link opens the Windows window and keeps the chat open. About 2 seconds later hck_GPT says the window is opening and offers directions. A "Gdzie to znajdę?" button appears; the directions (Performance → Settings → Advanced → Virtual memory → Change) come only if the next message asks for them.
+- A link to the Activity Memory history was added for answers that read the history.
+
+### hck_GPT: the optimization guide, 6 steps
+**`hck_gpt/responses/flows.py`, `hck_gpt/engine/flow_engine.py`, `core/component_check.py` (new), `core/pagefile.py` (new)**
+- After the result (step 5) the guide asks whether to check the key components and their drivers, with TAK, SPRAWDŹ and POMIŃ.
+- The component check thinks for 2 seconds, then shows CPU, GPU and RAM, each in its own block:
+  - use right now and the average of the last 7 days;
+  - how hard the part usually works: often near its limit, healthy, calm with peaks in games, or plenty of spare power;
+  - temperature on its own line. The GPU is judged against its highest reading this week. The CPU temperature is shown only from a real sensor: without one hck_GPT says so instead of guessing;
+  - for RAM, whether virtual memory is on, how big it is, on which drives and who sets its size, with a link to its settings on the line below.
+- Step 6 offers the driver check, judged calmly:
+  - the graphics driver by its date, with NVIDIA's own version number (610.88 rather than 32.0.16.1088);
+  - the platform (chipset, Management Engine) by its newest real date. Intel ships chipset files dated 1968 on purpose; those dates are skipped;
+  - RAM through the motherboard BIOS, since memory has no driver of its own.
+  A link to Setup & Drivers closes the report.
+- POMIŃ on either question ends the guide with a short closing line. A step with nothing to say is passed over.
+- "Co to za aplikacje" during the startup step answered about the last TIP. Short questions that point at what a step just listed ("co to za", "które", "jakie") now get that step's answer.
+
+### hck_GPT understands more, answers from what was recorded
+**`hck_gpt/intents/semantic_rules.py`, `hck_gpt/responses/r_everyday2.py` (new), `hck_gpt/responses/builder.py`, `hck_gpt/memory/session_memory.py`, `hck_gpt/responses/r_conversation.py`, `core/game_detect.py`, `core/machine_type.py`**
+- After the second long test, hck_GPT was asked 122 questions a user would ask about a slow, loud, hot or misbehaving PC, in Polish and English, with typos and without Polish letters. 30 ended in "I did not understand", and a dozen more got the wrong answer. None ends there now.
+- New answers that read the recorded history, the same data as Activity Memory:
+  - when the PC was busiest and what ran then;
+  - whether it slept;
+  - what was played and for how long;
+  - how long it has been on today;
+  - today against yesterday.
+  "Od wczoraj wolniej działa" compares the two days when there are not yet two full daily summaries.
+- New answers for everyday problems:
+  - virtual memory: what it is, what is set now, how to change it;
+  - which apps can be closed right now, largest first, Windows processes left out;
+  - which services to turn off;
+  - sudden restarts and blue screens, counted from the Windows event log over 30 days, with dates and the likely cause;
+  - the refresh rate of each screen and why a 144 Hz monitor shows 60 Hz;
+  - RAM speed and XMP. On the test PC RAM runs at 2133 MHz, the DDR4 base speed, so XMP is most likely off;
+  - crackling sound, cleaning dust, backup, whether to turn off Windows Update, changing the language, Wi-Fi drops;
+  - how much CPU and RAM PC Workman itself uses;
+  - "nic nie działa" and "pomocy" ask what exactly happens.
+- When a diagnosis of lag in a game has its full picture, hck_GPT now checks what it can on that PC (RAM size and what holds it, RAM speed, graphics driver age, a busy background process). It used to only ask the user to reproduce the problem.
+- A clear question during an open diagnosis is answered instead of being added to it as a detail ("dysk ciągle na 100", "jak przyspieszyć gry", "czy uruchomię cyberpunka"). A short detail right after hck_GPT asked for one still joins the diagnosis. Remembered details read as words ("w grze, gra: CS2, rodzaj: spadki FPS"), not "miejsce=gaming, gra=gta 5" or "częstotliwość: consistent".
+- "my pc is slow", "is my pc fine" and "what did you learn about my pc" got "Noted - this is a desktop". Only an actual statement ("mam PC", "I have a laptop") is remembered, and a message with more in it is answered as well.
+- Games in the history are recognised from the installed Steam, Epic, GOG and Xbox libraries, so "w co najwięcej grałem?" finds BeamNG.drive by its file name. Bundled Java, installers and crash tools in game folders are not counted as games.
+- The RAM answer counted only the first 64 processes and blamed explorer.exe at 2.2% while Opera held 1.2 GB. It now counts every process grouped by program, explains MemCompression, names the browser only when it really is the largest, compares with the 7-day average from the history (the same figure the guide shows), and after a pause lists quick steps with the virtual memory as it is set now.
+- The lag answer measured CPU use without a measuring window and on the first 64 processes, so it blamed "System". It now measures every process for half a second as a share of the whole CPU.
+- Fixed:
+  - the power plan showed as "Zr˘wnowaľony": console tools write in the OEM code page, now read as such, also on the My PC tile;
+  - "gta 6" got GTA V requirements;
+  - the battery answer on a desktop listed "System Idle Process 877.9%";
+  - "co zjada procesor" showed the memory list;
+  - "czy mogę zamknąć operę" read one of Opera's processes (12 MB) instead of all of them, and it now works without ".exe";
+  - "co to msmpeng" asked for the full file name;
+  - the drivers answer led with "NVIDIA Virtual Audio Device · 33m old";
+  - the speed-up plan said a browser frees "~3-4 GB" without looking;
+  - startup entries showed names like "MicrosoftEdgeAutoLaunch_6BE24301AD05CA3C4A62FD6F29F2087D";
+  - "co to jest throttling" did not say what throttling is;
+  - "nakładka nie działa w grze" said only where the overlay is; it now lists what to check.
+
+### Learning fixed
+**`core/thermal_baseline.py`**
+- Learning switched from 5-minute snapshots to minute rows on 16 November, but it continued from the time of the last snapshot. Every minute recorded before the switch was learned only as every fifth. On the test PC: 368 recorded minutes, 133 learned samples, gaming 14 instead of 68.
+- On first start, if the minute history reaches back to where learning began, learning is rebuilt once from the minute rows, each minute counted once. Older installs whose minutes were already pruned keep what they learned.
+- The learning percentage averaged every workload seen at least once, so two workloads seen once each held it at 14%. A workload now counts once it has 15 minutes. On the same data: 14% before, 67% after.
+- What the second long test confirmed works: GPU temperature learned per workload (idle 44°C, gaming 67°C), the RAM norm told once a day, proactive messages within their limit (8 in 70 minutes).
+
+### What PC Workman learns and records
+**`hck_stats_engine/load_periods.py` (new), `core/game_detect.py` (new), `core/machine_type.py` (new), `core/scheduler.py`, `core/thermal_baseline.py`, `ui/pages/activity_memory.py`, `ui/components/gaming_toast.py`, `hck_gpt/`**
+- High-load periods. The spike check compares one minute with the five before it, so a game that ramps up over a few minutes never counted: 40 minutes of GPU at 95-99% left no record. A period now starts after 3 minutes above 70% (CPU) or 80% (GPU) and ends after 3 minutes clearly below. It keeps its peak, average, measured temperature and the game or process behind it. Activity Memory shows periods as bands on the chart and in a list; a click zooms to the period.
+- Games are recognised by where they are installed (Steam, Epic, GOG, Xbox, Riot, Ubisoft, EA, Battle.net), not only by a list. BeamNG.drive was on no list. hck_GPT no longer asks whether a game using the CPU is "expected", and these games now get the start note and the session recap.
+- The learning engine learns from every recorded minute instead of one sample every 5 minutes, and ignores the old estimated CPU temperature. The "% learned" figure counts progress in the workloads this PC actually runs (3 hours each to "trained"), not in all five.
+- RAM has a normal level per PC. On an 8 GB machine 85-92% is everyday, and the test got "RAM at 90%" nine times in two hours. With at least 3 hours recorded, hck_GPT alerts only above this PC's normal level and explains the level once a day.
+- Sleep is recorded. Gaps in the history now say "the PC was asleep (3 h 13 min)" instead of nothing.
+- Laptop or desktop is detected from Windows (system battery) and from what the user says ("mam PC", "I have a laptop"). The second always wins. Storage advice no longer describes laptops to desktop owners.
+
+### Readable text
+**`utils/fonts.py`, `utils/ui_scale.py`, 40 files under `ui/` and `hck_gpt/`**
+- The app ships the Inter font and asked Windows for "Inter", but the file registers itself as "Inter Variable Text". Windows found no "Inter" and drew that text in Arial. Headers asked for Segoe UI by name, so every page mixed three typefaces. All text now uses Inter, from one place.
+- Text below 7 pt is gone (136 places were 4 to 6 pt, among them the "All good · Standard" line under the CPU, RAM and GPU cards). All fonts are drawn 10% larger, and the default window is 12% larger on a 1080p screen (1300×645) so layouts keep their proportions. On smaller screens the window takes what fits and the text keeps its size.
+- Grey text that was hard to read on the dark background is lighter: 99 places had a contrast below 4.5:1.
+- My PC: the captions on the coloured tiles are readable on every colour. "N startup entries detected" showed the number minus 2. "Scanning..." stayed forever when no unnecessary service was running. The CPU panel showed "Intel64 Family 6 Model 151" instead of the model name.
+- The maximize button showed an empty box: Inter has no "⤢" and Windows did not always find it elsewhere. Symbol-only buttons now use a symbol font.
+
+### Services Manager no longer jumps
+**`ui/pages/services_manager.py`, `ui/components/fit.py`**
+- With Windows display scaling at 125%, the service list moved without end. The two columns split the width by what their text asked for, the text wrapped to the width it got, and every wrap moved the split again. The columns are now an even split, and text that adapts to its width ignores changes under 6 px. A test opens the page at 125% scaling and fails if anything still moves.
+
+### Monitoring: what PC Workman has learned
+**`ui/pages/monitoring_alerts.py`, `core/thermal_baseline.py`**
+- "100% learned" could show while the "heavy" workload had a few minutes of data: the number counted all samples together, so a PC that is idle a lot looked fully learned. It is now the average of the five workloads.
+- A card on the right shows that number, what stage the learning is at, and in the first 6 hours explains how PC Workman learns and why it needs the time. Later it lists which workloads it knows and which it is still learning.
+- Links from there to the CPU, RAM and GPU history.
+
+### History recording
+**`hck_stats_engine/aggregator.py`, `core/scheduler.py`**
+- Hours and days were rolled up only when the app was running at the moment the hour or day ended. Close it at 22:50 and that hour, and often the whole day, never reached the long-term history. One real database was missing 5 hours and 11 days. Every start now rolls up whatever is complete and missing, and so does every boundary crossed while running.
+- Without a temperature sensor the history stored `35 + CPU load / 2` as the CPU temperature. Only measured temperatures are stored now, and old rows with that formula are not shown.
+- A day's uptime is the time actually recorded, not the number of hours that had any data.
+
+### Startup without a console window
+**`utils/diag_console.py` (new), `ui/startup_error.py` (new), `ui/diag_window.py` (new), `startup.py`, `PCWorkman.spec`**
+- The exe is now a windowed program. It used to be a console program that hid its console once the window was up, and on Windows 11 that never worked: Windows Terminal ignores the hide call. `errors.log` on one machine held 43 `console_hide_failed` entries.
+- Everything the startup prints goes to `data/logs/startup.log`. The previous run is kept as `startup.prev.log`.
+- If startup fails, a window says what happened and offers "Copy details" and "Open log". The copied text carries the version, the Windows build, the error and the end of the startup log. A part that fails while the app still starts gets the same window in amber, once.
+- Settings > General > "Show diagnostic console at startup" opens a log window in the app's own style that fills while the program loads and closes 3 seconds after the main window is ready. "Keep open" stops the countdown.
+- `--console` still opens a real console, for the case where no window can open at all.
+- `PCW_SELFTEST=fail` or `PCW_SELFTEST=problem` shows either window on a healthy machine, so testers can check them.
+- The logo now appears before the slow imports and stays until loading is done, instead of a fixed 2.5 seconds followed by a blank wait.
+
+### Optimization engines
+**`core/turbo_manager.py`, `core/auto_optimizer.py`, `core/hibernation_manager.py`, `ui/pages/optimization_services.py`**
+- **Process Guard froze system services.** It suspended any idle process not on a short whitelist. `turbo_engine.log` shows MSI services, GameInput and the console host frozen within one second. It now suspends only 12 known applications (browsers, Discord, Slack, Teams, Spotify, cloud sync clients, game launchers) and never the application in front.
+- **Nothing stays frozen after a crash.** Process Guard and App Hibernation write what they suspended to disk. A normal exit wakes everything; after a crash or a Task Manager kill, the next start does. A PID that Windows gave to another program in the meantime is left alone.
+- **Auto RAM Flush ran in a loop.** Above 75% RAM it trimmed every process about once a minute, with no end. Measured on an 8 GB machine: +428 MB right after a flush, 267 MB less than before it 20 seconds later. It now waits 5 minutes after a flush, and up to 30 when the effect does not last.
+- **Turbo Power Plan could get stuck on "Turbo PC".** After a crash it could record "Turbo PC" as the plan to return to. The previous plan is now kept on disk and restored on the next start.
+- App Hibernation restores the priority a program had before, not always "normal", and reports a failure instead of marking the app as asleep.
+- The Dashboard TURBO button reported "1 fired" with nothing armed. It now counts only what was armed and possible. The power plan switch moved off the UI thread.
+- RAM Flush on TURBO did not work after a restart until TURBO was switched off and on again.
+
+### The app remembers what you set
+**`utils/prefs_io.py`**
+- Every settings file was written by emptying it first and writing it second. A crash, a shutdown or a second writer in that moment left a broken file, and the next start read it as empty. All 29 writes now go through one writer that writes a temporary file and swaps it in, locks per file, and keeps the last good version as `.bak`. A damaged file is restored from the backup on the next read.
+- Newly remembered: window size, position and maximized state (ignored if that monitor is gone), the chart range, the Process Guard threshold (now the same value as in Settings) and the App Hibernation threshold.
+- In the exe, several paths pointed inside `_internal`. The language chosen in Settings was not applied after a restart, and "Export" and "Reset data" did nothing. Started by the Windows autostart, the Fan Dashboard wrote to `C:\Windows\System32` and failed. All of them now use the app folder.
+- The build no longer packs the developer's own settings files (`network.json` with an install id, preferences, fan curves).
+
+### Fans: measured values only
+**`core/fan_sensors.py` (new), `ui/components/empty_state.py` (new), `ui/pages/fan_control/`, `ui/components/fan_dashboard.py`**
+- "Fan Control > Hardware & Usage" showed random numbers under "Real-time fan monitoring" and cooler models that were typed into the source. Fan speed now comes from LibreHardwareMonitor or OpenHardwareMonitor. Without one, the page says so and shows what is measured.
+- The usage chart draws measured history only, on a real time axis.
+- Fan Dashboard cards show the plan percentage marked "plan", with the measured RPM next to it when a sensor reports it. The page says that curves are a plan and that the BIOS or the vendor tool still controls the fans; "Apply" says the same.
+- My PC printed "CPU 560 RPM" and "BODYFAN 990 RPM" on every machine. Removed.
+- A fan sensor named "System Fan" was stored as the motherboard temperature.
+
+### Dashboard and layout
+**`ui/components/fit.py` (new), `ui/windows/main_window_expanded.py`, pages**
+- Text cut off mid-letter ("FLUSH RA", "OPE", "Disab", "l5.0%") had one cause: a long label packed before a button took its space. Controls are now packed first and text wraps. A scan of 12 pages went from 146 findings to none clipped in width.
+- That also brings back controls that were not on screen at all: the third Proactivity mode, the "Run as administrator" switch, the 1D / 1W / 1M chart ranges and the Services Manager MODES bar.
+- Hardware card temperatures were a formula on the load (`30 + load x 0.6`), shown even for RAM. They now show a measurement, an estimate marked with "~", or "--". RAM shows how much is in use.
+- The CPU card shows the product name ("Intel Core i5-12400F") instead of "Intel64 Family 6 Model 151".
+- The GPU name no longer runs `nvidia-smi` on the UI thread. `freeze_dump.txt` holds 12 stalls of 15 to 18 seconds at that call.
+
+### Services Manager
+- "Disable" ran `sc stop`, so the service came back after a restart. The buttons are now "Stop" and "Start", and the confirmation says a service may start again after a restart.
+- A change Windows refused went only to the log. It is now shown.
+- The service and startup scans ran on the UI thread, inside a thread that only scheduled them. Both now run in the background.
+
+### Language
+- 75 Polish strings typed into the interface showed with the English interface selected (Startup Manager, Services Manager, Drivers, Optimization). They are in `locales/` now; both files have the same 602 keys.
+- The welcome toast took its language from Windows instead of the app, had no Polish letters and showed version 1.7.6.
+- Quick setup questions in Services Manager were always Polish.
+
+### Telemetry
+**`core/telemetry.py`, `cloudflare/telemetry-worker.js`**
+- Reports kept arriving after 1.8.0; the Cloudflare KV list sorts by key, and keys started with the install id, so the first page looked like June.
+- `session_min` was always 0, because the only report went out 2 seconds after launch. A session now sends "start", an hourly "heartbeat" and an "end" with the real length. The end report waits at most 3 seconds.
+- The Worker keeps the new `kind` and `session_id` fields and starts keys with the date, so a day can be found with "Search keys by prefix".
+
+### Fixes
+- "lambda missing argument 'e'" (11 entries in `errors.log`) came back on four pages. Every event handler in the interface now accepts a missing event.
+- The GPU driver date showed as `/Date(1784678400000)/`, and hck_GPT could not tell how old any driver was.
+- A Process Guard receipt never saved its result (a property was called as a function).
+- The Settings idle threshold was written to an attribute nothing read.
+
+### Removed
+- 21 files that nothing imported (330 KB): old copies of the main window, My PC page and charts, and helpers nobody called. One of the copies no longer parsed.
+
+### Tests
+- 331 to 460, all green. The suite runs in its own data folder (`PCW_APP_DIR`, `PCW_LOG_DIR`). Before this release, tests wrote to the developer's real `errors.log`, `freeze_dump.txt`, optimization receipts, voltage baseline and TURBO profiles.
+- New guards: nothing unreachable from `startup.py`, no Polish text outside the locale files, every button and label as wide as its text on the main pages, no Tk callback errors while the pages open, every settings write through `prefs_io`.
+
 ## [1.8.7] - 2026-08-08
 
 ### hck_GPT, largest rebuild so far
