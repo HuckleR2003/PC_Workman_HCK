@@ -1,0 +1,14 @@
+/* ── "Learn more…" on the home page cards (2026-11-21) ──────
+   A real link in the HTML, shown on hover or keyboard focus,
+   always visible on touch screens. Points to a feature page,
+   or to its card on /features/ until the page exists. */
+.lm-host { position: relative; }
+.lm-more {
+    display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 700;
+    color: #a78bfa; text-decoration: none; opacity: 0; transform: translateY(3px);
+    transition: opacity .15s, transform .15s;
+}
+.lm-host:hover .lm-more, .lm-host:focus-within .lm-more { opacity: 1; transform: none; }
+.lm-more:hover { text-decoration: underline; }
+@media (hover: none) { .lm-more { opacity: 1; transform: none; } }
+.lm-all { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 700; color: #a78bfa; }

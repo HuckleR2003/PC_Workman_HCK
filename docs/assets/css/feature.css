@@ -1,0 +1,165 @@
+/* ════════════════════════════════════════════════════════════
+   PC Workman feature pages (/features/<slug>/), 2026-11-21.
+   Loaded after /blog/series.css, which gives the base: colours,
+   .hero, .article, .toc, .callout, tables, .guide-cta, .author-card.
+   This file only adds what a feature page needs on top:
+   screenshots, the key-numbers strip, the "open in PC Workman"
+   button, a yes/no comparison table and the "works since" line.
+   ════════════════════════════════════════════════════════════ */
+
+.page-feature .day-badge {
+    color: #a78bfa;
+    background: rgba(167, 139, 250, .08);
+    border: 1px solid rgba(167, 139, 250, .28);
+}
+.page-feature .article .hl { color: #a78bfa; }
+
+/* Key numbers right under the hero */
+.ft-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
+    gap: .7rem;
+    margin: 1.6rem 0 .4rem;
+}
+.ft-fact {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .8rem .95rem;
+}
+@media (max-width: 560px) {
+    .ft-facts { grid-template-columns: 1fr 1fr; }
+    .ft-fact:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+.ft-fact b {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.ft-fact span { font-size: .74rem; color: var(--text-secondary); line-height: 1.4; display: block; margin-top: .2rem; }
+
+/* Screenshots */
+.ft-shot { margin: 1.5rem 0 1.7rem; }
+.ft-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .55);
+    background: #0d1117;
+}
+.ft-shot figcaption {
+    font-size: .78rem;
+    color: var(--text-dim);
+    margin-top: .55rem;
+    line-height: 1.5;
+}
+.ft-shot.narrow img { max-width: 340px; margin: 0 auto; }
+.ft-shot.narrow figcaption { text-align: center; }
+
+/* Wide screenshot breaks out of the 760px text column on big screens */
+@media (min-width: 1000px) {
+    .ft-shot.wide { margin-left: -120px; margin-right: -120px; }
+}
+
+/* Two pictures side by side, stacked on phones */
+.ft-pair { display: grid; grid-template-columns: 1fr 1.6fr; gap: 1rem; align-items: start; margin: 1.5rem 0; }
+.ft-pair .ft-shot { margin: 0; }
+@media (max-width: 640px) { .ft-pair { grid-template-columns: 1fr; } }
+
+/* The list of places, grouped */
+.ft-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .8rem; margin: 1.2rem 0 1.4rem; }
+.ft-group {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .85rem 1rem;
+}
+.ft-group h3 { margin: 0 0 .45rem !important; font-size: .9rem !important; color: var(--text-primary) !important; }
+.ft-group ul { margin: 0 0 0 1.05rem !important; }
+.article .ft-group li { font-size: .84rem; margin-bottom: .2rem; }
+.ft-group .note { font-size: .74rem; color: var(--text-dim); margin: .45rem 0 0; line-height: 1.5; }
+
+/* Yes / no cells in the comparison table */
+.article td.y { color: var(--accent-green); }
+.article td.n { color: #8a8a8a; }
+.article td.p { color: var(--accent-gold); }
+.ft-table-wrap { overflow-x: auto; margin: 1.2rem 0; }
+.ft-table-wrap table { margin: 0; min-width: 560px; }
+
+/* Open in PC Workman */
+.ft-open {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .8rem 1.1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin: 1.4rem 0;
+}
+.ft-open .btn {
+    display: inline-block;
+    font-weight: 700;
+    font-size: .88rem;
+    color: #0a0a0a;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: .55rem 1rem;
+    text-decoration: none;
+}
+.ft-open .btn:hover { background: #e6e6e6; text-decoration: none; }
+.ft-open .btn.ghost { color: var(--text-primary); background: transparent; border: 1px solid #3a3a3a; }
+.ft-open .btn.ghost:hover { border-color: #6a6a6a; }
+.ft-open .path { font-family: var(--font-mono); font-size: .78rem; color: var(--text-secondary); }
+
+/* "Works since version" line */
+.ft-since {
+    font-family: var(--font-mono);
+    font-size: .74rem;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: .9rem;
+    margin-top: 2rem;
+}
+.ft-since b { color: var(--text-secondary); font-weight: 700; }
+
+/* FAQ as plain details/summary */
+.ft-faq details {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    margin: .55rem 0;
+    background: var(--bg-card);
+}
+.ft-faq summary { cursor: pointer; font-weight: 600; font-size: .92rem; color: var(--text-primary); }
+.ft-faq details[open] summary { margin-bottom: .5rem; }
+.ft-faq details p { margin-bottom: .3rem; }
+
+/* ── Hub /features/ ─────────────────────────────────────────── */
+.ft-hub { max-width: 980px; }
+.ft-jump { display: flex; flex-wrap: wrap; gap: .45rem; margin: 1.4rem 0 .4rem; }
+.ft-jump a {
+    font-size: .8rem; color: var(--text-secondary); text-decoration: none;
+    border: 1px solid var(--border); border-radius: 999px; padding: .3rem .8rem;
+    background: rgba(255, 255, 255, .02);
+}
+.ft-jump a:hover { color: var(--text-primary); border-color: #3a3a3a; }
+.ft-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .9rem; margin: 1rem 0 1.6rem; }
+.ft-card {
+    position: relative;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.1rem 1.1rem; scroll-margin-top: 80px;
+    transition: border-color .15s, transform .15s;
+}
+.ft-card:target { border-color: #a78bfa; box-shadow: 0 0 0 1px #a78bfa inset; }
+.ft-card.has-page:hover { border-color: #a78bfa; transform: translateY(-2px); }
+.ft-card h3 { margin: 0 0 .45rem !important; font-size: 1rem !important; color: var(--text-primary) !important; }
+.ft-card h3 a { color: inherit; }
+.article .ft-card p { font-size: .86rem; margin-bottom: .5rem; }
+.article .ft-card p.ft-vs { font-size: .74rem; color: var(--text-dim); margin: 0; }
+.ft-more { display: inline-block; margin-top: .6rem; font-size: .82rem; font-weight: 700; color: #a78bfa; }
