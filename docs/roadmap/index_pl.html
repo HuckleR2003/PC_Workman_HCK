@@ -8,14 +8,14 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#07080c">
-    <meta name="description" content="Roadmapa PC Workmana do wersji 2.1.0. Dziesięć obszarów już dostarczonych i czternaście kolejnych zaplanowanych, z rozdzieleniem gotowego kodu od planów.">
+    <meta name="description" content="Roadmapa PC Workmana do wersji 2.1.0. Szesnaście obszarów już dostarczonych i piętnaście kolejnych zaplanowanych, z rozdzieleniem gotowego kodu od planów.">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/roadmap/index_pl">
     <link rel="alternate" hreflang="en" href="https://pcworkman.dev/roadmap/">
     <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/roadmap/index_pl">
     <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/roadmap/">
     <meta property="og:title" content="PC Workman: roadmapa do wersji 2.1.0">
-    <meta property="og:description" content="Co już działa w 1.8.7, co jest następne i co pozostaje planem. Publiczna roadmapa rozwijana przez jednego autora.">
+    <meta property="og:description" content="Co już działa w 1.9.3, co jest następne i co pozostaje planem. Publiczna roadmapa rozwijana przez jednego autora.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pcworkman.dev/roadmap/index_pl">
     <meta property="og:locale" content="pl_PL">
@@ -84,6 +84,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
         <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
         <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
         <a class="gt-link gt-labs" href="/hck-labs/index_pl.html">HCK Labs</a>
         <span class="gt-spacer"></span>
@@ -94,27 +95,33 @@
         </span>
     </nav>
     <section class="hero">
-        <span class="day-badge day-friday">Build in public &middot; Wersja 1.8.7</span>
+        <span class="day-badge day-friday">Build in public &middot; Wersja 1.9.3</span>
         <h1>PC Workman<br>roadmapa do 2.1.0</h1>
-        <p class="tagline">Dziesięć obszarów dostarczonych. Czternaście pozostaje planem. Gotowy kod i przyszłość są oznaczone osobno.</p>
+        <p class="tagline">Szesnaście obszarów dostarczonych. Piętnaście pozostaje planem. Gotowy kod i przyszłość są oznaczone osobno.</p>
     </section>
     <main class="article">
         <div class="callout">
-            <b>Stan na 25 lipca 2026:</b> projekt jest rozwijany przez jedną osobę. Bieżąca wersja źródłowa to
-            1.8.7. Kolejność i zakres planów mogą się zmienić po testach i informacjach od użytkowników.
+            <b>Stan na 22 listopada 2026:</b> projekt jest rozwijany przez jedną osobę. Bieżąca wersja to
+            1.9.3. Kolejność i zakres planów mogą się zmienić po testach i informacjach od użytkowników.
         </div>
         <h2>Dostarczone</h2>
         <ol>
-            <li><strong>Lokalny asystent hck_GPT.</strong> 110 intencji w języku polskim i angielskim, bez wymaganej usługi chmurowej.</li>
+            <li><strong>Lokalny asystent hck_GPT.</strong> 119 intencji w języku polskim i angielskim, bez wymaganej usługi chmurowej.</li>
             <li><strong>Nauka konkretnej maszyny.</strong> Linie bazowe temperatur dla pięciu rodzajów obciążenia oraz statystyczna kontrola napięć.</li>
             <li><strong>Upgrade Readiness.</strong> Lokalna zgodność podzespołów, 196 CPU, 84 GPU i 60 chipsetów.</li>
             <li><strong>OVERCLOCK, Headroom Lab.</strong> Widok pokazujący ograniczenia zegarów oraz kontekst temperatur i zasilania.</li>
-            <li><strong>Fan Dashboard.</strong> Krzywa cieplna, bieżące odczyty i obsługiwane sterowanie wentylatorami.</li>
+            <li><strong>Fan Dashboard.</strong> Krzywe i profile wentylatorów jako planer; wentylatorami nadal steruje BIOS albo program producenta płyty.</li>
             <li><strong>Protokoły optymalizacji.</strong> Pomiar przed i po działaniu zamiast ogólnej obietnicy przyspieszenia.</li>
             <li><strong>Wykrywanie anomalii napięć.</strong> Mediana, MAD, zmodyfikowany Z-score i reguły kontroli procesu.</li>
             <li><strong>Mapa podzespołów 2.5D.</strong> Widok elementów wykrytych w konkretnym komputerze.</li>
             <li><strong>Nakładka w grze.</strong> Konfigurowalne metryki, FPS odczytywany z RTSS i brak przejmowania fokusu.</li>
             <li><strong>Microsoft Store.</strong> Dystrybucja z polskim i angielskim interfejsem.</li>
+            <li><strong>Oczyszczanie 2.0.</strong> 28 znanych miejsc, duplikaty, każdy plik pokazany przed usunięciem.</li>
+            <li><strong>Testy stabilności.</strong> Procesor, pamięć i dysk pod obciążeniem, jeden werdykt po ludzku.</li>
+            <li><strong>DeepMonitor.</strong> Fałszywe czujniki oznaczone, norma wyuczona dla każdego obciążenia.</li>
+            <li><strong>Activity Memory.</strong> Historia, do której można wrócić, z zaznaczonymi aktualizacjami Windows.</li>
+            <li><strong>Centrum informacji o procesach.</strong> 522 procesy opisane zwykłym językiem.</li>
+            <li><strong>hck_GPT proponuje, Ty decydujesz.</strong> Karta decyzji przy każdej zmianie i UNDO dla każdej.</li>
         </ol>
         <h2>Następne w kolejce</h2>
         <ol>
@@ -128,10 +135,11 @@
             <li><strong>Rozszerzone ekrany nauki</strong> opisujące stan bez żargonu.</li>
             <li><strong>Zużycie CPU poniżej 5 procent</strong> jako twardy cel dla samego monitora.</li>
             <li><strong>1000 definicji procesów</strong>, startując z 522 dzisiaj.</li>
-            <li><strong>150 stabilnych intencji hck_GPT</strong>, jako etap w drodze do 200.</li>
+            <li><strong>150 stabilnych intencji hck_GPT</strong> (dziś 119), jako etap w drodze do 200.</li>
         </ol>
         <h2>Później</h2>
         <ol start="12">
+            <li><strong><a href="/central/index_pl.html">PC Workman Central</a>.</strong> Stan sprzętu całej pracowni na jednym ekranie, w przygotowaniu.</li>
             <li><strong>Język niemiecki</strong> po ustabilizowaniu polskiego i angielskiego.</li>
             <li><strong>Więcej powitań dla wykrywanych gier.</strong></li>
             <li><strong>Więcej ukrytych reakcji hck_GPT</strong> bez ujawniania słów wyzwalających.</li>
