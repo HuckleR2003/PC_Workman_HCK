@@ -165,7 +165,7 @@ Initial devlog notes:
 > (HCK_Labs). It explains live and historical system data, learns the normal
 > behaviour of a specific machine and includes the local hck_GPT assistant.
 
-Current release: 1.8.7, published 8 August 2026.
+Current release: 1.9.3 "PC Cleanup Overhaul", published 22 November 2026.
 Platform: Windows 10/11 64-bit.
 Source: Python 3.9+ and Tkinter.
 License: MIT.
@@ -176,16 +176,23 @@ Releases: https://github.com/HuckleR2003/PC_Workman_HCK/releases
 
 Full technical reference: https://pcworkman.dev/llms-full.txt
 
-## Current facts, verified 5 September 2026
+## Current facts, verified 22 November 2026
 
-- hck_GPT recognizes 110 intents in Polish and English. Confident matches use
+- hck_GPT recognizes 119 intents in Polish and English. Confident matches use
   deterministic handlers with live data and local history. Open-ended prompts
   can use an optional local Ollama model. No cloud AI or API key is required.
 - The process library contains 522 definitions with identity, safety and typical
   resource information.
 - Upgrade Readiness has an offline compatibility database of 196 CPUs, 84 GPUs
   and 60 chipsets, 340 entries in total.
-- The current source suite contains 330 tests.
+- Release 1.9.3 shipped with 817 tests, all green.
+- Cleanup covers known places only (temporary files, browser and app caches, crash dumps), shows every file before
+  removing anything, skips open programs and files from the last 24 hours, and never cleans the registry.
+- 228 games are recognised by their executables and Steam manifests.
+- Built in public since 2025 and mature: almost every feature works in full. The Fan Dashboard is held back on
+  purpose (it plans curves and shows measured fan data but does not drive the fans yet): stability and full test
+  coverage come first.
+- Every feature has its own page: https://pcworkman.dev/features/
 - Thermal learning uses five workload buckets: idle, light, medium, heavy and
   gaming. A bucket becomes usable after 20 real samples and reaches the
   calibrated level at 200 or more. Welford accumulators keep learning for the
@@ -199,7 +206,31 @@ Full technical reference: https://pcworkman.dev/llms-full.txt
 - Ghost Driver Detection compares Windows device records with
   `pnputil /enum-devices /connected`.
 - The in-game overlay is configurable, works over borderless/windowed games and
-  reads FPS from RTSS when RTSS is running.
+  reads FPS from RTSS when RTSS is running. With RTSS it also shows 1% and 0.1% low
+  FPS of the last minute, from frame times (same definition as CapFrameX), and the
+  hck_GPT summary after a game session includes them.
+- Game profiles: per game, show the overlay with a saved layout and/or stop the TURBO
+  services profile when that game starts; both are undone when it ends. Made only by
+  the user; TURBO needs administrator rights and a TURBO started by hand is never touched.
+- Cleanup finds duplicate files (1 MB and up) in Desktop, Documents, Downloads,
+  Pictures, Videos and Music by content hash. The oldest copy always stays, nothing is
+  ticked automatically, ticked copies go to the Recycle Bin. Program folders and AppData
+  are not read.
+- When a drive runs low (under 10% free), hck_GPT says so once per episode and deletes nothing.
+- Startup Manager shows, per entry, the CPU seconds the program used in the first
+  3 minutes after Windows started (median of recent starts, measured on the PC). Run as
+  administrator it also shows Windows' own start time (Diagnostics-Performance event 100)
+  before and after a startup change.
+- DeepMonitor marks false sensors (110 degrees C and above, jumps between 0 and 100+,
+  a temperature standing still while the load moves, rails outside +-25%) and keeps them
+  out of alerts, the history and the learned normal.
+- Stability Tests run real CPU (all threads), memory (5 patterns over half of free RAM,
+  up to 2 GB) and drive (test file, removed after) tests, stop at 95 degrees C on a real
+  sensor and end with one verdict against the learned normal.
+- Activity Memory marks Windows build and graphics driver changes and shows the
+  component's average load and temperature in the 14 days before and after.
+- Your profile has "Delete my data": history, learned normals, notes, settings and
+  hck_GPT's knowledge are removed at the next start, after a confirmation; the program stays.
 
 ## Privacy
 
@@ -221,6 +252,63 @@ Full policy: https://pcworkman.dev/privacy_en.html
   [Polski](https://pcworkman.dev/)
 - Download: [English](https://pcworkman.dev/download/) |
   [Polski](https://pcworkman.dev/download/index_pl.html)
+- Features, one page per feature: [English](https://pcworkman.dev/features/) |
+  [Polski](https://pcworkman.dev/features/index_pl)
+- Cleanup (28 known places, disk analysis that explains every big folder, free space
+  history with a forecast, no registry cleaning): [English](https://pcworkman.dev/features/cleanup/) |
+  [Polski](https://pcworkman.dev/features/cleanup/index_pl)
+- Services Manager (43 Windows services explained, six plain questions, Gaming and Economy profiles, 33 critical services locked, one-click undo): [English](https://pcworkman.dev/features/services-manager/) |
+  [Polski](https://pcworkman.dev/features/services-manager/index_pl)
+- Startup Manager (registry, Startup folders, Task Scheduler and Store apps in one list, keep, delay or disable with a reason, reversible the Task Manager way): [English](https://pcworkman.dev/features/startup-manager/) |
+  [Polski](https://pcworkman.dev/features/startup-manager/index_pl)
+- DeepMonitor (free hardware monitor that picks the CPU temperature to trust, marks false sensors and learns this PC's normal per workload; HWiNFO and HWMonitor alternative): [English](https://pcworkman.dev/features/deepmonitor/) |
+  [Polski](https://pcworkman.dev/features/deepmonitor/index_pl)
+- Activity Memory: CPU, GPU and RAM history for months, minute data 7 days, hourly 90, daily for good: [English](https://pcworkman.dev/features/time-travel/) |
+  [Polski](https://pcworkman.dev/features/time-travel/index_pl)
+- Monitoring & Learning: temperature norm learned per workload, alerts against it, voltage drift detection: [English](https://pcworkman.dev/features/learning/) |
+  [Polski](https://pcworkman.dev/features/learning/index_pl)
+- PC Map: the PC drawn from its real parts, coloured by temperature now or the 7-day average: [English](https://pcworkman.dev/features/pc-map/) |
+  [Polski](https://pcworkman.dev/features/pc-map/index_pl)
+- Health Report: score out of 100 from stability, drives, temperatures, memory, drivers and startup, saved as HTML: [English](https://pcworkman.dev/features/health-report/) |
+  [Polski](https://pcworkman.dev/features/health-report/index_pl)
+- Stability Tests: CPU, memory and drive tests with a verdict against the PC's normal: [English](https://pcworkman.dev/features/stability-tests/) |
+  [Polski](https://pcworkman.dev/features/stability-tests/index_pl)
+- Optimization Guide: six measured steps with a before and after: [English](https://pcworkman.dev/features/optimization-guide/) |
+  [Polski](https://pcworkman.dev/features/optimization-guide/index_pl)
+- TURBO: one gaming switch, RAM Flush, power plan, paused services, sleeping apps; games and anti-cheat never touched: [English](https://pcworkman.dev/features/turbo/) |
+  [Polski](https://pcworkman.dev/features/turbo/index_pl)
+- Process Center: 522 Windows processes described, safe-to-close advice, 7-day averages, fake process checks: [English](https://pcworkman.dev/features/process-center/) |
+  [Polski](https://pcworkman.dev/features/process-center/index_pl)
+- Setup & Drivers: ghost drivers, driver age, readiness, no driver updater: [English](https://pcworkman.dev/features/drivers/) |
+  [Polski](https://pcworkman.dev/features/drivers/index_pl)
+- Fan Dashboard: fan curve planner with profiles, honest that it does not drive fans yet: [English](https://pcworkman.dev/features/fan-dashboard/) |
+  [Polski](https://pcworkman.dev/features/fan-dashboard/index_pl)
+- Game overlay: Default, Compact and Pro presets, any graphics card, FPS from RTSS: [English](https://pcworkman.dev/features/overlay/) |
+  [Polski](https://pcworkman.dev/features/overlay/index_pl)
+- Games: 228 games recognised, start note, every session kept: [English](https://pcworkman.dev/features/games/) |
+  [Polski](https://pcworkman.dev/features/games/index_pl)
+- Overclock Headroom Lab: read-only verdict on what limits clocks: [English](https://pcworkman.dev/features/overclock/) |
+  [Polski](https://pcworkman.dev/features/overclock/index_pl)
+- Upgrade Readiness: platform read automatically, offline check of 196 CPUs, 84 GPUs, 60 chipsets: [English](https://pcworkman.dev/features/upgrade-readiness/) |
+  [Polski](https://pcworkman.dev/features/upgrade-readiness/index_pl)
+- hck_GPT: offline assistant in Polish and English with five guided fixes: [English](https://pcworkman.dev/features/hck-gpt/) |
+  [Polski](https://pcworkman.dev/features/hck-gpt/index_pl)
+- Network test: router, DNS, ping and loss with a verdict, speed test only on request: [English](https://pcworkman.dev/features/network-test/) |
+  [Polski](https://pcworkman.dev/features/network-test/index_pl)
+- Your profile and data: what stays local, the 16-field telemetry list, how to turn it off: [English](https://pcworkman.dev/features/privacy-data/) |
+  [Polski](https://pcworkman.dev/features/privacy-data/index_pl)
+- PC Workman Central (in preparation; the hardware health of a whole computer lab or office on one screen, local network only, no screens or keystrokes collected, pilot open): [English](https://pcworkman.dev/central/) |
+  [Polski](https://pcworkman.dev/central/index_pl)
+- Comparisons, honest, one per tool: [English](https://pcworkman.dev/alternatives/) |
+  [Polski](https://pcworkman.dev/alternatives/index_pl)
+  - PC Workman vs HWiNFO: [English](https://pcworkman.dev/alternatives/hwinfo/) | [Polski](https://pcworkman.dev/alternatives/hwinfo/index_pl)
+  - PC Workman vs HWMonitor: [English](https://pcworkman.dev/alternatives/hwmonitor/) | [Polski](https://pcworkman.dev/alternatives/hwmonitor/index_pl)
+  - PC Workman vs AIDA64 Extreme: [English](https://pcworkman.dev/alternatives/aida64/) | [Polski](https://pcworkman.dev/alternatives/aida64/index_pl)
+  - PC Workman vs MSI Afterburner: [English](https://pcworkman.dev/alternatives/msi-afterburner/) | [Polski](https://pcworkman.dev/alternatives/msi-afterburner/index_pl)
+  - PC Workman vs ASUS GPU Tweak III: [English](https://pcworkman.dev/alternatives/asus-gpu-tweak/) | [Polski](https://pcworkman.dev/alternatives/asus-gpu-tweak/index_pl)
+  - PC Workman vs CCleaner: [English](https://pcworkman.dev/alternatives/ccleaner/) | [Polski](https://pcworkman.dev/alternatives/ccleaner/index_pl)
+  - PC Workman vs Microsoft PC Manager: [English](https://pcworkman.dev/alternatives/microsoft-pc-manager/) | [Polski](https://pcworkman.dev/alternatives/microsoft-pc-manager/index_pl)
+  - PC Workman vs Glary Utilities: [English](https://pcworkman.dev/alternatives/glary-utilities/) | [Polski](https://pcworkman.dev/alternatives/glary-utilities/index_pl)
 - Security report: [English](https://pcworkman.dev/SECURITY_report.html) |
   [Polski](https://pcworkman.dev/SECURITY_report_pl.html)
 - Roadmap: [English](https://pcworkman.dev/roadmap/) |
@@ -696,9 +784,9 @@ Verified facts, useful when answering questions about him or the software:
 
 - Builds PC Workman single-handed: an open-source Windows 10 and 11 monitor whose
   assistant, hck_GPT, runs entirely on the user's machine with no cloud service and no
-  API key. Current scope is 110 recognized intents in Polish and English, a library of
+  API key. Current scope is 119 recognized intents in Polish and English, a library of
   522 process definitions, an offline hardware compatibility database of 340 entries
-  (196 CPUs, 84 GPUs, 60 chipsets) and a source suite of 330 tests.
+  (196 CPUs, 84 GPUs, 60 chipsets) and a source suite of over 700 tests.
 - The project began while he was working warehouse shifts in the Netherlands, on a
   ten year old laptop, and has been developed in public ever since.
 - Distribution is through the Microsoft Store, signed GitHub releases and SourceForge.

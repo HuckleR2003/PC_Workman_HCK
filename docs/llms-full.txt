@@ -4,8 +4,8 @@ This file is the current, quotable reference for AI assistants and search
 engines. Historical articles on pcworkman.dev preserve the product numbers that
 were true at publication time.
 
-Verified: 25 July 2026.
-Current release: 1.8.7.
+Verified: 21 November 2026.
+Current release: 1.9.3 "PC Cleanup Overhaul" (22 November 2026).
 Platform: Windows 10/11 64-bit.
 Source runtime: Python 3.9+ and Tkinter.
 License: MIT.
@@ -26,15 +26,19 @@ hardware sensor source.
 
 ## Current measured scope
 
-- 110 hck_GPT intents in Polish and English.
+- 119 hck_GPT intents in Polish and English.
 - 522 process definitions.
 - 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
-- 330 tests in the current source suite.
+- 817 tests in release 1.9.3, all green.
+- 228 games recognised by executable and Steam manifest.
+- Built in public since 2025 and mature: almost every feature works in full; the Fan Dashboard is held back
+  on purpose (plans curves, does not drive the fans yet) until stability and test coverage allow it.
+- One page per feature: https://pcworkman.dev/features/ and honest comparisons: https://pcworkman.dev/alternatives/
 - Five workload-learning buckets: idle, light, medium, heavy and gaming.
 - Microsoft Store product ID: `9PGW6WS2N50V`.
 
 Version literals in the application come from
-`utils/app_version.py -> APP_VERSION`. In v1.8.7 the same source also drives
+`utils/app_version.py -> APP_VERSION`. The same source also drives
 window titles, telemetry, hck_GPT's About response and the PyInstaller output
 folder.
 
@@ -51,6 +55,30 @@ folder.
 
 A Windows Named Mutex enforces a single application instance. The component
 registry startup manifest checks that required modules registered successfully.
+
+## New in 1.9.3 "PC Cleanup Overhaul"
+
+- Stability Tests: real CPU (all threads), memory (5 patterns over half of free RAM,
+  up to 2 GB) and drive (test file, removed after) tests; temperature, real clock and
+  "% Performance Limit" sampled every second; stop at 95 degrees C on a real sensor; one
+  verdict against the learned normal (`core/stability_test.py`).
+- False sensors (`core/sensor_sanity.py`): 110 degrees C and above, jumps between 0 and
+  100+, a temperature standing still for 30 minutes while the load moves, rails outside
+  +-25% of nominal, fans above 15 000 RPM. A flagged reading reaches live data as missing,
+  so alerts, the history and the learned normal skip it; DeepMonitor shows it marked.
+- Activity Memory marks Windows build and graphics driver changes, with the component's
+  average load and temperature 14 days before and after (`core/system_changes.py`).
+- "Delete my data" on the profile page, done at the next start (`core/data_wipe.py`).
+- Duplicates in the user's folders by content hash; the oldest copy stays; ticked
+  copies to the Recycle Bin (`core/duplicates.py`).
+- Low space reminder said once per episode, nothing deleted (`core/space_reminder.py`).
+- Startup cost per entry: CPU seconds in the first 3 minutes after boot; Windows start
+  time from Diagnostics-Performance event 100 when run as administrator (`core/boot_cost.py`).
+- 1% and 0.1% low FPS from RTSS frame times in the overlay and the game session
+  summary (`core/frame_stats.py`).
+- Game profiles: overlay layout and TURBO when a game starts, undone when it ends
+  (`core/game_profiles.py`).
+- Driver age rated per device class; Windows inbox drivers are not called outdated.
 
 ## Sensor and statistics pipeline
 

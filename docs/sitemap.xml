@@ -2111,12 +2111,644 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/hire/"/>
   </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/cleanup/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/cleanup/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/cleanup/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/cleanup/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/cleanup/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/cleanup/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/cleanup/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/cleanup/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/deepmonitor/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/deepmonitor/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/deepmonitor/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/deepmonitor/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/deepmonitor/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/deepmonitor/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/deepmonitor/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/deepmonitor/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/startup-manager/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/startup-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/startup-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/startup-manager/"/>
+  </url>
 
+  <url>
+    <loc>https://pcworkman.dev/features/startup-manager/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/startup-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/startup-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/startup-manager/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/services-manager/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/services-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/services-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/services-manager/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/services-manager/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/services-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/services-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/services-manager/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/central/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/central/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/central/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/central/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/central/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/central/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/central/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/central/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/time-travel/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/time-travel/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/time-travel/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/time-travel/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/time-travel/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/time-travel/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/time-travel/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/time-travel/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/learning/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/learning/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/learning/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/learning/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/learning/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/learning/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/learning/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/learning/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/pc-map/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/pc-map/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/pc-map/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/pc-map/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/pc-map/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/pc-map/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/pc-map/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/pc-map/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/health-report/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/health-report/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/health-report/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/health-report/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/health-report/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/health-report/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/health-report/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/health-report/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/stability-tests/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/stability-tests/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/stability-tests/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/stability-tests/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/stability-tests/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/stability-tests/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/stability-tests/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/stability-tests/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/optimization-guide/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/optimization-guide/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/optimization-guide/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/optimization-guide/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/optimization-guide/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/optimization-guide/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/optimization-guide/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/optimization-guide/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/turbo/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/turbo/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/turbo/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/turbo/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/turbo/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/turbo/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/turbo/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/turbo/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/process-center/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/process-center/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/process-center/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/process-center/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/process-center/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/process-center/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/process-center/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/process-center/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/drivers/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/drivers/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/drivers/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/drivers/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/drivers/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/drivers/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/drivers/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/drivers/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/fan-dashboard/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/fan-dashboard/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/fan-dashboard/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/fan-dashboard/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/fan-dashboard/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/fan-dashboard/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/fan-dashboard/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/fan-dashboard/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/overlay/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overlay/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overlay/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overlay/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/overlay/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overlay/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overlay/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overlay/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/games/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/games/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/games/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/games/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/games/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/games/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/games/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/games/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/overclock/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overclock/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overclock/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overclock/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/overclock/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overclock/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overclock/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overclock/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/upgrade-readiness/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/upgrade-readiness/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/upgrade-readiness/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/upgrade-readiness/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/upgrade-readiness/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/upgrade-readiness/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/upgrade-readiness/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/upgrade-readiness/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/hck-gpt/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/hck-gpt/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/hck-gpt/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/hck-gpt/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/hck-gpt/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/hck-gpt/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/hck-gpt/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/hck-gpt/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/network-test/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/network-test/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/network-test/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/network-test/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/network-test/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/network-test/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/network-test/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/network-test/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/privacy-data/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/privacy-data/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/privacy-data/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/privacy-data/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/features/privacy-data/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/privacy-data/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/privacy-data/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/privacy-data/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/hwinfo/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/hwinfo/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/hwinfo/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/hwinfo/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/hwinfo/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/hwinfo/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/hwinfo/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/hwinfo/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/hwmonitor/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/hwmonitor/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/hwmonitor/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/hwmonitor/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/hwmonitor/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/hwmonitor/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/hwmonitor/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/hwmonitor/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/aida64/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/aida64/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/aida64/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/aida64/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/aida64/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/aida64/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/aida64/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/aida64/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/msi-afterburner/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/msi-afterburner/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/msi-afterburner/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/msi-afterburner/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/msi-afterburner/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/msi-afterburner/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/msi-afterburner/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/msi-afterburner/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/asus-gpu-tweak/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/asus-gpu-tweak/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/asus-gpu-tweak/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/ccleaner/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/ccleaner/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/ccleaner/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/ccleaner/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/ccleaner/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/ccleaner/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/ccleaner/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/ccleaner/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/microsoft-pc-manager/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/microsoft-pc-manager/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/microsoft-pc-manager/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/glary-utilities/</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/glary-utilities/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/glary-utilities/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/glary-utilities/"/>
+  </url>
+
+  <url>
+    <loc>https://pcworkman.dev/alternatives/glary-utilities/index_pl</loc>
+    <lastmod>2026-11-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pcworkman.dev/alternatives/glary-utilities/"/>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://pcworkman.dev/alternatives/glary-utilities/index_pl"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/alternatives/glary-utilities/"/>
+  </url>
 
 </urlset>
