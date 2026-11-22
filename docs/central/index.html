@@ -1,0 +1,353 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC Workman Central (in preparation) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman Central shows the hardware health of a whole computer lab or office on one screen and says in plain words which PC needs attention and why. Local network only, no cloud, no watching people. In preparation, pilot for schools and small businesses.">
+    <meta name="keywords" content="computer lab monitoring software, school computer lab hardware health, monitor temperatures of many PCs, fleet PC health monitoring, RMM alternative for schools, GDPR school computer monitoring, Veyon alternative hardware">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/central/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/central/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/central/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/central/">
+    <meta property="og:title" content="PC Workman Central: the hardware health of a whole computer lab on one screen">
+    <meta property="og:description" content="Temperatures, drives and drivers of every PC in a lab or an office, each judged against its own normal, explained in plain words. Local network, no cloud, no screens or keystrokes. Pilot open.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pcworkman.dev/central/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>PC Workman Central: Hardware Health of a Whole Computer Lab</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://pcworkman.dev/central/#software",
+      "name": "PC Workman Central",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "Computer lab and fleet hardware monitoring",
+      "operatingSystem": "Windows 10, Windows 11",
+      "url": "https://pcworkman.dev/central/",
+      "description": "Shows the hardware health of every PC in a computer lab or an office on one screen: temperatures against each machine's own normal, drives, drivers and warnings in plain words. Works on the local network without a cloud account and collects hardware data only, never screens, keystrokes, websites, file names or user names.",
+      "releaseNotes": "In preparation. Pilot for schools and small businesses.",
+      "isBasedOn": { "@id": "https://pcworkman.dev/#software" },
+      "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" },
+      "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization" },
+      "featureList": [
+        "One tile per PC with its state, CPU temperature, memory and drive",
+        "Each PC judged against its own learned normal, not a fixed threshold",
+        "Warnings in plain words: full drive, hotter than its twins, repeated crashes",
+        "Lab averages, the five worst PCs, the PC that differs from identical models",
+        "History of the whole lab for more than six months",
+        "A report for the head or the owner: what to replace first and what to service",
+        "Local network only, pairing code and encrypted connection, no cloud account",
+        "Collects hardware data only: no screens, keystrokes, websites, file names or user names",
+        "School mode: programs shown as groups, not a list per pupil",
+        "Version 1 is view only: no remote actions"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "PC Workman Central", "item": "https://pcworkman.dev/central/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does PC Workman Central watch what pupils or employees do?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. It collects the state of the hardware: temperatures, load, drives, drivers, and programs as names with average use. It never collects screens, keystrokes, websites, document contents, file names or Windows user names. In school mode programs are shown as groups such as browsers, games and office, so the data does not show what a particular pupil was doing." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it compatible with GDPR in a school?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It is designed for it: hardware data only, kept on the school's own network, a visible agent on every PC, and a pack for the head and the data protection officer with the list of collected data, an information notice template, a data protection impact assessment template and a retention period that can be shortened. The school stays the controller and decides on the legal basis." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does it need the internet or a cloud account?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Version 1 works on the local network only. Each PC is paired with a code and the connection is encrypted. The data does not leave the building." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can it restart or fix PCs remotely?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not in version 1, on purpose. A remote action on forty PCs is the biggest risk for a lab. Version 1 shows and explains; remote actions may come later, behind permissions and with a log." }
+        },
+        {
+          "@type": "Question",
+          "name": "How much will it cost?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The price is not set yet. The plan is free for a few PCs at home or in a small firm and a yearly licence per lab above that, with an education licence for public schools, well below the price of remote management tools for businesses. Pilot places are free." }
+        },
+        {
+          "@type": "Question",
+          "name": "When will it be available?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It is in preparation. The first step is a pilot in one school lab or one small office. Write to join the pilot list." }
+        }
+      ]
+    }
+    </script>
+    <style>
+    .ct-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .5rem; margin: 1.2rem 0 .6rem; }
+    .ct-tile { background: #111; border: 1px solid var(--border); border-left: 3px solid #34d399; border-radius: 8px; padding: .5rem .6rem; font-family: var(--font-mono); }
+    .ct-tile b { display: block; font-size: .8rem; color: var(--text-primary); }
+    .ct-tile span { display: block; font-size: .68rem; color: var(--text-dim); line-height: 1.5; }
+    .ct-tile.warn { border-left-color: #fbbf24; }
+    .ct-tile.bad { border-left-color: #f87171; }
+    .ct-note { font-size: .74rem; color: var(--text-dim); margin-top: .2rem; }
+    .ct-msg { font-family: var(--font-mono); font-size: .8rem; background: #0e1116; border: 1px solid #232a33; border-left: 3px solid #a78bfa; border-radius: 6px; padding: .55rem .8rem; margin: .45rem 0; color: #e6eef6; }
+    .ct-msg b { color: #fbbf24; }
+    .ct-steps { counter-reset: s; list-style: none; margin-left: 0 !important; }
+    .ct-steps li { counter-increment: s; position: relative; padding-left: 2.1rem; margin-bottom: .7rem; }
+    .ct-steps li::before { content: counter(s); position: absolute; left: 0; top: .1rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: #2a2244; color: #fff; font-size: .78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ central</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/central/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/central/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">In preparation &middot; Pilot open</span>
+        <h1>PC Workman Central: the hardware health of a whole lab on one screen</h1>
+        <p class="tagline">PC Workman Central shows the state of every PC in a computer lab or an office on one screen and says in plain words which one needs attention and why. On your own network, without a cloud account, and without watching people.</p>
+    </section>
+
+    <main class="article">
+        <div class="ft-facts">
+            <div class="ft-fact"><b>1</b><span>screen for the whole lab</span></div>
+            <div class="ft-fact"><b>0</b><span>screens, keystrokes or websites collected</span></div>
+            <div class="ft-fact"><b>LAN</b><span>only, no cloud account</span></div>
+            <div class="ft-fact"><b>6+ months</b><span>of lab history</span></div>
+        </div>
+
+        <div class="ct-tiles" aria-label="Example of the lab view">
+            <div class="ct-tile"><b>PC-01</b><span>CPU 41 °C</span><span>RAM 38% &middot; C: 61%</span></div>
+            <div class="ct-tile"><b>PC-02</b><span>CPU 44 °C</span><span>RAM 42% &middot; C: 58%</span></div>
+            <div class="ct-tile warn"><b>PC-07</b><span>CPU 71 °C</span><span>+15 °C vs its norm</span></div>
+            <div class="ct-tile"><b>PC-08</b><span>CPU 43 °C</span><span>RAM 35% &middot; C: 64%</span></div>
+            <div class="ct-tile bad"><b>PC-14</b><span>C: 4% free</span><span>updates will fail</span></div>
+            <div class="ct-tile"><b>PC-15</b><span>CPU 40 °C</span><span>RAM 31% &middot; C: 70%</span></div>
+            <div class="ct-tile warn"><b>PC-22</b><span>3 crashes</span><span>in 7 days</span></div>
+            <div class="ct-tile"><b>PC-23</b><span>CPU 42 °C</span><span>RAM 40% &middot; C: 55%</span></div>
+        </div>
+        <p class="ct-note">An example of the lab view, drawn for this page. Green: fine. Amber: worth a look. Red: needs action.</p>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#who">Who it is for</a></li>
+                <li><a href="#sees">What the admin sees</a></li>
+                <li><a href="#not">What it never collects</a></li>
+                <li><a href="#how">How it works</a></li>
+                <li><a href="#compare">Central, Veyon, NetSupport School, NinjaOne</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#pilot">Join the pilot</a></li>
+            </ol>
+        </div>
+
+        <h2 id="who">Who it is for</h2>
+        <ul>
+            <li><b>School computer labs.</b> Twenty to forty PCs, one IT teacher, no time to walk from desk to desk with a thermometer.</li>
+            <li><b>Small offices.</b> Ten to fifty PCs and nobody whose job is to notice that one of them is about to run out of disk.</li>
+            <li><b>Internet cafés and gaming rooms.</b> Machines under load all day, where a clogged cooler shows up as a customer complaint.</li>
+            <li><b>Computer repair shops.</b> A quick, honest health picture of every machine that comes in.</li>
+        </ul>
+
+        <h2 id="sees">What the admin sees</h2>
+        <p>
+            <b>A tile for every PC</b> with its state colour, its name and three numbers: CPU temperature,
+            memory, and the system drive. Click a tile and the full PC Workman of that machine opens, read only:
+            My PC, its history, its processes.
+        </p>
+        <p><b>Warnings in plain words</b>, written by hck_GPT for the admin, for example:</p>
+        <div class="ct-msg"><b>PC-14:</b> drive C: has 4% free, Windows updates will not fit.</div>
+        <div class="ct-msg"><b>PC-07:</b> CPU 15 °C hotter than its own normal under the same load. Check for dust.</div>
+        <div class="ct-msg"><b>PC-22:</b> three restarts without a shutdown in a week.</div>
+        <p>
+            Each PC is judged against <span class="hl">its own learned normal</span>, the same way
+            <a href="/features/deepmonitor/">DeepMonitor</a> does it on a single PC, so a lab of different
+            machines does not drown in false alarms from one fixed threshold.
+        </p>
+        <ul>
+            <li><b>Comparisons:</b> lab averages, the five worst PCs, the one that runs hotter than its identical twins, the age of drivers across the lab.</li>
+            <li><b>History of the whole lab</b> for more than six months, with the busy hours (lessons, shifts) visible.</li>
+            <li><b>A report for the head or the owner:</b> the state of the hardware, what to replace first, which PCs go to service.</li>
+        </ul>
+
+        <h2 id="not">What it never collects</h2>
+        <p>
+            Classroom tools mostly watch people: screens, websites, what a pupil types. That is where the
+            trouble starts. In Poland the data protection authority fined a school
+            <b>52,511 PLN</b> for cameras in classrooms without a legal basis and ordered them off within 14 days
+            (<a href="https://www.prawo.pl/szkoly-i-uczelnie/uodo-szkola-ukarana-za-monitoring-w-salach-lekcyjnych,1557823.html" target="_blank" rel="noopener">Prawo.pl</a>).
+            Central watches hardware, not people.
+        </p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>Collected</th><th>Never collected</th></tr></thead>
+                <tbody>
+                    <tr><td>Temperatures, load, clocks</td><td class="n">Screens or screenshots</td></tr>
+                    <tr><td>Drives: free space, health</td><td class="n">Keystrokes</td></tr>
+                    <tr><td>Drivers and their age</td><td class="n">Websites and browsing history</td></tr>
+                    <tr><td>Programs as names, with average use</td><td class="n">Document contents and file names</td></tr>
+                    <tr><td>Crashes and unexpected restarts</td><td class="n">Windows user names</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <ul>
+            <li><b>School mode:</b> programs are shown as groups (browsers, games, office) instead of a full list, so the data cannot tell what one pupil was doing.</li>
+            <li><b>A visible agent:</b> every PC says it is part of a lab managed by PC Workman Central. There is no hidden mode.</li>
+            <li><b>A pack for the head and the data protection officer:</b> the list of collected data, an information notice template for pupils, parents and staff, a template of the data protection impact assessment (GDPR art. 35), and a default retention period that can be shortened.</li>
+        </ul>
+
+        <h2 id="how">How it works</h2>
+        <ol class="ct-steps">
+            <li><b>The agent</b> is PC Workman running without a window on every PC. It collects locally all the time, learns that machine's normal and keeps its history, even when Central is off.</li>
+            <li><b>Central</b> runs on the admin's PC and only reads from the agents.</li>
+            <li><b>Pairing with a code</b>, like Bluetooth: a code on the agent, typed into Central. The connection is encrypted with a key from the pairing, so nobody else on the network can read another PC.</li>
+            <li><b>Local network only</b> in version 1. No cloud, no accounts. The data does not leave the building.</li>
+            <li><b>Version 1 is view only.</b> No remote killing of processes, restarts or installs: a remote action on forty PCs is the biggest risk a lab can take. Remote actions may come later, behind permissions and with a log.</li>
+            <li><b>Quiet install for admins:</b> an installer with parameters (silent install, pairing code), so forty PCs are not a day of clicking.</li>
+        </ol>
+
+        <h2 id="compare">Central, Veyon, NetSupport School, NinjaOne</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>PC Workman Central</th><th>Veyon</th><th>NetSupport School</th><th>NinjaOne (RMM)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Main job</td><td>Hardware health</td><td>Screens and class control</td><td>Screens and class control</td><td>Patches, scripts, remote desktop</td></tr>
+                    <tr><td>Temperatures against each PC's normal</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td><td class="p">Basic hardware alerts</td></tr>
+                    <tr><td>Explains in plain words</td><td class="y">Yes, hck_GPT</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>Watches screens</td><td class="y">Never</td><td class="n">Yes</td><td class="n">Yes</td><td class="n">Remote desktop</td></tr>
+                    <tr><td>Cloud account</td><td class="y">Not needed</td><td class="y">Not needed</td><td class="p">Depends on edition</td><td class="n">Cloud</td></tr>
+                    <tr><td>Price</td><td class="p">Pilot free, then per lab</td><td class="y">Free, open source</td><td class="p">Paid</td><td class="p">From about 1.50 USD per PC per month</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>Fair to say:</b> Veyon and NetSupport School run a lesson: they show and lock screens, and Central
+            never will. NinjaOne and other remote management tools patch and fix machines remotely. Central does
+            one thing they leave out: it tells you, before a lesson breaks, which PC is about to fail and why.
+            Many schools will run Central next to a classroom tool, not instead of it.
+        </p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Does it watch what pupils or employees do?</summary>
+                <p>No. Hardware state only: temperatures, load, drives, drivers, and programs as names with average use. Never screens, keystrokes, websites, file contents or names, or Windows user names. In school mode programs are shown as groups.</p>
+            </details>
+            <details>
+                <summary>Is it compatible with GDPR in a school?</summary>
+                <p>It is built for it: hardware data only, on the school's own network, a visible agent, and a pack for the head and the data protection officer. The school stays the controller and decides on the legal basis.</p>
+            </details>
+            <details>
+                <summary>Does it need the internet or a cloud account?</summary>
+                <p>No. Local network only, pairing with a code, encrypted connection. The data does not leave the building.</p>
+            </details>
+            <details>
+                <summary>Can it restart or fix PCs remotely?</summary>
+                <p>Not in version 1, on purpose. It shows and explains. Remote actions may come later, behind permissions and with a log.</p>
+            </details>
+            <details>
+                <summary>How much will it cost?</summary>
+                <p>Not set yet. The plan: free for a few PCs, a yearly licence per lab above that, an education licence for public schools, well below business remote management tools. Pilot places are free.</p>
+            </details>
+            <details>
+                <summary>When will it be available?</summary>
+                <p>It is in preparation. The first step is a pilot in one school lab or one small office.</p>
+            </details>
+        </div>
+
+        <h2 id="pilot">Join the pilot</h2>
+        <p>
+            Looking for one school lab and one small office to run the first version with. Write how many PCs
+            you have and what kind of place it is. No data about pupils or staff needed.
+        </p>
+        <div class="ft-open">
+            <a class="btn" href="mailto:firmuga.marcin.s@gmail.com?subject=PC%20Workman%20Central%20pilot">Write to join the pilot</a>
+            <a class="btn ghost" href="/download/">Try PC Workman on one PC</a>
+            <span class="path">Central is built on PC Workman: what it learns on one PC, it learns on every PC in the lab.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/features/">All PC Workman features</a></li>
+                <li><a href="/features/deepmonitor/">DeepMonitor: the normal of one PC, learned per workload</a></li>
+                <li><a href="/features/cleanup/">Cleanup: free disk space without the risky parts</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Central started with one question: could one PC Workman look after a room of twenty PCs? Building PC Workman in public since 2025 says yes, if it watches the hardware and leaves the people alone.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>In preparation</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

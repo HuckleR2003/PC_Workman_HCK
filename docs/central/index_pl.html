@@ -1,0 +1,354 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC Workman Central (w przygotowaniu) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman Central pokazuje stan sprzętu całej pracowni albo biura na jednym ekranie i mówi ludzkim językiem, który komputer potrzebuje uwagi i dlaczego. Tylko sieć lokalna, bez chmury, bez podglądania ludzi. W przygotowaniu, pilotaż dla szkół i małych firm.">
+    <meta name="keywords" content="monitoring pracowni komputerowej, stan komputerów w szkole, temperatury wielu komputerów, monitoring floty komputerów, alternatywa RMM dla szkoły, RODO monitoring komputerów w szkole, pracownia informatyczna">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/central/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/central/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/central/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/central/">
+    <meta property="og:title" content="PC Workman Central: stan sprzętu całej pracowni na jednym ekranie">
+    <meta property="og:description" content="Temperatury, dyski i sterowniki każdego komputera w pracowni albo biurze, każdy oceniany względem własnej normy, wyjaśnione ludzkim językiem. Sieć lokalna, bez chmury, bez ekranów i klawiatury. Pilotaż otwarty.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pcworkman.dev/central/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>PC Workman Central: stan sprzętu całej pracowni komputerowej</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://pcworkman.dev/central/#software",
+      "name": "PC Workman Central",
+      "applicationCategory": "UtilitiesApplication",
+      "applicationSubCategory": "Monitoring sprzętu pracowni i floty komputerów",
+      "operatingSystem": "Windows 10, Windows 11",
+      "url": "https://pcworkman.dev/central/index_pl",
+      "inLanguage": "pl",
+      "description": "Pokazuje stan sprzętu każdego komputera w pracowni albo biurze na jednym ekranie: temperatury względem własnej normy każdej maszyny, dyski, sterowniki i ostrzeżenia ludzkim językiem. Działa w sieci lokalnej bez konta w chmurze i zbiera wyłącznie dane o sprzęcie, nigdy ekranów, klawiatury, stron WWW, nazw plików ani nazw użytkowników.",
+      "releaseNotes": "W przygotowaniu. Pilotaż dla szkół i małych firm.",
+      "isBasedOn": { "@id": "https://pcworkman.dev/#software" },
+      "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" },
+      "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization" },
+      "featureList": [
+        "Kafelek dla każdego komputera ze stanem, temperaturą CPU, pamięcią i dyskiem",
+        "Każdy komputer oceniany względem własnej wyuczonej normy, a nie stałego progu",
+        "Ostrzeżenia ludzkim językiem: pełny dysk, gorętszy niż bliźniacy, powtarzające się awarie",
+        "Średnie pracowni, pięć najgorszych komputerów, komputer odstający od identycznych modeli",
+        "Historia całej pracowni ponad pół roku",
+        "Raport dla dyrekcji albo właściciela: co wymienić najpierw i co oddać do serwisu",
+        "Tylko sieć lokalna, parowanie kodem i szyfrowane połączenie, bez konta w chmurze",
+        "Zbiera tylko dane o sprzęcie: bez ekranów, klawiatury, stron WWW, nazw plików i nazw użytkowników",
+        "Tryb szkolny: programy pokazane w grupach, a nie jako lista dla ucznia",
+        "Wersja 1 tylko do podglądu: bez zdalnych akcji"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "PC Workman Central", "item": "https://pcworkman.dev/central/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy PC Workman Central podgląda, co robią uczniowie albo pracownicy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. Zbiera stan sprzętu: temperatury, obciążenie, dyski, sterowniki oraz programy jako nazwy ze średnim zużyciem. Nigdy nie zbiera ekranów, klawiatury, stron WWW, treści dokumentów, nazw plików ani nazw użytkowników Windows. W trybie szkolnym programy są pokazane w grupach, np. przeglądarki, gry, biuro, więc z danych nie da się odczytać, co robił konkretny uczeń." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy to jest zgodne z RODO w szkole?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Jest do tego zaprojektowane: tylko dane o sprzęcie, w sieci szkoły, widoczny agent na każdym komputerze i pakiet dla dyrektora i inspektora ochrony danych z listą zbieranych danych, wzorem klauzuli informacyjnej, szablonem oceny skutków i okresem przechowywania, który można skrócić. Szkoła pozostaje administratorem i decyduje o podstawie prawnej." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy potrzebny jest internet albo konto w chmurze?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. Wersja 1 działa tylko w sieci lokalnej. Każdy komputer paruje się kodem, a połączenie jest szyfrowane. Dane nie wychodzą z budynku." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy może zdalnie restartować albo naprawiać komputery?",
+          "acceptedAnswer": { "@type": "Answer", "text": "W wersji 1 celowo nie. Zdalna akcja na czterdziestu komputerach to największe ryzyko dla pracowni. Wersja 1 pokazuje i wyjaśnia; zdalne akcje mogą przyjść później, za uprawnieniami i z dziennikiem." }
+        },
+        {
+          "@type": "Question",
+          "name": "Ile będzie kosztować?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Cena nie jest jeszcze ustalona. Plan: za darmo dla kilku komputerów w domu albo małej firmie, roczna licencja na pracownię powyżej tego i licencja edukacyjna dla szkół publicznych, znacznie poniżej ceny narzędzi do zdalnego zarządzania dla firm. Miejsca w pilotażu są bezpłatne." }
+        },
+        {
+          "@type": "Question",
+          "name": "Kiedy będzie dostępny?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Jest w przygotowaniu. Pierwszy krok to pilotaż w jednej pracowni szkolnej albo jednym małym biurze. Napisz, żeby dołączyć do listy pilotażowej." }
+        }
+      ]
+    }
+    </script>
+    <style>
+    .ct-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .5rem; margin: 1.2rem 0 .6rem; }
+    .ct-tile { background: #111; border: 1px solid var(--border); border-left: 3px solid #34d399; border-radius: 8px; padding: .5rem .6rem; font-family: var(--font-mono); }
+    .ct-tile b { display: block; font-size: .8rem; color: var(--text-primary); }
+    .ct-tile span { display: block; font-size: .68rem; color: var(--text-dim); line-height: 1.5; }
+    .ct-tile.warn { border-left-color: #fbbf24; }
+    .ct-tile.bad { border-left-color: #f87171; }
+    .ct-note { font-size: .74rem; color: var(--text-dim); margin-top: .2rem; }
+    .ct-msg { font-family: var(--font-mono); font-size: .8rem; background: #0e1116; border: 1px solid #232a33; border-left: 3px solid #a78bfa; border-radius: 6px; padding: .55rem .8rem; margin: .45rem 0; color: #e6eef6; }
+    .ct-msg b { color: #fbbf24; }
+    .ct-steps { counter-reset: s; list-style: none; margin-left: 0 !important; }
+    .ct-steps li { counter-increment: s; position: relative; padding-left: 2.1rem; margin-bottom: .7rem; }
+    .ct-steps li::before { content: counter(s); position: absolute; left: 0; top: .1rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: #2a2244; color: #fff; font-size: .78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ central</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/central/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/central/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">W przygotowaniu &middot; Pilotaż otwarty</span>
+        <h1>PC Workman Central: stan sprzętu całej pracowni na jednym ekranie</h1>
+        <p class="tagline">PC Workman Central pokazuje stan każdego komputera w pracowni albo biurze na jednym ekranie i mówi ludzkim językiem, który potrzebuje uwagi i dlaczego. W Twojej własnej sieci, bez konta w chmurze i bez podglądania ludzi.</p>
+    </section>
+
+    <main class="article">
+        <div class="ft-facts">
+            <div class="ft-fact"><b>1</b><span>ekran na całą pracownię</span></div>
+            <div class="ft-fact"><b>0</b><span>ekranów, klawiatury i stron WWW w danych</span></div>
+            <div class="ft-fact"><b>LAN</b><span>tylko sieć lokalna, bez chmury</span></div>
+            <div class="ft-fact"><b>6+ mies.</b><span>historii pracowni</span></div>
+        </div>
+
+        <div class="ct-tiles" aria-label="Przykład widoku pracowni">
+            <div class="ct-tile"><b>PC-01</b><span>CPU 41 °C</span><span>RAM 38% &middot; C: 61%</span></div>
+            <div class="ct-tile"><b>PC-02</b><span>CPU 44 °C</span><span>RAM 42% &middot; C: 58%</span></div>
+            <div class="ct-tile warn"><b>PC-07</b><span>CPU 71 °C</span><span>+15 °C ponad normę</span></div>
+            <div class="ct-tile"><b>PC-08</b><span>CPU 43 °C</span><span>RAM 35% &middot; C: 64%</span></div>
+            <div class="ct-tile bad"><b>PC-14</b><span>C: 4% wolnego</span><span>aktualizacje się nie zmieszczą</span></div>
+            <div class="ct-tile"><b>PC-15</b><span>CPU 40 °C</span><span>RAM 31% &middot; C: 70%</span></div>
+            <div class="ct-tile warn"><b>PC-22</b><span>3 awarie</span><span>w 7 dni</span></div>
+            <div class="ct-tile"><b>PC-23</b><span>CPU 42 °C</span><span>RAM 40% &middot; C: 55%</span></div>
+        </div>
+        <p class="ct-note">Przykład widoku pracowni, narysowany na potrzeby tej strony. Zielony: w porządku. Bursztynowy: warto zerknąć. Czerwony: trzeba działać.</p>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#who">Dla kogo</a></li>
+                <li><a href="#sees">Co widzi administrator</a></li>
+                <li><a href="#not">Czego nigdy nie zbiera</a></li>
+                <li><a href="#how">Jak działa</a></li>
+                <li><a href="#compare">Central, Veyon, NetSupport School, NinjaOne</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#pilot">Dołącz do pilotażu</a></li>
+            </ol>
+        </div>
+
+        <h2 id="who">Dla kogo</h2>
+        <ul>
+            <li><b>Szkolne pracownie komputerowe.</b> Dwadzieścia do czterdziestu komputerów, jeden nauczyciel informatyki i brak czasu, żeby chodzić od stanowiska do stanowiska.</li>
+            <li><b>Małe biura.</b> Dziesięć do pięćdziesięciu komputerów i nikt, czyim zadaniem jest zauważyć, że na jednym zaraz skończy się dysk.</li>
+            <li><b>Kafejki i salony gier.</b> Maszyny pod obciążeniem cały dzień, gdzie zapchany radiator wychodzi jako reklamacja klienta.</li>
+            <li><b>Serwisy komputerowe.</b> Szybki, uczciwy obraz zdrowia każdej maszyny, która przychodzi do naprawy.</li>
+        </ul>
+
+        <h2 id="sees">Co widzi administrator</h2>
+        <p>
+            <b>Kafelek dla każdego komputera</b> z kolorem stanu, nazwą i trzema liczbami: temperatura CPU,
+            pamięć i dysk systemowy. Kliknięcie otwiera pełny PC Workman tej maszyny w trybie odczytu: Mój PC,
+            jego historię i procesy.
+        </p>
+        <p><b>Ostrzeżenia ludzkim językiem</b>, pisane przez hck_GPT dla administratora, na przykład:</p>
+        <div class="ct-msg"><b>PC-14:</b> dysk C: ma 4% wolnego, aktualizacje Windows się nie zmieszczą.</div>
+        <div class="ct-msg"><b>PC-07:</b> procesor o 15 °C cieplejszy niż jego własna norma przy tym samym obciążeniu. Sprawdź kurz.</div>
+        <div class="ct-msg"><b>PC-22:</b> trzy restarty bez zamknięcia w tydzień.</div>
+        <p>
+            Każdy komputer jest oceniany względem <span class="hl">własnej wyuczonej normy</span>, tak jak robi to
+            <a href="/features/deepmonitor/index_pl.html">DeepMonitor</a> na jednym komputerze, więc pracownia
+            różnych maszyn nie tonie w fałszywych alarmach z jednego stałego progu.
+        </p>
+        <ul>
+            <li><b>Porównania:</b> średnie pracowni, pięć najgorszych komputerów, ten, który grzeje się bardziej niż identyczni bliźniacy, wiek sterowników w całej sali.</li>
+            <li><b>Historia całej pracowni</b> ponad pół roku, z widocznymi godzinami obciążenia (lekcje, zmiany).</li>
+            <li><b>Raport dla dyrekcji albo właściciela:</b> stan sprzętu, co wymienić najpierw, które komputery oddać do serwisu.</li>
+        </ul>
+
+        <h2 id="not">Czego nigdy nie zbiera</h2>
+        <p>
+            Programy do pracowni zwykle patrzą na ludzi: ekrany, strony, to, co pisze uczeń. Tam zaczynają się
+            kłopoty. UODO ukarało szkołę na <b>52 511 zł</b> za monitoring w salach lekcyjnych bez podstawy prawnej
+            i nakazało go wyłączyć w 14 dni
+            (<a href="https://www.prawo.pl/szkoly-i-uczelnie/uodo-szkola-ukarana-za-monitoring-w-salach-lekcyjnych,1557823.html" target="_blank" rel="noopener">Prawo.pl</a>).
+            Central patrzy na sprzęt, nie na ludzi.
+        </p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>Zbiera</th><th>Nigdy nie zbiera</th></tr></thead>
+                <tbody>
+                    <tr><td>Temperatury, obciążenie, zegary</td><td class="n">Ekranów i zrzutów ekranu</td></tr>
+                    <tr><td>Dyski: wolne miejsce, kondycja</td><td class="n">Naciśnięć klawiszy</td></tr>
+                    <tr><td>Sterowniki i ich wiek</td><td class="n">Stron WWW i historii przeglądania</td></tr>
+                    <tr><td>Programy jako nazwy, ze średnim zużyciem</td><td class="n">Treści dokumentów i nazw plików</td></tr>
+                    <tr><td>Awarie i nieoczekiwane restarty</td><td class="n">Nazw użytkowników Windows</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <ul>
+            <li><b>Tryb szkolny:</b> programy są pokazane w grupach (przeglądarki, gry, biuro) zamiast pełnej listy, więc z danych nie da się odczytać, co robił jeden uczeń.</li>
+            <li><b>Widoczny agent:</b> każdy komputer mówi, że należy do pracowni zarządzanej przez PC Workman Central. Nie ma trybu ukrytego.</li>
+            <li><b>Pakiet dla dyrektora i inspektora ochrony danych:</b> lista zbieranych danych, wzór klauzuli informacyjnej dla uczniów, rodziców i pracowników, szablon oceny skutków (art. 35 RODO) i domyślny okres przechowywania, który można skrócić.</li>
+        </ul>
+
+        <h2 id="how">Jak działa</h2>
+        <ol class="ct-steps">
+            <li><b>Agent</b> to PC Workman działający bez okna na każdym komputerze. Zbiera lokalnie przez cały czas, uczy się normy tej maszyny i trzyma jej historię, nawet gdy Central jest wyłączony.</li>
+            <li><b>Central</b> działa na komputerze administratora i tylko czyta z agentów.</li>
+            <li><b>Parowanie kodem</b>, jak Bluetooth: kod na agencie, wpisany w Centralu. Połączenie jest szyfrowane kluczem z parowania, więc nikt inny w sieci nie przeczyta cudzego komputera.</li>
+            <li><b>Tylko sieć lokalna</b> w wersji 1. Bez chmury, bez kont. Dane nie wychodzą z budynku.</li>
+            <li><b>Wersja 1 tylko do podglądu.</b> Bez zdalnego zamykania procesów, restartów i instalacji: zdalna akcja na czterdziestu komputerach to największe ryzyko dla pracowni. Zdalne akcje mogą przyjść później, za uprawnieniami i z dziennikiem.</li>
+            <li><b>Cicha instalacja dla administratora:</b> instalator z parametrami (cicha instalacja, kod parowania), żeby czterdzieści komputerów nie oznaczało dnia klikania.</li>
+        </ol>
+
+        <h2 id="compare">Central, Veyon, NetSupport School, NinjaOne</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>PC Workman Central</th><th>Veyon</th><th>NetSupport School</th><th>NinjaOne (RMM)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Główne zadanie</td><td>Zdrowie sprzętu</td><td>Ekrany i prowadzenie lekcji</td><td>Ekrany i prowadzenie lekcji</td><td>Łatki, skrypty, zdalny pulpit</td></tr>
+                    <tr><td>Temperatury względem normy każdego komputera</td><td class="y">Tak</td><td class="n">Nie</td><td class="n">Nie</td><td class="p">Podstawowe alerty sprzętowe</td></tr>
+                    <tr><td>Wyjaśnia ludzkim językiem</td><td class="y">Tak, hck_GPT</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Podgląda ekrany</td><td class="y">Nigdy</td><td class="n">Tak</td><td class="n">Tak</td><td class="n">Zdalny pulpit</td></tr>
+                    <tr><td>Konto w chmurze</td><td class="y">Niepotrzebne</td><td class="y">Niepotrzebne</td><td class="p">Zależy od wersji</td><td class="n">Chmura</td></tr>
+                    <tr><td>Cena</td><td class="p">Pilotaż za darmo, potem za pracownię</td><td class="y">Za darmo, otwarty kod</td><td class="p">Płatny</td><td class="p">Od około 1,50 USD za komputer miesięcznie</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>Uczciwie:</b> Veyon i NetSupport School prowadzą lekcję: pokazują i blokują ekrany, czego Central nigdy
+            nie będzie robił. NinjaOne i inne narzędzia do zdalnego zarządzania łatają i naprawiają maszyny zdalnie.
+            Central robi jedno, co one pomijają: mówi, zanim lekcja się posypie, który komputer zaraz zawiedzie
+            i dlaczego. Wiele szkół będzie używać Centrala obok programu do prowadzenia lekcji, a nie zamiast niego.
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy podgląda, co robią uczniowie albo pracownicy?</summary>
+                <p>Nie. Tylko stan sprzętu: temperatury, obciążenie, dyski, sterowniki oraz programy jako nazwy ze średnim zużyciem. Nigdy ekrany, klawiatura, strony WWW, treść i nazwy plików ani nazwy użytkowników Windows. W trybie szkolnym programy są pokazane w grupach.</p>
+            </details>
+            <details>
+                <summary>Czy to jest zgodne z RODO w szkole?</summary>
+                <p>Jest do tego zaprojektowane: tylko dane o sprzęcie, w sieci szkoły, widoczny agent i pakiet dla dyrektora i inspektora ochrony danych. Szkoła pozostaje administratorem i decyduje o podstawie prawnej.</p>
+            </details>
+            <details>
+                <summary>Czy potrzebny jest internet albo konto w chmurze?</summary>
+                <p>Nie. Tylko sieć lokalna, parowanie kodem, szyfrowane połączenie. Dane nie wychodzą z budynku.</p>
+            </details>
+            <details>
+                <summary>Czy może zdalnie restartować albo naprawiać komputery?</summary>
+                <p>W wersji 1 celowo nie. Pokazuje i wyjaśnia. Zdalne akcje mogą przyjść później, za uprawnieniami i z dziennikiem.</p>
+            </details>
+            <details>
+                <summary>Ile będzie kosztować?</summary>
+                <p>Cena nie jest jeszcze ustalona. Plan: za darmo dla kilku komputerów, roczna licencja na pracownię powyżej tego, licencja edukacyjna dla szkół publicznych, znacznie poniżej narzędzi do zdalnego zarządzania dla firm. Miejsca w pilotażu są bezpłatne.</p>
+            </details>
+            <details>
+                <summary>Kiedy będzie dostępny?</summary>
+                <p>Jest w przygotowaniu. Pierwszy krok to pilotaż w jednej pracowni szkolnej albo jednym małym biurze.</p>
+            </details>
+        </div>
+
+        <h2 id="pilot">Dołącz do pilotażu</h2>
+        <p>
+            Szukam jednej pracowni szkolnej i jednego małego biura, z którymi uruchomię pierwszą wersję. Napisz,
+            ile masz komputerów i jakie to miejsce. Dane uczniów ani pracowników nie są potrzebne.
+        </p>
+        <div class="ft-open">
+            <a class="btn" href="mailto:firmuga.marcin.s@gmail.com?subject=PC%20Workman%20Central%20-%20pilota%C5%BC">Napisz, żeby dołączyć</a>
+            <a class="btn ghost" href="/download/">Wypróbuj PC Workman na jednym komputerze</a>
+            <span class="path">Central jest zbudowany na PC Workman: czego uczy się na jednym komputerze, uczy się na każdym w pracowni.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+                <li><a href="/features/deepmonitor/index_pl.html">DeepMonitor: norma jednego komputera, wyuczona dla każdego obciążenia</a></li>
+                <li><a href="/features/cleanup/index_pl.html">Oczyszczanie: miejsce na dysku bez ryzykownych części</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Central zaczął się od jednego pytania: czy jeden PC Workman mógłby doglądać sali dwudziestu komputerów? Budowanie PC Workman publicznie od 2025 roku mówi, że tak, jeśli patrzy na sprzęt i zostawia ludzi w spokoju.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>W przygotowaniu</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
