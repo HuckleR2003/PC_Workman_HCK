@@ -21,10 +21,14 @@
     <meta property="og:url" content="https://pcworkman.dev/central/">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="pl_PL">
-    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-central-en.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PC Workman Central: a computer room of 32 PCs on one screen, each tile coloured by its hardware health">
     <meta property="og:site_name" content="PC Workman">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
+    <meta name="twitter:image" content="https://pcworkman.dev/assets/images/og-central-en.png">
 
     <title>PC Workman Central: Hardware Health of a Whole Computer Lab</title>
 
@@ -47,6 +51,7 @@
       "url": "https://pcworkman.dev/central/",
       "description": "Shows the hardware health of every PC in a computer lab or an office on one screen: temperatures against each machine's own normal, drives, drivers and warnings in plain words. Works on the local network without a cloud account and collects hardware data only, never screens, keystrokes, websites, file names or user names.",
       "releaseNotes": "In preparation. Pilot for schools and small businesses.",
+      "image": "https://pcworkman.dev/assets/images/og-central-en.png",
       "isBasedOn": { "@id": "https://pcworkman.dev/#software" },
       "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" },
       "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization" },
@@ -134,6 +139,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
         <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
@@ -184,6 +190,12 @@
                 <li><a href="#sees">What the admin sees</a></li>
                 <li><a href="#not">What it never collects</a></li>
                 <li><a href="#how">How it works</a></li>
+                <li><a href="#why">Why it is worth building</a></li>
+                <li><a href="#already">What already exists in PC Workman</a></li>
+                <li><a href="#first">Stability first</a></li>
+                <li><a href="#plan">The plan, step by step</a></li>
+                <li><a href="#rules">Technical rules</a></li>
+                <li><a href="#risks">Risks</a></li>
                 <li><a href="#compare">Central, Veyon, NetSupport School, NinjaOne</a></li>
                 <li><a href="#faq">Questions</a></li>
                 <li><a href="#pilot">Join the pilot</a></li>
@@ -254,6 +266,84 @@
             <li><b>Version 1 is view only.</b> No remote killing of processes, restarts or installs: a remote action on forty PCs is the biggest risk a lab can take. Remote actions may come later, behind permissions and with a log.</li>
             <li><b>Quiet install for admins:</b> an installer with parameters (silent install, pairing code), so forty PCs are not a day of clicking.</li>
         </ol>
+
+        <h2 id="why">Why it is worth building</h2>
+        <p>
+            In a computer lab you learn about a broken PC during the lesson: a student raises a hand because the
+            machine hangs, and its drive has been full for a week. An office is the same, only the hand goes up
+            on Monday at eight. Every one of those computers knew about the problem earlier. Nobody asked it.
+        </p>
+        <ul>
+            <li><b>A gap in the market.</b> Classroom tools watch people (screens, websites, locks). Remote management tools watch patches and scripts, live in the cloud and are written for IT departments. None of them says in plain words which computer in the room is about to fail, and why.</li>
+            <li><b>The foundation already works.</b> On one PC, PC Workman collects in the background, learns the normal for every workload, keeps the history and explains readings through hck_GPT. Central is the same work on every seat, plus what one PC cannot do: compare itself with its twins.</li>
+            <li><b>Twins are an edge a single PC does not have.</b> A lab usually has twenty identical computers. If one of them runs 12 °C hotter than the rest during the same lesson, that is not a hot day, it is dust or dried paste. That signal is close to certain and needs no fixed threshold.</li>
+            <li><b>Privacy as an argument, not an obstacle.</b> Schools fear monitoring because monitoring usually watches people. Central watches only hardware from day one, so a head teacher can deploy it without fearing the next data protection decision.</li>
+        </ul>
+
+        <h2 id="already">What already exists in PC Workman</h2>
+        <p>Central does not start from zero. Every lab tile is a feature that works on one PC today:</p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>In Central</th><th>Today in PC Workman</th></tr></thead>
+                <tbody>
+                    <tr><td>Judged against each PC's own normal</td><td><a href="/features/deepmonitor/">DeepMonitor</a> and <a href="/features/learning/">Monitoring &amp; Learning</a>: a normal learned per workload, false sensors rejected</td></tr>
+                    <tr><td>Lab history over half a year</td><td><a href="/features/time-travel/">Activity Memory</a>: one PC's history with charts</td></tr>
+                    <tr><td>Warnings in plain words</td><td><a href="/features/hck-gpt/">hck_GPT</a>: a local assistant that explains readings</td></tr>
+                    <tr><td>Driver age across the room</td><td><a href="/features/drivers/">Setup &amp; Drivers</a>: age rated per device class</td></tr>
+                    <tr><td>A full drive before it blocks updates</td><td><a href="/features/cleanup/">Cleanup</a>: free space history with a forecast</td></tr>
+                    <tr><td>A report for the head or the owner</td><td><a href="/features/health-report/">Health report</a>: one PC's state on one page</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="first">Stability first</h2>
+        <p>
+            An agent on forty computers that freezes the system once a week means forty tickets a week and the end
+            of a school's trust. That is why stability is the foundation of Central, not a separate topic. Before the
+            first lab screen exists, PC Workman goes through an audit:
+        </p>
+        <ul>
+            <li>no query to the system (graphics card, WMI, sensors) runs on the interface thread, and every one has a time limit;</li>
+            <li>nothing that stops or ends processes runs in the version 1 agent;</li>
+            <li>the agent has a budget: the target is under 1% of the CPU and a few dozen MB of memory, measured on the weakest PC in the room, not the strongest;</li>
+            <li>an error in the agent ends with a log entry and an agent restart, never with a window in front of a student.</li>
+        </ul>
+
+        <h2 id="plan">The plan, step by step</h2>
+        <p>Every step ends with something that works and can be shown.</p>
+        <ol class="ct-steps">
+            <li><b>PC Workman stability.</b> The freeze audit, time limits, a console only when something is wrong, and support for many resolutions. The same things every PC in a lab needs.</li>
+            <li><b>A windowless agent.</b> PC Workman running as a quiet agent: collects, learns, keeps history, exposes reading only. Pairing by code and encryption.</li>
+            <li><b>The room view.</b> Tiles with a status colour, a click opens that PC's PC Workman read-only, hck_GPT warnings for the admin.</li>
+            <li><b>Comparisons and history.</b> Room averages, the worst five, the PC that stands out from its twins, more than half a year of history with lesson hours.</li>
+            <li><b>Report and pilot.</b> A report for the head, the GDPR pack, the first school lab and the first office. Pricing only after the pilot.</li>
+            <li><b>Later, behind permissions.</b> Remote actions with a log (who, what, when, with undo), many rooms and buildings, export to inventory systems.</li>
+        </ol>
+
+        <h2 id="rules">Technical rules, written down up front</h2>
+        <p>Things that are easy to skip at the start and cost the most later:</p>
+        <ul>
+            <li><b>The agent connects to Central.</b> Student PCs listen on no port. One firewall rule on the admin's PC instead of forty, and nothing to attack on the seats.</li>
+            <li><b>The agent works without Central.</b> When the admin's PC is off or the network is down, the agent keeps collecting and fills in the history when it is back. A gap in the chart must never read as a failure.</li>
+            <li><b>A room plan, not a list of names.</b> Tiles laid out like the seats in the room (row, seat), not as DESKTOP-7F3K2. A teacher looks for "third in the second row", not a Windows name.</li>
+            <li><b>History that fits.</b> One-minute samples for 7 days, then hourly averages. Estimate for 40 PCs and half a year: around 100-150 MB, which any admin PC can hold.</li>
+            <li><b>One clock.</b> Lab PCs have drifting clocks. Central corrects the agents' timestamps, or a comparison "during the same lesson" lies.</li>
+            <li><b>Agent versions.</b> Central reads agents at least one version older, and updates roll out in stages: one PC first, then the rest of the room.</li>
+            <li><b>Deployment the way schools do it.</b> A signed installer with parameters (silent install, pairing code), to push through Group Policy or Intune. Schools block unsigned programs, and they are right to.</li>
+            <li><b>Roles.</b> A teacher sees their room, the head sees the report, the admin pairs computers and sets the retention period. In version 1 every role only reads.</li>
+            <li><b>An access log.</b> Central records who looked at which PC and when. With hardware data that is a formality, but the data protection officer will ask for it first.</li>
+            <li><b>Quiet at the seat.</b> The agent shows no balloons or windows to the student and does nothing heavy during a lesson. The student only sees a note that the PC belongs to a lab with Central.</li>
+            <li><b>Inventory on the side.</b> Model, CPU, memory, drive and age of every seat in one table. Schools do this today in a spreadsheet, by hand, once a year.</li>
+            <li><b>Energy.</b> An idea to test in the pilot: how many hours the PCs run outside lessons, and what that costs in electricity. A head understands that argument at once, because it is about the budget.</li>
+        </ul>
+
+        <h2 id="risks">Risks we keep in mind</h2>
+        <ul>
+            <li><b>Privacy.</b> One screenshot of a student in the data and the product has no right to exist in a school. The "never collects" list is a principle, not a setting.</li>
+            <li><b>Remote actions.</b> Restarting forty PCs in the middle of a test is damage no UNDO can reverse. That is why version 1 only looks.</li>
+            <li><b>Scope.</b> Central is built by one person after hours. Version 1 has to be small and solid: the room view, comparisons, the report. The rest waits for the pilot.</li>
+            <li><b>Free competition.</b> Veyon is free and open. Central does not compete with it at running a lesson; it does what Veyon does not do at all, and can run next to it.</li>
+        </ul>
 
         <h2 id="compare">Central, Veyon, NetSupport School, NinjaOne</h2>
         <div class="ft-table-wrap">
@@ -341,7 +431,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>In preparation</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+        <p class="ft-since"><b>In preparation</b> &middot; page updated 2026-11-22 &middot; Windows 10 and 11</p>
     </main>
 
     <footer class="foot">

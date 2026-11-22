@@ -21,10 +21,14 @@
     <meta property="og:url" content="https://pcworkman.dev/central/index_pl">
     <meta property="og:locale" content="pl_PL">
     <meta property="og:locale:alternate" content="en_US">
-    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-central-pl.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PC Workman Central: pracownia 32 komputerów na jednym ekranie, każdy kafelek w kolorze stanu sprzętu">
     <meta property="og:site_name" content="PC Workman">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
+    <meta name="twitter:image" content="https://pcworkman.dev/assets/images/og-central-pl.png">
 
     <title>PC Workman Central: stan sprzętu całej pracowni komputerowej</title>
 
@@ -48,6 +52,7 @@
       "inLanguage": "pl",
       "description": "Pokazuje stan sprzętu każdego komputera w pracowni albo biurze na jednym ekranie: temperatury względem własnej normy każdej maszyny, dyski, sterowniki i ostrzeżenia ludzkim językiem. Działa w sieci lokalnej bez konta w chmurze i zbiera wyłącznie dane o sprzęcie, nigdy ekranów, klawiatury, stron WWW, nazw plików ani nazw użytkowników.",
       "releaseNotes": "W przygotowaniu. Pilotaż dla szkół i małych firm.",
+      "image": "https://pcworkman.dev/assets/images/og-central-pl.png",
       "isBasedOn": { "@id": "https://pcworkman.dev/#software" },
       "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" },
       "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization" },
@@ -135,6 +140,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="/download/">Pobierz</a>
         <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
         <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
         <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
@@ -185,6 +191,12 @@
                 <li><a href="#sees">Co widzi administrator</a></li>
                 <li><a href="#not">Czego nigdy nie zbiera</a></li>
                 <li><a href="#how">Jak działa</a></li>
+                <li><a href="#why">Dlaczego warto</a></li>
+                <li><a href="#already">Co już istnieje w PC Workman</a></li>
+                <li><a href="#first">Najpierw stabilność</a></li>
+                <li><a href="#plan">Plan, etap po etapie</a></li>
+                <li><a href="#rules">Zasady techniczne</a></li>
+                <li><a href="#risks">Ryzyka</a></li>
                 <li><a href="#compare">Central, Veyon, NetSupport School, NinjaOne</a></li>
                 <li><a href="#faq">Pytania</a></li>
                 <li><a href="#pilot">Dołącz do pilotażu</a></li>
@@ -255,6 +267,84 @@
             <li><b>Wersja 1 tylko do podglądu.</b> Bez zdalnego zamykania procesów, restartów i instalacji: zdalna akcja na czterdziestu komputerach to największe ryzyko dla pracowni. Zdalne akcje mogą przyjść później, za uprawnieniami i z dziennikiem.</li>
             <li><b>Cicha instalacja dla administratora:</b> instalator z parametrami (cicha instalacja, kod parowania), żeby czterdzieści komputerów nie oznaczało dnia klikania.</li>
         </ol>
+
+        <h2 id="why">Dlaczego warto</h2>
+        <p>
+            W pracowni o zepsutym komputerze dowiadujesz się na lekcji: uczeń podnosi rękę, bo jego stanowisko
+            się wiesza, a dysk jest pełny od tygodnia. W biurze dzieje się to samo, tylko ręka podnosi się
+            w poniedziałek o ósmej. Każdy z tych komputerów wiedział o problemie wcześniej. Nikt go nie zapytał.
+        </p>
+        <ul>
+            <li><b>Luka na rynku.</b> Programy do pracowni patrzą na ludzi (ekrany, strony, blokady). Narzędzia do zdalnego zarządzania patrzą na łatki i skrypty, są w chmurze i są pisane dla działów IT. Nikt nie mówi zwykłym językiem, który komputer w sali zaraz zawiedzie i dlaczego.</li>
+            <li><b>Fundament już działa.</b> PC Workman na jednym komputerze zbiera w tle, uczy się normy przy każdym obciążeniu, trzyma historię i tłumaczy odczyty przez hck_GPT. Central to ta sama praca na każdym stanowisku plus to, czego jeden komputer nie umie: porównanie z bliźniakami.</li>
+            <li><b>Bliźniacy to przewaga, której nie ma pojedynczy PC.</b> W pracowni stoi zwykle dwadzieścia identycznych komputerów. Jeśli jeden z nich grzeje się o 12 °C bardziej niż pozostałe przy tej samej lekcji, to nie jest „gorący dzień”, tylko kurz albo zaschnięta pasta. Taki sygnał jest prawie pewny i nie potrzebuje stałego progu.</li>
+            <li><b>Prywatność jako argument, nie przeszkoda.</b> Szkoły boją się monitoringu, bo monitoring zwykle patrzy na ludzi. Central od pierwszego dnia patrzy tylko na sprzęt, więc dyrektor może go wdrożyć bez strachu przed kolejną decyzją UODO.</li>
+        </ul>
+
+        <h2 id="already">Co już istnieje w PC Workman</h2>
+        <p>Central nie zaczyna od zera. Każdy kafelek pracowni to funkcja, która dziś działa na jednym komputerze:</p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>W Centralu</th><th>Dziś w PC Workman</th></tr></thead>
+                <tbody>
+                    <tr><td>Ocena względem normy każdego komputera</td><td><a href="/features/deepmonitor/index_pl.html">DeepMonitor</a> i <a href="/features/learning/index_pl.html">Monitoring &amp; Learning</a>: norma wyuczona dla każdego obciążenia, fałszywe czujniki odrzucone</td></tr>
+                    <tr><td>Historia sali ponad pół roku</td><td><a href="/features/time-travel/index_pl.html">Activity Memory</a>: historia jednego komputera z wykresami</td></tr>
+                    <tr><td>Ostrzeżenia zwykłym językiem</td><td><a href="/features/hck-gpt/index_pl.html">hck_GPT</a>: lokalny asystent, który tłumaczy odczyty</td></tr>
+                    <tr><td>Wiek sterowników w całej sali</td><td><a href="/features/drivers/index_pl.html">Konfiguracja i sterowniki</a>: wiek oceniany według klasy urządzenia</td></tr>
+                    <tr><td>Pełny dysk, zanim zablokuje aktualizacje</td><td><a href="/features/cleanup/index_pl.html">Oczyszczanie</a>: historia wolnego miejsca z prognozą</td></tr>
+                    <tr><td>Raport dla dyrekcji</td><td><a href="/features/health-report/index_pl.html">Raport zdrowia</a>: stan jednego komputera na jednej stronie</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="first">Najpierw stabilność</h2>
+        <p>
+            Agent zainstalowany na czterdziestu komputerach, który raz w tygodniu zamrozi system, to czterdzieści
+            zgłoszeń w tydzień i koniec zaufania szkoły. Dlatego stabilność jest fundamentem Centrala, a nie osobnym
+            tematem. Zanim powstanie pierwszy ekran sali, PC Workman przechodzi audyt:
+        </p>
+        <ul>
+            <li>żadne zapytanie do systemu (karta graficzna, WMI, czujniki) nie idzie na wątku interfejsu i każde ma limit czasu;</li>
+            <li>nic, co zatrzymuje albo zamyka procesy, nie działa w agencie wersji 1;</li>
+            <li>agent ma budżet: cel to poniżej 1% procesora i kilkudziesięciu MB pamięci, mierzony na najsłabszym komputerze w sali, nie na najmocniejszym;</li>
+            <li>błąd w agencie kończy się wpisem w dzienniku i ponownym startem agenta, nigdy oknem przed uczniem.</li>
+        </ul>
+
+        <h2 id="plan">Plan, etap po etapie</h2>
+        <p>Każdy etap kończy się czymś, co działa i co można pokazać.</p>
+        <ol class="ct-steps">
+            <li><b>Stabilność PC Workman.</b> Audyt zamrażania, limity czasu, konsola tylko wtedy, gdy coś nie gra, i obsługa wielu rozdzielczości. To samo, czego wymaga każdy komputer w sali.</li>
+            <li><b>Agent bez okna.</b> PC Workman działający jako cichy agent: zbiera, uczy się, trzyma historię, wystawia tylko odczyt. Parowanie kodem i szyfrowanie.</li>
+            <li><b>Widok sali.</b> Kafelki z kolorem stanu, klik w kafelek otwiera PC Workman tego komputera w trybie odczytu, ostrzeżenia hck_GPT dla administratora.</li>
+            <li><b>Porównania i historia.</b> Średnie sali, pięć najgorszych, komputer odstający od bliźniaków, historia ponad pół roku z godzinami lekcji.</li>
+            <li><b>Raport i pilotaż.</b> Raport dla dyrekcji, pakiet RODO, pierwsza pracownia szkolna i pierwsze biuro. Dopiero po pilotażu cena.</li>
+            <li><b>Później, za uprawnieniami.</b> Zdalne akcje z dziennikiem (kto, co, kiedy, z cofnięciem), wiele sal i budynków, eksport do systemów inwentaryzacji.</li>
+        </ol>
+
+        <h2 id="rules">Zasady techniczne, zapisane z góry</h2>
+        <p>Rzeczy, które łatwo pominąć na początku, a potem kosztują najwięcej:</p>
+        <ul>
+            <li><b>Agent łączy się sam do Centrala.</b> Komputery uczniów nie nasłuchują na żadnym porcie. Jedna reguła zapory na komputerze administratora zamiast czterdziestu, i nic do zaatakowania na stanowiskach.</li>
+            <li><b>Agent działa bez Centrala.</b> Gdy komputer administratora jest wyłączony albo sieć leży, agent dalej zbiera i po powrocie nadrabia historię. Dziury w wykresie nie wolno brać za awarię.</li>
+            <li><b>Plan sali zamiast listy nazw.</b> Kafelki ułożone tak jak stanowiska w sali (rząd, miejsce), a nie jako DESKTOP-7F3K2. Nauczyciel szuka „trzeciego w drugim rzędzie”, nie nazwy z Windowsa.</li>
+            <li><b>Historia, która się mieści.</b> Próbki co minutę przez 7 dni, potem średnie godzinowe. Szacunek dla 40 komputerów i pół roku: rząd 100-150 MB, czyli tyle, ile zniesie każdy komputer administratora.</li>
+            <li><b>Jeden zegar.</b> Komputery w pracowniach mają rozjechane zegary. Central koryguje znaczniki czasu agentów, inaczej porównanie „w tej samej lekcji” kłamie.</li>
+            <li><b>Wersje agentów.</b> Central czyta agentów co najmniej jedną wersję starszych, a aktualizacja idzie etapami: najpierw jeden komputer, potem reszta sali.</li>
+            <li><b>Wdrożenie jak w szkole.</b> Podpisany instalator z parametrami (cicha instalacja, kod parowania), do rozesłania przez zasady grupy albo Intune. Szkoły blokują niepodpisane programy, i słusznie.</li>
+            <li><b>Role.</b> Nauczyciel widzi swoją salę, dyrektor raport, administrator paruje komputery i ustawia okres przechowywania. Wszystkie role w wersji 1 tylko czytają.</li>
+            <li><b>Dziennik dostępu.</b> Central zapisuje, kto i kiedy oglądał który komputer. Przy danych o sprzęcie to formalność, ale inspektor ochrony danych zapyta o to pierwszy.</li>
+            <li><b>Cisza przy uczniu.</b> Agent nie pokazuje dymków ani okien na stanowisku i nie robi ciężkich rzeczy w czasie lekcji. Uczeń widzi tylko informację, że komputer należy do pracowni z Centralem.</li>
+            <li><b>Inwentarz przy okazji.</b> Model, procesor, pamięć, dysk i wiek każdego stanowiska w jednej tabeli. Szkoły robią to dziś w arkuszu, ręcznie, raz w roku.</li>
+            <li><b>Energia.</b> Pomysł do sprawdzenia w pilotażu: ile godzin komputery pracują poza lekcjami i ile to kosztuje prądu. To argument, który dyrektor rozumie od razu, bo dotyczy budżetu.</li>
+        </ul>
+
+        <h2 id="risks">Ryzyka, o których pamiętamy</h2>
+        <ul>
+            <li><b>Prywatność.</b> Jeden zrzut ekranu ucznia w danych i produkt nie ma prawa istnieć w szkole. Lista „nigdy nie zbiera” jest zasadą, nie ustawieniem.</li>
+            <li><b>Zdalne akcje.</b> Restart czterdziestu komputerów w środku sprawdzianu to szkoda, której nie cofnie żadne UNDO. Dlatego wersja 1 tylko patrzy.</li>
+            <li><b>Zakres.</b> Central buduje jedna osoba po godzinach. Wersja 1 ma być mała i pewna: widok sali, porównania, raport. Reszta czeka na pilotaż.</li>
+            <li><b>Darmowa konkurencja.</b> Veyon jest darmowy i otwarty. Central nie konkuruje z nim o prowadzenie lekcji, tylko robi to, czego Veyon nie robi wcale, i może działać obok niego.</li>
+        </ul>
 
         <h2 id="compare">Central, Veyon, NetSupport School, NinjaOne</h2>
         <div class="ft-table-wrap">
@@ -342,7 +432,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>W przygotowaniu</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+        <p class="ft-since"><b>W przygotowaniu</b> &middot; strona zaktualizowana 2026-11-22 &middot; Windows 10 i 11</p>
     </main>
 
     <footer class="foot">
