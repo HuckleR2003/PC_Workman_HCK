@@ -1,0 +1,304 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: stability-tests (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Testy stabilności PC Workman obciążają procesor, pamięć i dyski, mierzą temperatury i zegary w trakcie i kończą się werdyktem po ludzku, porównanym z normą tego komputera. Spokojniejsza alternatywa dla Prime95, OCCT i testu stabilności AIDA64.">
+    <meta name="keywords" content="test stabilności komputera za darmo, stress test procesora Windows 11, test RAM Windows, czy komputer jest stabilny, alternatywa Prime95, alternatywa OCCT, stress test z temperaturami">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/stability-tests/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/stability-tests/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/stability-tests/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/stability-tests/">
+    <meta property="og:title" content="Testy stabilności: czy komputer jest stabilny? Test, który kończy się odpowiedzią">
+    <meta property="og:description" content="Testy procesora, pamięci i dysków z temperaturami i zegarami mierzonymi w trakcie i werdyktem porównanym z normą tego komputera. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/stability-tests/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/stability-tests/stability-tests-pl-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Testy stabilności: CPU, RAM i dysk z werdyktem po ludzku</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Testy stabilności: CPU, RAM i dysk z werdyktem po ludzku",
+  "description": "Co obciążają Testy stabilności PC Workman, co mierzą w trakcie, jak werdykt porównuje przebieg z normą komputera i czym różnią się od Prime95, OCCT i AIDA64.",
+  "url": "https://pcworkman.dev/features/stability-tests/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/stability-tests/stability-tests-pl-1095.webp",
+  "citation": [
+    "https://www.mersenne.org/download/",
+    "https://www.ocbase.com/"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Testy procesora, pamięci i dysków pod realistycznym obciążeniem",
+      "Temperatury, zegary i moc mierzone w trakcie",
+      "Werdykt po ludzku porównany z wyuczoną normą tego komputera",
+      "Sprawdzenie plików i bazy PC Workman przed testem"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Testy stabilności",
+      "item": "https://pcworkman.dev/features/stability-tests/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak sprawdzić, czy komputer jest stabilny?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Uruchom w PC Workman testy procesora i pamięci na kilka minut, z niczym innym otwartym. Werdykt powie, czy utrzymał zegar i temperaturę w normie i czy pojawił się błąd pamięci."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy Prime95 jest bezpieczny?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prime95 obciąża procesor mocniej niż jakikolwiek prawdziwy program, co może dopchnąć go do limitu temperatury. Przydaje się przy podkręcaniu, ale dla zwykłego komputera realistyczne obciążenie mówi więcej o codziennej stabilności."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jak długo powinien trwać test stabilności?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Na co dzień 10 do 15 minut pokazuje, czy chłodzenie nadąża. Przy podkręcaniu godzinami, osobnym narzędziem."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/stability-tests/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/stability-tests/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Testy stabilności</span>
+        <h1>Czy komputer jest stabilny? Test, który kończy się odpowiedzią</h1>
+        <p class="tagline">Testy stabilności obciążają procesor, pamięć i dyski tak, jak robi to prawdziwa praca, mierzą temperatury i zegary w trakcie i kończą się werdyktem po ludzku: stabilny, cieplejszy niż jego norma albo zwalnia, żeby się chronić.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>3</b><span>testy: CPU, pamięć, dyski</span></div>
+            <div class="ft-fact"><b>na żywo</b><span>temperatury i zegary w trakcie</span></div>
+            <div class="ft-fact"><b>1</b><span>werdykt po ludzku</span></div>
+            <div class="ft-fact"><b>0</b><span>wyników do odszyfrowania</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/stability-tests/stability-tests-pl-600.webp 600w, /assets/images/features/stability-tests/stability-tests-pl-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/stability-tests/stability-tests-pl-1095.webp" width="1095" height="323" alt="Testy stabilności w PC Workman po przebiegu: zaznaczone procesor, pamięć i dysk, procesor przez 5 minut, linia na żywo CPU 100%, 75 °C, 4366 MHz, limit 0%, 63 W, wykres temperatury i zegara oraz werdykt: Stabilny. Procesor doszedł do 75 °C i utrzymał zegar. Pamięć 2048 MB, 5 wzorców, 0 błędów; dysk 1024 MB zapisane z 412 MB/s, odczytane i zgodne." fetchpriority="high">
+            </picture>
+            <figcaption>Zakończony przebieg (dane pokazowe): jeden werdykt zdaniem i liczby, które za nim stoją.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#what">Co testuje</a></li>
+                <li><a href="#verdict">Werdykt, a nie log</a></li>
+                <li><a href="#compare">Testy stabilności, Prime95, OCCT, AIDA64</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">Co testuje</h2>
+        <div class="ft-groups">
+            <div class="ft-group"><h3>Procesor</h3><p class="note">Wszystkie rdzenie pod stałym, realistycznym obciążeniem; temperatura, zegar i limit wydajności co sekundę, moc tam, gdzie podaje ją czujnik.</p></div>
+            <div class="ft-group"><h3>Pamięć</h3><p class="note">Wzorce zapisywane i odczytywane w połowie wolnego RAM (do 2 GB); każda niezgodność to błąd, a nie zgadywanie.</p></div>
+            <div class="ft-group"><h3>Dyski</h3><p class="note">Ciągły odczyt i zapis pliku testowego; prędkość i temperatura w czasie, plik usuwany na koniec.</p></div>
+        </div>
+        <p>
+            Zanim cokolwiek ruszy, PC Workman sprawdza własne pliki i bazę historii, żeby zepsuta instalacja nie
+            została wzięta za niestabilny sprzęt.
+        </p>
+
+        <h2 id="verdict">Werdykt, a nie log</h2>
+        <p>
+            Prime95 albo OCCT kończą się liczbami, które interpretujesz sam. Testy stabilności kończą się zdaniem, na
+            przykład: <i>„Stabilny. Procesor doszedł do 78 °C, w normie dla ciężkiego obciążenia, i utrzymał zegar.”</i>
+            albo <i>„Stabilny, ale 12 °C ponad normę tego komputera przy tym samym obciążeniu: sprawdź chłodzenie.”</i>
+            albo <i>„Zegar spadł przy 95 °C: procesor zwolnił, żeby się chronić.”</i>
+        </p>
+        <p>
+            Porównanie używa normy, której <a href="/features/learning/index_pl.html">Monitoring &amp; Learning</a> nauczył
+            się dla tego komputera, więc wynik coś znaczy dla <em>Twojej</em> maszyny.
+        </p>
+
+        <h2 id="compare">Testy stabilności, Prime95, OCCT, AIDA64</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>Testy stabilności PC Workman</th><th>Prime95</th><th>OCCT</th><th>Test stabilności AIDA64</th></tr></thead>
+                <tbody>
+                    <tr><td>Obciążenie</td><td>Realistyczne</td><td class="p">Cięższe niż prawdziwa praca</td><td class="y">Wiele trybów</td><td class="y">Wiele podzespołów</td></tr>
+                    <tr><td>Temperatury w trakcie</td><td class="y">Tak</td><td class="n">Nie</td><td class="y">Tak</td><td class="y">Tak</td></tr>
+                    <tr><td>Werdykt po ludzku</td><td class="y">Tak</td><td class="n">Nie</td><td class="p">Zaliczony albo nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Porównanie z normą tego komputera</td><td class="y">Tak</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Cena</td><td class="y">Za darmo, otwarty kod</td><td class="y">Za darmo</td><td class="p">Darmowy i płatny</td><td class="p">Około 60 USD</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>W czym inni są lepsi.</b> Dla podkręcających OCCT i Prime95 cisną mocniej i dłużej i znajdują ostatni niestabilny miliwolt. Testy stabilności odpowiadają na codzienne pytanie: czy ten komputer daje radę pod obciążeniem, które mu daję?</p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Jak sprawdzić, czy komputer jest stabilny?</summary>
+                <p>Uruchom w PC Workman testy procesora i pamięci na kilka minut, z niczym innym otwartym. Werdykt powie, czy utrzymał zegar i temperaturę w normie i czy pojawił się błąd pamięci.</p>
+            </details>
+            <details>
+                <summary>Czy Prime95 jest bezpieczny?</summary>
+                <p>Prime95 obciąża procesor mocniej niż jakikolwiek prawdziwy program, co może dopchnąć go do limitu temperatury. Przydaje się przy podkręcaniu, ale dla zwykłego komputera realistyczne obciążenie mówi więcej o codziennej stabilności.</p>
+            </details>
+            <details>
+                <summary>Jak długo powinien trwać test stabilności?</summary>
+                <p>Na co dzień 10 do 15 minut pokazuje, czy chłodzenie nadąża. Przy podkręcaniu godzinami, osobnym narzędziem.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Testy stabilności</b>.</p>
+        <div class="ft-open">
+            <a class="btn" href="/download/">Pobierz PC Workman</a>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/learning/index_pl.html">Monitoring &amp; Learning: alerty względem normy komputera</a></li>
+                <li><a href="/features/health-report/index_pl.html">Raport zdrowia: czy mój komputer jest zdrowy?</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Testy zaczynają się od sprawdzenia plików PC Workman, żeby zepsuta instalacja nigdy nie została zrzucona na sprzęt.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

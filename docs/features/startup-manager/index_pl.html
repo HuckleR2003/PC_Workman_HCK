@@ -1,0 +1,362 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman podstrona funkcji: Menedżer Autostartu -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Menedżer Autostartu w PC Workman pokazuje, co startuje z Windows, z rejestru, folderów Autostart, Harmonogramu zadań i aplikacji ze Sklepu, ocenia wpływ każdego wpisu, mówi, czy go zostawić, opóźnić czy wyłączyć i dlaczego, i wyłącza tak jak Menedżer zadań, więc zawsze da się cofnąć.">
+    <meta name="keywords" content="które programy wyłączyć z autostartu, menedżer autostartu Windows 11, alternatywa Autoruns, Menedżer zadań autostart, zadania przy logowaniu, bezpieczne wyłączanie autostartu, wolny start Windows">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/startup-manager/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/startup-manager/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/startup-manager/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/startup-manager/">
+    <meta property="og:title" content="Menedżer Autostartu: wszystko, co startuje z Windows, z powodem dla każdego wpisu">
+    <meta property="og:description" content="Rejestr, foldery Autostart, Harmonogram zadań i aplikacje ze Sklepu na jednej liście, wpływ i rekomendacja zostaw, opóźnij albo wyłącz dla każdego wpisu, cofanie w każdej chwili. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/startup-manager/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/startup-manager/startup-pl-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Menedżer Autostartu: co startuje z Windows i czy powinno</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Menedżer Autostartu: co startuje z Windows i czy powinno",
+      "description": "Gdzie w Windows ukrywają się wpisy autostartu, jak PC Workman je ocenia i radzi zostawić, opóźnić albo wyłączyć, jak wyłącza je odwracalnie i czym różni się od Menedżera zadań, Autoruns i CCleanera.",
+      "url": "https://pcworkman.dev/features/startup-manager/index_pl",
+      "datePublished": "2026-11-21T00:00:00+01:00",
+      "dateModified": "2026-11-21T00:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "image": "https://pcworkman.dev/assets/images/features/startup-manager/startup-pl-1200.webp",
+      "citation": [
+        "https://learn.microsoft.com/en-us/sysinternals/downloads/autoruns",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/pages/startup_manager.py",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/recommendations.py"
+      ],
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://pcworkman.dev/#software",
+        "name": "PC Workman",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.9.3",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+        "downloadUrl": "https://pcworkman.dev/download/",
+        "featureList": [
+          "Wpisy autostartu z kluczy Run w rejestrze, obu folderów Autostart, zadań Harmonogramu przy logowaniu i starcie oraz aplikacji ze Sklepu na jednej liście",
+          "Wpływ (duży, średni, mały) i rekomendacja zostaw, opóźnij albo wyłącz z uzasadnieniem dla każdego wpisu",
+          "Wyłącza wpisy z rejestru przez StartupApproved, tak jak Menedżer zadań, więc da się je włączyć z powrotem",
+          "Zadania Harmonogramu i aplikacje ze Sklepu wyłączane odwracalnie",
+          "Wpisy krytyczne (zabezpieczenia, sterowniki, urządzenia wejścia) chronione",
+          "Zmiany w kolejce, zatwierdzane jednym potwierdzeniem"
+        ]
+      },
+      "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+      "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization", "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/hck-labs/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Funkcje", "item": "https://pcworkman.dev/features/index_pl" },
+        { "@type": "ListItem", "position": 3, "name": "Menedżer Autostartu", "item": "https://pcworkman.dev/features/startup-manager/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy wyłączanie programów z autostartu jest bezpieczne?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Wyłączenie wpisu niczego nie odinstalowuje. Program po prostu przestaje sam startować po zalogowaniu, a uruchomisz go ręcznie albo włączysz z powrotem w każdej chwili. Zostaw włączone zabezpieczenia, sterowniki, programy do myszy i klawiatury oraz ułatwienia dostępu: muszą działać, zanim będą potrzebne." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego Menedżer zadań pokazuje mniej programów w autostarcie niż PC Workman?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Karta Aplikacje autostartu w Menedżerze zadań pokazuje klucze Run w rejestrze, foldery Autostart i aplikacje ze Sklepu, ale nie zadania Harmonogramu uruchamiane przy logowaniu albo starcie. Tam rejestruje się wiele aktualizatorów i launcherów. PC Workman czyta wszystkie cztery miejsca na jednej liście." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co znaczy „opóźnij”?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Programy takie jak OneDrive, Discord czy Spotify warto mieć, ale nic ich nie potrzebuje w pierwszych sekundach po zalogowaniu. Opóźnij znaczy: daj Windows wystartować, potem je otwórz, albo otwórz, gdy będą potrzebne." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy da się cofnąć zmianę?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak. Wpisy z rejestru są wyłączane tą samą flagą StartupApproved, której używa Menedżer zadań, więc wpis zostaje na miejscu i da się go włączyć z PC Workman albo z Menedżera zadań. Zadania Harmonogramu i aplikacje ze Sklepu są wyłączane, a nie usuwane." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy działa w wersji PC Workman ze Sklepu Microsoft?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Lista i rekomendacje tak. Windows trzyma aplikacje ze Sklepu z dala od części ustawień autostartu, więc tam, gdzie zmiana by się nie utrzymała, PC Workman mówi to wprost i otwiera kartę Aplikacje autostartu w Menedżerze zadań, zamiast udawać." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/startup-manager/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/startup-manager/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Menedżer Autostartu</span>
+        <h1>Wszystko, co startuje z Windows, i czy powinno</h1>
+        <p class="tagline">Menedżer Autostartu zbiera rejestr, oba foldery Autostart, Harmonogram zadań i aplikacje ze Sklepu na jednej liście, ocenia, ile każdy wpis kosztuje przy starcie, i mówi, czy go zostawić, opóźnić, czy wyłączyć, z uzasadnieniem. Wyłącza tak jak Menedżer zadań, więc nic nie ginie.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>4</b><span>miejsca na jednej liście</span></div>
+            <div class="ft-fact"><b>3</b><span>odpowiedzi: zostaw, opóźnij, wyłącz</span></div>
+            <div class="ft-fact"><b>64</b><span>znane programy i reguły nazw</span></div>
+            <div class="ft-fact"><b>0</b><span>usuniętych wpisów, tylko wyłączone</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/startup-manager/startup-pl-600.webp 600w, /assets/images/features/startup-manager/startup-pl-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/startup-manager/startup-pl-1200.webp" width="1200" height="738" alt="Menedżer Autostartu w PC Workman: 10 wpisów, 3 z dużym wpływem, 6 do sprawdzenia. Do wyłączenia: Microsoft Teams (duży), Discord (średni), Spotify (średni), Steam (duży), Epic Games Launcher (duży), Adobe Update Daemon (średni). Aktywne przy starcie z przełącznikiem ON przy każdym, w tym LG HUB, Malwarebytes i ShareX z małym wpływem." fetchpriority="high">
+            </picture>
+            <figcaption>Menedżer Autostartu na pokazowej liście popularnych programów: sześć do sprawdzenia po lewej, wszystko aktywne po prawej.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#where">Gdzie chowają się wpisy autostartu</a></li>
+                <li><a href="#rate">Zostaw, opóźnij albo wyłącz, z uzasadnieniem</a></li>
+                <li><a href="#cost">Ile kosztuje każdy wpis przy starcie</a></li>
+                <li><a href="#undo">Wyłączone, nigdy usunięte</a></li>
+                <li><a href="#compare">Menedżer Autostartu, Menedżer zadań, Autoruns, CCleaner</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="where">Gdzie chowają się wpisy autostartu</h2>
+        <p>
+            Większość ludzi zagląda do karty Aplikacje autostartu w Menedżerze zadań, a to nie cała historia.
+            Wiele aktualizatorów i launcherów startuje z Harmonogramu zadań przy logowaniu, a tego Menedżer
+            zadań nie pokazuje. Menedżer Autostartu czyta cztery miejsca:
+        </p>
+        <div class="ft-groups">
+            <div class="ft-group">
+                <h3>Rejestr</h3>
+                <ul>
+                    <li>Run dla Twojego konta (HKCU)</li>
+                    <li>Run dla wszystkich użytkowników (HKLM)</li>
+                    <li>Run dla programów 32-bitowych</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Foldery Autostart</h3>
+                <ul>
+                    <li>Folder Autostart Twojego konta</li>
+                    <li>Folder Autostart wszystkich użytkowników</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Harmonogram zadań</h3>
+                <ul>
+                    <li>Zadania z wyzwalaczem przy logowaniu albo starcie</li>
+                    <li>Bez własnych zadań Microsoftu</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Aplikacje ze Sklepu</h3>
+                <ul>
+                    <li>Aplikacje, które zarejestrowały zadanie startowe (ShareX, launchery ze Sklepu)</li>
+                </ul>
+            </div>
+        </div>
+        <p>
+            Każdy wiersz mówi, skąd pochodzi wpis, z małą ikoną: Twoje konto, wszyscy użytkownicy, Harmonogram
+            zadań albo aplikacja Store. Wpisy dla wszystkich użytkowników wymagają uruchomienia PC Workman jako
+            administrator, a strona mówi to na górze, zamiast po cichu nie działać.
+        </p>
+
+        <h2 id="rate">Zostaw, opóźnij albo wyłącz, z uzasadnieniem</h2>
+        <p>
+            Sam „duży wpływ” to nie porada: program, który otwierasz rano jako pierwszy, może mieć duży wpływ i
+            warto go zostawić. Dlatego każdy wpis dostaje dwie rzeczy: <b>wpływ na start</b> (duży, średni, mały)
+            i <b>rekomendację z uzasadnieniem</b>:
+        </p>
+        <ul>
+            <li><b>Wyłącz:</b> launchery gier i ciężkie komunikatory. „Steam: launcher gier, nie ma powodu startować z Windows.” „Teams: dużo RAM i CPU przy starcie, otwórz go, gdy masz spotkanie.”</li>
+            <li><b>Opóźnij:</b> to, co chcesz mieć, tylko nie w pierwszych sekundach. „OneDrive: synchronizacja działa dobrze uruchomiona później.” „Spotify: włącz, gdy naprawdę chcesz słuchać.”</li>
+            <li><b>Zostaw:</b> to, co musi działać, zanim będzie potrzebne. „Malwarebytes: narzędzie bezpieczeństwa, niech działa.” „Logitech G HUB: potrzebny do urządzeń serii G.”</li>
+        </ul>
+        <p>
+            Porady pochodzą z tabeli 37 znanych programów i 27 reguł po nazwie, zapisanej w
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/recommendations.py" target="_blank" rel="noopener">otwartym kodzie</a>.
+            Zabezpieczenia, sterowniki i programy urządzeń wejścia są oznaczone jako krytyczne i chronione.
+            Pełne rozumowanie jest w poradniku
+            <a href="/guides/which-startup-apps-can-i-disable/index_pl.html">Które programy z autostartu można wyłączyć?</a>
+        </p>
+
+        <h2 id="cost">Ile kosztuje każdy wpis przy starcie</h2>
+        <p>
+            Przy każdym wpisie PC Workman pokazuje <b>⏱ sekundy procesora</b>, które zużył w pierwszych trzech minutach
+            po starcie Windows, mierzone na Twoim komputerze przy każdym starcie, który widzi, jako mediana z ostatnich
+            startów, żeby jeden wolny poranek nie przekreślał programu. Uruchomiony jako administrator pokazuje w nagłówku
+            też <b>czas startu samego Windows</b>, a po wyłączeniu wpisów czas startu przed zmianą i po niej.
+        </p>
+
+        <h2 id="undo">Wyłączone, nigdy usunięte</h2>
+        <p>
+            Kliknięty wpis trafia do kolejki; nic się nie zmienia, dopóki raz nie zatwierdzisz całej kolejki.
+            Wtedy:
+        </p>
+        <ul>
+            <li><b>Wpisy z rejestru</b> są wyłączane flagą <code>StartupApproved</code>, tą samą, której używa Menedżer zadań. Wpis zostaje tam, gdzie był, a Menedżer zadań pokazuje ten sam stan.</li>
+            <li><b>Zadania Harmonogramu</b> są wyłączane, a nie usuwane, i włączane z powrotem tak samo.</li>
+            <li><b>Aplikacje ze Sklepu</b> mają wyłączane zadanie startowe.</li>
+            <li><b>Skróty w folderach Autostart</b> są pokazane i wyjaśnione; przenosisz je w Eksploratorze, tam gdzie leżą.</li>
+        </ul>
+        <p>
+            Karta <b>Wyłączone</b> zbiera wszystko, co jest wyłączone, z przyciskiem przywrócenia. Krok
+            autostartu w Przewodniku optymalizacji kończy się podsumowaniem tego, co wyłączono w tym przebiegu.
+        </p>
+
+        <h2 id="compare">Menedżer Autostartu, Menedżer zadań, Autoruns, CCleaner</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>Menedżer Autostartu PC Workman</th><th>Menedżer zadań</th><th>Autoruns</th><th>CCleaner</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Rejestr i foldery Autostart</td><td class="y">Tak</td><td class="y">Tak</td><td class="y">Tak</td><td class="y">Tak</td></tr>
+                    <tr><td>Harmonogram zadań przy logowaniu i starcie</td><td class="y">Tak</td><td class="n">Nie</td><td class="y">Tak</td><td class="y">Tak</td></tr>
+                    <tr><td>Aplikacje ze Sklepu</td><td class="y">Tak</td><td class="y">Tak</td><td class="p">Zależnie od wersji</td><td class="p">Zależnie od wersji</td></tr>
+                    <tr><td>Zostaw, opóźnij albo wyłącz z uzasadnieniem</td><td class="y">Tak, dla każdego wpisu</td><td class="n">Tylko wpływ</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Odwracalne, tak jak w Menedżerze zadań</td><td class="y">Tak</td><td class="y">Tak</td><td class="p">Odznaczenie; usunięcie jest trwałe</td><td class="p">Włącz i wyłącz, także usuń</td></tr>
+                    <tr><td>Dla kogo</td><td>Dla każdego</td><td>Dla każdego</td><td>Dla ekspertów</td><td>Dla każdego</td></tr>
+                    <tr><td>Cena</td><td class="y">Za darmo, otwarty kod</td><td class="y">Wbudowany</td><td class="y">Za darmo (Microsoft Sysinternals)</td><td class="p">Darmowy i płatny</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>W czym inni są lepsi.</b> Autoruns widzi znacznie więcej: usługi, sterowniki, rozszerzenia
+            Eksploratora, kodeki i każde inne miejsce, z którego Windows może uruchomić kod. Jeśli szukasz
+            złośliwego oprogramowania, użyj go. Menedżer zadań jest już na każdym komputerze. Menedżer Autostartu
+            jest od codziennego pytania: co z tego może zniknąć i co stracę?
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy wyłączanie programów z autostartu jest bezpieczne?</summary>
+                <p>Wyłączenie niczego nie odinstalowuje. Program przestaje tylko sam startować; uruchomisz go ręcznie albo włączysz z powrotem w każdej chwili. Zostaw włączone zabezpieczenia, sterowniki, programy do myszy i klawiatury oraz ułatwienia dostępu.</p>
+            </details>
+            <details>
+                <summary>Dlaczego Menedżer zadań pokazuje mniej programów?</summary>
+                <p>Nie pokazuje zadań Harmonogramu uruchamianych przy logowaniu albo starcie, gdzie rejestruje się wiele aktualizatorów i launcherów. PC Workman czyta wszystkie cztery miejsca.</p>
+            </details>
+            <details>
+                <summary>Co znaczy „opóźnij”?</summary>
+                <p>Program warto mieć, ale nic go nie potrzebuje w pierwszych sekundach po zalogowaniu. Daj Windows wystartować, potem go otwórz, albo otwórz, gdy będzie potrzebny.</p>
+            </details>
+            <details>
+                <summary>Czy da się cofnąć zmianę?</summary>
+                <p>Tak. Wpisy z rejestru używają tej samej flagi StartupApproved co Menedżer zadań, zadania Harmonogramu i aplikacje ze Sklepu są wyłączane, a nie usuwane. Karta Wyłączone przywraca każdy z nich.</p>
+            </details>
+            <details>
+                <summary>Czy działa w wersji PC Workman ze Sklepu Microsoft?</summary>
+                <p>Lista i porady tak. Tam, gdzie Windows nie pozwala, żeby zmiana aplikacji ze Sklepu się utrzymała, PC Workman mówi to wprost i otwiera kartę Aplikacje autostartu w Menedżerze zadań, zamiast udawać.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Menedżer Autostartu</b> albo krok 1 Przewodnika optymalizacji. Zapytaj hck_GPT „które programy mogę wyłączyć z autostartu”, a dostaniesz tę samą listę w czacie.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/startup_manager">Otwórz Menedżer Autostartu w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/guides/which-startup-apps-can-i-disable/index_pl.html">Które programy z autostartu można wyłączyć?</a></li>
+                <li><a href="/features/cleanup/index_pl.html">Oczyszczanie: miejsce na dysku bez ryzykownych części</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Na moim komputerze Menedżer zadań pokazywał 5 wpisów autostartu; z Harmonogramem zadań i aplikacjami ze Sklepu lista miała 20. Zrzut pokazuje listę pokazową z popularnymi programami, a nie moją.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

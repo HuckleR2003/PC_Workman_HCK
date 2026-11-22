@@ -1,0 +1,449 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman podstrona funkcji: DeepMonitor -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="DeepMonitor to darmowy monitor sprzętu dla Windows, który tłumaczy odczyty: która temperatura CPU jest prawdziwa, który czujnik płyty kłamie i co jest normalne dla tego komputera przy tym samym obciążeniu. Alternatywa HWiNFO i HWMonitor z historią.">
+    <meta name="keywords" content="alternatywa HWiNFO, alternatywa HWMonitor, darmowy monitor temperatur Windows 11, która temperatura procesora jest prawdziwa, płyta główna 127 stopni, AUXTIN fałszywy odczyt, historia temperatur CPU, normalna temperatura procesora pod obciążeniem">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/deepmonitor/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/deepmonitor/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/deepmonitor/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/deepmonitor/">
+    <meta property="og:title" content="DeepMonitor: monitor sprzętu, który mówi, co znaczą liczby">
+    <meta property="og:description" content="Każdy czujnik z minimum i maksimum, jedna temperatura CPU, której można ufać, oznaczone fałszywe czujniki i norma wyuczona dla tego komputera przy każdym rodzaju obciążenia. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/deepmonitor/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/deepmonitor/learning-card-pl-1072.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>DeepMonitor: darmowy monitor sprzętu, który tłumaczy odczyty</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "DeepMonitor: darmowy monitor sprzętu, który tłumaczy odczyty",
+      "description": "Co pokazuje DeepMonitor, której temperaturze CPU ufa i dlaczego, jak oznacza fałszywe czujniki płyty głównej, jak uczy się normalnych temperatur komputera dla każdego obciążenia i czym różni się od HWMonitor, HWiNFO i AIDA64.",
+      "url": "https://pcworkman.dev/features/deepmonitor/index_pl",
+      "datePublished": "2026-11-21T00:00:00+01:00",
+      "dateModified": "2026-11-21T00:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "image": "https://pcworkman.dev/assets/images/features/deepmonitor/learning-card-pl-1072.webp",
+      "citation": [
+        "https://www.hwinfo.com/forum/threads/cpu-temp-sensors-explanation.5597/latest",
+        "https://www.cpuid.com/softwares/hwmonitor-pro.htm",
+        "https://aida64.io/",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/thermal_baseline.py"
+      ],
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://pcworkman.dev/#software",
+        "name": "PC Workman",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.9.3",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+        "downloadUrl": "https://pcworkman.dev/download/",
+        "featureList": [
+          "Tabela czujników na żywo dla CPU, karty graficznej, RAM i dysków z wartością bieżącą, minimum i maksimum",
+          "Jedna temperatura CPU wybierana po czujniku: CPU Package u Intela, Tctl/Tdie u AMD",
+          "Fałszywe czujniki płyty (niepodłączone wejścia pokazujące 110 do 127 °C) oznaczone i pominięte w alertach",
+          "Normalne temperatury tego komputera wyuczone dla każdego obciążenia: spoczynek, lekkie, średnie, ciężkie, gry",
+          "Wykrywanie dryfu napięć metodą statystycznej kontroli procesu",
+          "Historia: dane minutowe przez 7 dni, godzinowe przez 90 dni, dzienne bezterminowo",
+          "Zapis migawki do TXT albo CSV"
+        ]
+      },
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Funkcje", "item": "https://pcworkman.dev/features/index_pl" },
+        { "@type": "ListItem", "position": 3, "name": "DeepMonitor", "item": "https://pcworkman.dev/features/deepmonitor/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Na którą temperaturę procesora patrzeć?",
+          "acceptedAnswer": { "@type": "Answer", "text": "U Intela na CPU Package: własną średnią procesora z jego najgorętszego czujnika. U AMD Ryzen na Tctl/Tdie: w obecnych Ryzenach to ta sama liczba, przesunięcie między nimi miała tylko pierwsza generacja. Pojedyncze rdzenie skaczą z chwili na chwilę i nie po nich ocenia się chłodzenie. DeepMonitor wybiera tę jedną temperaturę po identyfikatorze czujnika i pokazuje ją jako temperaturę CPU." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego płyta główna pokazuje 110 albo 127 °C?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Prawie zawsze to wejście czujnika, do którego nic nie podłączono, często o nazwie AUXTIN albo TMPIN na układach Nuvoton i ITE. Takie wejście pokazuje stałą wartość, często 127 °C, albo skacze między 0 a 125. Prawdziwe 110 °C na płycie dałoby się poczuć i wywąchać. DeepMonitor oznacza taki odczyt jako nieprawdziwy i pomija go w alertach; w razie wątpliwości porównaj z temperaturami w BIOS-ie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy 82 °C to za dużo dla procesora?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To zależy od obciążenia. 82 °C w grze albo przy renderowaniu jest normalne dla wielu procesorów stacjonarnych i większości laptopowych, które zwalniają, żeby się chronić, dopiero około 95 do 100 °C. 82 °C, gdy komputer nic nie robi, wskazuje na problem z chłodzeniem. DeepMonitor porównuje każdy odczyt z normą tego komputera przy tym samym rodzaju obciążenia." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego wentylator karty graficznej ma 0 RPM?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Większość nowych kart celowo zatrzymuje wentylatory przy lekkim obciążeniu (tryb 0dB albo zero RPM) i uruchamia je około 50 do 60 °C. Wentylator stojący na pulpicie to norma. Problem jest dopiero wtedy, gdy karta pod obciążeniem jest gorąca, a wentylator nadal stoi." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy DeepMonitor zastąpi HWiNFO?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Dla większości osób tak: odpowiada, czy komputer jest zdrowy i co jest dla niego normalne. HWiNFO czyta więcej czujników i ma alerty z akcjami dla każdego czujnika, połączenie z nakładką RTSS i wtyczki, więc entuzjaści, którzy ręcznie stroją napięcia, mogą trzymać go obok PC Workman." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy DeepMonitor potrzebuje LibreHardwareMonitor?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Do temperatury CPU, napięć i obrotów wentylatorów tak: Windows nie udostępnia ich programom bezpośrednio, więc PC Workman czyta je z LibreHardwareMonitor działającego w tle. Obciążenie, zegary, pamięć, dyski i karty NVIDIA działają bez niego." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/deepmonitor/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/deepmonitor/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; DeepMonitor</span>
+        <h1>Monitor sprzętu, który mówi, co znaczą liczby</h1>
+        <p class="tagline">DeepMonitor pokazuje na żywo każdy czujnik procesora, karty graficznej, pamięci i dysków, z minimum i maksimum. Potem robi to, co HWMonitor i HWiNFO zostawiają Tobie: wybiera temperaturę, której można ufać, oznacza czujniki, które kłamią, i uczy się, co jest normalne dla tego komputera przy każdym rodzaju obciążenia.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>1</b><span>temperatura CPU, której można ufać</span></div>
+            <div class="ft-fact"><b>5</b><span>obciążeń z własną normą</span></div>
+            <div class="ft-fact"><b>137 dni</b><span>nauki na moim komputerze</span></div>
+            <div class="ft-fact"><b>na zawsze</b><span>historia dzienna</span></div>
+            <div class="ft-fact"><b>0 zł</b><span>otwarty kod</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/deepmonitor/learning-card-pl-600.webp 600w, /assets/images/features/deepmonitor/learning-card-pl-1072.webp 1072w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/deepmonitor/learning-card-pl-1072.webp" width="1072" height="360" alt="Czego nauczył się PC Workman: temperatura karty graficznej dla każdego obciążenia, bezczynny 39 do 56 °C skalibrowany, lekkie 45 do 61 °C skalibrowane, średnie 46 do 65 °C uczy się, ciężkie start, granie 59 do 72 °C podstawowy; 100% nauczone po 148,2 h obserwacji; przyciski historii CPU, RAM i GPU." fetchpriority="high">
+            </picture>
+            <figcaption>Czego dane DeepMonitora nauczyły PC Workman o moim komputerze: zakres normy dla każdego obciążenia po 148 godzinach obserwacji.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#shows">Co pokazuje</a></li>
+                <li><a href="#real">Która temperatura CPU jest prawdziwa</a></li>
+                <li><a href="#false">Czujniki, które kłamią: 127 °C na płycie, 0 RPM na karcie</a></li>
+                <li><a href="#norm">Twoja norma, dla każdego obciążenia</a></li>
+                <li><a href="#history">Historia, do której można wrócić</a></li>
+                <li><a href="#compare">DeepMonitor, HWMonitor, HWiNFO, AIDA64</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="shows">Co pokazuje</h2>
+        <p>
+            Jedno okno, jedno drzewo, tak jak w HWMonitorze: każdy odczyt z <b>wartością</b>,
+            <b>minimum</b> i <b>maksimum</b> od chwili otwarcia.
+        </p>
+        <div class="ft-groups">
+            <div class="ft-group">
+                <h3>Procesor</h3>
+                <ul>
+                    <li>Temperatura Package i każdego rdzenia</li>
+                    <li>Obciążenie całego procesora i każdego rdzenia</li>
+                    <li>Zegar bieżący i bazowy</li>
+                    <li>Napięcie rdzenia (Vcore)</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Karta graficzna</h3>
+                <ul>
+                    <li>Temperatura rdzenia</li>
+                    <li>Obciążenie i zajęta pamięć (VRAM)</li>
+                    <li>Obroty wentylatora</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Pamięć i dyski</h3>
+                <ul>
+                    <li>Obciążenie RAM, zajęta i dostępna</li>
+                    <li>Plik stronicowania</li>
+                    <li>Zajęte i wolne miejsce na każdym dysku</li>
+                </ul>
+            </div>
+            <div class="ft-group">
+                <h3>Płyta główna</h3>
+                <ul>
+                    <li>Temperatury płyty i chipsetu</li>
+                    <li>Napięcia szyn (12 V, 5 V, 3,3 V)</li>
+                    <li>Obroty wentylatorów</li>
+                </ul>
+                <p class="note">Czytane przez LibreHardwareMonitor działający w tle, bo Windows nie udostępnia ich programom bezpośrednio.</p>
+            </div>
+        </div>
+        <p>
+            <b>Pauza</b> zamraża tabelę do zrzutu, <b>Reset</b> czyści minimum i maksimum przed testem, a
+            <b>Zapisz dane</b> zapisuje całą tabelę do pliku TXT albo CSV. Kolor idzie za wartością:
+            zielony, bursztynowy od 70 °C, czerwony od 83 °C.
+        </p>
+
+        <h2 id="real">Która temperatura CPU jest prawdziwa</h2>
+        <p>
+            HWiNFO potrafi pokazać osiem i więcej temperatur procesora, a „która jest prawdziwa” to jedno
+            z najczęstszych pytań na jego forum i na Tom's Hardware. Krótka odpowiedź:
+        </p>
+        <ul>
+            <li><b>Intel: CPU Package.</b> Krótka średnia z najgorętszego czujnika, liczona przez sam procesor.</li>
+            <li><b>AMD Ryzen: Tctl/Tdie.</b> W obecnych Ryzenach to ta sama liczba. Przesunięcie między nimi miała tylko pierwsza generacja Ryzenów, co autor HWiNFO tłumaczy na <a href="https://www.hwinfo.com/forum/threads/cpu-temp-sensors-explanation.5597/latest" target="_blank" rel="noopener">forum</a>.</li>
+            <li><b>Pojedyncze rdzenie</b> skaczą z chwili na chwilę. Przydają się, żeby zauważyć jeden gorący rdzeń, nie żeby oceniać chłodzenie.</li>
+        </ul>
+        <p>
+            DeepMonitor robi ten wybór za Ciebie. Czyta identyfikator czujnika, a nie jego nazwę, bierze
+            CPU Package u Intela i Tctl/Tdie u AMD, i ta jedna liczba jest temperaturą CPU w całym PC Workman:
+            w alertach, w historii i w odpowiedziach hck_GPT. Rdzenie zostają w tabeli dla chętnych.
+        </p>
+
+        <h2 id="false">Czujniki, które kłamią: 127 °C na płycie, 0 RPM na karcie</h2>
+        <p>
+            Wiele płyt głównych zgłasza wejścia, do których nic nie podłączono. Na układach Nuvoton i ITE
+            często nazywają się <code>AUXTIN</code> albo <code>TMPIN</code> i pokazują stałe
+            <span class="hl">127 °C</span> albo skaczą między 0 a 125. Inny monitor wyświetla to na czerwono na
+            górze listy, a ludzie zaczynają wyceniać nową płytę. Prawdziwe 110 °C na płycie dałoby się poczuć
+            i wywąchać.
+        </p>
+        <p>
+            DeepMonitor uznaje odczyt za nieprawdziwy, gdy stoi na wartości, której żadna płyta nie osiąga,
+            nie zmienia się wcale albo skacze między skrajnościami. Oznacza czujnik, wyjaśnia dlaczego
+            i pomija go w alertach oraz w wyuczonej normie.
+        </p>
+        <div class="callout">
+            <b>0 RPM na karcie graficznej to zwykle nie zepsuty wentylator.</b> Większość nowych kart celowo
+            zatrzymuje wentylatory przy lekkim obciążeniu i uruchamia je około 50 do 60 °C. DeepMonitor mówi
+            to zamiast alarmować i ostrzega dopiero wtedy, gdy karta pod obciążeniem jest gorąca, a wentylator
+            nadal stoi.
+        </div>
+
+        <figure class="ft-shot">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/deepmonitor/table-pl-600.webp 600w, /assets/images/features/deepmonitor/table-pl-760.webp 760w" sizes="(min-width: 800px) 760px, 100vw">
+                <img src="/assets/images/features/deepmonitor/table-pl-760.webp" width="760" height="998" alt="Pełna tabela DeepMonitora: temperatura Package procesora, obciążenie wszystkich 12 wątków, zegar bieżący i bazowy, Vcore 1,186 V; temperatura karty, obciążenie, pamięć i wentylator na 0% oznaczony jako tryb cichy karty; temperatury płyty CPU, System, VRM MOS i PCH oraz Temperature #6 ze 127 °C wyszarzony jako fałszywy czujnik, bez minimum i maksimum; szyny +12 V, +5 V i +3,3 V." loading="lazy">
+            </picture>
+            <figcaption>Pełna tabela: każdy wątek, Vcore, szyny płyty i fałszywy czujnik 127 °C oznaczony zamiast brany na serio (wartości płyty pokazowe).</figcaption>
+        </figure>
+
+        <h2 id="norm">Twoja norma, dla każdego obciążenia</h2>
+        <p>
+            Czy 82 °C to dużo? W grze, na większości laptopów, nie. Gdy nic nie działa, tak. Stały próg tego
+            nie rozróżni, więc DeepMonitor go nie używa. W tle zapisuje odczyty razem z obciążeniem w tej
+            chwili, a PC Workman uczy się zakresu normy dla pięciu rodzajów obciążenia: <b>spoczynek, lekkie,
+            średnie, ciężkie i gry</b>.
+        </p>
+        <p>
+            Na moim komputerze uczy się od 137 dni: dla karty graficznej spoczynek 39 do 56 °C, lekkie
+            45 do 61 °C, gry 59 do 72 °C. Alert porównuje odczyt z normą dla <em>tego samego</em> rodzaju
+            obciążenia, więc gorąca gra jest w porządku, a gorący pusty pulpit nie. Obciążenia, których ten
+            komputer prawie nie zna, uczą się przy okazji i są pokazane osobno, żeby nie hamowały reszty.
+        </p>
+        <p>
+            Napięcia mają to samo traktowanie, metodą statystycznej kontroli procesu: PC Workman pilnuje szyn
+            12&nbsp;V, 5&nbsp;V i 3,3&nbsp;V oraz Vcore pod kątem powolnego dryfu, takiego, który stały próg zauważa
+            dopiero za późno.
+        </p>
+
+        <h2 id="history">Historia, do której można wrócić</h2>
+        <p>
+            HWMonitor i HWiNFO pokazują bieżącą sesję; na dłużej trzeba włączyć zapis do pliku i otworzyć go
+            w innym programie. PC Workman trzyma historię sam: <b>dane minutowe przez 7 dni, godzinowe przez
+            90 dni i dzienne podsumowanie bezterminowo</b>.
+        </p>
+        <p>
+            Z karty nauki <b>Historia CPU</b>, <b>Historia RAM</b> i <b>Historia GPU</b> otwierają Activity
+            Memory: wybierz wczoraj 21:00 i zobacz temperaturę, obciążenie i proces, który je spowodował, albo
+            postaw ten miesiąc obok tego samego miesiąca pół roku temu, sprzed aktualizacji Windows.
+        </p>
+        <p>
+            Zapytaj hck_GPT „czy 82 °C to dużo”, a odpowie z tych liczb: z Twojej normy, obciążenia w tej chwili
+            i najwyższego odczytu dnia.
+        </p>
+
+        <h2 id="compare">DeepMonitor, HWMonitor, HWiNFO, AIDA64</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>PC Workman DeepMonitor</th><th>HWMonitor (darmowy)</th><th>HWiNFO (darmowy)</th><th>AIDA64 Extreme</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Czujniki na żywo z min i max</td><td class="y">Tak</td><td class="y">Tak</td><td class="y">Tak</td><td class="y">Tak</td></tr>
+                    <tr><td>Ile czujników</td><td class="p">Te, które mają znaczenie</td><td class="y">Dużo</td><td class="y">Najwięcej</td><td class="y">250+</td></tr>
+                    <tr><td>Mówi, której temperaturze CPU ufać</td><td class="y">Tak, jedna liczba</td><td class="n">Nie</td><td class="p">Na forum</td><td class="n">Nie</td></tr>
+                    <tr><td>Oznacza fałszywe czujniki (127 °C)</td><td class="y">Tak, pomija je w alertach</td><td class="n">Nie</td><td class="p">Ukrywasz je ręcznie</td><td class="n">Nie</td></tr>
+                    <tr><td>Uczy się normy tego komputera dla obciążeń</td><td class="y">Tak, 5 obciążeń</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Historia dłuższa niż sesja</td><td class="y">Wbudowana: 7 dni co minutę, dzienna bezterminowo</td><td class="p">Zapis CSV</td><td class="p">Zapis CSV</td><td class="p">Zapis do pliku</td></tr>
+                    <tr><td>Odpowiada na pytania o odczyty</td><td class="y">hck_GPT, offline</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Cena</td><td class="y">Za darmo, otwarty kod</td><td class="y">Za darmo (PRO płatny)</td><td class="y">Za darmo do użytku prywatnego</td><td class="p">Około 60 USD, wersja próbna</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>W czym inni są lepsi.</b> HWiNFO czyta znacznie więcej czujników, ma alerty z akcjami dla
+            każdego czujnika, zasila nakładkę RTSS i ma wtyczki; jeśli ręcznie stroisz napięcia, zostaw go
+            sobie. AIDA64 ma SensorPanel na drugi ekran, benchmarki i długie raporty. HWMonitor jest malutki
+            i otwiera się w sekundę, a HWMonitor PRO dodaje wykresy i zdalny podgląd
+            (<a href="https://www.cpuid.com/softwares/hwmonitor-pro.htm" target="_blank" rel="noopener">CPUID</a>).
+            DeepMonitor jest od pytania, które stoi za liczbami: czy z tym komputerem wszystko dobrze i co jest
+            dla niego normalne?
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Na którą temperaturę procesora patrzeć?</summary>
+                <p>U Intela na CPU Package. U AMD Ryzen na Tctl/Tdie, które w obecnych procesorach jest tą samą liczbą. Pojedyncze rdzenie skaczą za bardzo, żeby po nich oceniać chłodzenie. DeepMonitor wybiera tę jedną temperaturę po identyfikatorze czujnika.</p>
+            </details>
+            <details>
+                <summary>Dlaczego płyta główna pokazuje 110 albo 127 °C?</summary>
+                <p>Prawie zawsze to wejście, do którego nic nie podłączono, często AUXTIN albo TMPIN. Pokazuje stałą wartość, często 127 °C, albo skacze między 0 a 125. DeepMonitor oznacza je jako nieprawdziwe i pomija w alertach; w razie wątpliwości porównaj z temperaturami w BIOS-ie.</p>
+            </details>
+            <details>
+                <summary>Czy 82 °C to za dużo dla procesora?</summary>
+                <p>Pod obciążeniem zwykle nie: wiele procesorów stacjonarnych i większość laptopowych zwalnia, żeby się chronić, dopiero około 95 do 100 °C. Gdy nic nie działa, wskazuje na problem z chłodzeniem. DeepMonitor porównuje odczyt z normą tego komputera przy tym samym obciążeniu.</p>
+            </details>
+            <details>
+                <summary>Dlaczego wentylator karty graficznej ma 0 RPM?</summary>
+                <p>Większość nowych kart celowo zatrzymuje wentylatory przy lekkim obciążeniu i uruchamia je około 50 do 60 °C. Problem jest dopiero wtedy, gdy karta pod obciążeniem jest gorąca, a wentylator nadal stoi.</p>
+            </details>
+            <details>
+                <summary>Czy DeepMonitor zastąpi HWiNFO?</summary>
+                <p>Dla większości osób tak. Entuzjaści, którzy ręcznie stroją napięcia, mogą trzymać HWiNFO obok, dla liczby czujników, alertów dla każdego czujnika i wtyczek.</p>
+            </details>
+            <details>
+                <summary>Czy DeepMonitor potrzebuje LibreHardwareMonitor?</summary>
+                <p>Do temperatury CPU, napięć i wentylatorów tak, bo Windows nie udostępnia ich programom bezpośrednio. Obciążenie, zegary, pamięć, dyski i karty NVIDIA działają bez niego.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Panel główny &rsaquo; DeepMonitor</b>. Wyuczona norma i historia są w <b>Monitoring &amp; Learning</b>. Możesz też zapytać hck_GPT „czym jest DeepMonitor” albo „czy temperatura procesora jest w normie”.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/deepmonitor">Otwórz DeepMonitor w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+                <li><a href="/features/cleanup/index_pl.html">Oczyszczanie: miejsce na dysku bez ryzykownych części</a></li>
+                <li><a href="/guides/">Poradniki</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Karta nauki na tej stronie jest z mojego komputera: 137 dni obserwacji, z czego 148 godzin, gdy komputer naprawdę coś robił.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

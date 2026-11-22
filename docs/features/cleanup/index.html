@@ -1,0 +1,595 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: Cleanup -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman Cleanup frees disk space from 28 known places, explains what takes the rest of your drive and tracks your free space over time. It shows the files first, skips open programs and files from the last day, and never touches the registry.">
+    <meta name="keywords" content="free up disk space Windows 11, safe disk cleanup, CCleaner alternative, clear shader cache, clear browser cache all browsers, Disk Cleanup vs Storage Sense, delete temp files Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/cleanup/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/cleanup/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/cleanup/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/cleanup/">
+    <meta property="og:title" content="PC Workman Cleanup: free disk space in Windows without the risky parts">
+    <meta property="og:description" content="28 known places, seven browsers, Steam shaders per game, a disk analysis that says what every big folder is, and a free space history with a trend. No registry cleaning. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/cleanup/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/cleanup/og-cleanup.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="738">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Free Up Disk Space in Windows Safely: PC Workman Cleanup</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Free up disk space in Windows safely: PC Workman Cleanup",
+      "description": "What PC Workman Cleanup removes, how it explains what takes the space on a drive, how it tracks free space over time, the safety rules it follows, and how it compares with Disk Cleanup, Storage Sense, CCleaner, BleachBit, Microsoft PC Manager and Glary Utilities.",
+      "url": "https://pcworkman.dev/features/cleanup/",
+      "datePublished": "2026-11-21T00:00:00+01:00",
+      "dateModified": "2026-11-21T00:00:00+01:00",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "image": "https://pcworkman.dev/assets/images/features/cleanup/og-cleanup.png",
+      "citation": [
+        "https://support.microsoft.com/kb/2563254",
+        "https://www.bleepingcomputer.com/news/microsoft/microsoft-now-detects-ccleaner-as-a-potentially-unwanted-application/",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/cleanup.py"
+      ],
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://pcworkman.dev/#software",
+        "name": "PC Workman",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.9.3",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "downloadUrl": "https://pcworkman.dev/download/",
+        "featureList": [
+          "Cleanup of 28 known places in 6 groups: Windows, browsers, games, apps, developers, your files",
+          "Page cache of Chrome, Edge, Brave, Opera, Opera GX, Firefox and Vivaldi, every profile",
+          "Steam game shaders per game, Epic Games Launcher and Battle.net cache",
+          "Cache of Discord, Steam and Spotify; npm, pip, NuGet and Gradle caches on request",
+          "Disk analysis that explains what every big folder and file is and what to do about it",
+          "Free space history for every drive with a daily point, a trend and a forecast",
+          "Free space receipt before and after every cleanup",
+          "Windows component cleanup (DISM StartComponentCleanup)",
+          "File list for every place before anything is removed",
+          "Skips programs that are open and files changed in the last 24 hours",
+          "No registry cleaning",
+          "Flush the DNS cache",
+          "hck_GPT tips based on the scan"
+        ]
+      },
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://pcworkman.dev/features/" },
+        { "@type": "ListItem", "position": 3, "name": "Cleanup", "item": "https://pcworkman.dev/features/cleanup/" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Will cleaning temporary files make my PC faster?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually not by itself. Temporary files take disk space, not speed. Cleaning helps when the system drive is nearly full, because Windows updates, installers and games need free space to work and fail on a full drive. For speed, the startup list and background services matter more." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it safe to delete the shader cache?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The shader cache holds compiled NVIDIA, AMD and DirectX shaders, and a game builds them again on its next start. The first start after cleaning can load longer or stutter for a moment. It is worth clearing after a graphics driver update or when a game shows graphical glitches, not every day." }
+        },
+        {
+          "@type": "Question",
+          "name": "Will clearing the browser cache log me out of websites?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. PC Workman removes only the page cache (Cache, Code Cache and GPUCache folders). Cookies, saved passwords, history and form data stay where they are, so you stay logged in." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does PC Workman not clean the registry?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Microsoft does not support registry cleaners and warns that they can cause serious problems (support article KB2563254). Leftover registry entries take almost no space and do not slow Windows down, so the risk buys nothing." }
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if Discord or my browser is open during the cleanup?",
+          "acceptedAnswer": { "@type": "Answer", "text": "That place is skipped and the list says which program is open. A program keeps its cache files in use while it runs, and deleting them under it can make it misbehave. Close the program and scan again." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is taking up space on my C: drive?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Usually your own files (Downloads, Videos), program data in AppData, games, the Windows folder, the hibernation file and the page file. PC Workman Cleanup analyzes the whole drive in about a minute, read only, and lists the biggest folders and files with what each one is and whether it may go." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I delete WinSxS, Windows.old or hiberfil.sys?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Not by hand, and not all of them. WinSxS holds Windows components: never delete it manually; the component cleanup (DISM StartComponentCleanup) frees old versions safely. Windows.old is the previous Windows installation; Windows removes it after about 10 days, or sooner in Settings, but then you cannot go back. hiberfil.sys goes away with powercfg /h off, which also turns off hibernation and Fast Startup." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I get the deleted files back?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Temporary files and caches are deleted for good, because Windows and the programs rebuild them when needed. Big files from Downloads go to the Recycle Bin, so you can restore them. Emptying the Recycle Bin cannot be undone, which is why PC Workman never selects it by itself." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/cleanup/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/cleanup/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Cleanup</span>
+        <h1>Free up disk space without the risky parts</h1>
+        <p class="tagline">PC Workman Cleanup removes temporary files and caches from 28 known places, explains what takes the rest of your drive and shows how your free space changes over time. It shows you the files first, skips anything still in use, and never touches the registry.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>28</b><span>places in 6 groups</span></div>
+            <div class="ft-fact"><b>~1 min</b><span>to explain a whole drive</span></div>
+            <div class="ft-fact"><b>3 years</b><span>of daily free space history</span></div>
+            <div class="ft-fact"><b>24 h</b><span>newer files are left alone</span></div>
+            <div class="ft-fact"><b>0</b><span>registry keys touched</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/cleanup/cleanup-window-en-600.webp 600w, /assets/images/features/cleanup/cleanup-window-en-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/cleanup/cleanup-window-en-1200.webp" width="1200" height="738" alt="PC Workman Cleanup after a scan: 11.8 GB to free, 10.7 GB selected in 9 items, a checklist in groups (Windows, Browsers, Games, Apps, For developers) on the left and the scan result with a bar and a file count for every place on the right." fetchpriority="high">
+            </picture>
+            <figcaption>The Cleanup tab right after a scan on my own PC: 11.8 GB to free, most of it in the TEMP folder.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#what">What it cleans</a></li>
+                <li><a href="#rules">The safety rules</a></li>
+                <li><a href="#scan">The scan result and the file list</a></li>
+                <li><a href="#space">What takes the space on your drive</a></li>
+                <li><a href="#duplicates">Duplicates in your folders</a></li>
+                <li><a href="#history">Free space over time</a></li>
+                <li><a href="#receipt">The receipt and Windows components</a></li>
+                <li><a href="#tips">What else speeds the PC up</a></li>
+                <li><a href="#compare">PC Workman, Disk Cleanup, Storage Sense, CCleaner, BleachBit</a></li>
+                <li><a href="#others">Microsoft PC Manager and Glary Utilities</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">What it cleans</h2>
+        <p>
+            Cleanup knows 28 places, split into six groups. It only looks inside these folders. Nothing
+            outside them is ever touched, and each place is a checkbox you can turn off.
+        </p>
+
+        <div class="ft-groups">
+            <div class="ft-group">
+                <h3>Windows</h3>
+                <ul>
+                    <li>Temporary files (your TEMP folder)</li>
+                    <li>Windows temporary files</li>
+                    <li>Explorer thumbnails</li>
+                    <li>Error reports and crash dumps</li>
+                    <li>System reports and minidumps</li>
+                    <li>Shader cache (NVIDIA, AMD, DirectX)</li>
+                    <li>Downloaded Windows updates</li>
+                    <li>Delivery Optimization</li>
+                    <li>Graphics driver installers (C:\NVIDIA, C:\AMD)</li>
+                </ul>
+                <p class="note">Five of these live in system folders and need PC Workman run as administrator.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Browsers</h3>
+                <ul>
+                    <li>Chrome</li>
+                    <li>Edge</li>
+                    <li>Brave</li>
+                    <li>Opera</li>
+                    <li>Opera GX</li>
+                    <li>Firefox</li>
+                    <li>Vivaldi</li>
+                </ul>
+                <p class="note">Only the page cache, in every profile. Passwords, history and cookies stay.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Games</h3>
+                <ul>
+                    <li>Steam game shaders, per game, in every Steam library</li>
+                    <li>Epic Games Launcher</li>
+                    <li>Battle.net</li>
+                </ul>
+                <p class="note">The scan names the games: "Most: BeamNG.drive 15.5 MB, Project Zomboid 1.1 MB". A game builds or downloads its shaders again on the next start.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Apps</h3>
+                <ul>
+                    <li>Discord (images, videos and code it keeps)</li>
+                    <li>Steam (the store and library pages)</li>
+                    <li>Spotify</li>
+                </ul>
+                <p class="note">Games, saves and your account data are not in these folders.</p>
+            </div>
+            <div class="ft-group">
+                <h3>For developers</h3>
+                <ul>
+                    <li>npm</li>
+                    <li>pip</li>
+                    <li>NuGet (download cache)</li>
+                    <li>Gradle</li>
+                </ul>
+                <p class="note">Never ticked by default: the next build downloads the packages again, which fails offline.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Your files</h3>
+                <ul>
+                    <li>Big files in Downloads (100 MB or more, untouched for 90 days)</li>
+                    <li>Recycle Bin</li>
+                </ul>
+                <p class="note">Never selected by default. Big downloads go to the Recycle Bin, not away for good.</p>
+            </div>
+        </div>
+
+        <h2 id="rules">The safety rules</h2>
+        <p>
+            Most cleaners decide what to delete. Cleanup decides what <span class="hl">not</span> to delete,
+            and these rules hold for every place on the list:
+        </p>
+        <ul>
+            <li><b>Known folders only.</b> The list is fixed in the code and open to read. Cleanup does not search the disk for "junk".</li>
+            <li><b>Nothing from the last 24 hours.</b> A file changed today may belong to an installer or a program that is still working. Thumbnails are the exception, because Explorer rebuilds them in seconds.</li>
+            <li><b>Open programs are skipped.</b> If Edge or Discord is running, its place is skipped and the list says so: "Skipped, the program is open: msedge.exe".</li>
+            <li><b>Files in use are skipped.</b> When Windows holds a file open, Cleanup leaves it and counts it in the result.</li>
+            <li><b>Your files are never ticked for you.</b> Downloads and the Recycle Bin start unselected, every time, even if you cleaned them last time.</li>
+            <li><b>You confirm with the amount.</b> Before anything happens, a window says how much will be removed and from where, and that caches are deleted for good.</li>
+            <li><b>No registry cleaning.</b> Not as an option, not in a paid version. See the <a href="#faq">questions</a> for why.</li>
+            <li><b>Nothing leaves the PC.</b> The scan and the cleanup run locally. The list of what was cleaned is stored on your disk only.</li>
+        </ul>
+        <p>
+            Cleanup remembers which places you ticked, so the next scan starts from your choice. The two places
+            with your own files are the exception: they start unselected every time.
+        </p>
+
+        <h2 id="scan">The scan result and the file list</h2>
+        <div class="ft-pair">
+            <figure class="ft-shot">
+                <img src="/assets/images/features/cleanup/cleanup-checklist-en.webp" width="312" height="616" loading="lazy" alt="The Cleanup checklist: Windows 9.8 GB, Browsers 195.2 MB, Games 17.1 MB, Apps 702.8 MB, For developers 196.3 MB. Edge and npm are greyed out with a warning sign because the programs were open.">
+                <figcaption>Grey rows with a warning sign: the program is open, or the place needs administrator rights.</figcaption>
+            </figure>
+            <figure class="ft-shot">
+                <img src="/assets/images/features/cleanup/cleanup-scan-result-en.webp" width="731" height="500" loading="lazy" alt="The scan result: Temporary files 8.6 GB with 47565 files, Recycle Bin 897.3 MB, Shader cache 867.9 MB, Steam 499.4 MB, Discord 203.5 MB. Each row has a one-line description and a Show files link.">
+                <figcaption>Every place has a size, a one-line description and a file count. "Show files" lists them before you decide.</figcaption>
+            </figure>
+        </div>
+        <p>
+            For every place the scan shows the size, what the files are in plain words, and how many
+            there are. "Show files" opens the list of paths, so you
+            can check what a place holds before you tick it. The Recycle Bin row is grey on purpose: emptying
+            it cannot be undone, so it waits for you to choose it.
+        </p>
+        <p>
+            Under the list there is one quick action, <b>Flush the DNS cache</b>. It helps when a website
+            will not open after a network change, and it removes nothing from the disk.
+        </p>
+
+        <h2 id="space">What takes the space on your drive</h2>
+        <p>
+            A cleanup handles the caches. The rest of a full drive is usually something else: a forgotten
+            download, a game, the hibernation file, an old Windows installation. <b>Analyze drive C:</b> goes
+            through the whole drive, read only, and lists the biggest folders and files. On my PC it went
+            through 1.13 million files in 50 seconds and counted 96% of the used space; the rest sits in
+            system folders a normal account cannot read, and the page says how many.
+        </p>
+        <p>
+            Other tools stop at sizes. Cleanup also says <span class="hl">what each thing is and what to do
+            about it</span>, with a coloured tag:
+        </p>
+        <ul>
+            <li><b>LEAVE IT</b>: the page file, <code>Windows\Installer</code>, the Windows folder itself.</li>
+            <li><b>WINDOWS TOOL</b>: <code>hiberfil.sys</code> (<code>powercfg /h off</code> removes it and turns off hibernation), <code>Windows.old</code> (Windows removes it after about 10 days, or sooner in Settings), <code>WinSxS</code> (never by hand, use the component cleanup), System Restore points.</li>
+            <li><b>CLEANUP</b>: TEMP, the Recycle Bin, Steam shaders, driver installers, developer caches.</li>
+            <li><b>PROGRAMS</b>: Program Files, Steam libraries, AppData, Store apps, <code>node_modules</code>, virtual disks of WSL and Docker that never shrink by themselves.</li>
+            <li><b>YOUR FILES</b>: Downloads, Videos, Documents, OneDrive, disc images, old installers.</li>
+        </ul>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-space-en.webp" width="731" height="608" loading="lazy" alt="What takes the space on C: Users 128.4 GB (your files), Windows 37.5 GB (leave it), Program Files 25.9 GB (programs), Windows.old 21.4 GB (Windows tool, removed by Windows after about 10 days), hiberfil.sys 12.8 GB (powercfg /h off removes it but turns off hibernation), pagefile.sys 8.0 GB (leave it).">
+            <figcaption>Every row says what the folder is and what to do. Demo account, so no real file names show.</figcaption>
+        </figure>
+        <p>
+            Click a folder to go inside, <b>Show in Explorer</b> opens it, and <b>The biggest files on the
+            drive</b> lists the ten largest single files. Nothing on this list is deleted from here: the
+            analysis only points you to the right tool.
+        </p>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-space-folder-en.webp" width="731" height="550" loading="lazy" alt="Inside the user account: AppData 52.3 GB, Downloads 31.6 GB, Videos 18.9 GB, Documents 14.2 GB, Desktop 6.1 GB, OneDrive 4.8 GB, each with an explanation and an Up button to go back.">
+            <figcaption>Inside your account: AppData, Downloads and Videos usually hold most of it.</figcaption>
+        </figure>
+
+        <h2 id="duplicates">Duplicates in your folders</h2>
+        <p>
+            <b>Duplicates…</b> next to the disk analysis looks for the same file kept more than once in
+            Desktop, Documents, Downloads, Pictures, Videos and Music, from 1 MB up. Files of the same size are
+            compared by a hash of their contents, so a renamed copy is found and a different file with the same
+            name is not. Program folders and AppData are never read.
+        </p>
+        <p>
+            In every group the <b>oldest copy stays</b> and cannot be ticked, nothing is ticked by itself, and the
+            copies you tick go to the <b>Recycle Bin</b>, where they can be restored. Click a path to see the file
+            in Explorer before deciding. When a drive runs low on space, hck_GPT says so once, and deletes nothing.
+        </p>
+
+        <figure class="ft-shot">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/cleanup/duplicates-en-600.webp 600w, /assets/images/features/cleanup/duplicates-en-916.webp 916w" sizes="(min-width: 800px) 760px, 100vw">
+                <img src="/assets/images/features/cleanup/duplicates-en-916.webp" width="916" height="628" alt="Duplicates in your folders, demo account Ola: 5 groups, up to 2.9 GB to get back, 2948 files in 66 s. In each group the oldest copy is marked stays; a 1.5 GB holiday video in Downloads and a second copy of an installer are ticked; button To the Recycle Bin (2), ticked 2.2 GB." loading="lazy">
+            </picture>
+            <figcaption>Duplicates (demo account): the oldest copy stays, only what you tick goes to the Recycle Bin.</figcaption>
+        </figure>
+
+        <h2 id="history">Free space over time</h2>
+        <p>
+            "My disk is full again" has a history. PC Workman notes the free space of every drive once a day
+            and keeps three years of it, numbers only. The chart shows 30 days, a year or everything, with
+            cleanups as green dots, and one sentence reads it for you:
+        </p>
+        <div class="callout">
+            <b>"For 21 days about 634.9 MB a day has gone. At this pace the drive is full in about 65 days."</b>
+        </div>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-history-en.webp" width="731" height="201" loading="lazy" alt="Free space on C: over time, all days: a slow fall, a jump up at a cleanup marked with a green dot, then a faster fall to 40.4 GB free of 476 GB.">
+            <figcaption>A cleanup starts a new stretch, so freeing 11 GB does not read as "the disk grows". Demo data.</figcaption>
+        </figure>
+        <p>
+            When more than 1 GB a day goes, hck_GPT says so under the scan and points to the analysis to find
+            the folder that grows. Ask hck_GPT about free space and it answers with the trend and the three
+            biggest folders of the last analysis.
+        </p>
+
+        <h2 id="receipt">The receipt and Windows components</h2>
+        <p>
+            Every cleanup ends with a receipt: the free space before and after on each drive it changed,
+            for example <code>C: 41.2 GB &rarr; 52.3 GB free</code>. It shows under Last cleanup and on the
+            history chart. When big downloads went to the Recycle Bin, the receipt says the space comes back
+            only once the bin is emptied, instead of counting it as freed.
+        </p>
+        <p>
+            <b>Clean Windows components</b> removes old versions of Windows components in WinSxS that newer
+            updates replaced. It is what Disk Cleanup calls "Windows Update Cleanup", run as
+            <code>DISM /Online /Cleanup-Image /StartComponentCleanup</code>, only as administrator and after a
+            confirmation, with the space freed measured. Never with <code>/ResetBase</code>, the stronger
+            variant.
+        </p>
+
+        <h2 id="tips">What else speeds the PC up</h2>
+        <p>
+            A cleanup frees space. It rarely makes Windows faster, and Cleanup says so. Below the result,
+            hck_GPT, the assistant built into PC Workman, writes tips from <em>this</em> scan: how much the
+            temporary files take, when the shader cache is worth clearing, which programs to close for a fuller
+            scan, and where the real speed is: the startup list and background services.
+        </p>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-gpt-tips-en.webp" width="731" height="311" loading="lazy" alt="hck_GPT tips under the scan: temporary files take 8.6 GB and that is disk space, not speed; clear the 867.9 MB shader cache after a driver change; close Edge and Opera GX for the next scan; buttons to Startup, Services and the Optimization Center.">
+            <figcaption>The tips quote numbers from the scan and link to the tabs that change boot time.</figcaption>
+        </figure>
+
+        <h2 id="compare">PC Workman, Disk Cleanup, Storage Sense, CCleaner, BleachBit</h2>
+        <p>
+            Each of these tools frees space. They differ in what they reach and in what they risk.
+        </p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>PC Workman Cleanup</th><th>Disk Cleanup (cleanmgr)</th><th>Storage Sense</th><th>CCleaner Free</th><th>BleachBit</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Chrome, Edge, Firefox cache</td><td class="y">Yes, 7 browsers, every profile</td><td class="n">No (Internet Explorer files only)</td><td class="n">No</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+                    <tr><td>Discord, Steam, Spotify cache</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td><td class="p">Some</td><td class="p">Some</td></tr>
+                    <tr><td>Shader cache</td><td class="y">Yes, NVIDIA, AMD, DirectX</td><td class="p">DirectX only</td><td class="n">No</td><td class="p">Varies</td><td class="p">Varies</td></tr>
+                    <tr><td>File list before removing</td><td class="y">Yes, per place</td><td class="n">No</td><td class="n">No</td><td class="p">Summary of the analysis</td><td class="y">Preview</td></tr>
+                    <tr><td>Skips open programs</td><td class="y">Yes, says which</td><td class="n">n/a</td><td class="n">n/a</td><td class="y">Asks to close</td><td class="p">Some cleaners</td></tr>
+                    <tr><td>Leaves recent files</td><td class="y">Last 24 hours</td><td class="y">Temp files under 7 days</td><td class="p">Set by you</td><td class="p">Depends</td><td class="p">Depends</td></tr>
+                    <tr><td>Registry cleaning</td><td class="y">Never</td><td class="y">Never</td><td class="y">Never</td><td class="n">Yes</td><td class="y">No</td></tr>
+                    <tr><td>Runs on a schedule</td><td class="n">No, only when you ask</td><td class="n">No</td><td class="y">Yes</td><td class="p">Paid version</td><td class="n">No</td></tr>
+                    <tr><td>Says what each big folder is</td><td class="y">Yes, with what to do</td><td class="n">No</td><td class="p">Categories only</td><td class="p">Sizes by file type</td><td class="n">No</td></tr>
+                    <tr><td>Free space history and forecast</td><td class="y">Yes, 3 years, per drive</td><td class="n">No</td><td class="n">No</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>Steam shaders per game</td><td class="y">Yes, by game name</td><td class="n">No</td><td class="n">No</td><td class="p">Varies</td><td class="p">Varies</td></tr>
+                    <tr><td>Windows component cleanup</td><td class="y">Yes, as administrator</td><td class="y">Yes</td><td class="p">In Temporary files</td><td class="p">Varies</td><td class="p">Varies</td></tr>
+                    <tr><td>Price and code</td><td class="y">Free, open source</td><td class="y">Built into Windows</td><td class="y">Built into Windows</td><td class="p">Free and paid, closed</td><td class="y">Free, open source</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>Where the others are better.</b> Storage Sense runs by itself on a schedule, and PC Workman does
+            not. BleachBit reaches more programs and can also wipe history, cookies and free space, which is the
+            right tool if privacy wiping is what you want. CCleaner has a long list of supported apps.
+        </p>
+        <p>
+            <b>Why trust matters here.</b> A cleaner deletes files, so it needs more trust than most programs.
+            In 2020 Microsoft Defender started flagging CCleaner installers as a potentially unwanted application
+            because of bundled offers, and registry cleaning, which CCleaner includes, is not supported by
+            Microsoft. PC Workman's Cleanup is under 400 lines of
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/cleanup.py" target="_blank" rel="noopener">open code</a>
+            that anyone can read before running it.
+        </p>
+
+        <h2 id="others">Microsoft PC Manager and Glary Utilities</h2>
+        <p>
+            <b>Microsoft PC Manager</b> is free, from Microsoft, with a one-click Boost, storage tools and
+            finders for large and duplicate files. Boost mostly ends background processes and clears
+            temporary files: in PCMag's test it lowered memory use by about 5% and moved a PCMark 10 score by
+            9 points (<a href="https://windowsforum.com/windows-news.4/microsoft-pc-manager-review-one-click-boost-cleanup-and-real-world-gains.398266/" target="_blank" rel="noopener">summary of the test</a>).
+            PC Workman measures instead of promising: a receipt with the free space before and after, and a
+            history that shows whether the drive is filling up again.
+        </p>
+        <p>
+            <b>Glary Utilities</b> puts a lot into one window and its 1-Click Maintenance cleans junk, privacy
+            traces and the registry in one pass (<a href="https://www.techradar.com/reviews/glary-utilities" target="_blank" rel="noopener">TechRadar</a>).
+            PC Workman keeps the registry out on purpose and asks before every cleanup, with the amount.
+        </p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Will cleaning temporary files make my PC faster?</summary>
+                <p>Usually not by itself. Temporary files take disk space, not speed. Cleaning helps when the system drive is nearly full, because Windows updates, installers and games need free space to work and fail on a full drive. For speed, the startup list and background services matter more.</p>
+            </details>
+            <details>
+                <summary>Is it safe to delete the shader cache?</summary>
+                <p>Yes. A game builds its shaders again on the next start, so the first start can load longer or stutter for a moment. Clear it after a graphics driver update or when a game shows graphical glitches, not every day.</p>
+            </details>
+            <details>
+                <summary>Will clearing the browser cache log me out of websites?</summary>
+                <p>No. Only the page cache is removed (the Cache, Code Cache and GPUCache folders). Cookies, saved passwords, history and form data stay, so you stay logged in.</p>
+            </details>
+            <details>
+                <summary>Why does PC Workman not clean the registry?</summary>
+                <p>Microsoft does not support registry cleaners and warns they can cause serious problems (<a href="https://support.microsoft.com/kb/2563254" target="_blank" rel="noopener">KB2563254</a>). Leftover entries take almost no space and do not slow Windows down, so the risk buys nothing.</p>
+            </details>
+            <details>
+                <summary>What happens if Discord or my browser is open?</summary>
+                <p>That place is skipped and the list names the program. A running program keeps its cache in use, and deleting it underneath can make the program misbehave. Close it and press "Scan again".</p>
+            </details>
+            <details>
+                <summary>What is taking up space on my C: drive?</summary>
+                <p>Usually your own files (Downloads, Videos), program data in AppData, games, the Windows folder, the hibernation file and the page file. <a href="#space">Analyze drive C:</a> goes through the whole drive in about a minute, read only, and says what each big folder and file is and whether it may go.</p>
+            </details>
+            <details>
+                <summary>Can I delete WinSxS, Windows.old or hiberfil.sys?</summary>
+                <p>Not by hand, and not all of them. WinSxS: never manually; the component cleanup frees old versions safely. Windows.old: Windows removes it after about 10 days, or sooner in Settings &gt; System &gt; Storage &gt; Temporary files, but then you cannot go back. hiberfil.sys: <code>powercfg /h off</code> removes it and also turns off hibernation and Fast Startup.</p>
+            </details>
+            <details>
+                <summary>Can I get the deleted files back?</summary>
+                <p>Temporary files and caches are deleted for good, because Windows and the programs rebuild them. Big files from Downloads go to the Recycle Bin, so you can restore them. Emptying the Recycle Bin cannot be undone, which is why it is never selected for you.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>My PC &rsaquo; Cleanup</b>. You can also ask hck_GPT "how do I free up disk space", and the answer links straight to the tab.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/cleanup">Open Cleanup in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/guides/which-startup-apps-can-i-disable/">Which startup apps can I disable?</a></li>
+                <li><a href="/guides/why-is-my-disk-at-100-percent/">Why is my disk at 100% in Windows?</a></li>
+                <li><a href="/guides/pc-slow-but-task-manager-looks-normal/">PC slow but Task Manager looks normal? 6 hidden causes</a></li>
+                <li><a href="/guides/windows-processes/">Windows process list: what each process does</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The cleanup screenshots are from my own PC: 8.8 GB in one TEMP folder, from installers that never cleaned up after themselves. The disk analysis and history use a demo account, so no private file names show.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

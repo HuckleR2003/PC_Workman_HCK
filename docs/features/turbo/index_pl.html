@@ -1,0 +1,311 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: turbo (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="TURBO w PC Workman włącza naraz cztery rzeczy na czas gry: RAM Flush powyżej 75%, plan zasilania Turbo dopasowany do gry, wstrzymane usługi w tle i uśpione bezczynne aplikacje. Gier, anty-cheatów, sterowników i zabezpieczeń nie rusza nigdy, a wszystko wraca, gdy TURBO się kończy.">
+    <meta name="keywords" content="darmowy booster do gier, optymalizacja komputera do gier jednym kliknięciem, alternatywa trybu gry Windows, alternatywa Razer Cortex, zwolnić RAM do gier, plan zasilania wysoka wydajność gry, wstrzymać aplikacje w tle podczas gry">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/turbo/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/turbo/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/turbo/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/turbo/">
+    <meta property="og:title" content="TURBO: jeden przełącznik do grania, który nigdy nie rusza anty-cheatu">
+    <meta property="og:description" content="RAM Flush, plan zasilania dopasowany do gry, wstrzymane usługi i uśpione aplikacje w tle, wszystko cofnięte, gdy skończysz. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/turbo/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/turbo/turbo-pl-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>TURBO: jeden przełącznik do grania, zmierzony i w pełni odwracalny</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "TURBO: jeden przełącznik do grania, zmierzony i w pełni odwracalny",
+  "description": "Co robi tryb TURBO w PC Workman, gdy startuje, czego nigdy nie rusza, jak wszystko przywraca i czym różni się od trybu gry Windows i boosterów do gier.",
+  "url": "https://pcworkman.dev/features/turbo/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/turbo/turbo-pl-1200.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/turbo_manager.py",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/auto_optimizer.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "RAM Flush powyżej 75% przy utrzymującym się obciążeniu",
+      "Plan zasilania Turbo dopasowany do gry, przywracany przy wyjściu",
+      "Usługi wybranego profilu wstrzymywane i przywracane",
+      "13 znanych aplikacji w tle usypianych po 5 minutach bezczynności, budzonych po 30 minutach albo po TURBO",
+      "Gry, anty-cheaty, sterowniki i zabezpieczenia nigdy nieruszane",
+      "Paragon optymalizacji z wynikiem przed i po"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "TURBO",
+      "item": "https://pcworkman.dev/features/turbo/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Czy TURBO zwiększa FPS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zwykle trochę i głównie w dołkach: mniej skoków w tle, mniej przycięć. Jeśli karta graficzna ma już 100%, grę ogranicza karta i TURBO tego nie zmieni; paragon pokaże to uczciwie."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy przez TURBO dostanę bana od anty-cheatu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nie. TURBO nigdy nie rusza procesu gry ani anty-cheatu: nie ma ich na liście aplikacji, które może uśpić, i niczego nie wstrzykuje do gier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Co się dzieje, gdy wyłączę TURBO?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wstrzymane usługi startują ponownie, uśpione aplikacje się budzą, a wraca Twój plan zasilania. Jeśli PC Workman zamknie się niespodziewanie, plan zasilania też zostaje przywrócony przy wyjściu."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/turbo/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/turbo/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; TURBO</span>
+        <h1>Jeden przełącznik do grania, a gdy skończysz, wszystko wraca</h1>
+        <p class="tagline">TURBO uruchamia na czas gry cztery rzeczy: RAM Flush, gdy pamięć przekroczy 75%, plan zasilania Turbo dopasowany do gry, wstrzymane usługi w tle i uśpienie bezczynnych aplikacji w tle. Gier, anty-cheatów, sterowników i zabezpieczeń nie ma na jego listach, a każda zmiana jest cofana, gdy TURBO się kończy.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>4</b><span>podsystemy, jeden przełącznik</span></div>
+            <div class="ft-fact"><b>75%</b><span>próg RAM Flush</span></div>
+            <div class="ft-fact"><b>13</b><span>aplikacji w tle, które może uśpić</span></div>
+            <div class="ft-fact"><b>0</b><span>ruszonych gier i anty-cheatów</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/turbo/turbo-pl-600.webp 600w, /assets/images/features/turbo/turbo-pl-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/turbo/turbo-pl-1200.webp" width="1200" height="628" alt="Centrum optymalizacji: TURBO 1 z 4 uzbrojone, RAM 79%, każda akcja zostawia paragon przed i po. Pamięć: Auto RAM Flush, App Hibernation. Procesor i zasilanie: Turbo Power Plan, Process Guard, CPU Throttle Guard. Usługi i start: TURBO Service Stop. Dowody i porady: Optimization Receipts, Upgrade Advisor." fetchpriority="high">
+            </picture>
+            <figcaption>TURBO i reszta Centrum optymalizacji; każda akcja drukuje paragon przed i po.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#does">Co robi TURBO</a></li>
+                <li><a href="#never">Czego nigdy nie rusza</a></li>
+                <li><a href="#measured">Zmierzone, a nie obiecane</a></li>
+                <li><a href="#compare">TURBO, tryb gry, boostery</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="does">Co robi TURBO</h2>
+        <div class="ft-groups">
+            <div class="ft-group"><h3>RAM Flush</h3><p class="note">Powyżej 75% RAM prosi bezczynne programy o oddanie pamięci roboczej. Tylko przy utrzymującym się obciążeniu, a nie co sekundę.</p></div>
+            <div class="ft-group"><h3>Plan zasilania Turbo</h3><p class="note">Przełącza na plan wysokiej wydajności, gdy działa gra albo aplikacja pełnoekranowa, zostawia plan bateryjny w laptopie bez ładowarki, przywraca Twój plan przy wyjściu.</p></div>
+            <div class="ft-group"><h3>Wstrzymane usługi</h3><p class="note">Zatrzymuje usługi wybranego profilu (Gaming: 18) i uruchamia je ponownie potem.</p></div>
+            <div class="ft-group"><h3>Uśpione aplikacje</h3><p class="note">Usypia znane aplikacje w tle bezczynne od 5 minut (przeglądarki, Discord, Spotify, Teams, OneDrive, Steam, Epic); budzą się po 30 minutach albo gdy TURBO się kończy.</p></div>
+        </div>
+
+        <h2 id="never">Czego nigdy nie rusza</h2>
+        <p>
+            Jedyne aplikacje, które TURBO może uśpić, to stała lista 13 programów w tle. Nie ma na niej gier ani
+            anty-cheatów, więc nic, czego potrzebuje gra albo jej ochrona, nie zostanie zamrożone w środku meczu. Do
+            tego wszystko, co pasuje do antivirus, antimalware, firewall, Defender, NVIDIA, AMD, Intel, display, audio
+            albo folderów systemowych Windows, jest chronione, razem z 35 nazwanymi procesami Windows i zabezpieczeń.
+            Listy są <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/turbo_manager.py" target="_blank" rel="noopener">otwarte do przeczytania</a>.
+        </p>
+
+        <h2 id="measured">Zmierzone, a nie obiecane</h2>
+        <p>
+            PC Manager od samego Microsoftu pokazuje, czemu pomiar ma znaczenie: w teście PCMag jego Boost obniżył
+            zużycie pamięci o około 5% i ruszył wynik PCMark 10 o 9 punktów
+            (<a href="https://windowsforum.com/windows-news.4/microsoft-pc-manager-review-one-click-boost-cleanup-and-real-world-gains.398266/" target="_blank" rel="noopener">omówienie</a>).
+            TURBO zapisuje paragon optymalizacji z tym, co zrobił, z liczbami przed i po, więc „szybciej” to coś,
+            co da się sprawdzić.
+        </p>
+
+        <h2 id="compare">TURBO, tryb gry, boostery</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>TURBO PC Workman</th><th>Tryb gry Windows</th><th>Boostery do gier (Razer Cortex i podobne)</th></tr></thead>
+                <tbody>
+                    <tr><td>Plan zasilania dla gry</td><td class="y">Tak, idzie za grą</td><td class="p">Wewnętrznie</td><td class="y">Tak</td></tr>
+                    <tr><td>Usługi w tle</td><td class="y">Profil, przywracany</td><td class="n">Nie</td><td class="p">Różnie</td></tr>
+                    <tr><td>Aplikacje w tle</td><td class="y">13 znanych usypianych, potem budzonych</td><td class="p">Niższy priorytet</td><td class="p">Często zamykane</td></tr>
+                    <tr><td>Gry i anty-cheaty chronione</td><td class="y">Nigdy na liście</td><td class="y">Tak</td><td class="p">Różnie</td></tr>
+                    <tr><td>Paragon przed i po</td><td class="y">Tak</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy TURBO zwiększa FPS?</summary>
+                <p>Zwykle trochę i głównie w dołkach: mniej skoków w tle, mniej przycięć. Jeśli karta graficzna ma już 100%, grę ogranicza karta i TURBO tego nie zmieni; paragon pokaże to uczciwie.</p>
+            </details>
+            <details>
+                <summary>Czy przez TURBO dostanę bana od anty-cheatu?</summary>
+                <p>Nie. TURBO nigdy nie rusza procesu gry ani anty-cheatu: nie ma ich na liście aplikacji, które może uśpić, i niczego nie wstrzykuje do gier.</p>
+            </details>
+            <details>
+                <summary>Co się dzieje, gdy wyłączę TURBO?</summary>
+                <p>Wstrzymane usługi startują ponownie, uśpione aplikacje się budzą, a wraca Twój plan zasilania. Jeśli PC Workman zamknie się niespodziewanie, plan zasilania też zostaje przywrócony przy wyjściu.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Optymalizacja &rsaquo; TURBO</b> albo przełącznik TURBO na Panelu głównym. Zapytaj hck_GPT „game ready”, żeby sprawdzić komputer przed grą.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/optimization">Otwórz Centrum optymalizacji</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/services-manager/index_pl.html">Menedżer Usług: profile, których używa TURBO</a></li>
+                <li><a href="/features/optimization-guide/index_pl.html">Przewodnik optymalizacji</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Zasada, że gier i anty-cheatów nie rusza się nigdy, była pierwsza; wszystko, co robi TURBO, zbudowałem wokół niej.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

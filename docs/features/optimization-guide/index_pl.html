@@ -1,0 +1,300 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: optimization-guide (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Przewodnik optymalizacji PC Workman prowadzi przez sześć kroków (pomiar startowy, autostart, usługi, pamięć, wynik, sterowniki) z prawdziwymi liczbami z Twojego komputera przed i po, paragonem każdej zmiany i drogą powrotu dla każdej z nich.">
+    <meta name="keywords" content="jak przyspieszyć komputer, przyspieszyć Windows 11 bezpiecznie, poradnik optymalizacji komputera, optymalizacja komputera do gier, komputer wolno działa co zrobić, darmowa optymalizacja PC, przed i po optymalizacji">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/optimization-guide/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/optimization-guide/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/optimization-guide/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/optimization-guide/">
+    <meta property="og:title" content="Przewodnik optymalizacji: przyspiesz Windows w 6 krokach, z pomiarem przed i po">
+    <meta property="og:description" content="Pomiar startowy, autostart, usługi, pamięć, wynik i sterowniki, z liczbami Twojego komputera i cofnięciem każdego kroku. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/optimization-guide/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/optimization-guide/optimization-guide-pl-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Przewodnik optymalizacji: przyspiesz Windows w 6 krokach z pomiarem, bez mitów</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Przewodnik optymalizacji: przyspiesz Windows w sześciu krokach z pomiarem",
+  "description": "Sześć kroków Przewodnika optymalizacji PC Workman, co każdy mierzy i zmienia i dlaczego kończy się wynikiem przed i po zamiast obietnicy.",
+  "url": "https://pcworkman.dev/features/optimization-guide/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/optimization-guide/optimization-guide-pl-1200.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/flows.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Sześć kroków: pomiar, autostart, usługi, pamięć, wynik, sterowniki",
+      "Prawdziwe liczby z komputera przed i po",
+      "Paragon optymalizacji dla każdej akcji",
+      "Cofnięcie każdego kroku",
+      "Pytania w trakcie przewodnika"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Przewodnik optymalizacji",
+      "item": "https://pcworkman.dev/features/optimization-guide/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak bezpiecznie przyspieszyć komputer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zacznij od tego, co startuje z Windows i działa w tle, zmierz przed i po i zmieniaj jedną rzecz naraz. Przewodnik optymalizacji robi dokładnie to w sześciu krokach."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy optymalizacja przyspieszy gry?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Czasem trochę: mniej programów w tle to mniej przycięć. Jeśli karta graficzna ma w grze 100%, pomogą tylko niższe ustawienia albo lepsza karta, i przewodnik to mówi."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy da się cofnąć zmiany przewodnika?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tak. Wpisy autostartu są wyłączane tak jak w Menedżerze zadań, usługi wracają jednym kliknięciem, a każda akcja ma paragon."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/optimization-guide/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/optimization-guide/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Przewodnik optymalizacji</span>
+        <h1>Przyspiesz Windows w sześciu krokach z pomiarem, bez mitów</h1>
+        <p class="tagline">Większość list „przyspiesz komputer” obiecuje i nigdy nie mierzy. Przewodnik optymalizacji zaczyna od pomiaru Twojego komputera, przechodzi przez autostart, usługi, pamięć i sterowniki i na koniec pokazuje te same liczby jeszcze raz, więc widzisz, co naprawdę dał każdy krok.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>6</b><span>kroków, w czacie</span></div>
+            <div class="ft-fact"><b>przed / po</b><span>te same liczby dwa razy</span></div>
+            <div class="ft-fact"><b>1</b><span>paragon na akcję</span></div>
+            <div class="ft-fact"><b>każdy</b><span>krok do cofnięcia</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/optimization-guide/optimization-guide-pl-600.webp 600w, /assets/images/features/optimization-guide/optimization-guide-pl-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/optimization-guide/optimization-guide-pl-1200.webp" width="1200" height="738" alt="Centrum optymalizacji: TURBO 1 z 4 uzbrojone, RAM 80%, każda akcja zostawia paragon przed i po. Szybkie akcje: TURBO, aplikacje autostartu, usługi, dysk, tygodniowy raport wydajności. Pamięć: Auto RAM Flush, App Hibernation. Procesor i zasilanie: Turbo Power Plan, Process Guard, CPU Throttle Guard. Usługi i autostart: TURBO Service Stop. Dowód i porady: paragony optymalizacji, doradca modernizacji. Przyciski: przewodnik krok po kroku, autostart i usługi." fetchpriority="high">
+            </picture>
+            <figcaption>Centrum optymalizacji na moim komputerze. „Przewodnik krok po kroku” w prawym górnym rogu uruchamia sześć kroków w hck_GPT.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#steps">Sześć kroków</a></li>
+                <li><a href="#proof">Zmierzone, z paragonem</a></li>
+                <li><a href="#compare">Przewodnik i zwykłe porady</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="steps">Sześć kroków</h2>
+        <ol>
+            <li><b>Pomiar startowy.</b> RAM, CPU i liczba procesów w tej chwili. Te liczby wrócą na końcu.</li>
+            <li><b>Autostart.</b> Co startuje z Windows, z odpowiedzią zostaw, opóźnij albo wyłącz dla każdego wpisu; Ty wybierasz, przewodnik wykonuje.</li>
+            <li><b>Usługi.</b> Działające usługi, których większość komputerów nie potrzebuje (telemetria, usługi Xbox, faks, rejestr zdalny), wymienione po kolei.</li>
+            <li><b>Pamięć.</b> Co trzyma teraz RAM i czy zwolnienie pamięci roboczej pomoże na tym komputerze, czy tylko ładnie wygląda.</li>
+            <li><b>Wynik.</b> Pomiar startowy jeszcze raz, obok siebie, i lista tego, co wyłączono w tym przebiegu.</li>
+            <li><b>Sterowniki.</b> Podzespoły i wiek ich sterowników, z tym, gdzie je bezpiecznie zaktualizować.</li>
+        </ol>
+        <p>Każdy krok można pominąć, a w środku zapytać o coś („czym jest SysMain?”) bez gubienia miejsca.</p>
+
+        <h2 id="proof">Zmierzone, z paragonem</h2>
+        <p>
+            Każda akcja PC Workman zostawia <b>paragon optymalizacji</b>: co zrobiono, liczby przed i po i jak to
+            cofnąć. Paragon „zwolniono 0,4 GB, różnicy w szybkości nie należy się spodziewać” to też dobry paragon.
+            Chodzi o to, żeby wiedzieć, a nie czuć się szybciej.
+        </p>
+
+        <h2 id="compare">Przewodnik i zwykłe porady</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>Przewodnik optymalizacji PC Workman</th><th>Listy „przyspiesz komputer”</th><th>Optymalizatory „jednym klikiem”</th></tr></thead>
+                <tbody>
+                    <tr><td>Używa liczb Twojego komputera</td><td class="y">Tak</td><td class="n">Nie</td><td class="p">Wynik punktowy</td></tr>
+                    <tr><td>Przed i po</td><td class="y">Tak, te same liczby</td><td class="n">Nie</td><td class="p">Rzadko</td></tr>
+                    <tr><td>Ty decydujesz o każdej zmianie</td><td class="y">Tak</td><td class="y">Tak</td><td class="n">Jeden przycisk</td></tr>
+                    <tr><td>Cofnięcie każdego kroku</td><td class="y">Tak</td><td class="n">Ręcznie</td><td class="p">Różnie</td></tr>
+                    <tr><td>„Czyszczenie” rejestru</td><td class="y">Nigdy</td><td class="p">Często polecane</td><td class="p">Często w zestawie</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Jak bezpiecznie przyspieszyć komputer?</summary>
+                <p>Zacznij od tego, co startuje z Windows i działa w tle, zmierz przed i po i zmieniaj jedną rzecz naraz. Przewodnik optymalizacji robi dokładnie to w sześciu krokach.</p>
+            </details>
+            <details>
+                <summary>Czy optymalizacja przyspieszy gry?</summary>
+                <p>Czasem trochę: mniej programów w tle to mniej przycięć. Jeśli karta graficzna ma w grze 100%, pomogą tylko niższe ustawienia albo lepsza karta, i przewodnik to mówi.</p>
+            </details>
+            <details>
+                <summary>Czy da się cofnąć zmiany przewodnika?</summary>
+                <p>Tak. Wpisy autostartu są wyłączane tak jak w Menedżerze zadań, usługi wracają jednym kliknięciem, a każda akcja ma paragon.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Optymalizacja &rsaquo; Przewodnik krok po kroku</b> albo wpisz „zoptymalizuj komputer” w hck_GPT.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/optimization">Otwórz Centrum optymalizacji</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/startup-manager/index_pl.html">Menedżer Autostartu</a></li>
+                <li><a href="/features/services-manager/index_pl.html">Menedżer Usług</a></li>
+                <li><a href="/features/turbo/index_pl.html">TURBO: jeden przełącznik do grania</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Przewodnik kończy się tymi samymi liczbami, od których zaczął, bo to jedyny uczciwy sposób, żeby powiedzieć „pomogło”.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

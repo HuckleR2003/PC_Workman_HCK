@@ -1,0 +1,340 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman podstrona funkcji: Menedżer Usług -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Menedżer Usług w PC Workman wyjaśnia 43 usługi Windows w czterech grupach, zadaje sześć prostych pytań (drukujesz, używasz Bluetooth, grasz w gry Xbox) i daje profile Gaming, Economy i własny. 33 krytycznych usług nie da się zatrzymać, a każda zmiana wraca jednym kliknięciem.">
+    <meta name="keywords" content="które usługi Windows wyłączyć, wyłączyć usługi do gier Windows 11, bezpieczne usługi do wyłączenia, alternatywa services.msc, telemetria DiagTrack wyłączyć, SysMain gry, usługi Windows wyjaśnione">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/services-manager/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/services-manager/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/services-manager/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/services-manager/">
+    <meta property="og:title" content="Menedżer Usług: usługi Windows wyjaśnione, z profilami do cofnięcia">
+    <meta property="og:description" content="43 usługi w czterech grupach, sześć prostych pytań, Gaming (18 usług), Economy (21) albo własna lista, 33 krytyczne usługi zablokowane. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/services-manager/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/services-manager/services-pl-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Które usługi Windows można wyłączyć? Menedżer Usług PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Które usługi Windows można wyłączyć? Menedżer Usług PC Workman",
+      "description": "Jak PC Workman grupuje i wyjaśnia usługi Windows, które usługi zatrzymują profile Gaming i Economy, których nigdy nie rusza i czym różni się od services.msc, list tweaków i boosterów do gier.",
+      "url": "https://pcworkman.dev/features/services-manager/index_pl",
+      "datePublished": "2026-11-21T00:00:00+01:00",
+      "dateModified": "2026-11-21T00:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "image": "https://pcworkman.dev/assets/images/features/services-manager/services-pl-1200.webp",
+      "citation": [
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/turbo_manager.py"
+      ],
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://pcworkman.dev/#software",
+        "name": "PC Workman",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.9.3",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+        "downloadUrl": "https://pcworkman.dev/download/",
+        "featureList": [
+          "43 usługi Windows wyjaśnione w czterech grupach: zbędne, opcjonalne, zalecane, niezbędne",
+          "Sześć prostych pytań: Bluetooth, drukowanie, gry Xbox, telemetria Microsoftu, faks, pulpit zdalny",
+          "Profil Gaming zatrzymuje 18 usług, Economy 21, Manager to Twoja lista",
+          "33 krytyczne usługi zablokowane i nigdy niezatrzymywane",
+          "Każda zmiana wraca jednym kliknięciem, poprzedni stan jest zapisany"
+        ]
+      },
+      "author": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "@type": "Person", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+      "publisher": { "@id": "https://pcworkman.dev/hck-labs/#organization", "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/hck-labs/" }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Funkcje", "item": "https://pcworkman.dev/features/index_pl" },
+        { "@type": "ListItem", "position": 3, "name": "Menedżer Usług", "item": "https://pcworkman.dev/features/services-manager/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Które usługi Windows można bezpiecznie wyłączyć?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tylko te od rzeczy, których nie używasz: Bluetooth, jeśli nie masz urządzeń Bluetooth, bufor wydruku, jeśli nigdy nie drukujesz, usługi Xbox, jeśli nie grasz w gry Xbox ani Game Pass, faks, pulpit zdalny i rejestr zdalny. Telemetria Microsoftu (DiagTrack) też może zniknąć. Sieć, dźwięk, zabezpieczenia, Windows Update i usługi systemowe zostaw w spokoju. PC Workman zadaje te pytania i blokuje 33 krytyczne usługi." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy wyłączenie usług przyspiesza gry?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Trochę, głównie przez mniej skoków w tle, a nie więcej FPS. Profil Gaming zatrzymuje 18 usług, m.in. indeksowanie wyszukiwania, SysMain, telemetrię i usługi Xbox, na czas działania TURBO i uruchamia je z powrotem po wyłączeniu. Programy w autostarcie i aplikacje w tle zwykle znaczą więcej." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co zatrzymują profile Gaming i Economy?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Gaming zatrzymuje 18 usług: telemetrię, indeksowanie wyszukiwania, SysMain, usługi Xbox, mapy, wprowadzanie tabletu, faks, rejestr zdalny i pulpit zdalny, drukowanie, dźwięk Bluetooth i Bluetooth, tryb demonstracyjny sklepu i usługę płatności. Economy zatrzymuje 21, w tym Windows Update i Bluetooth, dla najdłuższej pracy na baterii albo najcichszego komputera. Manager to lista, którą układasz sam." }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak to cofnąć?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Wyłącz profil albo naciśnij Start przy usłudze. PC Workman zapisuje stan każdej usługi przed zmianą i go przywraca. Usługi zatrzymane dla TURBO startują z powrotem, gdy TURBO się kończy." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego widzę Tryb ograniczony?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Uruchamianie i zatrzymywanie usług wymaga uprawnień administratora. Bez nich PC Workman i tak wypisuje i wyjaśnia każdą usługę oraz mówi na górze, że zmiany mogą się nie udać, zamiast po cichu nie działać." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/services-manager/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/services-manager/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Menedżer Usług</span>
+        <h1>Które usługi Windows mogą odpaść, a których nie ruszać nigdy</h1>
+        <p class="tagline">Menedżer Usług wyjaśnia 43 usługi Windows w czterech grupach, zadaje sześć prostych pytań o to, jak używasz komputera, i daje profile Gaming, Economy albo własny. 33 krytyczne usługi są zablokowane, a każda zmiana wraca jednym kliknięciem.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>43</b><span>usługi wyjaśnione</span></div>
+            <div class="ft-fact"><b>6</b><span>prostych pytań</span></div>
+            <div class="ft-fact"><b>18 / 21</b><span>zatrzymuje Gaming / Economy</span></div>
+            <div class="ft-fact"><b>33</b><span>krytyczne usługi zablokowane</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/services-manager/services-pl-600.webp 600w, /assets/images/features/services-manager/services-pl-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/services-manager/services-pl-1200.webp" width="1200" height="738" alt="Menedżer Usług w PC Workman: 43 opisane usługi, 25 działa. Sześć pytań: Bluetooth, drukowanie, Xbox, telemetria, faks, pulpit zdalny, każde z odpowiedzią Nie używam albo Używam. Grupy: zbędne 14, opcjonalne 10, zalecane 9, niezbędne 10, których nie da się zatrzymać. Przy każdej usłudze stan, Start albo Stop i profile G, E, M. Pasek trybów: Gaming 18, Economy 21, Manager 0." fetchpriority="high">
+            </picture>
+            <figcaption>Menedżer Usług na moim komputerze, bez uprawnień administratora: wszystko wypisane i wyjaśnione, zmiany czekają na uruchomienie jako administrator.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#groups">Cztery grupy, jeden powód każda</a></li>
+                <li><a href="#questions">Sześć pytań zamiast listy tweaków</a></li>
+                <li><a href="#profiles">Gaming, Economy, Manager</a></li>
+                <li><a href="#locked">Czego nikt nie rusza</a></li>
+                <li><a href="#compare">Menedżer Usług, services.msc, listy tweaków, boostery do gier</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="groups">Cztery grupy, jeden powód każda</h2>
+        <p>
+            services.msc wypisuje setki usług o nazwach takich jak <code>dmwappushservice</code> i bez żadnej
+            porady. Menedżer Usług bierze 43, o które ludzie naprawdę pytają, i je porządkuje:
+        </p>
+        <div class="ft-groups">
+            <div class="ft-group">
+                <h3>Zbędne (14)</h3>
+                <p class="note">Bezpieczne do zatrzymania na większości komputerów: telemetria, przekaźnik WAP push, zapisy Xbox w chmurze, gdy nie grasz w gry Xbox.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Opcjonalne (10)</h3>
+                <p class="note">Zależy od Ciebie: raportowanie błędów, rejestr zdalny, śledzenie łączy. Przeczytaj linijkę, potem zdecyduj.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Zalecane (9)</h3>
+                <p class="note">Przydatne, niech działają: dźwięk i jego punkty końcowe oraz to, czego oczekuje zwykły komputer.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Niezbędne (10)</h3>
+                <p class="note">Krytyczne dla systemu, stąd nie da się ich zatrzymać: Windows Update, Defender i rdzeń Windows.</p>
+            </div>
+        </div>
+        <p>
+            Każdy wiersz ma nazwę usługi, jej nazwę w Windows, jedną linijkę o tym, co robi, czy teraz działa,
+            i profile, do których należy (<b>G</b>aming, <b>E</b>conomy, <b>M</b>anager).
+        </p>
+
+        <h2 id="questions">Sześć pytań zamiast listy tweaków</h2>
+        <p>
+            Listy tweaków w internecie mówią „wyłącz bufor wydruku” każdemu, także ludziom z drukarką.
+            Menedżer Usług najpierw pyta:
+        </p>
+        <ul>
+            <li><b>Bluetooth:</b> czy używasz Bluetooth?</li>
+            <li><b>Drukowanie:</b> czy drukujesz na tym komputerze?</li>
+            <li><b>Xbox:</b> czy grasz w gry Xbox albo Game Pass?</li>
+            <li><b>Telemetria:</b> wyłączyć telemetrię Microsoftu?</li>
+            <li><b>Faks:</b> czy używasz faksu?</li>
+            <li><b>Pulpit zdalny:</b> czy używasz pulpitu albo rejestru zdalnego?</li>
+        </ul>
+        <p>„Nie używam” dopisuje te usługi do Twojej listy; „Używam” trzyma je z dala od każdego profilu.</p>
+
+        <h2 id="profiles">Gaming, Economy, Manager</h2>
+        <ul>
+            <li><b>Gaming (18 usług):</b> telemetria, indeksowanie wyszukiwania, SysMain, usługi Xbox, mapy, wprowadzanie tabletu, faks, rejestr zdalny, pulpit zdalny, drukowanie, Bluetooth, tryb demonstracyjny sklepu i usługa płatności. Więcej zapasu dla gry, gdy działa TURBO; wyszukiwanie w menu Start jest wolniejsze, dopóki go nie wyłączysz.</li>
+            <li><b>Economy (21):</b> wszystko, co nie jest niezbędne, w tym Windows Update i Bluetooth, dla najdłuższej pracy na baterii albo najcichszego komputera. Nie na co dzień.</li>
+            <li><b>Manager:</b> dokładnie te usługi, które wybierzesz, nic więcej.</li>
+        </ul>
+        <p>
+            Profile działają w ramach <a href="/features/turbo/index_pl.html">TURBO</a>: usługi zatrzymują się,
+            gdy TURBO startuje, i uruchamiają z powrotem, gdy się kończy. Stan każdej usługi jest zapisywany przed
+            zmianą, więc jedno kliknięcie przywraca wszystko.
+        </p>
+
+        <h2 id="locked">Czego nikt nie rusza</h2>
+        <p>
+            33 usługi są zablokowane w kodzie, cokolwiek klikniesz: sieć (DHCP, klient DNS, lista sieci),
+            dźwięk, zapora i Windows Defender, Zabezpieczenia Windows, dziennik zdarzeń, harmonogram zadań,
+            zasilanie, kryptografia, sterowniki graficzne NVIDIA i AMD oraz procesy, które utrzymują przy życiu
+            sam Windows. Lista jest
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/turbo_manager.py" target="_blank" rel="noopener">otwarta do przeczytania</a>.
+        </p>
+        <div class="callout warn">
+            <b>Bez uprawnień administratora</b> strona pokazuje „Tryb ograniczony”: wypisuje i wyjaśnia wszystko
+            i ostrzega, że Start i Stop mogą się nie udać, zamiast udawać, że zadziałały.
+        </div>
+
+        <h2 id="compare">Menedżer Usług, services.msc, listy tweaków, boostery do gier</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>Menedżer Usług PC Workman</th><th>services.msc</th><th>Listy tweaków w internecie</th><th>Boostery do gier „jednym klikiem”</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Wyjaśnia każdą usługę</td><td class="y">Tak, jedną linijką</td><td class="p">Opis Microsoftu</td><td class="p">Różnie</td><td class="n">Rzadko</td></tr>
+                    <tr><td>Pyta, jak używasz komputera</td><td class="y">Tak, 6 pytań</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Krytyczne usługi zablokowane</td><td class="y">Tak, 33</td><td class="n">Nie</td><td class="n">Nie</td><td class="p">Różnie</td></tr>
+                    <tr><td>Profile</td><td class="y">Gaming, Economy, własny</td><td class="n">Nie</td><td class="n">Nie</td><td class="y">Gaming</td></tr>
+                    <tr><td>Cofnięcie jednym kliknięciem</td><td class="y">Tak, stan zapisany</td><td class="n">Ręcznie</td><td class="n">Ręcznie</td><td class="p">Zwykle</td></tr>
+                    <tr><td>Pokazuje każdą usługę</td><td class="p">43, które mają znaczenie</td><td class="y">Wszystkie</td><td class="p">Różnie</td><td class="n">Nie</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>W czym inni są lepsi.</b> services.msc pokazuje każdą usługę ze wszystkimi ustawieniami, w tym typem
+            uruchomienia i akcjami odzyskiwania. Jeśli potrzebujesz jednej konkretnej usługi spoza tych 43, użyj
+            go. Menedżer Usług jest od pytania, które ma większość ludzi: co mogę zatrzymać, niczego nie psując?
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Które usługi Windows można bezpiecznie wyłączyć?</summary>
+                <p>Te od rzeczy, których nie używasz: Bluetooth, bufor wydruku, usługi Xbox, faks, pulpit i rejestr zdalny oraz telemetrię Microsoftu. Sieć, dźwięk, zabezpieczenia, Windows Update i usługi systemowe zostaw. PC Workman pyta i blokuje 33 krytyczne usługi.</p>
+            </details>
+            <details>
+                <summary>Czy wyłączenie usług przyspiesza gry?</summary>
+                <p>Trochę, głównie przez mniej skoków w tle, a nie więcej FPS. Programy w autostarcie i aplikacje w tle zwykle znaczą więcej.</p>
+            </details>
+            <details>
+                <summary>Co zatrzymują profile Gaming i Economy?</summary>
+                <p>Gaming zatrzymuje 18 usług, Economy 21, w tym Windows Update i Bluetooth. Manager to Twoja lista. Pełne listy są wyżej.</p>
+            </details>
+            <details>
+                <summary>Jak to cofnąć?</summary>
+                <p>Wyłącz profil albo naciśnij Start przy usłudze. Stan każdej usługi jest zapisywany przed zmianą i przywracany.</p>
+            </details>
+            <details>
+                <summary>Dlaczego widzę Tryb ograniczony?</summary>
+                <p>Uruchamianie i zatrzymywanie usług wymaga uprawnień administratora. Bez nich wszystko jest wypisane i wyjaśnione, a strona mówi, że zmiany mogą się nie udać.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Menedżer Usług</b> albo <b>Optymalizacja &rsaquo; TURBO</b> dla profili. Zapytaj hck_GPT „które usługi mogę wyłączyć”, a dostaniesz te same porady w czacie.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/services_manager">Otwórz Menedżer Usług w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/startup-manager/index_pl.html">Menedżer Autostartu: co startuje z Windows i czy powinno</a></li>
+                <li><a href="/features/cleanup/index_pl.html">Oczyszczanie: miejsce na dysku bez ryzykownych części</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Zrzut to mój komputer uruchomiony celowo bez uprawnień administratora: tak większość ludzi otwiera program pierwszy raz.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

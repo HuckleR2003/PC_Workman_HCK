@@ -1,0 +1,309 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: hck-gpt (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="hck_GPT to asystent wbudowany w PC Workman. Działa offline, rozumie polski i angielski, odpowiada z danych Twojego komputera (temperatury, historia, procesy, autostart) z linkiem do zakładki, która to naprawia, i prowadzi przez naprawy krok po kroku: optymalizację, chłodzenie, ratowanie komputera, plan modernizacji i test internetu.">
+    <meta name="keywords" content="asystent AI offline komputer, pomoc z komputerem AI, czemu komputer zwalnia AI, alternatywa Copilota offline, lokalne AI Windows, czat pomoc komputer, pytania o komputer">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/hck-gpt/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/hck-gpt/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/hck-gpt/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/hck-gpt/">
+    <meta property="og:title" content="hck_GPT: asystent offline, który odpowiada z danych Twojego komputera">
+    <meta property="og:description" content="Polski i angielski, około 200 rodzajów odpowiedzi, pięć prowadzonych napraw, bez chmury. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/hck-gpt/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/hck-gpt/hck-gpt-pl-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>hck_GPT: asystent offline, który zna Twój komputer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "hck_GPT: asystent offline, który zna Twój komputer",
+  "description": "Jak hck_GPT rozumie pytania offline, skąd biorą się jego odpowiedzi, jakie naprawy prowadzi i czym różni się od asystentów w chmurze, takich jak Copilot i ChatGPT.",
+  "url": "https://pcworkman.dev/features/hck-gpt/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/hck-gpt/hck-gpt-pl-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/intents/ml_classifier.py",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/hck_gpt/responses/flows.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Asystent offline, polski i angielski",
+      "Odpowiedzi z temperatur, historii, procesów i autostartu tego komputera",
+      "Linki do zakładki, która rozwiązuje problem",
+      "Pięć prowadzonych napraw: optymalizacja, chłodzenie, ratowanie komputera, plan modernizacji, test internetu",
+      "Nic nie jest wysyłane do chmury"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "hck_GPT",
+      "item": "https://pcworkman.dev/features/hck-gpt/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Czy hck_GPT potrzebuje internetu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nie. Działa na Twoim komputerze. Jedyne opcjonalne użycie sieci w jego odpowiedziach to test prędkości w przewodniku sieci, i pyta, zanim go uruchomi."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy hck_GPT to model ChatGPT?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nie. To własny asystent offline PC Workman: mały lokalny klasyfikator i reguły, zbudowany do pytań o ten komputer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O co mogę zapytać?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Czemu komputer zwalnia, czy temperatura jest w normie, co to za proces, co wyrzucić z autostartu, co zajmuje miejsce na dysku, co wymienić, czemu internet jest wolny. Po polsku albo po angielsku."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/hck-gpt/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/hck-gpt/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; hck_GPT</span>
+        <h1>Asystent, który zna Twój komputer i nigdzie go nie wysyła</h1>
+        <p class="tagline">Zapytaj hck_GPT „czemu komputer zwalnia” albo „czy 82 °C to dużo”, a odpowie z danych Twojego komputera: jego temperatur względem normy, historii, procesów, listy autostartu. Po polsku albo po angielsku, offline, z linkiem do zakładki, która to naprawia.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>~200</b><span>rodzajów odpowiedzi</span></div>
+            <div class="ft-fact"><b>5</b><span>prowadzonych napraw</span></div>
+            <div class="ft-fact"><b>2</b><span>języki: polski, angielski</span></div>
+            <div class="ft-fact"><b>0</b><span>bajtów wysłanych do chmury</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/hck-gpt/hck-gpt-pl-600.webp 600w, /assets/images/features/hck-gpt/hck-gpt-pl-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/hck-gpt/hck-gpt-pl-1095.webp" width="1095" height="280" alt="hck_GPT odpowiada, która temperatura procesora jest prawdziwa: Intel podaje CPU Package i Core Max, AMD Tctl/Tdie; teraz 71 °C z czujnika procesora; dlaczego płyta pokazuje 110 do 127 °C; Temperature #6 ze 127 oznaczony jako fałszywy czujnik; link do DeepMonitora." fetchpriority="high">
+            </picture>
+            <figcaption>Odpowiedź z czujników tego komputera, z nazwanym fałszywym czujnikiem płyty (wartości pokazowe).</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#how">Jak Cię rozumie</a></li>
+                <li><a href="#data">Odpowiedzi z Twoich danych</a></li>
+                <li><a href="#flows">Pięć prowadzonych napraw</a></li>
+                <li><a href="#compare">hck_GPT i asystenci w chmurze</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="how">Jak Cię rozumie</h2>
+        <p>
+            hck_GPT nie jest modelem językowym w chmurze. Mały klasyfikator wytrenowany na tysiącach polskich i angielskich
+            zwrotów (Naive Bayes na słowach i parach słów, poniżej milisekundy na pytanie) działa razem z regułami dla
+            pytań, które ludzie naprawdę zadają: „laguje kiedy gram”, „wentylatory są głośne”, „co mogę usunąć”. Działa na
+            Twoim komputerze i nic nie jest nigdzie wysyłane.
+        </p>
+
+        <h2 id="data">Odpowiedzi z Twoich danych</h2>
+        <ul>
+            <li><b>Temperatury</b> względem normy, której PC Workman nauczył się dla tego komputera i tego obciążenia.</li>
+            <li><b>Historia:</b> co było ciężkie wczoraj o 21:00, trend wolnego miejsca na dysku.</li>
+            <li><b>Procesy:</b> czym jest proces i czy może zniknąć, z biblioteki 522.</li>
+            <li><b>Autostart i usługi:</b> co zostawić, opóźnić albo wyłączyć i dlaczego.</li>
+        </ul>
+        <p>Każda odpowiedź wskazująca naprawę ma link prosto do zakładki: Oczyszczanie, Autostart, Usługi, Upgrade Readiness.</p>
+
+        <h2 id="flows">Pięć prowadzonych napraw</h2>
+        <div class="ft-groups">
+            <div class="ft-group"><h3>Optymalizacja</h3><p class="note">6 kroków z pomiarem i wynikiem.</p></div>
+            <div class="ft-group"><h3>Chłodzenie</h3><p class="note">4 kroki: prawdziwe ciepło czy fałszywy odczyt, potem co wyczyścić.</p></div>
+            <div class="ft-group"><h3>Ratowanie komputera</h3><p class="note">4 bezpieczne kroki, gdy komputer wariuje.</p></div>
+            <div class="ft-group"><h3>Plan modernizacji</h3><p class="note">4 kroki: najpierw dowody, potem zakupy.</p></div>
+            <div class="ft-group"><h3>Test internetu</h3><p class="note">Router, DNS, ping i straty, potem werdykt.</p></div>
+        </div>
+
+        <h2 id="compare">hck_GPT i asystenci w chmurze</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>hck_GPT</th><th>Copilot / ChatGPT</th></tr></thead>
+                <tbody>
+                    <tr><td>Zna dane Twojego komputera</td><td class="y">Tak, historię i normy</td><td class="n">Tylko to, co wkleisz</td></tr>
+                    <tr><td>Działa offline</td><td class="y">Tak</td><td class="n">Nie</td></tr>
+                    <tr><td>Dane wychodzą z komputera</td><td class="y">Nigdy</td><td class="n">Tak</td></tr>
+                    <tr><td>Linki do naprawy</td><td class="y">Tak, do zakładki</td><td class="n">Instrukcje</td></tr>
+                    <tr><td>Wiedza ogólna i długa rozmowa</td><td class="n">Tylko tematy komputera</td><td class="y">Tak</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>W czym inni są lepsi.</b> Model w chmurze porozmawia o wszystkim i wytłumaczy obszernie. hck_GPT trzyma się komputera, a w zamian zna ten komputer i trzyma jego dane w domu.</p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy hck_GPT potrzebuje internetu?</summary>
+                <p>Nie. Działa na Twoim komputerze. Jedyne opcjonalne użycie sieci w jego odpowiedziach to test prędkości w przewodniku sieci, i pyta, zanim go uruchomi.</p>
+            </details>
+            <details>
+                <summary>Czy hck_GPT to model ChatGPT?</summary>
+                <p>Nie. To własny asystent offline PC Workman: mały lokalny klasyfikator i reguły, zbudowany do pytań o ten komputer.</p>
+            </details>
+            <details>
+                <summary>O co mogę zapytać?</summary>
+                <p>Czemu komputer zwalnia, czy temperatura jest w normie, co to za proces, co wyrzucić z autostartu, co zajmuje miejsce na dysku, co wymienić, czemu internet jest wolny. Po polsku albo po angielsku.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: pasek <b>hck_GPT</b> na dole każdej strony. Wpisz pytanie albo wybierz jedną z podpowiedzi.</p>
+        <div class="ft-open">
+            <a class="btn" href="/download/">Pobierz PC Workman</a>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/network-test/index_pl.html">Test internetu</a></li>
+                <li><a href="/features/optimization-guide/index_pl.html">Przewodnik optymalizacji</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. hck_GPT odpowiada po polsku i po angielsku, bo w tych dwóch językach powstawał PC Workman.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

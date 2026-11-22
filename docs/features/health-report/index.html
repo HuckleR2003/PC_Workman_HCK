@@ -1,0 +1,316 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: health-report (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman&#x27;s Health Report reads the Windows event log, the drives, temperatures, memory, drivers and startup, gives a score out of 100 with its parts, says what to do first, and saves everything as one HTML file you can compare later or send to whoever fixes your PC.">
+    <meta name="keywords" content="is my PC healthy, PC health check free, PC health report Windows 11, computer health score, unexpected restarts cause, XMP off check, PC diagnostic report HTML">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/health-report/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/health-report/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/health-report/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/health-report/">
+    <meta property="og:title" content="Health Report: is my PC healthy? A score, what to do first, saved as one page">
+    <meta property="og:description" content="Stability, drives, temperatures, memory, drivers and startup in one score, with the first thing to fix and changes since the last report. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/health-report/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/health-report/health-report-en-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Health Report: Is My PC Healthy? One Page, One Score, What to Do First</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Health Report: is my PC healthy?",
+  "description": "What PC Workman's Health Report checks, how the score is weighted, what the findings mean, and how to save and compare reports.",
+  "url": "https://pcworkman.dev/features/health-report/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/health-report/health-report-en-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/health_score.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Health score out of 100 from stability, drives, temperatures, memory, drivers and startup",
+      "What to do first, with a link to the tab that fixes it",
+      "All findings as plain sentences",
+      "Changes since the last report",
+      "Saved as one HTML file"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Health Report",
+      "item": "https://pcworkman.dev/features/health-report/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I check if my PC is healthy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open My PC › Health report in PC Workman. It reads the event log, drives, temperatures, memory, drivers and startup and gives a score out of 100 with what to do first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my PC restart without warning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Restarts without a clean shutdown are usually the power supply, overheating or a driver. The report counts them over 30 days; the temperature history and the drivers page help find which one."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is XMP and why does the report mention it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "XMP is the memory profile that runs RAM at its rated speed. With it off, RAM runs at a slower default (2133 MHz on my PC). Turning it on in the BIOS is free performance."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/health-report/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/health-report/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Health Report</span>
+        <h1>Is my PC healthy? One page, one score, what to do first</h1>
+        <p class="tagline">Health Report reads what Windows and PC Workman know about your PC: unexpected restarts, drive errors, temperatures, memory, the age of the graphics driver and startup. It turns them into a score out of 100, says what to do first, and saves it all as one HTML page.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>6</b><span>parts in the score</span></div>
+            <div class="ft-fact"><b>100</b><span>points, weighted</span></div>
+            <div class="ft-fact"><b>1</b><span>HTML file to save or send</span></div>
+            <div class="ft-fact"><b>Δ</b><span>changes since the last report</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/health-report/health-report-en-600.webp 600w, /assets/images/features/health-report/health-report-en-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/health-report/health-report-en-1095.webp" width="1095" height="520" alt="Health report: health score 85; since the last report: the first report, save it and the next one shows the changes. What to do first: 1. Memory: turn on XMP in the BIOS and consider more RAM. 2. Stability: check power and overheating, restarts without a clean shutdown are usually the PSU, heat or a driver. All findings: RAM 8 GB is usually 75% full, RAM runs at 2133 MHz without XMP, 4 restarts without a clean shutdown in 30 days, the graphics driver is 4 months old." fetchpriority="high">
+            </picture>
+            <figcaption>My own PC's report: 85 out of 100, and two honest things to do first.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#score">What the score is made of</a></li>
+                <li><a href="#first">What to do first, in plain words</a></li>
+                <li><a href="#save">Save it, compare it, send it</a></li>
+                <li><a href="#compare">Health Report and the alternatives</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="score">What the score is made of</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>Part</th><th>Weight</th><th>What it looks at</th></tr></thead>
+                <tbody>
+                    <tr><td>Stability</td><td>25</td><td>Restarts without a clean shutdown, hardware and disk errors in the Windows event log</td></tr>
+                    <tr><td>Drives</td><td>20</td><td>Free space and the state of each drive</td></tr>
+                    <tr><td>Temperatures</td><td>20</td><td>Readings against what is normal for this PC</td></tr>
+                    <tr><td>Memory</td><td>15</td><td>How full the RAM usually is, and whether it runs at its rated speed (XMP)</td></tr>
+                    <tr><td>Drivers</td><td>10</td><td>The age of the graphics driver</td></tr>
+                    <tr><td>Startup</td><td>10</td><td>How much starts with Windows</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="first">What to do first, in plain words</h2>
+        <p>
+            A score alone helps nobody. Under it the report lists <b>what to do first</b>, worst first, each with a
+            link to the tab that fixes it. On my PC: <i>"Memory: turn on XMP in the BIOS and consider more RAM"</i>
+            and <i>"Stability: restarts without a clean shutdown are usually the power supply, heat or a driver"</i>.
+            Then <b>all findings</b>, as plain sentences: "RAM 8 GB is usually 75% full", "RAM runs at 2133 MHz,
+            without XMP some performance is left behind", "4 restarts without a clean shutdown in 30 days".
+        </p>
+
+        <h2 id="save">Save it, compare it, send it</h2>
+        <p>
+            <b>Save the report (HTML)</b> writes one file that opens in any browser, with no PC Workman needed.
+            The next report shows what changed since the last one, part by part. Send the file to whoever helps
+            you with your PC: it says more than "it is slow sometimes". Everything is collected locally; the report
+            says so at the bottom.
+        </p>
+
+        <h2 id="compare">Health Report and the alternatives</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>PC Workman Health Report</th><th>Windows PC Health Check</th><th>AIDA64 report</th></tr></thead>
+                <tbody>
+                    <tr><td>What it answers</td><td>Is the PC healthy, what first</td><td>Can it run Windows 11</td><td>Everything about the hardware</td></tr>
+                    <tr><td>Score with parts</td><td class="y">Yes, 6 parts</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>What to do first</td><td class="y">Yes</td><td class="p">Upgrade checks</td><td class="n">No</td></tr>
+                    <tr><td>Changes since last time</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>Price</td><td class="y">Free, open source</td><td class="y">Free</td><td class="p">About 60 USD</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>Where the others are better.</b> An AIDA64 report lists every detail of every device, which a repair shop sometimes needs. The Health Report is the page you read in a minute and act on.</p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>How do I check if my PC is healthy?</summary>
+                <p>Open My PC &rsaquo; Health report in PC Workman. It reads the event log, drives, temperatures, memory, drivers and startup and gives a score out of 100 with what to do first.</p>
+            </details>
+            <details>
+                <summary>Why does my PC restart without warning?</summary>
+                <p>Restarts without a clean shutdown are usually the power supply, overheating or a driver. The report counts them over 30 days; the temperature history and the drivers page help find which one.</p>
+            </details>
+            <details>
+                <summary>What is XMP and why does the report mention it?</summary>
+                <p>XMP is the memory profile that runs RAM at its rated speed. With it off, RAM runs at a slower default (2133 MHz on my PC). Turning it on in the BIOS is free performance.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>My PC &rsaquo; Health report</b>. Ask hck_GPT "is my PC healthy" for a summary in the chat.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/health_report">Open Health report in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/guides/is-my-pc-healthy/">Is my PC healthy? A guide</a></li>
+                <li><a href="/features/learning/">Monitoring &amp; Learning: alerts against your PC's normal</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The report is mine, with the XMP finding I keep postponing; it is in the screenshot so you know the report does not flatter.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

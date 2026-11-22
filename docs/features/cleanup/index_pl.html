@@ -1,0 +1,595 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman podstrona funkcji: Oczyszczanie -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Oczyszczanie w PC Workman zwalnia miejsce z 28 znanych miejsc, mówi, co zajmuje resztę dysku, i pokazuje, jak zmienia się wolne miejsce w czasie. Najpierw pokazuje pliki, pomija otwarte programy i pliki z ostatniej doby, nie rusza rejestru.">
+    <meta name="keywords" content="jak zwolnić miejsce na dysku Windows 11, bezpieczne czyszczenie dysku, alternatywa CCleaner, cache shaderów, wyczyścić pamięć przeglądarki, Oczyszczanie dysku czy Czujnik pamięci, usunąć pliki tymczasowe">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/cleanup/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/cleanup/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/cleanup/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/cleanup/">
+    <meta property="og:title" content="Oczyszczanie w PC Workman: miejsce na dysku bez ryzykownych części">
+    <meta property="og:description" content="28 znanych miejsc, siedem przeglądarek, shadery Steama per gra, analiza dysku, która mówi, czym jest każdy duży folder, i historia wolnego miejsca z trendem. Bez czyszczenia rejestru. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/cleanup/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/cleanup/og-cleanup.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="738">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Jak bezpiecznie zwolnić miejsce na dysku: Oczyszczanie w PC Workman</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Jak bezpiecznie zwolnić miejsce na dysku w Windows: Oczyszczanie w PC Workman",
+      "description": "Co usuwa Oczyszczanie w PC Workman, jak wyjaśnia, co zajmuje miejsce na dysku, jak śledzi wolne miejsce w czasie, jakich zasad bezpieczeństwa się trzyma i czym różni się od Oczyszczania dysku, Czujnika pamięci, CCleanera, BleachBita, Microsoft PC Managera i Glary Utilities.",
+      "url": "https://pcworkman.dev/features/cleanup/index_pl",
+      "datePublished": "2026-11-21T00:00:00+01:00",
+      "dateModified": "2026-11-21T00:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "image": "https://pcworkman.dev/assets/images/features/cleanup/og-cleanup.png",
+      "citation": [
+        "https://support.microsoft.com/kb/2563254",
+        "https://www.bleepingcomputer.com/news/microsoft/microsoft-now-detects-ccleaner-as-a-potentially-unwanted-application/",
+        "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/cleanup.py"
+      ],
+      "about": {
+        "@type": "SoftwareApplication",
+        "@id": "https://pcworkman.dev/#software",
+        "name": "PC Workman",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "softwareVersion": "1.9.3",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+        "downloadUrl": "https://pcworkman.dev/download/",
+        "featureList": [
+          "Oczyszczanie 28 znanych miejsc w 6 grupach: Windows, przeglądarki, gry, aplikacje, dla programistów, Twoje pliki",
+          "Pamięć stron w Chrome, Edge, Brave, Operze, Operze GX, Firefoksie i Vivaldi, we wszystkich profilach",
+          "Shadery gier Steam z podziałem na gry, pamięć Epic Games Launcher i Battle.net",
+          "Pamięć podręczna Discorda, Steama i Spotify; na życzenie pamięć npm, pip, NuGet i Gradle",
+          "Analiza dysku, która mówi, czym jest każdy duży folder i plik i co z nim zrobić",
+          "Historia wolnego miejsca każdego dysku: punkt dziennie, trend i prognoza",
+          "Paragon wolnego miejsca przed i po każdym czyszczeniu",
+          "Czyszczenie składników Windows (DISM StartComponentCleanup)",
+          "Lista plików dla każdego miejsca, zanim cokolwiek zniknie",
+          "Pomija otwarte programy i pliki zmienione w ciągu ostatnich 24 godzin",
+          "Bez czyszczenia rejestru",
+          "Czyszczenie pamięci DNS",
+          "Porady hck_GPT na podstawie skanu"
+        ]
+      },
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "jobTitle": "Software developer",
+        "sameAs": [
+          "https://github.com/HuckleR2003",
+          "https://x.com/hck_lab",
+          "https://linkedin.com/in/marcinfirmuga",
+          "https://dev.to/huckler",
+          "https://hackernoon.com/u/huckler",
+          "https://medium.com/@MarcinFirmuga",
+          "https://linktr.ee/marcin_firmuga"
+        ]
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "alternateName": "HCK_Labs",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pcworkman.dev/assets/images/hck-labs-logo.png",
+          "width": 600,
+          "height": 600
+        },
+        "founder": { "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga" }
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Funkcje", "item": "https://pcworkman.dev/features/index_pl" },
+        { "@type": "ListItem", "position": 3, "name": "Oczyszczanie", "item": "https://pcworkman.dev/features/cleanup/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Czy usunięcie plików tymczasowych przyspieszy komputer?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zwykle nie samo w sobie. Pliki tymczasowe zajmują miejsce, a nie szybkość. Czyszczenie pomaga, gdy dysk systemowy jest prawie pełny, bo aktualizacje Windows, instalatory i gry potrzebują wolnego miejsca i na pełnym dysku się wysypują. Na szybkość bardziej wpływają programy w autostarcie i usługi w tle." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy można usunąć pamięć podręczną shaderów?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Tak. To skompilowane shadery NVIDIA, AMD i DirectX, a gra zbuduje je od nowa przy następnym uruchomieniu. Pierwsze uruchomienie po czyszczeniu może ładować się dłużej albo chwilę przycinać. Warto ją czyścić po zmianie sterownika karty albo gdy gra pokazuje błędy grafiki, a nie codziennie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy wyczyszczenie pamięci przeglądarki wyloguje mnie ze stron?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie. PC Workman usuwa tylko pamięć stron (foldery Cache, Code Cache i GPUCache). Ciasteczka, zapisane hasła, historia i dane formularzy zostają, więc nadal jesteś zalogowany." }
+        },
+        {
+          "@type": "Question",
+          "name": "Dlaczego PC Workman nie czyści rejestru?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Microsoft nie wspiera programów do czyszczenia rejestru i ostrzega, że mogą spowodować poważne problemy (artykuł KB2563254). Pozostałości w rejestrze zajmują prawie nic i nie spowalniają Windows, więc ryzyko niczego nie daje." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co jeśli Discord albo przeglądarka są otwarte podczas czyszczenia?",
+          "acceptedAnswer": { "@type": "Answer", "text": "To miejsce zostaje pominięte, a lista podaje, który program jest otwarty. Działający program trzyma swoje pliki pamięci podręcznej w użyciu i usuwanie ich spod niego może popsuć mu działanie. Zamknij program i zeskanuj ponownie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Co zajmuje miejsce na dysku C:?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Zwykle Twoje pliki (Pobrane, Wideo), dane programów w AppData, gry, folder Windows, plik hibernacji i plik stronicowania. Oczyszczanie w PC Workman przegląda cały dysk w około minutę, tylko do odczytu, i wypisuje największe foldery i pliki z tym, czym są i czy można je usunąć." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy można usunąć WinSxS, Windows.old albo hiberfil.sys?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Nie ręcznie i nie wszystkie. WinSxS to składniki Windows: nigdy nie usuwaj go ręcznie, stare wersje bezpiecznie zwalnia czyszczenie składników (DISM StartComponentCleanup). Windows.old to poprzednia instalacja Windows: Windows usuwa ją sam po około 10 dniach albo wcześniej w Ustawieniach, ale potem nie wrócisz do starej wersji. hiberfil.sys znika po poleceniu powercfg /h off, które wyłącza też hibernację i szybkie uruchamianie." }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy da się odzyskać usunięte pliki?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Pliki tymczasowe i pamięć podręczna znikają na dobre, bo Windows i programy odtwarzają je same. Duże pliki z Pobranych trafiają do Kosza, więc można je przywrócić. Opróżnienia Kosza nie da się cofnąć, dlatego PC Workman nigdy nie zaznacza go sam." }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/cleanup/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/cleanup/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Oczyszczanie</span>
+        <h1>Miejsce na dysku bez ryzykownych części</h1>
+        <p class="tagline">Oczyszczanie w PC Workman usuwa pliki tymczasowe i pamięć podręczną z 28 znanych miejsc, mówi, co zajmuje resztę dysku, i pokazuje, jak zmienia się wolne miejsce w czasie. Najpierw pokazuje pliki, pomija to, co jest w użyciu, i nie rusza rejestru.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>28</b><span>miejsc w 6 grupach</span></div>
+            <div class="ft-fact"><b>~1 min</b><span>na wyjaśnienie całego dysku</span></div>
+            <div class="ft-fact"><b>3 lata</b><span>dziennej historii wolnego miejsca</span></div>
+            <div class="ft-fact"><b>24 h</b><span>nowsze pliki zostają</span></div>
+            <div class="ft-fact"><b>0</b><span>ruszonych kluczy rejestru</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/cleanup/cleanup-window-pl-600.webp 600w, /assets/images/features/cleanup/cleanup-window-pl-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/cleanup/cleanup-window-pl-1200.webp" width="1200" height="738" alt="Oczyszczanie w PC Workman po skanie: 11,8 GB do odzyskania, 10,7 GB zaznaczone w 9 pozycjach, po lewej lista w grupach (Windows, Przeglądarki, Gry, Aplikacje, Dla programistów), po prawej wynik analizy z paskiem i liczbą plików dla każdego miejsca." fetchpriority="high">
+            </picture>
+            <figcaption>Zakładka Oczyszczanie zaraz po skanie na moim komputerze: 11,8 GB do odzyskania, większość w folderze TEMP.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#what">Co czyści</a></li>
+                <li><a href="#rules">Zasady bezpieczeństwa</a></li>
+                <li><a href="#scan">Wynik skanu i lista plików</a></li>
+                <li><a href="#space">Co zajmuje miejsce na dysku</a></li>
+                <li><a href="#duplicates">Duplikaty w Twoich folderach</a></li>
+                <li><a href="#history">Wolne miejsce w czasie</a></li>
+                <li><a href="#receipt">Paragon i składniki Windows</a></li>
+                <li><a href="#tips">Co jeszcze przyspieszy komputer</a></li>
+                <li><a href="#compare">PC Workman, Oczyszczanie dysku, Czujnik pamięci, CCleaner, BleachBit</a></li>
+                <li><a href="#others">Microsoft PC Manager i Glary Utilities</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">Co czyści</h2>
+        <p>
+            Oczyszczanie zna 28 miejsc w sześciu grupach. Zagląda tylko do tych folderów. Niczego poza nimi
+            nie dotyka, a każde miejsce to osobne pole, które możesz odznaczyć.
+        </p>
+
+        <div class="ft-groups">
+            <div class="ft-group">
+                <h3>Windows</h3>
+                <ul>
+                    <li>Pliki tymczasowe (Twój folder TEMP)</li>
+                    <li>Pliki tymczasowe Windows</li>
+                    <li>Miniatury Eksploratora</li>
+                    <li>Raporty błędów i zrzuty awarii</li>
+                    <li>Raporty systemowe i minidumpy</li>
+                    <li>Pamięć shaderów (NVIDIA, AMD, DirectX)</li>
+                    <li>Pobrane aktualizacje Windows</li>
+                    <li>Optymalizacja dostarczania</li>
+                    <li>Instalatory sterowników karty (C:\NVIDIA, C:\AMD)</li>
+                </ul>
+                <p class="note">Pięć z nich leży w folderach systemowych i wymaga uruchomienia PC Workman jako administrator.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Przeglądarki</h3>
+                <ul>
+                    <li>Chrome</li>
+                    <li>Edge</li>
+                    <li>Brave</li>
+                    <li>Opera</li>
+                    <li>Opera GX</li>
+                    <li>Firefox</li>
+                    <li>Vivaldi</li>
+                </ul>
+                <p class="note">Tylko pamięć stron, we wszystkich profilach. Hasła, historia i ciasteczka zostają.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Gry</h3>
+                <ul>
+                    <li>Shadery gier Steam, z podziałem na gry, we wszystkich bibliotekach Steama</li>
+                    <li>Epic Games Launcher</li>
+                    <li>Battle.net</li>
+                </ul>
+                <p class="note">Skan podaje nazwy gier: „Najwięcej: BeamNG.drive 15,5 MB, Project Zomboid 1,1 MB”. Gra zbuduje albo pobierze shadery przy następnym starcie.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Aplikacje</h3>
+                <ul>
+                    <li>Discord (obrazki, filmy i kod, które trzyma)</li>
+                    <li>Steam (strony sklepu i biblioteki)</li>
+                    <li>Spotify</li>
+                </ul>
+                <p class="note">Gier, zapisów i danych konta nie ma w tych folderach.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Dla programistów</h3>
+                <ul>
+                    <li>npm</li>
+                    <li>pip</li>
+                    <li>NuGet (pamięć pobierania)</li>
+                    <li>Gradle</li>
+                </ul>
+                <p class="note">Nigdy nie są zaznaczone same: następny build pobierze paczki od nowa, a bez internetu się nie uda.</p>
+            </div>
+            <div class="ft-group">
+                <h3>Twoje pliki</h3>
+                <ul>
+                    <li>Duże pliki w Pobranych (od 100 MB, nieruszane od 90 dni)</li>
+                    <li>Kosz</li>
+                </ul>
+                <p class="note">Nigdy nie są zaznaczone same. Duże pliki z Pobranych idą do Kosza, a nie znikają na dobre.</p>
+            </div>
+        </div>
+
+        <h2 id="rules">Zasady bezpieczeństwa</h2>
+        <p>
+            Większość programów do czyszczenia decyduje, co usunąć. Oczyszczanie decyduje, czego
+            <span class="hl">nie</span> usuwać, i te zasady obowiązują w każdym miejscu na liście:
+        </p>
+        <ul>
+            <li><b>Tylko znane foldery.</b> Lista jest zapisana w kodzie i każdy może ją przeczytać. Oczyszczanie nie przeszukuje dysku w poszukiwaniu „śmieci”.</li>
+            <li><b>Nic z ostatniej doby.</b> Plik zmieniony dziś może należeć do instalatora albo programu, który jeszcze pracuje. Wyjątkiem są miniatury, bo Eksplorator odtwarza je w kilka sekund.</li>
+            <li><b>Otwarte programy są pomijane.</b> Gdy Edge albo Discord działa, jego miejsce zostaje pominięte, a lista mówi to wprost: „Pominięte, program jest otwarty: msedge.exe”.</li>
+            <li><b>Pliki w użyciu są pomijane.</b> Gdy Windows trzyma plik otwarty, Oczyszczanie go zostawia i liczy w wyniku.</li>
+            <li><b>Twoich plików nikt nie zaznacza za Ciebie.</b> Pobrane i Kosz zaczynają odznaczone, za każdym razem, nawet jeśli czyściłeś je ostatnio.</li>
+            <li><b>Potwierdzasz z kwotą.</b> Zanim cokolwiek się stanie, okno mówi, ile i skąd zostanie usunięte, i że pamięć podręczna znika na dobre.</li>
+            <li><b>Bez czyszczenia rejestru.</b> Ani jako opcja, ani w płatnej wersji. Dlaczego, piszę w <a href="#faq">pytaniach</a>.</li>
+            <li><b>Nic nie wychodzi z komputera.</b> Skan i czyszczenie działają lokalnie. Lista tego, co wyczyszczono, zostaje tylko na Twoim dysku.</li>
+        </ul>
+        <p>
+            Oczyszczanie pamięta, które miejsca zaznaczyłeś, więc następny skan zaczyna od Twojego wyboru.
+            Wyjątkiem są dwa miejsca z Twoimi plikami: one zawsze zaczynają odznaczone.
+        </p>
+
+        <h2 id="scan">Wynik skanu i lista plików</h2>
+        <div class="ft-pair">
+            <figure class="ft-shot">
+                <img src="/assets/images/features/cleanup/cleanup-checklist-pl.webp" width="307" height="616" loading="lazy" alt="Lista Oczyszczania: Windows 9,8 GB, Przeglądarki 195,2 MB, Gry 17,1 MB, Aplikacje 702,8 MB, Dla programistów 196,3 MB. Edge i npm są wyszarzone ze znakiem ostrzeżenia, bo programy były otwarte.">
+                <figcaption>Szare wiersze ze znakiem ostrzeżenia: program jest otwarty albo miejsce wymaga uprawnień administratora.</figcaption>
+            </figure>
+            <figure class="ft-shot">
+                <img src="/assets/images/features/cleanup/cleanup-scan-result-pl.webp" width="736" height="500" loading="lazy" alt="Wynik analizy: Pliki tymczasowe 8,6 GB w 47565 plikach, Kosz 897,3 MB, Pamięć podręczna shaderów 867,9 MB, Steam 499,4 MB, Discord 203,5 MB. Każdy wiersz ma opis w jednym zdaniu i link Pokaż pliki.">
+                <figcaption>Każde miejsce ma rozmiar, opis w jednym zdaniu i liczbę plików. „Pokaż pliki” wypisuje je, zanim zdecydujesz.</figcaption>
+            </figure>
+        </div>
+        <p>
+            Dla każdego miejsca skan pokazuje rozmiar, czym są te pliki, po ludzku, i ile ich jest. „Pokaż
+            pliki” otwiera listę ścieżek, więc możesz sprawdzić, co leży w danym miejscu, zanim je zaznaczysz.
+            Wiersz Kosza jest szary celowo: opróżnienia nie da się cofnąć, więc czeka, aż wybierzesz go sam.
+        </p>
+        <p>
+            Pod listą jest jedna szybka akcja, <b>Wyczyść pamięć DNS</b>. Pomaga, gdy strona nie chce się
+            otworzyć po zmianie sieci, i nie usuwa niczego z dysku.
+        </p>
+
+        <h2 id="space">Co zajmuje miejsce na dysku</h2>
+        <p>
+            Czyszczenie zajmuje się pamięcią podręczną. Resztę pełnego dysku zwykle zajmuje coś innego:
+            zapomniane pobranie, gra, plik hibernacji, stara instalacja Windows. <b>Analizuj dysk C:</b>
+            przegląda cały dysk, tylko do odczytu, i wypisuje największe foldery i pliki. Na moim komputerze
+            przeszło 1,13 mln plików w 50 sekund i policzyło 96% zajętego miejsca; reszta leży w folderach
+            systemowych, których zwykłe konto nie przeczyta, a strona mówi, ilu takich było.
+        </p>
+        <p>
+            Inne programy kończą na rozmiarach. Oczyszczanie mówi też, <span class="hl">czym jest każda rzecz
+            i co z nią zrobić</span>, z kolorową etykietą:
+        </p>
+        <ul>
+            <li><b>ZOSTAW</b>: plik stronicowania, <code>Windows\Installer</code>, sam folder Windows.</li>
+            <li><b>NARZĘDZIE WINDOWS</b>: <code>hiberfil.sys</code> (<code>powercfg /h off</code> go usuwa i wyłącza hibernację), <code>Windows.old</code> (Windows usuwa go sam po około 10 dniach albo wcześniej w Ustawieniach), <code>WinSxS</code> (nigdy ręcznie, od tego jest czyszczenie składników), punkty przywracania.</li>
+            <li><b>OCZYSZCZANIE</b>: TEMP, Kosz, shadery Steama, instalatory sterowników, pamięć narzędzi programisty.</li>
+            <li><b>PROGRAMY</b>: Program Files, biblioteki Steama, AppData, aplikacje ze Sklepu, <code>node_modules</code>, dyski wirtualne WSL i Dockera, które same się nie kurczą.</li>
+            <li><b>TWOJE PLIKI</b>: Pobrane, Wideo, Dokumenty, OneDrive, obrazy płyt, stare instalatory.</li>
+        </ul>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-space-pl.webp" width="736" height="608" loading="lazy" alt="Co zajmuje miejsce na C: Users 128,4 GB (Twoje pliki), Windows 37,5 GB (zostaw), Program Files 25,9 GB (programy), Windows.old 21,4 GB (narzędzie Windows, Windows usuwa go po około 10 dniach), hiberfil.sys 12,8 GB (powercfg /h off go usuwa, ale wyłącza hibernację), pagefile.sys 8,0 GB (zostaw).">
+            <figcaption>Każdy wiersz mówi, czym jest folder i co z nim zrobić. Konto pokazowe, więc nie widać prawdziwych nazw plików.</figcaption>
+        </figure>
+        <p>
+            Kliknięcie folderu wchodzi do środka, <b>Pokaż w Eksploratorze</b> go otwiera, a <b>Największe
+            pliki na dysku</b> wypisują dziesięć największych pojedynczych plików. Z tej listy nic nie jest
+            usuwane: analiza tylko wskazuje właściwe narzędzie.
+        </p>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-space-folder-pl.webp" width="736" height="550" loading="lazy" alt="Wnętrze konta użytkownika: AppData 52,3 GB, Pobrane 31,6 GB, Wideo 18,9 GB, Dokumenty 14,2 GB, Pulpit 6,1 GB, OneDrive 4,8 GB, każdy z wyjaśnieniem i przyciskiem Wyżej.">
+            <figcaption>W Twoim koncie zwykle najwięcej trzymają AppData, Pobrane i Wideo.</figcaption>
+        </figure>
+
+        <h2 id="duplicates">Duplikaty w Twoich folderach</h2>
+        <p>
+            <b>Duplikaty…</b> obok analizy dysku szuka tego samego pliku trzymanego więcej niż raz na Pulpicie,
+            w Dokumentach, Pobranych, Obrazach, Wideo i Muzyce, od 1 MB w górę. Pliki tej samej wielkości są
+            porównywane skrótem zawartości, więc kopia pod inną nazwą zostanie znaleziona, a inny plik o tej samej
+            nazwie nie. Foldery programów i AppData nie są czytane.
+        </p>
+        <p>
+            W każdej grupie <b>najstarsza kopia zostaje</b> i nie da się jej zaznaczyć, nic nie jest zaznaczone samo,
+            a zaznaczone kopie idą do <b>Kosza</b>, skąd można je przywrócić. Kliknij ścieżkę, żeby zobaczyć plik
+            w Eksploratorze przed decyzją. Gdy na dysku kończy się miejsce, hck_GPT mówi o tym raz i niczego nie usuwa.
+        </p>
+
+        <figure class="ft-shot">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/cleanup/duplicates-pl-600.webp 600w, /assets/images/features/cleanup/duplicates-pl-916.webp 916w" sizes="(min-width: 800px) 760px, 100vw">
+                <img src="/assets/images/features/cleanup/duplicates-pl-916.webp" width="916" height="628" alt="Duplikaty w Twoich folderach, konto pokazowe Ola: 5 grup, do odzyskania do 2,9 GB, 2948 plików w 66 s. W każdej grupie najstarsza kopia oznaczona zostaje; zaznaczone wideo z wakacji 1,5 GB w Pobranych i druga kopia instalatora; przycisk Do Kosza (2), zaznaczone 2,2 GB." loading="lazy">
+            </picture>
+            <figcaption>Duplikaty (konto pokazowe): najstarsza kopia zostaje, do Kosza idzie tylko to, co zaznaczysz.</figcaption>
+        </figure>
+
+        <h2 id="history">Wolne miejsce w czasie</h2>
+        <p>
+            „Znowu pełny dysk” ma swoją historię. PC Workman raz dziennie zapisuje wolne miejsce każdego dysku
+            i trzyma trzy lata takich zapisów, same liczby. Wykres pokazuje 30 dni, rok albo wszystko,
+            czyszczenia jako zielone kropki, a jedno zdanie czyta go za Ciebie:
+        </p>
+        <div class="callout">
+            <b>„Od 21 dni ubywa średnio 634,9 MB dziennie. W tym tempie dysk zapełni się za około 65 dni.”</b>
+        </div>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-history-pl.webp" width="736" height="201" loading="lazy" alt="Wolne miejsce na C: w czasie, wszystkie dni: powolny spadek, skok w górę przy czyszczeniu oznaczonym zieloną kropką, potem szybszy spadek do 40,4 GB wolnego z 476 GB.">
+            <figcaption>Czyszczenie zaczyna nowy odcinek, więc zwolnienie 11 GB nie wygląda jak „dysk rośnie”. Dane pokazowe.</figcaption>
+        </figure>
+        <p>
+            Gdy ubywa więcej niż 1 GB dziennie, hck_GPT mówi o tym pod skanem i odsyła do analizy, żeby
+            znaleźć rosnący folder. Zapytany o wolne miejsce, odpowiada trendem i trzema największymi
+            folderami z ostatniej analizy.
+        </p>
+
+        <h2 id="receipt">Paragon i składniki Windows</h2>
+        <p>
+            Każde czyszczenie kończy się paragonem: wolne miejsce przed i po na każdym dysku, który się
+            zmienił, na przykład <code>C: 41,2 GB &rarr; 52,3 GB wolnego</code>. Widać go pod Ostatnim
+            czyszczeniem i na wykresie historii. Gdy duże pliki z Pobranych trafiły do Kosza, paragon mówi,
+            że miejsce wróci dopiero po jego opróżnieniu, zamiast liczyć je jako zwolnione.
+        </p>
+        <p>
+            <b>Wyczyść składniki Windows</b> usuwa stare wersje składników Windows w WinSxS, zastąpione przez
+            nowsze aktualizacje. To samo Oczyszczanie dysku nazywa „Oczyszczaniem po aktualizacji”. Działa jako
+            <code>DISM /Online /Cleanup-Image /StartComponentCleanup</code>, tylko jako administrator i po
+            potwierdzeniu, z pomiarem zwolnionego miejsca. Nigdy z <code>/ResetBase</code>, czyli mocniejszym
+            wariantem.
+        </p>
+
+        <h2 id="tips">Co jeszcze przyspieszy komputer</h2>
+        <p>
+            Czyszczenie zwalnia miejsce. Rzadko przyspiesza Windows i Oczyszczanie mówi to wprost. Pod
+            wynikiem hck_GPT, asystent wbudowany w PC Workman, pisze porady z <em>tego</em> skanu: ile zajmują
+            pliki tymczasowe, kiedy warto czyścić pamięć shaderów, które programy zamknąć, żeby skan był pełny,
+            i gdzie leży prawdziwa szybkość, czyli w autostarcie i usługach w tle.
+        </p>
+        <figure class="ft-shot">
+            <img src="/assets/images/features/cleanup/cleanup-gpt-tips-pl.webp" width="736" height="325" loading="lazy" alt="Porady hck_GPT pod skanem: pliki tymczasowe zajmują 8,6 GB i to miejsce na dysku, nie szybkość; pamięć shaderów 867,9 MB czyść po zmianie sterownika; zamknij Edge i Operę GX przed następnym skanem; przyciski do Autostartu, Usług i Centrum optymalizacji.">
+            <figcaption>Porady podają liczby ze skanu i prowadzą do zakładek, które zmieniają czas startu.</figcaption>
+        </figure>
+
+        <h2 id="compare">PC Workman, Oczyszczanie dysku, Czujnik pamięci, CCleaner, BleachBit</h2>
+        <p>
+            Każde z tych narzędzi zwalnia miejsce. Różnią się tym, dokąd sięgają i czym ryzykują.
+        </p>
+        <div class="ft-table-wrap">
+            <table>
+                <thead>
+                    <tr><th></th><th>Oczyszczanie w PC Workman</th><th>Oczyszczanie dysku (cleanmgr)</th><th>Czujnik pamięci</th><th>CCleaner Free</th><th>BleachBit</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Pamięć Chrome, Edge, Firefoksa</td><td class="y">Tak, 7 przeglądarek, każdy profil</td><td class="n">Nie (tylko pliki Internet Explorera)</td><td class="n">Nie</td><td class="y">Tak</td><td class="y">Tak</td></tr>
+                    <tr><td>Pamięć Discorda, Steama, Spotify</td><td class="y">Tak</td><td class="n">Nie</td><td class="n">Nie</td><td class="p">Częściowo</td><td class="p">Częściowo</td></tr>
+                    <tr><td>Pamięć shaderów</td><td class="y">Tak, NVIDIA, AMD, DirectX</td><td class="p">Tylko DirectX</td><td class="n">Nie</td><td class="p">Zależnie od wersji</td><td class="p">Zależnie od wersji</td></tr>
+                    <tr><td>Lista plików przed usunięciem</td><td class="y">Tak, dla każdego miejsca</td><td class="n">Nie</td><td class="n">Nie</td><td class="p">Podsumowanie analizy</td><td class="y">Podgląd</td></tr>
+                    <tr><td>Pomija otwarte programy</td><td class="y">Tak, podaje który</td><td class="n">nie dotyczy</td><td class="n">nie dotyczy</td><td class="y">Prosi o zamknięcie</td><td class="p">Niektóre moduły</td></tr>
+                    <tr><td>Zostawia świeże pliki</td><td class="y">Ostatnie 24 godziny</td><td class="y">Pliki tymczasowe poniżej 7 dni</td><td class="p">Ustawiasz sam</td><td class="p">Zależy</td><td class="p">Zależy</td></tr>
+                    <tr><td>Czyszczenie rejestru</td><td class="y">Nigdy</td><td class="y">Nigdy</td><td class="y">Nigdy</td><td class="n">Tak</td><td class="y">Nie</td></tr>
+                    <tr><td>Działa według harmonogramu</td><td class="n">Nie, tylko na Twoje żądanie</td><td class="n">Nie</td><td class="y">Tak</td><td class="p">Wersja płatna</td><td class="n">Nie</td></tr>
+                    <tr><td>Mówi, czym jest każdy duży folder</td><td class="y">Tak, z tym, co zrobić</td><td class="n">Nie</td><td class="p">Tylko kategorie</td><td class="p">Rozmiary wg typu plików</td><td class="n">Nie</td></tr>
+                    <tr><td>Historia wolnego miejsca i prognoza</td><td class="y">Tak, 3 lata, każdy dysk</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Shadery Steama per gra</td><td class="y">Tak, z nazwą gry</td><td class="n">Nie</td><td class="n">Nie</td><td class="p">Zależnie od wersji</td><td class="p">Zależnie od wersji</td></tr>
+                    <tr><td>Czyszczenie składników Windows</td><td class="y">Tak, jako administrator</td><td class="y">Tak</td><td class="p">W Plikach tymczasowych</td><td class="p">Zależnie od wersji</td><td class="p">Zależnie od wersji</td></tr>
+                    <tr><td>Cena i kod</td><td class="y">Za darmo, otwarty kod</td><td class="y">Wbudowane w Windows</td><td class="y">Wbudowany w Windows</td><td class="p">Darmowy i płatny, zamknięty</td><td class="y">Za darmo, otwarty kod</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            <b>W czym inni są lepsi.</b> Czujnik pamięci działa sam według harmonogramu, a PC Workman nie.
+            BleachBit sięga do większej liczby programów i potrafi też wymazać historię, ciasteczka i wolne
+            miejsce, więc to właściwe narzędzie, jeśli chodzi Ci o prywatność. CCleaner obsługuje długą listę
+            aplikacji.
+        </p>
+        <p>
+            <b>Dlaczego zaufanie ma tu znaczenie.</b> Program do czyszczenia usuwa pliki, więc potrzebuje
+            więcej zaufania niż większość programów. W 2020 roku Microsoft Defender zaczął oznaczać instalatory
+            CCleanera jako potencjalnie niechcianą aplikację z powodu dołączanych ofert, a czyszczenia rejestru,
+            które CCleaner zawiera, Microsoft nie wspiera. Oczyszczanie w PC Workman to niecałe 400 linii
+            <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/cleanup.py" target="_blank" rel="noopener">otwartego kodu</a>,
+            który każdy może przeczytać przed uruchomieniem.
+        </p>
+
+        <h2 id="others">Microsoft PC Manager i Glary Utilities</h2>
+        <p>
+            <b>Microsoft PC Manager</b> jest darmowy, od Microsoftu, z przyciskiem Boost, narzędziami do
+            miejsca na dysku i wyszukiwaniem dużych i powtórzonych plików. Boost głównie kończy procesy w tle
+            i czyści pliki tymczasowe: w teście PCMag obniżył zużycie pamięci o około 5% i podniósł wynik
+            PCMark 10 o 9 punktów (<a href="https://windowsforum.com/windows-news.4/microsoft-pc-manager-review-one-click-boost-cleanup-and-real-world-gains.398266/" target="_blank" rel="noopener">omówienie testu</a>).
+            PC Workman mierzy zamiast obiecywać: paragon z wolnym miejscem przed i po oraz historia, która
+            pokazuje, czy dysk znowu się zapełnia.
+        </p>
+        <p>
+            <b>Glary Utilities</b> mieści dużo w jednym oknie, a jego 1-Click Maintenance czyści naraz śmieci,
+            ślady prywatności i rejestr (<a href="https://www.techradar.com/reviews/glary-utilities" target="_blank" rel="noopener">TechRadar</a>).
+            PC Workman celowo trzyma się z dala od rejestru i pyta przed każdym czyszczeniem, podając kwotę.
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy usunięcie plików tymczasowych przyspieszy komputer?</summary>
+                <p>Zwykle nie samo w sobie. Pliki tymczasowe zajmują miejsce, a nie szybkość. Czyszczenie pomaga, gdy dysk systemowy jest prawie pełny, bo aktualizacje Windows, instalatory i gry potrzebują wolnego miejsca i na pełnym dysku się wysypują. Na szybkość bardziej wpływają programy w autostarcie i usługi w tle.</p>
+            </details>
+            <details>
+                <summary>Czy można usunąć pamięć podręczną shaderów?</summary>
+                <p>Tak. Gra zbuduje shadery od nowa przy następnym uruchomieniu, więc pierwszy start może ładować się dłużej albo chwilę przycinać. Czyść ją po zmianie sterownika karty albo gdy gra pokazuje błędy grafiki, a nie codziennie.</p>
+            </details>
+            <details>
+                <summary>Czy wyczyszczenie pamięci przeglądarki wyloguje mnie ze stron?</summary>
+                <p>Nie. Usuwana jest tylko pamięć stron (foldery Cache, Code Cache i GPUCache). Ciasteczka, zapisane hasła, historia i dane formularzy zostają, więc nadal jesteś zalogowany.</p>
+            </details>
+            <details>
+                <summary>Dlaczego PC Workman nie czyści rejestru?</summary>
+                <p>Microsoft nie wspiera programów do czyszczenia rejestru i ostrzega, że mogą spowodować poważne problemy (<a href="https://support.microsoft.com/kb/2563254" target="_blank" rel="noopener">KB2563254</a>). Pozostałości w rejestrze zajmują prawie nic i nie spowalniają Windows, więc ryzyko niczego nie daje.</p>
+            </details>
+            <details>
+                <summary>Co jeśli Discord albo przeglądarka są otwarte?</summary>
+                <p>To miejsce zostaje pominięte, a lista podaje nazwę programu. Działający program trzyma swoją pamięć podręczną w użyciu i usuwanie jej spod niego może popsuć mu działanie. Zamknij go i naciśnij „Skanuj ponownie”.</p>
+            </details>
+            <details>
+                <summary>Co zajmuje miejsce na dysku C:?</summary>
+                <p>Zwykle Twoje pliki (Pobrane, Wideo), dane programów w AppData, gry, folder Windows, plik hibernacji i plik stronicowania. <a href="#space">Analizuj dysk C:</a> przegląda cały dysk w około minutę, tylko do odczytu, i mówi, czym jest każdy duży folder i plik i czy można go usunąć.</p>
+            </details>
+            <details>
+                <summary>Czy można usunąć WinSxS, Windows.old albo hiberfil.sys?</summary>
+                <p>Nie ręcznie i nie wszystkie. WinSxS: nigdy ręcznie, stare wersje bezpiecznie zwalnia czyszczenie składników. Windows.old: Windows usuwa go sam po około 10 dniach albo wcześniej w Ustawienia &gt; System &gt; Magazyn &gt; Pliki tymczasowe, ale potem nie wrócisz do starej wersji. hiberfil.sys: <code>powercfg /h off</code> go usuwa, ale wyłącza też hibernację i szybkie uruchamianie.</p>
+            </details>
+            <details>
+                <summary>Czy da się odzyskać usunięte pliki?</summary>
+                <p>Pliki tymczasowe i pamięć podręczna znikają na dobre, bo Windows i programy odtwarzają je same. Duże pliki z Pobranych trafiają do Kosza, więc można je przywrócić. Opróżnienia Kosza nie da się cofnąć, dlatego nigdy nie jest zaznaczony za Ciebie.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Oczyszczanie</b>. Możesz też zapytać hck_GPT „jak zwolnić miejsce na dysku”, a odpowiedź poprowadzi prosto do zakładki.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/cleanup">Otwórz Oczyszczanie w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/guides/which-startup-apps-can-i-disable/index_pl.html">Które programy z autostartu można wyłączyć?</a></li>
+                <li><a href="/guides/why-is-my-disk-at-100-percent/index_pl.html">Dlaczego dysk ma 100% w Windows?</a></li>
+                <li><a href="/guides/pc-slow-but-task-manager-looks-normal/index_pl.html">Komputer zwalnia, a Menedżer zadań wygląda normalnie?</a></li>
+                <li><a href="/guides/windows-processes/index_pl.html">Lista procesów Windows: co robi każdy proces</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Zrzuty czyszczenia są z mojego komputera: 8,8 GB w jednym folderze TEMP, po instalatorach, które nie posprzątały po sobie. Analiza dysku i historia pokazują konto pokazowe, żeby nie było widać prywatnych nazw plików.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

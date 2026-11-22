@@ -1,0 +1,294 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: pc-map (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Mapa PC rysuje Twój komputer jako stacjonarny albo laptop z prawdziwymi częściami: procesorem, kartą graficzną, każdą kością RAM, dyskami NVMe i SATA, sekcją zasilania, zasilaczem i płytą, w kolorach temperatury teraz albo średniej z 7 dni. Najedź na część po szczegóły, kliknij po historię.">
+    <meta name="keywords" content="co jest w moim komputerze, temperatura podzespołów komputera, mapa sprzętu PC, która część komputera się grzeje, sprawdzić podzespoły Windows 11, alternatywa raportu AIDA64, wizualny monitor komputera">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/pc-map/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/pc-map/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/pc-map/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/pc-map/">
+    <meta property="og:title" content="Mapa PC: Twoje podzespoły na jednym rysunku, w kolorach tego, jak się grzeją">
+    <meta property="og:description" content="Stacjonarny albo laptop, każda część na swoim miejscu, kolory teraz albo średniej z 7 dni, historia jedno kliknięcie dalej. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/pc-map/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/pc-map/pc-map-pl-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Mapa PC: Twoje podzespoły na rysunku, w kolorach temperatury</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Mapa PC: Twoje podzespoły na rysunku, w kolorach temperatury",
+  "description": "Jak PC Workman rysuje komputer z części, które w nim znajduje, co znaczą kolory i jak mapa łączy każdą część z jej historią.",
+  "url": "https://pcworkman.dev/features/pc-map/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/pc-map/pc-map-pl-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/components/pc_map_scene.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Rysunek komputera stacjonarnego albo laptopa z części znalezionych w komputerze",
+      "Procesor, karta graficzna, każda kość RAM, dyski NVMe i SATA, VRM, zasilacz, płyta",
+      "Kolory temperatury teraz albo średniej z 7 dni",
+      "Karta ze szczegółami części po najechaniu",
+      "Kliknięcie części otwiera jej historię w Activity Memory"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Mapa PC",
+      "item": "https://pcworkman.dev/features/pc-map/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak zobaczyć, co jest w komputerze, bez otwierania obudowy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Otwórz Mój PC › Mapa w PC Workman: rysuje procesor, kartę graficzną, każdą kość RAM, dyski i płytę, które znajduje, i wypisuje ich modele obok rysunku."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Która część komputera grzeje się najbardziej?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Przełącz mapę na średnią z 7 dni: część, która jest ciepła przez większość czasu, robi się czerwona, a nie tylko ta, która raz skoczyła. Najedź na nią po liczby."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy działa na laptopie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tak. PC Workman rysuje laptopa, gdy znajdzie baterię, a kartę graficzną pokazuje tylko wtedy, gdy jest osobna."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/pc-map/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/pc-map/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Mapa PC</span>
+        <h1>Twój komputer na jednym rysunku, w kolorach tego, jak się grzeje</h1>
+        <p class="tagline">Mapa PC rysuje Twój komputer z części, które PC Workman w nim znajduje: procesora, karty graficznej, każdej kości RAM, dysków NVMe i SATA, zasilacza i płyty. Kolory pokazują temperaturę teraz albo średnią z 7 dni, a każda część otwiera swoją historię.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>2</b><span>rysunki: stacjonarny i laptop</span></div>
+            <div class="ft-fact"><b>2</b><span>tryby kolorów: teraz, średnia 7 dni</span></div>
+            <div class="ft-fact"><b>1 klik</b><span>od części do jej historii</span></div>
+            <div class="ft-fact"><b>0</b><span>konfiguracji</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/pc-map/pc-map-pl-600.webp 600w, /assets/images/features/pc-map/pc-map-pl-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/pc-map/pc-map-pl-1095.webp" width="1095" height="540" alt="Mapa PC komputera stacjonarnego narysowana w 3D: płyta, procesor, sekcja zasilania VRM, RAM, karta graficzna, dysk NVMe, dwa dyski SATA i zasilacz, każde z etykietą. Panel Ten komputer: Intel Core i5-12400F 12. generacji, NVIDIA GeForce RTX 3050, 8 GB RAM (1 x 8 GB), płyta MSI PRO B760M-E DDR4, dyski NVMe 1000 GB oraz SATA 240 GB i 2000 GB, oraz tabela temperatur i obciążenia teraz, średnia i maksimum z 7 dni." fetchpriority="high">
+            </picture>
+            <figcaption>Mapa PC mojego komputera: jedna kość RAM, jeden NVMe i dwa dyski SATA, narysowane tak, jak są, a nie z szablonu.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#draw">Narysowana z tego, co naprawdę jest w środku</a></li>
+                <li><a href="#colours">Kolory, które coś znaczą</a></li>
+                <li><a href="#history">Od części do jej historii</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="draw">Narysowana z tego, co naprawdę jest w środku</h2>
+        <p>
+            Mapa nie jest gotowym obrazkiem. PC Workman sprawdza, ile jest kości RAM, czy jest karta graficzna i które
+            dyski siedzą na NVMe, a które na SATA, i rysuje je na swoich miejscach na płycie komputera stacjonarnego
+            albo w laptopie. Mój komputer ma jedną kość 8 GB, więc mapa pokazuje jedną kość.
+        </p>
+        <p>
+            Panel obok wypisuje <b>Ten komputer</b>: procesor, kartę graficzną, pamięć z układem kości, płytę i dyski,
+            a do tego tabelę <b>temperatur i obciążenia</b>: teraz, średnia z 7 dni i maksimum z 7 dni, jedna
+            jednostka na wiersz.
+        </p>
+
+        <h2 id="colours">Kolory, które coś znaczą</h2>
+        <p>
+            <b>Teraz</b> koloruje każdą część według temperatury w tej sekundzie, od chłodnego niebieskiego do gorącej
+            czerwieni. <b>Średnia z 7 dni</b> koloruje według tego, jak część zwykle pracuje, więc widać tę, która jest
+            ciepła cały czas, a nie tę, która raz skoczyła. Po najechaniu na część karta mówi, czym jest i jak się
+            czuje, ustawiona po stronie z dala od części, żeby jej nie zasłaniać.
+        </p>
+
+        <h2 id="history">Od części do jej historii</h2>
+        <p>
+            Kliknij procesor, kartę graficzną albo pamięć, a otworzy się <a href="/features/time-travel/index_pl.html">Activity
+            Memory</a> dla tej części: obciążenie i temperatura w godzinach, dniach albo miesiącach i procesy, które za tym stoją.
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Jak zobaczyć, co jest w komputerze, bez otwierania obudowy?</summary>
+                <p>Otwórz Mój PC &rsaquo; Mapa w PC Workman: rysuje procesor, kartę graficzną, każdą kość RAM, dyski i płytę, które znajduje, i wypisuje ich modele obok rysunku.</p>
+            </details>
+            <details>
+                <summary>Która część komputera grzeje się najbardziej?</summary>
+                <p>Przełącz mapę na średnią z 7 dni: część, która jest ciepła przez większość czasu, robi się czerwona, a nie tylko ta, która raz skoczyła. Najedź na nią po liczby.</p>
+            </details>
+            <details>
+                <summary>Czy działa na laptopie?</summary>
+                <p>Tak. PC Workman rysuje laptopa, gdy znajdzie baterię, a kartę graficzną pokazuje tylko wtedy, gdy jest osobna.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Mapa</b> albo plakietka PC na górze Mój PC.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/your_pc">Otwórz Mój PC w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/time-travel/index_pl.html">Activity Memory: historia, do której można wrócić</a></li>
+                <li><a href="/features/deepmonitor/index_pl.html">DeepMonitor: monitor sprzętu, który tłumaczy odczyty</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Mapa to mój komputer, z jedną kością RAM włącznie; Upgrade Readiness od miesięcy podpowiada mi drugą.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

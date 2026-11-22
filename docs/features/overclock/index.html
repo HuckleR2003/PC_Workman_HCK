@@ -1,0 +1,291 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: overclock (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman&#x27;s Overclock Headroom Lab never writes a clock or a voltage. It measures what limits your CPU and graphics card right now (temperature, power or nothing), shows clock against boost, power against budget and temperature against throttle territory, and learns per workload.">
+    <meta name="keywords" content="what limits my CPU clock, thermal throttling or power limit, CPU headroom check, GPU power limit check, is my CPU throttling, overclocking headroom, MSI Afterburner before overclock">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/overclock/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overclock/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overclock/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overclock/">
+    <meta property="og:title" content="Overclock Headroom Lab: is it heat or power that holds your clocks back?">
+    <meta property="og:description" content="Read only: clock against boost, power against budget, temperature against throttling, with a verdict. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/overclock/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/overclock/overclock-en-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Overclock Headroom Lab: What Limits Your Clocks, Read Only</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Overclock Headroom Lab: what limits your clocks",
+  "description": "What PC Workman's read-only Overclock Headroom Lab measures, how it decides between a thermal limit, a power limit and headroom, and why it never changes a setting.",
+  "url": "https://pcworkman.dev/features/overclock/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/overclock/overclock-en-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/pages/overclock_lab.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Read only: never writes clocks, voltages or power limits",
+      "Clock against boost, power against budget, temperature against throttle territory",
+      "Limiting factor verdict: thermal, power, headroom or idle",
+      "Averages learned for idle, medium, heavy and gaming load",
+      "Live FPS next to power when RTSS runs"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Overclock Headroom Lab",
+      "item": "https://pcworkman.dev/features/overclock/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is my CPU thermal throttling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run a game or a render and open Headroom Lab: if the verdict is thermal-limited, the CPU is slowing down because of heat and better cooling or a cleaner cooler gives speed back."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does PC Workman overclock?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, never. Headroom Lab is read only. It tells you whether there is room, and the overclocking itself is up to tools like MSI Afterburner or Intel XTU."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does power-limited mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The part is at its power budget before it gets hot. More speed would need a higher power limit, which on many laptops cannot be changed."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/overclock/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/overclock/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Overclock Headroom Lab</span>
+        <h1>Is it heat or power that holds your clocks back?</h1>
+        <p class="tagline">Before you open an overclocking tool, find out what limits you now. Headroom Lab measures the CPU and graphics card under load and gives one verdict: thermal limit, power limit, or headroom left. It is read only by design and never touches a clock or a voltage.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>0</b><span>settings written, ever</span></div>
+            <div class="ft-fact"><b>3</b><span>stats per part: clock, power, temperature</span></div>
+            <div class="ft-fact"><b>1</b><span>verdict: thermal, power or headroom</span></div>
+            <div class="ft-fact"><b>4</b><span>workloads learned</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/overclock/overclock-en-600.webp 600w, /assets/images/features/overclock/overclock-en-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/overclock/overclock-en-1095.webp" width="1095" height="317" alt="Overclock Headroom Lab while a game runs: limiting factor Headroom available. CPU clock 4380 of 4400 MHz, power 58 of 117 W, 71 of 95 °C, load 46%, Vcore 1.212 V. GPU load 97%, power 112 of 130 W, 68 of 83 °C, VRAM 71%, core clock 1867 MHz, memory clock 7001 MHz." fetchpriority="high">
+            </picture>
+            <figcaption>What holds the clocks back, read-only (demo values of a game session).</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#measure">What it measures</a></li>
+                <li><a href="#verdict">One verdict</a></li>
+                <li><a href="#why">Why read only</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="measure">What it measures</h2>
+        <ul>
+            <li><b>Clock against boost:</b> how close the CPU and the graphics card run to their maximum clock.</li>
+            <li><b>Power against budget:</b> package power against the limit (TDP/PL2) and board power against TDP on the card.</li>
+            <li><b>Temperature against throttle territory:</b> how far each part is from the point where it slows down.</li>
+            <li><b>Live load, voltage and the session peak</b> next to them, in Afterburner-style segmented bars.</li>
+        </ul>
+
+        <h2 id="verdict">One verdict</h2>
+        <p>
+            The <b>limiting factor</b> reads all of that and says one thing: <i>thermal-limited</i> (better cooling
+            gives more), <i>power-limited</i> (the power budget is the wall), <i>headroom</i> (neither is reached), or
+            <i>idle</i> (nothing under load to measure, start a game or a render). Below it, what PC Workman learns:
+            averages for idle, medium, heavy and gaming load from the history.
+        </p>
+
+        <h2 id="why">Why read only</h2>
+        <p>
+            A wrong voltage can cost a CPU. PC Workman never writes clocks, voltages or power limits; it measures and
+            explains, and leaves the changes to the tools built for them. With RTSS running, a corner shows live FPS
+            next to the power draw, so you see efficiency, not only speed.
+        </p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Is my CPU thermal throttling?</summary>
+                <p>Run a game or a render and open Headroom Lab: if the verdict is thermal-limited, the CPU is slowing down because of heat and better cooling or a cleaner cooler gives speed back.</p>
+            </details>
+            <details>
+                <summary>Does PC Workman overclock?</summary>
+                <p>No, never. Headroom Lab is read only. It tells you whether there is room, and the overclocking itself is up to tools like MSI Afterburner or Intel XTU.</p>
+            </details>
+            <details>
+                <summary>What does power-limited mean?</summary>
+                <p>The part is at its power budget before it gets hot. More speed would need a higher power limit, which on many laptops cannot be changed.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>OVERCLOCK &rsaquo; Headroom Lab</b> in the side menu. Start a game or a render first, so there is load to measure.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/overclock">Open Headroom Lab in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/features/learning/">Monitoring &amp; Learning</a></li>
+                <li><a href="/features/deepmonitor/">DeepMonitor</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The page is read only because the cheapest overclock to recover from is the one you measured first.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

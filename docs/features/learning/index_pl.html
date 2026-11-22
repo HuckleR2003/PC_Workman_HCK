@@ -1,0 +1,317 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: learning (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman uczy się, co jest normalne dla Twojego komputera w spoczynku, przy lekkim, średnim i ciężkim obciążeniu i w grach, ocenia każdą temperaturę względem tej normy zamiast stałego progu i pilnuje dryfu napięć metodą statystycznej kontroli procesu.">
+    <meta name="keywords" content="czy 82 stopnie to dużo dla procesora, normalna temperatura CPU pod obciążeniem, normalna temperatura karty w grach, alerty temperatur komputera, dryf napięć, inteligentny monitoring temperatur, wynik zdrowia komputera">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/learning/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/learning/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/learning/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/learning/">
+    <meta property="og:title" content="Monitoring &amp; Learning: czy 82 °C to dużo? Zależy od obciążenia i od tego komputera">
+    <meta property="og:description" content="Norma temperatur wyuczona dla każdego obciążenia, alerty porównujące podobne z podobnym i wczesne wykrywanie dryfu napięć. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/learning/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/learning/learning-pl-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monitoring &amp; Learning: alerty względem normy Twojego komputera</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Monitoring & Learning: alerty względem normy Twojego komputera",
+  "description": "Jak PC Workman uczy się normy temperatur dla każdego rodzaju obciążenia, dlaczego to lepsze od stałego progu, jak pilnuje dryfu napięć i co znaczy wynik zdrowia.",
+  "url": "https://pcworkman.dev/features/learning/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/learning/learning-pl-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/thermal_baseline.py",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/voltage_analyzer.py",
+    "https://en.wikipedia.org/wiki/Statistical_process_control"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Norma temperatur wyuczona dla każdego obciążenia: spoczynek, lekkie, średnie, ciężkie, gry",
+      "Alerty porównują odczyt z normą dla tego samego obciążenia",
+      "Wykrywanie dryfu napięć metodą statystycznej kontroli procesu",
+      "Wynik zdrowia z częściami termika, pamięć, obciążenie",
+      "Linki Time Travel do historii stojącej za normą"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Monitoring & Learning",
+      "item": "https://pcworkman.dev/features/learning/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Czy 82 °C to za dużo dla procesora?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pod obciążeniem zwykle nie: wiele procesorów zwalnia, żeby się chronić, dopiero około 95 do 100 °C. Gdy nic nie działa, wskazuje na problem z chłodzeniem. PC Workman porównuje odczyt z normą tego komputera przy tym samym obciążeniu."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jaka temperatura karty graficznej w grach jest normalna?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dla większości kart gdzieś między 60 a 80 °C, zależnie od chłodzenia i obudowy. Na moim komputerze wyuczony zakres w grach to 59 do 72 °C. Liczy się zmiana: karta, która miała 70 °C, a teraz w tej samej grze ma 85 °C, potrzebuje czyszczenia."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Ile trwa nauka?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Typowe obciążenia są skalibrowane po kilku dniach normalnego używania. Mój komputer doszedł do 100% po 148 godzinach obserwacji. Rzadkie obciążenia uczą się dalej przy okazji."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dlaczego pisze, że potrzebuje LibreHardwareMonitor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Windows nie udostępnia programom temperatury procesora i napięć bezpośrednio. PC Workman czyta je z LibreHardwareMonitor działającego w tle; temperatura kart NVIDIA działa bez niego."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/learning/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/learning/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Monitoring & Learning</span>
+        <h1>Czy 82 °C to dużo? Zależy od obciążenia i od tego komputera</h1>
+        <p class="tagline">Stały próg nie odróżni gorącej gry od gorącego pustego pulpitu. Monitoring & Learning uczy się, co jest normalne dla Twojego komputera przy każdym rodzaju obciążenia, ocenia każdy odczyt względem tego i pilnuje powolnego dryfu napięć, którego stały próg nie zauważy.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>5</b><span>obciążeń, każde z własną normą</span></div>
+            <div class="ft-fact"><b>100%</b><span>nauczone po 148 h na moim PC</span></div>
+            <div class="ft-fact"><b>SPC</b><span>wykrywanie dryfu napięć</span></div>
+            <div class="ft-fact"><b>72</b><span>wynik zdrowia, z częściami</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/learning/learning-pl-600.webp 600w, /assets/images/features/learning/learning-pl-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/learning/learning-pl-1095.webp" width="1095" height="530" alt="Centrum Monitoring &amp; Learning: aktywne, 2360 punktów danych, wynik zdrowia 72 z częściami termika 90, pamięć 70, obciążenie 55, brak anomalii. Czego nauczył się PC Workman: temperatura karty graficznej dla każdego obciążenia, bezczynny 39 do 56 °C skalibrowany, lekkie 45 do 61 °C skalibrowane, średnie uczy się, ciężkie start, granie 59 do 72 °C podstawowy; napięcia wymagają LibreHardwareMonitor; 100% nauczone, 148,2 h obserwacji." fetchpriority="high">
+            </picture>
+            <figcaption>Monitoring &amp; Learning na moim komputerze: norma dla każdego obciążenia i wynik zdrowia z trzema częściami.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#norm">Norma dla każdego rodzaju obciążenia</a></li>
+                <li><a href="#alerts">Alerty porównujące podobne z podobnym</a></li>
+                <li><a href="#volts">Napięcia: powolny dryf, złapany wcześnie</a></li>
+                <li><a href="#score">Wynik zdrowia</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="norm">Norma dla każdego rodzaju obciążenia</h2>
+        <p>
+            PC Workman zapisuje każdy odczyt razem z obciążeniem w tej chwili i przypisuje go do jednego z pięciu
+            rodzajów obciążenia: <b>spoczynek, lekkie, średnie, ciężkie i gry</b>. Dla każdego uczy się zakresu normy.
+            Na moim komputerze dla karty graficznej: spoczynek 39 do 56 °C, lekkie 45 do 61 °C, gry 59 do 72 °C.
+        </p>
+        <p>
+            Każde obciążenie pokazuje, jak daleko zaszło: <i>start</i>, <i>uczy się</i>, <i>podstawowy</i>,
+            <i>skalibrowany</i>. Obciążenia, których ten komputer prawie nie zna, uczą się przy okazji i są pokazane
+            osobno, żeby komputer, który prawie nigdy nie pracuje ciężko, nie stał w „uczy się” na zawsze.
+        </p>
+
+        <h2 id="alerts">Alerty porównujące podobne z podobnym</h2>
+        <p>
+            Alert porównuje odczyt z normą dla <b>tego samego</b> rodzaju obciążenia. 75 °C w grze, w zakresie gier,
+            jest w porządku; 75 °C na pustym pulpicie nie jest i to zostaje oznaczone, z linijką wyjaśnienia. Im mniej
+            fałszywych alarmów, tym więcej znaczą prawdziwe.
+        </p>
+
+        <h2 id="volts">Napięcia: powolny dryf, złapany wcześnie</h2>
+        <p>
+            Zasilacz rzadko umiera w sekundę. Jego szyna 12 V co miesiąc opada trochę bardziej. Statystyczna kontrola
+            procesu, metoda, którą fabryki łapią maszynę rozjeżdżającą się z ustawień, uczy się normalnego rozrzutu
+            każdej szyny i oznacza odczyt albo trend, który z niego wychodzi, długo zanim zrobiłby to stały próg.
+            Napięcia pochodzą z LibreHardwareMonitor działającego w tle.
+        </p>
+
+        <h2 id="score">Wynik zdrowia</h2>
+        <p>
+            Na górze strony jest <b>wynik zdrowia</b> z częściami (termika, pamięć, obciążenie) i liczbą anomalii,
+            a przyciski <b>Time Travel</b> prowadzą do historii stojącej za tym, czego się nauczył.
+            <a href="/features/health-report/index_pl.html">Raport zdrowia</a> zamienia te same dane w stronę do zapisania.
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Czy 82 °C to za dużo dla procesora?</summary>
+                <p>Pod obciążeniem zwykle nie: wiele procesorów zwalnia, żeby się chronić, dopiero około 95 do 100 °C. Gdy nic nie działa, wskazuje na problem z chłodzeniem. PC Workman porównuje odczyt z normą tego komputera przy tym samym obciążeniu.</p>
+            </details>
+            <details>
+                <summary>Jaka temperatura karty graficznej w grach jest normalna?</summary>
+                <p>Dla większości kart gdzieś między 60 a 80 °C, zależnie od chłodzenia i obudowy. Na moim komputerze wyuczony zakres w grach to 59 do 72 °C. Liczy się zmiana: karta, która miała 70 °C, a teraz w tej samej grze ma 85 °C, potrzebuje czyszczenia.</p>
+            </details>
+            <details>
+                <summary>Ile trwa nauka?</summary>
+                <p>Typowe obciążenia są skalibrowane po kilku dniach normalnego używania. Mój komputer doszedł do 100% po 148 godzinach obserwacji. Rzadkie obciążenia uczą się dalej przy okazji.</p>
+            </details>
+            <details>
+                <summary>Dlaczego pisze, że potrzebuje LibreHardwareMonitor?</summary>
+                <p>Windows nie udostępnia programom temperatury procesora i napięć bezpośrednio. PC Workman czyta je z LibreHardwareMonitor działającego w tle; temperatura kart NVIDIA działa bez niego.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Monitoring &amp; Learning</b> w menu bocznym. Zapytaj hck_GPT „czy temperatura jest w normie”, a dostaniesz tę samą odpowiedź w czacie.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/monitoring_alerts">Otwórz Monitoring &amp; Learning</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/deepmonitor/index_pl.html">DeepMonitor: monitor sprzętu, który tłumaczy odczyty</a></li>
+                <li><a href="/features/time-travel/index_pl.html">Activity Memory: historia, do której można wrócić</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Karta na tej stronie jest z mojego komputera po 137 dniach; 148 godzin z nich to prawdziwa praca i z niej wyuczona jest norma.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

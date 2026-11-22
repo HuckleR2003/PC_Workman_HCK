@@ -1,0 +1,317 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: learning (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman learns what is normal for your PC under idle, light, medium, heavy and gaming load, judges every temperature against that norm instead of a fixed threshold, and watches voltages for slow drift with statistical process control.">
+    <meta name="keywords" content="is 82 C normal for CPU, normal CPU temperature under load, normal GPU temperature gaming, PC temperature alerts, voltage drift detection, smart temperature monitoring, health score PC">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/learning/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/learning/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/learning/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/learning/">
+    <meta property="og:title" content="Monitoring &amp; Learning: is 82 °C a lot? Depends on the load, and on this PC">
+    <meta property="og:description" content="A temperature norm learned per workload, alerts that compare like with like, and voltage drift caught early. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/learning/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/learning/learning-en-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Monitoring &amp; Learning: Alerts Against Your PC&#x27;s Own Normal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Monitoring & Learning: alerts against your PC's own normal",
+  "description": "How PC Workman learns a temperature norm for each kind of load, why that beats a fixed threshold, how it watches voltages for drift, and what the health score means.",
+  "url": "https://pcworkman.dev/features/learning/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/learning/learning-en-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/thermal_baseline.py",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/voltage_analyzer.py",
+    "https://en.wikipedia.org/wiki/Statistical_process_control"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Temperature norm learned per workload: idle, light, medium, heavy, gaming",
+      "Alerts compare a reading with the norm for the same load",
+      "Voltage drift detection with statistical process control",
+      "Health score with thermal, memory and load parts",
+      "Time Travel links to the history behind the norm"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Monitoring & Learning",
+      "item": "https://pcworkman.dev/features/learning/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is 82 °C too hot for a CPU?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under load usually not: many CPUs slow down to protect themselves only around 95 to 100 °C. With nothing running, it points to a cooling problem. PC Workman compares the reading with this PC's norm under the same load."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a normal GPU temperature while gaming?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For most cards somewhere between 60 and 80 °C, depending on the cooler and the case. On my PC the learned gaming range is 59 to 72 °C. What matters is the change: a card that ran 70 °C and now runs 85 °C in the same game needs cleaning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does learning take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The common loads are calibrated after a few days of normal use. My PC reached 100% after 148 hours observed. Rare loads keep learning along the way."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it say it needs LibreHardwareMonitor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Windows does not give the CPU temperature and voltages to programs directly. PC Workman reads them from LibreHardwareMonitor running in the background; the graphics card temperature on NVIDIA works without it."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/learning/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/learning/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Monitoring & Learning</span>
+        <h1>Is 82 °C a lot? It depends on the load, and on this PC</h1>
+        <p class="tagline">A fixed threshold cannot tell a hot game from a hot idle desktop. Monitoring & Learning learns what is normal for your PC under each kind of load, judges every reading against that, and watches voltages for the slow drift a fixed limit misses.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>5</b><span>workloads, each with its own norm</span></div>
+            <div class="ft-fact"><b>100%</b><span>learned after 148 h on my PC</span></div>
+            <div class="ft-fact"><b>SPC</b><span>voltage drift detection</span></div>
+            <div class="ft-fact"><b>72</b><span>health score, with its parts</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/learning/learning-en-600.webp 600w, /assets/images/features/learning/learning-en-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/learning/learning-en-1095.webp" width="1095" height="530" alt="Monitoring and Learning centre: active, 2,360 data points, health score 72 with thermal 90, memory 70, load 55, no anomalies. What PC Workman has learned: graphics card temperature per workload, idle 39 to 56 °C calibrated, light 45 to 61 °C calibrated, medium learning, heavy initializing, gaming 59 to 72 °C basic; voltage baselines need LibreHardwareMonitor; 100% learned, 148.2 hours observed." fetchpriority="high">
+            </picture>
+            <figcaption>Monitoring &amp; Learning on my PC: a norm for each kind of load, and the health score with its three parts.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#norm">A norm for each kind of load</a></li>
+                <li><a href="#alerts">Alerts that compare like with like</a></li>
+                <li><a href="#volts">Voltages: slow drift, caught early</a></li>
+                <li><a href="#score">The health score</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="norm">A norm for each kind of load</h2>
+        <p>
+            PC Workman saves every reading together with the load at that moment and sorts it into five kinds of
+            load: <b>idle, light, medium, heavy and gaming</b>. For each it learns a normal range. On my PC, for
+            the graphics card: idle 39 to 56 °C, light 45 to 61 °C, gaming 59 to 72 °C.
+        </p>
+        <p>
+            Each kind of load shows how far it got: <i>initializing</i>, <i>learning</i>, <i>basic</i>,
+            <i>calibrated</i>. Loads this PC rarely sees are learned along the way and shown apart, so a PC that
+            almost never runs heavy work is not stuck at "learning" for ever.
+        </p>
+
+        <h2 id="alerts">Alerts that compare like with like</h2>
+        <p>
+            An alert compares a reading with the norm for the <b>same</b> kind of load. 75 °C in a game inside the
+            gaming range is fine; 75 °C on an idle desktop is not, and that one gets flagged, with a line on why.
+            The fewer false alarms, the more the real ones mean.
+        </p>
+
+        <h2 id="volts">Voltages: slow drift, caught early</h2>
+        <p>
+            A power supply rarely dies in one second. Its 12 V rail sags a little more every month. Statistical
+            process control, the method factories use to catch a machine going out of tune, learns the normal
+            spread of each rail and flags a reading or a trend that leaves it, long before a fixed limit would.
+            Voltages come from LibreHardwareMonitor running in the background.
+        </p>
+
+        <h2 id="score">The health score</h2>
+        <p>
+            The top of the page shows a <b>health score</b> with its parts (thermal, memory, load) and the number
+            of anomalies, plus <b>Time Travel</b> buttons to the history behind what was learned. The
+            <a href="/features/health-report/">Health Report</a> turns the same data into a page you can save.
+        </p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Is 82 °C too hot for a CPU?</summary>
+                <p>Under load usually not: many CPUs slow down to protect themselves only around 95 to 100 °C. With nothing running, it points to a cooling problem. PC Workman compares the reading with this PC's norm under the same load.</p>
+            </details>
+            <details>
+                <summary>What is a normal GPU temperature while gaming?</summary>
+                <p>For most cards somewhere between 60 and 80 °C, depending on the cooler and the case. On my PC the learned gaming range is 59 to 72 °C. What matters is the change: a card that ran 70 °C and now runs 85 °C in the same game needs cleaning.</p>
+            </details>
+            <details>
+                <summary>How long does learning take?</summary>
+                <p>The common loads are calibrated after a few days of normal use. My PC reached 100% after 148 hours observed. Rare loads keep learning along the way.</p>
+            </details>
+            <details>
+                <summary>Why does it say it needs LibreHardwareMonitor?</summary>
+                <p>Windows does not give the CPU temperature and voltages to programs directly. PC Workman reads them from LibreHardwareMonitor running in the background; the graphics card temperature on NVIDIA works without it.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>Monitoring &amp; Learning</b> in the side menu. Ask hck_GPT "is my temperature normal" for the same answer in the chat.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/monitoring_alerts">Open Monitoring &amp; Learning</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/features/deepmonitor/">DeepMonitor: a hardware monitor that explains its readings</a></li>
+                <li><a href="/features/time-travel/">Activity Memory: history you can travel back in</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The card on this page is from my own PC after 137 days; 148 hours of them were real work, and that is what the norm was learned from.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

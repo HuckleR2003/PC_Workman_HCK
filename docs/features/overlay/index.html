@@ -1,0 +1,304 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: overlay (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman&#x27;s game overlay shows CPU, GPU and RAM load, temperatures, clocks, VRAM, the 12 V rail and FPS over a game, in three presets (Default, Compact, Pro) or your own choice. It never takes focus from the game, works on any graphics card and reads FPS from RTSS when it is running.">
+    <meta name="keywords" content="FPS overlay Windows, in-game temperature overlay, MSI Afterburner alternative overlay, show CPU GPU temperature in game, FPS counter free, overlay without RivaTuner, NVIDIA overlay alternative">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/overlay/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/overlay/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/overlay/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/overlay/">
+    <meta property="og:title" content="Game overlay: FPS and temperatures in game, in three presets">
+    <meta property="og:description" content="Default, Compact or Pro, any graphics card, never steals focus. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/overlay/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/overlay/overlay-en-700.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Game Overlay: FPS, Temperatures and Load in Game, Without Installing Afterburner</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Game overlay: FPS, temperatures and load in game",
+  "description": "What PC Workman's game overlay shows, its presets and styles, where FPS comes from, and how it compares with MSI Afterburner with RTSS and the NVIDIA App overlay.",
+  "url": "https://pcworkman.dev/features/overlay/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/overlay/overlay-en-700.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/components/ingame_overlay.py",
+    "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Presets Default, Compact and Pro, or your own choice of 11 values",
+      "CPU, GPU and RAM load, temperatures, clocks, VRAM, power, 12 V and FPS",
+      "Sizes S, M, L and themes dark, slate, high contrast",
+      "Never takes focus from the game",
+      "FPS from RTSS when running, any graphics card",
+      "1% and 0.1% low FPS of the last minute under the FPS",
+      "A layout per game in Game profiles"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Game overlay",
+      "item": "https://pcworkman.dev/features/overlay/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I show FPS and temperatures in a game?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Turn on the overlay in PC Workman's Gaming tile, pick Default, Compact or Pro, and start the game in borderless or windowed mode. For FPS, keep MSI Afterburner or RTSS running."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the overlay lower FPS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Barely: it is a small window that refreshes a few times a second and never hooks into the game."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the FPS box show --?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PC Workman reads FPS from RivaTuner Statistics Server. When RTSS is not running, it shows -- instead of a made-up number."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/overlay/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/overlay/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Game overlay</span>
+        <h1>FPS and temperatures over your game, nothing you did not choose</h1>
+        <p class="tagline">The overlay floats over a game and shows only what you pick: CPU, GPU and RAM load, temperatures, clocks, VRAM, the 12 V rail and FPS. Three presets to start, sizes and themes to taste, and it never takes focus away from the game.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>3</b><span>presets: Default, Compact, Pro</span></div>
+            <div class="ft-fact"><b>11</b><span>values to choose from</span></div>
+            <div class="ft-fact"><b>any</b><span>graphics card</span></div>
+            <div class="ft-fact"><b>0</b><span>focus stolen from the game</span></div>
+        </div>
+
+        <figure class="ft-shot narrow">
+            <img src="/assets/images/features/overlay/overlay-en-700.webp" width="700" height="200" alt="In-game overlay: CPU 46% 71 °C, GPU 97% 68 °C 5.7 GB of VRAM, RAM 63%, FPS 144 with 1% low 69 and 0.1% low 42 underneath.">
+            <figcaption>FPS from RTSS with the 1% and 0.1% low of the last minute (demo values).</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#shows">What it shows</a></li>
+                <li><a href="#fps">Where FPS comes from</a></li>
+                <li><a href="#compare">Overlay, Afterburner with RTSS, NVIDIA App</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="shows">What it shows</h2>
+        <div class="ft-groups">
+            <div class="ft-group"><h3>Default</h3><p class="note">CPU and GPU load and temperature, RAM, FPS.</p></div>
+            <div class="ft-group"><h3>Compact</h3><p class="note">CPU, GPU and RAM load. Three numbers, nothing else.</p></div>
+            <div class="ft-group"><h3>Pro</h3><p class="note">Adds the CPU clock, VRAM and the 12 V rail: nine values.</p></div>
+            <div class="ft-group"><h3>Your own</h3><p class="note">Pick from CPU %, temperature, clock, power; GPU %, temperature, VRAM, power; RAM % and GB; 12 V; FPS.</p></div>
+        </div>
+        <p>
+            Rows per component in their own colour, FPS in a tall box on the right. Sizes S, M and L, themes dark,
+            slate and high contrast, and opacity to taste. A click moves it to the next corner.
+        </p>
+
+        <h2 id="fps">Where FPS comes from</h2>
+        <p>
+            When MSI Afterburner or RivaTuner Statistics Server runs, PC Workman reads the frame rate from it. When it
+            does not, the FPS box says "--" instead of guessing. Everything else (load, temperatures, clocks) comes from
+            PC Workman itself, so the overlay works without installing anything else, on NVIDIA, AMD and Intel.
+        </p>
+        <p>
+            The overlay window never takes focus, so a click in the game stays in the game. It floats over games in
+            borderless or windowed mode.
+        </p>
+
+        <h2 id="compare">Overlay, Afterburner with RTSS, NVIDIA App</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>PC Workman overlay</th><th>MSI Afterburner + RTSS</th><th>NVIDIA App overlay</th></tr></thead>
+                <tbody>
+                    <tr><td>Needs extra software</td><td class="y">No (RTSS only for FPS)</td><td class="p">Two programs</td><td class="p">NVIDIA App</td></tr>
+                    <tr><td>Graphics cards</td><td class="y">Any</td><td class="y">Any</td><td class="n">NVIDIA only</td></tr>
+                    <tr><td>Presets</td><td class="y">Default, Compact, Pro</td><td class="p">Build your own</td><td class="y">Basic, Standard, Advanced</td></tr>
+                    <tr><td>Exclusive full-screen games</td><td class="n">Borderless and windowed</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+                    <tr><td>Linked to history and the learned norm</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>Where the others are better.</b> RTSS hooks into the game itself, so it works in exclusive full screen and draws a frame time graph. If you tune a game frame by frame, keep it; PC Workman reads its FPS and frame times and shows 1% and 0.1% low under the FPS.</p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>How do I show FPS and temperatures in a game?</summary>
+                <p>Turn on the overlay in PC Workman's Gaming tile, pick Default, Compact or Pro, and start the game in borderless or windowed mode. For FPS, keep MSI Afterburner or RTSS running.</p>
+            </details>
+            <details>
+                <summary>Does the overlay lower FPS?</summary>
+                <p>Barely: it is a small window that refreshes a few times a second and never hooks into the game.</p>
+            </details>
+            <details>
+                <summary>Why does the FPS box show --?</summary>
+                <p>PC Workman reads FPS from RivaTuner Statistics Server. When RTSS is not running, it shows -- instead of a made-up number.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>My PC &rsaquo; Gaming / In-Game</b>, choose a preset and turn the overlay on.</p>
+        <div class="ft-open">
+            <a class="btn" href="/download/">Download PC Workman</a>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/features/games/">Games: 228 games recognised</a></li>
+                <li><a href="/features/turbo/">TURBO: one switch for gaming</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The overlay starts empty on purpose: every gaming tool decides what you see, this one asks.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

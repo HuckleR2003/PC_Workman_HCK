@@ -1,0 +1,294 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: pc-map (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Map draws your PC as a desktop or a laptop with the real parts: CPU, graphics card, every RAM stick, NVMe and SATA drives, VRM, power supply and board, coloured by the temperature now or the 7-day average. Hover a part for its details, click it for its history.">
+    <meta name="keywords" content="what is inside my PC, see PC components temperature, PC hardware map, which part of my PC is hot, check PC parts Windows 11, AIDA64 report alternative, visual PC monitor">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/pc-map/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/pc-map/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/pc-map/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/pc-map/">
+    <meta property="og:title" content="PC Map: your components on one drawing, coloured by how hot they are">
+    <meta property="og:description" content="Desktop or laptop, every part in its place, colours for now or the 7-day average, history one click away. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/pc-map/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/pc-map/pc-map-en-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>PC Map: Your Components on a Drawing, Coloured by Temperature</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "PC Map: your components on a drawing, coloured by temperature",
+  "description": "How PC Workman draws a PC from the parts it finds, what the colours mean, and how the map links each part to its history.",
+  "url": "https://pcworkman.dev/features/pc-map/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/pc-map/pc-map-en-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/components/pc_map_scene.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Desktop or laptop drawing built from the parts found in the PC",
+      "CPU, graphics card, every RAM stick, NVMe and SATA drives, VRM, power supply, board",
+      "Colours for the temperature now or the 7-day average",
+      "Hover card with the part's details",
+      "Click a part to open its history in Activity Memory"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "PC Map",
+      "item": "https://pcworkman.dev/features/pc-map/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How can I see what is inside my PC without opening it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open My PC › Map in PC Workman: it draws the processor, graphics card, every RAM stick, the drives and the board it finds, and lists their models next to the drawing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which part of my PC is the hottest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Switch the map to 7-day average: the part that is warm most of the time shows red, not only the one that spiked once. Hover it for the numbers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work on a laptop?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. PC Workman draws a laptop when it finds a battery, with the graphics card shown only when there is a separate one."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/pc-map/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/pc-map/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; PC Map</span>
+        <h1>Your PC on one drawing, coloured by how hot it runs</h1>
+        <p class="tagline">PC Map draws your PC from the parts PC Workman finds in it: the CPU, the graphics card, every RAM stick, the NVMe and SATA drives, the power supply and the board. The colours show the temperature now or the 7-day average, and every part opens its own history.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>2</b><span>drawings: desktop and laptop</span></div>
+            <div class="ft-fact"><b>2</b><span>colour modes: now, 7-day average</span></div>
+            <div class="ft-fact"><b>1 click</b><span>from a part to its history</span></div>
+            <div class="ft-fact"><b>0</b><span>set-up</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/pc-map/pc-map-en-600.webp 600w, /assets/images/features/pc-map/pc-map-en-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/pc-map/pc-map-en-1095.webp" width="1095" height="540" alt="PC Map of a desktop PC drawn in 3D: board, CPU, VRM, RAM, graphics card, NVMe drive, two SATA drives and the power supply, each labelled. Side panel This PC: 12th Gen Intel Core i5-12400F, NVIDIA GeForce RTX 3050, 8 GB RAM (1 x 8 GB), MSI PRO B760M-E DDR4 board, NVMe 1000 GB and SATA 240 GB and 2000 GB drives, and a table of temperatures and load now, 7-day average and 7-day maximum." fetchpriority="high">
+            </picture>
+            <figcaption>PC Map of my desktop: one RAM stick, one NVMe and two SATA drives, drawn as they are, not from a template.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#draw">Drawn from what is really inside</a></li>
+                <li><a href="#colours">Colours that mean something</a></li>
+                <li><a href="#history">From a part to its history</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="draw">Drawn from what is really inside</h2>
+        <p>
+            The map is not a stock picture. PC Workman reads how many RAM sticks there are, whether there is a
+            graphics card, and which drives sit on NVMe and which on SATA, then draws them in their places on a
+            desktop board or inside a laptop. My PC has one 8 GB stick, so the map shows one stick.
+        </p>
+        <p>
+            The panel next to it lists <b>This PC</b>: processor, graphics card, memory with the stick layout,
+            board and drives, plus a table of <b>temperatures and load</b>: now, the 7-day average and the 7-day
+            maximum, one unit per row.
+        </p>
+
+        <h2 id="colours">Colours that mean something</h2>
+        <p>
+            <b>Now</b> colours each part by its temperature this second, from cool blue to hot red. <b>7-day
+            average</b> colours it by how it usually runs, which shows the part that is always warm rather than the
+            one that spiked once. Hover a part and a card says what it is and how it is doing, placed on the side
+            away from the part so it does not cover it.
+        </p>
+
+        <h2 id="history">From a part to its history</h2>
+        <p>
+            Click the CPU, the graphics card or the memory and <a href="/features/time-travel/">Activity Memory</a>
+            opens for that part: its load and temperature over hours, days or months, and the processes behind it.
+        </p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>How can I see what is inside my PC without opening it?</summary>
+                <p>Open My PC &rsaquo; Map in PC Workman: it draws the processor, graphics card, every RAM stick, the drives and the board it finds, and lists their models next to the drawing.</p>
+            </details>
+            <details>
+                <summary>Which part of my PC is the hottest?</summary>
+                <p>Switch the map to 7-day average: the part that is warm most of the time shows red, not only the one that spiked once. Hover it for the numbers.</p>
+            </details>
+            <details>
+                <summary>Does it work on a laptop?</summary>
+                <p>Yes. PC Workman draws a laptop when it finds a battery, with the graphics card shown only when there is a separate one.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>My PC &rsaquo; Map</b>, or the PC badge at the top of My PC.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/your_pc">Open My PC in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/features/time-travel/">Activity Memory: history you can travel back in</a></li>
+                <li><a href="/features/deepmonitor/">DeepMonitor: a hardware monitor that explains its readings</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The map is my own desktop, single RAM stick and all; Upgrade Readiness has been telling me about the second one for months.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

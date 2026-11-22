@@ -1,0 +1,307 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: fan-dashboard (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman&#x27;s Fan Dashboard lets you draw fan curves with drag-and-drop points, keep profiles (Default, Silent, Performance, AI), set minimum and maximum speeds, and see your fans&#x27; state live. Today it is a planner: curves are saved and exported, and your BIOS or the vendor tool keeps driving the fans.">
+    <meta name="keywords" content="fan curve Windows, PC fan control software, quiet PC fan profile, laptop fan curve, Fan Control alternative, MSI Afterburner fan curve, fan profiles silent performance">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/fan-dashboard/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/fan-dashboard/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/fan-dashboard/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/fan-dashboard/">
+    <meta property="og:title" content="Fan Dashboard: plan your fan curves, with profiles and live fan cards">
+    <meta property="og:description" content="Drag-and-drop curves, Default, Silent, Performance and AI profiles, minimum and maximum speeds, export. Honest about what drives your fans today. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/fan-dashboard/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/fan-dashboard/fan-dashboard-en-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Fan Dashboard: Plan Your Fan Curves, With Profiles and Live Fan Cards</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Fan Dashboard: plan your fan curves",
+  "description": "How PC Workman's Fan Dashboard plans fan curves and profiles, what it shows live, what it does not do yet, and how it compares with Fan Control and MSI Afterburner.",
+  "url": "https://pcworkman.dev/features/fan-dashboard/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/fan-dashboard/fan-dashboard-en-1200.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/ui/components/fan_dashboard.py",
+    "https://getfancontrol.com/"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Fan curve editor with drag-and-drop points",
+      "Profiles: Default, Silent, Performance, AI from the temperature history",
+      "Minimum and maximum fan speed",
+      "Apply, revert, save, export and reset",
+      "Live fan cards when the board reports speeds"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Fan Dashboard",
+      "item": "https://pcworkman.dev/features/fan-dashboard/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I control my fans from Windows?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On many desktops yes, through the motherboard maker's tool or Fan Control. On most laptops no: the curve is fixed in the BIOS. Fan Dashboard plans curves and shows what your PC reports."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a good fan curve?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Quiet and flat up to around 50 to 60 °C, then rising steadily so the fans reach full speed before the CPU's limit. The Silent and Performance profiles are starting points."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it say no sensor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your board does not report that fan's speed to Windows, or LibreHardwareMonitor is not running. PC Workman shows that instead of a made-up number."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/fan-dashboard/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/fan-dashboard/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Fan Dashboard</span>
+        <h1>Plan your fan curves before you touch the BIOS</h1>
+        <p class="tagline">Fan Dashboard lets you draw a fan curve with points you drag, keep profiles for quiet work and for games, and see your fans' state live. It is honest about today: it plans and exports curves, while your BIOS or your board's tool keeps driving the fans.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>4</b><span>profiles: Default, Silent, Performance, AI</span></div>
+            <div class="ft-fact"><b>drag</b><span>points on the curve</span></div>
+            <div class="ft-fact"><b>min / max</b><span>speed limits</span></div>
+            <div class="ft-fact"><b>export</b><span>curves to a file</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/fan-dashboard/fan-dashboard-en-600.webp 600w, /assets/images/features/fan-dashboard/fan-dashboard-en-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/fan-dashboard/fan-dashboard-en-1200.webp" width="1200" height="738" alt="Fan Dashboard: profiles Default, Silent, Performance and hck_GPT AI; fan cards for CPU fan, GPU fan, Fan 1 and Fan 2 showing no sensor; a fan curve from 25% at 25 °C to 90% at 100 °C with a 2160 RPM marker; minimum and maximum fan speed sliders; buttons Apply, Revert, Save Profile, Export, Reset; a note that curves are saved in PC Workman and do not change fan speed yet." fetchpriority="high">
+            </picture>
+            <figcaption>Fan Dashboard on my PC, which reports no fan sensors to Windows: the page says so instead of drawing fake speeds.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#plan">A planner, said plainly</a></li>
+                <li><a href="#curve">Curves and profiles</a></li>
+                <li><a href="#live">Fan cards, live</a></li>
+                <li><a href="#compare">Fan Dashboard, Fan Control, MSI Afterburner</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="plan">A planner, said plainly</h2>
+        <p>
+            Most PCs give fan control to the BIOS or to the motherboard maker's tool, and laptops lock it
+            completely: even MSI Afterburner cannot set fan curves on most laptops. Fan Dashboard does not
+            pretend otherwise. It lets you <b>plan</b> a curve, save it as a profile and export it, and it says
+            on the page that it does not change the fan speed yet.
+        </p>
+
+        <h2 id="curve">Curves and profiles</h2>
+        <ul>
+            <li><b>Drag-and-drop points</b> on a temperature to fan-speed chart, with the RPM at each point.</li>
+            <li><b>Profiles:</b> Default, Silent, Performance and an AI profile hck_GPT builds from the temperature history of this PC.</li>
+            <li><b>Minimum and maximum speed</b> sliders so a curve never stops a fan that must spin or runs it louder than you allow.</li>
+            <li><b>Apply, Revert, Save Profile, Export, Reset</b>: every curve can go to a file and back.</li>
+        </ul>
+
+        <h2 id="live">Fan cards, live</h2>
+        <p>
+            Cards for the CPU fan, the graphics card fan and the case fans show the current speed when the board
+            reports it, through LibreHardwareMonitor. When it does not, the card says "no sensor" instead of
+            drawing a number. Fan history fills in over time in Usage Statistics.
+        </p>
+
+        <h2 id="compare">Fan Dashboard, Fan Control, MSI Afterburner</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>PC Workman Fan Dashboard</th><th>Fan Control</th><th>MSI Afterburner</th></tr></thead>
+                <tbody>
+                    <tr><td>Drives the fans</td><td class="n">Not yet: plans and exports</td><td class="y">Yes</td><td class="p">Graphics card only, not on most laptops</td></tr>
+                    <tr><td>Curve editor</td><td class="y">Drag and drop</td><td class="y">Yes, many curve types</td><td class="y">Yes</td></tr>
+                    <tr><td>Profiles</td><td class="y">4, including AI</td><td class="y">Yes</td><td class="y">Yes</td></tr>
+                    <tr><td>Linked to temperature history and norm</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>Where the others are better.</b> Fan Control drives case fans directly today, with mixed and linked curves; use it if you need control now. Fan Dashboard plans curves next to the history and the learned norm of your PC.</p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Can I control my fans from Windows?</summary>
+                <p>On many desktops yes, through the motherboard maker's tool or Fan Control. On most laptops no: the curve is fixed in the BIOS. Fan Dashboard plans curves and shows what your PC reports.</p>
+            </details>
+            <details>
+                <summary>What is a good fan curve?</summary>
+                <p>Quiet and flat up to around 50 to 60 °C, then rising steadily so the fans reach full speed before the CPU's limit. The Silent and Performance profiles are starting points.</p>
+            </details>
+            <details>
+                <summary>Why does it say no sensor?</summary>
+                <p>Your board does not report that fan's speed to Windows, or LibreHardwareMonitor is not running. PC Workman shows that instead of a made-up number.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>Fan Control &rsaquo; Fan Dashboard</b> in the side menu.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/fan_control">Open Fan Dashboard in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/guides/why-are-my-pc-fans-so-loud/">Why are my PC fans so loud?</a></li>
+                <li><a href="/features/learning/">Monitoring &amp; Learning</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. Without LibreHardwareMonitor my PC reports no fan speeds to Windows, which is exactly why the page learned to say "no sensor" instead of guessing.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: process-center (en) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman&#x27;s Process Center describes 522 Windows processes in plain words, says whether each one is safe to close, shows its 7-day average next to the current use, and flags processes that pretend to be Windows ones. A friendlier Task Manager and Process Explorer.">
+    <meta name="keywords" content="what is this process Windows, can I end this process, is this process safe, Task Manager alternative, Process Explorer alternative, svchost high CPU, suspicious process Windows 11">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/process-center/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/process-center/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/process-center/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/process-center/">
+    <meta property="og:title" content="Process Center: what is this process, and can I close it?">
+    <meta property="og:description" content="522 processes described, safe-to-close advice, 7-day averages and a check for fakes. Free and open source.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/process-center/">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/process-center/process-center-en-1200.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Process Center: What Is This Process, and Can I Close It?</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Process Center: what is this process, and can I close it?",
+  "description": "How PC Workman's Process Center describes running processes, what the 7-day averages show, how it spots processes pretending to be Windows ones, and how it compares with Task Manager and Process Explorer.",
+  "url": "https://pcworkman.dev/features/process-center/",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/process-center/process-center-en-1200.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/data/process_library.json",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/process_guard.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "522 Windows processes described in plain words",
+      "Safe-to-close advice per process",
+      "CPU and RAM now next to 7-day averages",
+      "Process Guard: fake Windows processes, wrong folders, look-alike names",
+      "Filters, search and a card on hover"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Features",
+      "item": "https://pcworkman.dev/features/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Process Center",
+      "item": "https://pcworkman.dev/features/process-center/"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is this process, and is it safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Find it in Process Center: the card says what it is, who makes it and whether it is safe to close. If it is not in the library, ask hck_GPT from the same row."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I end svchost.exe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually not: svchost hosts many Windows services at once. Process Center marks it as protected; if one svchost uses a lot of CPU, the services inside it are the thing to look at."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know if a process is a virus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Watch for a Windows name in the wrong folder (svchost.exe outside System32), a name one letter off, or an unknown process that is always busy. Process Guard checks for exactly those and lists matches with the reason."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ features</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIES:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/process-center/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/process-center/" data-lang="en" lang="en" class="active" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Feature &middot; Process Center</span>
+        <h1>What is this process, and can I close it?</h1>
+        <p class="tagline">Task Manager lists names. Process Center says what each one is in plain words, whether it is safe to close, how much it uses now and on average over 7 days, and whether something only pretends to be a Windows process.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>522</b><span>processes described</span></div>
+            <div class="ft-fact"><b>7 days</b><span>averages next to now</span></div>
+            <div class="ft-fact"><b>85%</b><span>of background processes normal on Windows</span></div>
+            <div class="ft-fact"><b>1 card</b><span>on hover, with advice</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/process-center/process-center-en-600.webp 600w, /assets/images/features/process-center/process-center-en-1200.webp 1200w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/process-center/process-center-en-1200.webp" width="1200" height="738" alt="Process Information Center: 239 processes now, 202 in the background (85% of them normal on Windows), 0 worth a look. Table with process, CPU now, RAM now, CPU and RAM over 7 days, how steady it is, whether it is safe and the advice: keep, protected. Filters: All, Background, Steady, Worth a look, Games, and a search box." fetchpriority="high">
+            </picture>
+            <figcaption>Process Center on my PC: 239 processes, 202 of them in the background, none worth a look today.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#what">Every process, in plain words</a></li>
+                <li><a href="#fakes">Processes that pretend</a></li>
+                <li><a href="#compare">Process Center, Task Manager, Process Explorer</a></li>
+                <li><a href="#faq">Questions</a></li>
+                <li><a href="#open">How to open it</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">Every process, in plain words</h2>
+        <p>
+            PC Workman carries a library of <b>522 Windows processes</b>, each with what it is, who makes it, whether it
+            is safe to close and what happens if you do. Hover a row and a card shows it; click and the full card
+            opens next to the table. A process that is not in the library is shown with what can be read from it,
+            and one click asks hck_GPT.
+        </p>
+        <ul>
+            <li><b>Now and over 7 days:</b> CPU and RAM this second next to the 7-day average, so a process that is busy once is not confused with one that is always heavy.</li>
+            <li><b>Advice:</b> keep, protected (Windows needs it), or worth a look.</li>
+            <li><b>Filters:</b> all, background, steady, worth a look, games, and a search box.</li>
+        </ul>
+
+        <h2 id="fakes">Processes that pretend</h2>
+        <p>
+            Malware likes Windows names. Process Guard checks every running process for the usual tricks: a
+            "svchost.exe" running from AppData instead of System32, a name one letter off a Windows one
+            ("scvhost"), look-alike characters, and known coin-miner and dropper names. A match is listed under
+            <b>worth a look</b>, with the reason.
+        </p>
+
+        <h2 id="compare">Process Center, Task Manager, Process Explorer</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>PC Workman Process Center</th><th>Task Manager</th><th>Process Explorer / System Informer</th></tr></thead>
+                <tbody>
+                    <tr><td>Says what a process is</td><td class="y">Yes, 522 described</td><td class="p">Name and publisher</td><td class="p">Description from the file</td></tr>
+                    <tr><td>Safe to close?</td><td class="y">Yes, per process</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>7-day averages</td><td class="y">Yes</td><td class="n">No</td><td class="n">No</td></tr>
+                    <tr><td>Spots fake Windows processes</td><td class="y">Yes</td><td class="n">No</td><td class="p">Signature and VirusTotal checks</td></tr>
+                    <tr><td>Depth (handles, threads, DLLs)</td><td class="n">No</td><td class="p">Some</td><td class="y">Everything</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>Where the others are better.</b> Process Explorer and System Informer show every handle, thread and DLL and can check files against VirusTotal; for digging deep they are the tools. Process Center answers the question most people have: what is this, and can it go?</p>
+
+        <h2 id="faq">Questions</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>What is this process, and is it safe?</summary>
+                <p>Find it in Process Center: the card says what it is, who makes it and whether it is safe to close. If it is not in the library, ask hck_GPT from the same row.</p>
+            </details>
+            <details>
+                <summary>Can I end svchost.exe?</summary>
+                <p>Usually not: svchost hosts many Windows services at once. Process Center marks it as protected; if one svchost uses a lot of CPU, the services inside it are the thing to look at.</p>
+            </details>
+            <details>
+                <summary>How do I know if a process is a virus?</summary>
+                <p>Watch for a Windows name in the wrong folder (svchost.exe outside System32), a name one letter off, or an unknown process that is always busy. Process Guard checks for exactly those and lists matches with the reason.</p>
+            </details>
+        </div>
+
+        <h2 id="open">How to open it</h2>
+        <p>In PC Workman: <b>Process Center</b> in the side menu. Ask hck_GPT "what is <i>name</i>.exe" for the same card in the chat.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/process_center">Open Process Center in PC Workman</a>
+            <a class="btn ghost" href="/download/">Download PC Workman</a>
+            <span class="path">The first button works once PC Workman is installed.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Related</h2>
+            <ul>
+                <li><a href="/guides/windows-processes/">Windows process list: what each process does</a></li>
+                <li><a href="/guides/what-is-this-process/">What is this process?</a></li>
+                <li><a href="/features/">All PC Workman features</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Building PC Workman in public since 2025. The process library grew from 485 to 522 entries, each written as an answer to "what is this, and can I close it?"</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/">Features</a> &middot; <a href="/guides/">Guides</a> &middot; <a href="/index_en.html">PC Workman</a> &middot; <a href="/download/">Download</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

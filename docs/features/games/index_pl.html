@@ -1,0 +1,286 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman features page: games (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="PC Workman rozpoznaje 228 gier po plikach i manifestach Steama, wita uruchomioną grę krótkim komunikatem w jej tonie i zapisuje każdą sesję: jak długo grałeś i jak mocno pracowały procesor i karta graficzna.">
+    <meta name="keywords" content="licznik czasu gry PC, ile grałem, historia obciążenia karty w grach, wykrywanie gier Windows, statystyki sesji gier, alternatywa statystyk NVIDIA App">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/games/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/games/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/games/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/games/">
+    <meta property="og:title" content="Gry: 228 rozpoznawanych gier i każda sesja zapamiętana">
+    <meta property="og:description" content="Spokojny komunikat przy starcie gry, długość sesji i to, jak mocno pracował sprzęt. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/games/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/games/games-pl-353.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Gry: 228 rozpoznawanych gier, spokojny komunikat na starcie, każda sesja zapisana</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Gry: 228 rozpoznawanych gier, każda sesja zapisana",
+  "description": "Jak PC Workman rozpoznaje gry, co mówi komunikat na starcie, co zapisuje sesja gry i czym różni się od statystyk launcherów i NVIDIA App.",
+  "url": "https://pcworkman.dev/features/games/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/games/games-pl-353.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/data/games.json",
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/game_library.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "228 gier rozpoznawanych po plikach wykonywalnych",
+      "Manifesty Steama dla gier spoza biblioteki",
+      "Komunikat na starcie w tonie 14 gatunków",
+      "Każda sesja: czas, długość, obciążenie procesora i karty",
+      "Godziny grania i najdłużej grana gra w profilu",
+      "Profile gier: nakładka z własnym układem i TURBO, gdy gra startuje, cofane po wyjściu",
+      "1% i 0,1% low FPS w podsumowaniu sesji (z RTSS)"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Gry",
+      "item": "https://pcworkman.dev/features/games/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak zobaczyć, ile grałem?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Twój profil w PC Workman pokazuje godziny grania i najdłużej graną grę; każda sesja jest w Activity Memory z czasem i obciążeniem."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Jakie gry rozpoznaje?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "228 gier ze swojej biblioteki i każdą grę ze Steama przez jej manifest. Inne są pokazane po nazwie pliku."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czy mogę wyłączyć komunikat gry?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tak, w Ustawieniach. Sesje i tak są zapisywane."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/games/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/games/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Gry</span>
+        <h1>228 rozpoznawanych gier i każda sesja zapamiętana</h1>
+        <p class="tagline">PC Workman zna 228 gier po ich plikach i po manifestach Steama. Gdy któraś startuje, pokazuje krótki komunikat w jej tonie, a każdą sesję zapisuje: jak długo grałeś i jak mocno pracowały procesor i karta graficzna.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>228</b><span>rozpoznawanych gier</span></div>
+            <div class="ft-fact"><b>14</b><span>gatunków z własnym tonem</span></div>
+            <div class="ft-fact"><b>każdy</b><span>launcher: Steam, Epic i inne</span></div>
+            <div class="ft-fact"><b>każda</b><span>sesja zapisana</span></div>
+        </div>
+
+        <figure class="ft-shot narrow">
+            <img src="/assets/images/features/games/games-pl-353.webp" width="353" height="194" alt="Dwa komunikaty PC Workman w rogu ekranu: „Powodzenia na turnieju! CS2 uruchomione.” i „Night City wita! Cyberpunk 2077”.">
+            <figcaption>Komunikat, który pojawia się przy starcie gry: CS2 i Cyberpunk 2077.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#know">Skąd wie, co to za gra</a></li>
+                <li><a href="#note">Spokojny komunikat, a nie burza okienek</a></li>
+                <li><a href="#sessions">Każda sesja zapisana</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="know">Skąd wie, co to za gra</h2>
+        <p>
+            Biblioteka 228 gier przypisuje ich pliki wykonywalne do prawdziwych nazw i gatunków; ogólnym nazwom typu
+            <code>launcher.exe</code> nie ufa sama z siebie. Przy grach ze Steama PC Workman czyta też manifest obok gry,
+            więc gra spoza biblioteki i tak dostaje swoją prawdziwą nazwę.
+        </p>
+
+        <h2 id="note">Spokojny komunikat, a nie burza okienek</h2>
+        <p>
+            Przy pierwszym uruchomieniu gry komunikat ją wita; kolejne są różne, w tonie gatunku: 14 zestawów dla
+            strzelanek, RPG, wyścigów, strategii i innych. Siedzi w rogu kilka sekund i znika. Można go wyłączyć.
+        </p>
+
+        <h2 id="sessions">Każda sesja zapisana</h2>
+        <p>
+            Sesja zapisuje grę, kiedy działała, jak długo oraz obciążenie i temperatury procesora i karty w tym czasie,
+            w <a href="/features/time-travel/index_pl.html">Activity Memory</a>. Twój profil pokazuje godziny grania i najdłużej
+            graną grę, a hck_GPT powie, która gra najmocniej obciąża komputer.
+        </p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Jak zobaczyć, ile grałem?</summary>
+                <p>Twój profil w PC Workman pokazuje godziny grania i najdłużej graną grę; każda sesja jest w Activity Memory z czasem i obciążeniem.</p>
+            </details>
+            <details>
+                <summary>Jakie gry rozpoznaje?</summary>
+                <p>228 gier ze swojej biblioteki i każdą grę ze Steama przez jej manifest. Inne są pokazane po nazwie pliku.</p>
+            </details>
+            <details>
+                <summary>Czy mogę wyłączyć komunikat gry?</summary>
+                <p>Tak, w Ustawieniach. Sesje i tak są zapisywane.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman komunikat pojawia się sam, gdy gra startuje. Sesje są w <b>Mój PC &rsaquo; Gaming / In-Game</b> i w Twoim profilu.</p>
+        <div class="ft-open">
+            <a class="btn" href="/download/">Pobierz PC Workman</a>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/features/overlay/index_pl.html">Nakładka w grach</a></li>
+                <li><a href="/features/turbo/index_pl.html">TURBO: jeden przełącznik do grania</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Najdłużej graną grą w moim profilu jest BeamNG.drive, co sporo mówi o moich wieczorach.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

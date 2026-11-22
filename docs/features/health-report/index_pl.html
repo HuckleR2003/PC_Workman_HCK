@@ -1,0 +1,315 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman feature page: health-report (pl) -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Raport zdrowia PC Workman czyta dziennik zdarzeń Windows, dyski, temperatury, pamięć, sterowniki i autostart, daje wynik na 100 z częściami, mówi, co zrobić najpierw, i zapisuje wszystko jako jeden plik HTML do porównania później albo wysłania temu, kto naprawia komputer.">
+    <meta name="keywords" content="czy mój komputer jest zdrowy, darmowy test zdrowia komputera, raport zdrowia komputera Windows 11, wynik zdrowia komputera, nieoczekiwane restarty przyczyna, XMP wyłączone, raport diagnostyczny HTML">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/features/health-report/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/features/health-report/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/features/health-report/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/features/health-report/">
+    <meta property="og:title" content="Raport zdrowia: czy komputer jest zdrowy? Wynik, co najpierw, zapisane jako jedna strona">
+    <meta property="og:description" content="Stabilność, dyski, temperatury, pamięć, sterowniki i autostart w jednym wyniku, z pierwszą rzeczą do naprawy i zmianami od ostatniego raportu. Za darmo, otwarty kod.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/features/health-report/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/features/health-report/health-report-pl-1095.webp">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Raport zdrowia: czy mój komputer jest zdrowy? Jedna strona, jeden wynik, co najpierw</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="stylesheet" href="/assets/css/feature.css">
+
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Raport zdrowia: czy mój komputer jest zdrowy?",
+  "description": "Co sprawdza Raport zdrowia PC Workman, jak ważony jest wynik, co znaczą wnioski i jak zapisywać i porównywać raporty.",
+  "url": "https://pcworkman.dev/features/health-report/index_pl",
+  "datePublished": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-21T00:00:00+01:00",
+  "inLanguage": "pl",
+  "isAccessibleForFree": true,
+  "image": "https://pcworkman.dev/assets/images/features/health-report/health-report-pl-1095.webp",
+  "citation": [
+    "https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/core/health_score.py"
+  ],
+  "about": {
+    "@type": "SoftwareApplication",
+    "@id": "https://pcworkman.dev/#software",
+    "name": "PC Workman",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Windows 10, Windows 11",
+    "softwareVersion": "1.9.3",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "PLN"
+    },
+    "downloadUrl": "https://pcworkman.dev/download/",
+    "featureList": [
+      "Wynik zdrowia na 100 ze stabilności, dysków, temperatur, pamięci, sterowników i autostartu",
+      "Co zrobić najpierw, z linkiem do zakładki, która to naprawia",
+      "Wszystkie wnioski zwykłymi zdaniami",
+      "Zmiany od ostatniego raportu",
+      "Zapis jako jeden plik HTML"
+    ]
+  },
+  "author": {
+    "@type": "Person",
+    "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+    "name": "Marcin Firmuga",
+    "url": "https://pcworkman.dev/hck-labs/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "@id": "https://pcworkman.dev/hck-labs/#organization",
+    "name": "HCK Labs",
+    "url": "https://pcworkman.dev/hck-labs/"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "PC Workman",
+      "item": "https://pcworkman.dev/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Funkcje",
+      "item": "https://pcworkman.dev/features/index_pl"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Raport zdrowia",
+      "item": "https://pcworkman.dev/features/health-report/index_pl"
+    }
+  ]
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Jak sprawdzić, czy komputer jest zdrowy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Otwórz Mój PC › Raport zdrowia w PC Workman. Czyta dziennik zdarzeń, dyski, temperatury, pamięć, sterowniki i autostart i daje wynik na 100 z tym, co zrobić najpierw."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dlaczego komputer restartuje się bez ostrzeżenia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Restarty bez zamknięcia to zwykle zasilacz, przegrzewanie albo sterownik. Raport liczy je z 30 dni; historia temperatur i strona sterowników pomagają znaleźć przyczynę."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Czym jest XMP i czemu raport o nim wspomina?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "XMP to profil pamięci, który uruchamia RAM z nominalną prędkością. Bez niego RAM działa na wolniejszych ustawieniach domyślnych (u mnie 2133 MHz). Włączenie go w BIOS-ie to darmowa wydajność."
+      }
+    }
+  ]
+}
+    </script>
+</head>
+<body class="page-feature">
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ funkcje</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link" href="/guides/">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-series">
+            <span class="gt-series-label">SERIE:</span>
+            <a class="gt-link gt-mon" href="/blog/monday-grind-blueprint/">// Monday</a>
+            <a class="gt-link gt-wed" href="/blog/wednesday-code-autopsy/">// Wednesday</a>
+            <a class="gt-link gt-fri" href="/blog/friday-shipped-scarred/">// Friday</a>
+        </span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/features/health-report/index_pl.html" data-lang="pl" lang="pl" class="active" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/features/health-report/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge">Funkcja &middot; Raport zdrowia</span>
+        <h1>Czy mój komputer jest zdrowy? Jedna strona, jeden wynik, co najpierw</h1>
+        <p class="tagline">Raport zdrowia czyta, co Windows i PC Workman wiedzą o Twoim komputerze: nieoczekiwane restarty, błędy dysków, temperatury, pamięć, wiek sterownika karty i autostart. Zamienia to w wynik na 100, mówi, co zrobić najpierw, i zapisuje wszystko jako jedną stronę HTML.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+        </div>
+
+        <div class="ft-facts">
+            <div class="ft-fact"><b>6</b><span>części wyniku</span></div>
+            <div class="ft-fact"><b>100</b><span>punktów, ważonych</span></div>
+            <div class="ft-fact"><b>1</b><span>plik HTML do zapisania albo wysłania</span></div>
+            <div class="ft-fact"><b>Δ</b><span>zmiany od ostatniego raportu</span></div>
+        </div>
+
+        <figure class="ft-shot wide">
+            <picture>
+                <source type="image/webp" srcset="/assets/images/features/health-report/health-report-pl-600.webp 600w, /assets/images/features/health-report/health-report-pl-1095.webp 1095w" sizes="(min-width: 1000px) 1000px, 100vw">
+                <img src="/assets/images/features/health-report/health-report-pl-1095.webp" width="1095" height="520" alt="Raport zdrowia: wynik zdrowia 85; od ostatniego raportu: pierwszy raport, zapisz go, a następny pokaże zmiany. Co zrobić najpierw: 1. Pamięć: włącz XMP w BIOS-ie i rozważ więcej RAM. 2. Stabilność: sprawdź zasilanie i przegrzewanie, restarty bez zamknięcia to zwykle zasilacz, temperatura albo sterownik. Wszystkie wnioski: RAM 8 GB zwykle zajęty w 75%, RAM pracuje na 2133 MHz bez XMP, 4 restarty bez zamknięcia w 30 dni, sterownik karty ma 4 miesiące." fetchpriority="high">
+            </picture>
+            <figcaption>Raport mojego komputera: 85 na 100 i dwie uczciwe rzeczy do zrobienia najpierw.</figcaption>
+        </figure>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#score">Z czego składa się wynik</a></li>
+                <li><a href="#first">Co zrobić najpierw, po ludzku</a></li>
+                <li><a href="#save">Zapisz, porównaj, wyślij</a></li>
+                <li><a href="#compare">Raport zdrowia i alternatywy</a></li>
+                <li><a href="#faq">Pytania</a></li>
+                <li><a href="#open">Jak otworzyć</a></li>
+            </ol>
+        </div>
+
+        <h2 id="score">Z czego składa się wynik</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th>Część</th><th>Waga</th><th>Na co patrzy</th></tr></thead>
+                <tbody>
+                    <tr><td>Stabilność</td><td>25</td><td>Restarty bez zamknięcia, błędy sprzętu i dysków w dzienniku zdarzeń Windows</td></tr>
+                    <tr><td>Dyski</td><td>20</td><td>Wolne miejsce i stan każdego dysku</td></tr>
+                    <tr><td>Temperatury</td><td>20</td><td>Odczyty względem normy tego komputera</td></tr>
+                    <tr><td>Pamięć</td><td>15</td><td>Jak bardzo zwykle jest zajęty RAM i czy pracuje z nominalną prędkością (XMP)</td></tr>
+                    <tr><td>Sterowniki</td><td>10</td><td>Wiek sterownika karty graficznej</td></tr>
+                    <tr><td>Autostart</td><td>10</td><td>Ile startuje razem z Windows</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 id="first">Co zrobić najpierw, po ludzku</h2>
+        <p>
+            Sam wynik nikomu nie pomoże. Pod nim raport wypisuje <b>co zrobić najpierw</b>, od najgorszego, każde z
+            linkiem do zakładki, która to naprawia. Na moim komputerze: <i>„Pamięć: włącz XMP w BIOS-ie i rozważ więcej
+            RAM”</i> i <i>„Stabilność: restarty bez zamknięcia to zwykle zasilacz, temperatura albo sterownik”</i>.
+            Potem <b>wszystkie wnioski</b>, zwykłymi zdaniami: „RAM 8 GB jest zwykle zajęty w 75%”, „RAM pracuje na
+            2133 MHz, bez XMP część wydajności zostaje na stole”, „4 restarty bez zamknięcia w 30 dni”.
+        </p>
+
+        <h2 id="save">Zapisz, porównaj, wyślij</h2>
+        <p>
+            <b>Zapisz raport (HTML)</b> tworzy jeden plik, który otwiera się w każdej przeglądarce, bez PC Workman.
+            Następny raport pokazuje, co się zmieniło od ostatniego, część po części. Wyślij plik komuś, kto pomaga Ci
+            z komputerem: powie więcej niż „czasem zwalnia”. Wszystko jest zbierane lokalnie; raport mówi to na dole.
+        </p>
+
+        <h2 id="compare">Raport zdrowia i alternatywy</h2>
+        <div class="ft-table-wrap">
+            <table>
+                <thead><tr><th></th><th>Raport zdrowia PC Workman</th><th>Windows Kontrola kondycji komputera</th><th>Raport AIDA64</th></tr></thead>
+                <tbody>
+                    <tr><td>Na co odpowiada</td><td>Czy komputer jest zdrowy, co najpierw</td><td>Czy uruchomi Windows 11</td><td>Wszystko o sprzęcie</td></tr>
+                    <tr><td>Wynik z częściami</td><td class="y">Tak, 6 części</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Co zrobić najpierw</td><td class="y">Tak</td><td class="p">Sprawdzenie aktualizacji</td><td class="n">Nie</td></tr>
+                    <tr><td>Zmiany od ostatniego razu</td><td class="y">Tak</td><td class="n">Nie</td><td class="n">Nie</td></tr>
+                    <tr><td>Cena</td><td class="y">Za darmo, otwarty kod</td><td class="y">Za darmo</td><td class="p">Około 60 USD</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p><b>W czym inni są lepsi.</b> Raport AIDA64 wypisuje każdy szczegół każdego urządzenia, czego czasem potrzebuje serwis. Raport zdrowia to strona, którą czytasz w minutę i według której działasz.</p>
+
+        <h2 id="faq">Pytania</h2>
+        <div class="ft-faq">
+            <details open>
+                <summary>Jak sprawdzić, czy komputer jest zdrowy?</summary>
+                <p>Otwórz Mój PC &rsaquo; Raport zdrowia w PC Workman. Czyta dziennik zdarzeń, dyski, temperatury, pamięć, sterowniki i autostart i daje wynik na 100 z tym, co zrobić najpierw.</p>
+            </details>
+            <details>
+                <summary>Dlaczego komputer restartuje się bez ostrzeżenia?</summary>
+                <p>Restarty bez zamknięcia to zwykle zasilacz, przegrzewanie albo sterownik. Raport liczy je z 30 dni; historia temperatur i strona sterowników pomagają znaleźć przyczynę.</p>
+            </details>
+            <details>
+                <summary>Czym jest XMP i czemu raport o nim wspomina?</summary>
+                <p>XMP to profil pamięci, który uruchamia RAM z nominalną prędkością. Bez niego RAM działa na wolniejszych ustawieniach domyślnych (u mnie 2133 MHz). Włączenie go w BIOS-ie to darmowa wydajność.</p>
+            </details>
+        </div>
+
+        <h2 id="open">Jak otworzyć</h2>
+        <p>W PC Workman: <b>Mój PC &rsaquo; Raport zdrowia</b>. Zapytaj hck_GPT „czy mój komputer jest zdrowy”, a dostaniesz podsumowanie w czacie.</p>
+        <div class="ft-open">
+            <a class="btn" href="pcworkman://open/health_report">Otwórz Raport zdrowia w PC Workman</a>
+            <a class="btn ghost" href="/download/">Pobierz PC Workman</a>
+            <span class="path">Pierwszy przycisk działa, gdy PC Workman jest zainstalowany.</span>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Powiązane</h2>
+            <ul>
+                <li><a href="/guides/is-my-pc-healthy/index_pl.html">Czy mój komputer jest zdrowy? Poradnik</a></li>
+                <li><a href="/features/learning/index_pl.html">Monitoring &amp; Learning: alerty względem normy komputera</a></li>
+                <li><a href="/features/index_pl.html">Wszystkie funkcje PC Workman</a></li>
+            </ul>
+        </nav>
+
+        <div class="author-card">
+            <a class="avatar-link" href="/blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="/blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Buduję PC Workman publicznie od 2025 roku. Raport jest mój, z wnioskiem o XMP, który ciągle odkładam; jest na zrzucie, żebyś wiedział, że raport nie schlebia.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://linktr.ee/marcin_firmuga" target="_blank" rel="me noopener">Linktree</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/guides/">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="/download/">Pobierz</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
