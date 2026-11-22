@@ -63,3 +63,7 @@ body { padding-top: var(--topnav-h); }
     flex: 0 0 auto;
 }
 .gt-link.gt-labs:hover { color: #fff; background: rgba(224, 82, 110, .24); }
+
+/* Central in the top nav: violet, like its sidebar button (2026-11-22) */
+.gt-link.gt-central { color: #c4b5fd; font-weight: 600; }
+.gt-link.gt-central:hover { color: #fff; }

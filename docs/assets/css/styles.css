@@ -2595,6 +2595,14 @@ body {
 .nav-special-dl { border-left-color: #ffd700; }
 .nav-special-dl:hover { border-left-color: #ffe566; box-shadow: 0 0 18px rgba(255, 215, 0, .12); }
 
+/* Features hub and Central: own accents so they read as places, not posts */
+.nav-special-hub { background: linear-gradient(135deg, #04140f 0%, #072a20 60%, #04140f 100%); border-color: #0d4a38; border-left-color: #00ffc8; color: #c8f5e8; }
+.nav-special-hub .ns-sub { color: #5c9a88; }
+.nav-special-hub:hover { border-color: #137a5c; border-left-color: #5fffe0; box-shadow: 0 0 18px rgba(0, 255, 200, .10); }
+.nav-special-central { background: linear-gradient(135deg, #0d0a1c 0%, #1a1433 60%, #0d0a1c 100%); border-color: #2f2558; border-left-color: #a78bfa; color: #ddd3ff; }
+.nav-special-central .ns-sub { color: #8478b0; }
+.nav-special-central:hover { border-color: #4b3b8a; border-left-color: #c4b5fd; box-shadow: 0 0 18px rgba(167, 139, 250, .12); }
+
 /* Mini mode: special items shrink with the rest */
 @media (min-width: 769px) {
     .sidebar.mini .nav-special { padding: .42rem .5rem; font-size: .64rem; border-left-width: 2px; }
@@ -2618,3 +2626,16 @@ body {
 .fresh-cell h4 { font-size: 12px; color: #e6eef6; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; }
 .fresh-cell p { font-size: 10.5px; color: #8a98a8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 640px) { .fresh-strip { flex-direction: column; } .fresh-cell { border-left: none; border-top: 1px solid #1e2530; } .fresh-cell:first-child { border-top: none; } }
+
+/* Mobile: the opened menu is a readable drawer, not an 80px icon rail
+   (the special links have no icons and were cut to "Downl…"). 2026-11-22 */
+@media (max-width: 768px) {
+    .sidebar.active { width: min(280px, 84vw); padding: 1.2rem .9rem; overflow-y: auto; box-shadow: 0 0 40px rgba(0, 0, 0, .6); }
+    .sidebar.active .nav-text,
+    .sidebar.active .logo-text { display: inline; }
+    .sidebar.active .nav-link { justify-content: flex-start; }
+}
+
+/* Central in the top nav: violet, like its sidebar button (2026-11-22) */
+.gt-link.gt-central { color: #c4b5fd; font-weight: 600; }
+.gt-link.gt-central:hover { color: #fff; }
