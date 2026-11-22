@@ -34,6 +34,12 @@
     <link rel="stylesheet" href="/blog/series.css">
     <link rel="stylesheet" href="/assets/css/topnav.css">
     <link rel="stylesheet" href="/assets/css/feature.css">
+    <style>
+    /* hub thumbnails (inline: feature.css is cached long) */
+    .ft-thumb { display: block; margin: -.2rem 0 .7rem; height: 118px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border); background: #0b0d12; }
+    .ft-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: left top; display: block; opacity: .9; transition: opacity .2s; }
+    .ft-card:hover .ft-thumb img { opacity: 1; }
+    </style>
 
     <script type="application/ld+json">
     {
@@ -100,6 +106,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
         <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
@@ -149,36 +156,42 @@
         <h2 id="g-monitor">Monitoring that explains itself</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="deepmonitor">
+                <a class="ft-thumb" href="/features/deepmonitor/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/deepmonitor/sensors-en-600.webp" alt="DeepMonitor sensor table: motherboard temperatures and rails, Temperature #6 at 127 C marked as a false sensor" width="600" height="230" loading="lazy"></a>
                 <h3><a href="/features/deepmonitor/">DeepMonitor</a></h3>
                 <p>Every sensor of the CPU, GPU, RAM, disks, fans and voltages, with the reading explained: which CPU temperature is the real one, what is normal for this PC, and which motherboard sensor reports a false 110&nbsp;&deg;C.</p>
                 <p class="ft-vs">Instead of HWiNFO, HWMonitor, AIDA64</p>
                 <a class="ft-more" href="/features/deepmonitor/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="time-travel">
+                <a class="ft-thumb" href="/features/time-travel/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/time-travel/time-travel-en-600.webp" alt="Activity Memory for the CPU, range All from 7 July to 21 November 2026, one point per day: average 13.8%, lowest 0%, peak 100% on 11 August, 95% of the time at or below 23%, 0 minutes above 80%, 5.8 days recorded. Heaviest processes: PC Workman, Opera, claude.exe, Desktop Window Manager. High-load spikes on 12 August." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/time-travel/">Activity Memory</a></h3>
                 <p>CPU, GPU and RAM history kept for more than a year. Go back to yesterday 21:00 and see which process slowed the PC, or compare this month with half a year ago, before a Windows update.</p>
                 <p class="ft-vs">No equivalent in other monitors</p>
                 <a class="ft-more" href="/features/time-travel/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="learning">
+                <a class="ft-thumb" href="/features/learning/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/learning/learning-en-600.webp" alt="Monitoring and Learning centre: active, 2,360 data points, health score 72 with thermal 90, memory 70, load 55, no anomalies. What PC Workman has learned: graphics card temperature per workload, idle 39 to 56 °C calibrated, light 45 to 61 °C calibrated, medium learning, heavy initializing, gaming 59 to 72 °C basic; voltage baselines need LibreHardwareMonitor; 100% learned, 148.2 hours observed." width="600" height="290" loading="lazy"></a>
                 <h3><a href="/features/learning/">Monitoring &amp; Learning</a></h3>
                 <p>Learns what is normal for this PC under idle, light and heavy load, so 82&nbsp;&deg;C is judged against your own norm, not a number from a forum. Voltages are watched for drift.</p>
                 <p class="ft-vs">No equivalent in other monitors</p>
                 <a class="ft-more" href="/features/learning/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="pc-map">
+                <a class="ft-thumb" href="/features/pc-map/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/pc-map/pc-map-en-600.webp" alt="PC Map of a desktop PC drawn in 3D: board, CPU, VRM, RAM, graphics card, NVMe drive, two SATA drives and the power supply, each labelled. Side panel This PC: 12th Gen Intel Core i5-12400F, NVIDIA GeForce RTX 3050, 8 GB RAM (1 x 8 GB), MSI PRO B760M-E DDR4 board, NVMe 1000 GB and SATA 240 GB and 2000 GB drives, and a table of temperatures and load now, 7-day average and 7-day maximum." width="600" height="296" loading="lazy"></a>
                 <h3><a href="/features/pc-map/">PC Map</a></h3>
                 <p>Your components drawn as a desktop or a laptop, coloured by the temperature now or the 7-day average. Hover a part for its details, click it to open its history.</p>
                 <p class="ft-vs">Instead of an AIDA64 report</p>
                 <a class="ft-more" href="/features/pc-map/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="health-report">
+                <a class="ft-thumb" href="/features/health-report/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/health-report/health-report-en-600.webp" alt="Health report: health score 85; since the last report: the first report, save it and the next one shows the changes. What to do first: 1. Memory: turn on XMP in the BIOS and consider more RAM. 2. Stability: check power and overheating, restarts without a clean shutdown are usually the PSU, heat or a driver. All findings: RAM 8 GB is usually 75% full, RAM runs at 2133 MHz without XMP, 4 restarts without a clean shutdown in 30 days, the graphics driver is 4 months old." width="600" height="285" loading="lazy"></a>
                 <h3><a href="/features/health-report/">Health Report</a></h3>
                 <p>One HTML file that says whether the PC is healthy: temperatures against the norm, disks, drivers, startup and what to do first. Save it or send it to whoever fixes your PC.</p>
                 <p class="ft-vs">Instead of AIDA64 reports</p>
                 <a class="ft-more" href="/features/health-report/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="stability-tests">
+                <a class="ft-thumb" href="/features/stability-tests/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/stability-tests/stability-tests-en-600.webp" alt="Stability Tests in PC Workman after a run: CPU, memory and drive selected, CPU for 5 minutes, live line CPU 100%, 75 °C, 4366 MHz, limit 0%, 63 W, a chart of temperature and clock, and the verdict: Stable. The CPU peaked at 75 °C and held its clock. Memory 2048 MB, 5 patterns, 0 errors; drive 1024 MB written at 412 MB/s, read back and matching." width="600" height="177" loading="lazy"></a>
                 <h3><a href="/features/stability-tests/">Stability Tests</a></h3>
                 <p>CPU, RAM and disk tests that measure temperatures and clocks while they run and end with a verdict in plain words, compared with this PC's norm.</p>
                 <p class="ft-vs">Instead of OCCT, Prime95, the AIDA64 stability test</p>
@@ -189,48 +202,56 @@
         <h2 id="g-optimize">Cleanup and optimization, measured</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="cleanup">
+                <a class="ft-thumb" href="/features/cleanup/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/cleanup/cleanup-window-en-600.webp" alt="PC Workman Cleanup after a scan: 11.8 GB to free, 10.7 GB selected in 9 items, a checklist in groups (Windows, Browsers, Games, Apps, For developers) on the left and the scan result with a bar and a file count for every place on the right." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/cleanup/">Cleanup</a></h3>
                 <p>28 known places in Windows, browsers, games and apps, a disk analysis that says what every big folder is, and free space history with a forecast. Files shown first, open programs skipped, no registry cleaning.</p>
                 <p class="ft-vs">Instead of CCleaner, Disk Cleanup, Storage Sense</p>
                 <a class="ft-more" href="/features/cleanup/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="optimization-guide">
+                <a class="ft-thumb" href="/features/optimization-guide/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/optimization-guide/optimization-guide-en-600.webp" alt="Optimization Center: TURBO 1 of 4 armed, RAM 80%, every action leaves a before-and-after receipt. Quick actions: TURBO, Startup Apps, Services, Disk, Weekly Performance Report. Memory: Auto RAM Flush, App Hibernation. CPU and power: Turbo Power Plan, Process Guard, CPU Throttle Guard. Services and startup: TURBO Service Stop. Proof and advice: Optimization Receipts, Upgrade Advisor. Buttons: Step-by-step guide, Startup and services." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/optimization-guide/">Optimization Guide</a></h3>
                 <p>Six steps from startup to services, each with a measurement before and after and a receipt of what changed, so you know which step helped and can undo it.</p>
                 <p class="ft-vs">Instead of "speed up your PC" tweak lists</p>
                 <a class="ft-more" href="/features/optimization-guide/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="startup-manager">
+                <a class="ft-thumb" href="/features/startup-manager/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/startup-manager/startup-en-600.webp" alt="PC Workman Startup Manager: 10 entries, 3 with high impact, 6 to review. To disable: Microsoft Teams (high), Discord (medium), Spotify (medium), Steam (high), Epic Games Launcher (high), Adobe Update Daemon (medium). Active at startup with an ON switch for each, including LG HUB, Malwarebytes and ShareX rated low impact." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/startup-manager/">Startup Manager</a></h3>
                 <p>Registry, the Startup folder, Task Scheduler and Store apps in one list, with the boot impact and a recommendation per entry. Disables the way Task Manager does, so it can always be undone.</p>
                 <p class="ft-vs">Instead of Task Manager, Autoruns</p>
                 <a class="ft-more" href="/features/startup-manager/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="services-manager">
+                <a class="ft-thumb" href="/features/services-manager/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/services-manager/services-en-600.webp" alt="PC Workman Services Manager: 43 services catalogued, 25 running. Six questions: Bluetooth, Printing, Xbox, Telemetry, Fax, Remote desktop, each with Not used and I use it. Groups: Unneeded 14, Optional 10, Recommended 9, Essential 10 that cannot be stopped. Each service shows its state, Start or Stop, and the G, E, M profiles it belongs to. Modes bar: Gaming 18, Economy 21, Manager 0." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/services-manager/">Services Manager</a></h3>
                 <p>Windows services explained, with ready profiles: Gaming stops 18 candidates, Economy 21, or your own list. Critical services are protected and everything returns with one click.</p>
                 <p class="ft-vs">Instead of services.msc</p>
                 <a class="ft-more" href="/features/services-manager/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="turbo">
+                <a class="ft-thumb" href="/features/turbo/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/optimization-center/bands-en-600.webp" alt="Optimization Center: Memory, CPU and power, Services and startup, Proof and advice, each on a band of its own colour" width="600" height="332" loading="lazy"></a>
                 <h3><a href="/features/turbo/">TURBO</a></h3>
                 <p>One switch for gaming: RAM Flush above 75%, a Turbo power plan, paused services, Process Guard and App Hibernation for programs you do not need right now. Measured, not promised.</p>
                 <p class="ft-vs">Instead of Windows Game Mode, Razer Cortex</p>
                 <a class="ft-more" href="/features/turbo/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="process-center">
+                <a class="ft-thumb" href="/features/process-center/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/process-center/process-center-en-600.webp" alt="Process Information Center: 239 processes now, 202 in the background (85% of them normal on Windows), 0 worth a look. Table with process, CPU now, RAM now, CPU and RAM over 7 days, how steady it is, whether it is safe and the advice: keep, protected. Filters: All, Background, Steady, Worth a look, Games, and a search box." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/process-center/">Process Center</a></h3>
                 <p>522 Windows processes described in plain words, with "can I close it", 7-day averages and a card on hover. Unknown process? Ask hck_GPT from the same row.</p>
                 <p class="ft-vs">Instead of Task Manager, Process Explorer</p>
                 <a class="ft-more" href="/features/process-center/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="drivers">
+                <a class="ft-thumb" href="/features/drivers/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/drivers/drivers-en-600.webp" alt="First Setup and Drivers: Windows 11 Pro, readiness 60 of 100, uptime, last boot, build 26200, 2 of 4 drivers current. Driver health: NVIDIA GeForce RTX 3050 driver current from July 2026; Steam Streaming Microphone with 7 ghosts; Realtek PCIe GbE network controller with 3 ghosts; USB xHCI host controller with 4 ghosts, each linking to Device Manager." width="600" height="322" loading="lazy"></a>
                 <h3><a href="/features/drivers/">Setup &amp; Drivers</a></h3>
                 <p>Finds ghost drivers left by hardware you removed long ago and rates the age of the drivers you use, calmly, without selling an updater.</p>
                 <p class="ft-vs">Instead of Device Manager, driver updaters</p>
                 <a class="ft-more" href="/features/drivers/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="fan-dashboard">
+                <a class="ft-thumb" href="/features/fan-dashboard/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/fan-dashboard/fan-dashboard-en-600.webp" alt="Fan Dashboard: profiles Default, Silent, Performance and hck_GPT AI; fan cards for CPU fan, GPU fan, Fan 1 and Fan 2 showing no sensor; a fan curve from 25% at 25 °C to 90% at 100 °C with a 2160 RPM marker; minimum and maximum fan speed sliders; buttons Apply, Revert, Save Profile, Export, Reset; a note that curves are saved in PC Workman and do not change fan speed yet." width="600" height="369" loading="lazy"></a>
                 <h3><a href="/features/fan-dashboard/">Fan Dashboard</a></h3>
                 <p>Fan curves with drag-and-drop points, live RPM cards and profiles (Default, Silent, AI, your own), saved and importable.</p>
                 <p class="ft-vs">Instead of Fan Control, MSI Afterburner curves</p>
@@ -241,12 +262,14 @@
         <h2 id="g-games">Games</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="overlay">
+                <a class="ft-thumb" href="/features/overlay/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/overlay/overlay-en-700.webp" alt="In-game overlay: CPU 46% 71 °C, GPU 97% 68 °C 5.7 GB of VRAM, RAM 63%, FPS 144 with 1% low 69 and 0.1% low 42 underneath." width="700" height="200" loading="lazy"></a>
                 <h3><a href="/features/overlay/">Game overlay</a></h3>
                 <p>FPS, temperatures and load in a game, in three layouts (Default, Compact, Pro), showing only what you choose. Works on any graphics card, reads FPS from RTSS when it is installed.</p>
                 <p class="ft-vs">Instead of MSI Afterburner + RTSS, NVIDIA App</p>
                 <a class="ft-more" href="/features/overlay/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="games">
+                <a class="ft-thumb" href="/features/games/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/games/games-en-353.webp" alt="Two PC Workman game notes in the corner of the screen: &quot;Time for some headshots! CS2, clutch or kick&quot; and &quot;Welcome to Night City! Cyberpunk 2077&quot;." width="353" height="194" loading="lazy"></a>
                 <h3><a href="/features/games/">Games</a></h3>
                 <p>Recognises 228 games, greets the one you start with a calm note, and keeps every session: how long you played and how hard the CPU and graphics card worked.</p>
                 <p class="ft-vs">Instead of NVIDIA App statistics</p>
@@ -257,12 +280,14 @@
         <h2 id="g-hardware">Hardware</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="overclock">
+                <a class="ft-thumb" href="/features/overclock/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/overclock/overclock-en-600.webp" alt="Overclock Headroom Lab while a game runs: limiting factor Headroom available. CPU clock 4380 of 4400 MHz, power 58 of 117 W, 71 of 95 °C, load 46%, Vcore 1.212 V. GPU load 97%, power 112 of 130 W, 68 of 83 °C, VRAM 71%, core clock 1867 MHz, memory clock 7001 MHz." width="600" height="174" loading="lazy"></a>
                 <h3><a href="/features/overclock/">Overclock Headroom Lab</a></h3>
                 <p>Read only. Shows what limits your clocks right now, temperature or power, and how much headroom the cooling leaves, before you touch an overclocking tool.</p>
                 <p class="ft-vs">Before MSI Afterburner, Intel XTU</p>
                 <a class="ft-more" href="/features/overclock/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="upgrade-readiness">
+                <a class="ft-thumb" href="/features/upgrade-readiness/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/upgrade-readiness/upgrade-readiness-en-600.webp" alt="Upgrade Readiness: your platform read automatically as Intel Core i5-12400F, B760 motherboard on LGA1700, NVIDIA GeForce RTX 3050 and DDR4 RAM at 2133 MHz; a box to type the part you plan to buy with suggestions such as i9-14900K, i7-14700, RTX 4060 Ti, RX 7800 XT; a legend of what the check looks at: fits, one step, will not fit." width="600" height="285" loading="lazy"></a>
                 <h3><a href="/features/upgrade-readiness/">Upgrade Readiness</a></h3>
                 <p>Reads your PC by itself and says what fits: which processor your board takes, how much RAM, which upgrade gives the most. Offline, no list to type in.</p>
                 <p class="ft-vs">Instead of PCPartPicker</p>
@@ -273,12 +298,14 @@
         <h2 id="g-assistant">hck_GPT</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="hck-gpt">
+                <a class="ft-thumb" href="/features/hck-gpt/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/hck-gpt/hck-gpt-en-600.webp" alt="hck_GPT answering which CPU temperature is the real one: Intel reports CPU Package and Core Max, AMD Tctl/Tdie; now 71 °C from the CPU sensor; why a board shows 110 to 127 °C; Temperature #6 at 127 marked as a false sensor; a link to DeepMonitor." width="600" height="153" loading="lazy"></a>
                 <h3><a href="/features/hck-gpt/">hck_GPT</a></h3>
                 <p>An assistant that knows this PC and runs offline. Ask "why is my PC slow" or "is 82 &deg;C a lot" and it answers from your own data, with a link to the tab that fixes it.</p>
                 <p class="ft-vs">Instead of asking Copilot or ChatGPT in the cloud</p>
                 <a class="ft-more" href="/features/hck-gpt/">Learn more &rarr;</a>
             </article>
             <article class="ft-card has-page" id="network-test">
+                <a class="ft-thumb" href="/features/network-test/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/network-test/network-test-en-600.webp" alt="hck_GPT connection test: Wi-Fi, link to the router 1201 Mb/s; router 2 ms, 0 of 3 lost; google.com ping 18 ms, jitter 1 ms, 0 of 4 lost; DNS 14 ms; verdict: the connection works well, low ping, no loss. Then the question whether to measure the download speed from Cloudflare&#x27;s test server." width="600" height="167" loading="lazy"></a>
                 <h3><a href="/features/network-test/">Network test</a></h3>
                 <p>Checks the router, DNS, ping, jitter and loss and says where the problem is: "it is DNS", "the problem is past your router". A speed test only when you agree.</p>
                 <p class="ft-vs">Instead of Speedtest, fast.com</p>
@@ -289,6 +316,7 @@
         <h2 id="g-data">Your data</h2>
         <div class="ft-cards">
             <article class="ft-card has-page" id="privacy-data">
+                <a class="ft-thumb" href="/features/privacy-data/" tabindex="-1" aria-hidden="true"><img src="/assets/images/features/privacy-data/privacy-data-en-600.webp" alt="Your profile: this PC named Ola-PC, a desktop with Intel Core i5-12400F and NVIDIA GeForce RTX 3050. Since the beginning: 148 hours with PC Workman, 2 games, 4 hours of gaming, 20 RAM flushes. Milestones. Privacy: only an anonymous hardware snapshot is sent, never files, names or processes, and a Delete my data button. Buttons Export my data and Privacy settings." width="600" height="301" loading="lazy"></a>
                 <h3><a href="/features/privacy-data/">Your profile and data</a></h3>
                 <p>Everything PC Workman learns stays on your disk. Export it, delete it, and see exactly what anonymous telemetry sends, or turn it off.</p>
                 <p class="ft-vs">Open source, MIT licence</p>
