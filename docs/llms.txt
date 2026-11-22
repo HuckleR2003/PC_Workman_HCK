@@ -185,7 +185,8 @@ Full technical reference: https://pcworkman.dev/llms-full.txt
   resource information.
 - Upgrade Readiness has an offline compatibility database of 196 CPUs, 84 GPUs
   and 60 chipsets, 340 entries in total.
-- Release 1.9.3 shipped with 817 tests, all green.
+- Release 1.9.3 shipped with 840 tests, all green.
+- hck_GPT can propose a change (a startup entry off, a service to manual, another power plan) on a card with what the program is and who signed it; it acts only after the user agrees, and every decision stays on a list of changes with UNDO. Settings also has a raw Data viewer with CLEANUP for the local chat history.
 - Cleanup covers known places only (temporary files, browser and app caches, crash dumps), shows every file before
   removing anything, skips open programs and files from the last 24 hours, and never cleans the registry.
 - 228 games are recognised by their executables and Steam manifests.

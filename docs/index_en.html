@@ -34,7 +34,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20261122">
 
     <script type="application/ld+json">
     {
@@ -430,6 +430,7 @@
 
         .feature-screenshot-wide {
             width: 100%;
+            height: auto;
             border-radius: 8px;
             border: 1px solid #1e2530;
             margin-top: 16px;
@@ -605,6 +606,7 @@
         <a class="gt-link gt-white" href="SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="download/">Download</a>
         <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
         <a class="gt-link" href="guides/">Articles / Guides</a>
         <a class="gt-link gt-roadmap" href="roadmap/">Roadmap</a>
         <a class="gt-link gt-labs" href="hck-labs/">HCK Labs</a>
@@ -643,6 +645,12 @@
             </a></li>
             <li><a href="guides/" class="nav-special">
                 <span><b>Articles / Guides</b><span class="ns-sub">Windows performance, no myths</span></span>
+            </a></li>
+            <li><a href="/features/" class="nav-special nav-special-hub">
+                <span><b>All 21 features</b><span class="ns-sub">one page per feature, with screenshots</span></span>
+            </a></li>
+            <li><a href="/central/" class="nav-special nav-special-central">
+                <span><b>PC Workman Central</b><span class="ns-sub">a whole computer room · in preparation</span></span>
             </a></li>
             <li><a href="#modules" class="nav-link" data-section="modules">
                 <span class="nav-icon nav-icon-features"></span>
@@ -887,6 +895,8 @@
                             <span class="pill pill-eco">Economy <span class="pill-count">21 candidates</span></span>
                             <span class="pill pill-work">Manager <span class="pill-count">your list</span></span>
                         </div>
+                        <img src="assets/images/features/optimization-center/bands-en-600.webp" alt="Optimization Center: Memory, CPU and power, Services and startup, Proof and advice, each on a band of its own colour"
+                             class="feature-screenshot-wide" width="600" height="332" loading="lazy">
                     </div>
 
                     <!-- DeepMonitor -->
@@ -900,6 +910,8 @@
                             data feeds Monitoring &amp; Learning and hck_GPT.
                         </div>
                         <a class="lm-more" href="/features/deepmonitor/">Learn more…</a>
+                        <img src="assets/images/features/deepmonitor/sensors-en-600.webp" alt="DeepMonitor sensor table: motherboard temperatures and rails, Temperature #6 at 127 C marked as a false sensor"
+                             class="feature-screenshot-wide" width="600" height="230" loading="lazy">
                     </div>
 
                     <!-- Fan Dashboard -->
@@ -929,6 +941,8 @@
                             and quickly explains what each one does.
                             Onboarding that doesn't annoy.
                         </div>
+                        <img src="assets/images/features/guide/guide-live-en-600.webp" alt="Guide on program LIVE: the dashboard dimmed, Session averages lit up, card 3 of 7 explains it"
+                             class="feature-screenshot-wide" width="600" height="421" loading="lazy">
                     </div>
 
                 </div>
@@ -1331,11 +1345,7 @@
                     <a class="lm-all" href="/features/learning/">More about it &rarr;</a>
                 </div>
 
-                <!-- [GIF] Replace this placeholder with:
-                     <img class="feature-screenshot-wide" src="assets/images/learning-center.gif" alt="PC Workman Learning Center"> -->
-                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
-                    🧠 &nbsp;LEARNING CENTER &nbsp;·&nbsp; live view of what your PC has learned
-                </div>
+                <img class="feature-screenshot-wide" src="assets/images/features/learning/learning-en-1095.webp" alt="Monitoring and Learning centre: active, 2,360 data points, health score 72 with thermal 90, memory 70, load 55, no anomalies. What PC Workman has learned: graphics card temperature per workload, idle 39 to 56 °C calibrated, light 45 to 61 °C calibrated, medium learning, heavy initializing, gaming 59 to 72 °C basic; voltage baselines need LibreHardwareMonitor; 100% learned, 148.2 hours observed." width="1095" height="530" loading="lazy" style="margin:0 0 20px">
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
@@ -1381,11 +1391,7 @@
                     <a class="lm-all" href="/features/overlay/">More about it &rarr;</a>
                 </div>
 
-                <!-- [GIF] Replace this placeholder with the build-and-test recording:
-                     <img class="feature-screenshot-wide" src="assets/images/gaming-overlay-custom.gif" alt="Building and testing a custom in-game overlay in PC Workman"> -->
-                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
-                    🎮 &nbsp;MY PC → GAMING / IN-GAME &nbsp;·&nbsp; build your own layout, then test it live
-                </div>
+                <img class="feature-screenshot-wide" src="assets/images/features/overlay/overlay-en-700.webp" alt="In-game overlay: CPU 46% 71 °C, GPU 97% 68 °C 5.7 GB of VRAM, RAM 63%, FPS 144 with 1% low 69 and 0.1% low 42 underneath." width="700" height="200" loading="lazy" style="margin:0 0 20px">
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px;">
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
@@ -1702,7 +1708,7 @@
                             <p class="post-content">
                                 v1.9.3 PC Cleanup Overhaul: Cleanup 2.0 (28 places, disk analysis, free space history,
                                 duplicates to the Recycle Bin), real Stability Tests with a verdict, DeepMonitor that recognises
-                                false sensors, 1% and 0.1% low FPS, game profiles and the startup cost of every entry. 817 tests, all green.
+                                false sensors, 1% and 0.1% low FPS, game profiles, the startup cost of every entry, and hck_GPT proposing a change and making it after your yes, with UNDO for every decision. 840 tests, all green.
                                 <a href="/features/cleanup/" style="color:#a78bfa;">Cleanup 2.0 &rarr;</a>
                             </p>
                         </div>

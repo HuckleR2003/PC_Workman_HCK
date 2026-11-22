@@ -29,7 +29,7 @@ hardware sensor source.
 - 119 hck_GPT intents in Polish and English.
 - 522 process definitions.
 - 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
-- 817 tests in release 1.9.3, all green.
+- 840 tests in release 1.9.3, all green.
 - 228 games recognised by executable and Steam manifest.
 - Built in public since 2025 and mature: almost every feature works in full; the Fan Dashboard is held back
   on purpose (plans curves, does not drive the fans yet) until stability and test coverage allow it.
@@ -57,6 +57,10 @@ A Windows Named Mutex enforces a single application instance. The component
 registry startup manifest checks that required modules registered successfully.
 
 ## New in 1.9.3 "PC Cleanup Overhaul"
+
+- hck_GPT decision cards (`core/gpt_actions.py`): startup entry off, service to manual, power plan; only after the user agrees, every decision on a list of changes with UNDO; a second list shows every startup entry that is off, however it was switched off.
+- Data viewer in Settings: approved suggestions, chat history with CLEANUP, learned normals, the history database, data files.
+- Optimization Center: category colour bands, a Feature guide LIVE tour.
 
 - Stability Tests: real CPU (all threads), memory (5 patterns over half of free RAM,
   up to 2 GB) and drive (test file, removed after) tests; temperature, real clock and
@@ -317,6 +321,24 @@ The build-in-public archive contains three dated series:
 Old articles intentionally retain the release number, intent count, process
 count and social metrics that were true when they were published. Current facts
 belong on landing, download, profile, roadmap and these LLM reference files.
+
+## PC Workman Central (in preparation)
+
+A planned separate product for school computer labs, offices, gaming cafes and repair shops:
+https://pcworkman.dev/central/ (Polish: https://pcworkman.dev/central/index_pl).
+
+- Shows the hardware health of every PC in a room on one screen: a tile per PC with a status colour, CPU
+  temperature, memory and system drive; a click opens that PC's PC Workman read-only.
+- Each PC is judged against its own learned normal, and against identical twins in the same room.
+- Warnings in plain words written by hck_GPT for the admin; room averages, the worst five, more than half a year of history,
+  a report for the head teacher or owner.
+- Architecture: a windowless PC Workman agent on every PC and Central on the admin's PC. Local network only, pairing by code,
+  encrypted connection, the agent connects to Central so student PCs open no port. No cloud account.
+- Collects hardware data only: never screens, keystrokes, websites, document contents, file names or Windows user names.
+  School mode shows programs in groups. A visible agent, no hidden mode.
+- Version 1 is view-only: no remote process kills, restarts or installs.
+- Status: in preparation; stability of PC Workman comes first. A pilot with one school lab and one small office is open.
+  Pricing not set (plan: free for a few PCs, a yearly licence per room, an education licence).
 
 ## HCK Labs and Scaling Laws
 

@@ -59,6 +59,7 @@
         <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
         <a class="gt-link gt-white" href="/download/">Download</a>
         <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
         <a class="gt-link" href="/guides/">Articles / Guides</a>
         <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
         <span class="gt-sep"></span>
@@ -84,10 +85,10 @@
         <p class="lead">PC Workman monitors low-level system data and can perform elevated actions such as changing power plans, managing services and applying supported fan controls. Basic monitoring does not require administrator rights. That access deserves verifiable security. This page summarises how releases are protected and how you can check them yourself. The full policy lives in <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md">SECURITY.md</a>.</p>
 
         <div class="sec-badges">
-            <figure><img src="assets/images/codeql.png" alt="CodeQL">          <figcaption>CodeQL</figcaption></figure>
-            <figure><img src="assets/images/virustotal.png" alt="VirusTotal">    <figcaption>VirusTotal 1/70, v1.8.7</figcaption></figure>
-            <figure><img src="assets/images/github_security.png" alt="Sigstore"> <figcaption>Sigstore signed</figcaption></figure>
-            <figure><img src="assets/images/openssf.png" alt="OpenSSF">          <figcaption>OpenSSF (in progress)</figcaption></figure>
+            <figure><img src="assets/images/codeql.png" alt="CodeQL code scanning badge for the PC Workman repository">          <figcaption>CodeQL</figcaption></figure>
+            <figure><img src="assets/images/virustotal.png" alt="VirusTotal scan of PC Workman 1.8.7: 1 of 70 engines">    <figcaption>VirusTotal 1/70, v1.8.7</figcaption></figure>
+            <figure><img src="assets/images/github_security.png" alt="Sigstore signed releases of PC Workman on GitHub"> <figcaption>Sigstore signed</figcaption></figure>
+            <figure><img src="assets/images/openssf.png" alt="OpenSSF Scorecard for PC Workman, in progress">          <figcaption>OpenSSF (in progress)</figcaption></figure>
         </div>
 
         <h2>How every release is protected</h2>
@@ -119,7 +120,8 @@
         <table>
             <thead><tr><th>Version</th><th>Supported</th><th>Security updates</th></tr></thead>
             <tbody>
-                <tr><td>1.8.x (latest stable: 1.8.7)</td><td>Yes</td><td>Current release line</td></tr>
+                <tr><td>1.9.x (latest stable: 1.9.3)</td><td>Yes</td><td>Current release line</td></tr>
+                <tr><td>1.8.x</td><td>Limited</td><td>Critical only - upgrade recommended</td></tr>
                 <tr><td>1.7.x</td><td>Limited</td><td>Critical only - upgrade recommended</td></tr>
                 <tr><td>1.6.x</td><td>Limited</td><td>Critical only - upgrade recommended</td></tr>
                 <tr><td>&lt; 1.6</td><td>No</td><td>End of life</td></tr>

@@ -25,6 +25,11 @@ docs/
 ├── index.html                 # Polish landing
 ├── index_en.html              # English landing
 ├── download/                  # English and Polish download pages
+├── features/                  # Features hub and one page per feature
+├── alternatives/              # Honest comparisons with other programs
+├── central/                   # PC Workman Central (in preparation)
+├── hck-labs/                  # HCK_Labs and Scaling Laws
+├── cv/, kierowca/             # Personal pages
 ├── privacy.html               # Polish privacy policy
 ├── privacy_en.html            # English privacy policy
 ├── SECURITY_report.html       # Security and release verification
@@ -46,7 +51,7 @@ docs/
 Run from the repository root:
 
 ```powershell
-python scripts/audit_site.py
+py scripts/audit_site.py
 ```
 
 The audit checks all HTML files for:
@@ -65,7 +70,7 @@ The audit checks all HTML files for:
 For a network-dependent check of all unique outbound links:
 
 ```powershell
-python scripts/audit_site.py --external
+py scripts/audit_site.py --external
 ```
 
 HTTP 401, 403 and 429 responses are reported as warnings because some services

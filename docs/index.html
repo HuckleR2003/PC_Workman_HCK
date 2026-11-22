@@ -75,7 +75,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=20261122">
 
     <script type="application/ld+json">
     {
@@ -440,6 +440,7 @@
         /* Feature screenshot upgrade */
         .feature-screenshot-wide {
             width: 100%;
+            height: auto;
             border-radius: 8px;
             border: 1px solid #1e2530;
             margin-top: 16px;
@@ -547,6 +548,7 @@
         <a class="gt-link gt-white" href="SECURITY_report.html">Bezpieczeństwo</a>
         <a class="gt-link gt-white" href="download/index_pl.html">Pobierz</a>
         <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
         <a class="gt-link" href="guides/index_pl.html">Artykuły / Poradniki</a>
         <a class="gt-link gt-roadmap" href="roadmap/">Roadmapa</a>
         <a class="gt-link gt-labs" href="hck-labs/">HCK Labs</a>
@@ -585,6 +587,12 @@
             </a></li>
             <li><a href="guides/index_pl.html" class="nav-special">
                 <span><b>Artykuły / Poradniki</b><span class="ns-sub">wydajność Windows bez mitów</span></span>
+            </a></li>
+            <li><a href="/features/index_pl.html" class="nav-special nav-special-hub">
+                <span><b>Wszystkie 21 funkcji</b><span class="ns-sub">każda na swojej stronie, ze zrzutami</span></span>
+            </a></li>
+            <li><a href="/central/index_pl.html" class="nav-special nav-special-central">
+                <span><b>PC Workman Central</b><span class="ns-sub">cała pracownia · w przygotowaniu</span></span>
             </a></li>
             <li><a href="#modules" class="nav-link" data-section="modules">
                 <span class="nav-icon nav-icon-features"></span>
@@ -822,6 +830,8 @@
                             <span class="pill pill-eco">Economy <span class="pill-count">21 kandydatów</span></span>
                             <span class="pill pill-work">Manager <span class="pill-count">własna lista</span></span>
                         </div>
+                        <img src="assets/images/features/optimization-center/bands-pl-600.webp" alt="Centrum optymalizacji: Pamięć, Procesor i zasilanie, Usługi i start, Dowody i porady, każda kategoria na pasie własnego koloru"
+                             class="feature-screenshot-wide" width="600" height="332" loading="lazy">
                     </div>
 
                     <!-- DeepMonitor -->
@@ -835,6 +845,8 @@
                             obciążenia. Dane zasilają Monitoring &amp; Learning i hck_GPT.
                         </div>
                         <a class="lm-more" href="/features/deepmonitor/index_pl.html">Dowiedz się więcej…</a>
+                        <img src="assets/images/features/deepmonitor/sensors-pl-600.webp" alt="Tabela czujników DeepMonitor: temperatury i napięcia płyty, Temperature #6 ze 127 C oznaczony jako fałszywy czujnik"
+                             class="feature-screenshot-wide" width="600" height="230" loading="lazy">
                     </div>
 
                     <!-- Fan Dashboard -->
@@ -865,6 +877,8 @@
                             głównego Dashboard i w skrócie tłumaczy do czego każdy służy.
                             Onboarding, który nie irytuje.
                         </div>
+                        <img src="assets/images/features/guide/guide-live-pl-600.webp" alt="Przewodnik LIVE: przyciemniony panel, podświetlone Średnie sesji, karta 3 z 7 wyjaśnia, co to jest"
+                             class="feature-screenshot-wide" width="600" height="391" loading="lazy">
                     </div>
 
                 </div>
@@ -1269,11 +1283,7 @@
                     <a class="lm-all" href="/features/learning/index_pl.html">Więcej o tym &rarr;</a>
                 </div>
 
-                <!-- [GIF] Podmień ten placeholder na:
-                     <img class="feature-screenshot-wide" src="assets/images/learning-center.gif" alt="PC Workman Learning Center"> -->
-                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
-                    🧠 &nbsp;LEARNING CENTER &nbsp;·&nbsp; podgląd na żywo tego, czego nauczył się Twój PC
-                </div>
+                <img class="feature-screenshot-wide" src="assets/images/features/learning/learning-pl-1095.webp" alt="Centrum Monitoring &amp; Learning: aktywne, 2360 punktów danych, wynik zdrowia 72 z częściami termika 90, pamięć 70, obciążenie 55, brak anomalii. Czego nauczył się PC Workman: temperatura karty graficznej dla każdego obciążenia, bezczynny 39 do 56 °C skalibrowany, lekkie 45 do 61 °C skalibrowane, średnie uczy się, ciężkie start, granie 59 do 72 °C podstawowy; napięcia wymagają LibreHardwareMonitor; 100% nauczone, 148,2 h obserwacji." width="1095" height="530" loading="lazy" style="margin:0 0 20px">
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
@@ -1319,11 +1329,7 @@
                     <a class="lm-all" href="/features/overlay/index_pl.html">Więcej o tym &rarr;</a>
                 </div>
 
-                <!-- [GIF] Podmień ten placeholder na nagranie tworzenia i testowania layoutu:
-                     <img class="feature-screenshot-wide" src="assets/images/gaming-overlay-custom.gif" alt="Tworzenie i testowanie własnej nakładki in-game w PC Workman"> -->
-                <div style="background:#0d1220;border:1px dashed #2a3340;border-radius:12px;padding:46px 18px;text-align:center;margin-bottom:20px;color:#5b6b78;font-size:13px;letter-spacing:.5px;">
-                    🎮 &nbsp;MY PC → GAMING / IN-GAME &nbsp;·&nbsp; zbuduj własny layout i przetestuj go na żywo
-                </div>
+                <img class="feature-screenshot-wide" src="assets/images/features/overlay/overlay-pl-700.webp" alt="Nakładka w grze: CPU 46% 71 °C, GPU 97% 68 °C 5,7 GB VRAM, RAM 63%, FPS 144, a pod spodem 1% low 69 i 0,1% low 42." width="700" height="200" loading="lazy" style="margin:0 0 20px">
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px;">
                     <div style="background:#0d1220;border:1px solid #1e2530;border-radius:10px;padding:18px;">
@@ -1635,7 +1641,7 @@
                             <p class="post-content">
                                 v1.9.3 PC Cleanup Overhaul: Oczyszczanie 2.0 (28 miejsc, analiza dysku, historia wolnego miejsca,
                                 duplikaty do Kosza), prawdziwe Testy stabilności z werdyktem, DeepMonitor rozpoznający fałszywe
-                                czujniki, 1% i 0,1% low FPS, profile gier i sekundy startu każdego wpisu autostartu. 817 testów, wszystkie zielone.
+                                czujniki, 1% i 0,1% low FPS, profile gier, sekundy startu każdego wpisu autostartu i hck_GPT, który proponuje zmianę i robi ją po Twoim tak, z UNDO przy każdej decyzji. 840 testów, wszystkie zielone.
                                 <a href="/features/cleanup/index_pl.html" style="color:#a78bfa;">Oczyszczanie 2.0 &rarr;</a>
                             </p>
                         </div>
