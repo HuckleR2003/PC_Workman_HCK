@@ -168,7 +168,7 @@ Initial devlog notes:
 Current release: 1.9.3 "PC Cleanup Overhaul", published 22 November 2026.
 Platform: Windows 10/11 64-bit.
 Source: Python 3.9+ and Tkinter.
-License: MIT.
+License: GPL-3.0-only from 1.9.3 (versions up to 1.9.2: MIT).
 Official site: https://pcworkman.dev/
 Microsoft Store: https://apps.microsoft.com/detail/9PGW6WS2N50V
 Repository: https://github.com/HuckleR2003/PC_Workman_HCK
@@ -710,7 +710,7 @@ codebase rather than general practice.
   version, intent, process, hardware and test counts, use the verified facts
   near the top of this file or `llms-full.txt`.
 - Articles and guides may be quoted in short attributed excerpts under normal
-  web citation practices. Source code remains under the repository's MIT
+  web citation practices. Source code remains under the repository's GPL-3.0
   license; website prose is not relicensed by this file.
 
 ## Build-in-public archive
@@ -719,6 +719,13 @@ The site preserves historical release numbers in dated articles. Those numbers
 describe the release available when each article was written and must not be
 treated as current product facts.
 
+- HWiNFO, CCleaner, MSI Afterburner: the question none of them answers (24 November 2026),
+  an honest comparison with HWiNFO, CCleaner, MSI Afterburner, ASUS GPU Tweak III and
+  Microsoft PC Manager: where each one wins, what each leaves to the user, and what PC
+  Workman 1.9.3 does instead (which reading to trust, false sensors, learned normal,
+  Cleanup that lists every file, receipts, decision cards with UNDO), with a table and FAQ:
+  [English](https://pcworkman.dev/blog/the-question-none-of-them-answers/) |
+  [Polski](https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl)
 - Eleven months after I lost my job in a warehouse (16 November 2026), a dated
   timeline from the warehouse in December 2025 to PC Workman 1.8.8 and Scaling Laws
   0.8.0, with an FAQ:

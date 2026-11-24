@@ -8,7 +8,7 @@ Verified: 21 November 2026.
 Current release: 1.9.3 "PC Cleanup Overhaul" (22 November 2026).
 Platform: Windows 10/11 64-bit.
 Source runtime: Python 3.9+ and Tkinter.
-License: MIT.
+License: GPL-3.0-only from 1.9.3 (versions up to 1.9.2: MIT).
 Author: Marcin Firmuga, HCK_Labs.
 
 Official site: https://pcworkman.dev/
