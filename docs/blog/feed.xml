@@ -7,7 +7,15 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Mon, 16 Nov 2026 11:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Tue, 24 Nov 2026 11:00:00 GMT</lastBuildDate>
+  <item>
+    <title>HWiNFO, CCleaner, MSI Afterburner: the question none of them answers</title>
+    <link>https://pcworkman.dev/blog/the-question-none-of-them-answers/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/the-question-none-of-them-answers/</guid>
+    <pubDate>Tue, 24 Nov 2026 11:00:00 GMT</pubDate>
+    <description>Every new PC gets HWiNFO, CCleaner, MSI Afterburner, a GPU tool and PC Manager. An honest comparison of where each one wins, and the question all of them leave to you: is my PC all right, and what do I do?</description>
+  </item>
+
   <item>
     <title>Eleven months after I lost my job in a warehouse</title>
     <link>https://pcworkman.dev/blog/eleven-months/</link>

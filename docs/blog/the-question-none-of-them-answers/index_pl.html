@@ -1,0 +1,282 @@
+<!doctype html>
+<!-- HCK_Labs -> PC_Workman · Blog (PL) · HWiNFO, CCleaner, MSI Afterburner i pytanie, na które żaden nie odpowiada -->
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HWiNFO, CCleaner, MSI Afterburner: pytanie, na które żaden nie odpowiada | PC Workman</title>
+<meta name="description" content="Każdy nowy komputer z Windows dostaje te same programy: HWiNFO, CCleaner, MSI Afterburner, GPU Tweak, PC Manager. Używałem ich wszystkich, a potem po kursach taksówką zbudowałem PC Workmana, żeby odpowiadał na pytanie, które one zostawiają Tobie. Uczciwe porównanie, z tym, w czym każdy wygrywa.">
+<meta name="keywords" content="alternatywa HWiNFO, alternatywa CCleaner, alternatywa MSI Afterburner, alternatywa GPU Tweak, Microsoft PC Manager, darmowy monitor komputera, która temperatura procesora jest prawdziwa, fałszywy czujnik, bezpieczne czyszczenie dysku, 1% low FPS, PC Workman">
+<meta name="author" content="Marcin Firmuga">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="theme-color" content="#0a0b0e">
+<link rel="canonical" href="https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl">
+<link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl">
+<link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/the-question-none-of-them-answers/">
+<link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/the-question-none-of-them-answers/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="PC Workman">
+<meta property="og:title" content="HWiNFO, CCleaner, MSI Afterburner: pytanie, na które żaden nie odpowiada">
+<meta property="og:description" content="Pokazują wszystko. Żaden nie mówi, co to znaczy dla Twojego komputera. Uczciwe porównanie od kogoś, kto używał ich wszystkich, a potem po kursach taksówką zbudował odpowiedź.">
+<meta property="og:url" content="https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:image" content="https://pcworkman.dev/assets/images/features/deepmonitor/table-pl-760.webp">
+<meta property="og:image:alt" content="DeepMonitor w PC Workman: czujnik płyty głównej ze 127 °C oznaczony jako fałszywy">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@hck_lab">
+<meta name="twitter:image" content="https://pcworkman.dev/assets/images/features/deepmonitor/table-pl-760.webp">
+<meta property="article:published_time" content="2026-11-24T12:00:00+01:00">
+<meta property="article:modified_time" content="2026-11-24T12:00:00+01:00">
+<link rel="stylesheet" href="../series.css">
+<link rel="stylesheet" href="/assets/css/topnav.css">
+<style>
+    .figure { margin:30px 0; }
+    .figure img { width:100%; height:auto; border-radius:8px; border:1px solid #23262e; display:block; }
+    .figure figcaption { font-size:13px; color:#7b828f; margin-top:8px; font-style:italic; }
+    .tw { overflow-x:auto; }
+    .tool { border-left:3px solid #a78bfa; padding:.1rem 0 .1rem 1rem; margin:1.6rem 0 1rem; }
+    .tool b { display:block; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#8b93a3; font-family:'JetBrains Mono',monospace; }
+    .wins { color:#9ca3af; font-size:.92rem; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "HWiNFO, CCleaner, MSI Afterburner: pytanie, na które żaden nie odpowiada",
+      "description": "Uczciwe porównanie programów, które trafiają na każdy komputer z Windows: HWiNFO, CCleaner, MSI Afterburner, ASUS GPU Tweak III i Microsoft PC Manager, z tym, w czym każdy wygrywa, i z tym, co PC Workman robi z pytaniem, które one zostawiają użytkownikowi.",
+      "url": "https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/the-question-none-of-them-answers/index_pl" },
+      "datePublished": "2026-11-24T12:00:00+01:00",
+      "dateModified": "2026-11-24T12:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Build in public",
+      "keywords": "alternatywa HWiNFO, alternatywa CCleaner, alternatywa MSI Afterburner, alternatywa GPU Tweak, PC Manager, PC Workman",
+      "image": "https://pcworkman.dev/assets/images/features/deepmonitor/table-pl-760.webp",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "sameAs": ["https://github.com/HuckleR2003","https://x.com/hck_lab","https://linkedin.com/in/marcinfirmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+      "isPartOf": { "@type": "Blog", "name": "PC Workman / Build in public", "url": "https://pcworkman.dev/blog/index_pl" },
+      "about": [
+        { "@type": "SoftwareApplication", "@id": "https://pcworkman.dev/#software", "name": "PC Workman", "operatingSystem": "Windows 10, Windows 11", "applicationCategory": "UtilitiesApplication", "softwareVersion": "1.9.3", "license": "https://www.gnu.org/licenses/gpl-3.0.html", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" }, "url": "https://pcworkman.dev/" }
+      ],
+      "mentions": [
+        { "@type": "SoftwareApplication", "name": "HWiNFO" },
+        { "@type": "SoftwareApplication", "name": "CCleaner" },
+        { "@type": "SoftwareApplication", "name": "MSI Afterburner" },
+        { "@type": "SoftwareApplication", "name": "ASUS GPU Tweak III" },
+        { "@type": "SoftwareApplication", "name": "Microsoft PC Manager" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Czy PC Workman zastępuje HWiNFO?", "acceptedAnswer": { "@type": "Answer", "text": "Nie w czytaniu każdego czujnika: HWiNFO czyta prawie wszystkie, PC Workman te, które mają znaczenie. PC Workman robi to, co HWiNFO zostawia Tobie: wybiera temperaturę procesora, której można ufać, oznacza fałszywe czujniki, uczy się normy Twojego komputera dla każdego obciążenia i trzyma miesiące historii bez ustawiania logów." } },
+        { "@type": "Question", "name": "Czy Oczyszczanie w PC Workman jest bezpieczniejsze niż CCleaner?", "acceptedAnswer": { "@type": "Answer", "text": "Tak je zbudowano: 28 znanych miejsc, każdy plik pokazany przed usunięciem, otwarte programy i pliki z ostatnich 24 godzin pominięte, rejestr nigdy nie jest ruszany. CCleaner czyści więcej miejsc i ma czyszczenie rejestru." } },
+        { "@type": "Question", "name": "Czy PC Workman podkręci kartę graficzną jak MSI Afterburner?", "acceptedAnswer": { "@type": "Answer", "text": "Nie. PC Workman nigdy nie podkręca. Mówi, co ogranicza zegary (ciepło, limit mocy albo nic), pokazuje nakładkę w grze z 1% i 0,1% low FPS przez RTSS, ładuje profil dla każdej gry i zapisuje historię każdej sesji." } },
+        { "@type": "Question", "name": "Czy PC Workman jest darmowy?", "acceptedAnswer": { "@type": "Answer", "text": "Tak. Za darmo w Microsoft Store i na GitHubie, bez konta i bez płatnej wersji, z otwartym kodem na licencji GPL-3.0 od wersji 1.9.3." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/the-question-none-of-them-answers/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/the-question-none-of-them-answers/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-11-24</span><span>&middot;</span><span>~14 min czytania</span>
+        </div>
+
+        <h1>HWiNFO, CCleaner, MSI Afterburner: pytanie, na które żaden nie odpowiada</h1>
+
+        <p class="lead">Każdy komputer z Windows, jaki stawiałem, dostawał w pierwszej godzinie te same programy: HWiNFO do czujników, CCleanera do sprzątania, MSI Afterburnera do nakładki, program producenta karty, a ostatnio Microsoft PC Managera, bo już tam był. To dobre programy. Niektóre są świetne. A razem dawały mi ponad trzysta liczb i ani jednej odpowiedzi na pytanie, które naprawdę miałem: <b>czy z moim komputerem wszystko w porządku, a jeśli nie, to co mam zrobić?</b></p>
+
+        <p>PC Workmana zacząłem na laptopie z 2014 roku, wieczorami po zmianach w magazynie w Holandii. Tę pracę straciłem trzy dni przed świętami 2025. Od lipca 2026 jeżdżę taksówką w Radomiu, dziesięć do dwunastu godzin dziennie, a buduję w godzinach dookoła. Ten artykuł to to, czego nauczyłem się przez lata używania wielkich programów, a potem przy próbie zbudowania tego, co one pomijają. To nie jest atak. Tam, gdzie wygrywają, piszę to wprost.</p>
+
+        <div class="callout">
+            <b>Jedna zasada tego porównania.</b> Każde zdanie o innym programie pochodzi od jego producenta, z opublikowanego testu albo od jego własnych użytkowników, a każde zdanie o PC Workmanie da się sprawdzić w kodzie na GitHubie. Gdzie lider jest lepszy, piszę to wprost. Porównanie, które nigdy nie przegrywa, jest reklamą.
+        </div>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#numbers">Trzysta liczb, zero odpowiedzi</a></li>
+                <li><a href="#hwinfo">HWiNFO: najpełniejszy czytnik czujników</a></li>
+                <li><a href="#ccleaner">CCleaner: program do czyszczenia, który zna każdy</a></li>
+                <li><a href="#afterburner">MSI Afterburner: standard podkręcania</a></li>
+                <li><a href="#gputweak">ASUS GPU Tweak III: profile i spadki klatek</a></li>
+                <li><a href="#pcmanager">Microsoft PC Manager: przycisk przyspieszania</a></li>
+                <li><a href="#table">Wszystko w jednej tabeli</a></li>
+                <li><a href="#not">Czego PC Workman nie robi</a></li>
+                <li><a href="#next">Co nadchodzi</a></li>
+                <li><a href="#why">Dlaczego za darmo i dlaczego teraz GPL</a></li>
+                <li><a href="#faq">Pytania</a></li>
+            </ol>
+        </div>
+
+        <h2 id="numbers">Trzysta liczb, zero odpowiedzi</h2>
+        <p>Otwórz czytnik czujników na zwykłym komputerze do gier i policz wiersze. U mnie sama płyta główna to grubo ponad sto, zanim dojdziesz do procesora i karty. Są cztery temperatury procesora. Jest czujnik „Temperature #6”, który pokazuje 127 °C, gdy komputer spokojnie stoi w spoczynku. Program wyświetla go tą samą czcionką i tym samym kolorem co całą resztę.</p>
+        <p>Która temperatura procesora jest więc prawdziwa? Czy 71 °C w grze to w porządku dla <i>tego</i> komputera? Czy 127 °C to pożar, czy zepsuty czujnik? Czy gra zwalnia przez kartę graficzną, czy przez pełne 8 GB RAM? Te programy mają dane, żeby odpowiedzieć na każde z tych pytań. Odpowiedź zostawiają Tobie, a większość ludzi jej nie zna. Dla tej luki powstał PC Workman.</p>
+
+        <figure class="figure">
+            <img src="/assets/images/features/deepmonitor/table-pl-760.webp" width="760" height="998" alt="Tabela czujników DeepMonitor w PC Workman: temperatury procesora, każdy rdzeń, zegary, Vcore, karta graficzna i czujnik płyty ze 127 °C oznaczony jako fałszywy" loading="eager" decoding="async">
+            <figcaption>DeepMonitor na danych pokazowych. „Temperature #6 · fałszywy czujnik” ze 127 °C: widoczny, oznaczony i wyłączony z alertów i nauki.</figcaption>
+        </figure>
+
+        <h2 id="hwinfo">HWiNFO: najpełniejszy czytnik czujników</h2>
+        <div class="tool"><b>W czym HWiNFO wygrywa</b><p class="wins">Czyta prawie każdy czujnik na prawie każdej płycie, loguje precyzyjnie, a entuzjaści ufają mu z dobrego powodu. Jest darmowy do użytku prywatnego, z wersją Pro dla firm. Jeśli potrzebujesz jednego rzadkiego napięcia z jednego rzadkiego układu, HWiNFO jest właściwym narzędziem.</p></div>
+        <p><b>Pytanie, które zostawia Tobie: któremu odczytowi ufać i co jest normalne dla tego komputera?</b></p>
+        <ul>
+            <li><b>Jedna temperatura procesora, wybrana za Ciebie.</b> Intel podaje CPU Package i Core Max, AMD podaje Tctl i Tdie. DeepMonitor wybiera tę, która ma sens dla Twojego producenta, i mówi dlaczego. Zapytaj hck_GPT „która temperatura procesora jest prawdziwa?”, a wyjaśni to w dwóch zdaniach.</li>
+            <li><b>Fałszywe czujniki są oznaczone.</b> Płyta, która podaje 127 °C, linia 3,3 V odczytana jako 2 V, odczyt skaczący między 0 a 125: DeepMonitor oznacza je jako fałszywe, a alerty, historia i wyuczona norma je pomijają. Wentylator karty na 0 RPM przy lekkim obciążeniu to tryb cichy karty, nie usterka, i tak jest opisany.</li>
+            <li><b>Norma wyuczona dla każdego obciążenia.</b> 82 °C w grze może być w porządku na jednym komputerze i ostrzeżeniem w spoczynku na innym. PC Workman uczy się osobnych zakresów dla spoczynku, lekkiego, średniego i ciężkiego obciążenia oraz gier na Twoim komputerze i ocenia każdy odczyt względem nich, nie względem jednej sztywnej kreski.</li>
+            <li><b>Miesiące historii bez ustawiania czegokolwiek.</b> W HWiNFO uruchamiasz log CSV i otwierasz go w innym programie. PC Workman zapisuje od pierwszej minuty: Activity Memory sięga od ostatniej godziny do całej historii, z zaznaczonymi grami i okresami dużego obciążenia.</li>
+        </ul>
+        <p>Pełne porównanie: <a href="/alternatives/hwinfo/index_pl.html">PC Workman i HWiNFO</a> · funkcja: <a href="/features/deepmonitor/index_pl.html">DeepMonitor</a>.</p>
+
+        <h2 id="ccleaner">CCleaner: program do czyszczenia, który zna każdy</h2>
+        <div class="tool"><b>W czym CCleaner wygrywa</b><p class="wins">Obsługuje bardzo długą listę programów, jest dopracowany i ma wokół czyszczenia więcej narzędzi: aktualizator programów, aktualizator sterowników i optymalizator wydajności, część z nich w płatnej wersji.</p></div>
+        <p><b>Pytanie, które zostawia Tobie: co dokładnie usuwa i czy to bezpieczne?</b></p>
+        <p>Programy do czyszczenia mają problem z zaufaniem i to nie jest paranoja. W 2017 roku oficjalny instalator CCleanera 5.33 rozprowadzał złośliwy kod, bo ktoś włamał się do jego systemu budowania. W 2025, po wersji 7, użytkownicy na jego własnym forum skarżyli się, że zniknęły funkcje, za które zapłacili, i że zbieranie danych jest domyślnie włączone. Czyszczenie rejestru, wciąż obecne w CCleanerze, to ta część sprzątania, która potrafi zepsuć Windows i nie daje niczego, co da się zmierzyć.</p>
+        <p>Oczyszczanie w PC Workman zbudowałem odwrotnie:</p>
+        <ul>
+            <li><b>28 znanych miejsc</b> w Windows, sześciu przeglądarkach, grach, aplikacjach i narzędziach programisty. Mniej niż CCleaner, celowo.</li>
+            <li><b>Każdy plik pokazany, zanim cokolwiek zniknie</b>, z tym, czym jest i dlaczego można go usunąć. Otwarte programy są pomijane, tak samo jak każdy plik młodszy niż 24 godziny.</li>
+            <li><b>Hasła, historia i ciasteczka nigdy nie są ruszane. Rejestr też nie.</b></li>
+            <li><b>Co zajmuje resztę dysku, po ludzku</b>: hiberfil.sys, WinSxS, biblioteka Steama, node_modules, z tym, czy wolno to usunąć.</li>
+            <li><b>Historia wolnego miejsca z prognozą</b> i <b>Duplikaty</b> porównywane po zawartości (rozmiar, potem skrót obu końców, potem SHA-256 całego pliku), przy czym najstarsza kopia zawsze zostaje.</li>
+        </ul>
+
+        <figure class="figure">
+            <img src="/assets/images/features/cleanup/cleanup-window-pl-1200.webp" width="1200" height="738" alt="Oczyszczanie w PC Workman po skanie: 11,8 GB do odzyskania, grupy Windows, przeglądarki, gry, aplikacje i dla programistów, każde miejsce z rozmiarem" loading="lazy" decoding="async">
+            <figcaption>Oczyszczanie po skanie. Nic nie znika, zanim tego nie zobaczysz.</figcaption>
+        </figure>
+        <p>Pełne porównanie: <a href="/alternatives/ccleaner/index_pl.html">PC Workman i CCleaner</a> · funkcja: <a href="/features/cleanup/index_pl.html">Oczyszczanie</a>.</p>
+
+        <h2 id="afterburner">MSI Afterburner: standard podkręcania</h2>
+        <div class="tool"><b>W czym Afterburner wygrywa</b><p class="wins">Podkręcanie karty graficznej, automatyczny OC Scanner, krzywe wentylatorów na kartach w komputerach stacjonarnych, a z RivaTunerem najdokładniejsza nakładka w grze, jaka istnieje. PC Workman nie podkręca i nie będzie udawał, że to robi.</p></div>
+        <p><b>Pytanie, które zostawia Tobie: co naprawdę ogranicza moją grę i co się działo w ostatniej sesji?</b></p>
+        <ul>
+            <li><b>Co ogranicza zegary, w formie werdyktu.</b> Ciepło, limit mocy albo nic, z prawdziwego zegara, który podaje Windows. psutil, z którego korzysta wiele programów, podaje zegar bazowy: i5-12400F „chodzi na 2500 MHz”, gdy w rzeczywistości przyspiesza do 4400.</li>
+            <li><b>1% i 0,1% low FPS</b> w nakładce i w podsumowaniu po grze, odczytywane przez RTSS. Średnie FPS ukrywają przycięcia. Spadki je pokazują.</li>
+            <li><b>Historia zamiast wykresu sesji.</b> Wykresy Afterburnera to bieżąca sesja; dłuższa historia to plik logu i zewnętrzna przeglądarka logów. PC Workman zapisuje każdą sesję gry, także lekkie gry, ze startem, końcem, szczytem i średnią GPU, obok całej reszty historii komputera.</li>
+            <li><b>Krzywe wentylatorów na laptopach.</b> Krzywe Afterburnera tam nie działają, bo wentylatorami steruje oprogramowanie laptopa. Fan Dashboard w PC Workman jest dziś planerem i program mówi to wprost: wentylatorami nadal steruje BIOS albo narzędzie producenta.</li>
+        </ul>
+        <p>Pełne porównanie: <a href="/alternatives/msi-afterburner/index_pl.html">PC Workman i MSI Afterburner</a> · funkcja: <a href="/features/overlay/index_pl.html">Nakładka w grze</a>.</p>
+
+        <h2 id="gputweak">ASUS GPU Tweak III: profile i spadki klatek</h2>
+        <div class="tool"><b>W czym GPU Tweak wygrywa</b><p class="wins">Strojenie, sterowanie wentylatorami z histerezą, profile ładowane przy starcie gry i nakładka z 1% i 0,1% low. Na karcie ASUS to najpełniejszy zestaw.</p></div>
+        <p><b>Pytanie, które zostawia Tobie: te same odpowiedzi na każdej karcie i dla reszty komputera?</b></p>
+        <ul>
+            <li><b>Profile gier na każdej marce.</b> Gdy startuje gra z biblioteki, PC Workman ładuje jej układ nakładki i, jeśli chcesz, TURBO, a po wyjściu z gry wszystko cofa.</li>
+            <li><b>Nigdy nie wchodzi do gry.</b> Nakładka PC Workmana to osobne okno. Nakładki, które wstrzykują się do gry, to te, które gryzą się ze sobą i z anti-cheatami; PC Workman z zasady nie rusza procesów anti-cheatów.</li>
+            <li><b>Cały komputer, nie tylko karta.</b> Na moim komputerze 7 Days to Die chodziło z RAM średnio na 89% i 97% w szczycie, a karta graficzna miała średnio 61%. Program do karty pokaże kartę z zapasem. Wąskim gardłem jest 8 GB RAM.</li>
+        </ul>
+        <p>Pełne porównanie: <a href="/alternatives/asus-gpu-tweak/index_pl.html">PC Workman i GPU Tweak III</a>.</p>
+
+        <h2 id="pcmanager">Microsoft PC Manager: przycisk przyspieszania</h2>
+        <div class="tool"><b>W czym PC Manager wygrywa</b><p class="wins">Robi go Microsoft, jest lekki i już siedzi na wielu komputerach. Duże pliki, duplikaty, autostart i szybkie sprawdzenie stanu w jednym miejscu.</p></div>
+        <p><b>Pytanie, które zostawia Tobie: czy to naprawdę pomogło?</b></p>
+        <p>W teście PCMag przycisk Boost obniżył zużycie RAM o około 5% i podniósł wynik PCMark 10 o 9 punktów, bez różnicy, którą dałoby się odczuć, a Deep Cleanup nie usunął plików Windows Update, które usuwa wbudowane Oczyszczanie dysku. Jeden przycisk z napisem „przyspieszono” to uczucie, nie wynik.</p>
+        <ul>
+            <li><b>Paragony.</b> Każda optymalizacja w PC Workman zostawia liczby sprzed i po: ile RAM oddało czyszczenie, komu, i uczciwe „tego nie poczujesz”, gdy zysk jest mały.</li>
+            <li><b>hck_GPT proponuje, Ty decydujesz.</b> Napisz „oczyść mi autostart”, a wymieni wpisy warte wyłączenia. Kliknięcie otwiera kartę: czym jest program, kto go podpisał, co zmieni wyłączenie, i <i>Zgadzam się / Nie teraz / Opowiedz więcej</i>. Każda decyzja trafia na listę z dużym przyciskiem UNDO, który przywraca dokładnie to, co było.</li>
+        </ul>
+
+        <figure class="figure">
+            <img src="/assets/images/features/optimization-center/bands-pl-600.webp" width="600" height="332" alt="Centrum optymalizacji w PC Workman: Pamięć, Procesor i zasilanie, Usługi i start, Dowody i porady, każda kategoria na pasie własnego koloru" loading="lazy" decoding="async">
+            <figcaption>Centrum optymalizacji. Ostatni pas to „Dowody i porady”: paragony za wszystko, co jest nad nim.</figcaption>
+        </figure>
+
+        <h2 id="table">Wszystko w jednej tabeli</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th></th><th>PC Workman</th><th>HWiNFO</th><th>CCleaner</th><th>MSI Afterburner</th><th>GPU Tweak III</th><th>PC Manager</th></tr></thead>
+            <tbody>
+                <tr><td>Mówi, któremu odczytowi ufać</td><td>Tak</td><td>Nie</td><td>-</td><td>Nie</td><td>Nie</td><td>Nie</td></tr>
+                <tr><td>Oznacza fałszywe czujniki</td><td>Tak</td><td>Nie</td><td>-</td><td>Nie</td><td>Nie</td><td>-</td></tr>
+                <tr><td>Norma wyuczona dla Twojego PC</td><td>Dla każdego obciążenia</td><td>Nie</td><td>-</td><td>Nie</td><td>Nie</td><td>Nie</td></tr>
+                <tr><td>Historia bez ustawiania</td><td>Miesiące</td><td>Log, który uruchamiasz</td><td>-</td><td>Sesja, logi</td><td>Sesja, logi</td><td>Nie</td></tr>
+                <tr><td>Każdy plik pokazany przed czyszczeniem</td><td>Tak</td><td>-</td><td>Podsumowanie</td><td>-</td><td>-</td><td>Częściowo</td></tr>
+                <tr><td>Czyszczenie rejestru</td><td>Nigdy</td><td>-</td><td>Tak</td><td>-</td><td>-</td><td>Nie</td></tr>
+                <tr><td>Podkręcanie</td><td>Nigdy</td><td>Nie</td><td>-</td><td>Tak</td><td>Tak</td><td>Nie</td></tr>
+                <tr><td>1% i 0,1% low FPS</td><td>Tak, przez RTSS</td><td>Nie</td><td>-</td><td>Przez RTSS</td><td>Tak</td><td>Nie</td></tr>
+                <tr><td>Dowód przed i po</td><td>Każda akcja</td><td>-</td><td>Nie</td><td>-</td><td>-</td><td>Nie</td></tr>
+                <tr><td>Pyta przed zmianą, z UNDO</td><td>Tak</td><td>-</td><td>Częściowo</td><td>-</td><td>-</td><td>Częściowo</td></tr>
+                <tr><td>Cena i kod</td><td>Za darmo, GPL-3.0</td><td>Darmowy prywatnie, Pro płatny</td><td>Darmowy i płatny, zamknięty</td><td>Darmowy, zamknięty</td><td>Darmowy, zamknięty</td><td>Darmowy, zamknięty</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Kreska znaczy, że program nie jest do tego zbudowany, a to nie jest wada. Nikt nie powinien używać jednego programu do wszystkiego, PC Workmana też to dotyczy.</p>
+
+        <h2 id="not">Czego PC Workman nie robi</h2>
+        <ul>
+            <li><b>Nie podkręca.</b> Ani procesora, ani karty. Do tego jest Afterburner albo program producenta karty.</li>
+            <li><b>Nie steruje wentylatorami.</b> Fan Dashboard planuje krzywe i profile. Stosuje je BIOS albo narzędzie producenta, dopóki stabilność i testy nie pozwolą PC Workmanowi robić tego bezpiecznie.</li>
+            <li><b>Nie czyści rejestru</b>, nie aktualizuje sterowników z cudzej bazy i nie usuwa niczego według harmonogramu. Celowo.</li>
+            <li><b>Czyta mniej czujników niż HWiNFO.</b> Czyta te, które mają znaczenie, i je tłumaczy.</li>
+            <li><b>Temperatura procesora potrzebuje czujnika.</b> Na niektórych płytach bez LibreHardwareMonitora Windows nie podaje temperatury procesora wcale. PC Workman pisze wtedy „szacunek” i nigdy na nim nie alarmuje, zamiast podawać zgadywankę jako fakt.</li>
+        </ul>
+
+        <h2 id="next">Co nadchodzi</h2>
+        <p>To plany, nie funkcje, i tak są oznaczone na <a href="/roadmap/index_pl.html">roadmapie</a>:</p>
+        <ul>
+            <li><b>Werdykt po każdej grze</b>: co ograniczało tę grę na tym komputerze, z samej sesji. „RAM średnio 89%, w szczycie 97%: ta gra jest tu ograniczona pamięcią, 16 GB to usunie. Karta ma zapas.”</li>
+            <li><b>Czasy klatek bez RTSS</b>, żeby 1% low nie wymagał drugiego programu.</li>
+            <li><b>Prowadzona konfiguracja czujników</b>, żeby temperatura procesora była odczytem na każdym komputerze, a nie szacunkiem.</li>
+            <li><b><a href="/central/index_pl.html">PC Workman Central</a></b>: stan sprzętu całej pracowni na jednym ekranie, tylko sieć lokalna, sprzęt, nigdy ludzie.</li>
+        </ul>
+
+        <h2 id="why">Dlaczego za darmo i dlaczego teraz GPL</h2>
+        <p>PC Workman powstaje publicznie od 2025 roku, budowany przez jedną osobę na prawdziwym sprzęcie, z 840 automatycznymi testami w obecnej wersji. Nie ma konta, płatnej wersji ani reklam. Od wersji 1.9.3 jest na licencji GPL-3.0: każdy może go używać, poznawać, zmieniać i udostępniać, a każdy, kto rozprowadza go albo jego zmienioną wersję, musi opublikować pełny kod na tej samej licencji. Zamknięta, płatna kopia tej pracy nie jest już możliwa. To dla mnie ważniejsze niż cena, bo te godziny poszły po kursach taksówką i chcę, żeby zostały otwarte.</p>
+        <p>Jeśli któryś z wielkich programów odpowiada na Twoje pytanie, zostań przy nim. Jeśli kiedyś patrzyłeś na trzysta liczb i chciałeś jednego zdania, to zdanie właśnie buduję.</p>
+
+        <h2 id="faq">Pytania</h2>
+        <h3>Czy PC Workman zastępuje HWiNFO?</h3>
+        <p>Nie w czytaniu każdego czujnika: HWiNFO czyta prawie wszystkie, PC Workman te, które mają znaczenie. PC Workman robi to, co HWiNFO zostawia Tobie: wybiera temperaturę procesora, której można ufać, oznacza fałszywe czujniki, uczy się normy Twojego komputera dla każdego obciążenia i trzyma miesiące historii bez ustawiania logów.</p>
+        <h3>Czy Oczyszczanie w PC Workman jest bezpieczniejsze niż CCleaner?</h3>
+        <p>Tak je zbudowano: 28 znanych miejsc, każdy plik pokazany przed usunięciem, otwarte programy i pliki z ostatnich 24 godzin pominięte, rejestr nigdy nie jest ruszany. CCleaner czyści więcej miejsc i ma czyszczenie rejestru.</p>
+        <h3>Czy PC Workman podkręci kartę graficzną jak MSI Afterburner?</h3>
+        <p>Nie. Nigdy nie podkręca. Mówi, co ogranicza zegary, pokazuje nakładkę w grze z 1% i 0,1% low przez RTSS, ładuje profil dla każdej gry i zapisuje historię każdej sesji.</p>
+        <h3>Czy PC Workman jest darmowy?</h3>
+        <p>Tak. Za darmo w <a href="https://apps.microsoft.com/detail/9PGW6WS2N50V">Microsoft Store</a> i na <a href="https://github.com/HuckleR2003/PC_Workman_HCK">GitHubie</a>, bez konta i bez płatnej wersji, z otwartym kodem na licencji GPL-3.0 od wersji 1.9.3.</p>
+
+        <div class="guide-cta">
+            <b>Sprawdź na własnym komputerze.</b> <a href="/download/index_pl.html">Pobierz PC Workmana</a>, jeden ZIP, bez konta, albo zobacz <a href="/features/index_pl.html">wszystkie 21 funkcji</a> ze zrzutami. Dłuższa historia tego, jak powstawał, jest w tekście <a href="../eleven-months/index_pl.html">Jedenaście miesięcy po tym, jak straciłem pracę w magazynie</a>.
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Blog</a> &middot; <a href="/features/index_pl.html">Funkcje</a> &middot; <a href="/alternatives/index_pl.html">Alternatywy</a> &middot; <a href="../feed_pl.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
