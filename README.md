@@ -3,10 +3,10 @@
 > **Your PC finally has someone who speaks its language.**
 
 [![Get it from the Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-Available-0067b8?style=flat-square&logo=microsoft&logoColor=white)](https://apps.microsoft.com/detail/9PGW6WS2N50V)
-![Version](https://img.shields.io/badge/Version-1.9.0-7c3aed?style=flat-square)
+![Version](https://img.shields.io/badge/Version-1.9.3-7c3aed?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-10b981?style=flat-square)
 ![Python](https://img.shields.io/badge/Python-3.9+-3b82f6?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-64748b?style=flat-square)
+![License](https://img.shields.io/badge/License-GPL--3.0-64748b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2B-0ea5e9?style=flat-square)
 
 ### After 12 months of work: on the Microsoft Store. Just click **Install**.
@@ -25,7 +25,7 @@ Ask *"why is my PC slow right now?"*, and get a real explanation, not just a per
 Ask *"is cs2.exe a virus?"*, get an instant process identity check.  
 Ask *"which game pushes my hardware the hardest?"*, get a thermal signature breakdown.
 
-**127 AI intents. The assistant runs 100% on your machine, no API key, no cloud LLM. Just your PC talking to you.**
+**220 answer types, 119 trained intents. The assistant runs 100% on your machine, no API key, no cloud LLM. Just your PC talking to you.**
 
 It learns *your* machine: 82°C is normal while you game but critical at idle, judged against your own history, not a generic 85°C line. Drop an in-game overlay that shows only what you choose, hit ⤢ for a full-screen control center, and watch the Learning Center fill up as it gets to know your hardware. Built by one person, in public, on real hardware.
 
@@ -48,7 +48,7 @@ It learns *your* machine: 82°C is normal while you game but critical at idle, j
 
 ### Windows Users (Easiest)
 ```
-1. Download PC_Workman_HCK_1.9.0.zip from Releases
+1. Download PC_Workman_HCK_1.9.3.zip from Releases
 2. Extract the folder anywhere
 3. Run "PC Workman HCK.exe" and you are done.
    (keep the _internal folder next to it - that's the runtime)
@@ -98,7 +98,7 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - hck_GPT [AI] button on the chart: a temperature health check from your learned history, then the learned "hck_GPT - AI" profile chat can apply for you
 
 ### Intelligence (hck_GPT)
-- **139 answer types** across hardware, diagnostics, performance, history, optimization, security, gaming, battery, upgrades, privacy and small talk; in 1.9.0 the 63-question library (193 phrasings) and 73 questions from a real session are answered
+- **220 answer types** across hardware, diagnostics, performance, history, optimization, security, gaming, battery, upgrades, privacy and small talk; in 1.9.0 the 63-question library (193 phrasings) and 73 questions from a real session are answered
 - **Optimization guide**: 6 steps with before/after measurements, a CPU/GPU/RAM check and a driver-age check at the end; one click from the chat
 - **Reads the recorded history**: busiest moments, sleep, games played, today vs yesterday, restarts and blue screens from the Windows event log
 - **Hybrid Engine**: rule-based responses for known intents, an optional local Ollama model for open-ended questions, no API key needed (anonymous app telemetry is described in Settings and can be turned off)
@@ -160,6 +160,21 @@ Full setup guide: **[GETTING_STARTED.md](./GETTING_STARTED.md)**
 - Per-service **G / E / M** chips assign each service to the **Gaming · Economy · MANAGER** modes, one source of truth, synced live with the Features mode buttons (`settings/turbo_services.json`)
 - Stop / Start per service. Stopping lasts until Windows starts the service again, usually at the next restart. Admin detection; a change Windows refuses is shown; all changes logged to `data/logs/service_changes.log`
 
+### Cleanup 2.0 *(new in 1.9.2, rebuilt in 1.9.3)*
+- 28 known places in Windows, browsers, games, apps and developer tools; every file shown before anything is removed, open programs and files from the last 24 hours skipped, the registry never touched
+- Disk analysis that explains every big folder, free space history with a forecast, and Duplicates compared by content (the oldest copy always stays, nothing is ticked by itself, ticked copies go to the Recycle Bin)
+
+### Stability Tests *(rebuilt in 1.9.3)*
+- CPU on every thread, memory with five patterns over half of the free RAM, a drive test file removed afterwards
+- Temperature, the real clock and Windows' performance limit every second, a stop at 95 °C, and one verdict in plain words against this PC's learned normal
+
+### Process Information Center *(new in 1.9.2)*
+- Every process on this PC in one place: now and over 7 days, how it lives on this PC ("daily, 12 days"), whether it is safe and what to do, with a card per process
+
+### hck_GPT proposes, you decide *(new in 1.9.3)*
+- "Clean up my startup" lists the entries worth turning off; a click opens a card with what the program is, who signed it and what changes, and acts only after "I agree"
+- Every decision lands on a list of changes with UNDO; a second list shows every startup entry that is off, however it was switched off. The same works for unneeded services and power plans
+
 ### Interface
 - Modern dashboard (Apple-inspired design)
 - Ultra-compact information density
@@ -211,7 +226,27 @@ PC_Workman/
 - Educational value (demonstrates Python best practices)
 -
 
-## What's New [1.9.0] - `2026-11-17` - CURRENT
+## What's New [1.9.3] - `2026-11-22` · PC Cleanup Overhaul - CURRENT
+
+The first GitHub release since 1.9.0, so it carries 1.9.2 too. Full list in [CHANGELOG.md](CHANGELOG.md).
+
+### 1.9.3
+- **Cleanup 2.0**: 28 places, disk analysis, free space history with a forecast, Duplicates by content. Low space is said once, nothing is deleted without a look.
+- **Stability Tests that test**: CPU, memory and drive under real load, one verdict against this PC's normal.
+- **DeepMonitor knows when a sensor lies**: 127 °C on a board, a rail read as 2 V, a reading flipping 0 to 125 are marked and kept out of alerts and learning. Vcore, the graphics card's fan, the motherboard group, every CPU thread.
+- **Games and startup**: 1% and 0.1% low FPS from RTSS, game profiles (overlay and TURBO per game), the CPU seconds each startup entry costs, Windows' own start time as administrator.
+- **hck_GPT proposes, you decide**: decision cards with UNDO for startup entries, services and power plans; a Data viewer in Settings with CLEANUP for the chat history.
+- **hck_GPT answers what people asked**: reinstalling Windows, Windows 12 (called an estimate), stuttering films, "what do I use most", tutorials.
+- **Optimization Center**: colour bands per category, three buttons, a Feature guide LIVE tour; the LIVE guide speaks Polish.
+
+### 1.9.2
+- **Process Information Center**, **Cleanup**, **Health report** and **Your profile** pages; **My PC** rebuilt with a health centre and a Gaming page.
+- **The PC map** redrawn from scratch: an ATX board at an angle, every part in place, a laptop layout of its own.
+- **Activity Memory** got a Hardware tab: CPU, RAM and GPU on one time axis with temperatures and game sessions; the mouse wheel steps from 1 hour to everything.
+- **The real CPU clock and real CPU temperature everywhere** (LibreHardwareMonitor on a Polish Windows was dropping every reading with a comma).
+- **The sidebar and Optimization Center** renewed; every game is recorded, not only heavy ones.
+
+## What's New [1.9.0] - `2026-11-17` *(previous)*
 
 The largest hck_GPT update so far, built from five long tests on a real PC. Full list in [CHANGELOG.md](CHANGELOG.md).
 
@@ -236,7 +271,7 @@ The largest hck_GPT update so far, built from five long tests on a real PC. Full
 - "Check for updates" shows the installed version and opens PC Workman in the Microsoft Store (it showed v1.7.1).
 - One game running as two processes gives one session summary, not two.
 
-## What's New [1.8.8] - `2026-11-16` *(previous)*
+## What's New [1.8.8] - `2026-11-16`
 
 A stability release, from a full audit on Windows 11, from the logs the app wrote on real machines since July, and from two long tests in which the app ran for hours and hck_GPT was asked what a user would ask. Full list in [CHANGELOG.md](CHANGELOG.md).
 
@@ -504,7 +539,9 @@ Click any process to see more details.
 | v1.8.5 | Released | Upgrade Readiness (offline part compatibility), Fan Dashboard rebuild, My PC 2s -> 17ms keep-alive, voltage learning (VCore/GPU), one version source, builder split, 21 -> 194 tests |
 | v1.8.7 | Released | hck_GPT guided flows and conversation director, guides inside the app, TURBO receipts, process library 485 -> 521, 229 -> 331 tests |
 | v1.8.8 | Released | Stability release: no console window, safe Process Guard and RAM Flush, settings that survive a crash, measured fan data only, layout fixes, 331 -> 460 tests |
-| **v1.9.0** | **Current** | **hck_GPT draws conclusions from the recorded data (real CPU clock, drives, event log, bottleneck), conversations of several turns, observation note, data export, knowledge of the program's features, 460 -> 573 tests** |
+| v1.9.0 | Released | hck_GPT draws conclusions from the recorded data (real CPU clock, drives, event log, bottleneck), conversations of several turns, observation note, data export, knowledge of the program's features, 460 -> 573 tests |
+| v1.9.2 | Shipped inside 1.9.3 | Process Information Center, Cleanup, Health report, Your profile, My PC rebuilt, PC map redrawn, Activity Memory Hardware tab, real CPU clock and temperature everywhere |
+| **v1.9.3** | **Current** | **PC Cleanup Overhaul: Cleanup 2.0 with Duplicates, Stability Tests that test, DeepMonitor recognises false sensors, 1% low FPS, game profiles, hck_GPT decision cards with UNDO, 840 tests** |
 | v2.0.0 | Q4 2026 | Long-term drift, Smart User Activity, Tools & Utils |
 
 **[Full Changelog](./CHANGELOG.md)**
@@ -577,8 +614,11 @@ written from your code rather than from your summary.
 
 ## License
 
-**MIT License** © 2025 HCK_Labs / Marcin Firmuga
-Free for personal and commercial use. Attribution appreciated.
+**GNU General Public License v3.0 only** (GPL-3.0-only) © 2025-2026 HCK_Labs / Marcin Firmuga, from version 1.9.3.
+Free to use, study, share and change. Anyone who distributes PC Workman or a changed version must give its full source code under the same licence.
+Versions up to and including 1.9.2 were released under MIT and stay MIT.
+
+The name and logo "PC Workman" are not covered by the licence: see [TRADEMARKS.md](TRADEMARKS.md). A commercial licence for closed use is available on request through [pcworkman.dev/hire](https://pcworkman.dev/hire/). Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
 -
 
 **Ship what you have. Improve it later.** 💙

@@ -1,83 +1,36 @@
-# Contributing to PC_Workman
+# Contributing to PC Workman
 
-## Code of Conduct
+Thank you for wanting to help. Bug reports, ideas and pull requests are all welcome.
 
-Be respectful. Focus on the problem, not the person.
+## Reporting a bug or an idea
 
-## How to Contribute
+- Open an issue: https://github.com/HuckleR2003/PC_Workman_HCK/issues
+- Say what you did, what you expected and what happened, your Windows version and the PC Workman version
+  (Settings, Build info).
+- `data/logs/startup.log` and `data/logs/errors.log` next to the exe help a lot. Check them for anything
+  personal before you attach them.
+- Security problems: do not open a public issue, see [SECURITY.md](SECURITY.md).
 
-### Reporting Issues
+## Pull requests
 
-Found a bug or want to suggest a feature?
+- Keep one change per pull request, with a test when the change has logic in it (`py -m unittest discover -s tests`).
+- Code, comments and commit messages in English. The interface is Polish and English: every visible text
+  goes through the translation helpers.
+- Nothing that kills, suspends or changes system processes, services or settings without the user's
+  explicit consent and an undo.
 
-1. Check existing [issues](https://github.com/HuckleR2003/PC_Workman_HCK/issues)
-2. Provide reproduction steps for bugs
-3. Include your system specs (Windows version, CPU, GPU)
-4. Attach logs from `data/logs/` if relevant
+## Licence of contributions (contributor agreement)
 
-### Suggesting Features
+PC Workman is licensed under the GNU General Public License v3.0 only (see [LICENSE](LICENSE)).
+The project also needs to be able to offer a separate commercial licence, so that it can pay for itself.
 
-1. Open a [discussion](https://github.com/HuckleR2003/PC_Workman_HCK/discussions) first
-2. Describe the use case and expected behavior
-3. Link related issues if applicable
+By opening a pull request you agree that:
 
-### Submitting Pull Requests
+1. your contribution is your own work, or you have the right to submit it;
+2. it is licensed to everyone under GPL-3.0-only, like the rest of the code;
+3. you also grant Marcin Firmuga (HCK_Labs) a permanent, worldwide, royalty-free right to use, change and
+   relicense your contribution, including under a commercial licence, as part of PC Workman and its
+   related products.
 
-#### Requirements
-
-- Python 3.9+ code following the existing style
-- Tests for new features (in `tests/` directory)
-- Updated docstrings
-- No breaking changes without discussion
-
-#### Process
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes
-4. Test locally: `python startup.py`
-5. Commit with clear messages: `git commit -m "Add specific feature description"`
-6. Push and open a pull request
-
-#### Code Style
-
-Follow the existing patterns in the codebase:
-
-- **Core modules** (`core/`): Background-threaded operations, no UI blocking
-- **hck_GPT** (`hck_gpt/`): Command routing with local insights
-- **Stats Engine** (`hck_stats_engine/`): SQLite operations with WAL mode
-- **UI** (`ui/`): Tkinter widgets with reusable components
-
-Use meaningful variable names and add comments for complex logic.
-
-## Development Setup
-
-```bash
-git clone https://github.com/HuckleR2003/PC_Workman_HCK.git
-cd PC_Workman_HCK
-
-python -m venv venv
-.\venv\Scripts\activate  # Windows
-
-pip install -r requirements.txt
-python startup.py
-```
-
-## Architecture Overview
-`core/` – System monitoring with background threads
-`hck_gpt/` – Local AI insights and command handling
-`hck_stats_engine/` – SQLite-based data aggregation
-`ui/` – Tkinter interface components
-`data/` – Local logs and database storage
-
-## Project Structure
-1. Issues are tracked on the [project ROADMAP board](https://github.com/users/HuckleR2003/projects/3)
-2. v2.0 milestone targets Microsoft Store release (Q3 2026)
-3. Testing and documentation are high priorities
-
-## Questions?
-Open a [discussion](https://github.com/HuckleR2003/PC_Workman_HCK/discussions)
-Email: [firmuga.marcin.s@gmail.com](mailto:firmuga.marcin.s@gmail.com)
-
-## License
-By contributing, you agree your work is licensed under MIT. See [LICENSE](https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/LICENSE) for details.
+You keep the copyright of your contribution and can use it anywhere else as you like.
+If you do not agree with point 3, say so in the pull request before it is merged.

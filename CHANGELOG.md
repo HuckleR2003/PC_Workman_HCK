@@ -1,6 +1,122 @@
 # HCK_Labs - PC_Workman_HCK - Changelog
 _All notable changes are documented here._
 
+## [1.9.3] - 2026-11-22 · PC Cleanup Overhaul
+
+Cleanup rebuilt from the ground up (28 places, disk analysis, free space history, duplicates), Stability Tests that really test, DeepMonitor that recognises false sensors, and everything the new pcworkman.dev feature pages promised. hck_GPT can now propose a change and make it after your yes, with UNDO for every decision.
+
+### Licence: GPL-3.0-only from this version
+**`LICENSE`, `TRADEMARKS.md` (new), `CONTRIBUTING.md` (new), `README.md`, `SECURITY.md`, `PRIVACY.md`, `ui/windows/main_window_expanded.py`**
+- PC Workman is licensed under the GNU General Public License v3.0 only from 1.9.3. It stays open source: anyone may use, study, share and change it, and anyone who distributes it or a changed version must give the full source under the same licence. Versions up to 1.9.2 were released under MIT and stay MIT.
+- The name and logo are covered by `TRADEMARKS.md`, not by the licence. Contributions are accepted under `CONTRIBUTING.md`, which keeps a commercial licence possible.
+
+### Optimization Center, the Feature guide and the Data viewer
+**`ui/pages/optimization_services.py`, `ui/components/hero_banner.py`, `ui/components/feature_tour.py` (new), `ui/guide/live_guide.py`, `ui/components/data_viewer.py` (new), `ui/pages/settings_page.py`, `hck_gpt/responses/flows.py`, `hck_gpt/responses/r_hardware.py`, `core/gpt_actions.py`, `ui/windows/main_window_expanded.py`, locales, `tests/test_feature_tour.py` (new)**
+- Each category of the Optimization Center (Memory, CPU and power, Services and startup, Proof and advice) sits on a band of its own colour at about a quarter strength, behind its name and its tiles.
+- Three tight buttons in the banner: **Optimize with the guide**, **Check the connection** (hck_GPT's connection test) and **Feature guide**.
+- **Feature guide**: a short LIVE tour that scrolls to every tile, lights it and says what the feature does, from the tile's own description and note.
+- The general **LIVE tour** has a seventh step: it opens the Optimization Center and lights the Feature guide button. All its steps now speak Polish too (they were English only).
+- **Data viewer** (Settings › Data and privacy): hck_GPT's approved suggestions, the **local chat history** and hck_GPT's own messages with their entry count and a red **CLEANUP** (412 → 0), the learned temperature normals, the history database's tables and size, the startup entries that are off, and every data file; "see the file" next to each. hck_GPT answers "show / clear my chat history" with a link to it.
+- The optimization guide's startup step shows the same clickable top 5 as the chat.
+- **Power plans** join the actions with a card and UNDO: the power plan answer lists the other plans, one click switches, UNDO goes back to the previous one.
+- The dashboard's CPU / RAM / GPU cards are three equal columns: their width followed the live status text and the row shifted a few pixels when a status changed (the test that watches the layout failed about one run in three).
+
+### hck_GPT proposes, you decide with one click, and every decision has UNDO
+**`core/gpt_actions.py` (new), `ui/components/action_card.py` (new), `ui/components/changes_window.py` (new), `hck_gpt/panel.py`, `hck_gpt/responses/r_everyday3.py`, `hck_gpt/responses/r_everyday2.py`, `hck_gpt/intents/insight_rules.py`, `ui/pages/settings_page.py`, `ui/windows/main_window_expanded.py`, locales, `tests/test_gpt_actions.py` (new)**
+- "Clean up my startup" gets the top 5 entries worth turning off, each name **clickable**. Unknown programs (not in PC Workman's library) are drawn in amber.
+- A click opens **hck_GPT's decision card**: what the program is, who signed it (verified on the usual background, unverified on a warm one with the company the file names), its effect on the Windows start, the suggestion and why, and **I agree / Not now / Tell me more**. A calm banner at the bottom: "hck_GPT proposed turning off at startup: Opera" and "every decision stays on the list of changes, always with UNDO". After "I agree" the card shows the result with an UNDO button right there, and the chat confirms it.
+- "Turn off Opera" opens the card by itself. Unneeded running services in the services answer are clickable too (set to Manual and stopped; needs administrator).
+- Startup entries are switched off the way Task Manager does it, and Startup Manager's Disabled tab shows them as turned off by hck_GPT. Services remember their start type, so UNDO puts back exactly what was there.
+- **List of changes** (Settings › Data and privacy › Approved changes, or `[-> Changes]` in the chat): every hck_GPT decision by date with a big red UNDO while it is in effect, and a second tab with **every startup entry that is off, however it was switched off** (hck_GPT, Startup Manager, Task Manager, Windows Settings), each with "Turn back on". "See the .json file" shows the history in Explorer.
+- hck_GPT understands "how do I undo changes", "undo the last change", "what did you change" and "what is off at startup".
+- Polish "w autostarcie" was missed by every startup rule (the word stem is "autostar-"): fixed in the new rules.
+
+### hck_GPT answers what people actually ask
+**`hck_gpt/responses/r_everyday3.py` (new), `core/system_footprint.py` (new), `hck_gpt/intents/insight_rules.py`, `hck_gpt/intents/semantic_rules.py`, `core/health_score.py`, `ui/components/health_center.py`, `ui/pages/health_report.py`, `tests/test_chat_log_2026_11_22.py` (new)**
+- A chat session on the release build: 90 questions, about half answered "I did not understand" or with the wrong topic. All of them route where they belong now, and stay tested.
+- **Should I reinstall Windows?** An answer from this PC: the install's age, installed programs, folders in AppData and about how many look like leftovers of removed programs (an estimate), free space; a verdict (not worth it / consider / it will help), what a reinstall gives and costs, cheaper steps first, and "export PC Workman's data before".
+- Windows version, Windows 11 readiness (CPU, RAM, TPM, Secure Boot), and Windows 12 called what it is: not announced, an estimate of about 8 GB of RAM, 16 GB and an NPU for the AI features.
+- New answers: Linux, the program's own guide ("samouczek", "przewodnik", "czy jest poradnik programu"), stuttering films and series, what you use most (hours from Activity Memory, Windows' own helpers left out), what to play, how much runs in the background and who takes the memory, "what would you do on my PC", "turn off Opera" (the entry, its state and impact, one click away), the date, "no / not that", Scaling Laws, ":)".
+- Internet questions no longer fall into "I am adding that detail to the same diagnosis" after a lag diagnosis.
+- Health Report has a seventh part, **Software**: many programs, leftovers in AppData, a very old install.
+
+
+### Duplicates in your folders
+**`core/duplicates.py` (new), `ui/pages/duplicates_window.py` (new), `ui/pages/cleanup_page.py`, `tests/test_duplicates.py` (new)**
+- Cleanup › **Duplicates…** finds the same file kept more than once in Desktop, Documents, Downloads, Pictures, Videos and Music (files from 1 MB): same size, then a hash of the first and last 64 KB, then SHA-256 of the whole file. Program folders, AppData, hidden folders and OneDrive files that are not downloaded are never read. On the author's PC: 2 948 files, 250 groups, about 4 GB, in 66 s.
+- The oldest copy of each group stays and cannot be ticked, nothing is ticked by itself, ticked copies go to the Recycle Bin after a confirmation, with a receipt. If the copy that should stay has gone missing meanwhile, one ticked copy is kept instead.
+
+### Low space: hck_GPT says it once
+**`core/space_reminder.py` (new), `hck_gpt/memory/proactive_monitor.py`, `tests/test_space_reminder.py` (new)**
+- A drive under 10 % free (or under 10 GB on a drive of 64 GB and up) gets one reminder: how much is left, why it matters (Windows updates fail below about 10 %), a link to Cleanup, and "I delete nothing myself". Again only after 7 days or once more under 3 GB; a new episode starts when the drive has room again. Remembered across restarts. A message hck_GPT holds back while you chat is tried again later, not lost.
+- It replaces two alerts that repeated every 5 minutes for as long as the system drive had under 4 GB and pointed at a TEMP button that no longer exists.
+
+### What each startup entry costs, and Windows start time
+**`core/boot_cost.py` (new), `startup.py`, `ui/pages/startup_manager.py`, `tests/test_boot_cost.py` (new)**
+- Startup Manager shows **⏱ CPU seconds** next to each entry: what the program used in the first 3 minutes after Windows started, measured by PC Workman on every start it sees within 15 minutes of boot, median of the last 12 starts.
+- The header shows **Windows start time** from Windows' own Diagnostics-Performance log (event 100). Windows lets only administrators read it; without admin rights the chip says so. After PC Workman switches entries off, the start time before and after that change is shown.
+
+### 1% and 0.1% low FPS
+**`core/frame_stats.py` (new), `ui/components/ingame_overlay.py`, `hck_gpt/memory/proactive_monitor.py`, `tests/test_frame_stats.py` (new)**
+- While a game runs, a sampler reads RTSS's last frame time every 10 ms. The overlay shows "1% 52 · .1% 41" of the last minute under the FPS; the hck_GPT summary after a session adds 1% and 0.1% low with the number of frames behind them. Same definition as CapFrameX. Without RTSS nothing is shown. At over ~100 FPS some frames fall between reads, so the lows are a close estimate.
+
+### Game profiles
+**`core/game_profiles.py` (new), `ui/components/game_profiles_section.py` (new), `ui/components/yourpc_page.py`, `startup.py`, `tests/test_game_profiles.py` (new)**
+- My PC › Gaming › **Game profiles** lists the games PC Workman has seen, each with two switches: **Overlay** (shows the overlay with the layout saved when you switched it on) and **TURBO** (stops the TURBO services profile, with a receipt). Both happen when that game starts and are undone when it ends. TURBO needs administrator rights, and a TURBO you started by hand is never touched or restored by a profile.
+
+### `pcworkman://open/deepmonitor`
+**`utils/deep_link.py`, `ui/windows/main_window_expanded.py`**
+- The DeepMonitor page on pcworkman.dev opens DeepMonitor itself (it opened Monitoring & Learning).
+
+### Smaller things the feature pages promised
+**`ui/pages/first_setup_drivers.py`, `ui/pages/startup_manager.py`, `ui/pages/services_manager.py`**
+- Driver age is rated per device class: graphics old after a year, network after three, audio and USB after five. Microsoft's own audio, USB and network drivers that ship with Windows (dated 2006) show as "WINDOWS" instead of "246mo OLD" in red, and no longer lower the readiness score.
+- Switching startup entries off and changing services now leave a receipt like every other optimization (the startup one says the effect shows after a restart).
+- My PC's "PC Workman on this PC" card computed its facts once, when My PC was first opened, and that page lives the whole session: after five hours it still said "Learning since 20 min" while Monitoring & Learning said 5 hours (found in the test build). It now recomputes every 5 minutes, and it has more to say: the learned temperature normal of the most common workload, the CPU over the last 7 days, the program that used the most CPU this week, the usual hour of use and the last stability test. Polish plural fixed ("20 czyszczeń RAM").
+- Optimization Center's "Coming soon" promised large files and duplicates, which are now in Cleanup; it lists only the old installers finder.
+
+### Stability Tests that test something
+**`core/stability_test.py` (new), `ui/pages/stability_tests.py`, `tests/test_stability_test.py` (new)**
+- The page used to check PC Workman's own files and show the database status. It now runs three real tests: **CPU** (one thread per logical core hashing and compressing 1 MB buffers, which release the GIL, so all cores really work: 99 % on an i5-12400F), **memory** (zeros, ones, 0xAA, 0x55 and a fixed pseudo-random block across half of the free RAM, up to 2 GB, read back byte for byte) and **drive** (a test file in TEMP written in 4 MB chunks, flushed, read back and compared, then removed, also if the app was killed mid-run).
+- Every second: load, temperature (real sensor or marked estimate), the real clock and Windows' "% Performance Limit". The run stops by itself at 95 °C on a real sensor.
+- One verdict in plain words: "Stable. The CPU peaked at 75 °C and held its clock.", "Stable, but 12 °C above this PC's normal for the same load", "The clock dropped at 96 °C: the CPU slowed down to protect itself", a clock drop without heat named as a power limit, memory or drive errors as "not stable". The normal comes from Monitoring & Learning's heavy-load range when it has enough samples; without a sensor the verdict says it judges only clock and errors.
+- The file check stays as step 0; missing parts are named in the verdict. Pick the tests and 1/5/10/15 minutes for the CPU; a live line shows temperature and clock. The last result is kept and shown when the page opens.
+
+### DeepMonitor: false sensors, the board, every core
+**`core/sensor_sanity.py` (new), `core/live_collector.py`, `core/thermal_baseline.py`, `ui/components/pro_info_table.py`, `hck_gpt/responses/r_sensors.py` (new), `hck_gpt/intents/semantic_rules.py`, `tests/test_sensor_sanity.py` (new)**
+- **False sensors are recognised**: 110 °C and above (unconnected inputs, 127 as "no value"), readings that jump between 0 and 100+, a temperature standing still for 30 minutes while the CPU load moved, rails outside ±25 % of nominal, fans above 15 000 RPM. A flagged reading reaches live data as "missing", so alerts, the history database and the learned normal skip it; DeepMonitor shows it greyed with a ✗ and the reason. The learned normal no longer accepts 110 °C.
+- New rows: CPU Vcore, the graphics card's fan (0 % at light load is marked as the card's quiet mode, a stopped fan on a hot card in red), and a Motherboard group with every temperature of the board's sensor chip, the +12/+5/+3.3 V rails and the fans. Without LibreHardwareMonitor the group says what it needs.
+- Utilization shows every logical core (it stopped at 8; the 12400F has 12). Per-core temperature rows, which never filled on Windows, are gone.
+- hck_GPT answers "which CPU temperature is the real one", "Tctl or Tdie" and "my board shows 118 °C": what Package, Core Max, Tctl and Tdie mean, which one PC Workman uses, where the current value comes from, and which sensors are flagged right now.
+
+### Windows and driver changes in Activity Memory
+**`core/system_changes.py` (new), `startup.py`, `hck_stats_engine/history.py`, `ui/pages/activity_memory.py`, locales, `tests/test_system_changes.py` (new)**
+- PC Workman remembers the Windows build and the graphics driver (registry only). When either changes, an event goes into the history: a dashed violet line on every component's chart and a row in its list, "Graphics driver: 32.0.15.8180 → 32.0.16.1088", with the component's average load and temperature in the 14 days before and after. Clicking the row opens 30 days around it. The first start only records what is there.
+
+### Delete my data
+**`core/data_wipe.py` (new), `startup.py`, `ui/pages/profile_page.py`, `tests/test_data_wipe.py` (new)**
+- Your profile › Privacy has **Delete my data…**: the confirmation says how many files and MB go (history, learned normals, notes, settings, hck_GPT's knowledge) and that it cannot be undone. The history database is open while the app runs, so the deletion happens at the next start, before anything opens it, and can be cancelled until then. The program's own files (fonts, icons, libraries, the two default settings files) stay.
+
+### Bugs found while building the feature pages
+**`utils/cpu_sampler.py` (new), `ui/components/pro_info_table.py`, `core/live_collector.py`, `core/hardware_sensors.py`, `core/opt_receipts.py`, `hck_gpt/responses/flows.py` and 11 more, `core/game_library.py`, `core/game_detect.py`, `ui/pages/startup_manager.py`, `ui/components/page_titles.py`, `tests/test_cpu_sampler.py` and `tests/test_after_domain_fixes.py` (new)**
+- **CPU load read 0.0 % in DeepMonitor**, on every core, while RAM updated fine. `psutil.cpu_percent(interval=None)` keeps one "last sample" for the whole process, and 18 places called it: the collector, the sensors, the overlay, the PC Map, hck_GPT's context, the optimization receipts, the guide's before and after. Each call reset the window for the others, so whoever asked a moment after someone else measured a few milliseconds and got 0 % or noise. Every caller now has its own window (`utils.cpu_sampler`); only the dashboard monitor still uses psutil's. A test fails if anyone calls the shared one again.
+- DeepMonitor's "Current" clock showed the base clock (2.5 GHz on an i5-12400F running at 4.4); it now takes the collector's measured clock.
+- Games installed as "Stardew Valley.exe" did not match the library's "stardewvalley.exe": the note said "stardew valley" in lower case. Names now match without spaces, in the library and in game detection.
+- Startup Manager in Polish: the rows said H/M/L under a "Duży wpływ" header (now D/Ś/M), and the tab counting all active entries was called "Do wyłączenia" next to a section of the same name counting only the recommended ones (the tab is now "Aktywne" / "Active").
+
+### Cleanup 2.0
+**`core/disk_history.py` (new), `core/disk_usage.py` (new), `core/cleanup.py`, `ui/pages/cleanup_page.py`, `hck_stats_engine/aggregator.py`, `hck_gpt/responses/r_everyday.py`, `tests/test_cleanup_v2.py` (new)**
+- **What takes the space on C:** one click goes through the whole drive, read only (1.13 million files in 50 s on the test PC, 96% of the used space counted). Folders and the biggest files come with what they are and what to do: hiberfil.sys (`powercfg /h off`, and what you lose), WinSxS (never by hand, use the component cleanup), Windows\Installer (leave it), Windows.old (Windows removes it after about 10 days; where to remove it sooner), System Volume Information, Steam libraries, node_modules, virtual disks that never shrink, your own folders. Coloured tags: leave it, Windows tool, Cleanup, programs, your files. Click a folder to go inside, "Show in Explorer" next to every row. The other cleaners show sizes; none says what a folder is.
+- **Free space over time:** one point a day for every fixed drive (the hourly stats aggregation writes it, three years kept, numbers only). A chart for 30 days, a year or everything, with cleanups as green dots, and one sentence: "For 21 days about 634.9 MB a day has gone. At this pace the drive is full in about 65 days." A cleanup starts a new stretch, so freeing 11 GB does not read as "the disk grows". hck_GPT gets a tip when more than 1 GB a day goes.
+- **Receipt:** every cleanup notes the free space before and after on each drive it changed ("C: 41.2 GB → 52.3 GB free"), shown under Last cleanup. Moving big downloads to the Recycle Bin says that the space comes back only when the bin is emptied.
+- **New places (19 → 28):** Steam game shaders in every Steam library, listed per game by name from the app manifest; Epic Games Launcher and Battle.net caches; Vivaldi; unpacked NVIDIA and AMD driver installers (C:\NVIDIA\DisplayDriver, C:\AMD, administrator); for developers npm, pip, NuGet and Gradle caches, never ticked by default. New groups: Games, For developers.
+- **Clean Windows components:** `DISM /Online /Cleanup-Image /StartComponentCleanup`, administrator only, after a confirmation, with the space freed measured. Never `/ResetBase`.
+- hck_GPT's free space answer adds the trend of the system drive and the three biggest folders of the last analysis.
+
+### Found while writing the Cleanup page on pcworkman.dev
+**`hck_gpt/responses/r_hardware.py`, `hck_gpt/responses/r_performance.py`**
+- "jak zwolnić miejsce na dysku" and "what is using disk space" end in the disk answer, which still said "Optimization -> Clear TEMP -> Run TURBO BOOST". That button moved to Cleanup in 1.9.2. The tip now links to Cleanup, and so do the two TEMP folder lines in the disk and performance answers.
+
 ## [1.9.2] - 2026-11-21
 
 ### Phase 0 of the next update: sensors and learning

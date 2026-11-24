@@ -74,7 +74,7 @@ PC_Workman is working toward full compliance with [OpenSSF Best Practices](https
 - Public discussion forums (Issues, Discussions)
 - Clear contribution policy (CONTRIBUTING.md)
 - Security reporting mechanism (this document)
-- License declaration (MIT)
+- License declaration (GPL-3.0-only from 1.9.3; MIT up to 1.9.2)
 - Documented security practices
 
 **In Progress:**
@@ -407,10 +407,10 @@ No. All core functionality, system monitoring, fan control, performance tracking
 
 ### What happens if development stops?
 
-The repository remains public indefinitely. The license (MIT) permits:
+The repository remains public indefinitely. The license (GPL-3.0) permits:
 - Forking the project
 - Continuing development independently
-- Commercial and non-commercial use
+- Commercial and non-commercial use, as long as the source of every distributed version stays open under GPL-3.0
 
 Source code and documentation will remain accessible.
 
@@ -455,4 +455,4 @@ This policy is reviewed quarterly and updated as needed to reflect current pract
 
 **PC_Workman Security Policy**  
 Maintained by Marcin Firmuga | HCK_Labs  
-MIT | Open Source | Transparent by Design
+GPL-3.0 | Open Source | Transparent by Design
