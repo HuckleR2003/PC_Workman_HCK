@@ -1,0 +1,11 @@
+# PC Workman HCK - security contact (RFC 9116)
+# PC Workman is a free, open-source, local-first Windows system monitor (GPL-3.0).
+# Responsible disclosure is welcome and appreciated.
+
+Contact: mailto:firmuga.marcin.s@gmail.com
+Contact: https://github.com/HuckleR2003/PC_Workman_HCK/security/advisories/new
+Preferred-Languages: en, pl
+Canonical: https://pcworkman.dev/.well-known/security.txt
+Policy: https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/SECURITY.md
+Hiring: https://linkedin.com/in/marcinfirmuga
+Expires: 2027-06-15T00:00:00.000Z
