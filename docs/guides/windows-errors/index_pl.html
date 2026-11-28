@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Hub poradników (PL) · błędy w Podglądzie zdarzeń -->
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Błędy w Podglądzie zdarzeń: 41, 153, WHEA po ludzku</title>
+    <meta name="description" content="Kernel-Power 41, nvlddmkm 153 i 4101, WHEA-Logger 17, 18, 19: co znaczy każdy błąd z Podglądu zdarzeń, jak bardzo jest groźny i od czego zacząć.">
+    <meta name="keywords" content="Podgląd zdarzeń błędy, Kernel-Power 41, zdarzenie 41, nvlddmkm 153, zdarzenie 4101, WHEA-Logger 18, WHEA 17 19 47, DistributedCOM 10016, dlaczego komputer się zrestartował">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/windows-errors/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/windows-errors/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/windows-errors/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/windows-errors/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Błędy w Podglądzie zdarzeń, które mają znaczenie, i te, które można pominąć">
+    <meta property="og:description" content="Kernel-Power 41, nvlddmkm 153 i 4101, WHEA-Logger 17, 18, 19 i DCOM 10016: co się stało, jak bardzo groźne i od czego zacząć.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/windows-errors/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T12:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T12:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .sev { font-family:'JetBrains Mono',monospace; font-size:.74rem; font-weight:700; padding:.12rem .45rem; border-radius:6px; white-space:nowrap; }
+        .sev.hi { background:rgba(248,113,113,.16); color:#fca5a5; }
+        .sev.mid { background:rgba(251,191,36,.15); color:#fcd34d; }
+        .sev.lo { background:rgba(52,211,153,.14); color:#6ee7b7; }
+        .symptoms { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.8rem; margin:1.2rem 0; }
+        .symptoms a { display:block; padding:.9rem 1rem; border:1px solid #262b35; border-left:3px solid #a78bfa; border-radius:10px; text-decoration:none; color:inherit; background:#0f1218; }
+        .symptoms a b { display:block; color:#f3f4f6; margin-bottom:.25rem; }
+        .symptoms a span { font-size:.85rem; color:#9ca3af; }
+        .steps li { margin-bottom:.45rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Błędy w Podglądzie zdarzeń po ludzku: Kernel-Power 41, nvlddmkm 153, WHEA-Logger",
+          "description": "Co znaczą błędy z Podglądu zdarzeń stojące za awariami, restartami i czarnym ekranem, jak bardzo każdy jest groźny i który poradnik przeczytać najpierw.",
+          "url": "https://pcworkman.dev/guides/windows-errors/index_pl",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/windows-errors/index_pl" },
+          "datePublished": "2026-11-27T12:00:00+01:00",
+          "dateModified": "2026-11-27T12:00:00+01:00",
+          "inLanguage": "pl",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+          "hasPart": [
+            { "@type": "Article", "name": "nvlddmkm 153 i 4101", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/index_pl" },
+            { "@type": "Article", "name": "Kernel-Power 41", "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/index_pl" },
+            { "@type": "Article", "name": "WHEA-Logger 17, 18, 19", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl" }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl" },
+            { "@type": "ListItem", "position": 3, "name": "Błędy Windows", "item": "https://pcworkman.dev/guides/windows-errors/index_pl" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Czy Kernel-Power 41 jest groźny?", "acceptedAnswer": { "@type": "Answer", "text": "To objaw, nie przyczyna. Windows zapisuje zdarzenie 41, gdy uruchamia się ponownie po tym, jak nie wyłączył się poprawnie. Pola BugcheckCode i PowerButtonTimestamp mówią, czy był to niebieski ekran, twarde zawieszenie czy nagła utrata zasilania." } },
+            { "@type": "Question", "name": "Co znaczy nvlddmkm 153?", "acceptedAnswer": { "@type": "Answer", "text": "Sterownik NVIDIA został zresetowany, bo karta graficzna nie odpowiadała przez około dwie sekundy (Timeout Detection and Recovery). Ekran gaśnie i wraca. Raz w miesiącu to szum; kilka razy dziennie pod obciążeniem wskazuje na sterownik, podkręcanie, temperaturę albo zasilanie." } },
+            { "@type": "Question", "name": "Które zdarzenie WHEA-Logger jest groźne?", "acceptedAnswer": { "@type": "Answer", "text": "Zdarzenia 17, 19 i 47 to błędy, które sprzęt sam poprawił, więc liczy się, jak często się pojawiają. Zdarzenie 18 to krytyczny błąd sprzętu, którego nie dało się poprawić, zwykle po niebieskim ekranie WHEA_UNCORRECTABLE_ERROR." } },
+            { "@type": "Question", "name": "Czy można zignorować DistributedCOM 10016?", "acceptedAnswer": { "@type": "Answer", "text": "Tak. Microsoft podaje, że te zdarzenia można bezpiecznie ignorować, bo nie wpływają na działanie systemu i wynikają z jego budowy." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/windows-errors/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/windows-errors/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Błędy i awarie</span>
+        <h1>Błędy w Podglądzie zdarzeń: które mają znaczenie i od czego zacząć</h1>
+        <p class="tagline">Dziennik System jest pełen czerwonych i żółtych wpisów. Kilka z nich wyjaśnia awarie, restarty i czarny ekran. Reszta to szum.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-11-27</span><span>&middot;</span><span>6 min czytania</span>
+        </div>
+
+        <p class="lead">Otwierasz Podgląd zdarzeń, bo komputer zrestartował się w grze albo ekran zgasł na sekundę, a dziennik System to ściana błędów. Większość z nich jest nieszkodliwa i pojawia się na każdym Windowsie. <b>Cztery źródła wyjaśniają większość awarii, restartów i czarnych ekranów na komputerze do gier:</b> Kernel-Power, nvlddmkm, Display i WHEA-Logger. Ta strona mówi, na który patrzysz, jak bardzo jest groźny i który poradnik przeprowadzi Cię przez resztę.</p>
+
+        <h2 id="table">Błędy, które mają znaczenie, w jednej tabeli</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Zdarzenie</th><th>Źródło</th><th>Co się stało</th><th>Jak groźne</th><th>Poradnik</th></tr></thead>
+            <tbody>
+                <tr><td><b>41</b></td><td>Kernel-Power</td><td>Windows uruchomił się ponownie, choć się poprawnie nie wyłączył: niebieski ekran, twarde zawieszenie albo utrata zasilania.</td><td><span class="sev mid">Objaw</span></td><td><a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">Kernel-Power 41</a> &middot; <a href="../kernel-power-41-bugcheckcode/index_pl.html">dekoder BugcheckCode</a></td></tr>
+                <tr><td><b>153</b></td><td>nvlddmkm</td><td>Sterownik NVIDIA został zresetowany, bo karta nie odpowiadała przez około dwie sekundy.</td><td><span class="sev mid">Zależy od częstości</span></td><td><a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html">nvlddmkm 153</a></td></tr>
+                <tr><td><b>4101</b></td><td>Display</td><td>„Sterownik ekranu przestał odpowiadać i został odzyskany”: ten sam reset zapisany przez Windows.</td><td><span class="sev mid">Zależy od częstości</span></td><td><a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html">nvlddmkm 153</a></td></tr>
+                <tr><td><b>LiveKernelEvent 117, 141, 1A8, 1B8</b></td><td>Monitor niezawodności</td><td>Zawieszenie grafiki albo czarny ekran, z którego Windows się podniósł, ze zrzutem w LiveKernelReports.</td><td><span class="sev mid">Zależy od częstości</span></td><td><a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent</a></td></tr>
+                <tr><td><b>Driver timeout</b></td><td>AMD Software</td><td>„A driver timeout has occurred”: karta Radeon przestała odpowiadać i Windows zresetował sterownik.</td><td><span class="sev mid">Zależy od częstości</span></td><td><a href="../amd-driver-timeout/index_pl.html">AMD driver timeout</a></td></tr>
+                <tr><td><b>17, 19, 47</b></td><td>WHEA-Logger</td><td>Sprzęt znalazł błąd i sam go poprawił: łącze PCIe, procesor albo pamięć.</td><td><span class="sev mid">Zależy od częstości</span></td><td><a href="../whea-logger-event-17-18-19/index_pl.html">WHEA-Logger</a></td></tr>
+                <tr><td><b>18</b></td><td>WHEA-Logger</td><td>Krytyczny błąd sprzętu, którego nie dało się poprawić, zwykle po niebieskim ekranie WHEA_UNCORRECTABLE_ERROR.</td><td><span class="sev hi">Groźne</span></td><td><a href="../whea-logger-event-17-18-19/index_pl.html">WHEA-Logger</a></td></tr>
+                <tr><td><b>153, 129</b></td><td>disk, storahci, stornvme</td><td>Żądanie do dysku zostało ponowione (disk 153) albo dysk zresetowano po przekroczeniu czasu (129). To nie to samo co nvlddmkm 153.</td><td><span class="sev hi">Pilnuj dysku</span></td><td><a href="../pc-freezes-for-a-few-seconds/index_pl.html">Krótkie zawieszenia</a></td></tr>
+                <tr><td><b>10016</b></td><td>DistributedCOM</td><td>Ostrzeżenie o uprawnieniach między składnikami Windows. Microsoft: można bezpiecznie ignorować.</td><td><span class="sev lo">Pomiń</span></td><td><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/application-management/event-10016-logged-when-accessing-dcom" rel="noopener">Microsoft</a></td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h2 id="symptom">Zacznij od tego, co widziałeś</h2>
+        <div class="symptoms">
+            <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html"><b>Cały komputer się zrestartował</b><span>Bez niebieskiego ekranu, po prostu restart w grze. Zacznij od Kernel-Power 41, potem sprawdź WHEA 18.</span></a>
+            <a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html"><b>Ekran zgasł i wrócił</b><span>Gra się zawiesiła albo wyrzuciła na pulpit. To reset sterownika: nvlddmkm 153 i Display 4101 na NVIDIA, <b>driver timeout</b> na AMD, LiveKernelEvent 141 w Monitorze niezawodności.</span></a>
+            <a href="../whea-logger-event-17-18-19/index_pl.html"><b>Ściana żółtych ostrzeżeń</b><span>„Wystąpił skorygowany błąd sprzętowy”. Policz je, zanim się zmartwisz: WHEA-Logger 17, 19, 47.</span></a>
+            <a href="../xmp-expo-crashes-ram-stability/index_pl.html"><b>Awarie zaczęły się po włączeniu XMP albo EXPO</b><span>Przypadkowe błędy w różnych programach często oznaczają niestabilną pamięć.</span></a>
+            <a href="../is-my-psu-dying-12v-rail/index_pl.html"><b>Restarty tylko pod dużym obciążeniem</b><span>Co program może, a czego nie może powiedzieć o zasilaczu.</span></a>
+            <a href="../pc-freezes-for-a-few-seconds/index_pl.html"><b>Komputer zawiesza się na kilka sekund i działa dalej</b><span>Dysk, sterownik trzymający procesor (DPC latency), pamięć albo karta graficzna. Cztery ślady, po których je odróżnisz.</span></a>
+            <a href="../is-my-ssd-dying-drive-health/index_pl.html"><b>Błędy dysku albo zawieszenia przy plikach</b><span>Które liczby dysku zapowiadają awarię, a którymi ludzie niepotrzebnie się martwią.</span></a>
+        </div>
+
+        <h2 id="find">Jak je znaleźć w Podglądzie zdarzeń</h2>
+        <ol class="steps">
+            <li>Naciśnij <b>Win + X</b> i wybierz <b>Podgląd zdarzeń</b>.</li>
+            <li>Otwórz <b>Dzienniki systemu Windows &rarr; System</b>.</li>
+            <li>Po prawej kliknij <b>Filtruj bieżący dziennik</b> i wpisz w pole identyfikatorów <code>41,153,4101,17,18,19,47</code>.</li>
+            <li>Posortuj po <b>dacie i godzinie</b> i patrz na minuty tuż przed zdarzeniem. Ważny jest zwykle wpis tuż przed restartem, nie czerwony po nim.</li>
+        </ol>
+        <p>Trzy pytania dają więcej niż pojedynczy wpis: <b>kiedy</b> to się zaczęło (po aktualizacji sterownika, nowej części, XMP), <b>jak często</b> się powtarza i <b>co robił komputer</b> w tej minucie (gra, render, spoczynek).</p>
+
+        <h2 id="workman">Gdzie pomaga PC Workman</h2>
+        <p>Trzecie pytanie jest najtrudniejsze, bo Podgląd zdarzeń nie zapisuje obciążenia ani temperatury. PC Workman trzyma lokalną historię obciążenia CPU, GPU i RAM, temperatur i zegarów, więc możesz otworzyć <a href="/features/time-travel/index_pl.html">Activity Memory</a> na minucie restartu i zobaczyć, co robił komputer. hck_GPT czyta z dziennika zdarzeń błędy sprzętu, niebieskie ekrany i nagłe restarty, a <a href="/features/health-report/index_pl.html">Raport zdrowia</a> liczy je w wyniku stabilności. Nie zastępuje poradników wyżej; daje im kontekst.</p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Czy Kernel-Power 41 jest groźny?</h3>
+        <p>To objaw, nie przyczyna. Windows zapisuje zdarzenie 41, gdy uruchamia się ponownie po tym, jak nie wyłączył się poprawnie. Pola BugcheckCode i PowerButtonTimestamp mówią, czy był to niebieski ekran, twarde zawieszenie czy nagła utrata zasilania.</p>
+        <h3>Co znaczy nvlddmkm 153?</h3>
+        <p>Sterownik NVIDIA został zresetowany, bo karta nie odpowiadała przez około dwie sekundy (Timeout Detection and Recovery). Raz w miesiącu to szum; kilka razy dziennie pod obciążeniem wskazuje na sterownik, podkręcanie, temperaturę albo zasilanie.</p>
+        <h3>Które zdarzenie WHEA-Logger jest groźne?</h3>
+        <p>Zdarzenia 17, 19 i 47 to błędy, które sprzęt sam poprawił, więc liczy się ich częstość. Zdarzenie 18 to krytyczny błąd, którego nie dało się poprawić.</p>
+        <h3>Czy można zignorować DistributedCOM 10016?</h3>
+        <p>Tak. Microsoft podaje, że te zdarzenia można bezpiecznie ignorować, bo nie wpływają na działanie systemu i wynikają z jego budowy.</p>
+
+        <h2 id="sources">Źródła</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart" rel="noopener">Microsoft: Advanced troubleshooting for Event ID 41</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: Timeout Detection and Recovery (TDR)</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: Bug check 0x124 WHEA_UNCORRECTABLE_ERROR</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/application-management/event-10016-logged-when-accessing-dcom" rel="noopener">Microsoft: Event ID 10016 logged when accessing DCOM</a></li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>Zobacz, co robił komputer w tej minucie.</b> <a href="../../download/index_pl.html">Pobierz PC Workmana</a>, za darmo, bez konta, albo przeczytaj <a href="../index_pl.html">wszystkie poradniki</a>.
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

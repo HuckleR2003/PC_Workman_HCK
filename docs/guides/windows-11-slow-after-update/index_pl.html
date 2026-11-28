@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Poradnik (PL) · Windows 11 zwolnił po aktualizacji -->
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 11 wolny po aktualizacji? Udowodnij, potem napraw</title>
+    <meta name="description" content="Komputer zwolnił po aktualizacji, czy tylko tak się wydaje? Przeczekaj pierwsze dni, sprawdź, co się zmieniło, porównaj przed i po, cofnij właściwą rzecz.">
+    <meta name="keywords" content="windows 11 wolny po aktualizacji, komputer zwolnił po aktualizacji, windows 11 25h2 wolny, spadek fps po aktualizacji windows, odinstaluj aktualizację windows, powrót do poprzedniej wersji windows, monitor niezawodności">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/windows-11-slow-after-update/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/windows-11-slow-after-update/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Windows 11 wolny po aktualizacji? Udowodnij, zanim naprawisz">
+    <meta property="og:description" content="Większość spowolnień po aktualizacji to chwilowa praca w tle. Część jest prawdziwa, a kilka potwierdzili Microsoft albo NVIDIA. Jak sprawdzić, który przypadek masz.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-28T00:30:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:30:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #2f2558; border-left:3px solid #a78bfa; background:#0f0c1c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#c4b5fd; margin-bottom:.4rem; }
+        .steps li { margin-bottom:.55rem; }
+        .sources { font-size:.9rem; color:#9ca3af; }
+        .sources a { color:#c4b5fd; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Windows 11 wolny po aktualizacji? Udowodnij, zanim naprawisz",
+          "description": "Jak odróżnić chwilową pracę po aktualizacji od prawdziwego spowolnienia, znaleźć, co się zmieniło, porównać przed i po i cofnąć właściwą rzecz.",
+          "url": "https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl" },
+          "datePublished": "2026-11-28T00:30:00+01:00",
+          "dateModified": "2026-11-28T00:30:00+01:00",
+          "inLanguage": "pl",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Dlaczego komputer zwolnił po aktualizacji Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Najczęściej przez chwilową pracę po aktualizacji: ponowne indeksowanie wyszukiwania, optymalizację aplikacji, skan Defendera i aktualizacje aplikacji ze Sklepu. To mija po dniu lub dwóch zwykłego używania. Jeśli nie mija, zwykle winny jest podmieniony sterownik, znany błąd tej aktualizacji albo ustawienie, które aktualizacja zmieniła." } },
+            { "@type": "Question", "name": "Ile mam czasu na powrót do poprzedniej wersji Windows?", "acceptedAnswer": { "@type": "Answer", "text": "Po aktualizacji funkcji (nowej wersji Windows) Microsoft podaje, że w większości przypadków 10 dni, w Ustawienia > System > Odzyskiwanie > Wstecz. Aktualizację miesięczną usuniesz w Ustawienia > Windows Update > Historia aktualizacji > Odinstaluj aktualizacje." } },
+            { "@type": "Question", "name": "Czy aktualizacja Windows może obniżyć FPS w grach?", "acceptedAnswer": { "@type": "Answer", "text": "Tak, zdarzyło się. Po aktualizacji KB5066835 z października 2025 NVIDIA odnotowała niższą wydajność w niektórych grach i wydała sterownik z poprawką. Zanim cofniesz Windows, sprawdź notatki do sterowników producenta karty." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/windows-11-slow-after-update/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/windows-11-slow-after-update/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Szybkość</span>
+        <h1>Windows 11 wolny po aktualizacji? Udowodnij, zanim naprawisz</h1>
+        <p class="tagline">„Zwolnił po aktualizacji” to najczęstsze zdanie na każdym forum o Windowsie i najtrudniejsze do sprawdzenia, bo nikt nie zapisał, jak szybko było wcześniej.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-11-28</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Krótka odpowiedź</b>
+            <p><b>Najpierw daj mu dzień lub dwa zwykłego używania.</b> Po aktualizacji Windows indeksuje pliki od nowa, optymalizuje aplikacje, skanuje i aktualizuje aplikacje ze Sklepu, a ta praca wygląda dokładnie jak wolny komputer. Jeśli po tym czasie nadal jest wolno, znajdź, co aktualizacja zmieniła (wersja Windows, sterownik karty, ustawienia), sprawdź, czy to znany problem tej aktualizacji, porównaj to samo zadanie przed i po, i dopiero wtedy cofnij tę jedną rzecz, która się zmieniła.</p>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#temporary">Pierwszy dzień: spowolnienie, które mija</a></li>
+                <li><a href="#changed">Co naprawdę się zmieniło</a></li>
+                <li><a href="#known">Czy to znany problem?</a></li>
+                <li><a href="#prove">Udowodnij: przed i po</a></li>
+                <li><a href="#rollback">Cofnij właściwą rzecz</a></li>
+                <li><a href="#workman">Gdzie pomaga PC Workman</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+            </ol>
+        </div>
+
+        <h2 id="temporary">Pierwszy dzień: spowolnienie, które mija</h2>
+        <p>Zaraz po aktualizacji, a zwłaszcza po nowej wersji Windows, komputer jest zajęty pracą, o którą nie prosiłeś. Nic z tego nie jest usterką:</p>
+        <ul>
+            <li><b>Ponowne indeksowanie wyszukiwania</b>: SearchIndexer.exe czyta twoje pliki od nowa. Praca dysku, wentylator, który się nie uspokaja.</li>
+            <li><b>Optymalizacja aplikacji</b>: .NET kompiluje w tle części aplikacji (w Menedżerze zadań możesz zobaczyć mscorsvw.exe albo ngen).</li>
+            <li><b>Skan Defendera</b> zmienionych plików i <b>aktualizacje aplikacji ze Sklepu</b>, które ustawiają się w kolejce za aktualizacją systemu.</li>
+            <li><b>Optymalizacja dostarczania i Windows Update</b> kończą pobieranie wewnątrz svchost.exe.</li>
+        </ul>
+        <p>Zostaw komputer włączony i podłączony do prądu na godzinę lub dwie, uruchom go ponownie raz i oceniaj drugiego dnia. Spowolnienie, które wtedy nadal jest, warto ścigać.</p>
+
+        <h2 id="changed">Co naprawdę się zmieniło</h2>
+        <p>Aktualizacja może zmienić więcej niż sam Windows. Sprawdź trzy rzeczy:</p>
+        <ol class="steps">
+            <li><b>Wersja Windows.</b> Ustawienia &gt; Windows Update &gt; Historia aktualizacji pokazuje, co i kiedy się zainstalowało. Monitor niezawodności (wpisz „niezawodność” w Start) pokazuje instalacje, awarie i błędy na jednej osi, dzień po dniu.</li>
+            <li><b>Sterownik karty graficznej.</b> Windows Update czasem instaluje własną wersję sterownika w miejsce tej od NVIDIA, AMD albo Intela. Menedżer urządzeń &gt; Karty graficzne &gt; Właściwości &gt; Sterownik pokazuje wersję i datę. Nagła zmiana w grach po aktualizacji to bardzo często właśnie to.</li>
+            <li><b>Ustawienia i autostart.</b> Duże aktualizacje potrafią zmienić tryb zasilania, włączyć z powrotem funkcje albo dodać programy do autostartu. Sprawdź tryb zasilania w Ustawienia &gt; System &gt; Zasilanie i listę <a href="../which-startup-apps-can-i-disable/index_pl.html">programów startowych</a>.</li>
+        </ol>
+
+        <h2 id="known">Czy to znany problem?</h2>
+        <p>Czasem winna naprawdę jest aktualizacja, i producent to przyznaje. Dwa prawdziwe przykłady:</p>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Aktualizacja</th><th>Co się stało</th><th>Poprawka</th></tr></thead>
+            <tbody>
+                <tr><td>KB5066835 (październik 2025)</td><td>NVIDIA odnotowała niższą wydajność w niektórych grach po tej aktualizacji</td><td>Sterownik NVIDIA z poprawką, potem zwykłe sterowniki</td></tr>
+                <tr><td>KB5067036 (28 października 2025, opcjonalna)</td><td>Microsoft potwierdził, że zamknięcie Menedżera zadań krzyżykiem mogło zostawić działający taskmgr.exe; kopie się mnożyły i zjadały zasoby</td><td>Naprawione w KB5068861; do tego czasu <code>taskkill /im taskmgr.exe /f</code></td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Zanim cokolwiek zmienisz, wyszukaj numer KB z Historii aktualizacji razem z nazwą swojej karty albo słowami „known issue” i zajrzyj na stronę stanu wydań Windows (Windows release health). Jeśli problem jest znany, rozwiązaniem jest zwykle nowsza aktualizacja albo sterownik, a nie cofanie.</p>
+
+        <h2 id="prove">Udowodnij: przed i po</h2>
+        <p>„Wydaje się wolniejszy” to nie jest coś, co da się naprawić. Zamień to na liczbę:</p>
+        <ul>
+            <li><b>Czas uruchamiania</b>: Podgląd zdarzeń &gt; Dzienniki aplikacji i usług &gt; Microsoft &gt; Windows &gt; Diagnostics-Performance &gt; Operational, zdarzenie 100, zapisuje, ile trwało każde uruchomienie. Porównaj starty sprzed daty aktualizacji ze startami po niej.</li>
+            <li><b>Gry</b>: ta sama scena, te same ustawienia, średni FPS i 1% low (zobacz <a href="../game-stutters-high-fps-frame-time/index_pl.html">czas klatki i 1% low</a>).</li>
+            <li><b>Codzienna praca</b>: użycie procesora i dysku w spoczynku. Jeśli w spoczynku procesor pracuje więcej niż kiedyś, działa coś nowego; <a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">wolny komputer przy normalnym użyciu</a> wylicza te ukryte przyczyny.</li>
+        </ul>
+        <p>Słabe miejsce ich wszystkich to „przed”. Jeśli nie zmierzyłeś przed aktualizacją, porównujesz z pamięcią.</p>
+
+        <h2 id="rollback">Cofnij właściwą rzecz</h2>
+        <ol class="steps">
+            <li><b>Zmienił się sterownik:</b> zainstaluj wersję ze strony producenta karty albo przywróć poprzedni sterownik w Menedżerze urządzeń. Zrób to, zanim ruszysz Windows.</li>
+            <li><b>Aktualizacja miesięczna:</b> Ustawienia &gt; Windows Update &gt; Historia aktualizacji &gt; Odinstaluj aktualizacje. Potem wstrzymaj aktualizacje na tydzień, bo inaczej Windows zainstaluje ją z powrotem tej samej nocy.</li>
+            <li><b>Nowa wersja Windows (aktualizacja funkcji):</b> Ustawienia &gt; System &gt; Odzyskiwanie &gt; Wstecz. Microsoft podaje, że w większości przypadków da się to zrobić przez 10 dni, a powrót usuwa aplikacje i sterowniki zainstalowane po aktualizacji i zmiany ustawień od tego czasu. Nie usuwaj folderu windows.old w Oczyszczaniu dysku, zanim zdecydujesz.</li>
+        </ol>
+        <p>Cofnięcie to pauza, nie naprawa: aktualizacje bezpieczeństwa wrócą. Wykorzystaj ten czas, żeby poczekać na poprawioną aktualizację albo sterownik.</p>
+
+        <h2 id="workman">Gdzie pomaga PC Workman</h2>
+        <p>„Przed” to dokładnie to, co PC Workman trzyma. Od wersji 1.9.3 pamięta wersję Windows (razem z numerem aktualizacji miesięcznej) i wersję sterownika karty graficznej. Gdy któraś się zmieni, <a href="/features/time-travel/index_pl.html">Pamięć aktywności</a> zaznacza to przerywaną linią na wykresie każdego podzespołu, z wierszem w stylu „Sterownik karty: 32.0.15.8180 &rarr; 32.0.16.1088” oraz średnim obciążeniem i temperaturą tego podzespołu z 14 dni przed i 14 dni po. Pytanie „czy aktualizacja go spowolniła?” dostaje odpowiedź z historii tego komputera. Czyta to tylko z rejestru i nigdy nie instaluje ani nie usuwa aktualizacji. Pierwsze uruchomienie tylko zapisuje obecne wersje, więc porównanie działa od następnej zmiany.</p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Dlaczego komputer zwolnił po aktualizacji Windows?</h3>
+        <p>Zwykle przez chwilową pracę: indeksowanie, optymalizację aplikacji, skany i aktualizacje aplikacji. Jeśli trwa dłużej niż dzień lub dwa, sprawdź podmieniony sterownik, znany błąd albo zmienione ustawienie.</p>
+        <h3>Ile mam czasu na powrót do poprzedniej wersji?</h3>
+        <p>Dla nowej wersji Windows w większości przypadków 10 dni (Ustawienia &gt; System &gt; Odzyskiwanie). Aktualizację miesięczną odinstalujesz z Historii aktualizacji.</p>
+        <h3>Czy aktualizacja Windows może obniżyć FPS w grach?</h3>
+        <p>Tak. Po KB5066835 NVIDIA odnotowała niższą wydajność w niektórych grach i wydała sterownik z poprawką.</p>
+
+        <p class="sources">Źródła: Microsoft Support, <a href="https://support.microsoft.com/windows/deployment/install-upgrade/go-back-to-the-previous-version-of-windows" rel="noopener" target="_blank">Go back to the previous version of Windows</a>; Windows Latest o <a href="https://www.windowslatest.com/2025/12/01/gamers-confirm-frame-drops-after-windows-11-update-that-microsoft-wont-acknowledge-but-nvidia-has-fixed-it" rel="noopener" target="_blank">KB5066835 i poprawce NVIDIA</a> oraz o <a href="https://www.windowslatest.com/2025/10/30/windows-11-kb5067036-issue-task-manager-wont-close-and-duplicates-may-hurt-performance" rel="noopener" target="_blank">KB5067036 i Menedżerze zadań</a>; PCWorld o <a href="https://www.pcworld.com/article/2970084/microsoft-fixes-windows-11-bug-that-kept-task-manager-open.html" rel="noopener" target="_blank">poprawce w KB5068861</a>.</p>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">Wolny komputer, normalne użycie? 6 ukrytych przyczyn</a></li>
+                <li><a href="../svchost-high-cpu/index_pl.html">svchost.exe: co to jest i czemu działa ich tyle</a></li>
+                <li><a href="../gpu-dying-or-driver/index_pl.html">Karta graficzna umiera czy to sterownik?</a></li>
+                <li><a href="../which-startup-apps-can-i-disable/index_pl.html">Które programy startowe można wyłączyć?</a></li>
+                <li><a href="../why-is-my-disk-at-100-percent/index_pl.html">Dlaczego dysk pracuje na 100%?</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Zachowaj „przed”, które przyda się następnym razem.</b> PC Workman zaznacza każdą zmianę Windows i sterownika karty z liczbami sprzed i po. <a href="../../download/index_pl.html">Pobierz na Windows</a>, za darmo, bez konta.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>„W zeszłym tygodniu był szybszy” może być prawdą albo nie. Bez pomiaru z zeszłego tygodnia nikt nie powie, które z dwóch.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

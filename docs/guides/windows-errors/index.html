@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guides hub (EN) · Windows Event Viewer errors -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Event Viewer Errors Explained: 41, 153, WHEA</title>
+    <meta name="description" content="Kernel-Power 41, nvlddmkm 153 and 4101, WHEA-Logger 17, 18, 19: what each Event Viewer error means, how serious it is and where to start.">
+    <meta name="keywords" content="Event Viewer errors, Kernel-Power 41, event id 41, nvlddmkm event 153, event 4101, WHEA-Logger 18, WHEA 17 19 47, DistributedCOM 10016, Windows crash log, why did my PC restart">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/windows-errors/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/windows-errors/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/windows-errors/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/windows-errors/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Windows Event Viewer errors that matter, and the ones you can ignore">
+    <meta property="og:description" content="Kernel-Power 41, nvlddmkm 153 and 4101, WHEA-Logger 17, 18, 19 and DCOM 10016: what happened, how serious it is, where to start.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/windows-errors/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T12:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T12:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .sev { font-family:'JetBrains Mono',monospace; font-size:.74rem; font-weight:700; padding:.12rem .45rem; border-radius:6px; white-space:nowrap; }
+        .sev.hi { background:rgba(248,113,113,.16); color:#fca5a5; }
+        .sev.mid { background:rgba(251,191,36,.15); color:#fcd34d; }
+        .sev.lo { background:rgba(52,211,153,.14); color:#6ee7b7; }
+        .symptoms { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.8rem; margin:1.2rem 0; }
+        .symptoms a { display:block; padding:.9rem 1rem; border:1px solid #262b35; border-left:3px solid #a78bfa; border-radius:10px; text-decoration:none; color:inherit; background:#0f1218; }
+        .symptoms a b { display:block; color:#f3f4f6; margin-bottom:.25rem; }
+        .symptoms a span { font-size:.85rem; color:#9ca3af; }
+        .steps li { margin-bottom:.45rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Windows Event Viewer errors explained: Kernel-Power 41, nvlddmkm 153, WHEA-Logger",
+          "description": "What the Event Viewer errors behind crashes, restarts and black screens mean, how serious each is, and which guide to read first.",
+          "url": "https://pcworkman.dev/guides/windows-errors/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/windows-errors/" },
+          "datePublished": "2026-11-27T12:00:00+01:00",
+          "dateModified": "2026-11-27T12:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+          "hasPart": [
+            { "@type": "Article", "name": "nvlddmkm Event 153 and 4101", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/" },
+            { "@type": "Article", "name": "Kernel-Power 41", "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/" },
+            { "@type": "Article", "name": "WHEA-Logger Event 17, 18, 19", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/" }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+            { "@type": "ListItem", "position": 3, "name": "Windows errors", "item": "https://pcworkman.dev/guides/windows-errors/" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Is Kernel-Power 41 dangerous?", "acceptedAnswer": { "@type": "Answer", "text": "It is a symptom, not a cause. Windows writes Event 41 when it starts again after it did not shut down cleanly. The fields BugcheckCode and PowerButtonTimestamp tell you whether it was a blue screen, a hard hang or a sudden loss of power." } },
+            { "@type": "Question", "name": "What does nvlddmkm Event 153 mean?", "acceptedAnswer": { "@type": "Answer", "text": "The NVIDIA graphics driver was reset after the graphics card stopped responding for about two seconds (Timeout Detection and Recovery). The screen goes black and comes back. One a month is noise; several a day under load point at the driver, an overclock, heat or power." } },
+            { "@type": "Question", "name": "Which WHEA-Logger event is serious?", "acceptedAnswer": { "@type": "Answer", "text": "Events 17, 19 and 47 are errors the hardware corrected, so they matter by how often they appear. Event 18 is a fatal hardware error that could not be corrected, usually after a WHEA_UNCORRECTABLE_ERROR blue screen." } },
+            { "@type": "Question", "name": "Can I ignore DistributedCOM 10016?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Microsoft states that these events can be safely ignored because they do not affect functionality and are by design." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/windows-errors/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/windows-errors/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Errors and crashes</span>
+        <h1>Windows Event Viewer errors: which ones matter, and where to start</h1>
+        <p class="tagline">The System log is full of red and yellow. A handful of entries explain crashes, restarts and black screens. The rest is noise.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-27</span><span>&middot;</span><span>6 min read</span>
+        </div>
+
+        <p class="lead">You open Event Viewer because the PC restarted in a game, or the screen went black for a second, and the System log is a wall of errors. Most of them are harmless and appear on every Windows PC. <b>Four sources explain most crashes, restarts and black screens on a gaming PC:</b> Kernel-Power, nvlddmkm, Display and WHEA-Logger. This page tells you which one you are looking at, how serious it is, and which guide walks you through it.</p>
+
+        <h2 id="table">The errors that matter, in one table</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Event</th><th>Source</th><th>What happened</th><th>How serious</th><th>Guide</th></tr></thead>
+            <tbody>
+                <tr><td><b>41</b></td><td>Kernel-Power</td><td>Windows started again after it did not shut down cleanly: a blue screen, a hard hang or a loss of power.</td><td><span class="sev mid">Symptom</span></td><td><a href="../pc-restarts-while-gaming-kernel-power-41/">Kernel-Power 41</a> &middot; <a href="../kernel-power-41-bugcheckcode/">BugcheckCode decoder</a></td></tr>
+                <tr><td><b>153</b></td><td>nvlddmkm</td><td>The NVIDIA driver was reset after the graphics card stopped responding for about two seconds.</td><td><span class="sev mid">By frequency</span></td><td><a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm 153</a></td></tr>
+                <tr><td><b>4101</b></td><td>Display</td><td>"Display driver stopped responding and has successfully recovered": the same reset, logged by Windows.</td><td><span class="sev mid">By frequency</span></td><td><a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm 153</a></td></tr>
+                <tr><td><b>LiveKernelEvent 117, 141, 1A8, 1B8</b></td><td>Reliability Monitor</td><td>A graphics hang or black screen Windows recovered from, with a dump in LiveKernelReports.</td><td><span class="sev mid">By frequency</span></td><td><a href="../livekernelevent-141-117/">LiveKernelEvent</a></td></tr>
+                <tr><td><b>Driver timeout</b></td><td>AMD Software</td><td>"A driver timeout has occurred": the Radeon card stopped responding and Windows reset the driver.</td><td><span class="sev mid">By frequency</span></td><td><a href="../amd-driver-timeout/">AMD driver timeout</a></td></tr>
+                <tr><td><b>17, 19, 47</b></td><td>WHEA-Logger</td><td>The hardware found an error and corrected it: a PCIe link, the CPU or memory.</td><td><span class="sev mid">By frequency</span></td><td><a href="../whea-logger-event-17-18-19/">WHEA-Logger</a></td></tr>
+                <tr><td><b>18</b></td><td>WHEA-Logger</td><td>A fatal hardware error that could not be corrected, usually after a WHEA_UNCORRECTABLE_ERROR blue screen.</td><td><span class="sev hi">Serious</span></td><td><a href="../whea-logger-event-17-18-19/">WHEA-Logger</a></td></tr>
+                <tr><td><b>153, 129</b></td><td>disk, storahci, stornvme</td><td>A storage request was retried (disk 153) or the drive was reset after a timeout (129). Not the same as nvlddmkm 153.</td><td><span class="sev hi">Watch the drive</span></td><td><a href="../pc-freezes-for-a-few-seconds/">Short freezes</a></td></tr>
+                <tr><td><b>10016</b></td><td>DistributedCOM</td><td>A permission warning between Windows components. Microsoft: safe to ignore, by design.</td><td><span class="sev lo">Ignore</span></td><td><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/application-management/event-10016-logged-when-accessing-dcom" rel="noopener">Microsoft</a></td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h2 id="symptom">Start from what you saw</h2>
+        <div class="symptoms">
+            <a href="../pc-restarts-while-gaming-kernel-power-41/"><b>The whole PC restarted</b><span>No blue screen, just a reboot in a game. Start with Kernel-Power 41, then check for WHEA 18.</span></a>
+            <a href="../nvlddmkm-display-driver-stopped-responding/"><b>The screen went black, then came back</b><span>The game froze or crashed to desktop. That is a driver reset: nvlddmkm 153 and Display 4101 on NVIDIA, a <b>driver timeout</b> on AMD, LiveKernelEvent 141 in Reliability Monitor.</span></a>
+            <a href="../whea-logger-event-17-18-19/"><b>A wall of yellow warnings</b><span>"A corrected hardware error has occurred". Count them before you worry: WHEA-Logger 17, 19, 47.</span></a>
+            <a href="../xmp-expo-crashes-ram-stability/"><b>Crashes started after enabling XMP or EXPO</b><span>Random errors that move between programs often mean unstable memory.</span></a>
+            <a href="../is-my-psu-dying-12v-rail/"><b>Restarts only under heavy load</b><span>What software can and cannot tell you about a power supply.</span></a>
+            <a href="../pc-freezes-for-a-few-seconds/"><b>The PC freezes for a few seconds, then carries on</b><span>Storage, a driver holding the CPU (DPC latency), memory or the graphics card. Four signatures to tell them apart.</span></a>
+            <a href="../is-my-ssd-dying-drive-health/"><b>Disk errors or freezes on file access</b><span>Which drive numbers predict failure and which ones people panic over.</span></a>
+        </div>
+
+        <h2 id="find">How to find them in Event Viewer</h2>
+        <ol class="steps">
+            <li>Press <b>Win + X</b> and choose <b>Event Viewer</b>.</li>
+            <li>Open <b>Windows Logs &rarr; System</b>.</li>
+            <li>On the right, click <b>Filter Current Log</b> and type <code>41,153,4101,17,18,19,47</code> into the Event IDs box.</li>
+            <li>Sort by <b>Date and Time</b> and look at the minutes just before the moment it happened. The event that matters is usually the one right before the restart, not the red one after it.</li>
+        </ol>
+        <p>Three questions do more than any single entry: <b>when</b> did it start (after a driver update, a new part, XMP), <b>how often</b> does it repeat, and <b>what was the PC doing</b> at that minute (a game, a render, idle).</p>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>The third question is the hard one, because Event Viewer does not record load or temperature. PC Workman keeps a local history of CPU, GPU and RAM load, temperatures and clocks, so you can open <a href="/features/time-travel/">Activity Memory</a> at the minute of a restart and see what the PC was doing. hck_GPT reads hardware errors, blue screens and sudden restarts from the event log, and the <a href="/features/health-report/">Health report</a> counts them in its stability score. It does not replace the guides above; it gives them context.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Is Kernel-Power 41 dangerous?</h3>
+        <p>It is a symptom, not a cause. Windows writes Event 41 when it starts again after it did not shut down cleanly. The fields BugcheckCode and PowerButtonTimestamp tell you whether it was a blue screen, a hard hang or a sudden loss of power.</p>
+        <h3>What does nvlddmkm Event 153 mean?</h3>
+        <p>The NVIDIA graphics driver was reset after the graphics card stopped responding for about two seconds (Timeout Detection and Recovery). One a month is noise; several a day under load point at the driver, an overclock, heat or power.</p>
+        <h3>Which WHEA-Logger event is serious?</h3>
+        <p>Events 17, 19 and 47 are errors the hardware corrected, so they matter by how often they appear. Event 18 is a fatal hardware error that could not be corrected.</p>
+        <h3>Can I ignore DistributedCOM 10016?</h3>
+        <p>Yes. Microsoft states that these events can be safely ignored because they do not affect functionality and are by design.</p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/performance/event-id-41-restart" rel="noopener">Microsoft: Advanced troubleshooting for Event ID 41</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: Timeout Detection and Recovery (TDR)</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x124---whea-uncorrectable-error" rel="noopener">Microsoft: Bug check 0x124 WHEA_UNCORRECTABLE_ERROR</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/troubleshoot/windows-client/application-management/event-10016-logged-when-accessing-dcom" rel="noopener">Microsoft: Event ID 10016 logged when accessing DCOM</a></li>
+        </ul>
+
+        <div class="guide-cta">
+            <b>See what the PC was doing at that minute.</b> <a href="../../download/">Download PC Workman</a>, free, no account, or read <a href="../">all guides</a>.
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
