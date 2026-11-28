@@ -1,0 +1,183 @@
+<!doctype html>
+<!-- HCK_Labs -> PC_Workman · Blog (EN) · PC Workman 1.9.7 "Know Your PC" -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PC Workman 1.9.7: One Health Score, Turbo, Your Real RAM</title>
+<meta name="description" content="PC Workman 1.9.7 reads your board and RAM from part numbers, records GPU load on AMD and Intel, and shows when your PC was off or asleep. Free.">
+<meta name="keywords" content="PC Workman 1.9.7, PC health score, XMP check, RAM part number, GPU load AMD Intel, Windows sleep history, Turbo Boost, free PC monitor">
+<meta name="author" content="Marcin Firmuga">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<meta name="theme-color" content="#0a0b0e">
+<link rel="canonical" href="https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/">
+<link rel="alternate" hreflang="pl" href="https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/index_pl">
+<link rel="alternate" hreflang="en" href="https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/">
+<link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="PC Workman">
+<meta property="og:title" content="PC Workman 1.9.7 &quot;Know Your PC&quot;: one health score, Turbo, your real RAM">
+<meta property="og:description" content="Six days after 1.9.3: one health score instead of three, a Turbo page, the board and RAM read from part numbers, GPU load on AMD and Intel, and history that says when the PC was off or asleep.">
+<meta property="og:url" content="https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/">
+<meta property="og:locale" content="en_GB">
+<meta property="og:image" content="https://pcworkman.dev/assets/images/blog/1-9-7/history-gaps-1100.webp">
+<meta property="og:image:alt" content="PC Workman history: gaps drawn as banners for off, asleep, sudden shutdown and not recorded">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@hck_lab">
+<meta name="twitter:image" content="https://pcworkman.dev/assets/images/blog/1-9-7/history-gaps-1100.webp">
+<meta property="article:published_time" content="2026-11-28T12:00:00+01:00">
+<meta property="article:modified_time" content="2026-11-28T12:00:00+01:00">
+<link rel="stylesheet" href="../series.css">
+<link rel="stylesheet" href="/assets/css/topnav.css">
+<style>
+    .figure { margin:30px 0; }
+    .figure img { width:100%; height:auto; border-radius:8px; border:1px solid #23262e; display:block; }
+    .figure figcaption { font-size:13px; color:#7b828f; margin-top:8px; font-style:italic; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "PC Workman 1.9.7 \"Know Your PC\": one health score, Turbo, your real RAM",
+      "description": "What is new in PC Workman 1.9.7: one health score with snapshots, a Turbo Boost page, the motherboard and RAM read from part numbers, GPU load on AMD and Intel, history gaps that say when the PC was off or asleep, and a hck_GPT that understands far more everyday questions.",
+      "url": "https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/" },
+      "datePublished": "2026-11-28T12:00:00+01:00",
+      "dateModified": "2026-11-28T12:00:00+01:00",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "articleSection": "Build in public",
+      "keywords": "PC Workman 1.9.7, PC health score, XMP check, RAM part number, GPU load AMD Intel, Windows sleep history",
+      "image": "https://pcworkman.dev/assets/images/blog/1-9-7/history-gaps-1100.webp",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/",
+        "sameAs": ["https://github.com/HuckleR2003","https://x.com/hck_lab","https://linkedin.com/in/marcinfirmuga"]
+      },
+      "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+      "isPartOf": { "@type": "Blog", "name": "PC Workman / Build in public", "url": "https://pcworkman.dev/blog/" },
+      "about": [
+        { "@type": "SoftwareApplication", "@id": "https://pcworkman.dev/#software", "name": "PC Workman", "operatingSystem": "Windows 10, Windows 11", "applicationCategory": "UtilitiesApplication", "softwareVersion": "1.9.7", "license": "https://www.gnu.org/licenses/gpl-3.0.html", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "url": "https://pcworkman.dev/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How do I update to PC Workman 1.9.7?", "acceptedAnswer": { "@type": "Answer", "text": "Download the 1.9.7 ZIP from GitHub Releases or SourceForge and unpack it over the old folder, or wait for the Microsoft Store update. Your data stays: it lives in your user folder, not in the program folder." } },
+        { "@type": "Question", "name": "Does PC Workman show GPU temperature on AMD and Intel cards?", "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Since 1.9.7 it records GPU load on every card, through Windows' own GPU counters on AMD and Intel. GPU temperature is still read on NVIDIA cards only." } },
+        { "@type": "Question", "name": "How does PC Workman know my PC was asleep or off?", "acceptedAnswer": { "@type": "Answer", "text": "It reads the Windows System event log, where Windows writes every start, shutdown, sleep and wake. Reading the log changes nothing, and it works also for the hours PC Workman was not running." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Main navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ blog</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/blog/pc-workman-1-9-7-know-your-pc/" class="active" data-lang="en" aria-current="page">EN</a>
+            <span class="gt-slash">/</span>
+            <a href="/blog/pc-workman-1-9-7-know-your-pc/index_pl.html" data-lang="pl" lang="pl">PL</a>
+        </span>
+    </nav>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-11-28</span><span>&middot;</span><span>~6 min read</span>
+        </div>
+
+        <h1>PC Workman 1.9.7 &ldquo;Know Your PC&rdquo;</h1>
+
+        <p class="lead">Six days after 1.9.3. Most of it came from running PC Workman on my own PC every day and writing down every place where it knew something and did not say it, or said it three different ways. 1.9.7 is about the program knowing this exact computer: its board, its RAM sticks, its graphics card, and what it was doing in the hours nobody was looking. 973 automated tests, all green.</p>
+
+        <div class="toc">
+            <b>On this page</b>
+            <ol>
+                <li><a href="#score">One health score, not three</a></li>
+                <li><a href="#turbo">Turbo gets its own page</a></li>
+                <li><a href="#hardware">Your board and your RAM, read from the parts</a></li>
+                <li><a href="#history">History that says when the PC was off</a></li>
+                <li><a href="#chat">hck_GPT understands more</a></li>
+                <li><a href="#smaller">Smaller things</a></li>
+                <li><a href="#not">Not yet</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ol>
+        </div>
+
+        <h2 id="score">One health score, not three</h2>
+        <p>Until now there were three health numbers: the Health report's, hck_GPT's and Monitoring's. hck_GPT could answer &ldquo;100/100&rdquo; on a PC whose RAM reached 99.9% every day, because it judged the load of one second. Now there is one score behind all of them.</p>
+        <p>Memory is judged by <b>how long</b> the RAM was under pressure in the last 7 days, not only by its average. An 8 GB PC at 75% on average can spend 43% of its time above 75%; that now shows. The report keeps <b>snapshots inside the program</b> (by hand, on a schedule, or by itself after a Windows or graphics driver update), so you can see what a change did. And every point of &ldquo;What to do first&rdquo; has an <b>Ask hck_GPT</b> link that walks through it with this PC's numbers. <a href="/features/health-report/">Health report &rarr;</a></p>
+
+        <h2 id="turbo">Turbo gets its own page</h2>
+        <p>The Dashboard's &ldquo;Configure&rdquo; used to open the whole Optimization Center. Now Turbo Boost has a page that says <b>what it will do before you press Launch</b>, with the reason one part would not work (no administrator rights, for example). Each feature has its options: the power plan in MAX, default or eco mode, and RAM Flush when memory stays high or every 5 to 60 minutes. It can <b>turn on by itself when a game starts</b> and off when the game ends, and every Launch leaves a receipt with RAM and CPU before and after. <a href="/features/turbo/">Turbo &rarr;</a></p>
+
+        <h2 id="hardware">Your board and your RAM, read from the parts</h2>
+        <p>Windows gives each RAM stick's part number and the speed it really runs at. PC Workman now decodes part numbers from eight makers and knows 78 motherboards with their RAM slots and DDR type. On a real PC that turns into one sentence that is easy to miss for months: <b>one DDR4-3200 stick running at 2133, XMP is off, single channel, one of two slots in use</b>. A board that takes only DDR4 says so when you ask about DDR5.</p>
+        <p>The upgrade advisor now knows <b>264 CPUs and 147 graphics cards</b>. Laptop chips are named as laptop chips, so asking about a new GPU on a laptop gets the honest answer: it is soldered. On a PC with two graphics adapters, the dedicated card is the one checked; before, the first adapter Windows listed was taken, often the integrated one, and the driver age in the health score was the wrong driver's. <a href="/features/upgrade-readiness/">Upgrade Readiness &rarr;</a></p>
+        <p>One more thing about graphics: <b>GPU load is now recorded on AMD and Intel cards</b>, through the same Windows counters Task Manager uses. Until 1.9.7 it read 0% on every card that was not NVIDIA. GPU temperature is still NVIDIA only; that is the next step, not a promise for this version.</p>
+
+        <h2 id="history">History that says when the PC was off</h2>
+        <p>On a PC used now and then, the hours it was off took most of the history chart, and the recorded work was a few thin slivers. Now a gap of 30 minutes or more is drawn as a banner of fixed width that says what it was and for how long. PC Workman reads it from the Windows System log, so it knows even the hours it was not running.</p>
+        <figure class="figure">
+            <img src="/assets/images/blog/1-9-7/history-gaps-1100.webp" width="1100" height="330" alt="History chart with four banners: off (light blue), asleep, sudden shutdown (red) and not recorded (grey)" loading="lazy">
+            <figcaption>The four kinds, on sample data (Polish interface): off, asleep, sudden shutdown, not recorded. Hover a banner for from when to when.</figcaption>
+        </figure>
+        <p>The red one is worth a look when it appears: it means Windows started without having shut down (a power loss, a freeze, a reset). Several of them in a week are worth a look at the power supply and temperatures; the <a href="/guides/windows-errors/">guide to Windows errors</a> starts there. <a href="/features/time-travel/">History &rarr;</a></p>
+
+        <h2 id="chat">hck_GPT understands more</h2>
+        <p>I wrote three sets of questions the way people actually ask them: colloquial Polish, without Polish letters, with typos, and English. Each set was written before it was measured. The third set, written after all the rules, reached its answer 27 times out of 84 before this work and 56 times on its first measurement; after fixing what it found, 83. All 542 questions are now tests.</p>
+        <p>There are also <b>22 subjects that had no answer at all</b>, most of them read from this PC: how much electricity it uses (an estimate from its parts and the last 7 days, said to be an estimate), which power supply it needs, whether Fast Startup, Game Mode and GPU scheduling are on here, SSD or HDD, and symptoms like a monitor with no signal, a lagging mouse, tearing, shader stutter, a CPU or disk at 100%, or a game running on integrated graphics. <a href="/features/hck-gpt/">hck_GPT &rarr;</a></p>
+
+        <h2 id="smaller">Smaller things</h2>
+        <ul>
+            <li><b>313 games</b> recognised (85 more) and <b>648 processes</b> described; process details now cover all of them, not 58.</li>
+            <li>Minutes of a detected game are learned as gaming, even when the game is held back by RAM rather than the graphics card.</li>
+            <li><b>Load your data</b> from an exported ZIP on the profile page, with a backup first.</li>
+            <li>Up / Down and W / S step through the pages; Cleanup shows a square that fills with its real progress.</li>
+            <li>The program package now carries the GPL-3.0 licence text next to the program.</li>
+        </ul>
+
+        <h2 id="not">Not yet</h2>
+        <ul>
+            <li>GPU temperature on AMD and Intel cards.</li>
+            <li>Integrated graphics (Intel UHD and Iris Xe, Radeon 780M) in the upgrade advisor: it says &ldquo;adding a card, not swapping one&rdquo;, which is true, but without numbers.</li>
+            <li>The Fan Dashboard still plans curves and does not drive the fans.</li>
+            <li>A verdict after every game (what limited it on this PC) is on the <a href="/roadmap/">roadmap</a>.</li>
+        </ul>
+
+        <h2 id="faq">FAQ</h2>
+        <h3>How do I update to PC Workman 1.9.7?</h3>
+        <p>Download the 1.9.7 ZIP from <a href="https://github.com/HuckleR2003/PC_Workman_HCK/releases">GitHub Releases</a> or SourceForge and unpack it over the old folder, or wait for the Microsoft Store update. Your data stays: it lives in your user folder, not in the program folder.</p>
+        <h3>Does PC Workman show GPU temperature on AMD and Intel cards?</h3>
+        <p>Not yet. Since 1.9.7 it records GPU load on every card, through Windows' own GPU counters on AMD and Intel. GPU temperature is still read on NVIDIA cards only.</p>
+        <h3>How does PC Workman know my PC was asleep or off?</h3>
+        <p>It reads the Windows System event log, where Windows writes every start, shutdown, sleep and wake. Reading the log changes nothing, and it works also for the hours PC Workman was not running.</p>
+
+        <div class="guide-cta">
+            <b>Try it on your own PC.</b> <a href="/download/">Download PC Workman 1.9.7</a>, one ZIP, no account, or see <a href="/features/">every feature</a> with screenshots. The full list of changes is in the <a href="https://github.com/HuckleR2003/PC_Workman_HCK/blob/main/CHANGELOG.md">changelog</a>.
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Blog</a> &middot; <a href="/features/">Features</a> &middot; <a href="/alternatives/">Alternatives</a> &middot; <a href="../feed.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
