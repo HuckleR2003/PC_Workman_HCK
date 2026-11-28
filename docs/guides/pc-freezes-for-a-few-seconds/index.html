@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guide (EN) · PC freezes for a few seconds, then resumes · DPC latency -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC Freezes for a Few Seconds, Then Resumes: Find the Cause</title>
+    <meta name="description" content="Short freezes that come back on their own are storage, a driver (DPC latency), memory or the graphics card. How to tell which one, with free Windows tools.">
+    <meta name="keywords" content="pc freezes for a few seconds, pc freezes for a few seconds then resumes, computer freezes randomly for a few seconds, pc freezes while gaming, DPC latency, high DPC latency fix, nvlddmkm.sys DPC latency, ndis.sys DPC latency, disk event 153, event 129 reset to device, audio crackling stutter">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Your PC freezes for a few seconds, then carries on. Here is how to find out why.">
+    <meta property="og:description" content="Storage that stops answering, a driver holding the CPU, memory running out, or the graphics card. Four causes, four signatures, all free to check.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T21:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T21:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #1f3a4a; border-left:3px solid #38bdf8; background:#0b1419; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#7dd3fc; margin-bottom:.4rem; }
+        .quick ol { margin:.5rem 0 0 1.2rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Your PC freezes for a few seconds, then carries on: how to find out why",
+          "description": "Short freezes that recover are storage, a driver (DPC latency), memory or the graphics card. How to tell which, with free Windows tools.",
+          "url": "https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/" },
+          "datePublished": "2026-11-27T21:00:00+01:00",
+          "dateModified": "2026-11-27T21:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Why does my PC freeze for a few seconds and then come back?", "acceptedAnswer": { "@type": "Answer", "text": "Something held the system for a moment: a drive that stopped answering and was retried, a driver that kept the CPU busy (high DPC latency), memory running out so Windows had to read from disk, or the graphics card hanging until Windows reset its driver. Each leaves a different trace you can check." } },
+            { "@type": "Question", "name": "What is DPC latency?", "acceptedAnswer": { "@type": "Answer", "text": "Drivers finish part of their work in Deferred Procedure Calls (DPCs) that run before normal programs. When a driver's DPC runs too long, sound crackles, the mouse stutters and the PC pauses. LatencyMon measures it and names the driver." } },
+            { "@type": "Question", "name": "Is disk Event 153 the same as nvlddmkm 153?", "acceptedAnswer": { "@type": "Answer", "text": "No. Event 153 from the source disk means a storage request failed and was retried, usually after a reset. Event 153 from nvlddmkm is the NVIDIA graphics driver being reset. Same number, different sources, different problems." } },
+            { "@type": "Question", "name": "Can a failing SSD cause short freezes?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A drive that stops answering for a few seconds freezes anything waiting for it. Look for disk Event 153 and storage Event 129 (reset to device) at the minute of the freeze, and check the drive's health." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/pc-freezes-for-a-few-seconds/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/pc-freezes-for-a-few-seconds/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Errors and crashes</span>
+        <h1>Your PC freezes for a few seconds, then carries on. Here is how to find out why.</h1>
+        <p class="tagline">The mouse stops, the sound stutters, the game hangs, and three seconds later everything is fine. That pattern has four usual causes, and each one leaves a different trace.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-27</span><span>&middot;</span><span>10 min read</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Short answer</b>
+            <p><b>A freeze that recovers by itself means something held the whole system for a moment.</b> Usually one of four things: a drive that stopped answering, a driver keeping the CPU busy (high DPC latency), memory running out, or the graphics card hanging. Do not change settings yet. First catch which one:</p>
+            <ol>
+                <li>Note the time of a freeze, and what you were doing (game, desktop, waking from sleep).</li>
+                <li>Open Event Viewer at that minute: disk <b>153</b>, storage <b>129</b>, Display <b>4101</b>.</li>
+                <li>If sound crackles or the mouse stutters, run LatencyMon for 10&ndash;15 minutes; it names the driver.</li>
+                <li>Watch disk response time and hard faults in Resource Monitor while it happens.</li>
+                <li>Then fix the one cause the evidence points at.</li>
+            </ol>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#signs">Four causes, four signatures</a></li>
+                <li><a href="#log">Read the minute in Event Viewer</a></li>
+                <li><a href="#dpc">DPC latency: when a driver holds the CPU</a></li>
+                <li><a href="#measure">Measure it while it happens</a></li>
+                <li><a href="#fix">Fix by cause</a></li>
+                <li><a href="#dont">What not to do</a></li>
+                <li><a href="#workman">Where PC Workman helps</a></li>
+                <li><a href="#faq">Short answers</a></li>
+                <li><a href="#sources">Primary sources</a></li>
+            </ol>
+        </div>
+
+        <h2 id="signs">Four causes, four signatures</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>What you notice</th><th>Likely cause</th><th>Where it shows</th></tr></thead>
+            <tbody>
+                <tr><td>Everything waits, the drive light stays on, programs say "Not responding" and then wake up</td><td><b>Storage</b> stopped answering and was retried</td><td>Event Viewer: <b>disk 153</b>, <b>storahci / stornvme 129</b> ("Reset to device"); high disk response time</td></tr>
+                <tr><td>Sound crackles or cuts out, the mouse skips, short hitches even at idle</td><td><b>A driver</b> holding the CPU (DPC latency)</td><td>LatencyMon names the driver: often network, graphics, storage or ACPI</td></tr>
+                <tr><td>Freezes when many programs or browser tabs are open, RAM near 90% or more</td><td><b>Memory</b> running out, Windows reads from disk</td><td>Resource Monitor: hard faults per second jump; <a href="../why-is-my-ram-usage-so-high/">high RAM usage</a></td></tr>
+                <tr><td>In games, the picture freezes or goes black, then comes back or the game closes</td><td><b>The graphics card</b> hangs and the driver is reset</td><td>Display <b>4101</b>, <a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm 153</a>, <a href="../amd-driver-timeout/">AMD driver timeout</a>, <a href="../livekernelevent-141-117/">LiveKernelEvent 141</a></td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Waking from sleep is its own case: users report a stall of a few seconds right after resume, often tied to a driver that is slow to wake or to Fast Startup. Test with Fast Startup off before anything else if your freezes only happen after sleep.</p>
+
+        <h2 id="log">Read the minute in Event Viewer</h2>
+        <ol class="steps">
+            <li>Win + X, <b>Event Viewer</b>, <b>Windows Logs &rarr; System</b>.</li>
+            <li><b>Filter Current Log</b> by <code>153,129,4101,41</code> and look at the minute of the freeze.</li>
+            <li><b>Check the source</b>, not only the number. <b>disk 153</b> means "the IO operation &hellip; was retried": a storage request failed and Windows tried again, usually after a reset. <b>nvlddmkm 153</b> is the graphics driver being reset. Same number, different problem.</li>
+            <li><b>129</b> from storahci, stornvme or storport ("Reset to device, \Device\RaidPort0, was issued") means the storage driver timed out a request and reset the device. That reset is your freeze.</li>
+        </ol>
+        <p>Reliability Monitor (<code>perfmon /rel</code>) gives the same day in one view, with any <a href="../livekernelevent-141-117/">LiveKernelEvent</a> entries.</p>
+
+        <h2 id="dpc">DPC latency: when a driver holds the CPU</h2>
+        <p>Drivers do part of their work in <b>Deferred Procedure Calls</b> (DPCs), which run ahead of normal programs. That is fine when each one is short. When one driver's DPC runs for milliseconds at a time, audio buffers run dry (crackling), the mouse cursor skips, and the whole PC feels like it stutters, even with low CPU use in Task Manager.</p>
+        <p><b>LatencyMon</b> from Resplendence measures exactly this: it shows the longest DPC and interrupt times and the driver file responsible. Run it, use the PC normally for 10&ndash;15 minutes until a freeze happens, then open the <b>Drivers</b> tab sorted by highest execution time. Common names:</p>
+        <ul>
+            <li><code>ndis.sys</code>, <code>tcpip.sys</code> or a Wi-Fi driver: the <b>network</b> adapter driver.</li>
+            <li><code>nvlddmkm.sys</code>, <code>amdkmdag.sys</code>, <code>dxgkrnl.sys</code>: <b>graphics</b>.</li>
+            <li><code>storport.sys</code>, <code>stornvme.sys</code>, <code>storahci.sys</code>: <b>storage</b>.</li>
+            <li><code>ACPI.sys</code>, <code>Wdf01000.sys</code>, <code>HDAudBus.sys</code>: power management, a generic driver framework, or audio, which point you at the device behind them rather than at Windows itself.</li>
+        </ul>
+        <p>If it ever ends in a blue screen, that is <code>DPC_WATCHDOG_VIOLATION</code> (0x133, BugcheckCode 307): the same driver delay, long enough that Windows stopped. See the <a href="../kernel-power-41-bugcheckcode/">BugcheckCode decoder</a>.</p>
+
+        <h2 id="measure">Measure it while it happens</h2>
+        <ul>
+            <li><b>Resource Monitor</b> (<code>resmon</code>), <b>Disk</b> tab: <i>Response Time (ms)</i> per file. Hundreds or thousands of milliseconds on the system drive during a freeze point at storage.</li>
+            <li><b>Resource Monitor</b>, <b>Memory</b> tab: <i>Hard Faults/sec</i>. A jump into the hundreds or thousands while RAM is nearly full means Windows is reading from disk instead of memory.</li>
+            <li><b>Task Manager</b>, Performance, Disk: <i>Average response time</i>. The percentage on that page measures time, not speed (<a href="../why-is-my-disk-at-100-percent/">why disk 100% misleads</a>).</li>
+        </ul>
+
+        <h2 id="fix">Fix by cause</h2>
+        <ol class="steps">
+            <li><b>Storage.</b> Check the drive's health (<a href="../is-my-ssd-dying-drive-health/">how to read it</a>). Update the SSD firmware with the maker's tool, install the chipset and storage drivers from your motherboard's page, and for SATA drives try another cable and port. A drive that keeps producing 153 and 129 needs a backup before anything else.</li>
+            <li><b>A driver (DPC).</b> Update or roll back the driver LatencyMon named, from the device maker, not a driver updater. For network drivers, the adapter maker's driver often behaves better than the generic one. Update the motherboard BIOS if a newer one mentions stability or latency.</li>
+            <li><b>Memory.</b> Close what you do not need, find what grows over time (a memory leak shows as a program whose RAM only goes up), and keep a page file on an SSD. If freezes come whenever RAM is full during normal use, more RAM is the real fix.</li>
+            <li><b>Graphics.</b> Follow the <a href="../livekernelevent-141-117/">graphics hang guide</a>: defaults first, a clean driver, then heat and power.</li>
+            <li><b>After sleep only.</b> Turn off Fast Startup (Control Panel, Power Options, "Choose what the power buttons do") and test for a few days.</li>
+        </ol>
+
+        <h2 id="dont">What not to do</h2>
+        <ul>
+            <li><b>Do not change ten things at once.</b> If the freezes stop, you will not know why, and you will not know what to undo.</li>
+            <li><b>Do not install a "PC booster" or registry cleaner.</b> None of the four causes is in the registry.</li>
+            <li><b>Do not ignore disk 153 and 129.</b> They are the only early warning some drives give.</li>
+        </ul>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>A freeze lasts seconds, and minute averages smooth it away. In PC Workman you can type <b>"start recording"</b> in the hck_GPT chat: it then saves CPU, RAM, GPU, GPU temperature, the real CPU clock and the heaviest process <b>every second</b>. Use the PC until a freeze happens and type "stop recording": the recording keeps every second, including the process on top at that moment, and the note compares it with your previous recording. <a href="/features/time-travel/">Activity Memory</a> keeps the longer history, and the <a href="/features/health-report/">Health report</a> includes drive state and stability in one score.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>Why does my PC freeze for a few seconds and then come back?</h3>
+        <p>Something held the system for a moment: a drive that stopped answering, a driver keeping the CPU busy, memory running out, or the graphics card hanging. Each leaves a different trace.</p>
+        <h3>What is DPC latency?</h3>
+        <p>Drivers finish work in Deferred Procedure Calls that run ahead of programs. When one runs too long, sound crackles and the PC stutters. LatencyMon measures it and names the driver.</p>
+        <h3>Is disk Event 153 the same as nvlddmkm 153?</h3>
+        <p>No. disk 153 is a storage request that was retried; nvlddmkm 153 is the NVIDIA driver being reset.</p>
+        <h3>Can a failing SSD cause short freezes?</h3>
+        <p>Yes. Look for disk 153 and storage 129 at the minute of the freeze, and check the drive's health.</p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/archive/blogs/ntdebugging/interpreting-event-153-errors" rel="noopener">Microsoft NTDebugging: Interpreting Event 153 errors</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/archive/blogs/ntdebugging/understanding-storage-timeouts-and-event-129-errors" rel="noopener">Microsoft NTDebugging: Understanding storage timeouts and Event 129 errors</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x133-dpc-watchdog-violation" rel="noopener">Microsoft: 0x133 DPC_WATCHDOG_VIOLATION</a></li>
+            <li><a href="https://www.resplendence.com/latencymon" rel="noopener">Resplendence: LatencyMon (DPC, ISR and hard pagefault monitoring)</a></li>
+        </ul>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../windows-errors/">Windows Event Viewer errors: which ones matter</a></li>
+                <li><a href="../pc-slow-but-task-manager-looks-normal/">PC slow but Task Manager looks normal? 6 hidden causes</a></li>
+                <li><a href="../is-my-ssd-dying-drive-health/">Is my SSD dying? How to read drive health</a></li>
+                <li><a href="../livekernelevent-141-117/">LiveKernelEvent 141 and 117</a></li>
+                <li><a href="../kernel-power-41-bugcheckcode/">Kernel-Power 41 BugcheckCode decoder</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Catch the seconds around a freeze.</b> PC Workman records every second on request and keeps months of history. <a href="../../download/">Download for Windows</a>, free, no account.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>While I wrote this, my own app had three-second hitches. Finding them starts the same way as yours: catch the second it happens.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

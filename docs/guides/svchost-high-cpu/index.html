@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guide (EN) · svchost.exe high CPU -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>svchost.exe High CPU? Find the Service Behind It</title>
+    <meta name="description" content="svchost.exe is the Windows Service Host. Why dozens run at once, how to find which service is using the CPU in a minute, and how to spot a fake one.">
+    <meta name="keywords" content="svchost high cpu, svchost.exe high cpu usage, service host high cpu, what is svchost.exe, why so many svchost, svchost virus, service host local system high cpu, svchost 100 cpu">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/svchost-high-cpu/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="svchost.exe high CPU? Find the service behind it">
+    <meta property="og:description" content="One svchost is one Windows service, not one program. How to see in a minute which service is behind the CPU use.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-28T01:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T01:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #2f2558; border-left:3px solid #a78bfa; background:#0f0c1c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#c4b5fd; margin-bottom:.4rem; }
+        .steps li { margin-bottom:.55rem; }
+        .sources { font-size:.9rem; color:#9ca3af; }
+        .sources a { color:#c4b5fd; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "svchost.exe high CPU? Find the service behind it",
+          "description": "What svchost.exe is, why many copies run, how to find the service behind high CPU use, and how to recognise a fake.",
+          "url": "https://pcworkman.dev/guides/svchost-high-cpu/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/svchost-high-cpu/" },
+          "datePublished": "2026-11-28T01:00:00+01:00",
+          "dateModified": "2026-11-28T01:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is svchost.exe?", "acceptedAnswer": { "@type": "Answer", "text": "svchost.exe (Service Host) is the process Windows services run in, such as Windows Update, networking, audio or the firewall. It does no work itself; the service inside it does." } },
+            { "@type": "Question", "name": "Why are there so many svchost processes?", "acceptedAnswer": { "@type": "Answer", "text": "Since Windows 10 version 1703, on PCs with more than 3.5 GB of RAM most services run each in their own svchost process, so dozens of copies are normal. On PCs with less memory, services are grouped into fewer processes." } },
+            { "@type": "Question", "name": "How do I find which service is using the CPU?", "acceptedAnswer": { "@type": "Answer", "text": "In Task Manager, sort by CPU and expand the Service Host row to see the service name. Or right-click svchost.exe on the Details tab and choose Go to service(s), or run tasklist /svc /fi \"imagename eq svchost.exe\"." } },
+            { "@type": "Question", "name": "Is svchost.exe a virus?", "acceptedAnswer": { "@type": "Answer", "text": "The real svchost.exe is in C:\\Windows\\System32 and signed by Microsoft. A copy in another folder, such as AppData or Temp, or a name one letter off (svhost, scvhost) is a warning sign." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/svchost-high-cpu/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/svchost-high-cpu/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Processes</span>
+        <h1>svchost.exe high CPU? Find the service behind it</h1>
+        <p class="tagline">"Service Host" at the top of Task Manager tells you almost nothing. The name that matters is one click below it.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-28</span><span>&middot;</span><span>6 min read</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Short answer</b>
+            <p><b>svchost.exe is a wrapper that Windows services run in.</b> Since Windows 10 version 1703, on PCs with more than 3.5 GB of RAM, nearly every service gets its own svchost, so dozens of copies are normal. When one uses a lot of CPU, do not fight svchost: find the service inside it by expanding the "Service Host: …" row in Task Manager. The real file is in <code>C:\Windows\System32</code>; a copy anywhere else is a warning sign.</p>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#which">Find the service in a minute</a></li>
+                <li><a href="#usual">The usual suspects</a></li>
+                <li><a href="#many">Why there are so many</a></li>
+                <li><a href="#fake">Real or fake</a></li>
+                <li><a href="#workman">Where PC Workman helps</a></li>
+                <li><a href="#faq">Short answers</a></li>
+            </ol>
+        </div>
+
+        <h2 id="which">Find the service in a minute</h2>
+        <ol class="steps">
+            <li><b>Task Manager, Processes tab.</b> Sort by CPU and expand the "Service Host: …" row at the top. The service running in it is listed underneath.</li>
+            <li><b>Details tab.</b> Right-click svchost.exe and choose "Go to service(s)". Task Manager highlights the services that belong to that process.</li>
+            <li><b>Command line.</b> <code>tasklist /svc /fi "imagename eq svchost.exe"</code> lists every svchost with its process ID (PID) and the services inside.</li>
+            <li><b>Resource Monitor</b> (type <code>resmon</code>): on the CPU tab, tick the svchost and the Services section shows what runs in it.</li>
+        </ol>
+        <p>A spike for a minute or two is usually a service doing its job. High use that stays for hours, or comes back at the same time every day, is worth chasing.</p>
+
+        <h2 id="usual">The usual suspects</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Service in svchost</th><th>When it works</th><th>What to do</th></tr></thead>
+            <tbody>
+                <tr><td>Windows Update (wuauserv)</td><td>Downloading and installing updates</td><td>Let it finish; if it goes on for days, check Update history for failures</td></tr>
+                <tr><td>Delivery Optimization (DoSvc)</td><td>Downloading updates, sometimes uploading to other PCs</td><td>Settings &gt; Windows Update &gt; Advanced options &gt; Delivery Optimization</td></tr>
+                <tr><td>BITS</td><td>Background downloads for Windows Update and other apps</td><td>Usually finishes together with updates</td></tr>
+                <tr><td>SysMain</td><td>Preloading often-used apps into memory</td><td>Heavy disk work right after boot; can hurt on hard drives (see <a href="../why-is-my-disk-at-100-percent/">disk at 100%</a>)</td></tr>
+                <tr><td>Telemetry (DiagTrack)</td><td>Collecting and sending diagnostic data</td><td>Short spikes are normal</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Before you disable any service, check what it does. A disabled service is a change you have to remember and be able to undo; <a href="../ktore-uslugi-windows-wylaczyc/index_en.html">which Windows services you can disable</a> lists the safe ones.</p>
+
+        <h2 id="many">Why there are so many</h2>
+        <p>Windows used to pack many services into a few shared svchost processes. Microsoft changed that in Windows 10 version 1703: on PCs with more than 3.5 GB of RAM, services that used to be grouped now <b>each run in their own svchost</b>. The reasons are reliability (one crashing service does not take others down), security, and making it easier to see which service is using resources. A few services still share a process, for example Windows Firewall with the Base Filtering Engine. On PCs with less memory, services stay grouped and there are fewer copies. Neither number is a fault.</p>
+
+        <h2 id="fake">Real or fake</h2>
+        <p>svchost.exe is a popular disguise for malware, because people expect to see many of them. Three quick checks:</p>
+        <ul>
+            <li><b>File location</b>: on the Details tab, right-click and choose "Open file location". The real svchost.exe is in <code>C:\Windows\System32</code>. A copy in AppData, Temp or on the desktop is a serious sign.</li>
+            <li><b>Name</b>: svhost.exe, scvhost.exe or svch0st.exe are not Windows.</li>
+            <li><b>Signature</b>: the file's Properties &gt; Digital Signatures should show Microsoft Windows.</li>
+        </ul>
+        <p>More on processes that impersonate system ones is in <a href="../what-is-this-process/">what is this process</a>.</p>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>PC Workman's <a href="/features/process-center/">Process Center</a> runs the checks above on every process: it flags an "svchost.exe" running from outside System32, a name one letter off a Windows one, and a missing signature, and explains why it found something suspicious. In the <a href="../windows-processes/">process library</a> svchost.exe is described as a critical process where many copies are normal, and <a href="/features/time-travel/">Activity Memory</a> shows whether high CPU use comes back every day or happened once. PC Workman does not disable Windows services without your decision.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>What is svchost.exe?</h3>
+        <p>The Windows Service Host: the process Windows services run in. The service inside does the work.</p>
+        <h3>Why are there so many svchost processes?</h3>
+        <p>Since Windows 10 1703, with more than 3.5 GB of RAM, most services get their own svchost. Dozens of copies are normal.</p>
+        <h3>How do I find which service is using the CPU?</h3>
+        <p>Expand the Service Host row in Task Manager, use "Go to service(s)" on the Details tab, or run <code>tasklist /svc</code>.</p>
+        <h3>Is svchost.exe a virus?</h3>
+        <p>The real one is in C:\Windows\System32 and signed by Microsoft. A copy elsewhere, or a misspelled name, is a warning sign.</p>
+
+        <p class="sources">Source: Microsoft Learn, <a href="https://learn.microsoft.com/en-us/windows/application-management/svchost-service-refactoring" rel="noopener" target="_blank">Service host grouping in Windows 10</a> (the split from version 1703, the 3.5 GB threshold, services that stay grouped).</p>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../what-is-this-process/">What is this process? svchost, csrss and their impostors</a></li>
+                <li><a href="../windows-processes/">Windows process list with typical CPU and RAM</a></li>
+                <li><a href="../windows-11-slow-after-update/">Windows 11 slow after an update?</a></li>
+                <li><a href="../ktore-uslugi-windows-wylaczyc/index_en.html">Which Windows services can I disable?</a></li>
+                <li><a href="../pc-slow-but-task-manager-looks-normal/">PC slow but Task Manager looks normal? 6 hidden causes</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Check that your svchost processes are real.</b> PC Workman's Process Center flags copies outside System32 and misspelled names. <a href="../../download/">Download for Windows</a>, free, no account.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>svchost is the envelope, not the letter. When something eats your CPU, open the envelope and read which service is inside.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

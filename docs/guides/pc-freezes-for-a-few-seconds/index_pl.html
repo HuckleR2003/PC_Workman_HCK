@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Poradnik (PL) · Komputer zawiesza się na kilka sekund i wraca · DPC latency -->
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komputer zawiesza się na kilka sekund i wraca: przyczyny</title>
+    <meta name="description" content="Krótkie zawieszenia, które same mijają, to dysk, sterownik (DPC latency), pamięć albo karta graficzna. Jak rozpoznać, które, darmowymi narzędziami Windows.">
+    <meta name="keywords" content="komputer zawiesza się na kilka sekund, komputer przycina na kilka sekund, zacina się co chwilę, zawieszanie w grach, DPC latency, wysokie DPC latency, nvlddmkm.sys DPC, ndis.sys DPC, zdarzenie 153 disk, zdarzenie 129 reset urządzenia, trzaski dźwięku">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Komputer zawiesza się na kilka sekund i działa dalej. Tak sprawdzisz dlaczego.">
+    <meta property="og:description" content="Dysk, który przestaje odpowiadać, sterownik trzymający procesor, brak pamięci albo karta graficzna. Cztery przyczyny, cztery ślady, wszystkie do sprawdzenia za darmo.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T21:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T21:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #1f3a4a; border-left:3px solid #38bdf8; background:#0b1419; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#7dd3fc; margin-bottom:.4rem; }
+        .quick ol { margin:.5rem 0 0 1.2rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Komputer zawiesza się na kilka sekund i działa dalej: jak sprawdzić dlaczego",
+          "description": "Krótkie zawieszenia, które mijają, to dysk, sterownik (DPC latency), pamięć albo karta graficzna. Jak rozpoznać, które, darmowymi narzędziami Windows.",
+          "url": "https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl" },
+          "datePublished": "2026-11-27T21:00:00+01:00",
+          "dateModified": "2026-11-27T21:00:00+01:00",
+          "inLanguage": "pl",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Dlaczego komputer zawiesza się na kilka sekund i wraca?", "acceptedAnswer": { "@type": "Answer", "text": "Coś zatrzymało system na chwilę: dysk, który przestał odpowiadać i operację trzeba było ponowić, sterownik zajmujący procesor (wysokie DPC latency), brak pamięci, przez który Windows czyta z dysku, albo karta graficzna, która się zawiesiła, aż Windows zresetował jej sterownik. Każda przyczyna zostawia inny ślad." } },
+            { "@type": "Question", "name": "Co to jest DPC latency?", "acceptedAnswer": { "@type": "Answer", "text": "Sterowniki kończą część pracy w odroczonych wywołaniach procedur (DPC), które działają przed zwykłymi programami. Gdy DPC jednego sterownika trwa za długo, dźwięk trzeszczy, kursor skacze, a komputer przycina. LatencyMon to mierzy i wskazuje sterownik." } },
+            { "@type": "Question", "name": "Czy zdarzenie 153 z dysku to to samo co nvlddmkm 153?", "acceptedAnswer": { "@type": "Answer", "text": "Nie. Zdarzenie 153 ze źródła disk znaczy, że żądanie do dysku się nie udało i zostało ponowione, zwykle po resecie. Zdarzenie 153 z nvlddmkm to reset sterownika karty NVIDIA. Ta sama liczba, inne źródło, inny problem." } },
+            { "@type": "Question", "name": "Czy umierający SSD może powodować krótkie zawieszenia?", "acceptedAnswer": { "@type": "Answer", "text": "Tak. Dysk, który przestaje odpowiadać na kilka sekund, zatrzymuje wszystko, co na niego czeka. Szukaj zdarzeń disk 153 i 129 (reset urządzenia) w minucie zawieszenia i sprawdź stan dysku." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/pc-freezes-for-a-few-seconds/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/pc-freezes-for-a-few-seconds/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Błędy i awarie</span>
+        <h1>Komputer zawiesza się na kilka sekund i działa dalej. Tak sprawdzisz dlaczego.</h1>
+        <p class="tagline">Kursor staje, dźwięk się jąka, gra zamiera, a po trzech sekundach wszystko jest w porządku. Ten wzór ma cztery zwykłe przyczyny i każda zostawia inny ślad.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-11-27</span><span>&middot;</span><span>10 min czytania</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Krótka odpowiedź</b>
+            <p><b>Zawieszenie, które samo mija, znaczy, że coś na chwilę zatrzymało cały system.</b> Zwykle jedno z czterech: dysk, który przestał odpowiadać, sterownik zajmujący procesor (wysokie DPC latency), brak pamięci albo zawieszona karta graficzna. Nie zmieniaj jeszcze ustawień. Najpierw złap, które to:</p>
+            <ol>
+                <li>Zapisz godzinę zawieszenia i co wtedy robiłeś (gra, pulpit, wybudzenie z uśpienia).</li>
+                <li>Otwórz Podgląd zdarzeń na tej minucie: disk <b>153</b>, magazyn <b>129</b>, Display <b>4101</b>.</li>
+                <li>Jeśli dźwięk trzeszczy albo kursor skacze, uruchom LatencyMon na 10&ndash;15 minut; wskaże sterownik.</li>
+                <li>Obserwuj czas odpowiedzi dysku i twarde błędy strony w Monitorze zasobów, gdy to się dzieje.</li>
+                <li>Potem napraw tę jedną przyczynę, na którą wskazują dowody.</li>
+            </ol>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#signs">Cztery przyczyny, cztery ślady</a></li>
+                <li><a href="#log">Przeczytaj minutę w Podglądzie zdarzeń</a></li>
+                <li><a href="#dpc">DPC latency: gdy sterownik trzyma procesor</a></li>
+                <li><a href="#measure">Zmierz to, gdy się dzieje</a></li>
+                <li><a href="#fix">Naprawa według przyczyny</a></li>
+                <li><a href="#dont">Czego nie robić</a></li>
+                <li><a href="#workman">Gdzie pomaga PC Workman</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+                <li><a href="#sources">Źródła</a></li>
+            </ol>
+        </div>
+
+        <h2 id="signs">Cztery przyczyny, cztery ślady</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Co widzisz</th><th>Prawdopodobna przyczyna</th><th>Gdzie to widać</th></tr></thead>
+            <tbody>
+                <tr><td>Wszystko czeka, dioda dysku świeci, programy „nie odpowiadają”, a potem się budzą</td><td><b>Dysk</b> przestał odpowiadać i operację ponowiono</td><td>Podgląd zdarzeń: <b>disk 153</b>, <b>storahci / stornvme 129</b> („Reset to device”); wysoki czas odpowiedzi dysku</td></tr>
+                <tr><td>Dźwięk trzeszczy albo się urywa, kursor skacze, krótkie przycięcia nawet bez obciążenia</td><td><b>Sterownik</b> trzyma procesor (DPC latency)</td><td>LatencyMon wskaże sterownik: często sieć, grafikę, dysk albo ACPI</td></tr>
+                <tr><td>Zawieszenia przy wielu programach albo kartach przeglądarki, RAM około 90% i więcej</td><td><b>Brak pamięci</b>, Windows czyta z dysku</td><td>Monitor zasobów: skok twardych błędów strony na sekundę; <a href="../why-is-my-ram-usage-so-high/index_pl.html">wysokie użycie RAM</a></td></tr>
+                <tr><td>W grach obraz zamiera albo gaśnie, potem wraca albo gra się zamyka</td><td><b>Karta graficzna</b> się zawiesza, a sterownik jest resetowany</td><td>Display <b>4101</b>, <a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html">nvlddmkm 153</a>, <a href="../amd-driver-timeout/index_pl.html">AMD driver timeout</a>, <a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent 141</a></td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Wybudzanie z uśpienia to osobny przypadek: użytkownicy zgłaszają kilkusekundowy przestój zaraz po powrocie, często przez sterownik, który wolno się budzi, albo przez szybkie uruchamianie. Jeśli zawieszenia są tylko po uśpieniu, najpierw sprawdź z wyłączonym szybkim uruchamianiem.</p>
+
+        <h2 id="log">Przeczytaj minutę w Podglądzie zdarzeń</h2>
+        <ol class="steps">
+            <li>Win + X, <b>Podgląd zdarzeń</b>, <b>Dzienniki systemu Windows &rarr; System</b>.</li>
+            <li><b>Filtruj bieżący dziennik</b> po <code>153,129,4101,41</code> i patrz na minutę zawieszenia.</li>
+            <li><b>Sprawdź źródło</b>, nie tylko numer. <b>disk 153</b> znaczy, że operacja na dysku została ponowiona: żądanie się nie udało i Windows spróbował jeszcze raz, zwykle po resecie. <b>nvlddmkm 153</b> to reset sterownika karty graficznej. Ta sama liczba, inny problem.</li>
+            <li><b>129</b> ze źródła storahci, stornvme albo storport („Reset to device, \Device\RaidPort0, was issued”) znaczy, że sterownik dysku nie doczekał się odpowiedzi i zresetował urządzenie. Ten reset to Twoje zawieszenie.</li>
+        </ol>
+        <p>Monitor niezawodności (<code>perfmon /rel</code>) pokazuje ten sam dzień w jednym widoku, razem z wpisami <a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent</a>.</p>
+
+        <h2 id="dpc">DPC latency: gdy sterownik trzyma procesor</h2>
+        <p>Sterowniki wykonują część pracy w <b>odroczonych wywołaniach procedur</b> (DPC), które mają pierwszeństwo przed zwykłymi programami. To nie problem, gdy każde trwa krótko. Gdy DPC jednego sterownika trwa po kilka milisekund, bufory dźwięku pustoszeją (trzaski), kursor skacze, a cały komputer przycina, choć Menedżer zadań pokazuje niskie użycie procesora.</p>
+        <p><b>LatencyMon</b> od Resplendence mierzy właśnie to: pokazuje najdłuższe czasy DPC i przerwań oraz plik sterownika, który za nie odpowiada. Uruchom go, używaj komputera normalnie przez 10&ndash;15 minut, aż zdarzy się zawieszenie, potem otwórz kartę <b>Drivers</b> posortowaną po najdłuższym czasie. Częste nazwy:</p>
+        <ul>
+            <li><code>ndis.sys</code>, <code>tcpip.sys</code> albo sterownik Wi-Fi: sterownik karty <b>sieciowej</b>.</li>
+            <li><code>nvlddmkm.sys</code>, <code>amdkmdag.sys</code>, <code>dxgkrnl.sys</code>: <b>grafika</b>.</li>
+            <li><code>storport.sys</code>, <code>stornvme.sys</code>, <code>storahci.sys</code>: <b>dysk</b>.</li>
+            <li><code>ACPI.sys</code>, <code>Wdf01000.sys</code>, <code>HDAudBus.sys</code>: zarządzanie energią, ogólna platforma sterowników albo dźwięk; wskazują urządzenie za nimi, a nie sam Windows.</li>
+        </ul>
+        <p>Jeśli kiedyś skończy się niebieskim ekranem, to <code>DPC_WATCHDOG_VIOLATION</code> (0x133, BugcheckCode 307): to samo opóźnienie sterownika, tak długie, że Windows się zatrzymał. Zobacz <a href="../kernel-power-41-bugcheckcode/index_pl.html">dekoder BugcheckCode</a>.</p>
+
+        <h2 id="measure">Zmierz to, gdy się dzieje</h2>
+        <ul>
+            <li><b>Monitor zasobów</b> (<code>resmon</code>), karta <b>Dysk</b>: <i>Czas odpowiedzi (ms)</i> dla każdego pliku. Setki albo tysiące milisekund na dysku systemowym w czasie zawieszenia wskazują na dysk.</li>
+            <li><b>Monitor zasobów</b>, karta <b>Pamięć</b>: <i>Twarde błędy/s</i>. Skok do setek albo tysięcy przy prawie pełnym RAM znaczy, że Windows czyta z dysku zamiast z pamięci.</li>
+            <li><b>Menedżer zadań</b>, Wydajność, Dysk: <i>Średni czas odpowiedzi</i>. Procent na tej stronie mierzy czas, nie prędkość (<a href="../why-is-my-disk-at-100-percent/index_pl.html">dlaczego dysk 100% wprowadza w błąd</a>).</li>
+        </ul>
+
+        <h2 id="fix">Naprawa według przyczyny</h2>
+        <ol class="steps">
+            <li><b>Dysk.</b> Sprawdź stan dysku (<a href="../is-my-ssd-dying-drive-health/index_pl.html">jak go czytać</a>). Zaktualizuj firmware SSD programem producenta, zainstaluj sterowniki chipsetu i dysków ze strony swojej płyty głównej, a przy dyskach SATA wypróbuj inny kabel i port. Dysk, który ciągle daje 153 i 129, najpierw wymaga kopii zapasowej.</li>
+            <li><b>Sterownik (DPC).</b> Zaktualizuj albo cofnij sterownik wskazany przez LatencyMon, od producenta urządzenia, nie z aktualizatora sterowników. Przy sieci sterownik producenta karty często działa lepiej niż ogólny. Zaktualizuj BIOS płyty, jeśli nowszy wspomina o stabilności albo opóźnieniach.</li>
+            <li><b>Pamięć.</b> Zamknij to, czego nie potrzebujesz, znajdź to, co rośnie w czasie (wyciek pamięci to program, którego RAM tylko rośnie), i trzymaj plik stronicowania na SSD. Jeśli zawieszenia przychodzą zawsze przy pełnym RAM podczas zwykłej pracy, prawdziwą naprawą jest więcej pamięci.</li>
+            <li><b>Grafika.</b> Przejdź <a href="../livekernelevent-141-117/index_pl.html">poradnik o zawieszeniach karty</a>: najpierw ustawienia domyślne, czysty sterownik, potem temperatura i zasilanie.</li>
+            <li><b>Tylko po uśpieniu.</b> Wyłącz szybkie uruchamianie (Panel sterowania, Opcje zasilania, „Wybierz działanie przycisków zasilania”) i sprawdzaj przez kilka dni.</li>
+        </ol>
+
+        <h2 id="dont">Czego nie robić</h2>
+        <ul>
+            <li><b>Nie zmieniaj dziesięciu rzeczy naraz.</b> Jeśli zawieszenia ustaną, nie będziesz wiedzieć dlaczego ani co cofnąć.</li>
+            <li><b>Nie instaluj „przyspieszacza” ani czyszczenia rejestru.</b> Żadna z czterech przyczyn nie siedzi w rejestrze.</li>
+            <li><b>Nie ignoruj disk 153 i 129.</b> Dla niektórych dysków to jedyne wczesne ostrzeżenie.</li>
+        </ul>
+
+        <h2 id="workman">Gdzie pomaga PC Workman</h2>
+        <p>Zawieszenie trwa sekundy, a średnie z minut je wygładzają. W PC Workman możesz napisać w czacie hck_GPT <b>„zacznij nagrywanie”</b>: zapisuje wtedy <b>co sekundę</b> CPU, RAM, GPU, temperaturę karty, prawdziwy zegar procesora i najcięższy proces. Używaj komputera, aż zdarzy się zawieszenie, i napisz „zakończ nagrywanie”: nagranie trzyma każdą sekundę, razem z procesem, który był wtedy na górze, a notatka porównuje je z poprzednim nagraniem. <a href="/features/time-travel/index_pl.html">Activity Memory</a> trzyma dłuższą historię, a <a href="/features/health-report/index_pl.html">Raport zdrowia</a> łączy stan dysków i stabilność w jednym wyniku.</p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Dlaczego komputer zawiesza się na kilka sekund i wraca?</h3>
+        <p>Coś zatrzymało system na chwilę: dysk, który przestał odpowiadać, sterownik zajmujący procesor, brak pamięci albo zawieszona karta graficzna. Każda przyczyna zostawia inny ślad.</p>
+        <h3>Co to jest DPC latency?</h3>
+        <p>Sterowniki kończą pracę w odroczonych wywołaniach procedur, które mają pierwszeństwo przed programami. Gdy jedno trwa za długo, dźwięk trzeszczy i komputer przycina. LatencyMon to mierzy i wskazuje sterownik.</p>
+        <h3>Czy zdarzenie 153 z dysku to to samo co nvlddmkm 153?</h3>
+        <p>Nie. disk 153 to ponowione żądanie do dysku; nvlddmkm 153 to reset sterownika karty NVIDIA.</p>
+        <h3>Czy umierający SSD może powodować krótkie zawieszenia?</h3>
+        <p>Tak. Szukaj disk 153 i 129 w minucie zawieszenia i sprawdź stan dysku.</p>
+
+        <h2 id="sources">Źródła</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/archive/blogs/ntdebugging/interpreting-event-153-errors" rel="noopener">Microsoft NTDebugging: Interpreting Event 153 errors</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/archive/blogs/ntdebugging/understanding-storage-timeouts-and-event-129-errors" rel="noopener">Microsoft NTDebugging: Understanding storage timeouts and Event 129 errors</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x133-dpc-watchdog-violation" rel="noopener">Microsoft: 0x133 DPC_WATCHDOG_VIOLATION</a></li>
+            <li><a href="https://www.resplendence.com/latencymon" rel="noopener">Resplendence: LatencyMon (pomiar DPC, ISR i twardych błędów strony)</a></li>
+        </ul>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../windows-errors/index_pl.html">Błędy w Podglądzie zdarzeń: które mają znaczenie</a></li>
+                <li><a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">Komputer wolny, a Menedżer zadań w normie?</a></li>
+                <li><a href="../is-my-ssd-dying-drive-health/index_pl.html">Czy mój SSD umiera? Jak czytać stan dysku</a></li>
+                <li><a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent 141 i 117</a></li>
+                <li><a href="../kernel-power-41-bugcheckcode/index_pl.html">Dekoder BugcheckCode z Kernel-Power 41</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Złap sekundy wokół zawieszenia.</b> PC Workman na prośbę nagrywa każdą sekundę i trzyma miesiące historii. <a href="../../download/index_pl.html">Pobierz dla Windows</a>, za darmo, bez konta.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Kiedy to pisałem, mój własny program miał trzysekundowe przycięcia. Ich szukanie zaczyna się tak samo jak Twoje: złap sekundę, w której się dzieją.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

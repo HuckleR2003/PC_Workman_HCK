@@ -1,0 +1,646 @@
+<!-- Marcin HCK Firmuga -->
+<!-- HCK_Labs -> PC_Workman · PRO/Technologia (PL) · katalog cichych awarii -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="description" content="Osiem klas kodu, który działa, przechodzi każdy test i nic nie daje. Przy każdej: objaw, czemu testy go nie widzą, skrypt do wykrycia i przypadek z datą.">
+    <meta name="keywords" content="cicha awaria, nieosiągalny kod, testy przechodzą a funkcja nie działa, wykrywanie martwego kodu, except pass, fałszywy komunikat sukcesu, przegląd kodu z AI, analiza statyczna, test zapadkowy">
+    <meta name="author" content="Marcin Firmuga">
+    <link rel="canonical" href="https://pcworkman.dev/guides/silent-failure-catalogue/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failure-catalogue/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <meta property="og:title" content="Katalog cichych awarii">
+    <meta property="og:description" content="Osiem klas kodu, który działa, przechodzi każdy test i nic nie robi. Objaw, czemu testy przechodzą, skrypt, który to znajduje, i przypadek z datą dla każdej.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://pcworkman.dev/guides/silent-failure-catalogue/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-technology.png">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="article:published_time" content="2026-08-21T00:00:00+02:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
+    <meta property="article:author" content="Marcin Firmuga">
+    <meta property="article:section" content="Technologia">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+
+    <title>Katalog cichych awarii: kod, który przechodzi testy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <link rel="alternate" type="application/rss+xml" title="PC Workman Blog" href="../../blog/feed_pl.xml">
+
+    <style>
+        .sf { border:1px solid #23262e; border-radius:10px; background:#0d0f14; margin:34px 0; overflow:hidden; }
+        .sf-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+                   padding:14px 18px; background:#12151c; border-bottom:1px solid #23262e; }
+        .sf-id { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px;
+                 letter-spacing:.06em; color:#c0182a; }
+        .sf-name { font-weight:700; font-size:16px; color:#e8eaee; }
+        .sf-body { padding:6px 18px 16px; }
+        .sf-row { display:grid; grid-template-columns:130px 1fr; gap:14px; padding:11px 0;
+                  border-bottom:1px solid #191c23; }
+        .sf-row:last-child { border-bottom:0; }
+        .sf-key { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+                  text-transform:uppercase; color:#7b828f; padding-top:2px; }
+        .sf-val { color:#c9ced8; font-size:15px; line-height:1.62; min-width:0; }
+        .sf-val code { font-family:'JetBrains Mono',monospace; font-size:13px;
+                       background:#181b22; padding:1px 5px; border-radius:3px; color:#a3e635; }
+        .sf-sweep { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7;
+                    background:#08090c; border:1px solid #1d212a; border-left:3px solid #a3e635;
+                    border-radius:5px; padding:12px 14px; margin:4px 0 0; overflow-x:auto;
+                    white-space:pre; color:#b9c0cc; }
+        .sf-case { border-left:3px solid #f59e0b; background:#14110a; border-radius:5px;
+                   padding:11px 14px; }
+        .sf-date { font-family:'JetBrains Mono',monospace; font-size:11px; color:#f59e0b;
+                   letter-spacing:.05em; display:block; margin-bottom:5px; }
+        .sf-fix { border-left:3px solid #a3e635; background:#0c1208; border-radius:5px;
+                  padding:11px 14px; }
+        @media (max-width:620px){ .sf-row{ grid-template-columns:1fr; gap:5px; } }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "Katalog cichych awarii: kod, który przechodzi każdy test i nic nie robi",
+      "description": "Katalog ośmiu klas cichych awarii oprogramowania. Przy każdej: objaw, strukturalny powód, dla którego testy go nie widzą, skrypt do wykrycia i przypadek z datą z dwóch wydanych projektów.",
+      "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl" },
+      "datePublished": "2026-08-21T00:00:00+02:00",
+      "dateModified": "2026-11-28T00:00:00+01:00",
+      "inLanguage": "pl",
+      "isAccessibleForFree": true,
+      "articleSection": "Technologia",
+      "proficiencyLevel": "Intermediate",
+      "about": [
+        { "@type": "Thing", "name": "Cicha awaria" },
+        { "@type": "Thing", "name": "Nieosiągalny kod" },
+        { "@type": "Thing", "name": "Testowanie oprogramowania" },
+        { "@type": "Thing", "name": "Analiza statyczna" },
+        { "@type": "Thing", "name": "Programowanie z pomocą AI" },
+        { "@type": "SoftwareApplication", "name": "PC Workman", "operatingSystem": "Windows", "applicationCategory": "UtilitiesApplication" }
+      ],
+      "citation": [
+        "https://peps.python.org/pep-0649/",
+        "https://peps.python.org/pep-0008/",
+        "https://psutil.io/api/",
+        "https://docs.unity3d.com/ScriptReference/Object.Destroy.html",
+        "https://learn.microsoft.com/en-us/windows/win32/shell/appids"
+      ],
+      "image": "https://pcworkman.dev/assets/images/og-technology.png",
+      "author": {
+        "@type": "Person",
+        "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga",
+        "name": "Marcin Firmuga",
+        "alternateName": "Marcin HCK Firmuga",
+        "url": "https://pcworkman.dev/hck-labs/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://pcworkman.dev/hck-labs/#organization",
+        "name": "HCK Labs",
+        "url": "https://pcworkman.dev/hck-labs/"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl" },
+        { "@type": "ListItem", "position": 3, "name": "Katalog cichych awarii", "item": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Klasy cichych awarii",
+      "description": "Osiem klas awarii, w których kod działa, zwraca wynik, przechodzi testy i nie daje użytkownikowi nic.",
+      "numberOfItems": 8,
+      "itemListOrder": "https://schema.org/ItemListOrderAscending",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SF-01 Funkcja, której nikt nie wywołuje", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-01" },
+        { "@type": "ListItem", "position": 2, "name": "SF-02 Klucz, który nigdy nie istniał", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-02" },
+        { "@type": "ListItem", "position": 3, "name": "SF-03 Import, który nigdy nie zadziałał", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-03" },
+        { "@type": "ListItem", "position": 4, "name": "SF-04 Komunikat sukcesu, który kłamie", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-04" },
+        { "@type": "ListItem", "position": 5, "name": "SF-05 Cichy except", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-05" },
+        { "@type": "ListItem", "position": 6, "name": "SF-06 Środowisko, które ukrywa błąd", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-06" },
+        { "@type": "ListItem", "position": 7, "name": "SF-07 Dwa źródła jednej prawdy", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-07" },
+        { "@type": "ListItem", "position": 8, "name": "SF-08 Reguła, która istnieje tylko w interfejsie", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/index_pl#sf-08" }
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Dlaczego testy przechodzą, a funkcja nie działa?", "acceptedAnswer": { "@type": "Answer", "text": "Test jednostkowy dowodzi, że funkcja, gdy ją wywołać, robi to, czego oczekujesz. Nie dowodzi, że cokolwiek ją wywołuje. Jeśli test importuje warstwę logiki i wywołuje funkcję bezpośrednio, zostanie zielony nawet wtedy, gdy z interfejsu nie prowadzi do niej żadna ścieżka. Wykryjesz to, wypisując każdą publiczną metodę warstwy logiki i szukając każdej nazwy w warstwie interfejsu. Metoda bez żadnego wywołania jest martwa albo nieosiągalna." } },
+        { "@type": "Question", "name": "Jak znaleźć nieosiągalne funkcje w kodzie?", "acceptedAnswer": { "@type": "Answer", "text": "Przeszukaj wywołania. Wypisz nazwy wszystkich publicznych metod zmieniających stan w warstwie logiki lub symulacji, a potem poszukaj każdej z nich w warstwie interfejsu. Metody bez trafienia to kandydaci. W prawdziwym projekcie dało to 46 publicznych metod, 21 bez żadnego wywołania i 5, które miały być akcjami użytkownika." } },
+        { "@type": "Question", "name": "Czy kod pisany z AI psuje się inaczej niż kod pisany przez człowieka?", "acceptedAnswer": { "@type": "Answer", "text": "W doświadczeniu autora z dwóch wydanych projektów różnica nie dotyczy jakości, tylko osiągalności. Asystent dobrze pisze funkcję spełniającą opis, ale nie widzi, czy od akcji użytkownika prowadzi do niej jakakolwiek ścieżka, bo ta ścieżka leży w innym pliku i często w innej rozmowie. Wynik to kod, który działa, zwraca wynik i spełnia każdą asercję, a użytkownik nie dostaje nic." } },
+        { "@type": "Question", "name": "Dlaczego goły except jest groźny w Pythonie?", "acceptedAnswer": { "@type": "Answer", "text": "Goły except łapie każdy wyjątek, także NameError i AttributeError z kodu, który nigdy nie działał, oraz SystemExit i KeyboardInterrupt, przez co czyste zamknięcie programu staje się zawodne. W jednym udokumentowanym przypadku goły except połykał NameError przy każdym wywołaniu przez cztery miesiące, bez awarii, bez logu i bez ostrzeżenia. Zasada, która to naprawiła: połykaj odczyty, nigdy zapisy." } },
+        { "@type": "Question", "name": "Dlaczego kod działa u mnie, a wywala się na innych wersjach Pythona?", "acceptedAnswer": { "@type": "Answer", "text": "Zmieniło się wyliczanie adnotacji. PEP 649, ostateczny w Pythonie 3.14, odracza wyliczanie adnotacji. Moduł, który używa w adnotacji nazwy bez jej importu, zadziała bez błędu na 3.14 i rzuci wyjątek przy imporcie na starszych wersjach. Uruchamiaj testy na najstarszej wersji, którą deklarujesz." } },
+        { "@type": "Question", "name": "Dlaczego dwie części programu pokazują różne wartości tej samej rzeczy?", "acceptedAnswer": { "@type": "Answer", "text": "Bo ta wielkość jest liczona w dwóch miejscach i nic nie porównuje wyników. Każde obliczenie jest poprawne samo w sobie i ma zielony test, więc rozbieżność nie ma właściciela. Rozwiązaniem jest jedna funkcja, której używają oba miejsca, i test, który zatrzymuje build, gdy pojawi się druga kopia." } },
+        { "@type": "Question", "name": "Czy walidacja powinna być w interfejsie, czy w warstwie logiki?", "acceptedAnswer": { "@type": "Answer", "text": "W warstwie logiki. Limit pilnowany tylko w interfejsie przestaje istnieć, gdy do tej samej akcji pojawi się drugie wejście: inny ekran, wczytany zapis, edytowany plik konfiguracyjny albo wywołanie API. Interfejs ma regułę pokazywać, a nie nią być. Sprawdź to testem, który całkowicie omija interfejs." } }
+      ]
+    }
+    </script>
+</head>
+<body class="page-monday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ technologia</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/silent-failure-catalogue/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/silent-failure-catalogue/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-tech">Technologia &middot; Kompendium</span>
+        <h1>Katalog cichych awarii</h1>
+        <p class="tagline">Osiem klas kodu, który działa, zwraca wynik, przechodzi każdy test i nie daje nic. Przy każdej: objaw, strukturalny powód, dla którego testy go nie widzą, skrypt, który możesz uruchomić dziś, i przypadek z datą z wydanej aplikacji.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>2026-08-21</span><span>&middot;</span><span>Dokument aktualizowany</span>
+        </div>
+
+        <p class="lead">Awaria jest uczciwa. Przerywa ci, wypisuje stos wywołań, mówi, gdzie szukać. Naprawiasz ją, bo nie daje o sobie zapomnieć.</p>
+
+        <p>Ten katalog jest o tym drugim rodzaju. O kodzie, który działa. Który zwraca wynik. Który spełnia każdą asercję, jaką przyszło ci do głowy napisać, a osobie korzystającej z twojego programu nie daje absolutnie nic.</p>
+
+        <p>Wydałem taki błąd co najmniej dwadzieścia cztery razy w dwóch projektach: w monitorze systemu Windows, który jest w Microsoft Store, i w grze strategicznej w trakcie budowy. Oba robię sam i publicznie, więc zapis tych pomyłek to nie wspomnienie. To historia commitów, której nie mogę edytować.</p>
+
+        <p>Poniżej podział, który chciałbym dostać czternaście miesięcy temu. Osiem klas. Każdy przypadek jest prawdziwy i ma datę. Każdy skrypt naprawdę uruchamiam.</p>
+
+        <div class="callout">
+            <b>Jedno zdanie, na którym stoi cała ta strona.</b> Test dowodzi, że funkcja, gdy ją wywołać, robi to, czego oczekujesz. Nie dowodzi, że cokolwiek ją wywołuje. Prawie każda pozycja poniżej to wariacja na temat tej luki.
+        </div>
+
+        <div class="toc">
+            <b>Na tej stronie</b>
+            <ol>
+                <li><a href="#glance">Osiem klas w skrócie</a></li>
+                <li><a href="#sf-01">SF-01 &middot; Funkcja, której nikt nie wywołuje</a></li>
+                <li><a href="#sf-02">SF-02 &middot; Klucz, który nigdy nie istniał</a></li>
+                <li><a href="#sf-03">SF-03 &middot; Import, który nigdy nie zadziałał</a></li>
+                <li><a href="#sf-04">SF-04 &middot; Komunikat sukcesu, który kłamie</a></li>
+                <li><a href="#sf-05">SF-05 &middot; Cichy except</a></li>
+                <li><a href="#sf-06">SF-06 &middot; Środowisko, które ukrywa błąd</a></li>
+                <li><a href="#sf-07">SF-07 &middot; Dwa źródła jednej prawdy</a></li>
+                <li><a href="#sf-08">SF-08 &middot; Reguła, która istnieje tylko w interfejsie</a></li>
+                <li><a href="#preflight">Wszystko naraz jako jedna kontrola przed wydaniem</a></li>
+                <li><a href="#solo">Dlaczego jedna osoba przegapia każdy z nich</a></li>
+                <li><a href="#ai">Co naprawdę zmienia praca z AI</a></li>
+                <li><a href="#receipt">Co robi z tym aplikacja</a></li>
+            </ol>
+        </div>
+
+        <h2 id="glance">Osiem klas w skrócie</h2>
+
+        <p>Jeśli przeczytasz z tej strony tylko jedno, przeczytaj środkową kolumnę. Każda pozycja to inna odpowiedź na to samo pytanie: co twoje testy myślą, że dowodzą, a co dowodzą naprawdę?</p>
+
+        <div class="sf">
+            <div class="sf-head"><span class="sf-id">INDEKS</span><span class="sf-name">Od objawu do klasy w jednym kroku</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">SF-01</div><div class="sf-val"><b>Funkcja gotowa, użytkownik jej nie dostaje.</b> Twój test ją wywołuje. Nic innego tego nie robi. <a href="#sf-01">Przegląd wywołań</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-02</div><div class="sf-val"><b>Stały placeholder albo pusty ekran.</b> Twoje dane testowe mają klucz, w który wierzysz. Prawdziwe dane go nie mają. <a href="#sf-02">Porównanie kluczy</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-03</div><div class="sf-val"><b>Podsystem, który nie zadziałał ani razu.</b> Import się nie udaje i coś połyka ten błąd. <a href="#sf-03">Skan niezadeklarowanych importów</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-04</div><div class="sf-val"><b>Potwierdzenie pracy, której nie było.</b> Sprawdziłeś wartość zwracaną, a produktem jest skutek uboczny. <a href="#sf-04">Grep: sukces bez zapisu</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-05</div><div class="sf-val"><b>Ścieżka, która rzuca wyjątek przy każdym wywołaniu, od miesięcy.</b> Except zamienił awarię w wiarygodną wartość zastępczą. <a href="#sf-05">Spis gołych except</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-06</div><div class="sf-val"><b>Działa u ciebie, nie działa u nich.</b> Twoje testy biegną na twoim komputerze. <a href="#sf-06">Macierz wersji i próbny zapis</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-07</div><div class="sf-val"><b>Dwie liczby, które powinny być jedną.</b> Obie są liczone, żadna nie jest porównywana. <a href="#sf-07">Szukanie zdublowanych obliczeń</a></div></div>
+                <div class="sf-row"><div class="sf-key">SF-08</div><div class="sf-val"><b>Limit, który przestaje działać, gdy pojawi się drugie wejście do akcji.</b> <a href="#sf-08">Test egzekwowania w warstwie logiki</a></div></div>
+            </div>
+        </div>
+
+        <h2 id="entries">Katalog</h2>
+
+        <!-- SF-01 -->
+        <div class="sf" id="sf-01">
+            <div class="sf-head"><span class="sf-id">SF-01</span><span class="sf-name">Funkcja, której nikt nie wywołuje</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Funkcja jest skończona, przetestowana i opisana. Użytkownik nigdy jej nie dostaje. Nigdzie nie ma błędu, bo kod, który dałby wynik, nigdy nie jest wywoływany.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Test importuje warstwę logiki i wywołuje funkcję bezpośrednio. Funkcja działa. Zawsze działała. Brakuje ścieżki od akcji użytkownika do tego wywołania, a żadna asercja w teście jednostkowym nie widzi ścieżek.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Wypisz każdą publiczną metodę zmieniającą stan w warstwie logiki, a potem poszukaj każdej nazwy w warstwie interfejsu. Zero wywołań oznacza kod martwy albo nieosiągalny, i musisz wiedzieć który.
+                    <div class="sf-sweep">grep -rhoE "public [A-Za-z&lt;&gt;]+ (Try[A-Z]\w+|Set[A-Z]\w+|Add[A-Z]\w+)" Simulation/ \
+  | awk '{print $NF}' | sort -u \
+  | while read m; do
+      n=$(grep -rl "\b$m\b" UI/ | wc -l)
+      [ "$n" -eq 0 ] &amp;&amp; echo "UNREACHABLE  $m"
+    done</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-08-15 &middot; Scaling Laws &middot; commit 16a8774</span>
+                    Węzeł badań wypisywał dokładnie, co daje: wyselekcjonowany korpus danych, architekturę mixture-of-experts. Gracz płacił punktami badań, gotówką i czterema miesiącami kalendarza w grze. Nie dostawał żadnej z tych rzeczy, w żadnej kampanii, nigdy. <span class="hl-red">Przechodziło na tym 526 testów</span>, bo każdy test wywoływał <code>TryAcquireDataSource</code> i <code>TryAdoptArchitecture</code> bezpośrednio, a warstwa interfejsu nie robiła tego nigdzie. Skrypt powyżej znalazł 46 publicznych metod zmieniających stan, 21 bez żadnego wywołania i 5, które miały być akcjami gracza.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Więcej przypadków</div><div class="sf-val">
+                    <b>2026-06-19.</b> Bazowe temperatury liczone algorytmem Welforda i wykrywanie anomalii napięcia działały miesiącami i były w pełni przetestowane. Asystent czatu nie importował żadnego z tych silników. Odpowiadał na pytania, siedząc na mózgu, do którego nie miał dostępu.<br>
+                    <b>2026-07-10.</b> Metoda <code>set_turbo()</code> istniała w stale działającym demonie optymalizacji i nie miała żadnego wywołania w kodzie. Całe powiązanie, dla którego ją napisano, było martwe od dnia napisania.<br>
+                    <b>2026-07-03.</b> Szesnaście intencji asystenta pasowało do pytań użytkownika z pełną pewnością i nie miało za sobą żadnej obsługi. Pewność 1.00, a potem cisza.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Jeden test na mechanizm, który przechodzi <b>całą ścieżkę</b>: akcja jest wywoływana tak, jak wywołuje ją produkt, a potem czytasz stan, który czyta produkt. Pięć testów, które to zastąpiły, ma wprost zakazane wywoływanie funkcji przyznającej nagrodę. Kończą węzeł badań tak, jak robi to pętla dnia, a potem sprawdzają, co firma posiada.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-02 -->
+        <div class="sf" id="sf-02">
+            <div class="sf-head"><span class="sf-id">SF-02</span><span class="sf-name">Klucz, który nigdy nie istniał</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Ekran na stałe pokazuje placeholder, wartość domyślną albo pusty stan. Prawdziwe dane przez cały czas leżą w bazie.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Test buduje dane wejściowe ręcznie. Ręcznie napisane dane testowe zawierają klucze, w które wierzysz, czyli dokładnie to przekonanie, które miało być sprawdzone. A odczyt zamiast rzucić wyjątek wpada w wartość domyślną, więc nic nigdzie nie zgłasza problemu.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Porównaj klucze, które czyta twój kod, z kolumnami, które naprawdę zapisuje baza. Mechanicznie, nie czytając.
+                    <div class="sf-sweep">python - &lt;&lt;'PY'
+import re, sqlite3, pathlib
+db = sqlite3.connect("data/logs/app.db")
+cols = {r[1] for r in db.execute("PRAGMA table_info(events)")}
+used = set()
+for f in pathlib.Path("ui").rglob("*.py"):
+    used |= set(re.findall(r'evt\[[\'"](\w+)[\'"]\]', f.read_text(encoding="utf-8")))
+print("read but never stored:", sorted(used - cols))
+PY</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-09 &middot; PC Workman</span>
+                    Każdy wiersz w dzienniku zdarzeń wyświetlał się jako <span class="hl-red">„Unknown event”</span>, przez miesiące. Baza trzymała typ, metrykę, wartość, wartość bazową i napisany ludzkim językiem opis. Interfejs czytał <code>evt["message"]</code>. Tego klucza nie było w żadnej warstwie kodu, nigdy. Prawdziwa odpowiedź leżała o jeden klucz słownika dalej, a najbardziej treściwą etykietą, jaką produkt kiedykolwiek pokazał użytkownikowi, było słowo „Unknown”.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Wariant</div><div class="sf-val">
+                    <b>2026-07-05.</b> Silnik uczenia raportował, że pracuje, i niczego się nie uczył. Uczył się dokładnie jednej metryki, <code>cpu_temp</code>, a zapytanie, które go zasilało, filtrowało <code>WHERE cpu_temp &gt; 0</code>. Odczyt temperatury procesora w Windows wymaga usługi czujników, której większość ludzi nie uruchamia, więc na tych komputerach kolumna zawsze miała zero, a filtr wykluczał każdy wiersz. Uczciwie trzeba dodać: kolumnę wyzerowała reguła poprawności, którą dodałem tydzień wcześniej, czyli nigdy nie ucz się z szacowanej temperatury. Dobra decyzja spowodowała cichą awarię.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Testuj na kształtach wierszy wziętych z prawdziwej bazy, nigdy na danych testowych, które sam wpisałeś. Tam, gdzie brak klucza oznacza zepsutą funkcję, niech odczyt rzuca wyjątek zamiast zwracać wartość domyślną.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-03 -->
+        <div class="sf" id="sf-03">
+            <div class="sf-head"><span class="sf-id">SF-03</span><span class="sf-name">Import, który nigdy nie zadziałał</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Cały podsystem nie uruchomił się ani razu, na żadnym komputerze, od dnia napisania. Wszystko, co od niego zależy, spada do wartości domyślnej, która wygląda wiarygodnie.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Albo podsystem jest w testach podmieniony atrapą, albo błąd importu jest złapany i połknięty. W obu przypadkach masz zielone testy i funkcję, która nigdy nie wykonała się u użytkownika.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Porównaj każdy importowany moduł z zależnościami, które naprawdę deklarujesz i dołączasz do paczki.
+                    <div class="sf-sweep">python - &lt;&lt;'PY'
+import ast, pathlib, sys
+declared = set(open("requirements.txt").read().split())
+std = set(sys.stdlib_module_names)
+for f in pathlib.Path(".").rglob("*.py"):
+    for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+        if isinstance(n, ast.Import):
+            for a in n.names:
+                root = a.name.split(".")[0]
+                if root not in std and root not in declared:
+                    print(f"{f}:{n.lineno}  undeclared import: {root}")
+PY</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-16 &middot; PC Workman</span>
+                    Skaner sprzętu w asystencie nie zadziałał nigdy, na żadnym komputerze, od kiedy go napisano. Wykonywał <code>import wmi</code>, czyli pakietu, którego nigdy nie zainstalowano ani nie dołączono. Skan padał na każdym komputerze, a błąd łapał goły <code>except: pass</code>. Pierwszy udany zapis danych sprzętu w historii projektu nastąpił w dniu, w którym podpiąłem go pod skaner, który już działał.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Wariant</div><div class="sf-val">
+                    <b>2026-08-10.</b> Trzy razy, w changelogu i w dwóch artykułach, opublikowałem, że <code>psutil.sensors_temperatures()</code> zwraca w Windows pusty słownik. Nie zwraca. W Windows tego atrybutu w ogóle nie ma, więc każde wywołanie rzucało <code>AttributeError</code> do bloku try. Sprawdziłem to tylko dlatego, że pisałem artykuł o powtarzaniu twierdzeń z pamięci. Sprostowanie jest na tamtej stronie, a ta linijka istnieje po to, żeby błędna wersja jej nie przeżyła.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Test, który sprawdza, że martwego importu nie ma w źródłach. Trzy linijki, i ta klasa błędu nie przejdzie do wydania. Dla opcjonalnych funkcji systemu sprawdzaj <code>hasattr</code> wprost i zapisuj, którą gałęzią poszedłeś, żeby brak czujnika dało się odróżnić od zwykłego odczytu.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-04 -->
+        <div class="sf" id="sf-04">
+            <div class="sf-head"><span class="sf-id">SF-04</span><span class="sf-name">Komunikat sukcesu, który kłamie</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Produkt potwierdza akcję, której nie wykonał. Użytkownicy tego nie zgłaszają, bo nie odróżnią „zapisało się” od „napisało, że się zapisało”. Uznają, że zrobili coś źle, i przestają używać tej funkcji.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Test sprawdza wartość zwracaną albo komunikat, a komunikat to tekst stojący obok wywołania, nie jego skutek. Tam, gdzie prawdziwym produktem jest skutek uboczny, wartość zwracana jest ozdobą.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Znajdź każdy tekst o sukcesie w interfejsie i sprawdź, czy w tej samej funkcji naprawdę jest zapis.
+                    <div class="sf-sweep">grep -rniE "(applied|saved|success|complete)" ui/ --include=*.py -l \
+  | xargs grep -LiE "(open\(|json\.dump|\.write\(|commit\(|save\()" \
+  | sed 's/^/CLAIMS SUCCESS, NEVER WRITES:  /'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-07-18 &middot; PC Workman</span>
+                    Edytor krzywej wentylatorów miał przycisk Zastosuj. Wyświetlał <span class="hl-red">„applied successfully”</span> i niczego nie zapisywał. Każde ponowne uruchomienie po cichu wyrzucało krzywą użytkownika, i tak było przez dwa wydania. Nikt tego nie zgłosił. Naprawa zajęła dziesięć minut. Znalezienie zajęło miesiące.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Więcej przypadków</div><div class="sf-val">
+                    <b>2026-08-08.</b> Konsola diagnostyczna miała chować się po starcie. W Windows Terminal <code>GetConsoleWindow()</code> zwraca ukryte okno pośredniczące, więc <code>ShowWindow(SW_HIDE)</code> się udaje, zwraca sukces i niczego na ekranie nie zmienia. Tester to zgłosił, a ja nie mogłem tego odtworzyć, bo mój komputer używał innego hosta terminala.<br>
+                    <b>2026-08-08.</b> Funkcja „utwórz skrót na pulpicie” w wersji ze Sklepu zapisywała skrót wskazujący na Application Id, którego nie było w opublikowanym manifeście. Kliknięcie niczego nie otwierało. Takiego skrótu nikt nie zgłasza. Ludzie po prostu przestają go używać.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Nigdy nie sprawdzaj wartości zwracanej tam, gdzie produktem jest skutek uboczny. Przeczytaj plik z powrotem. Przeczytaj klasę okna z powrotem. Jeśli twoja asercja i twój użytkownik patrzą na dwie różne rzeczy, tylko jedno z nich testuje twój program.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-05 -->
+        <div class="sf" id="sf-05">
+            <div class="sf-head"><span class="sf-id">SF-05</span><span class="sf-name">Cichy except</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Fragment kodu rzuca wyjątek przy każdym wywołaniu, od miesięcy. Bez awarii, bez logu, bez ostrzeżenia, bez gorszego działania, na które ktoś mógłby wskazać palcem. Produkt po prostu robi trochę mniej, niż obiecuje.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Except zamienia twardą awarię w wartość zastępczą, a ta często jest rozsądna. Testy sprawdzają rozsądny wynik. Goły <code>except</code> połyka też <code>NameError</code> i <code>AttributeError</code> z kodu, który nigdy nie działał, oraz <code>SystemExit</code> i <code>KeyboardInterrupt</code>, przez co do tego wszystkiego czyste zamknięcie programu staje się zawodne.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    <div class="sf-sweep">grep -rn "except:" --include=*.py . | sed 's/^/BARE EXCEPT  /'
+grep -rn -A2 "except Exception" --include=*.py . \
+  | grep -B1 -E "^\s*(pass|continue)\s*$" \
+  | sed 's/^/SWALLOWED    /'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-06-24 &middot; PC Workman</span>
+                    Silnik kierowania pytań miał <code>except:</code>, a pod nim <code>pass</code>. Dwie linijki wyżej kod czytał zmienną należącą do innej funkcji. <span class="hl-red">NameError przy każdym wywołaniu, przez cztery miesiące.</span> Cała ścieżka zapasowa była martwa od pierwszego dnia. Znalazłem to, bo niektóre odpowiedzi wydawały się trochę gorsze, niż powinny, a to nie jest metoda debugowania.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Więcej przypadków</div><div class="sf-val">
+                    <b>2026-07-16.</b> Refaktor podzielił moduł z 6 533 liniami na siedem i zgubił singleton na poziomie modułu. Miejsce, które go importowało, owijało import w szeroki except, więc flaga funkcji po cichu zmieniła się na <code>False</code>, a główna warstwa AI produktu sama się wyłączyła. Wszystko działało. Testy były zielone. Wiem o tym tylko dzięki testowi ochronnemu napisanemu tego samego dnia, dla martwego pola, którego nie przewidziałem.<br>
+                    <b>2026-07-15.</b> Liczenie w całym repozytorium znalazło 53 gołe <code>except:</code>.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Zakaż gołego except w CI, a potem przyjmij jedną zasadę: <b>połykaj odczyty, nigdy zapisy.</b> Nieudany odczyt może wrócić do wartości domyślnej, bo wartość domyślna to rozsądna odpowiedź na „nie wiem”. Nieudany zapis musi być głośny, bo użytkownik wierzy, że się udał.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-06 -->
+        <div class="sf" id="sf-06">
+            <div class="sf-head"><span class="sf-id">SF-06</span><span class="sf-name">Środowisko, które ukrywa błąd</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Kod działa poprawnie na twoim komputerze i jest zepsuty na komputerach, na które go wydajesz. To klasa, która zamienia „u mnie działa” z żartu w ostrzeżenie.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Twoje testy biegną w twoim środowisku programistycznym. Jeśli u użytkownika różni się wersja środowiska, uprawnienia do plików albo aplikacja, w której program działa, testy mierzą komputer, którego żaden użytkownik nie ma.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Uruchamiaj testy na najstarszej wersji, którą deklarujesz, i sprawdzaj środowisko próbą, a nie po nazwie.
+                    <div class="sf-sweep">for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+  echo "=== python $v ==="
+  py -$v -m unittest discover tests -q 2&gt;&amp;1 | tail -3
+done</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-06-17 &middot; PC Workman</span>
+                    Moduł używał w adnotacjach <code>Optional[str]</code> i nigdy nie importował <code>Optional</code>. U mnie działało idealnie, bo piszę na Pythonie 3.14, gdzie <a href="https://peps.python.org/pep-0649/" target="_blank" rel="noopener">PEP 649</a> odracza wyliczanie adnotacji i brakujący import nigdy nie wybucha. Na wersjach od 3.9 do 3.13, które oficjalnie wspieram, moduł rzucał wyjątek przy imporcie i cały po cichu się wyłączał. <span class="hl-red">Moje własne środowisko ukrywało przede mną błąd.</span>
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Więcej przypadków</div><div class="sf-val">
+                    <b>2026-07-04.</b> Microsoft zatwierdził aplikację do <code>C:\Program Files\WindowsApps</code>, a ten folder jest tylko do odczytu. Aplikacja zapisywała bazę, ustawienia i wyuczone wartości bazowe obok swojego pliku exe, więc przy każdej instalacji ze Sklepu każdy zapis po cichu się nie udawał. Certyfikacja tego nie sprawdza, a użytkownicy tego nie zgłaszają, bo nic nie wygląda na zepsute. Aplikacja po prostu ma stałą amnezję. Zasada, która z tego wyszła: <b>nie rozpoznawaj środowiska po nazwie, sprawdź je próbą.</b> Sprawdzenie ścieżki to zgadywanie, prawdziwa próba zapisu to fakt.<br>
+                    <b>2026-08-08.</b> Manifest paczki wskazywał jeden obrazek 32x32 dla każdego kafelka, także dla tego 150x150. Windows go rozciągał. Dokładnie to zostało odrzucone jako rozmazane dwa miesiące wcześniej i przetrwało każde wydanie pomiędzy, bo manifest wskazuje pliki po nazwie i nic nie sprawdza, czy mają rozmiar, który sugeruje nazwa.<br>
+                    <b>Scaling Laws.</b> <a href="https://docs.unity3d.com/ScriptReference/Object.Destroy.html" target="_blank" rel="noopener">Object.Destroy</a> nic nie robi poza trybem gry. Pamięć podręczna tekstur, która poprawnie zwalniała pamięć w trakcie gry, w edytorze nie zwalniała niczego, i zauważył to dopiero test obciążeniowy budujący każdy ekran w trybie edycji.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Jeden test, który ustala folder do zapisu prawdziwą próbą zapisu, łącznie ze ścieżką przekierowania dla folderu tylko do odczytu. Macierz CI na wszystkich wspieranych wersjach. A dla wszystkiego, co widać na ekranie: wyrenderuj klatkę i na nią popatrz, bo żadna asercja jeszcze nie zastąpiła zrzutu ekranu.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-07 -->
+        <div class="sf" id="sf-07">
+            <div class="sf-head"><span class="sf-id">SF-07</span><span class="sf-name">Dwa źródła jednej prawdy</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Produkt podaje dwie różne wartości tej samej wielkości, w dwóch różnych miejscach, i obie wyglądają na wiarygodne. Użytkownicy zauważają to przed tobą, bo widzą oba ekrany, a ty napisałeś oba wzory.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Każde obliczenie ma test. Każdy test przechodzi, bo każde obliczenie jest poprawne samo w sobie. Nic w kodzie nie porównuje obu wyników, więc rozbieżność nie ma właściciela ani asercji.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Szukaj tej samej stałej, jednostki albo pojęcia w więcej niż jednym module. Zdublowane nazwy funkcji pomocniczych to najtańszy sygnał.
+                    <div class="sf-sweep">grep -rhoE "^\s*def (_?[a-z_]+)\(" --include=*.py . \
+  | sed -E 's/.*def (_?[a-z_]+)\(/\1/' | sort | uniq -c \
+  | awk '$1 &gt; 1 {print "DUPLICATE DEF  x"$1"  "$2}'</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">2026-08-19 &middot; Scaling Laws</span>
+                    Kreator modeli podawał graczowi <span class="hl-red">jedenaście dni</span> na trening. Trening kończył się po <span class="hl-red">jednym</span>. Obie liczby pochodziły z mojego kodu. Prognoza dzieliła przez mnożnik przepustowości dla precyzji. Codzienne odliczanie nigdy przez niego nie mnożyło i dokładało dwa bonusy, o których prognoza nie wiedziała. Dwa wzory na jedną wielkość, przez tygodnie, i nic, co by je porównało.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Więcej przypadków</div><div class="sf-val">
+                    <b>2026-07-17.</b> Numer wersji był w ośmiu plikach i w trzech już był zły. Główne okno nazywało się 1.8.1, a sprawdzanie, czy aplikacja już działa, szukało okna o tytule 1.8.2, więc drugie uruchomienie przestało przełączać na działającą kopię. Wyszło to w dwóch pełnych wydaniach i żaden test tego nie zauważył.<br>
+                    <b>2026-07-04 i 2026-07-15.</b> Ta sama funkcja zwracająca folder bazowy istniała w sześciu kopiach. Sprawdzanie uprawnień administratora w pięciu.<br>
+                    <b>2026-07-18.</b> Obciążenie procesora przez pojedynczy proces było czytane w skali jednego rdzenia. Jeden zajęty wątek na komputerze z dwunastoma wątkami pokazywał 100 procent, gdy cały komputer stał na 8. Listy najbardziej obciążających procesów pokazywały szum, a alert uruchamiał się bez powodu.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Jeśli ta sama wielkość jest liczona w dwóch miejscach, to nie jest duplikacja. To przyszła rozbieżność z wpisaną datą. Rozwiązaniem nigdy nie jest pilnowanie, żeby kopie były zgodne. Jest nim jedna funkcja, której używają obie strony, więc <b>nie mogą</b> się rozjechać, plus test zapadkowy, który zatrzymuje build, gdy pojawi się druga kopia.
+                </div></div></div>
+            </div>
+        </div>
+
+        <!-- SF-08 -->
+        <div class="sf" id="sf-08">
+            <div class="sf-head"><span class="sf-id">SF-08</span><span class="sf-name">Reguła, która istnieje tylko w interfejsie</span></div>
+            <div class="sf-body">
+                <div class="sf-row"><div class="sf-key">Objaw</div><div class="sf-val">
+                    Limit działa idealnie, dopóki ktoś nie dojdzie do tej samej akcji inną drogą: z innego ekranu, z wczytanego zapisu, z edytowanego pliku konfiguracyjnego, skrótem klawiszowym, przez API. Wtedy limitu nie ma i nigdy go nie było.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Czemu testy przechodzą</div><div class="sf-val">
+                    Testy sterują interfejsem, a w interfejsie reguła jest prawdziwa. Warstwy logiki, czyli miejsca, w którym reguła musi być, żeby cokolwiek znaczyła, nikt nigdy nie poprosił o jej egzekwowanie.
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Wykrycie</div><div class="sf-val">
+                    Napisz test, który w ogóle pomija interfejs. Zbuduj niedozwolony stan bezpośrednio w warstwie logiki i sprawdź, że go odrzuca.
+                    <div class="sf-sweep">// deliberately does not touch any screen
+var blueprint = new Blueprint { Parameters = ceiling * 10 };
+var result    = company.TryStartTraining(blueprint);
+
+Assert.IsFalse(result.Accepted,
+  "parameter ceiling is enforced in the UI only");</div>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Prawdziwy przypadek</div><div class="sf-val"><div class="sf-case">
+                    <span class="sf-date">Scaling Laws &middot; kreator modeli</span>
+                    Limit parametrów był egzekwowany w <code>TryStartTraining</code>. Ale <code>Project()</code>, funkcja, którą ekran kreatora wywołuje przy każdym ruchu suwaka, nie sprawdzała ani limitu, ani progów precyzji. Kreator spokojnie wyceniał trening, który przycisk START potem odrzucał, bez żadnego ostrzeżenia przy czymkolwiek, czego gracz dotknął. Napisałem plik testów, który nie otwiera żadnego panelu: buduje projekty powyżej limitu bezpośrednio i sprawdza, że firma odmawia.
+                </div></div></div>
+                <div class="sf-row"><div class="sf-key">Wariant</div><div class="sf-val">
+                    Kolejność działań to ta sama klasa w innym przebraniu. W jednym <code>Reprice()</code> projekt był budowany z surowej wartości suwaka, a limit nakładano <em>potem</em>. Uchwyt suwaka wracał na miejsce, a każda liczba na ekranie zostawała przy wartości, do której gracz przeciągnął. <b>Walidacja, która działa po odczycie, nie jest walidacją.</b>
+                </div></div>
+                <div class="sf-row"><div class="sf-key">Naprawa</div><div class="sf-val"><div class="sf-fix">
+                    Każde ważne ograniczenie jest egzekwowane w warstwie logiki. Interfejs je <em>pokazuje</em>. Testy sprawdzają je z pominięciem interfejsu. Limit, który mieszka na ekranie, to sugestia ładną czcionką, i wygasa w chwili, gdy pojawi się drugie wejście do tej akcji.
+                </div></div></div>
+            </div>
+        </div>
+
+        <h2 id="preflight">Wszystko naraz jako jedna kontrola przed wydaniem</h2>
+
+        <p>Żaden z tych skryptów nie jest wiele wart jako coś, o czym trzeba pamiętać. Czujność nie skaluje się powyżej kilku tysięcy linii i zawodzi dokładnie wtedy, gdy jesteś zmęczony, a wtedy właśnie takie błędy trafiają do wydania.</p>
+
+        <p>Działa uczynienie ich nudnymi. Każdy skrypt z tej strony uruchamia się w jednym pliku, który odpalam przed oznaczeniem wydania, i całość kończy się w mniej niż minutę na repozytorium z około sześćdziesięcioma tysiącami linii.</p>
+
+        <div class="sf-sweep">#!/usr/bin/env bash
+# preflight.sh - run before tagging. Exit code is advisory, not a gate.
+set -u
+fail=0
+
+echo "== SF-01 unreachable domain methods =="
+./tools/caller_audit.sh || fail=1
+
+echo "== SF-03 undeclared imports =="
+python tools/import_audit.py || fail=1
+
+echo "== SF-04 success strings with no write =="
+grep -rniE "(applied|saved|success)" ui/ --include=*.py -l \
+  | xargs -r grep -LiE "(open\(|json\.dump|\.write\(|commit\()" || true
+
+echo "== SF-05 bare excepts =="
+grep -rn "except:" --include=*.py . &amp;&amp; fail=1
+
+echo "== SF-06 supported runtime matrix =="
+for v in 3.9 3.10 3.11 3.12 3.13 3.14; do
+  py -$v -m unittest discover tests -q &gt;/dev/null 2&gt;&amp;1 \
+    || { echo "FAILS ON $v"; fail=1; }
+done
+
+echo "== SF-07 duplicate definitions =="
+./tools/duplicate_defs.sh
+
+exit $fail</div>
+
+        <p>Ważny szczegół to ostatnia linijka komentarza. Ten skrypt nie blokuje wydania. Wypisuje listę, którą czyta człowiek, bo połowa tego, co znajduje, jest w porządku: wewnętrzna instalacja bez wywołania z interfejsu, funkcja pomocnicza, która naprawdę powinna istnieć dwa razy, komunikat sukcesu przy operacji, która naprawdę tylko czyta. Kontrola, która krzyczy „wilk!”, zostaje wyłączona w ciągu tygodnia, a wtedy nie chroni niczego.</p>
+
+        <p>Te, które naprawdę muszą zatrzymać build, są węższe i jest ich tylko kilka: żadnego gołego except, żadnego martwego importu, żadnego wpisanego na sztywno numeru wersji, żadnej drugiej kopii funkcji, która ma mieć jedno źródło. To są zapadki. Wszystko inne na tej stronie to raport.</p>
+
+        <h2 id="solo">Dlaczego jedna osoba przegapia każdy z nich</h2>
+
+        <p>Jest powód, dla którego ten katalog pochodzi z projektu jednej osoby, a nie zespołu, i nie chodzi o to, że jestem niedbały, choć przy kilku pozycjach najwyraźniej byłem.</p>
+
+        <p>Te awarie mają wspólny kształt: wszystkie są niewidoczne od środka. Nic się nie wywala. Nic się nie loguje. Nic nie wygląda źle na ekranie, na który akurat patrzysz. Każda z nich wymaga, żeby ktoś zadał pytanie, którego nikt nie pomyślał zadać, a gdy budujesz sam, zbiór zadawanych pytań to dokładnie te, o których już wiesz, że trzeba je zadać.</p>
+
+        <p>Recenzent daje to za darmo. Nie dlatego, że jest mądrzejszy, tylko dlatego, że przychodzi bez twoich założeń. Recenzentowi, który czyta twój plik testów, nikt nie powiedział, że test wywołuje funkcję bezpośrednio i że tak jest w porządku. Widzi test, który nie przypomina tego, co robi użytkownik, i mówi to głośno.</p>
+
+        <p>Bez recenzenta potrzebujesz zastępstwa, i to zastępstwo musi być mechaniczne. To cały argument za skryptami powyżej. Grep się nie męczy, niczego nie zakłada i nie pomija grzecznie pliku, który czytał w zeszłym tygodniu. Jest gorszym recenzentem niż człowiek pod każdym względem poza tym jednym, który się tu liczy: to nie ty i nie masz z nim wspólnych martwych pól.</p>
+
+        <p>Drugim zastępstwem jest prawdziwy użytkownik, i aż niewygodne jest, o ile lepiej radzi sobie z tym od każdego narzędzia. Trzech testerów spędziło po pięć godzin nad wydaniem, które uważałem za skończone, i znalazło sześć problemów ze stabilnością, siedemnaście intencji, które pasowały z pełną pewnością i nie zwracały nic, oraz funkcję wywołującą odczyt stanu systemu dziewiętnaście razy na jedną wiadomość. Niczego z tego nie było w moich testach. Wszystko to było w ich pierwszym wieczorze.</p>
+
+        <h2 id="ai">Co naprawdę zmienia praca z AI</h2>
+
+        <p>Buduję z asystentem, otwarcie, od ponad roku. Uczciwy opis tego, co to zmieniło, jest węższy, niż sugeruje każda ze stron obecnej kłótni.</p>
+
+        <p>Nie obniżyło to jakości pojedynczych funkcji. Większość z dwudziestu czterech przypadków w moim dzienniku to zwykłe pomyłki ze zwykłych powodów, a kilka jest starszych niż jakikolwiek asystent.</p>
+
+        <p>Zmieniło się to, <span class="hl-cyan">gdzie trzeba pilnować standardu</span>. Asystent świetnie pisze funkcję spełniającą opis. Nie widzi, czy od ludzkiej ręki prowadzi do niej jakakolwiek ścieżka, bo ta ścieżka leży w innym pliku, w innej warstwie, zwykle w innej rozmowie. Pisanie przyspieszyło. Sprawdzanie, czy cokolwiek dochodzi do wyniku, nie. Każda pozycja powyżej żyje w szczelinie między tymi dwiema prędkościami.</p>
+
+        <div class="callout warn">
+            <b>Zdarzenie, o którym myślę najczęściej.</b> Ten projekt ma spisaną zasadę przeciw tekstom brzmiącym jak wygenerowane i test, który uruchamia każdą odpowiedź asystenta i zatrzymuje build przy każdej długiej pauzie (em dash). 17 lipca automatyczne sprzątanie usunęło 312 długich pauz z 42 plików. Przepisało też znak długiej pauzy <b>wewnątrz testu, który miał ich pilnować</b>, po cichu zmieniając go w test „czy ta odpowiedź zawiera łącznik”. Strażnik przed automatycznymi szkodami został zjedzony przez automat. Naprawa: zapisać znak jako <code>chr(0x2014)</code>, czego żadne przyszłe sprzątanie tekstu nie dopasuje, i sprawdzić to kontrolą negatywną: wstrzyknąć długą pauzę do prawdziwej odpowiedzi i patrzeć, jak test pada.
+        </div>
+
+        <p>To cała teza w jednym zdarzeniu. Narzędzie zrobiło dokładnie to, o co prosiłem, szybko i poprawnie na swoich warunkach, i wyłączyło jedyną rzecz, która stała między mną a problemem, do którego rozwiązania je zatrudniłem.</p>
+
+        <h2 id="limits">Granice, powiedziane głośno</h2>
+
+        <p>To jedna osoba i dwa projekty. Nie mam danych, czy przenosi się to na zespół, a zespół ma przegląd kodu, który część tych klas usuwa całkowicie i tworzy inne, których nie spotkałem.</p>
+
+        <p>Nie umiem też czysto oddzielić „awarii spowodowanych pracą z AI” od „awarii, które i tak bym wydał”. Każdy, kto twierdzi, że umie, w którąkolwiek stronę, coś sprzedaje. Mogę powiedzieć to, co pokazuje dziennik, z datami, w publicznych repozytoriach.</p>
+
+        <h2 id="receipt">Co robi z tym aplikacja</h2>
+
+        <p>PC Workman to monitor Windows z lokalnym asystentem i jest budowany według zasad z tej strony, a nie tylko je opisuje. Liczba testów wzrosła z 21 w czerwcu do 331 w sierpniu, a znaczenie miała nie sama liczba. Znaczenie miało to, że każda cicha awaria, która raz trafiła do wydania, ma teraz test zapadkowy, który zatrzyma build, jeśli ta klasa wróci: wpisane na sztywno numery wersji, martwe importy, gołe except, zdublowane funkcje pomocnicze, szacowane odczyty czujników trafiające do historii i długie pauzy w generowanym tekście.</p>
+
+        <p>Nic z tego nie czyni programu poprawnym. Sprawia tylko, że jedna konkretna kategoria błędów nie może trafić do wydania drugi raz.</p>
+
+        <div class="rcpt">
+            <div class="rcpt-head">
+                <span class="rcpt-tag">SKAN</span>
+                <span>przegląd wywołań &middot; od symulacji do interfejsu</span>
+            </div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line">publiczne metody zmieniające stan <span class="d">46</span></div>
+            <div class="rcpt-line">bez żadnego wywołania <span class="d">21</span></div>
+            <div class="rcpt-line">nieosiągalne akcje użytkownika <span class="d">5</span></div>
+            <div class="rcpt-line">zielone testy przed skanem <span class="d">526</span></div>
+            <div class="rcpt-rule"></div>
+            <div class="rcpt-line after">testy po <span class="d">531</span></div>
+            <div class="rcpt-line after">czas naprawy <span class="d">jedno popołudnie</span></div>
+            <div class="rcpt-verdict">Zielone testy dowodzą, że twój kod się wykonał.<br>Nie dowodzą, że ktokolwiek do niego dotrze.</div>
+        </div>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../silent-failures-that-pass-every-test/index_pl.html">Błąd, który przechodzi każdy test i nie robi nic</a></li>
+                <li><a href="../breaking-up-the-monolith/index_pl.html">Jak rozbiłem plik z 6533 liniami</a></li>
+                <li><a href="../game-balance-tests/index_pl.html">Testy balansu gry: jak udowodnić, że da się ją wygrać</a></li>
+                <li><a href="../unity-testable-game-logic/index_pl.html">Testowanie logiki gry w Unity: 1541 testów bez PlayMode</a></li>
+                <li><a href="../why-solo-game-projects-die/index_pl.html">Dlaczego solowe projekty gier umierają na tych samych czterech funkcjach</a></li>
+                <li><a href="../xmp-expo-crashes-ram-stability/index_pl.html">XMP lub EXPO wywala gry? Test stabilności RAM</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <p>Ten katalog jest darmowy, bez rejestracji i bez zbierania maili, i jest stale uzupełniany. Jeśli znasz klasę cichej awarii, której tu nie ma, najszybciej złapiesz mnie przez <a href="https://github.com/HuckleR2003" target="_blank" rel="noopener">GitHub</a>.</p>
+            <p>Wersja z opowieścią wokół kilku z tych pozycji jest w artykule <a href="../silent-failures-that-pass-every-test/index_pl.html">o błędzie, który się nie wywala</a>. Jeśli chcesz zobaczyć te zasady w prawdziwej aplikacji Windows, <a href="../../download/index_pl.html">PC Workman</a> ma otwarty kod i jest w Microsoft Store.</p>
+        </div>
+
+        <p class="k"><b>Źródła:</b>
+            <a href="https://peps.python.org/pep-0649/" target="_blank" rel="noopener">PEP 649, Deferred Evaluation Of Annotations</a> &middot;
+            <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a> &middot;
+            <a href="https://psutil.io/api/" target="_blank" rel="noopener">psutil, dokumentacja API</a> &middot;
+            <a href="https://docs.unity3d.com/ScriptReference/Object.Destroy.html" target="_blank" rel="noopener">Unity, Object.Destroy</a> &middot;
+            <a href="https://learn.microsoft.com/en-us/windows/win32/shell/appids" target="_blank" rel="noopener">Microsoft, AppUserModelIDs</a>
+        </p>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Samodzielny programista &middot; HCK_Labs &middot; buduje PC Workman publicznie</div>
+                <p>Piszę o tym, co naprawdę wydałem, z prawdziwymi liczbami i prawdziwym kodem, łącznie z częściami, które nie robiły nic. Więcej: <a href="../../blog/story.html">moja historia</a>.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                    <a class="support" href="https://buycoffee.to/hcklabs" target="_blank" rel="noopener">Postaw kawę &#9749;</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../blog/feed_pl.xml">RSS</a></p>
+    </footer>
+
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

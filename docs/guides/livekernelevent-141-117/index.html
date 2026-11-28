@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guide (EN) · LiveKernelEvent 141, 117, 193, 1A8, 1B8 -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveKernelEvent 141 and 117: a GPU Hang Windows Survived</title>
+    <meta name="description" content="LiveKernelEvent 141, 117, 193, 1A8 or 1B8 in Reliability Monitor means the graphics card hung and Windows recovered. What each code means and what to check.">
+    <meta name="keywords" content="LiveKernelEvent 141, LiveKernelEvent 117, LiveKernelEvent 141 hardware error, LiveKernelEvent 1a8, LiveKernelEvent 1b8, LiveKernelEvent 193, VIDEO_ENGINE_TIMEOUT_DETECTED, VIDEO_TDR_TIMEOUT_DETECTED, LiveKernelReports WATCHDOG, game crash black screen">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/livekernelevent-141-117/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/livekernelevent-141-117/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/livekernelevent-141-117/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/livekernelevent-141-117/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="LiveKernelEvent 141 and 117: your graphics card hung, Windows survived">
+    <meta property="og:description" content="What LiveKernelEvent 141, 117, 193, 1A8 and 1B8 mean, how often is too often, and a safe order to find the cause.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/livekernelevent-141-117/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T18:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T18:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #2f2558; border-left:3px solid #a78bfa; background:#0f0c1c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#c4b5fd; margin-bottom:.4rem; }
+        .quick ol { margin:.5rem 0 0 1.2rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "LiveKernelEvent 141 and 117: your graphics card hung, Windows survived",
+          "description": "What LiveKernelEvent 141, 117, 193, 1A8 and 1B8 mean in Reliability Monitor, how often is too often, and a safe order to find the cause.",
+          "url": "https://pcworkman.dev/guides/livekernelevent-141-117/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/livekernelevent-141-117/" },
+          "datePublished": "2026-11-27T18:00:00+01:00",
+          "dateModified": "2026-11-27T18:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+          "isPartOf": { "@type": "WebPage", "name": "Windows Event Viewer errors explained", "url": "https://pcworkman.dev/guides/windows-errors/" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+            { "@type": "ListItem", "position": 3, "name": "Windows errors", "item": "https://pcworkman.dev/guides/windows-errors/" },
+            { "@type": "ListItem", "position": 4, "name": "LiveKernelEvent 141 and 117", "item": "https://pcworkman.dev/guides/livekernelevent-141-117/" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What is LiveKernelEvent 141?", "acceptedAnswer": { "@type": "Answer", "text": "Code 141 is VIDEO_ENGINE_TIMEOUT_DETECTED: one of the graphics card's engines stopped responding in time. Windows recovered without a blue screen and saved a diagnostic dump in C:\\Windows\\LiveKernelReports." } },
+            { "@type": "Question", "name": "What is the difference between LiveKernelEvent 117 and 141?", "acceptedAnswer": { "@type": "Answer", "text": "117 (VIDEO_TDR_TIMEOUT_DETECTED) means the display driver failed to respond in time and was reset. 141 (VIDEO_ENGINE_TIMEOUT_DETECTED) means one display engine of the graphics card failed to respond. Both are graphics hangs that Windows survived." } },
+            { "@type": "Question", "name": "What are LiveKernelEvent 1A8 and 1B8?", "acceptedAnswer": { "@type": "Answer", "text": "In Microsoft's live dump reference, 0x1A8 is VIDEO_DXGKRNL_BLACK_SCREEN_LIVEDUMP and 0x1B8 is VIDEO_MINIPORT_BLACK_SCREEN_LIVEDUMP: Windows recorded a black screen in the graphics stack and captured a dump." } },
+            { "@type": "Question", "name": "Is LiveKernelEvent 141 a hardware error?", "acceptedAnswer": { "@type": "Answer", "text": "Reliability Monitor files it under hardware errors, but the cause is often the driver, an overclock or undervolt, heat or power. Only when it continues at default settings with a clean driver does the graphics card itself become the likely cause." } },
+            { "@type": "Question", "name": "Can I delete the LiveKernelReports folder?", "acceptedAnswer": { "@type": "Answer", "text": "The files are diagnostic copies and can be large. Deleting old ones frees disk space; it does not change what causes the hangs." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/livekernelevent-141-117/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/livekernelevent-141-117/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Errors and crashes</span>
+        <h1>LiveKernelEvent 141 and 117: your graphics card hung, and Windows survived it</h1>
+        <p class="tagline">Reliability Monitor calls it a hardware error. It is a record of a graphics hang Windows recovered from, with a dump that says more.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-27</span><span>&middot;</span><span>9 min read</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Short answer</b>
+            <p><b>LiveKernelEvent 141 and 117 mean the graphics card stopped responding for a moment and Windows recovered instead of crashing.</b> The screen usually goes black or the game freezes, then things come back, or the game closes. One event after a driver install is noise. Several a week during games are a pattern worth finding.</p>
+            <ol>
+                <li>Note when it happens: which game, how often, since which date.</li>
+                <li>Return every overclock and undervolt to defaults: graphics card, CPU, and XMP or EXPO for a test.</li>
+                <li>Do a clean install of the graphics driver.</li>
+                <li>Check graphics card temperature and power under load.</li>
+                <li>Only if it continues at defaults with a clean driver, suspect the card itself.</li>
+            </ol>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#codes">What each code means</a></li>
+                <li><a href="#where">Where you see it, and the dump it leaves</a></li>
+                <li><a href="#often">How often is too often</a></li>
+                <li><a href="#order">A safe order to find the cause</a></li>
+                <li><a href="#dont">What not to do</a></li>
+                <li><a href="#workman">Where PC Workman helps</a></li>
+                <li><a href="#faq">Short answers</a></li>
+                <li><a href="#sources">Primary sources</a></li>
+            </ol>
+        </div>
+
+        <h2 id="codes">What each code means</h2>
+        <p>LiveKernelEvent is not one error. It is the name Windows Error Reporting gives to a <b>live kernel dump</b>: Windows noticed something wrong, saved a snapshot of memory for diagnosis, and kept running. The number after it tells you what was wrong. Microsoft's live dump reference lists these graphics codes:</p>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Code</th><th>Microsoft name</th><th>What it means</th></tr></thead>
+            <tbody>
+                <tr><td><b>117</b></td><td>VIDEO_TDR_TIMEOUT_DETECTED</td><td>The display driver failed to respond in time and was reset (Timeout Detection and Recovery).</td></tr>
+                <tr><td><b>141</b></td><td>VIDEO_ENGINE_TIMEOUT_DETECTED</td><td>One of the graphics card's engines failed to respond in time.</td></tr>
+                <tr><td><b>193</b></td><td>VIDEO_DXGKRNL_LIVEDUMP</td><td>The Windows graphics kernel captured a dump about a problem it detected.</td></tr>
+                <tr><td><b>1A8</b></td><td>VIDEO_DXGKRNL_BLACK_SCREEN_LIVEDUMP</td><td>The graphics kernel recorded a black screen.</td></tr>
+                <tr><td><b>1B8</b></td><td>VIDEO_MINIPORT_BLACK_SCREEN_LIVEDUMP</td><td>The graphics driver (the miniport) recorded a black screen.</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Microsoft notes that these codes are never used for a real blue screen. They exist only to label live dumps. That is the important part: <b>your PC did not crash</b>. The graphics stack hung, Windows reset it, and wrote down what it saw. On NVIDIA cards the same moment usually also leaves <a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm Event 153 or Display 4101</a> in Event Viewer; on AMD cards it often comes with the <a href="../amd-driver-timeout/">AMD driver timeout</a> message.</p>
+
+        <h2 id="where">Where you see it, and the dump it leaves</h2>
+        <ul>
+            <li><b>Reliability Monitor</b>: press Win + R, type <code>perfmon /rel</code>. A red cross marked <i>Hardware error</i>, and in the details <i>Problem Event Name: LiveKernelEvent</i> with <i>Code: 141</i> (or 117, 1a8&hellip;).</li>
+            <li><b>The dump files</b>: Windows stores live dumps in <code>C:\Windows\LiveKernelReports</code>, with small dumps in subfolders per component. Graphics hangs land in <code>WATCHDOG</code>. Advanced users can open a <code>.dmp</code> in WinDbg and run <code>!analyze -v</code>; it names the driver module that hung.</li>
+            <li><b>Event Viewer</b> at the same minute: Display 4101, nvlddmkm 153, or an AMD driver entry. Matching the time is how you know they belong together.</li>
+        </ul>
+
+        <h2 id="often">How often is too often</h2>
+        <ul>
+            <li><b>Once, right after a driver install or a Windows update</b>: common, and usually nothing to chase.</li>
+            <li><b>A few times a month, always in the same game</b>: often that game, its settings or its overlay. Try it without overlays and at default graphics settings.</li>
+            <li><b>Several a week, across different games, or at idle on the desktop</b>: a system cause. Work through the order below.</li>
+            <li><b>Followed by full restarts</b>: also read <a href="../pc-restarts-while-gaming-kernel-power-41/">Kernel-Power 41</a>, because the hang then became a crash.</li>
+        </ul>
+
+        <h2 id="order">A safe order to find the cause</h2>
+        <p>Change one thing at a time and play the same game for the same time after each change. Otherwise you will not know which step helped.</p>
+        <ol class="steps">
+            <li><b>Defaults first.</b> Reset any graphics card overclock, undervolt or custom fan curve in Afterburner, Adrenalin or the maker's tool. For the test, also turn off XMP or EXPO in the BIOS. Unstable tuning is the most common cause of graphics hangs that look like hardware faults.</li>
+            <li><b>Clean driver install.</b> Remove the graphics driver completely (the vendor's clean-install option, or AMD Cleanup Utility; DDU in Safe Mode for stubborn cases), then install the current version from NVIDIA, AMD or Intel. If the events started after a driver update, try the previous version.</li>
+            <li><b>Heat and power under load.</b> Watch the graphics card temperature, hotspot and power while gaming. A card that hangs only after twenty minutes of load points at cooling. Use separate power cables from the power supply to each PCIe connector rather than one split cable.</li>
+            <li><b>Memory.</b> Run Windows Memory Diagnostic or a longer memory test. Unstable RAM can take the graphics driver down with it (see <a href="../xmp-expo-crashes-ram-stability/">XMP and EXPO crashes</a>).</li>
+            <li><b>Software that hooks into games.</b> Recording tools, overlays and RGB utilities: turn them off one at a time.</li>
+            <li><b>The card itself.</b> If the hangs continue at defaults, with a clean driver, normal temperatures and stable memory, test the card in another PC or another card in yours. If the problem follows the card, contact the seller about warranty.</li>
+        </ol>
+
+        <h2 id="dont">What not to do</h2>
+        <ul>
+            <li><b>Do not raise TdrDelay as the fix.</b> It is the timeout Windows waits before resetting the driver (2 seconds by default). Raising it hides the reset and leaves the hang; Microsoft documents it as a debugging key. More in the <a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm guide</a>.</li>
+            <li><b>Do not buy a "repair" tool.</b> Several pages that rank for this error sell one. The cause is in the order above, and every step is free.</li>
+            <li><b>Do not delete the dumps to make it go away.</b> They are copies for diagnosis and can be large; deleting old ones frees space and changes nothing about the cause.</li>
+        </ul>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>Event Viewer and Reliability Monitor tell you <i>when</i>. They do not tell you what the card was doing. PC Workman keeps a local history of GPU load, temperature and power, so you can open <a href="/features/time-travel/">Activity Memory</a> at the minute of the event and see whether the card was at 90 °C, at full power, or idle. Since 1.9.3 it also marks graphics driver and Windows updates on that timeline, with load before and after, which answers "did this start after the update?" without guessing. <a href="/features/deepmonitor/">DeepMonitor</a> shows the live readings while you reproduce it.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>What is LiveKernelEvent 141?</h3>
+        <p>Code 141 is VIDEO_ENGINE_TIMEOUT_DETECTED: one of the graphics card's engines stopped responding in time. Windows recovered without a blue screen and saved a diagnostic dump.</p>
+        <h3>What is the difference between 117 and 141?</h3>
+        <p>117 means the display driver failed to respond and was reset; 141 means one display engine of the card failed to respond. Both are graphics hangs Windows survived, and the same steps apply.</p>
+        <h3>What are LiveKernelEvent 1A8 and 1B8?</h3>
+        <p>Black screen live dumps: 1A8 from the Windows graphics kernel, 1B8 from the graphics driver. Windows recorded a black screen and captured a dump.</p>
+        <h3>Is it a hardware error?</h3>
+        <p>Reliability Monitor files it that way, but the cause is often the driver, tuning, heat or power. Suspect the card only after the defaults and clean driver steps.</p>
+        <h3>Can I delete the LiveKernelReports folder?</h3>
+        <p>The files are diagnostic copies. Deleting old ones frees space; it does not change the cause.</p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/kernel-live-dump-code-reference" rel="noopener">Microsoft: Kernel live dump code reference (codes and the LiveKernelReports folder)</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x141---video-engine-timeout-detected" rel="noopener">Microsoft: 0x141 VIDEO_ENGINE_TIMEOUT_DETECTED</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/bug-check-0x117---video-tdr-timeout-detected" rel="noopener">Microsoft: 0x117 VIDEO_TDR_TIMEOUT_DETECTED</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys" rel="noopener">Microsoft: TDR registry keys (TdrDelay)</a></li>
+        </ul>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../gpu-dying-or-driver/">Is my GPU dying, or is it the driver?</a></li>
+                <li><a href="../windows-errors/">Windows Event Viewer errors: which ones matter</a></li>
+                <li><a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm Event 153 and 4101: why your GPU driver reset</a></li>
+                <li><a href="../amd-driver-timeout/">AMD Software has detected a driver timeout</a></li>
+                <li><a href="../pc-restarts-while-gaming-kernel-power-41/">PC restarts while gaming: Kernel-Power 41</a></li>
+                <li><a href="../cpu-gpu-throttling-thermal-vs-power/">Why do my clocks drop under load?</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>See what the card was doing at that minute.</b> PC Workman keeps the history of load, temperature and power, and marks driver updates on it. <a href="../../download/">Download for Windows</a>, free, no account.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>A hang Windows survived is a gift: it left a dump and a timestamp. Use both before you change anything.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

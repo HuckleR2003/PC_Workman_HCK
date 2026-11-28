@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Poradnik (PL) · svchost.exe -->
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>svchost.exe: co to jest i czemu działa ich tyle?</title>
+    <meta name="description" content="svchost.exe to Host usług systemu Windows. Czemu w Menedżerze zadań jest ich kilkadziesiąt, jak sprawdzić, która usługa zjada procesor, i jak poznać podróbkę.">
+    <meta name="keywords" content="co to svchost, svchost co to, svchost co to za proces, svchost.exe, host usług systemu windows, svchost duże użycie procesora, svchost wirus, dlaczego tyle svchost, svchost zjada procesor">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/svchost-high-cpu/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/svchost-high-cpu/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/svchost-high-cpu/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="svchost.exe: co to jest i czemu działa ich tyle?">
+    <meta property="og:description" content="Jeden svchost to jedna usługa Windows, nie jeden program. Jak w minutę sprawdzić, która usługa stoi za wysokim użyciem procesora.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/svchost-high-cpu/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-28T01:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T01:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #2f2558; border-left:3px solid #a78bfa; background:#0f0c1c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#c4b5fd; margin-bottom:.4rem; }
+        .steps li { margin-bottom:.55rem; }
+        .sources { font-size:.9rem; color:#9ca3af; }
+        .sources a { color:#c4b5fd; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "svchost.exe: co to jest i czemu działa ich tyle?",
+          "description": "Czym jest svchost.exe, dlaczego działa wiele kopii, jak znaleźć usługę stojącą za wysokim użyciem procesora i jak rozpoznać podróbkę.",
+          "url": "https://pcworkman.dev/guides/svchost-high-cpu/index_pl",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/svchost-high-cpu/index_pl" },
+          "datePublished": "2026-11-28T01:00:00+01:00",
+          "dateModified": "2026-11-28T01:00:00+01:00",
+          "inLanguage": "pl",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Co to jest svchost.exe?", "acceptedAnswer": { "@type": "Answer", "text": "svchost.exe (Host usług systemu Windows) to proces, w którym działają usługi Windows, na przykład Windows Update, sieć, dźwięk czy zapora. Sam niczego nie robi, robią to usługi w jego środku." } },
+            { "@type": "Question", "name": "Dlaczego działa tyle procesów svchost?", "acceptedAnswer": { "@type": "Answer", "text": "Od Windows 10 w wersji 1703 na komputerach z więcej niż 3,5 GB RAM większość usług działa każda we własnym procesie svchost. Kilkadziesiąt kopii jest więc normalne. Na komputerach z mniejszą ilością pamięci usługi są grupowane w mniej procesów." } },
+            { "@type": "Question", "name": "Czy svchost.exe to wirus?", "acceptedAnswer": { "@type": "Answer", "text": "Prawdziwy svchost.exe leży w C:\\Windows\\System32 i jest podpisany przez Microsoft. Kopia w innym folderze, na przykład w AppData albo Temp, albo nazwa różniąca się o jedną literę (svhost, scvhost), to sygnał ostrzegawczy." } },
+            { "@type": "Question", "name": "Czy można wyłączyć svchost?", "acceptedAnswer": { "@type": "Answer", "text": "Nie samego svchost, bo to tylko opakowanie. Można sprawdzić, która usługa w jego środku zużywa zasoby, i zająć się tą jedną usługą." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Nawigacja główna">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/svchost-high-cpu/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/svchost-high-cpu/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Procesy</span>
+        <h1>svchost.exe: co to jest i czemu działa ich tyle?</h1>
+        <p class="tagline">Otwierasz Menedżer zadań i widzisz kilkadziesiąt razy to samo: „Host usług”. To nie wirus i nie błąd. To sposób, w jaki Windows uruchamia swoje usługi.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-11-28</span><span>&middot;</span><span>6 min czytania</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Krótka odpowiedź</b>
+            <p><b>svchost.exe to opakowanie, w którym działają usługi Windows.</b> Od Windows 10 w wersji 1703, na komputerach z więcej niż 3,5 GB RAM, prawie każda usługa ma własny svchost, więc kilkadziesiąt kopii jest normalne. Gdy któryś zjada procesor, nie walcz z svchost, tylko sprawdź, która usługa jest w środku: w Menedżerze zadań rozwiń wiersz „Host usług: …”. Prawdziwy plik leży w <code>C:\Windows\System32</code>; kopia gdzie indziej to sygnał ostrzegawczy.</p>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#what">Co to jest svchost</a></li>
+                <li><a href="#many">Czemu jest ich tyle</a></li>
+                <li><a href="#which">Który svchost zjada procesor i dlaczego</a></li>
+                <li><a href="#usual">Zwykli podejrzani</a></li>
+                <li><a href="#fake">Prawdziwy czy podróbka</a></li>
+                <li><a href="#workman">Gdzie pomaga PC Workman</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">Co to jest svchost</h2>
+        <p>Windows ma kilkaset usług: aktualizacje, sieć, dźwięk, drukowanie, zaporę, Bluetooth. Większość z nich to nie osobne programy, tylko biblioteki (pliki .dll), które potrzebują procesu, w którym mogą działać. Tym procesem jest <b>svchost.exe</b>, po polsku „Host usług systemu Windows”. Sam niczego nie robi. Pracę wykonuje usługa w jego środku, a svchost tylko podpisuje się pod jej zużyciem procesora i pamięci.</p>
+
+        <h2 id="many">Czemu jest ich tyle</h2>
+        <p>Kiedyś Windows upychał wiele usług w kilku wspólnych procesach svchost. Microsoft zmienił to w Windows 10 w wersji 1703: na komputerach z więcej niż 3,5 GB RAM usługi, które wcześniej były grupowane, działają <b>każda we własnym procesie svchost</b>. Powody to niezawodność (awaria jednej usługi nie kładzie innych), bezpieczeństwo i to, że łatwiej zobaczyć, która usługa zużywa zasoby. Kilka usług nadal działa razem, na przykład Zapora Windows z usługą Base Filtering Engine.</p>
+        <p>Na komputerze z mniejszą ilością pamięci usługi są dalej grupowane i kopii svchost jest mniej. Żadna z tych liczb nie jest usterką.</p>
+
+        <h2 id="which">Który svchost zjada procesor i dlaczego</h2>
+        <ol class="steps">
+            <li><b>Menedżer zadań, karta Procesy.</b> Posortuj po kolumnie Procesor i rozwiń wiersz „Host usług: …” na górze. Pod spodem jest nazwa usługi, która w nim działa.</li>
+            <li><b>Karta Szczegóły.</b> Kliknij prawym przyciskiem svchost.exe i wybierz „Przejdź do usług”. Menedżer zaznaczy usługi należące do tego procesu.</li>
+            <li><b>Wiersz poleceń.</b> Polecenie <code>tasklist /svc /fi "imagename eq svchost.exe"</code> wypisuje każdy svchost z numerem procesu (PID) i usługami w środku.</li>
+            <li><b>Monitor zasobów</b> (wpisz <code>resmon</code>): na karcie Procesor zaznacz svchost, a w części Usługi zobaczysz, co w nim działa.</li>
+        </ol>
+        <p>Krótki skok przez minutę czy dwie to zwykle praca, którą usługa ma do zrobienia. Ścigać warto wysokie użycie, które trzyma się godzinami albo wraca codziennie o tej samej porze.</p>
+
+        <h2 id="usual">Zwykli podejrzani</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Usługa w svchost</th><th>Kiedy pracuje</th><th>Co zrobić</th></tr></thead>
+            <tbody>
+                <tr><td>Windows Update (wuauserv)</td><td>Pobieranie i instalacja aktualizacji</td><td>Pozwól skończyć; jeśli trwa dniami, sprawdź Historię aktualizacji pod kątem błędów</td></tr>
+                <tr><td>Optymalizacja dostarczania (DoSvc)</td><td>Pobieranie aktualizacji, czasem wysyłanie do innych komputerów</td><td>Ustawienia &gt; Windows Update &gt; Opcje zaawansowane &gt; Optymalizacja dostarczania</td></tr>
+                <tr><td>BITS</td><td>Pobieranie w tle dla Windows Update i innych programów</td><td>Zwykle kończy razem z aktualizacjami</td></tr>
+                <tr><td>SysMain</td><td>Wczytywanie często używanych programów do pamięci</td><td>Duża praca dysku zaraz po starcie; na dyskach HDD bywa uciążliwa (zobacz <a href="../why-is-my-disk-at-100-percent/index_pl.html">dysk na 100%</a>)</td></tr>
+                <tr><td>Telemetria (DiagTrack)</td><td>Zbieranie i wysyłanie danych diagnostycznych</td><td>Krótkie skoki są normalne</td></tr>
+            </tbody>
+        </table>
+        </div>
+        <p>Zanim wyłączysz jakąkolwiek usługę, sprawdź, do czego służy. Wyłączenie usługi to zmiana, którą trzeba pamiętać i potrafić cofnąć; <a href="../ktore-uslugi-windows-wylaczyc/">które usługi Windows można wyłączyć</a> mówi, które są bezpieczne.</p>
+
+        <h2 id="fake">Prawdziwy czy podróbka</h2>
+        <p>Nazwa svchost.exe jest popularnym przebraniem dla złośliwego oprogramowania, bo ludzie przyzwyczaili się, że takich procesów jest dużo. Trzy szybkie sprawdzenia:</p>
+        <ul>
+            <li><b>Miejsce pliku</b>: na karcie Szczegóły kliknij prawym przyciskiem i wybierz „Otwórz lokalizację pliku”. Prawdziwy svchost.exe leży w <code>C:\Windows\System32</code>. Kopia w AppData, Temp albo na pulpicie to poważny sygnał.</li>
+            <li><b>Nazwa</b>: svhost.exe, scvhost.exe, svch0st.exe to nie Windows.</li>
+            <li><b>Podpis</b>: Właściwości pliku &gt; Podpisy cyfrowe powinny pokazać Microsoft Windows.</li>
+        </ul>
+        <p>Więcej o rozpoznawaniu procesów, które udają systemowe, jest w poradniku <a href="../what-is-this-process/index_pl.html">co to za proces</a>.</p>
+
+        <h2 id="workman">Gdzie pomaga PC Workman</h2>
+        <p><a href="/features/process-center/index_pl.html">Centrum procesów</a> PC Workmana sprawdza każdy proces tak jak w punktach wyżej: oznacza „svchost.exe” działający spoza System32, nazwę różniącą się o jedną literę od systemowej i brak podpisu, i wyjaśnia, dlaczego uznał coś za podejrzane. W <a href="../windows-processes/index_pl.html">bibliotece procesów</a> svchost.exe jest opisany jako proces krytyczny, którego wiele kopii jest normalne, a <a href="/features/time-travel/index_pl.html">Pamięć aktywności</a> pokazuje, czy wysokie użycie procesora wraca codziennie, czy było jednorazowe. PC Workman nie wyłącza usług Windows bez twojej decyzji.</p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Co to jest svchost.exe?</h3>
+        <p>Host usług systemu Windows: proces, w którym działają usługi Windows. Pracę wykonuje usługa w jego środku.</p>
+        <h3>Dlaczego działa tyle procesów svchost?</h3>
+        <p>Od Windows 10 1703, przy więcej niż 3,5 GB RAM, większość usług ma własny svchost. Kilkadziesiąt kopii jest normalne.</p>
+        <h3>Czy svchost.exe to wirus?</h3>
+        <p>Prawdziwy leży w C:\Windows\System32 i jest podpisany przez Microsoft. Kopia gdzie indziej albo nazwa z literówką to sygnał ostrzegawczy.</p>
+        <h3>Czy można wyłączyć svchost?</h3>
+        <p>Nie samego svchost. Sprawdź, która usługa w środku zużywa zasoby, i zajmij się nią.</p>
+
+        <p class="sources">Źródło: Microsoft Learn, <a href="https://learn.microsoft.com/en-us/windows/application-management/svchost-service-refactoring" rel="noopener" target="_blank">Service host grouping in Windows 10</a> (podział od wersji 1703, próg 3,5 GB, usługi, które zostają razem).</p>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../what-is-this-process/index_pl.html">Co to za proces? svchost, csrss i te, które je udają</a></li>
+                <li><a href="../windows-processes/index_pl.html">Lista procesów Windows z typowym CPU i RAM</a></li>
+                <li><a href="../windows-11-slow-after-update/index_pl.html">Windows 11 wolny po aktualizacji?</a></li>
+                <li><a href="../ktore-uslugi-windows-wylaczyc/">Które usługi Windows można wyłączyć</a></li>
+                <li><a href="../pc-slow-but-task-manager-looks-normal/index_pl.html">Wolny komputer, normalne użycie? 6 ukrytych przyczyn</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Sprawdź, czy twoje svchost są prawdziwe.</b> Centrum procesów PC Workmana oznacza kopie spoza System32 i nazwy z literówką. <a href="../../download/index_pl.html">Pobierz na Windows</a>, za darmo, bez konta.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>svchost to koperta, nie list. Kiedy coś zjada procesor, otwórz kopertę i przeczytaj, która usługa jest w środku.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="../../index.html">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

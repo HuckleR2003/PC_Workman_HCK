@@ -12,6 +12,9 @@
     <meta name="keywords" content="silent failure, unreachable code, tests pass but feature does not work, dead code detection, except pass, false success, AI generated code review, static analysis sweep, ratchet test">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/silent-failure-catalogue/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/silent-failure-catalogue/">
     <meta property="og:title" content="The Silent Failure Catalogue">
     <meta property="og:description" content="Eight classes of code that runs, passes every test, and does nothing. Symptom, why tests pass, the sweep that finds it, and a dated case for each.">
     <meta property="og:type" content="article">
@@ -48,7 +51,7 @@
         .sf-row:last-child { border-bottom:0; }
         .sf-key { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
                   text-transform:uppercase; color:#7b828f; padding-top:2px; }
-        .sf-val { color:#c9ced8; font-size:15px; line-height:1.62; }
+        .sf-val { color:#c9ced8; font-size:15px; line-height:1.62; min-width:0; }
         .sf-val code { font-family:'JetBrains Mono',monospace; font-size:13px;
                        background:#181b22; padding:1px 5px; border-radius:3px; color:#a3e635; }
         .sf-sweep { font-family:'JetBrains Mono',monospace; font-size:12.5px; line-height:1.7;
@@ -231,7 +234,9 @@
         </span>
         <span class="gt-spacer"></span>
         <span class="gt-lang">
-            <a href="/index_en.html" class="active" data-lang="en">EN</a>
+            <a href="/guides/silent-failure-catalogue/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/silent-failure-catalogue/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
         </span>
     </nav>
 
