@@ -7,7 +7,15 @@
   <description>Three weekly series documenting the development of PC Workman, an AI-powered Windows system monitor: Monday Grind Blueprint, Wednesday Code Autopsy, Friday Shipped &amp; Scarred. By Marcin Firmuga, HCK_Labs.</description>
   <language>en</language>
   <managingEditor>kematex2202@gmail.com (Marcin Firmuga)</managingEditor>
-  <lastBuildDate>Tue, 24 Nov 2026 11:00:00 GMT</lastBuildDate>
+  <lastBuildDate>Sat, 28 Nov 2026 11:00:00 GMT</lastBuildDate>
+  <item>
+    <title>PC Workman 1.9.7 "Know Your PC": one health score, Turbo, your real RAM</title>
+    <link>https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/</link>
+    <guid isPermaLink="true">https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/</guid>
+    <pubDate>Sat, 28 Nov 2026 11:00:00 GMT</pubDate>
+    <description>One health score instead of three, a Turbo Boost page, the motherboard and RAM read from part numbers, GPU load on AMD and Intel, and history that says when the PC was off or asleep.</description>
+  </item>
+
   <item>
     <title>HWiNFO, CCleaner, MSI Afterburner: the question none of them answers</title>
     <link>https://pcworkman.dev/blog/the-question-none-of-them-answers/</link>
