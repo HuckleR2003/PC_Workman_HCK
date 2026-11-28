@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="PC Workman uczy się, co jest normalne dla Twojego komputera w spoczynku, przy lekkim, średnim i ciężkim obciążeniu i w grach, ocenia każdą temperaturę względem tej normy zamiast stałego progu i pilnuje dryfu napięć metodą statystycznej kontroli procesu.">
+    <meta name="description" content="PC Workman uczy się normy Twojego komputera w spoczynku, pod obciążeniem i w grach i ocenia każdą temperaturę względem niej, nie stałego progu.">
     <meta name="keywords" content="czy 82 stopnie to dużo dla procesora, normalna temperatura CPU pod obciążeniem, normalna temperatura karty w grach, alerty temperatur komputera, dryf napięć, inteligentny monitoring temperatur, wynik zdrowia komputera">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/learning/index_pl">
@@ -24,12 +24,12 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/learning/learning-pl-1095.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Monitoring &amp; Learning: alerty względem normy Twojego komputera</title>
+    <title>Monitoring &amp; Learning: alerty względem normy komputera</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
   "description": "Jak PC Workman uczy się normy temperatur dla każdego rodzaju obciążenia, dlaczego to lepsze od stałego progu, jak pilnuje dryfu napięć i co znaczy wynik zdrowia.",
   "url": "https://pcworkman.dev/features/learning/index_pl",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "pl",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/learning/learning-pl-1095.webp",
@@ -61,7 +61,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -190,7 +190,7 @@
 
     <main class="article">
         <div class="meta">
-            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
@@ -254,6 +254,12 @@
             <a href="/features/health-report/index_pl.html">Raport zdrowia</a> zamienia te same dane w stronę do zapisania.
         </p>
 
+        <h2 id="new-197">Gry uczone jako gry (1.9.7)</h2>
+        <ul>
+                <li><b>Minuta zapisana w trakcie wykrytej gry liczy się jako &bdquo;granie&rdquo;</b>, niezależnie od obciążenia GPU. Wcześniej liczyło się tylko GPU powyżej 60%, więc gry ograniczane przez RAM albo procesor uczyły się jako lekka praca.</li>
+                <li>To, czego program już się nauczył, zostaje bez zmian; nowa reguła dotyczy tylko nowych minut.</li>
+        </ul>
+
         <h2 id="faq">Pytania</h2>
         <div class="ft-faq">
             <details open>
@@ -306,7 +312,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-28 &middot; Windows 10 i 11</p>
     </main>
 
     <footer class="foot">

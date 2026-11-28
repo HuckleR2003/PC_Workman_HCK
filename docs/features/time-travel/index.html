@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Activity Memory keeps your PC&#x27;s CPU, graphics card and memory history for months: minute by minute for 7 days, hourly for 90, daily for good. Go back to yesterday 21:00 and see what slowed the PC, or compare this month with half a year ago.">
+    <meta name="description" content="Activity Memory keeps your PC&#x27;s CPU, graphics card and memory history for months: minute by minute for 7 days, hourly for 90, daily for good.">
     <meta name="keywords" content="CPU usage history Windows, what slowed my PC yesterday, RAM usage history, GPU usage history, PC performance over time, why is my PC slower than before, Task Manager history">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/time-travel/">
@@ -24,12 +24,12 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/time-travel/time-travel-en-1200.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Activity Memory: CPU, GPU and RAM History You Can Travel Back In</title>
+    <title>Activity Memory: CPU, GPU and RAM History to Travel Back</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
   "description": "How PC Workman keeps the history of CPU, graphics card and memory use, how long it keeps it, and how to find the process behind a slowdown days or months later.",
   "url": "https://pcworkman.dev/features/time-travel/",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "en",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/time-travel/time-travel-en-1200.webp",
@@ -59,7 +59,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -188,7 +188,7 @@
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
@@ -259,6 +259,14 @@
         </div>
         <p><b>Where the others are better.</b> Performance Monitor can record any of hundreds of Windows counters at any rate. If you need one exact counter, it is the tool. Activity Memory records the few numbers that answer "what slowed my PC" without any set-up.</p>
 
+        <h2 id="new-197">Gaps that say what they were (1.9.7)</h2>
+        <ul>
+                <li>On a PC used now and then, the hours it was off took most of the chart. <b>A gap of 30 minutes or more is now a banner of fixed width</b> with what it was and for how long.</li>
+                <li><b>Wide and light blue: off. Medium: asleep. Red: a sudden shutdown</b> (Windows started without having shut down). <b>Narrow grey:</b> the PC was on, PC Workman was closed. Shorter gaps keep their real width, in the same colour.</li>
+                <li>It is read from <b>Windows' own System log</b> (sleep and wake, shutdown and start), so it is known also for the hours PC Workman was not running. Hover a banner for from when to when.</li>
+                <li><b>GPU load on AMD and Intel cards</b> is recorded too, from Windows' GPU counters; before 1.9.7 it was NVIDIA only. GPU temperature is still NVIDIA only.</li>
+        </ul>
+
         <h2 id="faq">Questions</h2>
         <div class="ft-faq">
             <details open>
@@ -311,7 +319,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-28 &middot; Windows 10 and 11</p>
     </main>
 
     <footer class="foot">

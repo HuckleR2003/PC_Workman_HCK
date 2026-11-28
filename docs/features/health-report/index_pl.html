@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Raport zdrowia PC Workman czyta dziennik zdarzeń Windows, dyski, temperatury, pamięć, sterowniki i autostart, daje wynik na 100 z częściami, mówi, co zrobić najpierw, i zapisuje wszystko jako jeden plik HTML do porównania później albo wysłania temu, kto naprawia komputer.">
+    <meta name="description" content="Czyta dziennik zdarzeń, dyski, temperatury, pamięć i sterowniki, daje jeden wynik na 100, mówi, co zrobić najpierw, i zapisuje raport HTML.">
     <meta name="keywords" content="czy mój komputer jest zdrowy, darmowy test zdrowia komputera, raport zdrowia komputera Windows 11, wynik zdrowia komputera, nieoczekiwane restarty przyczyna, XMP wyłączone, raport diagnostyczny HTML">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/health-report/index_pl">
@@ -24,12 +24,12 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/health-report/health-report-pl-1095.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Raport zdrowia: czy mój komputer jest zdrowy? Jedna strona, jeden wynik, co najpierw</title>
+    <title>Czy mój komputer jest zdrowy? Raport zdrowia z wynikiem</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
   "description": "Co sprawdza Raport zdrowia PC Workman, jak ważony jest wynik, co znaczą wnioski i jak zapisywać i porównywać raporty.",
   "url": "https://pcworkman.dev/features/health-report/index_pl",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "pl",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/health-report/health-report-pl-1095.webp",
@@ -59,7 +59,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -180,7 +180,7 @@
 
     <main class="article">
         <div class="meta">
-            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
@@ -256,6 +256,14 @@
         </div>
         <p><b>W czym inni są lepsi.</b> Raport AIDA64 wypisuje każdy szczegół każdego urządzenia, czego czasem potrzebuje serwis. Raport zdrowia to strona, którą czytasz w minutę i według której działasz.</p>
 
+        <h2 id="new-197">Jedna ocena wszędzie (1.9.7)</h2>
+        <ul>
+                <li><b>Jedna ocena zdrowia</b> za raportem, Centrum zdrowia, hck_GPT i Monitoringiem. Przed 1.9.7 były trzy, a hck_GPT potrafił dać 100/100 komputerowi, którego RAM codziennie dochodził do 99,9%.</li>
+                <li><b>Pamięć oceniana po czasie pod presją:</b> jaką część ostatnich 7 dni RAM spędził powyżej 75% i powyżej 90%, a nie tylko po średniej.</li>
+                <li><b>Migawki w programie:</b> zapis ręczny, według harmonogramu (co 1 do 30 dni, raz w miesiącu albo własny) lub sam po aktualizacji Windows czy sterownika karty, a potem porównanie.</li>
+                <li><b>&bdquo;Zapytaj hck_GPT&rdquo; przy każdym punkcie</b> listy &bdquo;Co zrobić najpierw&rdquo;: krok po kroku, z liczbami tego komputera i linkiem do strony, na której robi się dany krok.</li>
+        </ul>
+
         <h2 id="faq">Pytania</h2>
         <div class="ft-faq">
             <details open>
@@ -304,7 +312,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-28 &middot; Windows 10 i 11</p>
     </main>
 
     <footer class="foot">

@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="PC Workman&#x27;s Upgrade Readiness reads your platform by itself (CPU, motherboard socket and chipset, graphics card, RAM type) and checks a part you plan to buy against an offline library of 196 CPUs, 84 graphics cards and 60 chipsets: fits, one step (a BIOS update), or will not fit.">
+    <meta name="description" content="Will this part fit your PC? Reads your platform and checks a CPU, graphics card or RAM against an offline library: fits, BIOS update, or not.">
     <meta name="keywords" content="will this CPU fit my motherboard, CPU compatibility check, which CPU can I upgrade to, motherboard CPU support, GPU upgrade power supply, RAM upgrade compatibility, PCPartPicker alternative offline">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/upgrade-readiness/">
@@ -24,12 +24,12 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/upgrade-readiness/upgrade-readiness-en-1095.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Upgrade Readiness: Will This Part Fit My PC? Offline Compatibility Check</title>
+    <title>Will This Part Fit My PC? Upgrade Readiness, Offline</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
   "description": "How PC Workman reads your platform, what its offline compatibility check looks at for a CPU and a graphics card, and what fits, one step and will not fit mean.",
   "url": "https://pcworkman.dev/features/upgrade-readiness/",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "en",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/upgrade-readiness/upgrade-readiness-en-1095.webp",
@@ -59,7 +59,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -71,7 +71,7 @@
       "CPU check: socket, chipset, RAM carry-over, cooler mount",
       "Graphics card check: class, VRAM, power supply",
       "Verdict: fits, one step, will not fit",
-      "Offline library: 196 CPUs, 84 graphics cards, 60 chipsets"
+      "Offline library: 264 CPUs, 147 graphics cards, 60 chipsets, 78 motherboards"
     ]
   },
   "author": {
@@ -180,12 +180,12 @@
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
-            <div class="ft-fact"><b>196</b><span>CPUs in the offline library</span></div>
-            <div class="ft-fact"><b>84</b><span>graphics cards</span></div>
+            <div class="ft-fact"><b>264</b><span>CPUs in the offline library</span></div>
+            <div class="ft-fact"><b>147</b><span>graphics cards</span></div>
             <div class="ft-fact"><b>60</b><span>chipsets, 9 sockets</span></div>
             <div class="ft-fact"><b>0</b><span>parts to type in about your own PC</span></div>
         </div>
@@ -237,11 +237,19 @@
                     <tr><td>Works offline</td><td class="y">Yes</td><td class="n">No</td></tr>
                     <tr><td>BIOS-update step called out</td><td class="y">Yes</td><td class="p">Notes on some parts</td></tr>
                     <tr><td>Prices and shops</td><td class="n">No</td><td class="y">Yes</td></tr>
-                    <tr><td>Size of the catalogue</td><td class="p">196 CPUs, 84 GPUs</td><td class="y">Huge</td></tr>
+                    <tr><td>Size of the catalogue</td><td class="p">264 CPUs, 147 GPUs</td><td class="y">Huge</td></tr>
                 </tbody>
             </table>
         </div>
         <p><b>Where the others are better.</b> PCPartPicker knows almost every part with prices and is the tool for building a new PC. Upgrade Readiness answers "what fits the PC I already have".</p>
+
+        <h2 id="new-197">Your board, your RAM, your laptop (1.9.7)</h2>
+        <ul>
+                <li><b>264 CPUs, 147 GPUs and 78 motherboards</b> in the offline library. Laptop graphics chips are named as laptop chips, so a laptop GPU is never advised a desktop power supply.</li>
+                <li><b>RAM read from each stick's part number</b> (G.Skill, Corsair, Kingston FURY, Crucial, ADATA, Samsung, SK hynix, Micron) and the speed it really runs at: &ldquo;one DDR4-3200 stick running at 2133: XMP is off, single channel, 2 slots, 1 in use&rdquo;.</li>
+                <li><b>The board decides DDR4 or DDR5:</b> on a DDR4-only LGA1700 board, DDR5 is reported as not fitting.</li>
+                <li><b>Two graphics adapters</b> (a laptop with Intel UHD and an RTX, a Radeon next to the CPU's graphics): the dedicated card is the one checked. On a laptop, a new GPU is answered honestly: the chip is soldered.</li>
+        </ul>
 
         <h2 id="faq">Questions</h2>
         <div class="ft-faq">
@@ -291,7 +299,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-28 &middot; Windows 10 and 11</p>
     </main>
 
     <footer class="foot">

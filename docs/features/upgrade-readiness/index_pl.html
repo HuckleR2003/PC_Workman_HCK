@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Upgrade Readiness w PC Workman sam czyta Twoją platformę (procesor, podstawka i chipset płyty, karta graficzna, typ RAM) i sprawdza część, którą chcesz kupić, w bibliotece offline z 196 procesorami, 84 kartami i 60 chipsetami: pasuje, jeden krok (aktualizacja BIOS-u) albo nie pasuje.">
+    <meta name="description" content="Czy ta część pasuje do Twojego PC? Czyta platformę i sprawdza procesor, kartę lub RAM w bibliotece offline: pasuje, BIOS albo nie pasuje.">
     <meta name="keywords" content="czy ten procesor pasuje do mojej płyty, zgodność procesora, na jaki procesor mogę wymienić, obsługa procesorów przez płytę, zasilacz do nowej karty, zgodność RAM, alternatywa PCPartPicker offline">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/upgrade-readiness/index_pl">
@@ -24,12 +24,12 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/upgrade-readiness/upgrade-readiness-pl-1095.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
 
-    <title>Upgrade Readiness: czy ta część pasuje do mojego komputera? Sprawdzenie offline</title>
+    <title>Czy ta część pasuje do mojego komputera? Upgrade Readiness</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,7 +46,7 @@
   "description": "Jak PC Workman czyta Twoją platformę, na co patrzy sprawdzenie zgodności offline przy procesorze i karcie i co znaczą pasuje, jeden krok i nie pasuje.",
   "url": "https://pcworkman.dev/features/upgrade-readiness/index_pl",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "pl",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/upgrade-readiness/upgrade-readiness-pl-1095.webp",
@@ -59,7 +59,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -71,7 +71,7 @@
       "Sprawdzenie procesora: podstawka, chipset, RAM, mocowanie chłodzenia",
       "Sprawdzenie karty: klasa, VRAM, zasilacz",
       "Werdykt: pasuje, jeden krok, nie pasuje",
-      "Biblioteka offline: 196 procesorów, 84 karty, 60 chipsetów"
+      "Biblioteka offline: 264 procesory, 147 kart, 78 płyt, 60 chipsetów"
     ]
   },
   "author": {
@@ -180,12 +180,12 @@
 
     <main class="article">
         <div class="meta">
-            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Aktualizacja 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
-            <div class="ft-fact"><b>196</b><span>procesorów w bibliotece offline</span></div>
-            <div class="ft-fact"><b>84</b><span>karty graficzne</span></div>
+            <div class="ft-fact"><b>264</b><span>procesory w bibliotece offline</span></div>
+            <div class="ft-fact"><b>147</b><span>kart graficznych</span></div>
             <div class="ft-fact"><b>60</b><span>chipsetów, 9 podstawek</span></div>
             <div class="ft-fact"><b>0</b><span>części do wpisywania o Twoim PC</span></div>
         </div>
@@ -237,11 +237,19 @@
                     <tr><td>Działa offline</td><td class="y">Tak</td><td class="n">Nie</td></tr>
                     <tr><td>Wskazuje krok z aktualizacją BIOS-u</td><td class="y">Tak</td><td class="p">Notki przy części części</td></tr>
                     <tr><td>Ceny i sklepy</td><td class="n">Nie</td><td class="y">Tak</td></tr>
-                    <tr><td>Wielkość katalogu</td><td class="p">196 CPU, 84 GPU</td><td class="y">Ogromna</td></tr>
+                    <tr><td>Wielkość katalogu</td><td class="p">264 CPU, 147 GPU</td><td class="y">Ogromna</td></tr>
                 </tbody>
             </table>
         </div>
         <p><b>W czym inni są lepsi.</b> PCPartPicker zna prawie każdą część z cenami i jest narzędziem do składania nowego komputera. Upgrade Readiness odpowiada na „co pasuje do komputera, który już mam”.</p>
+
+        <h2 id="new-197">Twoja płyta, Twój RAM, Twój laptop (1.9.7)</h2>
+        <ul>
+                <li><b>264 procesory, 147 kart i 78 płyt głównych</b> w bazie offline. Układy graficzne laptopów są nazwane jako laptopowe, więc karta w laptopie nigdy nie dostaje porady o zasilaczu do komputera stacjonarnego.</li>
+                <li><b>RAM odczytany z numeru części każdej kości</b> (G.Skill, Corsair, Kingston FURY, Crucial, ADATA, Samsung, SK hynix, Micron) i z prędkości, z jaką naprawdę chodzi: &bdquo;jedna kość DDR4-3200 na 2133: XMP wyłączony, jeden kanał, 2 sloty, 1 zajęty&rdquo;.</li>
+                <li><b>O DDR4 czy DDR5 decyduje płyta:</b> na płycie LGA1700 tylko z DDR4 pamięć DDR5 wychodzi jako niepasująca.</li>
+                <li><b>Dwie karty graficzne</b> (laptop z Intel UHD i RTX, Radeon obok grafiki procesora): sprawdzana jest karta dedykowana. W laptopie pytanie o nową kartę dostaje uczciwą odpowiedź: układ jest wlutowany.</li>
+        </ul>
 
         <h2 id="faq">Pytania</h2>
         <div class="ft-faq">
@@ -291,7 +299,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-21 &middot; Windows 10 i 11</p>
+        <p class="ft-since"><b>Działa od PC Workman 1.9.3</b> &middot; strona zaktualizowana 2026-11-28 &middot; Windows 10 i 11</p>
     </main>
 
     <footer class="foot">

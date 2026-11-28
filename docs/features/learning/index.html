@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="PC Workman learns what is normal for your PC under idle, light, medium, heavy and gaming load, judges every temperature against that norm instead of a fixed threshold, and watches voltages for slow drift with statistical process control.">
+    <meta name="description" content="PC Workman learns what is normal for your PC at idle, under load and in games, and judges every temperature against that, not a fixed limit.">
     <meta name="keywords" content="is 82 C normal for CPU, normal CPU temperature under load, normal GPU temperature gaming, PC temperature alerts, voltage drift detection, smart temperature monitoring, health score PC">
     <meta name="author" content="Marcin Firmuga">
     <link rel="canonical" href="https://pcworkman.dev/features/learning/">
@@ -24,7 +24,7 @@
     <meta property="og:image" content="https://pcworkman.dev/assets/images/features/learning/learning-en-1095.webp">
     <meta property="og:site_name" content="PC Workman">
     <meta property="article:published_time" content="2026-11-21T00:00:00+01:00">
-    <meta property="article:modified_time" content="2026-11-21T00:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-28T00:00:00+01:00">
     <meta property="article:author" content="Marcin Firmuga">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@hck_lab">
@@ -46,7 +46,7 @@
   "description": "How PC Workman learns a temperature norm for each kind of load, why that beats a fixed threshold, how it watches voltages for drift, and what the health score means.",
   "url": "https://pcworkman.dev/features/learning/",
   "datePublished": "2026-11-21T00:00:00+01:00",
-  "dateModified": "2026-11-21T00:00:00+01:00",
+  "dateModified": "2026-11-28T00:00:00+01:00",
   "inLanguage": "en",
   "isAccessibleForFree": true,
   "image": "https://pcworkman.dev/assets/images/features/learning/learning-en-1095.webp",
@@ -61,7 +61,7 @@
     "name": "PC Workman",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Windows 10, Windows 11",
-    "softwareVersion": "1.9.3",
+    "softwareVersion": "1.9.7",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -190,7 +190,7 @@
 
     <main class="article">
         <div class="meta">
-            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-21</span><span>&middot;</span><span>PC Workman 1.9.3</span>
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Updated 2026-11-28</span><span>&middot;</span><span>PC Workman 1.9.7</span>
         </div>
 
         <div class="ft-facts">
@@ -254,6 +254,12 @@
             <a href="/features/health-report/">Health Report</a> turns the same data into a page you can save.
         </p>
 
+        <h2 id="new-197">Games are learned as games (1.9.7)</h2>
+        <ul>
+                <li><b>A minute recorded while a detected game runs counts as &ldquo;gaming&rdquo;</b>, whatever the GPU load. Before, only GPU above 60% counted, so games held back by RAM or CPU were learned as light work.</li>
+                <li>What was learned before stays as it was; only new minutes follow the new rule.</li>
+        </ul>
+
         <h2 id="faq">Questions</h2>
         <div class="ft-faq">
             <details open>
@@ -306,7 +312,7 @@
             </div>
         </div>
 
-        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-21 &middot; Windows 10 and 11</p>
+        <p class="ft-since"><b>Works since PC Workman 1.9.3</b> &middot; page updated 2026-11-28 &middot; Windows 10 and 11</p>
     </main>
 
     <footer class="foot">
