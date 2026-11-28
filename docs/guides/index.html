@@ -98,7 +98,7 @@
           { "@type": "ListItem", "position": 20, "name": "PC restarts while gaming with no blue screen: what Kernel-Power 41 means", "url": "https://pcworkman.dev/guides/pc-restarts-while-gaming-kernel-power-41/" },
           { "@type": "ListItem", "position": 21, "name": "XMP or EXPO crashes games? How to test RAM stability", "url": "https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/" },
           { "@type": "ListItem", "position": 22, "name": "The most dangerous bug does not crash. It succeeds: six silent failures", "url": "https://pcworkman.dev/guides/silent-failures-that-pass-every-test/" },
-          { "@type": "ListItem", "position": 23, "name": "The Silent Failure Catalogue: six classes of code that passes every test and does nothing", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/" },
+          { "@type": "ListItem", "position": 23, "name": "The Silent Failure Catalogue: eight classes of code that passes every test and does nothing", "url": "https://pcworkman.dev/guides/silent-failure-catalogue/" },
           { "@type": "ListItem", "position": 24, "name": "Fourteen months, four jobs, one application, and still no job in software", "url": "https://pcworkman.dev/blog/fourteen-months/" },
           { "@type": "ListItem", "position": 25, "name": "nvlddmkm Event 153 and 4101: what a display driver reset means", "url": "https://pcworkman.dev/guides/nvlddmkm-display-driver-stopped-responding/" },
           { "@type": "ListItem", "position": 26, "name": "WHEA-Logger Event 17, 18, 19: which hardware errors matter", "url": "https://pcworkman.dev/guides/whea-logger-event-17-18-19/" },
@@ -166,6 +166,7 @@
     .fr-empty{ font-size:.82rem; color:var(--text-dim); padding:.35rem 0; }
     @media (max-width:560px){ .fr-cat{ display:none; } }
     </style>
+    <style>.tg-err { border-top-color: #f87171; } .tg-err:hover { border-color: rgba(248,113,113,.5); } .tg-err .tg-ic { color: #f87171; }</style>
 </head>
 <body>
 
@@ -257,14 +258,27 @@
                 </div>
             </div>
             <div class="tg-cluster">
+                <div class="tg-label">Errors and crashes</div>
+                <div class="tg-tiles">
+                    <a class="tg-tile tg-err" href="windows-errors/"><span class="tg-ic">&#9888;</span><h4>All errors: where to start</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-err" href="pc-restarts-while-gaming-kernel-power-41/"><span class="tg-ic">⏻</span><h4>Restarts in games</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-err" href="nvlddmkm-display-driver-stopped-responding/"><span class="tg-ic">▣</span><h4>GPU driver reset</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-err" href="whea-logger-event-17-18-19/"><span class="tg-ic">⚠</span><h4>WHEA errors</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-err" href="livekernelevent-141-117/"><span class="tg-ic">&#9635;</span><h4>LiveKernelEvent 141</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-err" href="amd-driver-timeout/"><span class="tg-ic">&#9635;</span><h4>AMD driver timeout</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-err" href="kernel-power-41-bugcheckcode/"><span class="tg-ic">#</span><h4>BugcheckCode decoder</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-err" href="pc-freezes-for-a-few-seconds/"><span class="tg-ic">&#10074;&#10074;</span><h4>Short freezes</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-err" href="gpu-dying-or-driver/"><span class="tg-ic">&#9635;</span><h4>GPU dying or driver?</h4><span class="tg-go">Read &rarr;</span></a>
+                </div>
+            </div>
+            <div class="tg-cluster">
                 <div class="tg-label">Speed-up</div>
                 <div class="tg-tiles">
                     <a class="tg-tile tg-spd" href="jak-przyspieszyc-komputer/index_en.html"><span class="tg-ic">⚡</span><h4>Speed up your PC</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-spd" href="normal-cpu-temperature/"><span class="tg-ic">◷</span><h4>Normal CPU temp</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-spd" href="why-is-my-ram-usage-so-high/"><span class="tg-ic">▤</span><h4>High RAM usage</h4><span class="tg-go">Read →</span></a>
-                    <a class="tg-tile tg-spd" href="pc-restarts-while-gaming-kernel-power-41/"><span class="tg-ic">⏻</span><h4>Restarts in games</h4><span class="tg-go">Read →</span></a>
-                    <a class="tg-tile tg-spd" href="nvlddmkm-display-driver-stopped-responding/"><span class="tg-ic">▣</span><h4>GPU driver reset</h4><span class="tg-go">Read →</span></a>
-                    <a class="tg-tile tg-spd" href="whea-logger-event-17-18-19/"><span class="tg-ic">⚠</span><h4>WHEA errors</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-spd" href="windows-11-slow-after-update/"><span class="tg-ic">&#8635;</span><h4>Slow after an update</h4><span class="tg-go">Read &rarr;</span></a>
+                    <a class="tg-tile tg-spd" href="svchost-high-cpu/"><span class="tg-ic">&#9881;</span><h4>svchost high CPU</h4><span class="tg-go">Read &rarr;</span></a>
                 </div>
             </div>
             <div class="tg-cluster">
@@ -281,6 +295,7 @@
                 <div class="tg-tiles">
                     <a class="tg-tile tg-pcw" href="will-this-cpu-fit-motherboard/"><span class="tg-ic">▤</span><h4>Will this CPU fit?</h4><span class="tg-go">Read →</span></a>
                     <a class="tg-tile tg-pcw" href="what-should-i-upgrade-first/"><span class="tg-ic">◫</span><h4>What to upgrade first?</h4><span class="tg-go">Read →</span></a>
+                    <a class="tg-tile tg-pcw" href="how-much-ram-2027/"><span class="tg-ic">▤</span><h4>How much RAM in 2027?</h4><span class="tg-go">Read &rarr;</span></a>
                 </div>
             </div>
         </div>
@@ -459,7 +474,7 @@
             <a class="series-card wednesday" href="silent-failure-catalogue/">
                 <span class="day-badge day-tech">Reference</span>
                 <h3>The Silent Failure Catalogue</h3>
-                <p>Six classes of code that runs, returns, passes every test and delivers nothing. Symptom, why your suite misses it, a sweep you can run today, and a dated case for each.</p>
+                <p>Eight classes of code that runs, returns, passes every test and delivers nothing. Symptom, why your suite misses it, a sweep you can run today, and a dated case for each.</p>
                 <span class="go">Read the catalogue -&gt;</span>
             </a>
             <a class="series-card monday" href="what-should-i-upgrade-first/">
@@ -665,7 +680,7 @@
         {t:"6,500 lines in one file", u:"breaking-up-the-monolith/", cat:"PRO", live:1, d:"Splitting the hck_GPT builder into eight modules.", k:"refactor hck_gpt modules facade tests architecture monolith"},
         {t:"The most dangerous bug does not crash. It succeeds.", u:"silent-failures-that-pass-every-test/", cat:"PRO", live:1, d:"Six silent failures that passed every test and did nothing.", k:"silent failure bug passes tests does nothing except pass python false success no error ai generated code review testing side effects ratchet regression"},
         {t:"Fourteen months, four jobs, and still no job in software", u:"../blog/fourteen-months/", cat:"PRO", live:1, d:"The complete month by month record of building in public after work.", k:"building in public timeline self taught developer first job in software no commercial experience portfolio career change working two jobs coding microsoft store solo developer poland warehouse taxi how long does it take to build an app alone"},
-        {t:"The Silent Failure Catalogue", u:"silent-failure-catalogue/", cat:"PRO", live:1, d:"Six classes of silent failure with a runnable detection sweep for each.", k:"silent failure catalogue reference unreachable code dead code detection sweep tests pass but feature does not work why do my tests pass caller audit grep public mutators no caller bare except pep 649 annotations works on my machine ai generated code passes tests unit test does not prove anything calls it ratchet test"},
+        {t:"The Silent Failure Catalogue", u:"silent-failure-catalogue/", cat:"PRO", live:1, d:"Eight classes of silent failure with a runnable detection sweep for each.", k:"silent failure catalogue reference unreachable code dead code detection sweep tests pass but feature does not work why do my tests pass caller audit grep public mutators no caller bare except pep 649 annotations works on my machine ai generated code passes tests unit test does not prove anything calls it ratchet test"},
         {t:"Is my Windows PC healthy?", u:"is-my-pc-healthy/", cat:"Health", live:1, d:"A 5-minute check without benchmarks or jargon.", k:"is my pc healthy check health slow jargon benchmark five minute"},
         {t:"Why is my RAM usage so high?", u:"why-is-my-ram-usage-so-high/", cat:"Memory", live:1, d:"Sleep idle background apps without breaking Windows.", k:"high ram usage memory background apps discord chrome eating hibernate sleep windows 11 pressure paging"},
         {t:"Which startup apps can I disable?", u:"which-startup-apps-can-i-disable/", cat:"Startup", live:1, d:"A safe, reversible decision guide for slow boots.", k:"startup programs slow boot disable safe apps boot time login autostart"},
