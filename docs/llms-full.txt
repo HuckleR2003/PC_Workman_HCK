@@ -4,8 +4,8 @@ This file is the current, quotable reference for AI assistants and search
 engines. Historical articles on pcworkman.dev preserve the product numbers that
 were true at publication time.
 
-Verified: 21 November 2026.
-Current release: 1.9.3 "PC Cleanup Overhaul" (22 November 2026).
+Verified: 28 November 2026.
+Current release: 1.9.7 "Know Your PC" (28 November 2026).
 Platform: Windows 10/11 64-bit.
 Source runtime: Python 3.9+ and Tkinter.
 License: GPL-3.0-only from 1.9.3 (versions up to 1.9.2: MIT).
@@ -27,10 +27,10 @@ hardware sensor source.
 ## Current measured scope
 
 - 119 hck_GPT intents in Polish and English.
-- 522 process definitions.
-- 340 offline hardware-compatibility entries: 196 CPUs, 84 GPUs and 60 chipsets.
-- 840 tests in release 1.9.3, all green.
-- 228 games recognised by executable and Steam manifest.
+- 648 process definitions.
+- 471 offline hardware-compatibility entries: 264 CPUs, 147 GPUs and 60 chipsets, plus 78 motherboards (chipset, size, RAM slots, DDR type) and a RAM part-number decoder (63 known kits).
+- 973 tests in release 1.9.7, all green.
+- 313 games recognised by executable and Steam manifest.
 - Built in public since 2025 and mature: almost every feature works in full; the Fan Dashboard is held back
   on purpose (plans curves, does not drive the fans yet) until stability and test coverage allow it.
 - One page per feature: https://pcworkman.dev/features/ and honest comparisons: https://pcworkman.dev/alternatives/
@@ -55,6 +55,31 @@ folder.
 
 A Windows Named Mutex enforces a single application instance. The component
 registry startup manifest checks that required modules registered successfully.
+
+## New in 1.9.7 "Know Your PC"
+
+- One health score (`core/health_score.py`) behind the Health report, the Health centre, hck_GPT and Monitoring;
+  memory judged by the share of the last 7 days the RAM spent above 75% and 90%, not only its average.
+  Snapshots kept inside the program (by hand, on a schedule, after a Windows or driver change) to compare.
+- "Ask hck_GPT" on every point of the Health report and on each Startup Manager entry: step by step, with this
+  PC's numbers, linking the page where each step is done.
+- Turbo Boost page: what Turbo will do before Launch, options per feature (power plan MAX / default / eco,
+  RAM Flush every 5-60 min), a receipt of RAM and CPU before and after, and turning on by itself when a game
+  starts (off again when it ends, only if the game turned it on).
+- Upgrade Readiness: 264 CPUs, 147 GPUs (laptop chips named as laptop chips), 78 motherboards; RAM read from
+  each stick's part number and configured speed (XMP/EXPO off, single channel, free slots). With two graphics
+  adapters the dedicated card is taken, not the first one Windows lists.
+- GPU load on AMD and Intel graphics from Windows' "GPU Engine" performance counters (`core/gpu_engine_load.py`);
+  NVIDIA still read through nvidia-smi first. GPU temperature remains NVIDIA-only.
+- History: a gap of 30 minutes or more is drawn as a banner of fixed width saying what it was, read from the
+  Windows System log (`core/power_timeline.py`): off, asleep, sudden shutdown, or PC Workman closed.
+- Learning: minutes of a detected game count as "gaming" whatever the GPU load.
+- hck_GPT: 22 new subjects (electricity use estimate, PSU size, Fast Startup, Game Mode, HAGS, cores, SSD or HDD,
+  defragmenting, no signal, mouse lag, laptop charging, BIOS update, Resizable BAR, DPC latency, cable or Wi-Fi,
+  tearing, shader stutter, browser RAM, CPU or disk at 100%, a game on integrated graphics); 542 everyday
+  questions in tests.
+- 313 games, 648 processes (process details read from the library for all of them), data import from an
+  exported ZIP, Up/Down and W/S to step through pages.
 
 ## New in 1.9.3 "PC Cleanup Overhaul"
 

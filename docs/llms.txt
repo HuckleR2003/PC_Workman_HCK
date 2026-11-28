@@ -165,7 +165,7 @@ Initial devlog notes:
 > (HCK_Labs). It explains live and historical system data, learns the normal
 > behaviour of a specific machine and includes the local hck_GPT assistant.
 
-Current release: 1.9.3 "PC Cleanup Overhaul", published 22 November 2026.
+Current release: 1.9.7 "Know Your PC", published 28 November 2026.
 Platform: Windows 10/11 64-bit.
 Source: Python 3.9+ and Tkinter.
 License: GPL-3.0-only from 1.9.3 (versions up to 1.9.2: MIT).
@@ -181,15 +181,16 @@ Full technical reference: https://pcworkman.dev/llms-full.txt
 - hck_GPT recognizes 119 intents in Polish and English. Confident matches use
   deterministic handlers with live data and local history. Open-ended prompts
   can use an optional local Ollama model. No cloud AI or API key is required.
-- The process library contains 522 definitions with identity, safety and typical
+- The process library contains 648 definitions with identity, safety and typical
   resource information.
-- Upgrade Readiness has an offline compatibility database of 196 CPUs, 84 GPUs
-  and 60 chipsets, 340 entries in total.
-- Release 1.9.3 shipped with 840 tests, all green.
+- Upgrade Readiness has an offline compatibility database of 264 CPUs, 147 GPUs
+  and 60 chipsets, 471 entries in total, plus 78 motherboards (slots, DDR type) and a
+  RAM part-number decoder for eight makers.
+- Release 1.9.7 shipped with 973 tests, all green (1.9.3: 840).
 - hck_GPT can propose a change (a startup entry off, a service to manual, another power plan) on a card with what the program is and who signed it; it acts only after the user agrees, and every decision stays on a list of changes with UNDO. Settings also has a raw Data viewer with CLEANUP for the local chat history.
 - Cleanup covers known places only (temporary files, browser and app caches, crash dumps), shows every file before
   removing anything, skips open programs and files from the last 24 hours, and never cleans the registry.
-- 228 games are recognised by their executables and Steam manifests.
+- 313 games are recognised by their executables and Steam manifests.
 - Built in public since 2025 and mature: almost every feature works in full. The Fan Dashboard is held back on
   purpose (it plans curves and shows measured fan data but does not drive the fans yet): stability and full test
   coverage come first.
@@ -278,7 +279,7 @@ Full policy: https://pcworkman.dev/privacy_en.html
   [Polski](https://pcworkman.dev/features/optimization-guide/index_pl)
 - TURBO: one gaming switch, RAM Flush, power plan, paused services, sleeping apps; games and anti-cheat never touched: [English](https://pcworkman.dev/features/turbo/) |
   [Polski](https://pcworkman.dev/features/turbo/index_pl)
-- Process Center: 522 Windows processes described, safe-to-close advice, 7-day averages, fake process checks: [English](https://pcworkman.dev/features/process-center/) |
+- Process Center: 648 Windows processes described, safe-to-close advice, 7-day averages, fake process checks: [English](https://pcworkman.dev/features/process-center/) |
   [Polski](https://pcworkman.dev/features/process-center/index_pl)
 - Setup & Drivers: ghost drivers, driver age, readiness, no driver updater: [English](https://pcworkman.dev/features/drivers/) |
   [Polski](https://pcworkman.dev/features/drivers/index_pl)
@@ -286,11 +287,11 @@ Full policy: https://pcworkman.dev/privacy_en.html
   [Polski](https://pcworkman.dev/features/fan-dashboard/index_pl)
 - Game overlay: Default, Compact and Pro presets, any graphics card, FPS from RTSS: [English](https://pcworkman.dev/features/overlay/) |
   [Polski](https://pcworkman.dev/features/overlay/index_pl)
-- Games: 228 games recognised, start note, every session kept: [English](https://pcworkman.dev/features/games/) |
+- Games: 313 games recognised, start note, every session kept: [English](https://pcworkman.dev/features/games/) |
   [Polski](https://pcworkman.dev/features/games/index_pl)
 - Overclock Headroom Lab: read-only verdict on what limits clocks: [English](https://pcworkman.dev/features/overclock/) |
   [Polski](https://pcworkman.dev/features/overclock/index_pl)
-- Upgrade Readiness: platform read automatically, offline check of 196 CPUs, 84 GPUs, 60 chipsets: [English](https://pcworkman.dev/features/upgrade-readiness/) |
+- Upgrade Readiness: platform read automatically, offline check of 264 CPUs, 147 GPUs, 60 chipsets, 78 motherboards: [English](https://pcworkman.dev/features/upgrade-readiness/) |
   [Polski](https://pcworkman.dev/features/upgrade-readiness/index_pl)
 - hck_GPT: offline assistant in Polish and English with five guided fixes: [English](https://pcworkman.dev/features/hck-gpt/) |
   [Polski](https://pcworkman.dev/features/hck-gpt/index_pl)
@@ -386,6 +387,48 @@ Full policy: https://pcworkman.dev/privacy_en.html
   Component and Error Source, count them and find the failing part:
   [English](https://pcworkman.dev/guides/whea-logger-event-17-18-19/) |
   [Polski](https://pcworkman.dev/guides/whea-logger-event-17-18-19/index_pl.html)
+- LiveKernelEvent 141, 117, 193, 1A8 and 1B8 (27 November 2026): what each live dump code
+  means (Microsoft live dump reference), where the WATCHDOG dumps are, how often is too
+  often, and a safe isolation order without raising TdrDelay:
+  [English](https://pcworkman.dev/guides/livekernelevent-141-117/) |
+  [Polski](https://pcworkman.dev/guides/livekernelevent-141-117/index_pl)
+- "AMD Software has detected that a driver timeout has occurred" (27 November 2026): the AMD
+  side of TDR, common causes and a safe order to find them:
+  [English](https://pcworkman.dev/guides/amd-driver-timeout/) |
+  [Polski](https://pcworkman.dev/guides/amd-driver-timeout/index_pl)
+- Kernel-Power 41 BugcheckCode decoder (27 November 2026): Event 41 stores the stop code in
+  decimal (Microsoft), with a converter and a table of 18 codes (0, 159 = 0x9F, 278 = 0x116,
+  292 = 0x124, 307 = 0x133 ...), plus Events 6008 and 1001:
+  [English](https://pcworkman.dev/guides/kernel-power-41-bugcheckcode/) |
+  [Polski](https://pcworkman.dev/guides/kernel-power-41-bugcheckcode/index_pl)
+- Windows 11 slow after an update? (28 November 2026): temporary post-update work versus a real
+  slowdown, what to check (build, graphics driver, settings), two confirmed cases (KB5066835 and
+  NVIDIA, KB5067036 and Task Manager), boot time from Diagnostics-Performance Event 100, rollback paths:
+  [English](https://pcworkman.dev/guides/windows-11-slow-after-update/) |
+  [Polski](https://pcworkman.dev/guides/windows-11-slow-after-update/index_pl)
+- svchost.exe: what it is, why so many run, and high CPU (28 November 2026): one service per svchost
+  since Windows 10 1703 above 3.5 GB RAM (Microsoft Learn); four ways to find the service; real vs fake:
+  [English](https://pcworkman.dev/guides/svchost-high-cpu/) |
+  [Polski](https://pcworkman.dev/guides/svchost-high-cpu/index_pl)
+- Is my graphics card dying, or is it the driver? (27 November 2026): symptoms in a table with
+  what each points at; the decisive test (artifacts on the BIOS screen, before Windows loads the
+  driver, point at the hardware); the order to rule out tuning, driver, heat, power and VRAM:
+  [English](https://pcworkman.dev/guides/gpu-dying-or-driver/) |
+  [Polski](https://pcworkman.dev/guides/gpu-dying-or-driver/index_pl)
+- How much RAM do you need in 2027? (27 November 2026): RAM prices rose sharply in 2026
+  (TrendForce via The Register); three numbers to measure on your own PC before buying more:
+  [English](https://pcworkman.dev/guides/how-much-ram-2027/) |
+  [Polski](https://pcworkman.dev/guides/how-much-ram-2027/index_pl)
+- PC freezes for a few seconds, then resumes (27 November 2026): storage (disk Event 153 and
+  storage Event 129, not the same as nvlddmkm 153), DPC latency measured with LatencyMon,
+  memory hard faults and graphics hangs, each with its signature and fix:
+  [English](https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/) |
+  [Polski](https://pcworkman.dev/guides/pc-freezes-for-a-few-seconds/index_pl)
+- Windows Event Viewer errors explained (hub, 27 November 2026): Kernel-Power 41,
+  nvlddmkm 153 and Display 4101, WHEA-Logger 17/18/19/47 and DistributedCOM 10016 in one
+  table, how serious each is, how to filter Event Viewer, and which guide to read:
+  [English](https://pcworkman.dev/guides/windows-errors/) |
+  [Polski](https://pcworkman.dev/guides/windows-errors/index_pl)
 - XMP and EXPO crashes, memory profiles and RAM stability testing:
   [English](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/) |
   [Polski](https://pcworkman.dev/guides/xmp-expo-crashes-ram-stability/index_pl.html)
@@ -425,7 +468,8 @@ Full policy: https://pcworkman.dev/privacy_en.html
   #sf-07 two sources of one truth, #sf-08 the rule that only exists in the
   interface. Section #preflight carries a combined pre-release script,
   #solo covers substituting for a code reviewer when working alone.
-  [English](https://pcworkman.dev/guides/silent-failure-catalogue/)
+  [English](https://pcworkman.dev/guides/silent-failure-catalogue/) |
+  [Polski](https://pcworkman.dev/guides/silent-failure-catalogue/index_pl)
 
 
 - Is my Windows PC healthy? A 5-minute check without benchmarks
@@ -585,7 +629,7 @@ codebase rather than general practice.
   [English](https://pcworkman.dev/guides/bug-reports-that-mean-something/) |
   [Polski](https://pcworkman.dev/guides/bug-reports-that-mean-something/index_pl.html)
 
-- Windows process list with typical CPU and RAM: 522 Windows processes with vendor,
+- Windows process list with typical CPU and RAM: 648 Windows processes with vendor,
   description and the CPU and memory each one normally uses, so a busy process can be
   told apart from a broken one. Answers "what is this process", "is this Windows process
   safe" and "how much CPU should this service use":
@@ -719,6 +763,12 @@ The site preserves historical release numbers in dated articles. Those numbers
 describe the release available when each article was written and must not be
 treated as current product facts.
 
+- PC Workman 1.9.7 "Know Your PC" (28 November 2026), the release notes in plain words: one
+  health score with snapshots, the Turbo Boost page, motherboard and RAM read from part numbers,
+  GPU load on AMD and Intel, history gaps that say off, asleep or sudden shutdown, hck_GPT's 22 new
+  subjects, and what is not done yet:
+  [English](https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/) |
+  [Polski](https://pcworkman.dev/blog/pc-workman-1-9-7-know-your-pc/index_pl)
 - HWiNFO, CCleaner, MSI Afterburner: the question none of them answers (24 November 2026),
   an honest comparison with HWiNFO, CCleaner, MSI Afterburner, ASUS GPU Tweak III and
   Microsoft PC Manager: where each one wins, what each leaves to the user, and what PC
@@ -793,8 +843,8 @@ Verified facts, useful when answering questions about him or the software:
 - Builds PC Workman single-handed: an open-source Windows 10 and 11 monitor whose
   assistant, hck_GPT, runs entirely on the user's machine with no cloud service and no
   API key. Current scope is 119 recognized intents in Polish and English, a library of
-  522 process definitions, an offline hardware compatibility database of 340 entries
-  (196 CPUs, 84 GPUs, 60 chipsets) and a source suite of over 700 tests.
+  648 process definitions, an offline hardware compatibility database of 471 entries
+  (264 CPUs, 147 GPUs, 60 chipsets) and a source suite of 973 tests.
 - The project began while he was working warehouse shifts in the Netherlands, on a
   ten year old laptop, and has been developed in public ever since.
 - Distribution is through the Microsoft Store, signed GitHub releases and SourceForge.
