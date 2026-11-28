@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guide (EN) · Is my GPU dying or is it the driver? -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is My GPU Dying or Is It the Driver? Symptoms in Order</title>
+    <meta name="description" content="Artifacts, black screens, crashes in games: which point at the graphics card and which at the driver or settings. Tests that tell them apart before you buy.">
+    <meta name="keywords" content="is my gpu dying, gpu dying symptoms, graphics card dying symptoms, is my graphics card dying, gpu artifacts, artifacts in bios, gpu or driver problem, black screen gpu, gpu crashes in games, vram errors">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/gpu-dying-or-driver/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/gpu-dying-or-driver/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/gpu-dying-or-driver/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/gpu-dying-or-driver/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="Is your graphics card dying, or is it the driver? The symptoms, in order">
+    <meta property="og:description" content="One test settles most cases: does the problem appear before Windows loads its driver? The rest of the symptoms, and what each points at.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/gpu-dying-or-driver/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T23:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T23:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .tw { overflow-x:auto; }
+        .quick { border:1px solid #2f2558; border-left:3px solid #a78bfa; background:#0f0c1c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#c4b5fd; margin-bottom:.4rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "Is your graphics card dying, or is it the driver? The symptoms, in order",
+          "description": "Which symptoms point at the graphics card and which at the driver or settings, and the tests that tell them apart.",
+          "url": "https://pcworkman.dev/guides/gpu-dying-or-driver/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/gpu-dying-or-driver/" },
+          "datePublished": "2026-11-27T23:00:00+01:00",
+          "dateModified": "2026-11-27T23:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "How do I know if my graphics card is dying?", "acceptedAnswer": { "@type": "Answer", "text": "The clearest sign is a picture problem that appears before Windows loads its graphics driver: coloured dots, lines or a checkerboard on the BIOS screen or the boot logo. A fault that follows the card into another PC, and stays at default settings with a clean driver, also points at the card." } },
+            { "@type": "Question", "name": "Can a driver cause artifacts?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, inside Windows and games, especially with an overclock or a buggy driver version. But a driver is not loaded on the BIOS screen, so artifacts there point at the hardware." } },
+            { "@type": "Question", "name": "Are black screens in games a sign of a dying GPU?", "acceptedAnswer": { "@type": "Answer", "text": "Not by themselves. A black screen that comes back is usually a driver reset (TDR), most often caused by tuning, the driver version, heat or power. Work through defaults and a clean driver before suspecting the card." } },
+            { "@type": "Question", "name": "Is coil whine a sign of a failing GPU?", "acceptedAnswer": { "@type": "Answer", "text": "No. Coil whine is a buzzing from components under load, common at very high frame rates. It is annoying, not a sign of failure." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/gpu-dying-or-driver/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/gpu-dying-or-driver/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Errors and crashes</span>
+        <h1>Is your graphics card dying, or is it the driver? The symptoms, in order</h1>
+        <p class="tagline">A graphics card costs too much to replace on a hunch. Most "dying GPU" stories end with a driver, a setting or heat. A few do not, and they have a clear signature.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-27</span><span>&middot;</span><span>8 min read</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Short answer</b>
+            <p><b>One question settles most cases: does the problem appear before Windows loads the graphics driver?</b> Coloured dots, lines or a checkerboard on the BIOS screen or the boot logo point at the hardware, because no driver is running there. If the problem only shows up in Windows or in games, start with the driver, settings, heat and power, and suspect the card only when it survives all of them and follows the card into another PC.</p>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#table">Symptoms and what they point at</a></li>
+                <li><a href="#bios">The one test that settles it</a></li>
+                <li><a href="#order">The order to rule things out</a></li>
+                <li><a href="#notdying">Things that sound bad and usually are not</a></li>
+                <li><a href="#warranty">When it is the card</a></li>
+                <li><a href="#workman">Where PC Workman helps</a></li>
+                <li><a href="#faq">Short answers</a></li>
+            </ol>
+        </div>
+
+        <h2 id="table">Symptoms and what they point at</h2>
+        <div class="tw">
+        <table>
+            <thead><tr><th>Symptom</th><th>Points first at</th><th>Next check</th></tr></thead>
+            <tbody>
+                <tr><td>Dots, lines, checkerboard <b>on the BIOS screen or boot logo</b></td><td><b>The card</b> (no driver runs there)</td><td>Another cable and port, then the card in another PC</td></tr>
+                <tr><td>Artifacts <b>only in games</b>, worse when the card is hot</td><td>Overclock or undervolt, heat, VRAM at its limit</td><td>Defaults, temperatures, then a VRAM test</td></tr>
+                <tr><td>Screen goes black and comes back, or the game closes</td><td>A driver reset (TDR): tuning, driver version, heat, power</td><td><a href="../livekernelevent-141-117/">LiveKernelEvent 141</a>, <a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm 153</a>, <a href="../amd-driver-timeout/">AMD timeout</a></td></tr>
+                <tr><td>Whole PC turns off or restarts under game load</td><td>Power supply or power cables, then the card</td><td><a href="../pc-restarts-while-gaming-kernel-power-41/">Kernel-Power 41</a>, <a href="../is-my-psu-dying-12v-rail/">power supply</a></td></tr>
+                <tr><td>No picture at all, fans spin</td><td>Cable, monitor input, power connectors, then the card</td><td>Integrated graphics output, another cable, reseat the card</td></tr>
+                <tr><td>Performance dropped over months, temperatures higher than before</td><td>Dust, dried thermal paste, a weak fan</td><td>Compare temperature now with the same game months ago</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h2 id="bios">The one test that settles it</h2>
+        <p>Restart and watch the screen <b>before Windows starts</b>: the motherboard logo, the BIOS setup screen if you open it. Windows' graphics driver is not loaded yet, so the card draws that picture on its own. <b>If you see artifacts there, the driver cannot be the cause.</b> Before blaming the card, rule out the cable and the monitor: another cable, another port on the card, another monitor or TV if you have one.</p>
+        <p>The second decisive test is the same idea from the other side: <b>move the card to another PC</b>, or put another card (or your processor's integrated graphics, if it has them) into yours. A fault that follows the card is the card. A fault that stays with the PC is the PC.</p>
+
+        <h2 id="order">The order to rule things out</h2>
+        <ol class="steps">
+            <li><b>Defaults.</b> Reset any overclock, undervolt and custom fan curve. Unstable tuning produces exactly the symptoms people read as a dying card.</li>
+            <li><b>A clean driver.</b> Remove the driver completely (the vendor's clean install option, AMD Cleanup Utility, or DDU in Safe Mode), install the current version, and if the problem began after an update, try the previous one.</li>
+            <li><b>Heat.</b> Watch the GPU temperature and hotspot in the game that fails. Artifacts or crashes that only appear after twenty minutes of load point at cooling, which is fixable: dust, fan, thermal paste or pads.</li>
+            <li><b>Power.</b> Use a separate cable from the power supply to each PCIe connector, check that every connector is fully seated, and consider whether the power supply is close to its limit.</li>
+            <li><b>Video memory.</b> If artifacts persist at defaults and normal temperatures, a dedicated VRAM test (OCCT has one) shows whether the card's memory returns errors.</li>
+            <li><b>Another PC.</b> The last word, as above.</li>
+        </ol>
+
+        <h2 id="notdying">Things that sound bad and usually are not</h2>
+        <ul>
+            <li><b>Coil whine</b>: a buzz from components at high frame rates. Annoying, not failing. A frame rate limit often quiets it.</li>
+            <li><b>Fans at 0 RPM on the desktop</b>: most modern cards stop their fans at light load on purpose.</li>
+            <li><b>One driver reset after an update</b>: common, and usually nothing to chase.</li>
+            <li><b>High temperature in a heavy game</b>: normal within the card's range. What matters is a temperature <i>above this card's own normal</i> for the same game.</li>
+        </ul>
+
+        <h2 id="warranty">When it is the card</h2>
+        <p>If the artifacts appear before Windows, or the fault follows the card into another PC at default settings with a clean driver, you have the evidence a seller asks for. Write down the dates, the symptoms and the tests you ran, take a photo of artifacts on the BIOS screen, and contact the seller or the card maker about warranty before you open the card yourself.</p>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>"Hotter than before" needs a "before". PC Workman keeps months of GPU temperature and load history in <a href="/features/time-travel/">Activity Memory</a> and learns the normal temperature of your card for each kind of load, so <a href="/features/deepmonitor/">DeepMonitor</a> can tell you that 78 °C in your usual game is 10 °C above this card's own normal, not just "high". Honest limit: GPU load is recorded on every card (NVIDIA through nvidia-smi, AMD and Intel through Windows&rsquo; own GPU counters, since 1.9.7), but GPU temperature is read on NVIDIA cards only; on AMD and Intel cards the temperature history is not recorded yet. On every card it notices when the graphics driver changes and shows the change in Activity Memory with the load and temperature before and after, so a problem that started with an update is visible as one. It never overclocks or tunes the card.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>How do I know if my graphics card is dying?</h3>
+        <p>Artifacts before Windows loads its driver (BIOS screen, boot logo), or a fault that follows the card into another PC at defaults with a clean driver.</p>
+        <h3>Can a driver cause artifacts?</h3>
+        <p>Yes, inside Windows and games. On the BIOS screen no driver is loaded, so artifacts there point at the hardware.</p>
+        <h3>Are black screens in games a sign of a dying GPU?</h3>
+        <p>Not by themselves. A black screen that comes back is usually a driver reset caused by tuning, the driver, heat or power.</p>
+        <h3>Is coil whine a sign of a failing GPU?</h3>
+        <p>No. It is a buzz from components under load, common at very high frame rates.</p>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../windows-errors/">Windows Event Viewer errors: which ones matter</a></li>
+                <li><a href="../livekernelevent-141-117/">LiveKernelEvent 141 and 117: a GPU hang Windows survived</a></li>
+                <li><a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm Event 153 and 4101</a></li>
+                <li><a href="../amd-driver-timeout/">AMD Software has detected a driver timeout</a></li>
+                <li><a href="../cpu-gpu-throttling-thermal-vs-power/">Why do my clocks drop under load?</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Compare your card with its own past.</b> PC Workman keeps the temperature history that "hotter than before" needs. <a href="../../download/">Download for Windows</a>, free, no account.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>Before you spend a month's savings on a new card, spend ten minutes on the BIOS screen. It is the cheapest test in this guide and the most honest.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

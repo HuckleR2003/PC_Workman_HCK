@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Poradnik (PL) · AMD Software wykrył przekroczenie czasu sterownika -->
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMD driver timeout: co znaczy i co sprawdzić najpierw</title>
+    <meta name="description" content="Komunikat AMD driver timeout znaczy, że karta Radeon przestała odpowiadać i Windows zresetował sterownik. Przyczyny i bezpieczna kolejność.">
+    <meta name="keywords" content="AMD driver timeout, AMD Software has detected that a driver timeout has occurred, przekroczenie czasu sterownika AMD, AMD driver timeout naprawa, Radeon driver timeout, Adrenalin timeout, TDR AMD, czarny ekran AMD">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/amd-driver-timeout/index_pl">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/amd-driver-timeout/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="AMD Software wykrył przekroczenie czasu sterownika: co to znaczy, co sprawdzić najpierw">
+    <meta property="og:description" content="Karta Radeon nie odpowiadała przez około dwie sekundy i Windows zresetował sterownik. Dlaczego i w jakiej kolejności szukać przyczyny, bez płatnych naprawiaczy.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/amd-driver-timeout/index_pl">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T19:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T19:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .quick { border:1px solid #5a1d1d; border-left:3px solid #f87171; background:#170c0c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#fca5a5; margin-bottom:.4rem; }
+        .quick ol { margin:.5rem 0 0 1.2rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "AMD Software wykrył przekroczenie czasu sterownika: co to znaczy, co sprawdzić najpierw",
+          "description": "Dlaczego karta Radeon przestaje odpowiadać i Windows resetuje sterownik AMD, kiedy to już za często i w jakiej kolejności szukać przyczyny.",
+          "url": "https://pcworkman.dev/guides/amd-driver-timeout/index_pl",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/amd-driver-timeout/index_pl" },
+          "datePublished": "2026-11-27T19:00:00+01:00",
+          "dateModified": "2026-11-27T19:00:00+01:00",
+          "inLanguage": "pl",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+          "isPartOf": { "@type": "WebPage", "name": "Błędy w Podglądzie zdarzeń", "url": "https://pcworkman.dev/guides/windows-errors/index_pl" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Poradniki", "item": "https://pcworkman.dev/guides/index_pl" },
+            { "@type": "ListItem", "position": 3, "name": "Błędy Windows", "item": "https://pcworkman.dev/guides/windows-errors/index_pl" },
+            { "@type": "ListItem", "position": 4, "name": "AMD driver timeout", "item": "https://pcworkman.dev/guides/amd-driver-timeout/index_pl" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "Co znaczy komunikat „AMD Software has detected that a driver timeout has occurred”?", "acceptedAnswer": { "@type": "Answer", "text": "Karta Radeon nie odpowiedziała w limicie czasu Windows (domyślnie 2 sekundy), więc Windows zresetował sterownik AMD. To strona AMD mechanizmu Timeout Detection and Recovery, tego samego, który na kartach NVIDIA zostawia nvlddmkm 153." } },
+            { "@type": "Question", "name": "Dlaczego przekroczenie czasu sterownika AMD się powtarza?", "acceptedAnswer": { "@type": "Answer", "text": "Najczęściej przez niestabilne strojenie (podkręcanie, undervolting albo automatyczne strojenie w Adrenalinie), wersję sterownika z błędem dla Twojej karty, temperaturę, zasilanie albo niestabilną pamięć. Powtarzające się błędy przy ustawieniach domyślnych i czystym sterowniku wskazują na kartę." } },
+            { "@type": "Question", "name": "Czy wyłączenie zgłaszania problemów naprawia błąd?", "acceptedAnswer": { "@type": "Answer", "text": "Nie. Wyłącza tylko okienko. Sterownik dalej się resetuje, a Windows dalej to zapisuje." } },
+            { "@type": "Question", "name": "Czy zwiększyć TdrDelay przy błędzie AMD driver timeout?", "acceptedAnswer": { "@type": "Answer", "text": "Nie. Microsoft opisuje klucze TDR jako narzędzie do testów i debugowania przy tworzeniu sterowników. Dłuższe czekanie ukrywa reset i zostawia zawieszenie." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Główna nawigacja">
+        <a class="gt-brand" href="/">PC<span>_</span>Workman <span>/ poradniki</span></a>
+        <a class="gt-link gt-blog" href="/blog/index_pl.html">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report_pl.html">Bezpieczeństwo</a>
+        <a class="gt-link gt-white" href="/download/index_pl.html">Pobierz</a>
+        <a class="gt-link" href="/features/index_pl.html">Funkcje</a>
+        <a class="gt-link gt-central" href="/central/index_pl.html">Central</a>
+        <a class="gt-link" href="/guides/index_pl.html">Artykuły / Poradniki</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/amd-driver-timeout/index_pl.html" class="active" data-lang="pl" lang="pl" aria-current="page">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/amd-driver-timeout/" data-lang="en" lang="en">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Błędy i awarie</span>
+        <h1>„AMD Software has detected a driver timeout”: co to znaczy i co sprawdzić najpierw</h1>
+        <p class="tagline">Karta Radeon ucichła na około dwie sekundy, a Windows uruchomił jej sterownik od nowa. Okienko to najmniej przydatna część tego, co się stało.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>Marcin Firmuga</span><span>&middot;</span><span>Opublikowano 2026-11-27</span><span>&middot;</span><span>8 min czytania</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Krótka odpowiedź</b>
+            <p><b>Komunikat znaczy, że karta graficzna nie odpowiedziała w limicie Windows, domyślnie 2 sekundy, i Windows zresetował sterownik AMD.</b> To ten sam mechanizm co nvlddmkm 153 na kartach NVIDIA. Pojedynczy błąd po aktualizacji sterownika jest częsty. Powtarzające się mają przyczynę, którą znajdziesz w tej kolejności:</p>
+            <ol>
+                <li>Przywróć domyślne strojenie karty w Adrenalinie, także automatyczny undervolting i podkręcanie.</li>
+                <li>Zainstaluj sterownik AMD na czysto (AMD Cleanup Utility, potem aktualny Adrenalin) albo wróć o wersję, jeśli zaczęło się po aktualizacji.</li>
+                <li>Sprawdź z wyłączonym XMP albo EXPO, bez nakładek i nagrywania.</li>
+                <li>Obserwuj temperaturę, hotspot i pobór mocy pod obciążeniem.</li>
+                <li>Dalej się dzieje przy ustawieniach domyślnych? Sprawdź kartę w innym komputerze.</li>
+            </ol>
+        </div>
+
+        <div class="toc">
+            <b>W tym poradniku</b>
+            <ol>
+                <li><a href="#what">Co się naprawdę stało</a></li>
+                <li><a href="#log">Co Windows zapisuje w tej samej chwili</a></li>
+                <li><a href="#causes">Częste przyczyny, od najbardziej prawdopodobnej</a></li>
+                <li><a href="#order">Bezpieczna kolejność szukania przyczyny</a></li>
+                <li><a href="#dont">Czego nie robić</a></li>
+                <li><a href="#workman">Gdzie pomaga PC Workman</a></li>
+                <li><a href="#faq">Krótkie odpowiedzi</a></li>
+                <li><a href="#sources">Źródła</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">Co się naprawdę stało</h2>
+        <p>Windows oczekuje, że karta graficzna szybko odpowie jego planiście. Gdy karta nie odpowiada w limicie, Windows uruchamia <b>Timeout Detection and Recovery</b> (TDR): resetuje sterownik grafiki, zamiast zamrozić cały komputer. Microsoft ustawia ten limit wartością <code>TdrDelay</code>, domyślnie 2 sekundy.</p>
+        <p>Na karcie Radeon program AMD pokazuje wtedy <i>„AMD Software has detected that a driver timeout has occurred on your system”</i> i proponuje wysłanie raportu. To, co widziałeś wcześniej, czarny ekran, zamarznięta gra albo gra, która się zamknęła, było zawieszeniem. Okienko to tylko paragon.</p>
+
+        <h2 id="log">Co Windows zapisuje w tej samej chwili</h2>
+        <ul>
+            <li><b>Podgląd zdarzeń, dziennik System</b>: <b>Display, zdarzenie 4101</b>, „Sterownik ekranu &hellip; przestał odpowiadać i został pomyślnie odzyskany”, zwykle z nazwą sterownika jądra AMD.</li>
+            <li><b>Monitor niezawodności</b> (<code>perfmon /rel</code>): często <a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent 117 albo 141</a> w tej samej minucie, ze zrzutem w <code>C:\Windows\LiveKernelReports\WATCHDOG</code>.</li>
+            <li>Jeśli zamiast tego zrestartował się cały komputer, to już nie timeout: przeczytaj <a href="../pc-restarts-while-gaming-kernel-power-41/index_pl.html">Kernel-Power 41</a>.</li>
+        </ul>
+        <p>Przez tydzień zapisuj godzinę każdego okienka. Zawsze ta sama gra czy losowo? Tylko pod obciążeniem, czy też na pulpicie i w przeglądarce? Od tego wzoru zależy, gdzie zaczynasz.</p>
+
+        <h2 id="causes">Częste przyczyny, od najbardziej prawdopodobnej</h2>
+        <ol>
+            <li><b>Niestabilne strojenie.</b> Ręczne podkręcanie, undervolting albo automatyczne ustawienia strojenia w Adrenalinie, stabilne w jednej grze, a w innej już nie. Pierwszy podejrzany, gdy błędy pojawiają się pod obciążeniem.</li>
+            <li><b>Wersja sterownika.</b> Sterowniki grafiki wychodzą z błędami dla konkretnych kart i gier, a AMD wydawało aktualizacje naprawiające przekroczenia czasu na części kart. Jeśli zaczęło się zaraz po aktualizacji, podejrzana jest aktualizacja; jeśli masz stary sterownik, nowy może mieć poprawkę.</li>
+            <li><b>Temperatura.</b> Karta, która wyrzuca błąd dopiero po długim graniu, przy wysokim hotspocie, wskazuje na chłodzenie: kurz, słabnący wentylator, wyschnięta pasta.</li>
+            <li><b>Zasilanie.</b> Nagłe skoki obciążenia na słabym zasilaczu albo jeden rozdzielony przewód na dwa złącza PCIe.</li>
+            <li><b>Niestabilna pamięć.</b> Profile XMP albo EXPO, które są „prawie” stabilne, potrafią pociągnąć za sobą sterownik grafiki.</li>
+            <li><b>Programy, które wchodzą do gier albo na pulpit.</b> Nakładki, nagrywanie, programy RGB, a przy błędach podczas oglądania wideo także sprzętowa akceleracja przeglądarki.</li>
+            <li><b>Sama karta.</b> Na końcu, po wykluczeniu wszystkiego wyżej.</li>
+        </ol>
+
+        <h2 id="order">Bezpieczna kolejność szukania przyczyny</h2>
+        <p>Jedna zmiana naraz, potem ta sama gra przez ten sam czas. Krok, który nic nie zmienił, też jest informacją.</p>
+        <ol class="steps">
+            <li><b>Ustawienia domyślne w Adrenalinie.</b> Wydajność &rarr; Strojenie: przywróć domyślne strojenie GPU, VRAM i wentylatorów, a na czas testu wyłącz automatyczne podkręcanie i undervolting.</li>
+            <li><b>Czysta instalacja sterownika.</b> Uruchom AMD Cleanup Utility (albo DDU w trybie awaryjnym), zrestartuj i zainstaluj aktualny sterownik Adrenalin od AMD. Jeśli problem zaczął się po aktualizacji, zainstaluj poprzednią wersję i sprawdź, czy ustaje.</li>
+            <li><b>Pamięć i reszta systemu na ustawieniach domyślnych.</b> Na czas testu wyłącz XMP albo EXPO i podkręcanie procesora. Upewnij się, że Windows ma plik stronicowania; brak pliku to znane źródło kłopotów ze sterownikami.</li>
+            <li><b>Nakładki i akceleracja sprzętowa.</b> Zamknij nagrywanie, nakładki i programy RGB. Jeśli błędy dzieją się w przeglądarce, wyłącz w niej akcelerację sprzętową i sprawdź, czy ustają.</li>
+            <li><b>Temperatura i zasilanie pod obciążeniem.</b> Obserwuj temperaturę GPU, hotspot i pobór mocy przez 20&ndash;30 minut gry, w której to się dzieje. Do każdego złącza PCIe prowadź osobny przewód z zasilacza.</li>
+            <li><b>Karta.</b> Dalej są błędy przy ustawieniach domyślnych, czystym sterowniku, normalnych temperaturach i stabilnej pamięci? Sprawdź kartę w innym komputerze albo inną kartę w swoim. Jeśli usterka idzie za kartą, to sprawa na gwarancję.</li>
+        </ol>
+
+        <h2 id="dont">Czego nie robić</h2>
+        <ul>
+            <li><b>Nie kończ na wyłączeniu zgłaszania problemów.</b> Znika okienko. Sterownik dalej się resetuje, a Windows dalej to zapisuje.</li>
+            <li><b>Nie zwiększaj TdrDelay jako „naprawy”.</b> Microsoft opisuje klucze TDR jako narzędzie do testów i debugowania przy tworzeniu sterowników. Dłuższe czekanie ukrywa reset i zostawia zawieszenie.</li>
+            <li><b>Nie kupuj aktualizatora sterowników ani „naprawiacza”.</b> Kilka stron wysoko w wynikach na ten błąd go sprzedaje. Sterownik i narzędzie do czyszczenia od AMD są darmowe.</li>
+        </ul>
+
+        <h2 id="workman">Gdzie pomaga PC Workman</h2>
+        <p>Okienko mówi, <i>że</i> to się stało. PC Workman trzyma lokalną historię obciążenia, temperatury i poboru mocy karty, więc możesz otworzyć <a href="/features/time-travel/index_pl.html">Activity Memory</a> na minucie błędu i zobaczyć, czy karta była gorąca, na pełnej mocy, czy bezczynna. Od wersji 1.9.3 zaznacza na tej osi aktualizacje sterownika karty i Windows, z obciążeniem przed i po, więc pytanie „czy to się zaczęło po aktualizacji?” ma odpowiedź. Działa tak samo na kartach AMD, NVIDIA i Intel i nigdy niczego nie stroi ani nie podkręca.</p>
+
+        <h2 id="faq">Krótkie odpowiedzi</h2>
+        <h3>Co znaczy „AMD Software has detected that a driver timeout has occurred”?</h3>
+        <p>Karta nie odpowiedziała w limicie Windows, domyślnie 2 sekundy, więc Windows zresetował sterownik AMD. To strona AMD tego samego mechanizmu, który na kartach NVIDIA zostawia nvlddmkm 153.</p>
+        <h3>Dlaczego to się powtarza?</h3>
+        <p>Najczęściej przez niestabilne strojenie, wersję sterownika z błędem dla Twojej karty, temperaturę, zasilanie albo niestabilną pamięć. Powtarzające się błędy przy ustawieniach domyślnych i czystym sterowniku wskazują na kartę.</p>
+        <h3>Czy wyłączenie zgłaszania problemów to naprawia?</h3>
+        <p>Nie. Ukrywa tylko okienko.</p>
+        <h3>Czy zwiększyć TdrDelay?</h3>
+        <p>Nie. To klucz do debugowania; dłuższe czekanie ukrywa reset i zostawia zawieszenie.</p>
+
+        <h2 id="sources">Źródła</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: Timeout Detection and Recovery (TDR)</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys" rel="noopener">Microsoft: TDR registry keys, tylko do testów i debugowania</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/kernel-live-dump-code-reference" rel="noopener">Microsoft: Kernel live dump code reference (117, 141)</a></li>
+        </ul>
+
+        <nav class="guide-related" aria-label="Czytaj dalej">
+            <h2>Czytaj dalej</h2>
+            <ul>
+                <li><a href="../gpu-dying-or-driver/index_pl.html">Karta graficzna umiera czy to sterownik?</a></li>
+                <li><a href="../windows-errors/index_pl.html">Błędy w Podglądzie zdarzeń: które mają znaczenie</a></li>
+                <li><a href="../livekernelevent-141-117/index_pl.html">LiveKernelEvent 141 i 117: karta się zawiesiła, Windows przetrwał</a></li>
+                <li><a href="../nvlddmkm-display-driver-stopped-responding/index_pl.html">nvlddmkm 153 i 4101: to samo na kartach NVIDIA</a></li>
+                <li><a href="../xmp-expo-crashes-ram-stability/index_pl.html">XMP lub EXPO wywala gry? Test stabilności RAM</a></li>
+                <li><a href="../is-my-psu-dying-12v-rail/index_pl.html">Czy program wykryje umierający zasilacz?</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>Zobacz, co robiła karta, gdy sterownik przekroczył czas.</b> <a href="../../download/index_pl.html">Pobierz PC Workmana</a>, za darmo, bez konta, tak samo na każdej marce karty.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile_pl.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile_pl.html">Marcin Firmuga</a></h4>
+                <div class="role">Twórca PC Workman &middot; HCK_Labs</div>
+                <p>Okienko to paragon, nie problem. Godzina, którą daje, jest warta więcej niż każde ustawienie zmienione w panice.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../index_pl.html">Poradniki</a> &middot; <a href="/">PC Workman</a> &middot; <a href="../../download/index_pl.html">Pobierz</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>

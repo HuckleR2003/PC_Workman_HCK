@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- HCK_Labs -> PC_Workman · Guide (EN) · AMD Software has detected a driver timeout -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMD Driver Timeout: What It Means and What to Check First</title>
+    <meta name="description" content="&quot;AMD Software has detected a driver timeout&quot; means the Radeon card stopped responding and Windows reset the driver. Causes and a safe fix order.">
+    <meta name="keywords" content="AMD driver timeout, AMD Software has detected that a driver timeout has occurred, AMD driver timeout fix, AMD driver timeout keeps happening, Radeon driver timeout, amdkmdag, Adrenalin driver timeout, TDR AMD, black screen AMD">
+    <meta name="author" content="Marcin Firmuga">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="canonical" href="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <link rel="alternate" hreflang="en" href="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <link rel="alternate" hreflang="pl" href="https://pcworkman.dev/guides/amd-driver-timeout/index_pl">
+    <link rel="alternate" hreflang="x-default" href="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="PC Workman">
+    <meta property="og:title" content="AMD Software has detected a driver timeout: what it means, what to check first">
+    <meta property="og:description" content="Your Radeon card stopped responding for about two seconds and Windows reset the driver. Why it happens and a safe order to find the cause, without paid repair tools.">
+    <meta property="og:url" content="https://pcworkman.dev/guides/amd-driver-timeout/">
+    <meta property="og:locale" content="en_GB">
+    <meta property="og:image" content="https://pcworkman.dev/assets/images/og-default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@hck_lab">
+    <meta property="article:published_time" content="2026-11-27T19:00:00+01:00">
+    <meta property="article:modified_time" content="2026-11-27T19:00:00+01:00">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../blog/series.css">
+    <link rel="stylesheet" href="/assets/css/topnav.css">
+    <style>
+        .quick { border:1px solid #5a1d1d; border-left:3px solid #f87171; background:#170c0c; border-radius:10px; padding:1rem 1.2rem; margin:1.2rem 0 1.6rem; }
+        .quick b.h { display:block; font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:2px; text-transform:uppercase; color:#fca5a5; margin-bottom:.4rem; }
+        .quick ol { margin:.5rem 0 0 1.2rem; }
+        .steps li { margin-bottom:.55rem; }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Article",
+          "headline": "AMD Software has detected a driver timeout: what it means, what to check first",
+          "description": "Why a Radeon card stops responding and Windows resets the AMD driver, how often is too often, and a safe order to find the cause.",
+          "url": "https://pcworkman.dev/guides/amd-driver-timeout/",
+          "mainEntityOfPage": { "@type": "WebPage", "@id": "https://pcworkman.dev/guides/amd-driver-timeout/" },
+          "datePublished": "2026-11-27T19:00:00+01:00",
+          "dateModified": "2026-11-27T19:00:00+01:00",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@type": "Person", "@id": "https://pcworkman.dev/hck-labs/#marcin-firmuga", "name": "Marcin Firmuga", "url": "https://pcworkman.dev/hck-labs/" },
+          "publisher": { "@type": "Organization", "name": "HCK Labs", "url": "https://pcworkman.dev/" },
+          "isPartOf": { "@type": "WebPage", "name": "Windows Event Viewer errors explained", "url": "https://pcworkman.dev/guides/windows-errors/" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "PC Workman", "item": "https://pcworkman.dev/" },
+            { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://pcworkman.dev/guides/" },
+            { "@type": "ListItem", "position": 3, "name": "Windows errors", "item": "https://pcworkman.dev/guides/windows-errors/" },
+            { "@type": "ListItem", "position": 4, "name": "AMD driver timeout", "item": "https://pcworkman.dev/guides/amd-driver-timeout/" }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": "What does \"AMD Software has detected that a driver timeout has occurred\" mean?", "acceptedAnswer": { "@type": "Answer", "text": "The Radeon graphics card did not respond within Windows' time limit (2 seconds by default), so Windows reset the AMD driver. It is the AMD side of Timeout Detection and Recovery, the same mechanism behind nvlddmkm Event 153 on NVIDIA cards." } },
+            { "@type": "Question", "name": "Why does the AMD driver timeout keep happening?", "acceptedAnswer": { "@type": "Answer", "text": "Most often unstable tuning (an overclock, an undervolt or automatic tuning in Adrenalin), a driver version with a bug for your card, heat, power delivery or unstable memory. Repeating timeouts at default settings with a clean driver point at the card." } },
+            { "@type": "Question", "name": "Does turning off Issue Reporting fix the AMD driver timeout?", "acceptedAnswer": { "@type": "Answer", "text": "No. It only stops the pop-up. The driver still resets, and Windows still logs it." } },
+            { "@type": "Question", "name": "Should I increase TdrDelay for an AMD driver timeout?", "acceptedAnswer": { "@type": "Answer", "text": "No. Microsoft documents the TDR registry keys for testing and debugging during driver development. A longer delay hides the reset and leaves the hang." } }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="page-friday">
+
+    <nav class="global-topnav" id="globalTopnav" aria-label="Primary navigation">
+        <a class="gt-brand" href="/index_en.html">PC<span>_</span>Workman <span>/ guides</span></a>
+        <a class="gt-link gt-blog" href="/blog/">Blog</a>
+        <a class="gt-link gt-white" href="/SECURITY_report.html">Security</a>
+        <a class="gt-link gt-white" href="/download/">Download</a>
+        <a class="gt-link" href="/features/">Features</a>
+        <a class="gt-link gt-central" href="/central/">Central</a>
+        <a class="gt-link" href="/guides/">Articles / Guides</a>
+        <a class="gt-link gt-labs" href="/hck-labs/">HCK Labs</a>
+        <span class="gt-sep"></span>
+        <span class="gt-spacer"></span>
+        <span class="gt-lang">
+            <a href="/guides/amd-driver-timeout/index_pl.html" data-lang="pl" lang="pl">PL</a>
+            <span class="gt-slash">/</span>
+            <a href="/guides/amd-driver-timeout/" class="active" data-lang="en" lang="en" aria-current="page">EN</a>
+        </span>
+    </nav>
+
+    <section class="hero">
+        <span class="day-badge day-friday">Windows &middot; Errors and crashes</span>
+        <h1>"AMD Software has detected a driver timeout": what it means, and what to check first</h1>
+        <p class="tagline">Your Radeon card went quiet for about two seconds and Windows restarted its driver. The pop-up is the least useful part of what happened.</p>
+    </section>
+
+    <main class="article">
+        <div class="meta">
+            <span>By Marcin Firmuga</span><span>&middot;</span><span>Published 2026-11-27</span><span>&middot;</span><span>8 min read</span>
+        </div>
+
+        <div class="quick">
+            <b class="h">Short answer</b>
+            <p><b>The message means the graphics card stopped responding within Windows' limit, 2 seconds by default, and Windows reset the AMD driver.</b> It is the same mechanism as nvlddmkm Event 153 on NVIDIA cards. A single timeout after a driver update is common. Repeating timeouts have a cause you can find in this order:</p>
+            <ol>
+                <li>Reset GPU tuning in Adrenalin to defaults, including automatic undervolt and overclock.</li>
+                <li>Clean-install the AMD driver (AMD Cleanup Utility, then the current Adrenalin), or go back one version if it started after an update.</li>
+                <li>Test with XMP or EXPO off and without overlays and recorders.</li>
+                <li>Watch temperature, hotspot and power under load.</li>
+                <li>Still happening at defaults? Test the card in another PC.</li>
+            </ol>
+        </div>
+
+        <div class="toc">
+            <b>In this guide</b>
+            <ol>
+                <li><a href="#what">What actually happened</a></li>
+                <li><a href="#log">What Windows logs at the same moment</a></li>
+                <li><a href="#causes">Common causes, most likely first</a></li>
+                <li><a href="#order">A safe order to find the cause</a></li>
+                <li><a href="#dont">What not to do</a></li>
+                <li><a href="#workman">Where PC Workman helps</a></li>
+                <li><a href="#faq">Short answers</a></li>
+                <li><a href="#sources">Primary sources</a></li>
+            </ol>
+        </div>
+
+        <h2 id="what">What actually happened</h2>
+        <p>Windows expects the graphics card to answer its scheduler quickly. When the card does not respond within the limit, Windows runs <b>Timeout Detection and Recovery</b> (TDR): it resets the graphics driver instead of freezing the whole PC. Microsoft sets that limit with the <code>TdrDelay</code> value, 2 seconds by default.</p>
+        <p>On a Radeon card, the AMD Software then shows <i>"AMD Software has detected that a driver timeout has occurred on your system"</i> and offers to send a bug report. What you saw before it, a black screen, a frozen game, a game that closed, was the hang. The pop-up is the receipt.</p>
+
+        <h2 id="log">What Windows logs at the same moment</h2>
+        <ul>
+            <li><b>Event Viewer, System log</b>: <b>Display, Event 4101</b>, "Display driver &hellip; stopped responding and has successfully recovered", usually naming the AMD kernel driver.</li>
+            <li><b>Reliability Monitor</b> (<code>perfmon /rel</code>): often a <a href="../livekernelevent-141-117/">LiveKernelEvent 117 or 141</a> at the same minute, with a dump in <code>C:\Windows\LiveKernelReports\WATCHDOG</code>.</li>
+            <li>If the whole PC restarted instead, it is no longer a timeout: read <a href="../pc-restarts-while-gaming-kernel-power-41/">Kernel-Power 41</a>.</li>
+        </ul>
+        <p>Write down the time of each pop-up for a week. Same game every time, or random? Only under load, or also on the desktop and in the browser? That pattern decides where you start.</p>
+
+        <h2 id="causes">Common causes, most likely first</h2>
+        <ol>
+            <li><b>Unstable tuning.</b> A manual overclock, an undervolt, or automatic tuning presets in Adrenalin that are stable in one game and not in another. This is the first suspect when the timeouts appear under load.</li>
+            <li><b>The driver version.</b> Graphics drivers ship with bugs for specific cards and games, and AMD has released updates that fix driver timeouts for some cards. If it started right after an update, the update is a suspect; if you are on an old driver, a new one may contain the fix.</li>
+            <li><b>Heat.</b> A card that times out only after long gaming sessions, with a high hotspot temperature, points at cooling: dust, a failing fan, dried thermal paste.</li>
+            <li><b>Power.</b> Sudden load spikes on a weak power supply, or one split cable feeding two PCIe connectors.</li>
+            <li><b>Unstable memory.</b> XMP or EXPO profiles that are almost stable can take the graphics driver down with them.</li>
+            <li><b>Software that hooks into games or the desktop.</b> Overlays, recorders, RGB utilities, and browser hardware acceleration when the timeouts happen while watching video.</li>
+            <li><b>The card itself.</b> Last, after everything above has been ruled out.</li>
+        </ol>
+
+        <h2 id="order">A safe order to find the cause</h2>
+        <p>One change at a time, then the same game for the same length of time. A step that changes nothing is information too.</p>
+        <ol class="steps">
+            <li><b>Defaults in Adrenalin.</b> Performance &rarr; Tuning: reset GPU, VRAM and fan tuning to default, and turn off automatic overclock and undervolt presets for the test.</li>
+            <li><b>Clean driver install.</b> Run AMD Cleanup Utility (or DDU in Safe Mode), restart, install the current Adrenalin driver from AMD. If the problem began after an update, install the previous version instead and check whether it stops.</li>
+            <li><b>Memory and the rest of the system at defaults.</b> Turn off XMP or EXPO and any CPU overclock for the test. Make sure Windows has a page file; running without one is a known source of driver trouble.</li>
+            <li><b>Overlays and hardware acceleration.</b> Close recorders, overlays and RGB tools. If the timeouts happen in the browser, turn off its hardware acceleration and see whether they stop.</li>
+            <li><b>Temperature and power under load.</b> Watch the GPU temperature, hotspot and board power for 20&ndash;30 minutes of the game that fails. Use a separate cable from the power supply for each PCIe connector.</li>
+            <li><b>The card.</b> Still timing out at defaults, with a clean driver, normal temperatures and stable memory? Test the card in another PC, or another card in yours. If the fault follows the card, it is a warranty case.</li>
+        </ol>
+
+        <h2 id="dont">What not to do</h2>
+        <ul>
+            <li><b>Do not stop at turning off Issue Reporting.</b> It removes the pop-up. The driver still resets and Windows still logs it.</li>
+            <li><b>Do not raise TdrDelay as the fix.</b> Microsoft documents the TDR registry keys for testing and debugging during driver development. A longer wait hides the reset and keeps the hang.</li>
+            <li><b>Do not buy a driver updater or "repair" tool.</b> Several pages that rank for this error sell one. AMD's own driver and cleanup tool are free.</li>
+        </ul>
+
+        <h2 id="workman">Where PC Workman helps</h2>
+        <p>The pop-up tells you <i>that</i> it happened. PC Workman keeps a local history of the card's load, temperature and power, so you can open <a href="/features/time-travel/">Activity Memory</a> at the minute of the timeout and see whether the card was hot, at full power, or idle. Since 1.9.3 it marks graphics driver and Windows updates on that timeline with load before and after, so "did it start after the update?" has an answer. It works the same on AMD, NVIDIA and Intel cards, and it never tunes or overclocks.</p>
+
+        <h2 id="faq">Short answers</h2>
+        <h3>What does "AMD Software has detected that a driver timeout has occurred" mean?</h3>
+        <p>The card did not respond within Windows' limit, 2 seconds by default, so Windows reset the AMD driver. It is the AMD side of the same mechanism behind nvlddmkm Event 153 on NVIDIA cards.</p>
+        <h3>Why does it keep happening?</h3>
+        <p>Most often unstable tuning, a driver version with a bug for your card, heat, power delivery or unstable memory. Repeating timeouts at default settings with a clean driver point at the card.</p>
+        <h3>Does turning off Issue Reporting fix it?</h3>
+        <p>No. It only hides the pop-up.</p>
+        <h3>Should I increase TdrDelay?</h3>
+        <p>No. It is a debugging key; a longer delay hides the reset and leaves the hang.</p>
+
+        <h2 id="sources">Primary sources</h2>
+        <ul>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/timeout-detection-and-recovery" rel="noopener">Microsoft: Timeout Detection and Recovery (TDR)</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/display/tdr-registry-keys" rel="noopener">Microsoft: TDR registry keys, for testing and debugging only</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/kernel-live-dump-code-reference" rel="noopener">Microsoft: Kernel live dump code reference (117, 141)</a></li>
+        </ul>
+
+        <nav class="guide-related" aria-label="Keep reading">
+            <h2>Keep reading</h2>
+            <ul>
+                <li><a href="../gpu-dying-or-driver/">Is my GPU dying, or is it the driver?</a></li>
+                <li><a href="../windows-errors/">Windows Event Viewer errors: which ones matter</a></li>
+                <li><a href="../livekernelevent-141-117/">LiveKernelEvent 141 and 117: a GPU hang Windows survived</a></li>
+                <li><a href="../nvlddmkm-display-driver-stopped-responding/">nvlddmkm Event 153 and 4101: the NVIDIA side</a></li>
+                <li><a href="../xmp-expo-crashes-ram-stability/">XMP or EXPO crashes games? Test RAM stability</a></li>
+                <li><a href="../is-my-psu-dying-12v-rail/">Can software tell if your PSU is dying?</a></li>
+            </ul>
+        </nav>
+
+        <div class="guide-cta">
+            <b>See what the card was doing when the driver timed out.</b> <a href="../../download/">Download PC Workman</a>, free, no account, the same on every graphics card brand.
+        </div>
+
+        <div class="author-card">
+            <a class="avatar-link" href="../../blog/profile.html"><div class="avatar">MF</div></a>
+            <div>
+                <h4><a href="../../blog/profile.html">Marcin Firmuga</a></h4>
+                <div class="role">Developer of PC Workman &middot; HCK_Labs</div>
+                <p>The pop-up is the receipt, not the problem. The time it gives you is worth more than any setting you could change in a panic.</p>
+                <div class="author-links">
+                    <a href="https://github.com/HuckleR2003" target="_blank" rel="me noopener">GitHub</a>
+                    <a href="https://linkedin.com/in/marcinfirmuga" target="_blank" rel="me noopener">LinkedIn</a>
+                    <a href="https://x.com/hck_lab" target="_blank" rel="me noopener">X</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="foot">
+        <p>&copy; 2026 HCK_Labs &middot; <a href="../">Guides</a> &middot; <a href="../../index_en.html">PC Workman</a> &middot; <a href="../../download/">Download</a></p>
+    </footer>
+    <script src="/assets/js/topnav.js"></script>
+</body>
+</html>
